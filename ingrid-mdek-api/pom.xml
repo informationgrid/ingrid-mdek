@@ -11,18 +11,4 @@
 	<packaging>jar</packaging>
 	<version>1.1.0-SNAPSHOT</version>
 	<name>ingrid-mdek-api</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-					<executable>${java.home}/bin/javac     </executable>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
