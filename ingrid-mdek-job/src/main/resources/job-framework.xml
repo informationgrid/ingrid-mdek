@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean class="de.ingrid.mdek.job.persist.ResourceStorer" id="de.ingrid.mdek.job.persist.IResourceStorer">
+		<constructor-arg value="${job.store.folder}"/>
+	</bean>
+	<bean class="de.ingrid.mdek.job.persist.ResourceLoader" id="de.ingrid.mdek.job.persist.IResourceLoader">
+		<constructor-arg value="${job.store.folder}"/>
+	</bean>
+	<bean class="de.ingrid.mdek.job.persist.ResourceDeleter" id="de.ingrid.mdek.job.persist.IResourceDeleter">
+		<constructor-arg value="${job.store.folder}"/>
+	</bean>
+	<bean class="de.ingrid.mdek.job.register.RegistrationService" id="de.ingrid.mdek.job.register.IRegistrationService" init-method="registerPersistedJobs">
+		<constructor-arg ref="org.springframework.context.support.ClassPathXmlApplicationContext"/>
+		<constructor-arg ref="de.ingrid.mdek.job.persist.IResourceStorer"/>
+		<constructor-arg ref="de.ingrid.mdek.job.persist.IResourceLoader"/>
+		<constructor-arg ref="de.ingrid.mdek.job.persist.IResourceDeleter"/>
+	</bean>
+	<bean class="de.ingrid.mdek.job.repository.JobRepository" id="de.ingrid.mdek.job.repository.IJobRepository">
+		<constructor-arg ref="de.ingrid.mdek.job.register.IRegistrationService"/>
+	</bean>
+</beans>
