@@ -16,6 +16,7 @@ public class RandomJob implements IJob {
 		_random = new Random(System.currentTimeMillis());
 	}
 
+	@SuppressWarnings("unchecked")
 	public IngridDocument getResults() {
 		IngridDocument document = new IngridDocument();
 		document.put("nextInt", _random.nextInt());
