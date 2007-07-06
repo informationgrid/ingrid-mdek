@@ -11,6 +11,8 @@ public class RandomJob implements IJob {
 
 	private final IJob _anotherJob;
 
+	private String _name = "Unknown";
+
 	public RandomJob(IJob anotherJob) {
 		_anotherJob = anotherJob;
 		_random = new Random(System.currentTimeMillis());
@@ -24,4 +26,11 @@ public class RandomJob implements IJob {
 		return document;
 	}
 
+	public String sayHello() {
+		return "Hello " + _name + ".";
+	}
+
+	public void setName(String name) {
+		_name = name;
+	}
 }

@@ -2,6 +2,7 @@ package de.ingrid.mdek.job.repository;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -31,7 +32,7 @@ public class JobRepository implements IJobRepository {
 				LOG.info("try to register job [" + jobId + "]");
 			}
 			_registrationService.register(jobId, jobDescription, persist);
-			
+
 			IJob job = (IJob) _registrationService.getRegisteredJob(jobId);
 			ret.putAll(job.getResults());
 			ret.putBoolean(JOB_SUCCESS, true);
@@ -57,7 +58,7 @@ public class JobRepository implements IJobRepository {
 
 		IngridDocument ret = new IngridDocument();
 		String jobId = (String) document.get(JOB_ID);
-		String[] methods = (String[]) document.get(JOB_METHODS);
+		List<Pair> methods = (List<Pair>) document.get(JOB_METHODS);
 		IJob registeredJob = _registrationService.getRegisteredJob(jobId);
 		if (registeredJob == null) {
 			if (LOG.isEnabledFor(Level.WARN)) {
@@ -66,14 +67,14 @@ public class JobRepository implements IJobRepository {
 			ret.put(JOB_ERROR_MESSAGE, "job not found [" + jobId + "]");
 			ret.putBoolean(JOB_SUCCESS, false);
 		} else {
-			for (String methodName : methods) {
+			for (Pair pair : methods) {
+				String methodName = pair.getKey();
+				Object value = pair.getValue();
 				try {
 					if (LOG.isDebugEnabled()) {
 						LOG.debug("try to invoke method [" + methodName
 								+ "] for jobid [" + jobId + "]");
 					}
-
-					Object value = document.get(methodName);
 					Method method = getMethodToInvoke(registeredJob, methodName);
 					Object object = value != null ? method.invoke(
 							registeredJob, new Object[] { value }) : method

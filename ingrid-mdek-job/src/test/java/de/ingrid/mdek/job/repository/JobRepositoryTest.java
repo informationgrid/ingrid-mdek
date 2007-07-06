@@ -1,6 +1,7 @@
 package de.ingrid.mdek.job.repository;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -108,11 +109,11 @@ public class JobRepositoryTest extends AbstractResourceTest {
 
 		IngridDocument document = new IngridDocument();
 		document.put(IJobRepository.JOB_ID, DummyJob.class.getName());
-		document.put("x", 1);
-		document.put("y", 2);
-		document.put("sum", null);
-		document.put(IJobRepository.JOB_METHODS,
-				new String[] { "x", "y", "sum" });
+		ArrayList<Pair> methods = new ArrayList<Pair>();
+		methods.add(new Pair("x", 1));
+		methods.add(new Pair("y", 2));
+		methods.add(new Pair("sum", null));
+		document.put(IJobRepository.JOB_METHODS, methods);
 
 		final DummyJob job = new DummyJob();
 		mockery.checking(new Expectations() {
@@ -161,8 +162,9 @@ public class JobRepositoryTest extends AbstractResourceTest {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, DateJobService.class
 				.getName());
-		invokeDocument.put(IJobRepository.JOB_METHODS,
-				new String[] { "getResults" });
+		ArrayList<Pair> methods = new ArrayList<Pair>();
+		methods.add(new Pair("getResults", null));
+		invokeDocument.put(IJobRepository.JOB_METHODS, methods);
 		IngridDocument response = repository.invoke(invokeDocument);
 		assertTrue(response.getBoolean(IJobRepository.JOB_SUCCESS));
 		assertNotNull(response.get(IJobRepository.JOB_RESULT));
