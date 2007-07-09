@@ -8,20 +8,17 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 
-
-
 /**
  * @param <T>
  * @param <ID>
- * @author mb
+ *            TODO use transaction.commit and rolback????
  */
-public class GenericHibernateDao<T, ID extends Serializable> implements
-		IGenericDao<T, ID> {
+public class GenericHibernateDao<T, ID extends Serializable> extends
+		SessionHandler implements IGenericDao<T, ID> {
 
 	private Class<T> _persistentClass;
 
@@ -32,26 +29,8 @@ public class GenericHibernateDao<T, ID extends Serializable> implements
 	 */
 	@SuppressWarnings("unchecked")
 	public GenericHibernateDao(SessionFactory sessionFactory, Class clazz) {
-
-		assert sessionFactory != null;
-		_sessionFactory = sessionFactory;
+		super(sessionFactory);
 		_persistentClass = clazz;
-	}
-
-	/**
-	 * @return The currently set session factory.
-	 */
-	public SessionFactory getSessionFactory() {
-		return _sessionFactory;
-	}
-
-	public Session getSession() {
-		org.hibernate.classic.Session currentSession = _sessionFactory
-				.getCurrentSession();
-		if (!currentSession.getTransaction().isActive()) {
-			currentSession.beginTransaction();
-		}
-		return _sessionFactory.getCurrentSession();
 	}
 
 	protected Class<T> getPersistentClass() {
@@ -108,7 +87,7 @@ public class GenericHibernateDao<T, ID extends Serializable> implements
 
 	public T makePersistent(T entity) {
 		getSession().saveOrUpdate(entity);
-		getSession().getTransaction().commit();
+		commit();
 		return entity;
 	}
 
