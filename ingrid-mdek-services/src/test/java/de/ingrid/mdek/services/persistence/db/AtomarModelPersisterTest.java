@@ -13,7 +13,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 	@Test
 	public void testInsert() throws Exception {
 
-		DaoFactory factory = new DaoFactory(getSessionFactory());
+		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
 		IngridDocument document = persister.selectAll(Metadata.class);
@@ -42,7 +42,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 
 	@Test
 	public void testUpdate() throws Exception {
-		DaoFactory factory = new DaoFactory(getSessionFactory());
+		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
 		ArrayList<Serializable> list = new ArrayList<Serializable>();
@@ -70,7 +70,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 	}
 
 	public void testDelete() throws Exception {
-		DaoFactory factory = new DaoFactory(getSessionFactory());
+		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
 		ArrayList<Serializable> list = new ArrayList<Serializable>();
