@@ -15,9 +15,8 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 
 	public IngridDocument selectAll(Class clazz) {
 		IngridDocument document = new IngridDocument();
+		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
 		try {
-			IGenericDao<Serializable, Serializable> dao = _daoFactory
-					.getDao(clazz);
 			dao.beginTransaction();
 			List<Serializable> objects = dao.findAll();
 			dao.commitTransaction();
@@ -26,15 +25,15 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 		} catch (Exception e) {
 			document.putBoolean(MODEL_STATE, false);
 			document.put(MODEL_EXCEPTION, e.getMessage());
+			dao.rollbackTransaction();
 		}
 		return document;
 	}
 
 	public IngridDocument insert(Class clazz, List<Serializable> objects) {
 		IngridDocument document = new IngridDocument();
+		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
 		try {
-			IGenericDao<Serializable, Serializable> dao = _daoFactory
-					.getDao(clazz);
 			dao.beginTransaction();
 			for (Serializable object : objects) {
 				dao.makePersistent(object);
@@ -44,15 +43,15 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 		} catch (Exception e) {
 			document.putBoolean(MODEL_STATE, false);
 			document.put(MODEL_EXCEPTION, e.getMessage());
+			dao.rollbackTransaction();
 		}
 		return document;
 	}
 
 	public IngridDocument delete(Class clazz, List<Serializable> ids) {
 		IngridDocument document = new IngridDocument();
+		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
 		try {
-			IGenericDao<Serializable, Serializable> dao = _daoFactory
-					.getDao(clazz);
 			dao.beginTransaction();
 			for (Serializable id : ids) {
 				Serializable byId = dao.getById(id);
@@ -65,15 +64,15 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 		} catch (Exception e) {
 			document.putBoolean(MODEL_STATE, false);
 			document.put(MODEL_EXCEPTION, e.getMessage());
+			dao.rollbackTransaction();
 		}
 		return document;
 	}
 
 	public IngridDocument selectById(Class clazz, Serializable id) {
 		IngridDocument document = new IngridDocument();
+		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
 		try {
-			IGenericDao<Serializable, Serializable> dao = _daoFactory
-					.getDao(clazz);
 			dao.beginTransaction();
 			Object byId = dao.getById(id);
 			dao.commitTransaction();
@@ -82,6 +81,7 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 		} catch (Exception e) {
 			document.putBoolean(MODEL_STATE, false);
 			document.put(MODEL_EXCEPTION, e.getMessage());
+			dao.rollbackTransaction();
 		}
 		return document;
 	}
