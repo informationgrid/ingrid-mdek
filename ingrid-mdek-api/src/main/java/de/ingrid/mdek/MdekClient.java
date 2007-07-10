@@ -52,5 +52,4 @@ public class MdekClient {
 		communication.startup();
 		return communication;
 	}
-
 }
