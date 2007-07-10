@@ -12,7 +12,7 @@ import org.hibernate.SessionFactory;
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
 
-public class HQLExecuter extends SessionHandler implements IHQLExecuter {
+public class HQLExecuter extends TransactionService implements IHQLExecuter {
 
 	private static final Logger LOG = Logger.getLogger(HQLExecuter.class);
 
@@ -26,6 +26,7 @@ public class HQLExecuter extends SessionHandler implements IHQLExecuter {
 		// TODO optimistic locking
 		IngridDocument ret = new IngridDocument();
 		List<Pair> pairList = (List<Pair>) document.get(HQL_QUERIES);
+		beginTransaction();
 		Session session = getSession();
 		int i = 0;
 		for (Pair pair : pairList) {
@@ -50,11 +51,11 @@ public class HQLExecuter extends SessionHandler implements IHQLExecuter {
 				}
 				ret.put(HQL_EXCEPTION, e.getMessage());
 				ret.putBoolean(HQL_STATE, false);
-				rollback();
+				rollbackTransaction();
 				return ret;
 			}
 		}
-		commit();
+		commitTransaction();
 		ret.putBoolean(HQL_STATE, true);
 		return ret;
 	}

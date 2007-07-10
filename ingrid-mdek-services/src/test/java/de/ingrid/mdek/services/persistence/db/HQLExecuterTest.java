@@ -12,14 +12,14 @@ public class HQLExecuterTest extends AbstractDaoTest {
 	protected void onSetUp() throws Exception {
 		super.onSetUp();
 
-		beginNewTransaction();
 
 		// create metadata
 		Metadata metadata = new Metadata("testKey", "testValue");
 		GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(
 				getSessionFactory(), Metadata.class);
+		dao.beginTransaction();
 		dao.makePersistent(metadata);
-		commitTransaction();
+		dao.commitTransaction();
 
 	}
 

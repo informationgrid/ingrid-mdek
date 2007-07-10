@@ -17,19 +17,17 @@ import org.hibernate.criterion.Example;
  * @param <ID>
  *            TODO use transaction.commit and rolback????
  */
-public class GenericHibernateDao<T, ID extends Serializable> extends
-		SessionHandler implements IGenericDao<T, ID> {
+public class GenericHibernateDao<T extends Serializable, ID extends Serializable> extends
+		TransactionService implements IGenericDao<T, ID> {
 
 	private Class<T> _persistentClass;
-
-	protected SessionFactory _sessionFactory;
 
 	/**
 	 * @param sessionFactory
 	 */
 	@SuppressWarnings("unchecked")
-	public GenericHibernateDao(SessionFactory sessionFactory, Class clazz) {
-		super(sessionFactory);
+	public GenericHibernateDao(SessionFactory factory, Class clazz) {
+		super(factory);
 		_persistentClass = clazz;
 	}
 
@@ -72,6 +70,7 @@ public class GenericHibernateDao<T, ID extends Serializable> extends
 	@SuppressWarnings("unchecked")
 	public T loadById(ID id, boolean lock) {
 		T entity;
+		// TODO what LockMode is correct?
 		if (lock)
 			entity = (T) getSession().load(getPersistentClass(), id,
 					LockMode.UPGRADE);
@@ -86,8 +85,9 @@ public class GenericHibernateDao<T, ID extends Serializable> extends
 	}
 
 	public T makePersistent(T entity) {
+		// compare version or timestamp before save (update if version is the
+		// same see optimistick locking)
 		getSession().saveOrUpdate(entity);
-		commit();
 		return entity;
 	}
 

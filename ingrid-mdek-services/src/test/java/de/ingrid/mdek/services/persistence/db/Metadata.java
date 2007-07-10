@@ -1,10 +1,12 @@
 package de.ingrid.mdek.services.persistence.db;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class Metadata {
+public class Metadata implements Serializable {
 
 	@Id
 	private String _metadataKey;

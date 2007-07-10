@@ -1,7 +1,5 @@
 package de.ingrid.mdek.services.persistence.db;
 
-import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
-import de.ingrid.mdek.services.persistence.db.Metadata;
 import de.ingrid.utils.IngridDocument;
 
 public class MetadataDaoTest extends AbstractDaoTest {
@@ -10,15 +8,17 @@ public class MetadataDaoTest extends AbstractDaoTest {
 		beginNewTransaction();
 
 		Metadata metadata = new Metadata("testKey", "testValue");
+
 		GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(
 				getSessionFactory(), Metadata.class);
 
+		dao.beginTransaction();
 		Metadata byId = dao.getById(IngridDocument.class.getName());
 		assertNull(byId);
-
 		dao.makePersistent(metadata);
-		commitTransaction();
-		commitAndBeginnNewTransaction();
+		dao.commitTransaction();
+		
+		dao.beginTransaction();
 
 		byId = dao.getById("testKey");
 		assertNotNull(byId);

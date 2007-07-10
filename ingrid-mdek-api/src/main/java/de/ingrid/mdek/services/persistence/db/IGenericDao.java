@@ -6,7 +6,8 @@ package de.ingrid.mdek.services.persistence.db;
 import java.io.Serializable;
 import java.util.List;
 
-public interface IGenericDao<T, ID extends Serializable> {
+public interface IGenericDao<T, ID extends Serializable> extends
+		ITransactionService {
 
 	T loadById(ID id, boolean lock);
 
