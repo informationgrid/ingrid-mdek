@@ -19,9 +19,9 @@ public interface IAtomarModelPersister {
 
 	IngridDocument selectById(Class clazz, Serializable id);
 
-	IngridDocument insert(Class clazz, List<Serializable> objects);
+	IngridDocument insert(Class clazz, List<IEntity> objects);
 
-	IngridDocument update(Class clazz, List<Serializable> objects);
+	IngridDocument update(Class clazz, List<IEntity> objects);
 
 	IngridDocument delete(Class clazz, List<Serializable> ids);
 }

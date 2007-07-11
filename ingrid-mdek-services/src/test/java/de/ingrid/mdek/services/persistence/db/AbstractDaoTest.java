@@ -9,7 +9,7 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 public abstract class AbstractDaoTest extends
 		AbstractDependencyInjectionSpringContextTests {
 
-	private static final String APPLICATION_CONTEXT_XML = "datasource.xml";
+	private static final String APPLICATION_CONTEXT_XML = "datasource-services.xml";
 
 	// spring bean
 	private SessionFactory _sessionFactory;
@@ -22,7 +22,7 @@ public abstract class AbstractDaoTest extends
 
 	private void cleanDatabase() {
 		beginNewTransaction();
-		GenericHibernateDao<Metadata, Serializable> dao = new GenericHibernateDao<Metadata, Serializable>(
+		GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(
 				_sessionFactory, Metadata.class);
 		List<Metadata> list = dao.findAll();
 		for (Metadata metadata : list) {

@@ -13,8 +13,7 @@ public class TestDaoFactory implements IDaoFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IGenericDao<Serializable, Serializable> getDao(Class clazz) {
-
+	public IGenericDao<IEntity> getDao(Class clazz) {
 		IGenericDao dao = null;
 		if (clazz.isAssignableFrom(Metadata.class)) {
 			dao = new GenericHibernateDao<Metadata, Serializable>(

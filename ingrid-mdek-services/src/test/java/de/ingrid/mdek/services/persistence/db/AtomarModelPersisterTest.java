@@ -21,7 +21,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 		System.out.println(document);
 		assertEquals(2, document.size());
 
-		ArrayList<Serializable> list = new ArrayList<Serializable>();
+		ArrayList<IEntity> list = new ArrayList<IEntity>();
 		for (int i = 0; i < 10; i++) {
 			list.add(new Metadata("foo" + i, "bar" + i));
 		}
@@ -45,7 +45,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
-		ArrayList<Serializable> list = new ArrayList<Serializable>();
+		ArrayList<IEntity> list = new ArrayList<IEntity>();
 		for (int i = 0; i < 10; i++) {
 			list.add(new Metadata("foo" + i, "bar" + i));
 		}
@@ -73,7 +73,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
-		ArrayList<Serializable> list = new ArrayList<Serializable>();
+		ArrayList<IEntity> list = new ArrayList<IEntity>();
 		for (int i = 0; i < 10; i++) {
 			list.add(new Metadata("foo" + i, "bar" + i));
 		}

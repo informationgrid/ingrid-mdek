@@ -15,10 +15,10 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 
 	public IngridDocument selectAll(Class clazz) {
 		IngridDocument document = new IngridDocument();
-		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
+		IGenericDao<IEntity> dao = _daoFactory.getDao(clazz);
 		try {
 			dao.beginTransaction();
-			List<Serializable> objects = dao.findAll();
+			List<IEntity> objects = dao.findAll();
 			dao.commitTransaction();
 			document.put(MODEL_INSTANCES, objects);
 			document.putBoolean(MODEL_STATE, true);
@@ -30,12 +30,12 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 		return document;
 	}
 
-	public IngridDocument insert(Class clazz, List<Serializable> objects) {
+	public IngridDocument insert(Class clazz, List<IEntity> objects) {
 		IngridDocument document = new IngridDocument();
-		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
+		IGenericDao<IEntity> dao = _daoFactory.getDao(clazz);
 		try {
 			dao.beginTransaction();
-			for (Serializable object : objects) {
+			for (IEntity object : objects) {
 				dao.makePersistent(object);
 			}
 			dao.commitTransaction();
@@ -50,11 +50,11 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 
 	public IngridDocument delete(Class clazz, List<Serializable> ids) {
 		IngridDocument document = new IngridDocument();
-		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
+		IGenericDao<IEntity> dao = _daoFactory.getDao(clazz);
 		try {
 			dao.beginTransaction();
 			for (Serializable id : ids) {
-				Serializable byId = dao.getById(id);
+				IEntity byId = dao.getById(id);
 				if (byId != null) {
 					dao.makeTransient(byId);
 				}
@@ -71,7 +71,7 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 
 	public IngridDocument selectById(Class clazz, Serializable id) {
 		IngridDocument document = new IngridDocument();
-		IGenericDao<Serializable, Serializable> dao = _daoFactory.getDao(clazz);
+		IGenericDao<IEntity> dao = _daoFactory.getDao(clazz);
 		try {
 			dao.beginTransaction();
 			Object byId = dao.getById(id);
@@ -86,7 +86,7 @@ public class AtomarModelPersister implements IAtomarModelPersister {
 		return document;
 	}
 
-	public IngridDocument update(Class clazz, List<Serializable> objects) {
+	public IngridDocument update(Class clazz, List<IEntity> objects) {
 		return insert(clazz, objects);
 	}
 

@@ -9,6 +9,7 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 
@@ -17,8 +18,8 @@ import org.hibernate.criterion.Example;
  * @param <ID>
  *            TODO use transaction.commit and rolback????
  */
-public class GenericHibernateDao<T extends Serializable, ID extends Serializable> extends TransactionService implements
-        IGenericDao<T, ID> {
+public class GenericHibernateDao<T extends IEntity, ID extends Serializable> extends TransactionService implements
+        IGenericDao<T> {
 
     private Class<T> _persistentClass;
 
@@ -54,7 +55,7 @@ public class GenericHibernateDao<T extends Serializable, ID extends Serializable
     }
 
     @SuppressWarnings("unchecked")
-    public T getById(ID id, boolean lock) {
+    public T getById(Serializable id, boolean lock) {
         T entity;
         if (lock) {
             entity = (T) getSession().get(getPersistentClass(), id, LockMode.UPGRADE);
@@ -65,12 +66,12 @@ public class GenericHibernateDao<T extends Serializable, ID extends Serializable
         return entity;
     }
 
-    public T getById(ID id) {
+    public T getById(Serializable id) {
         return getById(id, false);
     }
 
     @SuppressWarnings("unchecked")
-    public T loadById(ID id, boolean lock) {
+    public T loadById(Serializable id, boolean lock) {
         T entity;
         // TODO what LockMode is correct?
         if (lock) {
@@ -82,15 +83,17 @@ public class GenericHibernateDao<T extends Serializable, ID extends Serializable
         return entity;
     }
 
-    public T loadById(ID id) {
+    public T loadById(Serializable id) {
         return loadById(id, false);
     }
 
-    public T makePersistent(T entity) {
-        // compare version or timestamp before save (update if version is the
-        // same see optimistic locking)
+    public void makePersistent(T entity) {
+        long oldTimestamp = entity.getTimestamp();
+        T entityDb = getById(entity.getID(), true);
+        if (entityDb.getTimestamp() != oldTimestamp) {
+            throw new StaleObjectStateException(_persistentClass.getName(), entity.getID());
+        }
         getSession().saveOrUpdate(entity);
-        return entity;
     }
 
     public void makeTransient(T entity) {

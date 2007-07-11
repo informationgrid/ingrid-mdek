@@ -3,8 +3,6 @@
  */
 package de.ingrid.mdek.services.persistence.db;
 
-import java.io.Serializable;
-
 import org.hibernate.SessionFactory;
 
 public class DaoFactory implements IDaoFactory {
@@ -15,7 +13,7 @@ public class DaoFactory implements IDaoFactory {
         _sessionFactory = sessionFactory;
     }
     
-    public IGenericDao<Serializable, Serializable> getDao(Class clazz) {
+    public IGenericDao<IEntity> getDao(Class clazz) {
         return null;
     }
 

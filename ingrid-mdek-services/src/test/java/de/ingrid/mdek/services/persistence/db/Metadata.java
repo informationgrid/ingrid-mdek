@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class Metadata implements Serializable {
+public class Metadata implements IEntity {
 
 	@Id
 	private String _metadataKey;
@@ -34,6 +34,8 @@ public class Metadata implements Serializable {
 		_metadataKey = key;
 	}
 
+	
+	
 	public void setMetadataValue(String value) {
 		_metadataValue = value;
 	}
@@ -42,4 +44,18 @@ public class Metadata implements Serializable {
 	public String toString() {
 		return _metadataKey + "#" + _metadataValue;
 	}
+
+    public long getTimestamp() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public void setTimestamp(long timestamp) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public String getID() {
+        return getMetadataKey();
+    }
 }

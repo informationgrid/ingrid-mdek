@@ -6,16 +6,16 @@ package de.ingrid.mdek.services.persistence.db;
 import java.io.Serializable;
 import java.util.List;
 
-public interface IGenericDao<T, ID extends Serializable> extends
+public interface IGenericDao<T extends IEntity> extends
 		ITransactionService {
 
-	T loadById(ID id, boolean lock);
+	T loadById(Serializable id, boolean lock);
 
-	T getById(ID id, boolean lock);
+	T getById(Serializable id, boolean lock);
 
-	T loadById(ID id);
+	T loadById(Serializable id);
 
-	T getById(ID id);
+	T getById(Serializable id);
 
 	List<T> findAll();
 
@@ -25,7 +25,7 @@ public interface IGenericDao<T, ID extends Serializable> extends
 
 	T findUniqueByExample(T exampleInstance);
 
-	T makePersistent(T entity);
+	void makePersistent(T entity);
 
 	void makeTransient(T entity);
 
