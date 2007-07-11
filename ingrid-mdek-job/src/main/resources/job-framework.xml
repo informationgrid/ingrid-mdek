@@ -19,4 +19,7 @@
 	<bean class="de.ingrid.mdek.job.repository.JobRepository" id="de.ingrid.mdek.job.repository.IJobRepository">
 		<constructor-arg ref="de.ingrid.mdek.job.register.IRegistrationService"/>
 	</bean>
+    	<bean class="de.ingrid.mdek.job.repository.JobRepositoryFacade" id="de.ingrid.mdek.job.repository.IJobRepositoryFacade">
+		<constructor-arg ref="de.ingrid.mdek.job.repository.IJobRepository"/>
+	</bean>
 </beans>

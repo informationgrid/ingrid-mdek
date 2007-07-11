@@ -26,6 +26,8 @@ public interface IJobRepository {
 
 	public static final String JOB_METHODS = "job_methods";
 
+    public static final String JOB_COMMON_ERROR_MESSAGE = "job_common_error_message";
+
 	IngridDocument register(IngridDocument document);
 
 	IngridDocument deRegister(IngridDocument document);

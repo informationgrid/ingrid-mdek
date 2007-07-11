@@ -31,7 +31,16 @@ public class HddPersistenceService<T extends Serializable> implements
 		}
 	}
 
-	public HddPersistenceService(File persistenceFolder) {
+	public HddPersistenceService(File persistenceFolder) throws FileNotFoundException {
+	    if (!persistenceFolder.exists()) {
+            throw new FileNotFoundException("Directory " + persistenceFolder + " does not exist.");
+        }
+        if (!persistenceFolder.isDirectory()) {
+            throw new FileNotFoundException("Path " + persistenceFolder + " is not a directory.");
+        }
+        if (!persistenceFolder.canRead()) {
+            throw new FileNotFoundException("No permission to access directory " + persistenceFolder + ".");
+        }
 		_persistenceFolder = persistenceFolder;
 	}
 

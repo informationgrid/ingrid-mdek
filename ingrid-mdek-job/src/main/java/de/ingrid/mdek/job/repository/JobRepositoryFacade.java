@@ -6,52 +6,55 @@ import de.ingrid.utils.IngridDocument;
 
 public class JobRepositoryFacade implements IJobRepositoryFacade {
 
-	private static final Logger LOG = Logger
-			.getLogger(JobRepositoryFacade.class);
+    private static final Logger LOG = Logger.getLogger(JobRepositoryFacade.class);
 
-	private final IJobRepository _jobRepository;
+    private final IJobRepository _jobRepository;
 
-	public JobRepositoryFacade(IJobRepository jobRepository) {
-		_jobRepository = jobRepository;
-	}
+    public JobRepositoryFacade(IJobRepository jobRepository) {
+        _jobRepository = jobRepository;
+    }
 
-	@SuppressWarnings("unchecked")
-	public IngridDocument execute(IngridDocument document) {
+    @SuppressWarnings("unchecked")
+    public IngridDocument execute(IngridDocument document) {
+        IngridDocument ret = new IngridDocument();
 
-		IngridDocument ret = new IngridDocument();
+        if (!document.containsKey(IJobRepository.JOB_ID)) {
+            ret.put(IJobRepository.JOB_COMMON_ERROR_MESSAGE, "Job id is not set.");
 
-		String jobId = (String) document.get(IJobRepository.JOB_ID);
-		String jobXml = (String) document.get(IJobRepository.JOB_DESCRIPTION);
-		boolean persist = document.getBoolean(IJobRepository.JOB_PERSIST);
-		boolean registerSuccess = true;
+            return ret;
+        }
 
-		if (jobXml != null) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("register job by job repository [" + jobId + "]");
-			}
-			IngridDocument registerDocument = _jobRepository.register(document);
-			registerSuccess = registerDocument
-					.getBoolean(IJobRepository.JOB_REGISTER_SUCCESS);
-			ret.putAll(registerDocument);
-		}
+        String jobXml = (String) document.get(IJobRepository.JOB_DESCRIPTION);
+        String jobId = (String) document.get(IJobRepository.JOB_ID);
+        boolean persist = false;
+        if (document.containsKey(IJobRepository.JOB_PERSIST)) {
+            persist = document.getBoolean(IJobRepository.JOB_PERSIST);
+        }
+        boolean registerSuccess = false;
 
-		if (registerSuccess) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("invoke job by job repository [" + jobId + "]");
-			}
-			IngridDocument invokeDocument = _jobRepository.invoke(document);
-			ret.putAll(invokeDocument);
-		}
+        if (jobXml != null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("register job by job repository [" + jobId + "]");
+            }
+            IngridDocument registerDocument = _jobRepository.register(document);
+            registerSuccess = registerDocument.getBoolean(IJobRepository.JOB_REGISTER_SUCCESS);
+            ret.putAll(registerDocument);
+        }
 
-		if (!persist && registerSuccess) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("deRegister job by job repository [" + jobId + "]");
-			}
-			IngridDocument deRegisterDocument = _jobRepository
-					.deRegister(document);
-			ret.putAll(deRegisterDocument);
-		}
+        if (LOG.isInfoEnabled()) {
+            LOG.info("invoke job by job repository [" + jobId + "]");
+        }
+        IngridDocument invokeDocument = _jobRepository.invoke(document);
+        ret.putAll(invokeDocument);
 
-		return ret;
-	}
+        if (!persist && registerSuccess) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("deRegister job by job repository [" + jobId + "]");
+            }
+            IngridDocument deRegisterDocument = _jobRepository.deRegister(document);
+            ret.putAll(deRegisterDocument);
+        }
+
+        return ret;
+    }
 }
