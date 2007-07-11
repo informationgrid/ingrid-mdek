@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-    <import resource="configuration-job.xml" />
 	<bean class="de.ingrid.mdek.job.persist.ResourceStorer" id="de.ingrid.mdek.job.persist.IResourceStorer">
 		<constructor-arg value="${job.store.folder}"/>
 	</bean>

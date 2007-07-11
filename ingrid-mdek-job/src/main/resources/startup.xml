@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+    <!-- read in the configurations -->
+    <import resource="configuration.xml" />
 	<!-- import services like hibernate -->
-    <import resource="datasource-services.xml"/>
     <import resource="datasource-services-temp.xml"/>
+    <import resource="datasource-services.xml"/>
 	<import resource="job-framework.xml"/>
 	<bean class="org.springframework.context.support.ClassPathXmlApplicationContext" id="org.springframework.context.support.ClassPathXmlApplicationContext">
 		<constructor-arg value="job-services.xml"/>
