@@ -46,7 +46,7 @@ public class JobRepositoryTest extends AbstractResourceTest {
 		mockery.assertIsSatisfied();
 		assertNotNull(response);
 		assertEquals(1, response.size());
-		assertTrue(response.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertTrue(response.getBoolean(IJobRepository.JOB_REGISTER_SUCCESS));
 	}
 
 	public void testRegisterFailed() throws Exception {
@@ -75,8 +75,9 @@ public class JobRepositoryTest extends AbstractResourceTest {
 		mockery.assertIsSatisfied();
 		assertNotNull(response);
 		assertEquals(2, response.size());
-		assertEquals("abc", response.get(IJobRepository.JOB_ERROR_MESSAGE));
-		assertFalse(response.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertEquals("abc", response
+				.get(IJobRepository.JOB_REGISTER_ERROR_MESSAGE));
+		assertFalse(response.getBoolean(IJobRepository.JOB_REGISTER_SUCCESS));
 	}
 
 	public void testDeregisterJob() throws Exception {
@@ -96,7 +97,7 @@ public class JobRepositoryTest extends AbstractResourceTest {
 		IngridDocument response = repository.deRegister(document);
 		mockery.assertIsSatisfied();
 		assertEquals(1, response.size());
-		assertTrue(response.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertTrue(response.getBoolean(IJobRepository.JOB_DEREGISTER_SUCCESS));
 	}
 
 	public void testInvokeMethod() throws Exception {
@@ -130,7 +131,7 @@ public class JobRepositoryTest extends AbstractResourceTest {
 
 		assertNotNull(response);
 		assertEquals(2, response.size());
-		assertTrue(response.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertTrue(response.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS));
 
 		assertEquals(1, job.getX());
 		assertEquals(2, job.getY());
@@ -166,7 +167,7 @@ public class JobRepositoryTest extends AbstractResourceTest {
 		methods.add(new Pair("getResults", null));
 		invokeDocument.put(IJobRepository.JOB_METHODS, methods);
 		IngridDocument response = repository.invoke(invokeDocument);
-		assertTrue(response.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertTrue(response.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS));
 		assertNotNull(response.get(IJobRepository.JOB_RESULT));
 		assertEquals(2, response.size());
 
@@ -177,14 +178,14 @@ public class JobRepositoryTest extends AbstractResourceTest {
 				factory, storer2, loader2, deleter2);
 		JobRepository repository2 = new JobRepository(newRegistrationService);
 		IngridDocument document = repository2.invoke(invokeDocument);
-		assertFalse(document.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertFalse(document.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS));
 		newRegistrationService.registerPersistedJobs();
 		document = repository2.invoke(invokeDocument);
-		assertTrue(document.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertTrue(document.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS));
 
 		newRegistrationService.deRegister(DateJobService.class.getName());
 		document = repository2.invoke(invokeDocument);
-		assertFalse(document.getBoolean(IJobRepository.JOB_SUCCESS));
+		assertFalse(document.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS));
 
 	}
 

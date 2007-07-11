@@ -3,6 +3,7 @@ package de.ingrid.mdek.example;
 import java.util.Random;
 
 import de.ingrid.mdek.job.IJob;
+import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.utils.IngridDocument;
 
 public class RandomJob implements IJob {
@@ -20,10 +21,14 @@ public class RandomJob implements IJob {
 
 	@SuppressWarnings("unchecked")
 	public IngridDocument getResults() {
+		IngridDocument result = new IngridDocument();
+
 		IngridDocument document = new IngridDocument();
 		document.put("nextInt", _random.nextInt());
-		document.putAll(_anotherJob.getResults());
-		return document;
+		document.put("anotherJobResult", _anotherJob.getResults());
+
+		result.put(IJobRepository.JOB_RESULT, document);
+		return result;
 	}
 
 	public String sayHello() {

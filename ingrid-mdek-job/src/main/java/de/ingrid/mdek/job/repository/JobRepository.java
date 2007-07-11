@@ -32,16 +32,16 @@ public class JobRepository implements IJobRepository {
 				LOG.info("try to register job [" + jobId + "]");
 			}
 			_registrationService.register(jobId, jobDescription, persist);
-
+			// invoke getResults
 			IJob job = (IJob) _registrationService.getRegisteredJob(jobId);
 			ret.putAll(job.getResults());
-			ret.putBoolean(JOB_SUCCESS, true);
+			ret.putBoolean(JOB_REGISTER_SUCCESS, true);
 		} catch (IOException e) {
 			if (LOG.isEnabledFor(Level.WARN)) {
 				LOG.warn("job regsitering failed [" + jobId + "]", e);
 			}
-			ret.putBoolean(JOB_SUCCESS, false);
-			ret.put(JOB_ERROR_MESSAGE, e.getMessage());
+			ret.putBoolean(JOB_REGISTER_SUCCESS, false);
+			ret.put(JOB_REGISTER_ERROR_MESSAGE, e.getMessage());
 		}
 		return ret;
 	}
@@ -50,10 +50,11 @@ public class JobRepository implements IJobRepository {
 		String jobId = (String) document.get(JOB_ID);
 		IngridDocument ret = new IngridDocument();
 		_registrationService.deRegister(jobId);
-		ret.putBoolean(IJobRepository.JOB_SUCCESS, true);
+		ret.putBoolean(IJobRepository.JOB_DEREGISTER_SUCCESS, true);
 		return ret;
 	}
 
+	@SuppressWarnings("unchecked")
 	public IngridDocument invoke(IngridDocument document) {
 
 		IngridDocument ret = new IngridDocument();
@@ -64,8 +65,8 @@ public class JobRepository implements IJobRepository {
 			if (LOG.isEnabledFor(Level.WARN)) {
 				LOG.warn("job not found [" + jobId + "]");
 			}
-			ret.put(JOB_ERROR_MESSAGE, "job not found [" + jobId + "]");
-			ret.putBoolean(JOB_SUCCESS, false);
+			ret.put(JOB_INVOKE_ERROR_MESSAGE, "job not found [" + jobId + "]");
+			ret.putBoolean(JOB_INVOKE_SUCCESS, false);
 		} else {
 			for (Pair pair : methods) {
 				String methodName = pair.getKey();
@@ -80,7 +81,7 @@ public class JobRepository implements IJobRepository {
 							registeredJob, new Object[] { value }) : method
 							.invoke(registeredJob, new Object[] {});
 					ret.put(JOB_RESULT, object);
-					ret.putBoolean(JOB_SUCCESS, true);
+					ret.putBoolean(JOB_INVOKE_SUCCESS, true);
 				} catch (Exception e) {
 					if (LOG.isEnabledFor(Level.WARN)) {
 						LOG.warn("method [" + methodName
@@ -88,8 +89,8 @@ public class JobRepository implements IJobRepository {
 								e);
 					}
 
-					ret.put(JOB_ERROR_MESSAGE, e.getMessage());
-					ret.putBoolean(JOB_SUCCESS, false);
+					ret.put(JOB_INVOKE_ERROR_MESSAGE, e.getMessage());
+					ret.putBoolean(JOB_INVOKE_SUCCESS, false);
 					break;
 				}
 			}
