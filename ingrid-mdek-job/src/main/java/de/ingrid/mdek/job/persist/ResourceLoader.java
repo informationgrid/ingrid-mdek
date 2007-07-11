@@ -2,6 +2,7 @@ package de.ingrid.mdek.job.persist;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -11,45 +12,53 @@ import org.springframework.core.io.FileSystemResource;
 
 public class ResourceLoader implements IResourceLoader {
 
-	private static final Logger LOG = Logger.getLogger(ResourceLoader.class);
+    private static final Logger LOG = Logger.getLogger(ResourceLoader.class);
 
-	private final File _persistenceFolder;
+    private final File _persistenceFolder;
 
-	private Iterator<File> _iterator;
+    private Iterator<File> _iterator;
 
-	private class XmlFileFilter implements FileFilter {
+    private class XmlFileFilter implements FileFilter {
 
-		public boolean accept(File pathname) {
-			return pathname.getName().endsWith(".xml");
-		}
+        public boolean accept(File pathname) {
+            return pathname.getName().endsWith(".xml");
+        }
 
-	}
+    }
 
-	public ResourceLoader(File persistenceFolder) {
-		_persistenceFolder = persistenceFolder;
-		File[] files = _persistenceFolder.listFiles(new XmlFileFilter());
-		_iterator = Arrays.asList(files).iterator();
-	}
+    public ResourceLoader(File persistenceFolder) throws FileNotFoundException {
+        if (!persistenceFolder.exists()) {
+            throw new FileNotFoundException("Directory " + persistenceFolder + " does not exist.");
+        }
+        if (!persistenceFolder.isDirectory()) {
+            throw new FileNotFoundException("Path " + persistenceFolder + " is not a directory.");
+        }
+        if (!persistenceFolder.canRead()) {
+            throw new FileNotFoundException("No permission to access directory " + persistenceFolder + ".");
+        }
 
-	public boolean hasNext() {
-		return _iterator.hasNext();
-	}
+        _persistenceFolder = persistenceFolder;
+        File[] files = _persistenceFolder.listFiles(new XmlFileFilter());
+        _iterator = Arrays.asList(files).iterator();
+    }
 
-	public FileSystemResource next() {
-		File file = _iterator.next();
-		if (LOG.isInfoEnabled()) {
-			LOG.info("load bean definition [" + file.getAbsolutePath() + "]");
-		}
-		return new FileSystemResource(file);
-	}
+    public boolean hasNext() {
+        return _iterator.hasNext();
+    }
 
-	public void remove() {
-		throw new UnsupportedOperationException(
-				"removing of bean resource is not supportet");
-	}
+    public FileSystemResource next() {
+        File file = _iterator.next();
+        if (LOG.isInfoEnabled()) {
+            LOG.info("load bean definition [" + file.getAbsolutePath() + "]");
+        }
+        return new FileSystemResource(file);
+    }
 
-	public static void main(String[] args) {
-		new DefaultBeanDefinitionDocumentReader().registerBeanDefinitions(null,
-				null);
-	}
+    public void remove() {
+        throw new UnsupportedOperationException("removing of bean resource is not supportet");
+    }
+
+    public static void main(String[] args) {
+        new DefaultBeanDefinitionDocumentReader().registerBeanDefinitions(null, null);
+    }
 }
