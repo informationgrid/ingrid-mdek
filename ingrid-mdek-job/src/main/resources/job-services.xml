@@ -2,6 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 <!-- service class -->
-	<bean class="de.ingrid.mdek.services.date.SimpleDateJob" id="de.ingrid.mdek.services.date.SimpleDateJob" />
+	
+	<import resource="core-services.xml" />
 
 </beans>

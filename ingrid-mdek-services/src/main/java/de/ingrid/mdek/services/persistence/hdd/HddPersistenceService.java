@@ -185,4 +185,20 @@ public class HddPersistenceService<T extends Serializable> implements
 					+ "] because can not find the file.");
 		}
 	}
+
+	public void deleteAllPersistentObjects() {
+		File[] files = _persistenceFolder.listFiles(new SerFileFilter());
+		for (File file : files) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("delete file [" + file.getAbsolutePath() + "]");
+			}
+			boolean success = file.delete();
+			if (!success) {
+				if (LOG.isEnabledFor(Level.WARN)) {
+					LOG.warn("can not delete file [" + file.getAbsolutePath()
+							+ "]");
+				}
+			}
+		}
+	}
 }

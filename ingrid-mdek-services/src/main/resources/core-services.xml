@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+	<import resource="configuration.xml"/>
+	<import resource="datasource-services.xml"/>
+	<bean class="de.ingrid.mdek.services.date.SimpleDateJob" id="de.ingrid.mdek.services.date.SimpleDateJob"/>
+	<bean class="de.ingrid.mdek.services.persistence.hdd.HddPersistenceService" id="de.ingrid.mdek.services.persistence.hdd.HddPersistenceService" init-method="deleteAllPersistentObjects">
+		<constructor-arg value="${serializable.store.folder}"/>
+	</bean>
+	<bean class="de.ingrid.mdek.services.persistence.db.DaoFactory" id="de.ingrid.mdek.services.persistence.db.DaoFactory">
+		<constructor-arg ref="sessionFactory"/>
+	</bean>
+	<bean class="de.ingrid.mdek.services.persistence.db.HQLExecuter" id="de.ingrid.mdek.services.persistence.db.HQLExecuter">
+		<constructor-arg ref="sessionFactory"/>
+	</bean>
+	<bean class="de.ingrid.mdek.services.persistence.db.AtomarModelPersister" id="de.ingrid.mdek.services.persistence.db.AtomarModelPersister">
+		<constructor-arg ref="de.ingrid.mdek.services.persistence.db.DaoFactory"/>
+	</bean>
+</beans>
