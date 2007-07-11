@@ -12,7 +12,8 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 
 	@Test
 	public void testInsert() throws Exception {
-		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
+
+		DummyDaoFactory factory = new DummyDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
 		IngridDocument document = persister.selectAll(Metadata.class);
@@ -41,7 +42,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 
 	@Test
 	public void testUpdate() throws Exception {
-		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
+		DummyDaoFactory factory = new DummyDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
 		ArrayList<IEntity> list = new ArrayList<IEntity>();
@@ -69,7 +70,7 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 	}
 
 	public void testDelete() throws Exception {
-		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
+		DummyDaoFactory factory = new DummyDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
 		ArrayList<IEntity> list = new ArrayList<IEntity>();
