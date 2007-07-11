@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Version;
 
 @Entity
 public class Metadata implements IEntity {
@@ -12,6 +13,9 @@ public class Metadata implements IEntity {
 	private String _metadataKey;
 
 	private String _metadataValue;
+
+	@Version
+    private long _timestamp;
 
 	public Metadata() {
 		// hibernate
@@ -46,13 +50,11 @@ public class Metadata implements IEntity {
 	}
 
     public long getTimestamp() {
-        // TODO Auto-generated method stub
-        return 0;
+        return _timestamp;
     }
 
     public void setTimestamp(long timestamp) {
-        // TODO Auto-generated method stub
-        
+        _timestamp = timestamp;
     }
 
     public String getID() {

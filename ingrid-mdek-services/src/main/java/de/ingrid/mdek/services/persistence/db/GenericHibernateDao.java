@@ -73,7 +73,6 @@ public class GenericHibernateDao<T extends IEntity, ID extends Serializable> ext
     @SuppressWarnings("unchecked")
     public T loadById(Serializable id, boolean lock) {
         T entity;
-        // TODO what LockMode is correct?
         if (lock) {
             entity = (T) getSession().load(getPersistentClass(), id, LockMode.UPGRADE);
         } else {
@@ -88,15 +87,24 @@ public class GenericHibernateDao<T extends IEntity, ID extends Serializable> ext
     }
 
     public void makePersistent(T entity) {
-        long oldTimestamp = entity.getTimestamp();
-        T entityDb = getById(entity.getID(), true);
-        if (entityDb.getTimestamp() != oldTimestamp) {
-            throw new StaleObjectStateException(_persistentClass.getName(), entity.getID());
-        }
+        changedInBetween(entity);
         getSession().saveOrUpdate(entity);
     }
 
+    private void changedInBetween(T entity) {
+        long oldTimestamp = entity.getTimestamp();
+        T entityDb = getById(entity.getID());
+        if (entityDb != null) {
+            if (entityDb.getTimestamp() != oldTimestamp) {
+                getSession().evict(entityDb);
+                throw new StaleObjectStateException(_persistentClass.getName(), entity.getID());
+            }
+            getSession().evict(entityDb);
+        }
+    }
+
     public void makeTransient(T entity) {
+        changedInBetween(entity);
         getSession().delete(entity);
     }
 
