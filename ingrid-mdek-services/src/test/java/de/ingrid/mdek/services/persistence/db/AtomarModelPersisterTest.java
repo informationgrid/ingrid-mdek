@@ -12,7 +12,6 @@ public class AtomarModelPersisterTest extends AbstractDaoTest {
 
 	@Test
 	public void testInsert() throws Exception {
-
 		TestDaoFactory factory = new TestDaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
