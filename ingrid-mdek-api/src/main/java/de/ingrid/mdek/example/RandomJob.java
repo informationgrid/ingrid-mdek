@@ -38,4 +38,5 @@ public class RandomJob implements IJob {
 	public void setName(String name) {
 		_name = name;
 	}
+
 }

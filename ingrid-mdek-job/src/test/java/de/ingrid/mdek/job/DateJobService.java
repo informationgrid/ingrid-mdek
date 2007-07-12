@@ -14,4 +14,5 @@ public class DateJobService implements IJob {
 	public IngridDocument getResults() {
 		return _job.getResults();
 	}
+
 }

@@ -48,4 +48,5 @@ public class DummyJob implements IJob {
 	public int getY() {
 		return _y;
 	}
+
 }
