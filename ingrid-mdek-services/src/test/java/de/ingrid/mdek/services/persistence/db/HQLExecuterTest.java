@@ -12,10 +12,9 @@ public class HQLExecuterTest extends AbstractDaoTest {
 	protected void onSetUp() throws Exception {
 		super.onSetUp();
 
-
 		// create metadata
 		Metadata metadata = new Metadata("testKey", "testValue");
-		GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(
+		GenericHibernateDao<Metadata> dao = new GenericHibernateDao<Metadata>(
 				getSessionFactory(), Metadata.class);
 		dao.beginTransaction();
 		dao.makePersistent(metadata);
@@ -32,10 +31,9 @@ public class HQLExecuterTest extends AbstractDaoTest {
 				IHQLExecuter.HQL_UPDATE,
 				"update Metadata m set m._metadataValue = 'foo bar' where m._metadataKey is 'testKey'");
 		List<Pair> pairList = new ArrayList<Pair>();
-		
+
 		HQLExecuter executer = new HQLExecuter(getSessionFactory());
-		
-		
+
 		pairList.add(selectPair);
 		document.put(IHQLExecuter.HQL_QUERIES, pairList);
 		IngridDocument response = executer.execute(document);
@@ -47,7 +45,7 @@ public class HQLExecuterTest extends AbstractDaoTest {
 		assertNotNull(objects);
 		assertTrue(objects.size() == 1);
 		assertEquals("testKey#testValue", objects.get(0).toString());
-		
+
 		pairList.remove(selectPair);
 		pairList.add(updatePair);
 		response = executer.execute(document);
@@ -63,7 +61,6 @@ public class HQLExecuterTest extends AbstractDaoTest {
 		assertNotNull(objects);
 		assertTrue(objects.size() == 1);
 		assertEquals("testKey#foo bar", objects.get(0).toString());
-		
 
 	}
 

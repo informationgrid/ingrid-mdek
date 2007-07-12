@@ -168,7 +168,7 @@ public class JobRepositoryTest extends AbstractResourceTest {
 		invokeDocument.put(IJobRepository.JOB_METHODS, methods);
 		IngridDocument response = repository.invoke(invokeDocument);
 		assertTrue(response.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS));
-		assertNotNull(response.get(IJobRepository.JOB_RESULT));
+		assertNotNull(response.get(IJobRepository.JOB_INVOKE_RESULTS));
 		assertEquals(2, response.size());
 
 		ResourceStorer storer2 = new ResourceStorer(_testFolder);

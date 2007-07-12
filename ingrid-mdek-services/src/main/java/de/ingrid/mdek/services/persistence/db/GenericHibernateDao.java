@@ -18,7 +18,7 @@ import org.hibernate.criterion.Example;
  * @param <ID>
  *            TODO use transaction.commit and rolback????
  */
-public class GenericHibernateDao<T extends IEntity, ID extends Serializable> extends TransactionService implements
+public class GenericHibernateDao<T extends IEntity> extends TransactionService implements
         IGenericDao<T> {
 
     private Class<T> _persistentClass;

@@ -13,7 +13,7 @@ public class GenericHibernateDaoTest extends AbstractDaoTest {
      */
     @Test
     public void testOptimisticLockingPersistent() {
-        GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(getSessionFactory(), Metadata.class);
+        GenericHibernateDao<Metadata> dao = new GenericHibernateDao<Metadata>(getSessionFactory(), Metadata.class);
 
         Metadata m1 = new Metadata("m1k", "m1v");
         Metadata m2 = null;
@@ -53,7 +53,7 @@ public class GenericHibernateDaoTest extends AbstractDaoTest {
      */
     @Test
     public void testOptimisticLockingTransient() {
-        GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(getSessionFactory(), Metadata.class);
+        GenericHibernateDao<Metadata> dao = new GenericHibernateDao<Metadata>(getSessionFactory(), Metadata.class);
 
         Metadata m1 = new Metadata("m1k", "m1v");
         Metadata m2 = null;

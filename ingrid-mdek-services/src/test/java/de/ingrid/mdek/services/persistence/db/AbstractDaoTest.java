@@ -1,6 +1,5 @@
 package de.ingrid.mdek.services.persistence.db;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
@@ -22,7 +21,7 @@ public abstract class AbstractDaoTest extends
 
 	private void cleanDatabase() {
 		beginNewTransaction();
-		GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(
+		GenericHibernateDao<Metadata> dao = new GenericHibernateDao<Metadata>(
 				_sessionFactory, Metadata.class);
 		List<Metadata> list = dao.findAll();
 		for (Metadata metadata : list) {

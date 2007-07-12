@@ -9,7 +9,7 @@ public class MetadataDaoTest extends AbstractDaoTest {
 
 		Metadata metadata = new Metadata("testKey", "testValue");
 
-		GenericHibernateDao<Metadata, String> dao = new GenericHibernateDao<Metadata, String>(
+		GenericHibernateDao<Metadata> dao = new GenericHibernateDao<Metadata>(
 				getSessionFactory(), Metadata.class);
 
 		dao.beginTransaction();
@@ -17,7 +17,7 @@ public class MetadataDaoTest extends AbstractDaoTest {
 		assertNull(byId);
 		dao.makePersistent(metadata);
 		dao.commitTransaction();
-		
+
 		dao.beginTransaction();
 
 		byId = dao.getById("testKey");

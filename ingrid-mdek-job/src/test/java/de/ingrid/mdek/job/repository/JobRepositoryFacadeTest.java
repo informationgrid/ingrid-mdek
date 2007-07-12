@@ -1,5 +1,8 @@
 package de.ingrid.mdek.job.repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.jmock.Expectations;
@@ -25,14 +28,11 @@ public class JobRepositoryFacadeTest extends TestCase {
 
 		final IngridDocument registerDocument = new IngridDocument();
 		registerDocument.put(IJobRepository.JOB_REGISTER_SUCCESS, true);
-		registerDocument.put(IJobRepository.JOB_INVOKE_SUCCESS, true);
 		registerDocument.put(IJobRepository.JOB_DEREGISTER_SUCCESS, true);
 
 		mockery.checking(new Expectations() {
 			{
 				one(repository).register(document);
-				will(returnValue(registerDocument));
-				one(repository).invoke(document);
 				will(returnValue(registerDocument));
 				one(repository).deRegister(document);
 				will(returnValue(registerDocument));
@@ -43,7 +43,7 @@ public class JobRepositoryFacadeTest extends TestCase {
 		mockery.assertIsSatisfied();
 		assertNotNull(response);
 	}
-	
+
 	public void testExecuteWithPersist() throws Exception {
 		Mockery mockery = new Mockery();
 		final IJobRepository repository = mockery.mock(IJobRepository.class);
@@ -65,9 +65,7 @@ public class JobRepositoryFacadeTest extends TestCase {
 			{
 				one(repository).register(document);
 				will(returnValue(registerDocument));
-				one(repository).invoke(document);
-				will(returnValue(registerDocument));
-				
+
 			}
 		});
 		JobRepositoryFacade facade = new JobRepositoryFacade(repository);
@@ -75,6 +73,108 @@ public class JobRepositoryFacadeTest extends TestCase {
 		mockery.assertIsSatisfied();
 		assertNotNull(response);
 	}
-	
-	
+
+	public void testExecuteOnlyMethods() throws Exception {
+		Mockery mockery = new Mockery();
+		final IJobRepository repository = mockery.mock(IJobRepository.class);
+
+		final String jobXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
+				+ "<beans><bean id=\"de.ingrid.mdek.job.DummyJob\" class=\"de.ingrid.mdek.job.DummyJob\" >"
+				+ "</bean></beans>";
+		final IngridDocument document = new IngridDocument();
+		document.put(IJobRepository.JOB_ID, DummyJob.class.getName());
+		document.put(IJobRepository.JOB_PERSIST, true);
+		document.put(IJobRepository.JOB_DESCRIPTION, jobXml);
+
+		final IngridDocument registerDocument = new IngridDocument();
+		registerDocument.put(IJobRepository.JOB_REGISTER_SUCCESS, true);
+		registerDocument.put(IJobRepository.JOB_INVOKE_SUCCESS, true);
+
+		mockery.checking(new Expectations() {
+			{
+				one(repository).register(document);
+				will(returnValue(registerDocument));
+			}
+		});
+		JobRepositoryFacade facade = new JobRepositoryFacade(repository);
+		IngridDocument response = facade.execute(document);
+		mockery.assertIsSatisfied();
+		assertNotNull(response);
+
+		mockery = new Mockery();
+		final IJobRepository repository2 = mockery.mock(IJobRepository.class);
+		JobRepositoryFacade facade2 = new JobRepositoryFacade(repository2);
+
+		final IngridDocument invokeDocument = new IngridDocument();
+		invokeDocument.put(IJobRepository.JOB_ID, DummyJob.class.getName());
+		List<Pair> list = new ArrayList<Pair>();
+		list.add(new Pair("getResults", null));
+		invokeDocument.put(IJobRepository.JOB_METHODS, list);
+		invokeDocument.put(IJobRepository.JOB_PERSIST, true);
+		mockery.checking(new Expectations() {
+			{
+				one(repository2).invoke(invokeDocument);
+				will(returnValue(document));
+
+			}
+		});
+		response = facade2.execute(invokeDocument);
+		mockery.assertIsSatisfied();
+		assertNotNull(response);
+
+	}
+
+	public void testExecuteMethodAndDeregister() throws Exception {
+		Mockery mockery = new Mockery();
+		final IJobRepository repository = mockery.mock(IJobRepository.class);
+
+		final String jobXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
+				+ "<beans><bean id=\"de.ingrid.mdek.job.DummyJob\" class=\"de.ingrid.mdek.job.DummyJob\" >"
+				+ "</bean></beans>";
+		final IngridDocument document = new IngridDocument();
+		document.put(IJobRepository.JOB_ID, DummyJob.class.getName());
+		document.put(IJobRepository.JOB_PERSIST, true);
+		document.put(IJobRepository.JOB_DESCRIPTION, jobXml);
+
+		final IngridDocument registerDocument = new IngridDocument();
+		registerDocument.put(IJobRepository.JOB_REGISTER_SUCCESS, true);
+		registerDocument.put(IJobRepository.JOB_INVOKE_SUCCESS, true);
+
+		mockery.checking(new Expectations() {
+			{
+				one(repository).register(document);
+				will(returnValue(registerDocument));
+			}
+		});
+		JobRepositoryFacade facade = new JobRepositoryFacade(repository);
+		IngridDocument response = facade.execute(document);
+		mockery.assertIsSatisfied();
+		assertNotNull(response);
+
+		mockery = new Mockery();
+		final IJobRepository repository2 = mockery.mock(IJobRepository.class);
+		JobRepositoryFacade facade2 = new JobRepositoryFacade(repository2);
+
+		final IngridDocument invokeDocument = new IngridDocument();
+		invokeDocument.put(IJobRepository.JOB_ID, DummyJob.class.getName());
+		List<Pair> list = new ArrayList<Pair>();
+		list.add(new Pair("getResults", null));
+		invokeDocument.put(IJobRepository.JOB_METHODS, list);
+		invokeDocument.put(IJobRepository.JOB_PERSIST, false);
+		mockery.checking(new Expectations() {
+			{
+				one(repository2).invoke(invokeDocument);
+				will(returnValue(document));
+				one(repository2).deRegister(invokeDocument);
+				will(returnValue(document));
+			}
+		});
+		response = facade2.execute(invokeDocument);
+		mockery.assertIsSatisfied();
+		assertNotNull(response);
+
+	}
+
 }

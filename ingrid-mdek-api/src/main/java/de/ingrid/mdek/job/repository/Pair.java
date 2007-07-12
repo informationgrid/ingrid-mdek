@@ -22,4 +22,9 @@ public class Pair implements Serializable {
 	public Serializable getValue() {
 		return _value;
 	}
+
+	@Override
+	public String toString() {
+		return _key + "#" + _value;
+	}
 }
