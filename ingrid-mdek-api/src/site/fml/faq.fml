@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<faqs title="Job API">
+  <part id="about"> 
+     <faq> 
+      <question>Wie stellt man die Verbindung zum Server her?</question> 
+      <answer> 
+        	<div style="text-align:left; padding:10px; margin:15px; font-family:Courier; font-size:12px; color:#333333;	line-height:18px;" >
+        		MdekClient client = MdekClient.getInstance(new File("communication.properties"));<br/>
+          		IJobRepositoryFacade jobRepositoryFacade = client.getJobRepositoryFacade();<br/>
+        	</div>
+      </answer> 
+    </faq>
+  
+    <faq> 
+      <question>Wie registriert man ein Job?</question> 
+      <answer> 
+        	<div style="text-align:left; padding:10px; margin:15px; font-family:Courier; font-size:12px; color:#333333;	line-height:18px;" >
+          			IngridDocument registerDocument = new IngridDocument();<br/>
+					registerDocument.put(IJobRepository.JOB_ID, MyJobImpl.class.getName());<br/>
+					registerDocument.put(IJobRepository.JOB_DESCRIPTION, jobXmlString);<br/>
+					
+					registerDocument.putBoolean(IJobRepository.JOB_PERSIST, true); //wird nach ausführung im Speicher gehalten und ebenfalls auf Festplatte geschrieben<br/>
+					IngridDocument response = jobRepositoryFacade.execute(registerDocument);<br/>
+			 </div>
+      </answer> 
+    </faq>
+
+    <faq> 
+      <question>Wie ruft man Methoden an einem Job auf?</question> 
+      <answer> 
+        	<div style="text-align:left; padding:10px; margin:15px; font-family:Courier; font-size:12px; color:#333333;	line-height:18px;" >
+        			IngridDocument invokeDocument = new IngridDocument();<br/>
+					invokeDocument.put(IJobRepository.JOB_ID, MyJobImpl.class.getName());<br/>
+
+					ArrayList&lt;Pair&gt; methodList = new ArrayList&lt;Pair&gt;();<br/>
+					methodList.add(new Pair("sayHello", null));<br/>
+				
+					
+					invokeDocument.put(IJobRepository.JOB_METHODS, methodList);<br/>
+					invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true); //Job wird nach Aufruf der Methoden nicht aus dem Speicher entfernt. Wenn false würde der Job entfernt und ggfl. der Job auch von der Festplatte entfernt.<br/>
+					IngridDocument invokeResponse = jobRepositoryFacade.execute(invokeDocument);<br/>
+        	
+			 </div>
+      </answer> 
+    </faq>
+
+    <faq> 
+      <question>Wie deregistriert man ein Job?</question> 
+      <answer> 
+        	<div style="text-align:left; padding:10px; margin:15px; font-family:Courier; font-size:12px; color:#333333;	line-height:18px;" >
+					IngridDocument invokeDocument = new IngridDocument();<br/>
+					invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, false);<br/>
+					invokeResponse = jobRepositoryFacade.execute(invokeDocument);<br/>
+			 </div>
+      </answer> 
+    </faq>
+
+
+  </part> 
+</faqs> 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-stylus-skin</artifactId>
+		<version>1.0.1</version>
+	</skin>
+	<bannerLeft>
+		<name>Ingrid</name>
+		<src>http://portalu.de/ingrid-portal/decorations/layout/ingrid/images/logo.gif</src>
+		<href>http://www.portalu.de/</href>
+	</bannerLeft>
+	<bannerRight>
+		<src>http://maven.apache.org/images/maven-small.gif</src>
+	</bannerRight>
+	<body>
+		${modules}
+		${reports}    	
+	</body>
+</site>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?> 
+<faqs title="Job Framework">
+  <part id="about"> 
+    <faq> 
+      <question>Wie registriert man ein Job</question> 
+      <answer> 
+        <p> 
+          Bla bla bla...
+        </p> 
+      </answer> 
+    </faq>
+
+    <faq> 
+      <question>Wie führe ich Methoden an einem Job aus</question> 
+      <answer> 
+        <p> 
+          Bla bla bla...
+        </p> 
+      </answer> 
+    </faq>
+
+    <faq> 
+      <question>Wie deregistriert man ein Job</question> 
+      <answer> 
+        <p> 
+          Bla bla bla...
+        </p> 
+      </answer> 
+    </faq>
+
+  </part> 
+</faqs> 

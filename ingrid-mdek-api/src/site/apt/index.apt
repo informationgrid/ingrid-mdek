@@ -1,0 +1,34 @@
+Ingrid Mdek API
+
+  Die Api enthält Interfaces welche vom Service- oder Job- Modul implementiert werden 
+  und der Client mit welcher sich mit sem Server verbunden werden kann.
+  
+  Der Client stellt die Kommunikation zu Server her. 
+  Der Client bietet weiterhin ein Object mit Namen IJobRepositoryFacade um Jobs zu Registrieren, Auszuführen und zu Deregestrieren.
+
+  Zu den wichtigen Interfaces gehören:
+  
+  * IJob
+  Das Job Interface welches 
+  
+---
+public interface IJob {
+
+	IngridDocument getResults();
+
+}
+---
+
+  
+  
+  * IJobRepositoryFacade
+
+---
+public interface IJobRepositoryFacade {
+	
+	IngridDocument execute(IngridDocument document);
+
+}
+--- 
+
+

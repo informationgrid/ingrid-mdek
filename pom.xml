@@ -151,5 +151,9 @@
 			<url>file:///srv/www/htdocs/ingrid/maven</url>
 			<layout>legacy</layout>
 		</snapshotRepository>
+		<site>
+			<id>maven.apache.org</id>
+			<url>file:///srv/www/htdocs/ingrid/ingrid-mdek</url>
+		</site>
 	</distributionManagement>
 </project>
