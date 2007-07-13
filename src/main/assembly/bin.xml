@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+	<id>bin</id>
+	<formats>
+		<format>tar.gz</format>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<moduleSets>
+		<moduleSet>
+			<includes>
+				<include>de.ingrid.mdek:ingrid-mdek-job</include>
+			</includes>
+			<binaries>
+				<outputDirectory>${pom.parent.artifactId}/modules/${artifactId}/lib</outputDirectory>
+				<unpack>false</unpack>
+				<includeDependencies>true</includeDependencies>
+			</binaries>
+		</moduleSet>
+	</moduleSets>
+	<fileSets>
+		<fileSet>
+			<directory>ingrid-mdek-job/src/main/resources</directory>
+			<outputDirectory>${artifactId}/modules/ingrid-mdek-job/conf</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>ingrid-mdek-job/src/main/scripts</directory>
+			<outputDirectory>${artifactId}/modules/ingrid-mdek-job/</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>ingrid-mdek-services/src/main/resources</directory>
+			<outputDirectory>${artifactId}/modules/ingrid-mdek-job/conf</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>

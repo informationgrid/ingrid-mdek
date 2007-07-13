@@ -37,9 +37,7 @@
 		</property>
 		<property name="exposeTransactionAwareSessionFactory" value="false"></property>
 		<property name="annotatedClasses">
-			<list>
-				<value>de.ingrid.mdek.services.persistence.db.Metadata</value>
-			</list>
+			<list/>
 		</property>
 	</bean>
     <bean class="de.ingrid.mdek.services.persistence.db.DaoFactory">

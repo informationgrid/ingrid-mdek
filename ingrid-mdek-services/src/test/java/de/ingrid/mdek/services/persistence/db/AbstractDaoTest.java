@@ -8,7 +8,9 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 public abstract class AbstractDaoTest extends
 		AbstractDependencyInjectionSpringContextTests {
 
-	private static final String APPLICATION_CONTEXT_XML = "datasource-services.xml";
+	private static final String APPLICATION_CONTEXT_XML = "datasource-services-test.xml";
+
+	private static final String APPLICATION_CONTEXT_CONFIGURATION = "configuration-test.xml";
 
 	// spring bean
 	private SessionFactory _sessionFactory;
@@ -32,7 +34,7 @@ public abstract class AbstractDaoTest extends
 
 	@Override
 	protected String[] getConfigLocations() {
-		return new String[] { APPLICATION_CONTEXT_XML };
+		return new String[] { APPLICATION_CONTEXT_XML, APPLICATION_CONTEXT_CONFIGURATION };
 	}
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
