@@ -1,5 +1,7 @@
 package de.ingrid.mdek.services.persistence.db;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Level;
@@ -24,6 +26,7 @@ public class HQLExecuter extends TransactionService implements IHQLExecuter {
 	public IngridDocument execute(IngridDocument document) {
 
 		// TODO optimistic locking
+		List<Pair> list = new ArrayList<Pair>();
 		IngridDocument ret = new IngridDocument();
 		List<Pair> pairList = (List<Pair>) document.get(HQL_QUERIES);
 		beginTransaction();
@@ -43,7 +46,7 @@ public class HQLExecuter extends TransactionService implements IHQLExecuter {
 				} else if (key.equals(IHQLExecuter.HQL_DELETE)) {
 					result = query.executeUpdate();
 				}
-				ret.put(hqlString + "." + i, result);
+				list.add(new Pair(hqlString, (Serializable) result));
 			} catch (HibernateException e) {
 				if (LOG.isEnabledFor(Level.ERROR)) {
 					LOG.error("error by execution of hqlQuery [" + hqlString
@@ -55,6 +58,7 @@ public class HQLExecuter extends TransactionService implements IHQLExecuter {
 				return ret;
 			}
 		}
+		ret.put(HQL_RESULT, list);
 		commitTransaction();
 		ret.putBoolean(HQL_STATE, true);
 		return ret;

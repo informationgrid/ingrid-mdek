@@ -1,6 +1,70 @@
-First line of first paragraph.
-  Second line of first paragraph.
-  Third line of first paragraph.
+Ingrid Jobframework
+  
+  Dieses Project enthält den Ingrid Communication Server. Das heisst es wird ein Proxy am Server erstellt. 
+  Dabei handelt es sich um die IJobRepositoryFacade. Mit hilfe dessen Interfaces und dem Client (siehe Api Module)
+  kann man Jobs am Repository anmelden, ausführen und abmelden.
+  
+  Das Jobframework unterstützt auch das Speichern von Jobs. Das bedeutet das der Job im Speicher gehalten wird und auch auf der 
+  Festplatte gespeichert wird. Dadurch wird nach Neustart des Servers der Job wieder in den Speicher geladen und steht anderen Jobs
+  bzw. dem Client zut Verfügung.
+  
+  Die Anmeldung, Abmeldung und Ausführung wird über das Interface de.ingrid.mdek.job.repository.IJobRepositoryFacade mit dem Parameter IngridDocument gehandelt. 
+  
+---
+public interface IJobRepositoryFacade {
 
-  Line 1 of paragraph 2 (separated from first paragraph by an open line).
-  Line 2 of paragraph 2.
+	IngridDocument execute(IngridDocument document);
+}
+
+---
+
+  Im IngridDocument sind bestimmte Key-Value Paare nöig. Wichtige Key Value Paare sind...
+  
+  
+  
+* Anmeldung
+  
+  * IJobRepository.JOB_ID
+  
+  Der Value hierzu ist die JobId (String) des Jobs.
+  
+  * IJobRepository.JOB_DESCRIPTION
+  
+  Der Value ist das Spring-Xml mit dessen Hilfe der Job instantiiert wird.
+  
+  * IJobRepository.JOB_PERSIST
+  
+  Ist hier true angegeben wird der Job im Speicher gehalten und auf Festplatte geschrieben damit dieser beim Neustart des Servers neu geladen wird.
+  	
+
+* Ausführung
+
+  * IJobRepository.JOB_ID
+  
+  Der Value hierzu ist die JobId (String) des Jobs.
+  
+
+  * IJobRepository.JOB_METHODS
+  
+  Der Value ist eine Liste mit de.ingrid.mdek.job.repository.Pair's. Ein Pair enthält als Key den Methodennamen und als Value den Parameter der Methode.
+  Hat eine Methode keine Parameter so wird null als Pair-Value gesetzt.
+  
+
+  * IJobRepository.JOB_PERSIST
+  
+  Dieser Parameter gibt an ob nach Ausführung der Job deregistriert wird. Bei true wird der Job nicht deregestriert und bei false wird der Job deregistriert.
+  Fehlt der Parameter so wird der Job deregistriert.
+
+
+* Abmeldung
+
+  * IJobRepository.JOB_ID
+  
+  Der Value hierzu ist die JobId (String) des Jobs.
+
+  * IJobRepository.JOB_PERSIST
+  
+  Dieser Parameter gibt an ob nach Ausführung der Job deregistriert wird. Bei true wird der Job nicht deregestriert und bei false wird der Job deregistriert.
+
+
+  

@@ -37,14 +37,18 @@ public class HQLExecuterTest extends AbstractDaoTest {
 		pairList.add(selectPair);
 		document.put(IHQLExecuter.HQL_QUERIES, pairList);
 		IngridDocument response = executer.execute(document);
+		System.out.println(response);
 		commitAndBeginnNewTransaction();
 
 		assertEquals(2, response.size());
 		assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
-		List objects = (List) response.get("from Metadata.1");
-		assertNotNull(objects);
-		assertTrue(objects.size() == 1);
-		assertEquals("testKey#testValue", objects.get(0).toString());
+		List<Pair> list = (List<Pair>) response.get(IHQLExecuter.HQL_RESULT);
+		Pair pair = list.get(0);
+		assertNotNull(pair);
+		assertEquals("from Metadata", pair.getKey());
+		System.out.println(pair.getValue().getClass().getName());
+		assertEquals("testKey#testValue", ((List) pair.getValue()).get(0)
+				.toString());
 
 		pairList.remove(selectPair);
 		pairList.add(updatePair);
@@ -57,10 +61,13 @@ public class HQLExecuterTest extends AbstractDaoTest {
 
 		assertEquals(2, response.size());
 		assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
-		objects = (List) response.get("from Metadata.1");
-		assertNotNull(objects);
-		assertTrue(objects.size() == 1);
-		assertEquals("testKey#foo bar", objects.get(0).toString());
+		list = (List<Pair>) response.get(IHQLExecuter.HQL_RESULT);
+		assertTrue(list.size() == 1);
+		pair = list.get(0);
+		assertNotNull(pair);
+		assertEquals("from Metadata", pair.getKey());
+		assertEquals("testKey#foo bar", ((List) pair.getValue()).get(0)
+				.toString());
 
 	}
 
@@ -81,12 +88,17 @@ public class HQLExecuterTest extends AbstractDaoTest {
 
 		commitAndBeginnNewTransaction();
 
-		System.out.println(response);
-		assertEquals(3, response.size());
-
-		List objects = (List) response.get("from Metadata.1");
-		assertEquals(1, objects.size());
-		assertEquals("testKey#testValue", objects.get(0).toString());
+		assertEquals(2, response.size());
+		List listResponse = (List) response.get(IHQLExecuter.HQL_RESULT);
+		assertEquals(2, listResponse.size());
+		Pair pair = (Pair) listResponse.get(0);
+		assertEquals("from Metadata", pair.getKey());
+		assertEquals("testKey#testValue", ((List) pair.getValue()).get(0)
+				.toString());
+		pair = (Pair) listResponse.get(1);
+		assertEquals("delete Metadata where _metadataKey is 'testKey'", pair
+				.getKey());
+		assertEquals(1, pair.getValue());
 
 		list.clear();
 		list.add(selectPair);
@@ -97,9 +109,13 @@ public class HQLExecuterTest extends AbstractDaoTest {
 		list.add(selectPair);
 		document.put(IHQLExecuter.HQL_QUERIES, list);
 		response = executer.execute(document);
-		System.out.println(response);
-		objects = (List) response.get("from Metadata.1");
-		assertEquals(0, objects.size());
+		System.out.println("-" + response);
+		assertTrue(response.getBoolean(IHQLExecuter.HQL_STATE));
+		listResponse = (List) response.get(IHQLExecuter.HQL_RESULT);
+		assertEquals(1, listResponse.size());
+		pair = (Pair) listResponse.get(0);
+		assertEquals("from Metadata", pair.getKey());
+		assertTrue(((List) pair.getValue()).isEmpty());
 
 	}
 }

@@ -153,7 +153,8 @@
 		</snapshotRepository>
 		<site>
 			<id>maven.apache.org</id>
-			<url>file:///srv/www/htdocs/ingrid/ingrid-mdek</url>
+			<!--<url>file:///srv/www/htdocs/ingrid/ingrid-mdek</url>-->
+			<url>file:///Users/mb/Sites/ingrid-mdek</url>
 		</site>
 	</distributionManagement>
 </project>

@@ -10,9 +10,6 @@
 		<src>http://portalu.de/ingrid-portal/decorations/layout/ingrid/images/logo.gif</src>
 		<href>http://www.portalu.de/</href>
 	</bannerLeft>
-	<bannerRight>
-		<src>http://maven.apache.org/images/maven-small.gif</src>
-	</bannerRight>
 	<body>
 		${modules}
 		${reports}    	

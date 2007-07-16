@@ -16,5 +16,7 @@ public interface IHQLExecuter {
 
 	public static final String HQL_DELETE = "hql_delete";
 
+	public static final String HQL_RESULT = "hql_result";
+
 	IngridDocument execute(IngridDocument document);
 }

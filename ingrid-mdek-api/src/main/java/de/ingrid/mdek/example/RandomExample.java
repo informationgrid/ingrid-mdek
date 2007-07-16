@@ -69,12 +69,18 @@ public class RandomExample {
 		methodList.add(new Pair("name", "mb"));
 		methodList.add(new Pair("sayHello", null));
 		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, false);
-		System.out
-				.println("###### INVOKE setName, sayHello  / DEREGISTER ######");
+		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+		System.out.println("###### INVOKE setName, sayHello  ######");
 		invokeResponse = jobRepositoryFacade.execute(invokeDocument);
 		System.out.println(invokeResponse);
-		
+
+		System.out.println("###### DEREGISTER ######");
+		IngridDocument deregisterDocument = new IngridDocument();
+		deregisterDocument
+				.put(IJobRepository.JOB_ID, RandomJob.class.getName());
+		deregisterDocument.put(IJobRepository.JOB_PERSIST, false);
+		IngridDocument deregisterResponse = jobRepositoryFacade.execute(deregisterDocument);
+		System.out.println(deregisterResponse);
 		client.shutdown();
 	}
 }

@@ -28,11 +28,14 @@
     <faq> 
       <question>Wie ruft man Methoden an einem Job auf?</question> 
       <answer> 
+	      <p>
+      		<div>Nach erfolgreicher Anmeldung des Jobs am Repository wird die Methode "getResults" vom job aufgerufen. Das Ergebnis des Aufrugs wird als Ergebnis zurückgegeben.</div>
+      	  </p>
         	<div style="text-align:left; padding:10px; margin:15px; font-family:Courier; font-size:12px; color:#333333;	line-height:18px;" >
         			IngridDocument invokeDocument = new IngridDocument();<br/>
 					invokeDocument.put(IJobRepository.JOB_ID, MyJobImpl.class.getName());<br/>
 
-					ArrayList&lt;Pair&gt; methodList = new ArrayList&lt;Pair&gt;();<br/>
+					ArrayList methodList = new ArrayList();<br/>
 					methodList.add(new Pair("sayHello", null));<br/>
 				
 					

@@ -1,9 +1,8 @@
 Ingrid Mdek API
 
   Die Api enthält Interfaces welche vom Service- oder Job- Modul implementiert werden 
-  und der Client mit welcher sich mit sem Server verbunden werden kann.
+  und einem Client mit dessen Hilfe man sich mit dem Server verbinden kann. Der Client stellt also die Kommunikation zu Server her. 
   
-  Der Client stellt die Kommunikation zu Server her. 
   Der Client bietet weiterhin ein Object mit Namen IJobRepositoryFacade um Jobs zu Registrieren, Auszuführen und zu Deregestrieren.
 
   Zu den wichtigen Interfaces gehören:
@@ -31,4 +30,7 @@ public interface IJobRepositoryFacade {
 }
 --- 
 
+
+  Eine Beispiel Applikation welche die API benutzt befindet sich unter <b>de.ingrid.mdek.example.RandomExample</b>.
+  Im FAQ Abschnitt wird ebenfalls erklärt wie man Jobs registriert, ausführt und deregistriert.
 

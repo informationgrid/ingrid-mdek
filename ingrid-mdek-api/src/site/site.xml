@@ -10,13 +10,12 @@
 		<src>http://portalu.de/ingrid-portal/decorations/layout/ingrid/images/logo.gif</src>
 		<href>http://www.portalu.de/</href>
 	</bannerLeft>
-	<bannerRight>
-		<src>http://maven.apache.org/images/maven-small.gif</src>
-	</bannerRight>
 	<body>
+		<menu name="Parent Module">
+			<item href="../index.html" name="Ingrid Mdek"/>
+		</menu>
 		<menu name="Ingrid Mdek Api">
 			<item href="/faq.html" name="FAQ"/>
 		</menu>
-		${reports}    	
-	</body>
+${reports}      	</body>
 </site>

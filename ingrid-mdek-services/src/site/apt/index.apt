@@ -1,6 +1,193 @@
-First line of first paragraph.
-  Second line of first paragraph.
-  Third line of first paragraph.
+Ingrid Mdek Services
 
-  Line 1 of paragraph 2 (separated from first paragraph by an open line).
-  Line 2 of paragraph 2.
+  Dieses Project enthält sogenannte Core Services welche dem Client bzw. anderen Jobs zur Verfügung stehen.
+  Die Services können den Jobs über Constructor Injection im Job-Xml injiziert und somit genutzt werden.
+  Zu diesen Services zählen:
+  
+  
+* de.ingrid.mdek.services.date.SimpleDateJob
+
+  Ein Beispiel-Job welcher bei Auführung der Methode "getResults" das aktuelle Datum zurückgibt.
+  
+   
+* de.ingrid.mdek.services.persistence.hdd.IHddPersistence
+
+  Mit Hilfe dieses Services kann man Objecte, welches das Serializable Interface implementieren, auf Festplatte gespeichert werden.
+  Folgende Methoden stehen zur Verfügung:
+  
+---
+public interface IHddPersistence<T extends Serializable> {
+
+	T findById(String id, boolean shouldExists) throws IOException;
+
+	List<T> findAll() throws IOException;
+
+	void makePersistent(String id, T entity) throws IOException;
+
+	void makeTransient(String id) throws IOException;
+
+}
+---
+  
+  Bei Neustart des Servers werden alle gespeicherten Objecte gelöscht, damit keine Datenleichen auf der Festplatte liegen bleiben.
+
+  
+* de.ingrid.mdek.services.persistence.db.IDaoFactory
+
+  Über diesen Service können sich zu einer Klasse das zugehörige DAO geholt werden um die Models in der DB zu speichern.
+  Dieser Service wird von dem Service de.ingrid.mdek.services.persistence.db.IAtomarModelPersister genutzt.
+  Die derzeitige Version ist noch nicht vollständig implementiert da die Models noch nicht zur Verfügung stehen. Es wird zu jeder Klasse derzeit null zurück gegeben.
+  
+  Es wird empfohlen bei der Implementierung der DaoFactory als Rückgabewert das de.ingrid.mdek.services.persistence.db.GenericHibernateDao zu nutzen. 
+  Diese Implementierung ist fertig und muss nur noch Parametrisiert werden. Des Weiteren wird Optimistic Locking unterstützt.
+  
+---
+public interface IDaoFactory {
+
+	// TODO wemove implement
+	IGenericDao<IEntity> getDao(Class clazz);
+}
+---
+
+---
+public interface IGenericDao<T extends IEntity> extends
+		ITransactionService {
+
+	T loadById(Serializable id, boolean lock);
+
+	T getById(Serializable id, boolean lock);
+
+	T loadById(Serializable id);
+
+	T getById(Serializable id);
+
+	List<T> findAll();
+
+	List<T> findByExample(T exampleInstance);
+
+	List<T> findByExample(T exampleInstance, int maxResults);
+
+	T findUniqueByExample(T exampleInstance);
+
+	void makePersistent(T entity);
+
+	void makeTransient(T entity);
+}
+---
+
+---
+public interface IEntity extends Serializable {
+
+	long getTimestamp();
+
+	void setTimestamp(long timestamp);
+
+	Serializable getID();
+}
+---
+  
+  
+* de.ingrid.mdek.services.persistence.db.IHQLExecuter
+
+  Dieser Service erlaubt die Ausführung von HQL Queries (http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html). HQL Queries erlauben select, update, delete.
+  insert wird nicht unterstützt. Der Service bietet eine Methode "execute" an welche mit dem IngridDocument parametrisiert werden muss. 
+  Das Document muss eine Liste mit Pairs enthalten welche als Key den Typ der Query beschreibt.
+  
+  * IHQLExecuter.HQL_SELECT
+  
+  * IHQLExecuter.HQL_UPDATE
+  
+  * IHQLExecuter.HQL_DELETE
+  
+  
+  Als Value wird der Query-String angegeben.
+  
+---
+Pair selectPair = new Pair(IHQLExecuter.HQL_SELECT, "from Metadata");
+Pair updatePair = new Pair(IHQLExecuter.HQL_UPDATE, "update Metadata m set m._metadataValue = 'foo bar' where m._metadataKey is 'testKey'");
+
+List pairList = new ArrayList();
+pairList.add(selectPair);
+
+IngridDocument document = new IngridDocument();
+document.put(IHQLExecuter.HQL_QUERIES, pairList);
+
+IngridDocument response = executer.execute(document);
+---
+  
+---
+public interface IHQLExecuter {
+
+	public static final String HQL_QUERIES = "hql_queries";
+
+	public static final String HQL_EXCEPTION = "hql_exception";
+
+	public static final String HQL_STATE = "hql_state";
+
+	public static final String HQL_SELECT = "hql_select";
+
+	public static final String HQL_UPDATE = "hql_update";
+
+	public static final String HQL_DELETE = "hql_delete";
+	
+	public static final String HQL_RESULT = "hql_result";
+
+	IngridDocument execute(IngridDocument document);
+}
+---
+  
+  Der Rückgabewert der Methode "execute" ist ein IngridDocument. Dieses Document enthält u.a. die Rückgabe Werte der ausgeführten HQL-Queries.
+  Ausgeliefert werden diese in einer Liste welche de.ingrid.mdek.job.repository.Pair's enthalten. Diese enthalten als Key die HQL-Query und als Value das Ergebnis der HQL-Query.
+    
+  
+  
+* de.ingrid.mdek.services.persistence.db.IAtomarModelPersister
+
+  Der AtomarModelPersister bietet Methoden um das Model (die erstellten Hibernate Beans) in die Datenbank zu schreiben, lesen und löschen.
+  Das Schreiben, Update oder löschen läuft in einer atomaren Transaktion ab. Werden versucht 10 Objecte zu speichern so wird das in einer Transaktion gemacht.
+  Tritt bei einem der Models eine Exception während der Speicherung auf so wird die Transaktion nicht committet sondern ein Rollback gemacht.
+  Dieser Service nutzt die DaoFactory um sich zu einer Klasse das dazugehörige Dao zu holen um dieses zu nutzen. 
+  Vorraussetzung für das Nuzten dieses Services ist alo die zugehörige Implementierung der DaoFactory.
+  
+  Wenn die DaoFactory die Implementierung des IGenericDao (de.ingrid.mdek.services.persistence.db.GenericHibernateDao) nutzt so wird auch Optimistic Locking unterstützt. 
+  
+---
+public interface IAtomarModelPersister {
+
+	public static final String MODEL_EXCEPTION = "model_exception";
+
+	public static final String MODEL_STATE = "model_state";
+
+	public static final String MODEL_INSTANCES = "model_instances";
+
+	public static final String MODEL_INSTANCE = "model_instance";
+
+	IngridDocument selectAll(Class clazz);
+
+	IngridDocument selectById(Class clazz, Serializable id);
+
+	IngridDocument insert(Class clazz, List<IEntity> objects);
+
+	IngridDocument update(Class clazz, List<IEntity> objects);
+
+	IngridDocument delete(Class clazz, List<Serializable> ids);
+}
+---
+  
+  
+* de.ingrid.mdek.services.log.ILogService
+
+  Dieser Service kann genutzt werden um Logfiles für nur eine Klasse zu schreiben.
+  Das heisst es wird ein File mit Namen der Klasse angelegt un nur Log-Ausgaben dieser Klasse werden in dieses File geschrieben. 
+  Somit können Jobspezifische Logfiles geschrieben werden.
+  
+---
+public interface ILogService {
+
+	Logger getLogger(Class clazz);
+}
+---
+
+
+  
+  
