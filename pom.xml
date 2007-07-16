@@ -79,6 +79,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.3-SNAPSHOT</version>
 				<!-- also tried latest release -->
 				<configuration>
 					<encoding>utf-8</encoding>
