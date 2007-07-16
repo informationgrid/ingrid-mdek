@@ -77,6 +77,15 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<!-- also tried latest release -->
+				<configuration>
+					<encoding>utf-8</encoding>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
 		</plugins>
 		<resources>
 			<resource>
