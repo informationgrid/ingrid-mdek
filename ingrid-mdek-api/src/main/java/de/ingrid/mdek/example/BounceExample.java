@@ -23,7 +23,7 @@ public class BounceExample {
 
 	private static void printUsage() {
 		System.err.println("Usage: " + MdekClient.class.getName()
-				+ "--descriptor <communication.properties> [--wait 0] [--minlength 1000] [--maxlength 1000] [--delta 500] [--loops 1]");
+				+ "--descriptor <communication.properties> [--wait 0] [--minlength 1000] [--maxlength 1000] [--delta 500] [--loops 1] [--threads 1]");
 		System.exit(0);
 	}
 
@@ -77,8 +77,16 @@ public class BounceExample {
 				loops = 1;
 			}
 		}
+		Integer numThreads = 1;
+		if (map.get("--threads") != null) {
+			numThreads = new Integer((String) map.get("--threads"));
+			if (numThreads < 1) {
+				numThreads = 1;
+			}
+		}
 
 		debugParams(minDataLength, maxDataLength, delta, wait, loops);
+		System.out.println("THREADS: " + numThreads);
 
 		// inject logger service
 		final String jobXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -95,15 +103,110 @@ public class BounceExample {
 		IngridDocument response = jobRepositoryFacade.execute(registerDocument);
 		debugDocument("RESPONSE", response);
 
-		// LOOPING !!!
+		System.out.println("\n\n###### OUTPUT THREADS ######\n\n");
+
+		// threads calling job
+		BounceThread[] bounceThreads = new BounceThread[numThreads];
+		// initialize
+		for (int i=0; i<numThreads; i++) {
+			bounceThreads[i] = new BounceThread(i, jobRepositoryFacade,
+					minDataLength, maxDataLength, delta, wait, loops);
+		}
+		// fire
+		for (int i=0; i<numThreads; i++) {
+			bounceThreads[i].start();
+		}
+
+		// wait till all threads are finished
+		boolean threadsFinished = false;
+		while (!threadsFinished) {
+			threadsFinished = true;
+			for (int i=0; i<numThreads; i++) {
+				if (bounceThreads[i].isRunning()) {
+					threadsFinished = false;
+					Thread.sleep(500);
+					break;
+				}
+			}
+		}
+
+		// deregister job
+		System.out.println("\n###### DEREGISTER ######");
+		IngridDocument deregisterDocument = new IngridDocument();
+		deregisterDocument.put(IJobRepository.JOB_ID, BounceJob.class.getName());
+		deregisterDocument.put(IJobRepository.JOB_PERSIST, false);
+		IngridDocument deregisterResponse = jobRepositoryFacade.execute(deregisterDocument);
+		debugDocument("RESPONSE", deregisterResponse);
+
+		client.shutdown();
+	}
+	
+	public static void debugDocument(String title, IngridDocument doc) {
+		if (title != null) {
+			System.out.println(title);						
+		}
+		int docLength = doc.toString().length();
+		System.out.println("IngridDocument length: " + docLength);			
+		if (docLength < 500)  {
+			System.out.println("IngridDocument: " + doc);			
+		}		
+	}
+
+	public static void debugParams(Integer minLength, 
+			Integer maxLength,
+			Integer delta,
+			Integer wait,
+			Integer loops) {
+		System.out.println("DATA minLength: " + minLength);
+		System.out.println("DATA maxLength: " + maxLength);
+		System.out.println("DATA delta: " + delta);
+		System.out.println("WAIT sec: " + wait);
+		System.out.println("LOOPS: " + loops);
+	}
+}
+
+class BounceThread extends Thread {
+
+	private Integer minLength; 
+	private Integer maxLength;
+	private Integer delta;
+	private Integer wait;
+	private Integer loops;
+	private int threadNumber;
+	private IJobRepositoryFacade jobRepositoryFacade;
+	
+	private boolean isRunning = false;
+
+	public BounceThread(int threadNumber,
+			IJobRepositoryFacade jobFacade,
+			Integer minLength, 
+			Integer maxLength,
+			Integer delta,
+			Integer wait,
+			Integer loops)
+	{
+		this.threadNumber = threadNumber;
+		this.jobRepositoryFacade = jobFacade;
+
+		this.minLength = minLength;
+		this.maxLength = maxLength;
+		this.delta = delta;
+		this.wait = wait;
+		this.loops = loops;
+	}
+
+	public void run() {
+		isRunning = true;
+
+		// final results
 		ArrayList finalLengths = new ArrayList(0);
 		ArrayList finalLoopTimes1 = new ArrayList(0);
 		ArrayList finalLoopTimes2 = new ArrayList(0);
 
-		Integer dataLength = minDataLength;
-		while (dataLength <= maxDataLength) {
+		Integer dataLength = minLength;
+		while (dataLength <= maxLength) {
 			finalLengths.add(dataLength);
-			System.out.println("\n=== DATA length: " + dataLength + " ===\n");
+//			System.out.println("\n=== DATA length: " + dataLength + " ===\n");
 
 			StringBuffer dataBuffer = new StringBuffer(dataLength);
 			dataBuffer.setLength(dataLength);
@@ -118,7 +221,7 @@ public class BounceExample {
 
 			while (numLoops < loops) {
 				
-				System.out.println("\n--- LOOP" + (numLoops+1) + " ---\n");
+//				System.out.println("\n--- LOOP" + (numLoops+1) + " ---\n");
 
 				// set data in job and read back
 				IngridDocument invokeDocument = new IngridDocument();
@@ -129,16 +232,16 @@ public class BounceExample {
 				methodList.add(new Pair("getDataWithWait", null));
 				invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
 				invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
-				System.out.println("###### INVOKE setData, setWait, getDataWithWait ######");
+//				System.out.println("###### INVOKE setData, setWait, getDataWithWait ######");
 
 				startTime = System.currentTimeMillis();
 				IngridDocument invokeResponse = jobRepositoryFacade.execute(invokeDocument);
 				endTime = System.currentTimeMillis();
 
-				debugDocument("RESPONSE", invokeResponse);
+				BounceExample.debugDocument("RESPONSE", invokeResponse);
 
 				neededTime = endTime - startTime;
-				System.out.println("EXECUTION TIME: " + neededTime + " ms");
+//				System.out.println("EXECUTION TIME: " + neededTime + " ms");
 				loopTimes1[numLoops] = neededTime;
 
 				// transmit data via Ingrid Document as Parameters and read back
@@ -151,17 +254,17 @@ public class BounceExample {
 				methodList.add(new Pair("bounceDocWithWait", inputDocument));
 				invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
 				invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
-				System.out.println("###### INVOKE bounceDocWithWait ######");
-				debugDocument("INPUT:", inputDocument);
+//				System.out.println("###### INVOKE bounceDocWithWait ######");
+//				BounceExample.debugDocument("INPUT:", inputDocument);
 
 				startTime = System.currentTimeMillis();
 				invokeResponse = jobRepositoryFacade.execute(invokeDocument);
 				endTime = System.currentTimeMillis();
 
-				debugDocument("RESPONSE:", invokeResponse);
+				BounceExample.debugDocument("RESPONSE:", invokeResponse);
 
 				neededTime = endTime - startTime;
-				System.out.println("EXECUTION TIME: " + neededTime + " ms");
+//				System.out.println("EXECUTION TIME: " + neededTime + " ms");
 				loopTimes2[numLoops] = neededTime;
 
 				numLoops++;
@@ -173,18 +276,11 @@ public class BounceExample {
 			dataLength = dataLength + delta;
 		}
 
-		System.out.println("\n###### DEREGISTER ######");
-		IngridDocument deregisterDocument = new IngridDocument();
-		deregisterDocument.put(IJobRepository.JOB_ID, BounceJob.class.getName());
-		deregisterDocument.put(IJobRepository.JOB_PERSIST, false);
-		IngridDocument deregisterResponse = jobRepositoryFacade.execute(deregisterDocument);
-		debugDocument("RESPONSE", deregisterResponse);
+		System.out.println("\n###### RESULTS THREAD " + threadNumber + " ######");
+		BounceExample.debugParams(minLength, maxLength, delta, wait, loops);
+		System.out.println("###### EXCEL OUTPUT START THREAD " + threadNumber + " ######");
 
-		System.out.println("\n###### RESULTS ######\n");
-		debugParams(minDataLength, maxDataLength, delta, wait, loops);
-		System.out.println("###### EXCEL OUTPUT START ######");
-
-		String DELIMITER = ",";
+		String DELIMITER = "\t";
 		for (int i=0; i<finalLengths.size(); i++) {
 			if (i==0) {
 				System.out.print("Datengrösse" + DELIMITER);
@@ -201,31 +297,17 @@ public class BounceExample {
 			}
 			System.out.print("\n");
 		}
-		System.out.println("###### EXCEL OUTPUT ENDE ######\n");
+		System.out.println("###### EXCEL OUTPUT ENDE THREAD " + threadNumber + " ######\n");
 
-		client.shutdown();
+		isRunning = false;
 	}
 	
-	private static void debugDocument(String title, IngridDocument doc) {
-		if (title != null) {
-			System.out.println(title);						
-		}
-		int docLength = doc.toString().length();
-		System.out.println("IngridDocument length: " + docLength);			
-		if (docLength < 1000)  {
-			System.out.println("IngridDocument: " + doc);			
-		}		
+	public void start() {
+		this.isRunning = true;
+		super.start();
 	}
 
-	private static void debugParams(Integer minLength, 
-			Integer maxLength,
-			Integer delta,
-			Integer wait,
-			Integer loops) {
-		System.out.println("DATA minLength: " + minLength);
-		System.out.println("DATA maxLength: " + maxLength);
-		System.out.println("DATA delta: " + delta);
-		System.out.println("WAIT sec: " + wait);
-		System.out.println("LOOPS: " + loops);
+	public boolean isRunning() {
+		return isRunning;
 	}
 }
