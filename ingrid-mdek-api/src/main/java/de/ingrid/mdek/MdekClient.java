@@ -36,6 +36,11 @@ public class MdekClient {
 	}
 
 	public void shutdown() {
+	    try {
+            _communication.closeConnection(null);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+        }
 		_communication.shutdown();
 	}
 
