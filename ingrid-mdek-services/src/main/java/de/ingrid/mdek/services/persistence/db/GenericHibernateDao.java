@@ -56,12 +56,14 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
 
     @SuppressWarnings("unchecked")
     public T getById(Serializable id, boolean lock) {
-        T entity;
-        if (lock) {
-            entity = (T) getSession().get(getPersistentClass(), id, LockMode.UPGRADE);
-        } else {
-            entity = (T) getSession().get(getPersistentClass(), id);
-        }
+        T entity = null;
+    	if (id != null) {
+            if (lock) {
+                entity = (T) getSession().get(getPersistentClass(), id, LockMode.UPGRADE);
+            } else {
+                entity = (T) getSession().get(getPersistentClass(), id);
+            }    		
+    	}
 
         return entity;
     }
@@ -72,12 +74,14 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
 
     @SuppressWarnings("unchecked")
     public T loadById(Serializable id, boolean lock) {
-        T entity;
-        if (lock) {
-            entity = (T) getSession().load(getPersistentClass(), id, LockMode.UPGRADE);
-        } else {
-            entity = (T) getSession().load(getPersistentClass(), id);
-        }
+        T entity = null;
+    	if (id != null) {
+            if (lock) {
+                entity = (T) getSession().load(getPersistentClass(), id, LockMode.UPGRADE);
+            } else {
+                entity = (T) getSession().load(getPersistentClass(), id);
+            }
+    	}
 
         return entity;
     }
