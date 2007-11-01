@@ -28,7 +28,8 @@
 			</props>
 		</property>
 	</bean>
-	<bean class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" id="sessionFactory">
+	<!-- Mapping by Annotations in beans -->
+	<!--bean class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" id="sessionFactory">
 		<property name="dataSource">
 			<ref bean="dataSource"/>
 		</property>
@@ -38,6 +39,24 @@
 		<property name="exposeTransactionAwareSessionFactory" value="false"></property>
 		<property name="annotatedClasses">
 			<list/>
+		</property>
+	</bean-->
+	<!-- Mapping by mapping files -->
+	<bean class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" id="sessionFactory">
+		<property name="dataSource">
+			<ref bean="dataSource"/>
+		</property>
+		<property name="hibernateProperties">
+			<ref bean="hibernateProperties"/>
+		</property>
+		<property name="exposeTransactionAwareSessionFactory" value="false"></property>
+		<property name="mappingResources">
+			<!-- LIVE -->
+			<list/>
+			<!-- TEST -->
+			<!--list>
+				<value>de/ingrid/mdek/services/persistence/db/test/TestMetadata.hbm.xml</value>
+		   	</list-->
 		</property>
 	</bean>
     <bean class="de.ingrid.mdek.services.persistence.db.DaoFactory">
