@@ -4,7 +4,6 @@
 		<property name="locations">
             <list>
                 <value>classpath:default-datasource.properties</value>
-                <value>classpath:default-datasource-temp.properties</value>
                 <value>classpath:default-job.properties</value>
                 <value>classpath:core-services.properties</value>
             </list>
