@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+
+   <class name="T02Address" table="t02_address">
+
+	<!-- bean superclass -->
+      <id name="id" column="adr_id">
+         <generator class="uuid"/>
+      </id>
+      <version name="version" type="long"/>
+
+	<!-- bean superclass -->
+      <property name="catId" type="string" column="cat_id"/>
+      <property name="root" type="integer" column="root"/>
+      <property name="createId" type="string" column="create_id"/>
+      <property name="createTime" type="string" column="create_time"/>
+      <property name="modId" type="string" column="mod_id"/>
+      <property name="modTime" type="string" column="mod_time"/>
+      <property name="modType" type="string" column="mod_type"/>
+      
+	<!-- bean class -->
+      <property name="orgAdrId" type="string" column="org_adr_id"/>
+      <property name="typ" type="integer" column="typ"/>
+      <property name="institution" type="string" column="institution"/>
+      <property name="lastname" type="string" column="lastname"/>
+      <property name="firstname" type="string" column="firstname"/>
+      <property name="address" type="string" column="address"/>
+      <property name="title" type="string" column="title"/>
+      <property name="street" type="string" column="street"/>
+      <property name="stateId" type="string" column="state_id"/>
+      <property name="postcode" type="string" column="postcode"/>
+      <property name="city" type="string" column="city"/>
+      <property name="postboxPc" type="string" column="postbox_pc"/>
+      <property name="postbox" type="string" column="postbox"/>
+      <property name="job" type="string" column="job"/>
+      <property name="descr" type="string" column="descr"/>
+
+<!--
+      <set name="t021communications" table="t021_communication">
+         <key column="adr_id"/>
+         <one-to-many column="adr_id" class="de.ingrid.theUltimateBeansPackage.T021Communication"/>
+      </set>
+      <set name="t022adradrs" table="t022_adr_adr">
+         <key column="adr_id"/>
+         <many-to-one column="adr_to_id" class="de.ingrid.theUltimateBeansPackage.T022AdrAdr"/>
+      </set>
+      <set name="t02addresss" table="t02_address">
+         <key column="mod_id"/>
+         <many-to-one column="adr_id" class="de.ingrid.theUltimateBeansPackage.T02Address"/>
+      </set>
+      <set name="t02addresss" table="t02_address">
+         <key column="create_id"/>
+         <many-to-one column="adr_id" class="de.ingrid.theUltimateBeansPackage.T02Address"/>
+      </set>
+      <set name="t03catalogues" table="t03_catalogue">
+         <key column="cat_id"/>
+         <many-to-one column="cat_id" class="de.ingrid.theUltimateBeansPackage.T03Catalogue"/>
+      </set>
+      <set name="t07countrys" table="t07_country">
+         <key column="state_id"/>
+         <many-to-one column="country_id" class="de.ingrid.theUltimateBeansPackage.T07Country"/>
+      </set>
+-->
+
+   </class>
+</hibernate-mapping>

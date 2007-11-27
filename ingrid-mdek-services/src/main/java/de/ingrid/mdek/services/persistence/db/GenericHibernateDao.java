@@ -91,7 +91,9 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
     }
 
     public void makePersistent(T entity) {
-        changedInBetween(entity);
+    	// TODO Why ? Is handled by HIBERNATE ! (when committing).
+    	// Further: This doesn't detect changes ! (due to using cache ?)
+//        changedInBetween(entity);
         getSession().saveOrUpdate(entity);
     }
 
@@ -108,7 +110,9 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
     }
 
     public void makeTransient(T entity) {
-        changedInBetween(entity);
+    	// TODO Why ? Is handled by HIBERNATE ! (when committing).
+    	// Further: This doesn't detect changes ! (due to using cache ?)
+//        changedInBetween(entity);
         getSession().delete(entity);
     }
 

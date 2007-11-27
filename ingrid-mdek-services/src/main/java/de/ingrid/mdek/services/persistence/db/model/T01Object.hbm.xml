@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+
+   <class name="T01Object" table="t01_object">
+
+	<!-- bean superclass -->
+      <id name="id" column="obj_id">
+         <generator class="uuid"/>
+      </id>
+      <version name="version" type="long"/>
+
+	<!-- bean superclass -->
+      <property name="catId" type="string" column="cat_id"/>
+      <property name="root" type="integer" column="root"/>
+      <property name="createId" type="string" column="create_id"/>
+      <property name="createTime" type="string" column="create_time"/>
+      <property name="modId" type="string" column="mod_id"/>
+      <property name="modTime" type="string" column="mod_time"/>
+      <property name="modType" type="string" column="mod_type"/>
+      
+	<!-- bean class -->
+      <property name="orgId" type="string" column="org_id"/>
+      <property name="objName" type="string" column="obj_name"/>
+      <property name="objClass" type="integer" column="obj_class"/>
+      <property name="objDescr" type="string" column="obj_descr"/>
+      <property name="infoNote" type="string" column="info_note"/>
+      <property name="availAccessNote" type="string" column="avail_access_note"/>
+      <property name="locDescr" type="string" column="loc_descr"/>
+      <property name="timeFrom" type="string" column="time_from"/>
+      <property name="timeTo" type="string" column="time_to"/>
+      <property name="timeDescr" type="string" column="time_descr"/>
+      <property name="timePeriod" type="integer" column="time_period"/>
+      <property name="timeInterval" type="string" column="time_interval"/>
+      <property name="timeStatus" type="integer" column="time_status"/>
+      <property name="timeAlle" type="string" column="time_alle"/>
+      <property name="timeType" type="string" column="time_type"/>
+      <property name="publishId" type="integer" column="publish_id"/>
+      <property name="datasetAlternateName" type="string" column="dataset_alternate_name"/>
+      <property name="datasetCharacterSet" type="integer" column="dataset_character_set"/>
+      <property name="datasetUsage" type="string" column="dataset_usage"/>
+      <property name="metadataCharacterSet" type="integer" column="metadata_character_set"/>
+      <property name="metadataStandardName" type="string" column="metadata_standard_name"/>
+      <property name="metadataStandardVersion" type="string" column="metadata_standard_version"/>
+      <property name="metadataLanguage" type="integer" column="metadata_language"/>
+      <property name="verticalExtentMinimum" type="double" column="vertical_extent_minimum"/>
+      <property name="verticalExtentMaximum" type="double" column="vertical_extent_maximum"/>
+      <property name="verticalExtentUnit" type="integer" column="vertical_extent_unit"/>
+      <property name="verticalExtentVdatum" type="integer" column="vertical_extent_vdatum"/>
+      <property name="dataLanguage" type="integer" column="data_language"/>
+      <property name="fees" type="string" column="fees"/>
+      <property name="orderingInstructions" type="string" column="ordering_instructions"/>
+
+      <set name="t012ObjObjs" table="t012_obj_obj" order-by="line">
+         <key column="object_from_id"/>
+         <many-to-many column="object_to_id" class="T01Object"/>
+      </set>
+      <set name="t012ObjAdrs" table="t012_obj_adr" order-by="line">
+         <key column="obj_id"/>
+         <many-to-many column="adr_id" class="T02Address"/>
+      </set>
+
+<!--
+      <set name="t0111functionalcategorys" table="T0111_functional_category">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id"
+                      class="de.ingrid.theUltimateBeansPackage.T0111FunctionalCategory"/>
+      </set>
+      <set name="t0111thematiccategorys" table="T0111_thematic_category">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0111ThematicCategory"/>
+      </set>
+      <set name="syscodelistdomains" table="sys_codelist_domain">
+         <key column="vertical_extent_unit"/>
+         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
+      </set>
+      <set name="syscodelistdomains" table="sys_codelist_domain">
+         <key column="time_status"/>
+         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
+      </set>
+      <set name="syscodelistdomains" table="sys_codelist_domain">
+         <key column="data_character_set"/>
+         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
+      </set>
+      <set name="syscodelistdomains" table="sys_codelist_domain">
+         <key column="vertical_extent_vdatum"/>
+         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
+      </set>
+      <set name="syscodelistdomains" table="sys_codelist_domain">
+         <key column="time_period"/>
+         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
+      </set>
+      <set name="syscodelistdomains" table="sys_codelist_domain">
+         <key column="metadata_character_set"/>
+         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
+      </set>
+      <set name="syslanguages" table="sys_language">
+         <key column="data_language"/>
+         <many-to-one column="lang_id" class="de.ingrid.theUltimateBeansPackage.SysLanguage"/>
+      </set>
+      <set name="syslanguages" table="sys_language">
+         <key column="metadata_language"/>
+         <many-to-one column="lang_id" class="de.ingrid.theUltimateBeansPackage.SysLanguage"/>
+      </set>
+      <set name="t0110availformats" table="t0110_avail_format">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0110AvailFormat"/>
+      </set>
+      <set name="t0112mediaoptions" table="t0112_media_option">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0112MediaOption"/>
+      </set>
+      <set name="t0113datasetreferences" table="t0113_dataset_reference">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0113DatasetReference"/>
+      </set>
+      <set name="t011objdatas" table="t011_obj_data">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjData"/>
+      </set>
+      <set name="t011objgeos" table="t011_obj_geo">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjGeo"/>
+      </set>
+      <set name="t011objliteraturs" table="t011_obj_literatur">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjLiteratur"/>
+      </set>
+      <set name="t011objprojects" table="t011_obj_project">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjProject"/>
+      </set>
+      <set name="t011objservs" table="t011_obj_serv">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjServ"/>
+      </set>
+      <set name="t014infoimparts" table="t014_info_impart">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T014InfoImpart"/>
+      </set>
+      <set name="t015legists" table="t015_legist">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T015Legist"/>
+      </set>
+      <set name="t017urlrefs" table="t017_url_ref">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T017UrlRef"/>
+      </set>
+      <set name="t019coordinatess" table="t019_coordinates">
+         <key column="obj_id"/>
+         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T019Coordinates"/>
+      </set>
+      <set name="t01stclasss" table="t01_st_class">
+         <key column="class_id"/>
+         <one-to-many column="class_id" class="de.ingrid.theUltimateBeansPackage.T01StClass"/>
+      </set>
+      <set name="t03catalogues" table="t03_catalogue">
+         <key column="cat_id"/>
+         <many-to-one column="cat_id" class="de.ingrid.theUltimateBeansPackage.T03Catalogue"/>
+      </set>
+      <set name="t08attrs" table="t08_attr">
+         <key column="obj_id"/>
+         <many-to-one column="obj_id" class="de.ingrid.theUltimateBeansPackage.T08Attr"/>
+      </set>
+-->
+
+   </class>
+</hibernate-mapping>
