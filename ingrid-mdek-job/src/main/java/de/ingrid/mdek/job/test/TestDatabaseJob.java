@@ -55,7 +55,7 @@ public class TestDatabaseJob implements IJob {
 		dao.commitTransaction();
 
 		dao.beginTransaction();
-		TestMetadata byId = dao.getById(metadata.getID());
+		TestMetadata byId = dao.getById(metadata.getId());
 
 		IngridDocument result = new IngridDocument();
 		result.put("metadata key", byId.getMetadataKey());
@@ -76,7 +76,7 @@ public class TestDatabaseJob implements IJob {
 		dao.commitTransaction();
 
 		dao.beginTransaction();
-		TestMetadata byId = (TestMetadata) dao.getById(metadata.getID());
+		TestMetadata byId = (TestMetadata) dao.getById(metadata.getId());
 
 		IngridDocument result = new IngridDocument();
 		result.put("metadata key", byId.getMetadataKey());

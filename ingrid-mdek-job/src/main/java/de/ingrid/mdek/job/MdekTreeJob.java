@@ -68,10 +68,10 @@ public class MdekTreeJob extends MdekJob {
 				
 				if (threadNumber == 1) {
 					// test update/deletion of staled Object !
-//					System.out.println("DELETING OBJECT:" + o.getId());
-//					daoT01Object.makeTransient(o);
-					System.out.println("UPDATE OBJECT:" + o.getId());
-					daoT01Object.makePersistent(o);
+					System.out.println("Thread 1 DELETING OBJECT:" + o.getId());
+					daoT01Object.makeTransient(o);
+//					System.out.println("Thread 1 UPDATE OBJECT:" + o.getId());
+//					daoT01Object.makePersistent(o);
 				} else {
 					daoT01Object.makePersistent(o);
 				}
@@ -80,7 +80,7 @@ public class MdekTreeJob extends MdekJob {
 		} else {
 			daoT01Object.makePersistent(objTemplate);
 			
-			T01Object o = daoT01Object.getById(objTemplate.getID());
+			T01Object o = daoT01Object.loadById(objTemplate.getId());
 			resultList.add(mapper.mapT01Object(o));
 		}
 
@@ -103,6 +103,10 @@ public class MdekTreeJob extends MdekJob {
 
 		long startTime = System.currentTimeMillis();
 		Session session = getSession();
+		
+//		T01Object o = daoT01Object.loadById(uuid);
+		
+		// fetch all at once (one select with outer joins)
 		T01Object o = (T01Object) session.createCriteria(T01Object.class)
 			.setFetchMode("t012ObjObjs", FetchMode.JOIN)
 			.setFetchMode("t012ObjAdrs", FetchMode.JOIN)
