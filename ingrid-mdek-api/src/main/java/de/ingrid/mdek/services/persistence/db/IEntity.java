@@ -7,9 +7,7 @@ import java.io.Serializable;
 
 public interface IEntity extends Serializable {
 
-	long getTimestamp();
+	Serializable getId();
 
-	void setTimestamp(long timestamp);
-
-	Serializable getID();
+	int getVersion();
 }
