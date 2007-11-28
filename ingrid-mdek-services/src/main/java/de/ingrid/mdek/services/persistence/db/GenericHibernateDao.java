@@ -98,12 +98,12 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
     }
 
     private void changedInBetween(T entity) {
-        long oldTimestamp = entity.getTimestamp();
-        T entityDb = getById(entity.getID());
+        int oldVersion = entity.getVersion();
+        T entityDb = getById(entity.getId());
         if (entityDb != null) {
-            if (entityDb.getTimestamp() != oldTimestamp) {
+            if (entityDb.getVersion() != oldVersion) {
                 getSession().evict(entityDb);
-                throw new StaleObjectStateException(_persistentClass.getName(), entity.getID());
+                throw new StaleObjectStateException(_persistentClass.getName(), entity.getId());
             }
             getSession().evict(entityDb);
         }

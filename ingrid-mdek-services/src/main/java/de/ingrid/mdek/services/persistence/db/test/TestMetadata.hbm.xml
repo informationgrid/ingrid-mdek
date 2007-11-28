@@ -6,8 +6,9 @@
 		<id name="id">
     		<generator class="native"/>
         </id>
-    	<property name="metadataKey" type="java.lang.String" column="_metadataKey"/>
-    	<property name="metadataValue" type="java.lang.String" column="_metadataValue"/>
-    	<property name="timestamp" type="java.lang.Long" column="_timestamp"/>
+      	<version name="version" type="integer"/>
+
+    	<property name="metadataKey" type="java.lang.String"/>
+    	<property name="metadataValue" type="java.lang.String"/>
 	</class>
 </hibernate-mapping>

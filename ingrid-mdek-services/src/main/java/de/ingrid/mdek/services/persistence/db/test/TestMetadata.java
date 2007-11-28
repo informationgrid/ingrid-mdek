@@ -14,7 +14,7 @@ public class TestMetadata implements IEntity, java.io.Serializable {
 	private String _metadataKey;
 	private String _metadataValue;
 	@Version
-    private long _timestamp;
+    private int _version;
 
 	public TestMetadata() {
 		// hibernate
@@ -28,7 +28,6 @@ public class TestMetadata implements IEntity, java.io.Serializable {
     public Long getId() {
         return this.id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -36,33 +35,26 @@ public class TestMetadata implements IEntity, java.io.Serializable {
 	public String getMetadataValue() {
 		return _metadataValue;
 	}
-
-	public String getMetadataKey() {
-		return _metadataKey;
-	}
-
-	public void setMetadataKey(String key) {
-		_metadataKey = key;
-	}
-	
 	public void setMetadataValue(String value) {
 		_metadataValue = value;
 	}
 
+	public String getMetadataKey() {
+		return _metadataKey;
+	}
+	public void setMetadataKey(String key) {
+		_metadataKey = key;
+	}
+	
 	@Override
 	public String toString() {
 		return _metadataKey + "#" + _metadataValue;
 	}
 
-    public long getTimestamp() {
-        return _timestamp;
+	public int getVersion() {
+        return _version;
     }
-
-    public void setTimestamp(long timestamp) {
-        _timestamp = timestamp;
-    }
-
-    public Long getID() {
-        return getId();
+	protected void setVersion(int version) {
+        this._version = version;
     }
 }

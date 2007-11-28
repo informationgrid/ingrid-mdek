@@ -11,7 +11,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public abstract class MdekDbEntity implements IEntity, java.io.Serializable {
 
 	private String id;
-	private long version;
+	private int version;
 
 	protected MdekDbEntity() {
 	}
@@ -19,37 +19,14 @@ public abstract class MdekDbEntity implements IEntity, java.io.Serializable {
 	public String getId() {
 		return id;
 	}
-
 	protected void setId(String id) {
 		this.id = id;
 	}
 
-	public long getVersion() {
+	public int getVersion() {
         return version;
     }
-
-	protected void setVersion(long version) {
+	public void setVersion(int version) {
         this.version = version;
-    }
-	
-	/* (non-Javadoc)
-	 * @see de.ingrid.mdek.services.persistence.db.IEntity#getTimestamp()
-	 */
-	public long getTimestamp() {
-		return version;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.ingrid.mdek.services.persistence.db.IEntity#setTimestamp(long)
-	 */
-	public void setTimestamp(long timestamp) {
-        this.version = timestamp;		
-	}
-
-    /* (non-Javadoc)
-     * @see de.ingrid.mdek.services.persistence.db.IEntity#getID()
-     */
-    public String getID() {
-        return getId();
     }
 }

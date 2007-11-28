@@ -6,10 +6,10 @@
    <class name="T02Address" table="t02_address">
 
 	<!-- bean superclass -->
-      <id name="id" column="adr_id">
+      <id name="id" type="string" column="adr_id">
          <generator class="uuid"/>
       </id>
-      <version name="version" type="long"/>
+      <version name="version" type="integer"/>
 
 	<!-- bean superclass -->
       <property name="catId" type="string" column="cat_id"/>

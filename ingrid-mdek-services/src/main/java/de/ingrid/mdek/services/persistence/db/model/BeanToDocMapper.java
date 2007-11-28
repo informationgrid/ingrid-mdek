@@ -22,7 +22,7 @@ public class BeanToDocMapper {
 	public IngridDocument mapT01Object(T01Object o) {
 		IngridDocument doc = new IngridDocument();
 
-		doc.put(MdekKeys.ENTITY_UUID, o.getID());
+		doc.put(MdekKeys.ENTITY_UUID, o.getId());
 		doc.put(MdekKeys.ENTITY_NAME, o.getObjName());
 //		doc.put(MdekKeys.ENTITY_DESCRIPTION, o.getObjDescr());
 		
@@ -32,7 +32,7 @@ public class BeanToDocMapper {
 	public IngridDocument mapT02Address(T02Address a) {
 		IngridDocument doc = new IngridDocument();
 
-		doc.put(MdekKeys.ENTITY_UUID, a.getID());
+		doc.put(MdekKeys.ENTITY_UUID, a.getId());
 		
 		String name = a.getInstitution();
 		if (name == null) {

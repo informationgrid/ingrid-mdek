@@ -1,7 +1,5 @@
 package de.ingrid.mdek.services.persistence.db;
 
-import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Version;
@@ -15,7 +13,7 @@ public class Metadata implements IEntity {
 	private String _metadataValue;
 
 	@Version
-    private long _timestamp;
+    private int _version;
 
 	public Metadata() {
 		// hibernate
@@ -29,35 +27,30 @@ public class Metadata implements IEntity {
 	public String getMetadataValue() {
 		return _metadataValue;
 	}
-
-	public String getMetadataKey() {
-		return _metadataKey;
-	}
-
-	public void setMetadataKey(String key) {
-		_metadataKey = key;
-	}
-
-	
-	
 	public void setMetadataValue(String value) {
 		_metadataValue = value;
 	}
 
+	public String getMetadataKey() {
+		return _metadataKey;
+	}
+	public void setMetadataKey(String key) {
+		_metadataKey = key;
+	}
+	
 	@Override
 	public String toString() {
 		return _metadataKey + "#" + _metadataValue;
 	}
 
-    public long getTimestamp() {
-        return _timestamp;
+	public int getVersion() {
+        return _version;
+    }
+	protected void setVersion(int version) {
+        this._version = version;
     }
 
-    public void setTimestamp(long timestamp) {
-        _timestamp = timestamp;
-    }
-
-    public String getID() {
+    public String getId() {
         return getMetadataKey();
     }
 }
