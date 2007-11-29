@@ -84,6 +84,7 @@
 				<excludes>
 					<exclude>*.xml</exclude>
 					<exclude>*.properties</exclude>
+					<exclude>*.bak</exclude>
 				</excludes>
 			</resource>
 		</resources>
