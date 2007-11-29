@@ -94,4 +94,15 @@
 			<version>2.1.0</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<resources>
+			<!-- Copy xml files in java folders to target (Hibernate mapping files) -->
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 </project>
