@@ -19,6 +19,8 @@ public class BeanToDocMapper {
 		return myInstance;
 	}
 
+	private BeanToDocMapper() {}
+
 	public IngridDocument mapT01Object(T01Object o) {
 		IngridDocument doc = new IngridDocument();
 
