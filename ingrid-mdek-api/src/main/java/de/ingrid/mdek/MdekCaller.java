@@ -1,0 +1,196 @@
+package de.ingrid.mdek;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+
+import de.ingrid.mdek.job.MdekKeys;
+import de.ingrid.mdek.job.MdekValues;
+import de.ingrid.mdek.job.repository.IJobRepository;
+import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
+import de.ingrid.mdek.job.repository.Pair;
+import de.ingrid.utils.IngridDocument;
+
+
+/**
+ * Singleton implementing methods to communicate with the Mdek backend.
+ * 
+ * @author Martin
+ */
+public class MdekCaller implements IMdekCaller {
+
+	private final static Logger log = Logger.getLogger(MdekCaller.class);
+
+	private static MdekCaller myInstance;
+	
+	private static MdekClient client;
+	private static IJobRepositoryFacade jobRepo;
+
+	// Jobs
+
+	private static String MDEK_TREE_JOB_ID = "de.ingrid.mdek.job.MdekTreeJob";
+	private static String MDEK_TREE_JOB_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+		+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
+		+ "<beans>"
+		+ "<bean id=\"" + MDEK_TREE_JOB_ID + "\" class=\"de.ingrid.mdek.job.MdekTreeJob\" >"
+		+ "<constructor-arg ref=\"de.ingrid.mdek.services.log.ILogService\"/>"
+		+ "<constructor-arg ref=\"sessionFactory\"/>"
+		+ "</bean>"
+		+ "</beans>";
+
+	/**
+	 * INITIALIZATION OF SINGLETON !!!
+	 * Has to be called once before calling getInstance() !!!
+	 * @param communicationProperties props specifying communication
+	 */
+	public static synchronized void initialize(File communicationProperties) {
+		if (myInstance != null) {
+			log.warn("MULTIPLE initialization of MdekCaller !!!");
+		}
+
+		myInstance = new MdekCaller(communicationProperties);
+	}
+
+    private MdekCaller() {};
+
+    private MdekCaller(File communicationProperties) {
+        try {
+    		// instantiate client
+    		client = MdekClient.getInstance(communicationProperties);
+    		Thread.sleep(2000);
+
+        	jobRepo = client.getJobRepositoryFacade();
+
+    		registerJob(MDEK_TREE_JOB_ID, MDEK_TREE_JOB_XML);
+
+        } catch (Throwable t) {
+        	log.fatal("Error initiating the Mdek interface.", t);
+        }
+    };
+
+	/**
+	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !
+	 * @return null if not initialized
+	 */
+	public static IMdekCaller getInstance() {
+		if (myInstance == null) {
+			log.warn("WARNING! INITIALIZE MdekCaller Instance before fetching it !!! we return null !!!");
+		}
+
+		return myInstance;
+	}
+
+	public static synchronized void shutdown() {
+		if (myInstance == null) {
+			return;
+		}
+
+        try {
+        	myInstance.deregisterJob(MDEK_TREE_JOB_ID);
+
+    		// shutdown client
+    		client.shutdown();
+
+        } catch (Throwable t) {
+        	log.error("Problems SHUTTING DOWN Mdek interface.", t);
+        } finally {
+        	myInstance = null;
+        	client = null;
+        	jobRepo = null;
+        }
+	}
+
+	private IngridDocument registerJob(String jobId, String jobXml) {
+		IngridDocument registerDocument = new IngridDocument();
+		registerDocument.put(IJobRepository.JOB_ID, jobId);
+		registerDocument.put(IJobRepository.JOB_DESCRIPTION, jobXml);
+		registerDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+		IngridDocument response = jobRepo.execute(registerDocument);
+		debugDocument("registerJob " + jobId + ": ", response);
+
+		return response;
+	}
+
+	private IngridDocument deregisterJob(String jobId) {
+		IngridDocument deregisterDocument = new IngridDocument();
+		deregisterDocument.put(IJobRepository.JOB_ID, jobId);
+		deregisterDocument.put(IJobRepository.JOB_PERSIST, false);
+		IngridDocument response = jobRepo.execute(deregisterDocument);
+		debugDocument("deregisterJob " + jobId + ": ", response);
+
+		return response;
+	}
+
+	public IngridDocument testMdekEntity(int threadNumber) {
+		ArrayList<Pair> methodList = new ArrayList<Pair>();
+		IngridDocument inputDocument = new IngridDocument();
+		inputDocument.put(MdekKeys.ENTITY_TYPE, MdekValues.ENTITY_TYPE_OBJECT);
+		inputDocument.put(MdekKeys.ENTITY_NAME, "TEST obj_name");
+		inputDocument.put(MdekKeys.ENTITY_DESCRIPTION, "TEST obj_descr");
+		inputDocument.put("THREAD_NUMBER", new Integer(threadNumber));
+		methodList.add(new Pair("testMdekEntity", inputDocument));
+
+		IngridDocument invokeDocument = new IngridDocument();
+		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
+		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
+		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+		debugDocument("PARAMETERS:", inputDocument);
+
+		IngridDocument response = jobRepo.execute(invokeDocument);
+		debugDocument("RESPONSE:", response);
+
+		return response;
+	}
+
+	public IngridDocument getSubObjects(String objUuid) {
+		ArrayList<Pair> methodList = new ArrayList<Pair>();
+		IngridDocument inputDocument = new IngridDocument();
+		inputDocument.put(MdekKeys.ENTITY_UUID, objUuid);
+		methodList.add(new Pair("getSubObjects", inputDocument));
+		debugDocument("PARAMETERS:", inputDocument);
+
+		IngridDocument invokeDocument = new IngridDocument();
+		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
+		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
+		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+
+		IngridDocument response = jobRepo.execute(invokeDocument);
+		debugDocument("RESPONSE:", response);
+		
+		return response;
+	}
+
+	public IngridDocument getObjAddresses(String objUuid) {
+		ArrayList<Pair> methodList = new ArrayList<Pair>();
+		IngridDocument inputDocument = new IngridDocument();
+		inputDocument.put(MdekKeys.ENTITY_UUID, objUuid);
+		methodList.add(new Pair("getObjAddresses", inputDocument));
+		debugDocument("PARAMETERS:", inputDocument);
+
+		IngridDocument invokeDocument = new IngridDocument();
+		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
+		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
+		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+
+		IngridDocument response = jobRepo.execute(invokeDocument);
+		debugDocument("RESPONSE:", response);
+		
+		return response;
+	}
+
+	private static void debugDocument(String title, IngridDocument doc) {
+		if (!log.isDebugEnabled()) {
+			return;
+		}
+
+		if (title != null) {
+			log.debug(title);			
+		}
+		int docLength = doc.toString().length();
+		log.debug("IngridDocument length: " + docLength);			
+//		if (docLength < 2000)  {
+			log.debug("IngridDocument: " + doc);			
+//		}		
+	}
+}
