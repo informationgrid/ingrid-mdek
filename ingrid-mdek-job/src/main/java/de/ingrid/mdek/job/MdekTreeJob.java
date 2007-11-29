@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -19,13 +20,23 @@ import de.ingrid.utils.IngridDocument;
 
 public class MdekTreeJob extends MdekJob {
 
-	GenericHibernateDao<T01Object> daoT01Object;
+    /** Logger configured via Properties. ONLY if no logger via logservice is specified
+     * for same class !. If Logservice logger is specified, this one uses
+     * Logservice configuration -> writes to separate logfile for this Job. */
+//    private final static Log log = LogFactory.getLog(MdekTreeJob.class);
+
+	/** logs in separate File (job specific log file) */
+	protected Logger log;
+
+	private GenericHibernateDao<T01Object> daoT01Object;
 
 	public MdekTreeJob(ILogService logService,
 			SessionFactory sessionFactory) {
 		
-		super(logService.getLogger(MdekTreeJob.class),
-				sessionFactory);
+		super(sessionFactory);
+		
+		// use logger from service -> logs into separate file !
+		log = logService.getLogger(MdekTreeJob.class); 
 
 		daoT01Object = new GenericHibernateDao<T01Object> (
 				sessionFactory, T01Object.class);
@@ -68,9 +79,9 @@ public class MdekTreeJob extends MdekJob {
 				
 				if (threadNumber == 1) {
 					// test update/deletion of staled Object !
-					System.out.println("Thread 1 DELETING OBJECT:" + o.getId());
+		            log.debug("Thread 1 DELETING OBJECT:" + o.getId());
 					daoT01Object.makeTransient(o);
-//					System.out.println("Thread 1 UPDATE OBJECT:" + o.getId());
+//		            log.debug("Thread 1 UPDATE OBJECT:" + o.getId());
 //					daoT01Object.makePersistent(o);
 				} else {
 					daoT01Object.makePersistent(o);
@@ -91,54 +102,71 @@ public class MdekTreeJob extends MdekJob {
 		return result;
 	}
 
-	public IngridDocument getSubTree(IngridDocument params) {
+	public IngridDocument getSubObjects(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
+		Session session = getSession();		
 
-		// fetch parameters
+		// extract parameters
 		String uuid = (String) params.get(MdekKeys.ENTITY_UUID);
-		Integer depth = (Integer) params.get(MdekKeys.DEPTH);
-		String type = (String) params.get(MdekKeys.ENTITY_TYPE);
 
 		beginTransaction();
 
-		long startTime = System.currentTimeMillis();
-		Session session = getSession();
-		
 //		T01Object o = daoT01Object.loadById(uuid);
 		
 		// fetch all at once (one select with outer joins)
 		T01Object o = (T01Object) session.createCriteria(T01Object.class)
 			.setFetchMode("t012ObjObjs", FetchMode.JOIN)
-			.setFetchMode("t012ObjAdrs", FetchMode.JOIN)
 			.add( Restrictions.idEq(uuid) )
 			.uniqueResult();
 
-		System.out.println("Found Object: " + o.getId() + " / " + o.getObjName());
-
-		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		Set subObjs = o.getT012ObjObjs();
-		ArrayList<IngridDocument> resultObjs = new ArrayList<IngridDocument>(subObjs.size());
-		Iterator iter = subObjs.iterator();
-		while (iter.hasNext()) {
-			resultObjs.add(mapper.mapT01Object((T01Object)iter.next()));
+		if (log.isDebugEnabled()) {
+			log.debug("Fetched T01Object with SubObjects: " + o);			
 		}
 
-		Set subAdrs = o.getT012ObjAdrs();
-		ArrayList<IngridDocument> resultAdrs = new ArrayList<IngridDocument>(subAdrs.size());
-		iter = subAdrs.iterator();
+		Set subObjs = o.getT012ObjObjs();
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(subObjs.size());
+		Iterator iter = subObjs.iterator();
+		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		while (iter.hasNext()) {
-			resultAdrs.add(mapper.mapT02Address((T02Address)iter.next()));
+			resultList.add(mapper.mapT01Object((T01Object)iter.next()));
 		}
 
 		commitTransaction();
 
-		long endTime = System.currentTimeMillis();
-		long neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result.put(MdekKeys.OBJ_ENTITIES, resultList);
+		return result;
+	}
 
-		result.put(MdekKeys.OBJ_ENTITIES, resultObjs);
-		result.put(MdekKeys.ADR_ENTITIES, resultAdrs);
+	public IngridDocument getObjAddresses(IngridDocument params) {
+		IngridDocument result = new IngridDocument();
+		Session session = getSession();		
 
+		// extract parameters
+		String uuid = (String) params.get(MdekKeys.ENTITY_UUID);
+
+		beginTransaction();
+
+		// fetch all at once (one select with outer joins)
+		T01Object o = (T01Object) session.createCriteria(T01Object.class)
+			.setFetchMode("t012ObjAdrs", FetchMode.JOIN)
+			.add( Restrictions.idEq(uuid) )
+			.uniqueResult();
+
+		if (log.isDebugEnabled()) {
+			log.debug("Fetched T01Object with Addresses: " + o);			
+		}
+
+		Set subAdrs = o.getT012ObjAdrs();
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(subAdrs.size());
+		Iterator iter = subAdrs.iterator();
+		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
+		while (iter.hasNext()) {
+			resultList.add(mapper.mapT02Address((T02Address)iter.next()));
+		}
+
+		commitTransaction();
+
+		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
 	}
 }

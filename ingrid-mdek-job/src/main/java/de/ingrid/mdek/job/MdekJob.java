@@ -1,6 +1,5 @@
 package de.ingrid.mdek.job;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -14,12 +13,9 @@ import de.ingrid.utils.IngridDocument;
  */
 public abstract class MdekJob implements IJob {
 
-	protected Logger logger;
 	private SessionFactory sessionFactory;
 
-	public MdekJob(Logger logger,
-			SessionFactory sessionFactory) {
-		this.logger = logger;
+	public MdekJob(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
