@@ -48,7 +48,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<fork>true</fork>
-					<executable>${java.home}/bin/javac</executable>
+					<executable>${JAVA_HOME}/bin/javac</executable>
 					<source>1.5</source>
 					<target>1.5</target>
 				</configuration>
@@ -148,9 +148,5 @@
 			<url>file:///srv/www/htdocs/ingrid/maven</url>
 			<layout>legacy</layout>
 		</snapshotRepository>
-		<site>
-			<id>maven.apache.org</id>
-			<url>file:///srv/www/htdocs/ingrid/ingrid-mdek</url>
-		</site>
 	</distributionManagement>
 </project>
