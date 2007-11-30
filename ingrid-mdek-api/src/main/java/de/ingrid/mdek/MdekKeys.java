@@ -1,4 +1,4 @@
-package de.ingrid.mdek.job;
+package de.ingrid.mdek;
 
 /**
  * Class encapsulating static keys for accessing data in IngridDocument.

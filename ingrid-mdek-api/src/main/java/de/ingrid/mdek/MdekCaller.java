@@ -5,8 +5,6 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.job.MdekKeys;
-import de.ingrid.mdek.job.MdekValues;
 import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;

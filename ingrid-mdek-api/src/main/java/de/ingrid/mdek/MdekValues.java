@@ -1,4 +1,4 @@
-package de.ingrid.mdek.job;
+package de.ingrid.mdek;
 
 /**
  * Class encapsulating static values for setting data in IngridDocument.
