@@ -1,6 +1,6 @@
 package de.ingrid.mdek.services.persistence.db.model;
 
-import de.ingrid.mdek.job.MdekKeys;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.utils.IngridDocument;
 
 /**
