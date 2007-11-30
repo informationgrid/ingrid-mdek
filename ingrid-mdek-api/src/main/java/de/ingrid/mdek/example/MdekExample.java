@@ -7,6 +7,7 @@ import java.util.Map;
 import de.ingrid.mdek.IMdekCaller;
 import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekClient;
+import de.ingrid.utils.IngridDocument;
 
 public class MdekExample {
 
@@ -93,15 +94,22 @@ class MdekThread extends Thread {
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//mdekCaller.testMdekEntity(threadNumber);
 
-		long startTime = System.currentTimeMillis();
 		System.out.println("\n###### INVOKE getSubObjects ######");
-		mdekCaller.getSubObjects("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		long startTime = System.currentTimeMillis();
+		IngridDocument response = mdekCaller.getSubObjects("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
 		long endTime = System.currentTimeMillis();
 		long neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");		
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		System.out.println("response: " + response);
+		
 
 		System.out.println("\n###### INVOKE getObjAddresses ######");
-		mdekCaller.getObjAddresses("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.getObjAddresses("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		System.out.println("response: " + response);
 		
 		isRunning = false;
 	}
