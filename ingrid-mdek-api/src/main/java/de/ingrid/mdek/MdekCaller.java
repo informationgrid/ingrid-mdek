@@ -131,7 +131,7 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);
 
-		return processResponse(response);
+		return response;
 	}
 
 	public IngridDocument getSubObjects(String objUuid) {
@@ -149,7 +149,7 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);
 		
-		return processResponse(response);
+		return response;
 	}
 
 	public IngridDocument getObjAddresses(String objUuid) {
@@ -167,7 +167,7 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);
 		
-		return processResponse(response);
+		return response;
 	}
 
 	private static void debugDocument(String title, IngridDocument doc) {
@@ -185,15 +185,33 @@ public class MdekCaller implements IMdekCaller {
 //		}		
 	}
 
-	private IngridDocument processResponse(IngridDocument response) {
-		boolean success = response.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
+	/**
+	 * Get Result Document from Mdek response
+	 * @param jobResponse response from mdek call
+	 * @return null if errors occured otherwise IngridDocument containing results
+	 */
+	public static IngridDocument extractResult(IngridDocument jobResponse) {
+		IngridDocument result = null;
+
+		boolean success = jobResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
 		if (success) {
-			List pairList = (List) response.get(IJobRepository.JOB_INVOKE_RESULTS);
+			List pairList = (List) jobResponse.get(IJobRepository.JOB_INVOKE_RESULTS);
 			Pair pair = (Pair) pairList.get(0);
-			response.put(IJobRepository.JOB_RESULT, pair.getValue());
+			result = (IngridDocument) pair.getValue();
 		}
+
+		return result;
+	}
+
+	public static String extractErrorMsg(IngridDocument jobResponse) {
+		String errMsg = "NO ERROR MESSAGE !";
 		
-		return response;
+		boolean success = jobResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
+		if (!success) {
+			errMsg = (String) jobResponse.get(IJobRepository.JOB_INVOKE_ERROR_MESSAGE);
+		}
+
+		return errMsg;
 	}
 
 }

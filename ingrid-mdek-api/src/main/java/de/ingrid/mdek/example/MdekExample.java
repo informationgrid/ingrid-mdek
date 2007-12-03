@@ -2,11 +2,13 @@ package de.ingrid.mdek.example;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.IMdekCaller;
 import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekClient;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExample {
@@ -101,7 +103,16 @@ class MdekThread extends Thread {
 		long neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		System.out.println("response: " + response);
-		
+		IngridDocument result = MdekCaller.extractResult(response);
+		if (result != null) {
+			List<IngridDocument> objs = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			for (IngridDocument o : objs) {
+				System.out.println(o.get(MdekKeys.ENTITY_UUID) + " " + o.get(MdekKeys.ENTITY_NAME) + " " + o.get(MdekKeys.ENTITY_DESCRIPTION));
+			}
+		} else {
+			System.out.println(MdekCaller.extractErrorMsg(response));			
+		}
+
 
 		System.out.println("\n###### INVOKE getObjAddresses ######");
 		startTime = System.currentTimeMillis();
@@ -110,6 +121,15 @@ class MdekThread extends Thread {
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		System.out.println("response: " + response);
+		result = MdekCaller.extractResult(response);
+		if (result != null) {
+			List<IngridDocument> objs = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+			for (IngridDocument o : objs) {
+				System.out.println(o.get(MdekKeys.ENTITY_UUID) + " " + o.get(MdekKeys.ENTITY_NAME) + " " + o.get(MdekKeys.ENTITY_DESCRIPTION));
+			}
+		} else {
+			System.out.println(MdekCaller.extractErrorMsg(response));			
+		}
 		
 		isRunning = false;
 	}
