@@ -47,9 +47,8 @@ public class MdekTreeJob extends MdekJob {
 		IngridDocument result = new IngridDocument();
 
 		// fetch parameters
-		String type = (String) params.get(MdekKeys.ENTITY_TYPE);
-		String name = (String) params.get(MdekKeys.ENTITY_NAME);
-		String descr = (String) params.get(MdekKeys.ENTITY_DESCRIPTION);
+		String name = (String) params.get(MdekKeys.TITLE);
+		String descr = (String) params.get(MdekKeys.ABSTRACT);
 		Integer threadNumber = (Integer) params.get("THREAD_NUMBER");
 
 		T01Object objTemplate = new T01Object();
@@ -108,7 +107,7 @@ public class MdekTreeJob extends MdekJob {
 		Session session = getSession();		
 
 		// extract parameters
-		String uuid = (String) params.get(MdekKeys.ENTITY_UUID);
+		String uuid = (String) params.get(MdekKeys.UUID);
 
 		beginTransaction();
 
@@ -143,7 +142,7 @@ public class MdekTreeJob extends MdekJob {
 		Session session = getSession();		
 
 		// extract parameters
-		String uuid = (String) params.get(MdekKeys.ENTITY_UUID);
+		String uuid = (String) params.get(MdekKeys.UUID);
 
 		beginTransaction();
 
