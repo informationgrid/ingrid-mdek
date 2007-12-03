@@ -98,37 +98,40 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE getSubObjects ######");
 		long startTime = System.currentTimeMillis();
-		IngridDocument response = mdekCaller.getSubObjects("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		IngridDocument response = mdekCaller.fetchSubObjects("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
 		long endTime = System.currentTimeMillis();
 		long neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		System.out.println("response: " + response);
-		IngridDocument result = MdekCaller.extractResult(response);
+		IngridDocument result = MdekCaller.getResult(response);
 		if (result != null) {
 			List<IngridDocument> objs = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			for (IngridDocument o : objs) {
-				System.out.println(o.get(MdekKeys.ENTITY_UUID) + " " + o.get(MdekKeys.ENTITY_NAME) + " " + o.get(MdekKeys.ENTITY_DESCRIPTION));
+				System.out.println(o.get(MdekKeys.UUID) + " " + o.get(MdekKeys.TITLE) + " " + o.get(MdekKeys.ABSTRACT));
 			}
 		} else {
-			System.out.println(MdekCaller.extractErrorMsg(response));			
+			System.out.println(MdekCaller.getErrorMsg(response));			
 		}
 
 
 		System.out.println("\n###### INVOKE getObjAddresses ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getObjAddresses("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		response = mdekCaller.fetchObjAddresses("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		System.out.println("response: " + response);
-		result = MdekCaller.extractResult(response);
+		result = MdekCaller.getResult(response);
 		if (result != null) {
 			List<IngridDocument> objs = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 			for (IngridDocument o : objs) {
-				System.out.println(o.get(MdekKeys.ENTITY_UUID) + " " + o.get(MdekKeys.ENTITY_NAME) + " " + o.get(MdekKeys.ENTITY_DESCRIPTION));
+				System.out.println(o.get(MdekKeys.UUID) + " " + 
+					o.get(MdekKeys.GIVEN_NAME) + " " + 
+					o.get(MdekKeys.NAME) + " " + 
+					o.get(MdekKeys.ADDRESS_DESCRIPTION));
 			}
 		} else {
-			System.out.println(MdekCaller.extractErrorMsg(response));			
+			System.out.println(MdekCaller.getErrorMsg(response));			
 		}
 		
 		isRunning = false;

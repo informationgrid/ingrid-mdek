@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:complexType name="mdekRequest">
+		<xs:all>
+			<xs:element ref="uuid"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="mdekResult">
+		<xs:all>
+			<xs:element ref="objEntities"/>
+			<xs:element ref="adrEntities"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="objEntities">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="object"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element name="objEntities" type="objEntities"/>
+	<xs:complexType name="adrEntities">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="address"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element name="adrEntities" type="adrEntities"/>
+	
+	<!-- ICS:  type="xs:long" -->
+	<xs:element name="uuid" type="xs:string"/>
+	<xs:element name="class" type="xs:integer"/>
+	<xs:complexType name="object">
+		<xs:all>
+			<xs:element ref="uuid"/>
+			<xs:element ref="class"/>
+			<xs:element name="title" type="xs:string"/>
+			<xs:element name="abstract" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="object" type="object"/>
+	<xs:complexType name="address">
+		<xs:all>
+			<xs:element ref="uuid"/>
+			<xs:element ref="class"/>
+			<xs:element name="organisation" type="xs:string"/>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="given-name" type="xs:string"/>
+			<xs:element name="name-form" type="xs:string"/>
+			<xs:element name="title-or-function" type="xs:string"/>
+			<xs:element name="street" type="xs:string"/>
+			<xs:element name="postal-code-of-country" type="xs:string"/>
+			<xs:element name="city" type="xs:string"/>
+			<xs:element name="post-box-postal-code" type="xs:string"/>
+			<xs:element name="post-box" type="xs:string"/>
+			<xs:element name="function" type="xs:string"/>
+			<xs:element name="address-description" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="address" type="address"/>
+</xs:schema>

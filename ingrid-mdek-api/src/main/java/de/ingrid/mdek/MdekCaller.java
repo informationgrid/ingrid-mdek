@@ -116,9 +116,8 @@ public class MdekCaller implements IMdekCaller {
 	public IngridDocument testMdekEntity(int threadNumber) {
 		ArrayList<Pair> methodList = new ArrayList<Pair>();
 		IngridDocument inputDocument = new IngridDocument();
-		inputDocument.put(MdekKeys.ENTITY_TYPE, MdekValues.ENTITY_TYPE_OBJECT);
-		inputDocument.put(MdekKeys.ENTITY_NAME, "TEST obj_name");
-		inputDocument.put(MdekKeys.ENTITY_DESCRIPTION, "TEST obj_descr");
+		inputDocument.put(MdekKeys.TITLE, "TEST obj_name");
+		inputDocument.put(MdekKeys.ABSTRACT, "TEST obj_descr");
 		inputDocument.put("THREAD_NUMBER", new Integer(threadNumber));
 		methodList.add(new Pair("testMdekEntity", inputDocument));
 
@@ -134,10 +133,10 @@ public class MdekCaller implements IMdekCaller {
 		return response;
 	}
 
-	public IngridDocument getSubObjects(String objUuid) {
+	public IngridDocument fetchSubObjects(String objUuid) {
 		ArrayList<Pair> methodList = new ArrayList<Pair>();
 		IngridDocument inputDocument = new IngridDocument();
-		inputDocument.put(MdekKeys.ENTITY_UUID, objUuid);
+		inputDocument.put(MdekKeys.UUID, objUuid);
 		methodList.add(new Pair("getSubObjects", inputDocument));
 		debugDocument("PARAMETERS:", inputDocument);
 
@@ -152,10 +151,10 @@ public class MdekCaller implements IMdekCaller {
 		return response;
 	}
 
-	public IngridDocument getObjAddresses(String objUuid) {
+	public IngridDocument fetchObjAddresses(String objUuid) {
 		ArrayList<Pair> methodList = new ArrayList<Pair>();
 		IngridDocument inputDocument = new IngridDocument();
-		inputDocument.put(MdekKeys.ENTITY_UUID, objUuid);
+		inputDocument.put(MdekKeys.UUID, objUuid);
 		methodList.add(new Pair("getObjAddresses", inputDocument));
 		debugDocument("PARAMETERS:", inputDocument);
 
@@ -190,7 +189,7 @@ public class MdekCaller implements IMdekCaller {
 	 * @param jobResponse response from mdek call
 	 * @return null if errors occured otherwise IngridDocument containing results
 	 */
-	public static IngridDocument extractResult(IngridDocument jobResponse) {
+	public static IngridDocument getResult(IngridDocument jobResponse) {
 		IngridDocument result = null;
 
 		boolean success = jobResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
@@ -203,7 +202,7 @@ public class MdekCaller implements IMdekCaller {
 		return result;
 	}
 
-	public static String extractErrorMsg(IngridDocument jobResponse) {
+	public static String getErrorMsg(IngridDocument jobResponse) {
 		String errMsg = "NO ERROR MESSAGE !";
 		
 		boolean success = jobResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
