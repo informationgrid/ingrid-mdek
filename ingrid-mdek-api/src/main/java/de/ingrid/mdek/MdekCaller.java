@@ -2,6 +2,7 @@ package de.ingrid.mdek;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -28,14 +29,6 @@ public class MdekCaller implements IMdekCaller {
 	// Jobs
 
 	private static String MDEK_TREE_JOB_ID = "de.ingrid.mdek.job.MdekTreeJob";
-	private static String MDEK_TREE_JOB_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-		+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
-		+ "<beans>"
-		+ "<bean id=\"" + MDEK_TREE_JOB_ID + "\" class=\"de.ingrid.mdek.job.MdekTreeJob\" >"
-		+ "<constructor-arg ref=\"de.ingrid.mdek.services.log.ILogService\"/>"
-		+ "<constructor-arg ref=\"sessionFactory\"/>"
-		+ "</bean>"
-		+ "</beans>";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -60,7 +53,7 @@ public class MdekCaller implements IMdekCaller {
 
         	jobRepo = client.getJobRepositoryFacade();
 
-    		registerJob(MDEK_TREE_JOB_ID, MDEK_TREE_JOB_XML);
+//    		registerJob(MDEK_TREE_JOB_ID, MDEK_TREE_JOB_XML);
 
         } catch (Throwable t) {
         	log.fatal("Error initiating the Mdek interface.", t);
@@ -85,7 +78,7 @@ public class MdekCaller implements IMdekCaller {
 		}
 
         try {
-        	myInstance.deregisterJob(MDEK_TREE_JOB_ID);
+//        	myInstance.deregisterJob(MDEK_TREE_JOB_ID);
 
     		// shutdown client
     		client.shutdown();
@@ -98,7 +91,7 @@ public class MdekCaller implements IMdekCaller {
         	jobRepo = null;
         }
 	}
-
+/*
 	private IngridDocument registerJob(String jobId, String jobXml) {
 		IngridDocument registerDocument = new IngridDocument();
 		registerDocument.put(IJobRepository.JOB_ID, jobId);
@@ -119,7 +112,7 @@ public class MdekCaller implements IMdekCaller {
 
 		return response;
 	}
-
+*/
 	public IngridDocument testMdekEntity(int threadNumber) {
 		ArrayList<Pair> methodList = new ArrayList<Pair>();
 		IngridDocument inputDocument = new IngridDocument();
@@ -132,13 +125,13 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
 		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 		debugDocument("PARAMETERS:", inputDocument);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);
 
-		return response;
+		return processResponse(response);
 	}
 
 	public IngridDocument getSubObjects(String objUuid) {
@@ -151,12 +144,12 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
 		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);
 		
-		return response;
+		return processResponse(response);
 	}
 
 	public IngridDocument getObjAddresses(String objUuid) {
@@ -169,12 +162,12 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
 		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);
 		
-		return response;
+		return processResponse(response);
 	}
 
 	private static void debugDocument(String title, IngridDocument doc) {
@@ -191,4 +184,16 @@ public class MdekCaller implements IMdekCaller {
 			log.debug("IngridDocument: " + doc);			
 //		}		
 	}
+
+	private IngridDocument processResponse(IngridDocument response) {
+		boolean success = response.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
+		if (success) {
+			List pairList = (List) response.get(IJobRepository.JOB_INVOKE_RESULTS);
+			Pair pair = (Pair) pairList.get(0);
+			response.put(IJobRepository.JOB_RESULT, pair.getValue());
+		}
+		
+		return response;
+	}
+
 }
