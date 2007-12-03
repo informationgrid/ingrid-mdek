@@ -22,7 +22,7 @@ public class JobRepositoryFacade implements IJobRepositoryFacade {
 		Object jobId = get(document, IJobRepository.JOB_ID, null);
 		Object jobXml = get(document, IJobRepository.JOB_DESCRIPTION, null);
 		boolean jobPersist = getBoolean(document, IJobRepository.JOB_PERSIST,
-				false);
+				true);
 		Object jobMethods = get(document, IJobRepository.JOB_METHODS, null);
 
 		if (jobId == null) {
