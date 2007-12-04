@@ -117,9 +117,11 @@ public class MdekTreeJob extends MdekJob {
 		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
 
 		// fetch all at once (one select with outer joins)
-		T01Object o = (T01Object) session.createCriteria(T01Object.class)
-			.setFetchMode("t012ObjObjs", FetchMode.JOIN)
-			.add( Restrictions.idEq(uuid) )
+		T01Object o = (T01Object) session.createQuery("from T01Object obj " +
+			"left join fetch obj.t012ObjObjs child " +
+			"left join fetch child.t012ObjObjs " +
+			"where obj.id = ?")
+			.setString(0, uuid)
 			.uniqueResult();
 
 		session.disableFilter("relationTypeFilter");
@@ -133,7 +135,14 @@ public class MdekTreeJob extends MdekJob {
 		Iterator iter = subObjs.iterator();
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		while (iter.hasNext()) {
-			resultList.add(mapper.mapT01Object((T01Object)iter.next()));
+			T01Object subObj = (T01Object)iter.next();
+			IngridDocument subDoc = mapper.mapT01Object(subObj);
+			boolean hasChild = false;
+			if (subObj.getT012ObjObjs().size() > 0) {
+				hasChild = true;
+			}
+			subDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+			resultList.add(subDoc);
 		}
 
 		commitTransaction();
