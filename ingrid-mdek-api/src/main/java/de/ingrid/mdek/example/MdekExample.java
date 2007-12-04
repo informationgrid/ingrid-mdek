@@ -98,7 +98,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE getSubObjects ######");
 		long startTime = System.currentTimeMillis();
-		IngridDocument response = mdekCaller.fetchSubObjects("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		IngridDocument response = mdekCaller.fetchSubObjects("19654CB2-C510-11D3-BADE-0060971A0BF7");
 		long endTime = System.currentTimeMillis();
 		long neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -107,7 +107,9 @@ class MdekThread extends Thread {
 		if (result != null) {
 			List<IngridDocument> objs = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			for (IngridDocument o : objs) {
-				System.out.println(o.get(MdekKeys.UUID) + " " + o.get(MdekKeys.TITLE) + " " + o.get(MdekKeys.ABSTRACT));
+				System.out.println(o.get(MdekKeys.UUID) + 
+					", hasChild: " + o.getBoolean(MdekKeys.HAS_CHILD) +
+					", title: " + o.get(MdekKeys.TITLE)); 
 			}
 		} else {
 			System.out.println(MdekCaller.getErrorMsg(response));			

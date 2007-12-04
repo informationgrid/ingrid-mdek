@@ -27,10 +27,12 @@
 	<!-- ICS:  type="xs:long" -->
 	<xs:element name="uuid" type="xs:string"/>
 	<xs:element name="class" type="xs:integer"/>
+	<xs:element name="hasChild" type="xs:boolean"/>
 	<xs:complexType name="object">
 		<xs:all>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
+			<xs:element ref="hasChild"/>
 			<xs:element name="title" type="xs:string"/>
 			<xs:element name="abstract" type="xs:string"/>
 		</xs:all>
@@ -40,6 +42,7 @@
 		<xs:all>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
+			<xs:element ref="hasChild"/>
 			<xs:element name="organisation" type="xs:string"/>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="given-name" type="xs:string"/>

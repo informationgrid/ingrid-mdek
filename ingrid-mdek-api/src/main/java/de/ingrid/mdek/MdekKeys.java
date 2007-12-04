@@ -23,6 +23,9 @@ public class MdekKeys {
      *	<b>Datatype: Integer</b> */
     public final static String CLASS = "class";
 
+    /** <b>Datatype: Boolean</b> */
+    public final static String HAS_CHILD = "hasChild";
+
     // OBJECT DATA
     // -----------
 
