@@ -55,10 +55,12 @@
       <set name="t012ObjObjs" table="t012_obj_obj" order-by="line">
          <key column="object_from_id"/>
          <many-to-many column="object_to_id" class="T01Object"/>
+         <filter name="relationTypeFilter" condition=":relationType = type"/>
       </set>
       <set name="t012ObjAdrs" table="t012_obj_adr" order-by="line">
          <key column="obj_id"/>
          <many-to-many column="adr_id" class="T02Address"/>
+         <filter name="relationTypeFilter" condition=":relationType = type"/>
       </set>
 
 <!--
@@ -166,4 +168,9 @@
 -->
 
    </class>
+
+   <filter-def name="relationTypeFilter">
+      <filter-param name="relationType" type="integer"/>
+   </filter-def>
+
 </hibernate-mapping>
