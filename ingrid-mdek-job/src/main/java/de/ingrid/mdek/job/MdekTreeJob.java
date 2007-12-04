@@ -112,12 +112,17 @@ public class MdekTreeJob extends MdekJob {
 		beginTransaction();
 
 //		T01Object o = daoT01Object.loadById(uuid);
-		
+
+		// enable filter -> fetch only hierarchical relations
+		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
+
 		// fetch all at once (one select with outer joins)
 		T01Object o = (T01Object) session.createCriteria(T01Object.class)
 			.setFetchMode("t012ObjObjs", FetchMode.JOIN)
 			.add( Restrictions.idEq(uuid) )
 			.uniqueResult();
+
+		session.disableFilter("relationTypeFilter");
 
 		if (log.isDebugEnabled()) {
 			log.debug("Fetched T01Object with SubObjects: " + o);			
@@ -146,11 +151,16 @@ public class MdekTreeJob extends MdekJob {
 
 		beginTransaction();
 
+		// enable filter -> fetch only hierarchical relations
+		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
+
 		// fetch all at once (one select with outer joins)
 		T01Object o = (T01Object) session.createCriteria(T01Object.class)
 			.setFetchMode("t012ObjAdrs", FetchMode.JOIN)
 			.add( Restrictions.idEq(uuid) )
 			.uniqueResult();
+
+		session.disableFilter("relationTypeFilter");
 
 		if (log.isDebugEnabled()) {
 			log.debug("Fetched T01Object with Addresses: " + o);			
