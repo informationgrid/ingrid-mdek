@@ -102,6 +102,38 @@ public class MdekTreeJob extends MdekJob {
 		return result;
 	}
 
+	public IngridDocument getTopObjects() {
+		IngridDocument result = new IngridDocument();
+		Session session = getSession();		
+
+		beginTransaction();
+
+		// fetch all at once (one select with outer joins)
+		List objs = session.createQuery("from T01Object obj " +
+			"left join fetch obj.t012ObjObjs " +
+			"where obj.root = 1")
+			.list();
+
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
+		Iterator iter = objs.iterator();
+		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
+		while (iter.hasNext()) {
+			T01Object obj = (T01Object)iter.next();
+			IngridDocument doc = mapper.mapT01Object(obj);
+			boolean hasChild = false;
+			if (obj.getT012ObjObjs().size() > 0) {
+				hasChild = true;
+			}
+			doc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+			resultList.add(doc);
+		}
+
+		commitTransaction();
+
+		result.put(MdekKeys.OBJ_ENTITIES, resultList);
+		return result;
+	}
+
 	public IngridDocument getSubObjects(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
 		Session session = getSession();		
@@ -146,6 +178,38 @@ public class MdekTreeJob extends MdekJob {
 		commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
+		return result;
+	}
+
+	public IngridDocument getTopAddresses() {
+		IngridDocument result = new IngridDocument();
+		Session session = getSession();		
+
+		beginTransaction();
+
+		// fetch all at once (one select with outer joins)
+		List adrs = session.createQuery("from T02Address adr " +
+			"left join fetch adr.t022AdrAdrs " +
+			"where adr.root = 1")
+			.list();
+
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
+		Iterator iter = adrs.iterator();
+		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
+		while (iter.hasNext()) {
+			T02Address adr = (T02Address)iter.next();
+			IngridDocument doc = mapper.mapT02Address(adr);
+			boolean hasChild = false;
+			if (adr.getT022AdrAdrs().size() > 0) {
+				hasChild = true;
+			}
+			doc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+			resultList.add(doc);
+		}
+
+		commitTransaction();
+
+		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
 	}
 
