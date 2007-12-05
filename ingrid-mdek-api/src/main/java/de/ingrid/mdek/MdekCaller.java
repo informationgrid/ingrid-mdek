@@ -27,7 +27,6 @@ public class MdekCaller implements IMdekCaller {
 	private static IJobRepositoryFacade jobRepo;
 
 	// Jobs
-
 	private static String MDEK_TREE_JOB_ID = "de.ingrid.mdek.job.MdekTreeJob";
 
 	/**
@@ -53,7 +52,8 @@ public class MdekCaller implements IMdekCaller {
 
         	jobRepo = client.getJobRepositoryFacade();
 
-//    		registerJob(MDEK_TREE_JOB_ID, MDEK_TREE_JOB_XML);
+        	// explicit registration of jobs if not persistent !
+//    		registerJob(MDEK_JOB_ID, MDEK_JOB_XML);
 
         } catch (Throwable t) {
         	log.fatal("Error initiating the Mdek interface.", t);
@@ -78,7 +78,8 @@ public class MdekCaller implements IMdekCaller {
 		}
 
         try {
-//        	myInstance.deregisterJob(MDEK_TREE_JOB_ID);
+        	// explicit deregistration of jobs if not persistent !
+//        	myInstance.deregisterJob(MDEK_JOB_ID);
 
     		// shutdown client
     		client.shutdown();
@@ -91,7 +92,77 @@ public class MdekCaller implements IMdekCaller {
         	jobRepo = null;
         }
 	}
-/*
+
+	public IngridDocument testMdekEntity(int threadNumber) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.TITLE, "TEST obj_name");
+		jobParams.put(MdekKeys.ABSTRACT, "TEST obj_descr");
+		jobParams.put("THREAD_NUMBER", new Integer(threadNumber));
+		List jobMethods = setUpJobMethod("testMdekEntity", jobParams);
+
+		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument fetchSubObjects(String objUuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, objUuid);
+		List jobMethods = setUpJobMethod("getSubObjects", jobParams);
+
+		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument fetchSubAddresses(String adrUuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, adrUuid);
+		List jobMethods = setUpJobMethod("getSubAddresses", jobParams);
+
+		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument fetchObjAddresses(String objUuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, objUuid);
+		List jobMethods = setUpJobMethod("getObjAddresses", jobParams);
+		
+		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getResultFromResponse(IngridDocument mdekResponse) {
+		IngridDocument result = null;
+
+		boolean success = mdekResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
+		if (success) {
+			List pairList = (List) mdekResponse.get(IJobRepository.JOB_INVOKE_RESULTS);
+			Pair pair = (Pair) pairList.get(0);
+			result = (IngridDocument) pair.getValue();
+		}
+
+		return result;
+	}
+
+	public String getErrorMsgFromResponse(IngridDocument mdekResponse) {
+		int numErrorTypes = 4;
+		String[] errMsgs = new String[numErrorTypes];
+
+		errMsgs[0] = (String) mdekResponse.get(IJobRepository.JOB_REGISTER_ERROR_MESSAGE);
+		errMsgs[1] = (String) mdekResponse.get(IJobRepository.JOB_INVOKE_ERROR_MESSAGE);
+		errMsgs[2] = (String) mdekResponse.get(IJobRepository.JOB_COMMON_ERROR_MESSAGE);
+		errMsgs[3] = (String) mdekResponse.get(IJobRepository.JOB_DEREGISTER_ERROR_MESSAGE);
+
+		String retMsg = null;
+		for (String errMsg : errMsgs) {
+			if (errMsg != null) {
+				if (retMsg == null) {
+					retMsg = errMsg;
+				} else {
+					retMsg += "\n!!! Further Error !!!:\n" + errMsg;
+				}
+			}
+		}
+		
+		return retMsg;
+	}
+
 	private IngridDocument registerJob(String jobId, String jobXml) {
 		IngridDocument registerDocument = new IngridDocument();
 		registerDocument.put(IJobRepository.JOB_ID, jobId);
@@ -112,37 +183,19 @@ public class MdekCaller implements IMdekCaller {
 
 		return response;
 	}
-*/
-	public IngridDocument testMdekEntity(int threadNumber) {
+
+	private List setUpJobMethod(String methodName, IngridDocument methodParams) {
+		debugDocument("PARAMETERS:", methodParams);
+
 		ArrayList<Pair> methodList = new ArrayList<Pair>();
-		IngridDocument inputDocument = new IngridDocument();
-		inputDocument.put(MdekKeys.TITLE, "TEST obj_name");
-		inputDocument.put(MdekKeys.ABSTRACT, "TEST obj_descr");
-		inputDocument.put("THREAD_NUMBER", new Integer(threadNumber));
-		methodList.add(new Pair("testMdekEntity", inputDocument));
-
-		IngridDocument invokeDocument = new IngridDocument();
-		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
-		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
-		debugDocument("PARAMETERS:", inputDocument);
-
-		IngridDocument response = jobRepo.execute(invokeDocument);
-		debugDocument("RESPONSE:", response);
-
-		return response;
+		methodList.add(new Pair(methodName, methodParams));
+		return methodList;
 	}
 
-	public IngridDocument fetchSubObjects(String objUuid) {
-		ArrayList<Pair> methodList = new ArrayList<Pair>();
-		IngridDocument inputDocument = new IngridDocument();
-		inputDocument.put(MdekKeys.UUID, objUuid);
-		methodList.add(new Pair("getSubObjects", inputDocument));
-		debugDocument("PARAMETERS:", inputDocument);
-
+	private IngridDocument callJob(String jobId, List jobMethods) {
 		IngridDocument invokeDocument = new IngridDocument();
-		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
-		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
+		invokeDocument.put(IJobRepository.JOB_ID, jobId);
+		invokeDocument.put(IJobRepository.JOB_METHODS, jobMethods);
 //		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
@@ -151,25 +204,7 @@ public class MdekCaller implements IMdekCaller {
 		return response;
 	}
 
-	public IngridDocument fetchObjAddresses(String objUuid) {
-		ArrayList<Pair> methodList = new ArrayList<Pair>();
-		IngridDocument inputDocument = new IngridDocument();
-		inputDocument.put(MdekKeys.UUID, objUuid);
-		methodList.add(new Pair("getObjAddresses", inputDocument));
-		debugDocument("PARAMETERS:", inputDocument);
-
-		IngridDocument invokeDocument = new IngridDocument();
-		invokeDocument.put(IJobRepository.JOB_ID, MDEK_TREE_JOB_ID);
-		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
-
-		IngridDocument response = jobRepo.execute(invokeDocument);
-		debugDocument("RESPONSE:", response);
-		
-		return response;
-	}
-
-	private static void debugDocument(String title, IngridDocument doc) {
+	private void debugDocument(String title, IngridDocument doc) {
 		if (!log.isDebugEnabled()) {
 			return;
 		}
@@ -183,34 +218,4 @@ public class MdekCaller implements IMdekCaller {
 			log.debug("IngridDocument: " + doc);			
 //		}		
 	}
-
-	/**
-	 * Get Result Document from Mdek response
-	 * @param jobResponse response from mdek call
-	 * @return null if errors occured otherwise IngridDocument containing results
-	 */
-	public static IngridDocument getResult(IngridDocument jobResponse) {
-		IngridDocument result = null;
-
-		boolean success = jobResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
-		if (success) {
-			List pairList = (List) jobResponse.get(IJobRepository.JOB_INVOKE_RESULTS);
-			Pair pair = (Pair) pairList.get(0);
-			result = (IngridDocument) pair.getValue();
-		}
-
-		return result;
-	}
-
-	public static String getErrorMsg(IngridDocument jobResponse) {
-		String errMsg = "NO ERROR MESSAGE !";
-		
-		boolean success = jobResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
-		if (!success) {
-			errMsg = (String) jobResponse.get(IJobRepository.JOB_INVOKE_ERROR_MESSAGE);
-		}
-
-		return errMsg;
-	}
-
 }
