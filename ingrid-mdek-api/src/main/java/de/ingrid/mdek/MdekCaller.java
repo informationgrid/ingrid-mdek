@@ -103,10 +103,22 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_TREE_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument fetchTopObjects() {
+		List jobMethods = setUpJobMethod("getTopObjects", null);
+
+		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument fetchSubObjects(String objUuid) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, objUuid);
 		List jobMethods = setUpJobMethod("getSubObjects", jobParams);
+
+		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument fetchTopAddresses() {
+		List jobMethods = setUpJobMethod("getTopAddresses", null);
 
 		return callJob(MDEK_TREE_JOB_ID, jobMethods);
 	}
@@ -210,12 +222,13 @@ public class MdekCaller implements IMdekCaller {
 		}
 
 		if (title != null) {
-			log.debug(title);			
+			log.debug(title);
 		}
-		int docLength = doc.toString().length();
-		log.debug("IngridDocument length: " + docLength);			
-//		if (docLength < 2000)  {
-			log.debug("IngridDocument: " + doc);			
-//		}		
+		if (doc != null) {
+			int docLength = doc.toString().length();
+			log.debug("IngridDocument length: " + docLength);
+		}
+
+		log.debug("IngridDocument: " + doc);			
 	}
 }

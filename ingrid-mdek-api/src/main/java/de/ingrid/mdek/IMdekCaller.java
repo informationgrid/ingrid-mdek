@@ -11,6 +11,8 @@ public interface IMdekCaller {
 
 	IngridDocument testMdekEntity(int threadNumber);
 
+	IngridDocument fetchTopObjects();
+	IngridDocument fetchTopAddresses();
 	IngridDocument fetchSubObjects(String objUuid);
 	IngridDocument fetchSubAddresses(String adrUuid);
 	IngridDocument fetchObjAddresses(String objUuid);

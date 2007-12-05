@@ -2,6 +2,7 @@ package de.ingrid.mdek.example;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.IMdekCaller;
@@ -91,19 +92,53 @@ class MdekThread extends Thread {
 		isRunning = true;
 
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
 
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//mdekCaller.testMdekEntity(threadNumber);
 
-		System.out.println("\n###### INVOKE getSubObjects ######");
-		long startTime = System.currentTimeMillis();
-		IngridDocument response = mdekCaller.fetchSubObjects("19654CB2-C510-11D3-BADE-0060971A0BF7");
-		long endTime = System.currentTimeMillis();
-		long neededTime = endTime - startTime;
+		System.out.println("\n###### INVOKE getTopObjects ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.fetchTopObjects();
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		IngridDocument result = mdekCaller.getResultFromResponse(response);
+		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: " + result.get(MdekKeys.OBJ_ENTITIES));
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+
+		System.out.println("\n###### INVOKE getSubObjects ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.fetchSubObjects("19654CB2-C510-11D3-BADE-0060971A0BF7");
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+
+		System.out.println("\n###### INVOKE getTopAddresses ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.fetchTopAddresses();
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
@@ -116,7 +151,8 @@ class MdekThread extends Thread {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: " + result.get(MdekKeys.ADR_ENTITIES));
+			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
@@ -129,7 +165,8 @@ class MdekThread extends Thread {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: " + result.get(MdekKeys.ADR_ENTITIES));
+			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
