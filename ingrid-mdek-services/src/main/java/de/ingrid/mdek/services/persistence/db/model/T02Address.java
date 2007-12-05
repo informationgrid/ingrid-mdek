@@ -1,5 +1,8 @@
 package de.ingrid.mdek.services.persistence.db.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @SuppressWarnings("serial")
 public class T02Address extends MdekIDCEntity {
@@ -20,9 +23,10 @@ public class T02Address extends MdekIDCEntity {
 	private String job;
 	private String descr;
 
+	private Set t022AdrAdrs = new HashSet();
+
 /*
 	private Set t021Communications = new HashSet();
-	private Set t022AdrAdrs = new HashSet();
 	private Set t02Addresss = new HashSet();
 	private Set t02Addresss = new HashSet();
 	private Set t03Catalogues = new HashSet();
@@ -155,6 +159,14 @@ public class T02Address extends MdekIDCEntity {
 
 	// ASSOCIATIONS
 
+	public Set getT022AdrAdrs() {
+		return t022AdrAdrs;
+	}
+
+	public void setT022AdrAdrs(Set t022AdrAdrs) {
+		this.t022AdrAdrs = t022AdrAdrs;
+	}
+
 /*
 	public Set getT021Communications() {
 		return t021Communications;
@@ -162,14 +174,6 @@ public class T02Address extends MdekIDCEntity {
 
 	public void setT021Communications(Set t021Communications) {
 		this.t021Communications = t021Communications;
-	}
-
-	public Set getT022AdrAdrs() {
-		return t022AdrAdrs;
-	}
-
-	public void setT022AdrAdrs(Set t022AdrAdrs) {
-		this.t022AdrAdrs = t022AdrAdrs;
 	}
 
 	public Set getT02Addresss() {

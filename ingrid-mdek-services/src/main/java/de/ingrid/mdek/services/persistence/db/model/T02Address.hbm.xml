@@ -37,14 +37,15 @@
       <property name="job" type="string" column="job"/>
       <property name="descr" type="string" column="descr"/>
 
+      <set name="t022AdrAdrs" table="t022_adr_adr">
+         <key column="adr_from_id"/>
+         <many-to-many column="adr_to_id" class="T02Address"/>
+      </set>
+
 <!--
       <set name="t021communications" table="t021_communication">
          <key column="adr_id"/>
          <one-to-many column="adr_id" class="de.ingrid.theUltimateBeansPackage.T021Communication"/>
-      </set>
-      <set name="t022adradrs" table="t022_adr_adr">
-         <key column="adr_id"/>
-         <many-to-one column="adr_to_id" class="de.ingrid.theUltimateBeansPackage.T022AdrAdr"/>
       </set>
       <set name="t02addresss" table="t02_address">
          <key column="mod_id"/>
