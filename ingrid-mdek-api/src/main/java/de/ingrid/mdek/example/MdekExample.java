@@ -110,7 +110,10 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);				
+			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
@@ -124,7 +127,10 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);				
+			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
@@ -138,7 +144,10 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);				
+			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
@@ -152,7 +161,10 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);				
+			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
@@ -166,7 +178,10 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities -> " + l);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);				
+			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
