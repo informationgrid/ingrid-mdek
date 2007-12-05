@@ -108,9 +108,8 @@ public class MdekTreeJob extends MdekJob {
 
 		beginTransaction();
 
-		// fetch all at once (one select with outer joins)
+		// fetch top Objects
 		List objs = session.createQuery("from T01Object obj " +
-			"left join fetch obj.t012ObjObjs " +
 			"where obj.root = 1")
 			.list();
 
@@ -121,6 +120,7 @@ public class MdekTreeJob extends MdekJob {
 			T01Object obj = (T01Object)iter.next();
 			IngridDocument doc = mapper.mapT01Object(obj);
 			boolean hasChild = false;
+			// NOTICE: Causes another select !
 			if (obj.getT012ObjObjs().size() > 0) {
 				hasChild = true;
 			}
@@ -187,9 +187,8 @@ public class MdekTreeJob extends MdekJob {
 
 		beginTransaction();
 
-		// fetch all at once (one select with outer joins)
+		// fetch top Addresses
 		List adrs = session.createQuery("from T02Address adr " +
-			"left join fetch adr.t022AdrAdrs " +
 			"where adr.root = 1")
 			.list();
 
@@ -200,6 +199,7 @@ public class MdekTreeJob extends MdekJob {
 			T02Address adr = (T02Address)iter.next();
 			IngridDocument doc = mapper.mapT02Address(adr);
 			boolean hasChild = false;
+			// NOTICE: Causes another select !
 			if (adr.getT022AdrAdrs().size() > 0) {
 				hasChild = true;
 			}
