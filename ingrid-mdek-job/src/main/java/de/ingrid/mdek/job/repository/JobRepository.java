@@ -1,6 +1,8 @@
 package de.ingrid.mdek.job.repository;
 
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +99,13 @@ public class JobRepository implements IJobRepository {
 				LOG.warn("method invoke failed for jobid [" + jobId + "]", e);
 			}
 
-			ret.put(JOB_INVOKE_ERROR_MESSAGE, e.getMessage());
+			String msg = e.getMessage();
+			if (msg == null) {
+				StringWriter sw = new StringWriter();
+				e.printStackTrace(new PrintWriter(sw));
+				msg = sw.toString();
+			}
+			ret.put(JOB_INVOKE_ERROR_MESSAGE, msg);
 			ret.putBoolean(JOB_INVOKE_SUCCESS, false);
 		}
 
