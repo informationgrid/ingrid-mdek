@@ -111,8 +111,6 @@ public class MdekTreeJob extends MdekJob {
 
 		beginTransaction();
 
-//		T01Object o = daoT01Object.loadById(uuid);
-
 		// enable filter -> fetch only hierarchical relations
 		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
 
@@ -148,6 +146,48 @@ public class MdekTreeJob extends MdekJob {
 		commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
+		return result;
+	}
+
+	public IngridDocument getSubAddresses(IngridDocument params) {
+		IngridDocument result = new IngridDocument();
+		Session session = getSession();		
+
+		// extract parameters
+		String uuid = (String) params.get(MdekKeys.UUID);
+
+		beginTransaction();
+
+		// fetch all at once (one select with outer joins)
+		T02Address a = (T02Address) session.createQuery("from T02Address adr " +
+			"left join fetch adr.t022AdrAdrs child " +
+			"left join fetch child.t022AdrAdrs " +
+			"where adr.id = ?")
+			.setString(0, uuid)
+			.uniqueResult();
+
+		if (log.isDebugEnabled()) {
+			log.debug("Fetched T02Address with SubAddresses: " + a);			
+		}
+
+		Set subAdrs = a.getT022AdrAdrs();
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(subAdrs.size());
+		Iterator iter = subAdrs.iterator();
+		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
+		while (iter.hasNext()) {
+			T02Address subAdr = (T02Address)iter.next();
+			IngridDocument subDoc = mapper.mapT02Address(subAdr);
+			boolean hasChild = false;
+			if (subAdr.getT022AdrAdrs().size() > 0) {
+				hasChild = true;
+			}
+			subDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+			resultList.add(subDoc);
+		}
+
+		commitTransaction();
+
+		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
 	}
 
