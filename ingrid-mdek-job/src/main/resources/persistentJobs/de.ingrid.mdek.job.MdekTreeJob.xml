@@ -3,6 +3,6 @@
 <beans>
 	<bean id="de.ingrid.mdek.job.MdekTreeJob" class="de.ingrid.mdek.job.MdekTreeJob" >
 		<constructor-arg ref="de.ingrid.mdek.services.log.ILogService"/>
-		<constructor-arg ref="sessionFactory"/>
+		<constructor-arg ref="de.ingrid.mdek.services.persistence.db.IDaoFactory"/>
 	</bean>
 </beans>

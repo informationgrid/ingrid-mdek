@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hibernate.FetchMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.services.log.ILogService;
-import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
@@ -29,18 +27,17 @@ public class MdekTreeJob extends MdekJob {
 	/** logs in separate File (job specific log file) */
 	protected Logger log;
 
-	private GenericHibernateDao<T01Object> daoT01Object;
+	private IT01ObjectDao daoT01Object;
+	private IT02AddressDao daoT02Address;
 
 	public MdekTreeJob(ILogService logService,
-			SessionFactory sessionFactory) {
-		
-		super(sessionFactory);
+			DaoFactory daoFactory) {
 		
 		// use logger from service -> logs into separate file !
 		log = logService.getLogger(MdekTreeJob.class); 
 
-		daoT01Object = new GenericHibernateDao<T01Object> (
-				sessionFactory, T01Object.class);
+		daoT01Object = daoFactory.getT01ObjectDao();
+		daoT02Address = daoFactory.getT02AddressDao();
 	}
 
 	public IngridDocument testMdekEntity(IngridDocument params) {
@@ -54,8 +51,8 @@ public class MdekTreeJob extends MdekJob {
 		T01Object objTemplate = new T01Object();
 		objTemplate.setObjName(name);
 		objTemplate.setObjDescr(descr);
-
-		beginTransaction();
+		
+		daoT01Object.beginTransaction();
 
 		List<T01Object> objs = daoT01Object.findByExample(objTemplate);
 
@@ -95,7 +92,7 @@ public class MdekTreeJob extends MdekJob {
 			resultList.add(mapper.mapT01Object(o));
 		}
 
-		commitTransaction();
+		daoT01Object.commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
 
@@ -104,14 +101,11 @@ public class MdekTreeJob extends MdekJob {
 
 	public IngridDocument getTopObjects() {
 		IngridDocument result = new IngridDocument();
-		Session session = getSession();		
 
-		beginTransaction();
+		daoT01Object.beginTransaction();
 
 		// fetch top Objects
-		List objs = session.createQuery("from T01Object obj " +
-			"where obj.root = 1")
-			.list();
+		List<T01Object> objs = daoT01Object.getTopObjects();
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
 		Iterator iter = objs.iterator();
@@ -128,7 +122,7 @@ public class MdekTreeJob extends MdekJob {
 			resultList.add(doc);
 		}
 
-		commitTransaction();
+		daoT01Object.commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
 		return result;
@@ -136,26 +130,11 @@ public class MdekTreeJob extends MdekJob {
 
 	public IngridDocument getSubObjects(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
-		Session session = getSession();		
-
-		// extract parameters
 		String uuid = (String) params.get(MdekKeys.UUID);
 
-		beginTransaction();
+		daoT01Object.beginTransaction();
 
-		// enable filter -> fetch only hierarchical relations
-		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
-
-		// fetch all at once (one select with outer joins)
-		T01Object o = (T01Object) session.createQuery("from T01Object obj " +
-			"left join fetch obj.t012ObjObjs child " +
-			"left join fetch child.t012ObjObjs " +
-			"where obj.id = ?")
-			.setString(0, uuid)
-			.uniqueResult();
-
-		session.disableFilter("relationTypeFilter");
-
+		T01Object o = daoT01Object.getObjectWithSubObjects(uuid);
 		if (log.isDebugEnabled()) {
 			log.debug("Fetched T01Object with SubObjects: " + o);			
 		}
@@ -175,7 +154,7 @@ public class MdekTreeJob extends MdekJob {
 			resultList.add(subDoc);
 		}
 
-		commitTransaction();
+		daoT01Object.commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
 		return result;
@@ -183,14 +162,11 @@ public class MdekTreeJob extends MdekJob {
 
 	public IngridDocument getTopAddresses() {
 		IngridDocument result = new IngridDocument();
-		Session session = getSession();		
 
-		beginTransaction();
+		daoT02Address.beginTransaction();
 
 		// fetch top Addresses
-		List adrs = session.createQuery("from T02Address adr " +
-			"where adr.root = 1")
-			.list();
+		List<T02Address> adrs = daoT02Address.getTopAddresses();
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
 		Iterator iter = adrs.iterator();
@@ -207,7 +183,7 @@ public class MdekTreeJob extends MdekJob {
 			resultList.add(doc);
 		}
 
-		commitTransaction();
+		daoT02Address.commitTransaction();
 
 		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
@@ -215,21 +191,11 @@ public class MdekTreeJob extends MdekJob {
 
 	public IngridDocument getSubAddresses(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
-		Session session = getSession();		
-
-		// extract parameters
 		String uuid = (String) params.get(MdekKeys.UUID);
 
-		beginTransaction();
+		daoT02Address.beginTransaction();
 
-		// fetch all at once (one select with outer joins)
-		T02Address a = (T02Address) session.createQuery("from T02Address adr " +
-			"left join fetch adr.t022AdrAdrs child " +
-			"left join fetch child.t022AdrAdrs " +
-			"where adr.id = ?")
-			.setString(0, uuid)
-			.uniqueResult();
-
+		T02Address a = daoT02Address.getAddressWithSubAddresses(uuid);
 		if (log.isDebugEnabled()) {
 			log.debug("Fetched T02Address with SubAddresses: " + a);			
 		}
@@ -249,32 +215,26 @@ public class MdekTreeJob extends MdekJob {
 			resultList.add(subDoc);
 		}
 
-		commitTransaction();
+		daoT02Address.commitTransaction();
 
 		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
 	}
 
-	public IngridDocument getObjAddresses(IngridDocument params) {
+	public IngridDocument getObjDetails(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
-		Session session = getSession();		
-
-		// extract parameters
 		String uuid = (String) params.get(MdekKeys.UUID);
 
-		beginTransaction();
+		return result;
+	}
 
-		// enable filter -> fetch only hierarchical relations
-		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
+	public IngridDocument getObjAddresses(IngridDocument params) {
+		IngridDocument result = new IngridDocument();
+		String uuid = (String) params.get(MdekKeys.UUID);
 
-		// fetch all at once (one select with outer joins)
-		T01Object o = (T01Object) session.createCriteria(T01Object.class)
-			.setFetchMode("t012ObjAdrs", FetchMode.JOIN)
-			.add( Restrictions.idEq(uuid) )
-			.uniqueResult();
+		daoT01Object.beginTransaction();
 
-		session.disableFilter("relationTypeFilter");
-
+		T01Object o = daoT01Object.getObjWithAddresses(uuid);
 		if (log.isDebugEnabled()) {
 			log.debug("Fetched T01Object with Addresses: " + o);			
 		}
@@ -287,7 +247,7 @@ public class MdekTreeJob extends MdekJob {
 			resultList.add(mapper.mapT02Address((T02Address)iter.next()));
 		}
 
-		commitTransaction();
+		daoT01Object.commitTransaction();
 
 		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
