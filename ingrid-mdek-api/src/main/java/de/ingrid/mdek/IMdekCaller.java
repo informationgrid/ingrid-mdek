@@ -11,11 +11,14 @@ public interface IMdekCaller {
 
 	IngridDocument testMdekEntity(int threadNumber);
 
-	IngridDocument fetchTopObjects();
-	IngridDocument fetchTopAddresses();
-	IngridDocument fetchSubObjects(String objUuid);
-	IngridDocument fetchSubAddresses(String adrUuid);
+	IngridDocument fetchObjDetails(String objUuid);
 	IngridDocument fetchObjAddresses(String objUuid);
+
+	IngridDocument fetchTopObjects();
+	IngridDocument fetchSubObjects(String objUuid);
+
+	IngridDocument fetchTopAddresses();
+	IngridDocument fetchSubAddresses(String adrUuid);
 
 	/**
 	 * Get result data from response of mdek call.

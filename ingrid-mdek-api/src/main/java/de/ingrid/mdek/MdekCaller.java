@@ -131,6 +131,14 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_TREE_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument fetchObjDetails(String objUuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, objUuid);
+		List jobMethods = setUpJobMethod("getObjDetails", jobParams);
+		
+		return callJob(MDEK_TREE_JOB_ID, jobMethods);		
+	}
+
 	public IngridDocument fetchObjAddresses(String objUuid) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, objUuid);
