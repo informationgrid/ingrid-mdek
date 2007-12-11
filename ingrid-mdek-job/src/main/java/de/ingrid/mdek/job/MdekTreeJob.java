@@ -1,7 +1,6 @@
 package de.ingrid.mdek.job;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -15,6 +14,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
+import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper.MappingSpecials;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekTreeJob extends MdekJob {
@@ -83,13 +83,13 @@ public class MdekTreeJob extends MdekJob {
 				} else {
 					daoT01Object.makePersistent(o);
 				}
-				resultList.add(mapper.mapT01Object(o));
+				resultList.add(mapper.map(o));
 			}			
 		} else {
 			daoT01Object.makePersistent(objTemplate);
 			
 			T01Object o = daoT01Object.loadById(objTemplate.getId());
-			resultList.add(mapper.mapT01Object(o));
+			resultList.add(mapper.map(o));
 		}
 
 		daoT01Object.commitTransaction();
@@ -108,17 +108,10 @@ public class MdekTreeJob extends MdekJob {
 		List<T01Object> objs = daoT01Object.getTopObjects();
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
-		Iterator iter = objs.iterator();
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		while (iter.hasNext()) {
-			T01Object obj = (T01Object)iter.next();
-			IngridDocument doc = mapper.mapT01Object(obj);
-			boolean hasChild = false;
-			// NOTICE: Causes another select !
-			if (obj.getT012ObjObjs().size() > 0) {
-				hasChild = true;
-			}
-			doc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+		for (T01Object obj : objs) {
+			IngridDocument doc = mapper.map(obj, 
+				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
 			resultList.add(doc);
 		}
 
@@ -139,19 +132,14 @@ public class MdekTreeJob extends MdekJob {
 			log.debug("Fetched T01Object with SubObjects: " + o);			
 		}
 
-		Set subObjs = o.getT012ObjObjs();
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(subObjs.size());
-		Iterator iter = subObjs.iterator();
+		Set<T01Object> objs = o.getT012ObjObjs();
+
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		while (iter.hasNext()) {
-			T01Object subObj = (T01Object)iter.next();
-			IngridDocument subDoc = mapper.mapT01Object(subObj);
-			boolean hasChild = false;
-			if (subObj.getT012ObjObjs().size() > 0) {
-				hasChild = true;
-			}
-			subDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
-			resultList.add(subDoc);
+		for (T01Object obj : objs) {
+			IngridDocument doc = mapper.map(obj, 
+				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
+			resultList.add(doc);
 		}
 
 		daoT01Object.commitTransaction();
@@ -169,17 +157,10 @@ public class MdekTreeJob extends MdekJob {
 		List<T02Address> adrs = daoT02Address.getTopAddresses();
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
-		Iterator iter = adrs.iterator();
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		while (iter.hasNext()) {
-			T02Address adr = (T02Address)iter.next();
-			IngridDocument doc = mapper.mapT02Address(adr);
-			boolean hasChild = false;
-			// NOTICE: Causes another select !
-			if (adr.getT022AdrAdrs().size() > 0) {
-				hasChild = true;
-			}
-			doc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+		for (T02Address adr : adrs) {
+			IngridDocument doc = mapper.map(adr, 
+				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
 			resultList.add(doc);
 		}
 
@@ -200,19 +181,14 @@ public class MdekTreeJob extends MdekJob {
 			log.debug("Fetched T02Address with SubAddresses: " + a);			
 		}
 
-		Set subAdrs = a.getT022AdrAdrs();
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(subAdrs.size());
-		Iterator iter = subAdrs.iterator();
+		Set<T02Address> adrs = a.getT022AdrAdrs();
+
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		while (iter.hasNext()) {
-			T02Address subAdr = (T02Address)iter.next();
-			IngridDocument subDoc = mapper.mapT02Address(subAdr);
-			boolean hasChild = false;
-			if (subAdr.getT022AdrAdrs().size() > 0) {
-				hasChild = true;
-			}
-			subDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
-			resultList.add(subDoc);
+		for (T02Address adr : adrs) {
+			IngridDocument doc = mapper.map(adr, 
+				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
+			resultList.add(doc);
 		}
 
 		daoT02Address.commitTransaction();
@@ -239,12 +215,12 @@ public class MdekTreeJob extends MdekJob {
 			log.debug("Fetched T01Object with Addresses: " + o);			
 		}
 
-		Set subAdrs = o.getT012ObjAdrs();
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(subAdrs.size());
-		Iterator iter = subAdrs.iterator();
+		Set<T02Address> adrs = o.getT012ObjAdrs();
+
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		while (iter.hasNext()) {
-			resultList.add(mapper.mapT02Address((T02Address)iter.next()));
+		for (T02Address adr : adrs) {
+			resultList.add(mapper.map(adr));
 		}
 
 		daoT01Object.commitTransaction();
