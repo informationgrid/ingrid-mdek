@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
@@ -17,9 +18,9 @@ public interface IT01ObjectDao
 	
 	List<T01Object> getTopObjects();
 
-	/** Fetches object with given id AND sub objects (2 levels) IN ONE SELECT */
-	T01Object getObjectWithSubObjects(String uuid);
+	/** Fetches sub objects of object with given id */
+	Set<T01Object> getSubObjects(String uuid);
 
-	/** Fetches object with given id AND connected addresses IN ONE SELECT */
-	T01Object getObjWithAddresses(String uuid);
+	/** Fetches object with given id containing all detailed object data. */
+	T01Object getObjDetails(String uuid);
 }

@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
@@ -15,6 +16,6 @@ public interface IT02AddressDao
 
 	List<T02Address> getTopAddresses();
 	
-	/** Fetches address with given id AND sub addresses (2 levels) IN ONE SELECT */
-	T02Address getAddressWithSubAddresses(String uuid);
+	/** Fetches sub addresses of address with given id */
+	Set<T02Address> getSubAddresses(String uuid);
 }

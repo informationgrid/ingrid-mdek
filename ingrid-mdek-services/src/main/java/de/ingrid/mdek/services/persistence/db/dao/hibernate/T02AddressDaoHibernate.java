@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -34,7 +35,7 @@ public class T02AddressDaoHibernate
 		return adrs;
 	}
 
-	public T02Address getAddressWithSubAddresses(String uuid) {
+	public Set<T02Address> getSubAddresses(String uuid) {
 		Session session = getSession();
 
 		T02Address a = (T02Address) session.createQuery("from T02Address adr " +
@@ -44,6 +45,8 @@ public class T02AddressDaoHibernate
 			.setString(0, uuid)
 			.uniqueResult();
 		
-		return a;
+		Set<T02Address> adrs = a.getT022AdrAdrs();
+
+		return adrs;
 	}
 }

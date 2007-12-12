@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
@@ -35,7 +36,7 @@ public class T01ObjectDaoHibernate
 		return objs;
 	}
 
-	public T01Object getObjectWithSubObjects(String uuid) {
+	public Set<T01Object> getSubObjects(String uuid) {
 		Session session = getSession();
 
 		// enable filter -> fetch only hierarchical relations
@@ -50,11 +51,13 @@ public class T01ObjectDaoHibernate
 			.uniqueResult();
 
 		session.disableFilter("relationTypeFilter");
-		
-		return o;
+
+		Set<T01Object> objs = o.getT012ObjObjs();
+
+		return objs;
 	}
 
-	public T01Object getObjWithAddresses(String uuid) {
+	public T01Object getObjDetails(String uuid) {
 		Session session = getSession();
 
 		// enable filter -> fetch only hierarchical relations
