@@ -105,10 +105,9 @@ public class BeanToDocMapper {
 	}
 
 	/** Map data according to given quantity and add given specials */
-	public IngridDocument mapT01Object(Object obj, MappingQuantity howMuch, MappingSpecials[] specials) {
+	public IngridDocument mapT01Object(T01Object o, MappingQuantity howMuch, MappingSpecials[] specials) {
 		IngridDocument doc = new IngridDocument();
 
-		T01Object o = (T01Object) obj;
 		doc.put(MdekKeys.UUID, o.getId());
 
 		if (howMuch.value() >= MappingQuantity.BASIC.value()) {
@@ -133,10 +132,9 @@ public class BeanToDocMapper {
 	}
 
 	/** Map data according to given quantity and add given specials */
-	public IngridDocument mapT02Address(Object obj, MappingQuantity howMuch, MappingSpecials[] specials) {
+	public IngridDocument mapT02Address(T02Address a, MappingQuantity howMuch, MappingSpecials[] specials) {
 		IngridDocument doc = new IngridDocument();
 
-		T02Address a = (T02Address) obj;
 		doc.put(MdekKeys.UUID, a.getId());
 		if (howMuch.value() >= MappingQuantity.BASIC.value()) {
 			doc.put(MdekKeys.CLASS, a.getTyp());
