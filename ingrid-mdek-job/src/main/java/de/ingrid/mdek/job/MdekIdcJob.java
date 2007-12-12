@@ -14,7 +14,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper.MappingSpecials;
+import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper.MappingType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekIdcJob extends MdekJob {
@@ -83,13 +83,13 @@ public class MdekIdcJob extends MdekJob {
 				} else {
 					daoT01Object.makePersistent(o);
 				}
-				resultList.add(mapper.map(o));
+				resultList.add(mapper.mapT01Object(o, MappingType.DETAIL_ENTITY));
 			}			
 		} else {
 			daoT01Object.makePersistent(objTemplate);
 			
 			T01Object o = daoT01Object.loadById(objTemplate.getId());
-			resultList.add(mapper.map(o));
+			resultList.add(mapper.mapT01Object(o, MappingType.DETAIL_ENTITY));
 		}
 
 		daoT01Object.commitTransaction();
@@ -110,9 +110,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T01Object obj : objs) {
-			IngridDocument doc = mapper.map(obj, 
-				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
-			resultList.add(doc);
+			resultList.add(mapper.mapT01Object(obj, MappingType.TOP_ENTITY));
 		}
 
 		daoT01Object.commitTransaction();
@@ -127,20 +125,32 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object.beginTransaction();
 
-		T01Object o = daoT01Object.getObjectWithSubObjects(uuid);
-		if (log.isDebugEnabled()) {
-			log.debug("Fetched T01Object with SubObjects: " + o);			
-		}
-
-		Set<T01Object> objs = o.getT012ObjObjs();
+		Set<T01Object> objs = daoT01Object.getSubObjects(uuid);
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T01Object obj : objs) {
-			IngridDocument doc = mapper.map(obj, 
-				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
-			resultList.add(doc);
+			resultList.add(mapper.mapT01Object(obj, MappingType.SUB_ENTITY));
 		}
+
+		daoT01Object.commitTransaction();
+
+		result.put(MdekKeys.OBJ_ENTITIES, resultList);
+		return result;
+	}
+
+
+	public IngridDocument getObjDetails(IngridDocument params) {
+		IngridDocument result = new IngridDocument();
+		String uuid = (String) params.get(MdekKeys.UUID);
+
+		daoT01Object.beginTransaction();
+
+		T01Object o = daoT01Object.getObjDetails(uuid);
+
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(1);
+		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
+		resultList.add(mapper.mapT01Object(o, MappingType.DETAIL_ENTITY));
 
 		daoT01Object.commitTransaction();
 
@@ -159,9 +169,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T02Address adr : adrs) {
-			IngridDocument doc = mapper.map(adr, 
-				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
-			resultList.add(doc);
+			resultList.add(mapper.mapT02Address(adr, MappingType.TOP_ENTITY));
 		}
 
 		daoT02Address.commitTransaction();
@@ -176,54 +184,15 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT02Address.beginTransaction();
 
-		T02Address a = daoT02Address.getAddressWithSubAddresses(uuid);
-		if (log.isDebugEnabled()) {
-			log.debug("Fetched T02Address with SubAddresses: " + a);			
-		}
-
-		Set<T02Address> adrs = a.getT022AdrAdrs();
+		Set<T02Address> adrs = daoT02Address.getSubAddresses(uuid);
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T02Address adr : adrs) {
-			IngridDocument doc = mapper.map(adr, 
-				new MappingSpecials[]{MappingSpecials.ADD_CHILD_INFO});
-			resultList.add(doc);
+			resultList.add(mapper.mapT02Address(adr, MappingType.SUB_ENTITY));
 		}
 
 		daoT02Address.commitTransaction();
-
-		result.put(MdekKeys.ADR_ENTITIES, resultList);
-		return result;
-	}
-
-	public IngridDocument getObjDetails(IngridDocument params) {
-		IngridDocument result = new IngridDocument();
-		String uuid = (String) params.get(MdekKeys.UUID);
-
-		return result;
-	}
-
-	public IngridDocument getObjAddresses(IngridDocument params) {
-		IngridDocument result = new IngridDocument();
-		String uuid = (String) params.get(MdekKeys.UUID);
-
-		daoT01Object.beginTransaction();
-
-		T01Object o = daoT01Object.getObjWithAddresses(uuid);
-		if (log.isDebugEnabled()) {
-			log.debug("Fetched T01Object with Addresses: " + o);			
-		}
-
-		Set<T02Address> adrs = o.getT012ObjAdrs();
-
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
-		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		for (T02Address adr : adrs) {
-			resultList.add(mapper.map(adr));
-		}
-
-		daoT01Object.commitTransaction();
 
 		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
