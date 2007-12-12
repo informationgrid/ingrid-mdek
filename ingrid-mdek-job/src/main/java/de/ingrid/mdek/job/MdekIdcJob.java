@@ -17,7 +17,7 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper.MappingSpecials;
 import de.ingrid.utils.IngridDocument;
 
-public class MdekTreeJob extends MdekJob {
+public class MdekIdcJob extends MdekJob {
 
     /** Logger configured via Properties. ONLY if no logger via logservice is specified
      * for same class !. If Logservice logger is specified, this one uses
@@ -30,11 +30,11 @@ public class MdekTreeJob extends MdekJob {
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
 
-	public MdekTreeJob(ILogService logService,
+	public MdekIdcJob(ILogService logService,
 			DaoFactory daoFactory) {
 		
 		// use logger from service -> logs into separate file !
-		log = logService.getLogger(MdekTreeJob.class); 
+		log = logService.getLogger(MdekIdcJob.class); 
 
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
