@@ -27,7 +27,7 @@ public class MdekCaller implements IMdekCaller {
 	private static IJobRepositoryFacade jobRepo;
 
 	// Jobs
-	private static String MDEK_TREE_JOB_ID = "de.ingrid.mdek.job.MdekIdcJob";
+	private static String MDEK_IDC_JOB_ID = "de.ingrid.mdek.job.MdekIdcJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -100,13 +100,13 @@ public class MdekCaller implements IMdekCaller {
 		jobParams.put("THREAD_NUMBER", new Integer(threadNumber));
 		List jobMethods = setUpJobMethod("testMdekEntity", jobParams);
 
-		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchTopObjects() {
 		List jobMethods = setUpJobMethod("getTopObjects", null);
 
-		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchSubObjects(String objUuid) {
@@ -114,13 +114,13 @@ public class MdekCaller implements IMdekCaller {
 		jobParams.put(MdekKeys.UUID, objUuid);
 		List jobMethods = setUpJobMethod("getSubObjects", jobParams);
 
-		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchTopAddresses() {
 		List jobMethods = setUpJobMethod("getTopAddresses", null);
 
-		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchSubAddresses(String adrUuid) {
@@ -128,7 +128,7 @@ public class MdekCaller implements IMdekCaller {
 		jobParams.put(MdekKeys.UUID, adrUuid);
 		List jobMethods = setUpJobMethod("getSubAddresses", jobParams);
 
-		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchObjDetails(String objUuid) {
@@ -136,15 +136,7 @@ public class MdekCaller implements IMdekCaller {
 		jobParams.put(MdekKeys.UUID, objUuid);
 		List jobMethods = setUpJobMethod("getObjDetails", jobParams);
 		
-		return callJob(MDEK_TREE_JOB_ID, jobMethods);		
-	}
-
-	public IngridDocument fetchObjAddresses(String objUuid) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, objUuid);
-		List jobMethods = setUpJobMethod("getObjAddresses", jobParams);
-		
-		return callJob(MDEK_TREE_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);		
 	}
 
 	public IngridDocument getResultFromResponse(IngridDocument mdekResponse) {

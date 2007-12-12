@@ -11,23 +11,24 @@
 			<xs:element ref="adrEntities"/>
 		</xs:all>
 	</xs:complexType>
+
 	<xs:complexType name="objEntities">
-		<xs:choice minOccurs="0" maxOccurs="unbounded">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element ref="object"/>
-		</xs:choice>
+		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="objEntities" type="objEntities"/>
 	<xs:complexType name="adrEntities">
-		<xs:choice minOccurs="0" maxOccurs="unbounded">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element ref="address"/>
-		</xs:choice>
+		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="adrEntities" type="adrEntities"/>
 	
-	<!-- ICS:  type="xs:long" -->
 	<xs:element name="uuid" type="xs:string"/>
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
+
 	<xs:complexType name="object">
 		<xs:all>
 			<xs:element ref="uuid"/>
@@ -35,9 +36,11 @@
 			<xs:element ref="hasChild"/>
 			<xs:element name="title" type="xs:string"/>
 			<xs:element name="abstract" type="xs:string"/>
+			<xs:element ref="adrEntities"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:element name="object" type="object"/>
+
 	<xs:complexType name="address">
 		<xs:all>
 			<xs:element ref="uuid"/>

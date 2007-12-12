@@ -101,7 +101,7 @@ class MdekThread extends Thread {
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//mdekCaller.testMdekEntity(threadNumber);
 
-		System.out.println("\n###### INVOKE getTopObjects ######");
+		System.out.println("\n###### INVOKE fetchTopObjects ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.fetchTopObjects();
 		endTime = System.currentTimeMillis();
@@ -118,7 +118,7 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
-		System.out.println("\n###### INVOKE getSubObjects ######");
+		System.out.println("\n###### INVOKE fetchSubObjects ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.fetchSubObjects("19654CB2-C510-11D3-BADE-0060971A0BF7");
 		endTime = System.currentTimeMillis();
@@ -135,7 +135,7 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
-		System.out.println("\n###### INVOKE getTopAddresses ######");
+		System.out.println("\n###### INVOKE fetchTopAddresses ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.fetchTopAddresses();
 		endTime = System.currentTimeMillis();
@@ -152,7 +152,7 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
-		System.out.println("\n###### INVOKE getSubAddresses ######");
+		System.out.println("\n###### INVOKE fetchSubAddresses ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.fetchSubAddresses("0DAE03C6-373D-45FE-AF45-4D8359750A08");
 		endTime = System.currentTimeMillis();
@@ -169,15 +169,15 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
-		System.out.println("\n###### INVOKE getObjAddresses ######");
+		System.out.println("\n###### INVOKE fetchObjDetails ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchObjAddresses("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		response = mdekCaller.fetchObjDetails("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
 				System.out.println(o);				
