@@ -27,7 +27,7 @@ public class MdekCaller implements IMdekCaller {
 	private static IJobRepositoryFacade jobRepo;
 
 	// Jobs
-	private static String MDEK_TREE_JOB_ID = "de.ingrid.mdek.job.MdekTreeJob";
+	private static String MDEK_TREE_JOB_ID = "de.ingrid.mdek.job.MdekIdcJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
