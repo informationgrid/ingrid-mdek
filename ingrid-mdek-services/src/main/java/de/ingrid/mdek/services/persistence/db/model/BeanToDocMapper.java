@@ -19,10 +19,11 @@ public class BeanToDocMapper {
 
 	/** How much to map of bean properties */
 	public enum MappingType {
-		TOP_ENTITY,
-		SUB_ENTITY,
-		BASIC_ENTITY,
-		DETAIL_ENTITY
+		BASIC_ENTITY, // client: minimum data of bean needed
+		TOP_ENTITY, // client: bean displayed in tree as topnode
+		SUB_ENTITY, // client: bean displayed in tree as subnode
+		TABLE_ENTITY, // client: bean displayed in table
+		DETAIL_ENTITY // client: bean edit/save
 	}
 
 	private static BeanToDocMapper myInstance;
@@ -37,7 +38,6 @@ public class BeanToDocMapper {
 
 	private BeanToDocMapper() {}
 
-	/** Map data according to given quantity and add given specials */
 	public IngridDocument mapT01Object(T01Object o, MappingType type) {
 		IngridDocument doc = new IngridDocument();
 
@@ -52,7 +52,7 @@ public class BeanToDocMapper {
 			Set<T02Address> adrs = o.getT012ObjAdrs();
 			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(adrs.size());
 			for (T02Address adr : adrs) {
-				adrsList.add(mapT02Address(adr, MappingType.BASIC_ENTITY));
+				adrsList.add(mapT02Address(adr, MappingType.TABLE_ENTITY));
 			}
 			doc.put(MdekKeys.ADR_ENTITIES, adrsList);
 
@@ -71,7 +71,6 @@ public class BeanToDocMapper {
 		return doc;
 	}
 
-	/** Map data according to given quantity and add given specials */
 	public IngridDocument mapT02Address(T02Address a, MappingType type) {
 		IngridDocument doc = new IngridDocument();
 
@@ -82,19 +81,35 @@ public class BeanToDocMapper {
 		doc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
 		doc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
 
-		if (type == MappingType.DETAIL_ENTITY) {
+		if (type == MappingType.TABLE_ENTITY ||
+			type == MappingType.DETAIL_ENTITY)
+		{
 			doc.put(MdekKeys.STREET, a.getStreet());
 			doc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getStateId());
 			doc.put(MdekKeys.CITY, a.getCity());
 			doc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
 			doc.put(MdekKeys.POST_BOX, a.getPostbox());
+
+			// add communication data (emails etc.) 
+			Set<T021Communication> comms = a.getT021Communications();
+			if (comms.size() > 0) {
+				ArrayList<IngridDocument> commList = new ArrayList<IngridDocument>(comms.size());
+				for (T021Communication c : comms) {
+					commList.add(mapT021Communication(c, MappingType.TABLE_ENTITY));
+				}
+				doc.put(MdekKeys.COMMUNICATION, commList);				
+			}
+		}
+
+		if (type == MappingType.DETAIL_ENTITY) {
 			doc.put(MdekKeys.FUNCTION, a.getJob());			
 			doc.put(MdekKeys.NAME_FORM, a.getAddress());
 			doc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
 		}
-		
+
+		// add flag indicating having children 
 		if (type == MappingType.TOP_ENTITY ||
-				type == MappingType.SUB_ENTITY)
+			type == MappingType.SUB_ENTITY)
 		{
         	boolean hasChild = false;
     		if (a.getT022AdrAdrs().size() > 0) {
@@ -103,6 +118,19 @@ public class BeanToDocMapper {
     		doc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
 		}
 
+		return doc;
+	}
+
+	public IngridDocument mapT021Communication(T021Communication c, MappingType type) {
+		IngridDocument doc = new IngridDocument();
+
+		doc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommType());
+		doc.put(MdekKeys.COMMUNICATION_VALUE, c.getCommValue());
+
+		if (type == MappingType.DETAIL_ENTITY) {
+			doc.put(MdekKeys.COMMUNICATION_DESCRIPTION, c.getDescr());
+		}
+		
 		return doc;
 	}
 }

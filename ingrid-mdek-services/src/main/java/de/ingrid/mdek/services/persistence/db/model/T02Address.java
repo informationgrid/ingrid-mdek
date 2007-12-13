@@ -24,9 +24,9 @@ public class T02Address extends MdekIDCEntity {
 	private String descr;
 
 	private Set t022AdrAdrs = new HashSet();
+	private Set t021Communications = new HashSet();
 
 /*
-	private Set t021Communications = new HashSet();
 	private Set t02Addresss = new HashSet();
 	private Set t02Addresss = new HashSet();
 	private Set t03Catalogues = new HashSet();
@@ -167,7 +167,6 @@ public class T02Address extends MdekIDCEntity {
 		this.t022AdrAdrs = t022AdrAdrs;
 	}
 
-/*
 	public Set getT021Communications() {
 		return t021Communications;
 	}
@@ -176,6 +175,7 @@ public class T02Address extends MdekIDCEntity {
 		this.t021Communications = t021Communications;
 	}
 
+/*
 	public Set getT02Addresss() {
 		return t02Addresss;
 	}

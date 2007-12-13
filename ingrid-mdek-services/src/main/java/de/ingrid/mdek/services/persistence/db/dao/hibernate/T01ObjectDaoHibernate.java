@@ -3,10 +3,8 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
@@ -61,12 +59,20 @@ public class T01ObjectDaoHibernate
 		Session session = getSession();
 
 		// enable filter -> fetch only hierarchical relations
+/*
+		0 == Auskunft
+		1 == Datenhalter
+		2 == Datenverantwortlicher
+		999 == Freier Eintrag
+*/
 		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
 
 		// fetch all at once (one select with outer joins)
-		T01Object o = (T01Object) session.createCriteria(T01Object.class)
-			.setFetchMode("t012ObjAdrs", FetchMode.JOIN)
-			.add( Restrictions.idEq(uuid) )
+		T01Object o = (T01Object) session.createQuery("from T01Object obj " +
+			"left join fetch obj.t012ObjAdrs adrs " +
+			"left join fetch adrs.t021Communications " +
+			"where obj.id = ?")
+			.setString(0, uuid)
 			.uniqueResult();
 
 		session.disableFilter("relationTypeFilter");

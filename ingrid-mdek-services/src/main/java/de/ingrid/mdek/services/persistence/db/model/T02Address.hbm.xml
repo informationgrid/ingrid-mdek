@@ -42,11 +42,12 @@
          <many-to-many column="adr_to_id" class="T02Address"/>
       </set>
 
-<!--
-      <set name="t021communications" table="t021_communication">
+      <set name="t021Communications" table="t021_communication">
          <key column="adr_id"/>
-         <one-to-many column="adr_id" class="de.ingrid.theUltimateBeansPackage.T021Communication"/>
+         <one-to-many class="T021Communication" not-found="ignore"/>
       </set>
+
+<!--
       <set name="t02addresss" table="t02_address">
          <key column="mod_id"/>
          <many-to-one column="adr_id" class="de.ingrid.theUltimateBeansPackage.T02Address"/>
