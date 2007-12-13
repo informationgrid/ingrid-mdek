@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-	<xs:complexType name="mdekRequest">
+	<xs:complexType name="mdekRequest_MAP">
 		<xs:all>
 			<xs:element ref="uuid"/>
 		</xs:all>
 	</xs:complexType>
-	<xs:complexType name="mdekResult">
+
+	<xs:complexType name="mdekResult_MAP">
 		<xs:all>
 			<xs:element ref="objEntities"/>
 			<xs:element ref="adrEntities"/>
@@ -14,22 +15,19 @@
 
 	<xs:complexType name="objEntities">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="object"/>
+			<xs:element ref="object_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="objEntities" type="objEntities"/>
+
 	<xs:complexType name="adrEntities">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="address"/>
+			<xs:element ref="address_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="adrEntities" type="adrEntities"/>
 	
-	<xs:element name="uuid" type="xs:string"/>
-	<xs:element name="class" type="xs:integer"/>
-	<xs:element name="hasChild" type="xs:boolean"/>
-
-	<xs:complexType name="object">
+	<xs:complexType name="object_MAP">
 		<xs:all>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
@@ -39,9 +37,13 @@
 			<xs:element ref="adrEntities"/>
 		</xs:all>
 	</xs:complexType>
-	<xs:element name="object" type="object"/>
+	<xs:element name="object_MAP" type="object_MAP"/>
 
-	<xs:complexType name="address">
+	<xs:element name="uuid" type="xs:string"/>
+	<xs:element name="class" type="xs:integer"/>
+	<xs:element name="hasChild" type="xs:boolean"/>
+	
+	<xs:complexType name="address_MAP">
 		<xs:all>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
@@ -58,7 +60,24 @@
 			<xs:element name="post-box" type="xs:string"/>
 			<xs:element name="function" type="xs:string"/>
 			<xs:element name="address-description" type="xs:string"/>
+			<xs:element ref="communication"/>
 		</xs:all>
 	</xs:complexType>
-	<xs:element name="address" type="address"/>
+	<xs:element name="address_MAP" type="address_MAP"/>
+
+	<xs:complexType name="communication">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="communication_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="communication" type="communication"/>
+	<xs:complexType name="communication_MAP">
+		<xs:sequence>
+			<xs:element name="communication-medium" type="xs:string"/>
+			<xs:element name="communication-value"  type="xs:string"/>
+			<xs:element name="communication-description" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="communication_MAP" type="communication_MAP"/>
+
 </xs:schema>
