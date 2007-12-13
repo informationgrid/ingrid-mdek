@@ -139,6 +139,10 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);		
 	}
 
+	public void storeObjDetails(IngridDocument obj) {
+		// TODO
+	}
+
 	public IngridDocument getResultFromResponse(IngridDocument mdekResponse) {
 		IngridDocument result = null;
 
