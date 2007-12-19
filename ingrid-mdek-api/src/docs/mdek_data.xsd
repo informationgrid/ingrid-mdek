@@ -48,6 +48,7 @@
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
+			<xs:element name="type-of-relation" type="xs:integer"/>
 			<xs:element name="organisation" type="xs:string"/>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="given-name" type="xs:string"/>

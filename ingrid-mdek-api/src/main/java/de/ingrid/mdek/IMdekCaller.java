@@ -17,8 +17,9 @@ public interface IMdekCaller {
 	IngridDocument fetchTopObjects();
 	IngridDocument fetchSubObjects(String objUuid);
 
-	IngridDocument fetchTopAddresses();
-	IngridDocument fetchSubAddresses(String adrUuid);
+	// uncomment when needed ! then recheck functionality and implementation !
+//	IngridDocument fetchTopAddresses();
+//	IngridDocument fetchSubAddresses(String adrUuid);
 
 	/**
 	 * Get result data from response of mdek call.

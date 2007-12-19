@@ -135,6 +135,23 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
+		System.out.println("\n###### INVOKE fetchObjDetails ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.fetchObjDetails("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);				
+			}
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+/*
 		System.out.println("\n###### INVOKE fetchTopAddresses ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.fetchTopAddresses();
@@ -168,24 +185,8 @@ class MdekThread extends Thread {
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
+*/
 
-		System.out.println("\n###### INVOKE fetchObjDetails ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchObjDetails("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities");
-			for (Object o : l) {
-				System.out.println(o);				
-			}
-		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
-		}
-		
 		isRunning = false;
 	}
 	

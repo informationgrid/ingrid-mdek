@@ -26,3 +26,8 @@ ALTER TABLE t012_obj_adr CHANGE typ type int NOT NULL default '0';
 UPDATE tmp_udk_migrationsstand SET version = 1;
 -- ==========================================================
 
+ALTER TABLE t012_obj_obj ADD COLUMN version int;
+UPDATE t012_obj_obj SET version = 0;
+ALTER TABLE t012_obj_adr ADD COLUMN version int;
+UPDATE t012_obj_adr SET version = 0;
+

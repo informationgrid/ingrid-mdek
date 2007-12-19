@@ -26,6 +26,9 @@ public class MdekKeys {
     /** Value: Boolean */
     public final static String HAS_CHILD = "hasChild";
 
+    /** Value: Integer */
+    public final static String TYPE_OF_RELATION = "type-of-relation";
+
     // OBJECT DATA
     // -----------
 
