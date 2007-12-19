@@ -11,11 +11,9 @@ public abstract class MdekIDCEntity extends MdekDbEntity {
 	private String catId;
 	private Integer root;
 
-	private String createId;
 	private String createTime;
 	private String modId;
 	private String modTime;
-	private String modType;
 
 	public MdekIDCEntity() {
 		super();
@@ -33,13 +31,6 @@ public abstract class MdekIDCEntity extends MdekDbEntity {
 	}
 	public void setRoot(Integer root) {
 		this.root = root;
-	}
-
-	public String getCreateId() {
-		return createId;
-	}
-	public void setCreateId(String createId) {
-		this.createId = createId;
 	}
 
 	public String getCreateTime() {
@@ -62,12 +53,4 @@ public abstract class MdekIDCEntity extends MdekDbEntity {
 	public void setModTime(String modTime) {
 		this.modTime = modTime;
 	}
-
-	public String getModType() {
-		return modType;
-	}
-	public void setModType(String modType) {
-		this.modType = modType;
-	}
-
 }

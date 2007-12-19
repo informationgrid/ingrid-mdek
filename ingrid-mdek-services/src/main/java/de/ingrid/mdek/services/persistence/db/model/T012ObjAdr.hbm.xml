@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T012ObjAdr" table="t012_obj_adr">
+	<composite-id>
+		<key-property name="objId" type="string" column="obj_id"/>
+		<key-property name="adrId" type="string" column="adr_id"/>
+		<key-property name="type" type="integer" column="type"/>
+	</composite-id>
+      <version name="version" type="integer"/>
+
+      <property name="line" type="integer" column="line"/>
+      <property name="specialRef" type="integer" column="special_ref"/>
+      <property name="specialName" type="string" column="special_name"/>
+      <property name="modTime" type="string" column="mod_time"/>
+
+      <many-to-one name="t02Address" class="T02Address" column="adr_id" update="false" insert="false"/>
+   </class>
+</hibernate-mapping>

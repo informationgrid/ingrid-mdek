@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T012ObjObj" table="t012_obj_obj">
+	<composite-id>
+		<key-property name="objectFromUuid" type="string" column="object_from_id"/>
+		<key-property name="objectToUuid" type="string" column="object_to_id"/>
+		<key-property name="type" type="integer" column="type"/>
+	</composite-id>
+      <version name="version" type="integer"/>
+
+      <property name="line" type="integer" column="line"/>
+      <property name="specialRef" type="integer" column="special_ref"/>
+      <property name="specialName" type="string" column="special_name"/>
+      <property name="descr" type="string" column="descr"/>
+
+      <many-to-one name="toT01Object" class="T01Object" column="object_to_id" update="false" insert="false"/>
+
+   </class>
+</hibernate-mapping>

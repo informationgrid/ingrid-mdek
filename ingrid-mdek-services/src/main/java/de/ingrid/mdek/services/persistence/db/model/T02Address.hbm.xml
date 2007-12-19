@@ -14,11 +14,9 @@
 	<!-- bean superclass -->
       <property name="catId" type="string" column="cat_id"/>
       <property name="root" type="integer" column="root"/>
-      <property name="createId" type="string" column="create_id"/>
       <property name="createTime" type="string" column="create_time"/>
       <property name="modId" type="string" column="mod_id"/>
       <property name="modTime" type="string" column="mod_time"/>
-      <property name="modType" type="string" column="mod_type"/>
       
 	<!-- bean class -->
       <property name="orgAdrId" type="string" column="org_adr_id"/>

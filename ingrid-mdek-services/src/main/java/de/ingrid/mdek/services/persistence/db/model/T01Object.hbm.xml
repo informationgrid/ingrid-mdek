@@ -14,11 +14,9 @@
 	<!-- bean superclass -->
       <property name="catId" type="string" column="cat_id"/>
       <property name="root" type="integer" column="root"/>
-      <property name="createId" type="string" column="create_id"/>
       <property name="createTime" type="string" column="create_time"/>
       <property name="modId" type="string" column="mod_id"/>
       <property name="modTime" type="string" column="mod_time"/>
-      <property name="modType" type="string" column="mod_type"/>
       
 	<!-- bean class -->
       <property name="orgId" type="string" column="org_id"/>
@@ -52,16 +50,16 @@
       <property name="fees" type="string" column="fees"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
 
-      <set name="t012ObjObjs" table="t012_obj_obj" order-by="line">
+      <set name="t012ObjObjs" order-by="line">
          <key column="object_from_id"/>
-         <many-to-many column="object_to_id" class="T01Object"/>
-         <filter name="relationTypeFilter" condition=":relationType = type"/>
-      </set>
-      <set name="t012ObjAdrs" table="t012_obj_adr" order-by="line">
+		 <one-to-many class="T012ObjObj" not-found="ignore"/>
+		 <filter name="objObjTypeFilter" condition=":type = type"/>
+	  </set>
+      <set name="t012ObjAdrs" order-by="line">
          <key column="obj_id"/>
-         <many-to-many column="adr_id" class="T02Address"/>
-         <filter name="relationTypeFilter" condition=":relationType = type"/>
-      </set>
+		 <one-to-many class="T012ObjAdr" not-found="ignore"/>
+		 <filter name="objAdrTypeFilter" condition=":type = type"/>
+	  </set>
 
 <!--
       <set name="t0111functionalcategorys" table="T0111_functional_category">
@@ -166,11 +164,13 @@
          <many-to-one column="obj_id" class="de.ingrid.theUltimateBeansPackage.T08Attr"/>
       </set>
 -->
-
    </class>
 
-   <filter-def name="relationTypeFilter">
-      <filter-param name="relationType" type="integer"/>
+   <filter-def name="objObjTypeFilter">
+      <filter-param name="type" type="integer"/>
+   </filter-def>
+   <filter-def name="objAdrTypeFilter">
+      <filter-param name="type" type="integer"/>
    </filter-def>
 
 </hibernate-mapping>

@@ -23,8 +23,10 @@
 				<prop key="hibernate.cache.use_query_cache">false</prop>
 				<prop key="hibernate.jdbc.batch_size">0</prop>
 				<prop key="hibernate.current_session_context_class">thread</prop>
+<!--
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
-				<prop key="hibernate.show_sql">true</prop>
+-->
+				<prop key="hibernate.show_sql">false</prop>
 			</props>
 		</property>
 	</bean>
@@ -55,6 +57,8 @@
 		<!-- LIVE -->
 			<list>
 				<value>de/ingrid/mdek/services/persistence/db/model/T01Object.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/T012ObjObj.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
 				<value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
 				<value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
 		   	</list>

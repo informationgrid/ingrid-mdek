@@ -49,13 +49,15 @@ public class BeanToDocMapper {
 			doc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			
 			// get related addresses
-			Set<T02Address> adrs = o.getT012ObjAdrs();
-			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(adrs.size());
-			for (T02Address adr : adrs) {
-				adrsList.add(mapT02Address(adr, MappingType.TABLE_ENTITY));
+			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
+			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
+			for (T012ObjAdr oA : oAs) {
+				T02Address a = oA.getT02Address();
+				IngridDocument aDoc = mapT02Address(a, MappingType.TABLE_ENTITY);
+				aDoc.put(MdekKeys.TYPE_OF_RELATION, oA.getType());
+				adrsList.add(aDoc);
 			}
 			doc.put(MdekKeys.ADR_ENTITIES, adrsList);
-
 		}
 
 		if (type == MappingType.TOP_ENTITY ||

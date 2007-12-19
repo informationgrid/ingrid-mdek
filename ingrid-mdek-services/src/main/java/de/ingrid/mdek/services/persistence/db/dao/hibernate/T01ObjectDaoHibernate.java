@@ -1,5 +1,6 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -8,6 +9,7 @@ import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
+import de.ingrid.mdek.services.persistence.db.model.T012ObjObj;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 
 /**
@@ -27,55 +29,78 @@ public class T01ObjectDaoHibernate
 	public List<T01Object> getTopObjects() {
 		Session session = getSession();
 
-		List objs = session.createQuery("from T01Object obj " +
-			"where obj.root = 1")
-			.list();
-		
-		return objs;
-	}
-
-	public Set<T01Object> getSubObjects(String uuid) {
-		Session session = getSession();
-
-		// enable filter -> fetch only hierarchical relations
-		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
+		// only "strukturverweise"
+		session.enableFilter("objObjTypeFilter").setParameter("type", new Integer(0));
 
 		// fetch all at once (one select with outer joins)
-		T01Object o = (T01Object) session.createQuery("from T01Object obj " +
-			"left join fetch obj.t012ObjObjs child " +
-			"left join fetch child.t012ObjObjs " +
-			"where obj.id = ?")
+		List<T01Object> objs = session.createQuery("from T01Object o " +
+			"left join fetch o.t012ObjObjs oOs " +
+			"where o.root = 1 " +
+			"order by o.objName")
+			.list();
+
+		session.disableFilter("objObjTypeFilter");
+
+		// NOTICE: upper query returns objects multiple times, filter them !
+		ArrayList<T01Object> retList = new ArrayList<T01Object>();
+		for (T01Object o : objs) {
+			if (!retList.contains(o)) {
+				retList.add(o);
+			}
+		}
+		return retList;
+	}
+
+	public List<T01Object> getSubObjects(String uuid) {
+		Session session = getSession();
+
+		// only "strukturverweise"
+		session.enableFilter("objObjTypeFilter").setParameter("type", new Integer(0));
+
+		// fetch all at once (one select with outer joins)
+		T01Object o = (T01Object) session.createQuery("from T01Object o " +
+			"left join fetch o.t012ObjObjs oOs1 " +
+			"left join fetch oOs1.toT01Object o1 " +
+			"left join fetch o1.t012ObjObjs oOs2 " +
+			"where o.id = ?")
+		// order by doesn't work ! set in mapping file !
+//			"order by oOs1.line")
 			.setString(0, uuid)
 			.uniqueResult();
 
-		session.disableFilter("relationTypeFilter");
+		session.disableFilter("objObjTypeFilter");
 
-		Set<T01Object> objs = o.getT012ObjObjs();
+		Set<T012ObjObj> oOs = o.getT012ObjObjs();
+		ArrayList<T01Object> oList = new ArrayList<T01Object>(oOs.size());
+		for (T012ObjObj oO : oOs) {
+			oList.add(oO.getToT01Object());
+		}
 
-		return objs;
+		return oList;
 	}
 
 	public T01Object getObjDetails(String uuid) {
 		Session session = getSession();
 
-		// enable filter -> fetch only hierarchical relations
+		// enable filter ?
 /*
 		0 == Auskunft
 		1 == Datenhalter
 		2 == Datenverantwortlicher
 		999 == Freier Eintrag
 */
-		session.enableFilter("relationTypeFilter").setParameter("relationType", new Integer(0));
+//		session.enableFilter("objAdrTypeFilter").setParameter("type", new Integer(0));
 
 		// fetch all at once (one select with outer joins)
-		T01Object o = (T01Object) session.createQuery("from T01Object obj " +
-			"left join fetch obj.t012ObjAdrs adrs " +
-			"left join fetch adrs.t021Communications " +
-			"where obj.id = ?")
+		T01Object o = (T01Object) session.createQuery("from T01Object o " +
+			"left join fetch o.t012ObjAdrs oAs " +
+			"left join fetch oAs.t02Address a " +
+			"left join fetch a.t021Communications " +
+			"where o.id = ?")
 			.setString(0, uuid)
 			.uniqueResult();
 
-		session.disableFilter("relationTypeFilter");
+//		session.disableFilter("objAdrTypeFilter");
 		
 		return o;
 	}
