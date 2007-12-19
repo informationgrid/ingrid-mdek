@@ -10,9 +10,9 @@ import de.ingrid.utils.IngridDocument;
 public abstract class MdekJob implements IJob {
 
 	/**
-	 * @see de.ingrid.mdek.job.IJob#getResults()
 	 * Called when job is registered !
 	 * Default Handling here returns empty IngridDocument 
+	 * @see de.ingrid.mdek.job.IJob#getResults()
 	 */
 	public IngridDocument getResults() {
         IngridDocument result = new IngridDocument();

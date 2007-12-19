@@ -125,7 +125,7 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object.beginTransaction();
 
-		Set<T01Object> objs = daoT01Object.getSubObjects(uuid);
+		List<T01Object> objs = daoT01Object.getSubObjects(uuid);
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
@@ -157,7 +157,7 @@ public class MdekIdcJob extends MdekJob {
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
 		return result;
 	}
-
+/*
 	public IngridDocument getTopAddresses() {
 		IngridDocument result = new IngridDocument();
 
@@ -197,4 +197,5 @@ public class MdekIdcJob extends MdekJob {
 		result.put(MdekKeys.ADR_ENTITIES, resultList);
 		return result;
 	}
+*/
 }
