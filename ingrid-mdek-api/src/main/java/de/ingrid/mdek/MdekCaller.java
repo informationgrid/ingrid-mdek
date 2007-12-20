@@ -103,6 +103,28 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument fetchObject(String uuid, Quantity howMuch) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		if (howMuch == Quantity.DETAIL_ENTITY) {
+			List jobMethods = setUpJobMethod("getObjDetails", jobParams);
+			return callJob(MDEK_IDC_JOB_ID, jobMethods);
+		}
+		
+		// TODO implement other quantities of fetching object ?
+		return new IngridDocument();
+	}
+
+	public IngridDocument storeObject(IngridDocument obj) {
+		// TODO implement storeObject
+		return new IngridDocument();
+	}
+
+	public IngridDocument deleteObject(String uuid) {
+		// TODO implement deleteObject
+		return new IngridDocument();
+	}
+
 	public IngridDocument fetchTopObjects() {
 		List jobMethods = setUpJobMethod("getTopObjects", null);
 
@@ -117,17 +139,29 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument fetchObjDetails(String objUuid) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, objUuid);
-		List jobMethods = setUpJobMethod("getObjDetails", jobParams);
-		
-		return callJob(MDEK_IDC_JOB_ID, jobMethods);		
+	public IngridDocument checkObjectSubTree(String uuid) {
+		// TODO implement checkObjectSubTree
+		return new IngridDocument();		
 	}
 
-	public void storeObjDetails(IngridDocument obj) {
-		// TODO
+	public IngridDocument copyObjectSubTree(
+		String fromUuid,
+		String toUuid,
+		boolean performCheck)
+	{
+		// TODO implement copyObjectSubTree
+		return new IngridDocument();		
 	}
+
+	public IngridDocument cutObjectSubTree(
+		String fromUuid,
+		String toUuid,
+		boolean performCheck)
+	{
+		// TODO implement cutObjectSubTree
+		return new IngridDocument();		
+	}
+
 
 /*
 	public IngridDocument fetchTopAddresses() {

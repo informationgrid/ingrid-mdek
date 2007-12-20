@@ -9,6 +9,7 @@ import de.ingrid.mdek.IMdekCaller;
 import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.IMdekCaller.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExample {
@@ -135,9 +136,9 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
-		System.out.println("\n###### INVOKE fetchObjDetails ######");
+		System.out.println("\n###### INVOKE fetchObject (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchObjDetails("FB5D7527-8331-4870-9CE0-B8BDF9DAB619");
+		response = mdekCaller.fetchObject("FB5D7527-8331-4870-9CE0-B8BDF9DAB619", Quantity.DETAIL_ENTITY);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
