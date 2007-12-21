@@ -14,7 +14,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper.MappingType;
+import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper.MappingQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekIdcJob extends MdekJob {
@@ -39,7 +39,7 @@ public class MdekIdcJob extends MdekJob {
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
 	}
-
+/*
 	public IngridDocument testMdekEntity(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
 
@@ -83,13 +83,13 @@ public class MdekIdcJob extends MdekJob {
 				} else {
 					daoT01Object.makePersistent(o);
 				}
-				resultList.add(mapper.mapT01Object(o, MappingType.DETAIL_ENTITY));
+				resultList.add(mapper.mapT01Object(o, MappingQuantity.DETAIL_ENTITY));
 			}			
 		} else {
 			daoT01Object.makePersistent(objTemplate);
 			
 			T01Object o = daoT01Object.loadById(objTemplate.getId());
-			resultList.add(mapper.mapT01Object(o, MappingType.DETAIL_ENTITY));
+			resultList.add(mapper.mapT01Object(o, MappingQuantity.DETAIL_ENTITY));
 		}
 
 		daoT01Object.commitTransaction();
@@ -98,7 +98,7 @@ public class MdekIdcJob extends MdekJob {
 
 		return result;
 	}
-
+*/
 	public IngridDocument getTopObjects() {
 		IngridDocument result = new IngridDocument();
 
@@ -110,7 +110,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T01Object obj : objs) {
-			resultList.add(mapper.mapT01Object(obj, MappingType.TOP_ENTITY));
+			resultList.add(mapper.mapT01Object(obj, MappingQuantity.TOP_ENTITY));
 		}
 
 		daoT01Object.commitTransaction();
@@ -130,7 +130,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T01Object obj : objs) {
-			resultList.add(mapper.mapT01Object(obj, MappingType.SUB_ENTITY));
+			resultList.add(mapper.mapT01Object(obj, MappingQuantity.SUB_ENTITY));
 		}
 
 		daoT01Object.commitTransaction();
@@ -150,7 +150,7 @@ public class MdekIdcJob extends MdekJob {
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(1);
 		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		resultList.add(mapper.mapT01Object(o, MappingType.DETAIL_ENTITY));
+		resultList.add(mapper.mapT01Object(o, MappingQuantity.DETAIL_ENTITY));
 
 		daoT01Object.commitTransaction();
 
