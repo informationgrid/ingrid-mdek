@@ -10,16 +10,16 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
  */
 public abstract class MdekDbEntity implements IEntity, java.io.Serializable {
 
-	private String id;
+	private Long id;
 	private int version;
 
 	protected MdekDbEntity() {
 	}
 
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
-	protected void setId(String id) {
+	protected void setId(Long id) {
 		this.id = id;
 	}
 

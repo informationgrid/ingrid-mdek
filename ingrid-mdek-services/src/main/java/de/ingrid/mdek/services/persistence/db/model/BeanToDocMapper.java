@@ -18,7 +18,7 @@ public class BeanToDocMapper {
 	private static final Logger LOG = Logger.getLogger(BeanToDocMapper.class);
 
 	/** How much to map of bean properties */
-	public enum MappingType {
+	public enum MappingQuantity {
 		BASIC_ENTITY, // client: minimum data of bean needed
 		TOP_ENTITY, // client: bean displayed in tree as topnode
 		SUB_ENTITY, // client: bean displayed in tree as subnode
@@ -38,14 +38,18 @@ public class BeanToDocMapper {
 
 	private BeanToDocMapper() {}
 
-	public IngridDocument mapT01Object(T01Object o, MappingType type) {
+	public IngridDocument mapT01Object(T01Object o, MappingQuantity type) {
 		IngridDocument doc = new IngridDocument();
+		if (o == null) {
+			return doc;
+		}
 
-		doc.put(MdekKeys.UUID, o.getId());
+		doc.put(MdekKeys.ID, o.getId());
+		doc.put(MdekKeys.UUID, o.getObjUuid());
 		doc.put(MdekKeys.CLASS, o.getObjClass());
 		doc.put(MdekKeys.TITLE, o.getObjName());
 		
-		if (type == MappingType.DETAIL_ENTITY) {
+		if (type == MappingQuantity.DETAIL_ENTITY) {
 			doc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			
 			// get related addresses
@@ -53,15 +57,15 @@ public class BeanToDocMapper {
 			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
 			for (T012ObjAdr oA : oAs) {
 				T02Address a = oA.getT02Address();
-				IngridDocument aDoc = mapT02Address(a, MappingType.TABLE_ENTITY);
+				IngridDocument aDoc = mapT02Address(a, MappingQuantity.TABLE_ENTITY);
 				aDoc.put(MdekKeys.TYPE_OF_RELATION, oA.getType());
 				adrsList.add(aDoc);
 			}
 			doc.put(MdekKeys.ADR_ENTITIES, adrsList);
 		}
 
-		if (type == MappingType.TOP_ENTITY ||
-			type == MappingType.SUB_ENTITY)
+		if (type == MappingQuantity.TOP_ENTITY ||
+			type == MappingQuantity.SUB_ENTITY)
 		{
         	boolean hasChild = false;
     		if (o.getT012ObjObjs().size() > 0) {
@@ -73,45 +77,47 @@ public class BeanToDocMapper {
 		return doc;
 	}
 
-	public IngridDocument mapT02Address(T02Address a, MappingType type) {
+	public IngridDocument mapT02Address(T02Address a, MappingQuantity type) {
 		IngridDocument doc = new IngridDocument();
+		if (a == null) {
+			return doc;
+		}
 
-		doc.put(MdekKeys.UUID, a.getId());
-		doc.put(MdekKeys.CLASS, a.getTyp());
+		doc.put(MdekKeys.ID, a.getId());
+		doc.put(MdekKeys.UUID, a.getAdrUuid());
+		doc.put(MdekKeys.CLASS, a.getAdrType());
 		doc.put(MdekKeys.ORGANISATION, a.getInstitution());
 		doc.put(MdekKeys.NAME, a.getLastname());
 		doc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
 		doc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
 
-		if (type == MappingType.TABLE_ENTITY ||
-			type == MappingType.DETAIL_ENTITY)
+		if (type == MappingQuantity.TABLE_ENTITY ||
+			type == MappingQuantity.DETAIL_ENTITY)
 		{
 			doc.put(MdekKeys.STREET, a.getStreet());
-			doc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getStateId());
+			doc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
 			doc.put(MdekKeys.CITY, a.getCity());
 			doc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
 			doc.put(MdekKeys.POST_BOX, a.getPostbox());
 
 			// add communication data (emails etc.) 
 			Set<T021Communication> comms = a.getT021Communications();
-			if (comms.size() > 0) {
-				ArrayList<IngridDocument> commList = new ArrayList<IngridDocument>(comms.size());
-				for (T021Communication c : comms) {
-					commList.add(mapT021Communication(c, MappingType.TABLE_ENTITY));
-				}
-				doc.put(MdekKeys.COMMUNICATION, commList);				
+			ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(comms.size());
+			for (T021Communication c : comms) {
+				docList.add(mapT021Communication(c, MappingQuantity.TABLE_ENTITY));
 			}
+			doc.put(MdekKeys.COMMUNICATION, docList);				
 		}
 
-		if (type == MappingType.DETAIL_ENTITY) {
+		if (type == MappingQuantity.DETAIL_ENTITY) {
 			doc.put(MdekKeys.FUNCTION, a.getJob());			
 			doc.put(MdekKeys.NAME_FORM, a.getAddress());
 			doc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
 		}
-
+/*
 		// add flag indicating having children 
-		if (type == MappingType.TOP_ENTITY ||
-			type == MappingType.SUB_ENTITY)
+		if (type == MappingQuantity.TOP_ENTITY ||
+			type == MappingQuantity.SUB_ENTITY)
 		{
         	boolean hasChild = false;
     		if (a.getT022AdrAdrs().size() > 0) {
@@ -119,17 +125,21 @@ public class BeanToDocMapper {
     		}
     		doc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
 		}
-
+*/
 		return doc;
 	}
 
-	public IngridDocument mapT021Communication(T021Communication c, MappingType type) {
+	public IngridDocument mapT021Communication(T021Communication c, MappingQuantity type) {
 		IngridDocument doc = new IngridDocument();
+		if (c == null) {
+			return doc;
+		}
 
+		doc.put(MdekKeys.ID, c.getId());
 		doc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommType());
 		doc.put(MdekKeys.COMMUNICATION_VALUE, c.getCommValue());
 
-		if (type == MappingType.DETAIL_ENTITY) {
+		if (type == MappingQuantity.DETAIL_ENTITY) {
 			doc.put(MdekKeys.COMMUNICATION_DESCRIPTION, c.getDescr());
 		}
 		

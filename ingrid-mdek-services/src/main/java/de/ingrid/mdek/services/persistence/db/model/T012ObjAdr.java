@@ -3,11 +3,10 @@ package de.ingrid.mdek.services.persistence.db.model;
 import java.io.Serializable;
 
 
-// Serializable because of composite Id !!! Remove when unique id
-public class T012ObjAdr  extends MdekDbEntity implements Serializable {
+public class T012ObjAdr extends MdekDbEntity {
 
-	private String objId;
-	private String adrId;
+	private long objId;
+	private String adrUuid;
 	private int type;
 	private int line;
 	private Integer specialRef;
@@ -18,20 +17,20 @@ public class T012ObjAdr  extends MdekDbEntity implements Serializable {
 
 	public T012ObjAdr() {}
 
-	public String getObjId() {
+	public long getObjId() {
 		return objId;
 	}
 
-	public void setObjId(String objId) {
+	public void setObjId(long objId) {
 		this.objId = objId;
 	}
 
-	public String getAdrId() {
-		return adrId;
+	public String getAdrUuid() {
+		return adrUuid;
 	}
 
-	public void setAdrId(String adrId) {
-		this.adrId = adrId;
+	public void setAdrUuid(String adrUuid) {
+		this.adrUuid = adrUuid;
 	}
 
 	public int getType() {

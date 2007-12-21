@@ -1,10 +1,8 @@
 package de.ingrid.mdek.services.persistence.db.model;
 
-import java.io.Serializable;
 
 
-// Serializable because of composite Id !!! Remove when unique id
-public class T012ObjObj  extends MdekDbEntity implements Serializable {
+public class T012ObjObj extends MdekDbEntity {
 
 	private String objectFromUuid;
 	private String objectToUuid;

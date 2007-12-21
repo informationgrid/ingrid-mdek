@@ -6,21 +6,28 @@
    <class name="T01Object" table="t01_object">
 
 	<!-- bean superclass -->
-      <id name="id" type="string" column="obj_id">
-         <generator class="uuid"/>
+      <id name="id" type="long">
+         <generator class="hilo"/>
       </id>
       <version name="version" type="integer"/>
 
 	<!-- bean superclass -->
-      <property name="catId" type="string" column="cat_id"/>
+      <property name="catId" type="long" column="cat_id"/>
       <property name="root" type="integer" column="root"/>
+      <property name="lastexportTime" type="string" column="lastexport_time"/>
+      <property name="expiryTime" type="string" column="expiry_time"/>
+      <property name="workState" type="string" column="work_state"/>
+      <property name="workVersion" type="integer" column="work_version"/>
+      <property name="markDeleted" type="string" column="mark_deleted"/>
       <property name="createTime" type="string" column="create_time"/>
-      <property name="modId" type="string" column="mod_id"/>
       <property name="modTime" type="string" column="mod_time"/>
+      <property name="modId" type="long" column="mod_id"/>
+      <property name="responsibleId" type="long" column="responsible_id"/>
       
 	<!-- bean class -->
-      <property name="orgId" type="string" column="org_id"/>
+      <property name="objUuid" type="string" column="obj_uuid"/>
       <property name="objName" type="string" column="obj_name"/>
+      <property name="orgObjId" type="string" column="org_obj_id"/>
       <property name="objClass" type="integer" column="obj_class"/>
       <property name="objDescr" type="string" column="obj_descr"/>
       <property name="infoNote" type="string" column="info_note"/>
@@ -38,20 +45,20 @@
       <property name="datasetAlternateName" type="string" column="dataset_alternate_name"/>
       <property name="datasetCharacterSet" type="integer" column="dataset_character_set"/>
       <property name="datasetUsage" type="string" column="dataset_usage"/>
+      <property name="dataLanguageCode" type="string" column="data_language_code"/>
       <property name="metadataCharacterSet" type="integer" column="metadata_character_set"/>
       <property name="metadataStandardName" type="string" column="metadata_standard_name"/>
       <property name="metadataStandardVersion" type="string" column="metadata_standard_version"/>
-      <property name="metadataLanguage" type="integer" column="metadata_language"/>
+      <property name="metadataLanguageCode" type="string" column="metadata_language_code"/>
       <property name="verticalExtentMinimum" type="double" column="vertical_extent_minimum"/>
       <property name="verticalExtentMaximum" type="double" column="vertical_extent_maximum"/>
       <property name="verticalExtentUnit" type="integer" column="vertical_extent_unit"/>
       <property name="verticalExtentVdatum" type="integer" column="vertical_extent_vdatum"/>
-      <property name="dataLanguage" type="integer" column="data_language"/>
       <property name="fees" type="string" column="fees"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
 
       <set name="t012ObjObjs" order-by="line">
-         <key column="object_from_id"/>
+         <key column="object_from_uuid" property-ref="objUuid"/>
 		 <one-to-many class="T012ObjObj" not-found="ignore"/>
 		 <filter name="objObjTypeFilter" condition=":type = type"/>
 	  </set>

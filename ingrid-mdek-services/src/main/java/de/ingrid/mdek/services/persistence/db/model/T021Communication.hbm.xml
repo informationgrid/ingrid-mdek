@@ -4,11 +4,13 @@
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
    <class name="T021Communication" table="t021_communication">
 
-	<composite-id>
-		<key-property name="adrId" type="string" column="adr_id"/>
-		<key-property name="line" type="integer" column="line"/>
-	</composite-id>
+      <id name="id" type="long">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer"/>
 
+      <property name="adrId" type="long" column="adr_id"/>
+      <property name="line" type="integer" column="line"/>
       <property name="commType" type="string" column="comm_type"/>
       <property name="commValue" type="string" column="comm_value"/>
       <property name="descr" type="string" column="descr"/>

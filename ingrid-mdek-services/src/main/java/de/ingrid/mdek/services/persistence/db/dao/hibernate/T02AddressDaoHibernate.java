@@ -1,9 +1,5 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
-import java.util.List;
-import java.util.Set;
-
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
@@ -23,7 +19,7 @@ public class T02AddressDaoHibernate
     public T02AddressDaoHibernate(SessionFactory factory) {
         super(factory, T02Address.class);
     }
-
+/*
 	public List<T02Address> getTopAddresses() {
 		Session session = getSession();
 
@@ -49,4 +45,5 @@ public class T02AddressDaoHibernate
 
 		return adrs;
 	}
+*/
 }

@@ -6,8 +6,9 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public class T01Object extends MdekIDCEntity {
 
-	private String orgId;
+	private String objUuid;
 	private String objName;
+	private String orgObjId;
 	private Integer objClass;
 	private String objDescr;
 	private String infoNote;
@@ -25,15 +26,15 @@ public class T01Object extends MdekIDCEntity {
 	private String datasetAlternateName;
 	private Integer datasetCharacterSet;
 	private String datasetUsage;
+	private String dataLanguageCode;
 	private Integer metadataCharacterSet;
 	private String metadataStandardName;
 	private String metadataStandardVersion;
-	private Integer metadataLanguage;
+	private String metadataLanguageCode;
 	private Double verticalExtentMinimum;
 	private Double verticalExtentMaximum;
 	private Integer verticalExtentUnit;
 	private Integer verticalExtentVdatum;
-	private Integer dataLanguage;
 	private String fees;
 	private String orderingInstructions;
 
@@ -71,12 +72,19 @@ public class T01Object extends MdekIDCEntity {
 		super();
 	}
 
-	public String getOrgId() {
-		return orgId;
+	public String getObjUuid() {
+		return objUuid;
+	}
+	public void setObjUuid(String objUuid) {
+		this.objUuid = objUuid;
 	}
 
-	public void setOrgId(String orgId) {
-		this.orgId = orgId;
+	public String getOrgObjId() {
+		return orgObjId;
+	}
+
+	public void setOrgObjId(String orgObjId) {
+		this.orgObjId = orgObjId;
 	}
 
 	public String getObjName() {
@@ -218,9 +226,15 @@ public class T01Object extends MdekIDCEntity {
 	public String getDatasetUsage() {
 		return datasetUsage;
 	}
-
 	public void setDatasetUsage(String datasetUsage) {
 		this.datasetUsage = datasetUsage;
+	}
+
+	public String getDataLanguageCode() {
+		return dataLanguageCode;
+	}
+	public void setDataLanguageCode(String dataLanguageCode) {
+		this.dataLanguageCode = dataLanguageCode;
 	}
 
 	public Integer getMetadataCharacterSet() {
@@ -234,7 +248,6 @@ public class T01Object extends MdekIDCEntity {
 	public String getMetadataStandardName() {
 		return metadataStandardName;
 	}
-
 	public void setMetadataStandardName(String metadataStandardName) {
 		this.metadataStandardName = metadataStandardName;
 	}
@@ -242,17 +255,15 @@ public class T01Object extends MdekIDCEntity {
 	public String getMetadataStandardVersion() {
 		return metadataStandardVersion;
 	}
-
 	public void setMetadataStandardVersion(String metadataStandardVersion) {
 		this.metadataStandardVersion = metadataStandardVersion;
 	}
 
-	public Integer getMetadataLanguage() {
-		return metadataLanguage;
+	public String getMetadataLanguageCode() {
+		return metadataLanguageCode;
 	}
-
-	public void setMetadataLanguage(Integer metadataLanguage) {
-		this.metadataLanguage = metadataLanguage;
+	public void setMetadataLanguageCode(String metadataLanguageCode) {
+		this.metadataLanguageCode = metadataLanguageCode;
 	}
 
 	public Double getVerticalExtentMinimum() {
@@ -285,14 +296,6 @@ public class T01Object extends MdekIDCEntity {
 
 	public void setVerticalExtentVdatum(Integer verticalExtentVdatum) {
 		this.verticalExtentVdatum = verticalExtentVdatum;
-	}
-
-	public Integer getDataLanguage() {
-		return dataLanguage;
-	}
-
-	public void setDataLanguage(Integer dataLanguage) {
-		this.dataLanguage = dataLanguage;
 	}
 
 	public String getFees() {

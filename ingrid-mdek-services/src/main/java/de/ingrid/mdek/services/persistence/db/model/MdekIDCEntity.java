@@ -8,21 +8,27 @@ package de.ingrid.mdek.services.persistence.db.model;
  */
 public abstract class MdekIDCEntity extends MdekDbEntity {
 
-	private String catId;
+	private Long catId;
 	private Integer root;
 
+	private String lastexportTime;
+	private String expiryTime;
+	private String workState;
+	private Integer workVersion;
+	private String markDeleted;
 	private String createTime;
-	private String modId;
 	private String modTime;
+	private Long modId;
+	private Long responsibleId;
 
 	public MdekIDCEntity() {
 		super();
 	}
 
-	public String getCatId() {
+	public Long getCatId() {
 		return catId;
 	}
-	public void setCatId(String catId) {
+	public void setCatId(Long catId) {
 		this.catId = catId;
 	}
 
@@ -40,10 +46,10 @@ public abstract class MdekIDCEntity extends MdekDbEntity {
 		this.createTime = createTime;
 	}
 
-	public String getModId() {
+	public Long getModId() {
 		return modId;
 	}
-	public void setModId(String modId) {
+	public void setModId(Long modId) {
 		this.modId = modId;
 	}
 
@@ -52,5 +58,47 @@ public abstract class MdekIDCEntity extends MdekDbEntity {
 	}
 	public void setModTime(String modTime) {
 		this.modTime = modTime;
+	}
+
+	public String getLastexportTime() {
+		return lastexportTime;
+	}
+	public void setLastexportTime(String lastexportTime) {
+		this.lastexportTime = lastexportTime;
+	}
+
+	public String getExpiryTime() {
+		return expiryTime;
+	}
+	public void setExpiryTime(String expiryTime) {
+		this.expiryTime = expiryTime;
+	}
+
+	public String getWorkState() {
+		return workState;
+	}
+	public void setWorkState(String workState) {
+		this.workState = workState;
+	}
+
+	public Integer getWorkVersion() {
+		return workVersion;
+	}
+	public void setWorkVersion(Integer workVersion) {
+		this.workVersion = workVersion;
+	}
+
+	public String getMarkDeleted() {
+		return markDeleted;
+	}
+	public void setMarkDeleted(String markDeleted) {
+		this.markDeleted = markDeleted;
+	}
+
+	public Long getResponsibleId() {
+		return responsibleId;
+	}
+	public void setResponsibleId(Long responsibleId) {
+		this.responsibleId = responsibleId;
 	}
 }

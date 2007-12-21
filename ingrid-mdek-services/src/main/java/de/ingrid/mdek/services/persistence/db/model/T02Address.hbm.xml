@@ -6,46 +6,52 @@
    <class name="T02Address" table="t02_address">
 
 	<!-- bean superclass -->
-      <id name="id" type="string" column="adr_id">
-         <generator class="uuid"/>
+      <id name="id" type="long">
+         <generator class="hilo"/>
       </id>
       <version name="version" type="integer"/>
 
 	<!-- bean superclass -->
-      <property name="catId" type="string" column="cat_id"/>
+      <property name="catId" type="long" column="cat_id"/>
       <property name="root" type="integer" column="root"/>
+      <property name="lastexportTime" type="string" column="lastexport_time"/>
+      <property name="expiryTime" type="string" column="expiry_time"/>
+      <property name="workState" type="string" column="work_state"/>
+      <property name="workVersion" type="integer" column="work_version"/>
+      <property name="markDeleted" type="string" column="mark_deleted"/>
       <property name="createTime" type="string" column="create_time"/>
-      <property name="modId" type="string" column="mod_id"/>
       <property name="modTime" type="string" column="mod_time"/>
+      <property name="modId" type="long" column="mod_id"/>
+      <property name="responsibleId" type="long" column="responsible_id"/>
       
 	<!-- bean class -->
+      <property name="adrUuid" type="string" column="adr_uuid"/>
       <property name="orgAdrId" type="string" column="org_adr_id"/>
-      <property name="typ" type="integer" column="typ"/>
+      <property name="adrType" type="integer" column="adr_type"/>
       <property name="institution" type="string" column="institution"/>
       <property name="lastname" type="string" column="lastname"/>
       <property name="firstname" type="string" column="firstname"/>
       <property name="address" type="string" column="address"/>
       <property name="title" type="string" column="title"/>
       <property name="street" type="string" column="street"/>
-      <property name="stateId" type="string" column="state_id"/>
       <property name="postcode" type="string" column="postcode"/>
-      <property name="city" type="string" column="city"/>
-      <property name="postboxPc" type="string" column="postbox_pc"/>
       <property name="postbox" type="string" column="postbox"/>
+      <property name="postboxPc" type="string" column="postbox_pc"/>
+      <property name="city" type="string" column="city"/>
+      <property name="countryCode" type="string" column="country_code"/>
       <property name="job" type="string" column="job"/>
       <property name="descr" type="string" column="descr"/>
 
-      <set name="t022AdrAdrs" table="t022_adr_adr">
-         <key column="adr_from_id"/>
-         <many-to-many column="adr_to_id" class="T02Address"/>
-      </set>
-
-      <set name="t021Communications" table="t021_communication">
+      <set name="t021Communications" order-by="line">
          <key column="adr_id"/>
          <one-to-many class="T021Communication" not-found="ignore"/>
       </set>
 
 <!--
+      <set name="t022AdrAdrs" table="t022_adr_adr">
+         <key column="adr_from_uuid" property-ref="adrUuid"/>
+         <many-to-many column="adr_to_uuid" property-ref="adrUuid" class="T02Address"/>
+      </set>
       <set name="t02addresss" table="t02_address">
          <key column="mod_id"/>
          <many-to-one column="adr_id" class="de.ingrid.theUltimateBeansPackage.T02Address"/>

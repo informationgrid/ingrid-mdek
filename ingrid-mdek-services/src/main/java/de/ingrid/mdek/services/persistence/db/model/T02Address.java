@@ -7,26 +7,27 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public class T02Address extends MdekIDCEntity {
 
+	private String adrUuid;
 	private String orgAdrId;
-	private Integer typ;
+	private Integer adrType;
 	private String institution;
 	private String lastname;
 	private String firstname;
 	private String address;
 	private String title;
 	private String street;
-	private String stateId;
 	private String postcode;
-	private String city;
-	private String postboxPc;
 	private String postbox;
+	private String postboxPc;
+	private String city;
+	private String countryCode;
 	private String job;
 	private String descr;
 
-	private Set t022AdrAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
 
 /*
+	private Set t022AdrAdrs = new HashSet();
 	private Set t02Addresss = new HashSet();
 	private Set t02Addresss = new HashSet();
 	private Set t03Catalogues = new HashSet();
@@ -37,6 +38,13 @@ public class T02Address extends MdekIDCEntity {
 		super();
 	}
 
+	public String getAdrUuid() {
+		return adrUuid;
+	}
+	public void setAdrUuid(String adrUuid) {
+		this.adrUuid = adrUuid;
+	}
+
 	public String getOrgAdrId() {
 		return orgAdrId;
 	}
@@ -45,12 +53,12 @@ public class T02Address extends MdekIDCEntity {
 		this.orgAdrId = orgAdrId;
 	}
 
-	public Integer getTyp() {
-		return typ;
+	public Integer getAdrType() {
+		return adrType;
 	}
 
-	public void setTyp(Integer typ) {
-		this.typ = typ;
+	public void setAdrType(Integer adrType) {
+		this.adrType = adrType;
 	}
 
 	public String getInstitution() {
@@ -101,12 +109,12 @@ public class T02Address extends MdekIDCEntity {
 		this.street = street;
 	}
 
-	public String getStateId() {
-		return stateId;
+	public String getCountryCode() {
+		return countryCode;
 	}
 
-	public void setStateId(String stateId) {
-		this.stateId = stateId;
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	public String getPostcode() {
@@ -159,14 +167,6 @@ public class T02Address extends MdekIDCEntity {
 
 	// ASSOCIATIONS
 
-	public Set getT022AdrAdrs() {
-		return t022AdrAdrs;
-	}
-
-	public void setT022AdrAdrs(Set t022AdrAdrs) {
-		this.t022AdrAdrs = t022AdrAdrs;
-	}
-
 	public Set getT021Communications() {
 		return t021Communications;
 	}
@@ -176,6 +176,14 @@ public class T02Address extends MdekIDCEntity {
 	}
 
 /*
+	public Set getT022AdrAdrs() {
+		return t022AdrAdrs;
+	}
+
+	public void setT022AdrAdrs(Set t022AdrAdrs) {
+		this.t022AdrAdrs = t022AdrAdrs;
+	}
+
 	public Set getT02Addresss() {
 		return t02Addresss;
 	}
