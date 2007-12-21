@@ -15,6 +15,9 @@ public class MdekKeys {
      *	Value: List of IngridDocs */
     public final static String ADR_ENTITIES = "adrEntities";
 
+    /** Value: Long */
+    public final static String ID = "id";
+
     /** the uuid of the entity (object or address)<br>
      *	Value: String */
     public final static String UUID = "uuid";

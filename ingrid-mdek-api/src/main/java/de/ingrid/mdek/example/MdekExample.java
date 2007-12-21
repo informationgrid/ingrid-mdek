@@ -121,7 +121,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchSubObjects ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchSubObjects("19654CB2-C510-11D3-BADE-0060971A0BF7");
+		response = mdekCaller.fetchSubObjects("3866463B-B449-11D2-9A86-080000507261");
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -138,20 +138,32 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchObject("FB5D7527-8331-4870-9CE0-B8BDF9DAB619", Quantity.DETAIL_ENTITY);
+		response = mdekCaller.fetchObject("E118D248-0705-11D5-87B3-00600852CACF", Quantity.DETAIL_ENTITY);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities");
-			for (Object o : l) {
-				System.out.println(o);				
+			List<IngridDocument> objs = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + objs.size() + " Entities");
+			for (IngridDocument o : objs) {
+				System.out.println("Object: " + o.get(MdekKeys.UUID) + ", " + o.get(MdekKeys.TITLE));			
+				System.out.println(o);
+				List<IngridDocument> adrs = (List<IngridDocument>) o.get(MdekKeys.ADR_ENTITIES);
+				System.out.println("  Addresses: " + adrs.size() + " Entities");
+				for (IngridDocument a : adrs) {
+					System.out.println("  " + a);								
+					List<IngridDocument> coms = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
+					System.out.println("    Communication: " + coms.size() + " Entities");
+					for (IngridDocument c : coms) {
+						System.out.println("    " + c);
+					}
+				}
 			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
+
 /*
 		System.out.println("\n###### INVOKE fetchTopAddresses ######");
 		startTime = System.currentTimeMillis();

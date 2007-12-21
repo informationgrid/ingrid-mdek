@@ -29,6 +29,7 @@
 	
 	<xs:complexType name="object_MAP">
 		<xs:all>
+			<xs:element ref="id"/>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
@@ -39,12 +40,14 @@
 	</xs:complexType>
 	<xs:element name="object_MAP" type="object_MAP"/>
 
+	<xs:element name="id" type="xs:long"/>
 	<xs:element name="uuid" type="xs:string"/>
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
 	
 	<xs:complexType name="address_MAP">
 		<xs:all>
+			<xs:element ref="id"/>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
