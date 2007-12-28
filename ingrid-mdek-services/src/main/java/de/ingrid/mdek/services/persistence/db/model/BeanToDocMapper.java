@@ -13,18 +13,9 @@ import de.ingrid.utils.IngridDocument;
  * 
  * @author Martin
  */
-public class BeanToDocMapper {
+public class BeanToDocMapper implements IMapper {
 
 	private static final Logger LOG = Logger.getLogger(BeanToDocMapper.class);
-
-	/** How much to map of bean properties */
-	public enum MappingQuantity {
-		BASIC_ENTITY, // client: minimum data of bean needed
-		TOP_ENTITY, // client: bean displayed in tree as topnode
-		SUB_ENTITY, // client: bean displayed in tree as subnode
-		TABLE_ENTITY, // client: bean displayed in table
-		DETAIL_ENTITY // client: bean edit/save
-	}
 
 	private static BeanToDocMapper myInstance;
 
@@ -39,11 +30,11 @@ public class BeanToDocMapper {
 	private BeanToDocMapper() {}
 
 	public IngridDocument mapT01Object(T01Object o, MappingQuantity type) {
-		IngridDocument doc = new IngridDocument();
 		if (o == null) {
-			return doc;
+			return null;
 		}
 
+		IngridDocument doc = new IngridDocument();
 		doc.put(MdekKeys.ID, o.getId());
 		doc.put(MdekKeys.UUID, o.getObjUuid());
 		doc.put(MdekKeys.CLASS, o.getObjClass());
@@ -78,11 +69,11 @@ public class BeanToDocMapper {
 	}
 
 	public IngridDocument mapT02Address(T02Address a, MappingQuantity type) {
-		IngridDocument doc = new IngridDocument();
 		if (a == null) {
-			return doc;
+			return null;
 		}
 
+		IngridDocument doc = new IngridDocument();
 		doc.put(MdekKeys.ID, a.getId());
 		doc.put(MdekKeys.UUID, a.getAdrUuid());
 		doc.put(MdekKeys.CLASS, a.getAdrType());
@@ -130,11 +121,11 @@ public class BeanToDocMapper {
 	}
 
 	public IngridDocument mapT021Communication(T021Communication c, MappingQuantity type) {
-		IngridDocument doc = new IngridDocument();
 		if (c == null) {
-			return doc;
+			return null;
 		}
 
+		IngridDocument doc = new IngridDocument();
 		doc.put(MdekKeys.ID, c.getId());
 		doc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommType());
 		doc.put(MdekKeys.COMMUNICATION_VALUE, c.getCommValue());

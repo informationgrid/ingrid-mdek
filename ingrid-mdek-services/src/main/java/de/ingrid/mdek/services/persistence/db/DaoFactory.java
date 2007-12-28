@@ -29,8 +29,8 @@ public class DaoFactory implements IDaoFactory {
     public IGenericDao<IEntity> getDao(Class clazz) {
 		IGenericDao dao = null;
 /*
-		if (clazz.isAssignableFrom(T01Object.class)) {
-			dao = new T01ObjectDao(_sessionFactory);
+		if (clazz.isAssignableFrom(T012ObjAdr.class)) {
+			dao = new GenericHibernateDao<T012ObjAdr>(_sessionFactory, T012ObjAdr.class);
 		}
 */
         return dao;

@@ -62,7 +62,7 @@
 		 <one-to-many class="T012ObjObj" not-found="ignore"/>
 		 <filter name="objObjTypeFilter" condition=":type = type"/>
 	  </set>
-      <set name="t012ObjAdrs" order-by="line">
+      <set name="t012ObjAdrs" order-by="line" cascade="all-delete-orphan" inverse="true">
          <key column="obj_id"/>
 		 <one-to-many class="T012ObjAdr" not-found="ignore"/>
 		 <filter name="objAdrTypeFilter" condition=":type = type"/>

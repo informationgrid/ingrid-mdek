@@ -16,9 +16,14 @@
       <property name="specialName" type="string" column="special_name"/>
       <property name="modTime" type="string" column="mod_time"/>
 
+	  <!-- The Object -->
+	  <!-- NOTICE: t01Object manages one-to-many marked as inverse -->
+	  <many-to-one name="t01Object" column="obj_id" update="false" insert="false"/>
+
+	  <!-- The Address -->
 	  <!-- NOTICE: NEVER loads lazy although lazy loading requested ! This seems to be
 	       because of property-ref, which causes getter call on associated object -->
-      <many-to-one name="t02Address" class="T02Address" column="adr_uuid" property-ref="adrUuid"
+      <many-to-one name="t02Address" column="adr_uuid" property-ref="adrUuid"
       		lazy="proxy" update="false" insert="false"/>
    </class>
 </hibernate-mapping>
