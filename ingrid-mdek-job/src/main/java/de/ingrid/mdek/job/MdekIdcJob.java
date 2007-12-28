@@ -2,7 +2,6 @@ package de.ingrid.mdek.job;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -12,9 +11,9 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
+import de.ingrid.mdek.services.persistence.db.model.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper.MappingQuantity;
+import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekIdcJob extends MdekJob {
@@ -30,6 +29,9 @@ public class MdekIdcJob extends MdekJob {
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
 
+	private BeanToDocMapper beanToDocMapper;
+	private DocToBeanMapper docToBeanMapper;
+
 	public MdekIdcJob(ILogService logService,
 			DaoFactory daoFactory) {
 		
@@ -38,6 +40,9 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+
+		beanToDocMapper = BeanToDocMapper.getInstance();
+		docToBeanMapper = docToBeanMapper.getInstance();
 	}
 /*
 	public IngridDocument testMdekEntity(IngridDocument params) {
@@ -108,9 +113,8 @@ public class MdekIdcJob extends MdekJob {
 		List<T01Object> objs = daoT01Object.getTopObjects();
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
-		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T01Object obj : objs) {
-			resultList.add(mapper.mapT01Object(obj, MappingQuantity.TOP_ENTITY));
+			resultList.add(beanToDocMapper.mapT01Object(obj, MappingQuantity.TOP_ENTITY));
 		}
 
 		daoT01Object.commitTransaction();
@@ -128,9 +132,8 @@ public class MdekIdcJob extends MdekJob {
 		List<T01Object> objs = daoT01Object.getSubObjects(uuid);
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
-		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
 		for (T01Object obj : objs) {
-			resultList.add(mapper.mapT01Object(obj, MappingQuantity.SUB_ENTITY));
+			resultList.add(beanToDocMapper.mapT01Object(obj, MappingQuantity.SUB_ENTITY));
 		}
 
 		daoT01Object.commitTransaction();
@@ -141,22 +144,63 @@ public class MdekIdcJob extends MdekJob {
 
 
 	public IngridDocument getObjDetails(IngridDocument params) {
-		IngridDocument result = new IngridDocument();
 		String uuid = (String) params.get(MdekKeys.UUID);
-
+		return getObjDetails(uuid);
+	}
+	private IngridDocument getObjDetails(String uuid) {
 		daoT01Object.beginTransaction();
 
 		T01Object o = daoT01Object.getObjDetails(uuid);
-
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(1);
-		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		resultList.add(mapper.mapT01Object(o, MappingQuantity.DETAIL_ENTITY));
+		IngridDocument oDoc = beanToDocMapper.mapT01Object(o, MappingQuantity.DETAIL_ENTITY);
 
 		daoT01Object.commitTransaction();
 
-		result.put(MdekKeys.OBJ_ENTITIES, resultList);
-		return result;
+		return oDoc;		
 	}
+
+	public IngridDocument storeObject(IngridDocument objDoc) {
+		String uuid = (String) objDoc.get(MdekKeys.UUID);
+
+		daoT01Object.beginTransaction();
+
+		T01Object o;
+		if (uuid == null) {
+			// TODO: Create and Set UUID in objDoc
+			o = new T01Object();
+			docToBeanMapper.mapT01Object(objDoc, o, MappingQuantity.DETAIL_ENTITY);
+
+		} else {
+			o = daoT01Object.getObjDetails(uuid);
+			docToBeanMapper.mapT01Object(objDoc, o, MappingQuantity.DETAIL_ENTITY);
+		}
+		daoT01Object.makePersistent(o);
+
+		daoT01Object.commitTransaction();
+		
+		return getObjDetails(uuid);
+	}
+
+	public IngridDocument deleteObject(IngridDocument params) {
+		String uuid = (String) params.get(MdekKeys.UUID);
+		IngridDocument result = null;
+
+		daoT01Object.beginTransaction();
+
+		T01Object oExample = new T01Object();
+		oExample.setObjUuid(uuid);
+		T01Object o = daoT01Object.findUniqueByExample(oExample);
+
+		if (o != null) {
+			daoT01Object.makeTransient(o);
+			// TODO: wie delete success in Result transportieren ? jetzt null / not null
+			result = new IngridDocument();
+		}
+
+		daoT01Object.commitTransaction();
+
+		return result;		
+	}
+
 /*
 	public IngridDocument getTopAddresses() {
 		IngridDocument result = new IngridDocument();
