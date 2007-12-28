@@ -92,7 +92,7 @@ public class MdekCaller implements IMdekCaller {
         	jobRepo = null;
         }
 	}
-
+/*
 	public IngridDocument testMdekEntity(int threadNumber) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.TITLE, "TEST obj_name");
@@ -102,7 +102,7 @@ public class MdekCaller implements IMdekCaller {
 
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
-
+*/
 	public IngridDocument fetchObject(String uuid, Quantity howMuch) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
@@ -116,13 +116,16 @@ public class MdekCaller implements IMdekCaller {
 	}
 
 	public IngridDocument storeObject(IngridDocument obj) {
-		// TODO implement storeObject
-		return new IngridDocument();
+		List jobMethods = setUpJobMethod("storeObject", obj);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument deleteObject(String uuid) {
-		// TODO implement deleteObject
-		return new IngridDocument();
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		List jobMethods = setUpJobMethod("deleteObject", jobParams);
+
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchTopObjects() {

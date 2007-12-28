@@ -3,11 +3,13 @@
 	<xs:complexType name="mdekRequest_MAP">
 		<xs:all>
 			<xs:element ref="uuid"/>
+			<xs:element ref="object_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
 	<xs:complexType name="mdekResult_MAP">
 		<xs:all>
+			<xs:element ref="object_MAP"/>
 			<xs:element ref="objEntities"/>
 			<xs:element ref="adrEntities"/>
 		</xs:all>
@@ -20,13 +22,6 @@
 	</xs:complexType>
 	<xs:element name="objEntities" type="objEntities"/>
 
-	<xs:complexType name="adrEntities">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="address_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:element name="adrEntities" type="adrEntities"/>
-	
 	<xs:complexType name="object_MAP">
 		<xs:all>
 			<xs:element ref="id"/>
@@ -44,6 +39,13 @@
 	<xs:element name="uuid" type="xs:string"/>
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
+	
+	<xs:complexType name="adrEntities">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="address_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="adrEntities" type="adrEntities"/>
 	
 	<xs:complexType name="address_MAP">
 		<xs:all>
