@@ -111,11 +111,21 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 
+		// change and store existing object
 		storeObject(result);
+
+		// store NEW object
+		IngridDocument objDoc = new IngridDocument();
+		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		result = storeObject(objDoc);
 
 		// -----------------------------------
 
-		deleteObject("E118D248-0705-11D5-87B3-00600852CACF");
+		// and delete new Object
+		String newUuid = (String)result.get(MdekKeys.UUID);
+		deleteObject(newUuid);
+		// deleted ?
+		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 
@@ -260,7 +270,7 @@ class MdekThread extends Thread {
 		// remove first address !
 		List<IngridDocument> adrs = (List<IngridDocument>) obj.get(MdekKeys.ADR_ENTITIES);
 		IngridDocument aRemoved = null;
-		if (adrs.size() > 0) {
+		if (adrs != null && adrs.size() > 0) {
 			aRemoved = adrs.get(0);
 			System.out.println("REMOVE FIRST ADDRESS: " + aRemoved);
 			adrs.remove(0);			
@@ -324,8 +334,6 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
-			System.out.println("REREAD");
-			fetchObject(uuid, Quantity.DETAIL_ENTITY);
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
