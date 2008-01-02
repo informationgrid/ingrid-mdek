@@ -52,6 +52,9 @@ public class DocToBeanMapper implements IMapper {
 			
 			// update related ObjAdrs
 			List<IngridDocument> aDocs = (List) oDoc.get(MdekKeys.ADR_ENTITIES);
+			if (aDocs == null) {
+				aDocs = new ArrayList<IngridDocument>(0);
+			}
 			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
 			ArrayList<T012ObjAdr> oAs_unprocessed = new ArrayList<T012ObjAdr>(oAs);
 			int line = 1;
