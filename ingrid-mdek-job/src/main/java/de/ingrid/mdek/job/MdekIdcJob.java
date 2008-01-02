@@ -10,6 +10,7 @@ import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
+import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
@@ -165,7 +166,8 @@ public class MdekIdcJob extends MdekJob {
 
 		T01Object o;
 		if (uuid == null) {
-			// TODO: Create and Set UUID in objDoc
+			uuid = UuidGenerator.getInstance().generateUuid();
+			objDoc.put(MdekKeys.UUID, uuid);
 			o = new T01Object();
 			docToBeanMapper.mapT01Object(objDoc, o, MappingQuantity.DETAIL_ENTITY);
 
