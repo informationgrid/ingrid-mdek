@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.IMapper.T012ObjObjRelationType;
 
 
 
@@ -20,6 +21,10 @@ public interface IT01ObjectDao
 	/** Fetches sub objects of object with given id */
 	List<T01Object> getSubObjects(String uuid);
 
-	/** Fetches object with given id containing all detailed object data. */
-	T01Object getObjDetails(String uuid);
+	/** Fetches object with given uuid containing all detailed object data.
+	 * @param uuid uuid of object to fetch
+	 * @param objObjTypeFilter which types of obj obj relations to fetch
+	 * @return obj bean containing data
+	 */
+	T01Object getObjDetails(String uuid, T012ObjObjRelationType objObjTypeFilter);
 }

@@ -16,9 +16,15 @@
       <property name="specialName" type="string" column="special_name"/>
       <property name="descr" type="string" column="descr"/>
 
+	  <!-- From Object -->
+	  <!-- NOTICE: t01Object manages one-to-many association marked as inverse -->
+	  <many-to-one name="fromT01Object" column="object_from_uuid" property-ref="objUuid" not-null="true"
+	  		lazy="proxy" update="false" insert="false"/>
+
+	  <!-- To Object -->
 	  <!-- NOTICE: NEVER loads lazy although lazy loading requested ! This seems to be
 	       because of property-ref, which causes getter call on associated object -->
-      <many-to-one name="toT01Object" class="T01Object" column="object_to_uuid" property-ref="objUuid"
+      <many-to-one name="toT01Object" column="object_to_uuid" property-ref="objUuid" not-null="true"
 			lazy="proxy" update="false" insert="false"/>
 
    </class>

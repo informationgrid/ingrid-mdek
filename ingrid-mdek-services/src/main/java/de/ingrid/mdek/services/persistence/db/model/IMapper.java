@@ -15,4 +15,19 @@ public interface IMapper {
 		TABLE_ENTITY, // client: bean displayed in table
 		DETAIL_ENTITY // client: bean edit/save
 	}
+	
+	/** Types of T012ObjObj relations */
+	public enum T012ObjObjRelationType {
+		ALLE(null),
+		STRUKTURBAUM(0),
+		QUERVERWEIS(1);
+
+		T012ObjObjRelationType(Integer dbValue) {
+			this.dbValue = dbValue;
+		}
+		public Integer getDbValue() {
+			return dbValue;
+		}
+		Integer dbValue;
+	}
 }

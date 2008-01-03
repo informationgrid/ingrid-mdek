@@ -11,6 +11,7 @@ import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjObj;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.IMapper.T012ObjObjRelationType;
 
 /**
  * Hibernate-specific implementation of the <tt>IT01ObjectDao</tt>
@@ -31,7 +32,8 @@ public class T01ObjectDaoHibernate
 		ArrayList<T01Object> retList = new ArrayList<T01Object>();
 
 		// only "strukturverweise"
-		session.enableFilter("objObjTypeFilter").setParameter("type", new Integer(0));
+		session.enableFilter("objObjTypeFilter").
+			setParameter("type", T012ObjObjRelationType.STRUKTURBAUM.getDbValue());
 
 		// fetch all at once (one select with outer joins)
 		// NOTICE: we already fetch associated toT01Objects because Hibernate executes subselects
@@ -62,7 +64,8 @@ public class T01ObjectDaoHibernate
 		ArrayList<T01Object> retList = new ArrayList<T01Object>();
 
 		// only "strukturverweise"
-		session.enableFilter("objObjTypeFilter").setParameter("type", new Integer(0));
+		session.enableFilter("objObjTypeFilter").
+			setParameter("type", T012ObjObjRelationType.STRUKTURBAUM.getDbValue());
 
 		// fetch all at once (one select with outer joins)
 		// NOTICE: we already fetch associated toT01Objects because Hibernate executes subselects
@@ -71,10 +74,10 @@ public class T01ObjectDaoHibernate
 		// so we FETCH ALL SUBOBJECTS IN ONE SELECT TO AVOID FURTHER SUBSELECTS !
 		// -> 3 to 4 times faster than executing subselects !
 		T01Object o = (T01Object) session.createQuery("from T01Object o " +
-			"left join fetch o.t012ObjObjs oOs1 " +
-			"left join fetch oOs1.toT01Object o1 " +
-			"left join fetch o1.t012ObjObjs oOs2 " +
-			"left join fetch oOs2.toT01Object o2 " +
+			"left join fetch o.t012ObjObjs oOs " +
+			"left join fetch oOs.toT01Object oTo " +
+			"left join fetch oTo.t012ObjObjs oOs2 " +
+			"left join fetch oOs2.toT01Object oTo2 " +
 			"where o.objUuid = ?")
 		// order by doesn't work ! set in mapping file !
 //			"order by oOs1.line")
@@ -93,20 +96,23 @@ public class T01ObjectDaoHibernate
 		return retList;
 	}
 
-	public T01Object getObjDetails(String uuid) {
+	public T01Object getObjDetails(String uuid, 
+		T012ObjObjRelationType objObjTypeFilter) {
 		Session session = getSession();
 
-		// enable filter ?
-/*
-		0 == Auskunft
-		1 == Datenhalter
-		2 == Datenverantwortlicher
-		999 == Freier Eintrag
-*/
-//		session.enableFilter("objAdrTypeFilter").setParameter("type", new Integer(0));
+		// enable object object relations filter !
+		if (objObjTypeFilter == T012ObjObjRelationType.ALLE) {
+			session.disableFilter("objObjTypeFilter");
+		} else {
+			session.enableFilter("objObjTypeFilter").setParameter("type", objObjTypeFilter.getDbValue());
+		}
 
 		// fetch all at once (one select with outer joins)
 		T01Object o = (T01Object) session.createQuery("from T01Object o " +
+			"left join fetch o.t012ObjObjs oOs " +
+			// also load from object to avoid separate select by hibernate :-(
+			"left join fetch oOs.fromT01Object oFrom " +
+			"left join fetch oOs.toT01Object oTo " +
 			"left join fetch o.t012ObjAdrs oAs " +
 			"left join fetch oAs.t02Address a " +
 			"left join fetch a.t021Communications " +
@@ -114,7 +120,7 @@ public class T01ObjectDaoHibernate
 			.setString(0, uuid)
 			.uniqueResult();
 
-//		session.disableFilter("objAdrTypeFilter");
+		session.disableFilter("objObjTypeFilter");
 		
 		return o;
 	}

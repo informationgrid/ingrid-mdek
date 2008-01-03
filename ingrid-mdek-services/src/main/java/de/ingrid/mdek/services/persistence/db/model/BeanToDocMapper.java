@@ -49,10 +49,23 @@ public class BeanToDocMapper implements IMapper {
 			for (T012ObjAdr oA : oAs) {
 				T02Address a = oA.getT02Address();
 				IngridDocument aDoc = mapT02Address(a, MappingQuantity.TABLE_ENTITY);
-				aDoc.put(MdekKeys.TYPE_OF_RELATION, oA.getType());
+				aDoc.put(MdekKeys.RELATION_TYPE, oA.getType());
 				adrsList.add(aDoc);
 			}
 			doc.put(MdekKeys.ADR_ENTITIES, adrsList);
+
+			// get related objects (Querverweise)
+			Set<T012ObjObj> oOs = o.getT012ObjObjs();
+			ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oOs.size());
+			for (T012ObjObj oO : oOs) {
+				T01Object oTo = oO.getToT01Object();
+				IngridDocument oToDoc = mapT01Object(oTo, MappingQuantity.TABLE_ENTITY);
+				oToDoc.put(MdekKeys.RELATION_TYPE, oO.getType());
+				oToDoc.put(MdekKeys.RELATION_DESCRIPTION, oO.getDescr());
+				objsList.add(oToDoc);
+			}
+			doc.put(MdekKeys.OBJ_ENTITIES, objsList);
+
 		}
 
 		if (type == MappingQuantity.TOP_ENTITY ||
