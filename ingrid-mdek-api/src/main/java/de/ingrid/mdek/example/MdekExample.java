@@ -106,7 +106,7 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 
-		IngridDocument result = fetchObject("E118D248-0705-11D5-87B3-00600852CACF", 
+		IngridDocument result = fetchObject("38664792-B449-11D2-9A86-080000507261", 
 			Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
@@ -114,18 +114,20 @@ class MdekThread extends Thread {
 		// change and store existing object
 		storeObject(result);
 
-		// store NEW object
+		// store NEW object and get Uuid
 		IngridDocument objDoc = new IngridDocument();
 		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		result = storeObject(objDoc);
+		String newUuid = (String)result.get(MdekKeys.UUID);
 
 		// -----------------------------------
 
-		// and delete new Object
-		String newUuid = (String)result.get(MdekKeys.UUID);
+		// delete new Object
 		deleteObject(newUuid);
 		// deleted ?
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+
+//		deleteObject("38664792-B449-11D2-9A86-080000507261");
 
 		// -----------------------------------
 
@@ -272,8 +274,17 @@ class MdekThread extends Thread {
 		IngridDocument aRemoved = null;
 		if (adrs != null && adrs.size() > 0) {
 			aRemoved = adrs.get(0);
-			System.out.println("REMOVE FIRST ADDRESS: " + aRemoved);
+			System.out.println("REMOVE FIRST RELATED ADDRESS: " + aRemoved);
 			adrs.remove(0);			
+		}
+
+		// remove first object Querverweis !
+		List<IngridDocument> objs = (List<IngridDocument>) obj.get(MdekKeys.OBJ_ENTITIES);
+		IngridDocument oRemoved = null;
+		if (objs != null && objs.size() > 0) {
+			oRemoved = objs.get(0);
+			System.out.println("REMOVE FIRST OBJECT QUERVERWEIS: " + oRemoved);
+			objs.remove(0);			
 		}
 
 		// store
@@ -292,8 +303,14 @@ class MdekThread extends Thread {
 			if (aRemoved != null) {
 				// and add address again
 				adrs.add(aRemoved);
-				System.out.println("ADD FIRST ADDRESS AGAIN: " + aRemoved);
-
+				System.out.println("ADD REMOVED ADDRESS AGAIN: " + aRemoved);
+			}
+			if (oRemoved != null) {
+				// and add object again
+				objs.add(oRemoved);
+				System.out.println("ADD REMOVED OBJECT QUERVERWEIS AGAIN: " + oRemoved);
+			}
+			if (aRemoved != null || oRemoved != null) {
 				System.out.println("STORE");
 				startTime = System.currentTimeMillis();
 				response = mdekCaller.storeObject(obj);
@@ -343,17 +360,24 @@ class MdekThread extends Thread {
 
 	private void debugObjectDoc(IngridDocument o) {
 		System.out.println("Object: " + o.get(MdekKeys.ID) + ", " + o.get(MdekKeys.UUID) + ", " + o.get(MdekKeys.TITLE));			
-		System.out.println(o);
+		System.out.println(" " + o);
+		List<IngridDocument> objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_ENTITIES);
+		if (objs != null) {
+			System.out.println("  Objects (Querverweise): " + objs.size() + " Entities");
+			for (IngridDocument oTo : objs) {
+				System.out.println("   " + oTo);								
+			}			
+		}
 		List<IngridDocument> adrs = (List<IngridDocument>) o.get(MdekKeys.ADR_ENTITIES);
 		if (adrs != null) {
 			System.out.println("  Addresses: " + adrs.size() + " Entities");
 			for (IngridDocument a : adrs) {
-				System.out.println("  " + a);								
+				System.out.println("   " + a);								
 				List<IngridDocument> coms = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
 				if (coms != null) {
 					System.out.println("    Communication: " + coms.size() + " Entities");
 					for (IngridDocument c : coms) {
-						System.out.println("    " + c);
+						System.out.println("     " + c);
 					}					
 				}
 			}			

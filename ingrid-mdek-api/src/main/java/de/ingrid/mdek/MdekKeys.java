@@ -15,6 +15,9 @@ public class MdekKeys {
      *	Value: List of IngridDocs */
     public final static String ADR_ENTITIES = "adrEntities";
 
+    // COMMON DATA
+    // -----------
+
     /** Value: Long */
     public final static String ID = "id";
 
@@ -30,7 +33,7 @@ public class MdekKeys {
     public final static String HAS_CHILD = "hasChild";
 
     /** Value: Integer */
-    public final static String TYPE_OF_RELATION = "type-of-relation";
+    public final static String RELATION_TYPE = "relation-type";
 
     // OBJECT DATA
     // -----------
@@ -39,6 +42,10 @@ public class MdekKeys {
     public final static String TITLE = "title";
     /** Value: String */
     public final static String ABSTRACT = "abstract";
+    /** description of obj-obj association 
+     * Value: String */
+    public final static String RELATION_DESCRIPTION = "relation-description";
+
 
     // ADDRESS DATA
     // ------------

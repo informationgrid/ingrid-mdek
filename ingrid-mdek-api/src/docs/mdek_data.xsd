@@ -28,9 +28,12 @@
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
+			<xs:element ref="relation-type"/>
+			<xs:element name="relation-description"  type="xs:string"/>
 			<xs:element name="title" type="xs:string"/>
 			<xs:element name="abstract" type="xs:string"/>
 			<xs:element ref="adrEntities"/>
+			<xs:element ref="objEntities"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:element name="object_MAP" type="object_MAP"/>
@@ -39,6 +42,7 @@
 	<xs:element name="uuid" type="xs:string"/>
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
+	<xs:element name="relation-type" type="xs:integer"/>
 	
 	<xs:complexType name="adrEntities">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -53,7 +57,7 @@
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
-			<xs:element name="type-of-relation" type="xs:integer"/>
+			<xs:element ref="relation-type"/>
 			<xs:element name="organisation" type="xs:string"/>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="given-name" type="xs:string"/>
