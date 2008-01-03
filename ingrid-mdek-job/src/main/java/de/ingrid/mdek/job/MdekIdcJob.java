@@ -15,6 +15,7 @@ import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
+import de.ingrid.mdek.services.persistence.db.model.IMapper.T012ObjObjRelationType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekIdcJob extends MdekJob {
@@ -151,7 +152,7 @@ public class MdekIdcJob extends MdekJob {
 	private IngridDocument getObjDetails(String uuid) {
 		daoT01Object.beginTransaction();
 
-		T01Object o = daoT01Object.getObjDetails(uuid);
+		T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.QUERVERWEIS);
 		IngridDocument oDoc = beanToDocMapper.mapT01Object(o, MappingQuantity.DETAIL_ENTITY);
 
 		daoT01Object.commitTransaction();
@@ -172,7 +173,7 @@ public class MdekIdcJob extends MdekJob {
 			docToBeanMapper.mapT01Object(objDoc, o, MappingQuantity.DETAIL_ENTITY);
 
 		} else {
-			o = daoT01Object.getObjDetails(uuid);
+			o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.QUERVERWEIS);
 			docToBeanMapper.mapT01Object(objDoc, o, MappingQuantity.DETAIL_ENTITY);
 		}
 		daoT01Object.makePersistent(o);
@@ -188,12 +189,17 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object.beginTransaction();
 
+		// fetch Struktur- and Querverweise and delete them !
+		T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.ALLE);
+		// TODO: delete whole sub tree of objects !!!??? Not only next level
+/*
 		T01Object oExample = new T01Object();
 		oExample.setObjUuid(uuid);
 		T01Object o = daoT01Object.findUniqueByExample(oExample);
-
+*/
 		if (o != null) {
 			daoT01Object.makeTransient(o);
+
 			// TODO: wie delete success in Result transportieren ? jetzt null / not null
 			result = new IngridDocument();
 		}
