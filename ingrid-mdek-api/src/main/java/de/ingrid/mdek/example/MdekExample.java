@@ -9,6 +9,7 @@ import de.ingrid.mdek.IMdekCaller;
 import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekCaller.Quantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -375,7 +376,12 @@ class MdekThread extends Thread {
 	}
 
 	private void debugObjectDoc(IngridDocument o) {
-		System.out.println("Object: " + o.get(MdekKeys.ID) + ", " + o.get(MdekKeys.UUID) + ", " + o.get(MdekKeys.TITLE));			
+		System.out.println("Object: " + o.get(MdekKeys.ID) 
+			+ ", " + o.get(MdekKeys.UUID)
+			+ ", " + o.get(MdekKeys.TITLE)
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+		);
 		System.out.println(" " + o);
 		List<IngridDocument> objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_ENTITIES);
 		if (objs != null) {
