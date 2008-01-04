@@ -49,13 +49,20 @@ public class DocToBeanMapper implements IMapper {
 		oIn.setWorkState((String) oDocIn.get(MdekKeys.WORK_STATE));
 
 		if (type == MappingQuantity.DETAIL_ENTITY) {
+			oIn.setDatasetAlternateName((String) oDocIn.get(MdekKeys.DATASET_ALTERNATE_NAME));
 			oIn.setObjDescr((String) oDocIn.get(MdekKeys.ABSTRACT));
 			String creationDate = (String) oDocIn.get(MdekKeys.DATE_OF_CREATION);
 			if (creationDate != null) {
 				oIn.setCreateTime(creationDate);				
 			}
 			oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
-			
+			oIn.setVerticalExtentMinimum((Double) oDocIn.get(MdekKeys.VERTICAL_EXTENT_MINIMUM));
+			oIn.setVerticalExtentMaximum((Double) oDocIn.get(MdekKeys.VERTICAL_EXTENT_MAXIMUM));
+			oIn.setVerticalExtentUnit((Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_UNIT));
+			oIn.setVerticalExtentVdatum((Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_VDATUM));
+			oIn.setLocDescr((String) oDocIn.get(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN));
+
+
 			// update related ObjAdrs
 			updateT012ObjAdrs(oDocIn, oIn);
 

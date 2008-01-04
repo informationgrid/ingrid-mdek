@@ -42,9 +42,15 @@ public class BeanToDocMapper implements IMapper {
 		doc.put(MdekKeys.WORK_STATE, o.getWorkState());
 		
 		if (type == MappingQuantity.DETAIL_ENTITY) {
+			doc.put(MdekKeys.DATASET_ALTERNATE_NAME, o.getDatasetAlternateName());
 			doc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			doc.put(MdekKeys.DATE_OF_CREATION, o.getCreateTime());
 			doc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
+			doc.put(MdekKeys.VERTICAL_EXTENT_MINIMUM, o.getVerticalExtentMinimum());
+			doc.put(MdekKeys.VERTICAL_EXTENT_MAXIMUM, o.getVerticalExtentMaximum());
+			doc.put(MdekKeys.VERTICAL_EXTENT_UNIT, o.getVerticalExtentUnit());
+			doc.put(MdekKeys.VERTICAL_EXTENT_VDATUM, o.getVerticalExtentVdatum());
+			doc.put(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN, o.getLocDescr());
 			
 			// get related addresses
 			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
