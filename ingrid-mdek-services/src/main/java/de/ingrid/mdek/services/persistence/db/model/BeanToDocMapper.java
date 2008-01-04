@@ -39,6 +39,7 @@ public class BeanToDocMapper implements IMapper {
 		doc.put(MdekKeys.UUID, o.getObjUuid());
 		doc.put(MdekKeys.CLASS, o.getObjClass());
 		doc.put(MdekKeys.TITLE, o.getObjName());
+		doc.put(MdekKeys.WORK_STATE, o.getWorkState());
 		
 		if (type == MappingQuantity.DETAIL_ENTITY) {
 			doc.put(MdekKeys.ABSTRACT, o.getObjDescr());

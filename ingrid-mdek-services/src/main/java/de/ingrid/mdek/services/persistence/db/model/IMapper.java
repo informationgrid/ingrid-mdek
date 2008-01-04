@@ -1,5 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.model;
 
+import de.ingrid.mdek.IMdekEnum;
+
 /**
  * Common stuff for all mappers.
  * 
@@ -17,7 +19,7 @@ public interface IMapper {
 	}
 	
 	/** Types of T012ObjObj relations */
-	public enum T012ObjObjRelationType {
+	public enum T012ObjObjRelationType implements IMdekEnum {
 		ALLE(null),
 		STRUKTURBAUM(0),
 		QUERVERWEIS(1);

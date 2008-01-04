@@ -46,6 +46,7 @@ public class DocToBeanMapper implements IMapper {
 		oIn.setObjUuid((String) oDocIn.get(MdekKeys.UUID));
 		oIn.setObjClass((Integer) oDocIn.get(MdekKeys.CLASS));
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
+		oIn.setWorkState((String) oDocIn.get(MdekKeys.WORK_STATE));
 
 		if (type == MappingQuantity.DETAIL_ENTITY) {
 			oIn.setObjDescr((String) oDocIn.get(MdekKeys.ABSTRACT));
