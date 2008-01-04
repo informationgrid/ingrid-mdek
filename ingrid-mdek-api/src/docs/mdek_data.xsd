@@ -3,6 +3,7 @@
 	<xs:complexType name="mdekRequest_MAP">
 		<xs:all>
 			<xs:element ref="uuid"/>
+			<xs:element name="parent-uuid" type="xs:string"/>
 			<xs:element ref="object_MAP"/>
 		</xs:all>
 	</xs:complexType>

@@ -98,36 +98,52 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 
+		System.out.println("\n----- top objects -----");
 		fetchTopObjects();
 
 		// -----------------------------------
 
-		fetchSubObjects("3866463B-B449-11D2-9A86-080000507261");
+		System.out.println("\n----- sub objects -----");
+		String testObjUuid = "38664792-B449-11D2-9A86-080000507261";
+		fetchSubObjects(testObjUuid);
 
 		// -----------------------------------
 
-		IngridDocument result = fetchObject("38664792-B449-11D2-9A86-080000507261", 
-			Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- object details -----");
+		IngridDocument oMap = fetchObject(testObjUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 
 		// change and store existing object
-		storeObject(result);
+		System.out.println("\n----- change and store object -----");
+		storeObject(oMap);
 
 		// store NEW object and get Uuid
+		System.out.println("\n----- store new object -----");
 		IngridDocument objDoc = new IngridDocument();
 		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		result = storeObject(objDoc);
-		String newUuid = (String)result.get(MdekKeys.UUID);
+		// supply parent uuid !
+		objDoc.put(MdekKeys.PARENT_UUID, testObjUuid);
+		oMap = storeObject(objDoc);
+		// uuid created !
+		String newUuid = (String) oMap.get(MdekKeys.UUID);
+
+		// verify new Subobject
+		System.out.println("\n----- verify new subobject -----");
+		fetchSubObjects(testObjUuid);
 
 		// -----------------------------------
 
 		// delete new Object
+		System.out.println("\n----- delete new object -----");
 		deleteObject(newUuid);
-		// deleted ?
+		System.out.println("\n----- verify deletion object -----");
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- verify deletion parent association -----");
+		fetchSubObjects(testObjUuid);
 
-//		deleteObject("38664792-B449-11D2-9A86-080000507261");
+
+//		deleteObject(objUuid);
 
 		// -----------------------------------
 
