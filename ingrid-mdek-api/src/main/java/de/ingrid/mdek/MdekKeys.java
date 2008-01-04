@@ -45,6 +45,9 @@ public class MdekKeys {
     /** Value: String */
     public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
 
+    /** Value: String */
+    public final static String WORK_STATE = "work-state";
+
     // OBJECT DATA
     // -----------
 

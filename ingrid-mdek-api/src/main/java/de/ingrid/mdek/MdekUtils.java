@@ -17,6 +17,27 @@ public class MdekUtils {
 	private final static SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 
+	/** WorkState of entities */
+	public enum WorkState implements IMdekEnum {
+		VEROEFFENTLICHT("V", "veröffentlicht"),
+		IN_BEARBEITUNG("B", "in Bearbeitung"),
+		QS_UEBERWIESEN("Q", "an Qualitätssicherung zugewiesen"),
+		QS_RUECKUEBERWIESEN("R", "von Qualitätssicherung rücküberwiesen");
+
+		WorkState(String dbValue, String description) {
+			this.dbValue = dbValue;
+			this.description = description;
+		}
+		public String getDbValue() {
+			return dbValue;
+		}
+		public String toString() {
+			return description;
+		}
+		String dbValue;
+		String description;
+	}
+
 /*
 	private static MdekUtils myInstance;
 
