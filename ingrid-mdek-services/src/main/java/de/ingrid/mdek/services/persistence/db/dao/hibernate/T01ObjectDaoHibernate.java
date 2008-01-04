@@ -2,7 +2,6 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -35,15 +34,10 @@ public class T01ObjectDaoHibernate
 		session.enableFilter("objObjTypeFilter").
 			setParameter("type", T012ObjObjRelationType.STRUKTURBAUM.getDbValue());
 
-		// fetch all at once (one select with outer joins)
-		// NOTICE: we already fetch associated toT01Objects because Hibernate executes subselects
-		// for every toT01Object ! Found no way to instruct hibernate to load
-		// the toT01Object lazy (even lazy="proxy" in association doesn't help, see mapping file) !
-		// so we FETCH ALL SUBOBJECTS IN ONE SELECT TO AVOID FURTHER SUBSELECTS !
-		// -> 3 to 4 times faster than executing subselects !
 		List<T01Object> objs = session.createQuery("from T01Object o " +
-			"left join fetch o.t012ObjObjs oOs " +
-			"left join fetch oOs.toT01Object o1 " +
+			"left join fetch o.t012ObjObjs oO " +
+			// request eager fetching of subobject itself (cause hibernate will fetch that one anyway due to property-ref assoziation :(
+			"left join fetch oO.toT01Object oTo " +
 			"where o.root = 1 " +
 			"order by o.objName")
 			.list();
@@ -67,31 +61,20 @@ public class T01ObjectDaoHibernate
 		session.enableFilter("objObjTypeFilter").
 			setParameter("type", T012ObjObjRelationType.STRUKTURBAUM.getDbValue());
 
-		// fetch all at once (one select with outer joins)
-		// NOTICE: we already fetch associated toT01Objects because Hibernate executes subselects
-		// for every toT01Object ! Found no way to instruct hibernate to load
-		// the toT01Object lazy (even lazy="proxy" in association doesn't help, see mapping file) !
-		// so we FETCH ALL SUBOBJECTS IN ONE SELECT TO AVOID FURTHER SUBSELECTS !
-		// -> 3 to 4 times faster than executing subselects !
-		T01Object o = (T01Object) session.createQuery("from T01Object o " +
-			"left join fetch o.t012ObjObjs oOs " +
-			"left join fetch oOs.toT01Object oTo " +
-			"left join fetch oTo.t012ObjObjs oOs2 " +
-			"left join fetch oOs2.toT01Object oTo2 " +
-			"where o.objUuid = ?")
-		// order by doesn't work ! set in mapping file !
-//			"order by oOs1.line")
-			.setString(0, uuid)
-			.uniqueResult();
+		List<T012ObjObj> oOs = session.createQuery("from T012ObjObj oO " +
+				"left join fetch oO.toT01Object oTo " +
+				// don't fetch next level, causes duplicate subobjects ("cartesian product")
+//				"left join fetch oTo.t012ObjObjs oO2 " +
+				"where oO.objectFromUuid = ?" +
+				"order by oTo.objName")
+				.setString(0, uuid)
+				.list();
 
 		session.disableFilter("objObjTypeFilter");
 
-		if (o != null) {
-			Set<T012ObjObj> oOs = o.getT012ObjObjs();
-			for (T012ObjObj oO : oOs) {
-				retList.add(oO.getToT01Object());
-			}			
-		}
+		for (T012ObjObj oO : oOs) {
+			retList.add(oO.getToT01Object());
+		}			
 
 		return retList;
 	}
@@ -110,8 +93,7 @@ public class T01ObjectDaoHibernate
 		// fetch all at once (one select with outer joins)
 		T01Object o = (T01Object) session.createQuery("from T01Object o " +
 			"left join fetch o.t012ObjObjs oOs " +
-			// also load from object to avoid separate select by hibernate :-(
-			"left join fetch oOs.fromT01Object oFrom " +
+//			"left join fetch oOs.fromT01Object oFrom " +
 			"left join fetch oOs.toT01Object oTo " +
 			"left join fetch o.t012ObjAdrs oAs " +
 			"left join fetch oAs.t02Address a " +
