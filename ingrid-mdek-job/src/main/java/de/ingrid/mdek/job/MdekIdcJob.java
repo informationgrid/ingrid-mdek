@@ -1,11 +1,13 @@
 package de.ingrid.mdek.job;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IT012ObjObjDao;
@@ -166,12 +168,17 @@ public class MdekIdcJob extends MdekJob {
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
+		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+
+		// update common data
+		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 
 		daoT01Object.beginTransaction();
 
 		if (uuid == null) {
 			uuid = UuidGenerator.getInstance().generateUuid();
 			oDocIn.put(MdekKeys.UUID, uuid);
+			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			T01Object o = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.DETAIL_ENTITY);
 			
 			// also create association to parent
