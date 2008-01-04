@@ -31,6 +31,7 @@
 			<xs:element ref="hasChild"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
+			<xs:element ref="work-state"/>
 			<xs:element ref="relation-type"/>
 			<xs:element name="relation-description"  type="xs:string"/>
 			<xs:element name="title" type="xs:string"/>
@@ -47,6 +48,7 @@
 	<xs:element name="hasChild" type="xs:boolean"/>
 	<xs:element name="date-of-creation" type="xs:string"/>
 	<xs:element name="date-of-last-modification" type="xs:string"/>
+	<xs:element name="work-state" type="xs:string"/>
 	<xs:element name="relation-type" type="xs:integer"/>
 	
 	<xs:complexType name="adrEntities">
