@@ -8,11 +8,13 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IT012ObjObjDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.DocToBeanMapper;
+import de.ingrid.mdek.services.persistence.db.model.T012ObjObj;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.T012ObjObjRelationType;
@@ -30,6 +32,7 @@ public class MdekIdcJob extends MdekJob {
 
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
+	private IT012ObjObjDao daoT012ObjObj;
 
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
@@ -42,6 +45,7 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+		daoT012ObjObj = daoFactory.getT012ObjObjDao();
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = docToBeanMapper.getInstance();
@@ -160,23 +164,31 @@ public class MdekIdcJob extends MdekJob {
 		return oDoc;		
 	}
 
-	public IngridDocument storeObject(IngridDocument objDoc) {
-		String uuid = (String) objDoc.get(MdekKeys.UUID);
+	public IngridDocument storeObject(IngridDocument oDocIn) {
+		String uuid = (String) oDocIn.get(MdekKeys.UUID);
 
 		daoT01Object.beginTransaction();
 
-		T01Object o;
 		if (uuid == null) {
 			uuid = UuidGenerator.getInstance().generateUuid();
-			objDoc.put(MdekKeys.UUID, uuid);
-			o = new T01Object();
-			docToBeanMapper.mapT01Object(objDoc, o, MappingQuantity.DETAIL_ENTITY);
+			oDocIn.put(MdekKeys.UUID, uuid);
+			T01Object o = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.DETAIL_ENTITY);
+			
+			// also create association to parent
+			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+			T01Object oParent = daoT01Object.loadByUuid(parentUuuid);
+			oDocIn.put(MdekKeys.RELATION_TYPE, T012ObjObjRelationType.STRUKTURBAUM.getDbValue());
+			T012ObjObj oO = docToBeanMapper.mapT012ObjObj(oParent, oDocIn, new T012ObjObj(), -1);
+
+			daoT01Object.makePersistent(o);
+			daoT012ObjObj.makePersistent(oO);
 
 		} else {
-			o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.QUERVERWEIS);
-			docToBeanMapper.mapT01Object(objDoc, o, MappingQuantity.DETAIL_ENTITY);
+			T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.QUERVERWEIS);
+			docToBeanMapper.mapT01Object(oDocIn, o, MappingQuantity.DETAIL_ENTITY);
+
+			daoT01Object.makePersistent(o);
 		}
-		daoT01Object.makePersistent(o);
 
 		daoT01Object.commitTransaction();
 		
@@ -189,17 +201,21 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object.beginTransaction();
 
-		// fetch Struktur- and Querverweise and delete them !
+		// fetch Struktur- and Querverweise associations for delete !
 		T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.ALLE);
-		// TODO: delete whole sub tree of objects !!!??? Not only next level
 /*
 		T01Object oExample = new T01Object();
 		oExample.setObjUuid(uuid);
 		T01Object o = daoT01Object.findUniqueByExample(oExample);
 */
 		if (o != null) {
-			daoT01Object.makeTransient(o);
+			// delete parent association
+			T012ObjObj oOParent = daoT012ObjObj.getParentAssociation(uuid);
+			daoT012ObjObj.makeTransient(oOParent);
 
+			// TODO: delete whole sub tree of objects !!!??? Not only next level of associations
+			daoT01Object.makeTransient(o);
+			
 			// TODO: wie delete success in Result transportieren ? jetzt null / not null
 			result = new IngridDocument();
 		}
