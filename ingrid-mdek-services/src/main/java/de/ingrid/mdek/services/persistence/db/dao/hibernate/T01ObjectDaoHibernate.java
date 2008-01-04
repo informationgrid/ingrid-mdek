@@ -26,6 +26,17 @@ public class T01ObjectDaoHibernate
         super(factory, T01Object.class);
     }
 
+	public T01Object loadByUuid(String uuid) {
+		Session session = getSession();
+
+		T01Object o = (T01Object) session.createQuery("from T01Object o " +
+			"where o.objUuid = ?")
+			.setString(0, uuid)
+			.uniqueResult();
+		
+		return o;
+	}
+
 	public List<T01Object> getTopObjects() {
 		Session session = getSession();
 		ArrayList<T01Object> retList = new ArrayList<T01Object>();
@@ -105,5 +116,19 @@ public class T01ObjectDaoHibernate
 		session.disableFilter("objObjTypeFilter");
 		
 		return o;
+	}
+
+	public T012ObjObj getParentAssociation(String uuid) {
+		Session session = getSession();
+		
+		Integer relationType = T012ObjObjRelationType.STRUKTURBAUM.getDbValue();
+
+		T012ObjObj oO = (T012ObjObj) session.createQuery("from T012ObjObj oO " +
+			"where oO.objectToUuid = ? " +
+			"and oO.type = " + relationType)
+			.setString(0, uuid)
+			.uniqueResult();
+		
+		return oO;
 	}
 }

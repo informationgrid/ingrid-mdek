@@ -65,10 +65,10 @@ public class DocToBeanMapper implements IMapper {
 	 * @param oFrom the from object bean
 	 * @param oDocTo the to doc containing to object data
 	 * @param oO the bean to transfer data to, pass new Bean or null if new one
-	 * @param line additional data for bean
+	 * @param line additional line data for bean
 	 * @return the passed bean containing all mapped data
 	 */
-	private T012ObjObj mapT012ObjObj(T01Object oFrom,
+	public T012ObjObj mapT012ObjObj(T01Object oFrom,
 		IngridDocument oDocTo,
 		T012ObjObj oO, 
 		int line) 
@@ -94,7 +94,7 @@ public class DocToBeanMapper implements IMapper {
 	 * @param oFrom  the from object bean
 	 * @param aDocTo the to doc containing to address data
 	 * @param oA the bean to transfer data to, pass new Bean or null if new one
-	 * @param line additional data for bean
+	 * @param line additional line data for bean
 	 * @return the passed bean containing all mapped data
 	 */
 	private T012ObjAdr mapT012ObjAdr(T01Object oFrom,

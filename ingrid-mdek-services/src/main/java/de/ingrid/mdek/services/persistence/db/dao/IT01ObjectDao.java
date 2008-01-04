@@ -16,6 +16,9 @@ import de.ingrid.mdek.services.persistence.db.model.IMapper.T012ObjObjRelationTy
 public interface IT01ObjectDao
 	extends IGenericDao<T01Object> {
 	
+	/** Load object with given uuid. Returns null if not found.	 */
+	T01Object loadByUuid(String uuid);
+
 	List<T01Object> getTopObjects();
 
 	/** Fetches sub objects of object with given id */
