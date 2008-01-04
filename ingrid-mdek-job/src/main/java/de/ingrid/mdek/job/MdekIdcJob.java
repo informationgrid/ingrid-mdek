@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IT012ObjObjDao;
@@ -172,6 +173,7 @@ public class MdekIdcJob extends MdekJob {
 
 		// update common data
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 
 		daoT01Object.beginTransaction();
 
