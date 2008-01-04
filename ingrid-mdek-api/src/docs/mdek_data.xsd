@@ -32,12 +32,19 @@
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="work-state"/>
-			<xs:element ref="relation-type"/>
-			<xs:element name="relation-description"  type="xs:string"/>
+			<xs:element name="dataset-alternate-name" type="xs:string"/>
 			<xs:element name="title" type="xs:string"/>
 			<xs:element name="abstract" type="xs:string"/>
+			<xs:element name="vertical-extent-minimum" type="xs:double"/>
+			<xs:element name="vertical-extent-maximum" type="xs:double"/>
+			<xs:element name="vertical-extent-unit" type="xs:integer"/>
+			<xs:element name="vertical-extent-vdatum" type="xs:integer"/>
+			<xs:element name="description-of-spatial-domain" type="xs:string"/>
 			<xs:element ref="adrEntities"/>
 			<xs:element ref="objEntities"/>
+			<!-- Object Associations Data -->
+			<xs:element ref="relation-type"/>
+			<xs:element name="relation-description" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:element name="object_MAP" type="object_MAP"/>

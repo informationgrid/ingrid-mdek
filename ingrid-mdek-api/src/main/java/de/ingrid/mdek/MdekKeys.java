@@ -58,8 +58,20 @@ public class MdekKeys {
     /** description of obj-obj association 
      * Value: String */
     public final static String RELATION_DESCRIPTION = "relation-description";
+    /** Value: String */
+    public final static String DATASET_ALTERNATE_NAME = "dataset-alternate-name";
+    /** Value: Double */
+    public final static String VERTICAL_EXTENT_MINIMUM = "vertical-extent-minimum";
+    /** Value: Double */
+    public final static String VERTICAL_EXTENT_MAXIMUM = "vertical-extent-maximum";
+    /** Value: Integer */
+    public final static String VERTICAL_EXTENT_UNIT = "vertical-extent-unit";
+    /** Value: Integer */
+    public final static String VERTICAL_EXTENT_VDATUM = "vertical-extent-vdatum";
+    /** Value: String */
+    public final static String DESCRIPTION_OF_SPATIAL_DOMAIN = "description-of-spatial-domain";
 
-
+    
     // ADDRESS DATA
     // ------------
 
