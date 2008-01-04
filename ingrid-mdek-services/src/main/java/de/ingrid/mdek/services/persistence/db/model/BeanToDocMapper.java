@@ -42,6 +42,8 @@ public class BeanToDocMapper implements IMapper {
 		
 		if (type == MappingQuantity.DETAIL_ENTITY) {
 			doc.put(MdekKeys.ABSTRACT, o.getObjDescr());
+			doc.put(MdekKeys.DATE_OF_CREATION, o.getCreateTime());
+			doc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
 			
 			// get related addresses
 			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();

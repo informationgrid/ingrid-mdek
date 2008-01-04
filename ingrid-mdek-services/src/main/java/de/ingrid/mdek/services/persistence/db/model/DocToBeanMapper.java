@@ -49,6 +49,8 @@ public class DocToBeanMapper implements IMapper {
 
 		if (type == MappingQuantity.DETAIL_ENTITY) {
 			oIn.setObjDescr((String) oDocIn.get(MdekKeys.ABSTRACT));
+			oIn.setCreateTime((String) oDocIn.get(MdekKeys.DATE_OF_CREATION));
+			oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
 			
 			// update related ObjAdrs
 			updateT012ObjAdrs(oDocIn, oIn);
