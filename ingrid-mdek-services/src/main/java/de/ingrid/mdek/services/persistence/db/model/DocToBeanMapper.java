@@ -7,6 +7,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IT012ObjObjDao;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -20,15 +22,19 @@ public class DocToBeanMapper implements IMapper {
 
 	private static DocToBeanMapper myInstance;
 
+	private IT012ObjObjDao daoT012ObjObj;
+
 	/** Get The Singleton */
-	public static synchronized DocToBeanMapper getInstance() {
+	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
 		if (myInstance == null) {
-	        myInstance = new DocToBeanMapper();
+	        myInstance = new DocToBeanMapper(daoFactory);
 	      }
 		return myInstance;
 	}
 
-	private DocToBeanMapper() {}
+	private DocToBeanMapper(DaoFactory daoFactory) {
+		daoT012ObjObj = daoFactory.getT012ObjObjDao();
+	}
 
 	/**
 	 * Transfer data of passed doc to passed bean according to mapping type.
@@ -154,7 +160,7 @@ public class DocToBeanMapper implements IMapper {
 			}
 			line++;
 		}
-		// remove the ones not processed, will be deleted !
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (T012ObjAdr oA : oAs_unprocessed) {
 			oAs.remove(oA);
 		}		
@@ -191,9 +197,12 @@ public class DocToBeanMapper implements IMapper {
 			}
 			line++;
 		}
-		// remove the ones not processed, will be deleted !
+		// remove the ones not processed AND DELETE !!! (no delete-orphan due to different Struktur-/Querverweise handling)
 		for (T012ObjObj oO : oOs_unprocessed) {
-			oOs.remove(oO);
+			if (oO.getType() == T012ObjObjRelationType.QUERVERWEIS.getDbValue()) {
+				oOs.remove(oO);
+				daoT012ObjObj.makeTransient(oO);				
+			}
 		}		
 	}
 }

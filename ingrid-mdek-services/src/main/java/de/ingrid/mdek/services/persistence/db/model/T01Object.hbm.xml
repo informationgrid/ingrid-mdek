@@ -57,7 +57,7 @@
       <property name="fees" type="string" column="fees"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
 
-      <set name="t012ObjObjs" order-by="line" cascade="all-delete-orphan" inverse="true">
+      <set name="t012ObjObjs" order-by="line" cascade="persist,merge,save-update" inverse="true">
          <key column="object_from_uuid" property-ref="objUuid"/>
 		 <one-to-many class="T012ObjObj" not-found="ignore"/>
 		 <filter name="objObjTypeFilter" condition=":type = type"/>
