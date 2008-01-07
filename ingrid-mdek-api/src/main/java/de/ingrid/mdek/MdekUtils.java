@@ -19,10 +19,10 @@ public class MdekUtils {
 
 	/** WorkState of entities */
 	public enum WorkState implements IMdekEnum {
-		VEROEFFENTLICHT("V", "veröffentlicht"),
+		VEROEFFENTLICHT("V", "verÃ¶ffentlicht"),
 		IN_BEARBEITUNG("B", "in Bearbeitung"),
-		QS_UEBERWIESEN("Q", "an Qualitätssicherung zugewiesen"),
-		QS_RUECKUEBERWIESEN("R", "von Qualitätssicherung rücküberwiesen");
+		QS_UEBERWIESEN("Q", "an QualitÃ¤tssicherung zugewiesen"),
+		QS_RUECKUEBERWIESEN("R", "von QualitÃ¤tssicherung rÃ¼ckÃ¼berwiesen");
 
 		WorkState(String dbValue, String description) {
 			this.dbValue = dbValue;
