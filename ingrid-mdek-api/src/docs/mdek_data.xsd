@@ -40,6 +40,14 @@
 			<xs:element name="vertical-extent-unit" type="xs:integer"/>
 			<xs:element name="vertical-extent-vdatum" type="xs:integer"/>
 			<xs:element name="description-of-spatial-domain" type="xs:string"/>
+			<xs:element name="time-type" type="xs:string"/>
+			<xs:element name="beginning-date" type="xs:string"/>
+			<xs:element name="ending-date" type="xs:string"/>
+			<xs:element name="time-status" type="xs:integer"/>
+			<xs:element name="time-period" type="xs:integer"/>
+			<xs:element name="time-step" type="xs:string"/>
+			<xs:element name="time-scale" type="xs:string"/>
+			<xs:element name="description-of-temporal-domain" type="xs:string"/>
 			<xs:element ref="adrEntities"/>
 			<xs:element ref="objEntities"/>
 			<!-- Object Associations Data -->

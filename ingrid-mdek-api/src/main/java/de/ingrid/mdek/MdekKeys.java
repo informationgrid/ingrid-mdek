@@ -10,7 +10,6 @@ public class MdekKeys {
     /** List of Object Entities<br>
      *	Value: List of IngridDocs */
     public final static String OBJ_ENTITIES = "objEntities";
-
     /** List of Address Entities<br>
      *	Value: List of IngridDocs */
     public final static String ADR_ENTITIES = "adrEntities";
@@ -20,31 +19,23 @@ public class MdekKeys {
 
     /** Value: Long */
     public final static String ID = "id";
-
     /** the uuid of the entity (object or address)<br>
      *	Value: String */
     public final static String UUID = "uuid";
-
     /** the uuid of the parent (object or address)<br>
      *	Value: String */
     public final static String PARENT_UUID = "parent-uuid";
-
     /** the class of the entity (object or address)<br>
      *	Value: Integer */
     public final static String CLASS = "class";
-
     /** Value: Boolean */
     public final static String HAS_CHILD = "hasChild";
-
     /** Value: Integer */
     public final static String RELATION_TYPE = "relation-type";
-
     /** Value: String */
     public final static String DATE_OF_CREATION = "date-of-creation";
-
     /** Value: String */
     public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
-
     /** Value: String */
     public final static String WORK_STATE = "work-state";
 
@@ -70,6 +61,22 @@ public class MdekKeys {
     public final static String VERTICAL_EXTENT_VDATUM = "vertical-extent-vdatum";
     /** Value: String */
     public final static String DESCRIPTION_OF_SPATIAL_DOMAIN = "description-of-spatial-domain";
+    /** Value: String (Auswahllisten Eintrag, nicht ID) */
+    public final static String TIME_TYPE = "time-type";
+    /** Value: String */
+    public final static String BEGINNING_DATE = "beginning-date";
+    /** Value: String */
+    public final static String ENDING_DATE = "ending-date";
+    /** Value: Integer */
+    public final static String TIME_STATUS = "time-status";
+    /** Value: Integer */
+    public final static String TIME_PERIOD = "time-period";
+    /** Value: String */
+    public final static String TIME_STEP = "time-step";
+    /** Value: String */
+    public final static String TIME_SCALE = "time-scale";
+    /** Value: String */
+    public final static String DESCRIPTION_OF_TEMPORAL_DOMAIN = "description-of-temporal-domain";
 
     
     // ADDRESS DATA
