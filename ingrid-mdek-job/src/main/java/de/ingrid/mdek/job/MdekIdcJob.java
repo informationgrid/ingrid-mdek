@@ -185,9 +185,8 @@ public class MdekIdcJob extends MdekJob {
 			
 			// also create association to parent
 			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-			T01Object oParent = daoT01Object.loadByUuid(parentUuuid);
 			oDocIn.put(MdekKeys.RELATION_TYPE, T012ObjObjRelationType.STRUKTURBAUM.getDbValue());
-			T012ObjObj oO = docToBeanMapper.mapT012ObjObj(oParent, oDocIn, new T012ObjObj(), -1);
+			T012ObjObj oO = docToBeanMapper.mapT012ObjObj(parentUuuid, oDocIn, new T012ObjObj(), -1);
 
 			daoT01Object.makePersistent(o);
 			daoT012ObjObj.makePersistent(oO);
