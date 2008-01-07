@@ -51,7 +51,7 @@ public class MdekIdcJob extends MdekJob {
 		daoT012ObjObj = daoFactory.getT012ObjObjDao();
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
-		docToBeanMapper = docToBeanMapper.getInstance();
+		docToBeanMapper = docToBeanMapper.getInstance(daoFactory);
 	}
 /*
 	public IngridDocument testMdekEntity(IngridDocument params) {
@@ -211,17 +211,13 @@ public class MdekIdcJob extends MdekJob {
 
 		// fetch Struktur- and Querverweise associations for delete !
 		T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.ALLE);
-/*
-		T01Object oExample = new T01Object();
-		oExample.setObjUuid(uuid);
-		T01Object o = daoT01Object.findUniqueByExample(oExample);
-*/
+
 		if (o != null) {
 			// delete parent association
 			T012ObjObj oOParent = daoT012ObjObj.getParentAssociation(uuid);
 			daoT012ObjObj.makeTransient(oOParent);
 
-			// TODO: delete whole sub tree of objects !!!??? Not only next level of associations
+			// TODO: delete whole sub tree of objects !!!
 			daoT01Object.makeTransient(o);
 			
 			// TODO: wie delete success in Result transportieren ? jetzt null / not null
