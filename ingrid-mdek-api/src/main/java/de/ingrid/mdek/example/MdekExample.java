@@ -107,13 +107,13 @@ class MdekThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n----- sub objects -----");
-		String testObjUuid = "38664792-B449-11D2-9A86-080000507261";
-		fetchSubObjects(testObjUuid);
+		String objUuid = "38664792-B449-11D2-9A86-080000507261";
+		fetchSubObjects(objUuid);
 
 		// -----------------------------------
 
 		System.out.println("\n----- object details -----");
-		IngridDocument oMap = fetchObject(testObjUuid, Quantity.DETAIL_ENTITY);
+		IngridDocument oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 
@@ -126,14 +126,14 @@ class MdekThread extends Thread {
 		IngridDocument objDoc = new IngridDocument();
 		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		// supply parent uuid !
-		objDoc.put(MdekKeys.PARENT_UUID, testObjUuid);
+		objDoc.put(MdekKeys.PARENT_UUID, objUuid);
 		oMap = storeObject(objDoc);
 		// uuid created !
 		String newUuid = (String) oMap.get(MdekKeys.UUID);
 
 		// verify new Subobject
 		System.out.println("\n----- verify new subobject -----");
-		fetchSubObjects(testObjUuid);
+		fetchSubObjects(objUuid);
 
 		// -----------------------------------
 
@@ -142,12 +142,13 @@ class MdekThread extends Thread {
 		deleteObject(newUuid);
 		System.out.println("\n----- verify deletion object -----");
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n----- verify deletion parent association -----");
-		fetchSubObjects(testObjUuid);
+		System.out.println("\n----- verify deletion parent association -> load parent -----");
+		fetchSubObjects(objUuid);
 
-
-//		deleteObject(objUuid);
-
+/*
+		System.out.println("\n----- DELETE PARENT !!! -----");
+		deleteObject(objUuid);
+*/
 		// -----------------------------------
 
 /*
