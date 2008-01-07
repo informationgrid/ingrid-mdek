@@ -46,11 +46,21 @@ public class BeanToDocMapper implements IMapper {
 			doc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			doc.put(MdekKeys.DATE_OF_CREATION, o.getCreateTime());
 			doc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
+
 			doc.put(MdekKeys.VERTICAL_EXTENT_MINIMUM, o.getVerticalExtentMinimum());
 			doc.put(MdekKeys.VERTICAL_EXTENT_MAXIMUM, o.getVerticalExtentMaximum());
 			doc.put(MdekKeys.VERTICAL_EXTENT_UNIT, o.getVerticalExtentUnit());
 			doc.put(MdekKeys.VERTICAL_EXTENT_VDATUM, o.getVerticalExtentVdatum());
 			doc.put(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN, o.getLocDescr());
+
+			doc.put(MdekKeys.TIME_TYPE, o.getTimeType());
+			doc.put(MdekKeys.BEGINNING_DATE, o.getTimeFrom());
+			doc.put(MdekKeys.ENDING_DATE, o.getTimeTo());
+			doc.put(MdekKeys.TIME_STATUS, o.getTimeStatus());
+			doc.put(MdekKeys.TIME_PERIOD, o.getTimePeriod());
+			doc.put(MdekKeys.TIME_STEP, o.getTimeInterval());
+			doc.put(MdekKeys.TIME_SCALE, o.getTimeAlle());
+			doc.put(MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN, o.getTimeDescr());
 			
 			// get related addresses
 			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();

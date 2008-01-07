@@ -62,11 +62,21 @@ public class DocToBeanMapper implements IMapper {
 				oIn.setCreateTime(creationDate);				
 			}
 			oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+
 			oIn.setVerticalExtentMinimum((Double) oDocIn.get(MdekKeys.VERTICAL_EXTENT_MINIMUM));
 			oIn.setVerticalExtentMaximum((Double) oDocIn.get(MdekKeys.VERTICAL_EXTENT_MAXIMUM));
 			oIn.setVerticalExtentUnit((Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_UNIT));
 			oIn.setVerticalExtentVdatum((Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_VDATUM));
 			oIn.setLocDescr((String) oDocIn.get(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN));
+
+			oIn.setTimeType((String) oDocIn.get(MdekKeys.TIME_TYPE));
+			oIn.setTimeFrom((String) oDocIn.get(MdekKeys.BEGINNING_DATE));
+			oIn.setTimeTo((String) oDocIn.get(MdekKeys.ENDING_DATE));
+			oIn.setTimeStatus((Integer) oDocIn.get(MdekKeys.TIME_STATUS));
+			oIn.setTimePeriod((Integer) oDocIn.get(MdekKeys.TIME_PERIOD));
+			oIn.setTimeInterval((String) oDocIn.get(MdekKeys.TIME_STEP));
+			oIn.setTimeAlle((String) oDocIn.get(MdekKeys.TIME_SCALE));
+			oIn.setTimeDescr((String) oDocIn.get(MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN));
 
 
 			// update related ObjAdrs
