@@ -113,7 +113,9 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
     	// TODO Why ? Is handled by HIBERNATE ! (when committing).
     	// Further: This doesn't detect changes ! (due to using cache ?)
 //        changedInBetween(entity);
-        getSession().delete(entity);
+    	if (entity != null) {
+            getSession().delete(entity);    		
+    	}
     }
 
     @SuppressWarnings("unchecked")
