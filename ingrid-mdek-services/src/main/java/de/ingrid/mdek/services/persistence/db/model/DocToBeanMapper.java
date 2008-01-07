@@ -75,14 +75,14 @@ public class DocToBeanMapper implements IMapper {
 
 	/**
 	 * Transfer data of passed docs to passed bean.
-	 * @param oFrom the from object bean
-	 * @param oDocTo the to doc containing to object data
+	 * @param oFromUuid uuid of from object
+	 * @param oToDoc the to doc containing to object data
 	 * @param oO the bean to transfer data to, pass new Bean or null if new one
 	 * @param line additional line data for bean
 	 * @return the passed bean containing all mapped data
 	 */
-	public T012ObjObj mapT012ObjObj(T01Object oFrom,
-		IngridDocument oDocTo,
+	public T012ObjObj mapT012ObjObj(String oFromUuid,
+		IngridDocument oToDoc,
 		T012ObjObj oO, 
 		int line) 
 	{
@@ -90,11 +90,10 @@ public class DocToBeanMapper implements IMapper {
 			oO = new T012ObjObj();
 		}
 		// set parent bean and id !
-		oO.setFromT01Object(oFrom);
-		oO.setObjectFromUuid((String) oFrom.getObjUuid());
-		oO.setObjectToUuid((String) oDocTo.get(MdekKeys.UUID));
-		oO.setType((Integer) oDocTo.get(MdekKeys.RELATION_TYPE));
-		oO.setDescr((String) oDocTo.get(MdekKeys.RELATION_DESCRIPTION));
+		oO.setObjectFromUuid(oFromUuid);
+		oO.setObjectToUuid((String) oToDoc.get(MdekKeys.UUID));
+		oO.setType((Integer) oToDoc.get(MdekKeys.RELATION_TYPE));
+		oO.setDescr((String) oToDoc.get(MdekKeys.RELATION_DESCRIPTION));
 		oO.setLine(line);
 
 		// TODO: mapT012ObjObj -> fehlende Attribute !
@@ -104,14 +103,14 @@ public class DocToBeanMapper implements IMapper {
 
 	/**
 	 * Transfer data of passed docs to passed bean.
-	 * @param oFrom  the from object bean
-	 * @param aDocTo the to doc containing to address data
+	 * @param oFromId id of from object
+	 * @param aToDoc the to doc containing to address data
 	 * @param oA the bean to transfer data to, pass new Bean or null if new one
 	 * @param line additional line data for bean
 	 * @return the passed bean containing all mapped data
 	 */
-	private T012ObjAdr mapT012ObjAdr(T01Object oFrom,
-		IngridDocument aDocTo,
+	private T012ObjAdr mapT012ObjAdr(long oFromId,
+		IngridDocument aToDoc,
 		T012ObjAdr oA, 
 		int line) 
 	{
@@ -119,10 +118,9 @@ public class DocToBeanMapper implements IMapper {
 			oA = new T012ObjAdr();
 		}
 		// set parent bean and id !
-		oA.setT01Object(oFrom);
-		oA.setObjId(oFrom.getId());
-		oA.setAdrUuid((String) aDocTo.get(MdekKeys.UUID));
-		oA.setType((Integer) aDocTo.get(MdekKeys.RELATION_TYPE));
+		oA.setObjId(oFromId);
+		oA.setAdrUuid((String) aToDoc.get(MdekKeys.UUID));
+		oA.setType((Integer) aToDoc.get(MdekKeys.RELATION_TYPE));
 		oA.setLine(line);
 
 		// TODO: mapT012ObjAdr -> fehlende Attribute !
@@ -143,7 +141,7 @@ public class DocToBeanMapper implements IMapper {
 			boolean found = false;
 			for (T012ObjAdr oA : oAs) {
 				if (oA.getAdrUuid().equals(aUuidTo)) {
-					mapT012ObjAdr(oIn, aDocTo, oA, line);
+					mapT012ObjAdr(oDocIn.getLong(MdekKeys.ID), aDocTo, oA, line);
 					oAs_unprocessed.remove(oA);
 					found = true;
 					break;
@@ -151,7 +149,7 @@ public class DocToBeanMapper implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				T012ObjAdr oA = mapT012ObjAdr(oIn, aDocTo, new T012ObjAdr(), line);
+				T012ObjAdr oA = mapT012ObjAdr(oDocIn.getLong(MdekKeys.ID), aDocTo, new T012ObjAdr(), line);
 				oAs.add(oA);
 			}
 			line++;
@@ -180,7 +178,7 @@ public class DocToBeanMapper implements IMapper {
 					continue;
 				}
 				if (oO.getObjectToUuid().equals(oToUuid)) {
-					mapT012ObjObj(oIn, oDocTo, oO, line);
+					mapT012ObjObj((String)oDocIn.get(MdekKeys.UUID), oDocTo, oO, line);
 					oOs_unprocessed.remove(oO);
 					found = true;
 					break;
@@ -188,7 +186,7 @@ public class DocToBeanMapper implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				T012ObjObj oO = mapT012ObjObj(oIn, oDocTo, new T012ObjObj(), line);
+				T012ObjObj oO = mapT012ObjObj((String)oDocIn.get(MdekKeys.UUID), oDocTo, new T012ObjObj(), line);
 				oOs.add(oO);
 			}
 			line++;

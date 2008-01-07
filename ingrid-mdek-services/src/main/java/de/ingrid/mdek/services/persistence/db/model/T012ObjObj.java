@@ -12,7 +12,6 @@ public class T012ObjObj extends MdekDbEntity {
 	private String specialName;
 	private String descr;
 	
-	private T01Object fromT01Object;
 	private T01Object toT01Object;
 
 	public T012ObjObj() {}
@@ -80,12 +79,4 @@ public class T012ObjObj extends MdekDbEntity {
 	public void setToT01Object(T01Object toT01Object) {
 		this.toT01Object = toT01Object;
 	}
-
-	public T01Object getFromT01Object() {
-		return fromT01Object;
-	}
-	public void setFromT01Object(T01Object fromT01Object) {
-		this.fromT01Object = fromT01Object;
-	}
-
 }

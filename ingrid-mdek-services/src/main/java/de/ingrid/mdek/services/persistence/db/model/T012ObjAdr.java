@@ -12,7 +12,6 @@ public class T012ObjAdr extends MdekDbEntity {
 	private String specialName;
 	private String modTime;
 	
-	private T01Object t01Object;
 	private T02Address t02Address;
 
 	public T012ObjAdr() {}
@@ -71,13 +70,6 @@ public class T012ObjAdr extends MdekDbEntity {
 
 	public void setModTime(String modTime) {
 		this.modTime = modTime;
-	}
-
-	public T01Object getT01Object() {
-		return t01Object;
-	}
-	public void setT01Object(T01Object t01Object) {
-		this.t01Object = t01Object;
 	}
 
 	public T02Address getT02Address() {
