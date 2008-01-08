@@ -95,6 +95,10 @@ class MdekThread extends Thread {
 	public void run() {
 		isRunning = true;
 
+		String parentUuid = "38665183-B449-11D2-9A86-080000507261";
+		String objUuid = "5CE671D3-5475-11D3-A172-08002B9A1D1D";
+		IngridDocument oMap;
+
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//IMdekCaller mdekCaller = MdekCaller.getInstance();
 		//mdekCaller.testMdekEntity(threadNumber);
@@ -107,13 +111,12 @@ class MdekThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n----- sub objects -----");
-		String objUuid = "38664792-B449-11D2-9A86-080000507261";
-		fetchSubObjects(objUuid);
+		fetchSubObjects(parentUuid);
 
 		// -----------------------------------
 
 		System.out.println("\n----- object details -----");
-		IngridDocument oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 
@@ -140,9 +143,9 @@ class MdekThread extends Thread {
 		// delete new Object
 		System.out.println("\n----- delete new object -----");
 		deleteObject(newUuid);
-		System.out.println("\n----- verify deletion object -----");
+		System.out.println("\n----- verify deletion of object -----");
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n----- verify deletion parent association -> load parent -----");
+		System.out.println("\n----- verify deletion of parent association -> load parent -----");
 		fetchSubObjects(objUuid);
 
 /*
