@@ -2,17 +2,17 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="T021Communication" table="t021_communication">
-
-      <id name="id" type="long">
+   <class name="T021Communication"
+          table="t021_communication">
+      <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
-      <version name="version" type="integer"/>
-
+      <version name="version" type="integer" column="version"/>
       <property name="adrId" type="long" column="adr_id"/>
       <property name="line" type="integer" column="line"/>
       <property name="commType" type="string" column="comm_type"/>
       <property name="commValue" type="string" column="comm_value"/>
       <property name="descr" type="string" column="descr"/>
    </class>
+
 </hibernate-mapping>

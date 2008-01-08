@@ -2,34 +2,19 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-
-   <class name="T01Object" table="t01_object">
-
-	<!-- bean superclass -->
-      <id name="id" type="long">
+   <class name="T01Object"
+          table="t01_object">
+      <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
-      <version name="version" type="integer"/>
-
-	<!-- bean superclass -->
-      <property name="catId" type="long" column="cat_id"/>
-      <property name="root" type="integer" column="root"/>
-      <property name="lastexportTime" type="string" column="lastexport_time"/>
-      <property name="expiryTime" type="string" column="expiry_time"/>
-      <property name="workState" type="string" column="work_state"/>
-      <property name="workVersion" type="integer" column="work_version"/>
-      <property name="markDeleted" type="string" column="mark_deleted"/>
-      <property name="createTime" type="string" column="create_time"/>
-      <property name="modTime" type="string" column="mod_time"/>
-      <property name="modId" type="long" column="mod_id"/>
-      <property name="responsibleId" type="long" column="responsible_id"/>
-      
-	<!-- bean class -->
+      <version name="version" type="integer" column="version"/>
       <property name="objUuid" type="string" column="obj_uuid"/>
       <property name="objName" type="string" column="obj_name"/>
       <property name="orgObjId" type="string" column="org_obj_id"/>
+      <property name="root" type="integer" column="root"/>
       <property name="objClass" type="integer" column="obj_class"/>
       <property name="objDescr" type="string" column="obj_descr"/>
+      <property name="catId" type="long" column="cat_id"/>
       <property name="infoNote" type="string" column="info_note"/>
       <property name="availAccessNote" type="string" column="avail_access_note"/>
       <property name="locDescr" type="string" column="loc_descr"/>
@@ -56,128 +41,154 @@
       <property name="verticalExtentVdatum" type="integer" column="vertical_extent_vdatum"/>
       <property name="fees" type="string" column="fees"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
+      <property name="lastexportTime" type="string" column="lastexport_time"/>
+      <property name="expiryTime" type="string" column="expiry_time"/>
+      <property name="workState" type="string" column="work_state"/>
+      <property name="workVersion" type="integer" column="work_version"/>
+      <property name="markDeleted" type="string" column="mark_deleted"/>
+      <property name="createTime" type="string" column="create_time"/>
+      <property name="modTime" type="string" column="mod_time"/>
+      <property name="modUuid" type="string" column="mod_uuid"/>
+      <property name="responsibleUuid" type="string" column="responsible_uuid"/>
 
-      <set name="t012ObjObjs" order-by="line" cascade="persist,merge,save-update" inverse="true">
-         <key column="object_from_uuid" property-ref="objUuid"/>
-		 <one-to-many class="T012ObjObj" not-found="ignore"/>
-		 <filter name="objObjTypeFilter" condition=":type = type"/>
-	  </set>
+      <set name="objectReferences" order-by="line" cascade="all-delete-orphan" inverse="true">
+         <key column="obj_from_id"/>
+         <one-to-many class="ObjectReference" not-found="ignore"/>
+      </set>
       <set name="t012ObjAdrs" order-by="line" cascade="all-delete-orphan" inverse="true">
          <key column="obj_id"/>
-		 <one-to-many class="T012ObjAdr" not-found="ignore"/>
-		 <filter name="objAdrTypeFilter" condition=":type = type"/>
-	  </set>
+         <one-to-many class="T012ObjAdr" not-found="ignore"/>
+         <filter name="t012ObjAdrFilter" condition=":type = type"/>
+      </set>
 
-<!--
-      <set name="t0111functionalcategorys" table="T0111_functional_category">
+<!-- 
+      <set name="commentObjs" table="comment_obj" update="false" insert="false"
+           inverse="true">
          <key column="obj_id"/>
-         <one-to-many column="obj_id"
-                      class="de.ingrid.theUltimateBeansPackage.T0111FunctionalCategory"/>
+         <one-to-many class="CommentObj" not-found="ignore"/>
       </set>
-      <set name="t0111thematiccategorys" table="T0111_thematic_category">
+      <set name="searchtermObjs" table="searchterm_obj" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0111ThematicCategory"/>
+         <one-to-many class="SearchtermObj" not-found="ignore"/>
       </set>
-      <set name="syscodelistdomains" table="sys_codelist_domain">
-         <key column="vertical_extent_unit"/>
-         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
-      </set>
-      <set name="syscodelistdomains" table="sys_codelist_domain">
-         <key column="time_status"/>
-         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
-      </set>
-      <set name="syscodelistdomains" table="sys_codelist_domain">
-         <key column="data_character_set"/>
-         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
-      </set>
-      <set name="syscodelistdomains" table="sys_codelist_domain">
-         <key column="vertical_extent_vdatum"/>
-         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
-      </set>
-      <set name="syscodelistdomains" table="sys_codelist_domain">
-         <key column="time_period"/>
-         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
-      </set>
-      <set name="syscodelistdomains" table="sys_codelist_domain">
-         <key column="metadata_character_set"/>
-         <many-to-one column="domain_id" class="de.ingrid.theUltimateBeansPackage.SysCodelistDomain"/>
-      </set>
-      <set name="syslanguages" table="sys_language">
-         <key column="data_language"/>
-         <many-to-one column="lang_id" class="de.ingrid.theUltimateBeansPackage.SysLanguage"/>
-      </set>
-      <set name="syslanguages" table="sys_language">
-         <key column="metadata_language"/>
-         <many-to-one column="lang_id" class="de.ingrid.theUltimateBeansPackage.SysLanguage"/>
-      </set>
-      <set name="t0110availformats" table="t0110_avail_format">
+      <set name="spatialReferences" table="spatial_reference" update="false"
+           insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0110AvailFormat"/>
+         <one-to-many class="SpatialReference" not-found="ignore"/>
       </set>
-      <set name="t0112mediaoptions" table="t0112_media_option">
+      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
+                   insert="false"/>
+      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
+                   insert="false"/>
+      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
+                   insert="false"/>
+      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
+                   insert="false"/>
+      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
+                   insert="false"/>
+      <set name="t0110AvailFormats" table="t0110_avail_format" update="false"
+           insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0112MediaOption"/>
+         <one-to-many class="T0110AvailFormat" not-found="ignore"/>
       </set>
-      <set name="t0113datasetreferences" table="t0113_dataset_reference">
+      <set name="t0112MediaOptions" table="t0112_media_option" update="false"
+           insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T0113DatasetReference"/>
+         <one-to-many class="T0112MediaOption" not-found="ignore"/>
       </set>
-      <set name="t011objdatas" table="t011_obj_data">
+      <set name="t0113DatasetReferences" table="t0113_dataset_reference" update="false"
+           insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjData"/>
+         <one-to-many class="T0113DatasetReference" not-found="ignore"/>
       </set>
-      <set name="t011objgeos" table="t011_obj_geo">
+      <set name="t0114EnvCategorys" table="t0114_env_category" update="false"
+           insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjGeo"/>
+         <one-to-many class="T0114EnvCategory" not-found="ignore"/>
       </set>
-      <set name="t011objliteraturs" table="t011_obj_literatur">
+      <set name="t0114EnvTopics" table="t0114_env_topic" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjLiteratur"/>
+         <one-to-many class="T0114EnvTopic" not-found="ignore"/>
       </set>
-      <set name="t011objprojects" table="t011_obj_project">
+      <set name="t011ObjDatas" table="t011_obj_data" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjProject"/>
+         <one-to-many class="T011ObjData" not-found="ignore"/>
       </set>
-      <set name="t011objservs" table="t011_obj_serv">
+      <set name="t011ObjDataParas" table="t011_obj_data_para" update="false"
+           insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T011ObjServ"/>
+         <one-to-many class="T011ObjDataPara" not-found="ignore"/>
       </set>
-      <set name="t014infoimparts" table="t014_info_impart">
+      <set name="t011ObjGeos" table="t011_obj_geo" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T014InfoImpart"/>
+         <one-to-many class="T011ObjGeo" not-found="ignore"/>
       </set>
-      <set name="t015legists" table="t015_legist">
+      <set name="t011ObjLiteratures" table="t011_obj_literature" update="false"
+           insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T015Legist"/>
+         <one-to-many class="T011ObjLiterature" not-found="ignore"/>
       </set>
-      <set name="t017urlrefs" table="t017_url_ref">
+      <set name="t011ObjProjects" table="t011_obj_project" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T017UrlRef"/>
+         <one-to-many class="T011ObjProject" not-found="ignore"/>
       </set>
-      <set name="t019coordinatess" table="t019_coordinates">
+      <set name="t011ObjServs" table="t011_obj_serv" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <one-to-many column="obj_id" class="de.ingrid.theUltimateBeansPackage.T019Coordinates"/>
+         <one-to-many class="T011ObjServ" not-found="ignore"/>
       </set>
-      <set name="t01stclasss" table="t01_st_class">
-         <key column="class_id"/>
-         <one-to-many column="class_id" class="de.ingrid.theUltimateBeansPackage.T01StClass"/>
-      </set>
-      <set name="t03catalogues" table="t03_catalogue">
-         <key column="cat_id"/>
-         <many-to-one column="cat_id" class="de.ingrid.theUltimateBeansPackage.T03Catalogue"/>
-      </set>
-      <set name="t08attrs" table="t08_attr">
+      <set name="t014InfoImparts" table="t014_info_impart" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
          <key column="obj_id"/>
-         <many-to-one column="obj_id" class="de.ingrid.theUltimateBeansPackage.T08Attr"/>
+         <one-to-many class="T014InfoImpart" not-found="ignore"/>
       </set>
--->
+      <set name="t015Legists" table="t015_legist" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
+         <key column="obj_id"/>
+         <one-to-many class="T015Legist" not-found="ignore"/>
+      </set>
+      <set name="t017UrlRefs" table="t017_url_ref" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
+         <key column="obj_id"/>
+         <one-to-many class="T017UrlRef" not-found="ignore"/>
+      </set>
+      <set name="t08Attrs" table="t08_attr" update="false" insert="false" inverse="true"
+           on-delete="cascade">
+         <key column="obj_id"/>
+         <one-to-many class="T08Attr" not-found="ignore"/>
+      </set>
+ -->
    </class>
 
-   <filter-def name="objObjTypeFilter">
+   <filter-def name="t012ObjAdrFilter">
       <filter-param name="type" type="integer"/>
    </filter-def>
-   <filter-def name="objAdrTypeFilter">
-      <filter-param name="type" type="integer"/>
-   </filter-def>
-
 </hibernate-mapping>

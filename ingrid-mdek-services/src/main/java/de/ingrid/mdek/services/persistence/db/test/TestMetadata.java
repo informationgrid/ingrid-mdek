@@ -14,7 +14,7 @@ public class TestMetadata implements IEntity, java.io.Serializable {
 	private String _metadataKey;
 	private String _metadataValue;
 	@Version
-    private int _version;
+    private Integer _version;
 
 	public TestMetadata() {
 		// hibernate
@@ -51,10 +51,10 @@ public class TestMetadata implements IEntity, java.io.Serializable {
 		return _metadataKey + "#" + _metadataValue;
 	}
 
-	public int getVersion() {
+	public Integer getVersion() {
         return _version;
     }
-	protected void setVersion(int version) {
+	protected void setVersion(Integer version) {
         this._version = version;
     }
 }

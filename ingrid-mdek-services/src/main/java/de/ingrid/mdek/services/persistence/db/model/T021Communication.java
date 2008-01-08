@@ -1,30 +1,49 @@
 package de.ingrid.mdek.services.persistence.db.model;
 
-import java.io.Serializable;
+import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class T021Communication extends MdekDbEntity {
+public class T021Communication implements IEntity {
 
-	private long adrId;
-	private int line;
+	private Long id;
+	private Integer version;
+	private Long adrId;
+	private Integer line;
 	private String commType;
 	private String commValue;
 	private String descr;
 
+
 	public T021Communication() {}
 
-	public long getAdrId() {
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
+	public Long getAdrId() {
 		return adrId;
 	}
 
-	public void setAdrId(long adrId) {
+	public void setAdrId(Long adrId) {
 		this.adrId = adrId;
 	}
 
-	public int getLine() {
+	public Integer getLine() {
 		return line;
 	}
 
-	public void setLine(int line) {
+	public void setLine(Integer line) {
 		this.line = line;
 	}
 
@@ -51,4 +70,6 @@ public class T021Communication extends MdekDbEntity {
 	public void setDescr(String descr) {
 		this.descr = descr;
 	}
+
+
 }

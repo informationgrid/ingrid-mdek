@@ -29,11 +29,13 @@ public class BeanToDocMapper implements IMapper {
 
 	private BeanToDocMapper() {}
 
-	public IngridDocument mapT01Object(T01Object o, MappingQuantity type) {
-		if (o == null) {
+	public IngridDocument mapObjectNode(ObjectNode oNIn, MappingQuantity type) {
+		if (oNIn == null) {
 			return null;
 		}
 
+		T01Object o = oNIn.getT01ObjectWork();
+		
 		IngridDocument doc = new IngridDocument();
 		doc.put(MdekKeys.ID, o.getId());
 		doc.put(MdekKeys.UUID, o.getObjUuid());
@@ -66,7 +68,7 @@ public class BeanToDocMapper implements IMapper {
 			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
 			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
 			for (T012ObjAdr oA : oAs) {
-				T02Address a = oA.getT02Address();
+				T02Address a = oA.getAddressNode().getT02AddressWork();
 				IngridDocument aDoc = mapT02Address(a, MappingQuantity.TABLE_ENTITY);
 				aDoc.put(MdekKeys.RELATION_TYPE, oA.getType());
 				adrsList.add(aDoc);
@@ -74,13 +76,12 @@ public class BeanToDocMapper implements IMapper {
 			doc.put(MdekKeys.ADR_ENTITIES, adrsList);
 
 			// get related objects (Querverweise)
-			Set<T012ObjObj> oOs = o.getT012ObjObjs();
-			ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oOs.size());
-			for (T012ObjObj oO : oOs) {
-				T01Object oTo = oO.getToT01Object();
-				IngridDocument oToDoc = mapT01Object(oTo, MappingQuantity.TABLE_ENTITY);
-				oToDoc.put(MdekKeys.RELATION_TYPE, oO.getType());
-				oToDoc.put(MdekKeys.RELATION_DESCRIPTION, oO.getDescr());
+			Set<ObjectReference> oRs = o.getObjectReferences();
+			ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRs.size());
+			for (ObjectReference oR : oRs) {
+				ObjectNode oN = oR.getObjectNode();
+				IngridDocument oToDoc = mapObjectNode(oN, MappingQuantity.TABLE_ENTITY);
+				oToDoc.put(MdekKeys.RELATION_DESCRIPTION, oR.getDescr());
 				objsList.add(oToDoc);
 			}
 			doc.put(MdekKeys.OBJ_ENTITIES, objsList);
@@ -91,7 +92,7 @@ public class BeanToDocMapper implements IMapper {
 			type == MappingQuantity.SUB_ENTITY)
 		{
         	boolean hasChild = false;
-    		if (o.getT012ObjObjs().size() > 0) {
+    		if (oNIn.getObjectNodeChildren().size() > 0) {
             	hasChild = true;
     		}
     		doc.putBoolean(MdekKeys.HAS_CHILD, hasChild);

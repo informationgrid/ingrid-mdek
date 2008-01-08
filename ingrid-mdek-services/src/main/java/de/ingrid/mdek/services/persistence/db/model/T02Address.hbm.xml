@@ -2,31 +2,16 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-
-   <class name="T02Address" table="t02_address">
-
-	<!-- bean superclass -->
-      <id name="id" type="long">
+   <class name="T02Address"
+          table="t02_address">
+      <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
-      <version name="version" type="integer"/>
-
-	<!-- bean superclass -->
-      <property name="catId" type="long" column="cat_id"/>
-      <property name="root" type="integer" column="root"/>
-      <property name="lastexportTime" type="string" column="lastexport_time"/>
-      <property name="expiryTime" type="string" column="expiry_time"/>
-      <property name="workState" type="string" column="work_state"/>
-      <property name="workVersion" type="integer" column="work_version"/>
-      <property name="markDeleted" type="string" column="mark_deleted"/>
-      <property name="createTime" type="string" column="create_time"/>
-      <property name="modTime" type="string" column="mod_time"/>
-      <property name="modId" type="long" column="mod_id"/>
-      <property name="responsibleId" type="long" column="responsible_id"/>
-      
-	<!-- bean class -->
+      <version name="version" type="integer" column="version"/>
       <property name="adrUuid" type="string" column="adr_uuid"/>
       <property name="orgAdrId" type="string" column="org_adr_id"/>
+      <property name="catId" type="long" column="cat_id"/>
+      <property name="root" type="integer" column="root"/>
       <property name="adrType" type="integer" column="adr_type"/>
       <property name="institution" type="string" column="institution"/>
       <property name="lastname" type="string" column="lastname"/>
@@ -41,6 +26,15 @@
       <property name="countryCode" type="string" column="country_code"/>
       <property name="job" type="string" column="job"/>
       <property name="descr" type="string" column="descr"/>
+      <property name="lastexportTime" type="string" column="lastexport_time"/>
+      <property name="expiryTime" type="string" column="expiry_time"/>
+      <property name="workState" type="string" column="work_state"/>
+      <property name="workVersion" type="integer" column="work_version"/>
+      <property name="markDeleted" type="string" column="mark_deleted"/>
+      <property name="createTime" type="string" column="create_time"/>
+      <property name="modTime" type="string" column="mod_time"/>
+      <property name="modUuid" type="string" column="mod_uuid"/>
+      <property name="responsibleUuid" type="string" column="responsible_uuid"/>
 
       <set name="t021Communications" order-by="line">
          <key column="adr_id"/>
@@ -48,27 +42,18 @@
       </set>
 
 <!--
-      <set name="t022AdrAdrs" table="t022_adr_adr">
-         <key column="adr_from_uuid" property-ref="adrUuid"/>
-         <many-to-many column="adr_to_uuid" property-ref="adrUuid" class="T02Address"/>
+      <set name="commentAdrs" table="comment_adr" update="false" insert="false"
+           inverse="true">
+         <key column="adr_id"/>
+         <one-to-many class="CommentAdr" not-found="ignore"/>
       </set>
-      <set name="t02addresss" table="t02_address">
-         <key column="mod_id"/>
-         <many-to-one column="adr_id" class="de.ingrid.theUltimateBeansPackage.T02Address"/>
-      </set>
-      <set name="t02addresss" table="t02_address">
-         <key column="create_id"/>
-         <many-to-one column="adr_id" class="de.ingrid.theUltimateBeansPackage.T02Address"/>
-      </set>
-      <set name="t03catalogues" table="t03_catalogue">
-         <key column="cat_id"/>
-         <many-to-one column="cat_id" class="de.ingrid.theUltimateBeansPackage.T03Catalogue"/>
-      </set>
-      <set name="t07countrys" table="t07_country">
-         <key column="state_id"/>
-         <many-to-one column="country_id" class="de.ingrid.theUltimateBeansPackage.T07Country"/>
+      <set name="searchtermAdrs" table="searchterm_adr" update="false" insert="false"
+           inverse="true"
+           on-delete="cascade">
+         <key column="adr_id"/>
+         <one-to-many class="SearchtermAdr" not-found="ignore"/>
       </set>
 -->
-
    </class>
+
 </hibernate-mapping>

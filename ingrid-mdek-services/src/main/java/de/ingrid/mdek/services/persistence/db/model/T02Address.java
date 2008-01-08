@@ -3,12 +3,16 @@ package de.ingrid.mdek.services.persistence.db.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.ingrid.mdek.services.persistence.db.IEntity;
 
-@SuppressWarnings("serial")
-public class T02Address extends MdekIDCEntity {
+public class T02Address implements IEntity {
 
+	private Long id;
+	private Integer version;
 	private String adrUuid;
 	private String orgAdrId;
+	private Long catId;
+	private Integer root;
 	private Integer adrType;
 	private String institution;
 	private String lastname;
@@ -23,24 +27,44 @@ public class T02Address extends MdekIDCEntity {
 	private String countryCode;
 	private String job;
 	private String descr;
+	private String lastexportTime;
+	private String expiryTime;
+	private String workState;
+	private Integer workVersion;
+	private String markDeleted;
+	private String createTime;
+	private String modTime;
+	private String modUuid;
+	private String responsibleUuid;
 
 	private Set t021Communications = new HashSet();
 
 /*
-	private Set t022AdrAdrs = new HashSet();
-	private Set t02Addresss = new HashSet();
-	private Set t02Addresss = new HashSet();
-	private Set t03Catalogues = new HashSet();
-	private Set t07Countrys = new HashSet();
+	private Set commentAdrs = new HashSet();
+	private Set searchtermAdrs = new HashSet();
 */
+	public T02Address() {}
 
-	public T02Address() {
-		super();
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 	public String getAdrUuid() {
 		return adrUuid;
 	}
+
 	public void setAdrUuid(String adrUuid) {
 		this.adrUuid = adrUuid;
 	}
@@ -51,6 +75,22 @@ public class T02Address extends MdekIDCEntity {
 
 	public void setOrgAdrId(String orgAdrId) {
 		this.orgAdrId = orgAdrId;
+	}
+
+	public Long getCatId() {
+		return catId;
+	}
+
+	public void setCatId(Long catId) {
+		this.catId = catId;
+	}
+
+	public Integer getRoot() {
+		return root;
+	}
+
+	public void setRoot(Integer root) {
+		this.root = root;
 	}
 
 	public Integer getAdrType() {
@@ -109,14 +149,6 @@ public class T02Address extends MdekIDCEntity {
 		this.street = street;
 	}
 
-	public String getCountryCode() {
-		return countryCode;
-	}
-
-	public void setCountryCode(String countryCode) {
-		this.countryCode = countryCode;
-	}
-
 	public String getPostcode() {
 		return postcode;
 	}
@@ -125,12 +157,12 @@ public class T02Address extends MdekIDCEntity {
 		this.postcode = postcode;
 	}
 
-	public String getCity() {
-		return city;
+	public String getPostbox() {
+		return postbox;
 	}
 
-	public void setCity(String city) {
-		this.city = city;
+	public void setPostbox(String postbox) {
+		this.postbox = postbox;
 	}
 
 	public String getPostboxPc() {
@@ -141,12 +173,20 @@ public class T02Address extends MdekIDCEntity {
 		this.postboxPc = postboxPc;
 	}
 
-	public String getPostbox() {
-		return postbox;
+	public String getCity() {
+		return city;
 	}
 
-	public void setPostbox(String postbox) {
-		this.postbox = postbox;
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	public String getJob() {
@@ -165,8 +205,95 @@ public class T02Address extends MdekIDCEntity {
 		this.descr = descr;
 	}
 
-	// ASSOCIATIONS
+	public String getLastexportTime() {
+		return lastexportTime;
+	}
 
+	public void setLastexportTime(String lastexportTime) {
+		this.lastexportTime = lastexportTime;
+	}
+
+	public String getExpiryTime() {
+		return expiryTime;
+	}
+
+	public void setExpiryTime(String expiryTime) {
+		this.expiryTime = expiryTime;
+	}
+
+	public String getWorkState() {
+		return workState;
+	}
+
+	public void setWorkState(String workState) {
+		this.workState = workState;
+	}
+
+	public Integer getWorkVersion() {
+		return workVersion;
+	}
+
+	public void setWorkVersion(Integer workVersion) {
+		this.workVersion = workVersion;
+	}
+
+	public String getMarkDeleted() {
+		return markDeleted;
+	}
+
+	public void setMarkDeleted(String markDeleted) {
+		this.markDeleted = markDeleted;
+	}
+
+	public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getModTime() {
+		return modTime;
+	}
+
+	public void setModTime(String modTime) {
+		this.modTime = modTime;
+	}
+
+	public String getModUuid() {
+		return modUuid;
+	}
+
+	public void setModUuid(String modUuid) {
+		this.modUuid = modUuid;
+	}
+
+	public String getResponsibleUuid() {
+		return responsibleUuid;
+	}
+
+	public void setResponsibleUuid(String responsibleUuid) {
+		this.responsibleUuid = responsibleUuid;
+	}
+
+/*
+	public Set getCommentAdrs() {
+		return commentAdrs;
+	}
+
+	public void setCommentAdrs(Set commentAdrs) {
+		this.commentAdrs = commentAdrs;
+	}
+
+	public Set getSearchtermAdrs() {
+		return searchtermAdrs;
+	}
+
+	public void setSearchtermAdrs(Set searchtermAdrs) {
+		this.searchtermAdrs = searchtermAdrs;
+	}
+*/
 	public Set getT021Communications() {
 		return t021Communications;
 	}
@@ -175,45 +302,4 @@ public class T02Address extends MdekIDCEntity {
 		this.t021Communications = t021Communications;
 	}
 
-/*
-	public Set getT022AdrAdrs() {
-		return t022AdrAdrs;
-	}
-
-	public void setT022AdrAdrs(Set t022AdrAdrs) {
-		this.t022AdrAdrs = t022AdrAdrs;
-	}
-
-	public Set getT02Addresss() {
-		return t02Addresss;
-	}
-
-	public void setT02Addresss(Set t02Addresss) {
-		this.t02Addresss = t02Addresss;
-	}
-
-	public Set getT02Addresss() {
-		return t02Addresss;
-	}
-
-	public void setT02Addresss(Set t02Addresss) {
-		this.t02Addresss = t02Addresss;
-	}
-
-	public Set getT03Catalogues() {
-		return t03Catalogues;
-	}
-
-	public void setT03Catalogues(Set t03Catalogues) {
-		this.t03Catalogues = t03Catalogues;
-	}
-
-	public Set getT07Countrys() {
-		return t07Countrys;
-	}
-
-	public void setT07Countrys(Set t07Countrys) {
-		this.t07Countrys = t07Countrys;
-	}
-*/
 }

@@ -2,21 +2,20 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="T012ObjAdr"
-          table="t012_obj_adr">
+   <class name="ObjectReference"
+          table="object_reference">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
       <version name="version" type="integer" column="version"/>
-      <property name="objId" type="long" column="obj_id"/>
-      <property name="adrUuid" type="string" column="adr_uuid"/>
-      <property name="type" type="integer" column="type"/>
+      <property name="objFromId" type="long" column="obj_from_id"/>
+      <property name="objToUuid" type="string" column="obj_to_uuid"/>
       <property name="line" type="integer" column="line"/>
       <property name="specialRef" type="integer" column="special_ref"/>
       <property name="specialName" type="string" column="special_name"/>
-      <property name="modTime" type="string" column="mod_time"/>
+      <property name="descr" type="string" column="descr"/>
 
-	  <many-to-one name="addressNode" column="adr_uuid" property-ref="addrUuid" update="false" insert="false"/>
+	  <many-to-one name="objectNode" column="obj_to_uuid" property-ref="objUuid" update="false" insert="false"/>
    </class>
 
 </hibernate-mapping>

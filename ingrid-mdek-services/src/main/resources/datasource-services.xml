@@ -56,9 +56,11 @@
 
 		<!-- LIVE -->
 			<list>
+				<value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
 				<value>de/ingrid/mdek/services/persistence/db/model/T01Object.hbm.xml</value>
-				<value>de/ingrid/mdek/services/persistence/db/model/T012ObjObj.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
 				<value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
 				<value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
 				<value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
 		   	</list>

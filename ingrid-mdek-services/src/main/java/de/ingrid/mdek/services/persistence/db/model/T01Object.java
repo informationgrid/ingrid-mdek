@@ -3,14 +3,19 @@ package de.ingrid.mdek.services.persistence.db.model;
 import java.util.HashSet;
 import java.util.Set;
 
-@SuppressWarnings("serial")
-public class T01Object extends MdekIDCEntity {
+import de.ingrid.mdek.services.persistence.db.IEntity;
 
+public class T01Object implements IEntity {
+
+	private Long id;
+	private Integer version;
 	private String objUuid;
 	private String objName;
 	private String orgObjId;
+	private Integer root;
 	private Integer objClass;
 	private String objDescr;
+	private Long catId;
 	private String infoNote;
 	private String availAccessNote;
 	private String locDescr;
@@ -37,46 +42,76 @@ public class T01Object extends MdekIDCEntity {
 	private Integer verticalExtentVdatum;
 	private String fees;
 	private String orderingInstructions;
+	private String lastexportTime;
+	private String expiryTime;
+	private String workState;
+	private Integer workVersion;
+	private String markDeleted;
+	private String createTime;
+	private String modTime;
+	private String modUuid;
+	private String responsibleUuid;
 
-	private Set t012ObjObjs = new HashSet();
+	private Set objectReferences = new HashSet();
 	private Set t012ObjAdrs = new HashSet();
 
-/**
-	private Set t0111FunctionalCategorys = new HashSet();
-	private Set t0111ThematicCategorys = new HashSet();
+/*
+	private Set commentObjs = new HashSet();
+	private Set searchtermObjs = new HashSet();
+	private Set spatialReferences = new HashSet();
 	private Set sysCodelistDomains = new HashSet();
 	private Set sysCodelistDomains = new HashSet();
 	private Set sysCodelistDomains = new HashSet();
 	private Set sysCodelistDomains = new HashSet();
 	private Set sysCodelistDomains = new HashSet();
-	private Set sysCodelistDomains = new HashSet();
-	private Set sysLanguages = new HashSet();
-	private Set sysLanguages = new HashSet();
 	private Set t0110AvailFormats = new HashSet();
 	private Set t0112MediaOptions = new HashSet();
 	private Set t0113DatasetReferences = new HashSet();
+	private Set t0114EnvCategorys = new HashSet();
+	private Set t0114EnvTopics = new HashSet();
 	private Set t011ObjDatas = new HashSet();
+	private Set t011ObjDataParas = new HashSet();
 	private Set t011ObjGeos = new HashSet();
-	private Set t011ObjLiteraturs = new HashSet();
+	private Set t011ObjLiteratures = new HashSet();
 	private Set t011ObjProjects = new HashSet();
 	private Set t011ObjServs = new HashSet();
 	private Set t014InfoImparts = new HashSet();
 	private Set t015Legists = new HashSet();
 	private Set t017UrlRefs = new HashSet();
-	private Set t019Coordinatess = new HashSet();
-	private Set t01StClasss = new HashSet();
-	private Set t03Catalogues = new HashSet();
 	private Set t08Attrs = new HashSet();
 */
-	public T01Object() {
-		super();
+	public T01Object() {}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 	public String getObjUuid() {
 		return objUuid;
 	}
+
 	public void setObjUuid(String objUuid) {
 		this.objUuid = objUuid;
+	}
+
+	public String getObjName() {
+		return objName;
+	}
+
+	public void setObjName(String objName) {
+		this.objName = objName;
 	}
 
 	public String getOrgObjId() {
@@ -87,12 +122,12 @@ public class T01Object extends MdekIDCEntity {
 		this.orgObjId = orgObjId;
 	}
 
-	public String getObjName() {
-		return objName;
+	public Integer getRoot() {
+		return root;
 	}
 
-	public void setObjName(String objName) {
-		this.objName = objName;
+	public void setRoot(Integer root) {
+		this.root = root;
 	}
 
 	public Integer getObjClass() {
@@ -109,6 +144,14 @@ public class T01Object extends MdekIDCEntity {
 
 	public void setObjDescr(String objDescr) {
 		this.objDescr = objDescr;
+	}
+
+	public Long getCatId() {
+		return catId;
+	}
+
+	public void setCatId(Long catId) {
+		this.catId = catId;
 	}
 
 	public String getInfoNote() {
@@ -226,6 +269,7 @@ public class T01Object extends MdekIDCEntity {
 	public String getDatasetUsage() {
 		return datasetUsage;
 	}
+
 	public void setDatasetUsage(String datasetUsage) {
 		this.datasetUsage = datasetUsage;
 	}
@@ -233,6 +277,7 @@ public class T01Object extends MdekIDCEntity {
 	public String getDataLanguageCode() {
 		return dataLanguageCode;
 	}
+
 	public void setDataLanguageCode(String dataLanguageCode) {
 		this.dataLanguageCode = dataLanguageCode;
 	}
@@ -248,6 +293,7 @@ public class T01Object extends MdekIDCEntity {
 	public String getMetadataStandardName() {
 		return metadataStandardName;
 	}
+
 	public void setMetadataStandardName(String metadataStandardName) {
 		this.metadataStandardName = metadataStandardName;
 	}
@@ -255,6 +301,7 @@ public class T01Object extends MdekIDCEntity {
 	public String getMetadataStandardVersion() {
 		return metadataStandardVersion;
 	}
+
 	public void setMetadataStandardVersion(String metadataStandardVersion) {
 		this.metadataStandardVersion = metadataStandardVersion;
 	}
@@ -262,6 +309,7 @@ public class T01Object extends MdekIDCEntity {
 	public String getMetadataLanguageCode() {
 		return metadataLanguageCode;
 	}
+
 	public void setMetadataLanguageCode(String metadataLanguageCode) {
 		this.metadataLanguageCode = metadataLanguageCode;
 	}
@@ -314,53 +362,117 @@ public class T01Object extends MdekIDCEntity {
 		this.orderingInstructions = orderingInstructions;
 	}
 
-	// ASSOCIATIONS
-
-	public Set getT012ObjObjs() {
-		return t012ObjObjs;
+	public String getLastexportTime() {
+		return lastexportTime;
 	}
-	public void setT012ObjObjs(Set t012ObjObjs) {
-		this.t012ObjObjs = t012ObjObjs;
+
+	public void setLastexportTime(String lastexportTime) {
+		this.lastexportTime = lastexportTime;
+	}
+
+	public String getExpiryTime() {
+		return expiryTime;
+	}
+
+	public void setExpiryTime(String expiryTime) {
+		this.expiryTime = expiryTime;
+	}
+
+	public String getWorkState() {
+		return workState;
+	}
+
+	public void setWorkState(String workState) {
+		this.workState = workState;
+	}
+
+	public Integer getWorkVersion() {
+		return workVersion;
+	}
+
+	public void setWorkVersion(Integer workVersion) {
+		this.workVersion = workVersion;
+	}
+
+	public String getMarkDeleted() {
+		return markDeleted;
+	}
+
+	public void setMarkDeleted(String markDeleted) {
+		this.markDeleted = markDeleted;
+	}
+
+	public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getModTime() {
+		return modTime;
+	}
+
+	public void setModTime(String modTime) {
+		this.modTime = modTime;
+	}
+
+	public String getModUuid() {
+		return modUuid;
+	}
+
+	public void setModUuid(String modUuid) {
+		this.modUuid = modUuid;
+	}
+
+	public String getResponsibleUuid() {
+		return responsibleUuid;
+	}
+
+	public void setResponsibleUuid(String responsibleUuid) {
+		this.responsibleUuid = responsibleUuid;
+	}
+
+	public Set getObjectReferences() {
+		return objectReferences;
+	}
+
+	public void setObjectReferences(Set objectReferences) {
+		this.objectReferences = objectReferences;
 	}
 
 	public Set getT012ObjAdrs() {
 		return t012ObjAdrs;
 	}
+
 	public void setT012ObjAdrs(Set t012ObjAdrs) {
 		this.t012ObjAdrs = t012ObjAdrs;
 	}
 
-/**
-	public Set getT0111FunctionalCategorys() {
-		return t0111FunctionalCategorys;
+/*
+	public Set getCommentObjs() {
+		return commentObjs;
 	}
 
-	public void setT0111FunctionalCategorys(Set t0111FunctionalCategorys) {
-		this.t0111FunctionalCategorys = t0111FunctionalCategorys;
+	public void setCommentObjs(Set commentObjs) {
+		this.commentObjs = commentObjs;
 	}
 
-	public Set getT0111ThematicCategorys() {
-		return t0111ThematicCategorys;
+	public Set getSearchtermObjs() {
+		return searchtermObjs;
 	}
 
-	public void setT0111ThematicCategorys(Set t0111ThematicCategorys) {
-		this.t0111ThematicCategorys = t0111ThematicCategorys;
+	public void setSearchtermObjs(Set searchtermObjs) {
+		this.searchtermObjs = searchtermObjs;
 	}
 
-	public Set getSysCodelistDomains() {
-		return sysCodelistDomains;
+	public Set getSpatialReferences() {
+		return spatialReferences;
 	}
 
-	public void setSysCodelistDomains(Set sysCodelistDomains) {
-		this.sysCodelistDomains = sysCodelistDomains;
-	}
-
-	public Set getSysCodelistDomains() {
-		return sysCodelistDomains;
-	}
-
-	public void setSysCodelistDomains(Set sysCodelistDomains) {
-		this.sysCodelistDomains = sysCodelistDomains;
+	public void setSpatialReferences(Set spatialReferences) {
+		this.spatialReferences = spatialReferences;
 	}
 
 	public Set getSysCodelistDomains() {
@@ -395,20 +507,12 @@ public class T01Object extends MdekIDCEntity {
 		this.sysCodelistDomains = sysCodelistDomains;
 	}
 
-	public Set getSysLanguages() {
-		return sysLanguages;
+	public Set getSysCodelistDomains() {
+		return sysCodelistDomains;
 	}
 
-	public void setSysLanguages(Set sysLanguages) {
-		this.sysLanguages = sysLanguages;
-	}
-
-	public Set getSysLanguages() {
-		return sysLanguages;
-	}
-
-	public void setSysLanguages(Set sysLanguages) {
-		this.sysLanguages = sysLanguages;
+	public void setSysCodelistDomains(Set sysCodelistDomains) {
+		this.sysCodelistDomains = sysCodelistDomains;
 	}
 
 	public Set getT0110AvailFormats() {
@@ -435,12 +539,36 @@ public class T01Object extends MdekIDCEntity {
 		this.t0113DatasetReferences = t0113DatasetReferences;
 	}
 
+	public Set getT0114EnvCategorys() {
+		return t0114EnvCategorys;
+	}
+
+	public void setT0114EnvCategorys(Set t0114EnvCategorys) {
+		this.t0114EnvCategorys = t0114EnvCategorys;
+	}
+
+	public Set getT0114EnvTopics() {
+		return t0114EnvTopics;
+	}
+
+	public void setT0114EnvTopics(Set t0114EnvTopics) {
+		this.t0114EnvTopics = t0114EnvTopics;
+	}
+
 	public Set getT011ObjDatas() {
 		return t011ObjDatas;
 	}
 
 	public void setT011ObjDatas(Set t011ObjDatas) {
 		this.t011ObjDatas = t011ObjDatas;
+	}
+
+	public Set getT011ObjDataParas() {
+		return t011ObjDataParas;
+	}
+
+	public void setT011ObjDataParas(Set t011ObjDataParas) {
+		this.t011ObjDataParas = t011ObjDataParas;
 	}
 
 	public Set getT011ObjGeos() {
@@ -451,12 +579,12 @@ public class T01Object extends MdekIDCEntity {
 		this.t011ObjGeos = t011ObjGeos;
 	}
 
-	public Set getT011ObjLiteraturs() {
-		return t011ObjLiteraturs;
+	public Set getT011ObjLiteratures() {
+		return t011ObjLiteratures;
 	}
 
-	public void setT011ObjLiteraturs(Set t011ObjLiteraturs) {
-		this.t011ObjLiteraturs = t011ObjLiteraturs;
+	public void setT011ObjLiteratures(Set t011ObjLiteratures) {
+		this.t011ObjLiteratures = t011ObjLiteratures;
 	}
 
 	public Set getT011ObjProjects() {
@@ -497,30 +625,6 @@ public class T01Object extends MdekIDCEntity {
 
 	public void setT017UrlRefs(Set t017UrlRefs) {
 		this.t017UrlRefs = t017UrlRefs;
-	}
-
-	public Set getT019Coordinatess() {
-		return t019Coordinatess;
-	}
-
-	public void setT019Coordinatess(Set t019Coordinatess) {
-		this.t019Coordinatess = t019Coordinatess;
-	}
-
-	public Set getT01StClasss() {
-		return t01StClasss;
-	}
-
-	public void setT01StClasss(Set t01StClasss) {
-		this.t01StClasss = t01StClasss;
-	}
-
-	public Set getT03Catalogues() {
-		return t03Catalogues;
-	}
-
-	public void setT03Catalogues(Set t03Catalogues) {
-		this.t03Catalogues = t03Catalogues;
 	}
 
 	public Set getT08Attrs() {

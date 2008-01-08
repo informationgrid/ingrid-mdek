@@ -2,21 +2,20 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class T012ObjAdr implements IEntity {
+public class ObjectReference implements IEntity {
 
 	private Long id;
 	private Integer version;
-	private Long objId;
-	private String adrUuid;
-	private Integer type;
+	private Long objFromId;
+	private String objToUuid;
 	private Integer line;
 	private Integer specialRef;
 	private String specialName;
-	private String modTime;
+	private String descr;
 
-	private AddressNode addressNode;
+	private ObjectNode objectNode;
 
-	public T012ObjAdr() {}
+	public ObjectReference() {}
 
 	public Long getId() {
 		return id;
@@ -34,28 +33,20 @@ public class T012ObjAdr implements IEntity {
 		this.version = version;
 	}
 
-	public Long getObjId() {
-		return objId;
+	public Long getObjFromId() {
+		return objFromId;
 	}
 
-	public void setObjId(Long objId) {
-		this.objId = objId;
+	public void setObjFromId(Long objFromId) {
+		this.objFromId = objFromId;
 	}
 
-	public String getAdrUuid() {
-		return adrUuid;
+	public String getObjToUuid() {
+		return objToUuid;
 	}
 
-	public void setAdrUuid(String adrUuid) {
-		this.adrUuid = adrUuid;
-	}
-
-	public Integer getType() {
-		return type;
-	}
-
-	public void setType(Integer type) {
-		this.type = type;
+	public void setObjToUuid(String objToUuid) {
+		this.objToUuid = objToUuid;
 	}
 
 	public Integer getLine() {
@@ -82,19 +73,19 @@ public class T012ObjAdr implements IEntity {
 		this.specialName = specialName;
 	}
 
-	public String getModTime() {
-		return modTime;
+	public String getDescr() {
+		return descr;
 	}
 
-	public void setModTime(String modTime) {
-		this.modTime = modTime;
+	public void setDescr(String descr) {
+		this.descr = descr;
 	}
 
-	public AddressNode getAddressNode() {
-		return addressNode;
+	public ObjectNode getObjectNode() {
+		return objectNode;
 	}
 
-	public void setAddressNode(AddressNode addressNode) {
-		this.addressNode = addressNode;
+	public void setObjectNode(ObjectNode objectNode) {
+		this.objectNode = objectNode;
 	}
 }

@@ -13,7 +13,7 @@ public class Metadata implements IEntity {
 	private String _metadataValue;
 
 	@Version
-    private int _version;
+    private Integer _version;
 
 	public Metadata() {
 		// hibernate
@@ -43,10 +43,10 @@ public class Metadata implements IEntity {
 		return _metadataKey + "#" + _metadataValue;
 	}
 
-	public int getVersion() {
+	public Integer getVersion() {
         return _version;
     }
-	protected void setVersion(int version) {
+	protected void setVersion(Integer version) {
         this._version = version;
     }
 

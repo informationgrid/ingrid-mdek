@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="ObjectNode"
+          table="object_node">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objUuid" type="string" column="obj_uuid"/>
+      <property name="objId" type="long" column="obj_id"/>
+      <property name="objIdPublished" type="long" column="obj_id_published"/>
+      <property name="fkObjUuid" type="string" column="fk_obj_uuid"/>
+
+      <set name="objectNodeChildren" inverse="true">
+         <key column="fk_obj_uuid" property-ref="objUuid"/>
+         <one-to-many class="ObjectNode" not-found="ignore"/>
+      </set>
+      <many-to-one name="t01ObjectWork" class="T01Object" column="obj_id" update="false" insert="false"/>
+      <many-to-one name="t01ObjectPublished" class="T01Object" column="obj_id_published" update="false"
+                   insert="false"/>
+   </class>
+
+</hibernate-mapping>
