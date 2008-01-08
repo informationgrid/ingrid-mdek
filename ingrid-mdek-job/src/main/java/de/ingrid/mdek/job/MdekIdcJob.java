@@ -11,16 +11,15 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.dao.IT012ObjObjDao;
+import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.DocToBeanMapper;
-import de.ingrid.mdek.services.persistence.db.model.T012ObjObj;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
-import de.ingrid.mdek.services.persistence.db.model.IMapper.T012ObjObjRelationType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekIdcJob extends MdekJob {
@@ -33,9 +32,9 @@ public class MdekIdcJob extends MdekJob {
 	/** logs in separate File (job specific log file) */
 	protected Logger log;
 
+	private IObjectNodeDao daoObjectNode;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
-	private IT012ObjObjDao daoT012ObjObj;
 
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
@@ -46,9 +45,9 @@ public class MdekIdcJob extends MdekJob {
 		// use logger from service -> logs into separate file !
 		log = logService.getLogger(MdekIdcJob.class); 
 
+		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
-		daoT012ObjObj = daoFactory.getT012ObjObjDao();
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = docToBeanMapper.getInstance(daoFactory);
@@ -116,17 +115,17 @@ public class MdekIdcJob extends MdekJob {
 	public IngridDocument getTopObjects() {
 		IngridDocument result = new IngridDocument();
 
-		daoT01Object.beginTransaction();
+		daoObjectNode.beginTransaction();
 
 		// fetch top Objects
-		List<T01Object> objs = daoT01Object.getTopObjects();
+		List<ObjectNode> oNs = daoObjectNode.getTopObjects();
 
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
-		for (T01Object obj : objs) {
-			resultList.add(beanToDocMapper.mapT01Object(obj, MappingQuantity.TOP_ENTITY));
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
+		for (ObjectNode oN : oNs) {
+			resultList.add(beanToDocMapper.mapObjectNode(oN, MappingQuantity.TOP_ENTITY));
 		}
 
-		daoT01Object.commitTransaction();
+		daoObjectNode.commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
 		return result;
@@ -136,33 +135,32 @@ public class MdekIdcJob extends MdekJob {
 		IngridDocument result = new IngridDocument();
 		String uuid = (String) params.get(MdekKeys.UUID);
 
-		daoT01Object.beginTransaction();
+		daoObjectNode.beginTransaction();
 
-		List<T01Object> objs = daoT01Object.getSubObjects(uuid);
+		List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid);
 
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(objs.size());
-		for (T01Object obj : objs) {
-			resultList.add(beanToDocMapper.mapT01Object(obj, MappingQuantity.SUB_ENTITY));
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
+		for (ObjectNode oN : oNs) {
+			resultList.add(beanToDocMapper.mapObjectNode(oN, MappingQuantity.SUB_ENTITY));
 		}
 
-		daoT01Object.commitTransaction();
+		daoObjectNode.commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
 		return result;
 	}
-
 
 	public IngridDocument getObjDetails(IngridDocument params) {
 		String uuid = (String) params.get(MdekKeys.UUID);
 		return getObjDetails(uuid);
 	}
 	private IngridDocument getObjDetails(String uuid) {
-		daoT01Object.beginTransaction();
+		daoObjectNode.beginTransaction();
 
-		T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.QUERVERWEIS);
-		IngridDocument oDoc = beanToDocMapper.mapT01Object(o, MappingQuantity.DETAIL_ENTITY);
+		ObjectNode oN = daoObjectNode.getObjDetails(uuid);
+		IngridDocument oDoc = beanToDocMapper.mapObjectNode(oN, MappingQuantity.DETAIL_ENTITY);
 
-		daoT01Object.commitTransaction();
+		daoObjectNode.commitTransaction();
 
 		return oDoc;		
 	}
@@ -171,32 +169,48 @@ public class MdekIdcJob extends MdekJob {
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
 		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
-		// update common data
+		// set common data in document
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 		oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 
+		// TODO: copy object
+
 		daoT01Object.beginTransaction();
 
+		T01Object o = null;
+		ObjectNode oNode = null;
+
 		if (uuid == null) {
+			// New Object  !!!
+			// create and save basic object to get id !
 			uuid = UuidGenerator.getInstance().generateUuid();
 			oDocIn.put(MdekKeys.UUID, uuid);
 			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
-			T01Object o = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.DETAIL_ENTITY);
-			
-			// also create association to parent
-			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-			oDocIn.put(MdekKeys.RELATION_TYPE, T012ObjObjRelationType.STRUKTURBAUM.getDbValue());
-			T012ObjObj oO = docToBeanMapper.mapT012ObjObj(parentUuuid, oDocIn, new T012ObjObj(), -1);
-
+			o = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
 			daoT01Object.makePersistent(o);
-			daoT012ObjObj.makePersistent(oO);
+			Long oId = o.getId();
+			
+			// and create ObjectNode
+			oNode = new ObjectNode();
+			oNode.setObjUuid(uuid);
+			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+			oNode.setFkObjUuid(parentUuuid);
+			oNode.setObjId(oId);
+			// TODO: ObjIdPublished should be Null on New Object !!!! but NOT NULL in database !!!
+			oNode.setObjIdPublished(oId);
+			oNode.setT01ObjectWork(o);
+			daoObjectNode.makePersistent(oNode);
+			
+			// set new object data in document may be needed in further mapping !
+			oDocIn.put(MdekKeys.ID, oId);
 
 		} else {
-			T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.QUERVERWEIS);
-			docToBeanMapper.mapT01Object(oDocIn, o, MappingQuantity.DETAIL_ENTITY);
-
-			daoT01Object.makePersistent(o);
+			oNode = daoObjectNode.getObjDetails(uuid);
+			o = oNode.getT01ObjectWork();
 		}
+
+		docToBeanMapper.mapT01Object(oDocIn, o, MappingQuantity.DETAIL_ENTITY);
+		daoT01Object.makePersistent(o);
 
 		daoT01Object.commitTransaction();
 		
@@ -209,16 +223,19 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object.beginTransaction();
 
-		// fetch Struktur- and Querverweise associations for delete !
-		T01Object o = daoT01Object.getObjDetails(uuid, T012ObjObjRelationType.ALLE);
+		// TODO: how to delete ? how handle working copy ? mark as deleted ?
 
-		if (o != null) {
+		// NOTICE: this one is also Parent Association !
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		T01Object o = oNode.getT01ObjectWork();
+
+		if (oNode != null) {
 			// delete parent association
-			T012ObjObj oOParent = daoT012ObjObj.getParentAssociation(uuid);
-			daoT012ObjObj.makeTransient(oOParent);
+			daoObjectNode.makeTransient(oNode);
+			// delete object
+			daoT01Object.makeTransient(o);
 
 			// TODO: delete whole sub tree of objects !!!
-			daoT01Object.makeTransient(o);
 			
 			// TODO: wie delete success in Result transportieren ? jetzt null / not null
 			result = new IngridDocument();
