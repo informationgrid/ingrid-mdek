@@ -35,10 +35,19 @@ public class DocToBeanMapper implements IMapper {
 
 	/**
 	 * Transfer data of passed doc to passed bean according to mapping type.
-	 * @param oDocIn the doc containing data to transfer
-	 * @param oIn the bean to transfer data to !
-	 * @param type how much data to transfer
-	 * @return the passed bean containing all mapped data
+	 */
+	public ObjectNode mapObjectNode(IngridDocument oDocIn, ObjectNode oNodeIn, MappingQuantity type) {
+		oNodeIn.setObjUuid((String) oDocIn.get(MdekKeys.UUID));
+		String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+		if (parentUuid != null) {
+			oNodeIn.setFkObjUuid(parentUuid);				
+		}
+
+		return oNodeIn;
+	}
+
+	/**
+	 * Transfer data of passed doc to passed bean according to mapping type.
 	 */
 	public T01Object mapT01Object(IngridDocument oDocIn, T01Object oIn, MappingQuantity type) {
 		oIn.setObjUuid((String) oDocIn.get(MdekKeys.UUID));
