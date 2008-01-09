@@ -9,5 +9,5 @@ public interface IEntity extends Serializable {
 
 	Serializable getId();
 
-	Integer getVersion();
+	int getVersion();
 }
