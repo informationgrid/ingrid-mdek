@@ -189,8 +189,6 @@ public class MdekIdcJob extends MdekJob {
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 		oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 
-		// TODO: copy object
-
 		daoT01Object.beginTransaction();
 
 		T01Object o = null;
@@ -198,30 +196,37 @@ public class MdekIdcJob extends MdekJob {
 
 		if (uuid == null) {
 			// New Object  !!!
-			// create and save basic object to get id !
+			
+			// create new object
 			uuid = UuidGenerator.getInstance().generateUuid();
 			oDocIn.put(MdekKeys.UUID, uuid);
 			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			o = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-			daoT01Object.makePersistent(o);
-			Long oId = o.getId();
 			
-			// and create ObjectNode
-			oNode = new ObjectNode();
-			oNode.setObjUuid(uuid);
-			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-			oNode.setFkObjUuid(parentUuuid);
-			oNode.setObjId(oId);
-			daoObjectNode.makePersistent(oNode);
+			// and new ObjectNode
+			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode(), MappingQuantity.BASIC_ENTITY);
 
 		} else {
 			oNode = daoObjectNode.getObjDetails(uuid);
-			o = oNode.getT01ObjectWork();
+
+//			if (oNode.getObjId() == oNode.getObjIdPublished()) {
+				// TODO: copy object via mapping: beanToDoc / docToBean
+//			} else {
+				o = oNode.getT01ObjectWork();				
+//			}
 		}
 
+		// store object. generates id if new object was created (copied or brand new).
 		docToBeanMapper.mapT01Object(oDocIn, o, MappingQuantity.DETAIL_ENTITY);
 		daoT01Object.makePersistent(o);
 
+		// and update ObjectNode with working copy
+		Long oId = o.getId();
+		if (oId != oNode.getObjId()) {
+			oNode.setObjId(oId);
+			daoObjectNode.makePersistent(oNode);
+		}
+		
 		daoT01Object.commitTransaction();
 		
 		return getObjDetails(uuid);
