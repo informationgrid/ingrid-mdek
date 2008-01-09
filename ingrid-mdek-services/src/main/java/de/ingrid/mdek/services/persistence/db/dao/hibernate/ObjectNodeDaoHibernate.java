@@ -43,7 +43,7 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> oNs = session.createQuery("from ObjectNode oNd " +
 				"left join fetch oNd.t01ObjectWork o " +
 				"left join fetch oNd.objectNodeChildren oChildren " +
-				"where o.root = 1 " +
+				"where oNd.fkObjUuid is null " +
 				"order by o.objName")
 				.list();
 
