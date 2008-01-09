@@ -122,7 +122,10 @@ public class MdekIdcJob extends MdekJob {
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 		for (ObjectNode oN : oNs) {
-			resultList.add(beanToDocMapper.mapObjectNode(oN, MappingQuantity.TOP_ENTITY));
+			IngridDocument objDoc = new IngridDocument();
+			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.BASIC_ENTITY);
+			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+			resultList.add(objDoc);
 		}
 
 		daoObjectNode.commitTransaction();
@@ -141,7 +144,10 @@ public class MdekIdcJob extends MdekJob {
 
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 		for (ObjectNode oN : oNs) {
-			resultList.add(beanToDocMapper.mapObjectNode(oN, MappingQuantity.SUB_ENTITY));
+			IngridDocument objDoc = new IngridDocument();
+			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.BASIC_ENTITY);
+			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+			resultList.add(objDoc);
 		}
 
 		daoObjectNode.commitTransaction();
@@ -155,14 +161,19 @@ public class MdekIdcJob extends MdekJob {
 		return getObjDetails(uuid);
 	}
 	private IngridDocument getObjDetails(String uuid) {
+		IngridDocument resultDoc = null;
+
 		daoObjectNode.beginTransaction();
 
 		ObjectNode oN = daoObjectNode.getObjDetails(uuid);
-		IngridDocument oDoc = beanToDocMapper.mapObjectNode(oN, MappingQuantity.DETAIL_ENTITY);
+		if (oN != null) {
+			resultDoc = new IngridDocument();
+			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);			
+		}
 
 		daoObjectNode.commitTransaction();
 
-		return oDoc;		
+		return resultDoc;		
 	}
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
@@ -200,9 +211,6 @@ public class MdekIdcJob extends MdekJob {
 			oNode.setObjIdPublished(oId);
 			oNode.setT01ObjectWork(o);
 			daoObjectNode.makePersistent(oNode);
-			
-			// set new object data in document may be needed in further mapping !
-			oDocIn.put(MdekKeys.ID, oId);
 
 		} else {
 			oNode = daoObjectNode.getObjDetails(uuid);
