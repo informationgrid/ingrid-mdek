@@ -95,7 +95,7 @@ class MdekThread extends Thread {
 	public void run() {
 		isRunning = true;
 
-		String parentUuid = "38665183-B449-11D2-9A86-080000507261";
+		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
 		String objUuid = "5CE671D3-5475-11D3-A172-08002B9A1D1D";
 		IngridDocument oMap;
 
@@ -387,7 +387,7 @@ class MdekThread extends Thread {
 			+ ", " + o.get(MdekKeys.TITLE)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE)).toString()
+			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
 		);
 		System.out.println(" " + o);
 		List<IngridDocument> objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_ENTITIES);

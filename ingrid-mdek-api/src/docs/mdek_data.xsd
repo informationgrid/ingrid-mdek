@@ -51,7 +51,8 @@
 			<xs:element ref="adrEntities"/>
 			<xs:element ref="objEntities"/>
 			<!-- Object Associations Data -->
-			<xs:element ref="relation-type"/>
+			<xs:element ref="relation-type-name"/>
+			<xs:element ref="relation-type-ref"/>
 			<xs:element name="relation-description" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>
@@ -64,7 +65,10 @@
 	<xs:element name="date-of-creation" type="xs:string"/>
 	<xs:element name="date-of-last-modification" type="xs:string"/>
 	<xs:element name="work-state" type="xs:string"/>
-	<xs:element name="relation-type" type="xs:integer"/>
+	<!-- db: special_name -->
+	<xs:element name="relation-type-name" type="xs:string"/>
+	<!-- db: special_ref  -->
+	<xs:element name="relation-type-ref" type="xs:integer"/>
 	
 	<xs:complexType name="adrEntities">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -79,7 +83,6 @@
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
-			<xs:element ref="relation-type"/>
 			<xs:element name="organisation" type="xs:string"/>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="given-name" type="xs:string"/>
@@ -93,6 +96,11 @@
 			<xs:element name="function" type="xs:string"/>
 			<xs:element name="address-description" type="xs:string"/>
 			<xs:element ref="communication"/>
+			<!-- Object Associations Data -->
+			<!-- db: type -->
+			<xs:element name="relation-type-id" type="xs:integer"/>
+			<xs:element ref="relation-type-name"/>
+			<xs:element ref="relation-type-ref"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:element name="address_MAP" type="address_MAP"/>

@@ -58,7 +58,7 @@ public class MdekUtils {
 			String out = displayDateFormatter.format(in);
 			return out;
 		} catch (Exception ex){
-			LOG.warn("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);
+			LOG.debug("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);
 			return "";
 		}
 	}
@@ -68,7 +68,7 @@ public class MdekUtils {
 			String out = timestampFormatter.format(date);
 			return out;
 		} catch (Exception ex){
-			LOG.warn("Problems formating date to timestamp: " + date, ex);
+			LOG.debug("Problems formating date to timestamp: " + date, ex);
 			return "";
 		}
 	}

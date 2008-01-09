@@ -30,8 +30,15 @@ public class MdekKeys {
     public final static String CLASS = "class";
     /** Value: Boolean */
     public final static String HAS_CHILD = "hasChild";
-    /** Value: Integer */
-    public final static String RELATION_TYPE = "relation-type";
+    /** database column "type"<br>
+     *  Value: Integer */
+    public final static String RELATION_TYPE_ID = "relation-type-id";
+    /** database column "special_name"<br> 
+     * Value: String */
+    public final static String RELATION_TYPE_NAME = "relation-type-name";
+    /** database column "special_ref"<br>
+     *  Value: Integer */
+    public final static String RELATION_TYPE_REF = "relation-type-ref";
     /** Value: String */
     public final static String DATE_OF_CREATION = "date-of-creation";
     /** Value: String */
@@ -46,7 +53,7 @@ public class MdekKeys {
     public final static String TITLE = "title";
     /** Value: String */
     public final static String ABSTRACT = "abstract";
-    /** description of obj-obj association 
+    /** description of obj-obj association<br>
      * Value: String */
     public final static String RELATION_DESCRIPTION = "relation-description";
     /** Value: String */
