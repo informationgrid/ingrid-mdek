@@ -69,6 +69,17 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setTimeInterval((String) oDocIn.get(MdekKeys.TIME_STEP));
 			oIn.setTimeAlle((String) oDocIn.get(MdekKeys.TIME_SCALE));
 			oIn.setTimeDescr((String) oDocIn.get(MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN));
+			
+			oIn.setMetadataLanguageCode((String) oDocIn.get(MdekKeys.METADATA_LANGUAGE));
+			oIn.setDataLanguageCode((String) oDocIn.get(MdekKeys.DATA_LANGUAGE));
+			oIn.setPublishId((Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION));
+			oIn.setInfoNote((String) oDocIn.get(MdekKeys.DATASET_INTENSIONS));
+			oIn.setDatasetUsage((String) oDocIn.get(MdekKeys.DATASET_USAGE));
+
+			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
+			oIn.setAvailAccessNote((String) oDocIn.get(MdekKeys.USE_CONSTRAINTS));
+			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
+			
 
 			// update related object references (Querverweise)
 			updateObjectReferences(oDocIn, oIn);

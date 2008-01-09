@@ -109,7 +109,17 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.TIME_STEP, o.getTimeInterval());
 			objectDoc.put(MdekKeys.TIME_SCALE, o.getTimeAlle());
 			objectDoc.put(MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN, o.getTimeDescr());
-			
+
+			objectDoc.put(MdekKeys.METADATA_LANGUAGE, o.getMetadataLanguageCode());
+			objectDoc.put(MdekKeys.DATA_LANGUAGE, o.getDataLanguageCode());
+			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
+			objectDoc.put(MdekKeys.DATASET_INTENSIONS, o.getInfoNote());
+			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
+
+			objectDoc.put(MdekKeys.ORDERING_INSTRUCTIONS, o.getOrderingInstructions());
+			objectDoc.put(MdekKeys.USE_CONSTRAINTS, o.getAvailAccessNote());
+			objectDoc.put(MdekKeys.FEES, o.getFees());
+
 			// get related addresses
 			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
 			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
