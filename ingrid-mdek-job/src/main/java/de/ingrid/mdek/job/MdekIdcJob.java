@@ -212,9 +212,6 @@ public class MdekIdcJob extends MdekJob {
 			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
 			oNode.setFkObjUuid(parentUuuid);
 			oNode.setObjId(oId);
-			// TODO: ObjIdPublished should be Null on New Object !!!! but NOT NULL in database !!!
-			oNode.setObjIdPublished(oId);
-			oNode.setT01ObjectWork(o);
 			daoObjectNode.makePersistent(oNode);
 
 		} else {
