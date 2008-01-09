@@ -23,9 +23,9 @@ public interface IObjectNodeDao
 	/** Fetches sub objects of object with given id */
 	List<ObjectNode> getSubObjects(String uuid);
 
-	/** Fetches object with given uuid containing all detailed object data.
-	 * @param uuid uuid of object to fetch
-	 * @return bean containing data
-	 */
+	/** Fetches object with given uuid containing all detailed object data. */
 	ObjectNode getObjDetails(String uuid);
+
+	/** Fetch Objects which reference the object with the passed uuid */
+	List<ObjectNode> getObjectReferencesFrom(String uuid);
 }

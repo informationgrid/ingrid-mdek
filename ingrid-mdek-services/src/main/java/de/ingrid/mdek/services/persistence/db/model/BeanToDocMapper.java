@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.model;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -119,7 +120,7 @@ public class BeanToDocMapper implements IMapper {
 				mapT02Address(a, aDoc, MappingQuantity.TABLE_ENTITY);
 				adrsList.add(aDoc);
 			}
-			objectDoc.put(MdekKeys.ADR_ENTITIES, adrsList);
+			objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
 
 			// get related objects (Querverweise)
 			Set<ObjectReference> oRefs = o.getObjectReferences();
@@ -131,10 +132,42 @@ public class BeanToDocMapper implements IMapper {
 				mapT01Object(oTo, oToDoc, MappingQuantity.TABLE_ENTITY);
 				objsList.add(oToDoc);
 			}
-			objectDoc.put(MdekKeys.OBJ_ENTITIES, objsList);
+			objectDoc.put(MdekKeys.OBJ_REFERENCES_TO, objsList);
 		}
 
 		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+
+		return objectDoc;
+	}
+
+	/**
+	 * Transfer objectReferencesFrom data from passed beans to passed doc.
+	 * @return doc containing additional data.
+	 */
+	public IngridDocument mapObjectReferencesFrom(List<ObjectNode> oNodesFrom,
+			String uuidObjectTo,
+			IngridDocument objectDoc,
+			MappingQuantity howMuch) {
+		if (oNodesFrom == null) {
+			return null;
+		}
+
+		ArrayList<IngridDocument> oRefFromList = new ArrayList<IngridDocument>(oNodesFrom.size());
+		for (ObjectNode oN : oNodesFrom) {
+			IngridDocument oFromDoc = new IngridDocument();
+			T01Object oFrom = oN.getT01ObjectWork();
+			mapT01Object(oFrom, oFromDoc, howMuch);
+			// also map relation info
+			Set<ObjectReference> oRefs = oFrom.getObjectReferences();
+			for (ObjectReference oRef : oRefs) {
+				if (uuidObjectTo.equals(oRef.getObjToUuid())) {
+					mapObjectReference(oRef, oFromDoc, howMuch);
+					break;
+				}
+			}
+			oRefFromList.add(oFromDoc);
+		}
+		objectDoc.put(MdekKeys.OBJ_REFERENCES_FROM, oRefFromList);
 
 		return objectDoc;
 	}

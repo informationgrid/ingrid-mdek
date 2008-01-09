@@ -101,4 +101,25 @@ public class ObjectNodeDaoHibernate
 
 		return oN;
 	}
+
+	public List<ObjectNode> getObjectReferencesFrom(String uuid) {
+		Session session = getSession();
+		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
+
+		// fetch all at once (one select with outer joins)
+		List<ObjectNode> oNs = session.createQuery("from ObjectNode oNode " +
+			"left join fetch oNode.t01ObjectWork oWork " +
+			"left join fetch oWork.objectReferences oRef " +
+			"where oRef.objToUuid = ?")
+			.setString(0, uuid)
+			.list();
+
+		// NOTICE: upper query returns objects multiple times, filter them !
+		for (ObjectNode oN : oNs) {
+			if (!retList.contains(oN)) {
+				retList.add(oN);
+			}
+		}
+		return retList;
+	}
 }

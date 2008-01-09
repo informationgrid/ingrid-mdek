@@ -133,7 +133,7 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	private void updateObjectReferences(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> oDocsTo = (List) oDocIn.get(MdekKeys.OBJ_ENTITIES);
+		List<IngridDocument> oDocsTo = (List) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
 		if (oDocsTo == null) {
 			oDocsTo = new ArrayList<IngridDocument>(0);
 		}
@@ -165,7 +165,7 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	private void updateT012ObjAdrs(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> aDocsTo = (List) oDocIn.get(MdekKeys.ADR_ENTITIES);
+		List<IngridDocument> aDocsTo = (List) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
 		if (aDocsTo == null) {
 			aDocsTo = new ArrayList<IngridDocument>(0);
 		}
