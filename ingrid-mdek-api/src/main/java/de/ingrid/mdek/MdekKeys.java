@@ -88,6 +88,22 @@ public class MdekKeys {
     public final static String TIME_SCALE = "time-scale";
     /** Value: String */
     public final static String DESCRIPTION_OF_TEMPORAL_DOMAIN = "description-of-temporal-domain";
+    /** Value: String */
+    public final static String METADATA_LANGUAGE = "metadata-language";
+    /** Value: String */
+    public final static String DATA_LANGUAGE = "data-language";
+    /** Value: Integer */
+    public final static String PUBLICATION_CONDITION = "publication-condition";
+    /** Value: String */
+    public final static String DATASET_INTENSIONS = "dataset-intensions";
+    /** Value: String */
+    public final static String DATASET_USAGE = "dataset-usage";
+    /** Value: String */
+    public final static String ORDERING_INSTRUCTIONS = "ordering-instructions";
+    /** Value: String */
+    public final static String USE_CONSTRAINTS = "use-constraints";
+    /** Value: String */
+    public final static String FEES = "fees";
 
     
     // ADDRESS DATA
