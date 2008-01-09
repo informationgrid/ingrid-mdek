@@ -41,7 +41,6 @@ public class DocToBeanMapper implements IMapper {
 	 * @return the passed bean containing all mapped data
 	 */
 	public T01Object mapT01Object(IngridDocument oDocIn, T01Object oIn, MappingQuantity type) {
-		oIn.setId((Long) oDocIn.get(MdekKeys.ID));
 		oIn.setObjUuid((String) oDocIn.get(MdekKeys.UUID));
 		oIn.setObjClass((Integer) oDocIn.get(MdekKeys.CLASS));
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
@@ -77,7 +76,9 @@ public class DocToBeanMapper implements IMapper {
 			// update related ObjAdrs
 			updateT012ObjAdrs(oDocIn, oIn);
 		}			
-			
+
+		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+
 		return oIn;
 	}
 
@@ -98,8 +99,10 @@ public class DocToBeanMapper implements IMapper {
 		oRef.setObjToUuid((String) oToDoc.get(MdekKeys.UUID));
 		oRef.setDescr((String) oToDoc.get(MdekKeys.RELATION_DESCRIPTION));
 		oRef.setLine(line);
+		oRef.setSpecialName((String) oToDoc.get(MdekKeys.RELATION_TYPE_NAME));
+		oRef.setSpecialRef((Integer) oToDoc.get(MdekKeys.RELATION_TYPE_REF));
 
-		// TODO: mapObjectReference -> fehlende Attribute !
+		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
 
 		return oRef;
 	}
@@ -119,10 +122,12 @@ public class DocToBeanMapper implements IMapper {
 	{
 		oA.setObjId(oFromId);
 		oA.setAdrUuid((String) aToDoc.get(MdekKeys.UUID));
-		oA.setType((Integer) aToDoc.get(MdekKeys.RELATION_TYPE));
+		oA.setType((Integer) aToDoc.get(MdekKeys.RELATION_TYPE_ID));
+		oA.setSpecialName((String) aToDoc.get(MdekKeys.RELATION_TYPE_NAME));
+		oA.setSpecialRef((Integer) aToDoc.get(MdekKeys.RELATION_TYPE_REF));
 		oA.setLine(line);
 
-		// TODO: mapT012ObjAdr -> fehlende Attribute !
+		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
 
 		return oA;
 	}
@@ -180,7 +185,7 @@ public class DocToBeanMapper implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				T012ObjAdr oA = mapT012ObjAdr(oDocIn.getLong(MdekKeys.ID), aDocTo, new T012ObjAdr(), line);
+				T012ObjAdr oA = mapT012ObjAdr(oIn.getId(), aDocTo, new T012ObjAdr(), line);
 				oAs.add(oA);
 			}
 			line++;
