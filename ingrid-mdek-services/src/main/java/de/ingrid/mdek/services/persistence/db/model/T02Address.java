@@ -8,7 +8,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public class T02Address implements IEntity {
 
 	private Long id;
-	private Integer version;
+	private int version;
 	private String adrUuid;
 	private String orgAdrId;
 	private Long catId;
@@ -37,12 +37,11 @@ public class T02Address implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 
+//	private Set commentAdrs = new HashSet();
+//	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
+//	private T03Catalogue t03Catalogue;
 
-/*
-	private Set commentAdrs = new HashSet();
-	private Set searchtermAdrs = new HashSet();
-*/
 	public T02Address() {}
 
 	public Long getId() {
@@ -53,11 +52,11 @@ public class T02Address implements IEntity {
 		this.id = id;
 	}
 
-	public Integer getVersion() {
+	public int getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 
@@ -301,5 +300,13 @@ public class T02Address implements IEntity {
 	public void setT021Communications(Set t021Communications) {
 		this.t021Communications = t021Communications;
 	}
+/*
+	public T03Catalogue getT03Catalogue() {
+		return t03Catalogue;
+	}
 
+	public void setT03Catalogue(T03Catalogue t03Catalogue) {
+		this.t03Catalogue = t03Catalogue;
+	}
+*/
 }

@@ -8,15 +8,16 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public class AddressNode implements IEntity {
 
 	private Long id;
-	private Integer version;
+	private int version;
 	private String addrUuid;
 	private Long addrId;
 	private Long addrIdPublished;
 	private String fkAddrUuid;
 
-	private Set addressNodes = new HashSet();
 	private T02Address t02AddressWork;
 	private T02Address t02AddressPublished;
+	private Set addressNodeChildren = new HashSet();
+	private Set t012ObjAdrs = new HashSet();
 
 	public AddressNode() {}
 
@@ -28,11 +29,11 @@ public class AddressNode implements IEntity {
 		this.id = id;
 	}
 
-	public Integer getVersion() {
+	public int getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 
@@ -69,14 +70,6 @@ public class AddressNode implements IEntity {
 	}
 
 
-	public Set getAddressNodes() {
-		return addressNodes;
-	}
-
-	public void setAddressNodes(Set addressNodes) {
-		this.addressNodes = addressNodes;
-	}
-
 	public T02Address getT02AddressWork() {
 		return t02AddressWork;
 	}
@@ -91,6 +84,22 @@ public class AddressNode implements IEntity {
 
 	public void setT02AddressPublished(T02Address t02AddressPublished) {
 		this.t02AddressPublished = t02AddressPublished;
+	}
+
+	public Set getAddressNodeChildren() {
+		return addressNodeChildren;
+	}
+
+	public void setAddressNodeChildren(Set addressNodeChildren) {
+		this.addressNodeChildren = addressNodeChildren;
+	}
+
+	public Set getT012ObjAdrs() {
+		return t012ObjAdrs;
+	}
+
+	public void setT012ObjAdrs(Set t012ObjAdrs) {
+		this.t012ObjAdrs = t012ObjAdrs;
 	}
 
 }

@@ -2,8 +2,7 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="ObjectReference"
-          table="object_reference">
+   <class name="ObjectReference" table="object_reference">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
@@ -15,7 +14,10 @@
       <property name="specialName" type="string" column="special_name"/>
       <property name="descr" type="string" column="descr"/>
 
-	  <many-to-one name="objectNode" column="obj_to_uuid" property-ref="objUuid" update="false" insert="false"/>
+      <many-to-one name="objectNode" class="ObjectNode" column="obj_to_uuid"
+                   property-ref="objUuid"
+                   update="false"
+                   insert="false"/>
    </class>
 
 </hibernate-mapping>

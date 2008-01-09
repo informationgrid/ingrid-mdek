@@ -2,8 +2,7 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="T02Address"
-          table="t02_address">
+   <class name="T02Address" table="t02_address">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
@@ -35,24 +34,25 @@
       <property name="modTime" type="string" column="mod_time"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
-
-      <set name="t021Communications" order-by="line">
-         <key column="adr_id"/>
-         <one-to-many class="T021Communication" not-found="ignore"/>
-      </set>
-
 <!--
-      <set name="commentAdrs" table="comment_adr" update="false" insert="false"
-           inverse="true">
+      <set name="commentAdrs" table="comment_adr" inverse="true">
          <key column="adr_id"/>
          <one-to-many class="CommentAdr" not-found="ignore"/>
       </set>
-      <set name="searchtermAdrs" table="searchterm_adr" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="searchtermAdrs" order-by="line" table="searchterm_adr" inverse="true"
+           cascade="all-delete-orphan">
          <key column="adr_id"/>
          <one-to-many class="SearchtermAdr" not-found="ignore"/>
       </set>
+-->
+      <set name="t021Communications" order-by="line" table="t021_communication"
+           inverse="true">
+         <key column="adr_id"/>
+         <one-to-many class="T021Communication" not-found="ignore"/>
+      </set>
+<!--
+      <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
+                   insert="false"/>
 -->
    </class>
 

@@ -8,7 +8,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public class T01Object implements IEntity {
 
 	private Long id;
-	private Integer version;
+	private int version;
 	private String objUuid;
 	private String objName;
 	private String orgObjId;
@@ -51,19 +51,18 @@ public class T01Object implements IEntity {
 	private String modTime;
 	private String modUuid;
 	private String responsibleUuid;
-
-	private Set objectReferences = new HashSet();
-	private Set t012ObjAdrs = new HashSet();
-
 /*
 	private Set commentObjs = new HashSet();
+*/
+	private Set objectReferences = new HashSet();
+/*
 	private Set searchtermObjs = new HashSet();
 	private Set spatialReferences = new HashSet();
-	private Set sysCodelistDomains = new HashSet();
-	private Set sysCodelistDomains = new HashSet();
-	private Set sysCodelistDomains = new HashSet();
-	private Set sysCodelistDomains = new HashSet();
-	private Set sysCodelistDomains = new HashSet();
+	private SysCodelistDomain sysCodelistDomain;
+	private SysCodelistDomain sysCodelistDomain;
+	private SysCodelistDomain sysCodelistDomain;
+	private SysCodelistDomain sysCodelistDomain;
+	private SysCodelistDomain sysCodelistDomain;
 	private Set t0110AvailFormats = new HashSet();
 	private Set t0112MediaOptions = new HashSet();
 	private Set t0113DatasetReferences = new HashSet();
@@ -75,9 +74,13 @@ public class T01Object implements IEntity {
 	private Set t011ObjLiteratures = new HashSet();
 	private Set t011ObjProjects = new HashSet();
 	private Set t011ObjServs = new HashSet();
+*/
+	private Set t012ObjAdrs = new HashSet();
+/*
 	private Set t014InfoImparts = new HashSet();
 	private Set t015Legists = new HashSet();
 	private Set t017UrlRefs = new HashSet();
+	private T03Catalogue t03Catalogue;
 	private Set t08Attrs = new HashSet();
 */
 	public T01Object() {}
@@ -90,11 +93,11 @@ public class T01Object implements IEntity {
 		this.id = id;
 	}
 
-	public Integer getVersion() {
+	public int getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 
@@ -434,22 +437,6 @@ public class T01Object implements IEntity {
 		this.responsibleUuid = responsibleUuid;
 	}
 
-	public Set getObjectReferences() {
-		return objectReferences;
-	}
-
-	public void setObjectReferences(Set objectReferences) {
-		this.objectReferences = objectReferences;
-	}
-
-	public Set getT012ObjAdrs() {
-		return t012ObjAdrs;
-	}
-
-	public void setT012ObjAdrs(Set t012ObjAdrs) {
-		this.t012ObjAdrs = t012ObjAdrs;
-	}
-
 /*
 	public Set getCommentObjs() {
 		return commentObjs;
@@ -458,7 +445,15 @@ public class T01Object implements IEntity {
 	public void setCommentObjs(Set commentObjs) {
 		this.commentObjs = commentObjs;
 	}
+*/
+	public Set getObjectReferences() {
+		return objectReferences;
+	}
 
+	public void setObjectReferences(Set objectReferences) {
+		this.objectReferences = objectReferences;
+	}
+/*
 	public Set getSearchtermObjs() {
 		return searchtermObjs;
 	}
@@ -475,44 +470,44 @@ public class T01Object implements IEntity {
 		this.spatialReferences = spatialReferences;
 	}
 
-	public Set getSysCodelistDomains() {
-		return sysCodelistDomains;
+	public SysCodelistDomain getSysCodelistDomain() {
+		return sysCodelistDomain;
 	}
 
-	public void setSysCodelistDomains(Set sysCodelistDomains) {
-		this.sysCodelistDomains = sysCodelistDomains;
+	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
+		this.sysCodelistDomain = sysCodelistDomain;
 	}
 
-	public Set getSysCodelistDomains() {
-		return sysCodelistDomains;
+	public SysCodelistDomain getSysCodelistDomain() {
+		return sysCodelistDomain;
 	}
 
-	public void setSysCodelistDomains(Set sysCodelistDomains) {
-		this.sysCodelistDomains = sysCodelistDomains;
+	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
+		this.sysCodelistDomain = sysCodelistDomain;
 	}
 
-	public Set getSysCodelistDomains() {
-		return sysCodelistDomains;
+	public SysCodelistDomain getSysCodelistDomain() {
+		return sysCodelistDomain;
 	}
 
-	public void setSysCodelistDomains(Set sysCodelistDomains) {
-		this.sysCodelistDomains = sysCodelistDomains;
+	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
+		this.sysCodelistDomain = sysCodelistDomain;
 	}
 
-	public Set getSysCodelistDomains() {
-		return sysCodelistDomains;
+	public SysCodelistDomain getSysCodelistDomain() {
+		return sysCodelistDomain;
 	}
 
-	public void setSysCodelistDomains(Set sysCodelistDomains) {
-		this.sysCodelistDomains = sysCodelistDomains;
+	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
+		this.sysCodelistDomain = sysCodelistDomain;
 	}
 
-	public Set getSysCodelistDomains() {
-		return sysCodelistDomains;
+	public SysCodelistDomain getSysCodelistDomain() {
+		return sysCodelistDomain;
 	}
 
-	public void setSysCodelistDomains(Set sysCodelistDomains) {
-		this.sysCodelistDomains = sysCodelistDomains;
+	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
+		this.sysCodelistDomain = sysCodelistDomain;
 	}
 
 	public Set getT0110AvailFormats() {
@@ -602,7 +597,15 @@ public class T01Object implements IEntity {
 	public void setT011ObjServs(Set t011ObjServs) {
 		this.t011ObjServs = t011ObjServs;
 	}
+*/
+	public Set getT012ObjAdrs() {
+		return t012ObjAdrs;
+	}
 
+	public void setT012ObjAdrs(Set t012ObjAdrs) {
+		this.t012ObjAdrs = t012ObjAdrs;
+	}
+/*
 	public Set getT014InfoImparts() {
 		return t014InfoImparts;
 	}
@@ -625,6 +628,14 @@ public class T01Object implements IEntity {
 
 	public void setT017UrlRefs(Set t017UrlRefs) {
 		this.t017UrlRefs = t017UrlRefs;
+	}
+
+	public T03Catalogue getT03Catalogue() {
+		return t03Catalogue;
+	}
+
+	public void setT03Catalogue(T03Catalogue t03Catalogue) {
+		this.t03Catalogue = t03Catalogue;
 	}
 
 	public Set getT08Attrs() {

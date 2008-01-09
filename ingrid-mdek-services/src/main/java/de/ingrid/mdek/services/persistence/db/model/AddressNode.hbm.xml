@@ -2,8 +2,7 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="AddressNode"
-          table="address_node">
+   <class name="AddressNode" table="address_node">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
@@ -13,15 +12,19 @@
       <property name="addrIdPublished" type="long" column="addr_id_published"/>
       <property name="fkAddrUuid" type="string" column="fk_addr_uuid"/>
 
-      <set name="addressNodes" inverse="true">
-         <key column="fk_addr_uuid" property-ref="addrUuid"/>
-         <one-to-many class="AddressNode" not-found="ignore"/>
-      </set>
+      <many-to-one name="t02AddressWork" class="T02Address" column="addr_id" update="false"
+                   insert="false"/>
       <many-to-one name="t02AddressPublished" class="T02Address" column="addr_id_published"
                    update="false"
                    insert="false"/>
-      <many-to-one name="t02AddressWork" class="T02Address" column="addr_id" update="false"
-                   insert="false"/>
+      <set name="addressNodeChildren" table="address_node" inverse="true">
+         <key column="fk_addr_uuid" property-ref="addrUuid"/>
+         <one-to-many class="AddressNode" not-found="ignore"/>
+      </set>
+      <set name="t012ObjAdrs" table="t012_obj_adr" inverse="true">
+         <key column="adr_uuid" property-ref="addrUuid"/>
+         <one-to-many class="T012ObjAdr" not-found="ignore"/>
+      </set>
    </class>
 
 </hibernate-mapping>

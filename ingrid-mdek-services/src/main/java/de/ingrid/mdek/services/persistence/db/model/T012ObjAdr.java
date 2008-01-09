@@ -5,7 +5,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public class T012ObjAdr implements IEntity {
 
 	private Long id;
-	private Integer version;
+	private int version;
 	private Long objId;
 	private String adrUuid;
 	private Integer type;
@@ -15,6 +15,7 @@ public class T012ObjAdr implements IEntity {
 	private String modTime;
 
 	private AddressNode addressNode;
+	private T01Object t01Object;
 
 	public T012ObjAdr() {}
 
@@ -26,11 +27,11 @@ public class T012ObjAdr implements IEntity {
 		this.id = id;
 	}
 
-	public Integer getVersion() {
+	public int getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 
@@ -90,6 +91,7 @@ public class T012ObjAdr implements IEntity {
 		this.modTime = modTime;
 	}
 
+
 	public AddressNode getAddressNode() {
 		return addressNode;
 	}
@@ -97,4 +99,13 @@ public class T012ObjAdr implements IEntity {
 	public void setAddressNode(AddressNode addressNode) {
 		this.addressNode = addressNode;
 	}
+
+	public T01Object getT01Object() {
+		return t01Object;
+	}
+
+	public void setT01Object(T01Object t01Object) {
+		this.t01Object = t01Object;
+	}
+
 }

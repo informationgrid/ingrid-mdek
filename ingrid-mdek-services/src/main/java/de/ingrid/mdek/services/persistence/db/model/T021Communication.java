@@ -5,7 +5,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public class T021Communication implements IEntity {
 
 	private Long id;
-	private Integer version;
+	private int version;
 	private Long adrId;
 	private Integer line;
 	private String commType;
@@ -23,11 +23,11 @@ public class T021Communication implements IEntity {
 		this.id = id;
 	}
 
-	public Integer getVersion() {
+	public int getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 

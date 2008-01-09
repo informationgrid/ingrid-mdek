@@ -8,14 +8,14 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public class ObjectNode implements IEntity {
 
 	private Long id;
-	private Integer version;
+	private int version;
 	private String objUuid;
 	private Long objId;
 	private Long objIdPublished;
 	private String fkObjUuid;
 
-	private Set objectNodeChildren = new HashSet();
 	private T01Object t01ObjectWork;
+	private Set objectNodeChildren = new HashSet();
 	private T01Object t01ObjectPublished;
 
 	public ObjectNode() {}
@@ -28,11 +28,11 @@ public class ObjectNode implements IEntity {
 		this.id = id;
 	}
 
-	public Integer getVersion() {
+	public int getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 
@@ -69,20 +69,20 @@ public class ObjectNode implements IEntity {
 	}
 
 
-	public Set getObjectNodeChildren() {
-		return objectNodeChildren;
-	}
-
-	public void setObjectNodeChildren(Set objectNodeChildren) {
-		this.objectNodeChildren = objectNodeChildren;
-	}
-
 	public T01Object getT01ObjectWork() {
 		return t01ObjectWork;
 	}
 
 	public void setT01ObjectWork(T01Object t01ObjectWork) {
 		this.t01ObjectWork = t01ObjectWork;
+	}
+
+	public Set getObjectNodeChildren() {
+		return objectNodeChildren;
+	}
+
+	public void setObjectNodeChildren(Set objectNodeChildren) {
+		this.objectNodeChildren = objectNodeChildren;
 	}
 
 	public T01Object getT01ObjectPublished() {

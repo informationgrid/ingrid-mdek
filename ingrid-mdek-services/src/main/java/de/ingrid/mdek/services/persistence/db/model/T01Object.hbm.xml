@@ -2,8 +2,7 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="T01Object"
-          table="t01_object">
+   <class name="T01Object" table="t01_object">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
@@ -50,33 +49,26 @@
       <property name="modTime" type="string" column="mod_time"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
-
-      <set name="objectReferences" order-by="line" cascade="all-delete-orphan" inverse="true">
-         <key column="obj_from_id"/>
-         <one-to-many class="ObjectReference" not-found="ignore"/>
-      </set>
-      <set name="t012ObjAdrs" order-by="line" cascade="all-delete-orphan" inverse="true">
-         <key column="obj_id"/>
-         <one-to-many class="T012ObjAdr" not-found="ignore"/>
-         <filter name="t012ObjAdrFilter" condition=":type = type"/>
-      </set>
-
-<!-- 
-      <set name="commentObjs" table="comment_obj" update="false" insert="false"
-           inverse="true">
+<!--
+      <set name="commentObjs" table="comment_obj" inverse="true">
          <key column="obj_id"/>
          <one-to-many class="CommentObj" not-found="ignore"/>
       </set>
-      <set name="searchtermObjs" table="searchterm_obj" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+-->
+      <set name="objectReferences" order-by="line" table="object_reference" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_from_id"/>
+         <one-to-many class="ObjectReference" not-found="ignore"/>
+      </set>
+<!--
+      <set name="searchtermObjs" order-by="line" table="searchterm_obj" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="SearchtermObj" not-found="ignore"/>
       </set>
-      <set name="spatialReferences" table="spatial_reference" update="false"
-           insert="false"
+      <set name="spatialReferences" order-by="line" table="spatial_reference"
            inverse="true"
-           on-delete="cascade">
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="SpatialReference" not-found="ignore"/>
       </set>
@@ -90,102 +82,96 @@
                    insert="false"/>
       <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
                    insert="false"/>
-      <set name="t0110AvailFormats" table="t0110_avail_format" update="false"
-           insert="false"
+      <set name="t0110AvailFormats" order-by="line" table="t0110_avail_format"
            inverse="true"
-           on-delete="cascade">
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T0110AvailFormat" not-found="ignore"/>
       </set>
-      <set name="t0112MediaOptions" table="t0112_media_option" update="false"
-           insert="false"
+      <set name="t0112MediaOptions" order-by="line" table="t0112_media_option"
            inverse="true"
-           on-delete="cascade">
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T0112MediaOption" not-found="ignore"/>
       </set>
-      <set name="t0113DatasetReferences" table="t0113_dataset_reference" update="false"
-           insert="false"
+      <set name="t0113DatasetReferences" order-by="line" table="t0113_dataset_reference"
            inverse="true"
-           on-delete="cascade">
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T0113DatasetReference" not-found="ignore"/>
       </set>
-      <set name="t0114EnvCategorys" table="t0114_env_category" update="false"
-           insert="false"
+      <set name="t0114EnvCategorys" order-by="line" table="t0114_env_category"
            inverse="true"
-           on-delete="cascade">
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T0114EnvCategory" not-found="ignore"/>
       </set>
-      <set name="t0114EnvTopics" table="t0114_env_topic" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t0114EnvTopics" order-by="line" table="t0114_env_topic" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T0114EnvTopic" not-found="ignore"/>
       </set>
-      <set name="t011ObjDatas" table="t011_obj_data" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t011ObjDatas" table="t011_obj_data" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjData" not-found="ignore"/>
       </set>
-      <set name="t011ObjDataParas" table="t011_obj_data_para" update="false"
-           insert="false"
+      <set name="t011ObjDataParas" order-by="line" table="t011_obj_data_para"
            inverse="true"
-           on-delete="cascade">
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjDataPara" not-found="ignore"/>
       </set>
-      <set name="t011ObjGeos" table="t011_obj_geo" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t011ObjGeos" table="t011_obj_geo" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjGeo" not-found="ignore"/>
       </set>
-      <set name="t011ObjLiteratures" table="t011_obj_literature" update="false"
-           insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t011ObjLiteratures" table="t011_obj_literature" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjLiterature" not-found="ignore"/>
       </set>
-      <set name="t011ObjProjects" table="t011_obj_project" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t011ObjProjects" table="t011_obj_project" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjProject" not-found="ignore"/>
       </set>
-      <set name="t011ObjServs" table="t011_obj_serv" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t011ObjServs" table="t011_obj_serv" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjServ" not-found="ignore"/>
       </set>
-      <set name="t014InfoImparts" table="t014_info_impart" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+-->
+      <set name="t012ObjAdrs" order-by="line" table="t012_obj_adr" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="T012ObjAdr" not-found="ignore"/>
+         <filter name="t012ObjAdrFilter" condition=":type  =  type"/>
+      </set>
+<!--
+      <set name="t014InfoImparts" order-by="line" table="t014_info_impart" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T014InfoImpart" not-found="ignore"/>
       </set>
-      <set name="t015Legists" table="t015_legist" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t015Legists" order-by="line" table="t015_legist" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T015Legist" not-found="ignore"/>
       </set>
-      <set name="t017UrlRefs" table="t017_url_ref" update="false" insert="false"
-           inverse="true"
-           on-delete="cascade">
+      <set name="t017UrlRefs" order-by="line" table="t017_url_ref" inverse="true"
+           cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T017UrlRef" not-found="ignore"/>
       </set>
-      <set name="t08Attrs" table="t08_attr" update="false" insert="false" inverse="true"
-           on-delete="cascade">
+      <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
+                   insert="false"/>
+      <set name="t08Attrs" table="t08_attr" inverse="true" cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T08Attr" not-found="ignore"/>
       </set>
- -->
+-->
    </class>
 
    <filter-def name="t012ObjAdrFilter">

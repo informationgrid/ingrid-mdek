@@ -5,7 +5,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 public class ObjectReference implements IEntity {
 
 	private Long id;
-	private Integer version;
+	private int version;
 	private Long objFromId;
 	private String objToUuid;
 	private Integer line;
@@ -25,11 +25,11 @@ public class ObjectReference implements IEntity {
 		this.id = id;
 	}
 
-	public Integer getVersion() {
+	public int getVersion() {
 		return version;
 	}
 
-	public void setVersion(Integer version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 
@@ -81,6 +81,7 @@ public class ObjectReference implements IEntity {
 		this.descr = descr;
 	}
 
+
 	public ObjectNode getObjectNode() {
 		return objectNode;
 	}
@@ -88,4 +89,5 @@ public class ObjectReference implements IEntity {
 	public void setObjectNode(ObjectNode objectNode) {
 		this.objectNode = objectNode;
 	}
+
 }

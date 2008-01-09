@@ -2,8 +2,7 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="T012ObjAdr"
-          table="t012_obj_adr">
+   <class name="T012ObjAdr" table="t012_obj_adr">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
@@ -16,7 +15,12 @@
       <property name="specialName" type="string" column="special_name"/>
       <property name="modTime" type="string" column="mod_time"/>
 
-	  <many-to-one name="addressNode" column="adr_uuid" property-ref="addrUuid" update="false" insert="false"/>
+      <many-to-one name="addressNode" class="AddressNode" column="adr_uuid"
+                   property-ref="addrUuid"
+                   update="false"
+                   insert="false"/>
+      <many-to-one name="t01Object" class="T01Object" column="obj_id" update="false"
+                   insert="false"/>
    </class>
 
 </hibernate-mapping>
