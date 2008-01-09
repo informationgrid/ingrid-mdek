@@ -165,10 +165,15 @@ public class MdekIdcJob extends MdekJob {
 
 		daoObjectNode.beginTransaction();
 
-		ObjectNode oN = daoObjectNode.getObjDetails(uuid);
-		if (oN != null) {
+		// first get all "internal" object data (referenced addresses ...)
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode != null) {
 			resultDoc = new IngridDocument();
-			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);			
+			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);			
+		
+			// then get "external" data (objects referencing the given object ...)
+			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
+			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 		}
 
 		daoObjectNode.commitTransaction();
