@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-	<xs:complexType name="mdekRequest_MAP">
+	<xs:complexType name="MDEK_REQUEST_MAP">
 		<xs:all>
 			<xs:element ref="uuid"/>
 			<xs:element name="parent-uuid" type="xs:string"/>
-			<xs:element ref="object_MAP"/>
+			<xs:element ref="OBJECT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
-	<xs:complexType name="mdekResult_MAP">
+	<xs:complexType name="MDEK_RESULT_MAP">
 		<xs:all>
-			<xs:element ref="object_MAP"/>
+			<xs:element ref="OBJECT_MAP"/>
 			<xs:element ref="objEntities"/>
 			<xs:element ref="adrEntities"/>
 		</xs:all>
 	</xs:complexType>
 
-	<xs:complexType name="objEntities">
+	<xs:complexType name="OBJECT_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="object_MAP"/>
+			<xs:element ref="OBJECT_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="objEntities" type="objEntities"/>
-
-	<xs:complexType name="object_MAP">
+	<xs:element name="objEntities" type="OBJECT_LIST"/>
+	<xs:element name="objReferencesFrom" type="OBJECT_LIST"/>
+	<xs:element name="objReferencesTo" type="OBJECT_LIST"/>
+	
+	<xs:complexType name="OBJECT_MAP">
 		<xs:all>
 			<xs:element ref="id"/>
 			<xs:element ref="uuid"/>
@@ -35,11 +37,13 @@
 			<xs:element name="dataset-alternate-name" type="xs:string"/>
 			<xs:element name="title" type="xs:string"/>
 			<xs:element name="abstract" type="xs:string"/>
+
 			<xs:element name="vertical-extent-minimum" type="xs:double"/>
 			<xs:element name="vertical-extent-maximum" type="xs:double"/>
 			<xs:element name="vertical-extent-unit" type="xs:integer"/>
 			<xs:element name="vertical-extent-vdatum" type="xs:integer"/>
 			<xs:element name="description-of-spatial-domain" type="xs:string"/>
+
 			<xs:element name="time-type" type="xs:string"/>
 			<xs:element name="beginning-date" type="xs:string"/>
 			<xs:element name="ending-date" type="xs:string"/>
@@ -48,15 +52,18 @@
 			<xs:element name="time-step" type="xs:string"/>
 			<xs:element name="time-scale" type="xs:string"/>
 			<xs:element name="description-of-temporal-domain" type="xs:string"/>
-			<xs:element ref="adrEntities"/>
-			<xs:element ref="objEntities"/>
+
 			<!-- Object Associations Data -->
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
 			<xs:element name="relation-description" type="xs:string"/>
+			
+			<xs:element ref="objReferencesFrom"/>
+			<xs:element ref="objReferencesTo"/>
+			<xs:element ref="adrReferencesTo"/>
 		</xs:all>
 	</xs:complexType>
-	<xs:element name="object_MAP" type="object_MAP"/>
+	<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 
 	<xs:element name="id" type="xs:long"/>
 	<xs:element name="uuid" type="xs:string"/>
@@ -70,14 +77,15 @@
 	<!-- db: special_ref  -->
 	<xs:element name="relation-type-ref" type="xs:integer"/>
 	
-	<xs:complexType name="adrEntities">
+	<xs:complexType name="ADDRESS_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="address_MAP"/>
+			<xs:element ref="ADDRESS_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="adrEntities" type="adrEntities"/>
+	<xs:element name="adrEntities" type="ADDRESS_LIST"/>
+	<xs:element name="adrReferencesTo" type="ADDRESS_LIST"/>
 	
-	<xs:complexType name="address_MAP">
+	<xs:complexType name="ADDRESS_MAP">
 		<xs:all>
 			<xs:element ref="id"/>
 			<xs:element ref="uuid"/>
@@ -103,21 +111,21 @@
 			<xs:element ref="relation-type-ref"/>
 		</xs:all>
 	</xs:complexType>
-	<xs:element name="address_MAP" type="address_MAP"/>
+	<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 
-	<xs:complexType name="communication">
+	<xs:complexType name="COMMUNICATION_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="communication_MAP"/>
+			<xs:element ref="COMMUNICATION_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="communication" type="communication"/>
-	<xs:complexType name="communication_MAP">
+	<xs:element name="communication" type="COMMUNICATION_LIST"/>
+	<xs:complexType name="COMMUNICATION_MAP">
 		<xs:sequence>
 			<xs:element name="communication-medium" type="xs:string"/>
 			<xs:element name="communication-value"  type="xs:string"/>
 			<xs:element name="communication-description" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="communication_MAP" type="communication_MAP"/>
+	<xs:element name="COMMUNICATION_MAP" type="COMMUNICATION_MAP"/>
 
 </xs:schema>

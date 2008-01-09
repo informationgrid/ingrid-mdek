@@ -7,12 +7,16 @@ package de.ingrid.mdek;
  */
 public class MdekKeys {
 
-    /** List of Object Entities<br>
-     *	Value: List of IngridDocs */
+    /** Value: List of IngridDocs */
     public final static String OBJ_ENTITIES = "objEntities";
-    /** List of Address Entities<br>
-     *	Value: List of IngridDocs */
+    /** Value: List of IngridDocs */
     public final static String ADR_ENTITIES = "adrEntities";
+    /** Value: List of IngridDocs */
+    public final static String OBJ_REFERENCES_FROM = "objReferencesFrom";
+    /** Value: List of IngridDocs */
+    public final static String OBJ_REFERENCES_TO = "objReferencesTo";
+    /** Value: List of IngridDocs */
+    public final static String ADR_REFERENCES_TO = "adrReferencesTo";
 
     // COMMON DATA
     // -----------

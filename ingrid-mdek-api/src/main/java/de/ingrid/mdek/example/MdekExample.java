@@ -293,7 +293,7 @@ class MdekThread extends Thread {
 //		obj.put(MdekKeys.TITLE, obj.get(MdekKeys.TITLE) + "Hallo");
 
 		// remove first address !
-		List<IngridDocument> adrs = (List<IngridDocument>) obj.get(MdekKeys.ADR_ENTITIES);
+		List<IngridDocument> adrs = (List<IngridDocument>) obj.get(MdekKeys.ADR_REFERENCES_TO);
 		IngridDocument aRemoved = null;
 		if (adrs != null && adrs.size() > 0) {
 			aRemoved = adrs.get(0);
@@ -302,7 +302,7 @@ class MdekThread extends Thread {
 		}
 
 		// remove first object Querverweis !
-		List<IngridDocument> objs = (List<IngridDocument>) obj.get(MdekKeys.OBJ_ENTITIES);
+		List<IngridDocument> objs = (List<IngridDocument>) obj.get(MdekKeys.OBJ_REFERENCES_TO);
 		IngridDocument oRemoved = null;
 		if (objs != null && objs.size() > 0) {
 			oRemoved = objs.get(0);
@@ -390,16 +390,23 @@ class MdekThread extends Thread {
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
 		);
 		System.out.println(" " + o);
-		List<IngridDocument> objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_ENTITIES);
+		List<IngridDocument> objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_TO);
 		if (objs != null) {
-			System.out.println("  Objects (Querverweise): " + objs.size() + " Entities");
+			System.out.println("  Objects TO (Querverweise): " + objs.size() + " Entities");
 			for (IngridDocument oTo : objs) {
 				System.out.println("   " + oTo);								
 			}			
 		}
-		List<IngridDocument> adrs = (List<IngridDocument>) o.get(MdekKeys.ADR_ENTITIES);
+		objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM);
+		if (objs != null) {
+			System.out.println("  Objects FROM (Querverweise): " + objs.size() + " Entities");
+			for (IngridDocument oFrom : objs) {
+				System.out.println("   " + oFrom);								
+			}			
+		}
+		List<IngridDocument> adrs = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
 		if (adrs != null) {
-			System.out.println("  Addresses: " + adrs.size() + " Entities");
+			System.out.println("  Addresses TO: " + adrs.size() + " Entities");
 			for (IngridDocument a : adrs) {
 				System.out.println("   " + a);								
 				List<IngridDocument> coms = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
