@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+	<bean class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" id="sessionFactory">
+		<property name="dataSource">
+			<ref bean="dataSource"/>
+		</property>
+		<property name="hibernateProperties">
+			<ref bean="hibernateProperties"/>
+		</property>
+		<property name="exposeTransactionAwareSessionFactory" value="false"></property>
+		<property name="mappingResources">
+			<list>
+				<value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/T01Object.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
+				<value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
+		   	</list>
+		</property>
+	</bean>
+</beans>
