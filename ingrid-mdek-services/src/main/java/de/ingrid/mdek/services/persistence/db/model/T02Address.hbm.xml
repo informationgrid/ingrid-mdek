@@ -46,7 +46,8 @@
       </set>
 -->
       <set name="t021Communications" order-by="line" table="t021_communication"
-           inverse="true">
+           inverse="true"
+           cascade="all-delete-orphan">
          <key column="adr_id"/>
          <one-to-many class="T021Communication" not-found="ignore"/>
       </set>
