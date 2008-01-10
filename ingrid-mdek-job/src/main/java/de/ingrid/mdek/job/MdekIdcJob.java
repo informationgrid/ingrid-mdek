@@ -251,7 +251,7 @@ public class MdekIdcJob extends MdekJob {
 		docToBeanMapper.mapT01Object(oDocIn, o, MappingQuantity.DETAIL_ENTITY);
 		daoT01Object.makePersistent(o);
 
-		// and update ObjectNode with working copy
+		// and update ObjectNode with working copy if not set yet
 		Long oId = o.getId();
 		if (oId != oNode.getObjId()) {
 			oNode.setObjId(oId);
@@ -263,32 +263,77 @@ public class MdekIdcJob extends MdekJob {
 		return getObjDetails(uuid);
 	}
 
-	public IngridDocument deleteObject(IngridDocument params) {
+	/**
+	 * DELETE ONLY WORKING COPY.
+	 * Notice: If no published version exists the object is deleted completely, meaning non existent afterwards
+	 * (including all subobjects !)
+	 */
+	public IngridDocument deleteObjectWorkingCopy(IngridDocument params) {
 		String uuid = (String) params.get(MdekKeys.UUID);
-		IngridDocument result = null;
+		IngridDocument result = new IngridDocument();
 
 		daoT01Object.beginTransaction();
 
-		// TODO: how to delete ? how handle working copy ? mark as deleted ?
-
-		// NOTICE: this one is also Parent Association !
+		// NOTICE: this one also represents Parent Association !
 		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-		T01Object o = oNode.getT01ObjectWork();
 
+		boolean performFullDelete = false;
 		if (oNode != null) {
-			// delete parent association
-			daoObjectNode.makeTransient(oNode);
-			// delete object
-			daoT01Object.makeTransient(o);
+			Long idPublished = oNode.getObjIdPublished();
+			Long idWorkingCopy = oNode.getObjId();
 
-			// TODO: delete whole sub tree of objects !!!
-			
-			// TODO: wie delete success in Result transportieren ? jetzt null / not null
-			result = new IngridDocument();
+			// if we have NO published version -> delete complete node !
+			if (idPublished == null) {
+				performFullDelete = true;
+			} else {
+				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);			
+
+				// perform delete of working copy only if really different version
+				if (!idPublished.equals(idWorkingCopy)) {
+					// remove already fetched working copy from node 
+					T01Object oWorkingCopy = oNode.getT01ObjectWork();
+//					oNode.setObjId(null);
+//					oNode.setT01ObjectWork(null);
+					// and delete it
+					daoT01Object.makeTransient(oWorkingCopy);
+					
+					// and set published one as working copy
+					oNode.setObjId(idPublished);
+					oNode.setT01ObjectWork(oNode.getT01ObjectPublished());
+					daoObjectNode.makePersistent(oNode);
+				}
+			}
 		}
 
 		daoT01Object.commitTransaction();
+		
+		if (performFullDelete) {
+			result = deleteObject(params);
+		}
 
+		return result;
+	}
+
+	/**
+	 * FULL DELETE: working copy and published version are removed INCLUDING subobjects !
+	 * Object is non existent afterwards !
+	 */
+	public IngridDocument deleteObject(IngridDocument params) {
+		String uuid = (String) params.get(MdekKeys.UUID);
+		IngridDocument result = new IngridDocument();
+
+		daoT01Object.beginTransaction();
+
+		// NOTICE: this one also represents Parent Association !
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode != null) {
+			// delete complete Node ! rest is deleted per cascade !
+			daoObjectNode.makeTransient(oNode);
+		}	
+
+		daoT01Object.commitTransaction();
+
+		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);			
 		return result;		
 	}
 
