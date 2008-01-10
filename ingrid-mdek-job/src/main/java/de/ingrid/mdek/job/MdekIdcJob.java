@@ -112,6 +112,9 @@ public class MdekIdcJob extends MdekJob {
 		return result;
 	}
 */
+	// TODO: encapsulate all mdekJob methods in throw/catch performing rollback (releasing session not necessary due to getCurrentSession !?)
+	// TODO: check error in catch and set error in result !
+
 	public IngridDocument getTopObjects() {
 		IngridDocument result = new IngridDocument();
 
@@ -153,6 +156,34 @@ public class MdekIdcJob extends MdekJob {
 		daoObjectNode.commitTransaction();
 
 		result.put(MdekKeys.OBJ_ENTITIES, resultList);
+		return result;
+	}
+
+	public IngridDocument getObjectPath(IngridDocument params) {
+		String uuid = (String) params.get(MdekKeys.UUID);
+
+		daoObjectNode.beginTransaction();
+
+		ArrayList<String> uuidList = new ArrayList<String>();
+		while(uuid != null) {
+			ObjectNode oN = daoObjectNode.loadByUuid(uuid);
+			if (oN == null) {
+				log.error("Object with uuid=" + uuid + " NOT FOUND !");
+				uuidList = null;
+				break;
+			}
+			uuidList.add(0, uuid);
+			uuid = oN.getFkObjUuid();
+		}
+
+		daoObjectNode.commitTransaction();
+
+		IngridDocument result = null;
+		if (uuidList != null && uuidList.size() > 0) {
+			result = new IngridDocument();
+			result.put(MdekKeys.PATH, uuidList);
+		}
+
 		return result;
 	}
 
