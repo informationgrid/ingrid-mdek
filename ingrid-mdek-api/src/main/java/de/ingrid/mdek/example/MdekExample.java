@@ -115,6 +115,11 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 
+		System.out.println("\n----- object path -----");
+		getObjectPath(objUuid);
+
+		// -----------------------------------
+
 		System.out.println("\n----- object details -----");
 		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
@@ -241,6 +246,36 @@ class MdekThread extends Thread {
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
 				System.out.println(o);				
+			}
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+		
+		return result;
+	}
+
+	private IngridDocument getObjectPath(String uuidIn) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getObjectPath ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.getObjectPath(uuidIn);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List<String> uuidList = (List<String>) result.get(MdekKeys.PATH);
+			System.out.println("SUCCESS: " + uuidList.size() + " levels");
+			String indent = " ";
+			for (String uuid : uuidList) {
+				System.out.println(indent + uuid);
+				indent += " ";
 			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			

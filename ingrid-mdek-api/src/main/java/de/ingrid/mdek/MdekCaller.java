@@ -142,6 +142,14 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument getObjectPath(String uuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		List jobMethods = setUpJobMethod("getObjectPath", jobParams);
+
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);		
+	}
+
 	public IngridDocument checkObjectSubTree(String uuid) {
 		// TODO implement checkObjectSubTree
 		return new IngridDocument();		

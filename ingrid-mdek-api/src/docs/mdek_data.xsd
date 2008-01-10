@@ -13,6 +13,7 @@
 			<xs:element ref="OBJECT_MAP"/>
 			<xs:element ref="objEntities"/>
 			<xs:element ref="adrEntities"/>
+			<xs:element ref="path"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -24,6 +25,13 @@
 	<xs:element name="objEntities" type="OBJECT_LIST"/>
 	<xs:element name="objReferencesFrom" type="OBJECT_LIST"/>
 	<xs:element name="objReferencesTo" type="OBJECT_LIST"/>
+
+	<xs:complexType name="UUID_LIST">
+		<xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="STRING"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="path" type="UUID_LIST"/>
 	
 	<xs:complexType name="OBJECT_MAP">
 		<xs:all>

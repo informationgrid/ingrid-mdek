@@ -17,6 +17,8 @@ public class MdekKeys {
     public final static String OBJ_REFERENCES_TO = "objReferencesTo";
     /** Value: List of IngridDocs */
     public final static String ADR_REFERENCES_TO = "adrReferencesTo";
+    /** Value: List of Strings (uuids) */
+    public final static String PATH = "path";
 
     // COMMON DATA
     // -----------

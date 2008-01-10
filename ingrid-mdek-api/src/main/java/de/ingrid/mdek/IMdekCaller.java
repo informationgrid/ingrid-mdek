@@ -53,6 +53,13 @@ public interface IMdekCaller {
 	IngridDocument fetchSubObjects(String uuid);
 
 	/**
+	 * Get Path of object in tree starting at root
+	 * @param uuid object uuid
+	 * @return map containing path (List of uuids starting at root)
+	 */
+	IngridDocument getObjectPath(String uuid);
+
+	/**
 	 * Check whether operations with the subtree of the given object (uuid)
 	 * are permitted or prohibited (e.g. no rights, subtree in process ...)
 	 * @param uuid object uuid of top node
