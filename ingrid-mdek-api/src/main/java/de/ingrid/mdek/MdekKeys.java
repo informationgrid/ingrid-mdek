@@ -20,6 +20,12 @@ public class MdekKeys {
     /** Value: List of Strings (uuids) */
     public final static String PATH = "path";
 
+    // ADDITIONAL INFO IN RESULT
+    // -------------------------
+    /** indicates whether a deleted entity was fully deleted (e.g. delete working copy without published version) 
+     *  Value: Boolean */
+    public final static String RESULTINFO_WAS_FULLY_DELETED = "resultinfo_wasFullyDeleted";
+
     // COMMON DATA
     // -----------
 

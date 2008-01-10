@@ -14,9 +14,17 @@
 			<xs:element ref="objEntities"/>
 			<xs:element ref="adrEntities"/>
 			<xs:element ref="path"/>
+			<xs:element ref="RESULT_ADDITIONAL_INFO_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
+	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">
+		<xs:all>
+			<xs:element name="resultinfo_wasFullyDeleted" type="xs:boolean"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="RESULT_ADDITIONAL_INFO_MAP" type="RESULT_ADDITIONAL_INFO_MAP"/>
+	
 	<xs:complexType name="OBJECT_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element ref="OBJECT_MAP"/>

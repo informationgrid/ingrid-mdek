@@ -33,7 +33,17 @@ public interface IMdekCaller {
 	IngridDocument storeObject(IngridDocument obj);
 
 	/**
-	 * Delete an object.
+	 * DELETE ONLY WORKING COPY.
+	 * Notice: If no published version exists the object is deleted completely, meaning non existent afterwards
+	 * (including all subobjects !)
+	 * @param uuid object uuid
+	 * @return map containing info whether object was fully deleted
+	 */
+	IngridDocument deleteObjectWorkingCopy(String uuid);
+
+	/**
+	 * FULL DELETE: working copy and published version are removed INCLUDING subobjects !
+	 * Object non existent afterwards !
 	 * @param uuid object uuid
 	 * @return map containing info about success
 	 */

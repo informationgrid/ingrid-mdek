@@ -146,17 +146,33 @@ class MdekThread extends Thread {
 		// -----------------------------------
 
 		// delete new Object
-		System.out.println("\n----- delete new object -----");
-		deleteObject(newUuid);
-		System.out.println("\n----- verify deletion of object -----");
+		System.out.println("\n----- delete new object (WORKING COPY) -----");
+		deleteObjectWorkingCopy(newUuid);
+		System.out.println("\n----- verify deletion of new object -----");
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n----- verify deletion of parent association -> load parent -----");
+		System.out.println("\n----- verify \"deletion of parent association\" -> load parent -----");
 		fetchSubObjects(objUuid);
 
-/*
-		System.out.println("\n----- DELETE PARENT !!! -----");
-		deleteObject(objUuid);
-*/
+		// -----------------------------------
+		
+		String objectToDelete = "D3200435-53B7-11D3-A172-08002B9A1D1D";
+//		String objectToDelete = objUuid;
+
+		System.out.println("\n----- fetch object for deletion -----");
+		fetchObject(objectToDelete, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- delete object (WORKING COPY) -----");
+		deleteObjectWorkingCopy(objectToDelete);
+
+		System.out.println("\n----- fetch object (now PUBLISHED VERSION) -----");
+		fetchObject(objectToDelete, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- delete object (FULL) -----");
+		deleteObject(objectToDelete);
+
+		System.out.println("\n----- fetch object (non existent) -----");
+		fetchObject(objectToDelete, Quantity.DETAIL_ENTITY);
+
 		// -----------------------------------
 
 /*
@@ -389,6 +405,32 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
+		return result;
+	}
+
+	private IngridDocument deleteObjectWorkingCopy(String uuid) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE deleteObjectWorkingCopy ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.deleteObjectWorkingCopy(uuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+		
 		return result;
 	}
 

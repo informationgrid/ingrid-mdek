@@ -120,6 +120,14 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument deleteObjectWorkingCopy(String uuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		List jobMethods = setUpJobMethod("deleteObjectWorkingCopy", jobParams);
+
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument deleteObject(String uuid) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
