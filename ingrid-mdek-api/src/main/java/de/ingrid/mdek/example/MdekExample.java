@@ -125,23 +125,27 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 
-		System.out.println("\n----- change and store existing object -----");
+		System.out.println("\n----- change and store existing object -> working copy ! -----");
 		storeObject(oMap);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		deleteObjectWorkingCopy(objUuid);
 		
 		System.out.println("\n----- and reload -----");
-		fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 
-		// store NEW object and get Uuid
-		System.out.println("\n----- store new object -----");
+		// store NEW object with address and obj reference and get Uuid
+		System.out.println("\n----- store new object (with address and object references) -----");
+
 		IngridDocument objDoc = new IngridDocument();
 		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		objDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
+		objDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
 		// supply parent uuid !
 		objDoc.put(MdekKeys.PARENT_UUID, objUuid);
+
 		oMap = storeObject(objDoc);
 		// uuid created !
 		String newUuid = (String) oMap.get(MdekKeys.UUID);
@@ -334,9 +338,9 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument storeObject(IngridDocument obj) {
+	private IngridDocument storeObject(IngridDocument oDocIn) {
 		// check whether we have an object
-		if (obj == null) {
+		if (oDocIn == null) {
 			return null;
 		}
 
@@ -351,10 +355,10 @@ class MdekThread extends Thread {
 		
 		// manipulate former loaded object !
 
-		obj.put(MdekKeys.TITLE, "BEARBEITET: " + obj.get(MdekKeys.TITLE));
+		oDocIn.put(MdekKeys.TITLE, "BEARBEITET: " + oDocIn.get(MdekKeys.TITLE));
 
 		// remove first address !
-		List<IngridDocument> adrs = (List<IngridDocument>) obj.get(MdekKeys.ADR_REFERENCES_TO);
+		List<IngridDocument> adrs = (List<IngridDocument>) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
 		IngridDocument aRemoved = null;
 		if (adrs != null && adrs.size() > 0) {
 			aRemoved = adrs.get(0);
@@ -363,7 +367,7 @@ class MdekThread extends Thread {
 		}
 
 		// remove first object Querverweis !
-		List<IngridDocument> objs = (List<IngridDocument>) obj.get(MdekKeys.OBJ_REFERENCES_TO);
+		List<IngridDocument> objs = (List<IngridDocument>) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
 		IngridDocument oRemoved = null;
 		if (objs != null && objs.size() > 0) {
 			oRemoved = objs.get(0);
@@ -375,7 +379,7 @@ class MdekThread extends Thread {
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		System.out.println("storeObject WITHOUT refetching object: ");
-		response = mdekCaller.storeObject(obj, false);
+		response = mdekCaller.storeObject(oDocIn, false);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -386,7 +390,7 @@ class MdekThread extends Thread {
 			String uuidStoredObject = (String) result.get(MdekKeys.UUID);
 			System.out.println("uuid = " + uuidStoredObject);
 			System.out.println("refetch Object");
-			IngridDocument oMap = fetchObject(uuidStoredObject, Quantity.DETAIL_ENTITY);
+			IngridDocument oRefetchedDoc = fetchObject(uuidStoredObject, Quantity.DETAIL_ENTITY);
 			System.out.println("");
 			
 			if (aRemoved != null) {
@@ -403,7 +407,7 @@ class MdekThread extends Thread {
 				System.out.println("STORE");
 				startTime = System.currentTimeMillis();
 				System.out.println("storeObject WITH refetching object: ");
-				response = mdekCaller.storeObject(obj, true);
+				response = mdekCaller.storeObject(oRefetchedDoc, true);
 				endTime = System.currentTimeMillis();
 				neededTime = endTime - startTime;
 				System.out.println("EXECUTION TIME: " + neededTime + " ms");
