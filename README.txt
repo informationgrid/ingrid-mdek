@@ -20,6 +20,8 @@ Konfigurieren:
 2. MdekClient konfigurieren:
 	- Kommunikationsparameter konfigurieren:
 		- in ingrid-mdek-api/src/main/resources/communication.properties
+	- wenn zusaetzliche Debugging Ausgabe gewollt wird:
+		- in ingrid-mdek-api/pom.xml die log4j.properties als resource hinzunehmen (dekommentieren) -> werden beim build nach classes kopiert
 
 
 Build
