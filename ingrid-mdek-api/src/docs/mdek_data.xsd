@@ -86,7 +86,21 @@
 			<xs:element name="ordering-instructions" type="xs:string"/>
 			<xs:element name="use-constraints" type="xs:string"/>
 			<xs:element name="fees" type="xs:string"/>
-			
+
+			<xs:element name="original-control-identifier" type="xs:string"/>
+			<xs:element name="no-of-parents" type="xs:integer"/>
+			<xs:element name="catalogue-identifier" type="xs:long"/>
+			<xs:element name="dataset-character-set" type="xs:integer"/>
+			<xs:element name="metadata-character-set" type="xs:integer"/>
+			<xs:element name="metadata-standard-name" type="xs:string"/>
+			<xs:element name="metadata-standard-version" type="xs:string"/>
+			<xs:element name="lastexport-time" type="xs:string"/>
+			<xs:element name="expiry-time" type="xs:string"/>
+			<xs:element name="work-version" type="xs:integer"/>
+			<xs:element name="mark-deleted" type="xs:string"/>
+			<xs:element name="mod-uuid" type="xs:string"/>
+			<xs:element name="responsible-uuid" type="xs:string"/>
+
 			<!-- Object Associations Data -->
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
@@ -143,6 +157,8 @@
 			<xs:element name="relation-type-id" type="xs:integer"/>
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
+			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
+			
 		</xs:all>
 	</xs:complexType>
 	<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>

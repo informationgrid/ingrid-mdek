@@ -119,7 +119,34 @@ public class MdekKeys {
     /** Value: String */
     public final static String FEES = "fees";
 
-    
+    /** Value: String */
+    public final static String ORIGINAL_CONTROL_IDENTIFIER = "original-control-identifier";
+    /** Value: Integer */
+    public final static String NO_OF_PARENTS = "no-of-parents";
+    /** Value: Long */
+    public final static String CATALOGUE_IDENTIFIER = "catalogue-identifier";
+    /** Value: Integer */
+    public final static String DATASET_CHARACTER_SET = "dataset-character-set";
+    /** Value: Integer */
+    public final static String METADATA_CHARACTER_SET = "metadata-character-set";
+    /** Value: String */
+    public final static String METADATA_STANDARD_NAME = "metadata-standard-name";
+    /** Value: String */
+    public final static String METADATA_STANDARD_VERSION = "metadata-standard-version";
+    /** Value: String */
+    public final static String LASTEXPORT_TIME = "lastexport-time";
+    /** Value: String */
+    public final static String EXPIRY_TIME = "expiry-time";
+    /** Value: Integer */
+    public final static String WORK_VERSION = "work-version";
+    /** Value: String */
+    public final static String MARK_DELETED = "mark-deleted";
+    /** Value: String */
+    public final static String MOD_UUID = "mod-uuid";
+    /** Value: String */
+    public final static String RESPONSIBLE_UUID = "responsible-uuid";
+
+
     // ADDRESS DATA
     // ------------
 
@@ -156,6 +183,9 @@ public class MdekKeys {
     public final static String COMMUNICATION_VALUE = "communication-value";
     /** Value: String */
     public final static String COMMUNICATION_DESCRIPTION = "communication-description";
+
+    /** Value: String */
+    public final static String RELATION_DATE_OF_LAST_MODIFICATION = "relation-date-of-last-modification";
 
 
 }

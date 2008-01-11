@@ -125,9 +125,16 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 
-		// change and store existing object
-		System.out.println("\n----- change and store object -----");
+		System.out.println("\n----- change and store existing object -----");
 		storeObject(oMap);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		deleteObjectWorkingCopy(objUuid);
+		
+		System.out.println("\n----- and reload -----");
+		fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+
+		// -----------------------------------
 
 		// store NEW object and get Uuid
 		System.out.println("\n----- store new object -----");
@@ -154,7 +161,7 @@ class MdekThread extends Thread {
 		fetchSubObjects(objUuid);
 
 		// -----------------------------------
-
+/*
 		System.out.println("\n\n----- DELETE TEST (DELETES WHOLE SUBTREE) -----");
 		
 		String objectToDelete = "D3200435-53B7-11D3-A172-08002B9A1D1D";
@@ -174,7 +181,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n----- fetch object (non existent) -----");
 		fetchObject(objectToDelete, Quantity.DETAIL_ENTITY);
-
+*/
 		// -----------------------------------
 
 /*
@@ -342,8 +349,9 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE storeObject ######");
 		
-		// first manipulat former loaded object !
-//		obj.put(MdekKeys.TITLE, obj.get(MdekKeys.TITLE) + "Hallo");
+		// manipulate former loaded object !
+
+		obj.put(MdekKeys.TITLE, "BEARBEITET: " + obj.get(MdekKeys.TITLE));
 
 		// remove first address !
 		List<IngridDocument> adrs = (List<IngridDocument>) obj.get(MdekKeys.ADR_REFERENCES_TO);
