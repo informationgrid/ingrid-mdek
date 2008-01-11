@@ -20,7 +20,7 @@ public interface IMdekCaller {
 	 * Fetch single object with given uuid.
 	 * @param uuid object uuid
 	 * @param howMuch how much data to fetch from object
-	 * @return map representation of object containing requested data
+	 * @return response containing result: map representation of object containing requested data
 	 */
 	IngridDocument fetchObject(String uuid, Quantity howMuch);
 
@@ -28,16 +28,18 @@ public interface IMdekCaller {
 	 * Create or Store object.
 	 * @param obj map representation of object. 
 	 * 		If no id/uuid is set object will be created else updated.
-	 * @return map representation of created/updated object
+	 * @param refetchAfterStore true=fetch and return Object after store, false=no fetch, just store
+	 * @return response containing result: map representation of created/updated object when refetching,
+	 * 		otherwise map containing uuid of stored object (was generated when new object)  
 	 */
-	IngridDocument storeObject(IngridDocument obj);
+	IngridDocument storeObject(IngridDocument obj, boolean refetchAfterStore);
 
 	/**
 	 * DELETE ONLY WORKING COPY.
 	 * Notice: If no published version exists the object is deleted completely, meaning non existent afterwards
 	 * (including all subobjects !)
 	 * @param uuid object uuid
-	 * @return map containing info whether object was fully deleted
+	 * @return response containing result: map containing info whether object was fully deleted
 	 */
 	IngridDocument deleteObjectWorkingCopy(String uuid);
 
@@ -45,27 +47,27 @@ public interface IMdekCaller {
 	 * FULL DELETE: working copy and published version are removed INCLUDING subobjects !
 	 * Object non existent afterwards !
 	 * @param uuid object uuid
-	 * @return map containing info about success
+	 * @return response containing result: map containing info about success
 	 */
 	IngridDocument deleteObject(String uuid);
 
 	/**
 	 * Fetch all top objects of tree.
-	 * @return map containing representations of all root objects
+	 * @return response containing result: map containing representations of all root objects
 	 */
 	IngridDocument fetchTopObjects();
 
 	/**
 	 * Fetch all sub objects of of object with given uuid
 	 * @param uuid object uuid
-	 * @return map containing representations of all sub objects
+	 * @return response containing result: map containing representations of all sub objects
 	 */
 	IngridDocument fetchSubObjects(String uuid);
 
 	/**
 	 * Get Path of object in tree starting at root
 	 * @param uuid object uuid
-	 * @return map containing path (List of uuids starting at root)
+	 * @return response containing result: map containing path (List of uuids starting at root)
 	 */
 	IngridDocument getObjectPath(String uuid);
 
@@ -73,7 +75,7 @@ public interface IMdekCaller {
 	 * Check whether operations with the subtree of the given object (uuid)
 	 * are permitted or prohibited (e.g. no rights, subtree in process ...)
 	 * @param uuid object uuid of top node
-	 * @return map containing info about examination
+	 * @return response containing result: map containing info about examination
 	 */
 	IngridDocument checkObjectSubTree(String uuid);
 
@@ -84,7 +86,7 @@ public interface IMdekCaller {
 	 * @param toUuid uuid of object where to add copied tree
 	 * @param performCheck true=perform check whether sourcetree can be operated on, 
 	 * 		false=do not perform check
-	 * @return map containing basic data of top object of new tree
+	 * @return response containing result: map containing basic data of top object of new tree
 	 */
 	IngridDocument copyObjectSubTree(String fromUuid, String toUuid, boolean performCheck);
 
@@ -94,7 +96,7 @@ public interface IMdekCaller {
 	 * @param toUuid uuid of object where to move tree to
 	 * @param performCheck true=perform check whether sourcetree can be operated on, 
 	 * 		false=do not perform check
-	 * @return map containing info about success
+	 * @return response containing result: map containing info about success
 	 */
 	IngridDocument cutObjectSubTree(String fromUuid, String toUuid, boolean performCheck);
 

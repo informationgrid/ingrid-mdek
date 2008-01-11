@@ -20,6 +20,12 @@ public class MdekKeys {
     /** Value: List of Strings (uuids) */
     public final static String PATH = "path";
 
+    // ADDITIONAL INFO IN REQUEST
+    // -------------------------
+    /** refetch an entity after an operation was performed ? 
+     *  Value: Boolean */
+    public final static String REQUESTINFO_REFETCH_ENTITY = "requestinfo_refetchEntity";
+
     // ADDITIONAL INFO IN RESULT
     // -------------------------
     /** indicates whether a deleted entity was fully deleted (e.g. delete working copy without published version) 

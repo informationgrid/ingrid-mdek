@@ -5,6 +5,7 @@
 			<xs:element ref="uuid"/>
 			<xs:element name="parent-uuid" type="xs:string"/>
 			<xs:element ref="OBJECT_MAP"/>
+			<xs:element ref="REQUEST_ADDITIONAL_INFO_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -18,6 +19,13 @@
 		</xs:all>
 	</xs:complexType>
 
+	<xs:complexType name="REQUEST_ADDITIONAL_INFO_MAP">
+		<xs:all>
+			<xs:element name="requestinfo_refetchEntity" type="xs:boolean"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
+	
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">
 		<xs:all>
 			<xs:element name="resultinfo_wasFullyDeleted" type="xs:boolean"/>

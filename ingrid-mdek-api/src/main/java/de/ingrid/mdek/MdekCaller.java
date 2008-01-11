@@ -115,8 +115,9 @@ public class MdekCaller implements IMdekCaller {
 		return new IngridDocument();
 	}
 
-	public IngridDocument storeObject(IngridDocument obj) {
-		List jobMethods = setUpJobMethod("storeObject", obj);
+	public IngridDocument storeObject(IngridDocument objDoc, boolean refetchAfterStore) {
+		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		List jobMethods = setUpJobMethod("storeObject", objDoc);
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 

@@ -140,7 +140,7 @@ class MdekThread extends Thread {
 		String newUuid = (String) oMap.get(MdekKeys.UUID);
 
 		// verify new Subobject
-		System.out.println("\n----- verify new subobject -----");
+		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
 		fetchSubObjects(objUuid);
 
 		// -----------------------------------
@@ -150,10 +150,11 @@ class MdekThread extends Thread {
 		deleteObjectWorkingCopy(newUuid);
 		System.out.println("\n----- verify deletion of new object -----");
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n----- verify \"deletion of parent association\" -> load parent -----");
+		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
 		fetchSubObjects(objUuid);
 
 		// -----------------------------------
+
 		System.out.println("\n\n----- DELETE TEST (DELETES WHOLE SUBTREE) -----");
 		
 		String objectToDelete = "D3200435-53B7-11D3-A172-08002B9A1D1D";
@@ -365,7 +366,8 @@ class MdekThread extends Thread {
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.storeObject(obj);
+		System.out.println("storeObject WITHOUT refetching object: ");
+		response = mdekCaller.storeObject(obj, false);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -373,7 +375,11 @@ class MdekThread extends Thread {
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			debugObjectDoc(result);
+			String uuidStoredObject = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuidStoredObject);
+			System.out.println("refetch Object");
+			IngridDocument oMap = fetchObject(uuidStoredObject, Quantity.DETAIL_ENTITY);
+			System.out.println("");
 			
 			if (aRemoved != null) {
 				// and add address again
@@ -388,7 +394,8 @@ class MdekThread extends Thread {
 			if (aRemoved != null || oRemoved != null) {
 				System.out.println("STORE");
 				startTime = System.currentTimeMillis();
-				response = mdekCaller.storeObject(obj);
+				System.out.println("storeObject WITH refetching object: ");
+				response = mdekCaller.storeObject(obj, true);
 				endTime = System.currentTimeMillis();
 				neededTime = endTime - startTime;
 				System.out.println("EXECUTION TIME: " + neededTime + " ms");
