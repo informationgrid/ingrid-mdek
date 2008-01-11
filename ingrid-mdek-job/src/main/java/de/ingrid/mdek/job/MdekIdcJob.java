@@ -214,6 +214,7 @@ public class MdekIdcJob extends MdekJob {
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
+		Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
 		// set common data in document
@@ -260,7 +261,13 @@ public class MdekIdcJob extends MdekJob {
 		
 		daoT01Object.commitTransaction();
 		
-		return getObjDetails(uuid);
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.UUID, uuid);
+		if (refetchAfterStore) {
+			result = getObjDetails(uuid);
+		}
+		
+		return result;
 	}
 
 	/**
