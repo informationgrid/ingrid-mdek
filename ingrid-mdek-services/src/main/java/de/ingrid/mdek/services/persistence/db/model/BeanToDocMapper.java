@@ -127,9 +127,14 @@ public class BeanToDocMapper implements IMapper {
 			for (T012ObjAdr oA : oAs) {
 				IngridDocument aDoc = new IngridDocument();
 				mapT012ObjAdr(oA, aDoc, MappingQuantity.TABLE_ENTITY);
-				T02Address a = oA.getAddressNode().getT02AddressWork();
-				mapT02Address(a, aDoc, MappingQuantity.TABLE_ENTITY);
-				adrsList.add(aDoc);
+				AddressNode aNode = oA.getAddressNode();
+				if (aNode != null) {
+					T02Address a = aNode.getT02AddressWork();
+					mapT02Address(a, aDoc, MappingQuantity.TABLE_ENTITY);
+					adrsList.add(aDoc);					
+				} else {
+					LOG.warn("Address " + oA.getAdrUuid() + " has no AddressNode !!! We skip this address reference.");
+				}
 			}
 			objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
 
@@ -139,9 +144,14 @@ public class BeanToDocMapper implements IMapper {
 			for (ObjectReference oRef : oRefs) {
 				IngridDocument oToDoc = new IngridDocument();
 				mapObjectReference(oRef, oToDoc, MappingQuantity.TABLE_ENTITY);
-				T01Object oTo = oRef.getObjectNode().getT01ObjectWork();
-				mapT01Object(oTo, oToDoc, MappingQuantity.TABLE_ENTITY);
-				objsList.add(oToDoc);
+				ObjectNode oNode = oRef.getObjectNode();
+				if (oNode != null) {
+					T01Object oTo = oNode.getT01ObjectWork();
+					mapT01Object(oTo, oToDoc, MappingQuantity.TABLE_ENTITY);
+					objsList.add(oToDoc);					
+				} else {
+					LOG.warn("Object " + oRef.getObjToUuid() + " has no ObjectNode !!! We skip this object reference.");
+				}
 			}
 			objectDoc.put(MdekKeys.OBJ_REFERENCES_TO, objsList);
 		}
