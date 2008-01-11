@@ -1,4 +1,35 @@
 
+Konfigurieren:
+--------------
+
+1. MdekServer konfigurieren:
+	- Kommunikationsparameter konfigurieren:
+		- in ingrid-mdek-job/src/main/resources/communication.properties
+	- Jobverzeichnis konfigurieren:
+		- in ingrid-mdek-job/src/main/resources/default-job.properties
+	- MdekJob "einspielen":
+		- ingrid-mdek-job/src/main/resources/persistentJobs/de.ingrid.mdek.job.MdekIdcJob.xml nach Jobverzeichnis kopieren
+	- Datenbank konfigurieren:
+		- in ingrid-mdek-services/resources/default-datasource.properties
+	- Services Laufzeitverzeichnisse konfigurieren:
+		- in ingrid-mdek-services/resources/core-services.properties
+	- Hibernate sql Ausgabe einschalten:
+		- in ingrid-mdek-services/resources/datasource-services.xml
+				"<prop key="hibernate.show_sql">true</prop>"
+
+2. MdekClient konfigurieren:
+	- Kommunikationsparameter konfigurieren:
+		- in ingrid-mdek-api/src/main/resources/communication.properties
+
+
+Build
+-----
+
+- cd C:\...\ingrid-mdek\trunk
+	mvn clean
+	mvn install -Dmaven.test.skip=true
+
+
 "Test Suite"
 -----------
 
