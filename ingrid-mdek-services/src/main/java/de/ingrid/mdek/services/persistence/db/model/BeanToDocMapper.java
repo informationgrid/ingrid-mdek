@@ -31,11 +31,10 @@ public class BeanToDocMapper implements IMapper {
 	private BeanToDocMapper() {}
 
 	/**
-	 * Transfer structural info (parent/child) of passed bean to passed doc.
+	 * Transfer structural info ("hasChild") to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapObjectNode(ObjectNode oNIn, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
+	public IngridDocument mapObjectNode(ObjectNode oNIn, IngridDocument objectDoc) {
 		if (oNIn == null) {
 			return null;
 		}
@@ -45,30 +44,6 @@ public class BeanToDocMapper implements IMapper {
         	hasChild = true;
 		}
 		objectDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
-
-		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
-
-		return objectDoc;
-	}
-
-	/**
-	 * Transfer object relation data of passed bean to passed doc.
-	 * @return doc containing additional data.
-	 */
-	public IngridDocument mapObjectReference(ObjectReference oR, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
-		if (oR == null) {
-			return null;
-		}
-
-		objectDoc.put(MdekKeys.RELATION_DESCRIPTION, oR.getDescr());
-		objectDoc.put(MdekKeys.RELATION_TYPE_NAME, oR.getSpecialName());
-
-		if (howMuch == MappingQuantity.FULL_ENTITY) {
-			objectDoc.put(MdekKeys.RELATION_TYPE_REF, oR.getSpecialRef());
-			
-			// TODO: Extent MappingQuantity.FULL_ENTITY for copy
-		}
 
 		return objectDoc;
 	}
@@ -90,7 +65,9 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.TITLE, o.getObjName());
 		objectDoc.put(MdekKeys.WORK_STATE, o.getWorkState());
 		
-		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY) 
+		{
 			objectDoc.put(MdekKeys.DATASET_ALTERNATE_NAME, o.getDatasetAlternateName());
 			objectDoc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			objectDoc.put(MdekKeys.DATE_OF_CREATION, o.getCreateTime());
@@ -121,16 +98,16 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.USE_CONSTRAINTS, o.getAvailAccessNote());
 			objectDoc.put(MdekKeys.FEES, o.getFees());
 
-			// get related addresses
+			// map related addresses
 			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
 			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
 			for (T012ObjAdr oA : oAs) {
 				IngridDocument aDoc = new IngridDocument();
-				mapT012ObjAdr(oA, aDoc, MappingQuantity.TABLE_ENTITY);
+				mapT012ObjAdr(oA, aDoc, howMuch);
 				AddressNode aNode = oA.getAddressNode();
 				if (aNode != null) {
 					T02Address a = aNode.getT02AddressWork();
-					mapT02Address(a, aDoc, MappingQuantity.TABLE_ENTITY);
+					mapT02Address(a, aDoc, howMuch);
 					adrsList.add(aDoc);					
 				} else {
 					LOG.warn("Address " + oA.getAdrUuid() + " has no AddressNode !!! We skip this address reference.");
@@ -138,16 +115,16 @@ public class BeanToDocMapper implements IMapper {
 			}
 			objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
 
-			// get related objects (Querverweise)
+			// map related objects (Querverweise)
 			Set<ObjectReference> oRefs = o.getObjectReferences();
 			ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRefs.size());
 			for (ObjectReference oRef : oRefs) {
 				IngridDocument oToDoc = new IngridDocument();
-				mapObjectReference(oRef, oToDoc, MappingQuantity.TABLE_ENTITY);
+				mapObjectReference(oRef, oToDoc, howMuch);
 				ObjectNode oNode = oRef.getObjectNode();
 				if (oNode != null) {
 					T01Object oTo = oNode.getT01ObjectWork();
-					mapT01Object(oTo, oToDoc, MappingQuantity.TABLE_ENTITY);
+					mapT01Object(oTo, oToDoc, howMuch);
 					objsList.add(oToDoc);					
 				} else {
 					LOG.warn("Object " + oRef.getObjToUuid() + " has no ObjectNode !!! We skip this object reference.");
@@ -156,13 +133,53 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.OBJ_REFERENCES_TO, objsList);
 		}
 
-		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			objectDoc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, o.getOrgObjId());
+			objectDoc.put(MdekKeys.NO_OF_PARENTS, o.getRoot());
+			objectDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, o.getCatId());
+			objectDoc.put(MdekKeys.DATASET_CHARACTER_SET, o.getDatasetCharacterSet());
+			objectDoc.put(MdekKeys.METADATA_CHARACTER_SET, o.getMetadataCharacterSet());
+			objectDoc.put(MdekKeys.METADATA_STANDARD_NAME, o.getMetadataStandardName());
+			objectDoc.put(MdekKeys.METADATA_STANDARD_VERSION, o.getMetadataStandardVersion());
+			objectDoc.put(MdekKeys.LASTEXPORT_TIME, o.getLastexportTime());
+			objectDoc.put(MdekKeys.EXPIRY_TIME, o.getExpiryTime());
+			objectDoc.put(MdekKeys.WORK_VERSION, o.getWorkVersion());
+			objectDoc.put(MdekKeys.MARK_DELETED, o.getMarkDeleted());
+			objectDoc.put(MdekKeys.MOD_UUID, o.getModUuid());
+			objectDoc.put(MdekKeys.RESPONSIBLE_UUID, o.getResponsibleUuid());
+		}
 
 		return objectDoc;
 	}
 
 	/**
-	 * Transfer objectReferencesFrom data from passed beans to passed doc.
+	 * Transfer object relation data of passed bean to passed doc.
+	 * @return doc containing additional data.
+	 */
+	public IngridDocument mapObjectReference(ObjectReference oR, IngridDocument objectDoc,
+			MappingQuantity howMuch) {
+		if (oR == null) {
+			return null;
+		}
+
+		objectDoc.put(MdekKeys.RELATION_TYPE_NAME, oR.getSpecialName());
+		objectDoc.put(MdekKeys.RELATION_DESCRIPTION, oR.getDescr());
+
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			// uuid should be already set in objectDoc
+//			objectDoc.put(MdekKeys.UUID, oR.getObjToUuid());
+			objectDoc.put(MdekKeys.RELATION_TYPE_REF, oR.getSpecialRef());
+		}
+
+		return objectDoc;
+	}
+
+	/**
+	 * Transfer From-objectReferences (passed beans) to passed doc.
+	 * @param oNodesFrom from object references
+	 * @param uuidObjectTo uuid of to object
+	 * @param objectDoc doc where data is added
+	 * @param howMuch how much data should be added
 	 * @return doc containing additional data.
 	 */
 	public IngridDocument mapObjectReferencesFrom(List<ObjectNode> oNodesFrom,
@@ -206,10 +223,11 @@ public class BeanToDocMapper implements IMapper {
 		adressDoc.put(MdekKeys.RELATION_TYPE_ID, oA.getType());
 		adressDoc.put(MdekKeys.RELATION_TYPE_NAME, oA.getSpecialName());
 
-		if (howMuch == MappingQuantity.FULL_ENTITY) {
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			// uuid should be already set in objectDoc
+//			adressDoc.put(MdekKeys.UUID, oA.getAdrUuid());
 			adressDoc.put(MdekKeys.RELATION_TYPE_REF, oA.getSpecialRef());
-
-			// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+			adressDoc.put(MdekKeys.RELATION_DATE_OF_LAST_MODIFICATION, oA.getModTime());
 		}
 
 		return adressDoc;
@@ -234,7 +252,8 @@ public class BeanToDocMapper implements IMapper {
 		adressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
 
 		if (howMuch == MappingQuantity.TABLE_ENTITY ||
-			howMuch == MappingQuantity.DETAIL_ENTITY)
+			howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			adressDoc.put(MdekKeys.STREET, a.getStreet());
 			adressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
@@ -247,18 +266,22 @@ public class BeanToDocMapper implements IMapper {
 			ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(comms.size());
 			for (T021Communication c : comms) {
 				IngridDocument commDoc = new IngridDocument();
-				docList.add(mapT021Communication(c, commDoc, MappingQuantity.TABLE_ENTITY));
+				docList.add(mapT021Communication(c, commDoc, howMuch));
 			}
 			adressDoc.put(MdekKeys.COMMUNICATION, docList);				
 		}
 
-		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY)
+		{
 			adressDoc.put(MdekKeys.FUNCTION, a.getJob());			
 			adressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
 			adressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
 		}
 
-		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			// TODO: Extent MappingQuantity.FULL_ENTITY for copy			
+		}
 
 		return adressDoc;
 	}
@@ -277,11 +300,15 @@ public class BeanToDocMapper implements IMapper {
 		commDoc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommType());
 		commDoc.put(MdekKeys.COMMUNICATION_VALUE, c.getCommValue());
 
-		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY)
+		{
 			commDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, c.getDescr());
 		}
 
-		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			// TODO: Extent MappingQuantity.FULL_ENTITY for copy			
+		}
 
 		return commDoc;
 	}

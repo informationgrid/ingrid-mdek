@@ -13,6 +13,6 @@ public interface IMapper {
 		BASIC_ENTITY, // client: minimum data of bean needed
 		TABLE_ENTITY, // client: bean displayed in table
 		DETAIL_ENTITY, // client: bean edit/save
-		FULL_ENTITY // complete data e.g. to copy entity via map
+		COPY_ENTITY // complete data -> copy entity via mapping
 	}
 }

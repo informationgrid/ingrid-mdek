@@ -1,12 +1,14 @@
 package de.ingrid.mdek.services.persistence.db.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.utils.IngridDocument;
 
@@ -36,7 +38,7 @@ public class DocToBeanMapper implements IMapper {
 	/**
 	 * Transfer data of passed doc to passed bean according to mapping type.
 	 */
-	public ObjectNode mapObjectNode(IngridDocument oDocIn, ObjectNode oNodeIn, MappingQuantity type) {
+	public ObjectNode mapObjectNode(IngridDocument oDocIn, ObjectNode oNodeIn) {
 		oNodeIn.setObjUuid((String) oDocIn.get(MdekKeys.UUID));
 		String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
 		if (parentUuid != null) {
@@ -49,7 +51,8 @@ public class DocToBeanMapper implements IMapper {
 	/**
 	 * Transfer data of passed doc to passed bean according to mapping type.
 	 */
-	public T01Object mapT01Object(IngridDocument oDocIn, T01Object oIn, MappingQuantity type) {
+	public T01Object mapT01Object(IngridDocument oDocIn, T01Object oIn, MappingQuantity howMuch) {
+
 		oIn.setObjUuid((String) oDocIn.get(MdekKeys.UUID));
 		oIn.setObjClass((Integer) oDocIn.get(MdekKeys.CLASS));
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
@@ -60,7 +63,9 @@ public class DocToBeanMapper implements IMapper {
 		}
 		oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
 
-		if (type == MappingQuantity.DETAIL_ENTITY) {
+		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
+				howMuch == MappingQuantity.COPY_ENTITY)
+		{
 			oIn.setDatasetAlternateName((String) oDocIn.get(MdekKeys.DATASET_ALTERNATE_NAME));
 			oIn.setObjDescr((String) oDocIn.get(MdekKeys.ABSTRACT));
 
@@ -88,16 +93,29 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
 			oIn.setAvailAccessNote((String) oDocIn.get(MdekKeys.USE_CONSTRAINTS));
 			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
-			
 
 			// update related object references (Querverweise)
 			updateObjectReferences(oDocIn, oIn);
 
 			// update related ObjAdrs
-			updateT012ObjAdrs(oDocIn, oIn);
+			updateT012ObjAdrs(oDocIn, oIn, howMuch);
 		}			
 
-		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
+			oIn.setRoot((Integer) oDocIn.get(MdekKeys.NO_OF_PARENTS));
+			oIn.setCatId((Long) oDocIn.get(MdekKeys.CATALOGUE_IDENTIFIER));
+			oIn.setDatasetCharacterSet((Integer) oDocIn.get(MdekKeys.DATASET_CHARACTER_SET));
+			oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));
+			oIn.setMetadataStandardName((String) oDocIn.get(MdekKeys.METADATA_STANDARD_NAME));
+			oIn.setMetadataStandardVersion((String) oDocIn.get(MdekKeys.METADATA_STANDARD_VERSION));
+			oIn.setLastexportTime((String) oDocIn.get(MdekKeys.LASTEXPORT_TIME));
+			oIn.setExpiryTime((String) oDocIn.get(MdekKeys.EXPIRY_TIME));
+			oIn.setWorkVersion((Integer) oDocIn.get(MdekKeys.WORK_VERSION));
+			oIn.setMarkDeleted((String) oDocIn.get(MdekKeys.MARK_DELETED));
+			oIn.setModUuid((String) oDocIn.get(MdekKeys.MOD_UUID));
+			oIn.setResponsibleUuid((String) oDocIn.get(MdekKeys.RESPONSIBLE_UUID));
+		}
 
 		return oIn;
 	}
@@ -117,12 +135,10 @@ public class DocToBeanMapper implements IMapper {
 	{
 		oRef.setObjFromId(oFromId);
 		oRef.setObjToUuid((String) oToDoc.get(MdekKeys.UUID));
-		oRef.setDescr((String) oToDoc.get(MdekKeys.RELATION_DESCRIPTION));
 		oRef.setLine(line);
 		oRef.setSpecialName((String) oToDoc.get(MdekKeys.RELATION_TYPE_NAME));
 		oRef.setSpecialRef((Integer) oToDoc.get(MdekKeys.RELATION_TYPE_REF));
-
-		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+		oRef.setDescr((String) oToDoc.get(MdekKeys.RELATION_DESCRIPTION));
 
 		return oRef;
 	}
@@ -133,12 +149,14 @@ public class DocToBeanMapper implements IMapper {
 	 * @param aToDoc the to doc containing to address data
 	 * @param oA the bean to transfer data to !
 	 * @param line additional line data for bean
+	 * @param howMuch how much data to transfer
 	 * @return the passed bean containing all mapped data
 	 */
 	private T012ObjAdr mapT012ObjAdr(long oFromId,
 		IngridDocument aToDoc,
 		T012ObjAdr oA, 
-		int line) 
+		int line,
+		MappingQuantity howMuch) 
 	{
 		oA.setObjId(oFromId);
 		oA.setAdrUuid((String) aToDoc.get(MdekKeys.UUID));
@@ -147,7 +165,15 @@ public class DocToBeanMapper implements IMapper {
 		oA.setSpecialRef((Integer) aToDoc.get(MdekKeys.RELATION_TYPE_REF));
 		oA.setLine(line);
 
-		// TODO: Extent MappingQuantity.FULL_ENTITY for copy
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			oA.setModTime((String) aToDoc.get(MdekKeys.RELATION_DATE_OF_LAST_MODIFICATION));
+		} else {
+			// set modification time only when creating a new object !
+			if (oA.getId() == null) {
+				String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+				oA.setModTime(currentTime);				
+			}
+		}
 
 		return oA;
 	}
@@ -184,7 +210,7 @@ public class DocToBeanMapper implements IMapper {
 		}		
 	}
 
-	private void updateT012ObjAdrs(IngridDocument oDocIn, T01Object oIn) {
+	private void updateT012ObjAdrs(IngridDocument oDocIn, T01Object oIn, MappingQuantity howMuch) {
 		List<IngridDocument> aDocsTo = (List) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
 		if (aDocsTo == null) {
 			aDocsTo = new ArrayList<IngridDocument>(0);
@@ -197,7 +223,7 @@ public class DocToBeanMapper implements IMapper {
 			boolean found = false;
 			for (T012ObjAdr oA : oAs) {
 				if (oA.getAdrUuid().equals(aUuidTo)) {
-					mapT012ObjAdr(oIn.getId(), aDocTo, oA, line);
+					mapT012ObjAdr(oIn.getId(), aDocTo, oA, line, howMuch);
 					oAs_unprocessed.remove(oA);
 					found = true;
 					break;
@@ -205,7 +231,7 @@ public class DocToBeanMapper implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				T012ObjAdr oA = mapT012ObjAdr(oIn.getId(), aDocTo, new T012ObjAdr(), line);
+				T012ObjAdr oA = mapT012ObjAdr(oIn.getId(), aDocTo, new T012ObjAdr(), line, howMuch);
 				oAs.add(oA);
 			}
 			line++;
