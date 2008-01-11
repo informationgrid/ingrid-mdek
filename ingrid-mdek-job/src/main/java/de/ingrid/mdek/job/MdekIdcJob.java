@@ -126,7 +126,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 		for (ObjectNode oN : oNs) {
 			IngridDocument objDoc = new IngridDocument();
-			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.BASIC_ENTITY);
+			beanToDocMapper.mapObjectNode(oN, objDoc);
 			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
 			resultList.add(objDoc);
 		}
@@ -148,7 +148,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 		for (ObjectNode oN : oNs) {
 			IngridDocument objDoc = new IngridDocument();
-			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.BASIC_ENTITY);
+			beanToDocMapper.mapObjectNode(oN, objDoc);
 			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
 			resultList.add(objDoc);
 		}
@@ -229,32 +229,47 @@ public class MdekIdcJob extends MdekJob {
 		if (uuid == null) {
 			// New Object  !!!
 			
-			// create new object
+			// create new object (save it to generate id !)
 			uuid = UuidGenerator.getInstance().generateUuid();
 			oDocIn.put(MdekKeys.UUID, uuid);
 			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			o = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+			daoT01Object.makePersistent(o);
 			
 			// and new ObjectNode
-			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode(), MappingQuantity.BASIC_ENTITY);
+			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());
 
 		} else {
+			// Existing Object !!!
+
 			oNode = daoObjectNode.getObjDetails(uuid);
 
-//			if (oNode.getObjId() == oNode.getObjIdPublished()) {
-				// TODO: copy object via mapping: beanToDoc / docToBean
-//			} else {
-				o = oNode.getT01ObjectWork();				
-//			}
+			// do we have to create a working copy
+			if (oNode.getObjId().equals(oNode.getObjIdPublished())) {
+
+				// no working copy yet, create it with same uuid and save it (to generate id !)
+				T01Object oPub = oNode.getT01ObjectPublished();
+				o = new T01Object();
+				o.setObjUuid(oPub.getObjUuid());
+				daoT01Object.makePersistent(o);
+
+				// then copy content from published one (via mappers)
+				IngridDocument oDocPub =
+					beanToDocMapper.mapT01Object(oPub, new IngridDocument(), MappingQuantity.COPY_ENTITY);
+				docToBeanMapper.mapT01Object(oDocPub, o, MappingQuantity.COPY_ENTITY);
+				
+			} else {
+				o = oNode.getT01ObjectWork();
+			}
 		}
 
-		// store object. generates id if new object was created (copied or brand new).
+		// transfer new data and store.
 		docToBeanMapper.mapT01Object(oDocIn, o, MappingQuantity.DETAIL_ENTITY);
 		daoT01Object.makePersistent(o);
 
 		// and update ObjectNode with working copy if not set yet
 		Long oId = o.getId();
-		if (oId != oNode.getObjId()) {
+		if (!oId.equals(oNode.getObjId())) {
 			oNode.setObjId(oId);
 			daoObjectNode.makePersistent(oNode);
 		}
