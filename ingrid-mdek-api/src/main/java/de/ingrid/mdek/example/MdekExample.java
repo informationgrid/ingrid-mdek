@@ -154,6 +154,7 @@ class MdekThread extends Thread {
 		fetchSubObjects(objUuid);
 
 		// -----------------------------------
+		System.out.println("\n\n----- DELETE TEST (DELETES WHOLE SUBTREE) -----");
 		
 		String objectToDelete = "D3200435-53B7-11D3-A172-08002B9A1D1D";
 //		String objectToDelete = objUuid;
@@ -451,6 +452,8 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
