@@ -40,6 +40,10 @@ Build
 		ingrid-mdek-job
 	Main Class:
 		de.ingrid.mdek.MdekServer
+  Zusätzliche Einträge im classpath:
+    ingrid-mdek-job/src/main/resources
+    ingrid-mdek-services/src/main/resources
+  
 	Arguments:
 		--descriptor C:\...\ingrid-mdek\trunk\ingrid-mdek-job\src\main\resources\communication.properties
 
