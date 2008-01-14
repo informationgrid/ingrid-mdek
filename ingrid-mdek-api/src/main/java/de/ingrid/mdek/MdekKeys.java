@@ -75,7 +75,10 @@ public class MdekKeys {
      * Value: String */
     public final static String RELATION_DESCRIPTION = "relation-description";
     /** Value: String */
-    public final static String DATASET_ALTERNATE_NAME = "dataset-alternate-name";
+    public final static String DATASET_ALTERNATE_NAME = "dataset-alternate-name";    
+
+    // GEO
+
     /** Value: Double */
     public final static String VERTICAL_EXTENT_MINIMUM = "vertical-extent-minimum";
     /** Value: Double */
@@ -86,6 +89,28 @@ public class MdekKeys {
     public final static String VERTICAL_EXTENT_VDATUM = "vertical-extent-vdatum";
     /** Value: String */
     public final static String DESCRIPTION_OF_SPATIAL_DOMAIN = "description-of-spatial-domain";
+
+    /** Value: List of IngridDocs */
+    public final static String LOCATIONS = "locations";
+    /** Value: String */
+    public final static String LOCATION_NAME = "location-name";
+    /** Value: String */
+    public final static String LOCATION_TYPE = "location-type";
+    /** Value: String */
+    public final static String LOCATION_CODE = "location-code";
+    /** Value: String */
+    public final static String LOCATION_SNS_ID = "location-sns-id";
+    /** Value: Double */
+    public final static String WEST_BOUNDING_COORDINATE = "west-bounding-coordinate";
+    /** Value: Double */
+    public final static String SOUTH_BOUNDING_COORDINATE = "south-bounding-coordinate";
+    /** Value: Double */
+    public final static String EAST_BOUNDING_COORDINATE = "east-bounding-coordinate";
+    /** Value: Double */
+    public final static String NORTH_BOUNDING_COORDINATE = "north-bounding-coordinate";
+
+    // TIME
+
     /** Value: String (Auswahllisten Eintrag, nicht ID) */
     public final static String TIME_TYPE = "time-type";
     /** Value: String */

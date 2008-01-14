@@ -62,20 +62,8 @@
 			<xs:element name="title" type="xs:string"/>
 			<xs:element name="abstract" type="xs:string"/>
 
-			<xs:element name="vertical-extent-minimum" type="xs:double"/>
-			<xs:element name="vertical-extent-maximum" type="xs:double"/>
-			<xs:element name="vertical-extent-unit" type="xs:integer"/>
-			<xs:element name="vertical-extent-vdatum" type="xs:integer"/>
-			<xs:element name="description-of-spatial-domain" type="xs:string"/>
-
-			<xs:element name="time-type" type="xs:string"/>
-			<xs:element name="beginning-date" type="xs:string"/>
-			<xs:element name="ending-date" type="xs:string"/>
-			<xs:element name="time-status" type="xs:integer"/>
-			<xs:element name="time-period" type="xs:integer"/>
-			<xs:element name="time-step" type="xs:string"/>
-			<xs:element name="time-scale" type="xs:string"/>
-			<xs:element name="description-of-temporal-domain" type="xs:string"/>
+			<xs:element ref="GEO_MAP"/>
+			<xs:element ref="TIME_MAP"/>
 
 			<xs:element name="metadata-language" type="xs:string"/>
 			<xs:element name="data-language" type="xs:string"/>
@@ -101,14 +89,7 @@
 			<xs:element name="mod-uuid" type="xs:string"/>
 			<xs:element name="responsible-uuid" type="xs:string"/>
 
-			<!-- Object Associations Data -->
-			<xs:element ref="relation-type-name"/>
-			<xs:element ref="relation-type-ref"/>
-			<xs:element name="relation-description" type="xs:string"/>
-			
-			<xs:element ref="objReferencesFrom"/>
-			<xs:element ref="objReferencesTo"/>
-			<xs:element ref="adrReferencesTo"/>
+			<xs:element ref="OBJ_RELATIONS_MAP"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
@@ -124,6 +105,65 @@
 	<xs:element name="relation-type-name" type="xs:string"/>
 	<!-- db: special_ref  -->
 	<xs:element name="relation-type-ref" type="xs:integer"/>
+
+	<xs:complexType name="GEO_MAP">
+		<xs:sequence>
+			<xs:element name="vertical-extent-minimum" type="xs:double"/>
+			<xs:element name="vertical-extent-maximum" type="xs:double"/>
+			<xs:element name="vertical-extent-unit" type="xs:integer"/>
+			<xs:element name="vertical-extent-vdatum" type="xs:integer"/>
+			<xs:element name="description-of-spatial-domain" type="xs:string"/>
+			<xs:element ref="locations"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="GEO_MAP" type="GEO_MAP"/>
+
+	<xs:complexType name="LOCATION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="LOCATION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="locations" type="LOCATION_LIST"/>
+	
+	<xs:complexType name="LOCATION_MAP">
+		<xs:sequence>
+			<xs:element name="location-name" type="xs:string"/>
+			<xs:element name="location-type" type="xs:string"/>
+			<xs:element name="location-code" type="xs:string"/>
+			<xs:element name="location-sns-id" type="xs:string"/>
+			<xs:element name="west-bounding-coordinate" type="xs:double"/>
+			<xs:element name="east-bounding-coordinate" type="xs:double"/>
+			<xs:element name="north-bounding-coordinate" type="xs:double"/>
+			<xs:element name="south-bounding-coordinate" type="xs:double"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="LOCATION_MAP" type="LOCATION_MAP"/>
+	
+	<xs:complexType name="TIME_MAP">
+		<xs:sequence>
+			<xs:element name="time-type" type="xs:string"/>
+			<xs:element name="beginning-date" type="xs:string"/>
+			<xs:element name="ending-date" type="xs:string"/>
+			<xs:element name="time-status" type="xs:integer"/>
+			<xs:element name="time-period" type="xs:integer"/>
+			<xs:element name="time-step" type="xs:string"/>
+			<xs:element name="time-scale" type="xs:string"/>
+			<xs:element name="description-of-temporal-domain" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="TIME_MAP" type="TIME_MAP"/>
+	
+	<xs:complexType name="OBJ_RELATIONS_MAP">
+		<xs:sequence>
+			<xs:element ref="relation-type-name"/>
+			<xs:element ref="relation-type-ref"/>
+			<xs:element name="relation-description" type="xs:string"/>
+			<xs:element ref="objReferencesFrom"/>
+			<xs:element ref="objReferencesTo"/>
+			<xs:element ref="adrReferencesTo"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 	
 	<xs:complexType name="ADDRESS_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -152,13 +192,8 @@
 			<xs:element name="function" type="xs:string"/>
 			<xs:element name="address-description" type="xs:string"/>
 			<xs:element ref="communication"/>
-			<!-- Object Associations Data -->
-			<!-- db: type -->
-			<xs:element name="relation-type-id" type="xs:integer"/>
-			<xs:element ref="relation-type-name"/>
-			<xs:element ref="relation-type-ref"/>
-			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
 			
+			<xs:element ref="ADR_RELATIONS_MAP"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
@@ -178,4 +213,14 @@
 	</xs:complexType>
 	<xs:element name="COMMUNICATION_MAP" type="COMMUNICATION_MAP"/>
 
+	<xs:complexType name="ADR_RELATIONS_MAP">
+		<xs:sequence>
+			<!-- db: type -->
+			<xs:element name="relation-type-id" type="xs:integer"/>
+			<xs:element ref="relation-type-name"/>
+			<xs:element ref="relation-type-ref"/>
+			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="ADR_RELATIONS_MAP" type="ADR_RELATIONS_MAP"/>
 </xs:schema>

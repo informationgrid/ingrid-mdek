@@ -137,12 +137,13 @@ class MdekThread extends Thread {
 		// -----------------------------------
 
 		// store NEW object with address and obj reference and get Uuid
-		System.out.println("\n----- store new object (with address and object references) -----");
+		System.out.println("\n----- store new object (with address, object references, spatial refs) -----");
 
 		IngridDocument objDoc = new IngridDocument();
 		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		objDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
 		objDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
+		objDoc.put(MdekKeys.LOCATIONS, oMap.get(MdekKeys.LOCATIONS));
 		// supply parent uuid !
 		objDoc.put(MdekKeys.PARENT_UUID, objUuid);
 
@@ -375,6 +376,15 @@ class MdekThread extends Thread {
 			objs.remove(0);			
 		}
 
+		// remove first spatial reference !
+		List<IngridDocument> locations = (List<IngridDocument>) oDocIn.get(MdekKeys.LOCATIONS);
+		IngridDocument locRemoved = null;
+		if (locations != null && locations.size() > 0) {
+			locRemoved = locations.get(0);
+			System.out.println("REMOVE FIRST LOCATION: " + locRemoved);
+			locations.remove(0);			
+		}
+
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
@@ -394,16 +404,27 @@ class MdekThread extends Thread {
 			System.out.println("");
 			
 			if (aRemoved != null) {
+				adrs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADR_REFERENCES_TO);
 				// and add address again
 				adrs.add(aRemoved);
 				System.out.println("ADD REMOVED ADDRESS AGAIN: " + aRemoved);
 			}
 			if (oRemoved != null) {
+				objs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.OBJ_REFERENCES_TO);
 				// and add object again
 				objs.add(oRemoved);
 				System.out.println("ADD REMOVED OBJECT QUERVERWEIS AGAIN: " + oRemoved);
 			}
-			if (aRemoved != null || oRemoved != null) {
+			if (locRemoved != null) {
+				locations = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LOCATIONS);
+				// and add object again
+				locations.add(locRemoved);
+				System.out.println("ADD REMOVED LOCATION AGAIN: " + locRemoved);
+			}
+			if (aRemoved != null ||
+				oRemoved != null ||
+				locRemoved != null)
+			{
 				System.out.println("STORE");
 				startTime = System.currentTimeMillis();
 				System.out.println("storeObject WITH refetching object: ");
@@ -489,24 +510,24 @@ class MdekThread extends Thread {
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
 		);
 		System.out.println(" " + o);
-		List<IngridDocument> objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_TO);
-		if (objs != null) {
-			System.out.println("  Objects TO (Querverweise): " + objs.size() + " Entities");
-			for (IngridDocument oTo : objs) {
-				System.out.println("   " + oTo);								
+		List<IngridDocument> docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_TO);
+		if (docList != null) {
+			System.out.println("  Objects TO (Querverweise): " + docList.size() + " Entities");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
 			}			
 		}
-		objs = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM);
-		if (objs != null) {
-			System.out.println("  Objects FROM (Querverweise): " + objs.size() + " Entities");
-			for (IngridDocument oFrom : objs) {
-				System.out.println("   " + oFrom);								
+		docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM);
+		if (docList != null) {
+			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
 			}			
 		}
-		List<IngridDocument> adrs = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
-		if (adrs != null) {
-			System.out.println("  Addresses TO: " + adrs.size() + " Entities");
-			for (IngridDocument a : adrs) {
+		docList = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
+		if (docList != null) {
+			System.out.println("  Addresses TO: " + docList.size() + " Entities");
+			for (IngridDocument a : docList) {
 				System.out.println("   " + a);								
 				List<IngridDocument> coms = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
 				if (coms != null) {
@@ -515,6 +536,13 @@ class MdekThread extends Thread {
 						System.out.println("     " + c);
 					}					
 				}
+			}			
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.LOCATIONS);
+		if (docList != null) {
+			System.out.println("  Locations (Spatial References): " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
 			}			
 		}
 	}
