@@ -16,7 +16,7 @@
                    insert="false"
                    cascade="delete"/>
       <set name="objectNodeChildren" table="object_node" inverse="true"
-      		cascade="all-delete-orphan">
+           cascade="all-delete-orphan">
          <key column="fk_obj_uuid" property-ref="objUuid"/>
          <one-to-many class="ObjectNode" not-found="ignore"/>
       </set>

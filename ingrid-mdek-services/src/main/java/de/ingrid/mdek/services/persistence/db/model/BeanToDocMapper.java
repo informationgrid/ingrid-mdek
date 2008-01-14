@@ -36,7 +36,7 @@ public class BeanToDocMapper implements IMapper {
 	 */
 	public IngridDocument mapObjectNode(ObjectNode oNIn, IngridDocument objectDoc) {
 		if (oNIn == null) {
-			return null;
+			return objectDoc;
 		}
 
     	boolean hasChild = false;
@@ -50,15 +50,16 @@ public class BeanToDocMapper implements IMapper {
 
 	/**
 	 * Transfer object data of passed bean to passed doc.
-	 * Also includes related addresses etc. dependent from MappingQuantity.
+	 * Also includes all related data (e.g. addresses etc) dependent from MappingQuantity.
 	 * @return doc containing additional data.
 	 */
 	public IngridDocument mapT01Object(T01Object o, IngridDocument objectDoc,
 			MappingQuantity howMuch) {
 		if (o == null) {
-			return null;
+			return objectDoc;
 		}
 		
+		// just to track ID in test suite !
 		objectDoc.put(MdekKeys.ID, o.getId());
 		objectDoc.put(MdekKeys.UUID, o.getObjUuid());
 		objectDoc.put(MdekKeys.CLASS, o.getObjClass());
@@ -98,39 +99,17 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.USE_CONSTRAINTS, o.getAvailAccessNote());
 			objectDoc.put(MdekKeys.FEES, o.getFees());
 
-			// map related addresses
-			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
-			ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
-			for (T012ObjAdr oA : oAs) {
-				IngridDocument aDoc = new IngridDocument();
-				mapT012ObjAdr(oA, aDoc, howMuch);
-				AddressNode aNode = oA.getAddressNode();
-				if (aNode != null) {
-					T02Address a = aNode.getT02AddressWork();
-					mapT02Address(a, aDoc, howMuch);
-					adrsList.add(aDoc);					
-				} else {
-					LOG.warn("Address " + oA.getAdrUuid() + " has no AddressNode !!! We skip this address reference.");
-				}
-			}
-			objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
-
 			// map related objects (Querverweise)
 			Set<ObjectReference> oRefs = o.getObjectReferences();
-			ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRefs.size());
-			for (ObjectReference oRef : oRefs) {
-				IngridDocument oToDoc = new IngridDocument();
-				mapObjectReference(oRef, oToDoc, howMuch);
-				ObjectNode oNode = oRef.getObjectNode();
-				if (oNode != null) {
-					T01Object oTo = oNode.getT01ObjectWork();
-					mapT01Object(oTo, oToDoc, howMuch);
-					objsList.add(oToDoc);					
-				} else {
-					LOG.warn("Object " + oRef.getObjToUuid() + " has no ObjectNode !!! We skip this object reference.");
-				}
-			}
-			objectDoc.put(MdekKeys.OBJ_REFERENCES_TO, objsList);
+			mapObjectReferences(oRefs, objectDoc, howMuch);
+
+			// map related addresses
+			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
+			mapT012ObjAdrs(oAs, objectDoc, howMuch);
+
+			// map related spatial references
+			Set<SpatialReference> spatRefs = o.getSpatialReferences();
+			mapSpatialReferences(spatRefs, objectDoc, howMuch);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -159,7 +138,7 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapObjectReference(ObjectReference oR, IngridDocument objectDoc,
 			MappingQuantity howMuch) {
 		if (oR == null) {
-			return null;
+			return objectDoc;
 		}
 
 		objectDoc.put(MdekKeys.RELATION_TYPE_NAME, oR.getSpecialName());
@@ -187,7 +166,7 @@ public class BeanToDocMapper implements IMapper {
 			IngridDocument objectDoc,
 			MappingQuantity howMuch) {
 		if (oNodesFrom == null) {
-			return null;
+			return objectDoc;
 		}
 
 		ArrayList<IngridDocument> oRefFromList = new ArrayList<IngridDocument>(oNodesFrom.size());
@@ -217,7 +196,7 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapT012ObjAdr(T012ObjAdr oA, IngridDocument adressDoc,
 			MappingQuantity howMuch) {
 		if (oA == null) {
-			return null;
+			return adressDoc;
 		}
 
 		adressDoc.put(MdekKeys.RELATION_TYPE_ID, oA.getType());
@@ -241,7 +220,7 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapT02Address(T02Address a, IngridDocument adressDoc,
 			MappingQuantity howMuch) {
 		if (a == null) {
-			return null;
+			return adressDoc;
 		}
 
 		adressDoc.put(MdekKeys.UUID, a.getAdrUuid());
@@ -293,10 +272,9 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapT021Communication(T021Communication c, IngridDocument commDoc,
 			MappingQuantity howMuch) {
 		if (c == null) {
-			return null;
+			return commDoc;
 		}
 
-		commDoc.put(MdekKeys.ID, c.getId());
 		commDoc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommType());
 		commDoc.put(MdekKeys.COMMUNICATION_VALUE, c.getCommValue());
 
@@ -311,5 +289,110 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		return commDoc;
+	}
+
+	/**
+	 * Transfer data of passed bean to passed doc.
+	 * @return doc containing additional data.
+	 */
+	public IngridDocument mapSpatialRefValue(SpatialRefValue spatRefValue, IngridDocument locDoc,
+			MappingQuantity howMuch) {
+		if (spatRefValue == null) {
+			return locDoc;
+		}
+
+		locDoc.put(MdekKeys.LOCATION_NAME, spatRefValue.getName());
+		locDoc.put(MdekKeys.LOCATION_TYPE, spatRefValue.getType());
+		locDoc.put(MdekKeys.LOCATION_CODE, spatRefValue.getNativekey());
+		locDoc.put(MdekKeys.WEST_BOUNDING_COORDINATE, spatRefValue.getX1());
+		locDoc.put(MdekKeys.SOUTH_BOUNDING_COORDINATE, spatRefValue.getY1());
+		locDoc.put(MdekKeys.EAST_BOUNDING_COORDINATE, spatRefValue.getX2());
+		locDoc.put(MdekKeys.NORTH_BOUNDING_COORDINATE, spatRefValue.getY2());
+
+		return locDoc;
+	}
+
+	/**
+	 * Transfer data of passed bean to passed doc.
+	 * @return doc containing additional data.
+	 */
+	public IngridDocument mapSpatialRefSns(SpatialRefSns spatRefSns, IngridDocument locDoc,
+			MappingQuantity howMuch) {
+		if (spatRefSns == null) {
+			return locDoc;
+		}
+
+		locDoc.put(MdekKeys.LOCATION_SNS_ID, spatRefSns.getSnsId());
+
+		return locDoc;
+	}
+
+	private IngridDocument mapObjectReferences(Set<ObjectReference> oRefs, IngridDocument objectDoc,
+			MappingQuantity howMuch) {
+		if (oRefs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRefs.size());
+		for (ObjectReference oRef : oRefs) {
+			IngridDocument oToDoc = new IngridDocument();
+			mapObjectReference(oRef, oToDoc, howMuch);
+			ObjectNode oNode = oRef.getObjectNode();
+			if (oNode != null) {
+				T01Object oTo = oNode.getT01ObjectWork();
+				mapT01Object(oTo, oToDoc, howMuch);
+				objsList.add(oToDoc);					
+			} else {
+				LOG.warn("Object " + oRef.getObjToUuid() + " has no ObjectNode !!! We skip this object reference.");
+			}
+		}
+		objectDoc.put(MdekKeys.OBJ_REFERENCES_TO, objsList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT012ObjAdrs(Set<T012ObjAdr> oAs, IngridDocument objectDoc,
+			MappingQuantity howMuch) {
+		if (oAs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
+		for (T012ObjAdr oA : oAs) {
+			IngridDocument aDoc = new IngridDocument();
+			mapT012ObjAdr(oA, aDoc, howMuch);
+			AddressNode aNode = oA.getAddressNode();
+			if (aNode != null) {
+				T02Address a = aNode.getT02AddressWork();
+				mapT02Address(a, aDoc, howMuch);
+				adrsList.add(aDoc);					
+			} else {
+				LOG.warn("Address " + oA.getAdrUuid() + " has no AddressNode !!! We skip this address reference.");
+			}
+		}
+		objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapSpatialReferences(Set<SpatialReference> spatRefs, IngridDocument objectDoc,
+			MappingQuantity howMuch) {
+		if (spatRefs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(spatRefs.size());
+		for (SpatialReference spatRef : spatRefs) {
+			IngridDocument locDoc = new IngridDocument();
+			SpatialRefValue spatRefValue = spatRef.getSpatialRefValue();
+			if (spatRefValue != null) {
+				mapSpatialRefValue(spatRefValue, locDoc, howMuch);
+				SpatialRefSns spatRefSns = spatRefValue.getSpatialRefSns();
+				mapSpatialRefSns(spatRefSns, locDoc, howMuch);
+				locList.add(locDoc);					
+			} else {
+				LOG.warn("SpatialReference " + spatRef.getSpatialRefId() + " has no SpatialRefValue !!! We skip this SpatialReference.");
+			}
+		}
+		objectDoc.put(MdekKeys.LOCATIONS, locList);
+		
+		return objectDoc;
 	}
 }

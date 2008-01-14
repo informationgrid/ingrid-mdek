@@ -13,11 +13,14 @@
       <property name="fkAddrUuid" type="string" column="fk_addr_uuid"/>
 
       <many-to-one name="t02AddressWork" class="T02Address" column="addr_id" update="false"
-                   insert="false"/>
+                   insert="false"
+                   cascade="delete"/>
       <many-to-one name="t02AddressPublished" class="T02Address" column="addr_id_published"
                    update="false"
-                   insert="false"/>
-      <set name="addressNodeChildren" table="address_node" inverse="true">
+                   insert="false"
+                   cascade="delete"/>
+      <set name="addressNodeChildren" table="address_node" inverse="true"
+           cascade="all-delete-orphan">
          <key column="fk_addr_uuid" property-ref="addrUuid"/>
          <one-to-many class="AddressNode" not-found="ignore"/>
       </set>

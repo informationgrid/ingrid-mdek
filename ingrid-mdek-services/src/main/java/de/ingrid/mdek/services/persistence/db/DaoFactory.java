@@ -6,9 +6,13 @@ package de.ingrid.mdek.services.persistence.db;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.ObjectNodeDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefSnsDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefValueDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
 
@@ -30,6 +34,14 @@ public class DaoFactory implements IDaoFactory {
 
     public IT02AddressDao getT02AddressDao() {
         return new T02AddressDaoHibernate(_sessionFactory);
+    }
+
+    public ISpatialRefValueDao getSpatialRefValueDao() {
+        return new SpatialRefValueDaoHibernate(_sessionFactory);
+    }
+
+    public ISpatialRefSnsDao getSpatialRefSnsDao() {
+        return new SpatialRefSnsDaoHibernate(_sessionFactory);
     }
 
     public IGenericDao<IEntity> getDao(Class clazz) {

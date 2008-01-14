@@ -57,12 +57,9 @@ public class T01Object implements IEntity {
 	private Set objectReferences = new HashSet();
 /*
 	private Set searchtermObjs = new HashSet();
+*/
 	private Set spatialReferences = new HashSet();
-	private SysCodelistDomain sysCodelistDomain;
-	private SysCodelistDomain sysCodelistDomain;
-	private SysCodelistDomain sysCodelistDomain;
-	private SysCodelistDomain sysCodelistDomain;
-	private SysCodelistDomain sysCodelistDomain;
+/*
 	private Set t0110AvailFormats = new HashSet();
 	private Set t0112MediaOptions = new HashSet();
 	private Set t0113DatasetReferences = new HashSet();
@@ -461,7 +458,7 @@ public class T01Object implements IEntity {
 	public void setSearchtermObjs(Set searchtermObjs) {
 		this.searchtermObjs = searchtermObjs;
 	}
-
+*/
 	public Set getSpatialReferences() {
 		return spatialReferences;
 	}
@@ -469,47 +466,7 @@ public class T01Object implements IEntity {
 	public void setSpatialReferences(Set spatialReferences) {
 		this.spatialReferences = spatialReferences;
 	}
-
-	public SysCodelistDomain getSysCodelistDomain() {
-		return sysCodelistDomain;
-	}
-
-	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
-		this.sysCodelistDomain = sysCodelistDomain;
-	}
-
-	public SysCodelistDomain getSysCodelistDomain() {
-		return sysCodelistDomain;
-	}
-
-	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
-		this.sysCodelistDomain = sysCodelistDomain;
-	}
-
-	public SysCodelistDomain getSysCodelistDomain() {
-		return sysCodelistDomain;
-	}
-
-	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
-		this.sysCodelistDomain = sysCodelistDomain;
-	}
-
-	public SysCodelistDomain getSysCodelistDomain() {
-		return sysCodelistDomain;
-	}
-
-	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
-		this.sysCodelistDomain = sysCodelistDomain;
-	}
-
-	public SysCodelistDomain getSysCodelistDomain() {
-		return sysCodelistDomain;
-	}
-
-	public void setSysCodelistDomain(SysCodelistDomain sysCodelistDomain) {
-		this.sysCodelistDomain = sysCodelistDomain;
-	}
-
+/*
 	public Set getT0110AvailFormats() {
 		return t0110AvailFormats;
 	}

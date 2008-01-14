@@ -1,23 +1,93 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
-	<bean class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" id="sessionFactory">
-		<property name="dataSource">
-			<ref bean="dataSource"/>
-		</property>
-		<property name="hibernateProperties">
-			<ref bean="hibernateProperties"/>
-		</property>
-		<property name="exposeTransactionAwareSessionFactory" value="false"></property>
-		<property name="mappingResources">
-			<list>
-				<value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
-				<value>de/ingrid/mdek/services/persistence/db/model/T01Object.hbm.xml</value>
-				<value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
-				<value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
-				<value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
-				<value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
-				<value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
-		   	</list>
-		</property>
-	</bean>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+   <bean id="sessionFactory"
+         class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+      <property name="dataSource">
+         <ref bean="dataSource"/>
+      </property>
+      <property name="hibernateProperties">
+         <ref bean="hibernateProperties"/>
+      </property>
+      <property name="exposeTransactionAwareSessionFactory" value="false"/>
+      <property name="mappingResources">
+         <list>
+            <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
+<!--
+            <value>de/ingrid/mdek/services/persistence/db/model/Comment.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/CommentAdr.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/CommentObj.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/Group.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/GroupPermission.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/HibernateUniqueKey.hbm.xml</value>
+-->
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
+<!--
+            <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/Role.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/RolePermission.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SearchtermValue.hbm.xml</value>
+-->
+            <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefSns.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefValue.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SpatialReference.hbm.xml</value>
+<!--
+            <value>de/ingrid/mdek/services/persistence/db/model/SysExport.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SysGenericKey.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SysGui.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SysGuiList.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T0110AvailFormat.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T0112MediaOption.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T0113DatasetReference.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T0114EnvCategory.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T0114EnvTopic.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjData.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjDataPara.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeo.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoKeyc.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoScale.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSymc.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoTopicCat.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoVector.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjLiterature.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjProject.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServ.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpConnpoint.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpDepends.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPara.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPlatform.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOperation.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServVersion.hbm.xml</value>
+-->
+            <value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
+<!--
+            <value>de/ingrid/mdek/services/persistence/db/model/T014InfoImpart.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T015Legist.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T017UrlRef.hbm.xml</value>
+-->
+            <value>de/ingrid/mdek/services/persistence/db/model/T01Object.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
+<!--
+            <value>de/ingrid/mdek/services/persistence/db/model/T03Catalogue.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T08Attr.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrList.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrType.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/User.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/UserGroup.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/UserHierarchy.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/UserPermission.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/UserRole.hbm.xml</value>
+-->
+         </list>
+      </property>
+   </bean>
 </beans>

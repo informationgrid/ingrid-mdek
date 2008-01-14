@@ -66,22 +66,14 @@
          <key column="obj_id"/>
          <one-to-many class="SearchtermObj" not-found="ignore"/>
       </set>
+-->
       <set name="spatialReferences" order-by="line" table="spatial_reference"
            inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="SpatialReference" not-found="ignore"/>
       </set>
-      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
-                   insert="false"/>
-      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
-                   insert="false"/>
-      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
-                   insert="false"/>
-      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
-                   insert="false"/>
-      <many-to-one name="sysCodelistDomain" class="SysCodelistDomain" column="" update="false"
-                   insert="false"/>
+<!--
       <set name="t0110AvailFormats" order-by="line" table="t0110_avail_format"
            inverse="true"
            cascade="all-delete-orphan">
@@ -166,7 +158,8 @@
          <one-to-many class="T017UrlRef" not-found="ignore"/>
       </set>
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
-                   insert="false"/>
+                   insert="false"
+                   cascade="delete"/>
       <set name="t08Attrs" table="t08_attr" inverse="true" cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T08Attr" not-found="ignore"/>

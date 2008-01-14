@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -22,6 +24,9 @@ public class DocToBeanMapper implements IMapper {
 	private static final Logger LOG = Logger.getLogger(DocToBeanMapper.class);
 
 	private static DocToBeanMapper myInstance;
+	
+	private ISpatialRefSnsDao daoSpatialRefSns;
+	private ISpatialRefValueDao daoSpatialRefValue;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -32,7 +37,8 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	private DocToBeanMapper(DaoFactory daoFactory) {
-//		daoT012ObjObj = daoFactory.getT012ObjObjDao();
+		daoSpatialRefSns = daoFactory.getSpatialRefSnsDao();
+		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 	}
 
 	/**
@@ -94,6 +100,11 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setAvailAccessNote((String) oDocIn.get(MdekKeys.USE_CONSTRAINTS));
 			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
 
+			// update related SpatialReferences
+			// NOTICE: DO THIS WITH EMPTY Object/Address References !!!
+			// This one may call persist methods (which also saves maybe wrong references (when copied) )
+			updateSpatialReferences(oDocIn, oIn);
+
 			// update related object references (Querverweise)
 			updateObjectReferences(oDocIn, oIn);
 
@@ -122,18 +133,18 @@ public class DocToBeanMapper implements IMapper {
 
 	/**
 	 * Transfer data of passed doc to passed bean.
-	 * @param oFromId id of from object
+	 * @param oFrom from object
 	 * @param oToDoc the to doc containing to object data
 	 * @param oO the bean to transfer data to, pass new Bean or null if new one
 	 * @param line additional line data for bean
 	 * @return the passed bean containing all mapped data
 	 */
-	public ObjectReference mapObjectReference(long oFromId,
+	private ObjectReference mapObjectReference(T01Object oFrom,
 		IngridDocument oToDoc,
 		ObjectReference oRef, 
 		int line) 
 	{
-		oRef.setObjFromId(oFromId);
+		oRef.setObjFromId(oFrom.getId());
 		oRef.setObjToUuid((String) oToDoc.get(MdekKeys.UUID));
 		oRef.setLine(line);
 		oRef.setSpecialName((String) oToDoc.get(MdekKeys.RELATION_TYPE_NAME));
@@ -145,20 +156,21 @@ public class DocToBeanMapper implements IMapper {
 
 	/**
 	 * Transfer data of passed doc to passed bean.
-	 * @param oFromId id of from object
+	 * @param oFrom from object
 	 * @param aToDoc the to doc containing to address data
 	 * @param oA the bean to transfer data to !
 	 * @param line additional line data for bean
 	 * @param howMuch how much data to transfer
 	 * @return the passed bean containing all mapped data
 	 */
-	private T012ObjAdr mapT012ObjAdr(long oFromId,
+	private T012ObjAdr mapT012ObjAdr(T01Object oFrom,
 		IngridDocument aToDoc,
 		T012ObjAdr oA, 
 		int line,
 		MappingQuantity howMuch) 
 	{
-		oA.setObjId(oFromId);
+		oA.setObjId(oFrom.getId());
+		oA.setT01Object(oFrom);
 		oA.setAdrUuid((String) aToDoc.get(MdekKeys.UUID));
 		oA.setType((Integer) aToDoc.get(MdekKeys.RELATION_TYPE_ID));
 		oA.setSpecialName((String) aToDoc.get(MdekKeys.RELATION_TYPE_NAME));
@@ -178,6 +190,47 @@ public class DocToBeanMapper implements IMapper {
 		return oA;
 	}
 
+	/**
+	 * Transfer data to passed bean.
+	 */
+	private SpatialReference mapSpatialReference(T01Object oFrom,
+		SpatialRefValue spRefValue,
+		SpatialReference spRef,
+		int line) 
+	{
+		spRef.setObjId(oFrom.getId());
+		spRef.setSpatialRefValue(spRefValue);			
+		spRef.setSpatialRefId(spRefValue.getId());
+		spRef.setLine(line);
+
+		return spRef;
+	}
+
+	/**
+	 * Transfer data to passed bean.
+	 */
+	private SpatialRefValue mapSpatialRefValue(SpatialRefSns spRefSns,
+		IngridDocument locDoc,
+		SpatialRefValue spRefValue) 
+	{
+		spRefValue.setName((String) locDoc.get(MdekKeys.LOCATION_NAME));
+		spRefValue.setType((String) locDoc.get(MdekKeys.LOCATION_TYPE));
+		spRefValue.setNativekey((String) locDoc.get(MdekKeys.LOCATION_CODE));
+		spRefValue.setX1((Double) locDoc.get(MdekKeys.WEST_BOUNDING_COORDINATE));
+		spRefValue.setY1((Double) locDoc.get(MdekKeys.SOUTH_BOUNDING_COORDINATE));
+		spRefValue.setX2((Double) locDoc.get(MdekKeys.EAST_BOUNDING_COORDINATE));
+		spRefValue.setY2((Double) locDoc.get(MdekKeys.NORTH_BOUNDING_COORDINATE));
+
+		Long spRefSnsId = null;
+		if (spRefSns != null) {
+			spRefSnsId = spRefSns.getId();			
+		}
+		spRefValue.setSpatialRefSns(spRefSns);			
+		spRefValue.setSpatialRefSnsId(spRefSnsId);
+
+		return spRefValue;
+	}
+
 	private void updateObjectReferences(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> oDocsTo = (List) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
 		if (oDocsTo == null) {
@@ -191,7 +244,7 @@ public class DocToBeanMapper implements IMapper {
 			boolean found = false;
 			for (ObjectReference oRef : oRefs) {
 				if (oRef.getObjToUuid().equals(oToUuid)) {
-					mapObjectReference(oIn.getId(), oDocTo, oRef, line);
+					mapObjectReference(oIn, oDocTo, oRef, line);
 					oRefs_unprocessed.remove(oRef);
 					found = true;
 					break;
@@ -199,7 +252,7 @@ public class DocToBeanMapper implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				ObjectReference oRef = mapObjectReference(oIn.getId(), oDocTo, new ObjectReference(), line);
+				ObjectReference oRef = mapObjectReference(oIn, oDocTo, new ObjectReference(), line);
 				oRefs.add(oRef);
 			}
 			line++;
@@ -223,7 +276,7 @@ public class DocToBeanMapper implements IMapper {
 			boolean found = false;
 			for (T012ObjAdr oA : oAs) {
 				if (oA.getAdrUuid().equals(aUuidTo)) {
-					mapT012ObjAdr(oIn.getId(), aDocTo, oA, line, howMuch);
+					mapT012ObjAdr(oIn, aDocTo, oA, line, howMuch);
 					oAs_unprocessed.remove(oA);
 					found = true;
 					break;
@@ -231,7 +284,7 @@ public class DocToBeanMapper implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				T012ObjAdr oA = mapT012ObjAdr(oIn.getId(), aDocTo, new T012ObjAdr(), line, howMuch);
+				T012ObjAdr oA = mapT012ObjAdr(oIn, aDocTo, new T012ObjAdr(), line, howMuch);
 				oAs.add(oA);
 			}
 			line++;
@@ -239,6 +292,72 @@ public class DocToBeanMapper implements IMapper {
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (T012ObjAdr oA : oAs_unprocessed) {
 			oAs.remove(oA);
+		}		
+	}
+
+	private void updateSpatialReferences(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> locList = (List) oDocIn.get(MdekKeys.LOCATIONS);
+		if (locList == null) {
+			locList = new ArrayList<IngridDocument>(0);
+		}
+		Set<SpatialReference> spatialRefs = oIn.getSpatialReferences();
+		ArrayList<SpatialReference> spatialRefs_unprocessed = new ArrayList<SpatialReference>(spatialRefs);
+		int line = 1;
+		for (IngridDocument loc : locList) {
+			String locName = (String) loc.get(MdekKeys.LOCATION_NAME);
+			String locName_notNull = (locName == null) ? "" : locName;
+			String locType = (String) loc.get(MdekKeys.LOCATION_TYPE);
+			String locSnsId = (String) loc.get(MdekKeys.LOCATION_SNS_ID);
+			String locSnsId_notNull = (locSnsId == null) ? "" : locSnsId;
+			String locCode = (String) loc.get(MdekKeys.LOCATION_CODE);
+			String locCode_notNull = (locCode == null) ? "" : locCode;
+			boolean found = false;
+			for (SpatialReference spRef : spatialRefs) {
+				SpatialRefValue spRefValue = spRef.getSpatialRefValue();
+				if (spRefValue != null) {
+					SpatialRefSns spRefSns = spRefValue.getSpatialRefSns();
+
+					String refName_notNull = (spRefValue.getName() == null) ? "" : spRefValue.getName();
+					String refType = spRefValue.getType();
+					String refSnsId_notNull = (spRefSns == null) ? "" : spRefSns.getSnsId();
+					String refCode_notNull = (spRefValue.getNativekey() == null) ? "" : spRefValue.getNativekey();
+					if (locName_notNull.equals(refName_notNull) &&
+						locType.equals(refType) &&
+						locSnsId_notNull.equals(refSnsId_notNull) &&
+						locCode_notNull.equals(refCode_notNull))
+					{
+						mapSpatialRefValue(spRefSns, loc, spRefValue);
+						// update line
+						spRef.setLine(line);
+						spatialRefs_unprocessed.remove(spRef);
+						found = true;
+						break;
+					}					
+				}
+			}
+			if (!found) {
+				// add new one
+				
+				// first load/create SpatialRefSns
+				SpatialRefSns spRefSns = null;
+				if (locSnsId != null) {
+					spRefSns = daoSpatialRefSns.loadOrCreate(locSnsId);
+				}
+
+				// then load/create SpatialRefValue
+				SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locName, spRefSns, locCode);
+				mapSpatialRefValue(spRefSns, loc, spRefValue);
+
+				// then create SpatialReference
+				SpatialReference spRef = new SpatialReference();
+				mapSpatialReference(oIn, spRefValue, spRef, line);
+				spatialRefs.add(spRef);
+			}
+			line++;
+		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (SpatialReference spRef : spatialRefs_unprocessed) {
+			spatialRefs.remove(spRef);
 		}		
 	}
 }
