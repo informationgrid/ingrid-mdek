@@ -15,6 +15,7 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefSnsDaoHibe
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefValueDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 
 public class DaoFactory implements IDaoFactory {
 
@@ -46,11 +47,11 @@ public class DaoFactory implements IDaoFactory {
 
     public IGenericDao<IEntity> getDao(Class clazz) {
 		IGenericDao dao = null;
-/*
-		if (clazz.isAssignableFrom(T012ObjObj.class)) {
-			dao = new GenericHibernateDao<T012ObjObj>(_sessionFactory, T012ObjObj.class);
+
+		if (clazz.isAssignableFrom(SpatialReference.class)) {
+			dao = new GenericHibernateDao<SpatialReference>(_sessionFactory, SpatialReference.class);
 		}
-*/
+
         return dao;
     }
 

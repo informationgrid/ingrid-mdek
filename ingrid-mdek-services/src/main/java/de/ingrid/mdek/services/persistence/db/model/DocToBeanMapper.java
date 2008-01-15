@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.utils.IngridDocument;
@@ -27,6 +29,7 @@ public class DocToBeanMapper implements IMapper {
 	
 	private ISpatialRefSnsDao daoSpatialRefSns;
 	private ISpatialRefValueDao daoSpatialRefValue;
+	private IGenericDao<IEntity> daoSpatialReference;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -39,6 +42,7 @@ public class DocToBeanMapper implements IMapper {
 	private DocToBeanMapper(DaoFactory daoFactory) {
 		daoSpatialRefSns = daoFactory.getSpatialRefSnsDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
+		daoSpatialReference = daoFactory.getDao(SpatialReference.class);
 	}
 
 	/**
@@ -358,6 +362,8 @@ public class DocToBeanMapper implements IMapper {
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (SpatialReference spRef : spatialRefs_unprocessed) {
 			spatialRefs.remove(spRef);
+			// delete-orphan doesn't work !!!?????
+			daoSpatialReference.makeTransient(spRef);
 		}		
 	}
 }
