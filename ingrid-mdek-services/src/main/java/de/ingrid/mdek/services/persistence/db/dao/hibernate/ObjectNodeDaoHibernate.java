@@ -90,15 +90,18 @@ public class ObjectNodeDaoHibernate
 			"left join fetch oWork.objectReferences oRef " +
 			"left join fetch oRef.objectNode oRefNode " +
 			"left join fetch oRefNode.t01ObjectWork oRefObj " +
+
+// TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
+
 		// referenced addresses
-			"left join fetch oWork.t012ObjAdrs objAdr " +
-			"left join fetch objAdr.addressNode aNode " +
-			"left join fetch aNode.t02AddressWork aWork " +
-			"left join fetch aWork.t021Communications aComm " +
+//			"left join fetch oWork.t012ObjAdrs objAdr " +
+//			"left join fetch objAdr.addressNode aNode " +
+//			"left join fetch aNode.t02AddressWork aWork " +
+//			"left join fetch aWork.t021Communications aComm " +
 		// spatial references 
-			"left join fetch oWork.spatialReferences spatRef " +
-			"left join fetch spatRef.spatialRefValue spatialRefVal " +
-			"left join fetch spatialRefVal.spatialRefSns " +
+//			"left join fetch oWork.spatialReferences spatRef " +
+//			"left join fetch spatRef.spatialRefValue spatialRefVal " +
+//			"left join fetch spatialRefVal.spatialRefSns " +
 			"where oNode.objUuid = ?")
 			.setString(0, uuid)
 			.uniqueResult();
