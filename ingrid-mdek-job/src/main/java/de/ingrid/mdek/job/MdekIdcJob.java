@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
@@ -35,6 +36,7 @@ public class MdekIdcJob extends MdekJob {
 	private IObjectNodeDao daoObjectNode;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
+	private ISpatialRefValueDao daoSpatialRefValue;
 
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
@@ -48,6 +50,7 @@ public class MdekIdcJob extends MdekJob {
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = docToBeanMapper.getInstance(daoFactory);
@@ -114,6 +117,20 @@ public class MdekIdcJob extends MdekJob {
 */
 	// TODO: encapsulate all mdekJob methods in throw/catch performing rollback (releasing session not necessary due to getCurrentSession !?)
 	// TODO: check error in catch and set error in result !
+
+	public IngridDocument getUiListValues() {
+		IngridDocument result = new IngridDocument();
+
+		daoSpatialRefValue.beginTransaction();
+
+		// fetch top Objects
+		List<String> list = daoSpatialRefValue.getFreieRefValueNames();
+		result.put(MdekKeys.UI_FREE_SPATIAL_REFERENCES, list);
+
+		daoSpatialRefValue.commitTransaction();
+
+		return result;
+	}
 
 	public IngridDocument getTopObjects() {
 		IngridDocument result = new IngridDocument();
