@@ -38,6 +38,25 @@ public class MdekUtils {
 		String description;
 	}
 
+	/** Type of spatial reference */
+	public enum SpatialReferenceType implements IMdekEnum {
+		FREI("F", "Freier Raumbezug"),
+		GEO_THESAURUS("G", "Geo-Thesaurus");
+
+		SpatialReferenceType(String dbValue, String description) {
+			this.dbValue = dbValue;
+			this.description = description;
+		}
+		public String getDbValue() {
+			return dbValue;
+		}
+		public String toString() {
+			return description;
+		}
+		String dbValue;
+		String description;
+	}
+
 /*
 	private static MdekUtils myInstance;
 

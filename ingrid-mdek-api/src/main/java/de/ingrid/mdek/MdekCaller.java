@@ -103,6 +103,13 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 */
+
+	public IngridDocument getUiListValues() {
+		IngridDocument jobParams = new IngridDocument();
+		List jobMethods = setUpJobMethod("getUiListValues", null);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument fetchObject(String uuid, Quantity howMuch) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);

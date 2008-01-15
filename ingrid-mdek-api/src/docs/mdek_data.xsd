@@ -16,6 +16,7 @@
 			<xs:element ref="adrEntities"/>
 			<xs:element ref="path"/>
 			<xs:element ref="RESULT_ADDITIONAL_INFO_MAP"/>
+			<xs:element ref="RESULT_UI_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -33,6 +34,13 @@
 	</xs:complexType>
 	<xs:element name="RESULT_ADDITIONAL_INFO_MAP" type="RESULT_ADDITIONAL_INFO_MAP"/>
 	
+	<xs:complexType name="RESULT_UI_MAP">
+		<xs:all>
+			<xs:element name="ui_freeSpatialReferences"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="RESULT_UI_MAP" type="RESULT_UI_MAP"/>
+
 	<xs:complexType name="OBJECT_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element ref="OBJECT_MAP"/>

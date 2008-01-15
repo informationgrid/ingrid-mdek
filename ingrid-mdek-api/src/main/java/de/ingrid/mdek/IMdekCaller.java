@@ -16,6 +16,9 @@ public interface IMdekCaller {
 
 //	IngridDocument testMdekEntity(int threadNumber);
 
+	/** Returns a map containing the lists for the UI select boxes */
+	IngridDocument getUiListValues();
+
 	/**
 	 * Fetch single object with given uuid.
 	 * @param uuid object uuid

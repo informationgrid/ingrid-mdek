@@ -7,6 +7,15 @@ package de.ingrid.mdek;
  */
 public class MdekKeys {
 
+    // UI Lists
+    // --------
+
+    /** Value: List of Strings */
+    public final static String UI_FREE_SPATIAL_REFERENCES = "ui_freeSpatialReferences";
+
+    // Top Result Lists
+    // ----------------
+
     /** Value: List of IngridDocs */
     public final static String OBJ_ENTITIES = "objEntities";
     /** Value: List of IngridDocs */

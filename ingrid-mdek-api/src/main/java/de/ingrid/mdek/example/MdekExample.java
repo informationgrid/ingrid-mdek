@@ -96,12 +96,18 @@ class MdekThread extends Thread {
 		isRunning = true;
 
 		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
-		String objUuid = "5CE671D3-5475-11D3-A172-08002B9A1D1D";
+//		String objUuid = "5CE671D3-5475-11D3-A172-08002B9A1D1D";
+		String objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
 		IngridDocument oMap;
 
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//IMdekCaller mdekCaller = MdekCaller.getInstance();
 		//mdekCaller.testMdekEntity(threadNumber);
+
+		// -----------------------------------
+
+		System.out.println("\n----- UI List Values -----");
+		getUiListValues();
 
 		// -----------------------------------
 
@@ -228,6 +234,34 @@ class MdekThread extends Thread {
 		isRunning = false;
 	}
 	
+	private IngridDocument getUiListValues() {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getUiListValues ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.getUiListValues();
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+			List l = (List) result.get(MdekKeys.UI_FREE_SPATIAL_REFERENCES);
+			System.out.println("  freie Raumbezüge (" + l.size() + "): " + l);
+			
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+		
+		return result;
+	}
+
 	private IngridDocument fetchTopObjects() {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
