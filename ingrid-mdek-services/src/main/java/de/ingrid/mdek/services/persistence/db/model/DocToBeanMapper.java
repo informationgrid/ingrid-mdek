@@ -355,7 +355,7 @@ public class DocToBeanMapper implements IMapper {
 				}
 
 				// then load/create SpatialRefValue
-				SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locName, spRefSns, locCode);
+				SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locName, spRefSns, locCode, oIn.getId());
 				mapSpatialRefValue(spRefSns, loc, spRefValue);
 
 				// then create SpatialReference
