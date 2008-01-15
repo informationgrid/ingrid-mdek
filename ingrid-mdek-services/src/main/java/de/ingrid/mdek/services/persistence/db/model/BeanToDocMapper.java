@@ -109,7 +109,11 @@ public class BeanToDocMapper implements IMapper {
 
 			// map related spatial references
 			Set<SpatialReference> spatRefs = o.getSpatialReferences();
-			mapSpatialReferences(spatRefs, objectDoc, howMuch);
+			mapSpatialReferences(spatRefs, objectDoc);
+
+			// map related url references
+			Set<T017UrlRef> urlRefs = o.getT017UrlRefs();
+			mapT017UrlRefs(urlRefs, objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -295,8 +299,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapSpatialRefValue(SpatialRefValue spatRefValue, IngridDocument locDoc,
-			MappingQuantity howMuch) {
+	public IngridDocument mapSpatialRefValue(SpatialRefValue spatRefValue, IngridDocument locDoc) {
 		if (spatRefValue == null) {
 			return locDoc;
 		}
@@ -316,8 +319,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapSpatialRefSns(SpatialRefSns spatRefSns, IngridDocument locDoc,
-			MappingQuantity howMuch) {
+	public IngridDocument mapSpatialRefSns(SpatialRefSns spatRefSns, IngridDocument locDoc) {
 		if (spatRefSns == null) {
 			return locDoc;
 		}
@@ -325,6 +327,25 @@ public class BeanToDocMapper implements IMapper {
 		locDoc.put(MdekKeys.LOCATION_SNS_ID, spatRefSns.getSnsId());
 
 		return locDoc;
+	}
+
+	public IngridDocument mapT017UrlRef(T017UrlRef url, IngridDocument urlDoc) {
+		if (url == null) {
+			return urlDoc;
+		}
+
+		urlDoc.put(MdekKeys.LINKAGE_URL, url.getUrlLink());
+		urlDoc.put(MdekKeys.LINKAGE_REFERENCE_ID, url.getSpecialRef());
+		urlDoc.put(MdekKeys.LINKAGE_REFERENCE, url.getSpecialName());
+		urlDoc.put(MdekKeys.LINKAGE_DATATYPE, url.getDatatype());
+		urlDoc.put(MdekKeys.LINKAGE_VOLUME, url.getVolume());
+		urlDoc.put(MdekKeys.LINKAGE_ICON_URL, url.getIcon());
+		urlDoc.put(MdekKeys.LINKAGE_ICON_TEXT, url.getIconText());
+		urlDoc.put(MdekKeys.LINKAGE_DESCRIPTION, url.getDescr());
+		urlDoc.put(MdekKeys.LINKAGE_NAME, url.getContent());
+		urlDoc.put(MdekKeys.LINKAGE_URL_TYPE, url.getUrlType());
+
+		return urlDoc;
 	}
 
 	private IngridDocument mapObjectReferences(Set<ObjectReference> oRefs, IngridDocument objectDoc,
@@ -373,8 +394,7 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	private IngridDocument mapSpatialReferences(Set<SpatialReference> spatRefs, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
+	private IngridDocument mapSpatialReferences(Set<SpatialReference> spatRefs, IngridDocument objectDoc) {
 		if (spatRefs == null) {
 			return objectDoc;
 		}
@@ -383,15 +403,30 @@ public class BeanToDocMapper implements IMapper {
 			IngridDocument locDoc = new IngridDocument();
 			SpatialRefValue spatRefValue = spatRef.getSpatialRefValue();
 			if (spatRefValue != null) {
-				mapSpatialRefValue(spatRefValue, locDoc, howMuch);
+				mapSpatialRefValue(spatRefValue, locDoc);
 				SpatialRefSns spatRefSns = spatRefValue.getSpatialRefSns();
-				mapSpatialRefSns(spatRefSns, locDoc, howMuch);
+				mapSpatialRefSns(spatRefSns, locDoc);
 				locList.add(locDoc);					
 			} else {
 				LOG.warn("SpatialReference " + spatRef.getSpatialRefId() + " has no SpatialRefValue !!! We skip this SpatialReference.");
 			}
 		}
 		objectDoc.put(MdekKeys.LOCATIONS, locList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT017UrlRefs(Set<T017UrlRef> urlRefs, IngridDocument objectDoc) {
+		if (urlRefs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> urlList = new ArrayList<IngridDocument>(urlRefs.size());
+		for (T017UrlRef url : urlRefs) {
+			IngridDocument urlDoc = new IngridDocument();
+			mapT017UrlRef(url, urlDoc);
+			urlList.add(urlDoc);
+		}
+		objectDoc.put(MdekKeys.LINKAGES, urlList);
 		
 		return objectDoc;
 	}

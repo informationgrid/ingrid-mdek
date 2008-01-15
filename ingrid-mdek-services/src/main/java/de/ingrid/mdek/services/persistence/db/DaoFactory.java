@@ -18,6 +18,7 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHiberna
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
+import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 
 public class DaoFactory implements IDaoFactory {
 
@@ -58,6 +59,9 @@ public class DaoFactory implements IDaoFactory {
 
 		} else if (clazz.isAssignableFrom(ObjectReference.class)) {
 			dao = new GenericHibernateDao<ObjectReference>(_sessionFactory, ObjectReference.class);
+
+		} else if (clazz.isAssignableFrom(T017UrlRef.class)) {
+			dao = new GenericHibernateDao<T017UrlRef>(_sessionFactory, T017UrlRef.class);
 		} 
 
         return dao;

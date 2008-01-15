@@ -102,6 +102,8 @@ public class ObjectNodeDaoHibernate
 //			"left join fetch oWork.spatialReferences spatRef " +
 //			"left join fetch spatRef.spatialRefValue spatialRefVal " +
 //			"left join fetch spatialRefVal.spatialRefSns " +
+		// url refs 
+//			"left join fetch oWork.t017UrlRefs urlRef " +
 			"where oNode.objUuid = ?")
 			.setString(0, uuid)
 			.uniqueResult();

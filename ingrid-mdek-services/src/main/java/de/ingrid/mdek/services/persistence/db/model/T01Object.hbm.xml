@@ -152,11 +152,13 @@
          <key column="obj_id"/>
          <one-to-many class="T015Legist" not-found="ignore"/>
       </set>
+-->
       <set name="t017UrlRefs" order-by="line" table="t017_url_ref" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T017UrlRef" not-found="ignore"/>
       </set>
+<!--
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
                    insert="false"
                    cascade="delete"/>

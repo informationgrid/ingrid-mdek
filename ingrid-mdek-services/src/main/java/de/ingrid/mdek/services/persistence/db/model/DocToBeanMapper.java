@@ -32,6 +32,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoSpatialReference;
 	private IGenericDao<IEntity> daoT012ObjAdr;
 	private IGenericDao<IEntity> daoObjectReference;
+	private IGenericDao<IEntity> daoT017UrlRef;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -47,6 +48,7 @@ public class DocToBeanMapper implements IMapper {
 		daoSpatialReference = daoFactory.getDao(SpatialReference.class);
 		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
+		daoT017UrlRef = daoFactory.getDao(T017UrlRef.class);
 	}
 
 	/**
@@ -116,6 +118,9 @@ public class DocToBeanMapper implements IMapper {
 
 			// update related SpatialReferences
 			updateSpatialReferences(oDocIn, oIn);
+
+			// update related SpatialReferences
+			updateT017UrlRefs(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -235,6 +240,30 @@ public class DocToBeanMapper implements IMapper {
 		spRefValue.setSpatialRefSnsId(spRefSnsId);
 
 		return spRefValue;
+	}
+
+	/**
+	 * Transfer data to passed bean.
+	 */
+	private T017UrlRef mapT017UrlRef(T01Object oFrom,
+		IngridDocument urlDoc,
+		T017UrlRef urlRef, 
+		int line) 
+	{
+		urlRef.setObjId(oFrom.getId());
+		urlRef.setUrlLink((String) urlDoc.get(MdekKeys.LINKAGE_URL));
+		urlRef.setSpecialRef((Integer) urlDoc.get(MdekKeys.LINKAGE_REFERENCE_ID));
+		urlRef.setSpecialName((String) urlDoc.get(MdekKeys.LINKAGE_REFERENCE));
+		urlRef.setDatatype((String) urlDoc.get(MdekKeys.LINKAGE_DATATYPE));
+		urlRef.setVolume((String) urlDoc.get(MdekKeys.LINKAGE_VOLUME));
+		urlRef.setIcon((String) urlDoc.get(MdekKeys.LINKAGE_ICON_URL));
+		urlRef.setIconText((String) urlDoc.get(MdekKeys.LINKAGE_ICON_TEXT));
+		urlRef.setDescr((String) urlDoc.get(MdekKeys.LINKAGE_DESCRIPTION));
+		urlRef.setContent((String) urlDoc.get(MdekKeys.LINKAGE_NAME));
+		urlRef.setUrlType((Integer) urlDoc.get(MdekKeys.LINKAGE_URL_TYPE));		
+		urlRef.setLine(line);
+
+		return urlRef;
 	}
 
 	private void updateObjectReferences(IngridDocument oDocIn, T01Object oIn) {
@@ -371,5 +400,28 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			daoSpatialReference.makeTransient(spRef);
 		}		
+	}
+
+	private void updateT017UrlRefs(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> urlDocs = (List) oDocIn.get(MdekKeys.LINKAGES);
+		if (urlDocs == null) {
+			urlDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T017UrlRef> urlRefs = oIn.getT017UrlRefs();
+		ArrayList<T017UrlRef> urlRefs_unprocessed = new ArrayList<T017UrlRef>(urlRefs);
+		// remove all !
+		for (T017UrlRef urlRef : urlRefs_unprocessed) {
+			urlRefs.remove(urlRef);
+			// delete-orphan doesn't work !!!?????
+			daoT017UrlRef.makeTransient(urlRef);
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument urlDoc : urlDocs) {
+			// add all as new ones
+			T017UrlRef urlRef = mapT017UrlRef(oIn, urlDoc, new T017UrlRef(), line);
+			urlRefs.add(urlRef);
+			line++;
+		}
 	}
 }
