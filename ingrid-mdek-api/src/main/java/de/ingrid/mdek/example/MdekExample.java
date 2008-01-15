@@ -96,8 +96,15 @@ class MdekThread extends Thread {
 		isRunning = true;
 
 		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
+		// Obj/Adr Refs
 //		String objUuid = "5CE671D3-5475-11D3-A172-08002B9A1D1D";
-		String objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
+		// Spatial Refs
+//		String objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
+		// URL Refs
+//		String objUuid = "43D34D1A-55BA-11D6-8840-0000F4ABB4D8";
+		// Spatial Refs + URL Refs
+		String objUuid = "15C69C29-FE15-11D2-AF34-0060084A4596";
+
 		IngridDocument oMap;
 
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
@@ -143,7 +150,7 @@ class MdekThread extends Thread {
 		// -----------------------------------
 
 		// store NEW object with address and obj reference and get Uuid
-		System.out.println("\n----- store new object (with address, object references, spatial refs) -----");
+		System.out.println("\n----- store new object (with address, object references, spatial refs ...) -----");
 
 		IngridDocument objDoc = new IngridDocument();
 		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
@@ -419,6 +426,15 @@ class MdekThread extends Thread {
 			locations.remove(0);			
 		}
 
+		// remove first url reference !
+		List<IngridDocument> urls = (List<IngridDocument>) oDocIn.get(MdekKeys.LINKAGES);
+		IngridDocument urlRemoved = null;
+		if (urls != null && urls.size() > 0) {
+			urlRemoved = urls.get(0);
+			System.out.println("REMOVE FIRST URL: " + urlRemoved);
+			urls.remove(0);			
+		}
+
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
@@ -439,42 +455,48 @@ class MdekThread extends Thread {
 			
 			if (aRemoved != null) {
 				adrs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADR_REFERENCES_TO);
-				// and add address again
 				adrs.add(aRemoved);
 				System.out.println("ADD REMOVED ADDRESS AGAIN: " + aRemoved);
 			}
 			if (oRemoved != null) {
 				objs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.OBJ_REFERENCES_TO);
-				// and add object again
 				objs.add(oRemoved);
 				System.out.println("ADD REMOVED OBJECT QUERVERWEIS AGAIN: " + oRemoved);
 			}
 			if (locRemoved != null) {
 				locations = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LOCATIONS);
-				// and add object again
 				locations.add(locRemoved);
 				System.out.println("ADD REMOVED LOCATION AGAIN: " + locRemoved);
 			}
-			if (aRemoved != null ||
-				oRemoved != null ||
-				locRemoved != null)
-			{
-				System.out.println("STORE");
-				startTime = System.currentTimeMillis();
-				System.out.println("storeObject WITH refetching object: ");
-				response = mdekCaller.storeObject(oRefetchedDoc, true);
-				endTime = System.currentTimeMillis();
-				neededTime = endTime - startTime;
-				System.out.println("EXECUTION TIME: " + neededTime + " ms");
-				result = mdekCaller.getResultFromResponse(response);
 
-				if (result != null) {
-					System.out.println("SUCCESS: ");
-					debugObjectDoc(result);
-				} else {
-					System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
-				}					
+			urls = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LINKAGES);
+			if (urlRemoved != null) {
+				urls.add(urlRemoved);
+				System.out.println("ADD REMOVED URL AGAIN: " + urlRemoved);
 			}
+			// add new URL
+			IngridDocument newUrl = new IngridDocument();
+			newUrl.put(MdekKeys.LINKAGE_URL, "http://www.wemove.com");
+			newUrl.put(MdekKeys.LINKAGE_NAME, "WEMOVE");
+			System.out.println("ADD NEW URL AT FIRST POS: " + newUrl);
+			urls.add(0, newUrl);
+
+			// store
+			System.out.println("STORE");
+			startTime = System.currentTimeMillis();
+			System.out.println("storeObject WITH refetching object: ");
+			response = mdekCaller.storeObject(oRefetchedDoc, true);
+			endTime = System.currentTimeMillis();
+			neededTime = endTime - startTime;
+			System.out.println("EXECUTION TIME: " + neededTime + " ms");
+			result = mdekCaller.getResultFromResponse(response);
+
+			if (result != null) {
+				System.out.println("SUCCESS: ");
+				debugObjectDoc(result);
+			} else {
+				System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			}					
 			
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
@@ -575,6 +597,13 @@ class MdekThread extends Thread {
 		docList = (List<IngridDocument>) o.get(MdekKeys.LOCATIONS);
 		if (docList != null) {
 			System.out.println("  Locations (Spatial References): " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.LINKAGES);
+		if (docList != null) {
+			System.out.println("  URL References: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			

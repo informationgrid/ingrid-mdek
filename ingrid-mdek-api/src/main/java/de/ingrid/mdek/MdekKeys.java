@@ -7,6 +7,12 @@ package de.ingrid.mdek;
  */
 public class MdekKeys {
 
+    // ADDITIONAL INFO IN REQUEST
+    // -------------------------
+    /** refetch an entity after an operation was performed ? 
+     *  Value: Boolean */
+    public final static String REQUESTINFO_REFETCH_ENTITY = "requestinfo_refetchEntity";
+
     // UI Lists
     // --------
 
@@ -28,12 +34,6 @@ public class MdekKeys {
     public final static String ADR_REFERENCES_TO = "adrReferencesTo";
     /** Value: List of Strings (uuids) */
     public final static String PATH = "path";
-
-    // ADDITIONAL INFO IN REQUEST
-    // -------------------------
-    /** refetch an entity after an operation was performed ? 
-     *  Value: Boolean */
-    public final static String REQUESTINFO_REFETCH_ENTITY = "requestinfo_refetchEntity";
 
     // ADDITIONAL INFO IN RESULT
     // -------------------------
@@ -152,6 +152,30 @@ public class MdekKeys {
     public final static String USE_CONSTRAINTS = "use-constraints";
     /** Value: String */
     public final static String FEES = "fees";
+
+    // URL REF
+    /** Value: List of IngridDocs */
+    public final static String LINKAGES = "linkages";
+    /** Value: String */
+    public final static String LINKAGE_URL = "linkage-url";
+    /** Value: Integer */
+    public final static String LINKAGE_REFERENCE_ID = "linkage-reference-id";
+    /** Value: String */
+    public final static String LINKAGE_REFERENCE = "linkage-reference";
+    /** Value: String */
+    public final static String LINKAGE_DATATYPE = "linkage-datatype";
+    /** Value: String */
+    public final static String LINKAGE_VOLUME = "linkage-volume";
+    /** Value: String */
+    public final static String LINKAGE_ICON_URL = "linkage-icon-url";
+    /** Value: String */
+    public final static String LINKAGE_ICON_TEXT = "linkage-icon-text";
+    /** Value: String */
+    public final static String LINKAGE_DESCRIPTION = "linkage-description";
+    /** Value: String */
+    public final static String LINKAGE_NAME = "linkage-name";
+    /** Value: Integer */
+    public final static String LINKAGE_URL_TYPE = "linkage-url-type";
 
     /** Value: String */
     public final static String ORIGINAL_CONTROL_IDENTIFIER = "original-control-identifier";
