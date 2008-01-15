@@ -30,6 +30,8 @@ public class DocToBeanMapper implements IMapper {
 	private ISpatialRefSnsDao daoSpatialRefSns;
 	private ISpatialRefValueDao daoSpatialRefValue;
 	private IGenericDao<IEntity> daoSpatialReference;
+	private IGenericDao<IEntity> daoT012ObjAdr;
+	private IGenericDao<IEntity> daoObjectReference;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -43,6 +45,8 @@ public class DocToBeanMapper implements IMapper {
 		daoSpatialRefSns = daoFactory.getSpatialRefSnsDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 		daoSpatialReference = daoFactory.getDao(SpatialReference.class);
+		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
+		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 	}
 
 	/**
@@ -104,16 +108,14 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setAvailAccessNote((String) oDocIn.get(MdekKeys.USE_CONSTRAINTS));
 			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
 
-			// update related SpatialReferences
-			// NOTICE: DO THIS WITH EMPTY Object/Address References !!!
-			// This one may call persist methods (which also saves maybe wrong references (when copied) )
-			updateSpatialReferences(oDocIn, oIn);
-
 			// update related object references (Querverweise)
 			updateObjectReferences(oDocIn, oIn);
 
 			// update related ObjAdrs
 			updateT012ObjAdrs(oDocIn, oIn, howMuch);
+
+			// update related SpatialReferences
+			updateSpatialReferences(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -264,6 +266,8 @@ public class DocToBeanMapper implements IMapper {
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (ObjectReference oR : oRefs_unprocessed) {
 			oRefs.remove(oR);
+			// delete-orphan doesn't work !!!?????
+			daoObjectReference.makeTransient(oR);
 		}		
 	}
 
@@ -296,6 +300,8 @@ public class DocToBeanMapper implements IMapper {
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (T012ObjAdr oA : oAs_unprocessed) {
 			oAs.remove(oA);
+			// delete-orphan doesn't work !!!?????
+			daoT012ObjAdr.makeTransient(oA);
 		}		
 	}
 

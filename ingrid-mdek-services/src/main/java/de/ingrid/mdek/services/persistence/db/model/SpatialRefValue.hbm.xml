@@ -20,10 +20,6 @@
                    update="false"
                    insert="false"
                    cascade="delete"/>
-      <set name="spatialReferences" table="spatial_reference" inverse="true">
-         <key column="spatial_ref_id"/>
-         <one-to-many class="SpatialReference" not-found="ignore"/>
-      </set>
    </class>
 
 </hibernate-mapping>

@@ -19,7 +19,6 @@ public class SpatialRefValue implements IEntity {
 	private Double y2;
 
 	private SpatialRefSns spatialRefSns;
-	private Set spatialReferences = new HashSet();
 
 	public SpatialRefValue() {}
 
@@ -110,14 +109,6 @@ public class SpatialRefValue implements IEntity {
 
 	public void setSpatialRefSns(SpatialRefSns spatialRefSns) {
 		this.spatialRefSns = spatialRefSns;
-	}
-
-	public Set getSpatialReferences() {
-		return spatialReferences;
-	}
-
-	public void setSpatialReferences(Set spatialReferences) {
-		this.spatialReferences = spatialReferences;
 	}
 
 }
