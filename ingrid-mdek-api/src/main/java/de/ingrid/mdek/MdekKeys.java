@@ -52,6 +52,10 @@ public class MdekKeys {
     /** the uuid of the parent (object or address)<br>
      *	Value: String */
     public final static String PARENT_UUID = "parent-uuid";
+    /** Value: String */
+    public final static String FROM_UUID = "from-uuid";
+    /** Value: String */
+    public final static String TO_UUID = "to-uuid";
     /** the class of the entity (object or address)<br>
      *	Value: Integer */
     public final static String CLASS = "class";

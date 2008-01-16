@@ -96,15 +96,17 @@ class MdekThread extends Thread {
 		isRunning = true;
 
 		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
+		// Obj/Adr Refs, Spatial Refs + URL Refs
+		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
 		// Obj/Adr Refs
 //		String objUuid = "5CE671D3-5475-11D3-A172-08002B9A1D1D";
 		// Spatial Refs
 //		String objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
 		// URL Refs
 //		String objUuid = "43D34D1A-55BA-11D6-8840-0000F4ABB4D8";
-		// Spatial Refs + URL Refs
-		String objUuid = "15C69C29-FE15-11D2-AF34-0060084A4596";
-
+		// Spatial Refs + URL Refs + 180 kids !
+//		String objUuid = "15C69C29-FE15-11D2-AF34-0060084A4596";
+		
 		IngridDocument oMap;
 
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
@@ -112,31 +114,38 @@ class MdekThread extends Thread {
 		//mdekCaller.testMdekEntity(threadNumber);
 
 		// -----------------------------------
+		// ui: initial lists
 
 		System.out.println("\n----- UI List Values -----");
 		getUiListValues();
 
 		// -----------------------------------
+		// tree: top objects
 
 		System.out.println("\n----- top objects -----");
 		fetchTopObjects();
 
 		// -----------------------------------
+		// tree: sub objects
 
 		System.out.println("\n----- sub objects -----");
 		fetchSubObjects(parentUuid);
 
 		// -----------------------------------
+		// tree: object path
 
 		System.out.println("\n----- object path -----");
 		getObjectPath(objUuid);
 
 		// -----------------------------------
+		// object: load
 
 		System.out.println("\n----- object details -----");
 		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
+		// object: change and store and discard changes (working <-> published version)
+		System.out.println("\n");
 
 		System.out.println("\n----- change and store existing object -> working copy ! -----");
 		storeObject(oMap);
@@ -148,37 +157,49 @@ class MdekThread extends Thread {
 		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
+		// object: store NEW object and verify associations
+		System.out.println("\n");
 
-		// store NEW object with address and obj reference and get Uuid
 		System.out.println("\n----- store new object (with address, object references, spatial refs ...) -----");
-
 		IngridDocument objDoc = new IngridDocument();
 		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		objDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
 		objDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
 		objDoc.put(MdekKeys.LOCATIONS, oMap.get(MdekKeys.LOCATIONS));
 		// supply parent uuid !
-		objDoc.put(MdekKeys.PARENT_UUID, objUuid);
+		objDoc.put(MdekKeys.PARENT_UUID, parentUuid);
 
 		oMap = storeObject(objDoc);
 		// uuid created !
 		String newUuid = (String) oMap.get(MdekKeys.UUID);
 
-		// verify new Subobject
 		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
-		fetchSubObjects(objUuid);
+		fetchSubObjects(parentUuid);
 
 		// -----------------------------------
+		// tree: move object sub tree
+		System.out.println("\n");
 
-		// delete new Object
-		System.out.println("\n----- delete new object (WORKING COPY) -----");
+		System.out.println("\n\n----- move new object sub tree -----");
+		String oldParentUuid = parentUuid;
+		String newParentUuid = objUuid;
+		moveObjectSubTree(newUuid, newParentUuid);
+		System.out.println("\n----- verify old parent subobjects (cut) -----");
+		fetchSubObjects(oldParentUuid);
+		System.out.println("\n----- verify new parent subobjects (added) -----");
+		fetchSubObjects(newParentUuid);
+
+		// -----------------------------------
+		// object: delete new object and verify deletion
+		System.out.println("\n");
+
+		System.out.println("\n----- delete new object (WORKING COPY) -> FULL DELETE -----");
 		deleteObjectWorkingCopy(newUuid);
 		System.out.println("\n----- verify deletion of new object -----");
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
-		fetchSubObjects(objUuid);
+		fetchSubObjects(newParentUuid);
 
-		// -----------------------------------
 /*
 		System.out.println("\n\n----- DELETE TEST (DELETES WHOLE SUBTREE) -----");
 		
@@ -502,6 +523,30 @@ class MdekThread extends Thread {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
 
+		return result;
+	}
+
+	private IngridDocument moveObjectSubTree(String fromUuid, String toUuid) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE moveObjectSubTree ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.moveObjectSubTree(fromUuid, toUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+		
 		return result;
 	}
 
