@@ -192,6 +192,25 @@ class MdekThread extends Thread {
 		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596");
 
 		// -----------------------------------
+		// tree: copy object sub tree
+		System.out.println("\n");
+
+		System.out.println("\n\n----- copy parent of new object to top (WITHOUT sub tree) -----");
+		String objectFrom = newParentUuid;
+		String objectTo = null;
+		oMap = copyObject(objectFrom, objectTo, false);
+		System.out.println("\n\n----- verify NO copied sub objects -> load children of copy -----");
+		fetchSubObjects((String)oMap.get(MdekKeys.UUID));
+		System.out.println("\n\n----- copy parent of new object to top (WITH sub tree) -----");
+		oMap = copyObject(objectFrom, objectTo, true);
+		System.out.println("\n\n----- verify copied sub objects -> load children of copy -----");
+		fetchSubObjects((String)oMap.get(MdekKeys.UUID));
+		System.out.println("\n----- verify copy of nodes, load top -> new top objects -----");
+		fetchTopObjects();
+		System.out.println("\n----- do \"forbidden\" copy -----");
+		copyObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", true);
+
+		// -----------------------------------
 		// object: delete new object and verify deletion
 		System.out.println("\n");
 
@@ -339,7 +358,7 @@ class MdekThread extends Thread {
 			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
-				System.out.println(o);				
+				System.out.println(o);
 			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
@@ -536,7 +555,7 @@ class MdekThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE moveObjectSubTree ######");
+		System.out.println("\n###### INVOKE moveObject ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.moveObject(fromUuid, toUuid);
 		endTime = System.currentTimeMillis();
@@ -545,6 +564,31 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+		
+		return result;
+	}
+
+	private IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE copyObject ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.copyObject(fromUuid, toUuid, copySubtree);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			System.out.println(result);
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}
