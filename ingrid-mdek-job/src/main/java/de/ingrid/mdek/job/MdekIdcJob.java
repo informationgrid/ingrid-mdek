@@ -250,7 +250,7 @@ public class MdekIdcJob extends MdekJob {
 			}
 			oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
 			 // save it to generate id !
-			daoT01Object.makePersistent(oWork);			
+			daoT01Object.makePersistent(oWork);
 		}
 
 		// transfer new data and store.
@@ -376,13 +376,12 @@ public class MdekIdcJob extends MdekJob {
 		return result;		
 	}
 
-	/** Copy Object to new parent (with or without its subtree) */
-/*
+	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied object. */
 	public IngridDocument copyObject(IngridDocument params) {
 		String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 		String toUuid = (String) params.get(MdekKeys.TO_UUID);
 		Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
-		IngridDocument result = null;
+		IngridDocument resultDoc = null;
 
 		daoT01Object.beginTransaction();
 
@@ -390,24 +389,22 @@ public class MdekIdcJob extends MdekJob {
 		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
 		IngridDocument errDoc = checkValidTreeNodes(fromNode, toUuid);
 
-		// move object when checks ok
+		// copy object when checks ok
 		if (errDoc == null) {
-			
-			// copy whole 
-
-			// set new parent, may be null, then top node !
-			fromNode.setFkObjUuid(toUuid);		
-			daoObjectNode.makePersistent(fromNode);
+			// copy fromNode
+			ObjectNode fromNodeCopy = createObjectNodeCopy(fromNode, toUuid, copySubtree);
 
 			// success
-			result = new IngridDocument();			
+			resultDoc = new IngridDocument();
+			beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);			
+
 		}
 
 		daoT01Object.commitTransaction();
 
-		return result;		
+		return resultDoc;		
 	}
-*/
+
 	private IngridDocument getObjDetails(String uuid) {
 		IngridDocument resultDoc = null;
 
@@ -460,18 +457,77 @@ public class MdekIdcJob extends MdekJob {
 		return null;
 	}
 
-	private T01Object createObjectCopy(T01Object objSource) {
-		// create new object with same uuid and save it (to generate id !)
-		T01Object objTarget = new T01Object();
-		objTarget.setObjUuid(objSource.getObjUuid());
-		daoT01Object.makePersistent(objTarget);
+	/**
+	 * Creates a copy of the given ObjectNode and adds it under the given parent.
+	 * Also copies whole subtree dependent from passed flag.
+	 * Already Persisted !
+	 */
+	private ObjectNode createObjectNodeCopy(ObjectNode sourceNode, String newParentUuid, boolean copySubtree) {
+
+		// copy source work version !
+		String newUuid = UuidGenerator.getInstance().generateUuid();
+		T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid);
+		T01Object targetObjPub = null;
+
+		// check whether we also have to copy published version !
+		Long sourceObjPubId = sourceNode.getObjIdPublished();
+		Long sourceObjWorkId = sourceNode.getObjId();		
+		if (sourceObjPubId != null) {
+			if (sourceObjPubId.equals(sourceObjWorkId)) {
+				targetObjPub = targetObjWork;
+			} else {
+				targetObjPub = createT01ObjectCopy(sourceNode.getT01ObjectPublished(), newUuid);
+			}
+		}
+
+		// create new Node and set data !
+		// we also set Beans in object node, so we can access them afterwards.
+		Long targetObjWorkId = targetObjWork.getId();
+		Long targetObjPubId = (targetObjPub != null) ? targetObjPub.getId() : null; 
+		
+		ObjectNode targetNode = new ObjectNode();
+		targetNode.setObjUuid(newUuid);
+		targetNode.setObjId(targetObjWorkId);
+		targetNode.setT01ObjectWork(targetObjWork);
+		targetNode.setObjIdPublished(targetObjPubId);
+		targetNode.setT01ObjectPublished(targetObjPub);
+		targetNode.setFkObjUuid(newParentUuid);		
+		daoObjectNode.makePersistent(targetNode);
+		
+		if (copySubtree) {
+			List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid());
+			for (ObjectNode sourceSubNode : sourceSubNodes) {
+				createObjectNodeCopy(sourceSubNode, newUuid, copySubtree);
+			}
+		}
+
+		return targetNode;
+	}
+
+	/**
+	 * Creates a copy of the given T01Object with the given NEW uuid. Already Persisted !
+	 */
+	private T01Object createT01ObjectCopy(T01Object sourceObj, String newUuid) {
+		// create new object with new uuid and save it (to generate id !)
+		T01Object targetObj = new T01Object();
+		targetObj.setObjUuid(newUuid);
+		daoT01Object.makePersistent(targetObj);
 
 		// then copy content via mappers
-		IngridDocument objSourceDoc =
-			beanToDocMapper.mapT01Object(objSource, new IngridDocument(), MappingQuantity.COPY_ENTITY);
-		docToBeanMapper.mapT01Object(objSourceDoc, objTarget, MappingQuantity.COPY_ENTITY);
 		
-		return objTarget;
+		// map source bean to doc
+		IngridDocument sourceObjDoc =
+			beanToDocMapper.mapT01Object(sourceObj, new IngridDocument(), MappingQuantity.COPY_ENTITY);
+		
+		// update new data in doc !
+		sourceObjDoc.put(MdekKeys.UUID, newUuid);
+
+		// and transfer data from doc to new bean
+		docToBeanMapper.mapT01Object(sourceObjDoc, targetObj, MappingQuantity.COPY_ENTITY);
+
+		daoT01Object.makePersistent(targetObj);
+
+		return targetObj;
 	}
 
 /*
