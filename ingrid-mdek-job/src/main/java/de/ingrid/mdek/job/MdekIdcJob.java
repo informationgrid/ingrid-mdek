@@ -209,86 +209,58 @@ public class MdekIdcJob extends MdekJob {
 		String uuid = (String) params.get(MdekKeys.UUID);
 		return getObjDetails(uuid);
 	}
-	private IngridDocument getObjDetails(String uuid) {
-		IngridDocument resultDoc = null;
-
-		daoObjectNode.beginTransaction();
-
-		// first get all "internal" object data (referenced addresses ...)
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-		if (oNode != null) {
-			resultDoc = new IngridDocument();
-			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);			
-		
-			// then get "external" data (objects referencing the given object ...)
-			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
-			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-		}
-
-		daoObjectNode.commitTransaction();
-
-		return resultDoc;		
-	}
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
 		Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
-		// set common data in document
+		// set common data to transfer to working copy !
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 		oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 
 		daoT01Object.beginTransaction();
 
-		T01Object o = null;
-		ObjectNode oNode = null;
-
 		if (uuid == null) {
-			// New Object  !!!
-			
-			// create new object (save it to generate id !)
+			// create new uuid
 			uuid = UuidGenerator.getInstance().generateUuid();
 			oDocIn.put(MdekKeys.UUID, uuid);
-			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
-			o = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-			daoT01Object.makePersistent(o);
-			
-			// and new ObjectNode
-			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());
+		}
+		
+		// load node
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode == null) {
+			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
+		}
+		
+		// get/create working copy
+		T01Object oWork = oNode.getT01ObjectWork();
+		Long oWorkId = (oWork != null) ? oWork.getId() : null; 
+		T01Object oPub = oNode.getT01ObjectPublished();
+		Long oPubId = (oPub != null) ? oPub.getId() : null; 
+		if (oWorkId == null || oWorkId.equals(oPubId)) {
+			// no working copy yet, create new object with BASIC data
 
-		} else {
-			// Existing Object !!!
-
-			oNode = daoObjectNode.getObjDetails(uuid);
-
-			// do we have to create a working copy
-			if (oNode.getObjId().equals(oNode.getObjIdPublished())) {
-
-				// no working copy yet, create it with same uuid and save it (to generate id !)
-				T01Object oPub = oNode.getT01ObjectPublished();
-				o = new T01Object();
-				o.setObjUuid(oPub.getObjUuid());
-				daoT01Object.makePersistent(o);
-
-				// then copy content from published one (via mappers)
-				IngridDocument oDocPub =
-					beanToDocMapper.mapT01Object(oPub, new IngridDocument(), MappingQuantity.COPY_ENTITY);
-				docToBeanMapper.mapT01Object(oDocPub, o, MappingQuantity.COPY_ENTITY);
-				
+			// set some missing data which may not be passed from client.
+			// set from published version if existent
+			if (oPub != null) {
+				oDocIn.put(MdekKeys.DATE_OF_CREATION, oPub.getCreateTime());				
 			} else {
-				o = oNode.getT01ObjectWork();
+				oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			}
+			oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+			 // save it to generate id !
+			daoT01Object.makePersistent(oWork);			
 		}
 
 		// transfer new data and store.
-		docToBeanMapper.mapT01Object(oDocIn, o, MappingQuantity.DETAIL_ENTITY);
-		daoT01Object.makePersistent(o);
+		docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
+		daoT01Object.makePersistent(oWork);
 
 		// and update ObjectNode with working copy if not set yet
-		Long oId = o.getId();
-		if (!oId.equals(oNode.getObjId())) {
-			oNode.setObjId(oId);
+		oWorkId = oWork.getId();
+		if (!oWorkId.equals(oNode.getObjId())) {
+			oNode.setObjId(oWorkId);
 			daoObjectNode.makePersistent(oNode);
 		}
 		
@@ -377,7 +349,8 @@ public class MdekIdcJob extends MdekJob {
 		return result;		
 	}
 
-	public IngridDocument moveObjectSubTree(IngridDocument params) {
+	/** Move Object with its subtree to new parent. */
+	public IngridDocument moveObject(IngridDocument params) {
 		String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 		String toUuid = (String) params.get(MdekKeys.TO_UUID);
 		IngridDocument result = null;
@@ -385,21 +358,11 @@ public class MdekIdcJob extends MdekJob {
 		daoT01Object.beginTransaction();
 
 		// perform checks
-		boolean nodesValid = true;
 		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-		if (fromNode == null) {
-			nodesValid = false;
-			// TODO: transfer error !
-		}
-		if (nodesValid && toUuid != null) {
-			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
-				nodesValid = false;
-				// TODO: transfer error !				
-			}
-		}
+		IngridDocument errDoc = checkValidTreeNodes(fromNode, toUuid);
 
 		// move object when checks ok
-		if (nodesValid) {
+		if (errDoc == null) {
 			// set new parent, may be null, then top node !
 			fromNode.setFkObjUuid(toUuid);		
 			daoObjectNode.makePersistent(fromNode);
@@ -411,6 +374,104 @@ public class MdekIdcJob extends MdekJob {
 		daoT01Object.commitTransaction();
 
 		return result;		
+	}
+
+	/** Copy Object to new parent (with or without its subtree) */
+/*
+	public IngridDocument copyObject(IngridDocument params) {
+		String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+		String toUuid = (String) params.get(MdekKeys.TO_UUID);
+		Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
+		IngridDocument result = null;
+
+		daoT01Object.beginTransaction();
+
+		// perform checks
+		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+		IngridDocument errDoc = checkValidTreeNodes(fromNode, toUuid);
+
+		// move object when checks ok
+		if (errDoc == null) {
+			
+			// copy whole 
+
+			// set new parent, may be null, then top node !
+			fromNode.setFkObjUuid(toUuid);		
+			daoObjectNode.makePersistent(fromNode);
+
+			// success
+			result = new IngridDocument();			
+		}
+
+		daoT01Object.commitTransaction();
+
+		return result;		
+	}
+*/
+	private IngridDocument getObjDetails(String uuid) {
+		IngridDocument resultDoc = null;
+
+		daoObjectNode.beginTransaction();
+
+		// first get all "internal" object data (referenced addresses ...)
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode != null) {
+			resultDoc = new IngridDocument();
+			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);			
+		
+			// then get "external" data (objects referencing the given object ...)
+			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
+			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		}
+
+		daoObjectNode.commitTransaction();
+
+		return resultDoc;		
+	}
+
+	/** Check whether passed nodes are valid for performing tree operations (copy, move ...)
+	 * @param fromNode source node
+	 * @param toUuid target node
+	 * @return null if ok, else IngridDoc containing errors
+	 */
+	private IngridDocument checkValidTreeNodes(ObjectNode fromNode, String toUuid) {
+		boolean nodesValid = true;
+		IngridDocument errDoc = new IngridDocument();
+
+		String fromUuid = null;
+		if (fromNode == null) {
+			nodesValid = false;
+			// TODO: transfer error !
+		} else {
+			fromUuid = fromNode.getObjUuid();
+		}
+
+		if (fromUuid != null && toUuid != null) {
+			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
+				nodesValid = false;
+				// TODO: transfer error !				
+			}
+		}
+		
+		if (!nodesValid) {
+			return errDoc;
+		}
+
+		return null;
+	}
+
+	private T01Object createObjectCopy(T01Object objSource) {
+		// create new object with same uuid and save it (to generate id !)
+		T01Object objTarget = new T01Object();
+		objTarget.setObjUuid(objSource.getObjUuid());
+		daoT01Object.makePersistent(objTarget);
+
+		// then copy content via mappers
+		IngridDocument objSourceDoc =
+			beanToDocMapper.mapT01Object(objSource, new IngridDocument(), MappingQuantity.COPY_ENTITY);
+		docToBeanMapper.mapT01Object(objSourceDoc, objTarget, MappingQuantity.COPY_ENTITY);
+		
+		return objTarget;
 	}
 
 /*
