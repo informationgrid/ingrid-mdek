@@ -83,23 +83,21 @@ public interface IMdekCaller {
 	IngridDocument checkObjectSubTree(String uuid);
 
 	/**
-	 * Copy an object with its subtree to another object.
-	 * All objects will be copied and will have new id/uuid.  
-	 * NOTICE: No check whether subobjects can be copied ! Call separate check operation !
-	 * @param fromUuid uuid of top object of tree to copy (this one will also be copied)
-	 * @param toUuid uuid of object where to add copied tree, this will be the parent
-	 * @return response containing result: map containing basic data of top object of new tree
+	 * Copy an object to another parent.
+	 * @param fromUuid uuid of node to copy
+	 * @param toUuid uuid of parent where to copy to (new subnode)
+	 * @param copySubtree true=also copy subtree, false=only object without subObjects
+	 * @return response containing result: map containing basic data of copied object
 	 */
-	IngridDocument copyObjectSubTree(String fromUuid, String toUuid);
+	IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree);
 
 	/**
-	 * Move an object with its subtree to another object.
-	 * NOTICE: No check whether subobjects can be moved ! Call separate check operation !
-	 * @param fromUuid uuid of top object of tree to move (this one will be removed from its parent)
-	 * @param toUuid uuid of object where to move tree to, this will be the new parent
-	 * @return response containing result: map containing info about success
+	 * Move an object with its subtree to another parent.
+	 * @param fromUuid uuid of node to move (this one will be removed from its parent)
+	 * @param toUuid uuid of new parent
+	 * @return response containing result: result is null when error
 	 */
-	IngridDocument moveObjectSubTree(String fromUuid, String toUuid);
+	IngridDocument moveObject(String fromUuid, String toUuid);
 
 
 	// uncomment when needed ! then recheck functionality and implementation !

@@ -171,22 +171,23 @@ public class MdekCaller implements IMdekCaller {
 		return new IngridDocument();		
 	}
 
-	public IngridDocument copyObjectSubTree(
-		String fromUuid,
-		String toUuid)
-	{
-		// TODO implement copyObjectSubTree
-		return new IngridDocument();		
-	}
-
-	public IngridDocument moveObjectSubTree(
-		String fromUuid,
-		String toUuid)
+	public IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree)
 	{
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
 		jobParams.put(MdekKeys.TO_UUID, toUuid);
-		List jobMethods = setUpJobMethod("moveObjectSubTree", jobParams);
+		jobParams.put(MdekKeys.REQUESTINFO_COPY_SUBTREE, copySubtree);
+		List jobMethods = setUpJobMethod("copyObject", jobParams);
+
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument moveObject(String fromUuid, String toUuid)
+	{
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
+		jobParams.put(MdekKeys.TO_UUID, toUuid);
+		List jobMethods = setUpJobMethod("moveObject", jobParams);
 
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}

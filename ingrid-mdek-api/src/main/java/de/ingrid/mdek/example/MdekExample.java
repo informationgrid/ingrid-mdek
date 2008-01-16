@@ -180,16 +180,16 @@ class MdekThread extends Thread {
 		// tree: move object sub tree
 		System.out.println("\n");
 
-		System.out.println("\n\n----- move new object sub tree -----");
+		System.out.println("\n\n----- move new object (with sub tree) -----");
 		String oldParentUuid = parentUuid;
 		String newParentUuid = objUuid;
-		moveObjectSubTree(newUuid, newParentUuid);
+		moveObject(newUuid, newParentUuid);
 		System.out.println("\n----- verify old parent subobjects (cut) -----");
 		fetchSubObjects(oldParentUuid);
 		System.out.println("\n----- verify new parent subobjects (added) -----");
 		fetchSubObjects(newParentUuid);
 		System.out.println("\n----- do \"forbidden\" move -----");
-		moveObjectSubTree("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596");
+		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596");
 
 		// -----------------------------------
 		// object: delete new object and verify deletion
@@ -528,7 +528,7 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument moveObjectSubTree(String fromUuid, String toUuid) {
+	private IngridDocument moveObject(String fromUuid, String toUuid) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
@@ -538,7 +538,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE moveObjectSubTree ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.moveObjectSubTree(fromUuid, toUuid);
+		response = mdekCaller.moveObject(fromUuid, toUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

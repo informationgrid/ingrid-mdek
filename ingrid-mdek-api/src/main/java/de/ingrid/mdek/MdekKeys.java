@@ -9,9 +9,12 @@ public class MdekKeys {
 
     // ADDITIONAL INFO IN REQUEST
     // -------------------------
-    /** refetch an entity after an operation was performed ? 
+    /** Refetch an entity after an operation was performed ? 
      *  Value: Boolean */
     public final static String REQUESTINFO_REFETCH_ENTITY = "requestinfo_refetchEntity";
+    /** Also copy subtree when an entity is copied ? 
+     *  Value: Boolean */
+    public final static String REQUESTINFO_COPY_SUBTREE = "requestinfo_copySubtree";
 
     // UI Lists
     // --------
