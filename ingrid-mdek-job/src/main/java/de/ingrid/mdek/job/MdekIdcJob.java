@@ -380,18 +380,33 @@ public class MdekIdcJob extends MdekJob {
 	public IngridDocument moveObjectSubTree(IngridDocument params) {
 		String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 		String toUuid = (String) params.get(MdekKeys.TO_UUID);
-		IngridDocument result = new IngridDocument();
+		IngridDocument result = null;
 
 		daoT01Object.beginTransaction();
 
-		// NOTICE: this one also contains Parent Association !
+		// perform checks
+		boolean nodesValid = true;
 		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+		if (fromNode == null) {
+			nodesValid = false;
+			// TODO: transfer error !
+		}
+		if (nodesValid && toUuid != null) {
+			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
+				nodesValid = false;
+				// TODO: transfer error !				
+			}
+		}
 
-		// TODO: perform checks whether object move allowed ! (from/to-node exist, new parent not subobject ...)
+		// move object when checks ok
+		if (nodesValid) {
+			// set new parent, may be null, then top node !
+			fromNode.setFkObjUuid(toUuid);		
+			daoObjectNode.makePersistent(fromNode);
 
-		// set new parent
-		fromNode.setFkObjUuid(toUuid);		
-		daoObjectNode.makePersistent(fromNode);
+			// success
+			result = new IngridDocument();			
+		}
 
 		daoT01Object.commitTransaction();
 
