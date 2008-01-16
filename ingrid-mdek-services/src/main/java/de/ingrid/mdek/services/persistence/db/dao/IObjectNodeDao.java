@@ -20,8 +20,14 @@ public interface IObjectNodeDao
 
 	List<ObjectNode> getTopObjects();
 
-	/** Fetches sub objects of object with given id */
-	List<ObjectNode> getSubObjects(String uuid);
+	/** Fetches sub objects of parent with given uuid (only next level) */
+	List<ObjectNode> getSubObjects(String parentUuid);
+
+	/** Get sub uuids of parent with given uuid (only next level) */
+	List<String> getSubObjectUuids(String parentUuid);
+
+	/** Checks whether the given uuid is ANYWHERE below the given parent uuid. */
+	boolean isSubNode(String uuidToCheck, String uuidParent);
 
 	/** Fetches object with given uuid containing all detailed object data. */
 	ObjectNode getObjDetails(String uuid);

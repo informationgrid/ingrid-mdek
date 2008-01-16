@@ -56,7 +56,7 @@ public class ObjectNodeDaoHibernate
 		return retList;
 	}
 
-	public List<ObjectNode> getSubObjects(String uuid) {
+	public List<ObjectNode> getSubObjects(String parentUuid) {
 		Session session = getSession();
 		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
 
@@ -65,7 +65,7 @@ public class ObjectNodeDaoHibernate
 				"left join fetch oNd.objectNodeChildren oChildren " +
 				"where oNd.fkObjUuid = ? " +
 				"order by o.objName")
-				.setString(0, uuid)
+				.setString(0, parentUuid)
 				.list();
 
 		// NOTICE: upper query returns objects multiple times, filter them !
@@ -76,6 +76,37 @@ public class ObjectNodeDaoHibernate
 		}
 		return retList;
 	}
+
+	public List<String> getSubObjectUuids(String parentUuid) {
+		Session session = getSession();
+
+		List<String> childUuids = session.createQuery("select oNd.objUuid " +
+				"from ObjectNode oNd " +
+				"where oNd.fkObjUuid = ?")
+				.setString(0, parentUuid)
+				.list();
+		
+		return childUuids;
+	}
+
+	public boolean isSubNode(String uuidToCheck, String uuidParent) {
+		List<String> subUuids = getSubObjectUuids(uuidParent);
+		// first check complete next sub level
+		for (String subUuid : subUuids) {
+			if (subUuid.equals(uuidToCheck)) {
+				return true;
+			}
+		}
+		// then go deeper
+		for (String subUuid : subUuids) {
+			if (isSubNode(uuidToCheck, subUuid)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 
 	public ObjectNode getObjDetails(String uuid) {
 		Session session = getSession();

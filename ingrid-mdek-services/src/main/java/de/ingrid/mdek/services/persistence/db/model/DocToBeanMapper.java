@@ -56,9 +56,10 @@ public class DocToBeanMapper implements IMapper {
 	 */
 	public ObjectNode mapObjectNode(IngridDocument oDocIn, ObjectNode oNodeIn) {
 		oNodeIn.setObjUuid((String) oDocIn.get(MdekKeys.UUID));
-		String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-		if (parentUuid != null) {
-			oNodeIn.setFkObjUuid(parentUuid);				
+		if (oDocIn.containsKey(MdekKeys.PARENT_UUID)) {
+			// NOTICE: parent may be null, then root node !
+			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+			oNodeIn.setFkObjUuid(parentUuid);
 		}
 
 		return oNodeIn;
