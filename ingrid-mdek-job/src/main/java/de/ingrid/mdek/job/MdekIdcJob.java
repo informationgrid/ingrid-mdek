@@ -116,7 +116,8 @@ public class MdekIdcJob extends MdekJob {
 	}
 */
 	// TODO: encapsulate all mdekJob methods in throw/catch performing rollback (releasing session not necessary due to getCurrentSession !?)
-	// TODO: check error in catch and set error in result !
+	// TODO: check error in catch and set error in result ! Then check result-error in job framework and take over to response (set null result ?) ?  
+	// TODO: How to transmit SUCCESS ? at the moment just non null result (empty IngridDoc)
 
 	public IngridDocument getUiListValues() {
 		IngridDocument result = new IngridDocument();
@@ -313,7 +314,7 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object.beginTransaction();
 
-		// NOTICE: this one also represents Parent Association !
+		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 
 		boolean performFullDelete = false;
@@ -363,7 +364,7 @@ public class MdekIdcJob extends MdekJob {
 
 		daoT01Object.beginTransaction();
 
-		// NOTICE: this one also represents Parent Association !
+		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 		if (oNode != null) {
 			// delete complete Node ! rest is deleted per cascade !
@@ -373,6 +374,27 @@ public class MdekIdcJob extends MdekJob {
 		daoT01Object.commitTransaction();
 
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);			
+		return result;		
+	}
+
+	public IngridDocument moveObjectSubTree(IngridDocument params) {
+		String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+		String toUuid = (String) params.get(MdekKeys.TO_UUID);
+		IngridDocument result = new IngridDocument();
+
+		daoT01Object.beginTransaction();
+
+		// NOTICE: this one also contains Parent Association !
+		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+
+		// TODO: perform checks whether object move allowed ! (from/to-node exist, new parent not subobject ...)
+
+		// set new parent
+		fromNode.setFkObjUuid(toUuid);		
+		daoObjectNode.makePersistent(fromNode);
+
+		daoT01Object.commitTransaction();
+
 		return result;		
 	}
 
