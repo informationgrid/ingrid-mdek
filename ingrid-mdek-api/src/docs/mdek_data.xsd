@@ -4,6 +4,8 @@
 		<xs:all>
 			<xs:element ref="uuid"/>
 			<xs:element name="parent-uuid" type="xs:string"/>
+			<xs:element name="from-uuid" type="xs:string"/>
+			<xs:element name="to-uuid" type="xs:string"/>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
 		</xs:all>

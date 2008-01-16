@@ -188,6 +188,8 @@ class MdekThread extends Thread {
 		fetchSubObjects(oldParentUuid);
 		System.out.println("\n----- verify new parent subobjects (added) -----");
 		fetchSubObjects(newParentUuid);
+		System.out.println("\n----- do \"forbidden\" move -----");
+		moveObjectSubTree("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596");
 
 		// -----------------------------------
 		// object: delete new object and verify deletion
