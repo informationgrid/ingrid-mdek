@@ -239,7 +239,7 @@ public class MdekIdcJob extends MdekJob {
 				oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			}
 			oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-			 // save it to generate id !
+			 // save it to generate id needed for mapping
 			daoT01Object.makePersistent(oWork);
 		}
 
@@ -253,6 +253,71 @@ public class MdekIdcJob extends MdekJob {
 			oNode.setObjId(oWorkId);
 			daoObjectNode.makePersistent(oNode);
 		}
+		
+		daoT01Object.commitTransaction();
+		
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.UUID, uuid);
+		if (refetchAfterStore) {
+			result = getObjDetails(uuid);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument publishObject(IngridDocument oDocIn) {
+		String uuid = (String) oDocIn.get(MdekKeys.UUID);
+		Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+
+		// set common data to transfer to working copy !
+		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
+
+		daoT01Object.beginTransaction();
+		
+		// TODO: Perform Checks !!! (Pflichtfelder etc.)
+
+		if (uuid == null) {
+			// create new uuid
+			uuid = UuidGenerator.getInstance().generateUuid();
+			oDocIn.put(MdekKeys.UUID, uuid);
+		}
+		
+		// load node
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode == null) {
+			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
+		}
+		
+		// get/create published version
+		T01Object oPub = oNode.getT01ObjectPublished();
+		if (oPub == null) {
+			// set some missing data which may not be passed from client.
+			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+			
+			// create new object with BASIC data
+			oPub = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+			 // save it to generate id needed for mapping
+			daoT01Object.makePersistent(oPub);
+		}
+
+		// transfer new data and store.
+		docToBeanMapper.mapT01Object(oDocIn, oPub, MappingQuantity.DETAIL_ENTITY);
+		daoT01Object.makePersistent(oPub);
+		Long oPubId = oPub.getId();
+
+		// and update ObjectNode
+
+		// delete former working copy if set
+		T01Object oWork = oNode.getT01ObjectWork();
+		if (oWork != null && !oPubId.equals(oWork.getId())) {
+			// delete working version
+			daoT01Object.makeTransient(oWork);
+		}
+		oNode.setObjId(oPubId);
+		oNode.setObjIdPublished(oPubId);
+		daoObjectNode.makePersistent(oNode);
 		
 		daoT01Object.commitTransaction();
 		
