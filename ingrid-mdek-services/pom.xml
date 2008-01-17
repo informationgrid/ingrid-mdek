@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
-			<version>3.2.1.ga</version>
+			<version>3.2.5.ga</version>
 			<!-- Because of asm version conflicts with cglib spring, we can't use the normal cglib dependency of hibernate
 		Rather we use the cglib-nodep lib, which has its own implementation of asm. -->
 			<exclusions>
