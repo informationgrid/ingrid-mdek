@@ -144,7 +144,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 		for (ObjectNode oN : oNs) {
 			IngridDocument objDoc = new IngridDocument();
-			beanToDocMapper.mapObjectNode(oN, objDoc);
+			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
 			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
 			resultList.add(objDoc);
 		}
@@ -166,7 +166,7 @@ public class MdekIdcJob extends MdekJob {
 		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 		for (ObjectNode oN : oNs) {
 			IngridDocument objDoc = new IngridDocument();
-			beanToDocMapper.mapObjectNode(oN, objDoc);
+			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
 			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
 			resultList.add(objDoc);
 		}
@@ -398,7 +398,7 @@ public class MdekIdcJob extends MdekJob {
 		resultDoc = new IngridDocument();
 		beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);
 		// also child info
-		beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc);
+		beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc, MappingQuantity.COPY_ENTITY);
 
 		daoT01Object.commitTransaction();
 
@@ -414,7 +414,10 @@ public class MdekIdcJob extends MdekJob {
 		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 		if (oNode != null) {
 			resultDoc = new IngridDocument();
-			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);			
+			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+			
+			// also map ObjectNode for published info
+			beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 		
 			// then get "external" data (objects referencing the given object ...)
 			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
