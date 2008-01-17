@@ -207,13 +207,18 @@ class MdekThread extends Thread {
 		String copy2Uuid = (String)oMap.get(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copied sub objects -> load children of copy -----");
 		fetchSubObjects(copy2Uuid);
-		System.out.println("\n----- verify copy of nodes, load top -> new top objects -----");
+		System.out.println("\n----- verify copy, load top -> new top objects -----");
 		fetchTopObjects();
 		System.out.println("\n----- delete copies (WORKING COPY) -> FULL DELETE -----");
 		deleteObjectWorkingCopy(copy1Uuid);
 		deleteObjectWorkingCopy(copy2Uuid);
-		System.out.println("\n----- do \"forbidden\" copy -----");
-		copyObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", true);
+		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new object below new object (WITH sub tree) -----");
+		copyObject(newParentUuid, newUuid, true);
+		System.out.println("\n\n----- verify copy -> load children of new object -----");
+		fetchSubObjects(newUuid);
+		// Following is allowed now ! Don't execute -> huge tree is copied !
+//		System.out.println("\n----- do \"forbidden\" copy -----");
+//		copyObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", true);
 
 		// -----------------------------------
 		// object: delete new object and verify deletion
