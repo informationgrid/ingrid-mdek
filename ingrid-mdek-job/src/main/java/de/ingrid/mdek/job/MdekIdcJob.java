@@ -387,17 +387,22 @@ public class MdekIdcJob extends MdekJob {
 
 		// perform checks
 		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+		ObjectNode toNode = null;
+		if (toUuid != null) {
+			toNode = daoObjectNode.loadByUuid(toUuid);
+		}
 		IngridDocument errDoc = checkValidTreeNodes(fromNode, toUuid);
 
 		// copy object when checks ok
 		if (errDoc == null) {
 			// copy fromNode
-			ObjectNode fromNodeCopy = createObjectNodeCopy(fromNode, toUuid, copySubtree);
+			ObjectNode fromNodeCopy = createObjectNodeCopy(fromNode, toNode, copySubtree);
 
 			// success
 			resultDoc = new IngridDocument();
-			beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);			
-
+			beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);
+			// also child info
+			beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc);
 		}
 
 		daoT01Object.commitTransaction();
@@ -462,14 +467,15 @@ public class MdekIdcJob extends MdekJob {
 	 * Also copies whole subtree dependent from passed flag.
 	 * Already Persisted !
 	 */
-	private ObjectNode createObjectNodeCopy(ObjectNode sourceNode, String newParentUuid, boolean copySubtree) {
+	private ObjectNode createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode, boolean copySubtree) {
 
 		// copy source work version !
 		String newUuid = UuidGenerator.getInstance().generateUuid();
 		T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid);
 		T01Object targetObjPub = null;
-
-		// check whether we also have to copy published version !
+/*
+	// NEVER COPY PUBLISHED VERSION !
+		// check whether we also have a published version to copy !
 		Long sourceObjPubId = sourceNode.getObjIdPublished();
 		Long sourceObjWorkId = sourceNode.getObjId();		
 		if (sourceObjPubId != null) {
@@ -479,11 +485,15 @@ public class MdekIdcJob extends MdekJob {
 				targetObjPub = createT01ObjectCopy(sourceNode.getT01ObjectPublished(), newUuid);
 			}
 		}
-
+*/
 		// create new Node and set data !
 		// we also set Beans in object node, so we can access them afterwards.
 		Long targetObjWorkId = targetObjWork.getId();
-		Long targetObjPubId = (targetObjPub != null) ? targetObjPub.getId() : null; 
+		Long targetObjPubId = (targetObjPub != null) ? targetObjPub.getId() : null;
+		String newParentUuid = null;
+		if (newParentNode != null) {
+			newParentUuid = newParentNode.getObjUuid();
+		}
 		
 		ObjectNode targetNode = new ObjectNode();
 		targetNode.setObjUuid(newUuid);
@@ -491,13 +501,18 @@ public class MdekIdcJob extends MdekJob {
 		targetNode.setT01ObjectWork(targetObjWork);
 		targetNode.setObjIdPublished(targetObjPubId);
 		targetNode.setT01ObjectPublished(targetObjPub);
-		targetNode.setFkObjUuid(newParentUuid);		
+		targetNode.setFkObjUuid(newParentUuid);
 		daoObjectNode.makePersistent(targetNode);
+		
+		// add child bean to parent bean, so we can determine children info when mapping (without reloading)
+		if (newParentNode != null) {
+			newParentNode.getObjectNodeChildren().add(targetNode);
+		}
 		
 		if (copySubtree) {
 			List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid());
 			for (ObjectNode sourceSubNode : sourceSubNodes) {
-				createObjectNodeCopy(sourceSubNode, newUuid, copySubtree);
+				createObjectNodeCopy(sourceSubNode, targetNode, copySubtree);
 			}
 		}
 
