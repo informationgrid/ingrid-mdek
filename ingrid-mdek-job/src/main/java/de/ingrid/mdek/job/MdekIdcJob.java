@@ -182,17 +182,7 @@ public class MdekIdcJob extends MdekJob {
 
 		daoObjectNode.beginTransaction();
 
-		ArrayList<String> uuidList = new ArrayList<String>();
-		while(uuid != null) {
-			ObjectNode oN = daoObjectNode.loadByUuid(uuid);
-			if (oN == null) {
-				log.error("Object with uuid=" + uuid + " NOT FOUND !");
-				uuidList = null;
-				break;
-			}
-			uuidList.add(0, uuid);
-			uuid = oN.getFkObjUuid();
-		}
+		List<String> uuidList = daoObjectNode.getObjectPath(uuid);
 
 		daoObjectNode.commitTransaction();
 
