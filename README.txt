@@ -32,6 +32,12 @@ Build
 	mvn install -Dmaven.test.skip=true
 
 
+Distribution erstellen
+----------------------
+
+- cd C:\...\ingrid-mdek\trunk
+mvn clean package assembly:assembly -Dmaven.test.skip=true
+
 "Test Suite"
 -----------
 
