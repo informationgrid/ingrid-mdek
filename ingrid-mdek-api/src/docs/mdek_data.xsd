@@ -28,6 +28,7 @@
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
+			<xs:element ref="isPublished"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="work-state"/>
@@ -55,8 +56,8 @@
 			<xs:element name="metadata-character-set" type="xs:integer"/>
 			<xs:element name="metadata-standard-name" type="xs:string"/>
 			<xs:element name="metadata-standard-version" type="xs:string"/>
-			<xs:element name="lastexport-time" type="xs:string"/>
-			<xs:element name="expiry-time" type="xs:string"/>
+			<xs:element name="lastexport-time" type="TIMESTAMP"/>
+			<xs:element name="expiry-time" type="TIMESTAMP"/>
 			<xs:element name="work-version" type="xs:integer"/>
 			<xs:element name="mark-deleted" type="xs:string"/>
 			<xs:element name="mod-uuid" type="xs:string"/>
@@ -95,14 +96,19 @@
 	<xs:element name="uuid" type="xs:string"/>
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
-	<xs:element name="date-of-creation" type="xs:string"/>
-	<xs:element name="date-of-last-modification" type="xs:string"/>
+	<xs:element name="isPublished" type="xs:boolean"/>
+	<xs:element name="date-of-creation" type="TIMESTAMP"/>
+	<xs:element name="date-of-last-modification" type="TIMESTAMP"/>
 	<xs:element name="work-state" type="xs:string"/>
 	<!-- db: special_name -->
 	<xs:element name="relation-type-name" type="xs:string"/>
 	<!-- db: special_ref  -->
 	<xs:element name="relation-type-ref" type="xs:integer"/>
-	
+
+	<xs:simpleType name="TIMESTAMP">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
 	<xs:complexType name="REQUEST_ADDITIONAL_INFO_MAP">
 		<xs:all>
 			<xs:element name="requestinfo_refetchEntity" type="xs:boolean"/>
@@ -164,8 +170,8 @@
 	<xs:complexType name="TIME_MAP">
 		<xs:sequence>
 			<xs:element name="time-type" type="xs:string"/>
-			<xs:element name="beginning-date" type="xs:string"/>
-			<xs:element name="ending-date" type="xs:string"/>
+			<xs:element name="beginning-date" type="TIMESTAMP"/>
+			<xs:element name="ending-date" type="TIMESTAMP"/>
 			<xs:element name="time-status" type="xs:integer"/>
 			<xs:element name="time-period" type="xs:integer"/>
 			<xs:element name="time-step" type="xs:string"/>
