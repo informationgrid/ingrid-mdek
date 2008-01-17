@@ -145,7 +145,9 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 		// object: change and store and discard changes (working <-> published version)
-		System.out.println("\n");
+		System.out.println("\n\n=========================");
+		System.out.println("STORE TEST existing object");
+		System.out.println("=========================");
 
 		System.out.println("\n----- change and store existing object -> working copy ! -----");
 		storeObject(oMap);
@@ -158,7 +160,9 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 		// object: store NEW object and verify associations
-		System.out.println("\n");
+		System.out.println("\n\n=========================");
+		System.out.println("STORE TEST new object");
+		System.out.println("=========================");
 
 		System.out.println("\n----- store new object (with address, object references, spatial refs ...) -----");
 		IngridDocument objDoc = new IngridDocument();
@@ -178,7 +182,9 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 		// tree: move object sub tree
-		System.out.println("\n");
+		System.out.println("\n\n=========================");
+		System.out.println("MOVE TEST");
+		System.out.println("=========================");
 
 		System.out.println("\n\n----- move new object (with sub tree) -----");
 		String oldParentUuid = parentUuid;
@@ -193,7 +199,9 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 		// tree: copy object sub tree
-		System.out.println("\n");
+		System.out.println("\n\n=========================");
+		System.out.println("COPY TEST");
+		System.out.println("=========================");
 
 		System.out.println("\n\n----- copy parent of new object to top (WITHOUT sub tree) -----");
 		String objectFrom = newParentUuid;
@@ -222,7 +230,9 @@ class MdekThread extends Thread {
 
 		// -----------------------------------
 		// object: delete new object and verify deletion
-		System.out.println("\n");
+		System.out.println("\n\n=========================");
+		System.out.println("DELETE TEST");
+		System.out.println("=========================");
 
 		System.out.println("\n----- delete new object (WORKING COPY) -> FULL DELETE -----");
 		deleteObjectWorkingCopy(newUuid);
@@ -230,6 +240,36 @@ class MdekThread extends Thread {
 		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
 		fetchSubObjects(newParentUuid);
+
+		// -----------------------------------
+		// copy object and publish ! create new object and publish !
+		System.out.println("\n\n=========================");
+		System.out.println("PUBLISH TEST");
+		System.out.println("=========================");
+
+		System.out.println("\n----- copy object (without subnodes) and publish -> create pub version/delete work version -----");
+		objectFrom = newParentUuid;
+		objectTo = null;
+		oMap = copyObject(objectFrom, objectTo, false);
+		oMap.put(MdekKeys.TITLE, "COPIED, Title CHANGED and PUBLISHED: " + oMap.get(MdekKeys.TITLE));	
+		String pub1Uuid = (String)oMap.get(MdekKeys.UUID);
+		publishObject(oMap, true);
+		System.out.println("\n----- publish new top object immediately -> create pub version, set also as work version -----");
+		IngridDocument pubDoc = new IngridDocument();
+		pubDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT DIREKT PUBLISH");
+		// supply parent uuid !
+		pubDoc.put(MdekKeys.PARENT_UUID, null);
+		oMap = publishObject(pubDoc, true);
+		// uuid created !
+		String pub2Uuid = (String) oMap.get(MdekKeys.UUID);
+		System.out.println("\n----- verify -> load top objects -----");
+		fetchTopObjects();
+		System.out.println("\n----- delete 1. published copy (WORKING COPY) -> NO DELETE -----");
+		deleteObjectWorkingCopy(pub1Uuid);
+		System.out.println("\n----- delete 2. published copy (FULL) -----");
+		deleteObject(pub2Uuid);
+		System.out.println("\n----- verify -> load top objects -----");
+		fetchTopObjects();
 
 /*
 		System.out.println("\n\n----- DELETE TEST (DELETES WHOLE SUBTREE) -----");
@@ -550,6 +590,42 @@ class MdekThread extends Thread {
 				System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 			}					
 			
+		} else {
+			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+		}
+
+		return result;
+	}
+
+	private IngridDocument publishObject(IngridDocument oDocIn, boolean withRefetch) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE publishObject ######");
+		startTime = System.currentTimeMillis();
+		System.out.println("publishObject WITHOUT refetching object: ");
+		response = mdekCaller.publishObject(oDocIn, withRefetch);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			String uuidStoredObject = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuidStoredObject);
+			if (withRefetch) {
+				debugObjectDoc(result);
+			}
 		} else {
 			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
 		}

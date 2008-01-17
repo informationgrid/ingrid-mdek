@@ -128,6 +128,12 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument publishObject(IngridDocument objDoc, boolean refetchAfterStore) {
+		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		List jobMethods = setUpJobMethod("publishObject", objDoc);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument deleteObjectWorkingCopy(String uuid) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);

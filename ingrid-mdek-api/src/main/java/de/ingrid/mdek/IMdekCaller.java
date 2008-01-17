@@ -28,14 +28,24 @@ public interface IMdekCaller {
 	IngridDocument fetchObject(String uuid, Quantity howMuch);
 
 	/**
-	 * Create or Store object.
-	 * @param obj map representation of object. 
+	 * Create or store object INTO WORKING COPY !
+	 * @param obj map representation of object.
 	 * 		If no id/uuid is set object will be created else updated.
 	 * @param refetchAfterStore true=fetch and return Object after store, false=no fetch, just store
 	 * @return response containing result: map representation of created/updated object when refetching,
 	 * 		otherwise map containing uuid of stored object (was generated when new object)  
 	 */
 	IngridDocument storeObject(IngridDocument obj, boolean refetchAfterStore);
+
+	/**
+	 * Create or store object INTO PUBLISHED VERSION ! PERFORMS CHECKS ON DATA !
+	 * @param obj map representation of object.
+	 * 		If no id/uuid is set object will be created else updated.
+	 * @param refetchAfterStore true=fetch and return Object after store, false=no fetch, just store
+	 * @return response containing result: map representation of created/updated object when refetching,
+	 * 		otherwise map containing uuid of stored object (was generated when new object)  
+	 */
+	IngridDocument publishObject(IngridDocument obj, boolean refetchAfterStore);
 
 	/**
 	 * DELETE ONLY WORKING COPY.
