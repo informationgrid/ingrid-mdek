@@ -34,16 +34,22 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer structural info ("hasChild") to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapObjectNode(ObjectNode oNIn, IngridDocument objectDoc) {
+	public IngridDocument mapObjectNode(ObjectNode oNIn, IngridDocument objectDoc,
+		MappingQuantity howMuch) {
 		if (oNIn == null) {
 			return objectDoc;
 		}
 
-    	boolean hasChild = false;
-		if (oNIn.getObjectNodeChildren().size() > 0) {
-        	hasChild = true;
+		// published info
+		boolean isPublished = (oNIn.getObjIdPublished() == null) ? false : true;
+		objectDoc.putBoolean(MdekKeys.IS_PUBLISHED, isPublished);
+
+		if (howMuch == MappingQuantity.TREE_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY) {
+			// child info
+	    	boolean hasChild = (oNIn.getObjectNodeChildren().size() > 0) ? true : false;
+			objectDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
 		}
-		objectDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
 
 		return objectDoc;
 	}
