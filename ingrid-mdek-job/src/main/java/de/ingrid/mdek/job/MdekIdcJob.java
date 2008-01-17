@@ -377,23 +377,28 @@ public class MdekIdcJob extends MdekJob {
 
 		// perform checks
 		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+
 		ObjectNode toNode = null;
+		ArrayList<String> uuidsCopiedNodes = null;
 		if (toUuid != null) {
 			toNode = daoObjectNode.loadByUuid(toUuid);
+			// check whether we copy to subnode
+			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
+				// we copy to a subnode, so we have to check already copied nodes
+				// to avoid endless recursion !
+				uuidsCopiedNodes = new ArrayList<String>();
+			}
 		}
-		IngridDocument errDoc = checkValidTreeNodes(fromNode, toUuid);
+		
 
-		// copy object when checks ok
-		if (errDoc == null) {
-			// copy fromNode
-			ObjectNode fromNodeCopy = createObjectNodeCopy(fromNode, toNode, copySubtree);
+		// copy fromNode
+		ObjectNode fromNodeCopy = createObjectNodeCopy(fromNode, toNode, copySubtree, uuidsCopiedNodes);
 
-			// success
-			resultDoc = new IngridDocument();
-			beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);
-			// also child info
-			beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc);
-		}
+		// success
+		resultDoc = new IngridDocument();
+		beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);
+		// also child info
+		beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc);
 
 		daoT01Object.commitTransaction();
 
@@ -455,13 +460,23 @@ public class MdekIdcJob extends MdekJob {
 	/**
 	 * Creates a copy of the given ObjectNode and adds it under the given parent.
 	 * Also copies whole subtree dependent from passed flag.
-	 * Already Persisted !
+	 * NOTICE: supports also copy of a tree to one of its subnodes !
+	 * Copied nodes are already Persisted !!!
 	 */
-	private ObjectNode createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode, boolean copySubtree) {
+	private ObjectNode createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode,
+			boolean copySubtree, List<String> uuidsCopiedNodes) {
+
+		boolean isCopyToOwnSubnode = false;
+		if (uuidsCopiedNodes != null) {
+			isCopyToOwnSubnode = true;
+		}
 
 		// copy source work version !
 		String newUuid = UuidGenerator.getInstance().generateUuid();
 		T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid);
+		// set in Bearbeitung !
+		targetObjWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
+
 		T01Object targetObjPub = null;
 /*
 	// NEVER COPY PUBLISHED VERSION !
@@ -494,15 +509,28 @@ public class MdekIdcJob extends MdekJob {
 		targetNode.setFkObjUuid(newParentUuid);
 		daoObjectNode.makePersistent(targetNode);
 		
+		if (isCopyToOwnSubnode) {
+			uuidsCopiedNodes.add(newUuid);
+		}
+		
 		// add child bean to parent bean, so we can determine children info when mapping (without reloading)
 		if (newParentNode != null) {
 			newParentNode.getObjectNodeChildren().add(targetNode);
 		}
-		
+		// copy subtree ? only if not already a copied node !
 		if (copySubtree) {
 			List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid());
 			for (ObjectNode sourceSubNode : sourceSubNodes) {
-				createObjectNodeCopy(sourceSubNode, targetNode, copySubtree);
+				if (isCopyToOwnSubnode) {
+					if (uuidsCopiedNodes.contains(sourceSubNode.getObjUuid())) {
+						// skip this node ! is the top node of the copied tree !
+						// we set list to null, cause we don't have to perform further checks
+						// when copying oncoming nodes !
+						uuidsCopiedNodes = null;
+						continue;
+					}
+				}
+				createObjectNodeCopy(sourceSubNode, targetNode, copySubtree, uuidsCopiedNodes);
 			}
 		}
 
