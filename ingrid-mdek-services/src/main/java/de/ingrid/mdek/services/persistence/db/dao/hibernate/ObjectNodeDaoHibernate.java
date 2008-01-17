@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -20,6 +21,8 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 public class ObjectNodeDaoHibernate
 	extends GenericHibernateDao<ObjectNode>
 	implements  IObjectNodeDao {
+
+	private static final Logger LOG = Logger.getLogger(ObjectNodeDaoHibernate.class);
 
     public ObjectNodeDaoHibernate(SessionFactory factory) {
         super(factory, T01Object.class);
@@ -90,21 +93,17 @@ public class ObjectNodeDaoHibernate
 	}
 
 	public boolean isSubNode(String uuidToCheck, String uuidParent) {
-		List<String> subUuids = getSubObjectUuids(uuidParent);
-		// first check complete next sub level
-		for (String subUuid : subUuids) {
-			if (subUuid.equals(uuidToCheck)) {
-				return true;
-			}
-		}
-		// then go deeper
-		for (String subUuid : subUuids) {
-			if (isSubNode(uuidToCheck, subUuid)) {
-				return true;
+		boolean isSubNode = false;
+
+		List<String> path = getObjectPath(uuidToCheck);
+		
+		if (path != null) {
+			if (path.contains(uuidParent)) {
+				isSubNode = true;
 			}
 		}
 		
-		return false;
+		return isSubNode;
 	}
 
 
@@ -163,5 +162,21 @@ public class ObjectNodeDaoHibernate
 			}
 		}
 		return retList;
+	}
+
+	public List<String> getObjectPath(String uuid) {
+		ArrayList<String> uuidList = new ArrayList<String>();
+		while(uuid != null) {
+			ObjectNode oN = loadByUuid(uuid);
+			if (oN == null) {
+				LOG.error("Object with uuid=" + uuid + " NOT FOUND !");
+				uuidList = null;
+				break;
+			}
+			uuidList.add(0, uuid);
+			uuid = oN.getFkObjUuid();
+		}
+
+		return uuidList;
 	}
 }

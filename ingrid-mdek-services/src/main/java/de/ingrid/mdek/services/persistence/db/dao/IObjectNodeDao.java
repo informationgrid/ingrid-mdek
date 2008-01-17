@@ -26,6 +26,9 @@ public interface IObjectNodeDao
 	/** Get sub uuids of parent with given uuid (only next level) */
 	List<String> getSubObjectUuids(String parentUuid);
 
+	/** Get Path (list of uuids) of object in tree starting at root. */
+	List<String> getObjectPath(String uuid);
+
 	/** Checks whether the given uuid is ANYWHERE below the given parent uuid. */
 	boolean isSubNode(String uuidToCheck, String uuidParent);
 
