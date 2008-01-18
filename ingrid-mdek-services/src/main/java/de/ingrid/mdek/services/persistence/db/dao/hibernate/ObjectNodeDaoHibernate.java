@@ -61,15 +61,21 @@ public class ObjectNodeDaoHibernate
 		return retList;
 	}
 
-	public List<ObjectNode> getSubObjects(String parentUuid) {
+	public List<ObjectNode> getSubObjects(String parentUuid, boolean fetchObjectLevel) {
 		Session session = getSession();
 		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
 
-		List<ObjectNode> oNs = session.createQuery("from ObjectNode oNd " +
-				"left join fetch oNd.t01ObjectWork o " +
-				"left join fetch oNd.objectNodeChildren oChildren " +
-				"where oNd.fkObjUuid = ? " +
-				"order by o.objName")
+		String q = "from ObjectNode oNd ";
+		if (fetchObjectLevel) {
+			q += "left join fetch oNd.t01ObjectWork o " +
+				 "left join fetch oNd.objectNodeChildren oChildren ";
+		}
+		q += "where oNd.fkObjUuid = ? ";
+		if (fetchObjectLevel) {
+			q += "order by o.objName"; 
+		}
+		
+		List<ObjectNode> oNs = session.createQuery(q)
 				.setString(0, parentUuid)
 				.list();
 

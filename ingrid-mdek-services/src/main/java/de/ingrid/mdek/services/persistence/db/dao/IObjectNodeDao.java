@@ -20,8 +20,12 @@ public interface IObjectNodeDao
 
 	List<ObjectNode> getTopObjects();
 
-	/** Fetches sub objects of parent with given uuid (only next level) */
-	List<ObjectNode> getSubObjects(String parentUuid);
+	/** Fetches sub object nodes of parent with given uuid.
+	 * @param parentUuid uuid of parent
+	 * @param fetchObjectLevel also fetch T01Object level encapsulated by ObjectNode ?
+	 * @return
+	 */
+	List<ObjectNode> getSubObjects(String parentUuid, boolean fetchObjectLevel);
 
 	/** Get sub uuids of parent with given uuid (only next level) */
 	List<String> getSubObjectUuids(String parentUuid);
