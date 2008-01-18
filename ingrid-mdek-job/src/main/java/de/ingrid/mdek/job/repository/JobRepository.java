@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.job.IJob;
 import de.ingrid.mdek.job.register.IRegistrationService;
 import de.ingrid.utils.IngridDocument;
@@ -94,18 +95,30 @@ public class JobRepository implements IJobRepository {
 				ret.put(JOB_INVOKE_RESULTS, methodResults);
 				ret.putBoolean(JOB_INVOKE_SUCCESS, true);
 			}
+			
 		} catch (Throwable e) {
-			if (LOG.isEnabledFor(Level.WARN)) {
-				LOG.warn("method invoke failed for jobid [" + jobId + "]", e);
+			// is it a "handled" exception
+			if (e.getCause() instanceof MdekException) {
+				MdekException mdekExc = (MdekException) e.getCause();
+				ret.put(JOB_INVOKE_ERROR_MDEK, mdekExc.getMdekErrors());
+
+				ret.put(JOB_INVOKE_ERROR_MESSAGE, "Mdek Error Codes: " + mdekExc.getMdekErrors());
+
+			// or an "unhandled" exception
+			} else {
+				if (LOG.isEnabledFor(Level.WARN)) {
+					LOG.warn("method invoke failed for jobid [" + jobId + "]", e);
+				}
+				
+				String msg = e.getMessage();
+				if (msg == null) {
+					StringWriter sw = new StringWriter();
+					e.printStackTrace(new PrintWriter(sw));
+					msg = sw.toString();
+				}
+				ret.put(JOB_INVOKE_ERROR_MESSAGE, msg);
 			}
 
-			String msg = e.getMessage();
-			if (msg == null) {
-				StringWriter sw = new StringWriter();
-				e.printStackTrace(new PrintWriter(sw));
-				msg = sw.toString();
-			}
-			ret.put(JOB_INVOKE_ERROR_MESSAGE, msg);
 			ret.putBoolean(JOB_INVOKE_SUCCESS, false);
 		}
 

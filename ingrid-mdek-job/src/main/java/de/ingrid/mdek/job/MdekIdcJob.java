@@ -6,8 +6,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekErrorHandler;
+import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekErrors.MdekError;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -41,6 +44,8 @@ public class MdekIdcJob extends MdekJob {
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
 
+	private MdekErrorHandler errorHandler;
+
 	public MdekIdcJob(ILogService logService,
 			DaoFactory daoFactory) {
 		
@@ -54,6 +59,9 @@ public class MdekIdcJob extends MdekJob {
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = docToBeanMapper.getInstance(daoFactory);
+
+		errorHandler = MdekErrorHandler.getInstance();
+
 	}
 /*
 	public IngridDocument testMdekEntity(IngridDocument params) {
@@ -115,84 +123,99 @@ public class MdekIdcJob extends MdekJob {
 		return result;
 	}
 */
-	// TODO: encapsulate all mdekJob methods in throw/catch performing rollback (releasing session not necessary due to getCurrentSession !?)
-	// TODO: check error in catch and set error in result ! Then check result-error in job framework and take over to response (set null result ?) ?  
-	// TODO: How to transmit SUCCESS ? at the moment just non null result (empty IngridDoc)
-
 	public IngridDocument getUiListValues() {
-		IngridDocument result = new IngridDocument();
+		try {
+			daoSpatialRefValue.beginTransaction();
 
-		daoSpatialRefValue.beginTransaction();
+			// fetch top Objects
+			List<String> list = daoSpatialRefValue.getFreieRefValueNames();
 
-		// fetch top Objects
-		List<String> list = daoSpatialRefValue.getFreieRefValueNames();
-		result.put(MdekKeys.UI_FREE_SPATIAL_REFERENCES, list);
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UI_FREE_SPATIAL_REFERENCES, list);
 
-		daoSpatialRefValue.commitTransaction();
+			daoSpatialRefValue.commitTransaction();
+			return result;
 
-		return result;
+		} catch (RuntimeException e) {
+			daoSpatialRefValue.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}
 
 	public IngridDocument getTopObjects() {
-		IngridDocument result = new IngridDocument();
+		try {
+			daoObjectNode.beginTransaction();
 
-		daoObjectNode.beginTransaction();
+			// fetch top Objects
+			List<ObjectNode> oNs = daoObjectNode.getTopObjects();
 
-		// fetch top Objects
-		List<ObjectNode> oNs = daoObjectNode.getTopObjects();
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
+			for (ObjectNode oN : oNs) {
+				IngridDocument objDoc = new IngridDocument();
+				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
+				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+				resultList.add(objDoc);
+			}
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.OBJ_ENTITIES, resultList);
 
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
-		for (ObjectNode oN : oNs) {
-			IngridDocument objDoc = new IngridDocument();
-			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
-			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
-			resultList.add(objDoc);
+			daoObjectNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
 		}
-
-		daoObjectNode.commitTransaction();
-
-		result.put(MdekKeys.OBJ_ENTITIES, resultList);
-		return result;
 	}
 
 	public IngridDocument getSubObjects(IngridDocument params) {
-		IngridDocument result = new IngridDocument();
-		String uuid = (String) params.get(MdekKeys.UUID);
+		try {
+			daoObjectNode.beginTransaction();
+			String uuid = (String) params.get(MdekKeys.UUID);
 
-		daoObjectNode.beginTransaction();
+			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid);
 
-		List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid);
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
+			for (ObjectNode oN : oNs) {
+				IngridDocument objDoc = new IngridDocument();
+				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
+				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+				resultList.add(objDoc);
+			}
 
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
-		for (ObjectNode oN : oNs) {
-			IngridDocument objDoc = new IngridDocument();
-			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
-			beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
-			resultList.add(objDoc);
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.OBJ_ENTITIES, resultList);
+
+			daoObjectNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
 		}
-
-		daoObjectNode.commitTransaction();
-
-		result.put(MdekKeys.OBJ_ENTITIES, resultList);
-		return result;
 	}
 
 	public IngridDocument getObjectPath(IngridDocument params) {
-		String uuid = (String) params.get(MdekKeys.UUID);
+		try {
+			daoObjectNode.beginTransaction();
+			String uuid = (String) params.get(MdekKeys.UUID);
 
-		daoObjectNode.beginTransaction();
+			List<String> uuidList = daoObjectNode.getObjectPath(uuid);
 
-		List<String> uuidList = daoObjectNode.getObjectPath(uuid);
-
-		daoObjectNode.commitTransaction();
-
-		IngridDocument result = null;
-		if (uuidList != null && uuidList.size() > 0) {
-			result = new IngridDocument();
+			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.PATH, uuidList);
-		}
 
-		return result;
+			daoObjectNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}
 
 	public IngridDocument getObjDetails(IngridDocument params) {
@@ -201,133 +224,149 @@ public class MdekIdcJob extends MdekJob {
 	}
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
-		String uuid = (String) oDocIn.get(MdekKeys.UUID);
-		Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
-		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+		try {
+			daoT01Object.beginTransaction();
 
-		// set common data to transfer to working copy !
-		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
+			String uuid = (String) oDocIn.get(MdekKeys.UUID);
+			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
-		daoT01Object.beginTransaction();
+			// set common data to transfer to working copy !
+			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 
-		if (uuid == null) {
-			// create new uuid
-			uuid = UuidGenerator.getInstance().generateUuid();
-			oDocIn.put(MdekKeys.UUID, uuid);
-		}
-		
-		// load node
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-		if (oNode == null) {
-			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
-		}
-		
-		// get/create working copy
-		T01Object oWork = oNode.getT01ObjectWork();
-		Long oWorkId = (oWork != null) ? oWork.getId() : null; 
-		T01Object oPub = oNode.getT01ObjectPublished();
-		Long oPubId = (oPub != null) ? oPub.getId() : null; 
-		if (oWorkId == null || oWorkId.equals(oPubId)) {
-			// no working copy yet, create new object with BASIC data
-
-			// set some missing data which may not be passed from client.
-			// set from published version if existent
-			if (oPub != null) {
-				oDocIn.put(MdekKeys.DATE_OF_CREATION, oPub.getCreateTime());				
-			} else {
-				oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+			if (uuid == null) {
+				// create new uuid
+				uuid = UuidGenerator.getInstance().generateUuid();
+				oDocIn.put(MdekKeys.UUID, uuid);
 			}
-			oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-			 // save it to generate id needed for mapping
+			
+			// load node
+			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+			if (oNode == null) {
+				oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
+			}
+			
+			// get/create working copy
+			T01Object oWork = oNode.getT01ObjectWork();
+			Long oWorkId = (oWork != null) ? oWork.getId() : null; 
+			T01Object oPub = oNode.getT01ObjectPublished();
+			Long oPubId = (oPub != null) ? oPub.getId() : null; 
+			if (oWorkId == null || oWorkId.equals(oPubId)) {
+				// no working copy yet, create new object with BASIC data
+
+				// set some missing data which may not be passed from client.
+				// set from published version if existent
+				if (oPub != null) {
+					oDocIn.put(MdekKeys.DATE_OF_CREATION, oPub.getCreateTime());				
+				} else {
+					oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+				}
+				oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+				 // save it to generate id needed for mapping
+				daoT01Object.makePersistent(oWork);
+			}
+
+			// transfer new data and store.
+			docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
 			daoT01Object.makePersistent(oWork);
-		}
 
-		// transfer new data and store.
-		docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
-		daoT01Object.makePersistent(oWork);
+			// and update ObjectNode with working copy if not set yet
+			oWorkId = oWork.getId();
+			if (!oWorkId.equals(oNode.getObjId())) {
+				oNode.setObjId(oWorkId);
+				daoObjectNode.makePersistent(oNode);
+			}
+			
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
 
-		// and update ObjectNode with working copy if not set yet
-		oWorkId = oWork.getId();
-		if (!oWorkId.equals(oNode.getObjId())) {
-			oNode.setObjId(oWorkId);
-			daoObjectNode.makePersistent(oNode);
+			daoT01Object.commitTransaction();
+
+			if (refetchAfterStore) {
+				result = getObjDetails(uuid);
+			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			daoT01Object.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
 		}
-		
-		daoT01Object.commitTransaction();
-		
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.UUID, uuid);
-		if (refetchAfterStore) {
-			result = getObjDetails(uuid);
-		}
-		
-		return result;
 	}
 
 	public IngridDocument publishObject(IngridDocument oDocIn) {
-		String uuid = (String) oDocIn.get(MdekKeys.UUID);
-		Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
-		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+		try {
+			daoT01Object.beginTransaction();
 
-		// set common data to transfer to working copy !
-		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
+			String uuid = (String) oDocIn.get(MdekKeys.UUID);
+			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
-		daoT01Object.beginTransaction();
-		
-		// TODO: Perform Checks !!! (Pflichtfelder etc.)
+			// set common data to transfer to working copy !
+			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+			oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 
-		if (uuid == null) {
-			// create new uuid
-			uuid = UuidGenerator.getInstance().generateUuid();
-			oDocIn.put(MdekKeys.UUID, uuid);
-		}
-		
-		// load node
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-		if (oNode == null) {
-			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
-		}
-		
-		// get/create published version
-		T01Object oPub = oNode.getT01ObjectPublished();
-		if (oPub == null) {
-			// set some missing data which may not be passed from client.
-			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+			// TODO: Perform Checks !!! (Pflichtfelder etc.)
+
+			if (uuid == null) {
+				// create new uuid
+				uuid = UuidGenerator.getInstance().generateUuid();
+				oDocIn.put(MdekKeys.UUID, uuid);
+			}
 			
-			// create new object with BASIC data
-			oPub = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-			 // save it to generate id needed for mapping
+			// load node
+			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+			if (oNode == null) {
+				oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
+			}
+			
+			// get/create published version
+			T01Object oPub = oNode.getT01ObjectPublished();
+			if (oPub == null) {
+				// set some missing data which may not be passed from client.
+				oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+				
+				// create new object with BASIC data
+				oPub = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+				 // save it to generate id needed for mapping
+				daoT01Object.makePersistent(oPub);
+			}
+
+			// transfer new data and store.
+			docToBeanMapper.mapT01Object(oDocIn, oPub, MappingQuantity.DETAIL_ENTITY);
 			daoT01Object.makePersistent(oPub);
-		}
+			Long oPubId = oPub.getId();
 
-		// transfer new data and store.
-		docToBeanMapper.mapT01Object(oDocIn, oPub, MappingQuantity.DETAIL_ENTITY);
-		daoT01Object.makePersistent(oPub);
-		Long oPubId = oPub.getId();
+			// and update ObjectNode
 
-		// and update ObjectNode
+			// delete former working copy if set
+			T01Object oWork = oNode.getT01ObjectWork();
+			if (oWork != null && !oPubId.equals(oWork.getId())) {
+				// delete working version
+				daoT01Object.makeTransient(oWork);
+			}
+			oNode.setObjId(oPubId);
+			oNode.setObjIdPublished(oPubId);
+			daoObjectNode.makePersistent(oNode);
+			
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
 
-		// delete former working copy if set
-		T01Object oWork = oNode.getT01ObjectWork();
-		if (oWork != null && !oPubId.equals(oWork.getId())) {
-			// delete working version
-			daoT01Object.makeTransient(oWork);
-		}
-		oNode.setObjId(oPubId);
-		oNode.setObjIdPublished(oPubId);
-		daoObjectNode.makePersistent(oNode);
-		
-		daoT01Object.commitTransaction();
-		
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.UUID, uuid);
-		if (refetchAfterStore) {
-			result = getObjDetails(uuid);
-		}
-		
-		return result;
+			daoT01Object.commitTransaction();
+
+			if (refetchAfterStore) {
+				result = getObjDetails(uuid);
+			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			daoT01Object.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}		
 	}
 
 	/**
@@ -336,20 +375,22 @@ public class MdekIdcJob extends MdekJob {
 	 * (including all subobjects !)
 	 */
 	public IngridDocument deleteObjectWorkingCopy(IngridDocument params) {
-		String uuid = (String) params.get(MdekKeys.UUID);
-		IngridDocument result = new IngridDocument();
+		try {
+			daoT01Object.beginTransaction();
+			String uuid = (String) params.get(MdekKeys.UUID);
 
-		daoT01Object.beginTransaction();
+			// NOTICE: this one also contains Parent Association !
+			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+			if (oNode == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
 
-		// NOTICE: this one also contains Parent Association !
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-
-		boolean performFullDelete = false;
-		if (oNode != null) {
+			boolean performFullDelete = false;
 			Long idPublished = oNode.getObjIdPublished();
 			Long idWorkingCopy = oNode.getObjId();
 
 			// if we have NO published version -> delete complete node !
+			IngridDocument result = new IngridDocument();
 			if (idPublished == null) {
 				performFullDelete = true;
 			} else {
@@ -370,15 +411,19 @@ public class MdekIdcJob extends MdekJob {
 					daoObjectNode.makePersistent(oNode);
 				}
 			}
-		}
 
-		daoT01Object.commitTransaction();
-		
-		if (performFullDelete) {
-			result = deleteObject(params);
-		}
+			if (performFullDelete) {
+				result = deleteObject(params);
+			}
 
-		return result;
+			daoT01Object.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoT01Object.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}
 
 	/**
@@ -386,99 +431,123 @@ public class MdekIdcJob extends MdekJob {
 	 * Object is non existent afterwards !
 	 */
 	public IngridDocument deleteObject(IngridDocument params) {
-		String uuid = (String) params.get(MdekKeys.UUID);
-		IngridDocument result = new IngridDocument();
+		try {
+			daoT01Object.beginTransaction();
+			String uuid = (String) params.get(MdekKeys.UUID);
 
-		daoT01Object.beginTransaction();
+			// NOTICE: this one also contains Parent Association !
+			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+			if (oNode == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
 
-		// NOTICE: this one also contains Parent Association !
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-		if (oNode != null) {
 			// delete complete Node ! rest is deleted per cascade !
 			daoObjectNode.makeTransient(oNode);
-		}	
 
-		daoT01Object.commitTransaction();
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 
-		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);			
-		return result;		
+			daoT01Object.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoT01Object.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}		
 	}
 
 	/** Move Object with its subtree to new parent. */
 	public IngridDocument moveObject(IngridDocument params) {
-		String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
-		String toUuid = (String) params.get(MdekKeys.TO_UUID);
-		IngridDocument result = null;
+		try {
+			daoT01Object.beginTransaction();
+			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 
-		daoT01Object.beginTransaction();
+			// perform checks
+			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+			checkValidTreeNodes(fromNode, toUuid);
 
-		// perform checks
-		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-		IngridDocument errDoc = checkValidTreeNodes(fromNode, toUuid);
-
-		// move object when checks ok
-		if (errDoc == null) {
+			// move object when checks ok
 			// set new parent, may be null, then top node !
 			fromNode.setFkObjUuid(toUuid);		
 			daoObjectNode.makePersistent(fromNode);
 
-			// success
-			result = new IngridDocument();			
+			// TODO: How to transmit SUCCESS ? at the moment just non null result (empty IngridDoc)
+			IngridDocument result = new IngridDocument();
+
+			daoT01Object.commitTransaction();
+			return result;		
+
+		} catch (RuntimeException e) {
+			daoT01Object.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
 		}
-
-		daoT01Object.commitTransaction();
-
-		return result;		
 	}
 
 	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied object. */
 	public IngridDocument copyObject(IngridDocument params) {
-		String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
-		String toUuid = (String) params.get(MdekKeys.TO_UUID);
-		Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
-		IngridDocument resultDoc = null;
+		try {
+			daoT01Object.beginTransaction();
 
-		daoT01Object.beginTransaction();
+			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+			String toUuid = (String) params.get(MdekKeys.TO_UUID);
+			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
 
-		// perform checks
-		ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-
-		ObjectNode toNode = null;
-		ArrayList<String> uuidsCopiedNodes = null;
-		if (toUuid != null) {
-			toNode = daoObjectNode.loadByUuid(toUuid);
-			// check whether we copy to subnode
-			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
-				// we copy to a subnode, so we have to check already copied nodes
-				// to avoid endless recursion !
-				uuidsCopiedNodes = new ArrayList<String>();
+			// perform checks
+			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+			if (fromNode == null) {
+				throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
 			}
-		}
+
+			ObjectNode toNode = null;
+			ArrayList<String> uuidsCopiedNodes = null;
+			// NOTIVE: copy to top when toUuid is null
+			if (toUuid != null) {
+				toNode = daoObjectNode.loadByUuid(toUuid);
+				if (toNode == null) {
+					throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+				}
+
+				// check whether we copy to subnode
+				if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
+					// we copy to a subnode, so we have to check already copied nodes
+					// to avoid endless recursion !
+					uuidsCopiedNodes = new ArrayList<String>();
+				}
+			}
+
+			// copy fromNode
+			ObjectNode fromNodeCopy = createObjectNodeCopy(fromNode, toNode, copySubtree, uuidsCopiedNodes);
+
+			// success
+			IngridDocument resultDoc = new IngridDocument();
+			beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);
+			// also child info
+			beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc, MappingQuantity.COPY_ENTITY);
+
+			daoT01Object.commitTransaction();
+			return resultDoc;		
 		
-
-		// copy fromNode
-		ObjectNode fromNodeCopy = createObjectNodeCopy(fromNode, toNode, copySubtree, uuidsCopiedNodes);
-
-		// success
-		resultDoc = new IngridDocument();
-		beanToDocMapper.mapT01Object(fromNodeCopy.getT01ObjectWork(), resultDoc, MappingQuantity.TABLE_ENTITY);
-		// also child info
-		beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc, MappingQuantity.COPY_ENTITY);
-
-		daoT01Object.commitTransaction();
-
-		return resultDoc;		
+		} catch (RuntimeException e) {
+			daoT01Object.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}
 
 	private IngridDocument getObjDetails(String uuid) {
-		IngridDocument resultDoc = null;
+		try {
+			daoObjectNode.beginTransaction();
 
-		daoObjectNode.beginTransaction();
+			// first get all "internal" object data (referenced addresses ...)
+			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+			if (oNode == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
 
-		// first get all "internal" object data (referenced addresses ...)
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-		if (oNode != null) {
-			resultDoc = new IngridDocument();
+			IngridDocument resultDoc = new IngridDocument();
 			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
 			
 			// also map ObjectNode for published info
@@ -487,42 +556,39 @@ public class MdekIdcJob extends MdekJob {
 			// then get "external" data (objects referencing the given object ...)
 			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
 			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+
+			daoObjectNode.commitTransaction();
+			return resultDoc;
+
+		} catch (RuntimeException e) {
+			daoT01Object.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
 		}
-
-		daoObjectNode.commitTransaction();
-
-		return resultDoc;		
 	}
 
 	/** Check whether passed nodes are valid for performing tree operations (copy, move ...)
 	 * @param fromNode source node
 	 * @param toUuid target node
-	 * @return null if ok, else IngridDoc containing errors
+	 * @return
 	 */
-	private IngridDocument checkValidTreeNodes(ObjectNode fromNode, String toUuid) {
-		boolean nodesValid = true;
-		IngridDocument errDoc = new IngridDocument();
+	private void checkValidTreeNodes(ObjectNode fromNode, String toUuid) {
+		ArrayList<MdekError> errors = new ArrayList<MdekError>();
 
-		String fromUuid = null;
 		if (fromNode == null) {
-			nodesValid = false;
-			// TODO: transfer error !
-		} else {
-			fromUuid = fromNode.getObjUuid();
-		}
+			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+		}		
 
-		if (fromUuid != null && toUuid != null) {
+		String fromUuid = fromNode.getObjUuid();
+		if (fromUuid == null) {
+			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+		}		
+
+		if (toUuid != null) {
 			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
-				nodesValid = false;
-				// TODO: transfer error !				
+				throw new MdekException(MdekError.TO_UUID_SUBNODE_OF_FROM_UUID);				
 			}
 		}
-		
-		if (!nodesValid) {
-			return errDoc;
-		}
-
-		return null;
 	}
 
 	/**
