@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekException;
+import de.ingrid.mdek.MdekErrors.MdekError;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -169,9 +171,7 @@ public class ObjectNodeDaoHibernate
 		while(uuid != null) {
 			ObjectNode oN = loadByUuid(uuid);
 			if (oN == null) {
-				LOG.error("Object with uuid=" + uuid + " NOT FOUND !");
-				uuidList = null;
-				break;
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
 			}
 			uuidList.add(0, uuid);
 			uuid = oN.getFkObjUuid();
