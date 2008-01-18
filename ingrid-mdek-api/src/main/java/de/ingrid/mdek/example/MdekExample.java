@@ -95,7 +95,10 @@ class MdekThread extends Thread {
 	public void run() {
 		isRunning = true;
 
-		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
+		// TOP OBJECT
+//		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
+		// parent of object 2C997C68-2247-11D3-AF51-0060084A4596 -> 343 Subobjects
+		String parentUuid = "15C69C20-FE15-11D2-AF34-0060084A4596";
 		// Obj/Adr Refs, Spatial Refs + URL Refs
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
 		// Obj/Adr Refs
@@ -144,6 +147,12 @@ class MdekThread extends Thread {
 		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
+		// object: check sub tree
+
+		System.out.println("\n----- check object subtree -----");
+		checkObjectSubTree(objUuid);
+
+		// -----------------------------------
 		// object: change and store and discard changes (working <-> published version)
 		System.out.println("\n\n=========================");
 		System.out.println("STORE TEST existing object");
@@ -175,7 +184,7 @@ class MdekThread extends Thread {
 
 		oMap = storeObject(objDoc);
 		// uuid created !
-		String newUuid = (String) oMap.get(MdekKeys.UUID);
+		String newObjUuid = (String) oMap.get(MdekKeys.UUID);
 
 		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
 		fetchSubObjects(parentUuid);
@@ -189,11 +198,13 @@ class MdekThread extends Thread {
 		System.out.println("\n\n----- move new object (with sub tree) -----");
 		String oldParentUuid = parentUuid;
 		String newParentUuid = objUuid;
-		moveObject(newUuid, newParentUuid);
+		moveObject(newObjUuid, newParentUuid);
 		System.out.println("\n----- verify old parent subobjects (cut) -----");
 		fetchSubObjects(oldParentUuid);
 		System.out.println("\n----- verify new parent subobjects (added) -----");
 		fetchSubObjects(newParentUuid);
+		System.out.println("\n----- check new parent subtree -----");
+		checkObjectSubTree(newParentUuid);
 		System.out.println("\n----- do \"forbidden\" move -----");
 		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596");
 
@@ -226,9 +237,9 @@ class MdekThread extends Thread {
 		deleteObjectWorkingCopy(copy1Uuid);
 		deleteObjectWorkingCopy(copy2Uuid);
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new object below new object (WITH sub tree) -----");
-		copyObject(newParentUuid, newUuid, true);
+		copyObject(newParentUuid, newObjUuid, true);
 		System.out.println("\n\n----- verify copy -> load children of new object -----");
-		fetchSubObjects(newUuid);
+		fetchSubObjects(newObjUuid);
 		// Following is allowed now ! Don't execute -> huge tree is copied !
 //		System.out.println("\n----- do \"forbidden\" copy -----");
 //		copyObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", true);
@@ -240,9 +251,9 @@ class MdekThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- delete new object (WORKING COPY) -> FULL DELETE -----");
-		deleteObjectWorkingCopy(newUuid);
+		deleteObjectWorkingCopy(newObjUuid);
 		System.out.println("\n----- verify deletion of new object -----");
-		fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
 		fetchSubObjects(newParentUuid);
 
@@ -282,6 +293,7 @@ class MdekThread extends Thread {
 		deleteObject(pub2Uuid);
 		System.out.println("\n----- verify -> load top objects -----");
 		fetchTopObjects();
+
 
 /*
 		System.out.println("\n\n----- DELETE TEST (DELETES WHOLE SUBTREE) -----");
@@ -484,6 +496,31 @@ class MdekThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument checkObjectSubTree(String uuid) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE checkObjectSubTree ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.checkObjectSubTree(uuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	private IngridDocument storeObject(IngridDocument oDocIn) {
 		// check whether we have an object
 		if (oDocIn == null) {
@@ -662,6 +699,7 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
+			System.out.println(result);
 		} else {
 			handleError(response);
 		}

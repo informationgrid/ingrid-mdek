@@ -174,8 +174,11 @@ public class MdekCaller implements IMdekCaller {
 	}
 
 	public IngridDocument checkObjectSubTree(String uuid) {
-		// TODO implement checkObjectSubTree
-		return new IngridDocument();		
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		List jobMethods = setUpJobMethod("checkObjectSubTree", jobParams);
+
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree)

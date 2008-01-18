@@ -3,9 +3,9 @@
 	<xs:complexType name="MDEK_REQUEST_MAP">
 		<xs:all>
 			<xs:element ref="uuid"/>
-			<xs:element name="parent-uuid" type="xs:string"/>
-			<xs:element name="from-uuid" type="xs:string"/>
-			<xs:element name="to-uuid" type="xs:string"/>
+			<xs:element name="parent-uuid" type="UUID"/>
+			<xs:element name="from-uuid" type="UUID"/>
+			<xs:element name="to-uuid" type="UUID"/>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
 		</xs:all>
@@ -60,8 +60,8 @@
 			<xs:element name="expiry-time" type="TIMESTAMP"/>
 			<xs:element name="work-version" type="xs:integer"/>
 			<xs:element name="mark-deleted" type="xs:string"/>
-			<xs:element name="mod-uuid" type="xs:string"/>
-			<xs:element name="responsible-uuid" type="xs:string"/>
+			<xs:element name="mod-uuid" type="UUID"/>
+			<xs:element name="responsible-uuid" type="UUID"/>
 			
 			<xs:element name="LINKAGE_MAP" type="LINKAGE_MAP"/>
 			
@@ -93,7 +93,7 @@
 	</xs:complexType>
 
 	<xs:element name="id" type="xs:long"/>
-	<xs:element name="uuid" type="xs:string"/>
+	<xs:element name="uuid" type="UUID"/>
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
 	<xs:element name="isPublished" type="xs:boolean"/>
@@ -108,7 +108,10 @@
 	<xs:simpleType name="TIMESTAMP">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
-
+	<xs:simpleType name="UUID">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
 	<xs:complexType name="REQUEST_ADDITIONAL_INFO_MAP">
 		<xs:all>
 			<xs:element name="requestinfo_refetchEntity" type="xs:boolean"/>
@@ -118,6 +121,9 @@
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">
 		<xs:all>
 			<xs:element name="resultinfo_wasFullyDeleted" type="xs:boolean"/>
+			<xs:element name="resultinfo_hasWorkingCopy" type="xs:boolean"/>
+			<xs:element name="resultinfo_numberOfCheckedEntities" type="xs:integer"/>
+			<xs:element name="resultinfo_uidOfFoundEntity" type="UUID"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="RESULT_UI_MAP">
