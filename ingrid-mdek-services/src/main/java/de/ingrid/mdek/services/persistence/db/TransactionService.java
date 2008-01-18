@@ -20,13 +20,17 @@ public class TransactionService implements ITransactionService {
     }
 
     public void commitTransaction() {
-        Session session = getSession();
-        session.getTransaction().commit();
+        Session currentSession = getSession();
+        if (currentSession.getTransaction().isActive()) {
+        	currentSession.getTransaction().commit();
+        }
     }
 
     public void rollbackTransaction() {
-        Session session = getSession();
-        session.getTransaction().rollback();
+        Session currentSession = getSession();
+        if (currentSession.getTransaction().isActive()) {
+            currentSession.getTransaction().rollback();
+        }
     }
 
     public Session getSession() {
