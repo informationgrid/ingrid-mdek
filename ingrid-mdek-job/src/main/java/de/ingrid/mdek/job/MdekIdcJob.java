@@ -3,6 +3,7 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
@@ -175,7 +176,7 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 
-			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid);
+			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {
@@ -225,7 +226,7 @@ public class MdekIdcJob extends MdekJob {
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		try {
-			daoT01Object.beginTransaction();
+			daoObjectNode.beginTransaction();
 
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
@@ -281,7 +282,7 @@ public class MdekIdcJob extends MdekJob {
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
 
-			daoT01Object.commitTransaction();
+			daoObjectNode.commitTransaction();
 
 			if (refetchAfterStore) {
 				result = getObjDetails(uuid);
@@ -290,7 +291,7 @@ public class MdekIdcJob extends MdekJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoT01Object.rollbackTransaction();
+			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
@@ -298,7 +299,7 @@ public class MdekIdcJob extends MdekJob {
 
 	public IngridDocument publishObject(IngridDocument oDocIn) {
 		try {
-			daoT01Object.beginTransaction();
+			daoObjectNode.beginTransaction();
 
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
@@ -354,7 +355,7 @@ public class MdekIdcJob extends MdekJob {
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
 
-			daoT01Object.commitTransaction();
+			daoObjectNode.commitTransaction();
 
 			if (refetchAfterStore) {
 				result = getObjDetails(uuid);
@@ -363,7 +364,7 @@ public class MdekIdcJob extends MdekJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoT01Object.rollbackTransaction();
+			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}		
@@ -376,7 +377,7 @@ public class MdekIdcJob extends MdekJob {
 	 */
 	public IngridDocument deleteObjectWorkingCopy(IngridDocument params) {
 		try {
-			daoT01Object.beginTransaction();
+			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 
 			// NOTICE: this one also contains Parent Association !
@@ -416,11 +417,11 @@ public class MdekIdcJob extends MdekJob {
 				result = deleteObject(params);
 			}
 
-			daoT01Object.commitTransaction();
+			daoObjectNode.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
-			daoT01Object.rollbackTransaction();
+			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
@@ -432,7 +433,7 @@ public class MdekIdcJob extends MdekJob {
 	 */
 	public IngridDocument deleteObject(IngridDocument params) {
 		try {
-			daoT01Object.beginTransaction();
+			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 
 			// NOTICE: this one also contains Parent Association !
@@ -447,11 +448,11 @@ public class MdekIdcJob extends MdekJob {
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 
-			daoT01Object.commitTransaction();
+			daoObjectNode.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
-			daoT01Object.rollbackTransaction();
+			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}		
@@ -460,7 +461,7 @@ public class MdekIdcJob extends MdekJob {
 	/** Move Object with its subtree to new parent. */
 	public IngridDocument moveObject(IngridDocument params) {
 		try {
-			daoT01Object.beginTransaction();
+			daoObjectNode.beginTransaction();
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 
@@ -476,11 +477,64 @@ public class MdekIdcJob extends MdekJob {
 			// TODO: How to transmit SUCCESS ? at the moment just non null result (empty IngridDoc)
 			IngridDocument result = new IngridDocument();
 
-			daoT01Object.commitTransaction();
+			daoObjectNode.commitTransaction();
 			return result;		
 
 		} catch (RuntimeException e) {
-			daoT01Object.rollbackTransaction();
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	/** Checks whether subtree of object has working copies. */
+	public IngridDocument checkObjectSubTree(IngridDocument params) {
+		try {
+			daoObjectNode.beginTransaction();
+			String rootUuid = (String) params.get(MdekKeys.UUID);
+
+			// load "root"
+			ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid);
+			if (rootNode == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
+
+			// traverse iteratively via stack
+			Stack<ObjectNode> stack = new Stack<ObjectNode>();
+			stack.push(rootNode);
+
+			boolean hasWorkingCopy = false;
+			String uuidOfWorkingCopy = null;
+			int numberOfCheckedObj = 0;
+			while (!hasWorkingCopy && !stack.isEmpty()) {
+				ObjectNode node = stack.pop();
+				
+				// check
+				numberOfCheckedObj++;
+				if (!node.getObjId().equals(node.getObjIdPublished())) {
+					hasWorkingCopy = true;
+					uuidOfWorkingCopy = node.getObjUuid();
+				}
+
+				if (!hasWorkingCopy) {
+					List<ObjectNode> subNodes =
+						daoObjectNode.getSubObjects(node.getObjUuid(), false);
+					for (ObjectNode subNode : subNodes) {
+						stack.push(subNode);
+					}					
+				}
+			}
+			
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.RESULTINFO_HAS_WORKING_COPY, hasWorkingCopy);
+			result.put(MdekKeys.RESULTINFO_UUID_OF_FOUND_ENTITY, uuidOfWorkingCopy);
+			result.put(MdekKeys.RESULTINFO_NUMBER_OF_CHECKED_ENTITIES, numberOfCheckedObj);
+
+			daoObjectNode.commitTransaction();
+			return result;		
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
@@ -489,7 +543,7 @@ public class MdekIdcJob extends MdekJob {
 	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied object. */
 	public IngridDocument copyObject(IngridDocument params) {
 		try {
-			daoT01Object.beginTransaction();
+			daoObjectNode.beginTransaction();
 
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
@@ -527,11 +581,11 @@ public class MdekIdcJob extends MdekJob {
 			// also child info
 			beanToDocMapper.mapObjectNode(fromNodeCopy, resultDoc, MappingQuantity.COPY_ENTITY);
 
-			daoT01Object.commitTransaction();
+			daoObjectNode.commitTransaction();
 			return resultDoc;		
 		
 		} catch (RuntimeException e) {
-			daoT01Object.rollbackTransaction();
+			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
@@ -561,7 +615,7 @@ public class MdekIdcJob extends MdekJob {
 			return resultDoc;
 
 		} catch (RuntimeException e) {
-			daoT01Object.rollbackTransaction();
+			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
@@ -653,7 +707,7 @@ public class MdekIdcJob extends MdekJob {
 		}
 		// copy subtree ? only if not already a copied node !
 		if (copySubtree) {
-			List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid());
+			List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid(), true);
 			for (ObjectNode sourceSubNode : sourceSubNodes) {
 				if (isCopyToOwnSubnode) {
 					if (uuidsCopiedNodes.contains(sourceSubNode.getObjUuid())) {
