@@ -22,6 +22,8 @@ public interface IJobRepository {
 
 	public static final String JOB_INVOKE_ERROR_MESSAGE = "job_invoke_error_message";
 
+	public static final String JOB_INVOKE_ERROR_MDEK = "job_invoke_error_mdek";
+
 	public static final String JOB_RESULT = "job_result";
 
 	public static final String JOB_METHODS = "job_methods";

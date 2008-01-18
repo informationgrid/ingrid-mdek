@@ -1,5 +1,8 @@
 package de.ingrid.mdek;
 
+import java.util.List;
+
+import de.ingrid.mdek.MdekErrors.MdekError;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -122,9 +125,19 @@ public interface IMdekCaller {
 	IngridDocument getResultFromResponse(IngridDocument mdekResponse);
 
 	/**
-	 * Get Error Message from response of mdek call.
+	 * Get "Global" Error Message from response of mdek call.
 	 * @param mdekResponse response from mdek call
-	 * @return null if no error message set in response
+	 * @return global error message, should never be null and
+	 * contains exception string when unknown error occured
 	 */
 	String getErrorMsgFromResponse(IngridDocument mdekResponse);
+
+	/**
+	 * Get Detailed Mdek Errors from response of mdek call.
+	 * @param mdekResponse response from mdek call
+	 * @return list of detected errors, may be null when unknown error occured
+	 * -> then <code>getErrorMsgFromResponse</code> contains exception
+	 */
+	List<MdekError> getErrorsFromResponse(IngridDocument mdekResponse);
+
 }

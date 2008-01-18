@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekErrors.MdekError;
 import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;
@@ -226,6 +227,10 @@ public class MdekCaller implements IMdekCaller {
 		}
 
 		return result;
+	}
+
+	public List<MdekError> getErrorsFromResponse(IngridDocument mdekResponse) {
+		return (List<MdekError>) mdekResponse.get(IJobRepository.JOB_INVOKE_ERROR_MDEK);
 	}
 
 	public String getErrorMsgFromResponse(IngridDocument mdekResponse) {

@@ -208,6 +208,11 @@ class MdekThread extends Thread {
 		String objectTo = null;
 		oMap = copyObject(objectFrom, objectTo, false);
 		String copy1Uuid = (String)oMap.get(MdekKeys.UUID);
+		System.out.println("\n\n----- verify copy  -----");
+		System.out.println("\n\n----- load original one -----");
+		fetchObject(objectFrom, Quantity.DETAIL_ENTITY);
+		System.out.println("\n\n----- load copy -----");
+		fetchObject(copy1Uuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n\n----- verify NO copied sub objects -> load children of copy -----");
 		fetchSubObjects(copy1Uuid);
 		System.out.println("\n\n----- copy parent of new object to top (WITH sub tree) -----");
@@ -247,13 +252,19 @@ class MdekThread extends Thread {
 		System.out.println("PUBLISH TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n----- copy object (without subnodes) and publish -> create pub version/delete work version -----");
+		System.out.println("\n----- copy object (without subnodes) -> returns only TREE Data of object -----");
 		objectFrom = newParentUuid;
 		objectTo = null;
 		oMap = copyObject(objectFrom, objectTo, false);
-		oMap.put(MdekKeys.TITLE, "COPIED, Title CHANGED and PUBLISHED: " + oMap.get(MdekKeys.TITLE));	
 		String pub1Uuid = (String)oMap.get(MdekKeys.UUID);
-		publishObject(oMap, true);
+
+		System.out.println("\n----- refetch full object and change title -----");
+		oMap = fetchObject(pub1Uuid, Quantity.DETAIL_ENTITY);
+		oMap.put(MdekKeys.TITLE, "COPIED, Title CHANGED and PUBLISHED: " + oMap.get(MdekKeys.TITLE));	
+
+		System.out.println("\n----- and publish -> create pub version/delete work version -----");
+		oMap = publishObject(oMap, true);
+
 		System.out.println("\n----- publish new top object immediately -> create pub version, set also as work version -----");
 		IngridDocument pubDoc = new IngridDocument();
 		pubDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT DIREKT PUBLISH");
@@ -262,6 +273,7 @@ class MdekThread extends Thread {
 		oMap = publishObject(pubDoc, true);
 		// uuid created !
 		String pub2Uuid = (String) oMap.get(MdekKeys.UUID);
+
 		System.out.println("\n----- verify -> load top objects -----");
 		fetchTopObjects();
 		System.out.println("\n----- delete 1. published copy (WORKING COPY) -> NO DELETE -----");
@@ -309,7 +321,7 @@ class MdekThread extends Thread {
 				System.out.println(o);				
 			}
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 
 		System.out.println("\n###### INVOKE fetchSubAddresses ######");
@@ -326,7 +338,7 @@ class MdekThread extends Thread {
 				System.out.println(o);				
 			}
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 */
 
@@ -355,7 +367,7 @@ class MdekThread extends Thread {
 			System.out.println("  freie Raumbezüge (" + l.size() + "): " + l);
 			
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -383,7 +395,7 @@ class MdekThread extends Thread {
 				System.out.println(o);				
 			}
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -411,7 +423,7 @@ class MdekThread extends Thread {
 				System.out.println(o);
 			}
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -441,7 +453,7 @@ class MdekThread extends Thread {
 				indent += " ";
 			}
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -466,7 +478,7 @@ class MdekThread extends Thread {
 			System.out.println("SUCCESS: ");
 			debugObjectDoc(result);
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -587,11 +599,11 @@ class MdekThread extends Thread {
 				System.out.println("SUCCESS: ");
 				debugObjectDoc(result);
 			} else {
-				System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+				handleError(response);
 			}					
 			
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 
 		return result;
@@ -612,7 +624,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE publishObject ######");
 		startTime = System.currentTimeMillis();
-		System.out.println("publishObject WITHOUT refetching object: ");
+		System.out.println("publishObject -> refetching object: " + withRefetch);
 		response = mdekCaller.publishObject(oDocIn, withRefetch);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
@@ -627,7 +639,7 @@ class MdekThread extends Thread {
 				debugObjectDoc(result);
 			}
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 
 		return result;
@@ -651,7 +663,7 @@ class MdekThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS");
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -676,7 +688,7 @@ class MdekThread extends Thread {
 			System.out.println("SUCCESS");
 			System.out.println(result);
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -702,7 +714,7 @@ class MdekThread extends Thread {
 			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
 			System.out.println("was fully deleted: " + fullyDeleted);
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -728,7 +740,7 @@ class MdekThread extends Thread {
 			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
 			System.out.println("was fully deleted: " + fullyDeleted);
 		} else {
-			System.out.println("ERROR: " + mdekCaller.getErrorMsgFromResponse(response));			
+			handleError(response);
 		}
 		
 		return result;
@@ -785,6 +797,13 @@ class MdekThread extends Thread {
 				System.out.println("   " + doc);								
 			}			
 		}
+	}
+
+	private void handleError(IngridDocument response) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
+		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));			
+		
 	}
 
 	public void start() {
