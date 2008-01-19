@@ -310,13 +310,18 @@ public class MdekIdcJob extends MdekJob {
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 
 			// TODO: Perform Checks !!! (Pflichtfelder etc.)
+			checkObjectPathForPublish(uuid, false);
 
 			if (uuid == null) {
+				// NEW NODE !!!!
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
+				// and get parent, that's the one to check
+				String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+				checkObjectPathForPublish(parentUuid, true);
 			}
-			
+
 			// load node
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 			if (oNode == null) {
@@ -467,7 +472,7 @@ public class MdekIdcJob extends MdekJob {
 
 			// perform checks
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-			checkValidTreeNodes(fromNode, toUuid);
+			checkNodesForMove(fromNode, toUuid);
 
 			// move object when checks ok
 			// set new parent, may be null, then top node !
@@ -621,12 +626,10 @@ public class MdekIdcJob extends MdekJob {
 		}
 	}
 
-	/** Check whether passed nodes are valid for performing tree operations (copy, move ...)
-	 * @param fromNode source node
-	 * @param toUuid target node
-	 * @return
+	/** Check whether passed nodes are valid for move operation
+	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
 	 */
-	private void checkValidTreeNodes(ObjectNode fromNode, String toUuid) {
+	private void checkNodesForMove(ObjectNode fromNode, String toUuid) {
 		ArrayList<MdekError> errors = new ArrayList<MdekError>();
 
 		if (fromNode == null) {
@@ -640,7 +643,33 @@ public class MdekIdcJob extends MdekJob {
 
 		if (toUuid != null) {
 			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
-				throw new MdekException(MdekError.TO_UUID_SUBNODE_OF_FROM_UUID);				
+				throw new MdekException(MdekError.TARGET_IS_SUBNODE_OF_SOURCE);				
+			}
+		}
+	}
+
+	/** Checks whether node has unpublished parents. Throws MdekException if so. */
+	private void checkObjectPathForPublish(String inUuid, boolean includeInNode) {
+		// no check when parent node is null
+		if (inUuid == null) {
+			return;
+		}
+		
+		// check whether a parent is not published
+		List<String> pathUuids = daoObjectNode.getObjectPath(inUuid);
+		
+		for (String pathUuid : pathUuids) {
+			if (pathUuid.equals(inUuid) && !includeInNode) {
+				continue;
+			}
+			ObjectNode pathNode = daoObjectNode.loadByUuid(pathUuid);
+			if (pathNode == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
+			
+			// check
+			if (pathNode.getObjIdPublished() == null) {
+				throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
 			}
 		}
 	}
