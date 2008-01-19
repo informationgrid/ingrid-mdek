@@ -171,6 +171,14 @@ public class MdekKeys {
     /** Value: String */
     public final static String FEES = "fees";
 
+    // DATA REFERENCE
+    /** Value: List of IngridDocs */
+    public final static String DATASET_REFERENCES = "dataset-references";
+    /** Value: String (timestamp) */
+    public final static String DATASET_REFERENCE_DATE = "dataset-reference-date";
+    /** Value: Integer */
+    public final static String DATASET_REFERENCE_TYPE = "dataset-reference-type";
+
     // URL REF
     /** Value: List of IngridDocs */
     public final static String LINKAGES = "linkages";

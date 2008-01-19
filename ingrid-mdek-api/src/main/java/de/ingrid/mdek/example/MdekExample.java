@@ -581,6 +581,15 @@ class MdekThread extends Thread {
 			urls.remove(0);			
 		}
 
+		// remove first data reference !
+		List<IngridDocument> refs = (List<IngridDocument>) oDocIn.get(MdekKeys.DATASET_REFERENCES);
+		IngridDocument refRemoved = null;
+		if (refs != null && refs.size() > 0) {
+			refRemoved = refs.get(0);
+			System.out.println("REMOVE FIRST DATASET REFERENCE: " + refRemoved);
+			refs.remove(0);			
+		}
+
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
@@ -626,6 +635,12 @@ class MdekThread extends Thread {
 			newUrl.put(MdekKeys.LINKAGE_NAME, "WEMOVE");
 			System.out.println("ADD NEW URL AT FIRST POS: " + newUrl);
 			urls.add(0, newUrl);
+
+			if (refRemoved != null) {
+				refs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATASET_REFERENCES);
+				refs.add(refRemoved);
+				System.out.println("ADD REMOVED DATASET REFERENCE AGAIN: " + refRemoved);
+			}
 
 			// store
 			System.out.println("STORE");
@@ -836,6 +851,13 @@ class MdekThread extends Thread {
 		docList = (List<IngridDocument>) o.get(MdekKeys.LINKAGES);
 		if (docList != null) {
 			System.out.println("  URL References: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.DATASET_REFERENCES);
+		if (docList != null) {
+			System.out.println("  Dataset References: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			

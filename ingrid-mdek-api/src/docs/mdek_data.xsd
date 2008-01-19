@@ -63,7 +63,8 @@
 			<xs:element name="mod-uuid" type="UUID"/>
 			<xs:element name="responsible-uuid" type="UUID"/>
 			
-			<xs:element name="LINKAGE_MAP" type="LINKAGE_MAP"/>
+			<xs:element name="linkages" type="LINKAGE_LIST"/>
+			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
 			
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
@@ -185,6 +186,11 @@
 			<xs:element name="description-of-temporal-domain" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="LINKAGE_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="LINKAGE_MAP" type="LINKAGE_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="LINKAGE_MAP">
 		<xs:sequence>
 			<xs:element name="linkage-url" type="xs:string"/>
@@ -197,6 +203,17 @@
 			<xs:element name="linkage-description" type="xs:string"/>
 			<xs:element name="linkage-name" type="xs:string"/>
 			<xs:element name="linkage-url-type" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DATASET_REFERENCE_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="DATASET_REFERENCE_MAP" type="DATASET_REFERENCE_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DATASET_REFERENCE_MAP">
+		<xs:sequence>
+			<xs:element name="dataset-reference-date" type="TIMESTAMP"/>
+			<xs:element name="dataset-reference-type" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_RELATIONS_MAP">
