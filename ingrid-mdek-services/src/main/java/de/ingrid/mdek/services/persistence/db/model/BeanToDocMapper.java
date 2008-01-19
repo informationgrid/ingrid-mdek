@@ -120,6 +120,11 @@ public class BeanToDocMapper implements IMapper {
 			// map related url references
 			Set<T017UrlRef> urlRefs = o.getT017UrlRefs();
 			mapT017UrlRefs(urlRefs, objectDoc);
+
+			// map dataset reference
+			Set<T0113DatasetReference> datasetRefs = o.getT0113DatasetReferences();
+			mapT0113DatasetReferences(datasetRefs, objectDoc);
+
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -145,7 +150,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer object relation data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapObjectReference(ObjectReference oR, IngridDocument objectDoc,
+	private IngridDocument mapObjectReference(ObjectReference oR, IngridDocument objectDoc,
 			MappingQuantity howMuch) {
 		if (oR == null) {
 			return objectDoc;
@@ -160,6 +165,29 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.RELATION_TYPE_REF, oR.getSpecialRef());
 		}
 
+		return objectDoc;
+	}
+
+	private IngridDocument mapObjectReferences(Set<ObjectReference> oRefs, IngridDocument objectDoc,
+			MappingQuantity howMuch) {
+		if (oRefs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRefs.size());
+		for (ObjectReference oRef : oRefs) {
+			IngridDocument oToDoc = new IngridDocument();
+			mapObjectReference(oRef, oToDoc, howMuch);
+			ObjectNode oNode = oRef.getObjectNode();
+			if (oNode != null) {
+				T01Object oTo = oNode.getT01ObjectWork();
+				mapT01Object(oTo, oToDoc, howMuch);
+				objsList.add(oToDoc);					
+			} else {
+				LOG.warn("Object " + oRef.getObjToUuid() + " has no ObjectNode !!! We skip this object reference.");
+			}
+		}
+		objectDoc.put(MdekKeys.OBJ_REFERENCES_TO, objsList);
+		
 		return objectDoc;
 	}
 
@@ -203,7 +231,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer relation data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapT012ObjAdr(T012ObjAdr oA, IngridDocument adressDoc,
+	private IngridDocument mapT012ObjAdr(T012ObjAdr oA, IngridDocument adressDoc,
 			MappingQuantity howMuch) {
 		if (oA == null) {
 			return adressDoc;
@@ -220,6 +248,29 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		return adressDoc;
+	}
+
+	private IngridDocument mapT012ObjAdrs(Set<T012ObjAdr> oAs, IngridDocument objectDoc,
+			MappingQuantity howMuch) {
+		if (oAs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
+		for (T012ObjAdr oA : oAs) {
+			IngridDocument aDoc = new IngridDocument();
+			mapT012ObjAdr(oA, aDoc, howMuch);
+			AddressNode aNode = oA.getAddressNode();
+			if (aNode != null) {
+				T02Address a = aNode.getT02AddressWork();
+				mapT02Address(a, aDoc, howMuch);
+				adrsList.add(aDoc);					
+			} else {
+				LOG.warn("Address " + oA.getAdrUuid() + " has no AddressNode !!! We skip this address reference.");
+			}
+		}
+		objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
+		
+		return objectDoc;
 	}
 
 	/**
@@ -305,7 +356,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapSpatialRefValue(SpatialRefValue spatRefValue, IngridDocument locDoc) {
+	private IngridDocument mapSpatialRefValue(SpatialRefValue spatRefValue, IngridDocument locDoc) {
 		if (spatRefValue == null) {
 			return locDoc;
 		}
@@ -325,7 +376,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapSpatialRefSns(SpatialRefSns spatRefSns, IngridDocument locDoc) {
+	private IngridDocument mapSpatialRefSns(SpatialRefSns spatRefSns, IngridDocument locDoc) {
 		if (spatRefSns == null) {
 			return locDoc;
 		}
@@ -333,71 +384,6 @@ public class BeanToDocMapper implements IMapper {
 		locDoc.put(MdekKeys.LOCATION_SNS_ID, spatRefSns.getSnsId());
 
 		return locDoc;
-	}
-
-	public IngridDocument mapT017UrlRef(T017UrlRef url, IngridDocument urlDoc) {
-		if (url == null) {
-			return urlDoc;
-		}
-
-		urlDoc.put(MdekKeys.LINKAGE_URL, url.getUrlLink());
-		urlDoc.put(MdekKeys.LINKAGE_REFERENCE_ID, url.getSpecialRef());
-		urlDoc.put(MdekKeys.LINKAGE_REFERENCE, url.getSpecialName());
-		urlDoc.put(MdekKeys.LINKAGE_DATATYPE, url.getDatatype());
-		urlDoc.put(MdekKeys.LINKAGE_VOLUME, url.getVolume());
-		urlDoc.put(MdekKeys.LINKAGE_ICON_URL, url.getIcon());
-		urlDoc.put(MdekKeys.LINKAGE_ICON_TEXT, url.getIconText());
-		urlDoc.put(MdekKeys.LINKAGE_DESCRIPTION, url.getDescr());
-		urlDoc.put(MdekKeys.LINKAGE_NAME, url.getContent());
-		urlDoc.put(MdekKeys.LINKAGE_URL_TYPE, url.getUrlType());
-
-		return urlDoc;
-	}
-
-	private IngridDocument mapObjectReferences(Set<ObjectReference> oRefs, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
-		if (oRefs == null) {
-			return objectDoc;
-		}
-		ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRefs.size());
-		for (ObjectReference oRef : oRefs) {
-			IngridDocument oToDoc = new IngridDocument();
-			mapObjectReference(oRef, oToDoc, howMuch);
-			ObjectNode oNode = oRef.getObjectNode();
-			if (oNode != null) {
-				T01Object oTo = oNode.getT01ObjectWork();
-				mapT01Object(oTo, oToDoc, howMuch);
-				objsList.add(oToDoc);					
-			} else {
-				LOG.warn("Object " + oRef.getObjToUuid() + " has no ObjectNode !!! We skip this object reference.");
-			}
-		}
-		objectDoc.put(MdekKeys.OBJ_REFERENCES_TO, objsList);
-		
-		return objectDoc;
-	}
-
-	private IngridDocument mapT012ObjAdrs(Set<T012ObjAdr> oAs, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
-		if (oAs == null) {
-			return objectDoc;
-		}
-		ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
-		for (T012ObjAdr oA : oAs) {
-			IngridDocument aDoc = new IngridDocument();
-			mapT012ObjAdr(oA, aDoc, howMuch);
-			AddressNode aNode = oA.getAddressNode();
-			if (aNode != null) {
-				T02Address a = aNode.getT02AddressWork();
-				mapT02Address(a, aDoc, howMuch);
-				adrsList.add(aDoc);					
-			} else {
-				LOG.warn("Address " + oA.getAdrUuid() + " has no AddressNode !!! We skip this address reference.");
-			}
-		}
-		objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
-		
-		return objectDoc;
 	}
 
 	private IngridDocument mapSpatialReferences(Set<SpatialReference> spatRefs, IngridDocument objectDoc) {
@@ -422,6 +408,25 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	private IngridDocument mapT017UrlRef(T017UrlRef url, IngridDocument urlDoc) {
+		if (url == null) {
+			return urlDoc;
+		}
+
+		urlDoc.put(MdekKeys.LINKAGE_URL, url.getUrlLink());
+		urlDoc.put(MdekKeys.LINKAGE_REFERENCE_ID, url.getSpecialRef());
+		urlDoc.put(MdekKeys.LINKAGE_REFERENCE, url.getSpecialName());
+		urlDoc.put(MdekKeys.LINKAGE_DATATYPE, url.getDatatype());
+		urlDoc.put(MdekKeys.LINKAGE_VOLUME, url.getVolume());
+		urlDoc.put(MdekKeys.LINKAGE_ICON_URL, url.getIcon());
+		urlDoc.put(MdekKeys.LINKAGE_ICON_TEXT, url.getIconText());
+		urlDoc.put(MdekKeys.LINKAGE_DESCRIPTION, url.getDescr());
+		urlDoc.put(MdekKeys.LINKAGE_NAME, url.getContent());
+		urlDoc.put(MdekKeys.LINKAGE_URL_TYPE, url.getUrlType());
+
+		return urlDoc;
+	}
+
 	private IngridDocument mapT017UrlRefs(Set<T017UrlRef> urlRefs, IngridDocument objectDoc) {
 		if (urlRefs == null) {
 			return objectDoc;
@@ -433,6 +438,32 @@ public class BeanToDocMapper implements IMapper {
 			urlList.add(urlDoc);
 		}
 		objectDoc.put(MdekKeys.LINKAGES, urlList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT0113DatasetReference(T0113DatasetReference ref, IngridDocument urlDoc) {
+		if (ref == null) {
+			return urlDoc;
+		}
+
+		urlDoc.put(MdekKeys.DATASET_REFERENCE_DATE, ref.getReferenceDate());
+		urlDoc.put(MdekKeys.DATASET_REFERENCE_TYPE, ref.getType());
+
+		return urlDoc;
+	}
+
+	private IngridDocument mapT0113DatasetReferences(Set<T0113DatasetReference> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T0113DatasetReference ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT0113DatasetReference(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.DATASET_REFERENCES, refList);
 		
 		return objectDoc;
 	}

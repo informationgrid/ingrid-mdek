@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT012ObjAdr;
 	private IGenericDao<IEntity> daoObjectReference;
 	private IGenericDao<IEntity> daoT017UrlRef;
+	private IGenericDao<IEntity> daoT0113DatasetReference;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -49,6 +51,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 		daoT017UrlRef = daoFactory.getDao(T017UrlRef.class);
+		daoT0113DatasetReference = daoFactory.getDao(T0113DatasetReference.class);
 	}
 
 	/**
@@ -117,11 +120,9 @@ public class DocToBeanMapper implements IMapper {
 			// update related ObjAdrs
 			updateT012ObjAdrs(oDocIn, oIn, howMuch);
 
-			// update related SpatialReferences
 			updateSpatialReferences(oDocIn, oIn);
-
-			// update related SpatialReferences
 			updateT017UrlRefs(oDocIn, oIn);
+			updateT0113DatasetReferences(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -166,6 +167,40 @@ public class DocToBeanMapper implements IMapper {
 		return oRef;
 	}
 
+	private void updateObjectReferences(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> oDocsTo = (List) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
+		if (oDocsTo == null) {
+			oDocsTo = new ArrayList<IngridDocument>(0);
+		}
+		Set<ObjectReference> oRefs = oIn.getObjectReferences();
+		ArrayList<ObjectReference> oRefs_unprocessed = new ArrayList<ObjectReference>(oRefs);
+		int line = 1;
+		for (IngridDocument oDocTo : oDocsTo) {
+			String oToUuid = (String) oDocTo.get(MdekKeys.UUID);
+			boolean found = false;
+			for (ObjectReference oRef : oRefs) {
+				if (oRef.getObjToUuid().equals(oToUuid)) {
+					mapObjectReference(oIn, oDocTo, oRef, line);
+					oRefs_unprocessed.remove(oRef);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				// add new one
+				ObjectReference oRef = mapObjectReference(oIn, oDocTo, new ObjectReference(), line);
+				oRefs.add(oRef);
+			}
+			line++;
+		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (ObjectReference oR : oRefs_unprocessed) {
+			oRefs.remove(oR);
+			// delete-orphan doesn't work !!!?????
+			daoObjectReference.makeTransient(oR);
+		}		
+	}
+
 	/**
 	 * Transfer data of passed doc to passed bean.
 	 * @param oFrom from object
@@ -200,6 +235,40 @@ public class DocToBeanMapper implements IMapper {
 		}
 
 		return oA;
+	}
+
+	private void updateT012ObjAdrs(IngridDocument oDocIn, T01Object oIn, MappingQuantity howMuch) {
+		List<IngridDocument> aDocsTo = (List) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
+		if (aDocsTo == null) {
+			aDocsTo = new ArrayList<IngridDocument>(0);
+		}
+		Set<T012ObjAdr> oAs = oIn.getT012ObjAdrs();
+		ArrayList<T012ObjAdr> oAs_unprocessed = new ArrayList<T012ObjAdr>(oAs);
+		int line = 1;
+		for (IngridDocument aDocTo : aDocsTo) {
+			String aUuidTo = (String) aDocTo.get(MdekKeys.UUID);
+			boolean found = false;
+			for (T012ObjAdr oA : oAs) {
+				if (oA.getAdrUuid().equals(aUuidTo)) {
+					mapT012ObjAdr(oIn, aDocTo, oA, line, howMuch);
+					oAs_unprocessed.remove(oA);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				// add new one
+				T012ObjAdr oA = mapT012ObjAdr(oIn, aDocTo, new T012ObjAdr(), line, howMuch);
+				oAs.add(oA);
+			}
+			line++;
+		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (T012ObjAdr oA : oAs_unprocessed) {
+			oAs.remove(oA);
+			// delete-orphan doesn't work !!!?????
+			daoT012ObjAdr.makeTransient(oA);
+		}		
 	}
 
 	/**
@@ -241,98 +310,6 @@ public class DocToBeanMapper implements IMapper {
 		spRefValue.setSpatialRefSnsId(spRefSnsId);
 
 		return spRefValue;
-	}
-
-	/**
-	 * Transfer data to passed bean.
-	 */
-	private T017UrlRef mapT017UrlRef(T01Object oFrom,
-		IngridDocument urlDoc,
-		T017UrlRef urlRef, 
-		int line) 
-	{
-		urlRef.setObjId(oFrom.getId());
-		urlRef.setUrlLink((String) urlDoc.get(MdekKeys.LINKAGE_URL));
-		urlRef.setSpecialRef((Integer) urlDoc.get(MdekKeys.LINKAGE_REFERENCE_ID));
-		urlRef.setSpecialName((String) urlDoc.get(MdekKeys.LINKAGE_REFERENCE));
-		urlRef.setDatatype((String) urlDoc.get(MdekKeys.LINKAGE_DATATYPE));
-		urlRef.setVolume((String) urlDoc.get(MdekKeys.LINKAGE_VOLUME));
-		urlRef.setIcon((String) urlDoc.get(MdekKeys.LINKAGE_ICON_URL));
-		urlRef.setIconText((String) urlDoc.get(MdekKeys.LINKAGE_ICON_TEXT));
-		urlRef.setDescr((String) urlDoc.get(MdekKeys.LINKAGE_DESCRIPTION));
-		urlRef.setContent((String) urlDoc.get(MdekKeys.LINKAGE_NAME));
-		urlRef.setUrlType((Integer) urlDoc.get(MdekKeys.LINKAGE_URL_TYPE));		
-		urlRef.setLine(line);
-
-		return urlRef;
-	}
-
-	private void updateObjectReferences(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> oDocsTo = (List) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
-		if (oDocsTo == null) {
-			oDocsTo = new ArrayList<IngridDocument>(0);
-		}
-		Set<ObjectReference> oRefs = oIn.getObjectReferences();
-		ArrayList<ObjectReference> oRefs_unprocessed = new ArrayList<ObjectReference>(oRefs);
-		int line = 1;
-		for (IngridDocument oDocTo : oDocsTo) {
-			String oToUuid = (String) oDocTo.get(MdekKeys.UUID);
-			boolean found = false;
-			for (ObjectReference oRef : oRefs) {
-				if (oRef.getObjToUuid().equals(oToUuid)) {
-					mapObjectReference(oIn, oDocTo, oRef, line);
-					oRefs_unprocessed.remove(oRef);
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				// add new one
-				ObjectReference oRef = mapObjectReference(oIn, oDocTo, new ObjectReference(), line);
-				oRefs.add(oRef);
-			}
-			line++;
-		}
-		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
-		for (ObjectReference oR : oRefs_unprocessed) {
-			oRefs.remove(oR);
-			// delete-orphan doesn't work !!!?????
-			daoObjectReference.makeTransient(oR);
-		}		
-	}
-
-	private void updateT012ObjAdrs(IngridDocument oDocIn, T01Object oIn, MappingQuantity howMuch) {
-		List<IngridDocument> aDocsTo = (List) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
-		if (aDocsTo == null) {
-			aDocsTo = new ArrayList<IngridDocument>(0);
-		}
-		Set<T012ObjAdr> oAs = oIn.getT012ObjAdrs();
-		ArrayList<T012ObjAdr> oAs_unprocessed = new ArrayList<T012ObjAdr>(oAs);
-		int line = 1;
-		for (IngridDocument aDocTo : aDocsTo) {
-			String aUuidTo = (String) aDocTo.get(MdekKeys.UUID);
-			boolean found = false;
-			for (T012ObjAdr oA : oAs) {
-				if (oA.getAdrUuid().equals(aUuidTo)) {
-					mapT012ObjAdr(oIn, aDocTo, oA, line, howMuch);
-					oAs_unprocessed.remove(oA);
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				// add new one
-				T012ObjAdr oA = mapT012ObjAdr(oIn, aDocTo, new T012ObjAdr(), line, howMuch);
-				oAs.add(oA);
-			}
-			line++;
-		}
-		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
-		for (T012ObjAdr oA : oAs_unprocessed) {
-			oAs.remove(oA);
-			// delete-orphan doesn't work !!!?????
-			daoT012ObjAdr.makeTransient(oA);
-		}		
 	}
 
 	private void updateSpatialReferences(IngridDocument oDocIn, T01Object oIn) {
@@ -403,25 +380,87 @@ public class DocToBeanMapper implements IMapper {
 		}		
 	}
 
+	/**
+	 * Transfer data to passed bean.
+	 */
+	private T017UrlRef mapT017UrlRef(T01Object oFrom,
+		IngridDocument urlDoc,
+		T017UrlRef urlRef, 
+		int line) 
+	{
+		urlRef.setObjId(oFrom.getId());
+		urlRef.setUrlLink((String) urlDoc.get(MdekKeys.LINKAGE_URL));
+		urlRef.setSpecialRef((Integer) urlDoc.get(MdekKeys.LINKAGE_REFERENCE_ID));
+		urlRef.setSpecialName((String) urlDoc.get(MdekKeys.LINKAGE_REFERENCE));
+		urlRef.setDatatype((String) urlDoc.get(MdekKeys.LINKAGE_DATATYPE));
+		urlRef.setVolume((String) urlDoc.get(MdekKeys.LINKAGE_VOLUME));
+		urlRef.setIcon((String) urlDoc.get(MdekKeys.LINKAGE_ICON_URL));
+		urlRef.setIconText((String) urlDoc.get(MdekKeys.LINKAGE_ICON_TEXT));
+		urlRef.setDescr((String) urlDoc.get(MdekKeys.LINKAGE_DESCRIPTION));
+		urlRef.setContent((String) urlDoc.get(MdekKeys.LINKAGE_NAME));
+		urlRef.setUrlType((Integer) urlDoc.get(MdekKeys.LINKAGE_URL_TYPE));		
+		urlRef.setLine(line);
+
+		return urlRef;
+	}
+
 	private void updateT017UrlRefs(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> urlDocs = (List) oDocIn.get(MdekKeys.LINKAGES);
 		if (urlDocs == null) {
 			urlDocs = new ArrayList<IngridDocument>(0);
 		}
 		Set<T017UrlRef> urlRefs = oIn.getT017UrlRefs();
-		ArrayList<T017UrlRef> urlRefs_unprocessed = new ArrayList<T017UrlRef>(urlRefs);
 		// remove all !
-		for (T017UrlRef urlRef : urlRefs_unprocessed) {
+		for (Iterator<T017UrlRef> i = urlRefs.iterator(); i.hasNext(); )
+		{
+			T017UrlRef urlRef = i.next();
 			urlRefs.remove(urlRef);
 			// delete-orphan doesn't work !!!?????
 			daoT017UrlRef.makeTransient(urlRef);
-		}		
+		}
 		// and add all new ones !
 		int line = 1;
 		for (IngridDocument urlDoc : urlDocs) {
 			// add all as new ones
 			T017UrlRef urlRef = mapT017UrlRef(oIn, urlDoc, new T017UrlRef(), line);
 			urlRefs.add(urlRef);
+			line++;
+		}
+	}
+
+	private T0113DatasetReference mapT0113DatasetReference(T01Object oFrom,
+		IngridDocument refDoc,
+		T0113DatasetReference ref, 
+		int line) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setReferenceDate((String) refDoc.get(MdekKeys.DATASET_REFERENCE_DATE));
+		ref.setType((Integer) refDoc.get(MdekKeys.DATASET_REFERENCE_TYPE));
+		ref.setLine(line);
+
+		return ref;
+	}
+
+	private void updateT0113DatasetReferences(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.DATASET_REFERENCES);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T0113DatasetReference> refs = oIn.getT0113DatasetReferences();
+		// remove all !
+		for (Iterator<T0113DatasetReference> i = refs.iterator(); i.hasNext(); )
+		{
+			T0113DatasetReference ref = i.next();
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT0113DatasetReference.makeTransient(ref);			
+		}
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T0113DatasetReference ref = mapT0113DatasetReference(oIn, refDoc, new T0113DatasetReference(), line);
+			refs.add(ref);
 			line++;
 		}
 	}
