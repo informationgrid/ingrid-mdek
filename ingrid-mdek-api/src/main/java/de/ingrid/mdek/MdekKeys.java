@@ -46,9 +46,9 @@ public class MdekKeys {
     /** indicates whether a tree has subnodes with working copies, e.g. to determin whether move is allowed 
      *  Value: Boolean */
     public final static String RESULTINFO_HAS_WORKING_COPY = "resultinfo_hasWorkingCopy";
-    /** How many entities were checked (e.g. when determining subtree state) 
+    /** How many entities were processed (e.g. when checking subtree state, copying tree etc.) 
      *  Value: Integer */
-    public final static String RESULTINFO_NUMBER_OF_CHECKED_ENTITIES = "resultinfo_numberOfCheckedEntities";
+    public final static String RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES = "resultinfo_numberOfProcessedEntities";
     /** uuid of the entity which was found (e.g. when looking for working copy in subtree) 
      *  Value: String */
     public final static String RESULTINFO_UUID_OF_FOUND_ENTITY = "resultinfo_uuidOfFoundEntity";

@@ -728,8 +728,8 @@ class MdekThread extends Thread {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS");
-			System.out.println(result);
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
+			System.out.println("Root Copy: " + result);
 		} else {
 			handleError(response);
 		}

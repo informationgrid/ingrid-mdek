@@ -89,10 +89,11 @@ public interface IMdekCaller {
 	IngridDocument getObjectPath(String uuid);
 
 	/**
-	 * Check whether operations with the subtree of the given object (uuid)
-	 * are permitted or prohibited (e.g. no rights, subtree in process ...)
+	 * Check whether operations with the subtree of the given object
+	 * are permitted or prohibited (e.g. no rights, subtree has working copies ...)
 	 * @param uuid object uuid of top node
 	 * @return response containing result: map containing info about examination
+	 * (has working copies, uuid of found working copy, number checked objects ...)
 	 */
 	IngridDocument checkObjectSubTree(String uuid);
 
@@ -102,6 +103,7 @@ public interface IMdekCaller {
 	 * @param toUuid uuid of parent where to copy to (new subnode)
 	 * @param copySubtree true=also copy subtree, false=only object without subObjects
 	 * @return response containing result: map containing basic data of copied object
+	 * and additional info (number of copied objects ...)
 	 */
 	IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree);
 
@@ -109,7 +111,7 @@ public interface IMdekCaller {
 	 * Move an object with its subtree to another parent.
 	 * @param fromUuid uuid of node to move (this one will be removed from its parent)
 	 * @param toUuid uuid of new parent
-	 * @return response containing result: result is null when error
+	 * @return response containing result: map with uuid of moved object
 	 */
 	IngridDocument moveObject(String fromUuid, String toUuid);
 

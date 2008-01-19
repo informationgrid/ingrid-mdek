@@ -122,7 +122,7 @@
 		<xs:all>
 			<xs:element name="resultinfo_wasFullyDeleted" type="xs:boolean"/>
 			<xs:element name="resultinfo_hasWorkingCopy" type="xs:boolean"/>
-			<xs:element name="resultinfo_numberOfCheckedEntities" type="xs:integer"/>
+			<xs:element name="resultinfo_numberOfProcessedEntities" type="xs:integer"/>
 			<xs:element name="resultinfo_uuidOfFoundEntity" type="UUID"/>
 		</xs:all>
 	</xs:complexType>
