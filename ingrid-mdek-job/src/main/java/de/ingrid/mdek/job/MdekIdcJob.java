@@ -530,7 +530,10 @@ public class MdekIdcJob extends MdekJob {
 					}					
 				}
 			}
-			
+			if (log.isDebugEnabled()) {
+				log.debug("Number of checked objects: " + numberOfCheckedObj);
+			}
+
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.RESULTINFO_HAS_WORKING_COPY, hasWorkingCopy);
 			result.put(MdekKeys.RESULTINFO_UUID_OF_FOUND_ENTITY, uuidOfWorkingCopy);
@@ -582,6 +585,9 @@ public class MdekIdcJob extends MdekJob {
 			IngridDocument copyResult = createObjectNodeCopy(fromNode, toNode, copySubtree, uuidsCopiedNodes);
 			ObjectNode fromNodeCopy = (ObjectNode) copyResult.get(MdekKeys.OBJ_ENTITIES);
 			Integer numCopiedObjects = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
+			if (log.isDebugEnabled()) {
+				log.debug("Number of copied objects: " + numCopiedObjects);
+			}
 
 			// success
 			IngridDocument resultDoc = new IngridDocument();
