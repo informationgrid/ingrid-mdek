@@ -12,13 +12,16 @@ public class MdekErrors {
 	public enum MdekError implements IMdekEnum {
 		// e.g. another user changed an object in between
 		ENTITY_CHANGED_IN_BETWEEN("1"),
+
 		UUID_NOT_FOUND("10"),
 		FROM_UUID_NOT_FOUND("11"),
 		TO_UUID_NOT_FOUND("12"),
+
 		// e.g. publish of child not allowed when parent not published
 		PARENT_NOT_PUBLISHED("20"),
+
 		// e.g. move of tree node to subnode not allowed
-		TO_UUID_SUBNODE_OF_FROM_UUID("30");
+		TARGET_IS_SUBNODE_OF_SOURCE("30");
 
 		MdekError(String errorCode) {
 			this.errorCode = errorCode;

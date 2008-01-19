@@ -269,19 +269,22 @@ class MdekThread extends Thread {
 		oMap = copyObject(objectFrom, objectTo, false);
 		String pub1Uuid = (String)oMap.get(MdekKeys.UUID);
 
-		System.out.println("\n----- refetch full object and change title -----");
+		System.out.println("\n----- publish NEW SUB OBJECT immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
+		IngridDocument newPubDoc = new IngridDocument();
+		newPubDoc.put(MdekKeys.TITLE, "TEST NEUES SUB OBJEKT DIREKT PUBLISH");
+		// sub object of unpublished parent !!!
+		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
+		publishObject(newPubDoc, true);
+
+		System.out.println("\n----- refetch FULL PARENT and change title, IS UNPUBLISHED !!! -----");
 		oMap = fetchObject(pub1Uuid, Quantity.DETAIL_ENTITY);
 		oMap.put(MdekKeys.TITLE, "COPIED, Title CHANGED and PUBLISHED: " + oMap.get(MdekKeys.TITLE));	
 
-		System.out.println("\n----- and publish -> create pub version/delete work version -----");
-		oMap = publishObject(oMap, true);
+		System.out.println("\n----- and publish PARENT -> create pub version/delete work version -----");
+		publishObject(oMap, true);
 
-		System.out.println("\n----- publish new top object immediately -> create pub version, set also as work version -----");
-		IngridDocument pubDoc = new IngridDocument();
-		pubDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT DIREKT PUBLISH");
-		// supply parent uuid !
-		pubDoc.put(MdekKeys.PARENT_UUID, null);
-		oMap = publishObject(pubDoc, true);
+		System.out.println("\n----- NOW CREATE AND PUBLISH OF NEW CHILD POSSIBLE -> create pub version, set also as work version -----");
+		oMap = publishObject(newPubDoc, true);
 		// uuid created !
 		String pub2Uuid = (String) oMap.get(MdekKeys.UUID);
 
@@ -293,6 +296,8 @@ class MdekThread extends Thread {
 		deleteObject(pub2Uuid);
 		System.out.println("\n----- verify -> load top objects -----");
 		fetchTopObjects();
+		System.out.println("\n----- delete 1. published copy (FULL) -----");
+		deleteObject(pub1Uuid);
 
 
 /*
