@@ -74,7 +74,7 @@ public class T01Object implements IEntity {
 	private Set t011ObjServs = new HashSet();
 */
 	private Set t012ObjAdrs = new HashSet();
-//	private Set t014InfoImparts = new HashSet();
+	private Set t014InfoImparts = new HashSet();
 //	private Set t015Legists = new HashSet();
 	private Set t017UrlRefs = new HashSet();
 //	private T03Catalogue t03Catalogue;
@@ -562,7 +562,7 @@ public class T01Object implements IEntity {
 	public void setT012ObjAdrs(Set t012ObjAdrs) {
 		this.t012ObjAdrs = t012ObjAdrs;
 	}
-/*
+
 	public Set getT014InfoImparts() {
 		return t014InfoImparts;
 	}
@@ -570,7 +570,7 @@ public class T01Object implements IEntity {
 	public void setT014InfoImparts(Set t014InfoImparts) {
 		this.t014InfoImparts = t014InfoImparts;
 	}
-
+/*
 	public Set getT015Legists() {
 		return t015Legists;
 	}

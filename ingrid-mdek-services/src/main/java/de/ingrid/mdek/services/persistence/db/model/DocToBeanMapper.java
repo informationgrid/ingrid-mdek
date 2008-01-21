@@ -35,6 +35,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoObjectReference;
 	private IGenericDao<IEntity> daoT017UrlRef;
 	private IGenericDao<IEntity> daoT0113DatasetReference;
+	private IGenericDao<IEntity> daoT014InfoImpart;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -52,6 +53,7 @@ public class DocToBeanMapper implements IMapper {
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 		daoT017UrlRef = daoFactory.getDao(T017UrlRef.class);
 		daoT0113DatasetReference = daoFactory.getDao(T0113DatasetReference.class);
+		daoT014InfoImpart = daoFactory.getDao(T014InfoImpart.class);
 	}
 
 	/**
@@ -114,15 +116,13 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setAvailAccessNote((String) oDocIn.get(MdekKeys.USE_CONSTRAINTS));
 			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
 
-			// update related object references (Querverweise)
+			// update associations
 			updateObjectReferences(oDocIn, oIn);
-
-			// update related ObjAdrs
 			updateT012ObjAdrs(oDocIn, oIn, howMuch);
-
 			updateSpatialReferences(oDocIn, oIn);
 			updateT017UrlRefs(oDocIn, oIn);
 			updateT0113DatasetReferences(oDocIn, oIn);
+			updateT014InfoImparts(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -440,7 +440,6 @@ public class DocToBeanMapper implements IMapper {
 
 		return ref;
 	}
-
 	private void updateT0113DatasetReferences(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.DATASET_REFERENCES);
 		if (refDocs == null) {
@@ -464,4 +463,41 @@ public class DocToBeanMapper implements IMapper {
 			line++;
 		}
 	}
+
+	private T014InfoImpart mapT014InfoImpart(T01Object oFrom,
+			String name,
+			T014InfoImpart ref, 
+			int line) 
+		
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setName(name);
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT014InfoImparts(IngridDocument oDocIn, T01Object oIn) {
+		List<String> refDocs = (List) oDocIn.get(MdekKeys.EXPORTS);
+		if (refDocs == null) {
+			refDocs = new ArrayList<String>(0);
+		}
+		Set<T014InfoImpart> refs = oIn.getT014InfoImparts();
+		// remove all !
+		for (Iterator<T014InfoImpart> i = refs.iterator(); i.hasNext(); )
+		{
+			T014InfoImpart ref = i.next();
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT014InfoImpart.makeTransient(ref);			
+		}
+		// and add all new ones !
+		int line = 1;
+		for (String refName : refDocs) {
+			// add all as new ones
+			T014InfoImpart ref = mapT014InfoImpart(oIn, refName, new T014InfoImpart(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
 }

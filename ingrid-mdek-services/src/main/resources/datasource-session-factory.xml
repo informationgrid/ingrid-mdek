@@ -70,8 +70,8 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServVersion.hbm.xml</value>
 -->
             <value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
-<!--
             <value>de/ingrid/mdek/services/persistence/db/model/T014InfoImpart.hbm.xml</value>
+<!--
             <value>de/ingrid/mdek/services/persistence/db/model/T015Legist.hbm.xml</value>
 -->
             <value>de/ingrid/mdek/services/persistence/db/model/T017UrlRef.hbm.xml</value>

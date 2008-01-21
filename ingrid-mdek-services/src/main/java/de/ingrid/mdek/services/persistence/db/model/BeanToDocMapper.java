@@ -105,26 +105,13 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.USE_CONSTRAINTS, o.getAvailAccessNote());
 			objectDoc.put(MdekKeys.FEES, o.getFees());
 
-			// map related objects (Querverweise)
-			Set<ObjectReference> oRefs = o.getObjectReferences();
-			mapObjectReferences(oRefs, objectDoc, howMuch);
-
-			// map related addresses
-			Set<T012ObjAdr> oAs = o.getT012ObjAdrs();
-			mapT012ObjAdrs(oAs, objectDoc, howMuch);
-
-			// map related spatial references
-			Set<SpatialReference> spatRefs = o.getSpatialReferences();
-			mapSpatialReferences(spatRefs, objectDoc);
-
-			// map related url references
-			Set<T017UrlRef> urlRefs = o.getT017UrlRefs();
-			mapT017UrlRefs(urlRefs, objectDoc);
-
-			// map dataset reference
-			Set<T0113DatasetReference> datasetRefs = o.getT0113DatasetReferences();
-			mapT0113DatasetReferences(datasetRefs, objectDoc);
-
+			// map associations
+			mapObjectReferences(o.getObjectReferences(), objectDoc, howMuch);
+			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc, howMuch);
+			mapSpatialReferences(o.getSpatialReferences(), objectDoc);
+			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
+			mapT0113DatasetReferences(o.getT0113DatasetReferences(), objectDoc);
+			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -452,7 +439,6 @@ public class BeanToDocMapper implements IMapper {
 
 		return urlDoc;
 	}
-
 	private IngridDocument mapT0113DatasetReferences(Set<T0113DatasetReference> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
@@ -467,4 +453,19 @@ public class BeanToDocMapper implements IMapper {
 		
 		return objectDoc;
 	}
+
+	private IngridDocument mapT014InfoImparts(Set<T014InfoImpart> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		for (T014InfoImpart ref : refs) {
+			String infoImport = ref.getName();
+			refList.add(infoImport);				
+		}
+		objectDoc.put(MdekKeys.EXPORTS, refList);
+		
+		return objectDoc;
+	}
+
 }
