@@ -68,7 +68,8 @@
 			<xs:element name="exports" type="EXPORT_LIST"/>
 			<xs:element name="legislations" type="LEGISLATION_LIST"/>
 			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
-
+			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
+			
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
 	</xs:complexType>
@@ -241,6 +242,18 @@
 			<xs:element name="data-format-version" type="xs:string"/>
 			<xs:element name="data-format-specification" type="xs:string"/>
 			<xs:element name="data-format-file-decompression-technique" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MEDIUM_OPTION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="MEDIUM_OPTION_MAP" type="MEDIUM_OPTION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MEDIUM_OPTION_MAP">
+		<xs:sequence>
+			<xs:element name="medium-name" type="xs:integer"/>
+			<xs:element name="medium-transfer-size" type="xs:double"/>
+			<xs:element name="medium-note" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_RELATIONS_MAP">

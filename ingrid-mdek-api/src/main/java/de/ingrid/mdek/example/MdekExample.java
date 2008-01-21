@@ -608,13 +608,23 @@ class MdekThread extends Thread {
 		// add entry to DATA_FORMATS
 		List<IngridDocument> docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		IngridDocument testDataFormat = new IngridDocument();
-		testDataFormat.put(MdekKeys.DATA_FORMAT_NAME, "TEST DATA FORMAT NAME");
-		testDataFormat.put(MdekKeys.DATA_FORMAT_VERSION, "TEST DATA FORMAT DATA_FORMAT_VERSION");
-		testDataFormat.put(MdekKeys.DATA_FORMAT_SPECIFICATION, "TEST DATA FORMAT DATA_FORMAT_SPECIFICATION");
-		testDataFormat.put(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA FORMAT DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
-		docList.add(testDataFormat);
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.DATA_FORMAT_NAME, "TEST DATA_FORMAT_NAME");
+		testDoc.put(MdekKeys.DATA_FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
+		testDoc.put(MdekKeys.DATA_FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
+		testDoc.put(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
+		docList.add(testDoc);
 		oDocIn.put(MdekKeys.DATA_FORMATS, docList);
+
+		// add entry to MEDIUM_OPTIONS
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.MEDIUM_OPTIONS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.MEDIUM_NAME, new Integer(1));
+		testDoc.put(MdekKeys.MEDIUM_TRANSFER_SIZE, new Double(1.11));
+		testDoc.put(MdekKeys.MEDIUM_NOTE, "TEST MEDIUM_NOTE");
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.MEDIUM_OPTIONS, docList);
 
 		// store
 		System.out.println("STORE");
@@ -687,6 +697,13 @@ class MdekThread extends Thread {
 			if (docList != null && docList.size() > 1) {
 				docList.remove(docList.size()-1);
 				oDocIn.put(MdekKeys.DATA_FORMATS, docList);				
+			}
+
+			// MEDIUM_OPTIONS wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.MEDIUM_OPTIONS);
+			if (docList != null && docList.size() > 1) {
+				docList.remove(docList.size()-1);
+				oDocIn.put(MdekKeys.MEDIUM_OPTIONS, docList);				
 			}
 
 			// store
@@ -925,6 +942,13 @@ class MdekThread extends Thread {
 		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_FORMATS);
 		if (docList != null) {
 			System.out.println("  Data Formats: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.MEDIUM_OPTIONS);
+		if (docList != null) {
+			System.out.println("  Medium Options: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			

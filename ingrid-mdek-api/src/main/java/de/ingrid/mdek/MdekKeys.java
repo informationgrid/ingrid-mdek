@@ -203,6 +203,16 @@ public class MdekKeys {
     /** Value: String */
     public final static String DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE = "data-format-file-decompression-technique";
 
+    // MEDIUM OPTIONS
+    /** Value: List of IngridDocs */
+    public final static String MEDIUM_OPTIONS = "medium-options";
+    /** Value: Integer */
+    public final static String MEDIUM_NAME = "medium-name";
+    /** Value: Double */
+    public final static String MEDIUM_TRANSFER_SIZE = "medium-transfer-size";
+    /** Value: String */
+    public final static String MEDIUM_NOTE = "medium-note";
+
     // URL REF
     /** Value: List of IngridDocs */
     public final static String LINKAGES = "linkages";
