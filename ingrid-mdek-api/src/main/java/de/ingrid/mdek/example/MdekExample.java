@@ -659,13 +659,17 @@ class MdekThread extends Thread {
 
 			// EXPORTS wieder wie vorher !
 			exports = (List<String>) oRefetchedDoc.get(MdekKeys.EXPORTS);
-			exports.remove(exports.size()-1);
-			oDocIn.put(MdekKeys.EXPORTS, exports);
+			if (exports != null && exports.size() > 1) {
+				exports.remove(exports.size()-1);
+				oDocIn.put(MdekKeys.EXPORTS, exports);				
+			}
 
 			// LEGISLATIONS wieder wie vorher !
 			legislations = (List<String>) oRefetchedDoc.get(MdekKeys.LEGISLATIONS);
-			legislations.remove(legislations.size()-1);
-			oDocIn.put(MdekKeys.LEGISLATIONS, legislations);
+			if (legislations != null && legislations.size() > 1) {
+				legislations.remove(legislations.size()-1);
+				oDocIn.put(MdekKeys.LEGISLATIONS, legislations);				
+			}
 
 			// store
 			System.out.println("STORE");
