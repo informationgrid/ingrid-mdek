@@ -596,8 +596,14 @@ class MdekThread extends Thread {
 		// add entry to EXPORTS
 		List<String> exports = (List<String>) oDocIn.get(MdekKeys.EXPORTS);
 		exports = (exports == null) ? new ArrayList<String>() : exports;
-		exports.add("TEST NEW t014_info_impart entry");
+		exports.add("TEST NEW T014InfoImpart entry");
 		oDocIn.put(MdekKeys.EXPORTS, exports);
+
+		// add entry to LEGISLATIONS
+		List<String> legislations = (List<String>) oDocIn.get(MdekKeys.LEGISLATIONS);
+		legislations = (legislations == null) ? new ArrayList<String>() : legislations;
+		legislations.add("TEST NEW T015Legist entry");
+		oDocIn.put(MdekKeys.LEGISLATIONS, legislations);
 
 		// store
 		System.out.println("STORE");
@@ -655,6 +661,11 @@ class MdekThread extends Thread {
 			exports = (List<String>) oRefetchedDoc.get(MdekKeys.EXPORTS);
 			exports.remove(exports.size()-1);
 			oDocIn.put(MdekKeys.EXPORTS, exports);
+
+			// LEGISLATIONS wieder wie vorher !
+			legislations = (List<String>) oRefetchedDoc.get(MdekKeys.LEGISLATIONS);
+			legislations.remove(legislations.size()-1);
+			oDocIn.put(MdekKeys.LEGISLATIONS, legislations);
 
 			// store
 			System.out.println("STORE");
@@ -884,7 +895,11 @@ class MdekThread extends Thread {
 			System.out.println("  Exports: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
-
+		strList = (List<String>) o.get(MdekKeys.LEGISLATIONS);
+		if (strList != null) {
+			System.out.println("  Legislations: " + strList.size() + " entries");
+			System.out.println("   " + strList);
+		}
 	}
 
 	private void handleError(IngridDocument response) {

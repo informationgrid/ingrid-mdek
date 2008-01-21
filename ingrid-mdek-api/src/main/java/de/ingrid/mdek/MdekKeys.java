@@ -187,6 +187,10 @@ public class MdekKeys {
     /** Value: List of Strings */
     public final static String EXPORTS = "exports";
 
+    // LEGISLATIONS
+    /** Value: List of Strings */
+    public final static String LEGISLATIONS = "legislations";
+
     // URL REF
     /** Value: List of IngridDocs */
     public final static String LINKAGES = "linkages";
