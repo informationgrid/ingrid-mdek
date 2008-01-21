@@ -2,7 +2,6 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +35,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT017UrlRef;
 	private IGenericDao<IEntity> daoT0113DatasetReference;
 	private IGenericDao<IEntity> daoT014InfoImpart;
+	private IGenericDao<IEntity> daoT015Legist;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -54,6 +54,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT017UrlRef = daoFactory.getDao(T017UrlRef.class);
 		daoT0113DatasetReference = daoFactory.getDao(T0113DatasetReference.class);
 		daoT014InfoImpart = daoFactory.getDao(T014InfoImpart.class);
+		daoT015Legist = daoFactory.getDao(T015Legist.class);
 	}
 
 	/**
@@ -123,6 +124,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT017UrlRefs(oDocIn, oIn);
 			updateT0113DatasetReferences(oDocIn, oIn);
 			updateT014InfoImparts(oDocIn, oIn);
+			updateT015Legists(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -410,14 +412,13 @@ public class DocToBeanMapper implements IMapper {
 			urlDocs = new ArrayList<IngridDocument>(0);
 		}
 		Set<T017UrlRef> urlRefs = oIn.getT017UrlRefs();
+		ArrayList<T017UrlRef> refs_unprocessed = new ArrayList<T017UrlRef>(urlRefs);
 		// remove all !
-		for (Iterator<T017UrlRef> i = urlRefs.iterator(); i.hasNext(); )
-		{
-			T017UrlRef urlRef = i.next();
-			urlRefs.remove(urlRef);
+		for (T017UrlRef ref : refs_unprocessed) {
+			urlRefs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT017UrlRef.makeTransient(urlRef);
-		}
+			daoT017UrlRef.makeTransient(ref);			
+		}		
 		// and add all new ones !
 		int line = 1;
 		for (IngridDocument urlDoc : urlDocs) {
@@ -446,14 +447,13 @@ public class DocToBeanMapper implements IMapper {
 			refDocs = new ArrayList<IngridDocument>(0);
 		}
 		Set<T0113DatasetReference> refs = oIn.getT0113DatasetReferences();
+		ArrayList<T0113DatasetReference> refs_unprocessed = new ArrayList<T0113DatasetReference>(refs);
 		// remove all !
-		for (Iterator<T0113DatasetReference> i = refs.iterator(); i.hasNext(); )
-		{
-			T0113DatasetReference ref = i.next();
+		for (T0113DatasetReference ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
 			daoT0113DatasetReference.makeTransient(ref);			
-		}
+		}		
 		// and add all new ones !
 		int line = 1;
 		for (IngridDocument refDoc : refDocs) {
@@ -468,7 +468,6 @@ public class DocToBeanMapper implements IMapper {
 			String name,
 			T014InfoImpart ref, 
 			int line) 
-		
 	{
 		ref.setObjId(oFrom.getId());
 		ref.setName(name);
@@ -482,14 +481,13 @@ public class DocToBeanMapper implements IMapper {
 			refDocs = new ArrayList<String>(0);
 		}
 		Set<T014InfoImpart> refs = oIn.getT014InfoImparts();
+		ArrayList<T014InfoImpart> refs_unprocessed = new ArrayList<T014InfoImpart>(refs);
 		// remove all !
-		for (Iterator<T014InfoImpart> i = refs.iterator(); i.hasNext(); )
-		{
-			T014InfoImpart ref = i.next();
+		for (T014InfoImpart ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
 			daoT014InfoImpart.makeTransient(ref);			
-		}
+		}		
 		// and add all new ones !
 		int line = 1;
 		for (String refName : refDocs) {
@@ -500,4 +498,37 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 
+	private T015Legist mapT015Legist(T01Object oFrom,
+			String name,
+			T015Legist ref, 
+			int line)
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setName(name);
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT015Legists(IngridDocument oDocIn, T01Object oIn) {
+		List<String> refDocs = (List) oDocIn.get(MdekKeys.LEGISLATIONS);
+		if (refDocs == null) {
+			refDocs = new ArrayList<String>(0);
+		}
+		Set<T015Legist> refs = oIn.getT015Legists();
+		ArrayList<T015Legist> refs_unprocessed = new ArrayList<T015Legist>(refs);
+		// remove all !
+		for (T015Legist ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT015Legist.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (String refName : refDocs) {
+			// add all as new ones
+			T015Legist ref = mapT015Legist(oIn, refName, new T015Legist(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
 }

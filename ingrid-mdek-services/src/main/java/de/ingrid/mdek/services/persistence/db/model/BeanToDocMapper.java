@@ -112,6 +112,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
 			mapT0113DatasetReferences(o.getT0113DatasetReferences(), objectDoc);
 			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
+			mapT015Legists(o.getT015Legists(), objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -460,12 +461,23 @@ public class BeanToDocMapper implements IMapper {
 		}
 		ArrayList<String> refList = new ArrayList<String>(refs.size());
 		for (T014InfoImpart ref : refs) {
-			String infoImport = ref.getName();
-			refList.add(infoImport);				
+			refList.add(ref.getName());				
 		}
 		objectDoc.put(MdekKeys.EXPORTS, refList);
 		
 		return objectDoc;
 	}
 
+	private IngridDocument mapT015Legists(Set<T015Legist> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		for (T015Legist ref : refs) {
+			refList.add(ref.getName());				
+		}
+		objectDoc.put(MdekKeys.LEGISLATIONS, refList);
+		
+		return objectDoc;
+	}
 }
