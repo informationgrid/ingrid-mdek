@@ -224,6 +224,36 @@ public class MdekIdcJob extends MdekJob {
 		return getObjDetails(uuid);
 	}
 
+	private IngridDocument getObjDetails(String uuid) {
+		try {
+			daoObjectNode.beginTransaction();
+
+			// first get all "internal" object data (referenced addresses ...)
+			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+			if (oNode == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
+
+			IngridDocument resultDoc = new IngridDocument();
+			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+			
+			// also map ObjectNode for published info
+			beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
+		
+			// then get "external" data (objects referencing the given object ...)
+			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
+			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+
+			daoObjectNode.commitTransaction();
+			return resultDoc;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		try {
 			daoObjectNode.beginTransaction();
@@ -466,14 +496,26 @@ public class MdekIdcJob extends MdekJob {
 	/** Move Object with its subtree to new parent. */
 	public IngridDocument moveObject(IngridDocument params) {
 		try {
-			daoObjectNode.beginTransaction();
+			Boolean performAdditionalCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+
+			// perform additional check whether subnodes are ok IN OWN TRANSACTION !!!
+			if (performAdditionalCheck) {
+				IngridDocument checkResult = checkObjectSubTree(fromUuid);
+				if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
+					throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
+				}
+			}
+
+			// OK, perform move in separate transaction !
+
+			daoObjectNode.beginTransaction();
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 
-			// perform checks
+			// perform basic checks
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
 			checkNodesForMove(fromNode, toUuid);
-
+			
 			// move object when checks ok
 			// set new parent, may be null, then top node !
 			fromNode.setFkObjUuid(toUuid);		
@@ -495,9 +537,14 @@ public class MdekIdcJob extends MdekJob {
 
 	/** Checks whether subtree of object has working copies. */
 	public IngridDocument checkObjectSubTree(IngridDocument params) {
+		String rootUuid = (String) params.get(MdekKeys.UUID);
+		return checkObjectSubTree(rootUuid);
+	}
+
+	/** Checks whether subtree of object has working copies. */
+	private IngridDocument checkObjectSubTree(String rootUuid) {
 		try {
 			daoObjectNode.beginTransaction();
-			String rootUuid = (String) params.get(MdekKeys.UUID);
 
 			// load "root"
 			ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid);
@@ -592,36 +639,6 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.commitTransaction();
 			return resultDoc;		
 		
-		} catch (RuntimeException e) {
-			daoObjectNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
-		    throw handledExc;
-		}
-	}
-
-	private IngridDocument getObjDetails(String uuid) {
-		try {
-			daoObjectNode.beginTransaction();
-
-			// first get all "internal" object data (referenced addresses ...)
-			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-			if (oNode == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
-			}
-
-			IngridDocument resultDoc = new IngridDocument();
-			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
-			
-			// also map ObjectNode for published info
-			beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
-		
-			// then get "external" data (objects referencing the given object ...)
-			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
-			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-
-			daoObjectNode.commitTransaction();
-			return resultDoc;
-
 		} catch (RuntimeException e) {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
