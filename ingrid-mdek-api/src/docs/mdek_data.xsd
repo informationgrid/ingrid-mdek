@@ -117,6 +117,7 @@
 		<xs:all>
 			<xs:element name="requestinfo_refetchEntity" type="xs:boolean"/>
 			<xs:element name="requestinfo_copySubtree" type="xs:boolean"/>
+			<xs:element name="requestinfo_performCheck" type="xs:boolean"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">

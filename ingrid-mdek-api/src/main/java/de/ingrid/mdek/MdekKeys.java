@@ -15,6 +15,10 @@ public class MdekKeys {
     /** Also copy subtree when an entity is copied ? 
      *  Value: Boolean */
     public final static String REQUESTINFO_COPY_SUBTREE = "requestinfo_copySubtree";
+    /** Perform check before executing requested action ? (e.g. when moving node check
+     * whether subnodes don't have working copy)
+     *  Value: Boolean */
+    public final static String REQUESTINFO_PERFORM_CHECK = "requestinfo_performCheck";
 
     // UI Lists
     // --------

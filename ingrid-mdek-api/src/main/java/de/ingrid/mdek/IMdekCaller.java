@@ -111,9 +111,14 @@ public interface IMdekCaller {
 	 * Move an object with its subtree to another parent.
 	 * @param fromUuid uuid of node to move (this one will be removed from its parent)
 	 * @param toUuid uuid of new parent
-	 * @return response containing result: map with uuid of moved object
+	 * @param performCheck
+	 * 	true=check whether move is possible (e.g. subtree contains no working copies)<br>
+	 * 	false=no check, move subtree as it is -> <code>checkObjectSubTree</code> should be
+	 * 	called before moving !
+	 * @return response containing result: map with uuid of moved object (or Mdek-Exception
+	 * when check fails)
 	 */
-	IngridDocument moveObject(String fromUuid, String toUuid);
+	IngridDocument moveObject(String fromUuid, String toUuid, boolean performCheck);
 
 
 	// uncomment when needed ! then recheck functionality and implementation !

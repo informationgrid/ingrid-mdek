@@ -21,7 +21,9 @@ public class MdekErrors {
 		PARENT_NOT_PUBLISHED("20"),
 
 		// e.g. move of tree node to subnode not allowed
-		TARGET_IS_SUBNODE_OF_SOURCE("30");
+		TARGET_IS_SUBNODE_OF_SOURCE("30"),
+		// e.g. then no move allowed ! term "Subtree" includes top node !
+		SUBTREE_HAS_WORKING_COPIES("31");
 
 		MdekError(String errorCode) {
 			this.errorCode = errorCode;

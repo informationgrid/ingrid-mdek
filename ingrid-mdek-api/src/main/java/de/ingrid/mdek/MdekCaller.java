@@ -192,11 +192,12 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument moveObject(String fromUuid, String toUuid)
+	public IngridDocument moveObject(String fromUuid, String toUuid, boolean performCheck)
 	{
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
 		jobParams.put(MdekKeys.TO_UUID, toUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_PERFORM_CHECK, performCheck);
 		List jobMethods = setUpJobMethod("moveObject", jobParams);
 
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
