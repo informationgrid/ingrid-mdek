@@ -1,6 +1,11 @@
 package de.ingrid.mdek;
 
+import java.util.ConcurrentModificationException;
+
 import org.apache.log4j.Logger;
+import org.hibernate.StaleStateException;
+
+import de.ingrid.mdek.MdekErrors.MdekError;
 
 
 public class MdekErrorHandler {
@@ -28,7 +33,12 @@ public class MdekErrorHandler {
 
 		if (excIn instanceof MdekException) {
 			// do nothing, we already have an identified error !
+		} else if (excIn instanceof StaleStateException) {
+			retExc = new MdekException(MdekError.ENTITY_CHANGED_IN_BETWEEN);
+		} else if (excIn instanceof ConcurrentModificationException) {
+			retExc = new MdekException(MdekError.ENTITY_CHANGED_IN_BETWEEN);			
 		}
+
 		// TODO: handle other types of exceptions e.g. hibernate exceptions ...
 		
 		return retExc;

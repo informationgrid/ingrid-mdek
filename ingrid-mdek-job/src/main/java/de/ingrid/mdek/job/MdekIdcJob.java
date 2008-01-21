@@ -565,24 +565,16 @@ public class MdekIdcJob extends MdekJob {
 			}
 
 			ObjectNode toNode = null;
-			ArrayList<String> uuidsCopiedNodes = null;
 			// NOTICE: copy to top when toUuid is null
 			if (toUuid != null) {
 				toNode = daoObjectNode.loadByUuid(toUuid);
 				if (toNode == null) {
 					throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
 				}
-
-				// check whether we copy to subnode
-				if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
-					// we copy to a subnode, so we have to check already copied nodes
-					// to avoid endless copy !
-					uuidsCopiedNodes = new ArrayList<String>();
-				}
 			}
 
 			// copy fromNode
-			IngridDocument copyResult = createObjectNodeCopy(fromNode, toNode, copySubtree, uuidsCopiedNodes);
+			IngridDocument copyResult = createObjectNodeCopy(fromNode, toNode, copySubtree);
 			ObjectNode fromNodeCopy = (ObjectNode) copyResult.get(MdekKeys.OBJ_ENTITIES);
 			Integer numCopiedObjects = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
 			if (log.isDebugEnabled()) {
@@ -693,11 +685,17 @@ public class MdekIdcJob extends MdekJob {
 	 * @return doc containing additional info (copy of root node, number copied objects ...)
 	 */
 	private IngridDocument createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode,
-			boolean copySubtree, List<String> uuidsCopiedNodes)
+			boolean copySubtree)
 	{
+		// check whether we copy to subnode
+		// then we have to check already copied nodes to avoid endless copy !
 		boolean isCopyToOwnSubnode = false;
-		if (uuidsCopiedNodes != null) {
-			isCopyToOwnSubnode = true;
+		ArrayList<String> uuidsCopiedNodes = null;
+		if (newParentNode != null) {
+			if (daoObjectNode.isSubNode(newParentNode.getObjUuid(), sourceNode.getObjUuid())) {
+				isCopyToOwnSubnode = true;
+				uuidsCopiedNodes = new ArrayList<String>();
+			}
 		}
 
 		// copy iteratively via stack to avoid recursive stack overflow
@@ -771,10 +769,7 @@ public class MdekIdcJob extends MdekJob {
 				for (ObjectNode sourceSubNode : sourceSubNodes) {
 					if (isCopyToOwnSubnode) {
 						if (uuidsCopiedNodes.contains(sourceSubNode.getObjUuid())) {
-							// skip this node ! is the top node of the copied tree !
-							// we set list to null, cause we don't have to perform further checks
-							// when copying next nodes !
-							uuidsCopiedNodes = null;
+							// skip this node ! is one of our copied ones !
 							continue;
 						}
 					}
