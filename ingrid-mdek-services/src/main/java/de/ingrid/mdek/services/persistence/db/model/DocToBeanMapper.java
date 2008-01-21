@@ -36,6 +36,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT0113DatasetReference;
 	private IGenericDao<IEntity> daoT014InfoImpart;
 	private IGenericDao<IEntity> daoT015Legist;
+	private IGenericDao<IEntity> daoT0110AvailFormat;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -55,6 +56,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT0113DatasetReference = daoFactory.getDao(T0113DatasetReference.class);
 		daoT014InfoImpart = daoFactory.getDao(T014InfoImpart.class);
 		daoT015Legist = daoFactory.getDao(T015Legist.class);
+		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
 	}
 
 	/**
@@ -125,6 +127,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT0113DatasetReferences(oDocIn, oIn);
 			updateT014InfoImparts(oDocIn, oIn);
 			updateT015Legists(oDocIn, oIn);
+			updateT0110AvailFormats(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -527,6 +530,43 @@ public class DocToBeanMapper implements IMapper {
 		for (String refName : refDocs) {
 			// add all as new ones
 			T015Legist ref = mapT015Legist(oIn, refName, new T015Legist(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+	private T0110AvailFormat mapT0110AvailFormat(T01Object oFrom,
+			IngridDocument refDoc,
+			T0110AvailFormat ref, 
+			int line) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setName((String) refDoc.get(MdekKeys.DATA_FORMAT_NAME));
+		ref.setVer((String) refDoc.get(MdekKeys.DATA_FORMAT_VERSION));
+		ref.setSpecification((String) refDoc.get(MdekKeys.DATA_FORMAT_SPECIFICATION));
+		ref.setFileDecompressionTechnique((String) refDoc.get(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE));
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT0110AvailFormats(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.DATA_FORMATS);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T0110AvailFormat> refs = oIn.getT0110AvailFormats();
+		ArrayList<T0110AvailFormat> refs_unprocessed = new ArrayList<T0110AvailFormat>(refs);
+		// remove all !
+		for (T0110AvailFormat ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT0110AvailFormat.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T0110AvailFormat ref = mapT0110AvailFormat(oIn, refDoc, new T0110AvailFormat(), line);
 			refs.add(ref);
 			line++;
 		}

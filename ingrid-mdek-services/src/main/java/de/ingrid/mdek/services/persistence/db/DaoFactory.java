@@ -17,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernat
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
@@ -68,6 +69,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T014InfoImpart>(_sessionFactory, T014InfoImpart.class);
 		} else if (clazz.isAssignableFrom(T015Legist.class)) {
 			dao = new GenericHibernateDao<T015Legist>(_sessionFactory, T015Legist.class);
+		} else if (clazz.isAssignableFrom(T0110AvailFormat.class)) {
+			dao = new GenericHibernateDao<T0110AvailFormat>(_sessionFactory, T0110AvailFormat.class);
 		} 
 
         return dao;

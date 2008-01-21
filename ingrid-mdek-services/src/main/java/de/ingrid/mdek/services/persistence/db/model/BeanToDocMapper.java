@@ -113,6 +113,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT0113DatasetReferences(o.getT0113DatasetReferences(), objectDoc);
 			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
 			mapT015Legists(o.getT015Legists(), objectDoc);
+			mapT0110AvailFormats(o.getT0110AvailFormats(), objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -477,6 +478,33 @@ public class BeanToDocMapper implements IMapper {
 			refList.add(ref.getName());				
 		}
 		objectDoc.put(MdekKeys.LEGISLATIONS, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT0110AvailFormat(T0110AvailFormat ref, IngridDocument urlDoc) {
+		if (ref == null) {
+			return urlDoc;
+		}
+
+		urlDoc.put(MdekKeys.DATA_FORMAT_NAME, ref.getName());
+		urlDoc.put(MdekKeys.DATA_FORMAT_VERSION, ref.getVer());
+		urlDoc.put(MdekKeys.DATA_FORMAT_SPECIFICATION, ref.getSpecification());
+		urlDoc.put(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE, ref.getFileDecompressionTechnique());
+
+		return urlDoc;
+	}
+	private IngridDocument mapT0110AvailFormats(Set<T0110AvailFormat> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T0110AvailFormat ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT0110AvailFormat(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.DATA_FORMATS, refList);
 		
 		return objectDoc;
 	}
