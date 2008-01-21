@@ -544,10 +544,10 @@ public class DocToBeanMapper implements IMapper {
 			int line) 
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setName((String) refDoc.get(MdekKeys.DATA_FORMAT_NAME));
-		ref.setVer((String) refDoc.get(MdekKeys.DATA_FORMAT_VERSION));
-		ref.setSpecification((String) refDoc.get(MdekKeys.DATA_FORMAT_SPECIFICATION));
-		ref.setFileDecompressionTechnique((String) refDoc.get(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE));
+		ref.setName((String) refDoc.get(MdekKeys.FORMAT_NAME));
+		ref.setVer((String) refDoc.get(MdekKeys.FORMAT_VERSION));
+		ref.setSpecification((String) refDoc.get(MdekKeys.FORMAT_SPECIFICATION));
+		ref.setFileDecompressionTechnique((String) refDoc.get(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE));
 		ref.setLine(line);
 
 		return ref;

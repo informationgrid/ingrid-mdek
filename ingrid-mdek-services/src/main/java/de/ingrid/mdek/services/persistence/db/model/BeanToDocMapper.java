@@ -488,10 +488,10 @@ public class BeanToDocMapper implements IMapper {
 			return urlDoc;
 		}
 
-		urlDoc.put(MdekKeys.DATA_FORMAT_NAME, ref.getName());
-		urlDoc.put(MdekKeys.DATA_FORMAT_VERSION, ref.getVer());
-		urlDoc.put(MdekKeys.DATA_FORMAT_SPECIFICATION, ref.getSpecification());
-		urlDoc.put(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE, ref.getFileDecompressionTechnique());
+		urlDoc.put(MdekKeys.FORMAT_NAME, ref.getName());
+		urlDoc.put(MdekKeys.FORMAT_VERSION, ref.getVer());
+		urlDoc.put(MdekKeys.FORMAT_SPECIFICATION, ref.getSpecification());
+		urlDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, ref.getFileDecompressionTechnique());
 
 		return urlDoc;
 	}
