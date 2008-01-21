@@ -67,7 +67,8 @@
 			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
 			<xs:element name="exports" type="EXPORT_LIST"/>
 			<xs:element name="legislations" type="LEGISLATION_LIST"/>
-			
+			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
+
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
 	</xs:complexType>
@@ -227,6 +228,19 @@
 	<xs:complexType name="LEGISLATION_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="STRING" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DATA_FORMAT_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="DATA_FORMAT_MAP" type="DATA_FORMAT_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DATA_FORMAT_MAP">
+		<xs:sequence>
+			<xs:element name="data-format-name" type="xs:string"/>
+			<xs:element name="data-format-version" type="xs:string"/>
+			<xs:element name="data-format-specification" type="xs:string"/>
+			<xs:element name="data-format-file-decompression-technique" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_RELATIONS_MAP">

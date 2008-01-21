@@ -594,16 +594,27 @@ class MdekThread extends Thread {
 		}
 
 		// add entry to EXPORTS
-		List<String> exports = (List<String>) oDocIn.get(MdekKeys.EXPORTS);
-		exports = (exports == null) ? new ArrayList<String>() : exports;
-		exports.add("TEST NEW T014InfoImpart entry");
-		oDocIn.put(MdekKeys.EXPORTS, exports);
+		List<String> strList = (List<String>) oDocIn.get(MdekKeys.EXPORTS);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST NEW T014InfoImpart entry");
+		oDocIn.put(MdekKeys.EXPORTS, strList);
 
 		// add entry to LEGISLATIONS
-		List<String> legislations = (List<String>) oDocIn.get(MdekKeys.LEGISLATIONS);
-		legislations = (legislations == null) ? new ArrayList<String>() : legislations;
-		legislations.add("TEST NEW T015Legist entry");
-		oDocIn.put(MdekKeys.LEGISLATIONS, legislations);
+		strList = (List<String>) oDocIn.get(MdekKeys.LEGISLATIONS);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST NEW T015Legist entry");
+		oDocIn.put(MdekKeys.LEGISLATIONS, strList);
+
+		// add entry to DATA_FORMATS
+		List<IngridDocument> docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDataFormat = new IngridDocument();
+		testDataFormat.put(MdekKeys.DATA_FORMAT_NAME, "TEST DATA FORMAT NAME");
+		testDataFormat.put(MdekKeys.DATA_FORMAT_VERSION, "TEST DATA FORMAT DATA_FORMAT_VERSION");
+		testDataFormat.put(MdekKeys.DATA_FORMAT_SPECIFICATION, "TEST DATA FORMAT DATA_FORMAT_SPECIFICATION");
+		testDataFormat.put(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA FORMAT DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
+		docList.add(testDataFormat);
+		oDocIn.put(MdekKeys.DATA_FORMATS, docList);
 
 		// store
 		System.out.println("STORE");
@@ -658,17 +669,24 @@ class MdekThread extends Thread {
 			}
 
 			// EXPORTS wieder wie vorher !
-			exports = (List<String>) oRefetchedDoc.get(MdekKeys.EXPORTS);
-			if (exports != null && exports.size() > 1) {
-				exports.remove(exports.size()-1);
-				oDocIn.put(MdekKeys.EXPORTS, exports);				
+			strList = (List<String>) oRefetchedDoc.get(MdekKeys.EXPORTS);
+			if (strList != null && strList.size() > 1) {
+				strList.remove(strList.size()-1);
+				oDocIn.put(MdekKeys.EXPORTS, strList);				
 			}
 
 			// LEGISLATIONS wieder wie vorher !
-			legislations = (List<String>) oRefetchedDoc.get(MdekKeys.LEGISLATIONS);
-			if (legislations != null && legislations.size() > 1) {
-				legislations.remove(legislations.size()-1);
-				oDocIn.put(MdekKeys.LEGISLATIONS, legislations);				
+			strList = (List<String>) oRefetchedDoc.get(MdekKeys.LEGISLATIONS);
+			if (strList != null && strList.size() > 1) {
+				strList.remove(strList.size()-1);
+				oDocIn.put(MdekKeys.LEGISLATIONS, strList);				
+			}
+
+			// DATA_FORMATS wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_FORMATS);
+			if (docList != null && docList.size() > 1) {
+				docList.remove(docList.size()-1);
+				oDocIn.put(MdekKeys.DATA_FORMATS, docList);				
 			}
 
 			// store
@@ -903,6 +921,13 @@ class MdekThread extends Thread {
 		if (strList != null) {
 			System.out.println("  Legislations: " + strList.size() + " entries");
 			System.out.println("   " + strList);
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_FORMATS);
+		if (docList != null) {
+			System.out.println("  Data Formats: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
 		}
 	}
 

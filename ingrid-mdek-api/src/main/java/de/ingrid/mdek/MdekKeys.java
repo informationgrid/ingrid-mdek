@@ -191,6 +191,18 @@ public class MdekKeys {
     /** Value: List of Strings */
     public final static String LEGISLATIONS = "legislations";
 
+    // DATA FORMATS
+    /** Value: List of IngridDocs */
+    public final static String DATA_FORMATS = "data-formats";
+    /** Value: String */
+    public final static String DATA_FORMAT_NAME = "data-format-name";
+    /** Value: String */
+    public final static String DATA_FORMAT_VERSION = "data-format-version";
+    /** Value: String */
+    public final static String DATA_FORMAT_SPECIFICATION = "data-format-specification";
+    /** Value: String */
+    public final static String DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE = "data-format-file-decompression-technique";
+
     // URL REF
     /** Value: List of IngridDocs */
     public final static String LINKAGES = "linkages";
