@@ -62,9 +62,10 @@
 			<xs:element name="mark-deleted" type="xs:string"/>
 			<xs:element name="mod-uuid" type="UUID"/>
 			<xs:element name="responsible-uuid" type="UUID"/>
-			
+
 			<xs:element name="linkages" type="LINKAGE_LIST"/>
 			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
+			<xs:element name="exports" type="EXPORT_LIST"/>
 			
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
@@ -215,6 +216,11 @@
 		<xs:sequence>
 			<xs:element name="dataset-reference-date" type="TIMESTAMP"/>
 			<xs:element name="dataset-reference-type" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EXPORT_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="STRING" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_RELATIONS_MAP">

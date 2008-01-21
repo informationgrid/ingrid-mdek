@@ -183,6 +183,10 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String DATASET_REFERENCE_TYPE = "dataset-reference-type";
 
+    // EXPORTS
+    /** Value: List of Strings */
+    public final static String EXPORTS = "exports";
+
     // URL REF
     /** Value: List of IngridDocs */
     public final static String LINKAGES = "linkages";

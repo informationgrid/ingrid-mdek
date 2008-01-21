@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -592,6 +593,12 @@ class MdekThread extends Thread {
 			refs.remove(0);			
 		}
 
+		// add entry to EXPORTS
+		List<String> exports = (List<String>) oDocIn.get(MdekKeys.EXPORTS);
+		exports = (exports == null) ? new ArrayList<String>() : exports;
+		exports.add("TEST NEW t014_info_impart entry");
+		oDocIn.put(MdekKeys.EXPORTS, exports);
+
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
@@ -643,6 +650,11 @@ class MdekThread extends Thread {
 				refs.add(refRemoved);
 				System.out.println("ADD REMOVED DATASET REFERENCE AGAIN: " + refRemoved);
 			}
+
+			// EXPORTS wieder wie vorher !
+			exports = (List<String>) oRefetchedDoc.get(MdekKeys.EXPORTS);
+			exports.remove(exports.size()-1);
+			oDocIn.put(MdekKeys.EXPORTS, exports);
 
 			// store
 			System.out.println("STORE");
@@ -867,6 +879,12 @@ class MdekThread extends Thread {
 				System.out.println("   " + doc);								
 			}			
 		}
+		List<String> strList = (List<String>) o.get(MdekKeys.EXPORTS);
+		if (strList != null) {
+			System.out.println("  Exports: " + strList.size() + " entries");
+			System.out.println("   " + strList);
+		}
+
 	}
 
 	private void handleError(IngridDocument response) {

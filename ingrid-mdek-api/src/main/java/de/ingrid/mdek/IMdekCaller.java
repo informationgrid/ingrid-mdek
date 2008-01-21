@@ -115,8 +115,8 @@ public interface IMdekCaller {
 	 * 	true=check whether move is possible (e.g. subtree contains no working copies)<br>
 	 * 	false=no check, move subtree as it is -> <code>checkObjectSubTree</code> should be
 	 * 	called before moving !
-	 * @return response containing result: map with uuid of moved object (or Mdek-Exception
-	 * when check fails)
+	 * @return response containing result: map with uuid of moved object or null
+	 * result when check fails (error details via response) 
 	 */
 	IngridDocument moveObject(String fromUuid, String toUuid, boolean performCheck);
 
