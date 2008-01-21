@@ -114,6 +114,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
 			mapT015Legists(o.getT015Legists(), objectDoc);
 			mapT0110AvailFormats(o.getT0110AvailFormats(), objectDoc);
+			mapT0112MediaOptions(o.getT0112MediaOptions(), objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -505,6 +506,33 @@ public class BeanToDocMapper implements IMapper {
 			refList.add(refDoc);
 		}
 		objectDoc.put(MdekKeys.DATA_FORMATS, refList);
+		
+		return objectDoc;
+	}
+
+
+	private IngridDocument mapT0112MediaOption(T0112MediaOption ref, IngridDocument urlDoc) {
+		if (ref == null) {
+			return urlDoc;
+		}
+
+		urlDoc.put(MdekKeys.MEDIUM_NAME, ref.getMediumName());
+		urlDoc.put(MdekKeys.MEDIUM_TRANSFER_SIZE, ref.getTransferSize());
+		urlDoc.put(MdekKeys.MEDIUM_NOTE, ref.getMediumNote());
+
+		return urlDoc;
+	}
+	private IngridDocument mapT0112MediaOptions(Set<T0112MediaOption> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T0112MediaOption ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT0112MediaOption(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.MEDIUM_OPTIONS, refList);
 		
 		return objectDoc;
 	}

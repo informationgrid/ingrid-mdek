@@ -60,7 +60,7 @@ public class T01Object implements IEntity {
 */
 	private Set spatialReferences = new HashSet();
 	private Set t0110AvailFormats = new HashSet();
-//	private Set t0112MediaOptions = new HashSet();
+	private Set t0112MediaOptions = new HashSet();
 	private Set t0113DatasetReferences = new HashSet();
 /*
 	private Set t0114EnvCategorys = new HashSet();
@@ -473,7 +473,7 @@ public class T01Object implements IEntity {
 	public void setT0110AvailFormats(Set t0110AvailFormats) {
 		this.t0110AvailFormats = t0110AvailFormats;
 	}
-/*
+
 	public Set getT0112MediaOptions() {
 		return t0112MediaOptions;
 	}
@@ -481,7 +481,7 @@ public class T01Object implements IEntity {
 	public void setT0112MediaOptions(Set t0112MediaOptions) {
 		this.t0112MediaOptions = t0112MediaOptions;
 	}
-*/
+
 	public Set getT0113DatasetReferences() {
 		return t0113DatasetReferences;
 	}

@@ -79,14 +79,12 @@
          <key column="obj_id"/>
          <one-to-many class="T0110AvailFormat" not-found="ignore"/>
       </set>
-<!--
       <set name="t0112MediaOptions" order-by="line" table="t0112_media_option"
            inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T0112MediaOption" not-found="ignore"/>
       </set>
--->
       <set name="t0113DatasetReferences" order-by="line" table="t0113_dataset_reference"
            inverse="true"
            cascade="all-delete-orphan">

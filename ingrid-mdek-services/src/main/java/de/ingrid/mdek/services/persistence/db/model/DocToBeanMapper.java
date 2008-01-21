@@ -37,6 +37,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT014InfoImpart;
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
+	private IGenericDao<IEntity> daoT0112MediaOption;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -57,6 +58,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT014InfoImpart = daoFactory.getDao(T014InfoImpart.class);
 		daoT015Legist = daoFactory.getDao(T015Legist.class);
 		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
+		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
 	}
 
 	/**
@@ -128,6 +130,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT014InfoImparts(oDocIn, oIn);
 			updateT015Legists(oDocIn, oIn);
 			updateT0110AvailFormats(oDocIn, oIn);
+			updateT0112MediaOptions(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -567,6 +570,43 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
 			T0110AvailFormat ref = mapT0110AvailFormat(oIn, refDoc, new T0110AvailFormat(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+
+	private T0112MediaOption mapT0112MediaOption(T01Object oFrom,
+			IngridDocument refDoc,
+			T0112MediaOption ref, 
+			int line) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setMediumName((Integer) refDoc.get(MdekKeys.MEDIUM_NAME));
+		ref.setTransferSize((Double) refDoc.get(MdekKeys.MEDIUM_TRANSFER_SIZE));
+		ref.setMediumNote((String) refDoc.get(MdekKeys.MEDIUM_NOTE));
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT0112MediaOptions(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.MEDIUM_OPTIONS);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T0112MediaOption> refs = oIn.getT0112MediaOptions();
+		ArrayList<T0112MediaOption> refs_unprocessed = new ArrayList<T0112MediaOption>(refs);
+		// remove all !
+		for (T0112MediaOption ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT0112MediaOption.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T0112MediaOption ref = mapT0112MediaOption(oIn, refDoc, new T0112MediaOption(), line);
 			refs.add(ref);
 			line++;
 		}

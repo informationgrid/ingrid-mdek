@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T0112MediaOption" table="t0112_media_option">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objId" type="long" column="obj_id"/>
+      <property name="line" type="integer" column="line"/>
+      <property name="mediumNote" type="string" column="medium_note"/>
+      <property name="mediumName" type="integer" column="medium_name"/>
+      <property name="transferSize" type="double" column="transfer_size"/>
+
+   </class>
+
+</hibernate-mapping>
