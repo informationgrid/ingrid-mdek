@@ -57,6 +57,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<jvm>${java.home}/bin/java</jvm>
+					<skip>true</skip>
 				</configuration>
 			</plugin>
 			<plugin>
