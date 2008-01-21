@@ -609,10 +609,10 @@ class MdekThread extends Thread {
 		List<IngridDocument> docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.DATA_FORMAT_NAME, "TEST DATA_FORMAT_NAME");
-		testDoc.put(MdekKeys.DATA_FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
-		testDoc.put(MdekKeys.DATA_FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
-		testDoc.put(MdekKeys.DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
+		testDoc.put(MdekKeys.FORMAT_NAME, "TEST DATA_FORMAT_NAME");
+		testDoc.put(MdekKeys.FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
+		testDoc.put(MdekKeys.FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
+		testDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.DATA_FORMATS, docList);
 

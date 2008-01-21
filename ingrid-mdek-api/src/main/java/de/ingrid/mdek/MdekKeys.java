@@ -195,13 +195,13 @@ public class MdekKeys {
     /** Value: List of IngridDocs */
     public final static String DATA_FORMATS = "data-formats";
     /** Value: String */
-    public final static String DATA_FORMAT_NAME = "data-format-name";
+    public final static String FORMAT_NAME = "format-name";
     /** Value: String */
-    public final static String DATA_FORMAT_VERSION = "data-format-version";
+    public final static String FORMAT_VERSION = "format-version";
     /** Value: String */
-    public final static String DATA_FORMAT_SPECIFICATION = "data-format-specification";
+    public final static String FORMAT_SPECIFICATION = "format-specification";
     /** Value: String */
-    public final static String DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE = "data-format-file-decompression-technique";
+    public final static String FORMAT_FILE_DECOMPRESSION_TECHNIQUE = "format-file-decompression-technique";
 
     // MEDIUM OPTIONS
     /** Value: List of IngridDocs */

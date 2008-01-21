@@ -238,10 +238,10 @@
 	</xs:complexType>
 	<xs:complexType name="DATA_FORMAT_MAP">
 		<xs:sequence>
-			<xs:element name="data-format-name" type="xs:string"/>
-			<xs:element name="data-format-version" type="xs:string"/>
-			<xs:element name="data-format-specification" type="xs:string"/>
-			<xs:element name="data-format-file-decompression-technique" type="xs:string"/>
+			<xs:element name="format-name" type="xs:string"/>
+			<xs:element name="format-version" type="xs:string"/>
+			<xs:element name="format-specification" type="xs:string"/>
+			<xs:element name="format-file-decompression-technique" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="MEDIUM_OPTION_LIST">
