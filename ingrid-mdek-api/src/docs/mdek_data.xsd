@@ -48,6 +48,7 @@
 			<xs:element name="ordering-instructions" type="xs:string"/>
 			<xs:element name="use-constraints" type="xs:string"/>
 			<xs:element name="fees" type="xs:string"/>
+			<xs:element name="is-catalog-data" type="xs:string"/>
 			
 			<xs:element name="original-control-identifier" type="xs:string"/>
 			<xs:element name="no-of-parents" type="xs:integer"/>

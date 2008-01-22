@@ -188,6 +188,8 @@ public class MdekKeys {
     public final static String USE_CONSTRAINTS = "use-constraints";
     /** Value: String */
     public final static String FEES = "fees";
+    /** Value: String */
+    public final static String IS_CATALOG_DATA = "is-catalog-data";
 
     // DATA REFERENCE
     /** Value: List of IngridDocs */
