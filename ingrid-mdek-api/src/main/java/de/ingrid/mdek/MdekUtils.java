@@ -57,6 +57,25 @@ public class MdekUtils {
 		String description;
 	}
 
+	/** Type of searchterm */
+	public enum SearchtermType implements IMdekEnum {
+		FREI("F", "Freier Term"),
+		THESAURUS("T", "Thesaurus");
+
+		SearchtermType(String dbValue, String description) {
+			this.dbValue = dbValue;
+			this.description = description;
+		}
+		public String getDbValue() {
+			return dbValue;
+		}
+		public String toString() {
+			return description;
+		}
+		String dbValue;
+		String description;
+	}
+
 /*
 	private static MdekUtils myInstance;
 

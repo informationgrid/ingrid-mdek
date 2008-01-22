@@ -121,6 +121,8 @@ public class MdekKeys {
     /** Value: String */
     public final static String DESCRIPTION_OF_SPATIAL_DOMAIN = "description-of-spatial-domain";
 
+    // SPATIAL REFERENCES
+
     /** Value: List of IngridDocs */
     public final static String LOCATIONS = "locations";
     /** Value: String */
@@ -139,6 +141,18 @@ public class MdekKeys {
     public final static String EAST_BOUNDING_COORDINATE = "east-bounding-coordinate";
     /** Value: Double */
     public final static String NORTH_BOUNDING_COORDINATE = "north-bounding-coordinate";
+
+    
+    // SEARCHTERMS
+
+    /** Value: List of IngridDocs */
+    public final static String SUBJECT_TERMS = "subject-terms";
+    /** Value: String */
+    public final static String TERM_NAME = "term-name";
+    /** Value: String */
+    public final static String TERM_TYPE = "term-type";
+    /** Value: String */
+    public final static String TERM_SNS_ID = "term-sns-id";
 
     // TIME
 

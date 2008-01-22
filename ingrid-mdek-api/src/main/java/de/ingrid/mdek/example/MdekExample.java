@@ -180,6 +180,7 @@ class MdekThread extends Thread {
 		objDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
 		objDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
 		objDoc.put(MdekKeys.LOCATIONS, oMap.get(MdekKeys.LOCATIONS));
+		objDoc.put(MdekKeys.SUBJECT_TERMS, oMap.get(MdekKeys.SUBJECT_TERMS));
 		// supply parent uuid !
 		objDoc.put(MdekKeys.PARENT_UUID, parentUuid);
 
@@ -549,48 +550,57 @@ class MdekThread extends Thread {
 		oDocIn.put(MdekKeys.TITLE, "BEARBEITET: " + oDocIn.get(MdekKeys.TITLE));
 
 		// remove first address !
-		List<IngridDocument> adrs = (List<IngridDocument>) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
+		List<IngridDocument> docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
 		IngridDocument aRemoved = null;
-		if (adrs != null && adrs.size() > 0) {
-			aRemoved = adrs.get(0);
+		if (docList != null && docList.size() > 0) {
+			aRemoved = docList.get(0);
 			System.out.println("REMOVE FIRST RELATED ADDRESS: " + aRemoved);
-			adrs.remove(0);			
+			docList.remove(0);			
 		}
 
 		// remove first object Querverweis !
-		List<IngridDocument> objs = (List<IngridDocument>) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
 		IngridDocument oRemoved = null;
-		if (objs != null && objs.size() > 0) {
-			oRemoved = objs.get(0);
+		if (docList != null && docList.size() > 0) {
+			oRemoved = docList.get(0);
 			System.out.println("REMOVE FIRST OBJECT QUERVERWEIS: " + oRemoved);
-			objs.remove(0);			
+			docList.remove(0);			
 		}
 
 		// remove first spatial reference !
-		List<IngridDocument> locations = (List<IngridDocument>) oDocIn.get(MdekKeys.LOCATIONS);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.LOCATIONS);
 		IngridDocument locRemoved = null;
-		if (locations != null && locations.size() > 0) {
-			locRemoved = locations.get(0);
+		if (docList != null && docList.size() > 0) {
+			locRemoved = docList.get(0);
 			System.out.println("REMOVE FIRST LOCATION: " + locRemoved);
-			locations.remove(0);			
+			docList.remove(0);			
+		}
+
+		// remove first searchterm !
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.SUBJECT_TERMS);
+		IngridDocument termRemoved = null;
+		if (docList != null && docList.size() > 0) {
+			termRemoved = docList.get(0);
+			System.out.println("REMOVE FIRST SUBJECT TERM: " + termRemoved);
+			docList.remove(0);			
 		}
 
 		// remove first url reference !
-		List<IngridDocument> urls = (List<IngridDocument>) oDocIn.get(MdekKeys.LINKAGES);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.LINKAGES);
 		IngridDocument urlRemoved = null;
-		if (urls != null && urls.size() > 0) {
-			urlRemoved = urls.get(0);
+		if (docList != null && docList.size() > 0) {
+			urlRemoved = docList.get(0);
 			System.out.println("REMOVE FIRST URL: " + urlRemoved);
-			urls.remove(0);			
+			docList.remove(0);			
 		}
 
 		// remove first data reference !
-		List<IngridDocument> refs = (List<IngridDocument>) oDocIn.get(MdekKeys.DATASET_REFERENCES);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATASET_REFERENCES);
 		IngridDocument refRemoved = null;
-		if (refs != null && refs.size() > 0) {
-			refRemoved = refs.get(0);
+		if (docList != null && docList.size() > 0) {
+			refRemoved = docList.get(0);
 			System.out.println("REMOVE FIRST DATASET REFERENCE: " + refRemoved);
-			refs.remove(0);			
+			docList.remove(0);			
 		}
 
 		// add entry to EXPORTS
@@ -606,7 +616,7 @@ class MdekThread extends Thread {
 		oDocIn.put(MdekKeys.LEGISLATIONS, strList);
 
 		// add entry to DATA_FORMATS
-		List<IngridDocument> docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.FORMAT_NAME, "TEST DATA_FORMAT_NAME");
@@ -645,24 +655,29 @@ class MdekThread extends Thread {
 			System.out.println("");
 			
 			if (aRemoved != null) {
-				adrs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADR_REFERENCES_TO);
-				adrs.add(aRemoved);
+				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADR_REFERENCES_TO);
+				docList.add(aRemoved);
 				System.out.println("ADD REMOVED ADDRESS AGAIN: " + aRemoved);
 			}
 			if (oRemoved != null) {
-				objs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.OBJ_REFERENCES_TO);
-				objs.add(oRemoved);
+				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.OBJ_REFERENCES_TO);
+				docList.add(oRemoved);
 				System.out.println("ADD REMOVED OBJECT QUERVERWEIS AGAIN: " + oRemoved);
 			}
 			if (locRemoved != null) {
-				locations = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LOCATIONS);
-				locations.add(locRemoved);
+				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LOCATIONS);
+				docList.add(locRemoved);
 				System.out.println("ADD REMOVED LOCATION AGAIN: " + locRemoved);
 			}
+			if (termRemoved != null) {
+				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.SUBJECT_TERMS);
+				docList.add(termRemoved);
+				System.out.println("ADD REMOVED SUBJECT TERM AGAIN: " + termRemoved);
+			}
 
-			urls = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LINKAGES);
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LINKAGES);
 			if (urlRemoved != null) {
-				urls.add(urlRemoved);
+				docList.add(urlRemoved);
 				System.out.println("ADD REMOVED URL AGAIN: " + urlRemoved);
 			}
 			// add new URL
@@ -670,11 +685,11 @@ class MdekThread extends Thread {
 			newUrl.put(MdekKeys.LINKAGE_URL, "http://www.wemove.com");
 			newUrl.put(MdekKeys.LINKAGE_NAME, "WEMOVE");
 			System.out.println("ADD NEW URL AT FIRST POS: " + newUrl);
-			urls.add(0, newUrl);
+			docList.add(0, newUrl);
 
 			if (refRemoved != null) {
-				refs = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATASET_REFERENCES);
-				refs.add(refRemoved);
+				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATASET_REFERENCES);
+				docList.add(refRemoved);
 				System.out.println("ADD REMOVED DATASET REFERENCE AGAIN: " + refRemoved);
 			}
 
@@ -911,6 +926,13 @@ class MdekThread extends Thread {
 		docList = (List<IngridDocument>) o.get(MdekKeys.LOCATIONS);
 		if (docList != null) {
 			System.out.println("  Locations (Spatial References): " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.SUBJECT_TERMS);
+		if (docList != null) {
+			System.out.println("  Subject terms (Searchterms): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			

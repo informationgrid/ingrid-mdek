@@ -69,6 +69,7 @@
 			<xs:element name="legislations" type="LEGISLATION_LIST"/>
 			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
 			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
+			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
 			
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
@@ -177,6 +178,18 @@
 			<xs:element name="east-bounding-coordinate" type="xs:double"/>
 			<xs:element name="north-bounding-coordinate" type="xs:double"/>
 			<xs:element name="south-bounding-coordinate" type="xs:double"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SUBJECT_TERM_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="SUBJECT_TERM_MAP" type="SUBJECT_TERM_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SUBJECT_TERM_MAP">
+		<xs:sequence>
+			<xs:element name="term-name" type="xs:string"/>
+			<xs:element name="term-type" type="xs:string"/>
+			<xs:element name="term-sns-id" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TIME_MAP">
