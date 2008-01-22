@@ -525,12 +525,22 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 
-	private T011ObjGeo mapT011ObjGeo(T01Object oFrom,
-			IngridDocument refDoc,
-			T011ObjGeo ref) 
-	{
-
-		ref.setObjId(oFrom.getId());
+	private void updateT011ObjGeos(IngridDocument oDocIn, T01Object oIn) {
+		IngridDocument refDoc = (IngridDocument)oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
+		if (refDoc == null) {
+			return;
+		}
+		Set<T011ObjGeo> refs = oIn.getT011ObjGeos();
+		ArrayList<T011ObjGeo> refs_unprocessed = new ArrayList<T011ObjGeo>(refs);
+		// remove all !
+		for (T011ObjGeo ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjGeo.makeTransient(ref);			
+		}		
+		// and the new one, should be only one, because of the 1:1 relation of tables 
+		T011ObjGeo ref = new T011ObjGeo();
+		ref.setObjId(oIn.getId());
 		ref.setSpecialBase(refDoc.getString(MdekKeys.TECHNICAL_BASE));
 		ref.setDataBase(refDoc.getString(MdekKeys.DATA));
 		ref.setMethod(refDoc.getString(MdekKeys.METHOD_OF_PRODUCTION));
@@ -545,28 +555,7 @@ public class DocToBeanMapper implements IMapper {
 		
 		// map 1:N relations
 		
-		return ref;
-	}
-	
-	private void updateT011ObjGeos(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_MAPS);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
-		}
-		Set<T011ObjGeo> refs = oIn.getT011ObjGeos();
-		ArrayList<T011ObjGeo> refs_unprocessed = new ArrayList<T011ObjGeo>(refs);
-		// remove all !
-		for (T011ObjGeo ref : refs_unprocessed) {
-			refs.remove(ref);
-			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeo.makeTransient(ref);			
-		}		
-		// and add all new ones !
-		for (IngridDocument refDoc : refDocs) {
-			// add all as new ones
-			T011ObjGeo ref = mapT011ObjGeo(oIn, refDoc, new T011ObjGeo());
-			refs.add(ref);
-		}
+		refs.add(ref);
 	}
 	private T015Legist mapT015Legist(T01Object oFrom,
 			String name,

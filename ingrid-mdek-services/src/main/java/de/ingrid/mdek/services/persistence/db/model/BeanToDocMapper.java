@@ -113,7 +113,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
 			mapT0113DatasetReferences(o.getT0113DatasetReferences(), objectDoc);
 			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
-			mapT011ObjGeos(o.getT011ObjGeos(), objectDoc);
+			mapT011ObjGeo(o.getT011ObjGeos(), objectDoc);
 			mapT015Legists(o.getT015Legists(), objectDoc);
 			mapT0110AvailFormats(o.getT0110AvailFormats(), objectDoc);
 			mapT0112MediaOptions(o.getT0112MediaOptions(), objectDoc);
@@ -473,40 +473,32 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	private IngridDocument mapT011ObjGeos(Set<T011ObjGeo> refs, IngridDocument objectDoc) {
-		if (refs == null) {
+	private IngridDocument mapT011ObjGeo(Set<T011ObjGeo> refs, IngridDocument objectDoc) {
+		if (refs == null || refs.size() == 0) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
-		for (T011ObjGeo ref : refs) {
-			IngridDocument refDoc = new IngridDocument();
-			mapT011ObjGeo(ref, refDoc);
-			refList.add(refDoc);
-		}
-		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAPS, refList);
+		IngridDocument refDoc = new IngridDocument();
+		
+		// there should only be one object in the set because of the 1:1 relation between tables 
+		// get first object from iterator
+		T011ObjGeo ref = refs.iterator().next();
+		refDoc.put(MdekKeys.TECHNICAL_BASE, ref.getSpecialBase());
+		refDoc.put(MdekKeys.DATA, ref.getDataBase());
+		refDoc.put(MdekKeys.METHOD_OF_PRODUCTION, ref.getMethod());
+		refDoc.put(MdekKeys.COORDINATE_SYSTEM, ref.getCoord());
+		refDoc.put(MdekKeys.RESOLUTION, ref.getRecExact());
+		refDoc.put(MdekKeys.DEGREE_OF_RECORD, ref.getRecGrade());
+		refDoc.put(MdekKeys.HIERARCHY_LEVEL, ref.getHierarchyLevel());
+		refDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, ref.getVectorTopologyLevel());
+		refDoc.put(MdekKeys.REFERENCESYSTEM_ID, ref.getReferencesystemId());
+		refDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, ref.getPosAccuracyVertical());
+		refDoc.put(MdekKeys.KEYC_INCL_W_DATASET, ref.getKeycInclWDataset());
+
+		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAP, refDoc);
 		
 		return objectDoc;
 	}
-	
-	private IngridDocument mapT011ObjGeo(T011ObjGeo ref, IngridDocument urlDoc) {
-		if (ref == null) {
-			return urlDoc;
-		}
 
-		urlDoc.put(MdekKeys.TECHNICAL_BASE, ref.getSpecialBase());
-		urlDoc.put(MdekKeys.DATA, ref.getDataBase());
-		urlDoc.put(MdekKeys.METHOD_OF_PRODUCTION, ref.getMethod());
-		urlDoc.put(MdekKeys.COORDINATE_SYSTEM, ref.getCoord());
-		urlDoc.put(MdekKeys.RESOLUTION, ref.getRecExact());
-		urlDoc.put(MdekKeys.DEGREE_OF_RECORD, ref.getRecGrade());
-		urlDoc.put(MdekKeys.HIERARCHY_LEVEL, ref.getHierarchyLevel());
-		urlDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, ref.getVectorTopologyLevel());
-		urlDoc.put(MdekKeys.REFERENCESYSTEM_ID, ref.getReferencesystemId());
-		urlDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, ref.getPosAccuracyVertical());
-		urlDoc.put(MdekKeys.KEYC_INCL_W_DATASET, ref.getKeycInclWDataset());
-
-		return urlDoc;
-	}
 	private IngridDocument mapT015Legists(Set<T015Legist> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
