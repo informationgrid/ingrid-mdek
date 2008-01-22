@@ -230,6 +230,17 @@ public class MdekKeys {
     /** Value: Integer  */
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
     
+    // TECHNICAL DOMAIN MAP - KEY CATALOG
+    /** Value: List of IngridDocs  */
+    public final static String KEY_CATALOG_LIST = "key-catalog-list";
+
+    /** Value: String  */
+    public final static String SUBJECT_CAT = "subject-cat";
+    /** Value: String  */
+    public final static String KEY_DATE = "key-date";
+    /** Value: String  */
+    public final static String EDITION = "edition";
+
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";
@@ -254,7 +265,6 @@ public class MdekKeys {
     public final static String PARAMETER = "parameter";
     /** Value: String  */
     public final static String SUPPLEMENTARY_INFORMATION = "supplementary-information";
-	
 
     // LEGISLATIONS
     /** Value: List of Strings */

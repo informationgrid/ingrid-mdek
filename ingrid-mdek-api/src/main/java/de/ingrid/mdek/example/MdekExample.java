@@ -635,11 +635,21 @@ class MdekThread extends Thread {
 		technicalDomain.put(MdekKeys.POS_ACCURACY_VERTICAL, new Double(1.5));
 		technicalDomain.put(MdekKeys.KEYC_INCL_W_DATASET, new Integer(8));
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_MAP, technicalDomain);
+		// add TECHNICAL DOMAIN MAP - key catalog
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.KEY_CATALOG_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.SUBJECT_CAT, "TEST " + MdekKeys.SUBJECT_CAT);
+		testDoc.put(MdekKeys.KEY_DATE, "TEST " + MdekKeys.KEY_DATE);
+		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.KEY_CATALOG_LIST, docList);
+		
 		
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		IngridDocument testDoc = new IngridDocument();
+		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.FORMAT_NAME, "TEST DATA_FORMAT_NAME");
 		testDoc.put(MdekKeys.FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
 		testDoc.put(MdekKeys.FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
@@ -768,6 +778,9 @@ class MdekThread extends Thread {
 				strList.remove(strList.size()-1);
 				oRefetchedDoc.put(MdekKeys.LEGISLATIONS, strList);				
 			}
+			
+			// REMOVE TECHNICAL DOMAIN MAP
+			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_MAP);
 
 			// DATA_FORMATS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_FORMATS);
@@ -1056,7 +1069,16 @@ class MdekThread extends Thread {
 		if (myDoc != null) {
 			System.out.println("  technical domain map:");
 			System.out.println("   " + myDoc);								
+			
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.KEY_CATALOG_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain map - key catalogs: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("   " + doc);								
+				}			
+			}
 		}
+		
 		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_FORMATS);
 		if (docList != null) {
 			System.out.println("  Data Formats: " + docList.size() + " entries");
