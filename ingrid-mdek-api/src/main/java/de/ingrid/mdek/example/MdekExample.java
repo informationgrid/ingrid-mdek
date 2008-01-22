@@ -642,6 +642,12 @@ class MdekThread extends Thread {
 		strList.add("TEST NEW T0114EnvCategory entry");
 		oDocIn.put(MdekKeys.ENV_CATEGORIES, strList);
 
+		// add entry to ENV_TOPICS
+		strList = (List<String>) oDocIn.get(MdekKeys.ENV_TOPICS);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST NEW T0114EnvTopic entry");
+		oDocIn.put(MdekKeys.ENV_TOPICS, strList);
+
 
 		// store
 		System.out.println("STORE");
@@ -733,6 +739,13 @@ class MdekThread extends Thread {
 			if (strList != null && strList.size() > 0) {
 				strList.remove(strList.size()-1);
 				oDocIn.put(MdekKeys.ENV_CATEGORIES, strList);				
+			}
+
+			// ENV_TOPICS wieder wie vorher !
+			strList = (List<String>) oRefetchedDoc.get(MdekKeys.ENV_TOPICS);
+			if (strList != null && strList.size() > 0) {
+				strList.remove(strList.size()-1);
+				oDocIn.put(MdekKeys.ENV_TOPICS, strList);				
 			}
 
 
@@ -993,6 +1006,11 @@ class MdekThread extends Thread {
 		strList = (List<String>) o.get(MdekKeys.ENV_CATEGORIES);
 		if (strList != null) {
 			System.out.println("  Env Categories: " + strList.size() + " entries");
+			System.out.println("   " + strList);
+		}
+		strList = (List<String>) o.get(MdekKeys.ENV_TOPICS);
+		if (strList != null) {
+			System.out.println("  Env Topics: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
 	}

@@ -209,6 +209,8 @@ public class MdekKeys {
     // ENVIRONMENT TOPICS / CATEGORIES
     /** Value: List of Strings */
     public final static String ENV_CATEGORIES = "env-categories";
+    /** Value: List of Strings */
+    public final static String ENV_TOPICS = "env-topics";
 
     // DATA FORMATS
     /** Value: List of IngridDocs */

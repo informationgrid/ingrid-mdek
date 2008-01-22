@@ -65,13 +65,13 @@
 
 			<xs:element name="linkages" type="LINKAGE_LIST"/>
 			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
-			<xs:element name="exports" type="EXPORT_LIST"/>
-			<xs:element name="legislations" type="LEGISLATION_LIST"/>
+			<xs:element name="exports" type="STRING_LIST"/>
+			<xs:element name="legislations" type="STRING_LIST"/>
 			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
 			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
-			<xs:element name="env-categories" type="ENV_CATEGORY_LIST"/>
-			
+			<xs:element name="env-categories" type="STRING_LIST"/>
+			<xs:element name="env-topics" type="STRING_LIST"/>
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
 	</xs:complexType>
@@ -151,7 +151,7 @@
 	</xs:complexType>
 	<xs:complexType name="STRING_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="STRING"/>
+			<xs:element name="STRING" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="GEO_MAP">
@@ -233,21 +233,6 @@
 		<xs:sequence>
 			<xs:element name="dataset-reference-date" type="TIMESTAMP"/>
 			<xs:element name="dataset-reference-type" type="xs:integer"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="EXPORT_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="STRING" type="xs:string"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="LEGISLATION_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="STRING" type="xs:string"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="ENV_CATEGORY_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="STRING" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="DATA_FORMAT_LIST">
