@@ -78,6 +78,7 @@
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 
 			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_MAP"/>
+			<xs:element name="technical-domain-project" type="TECHNICAL_DOMAIN_PROJECT_MAP"/>
 			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
 		</xs:all>
 	</xs:complexType>
@@ -320,6 +321,13 @@
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
 			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_PROJECT_MAP">
+		<xs:sequence>
+			<xs:element name="leader-description" type="xs:string"/>
+			<xs:element name="member-description" type="xs:string"/>
+			<xs:element name="description-of-tech-domain" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_DATASET_MAP">

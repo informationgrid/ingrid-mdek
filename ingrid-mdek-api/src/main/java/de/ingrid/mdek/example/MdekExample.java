@@ -675,6 +675,14 @@ class MdekThread extends Thread {
 		intList.add(1);
 		oDocIn.put(MdekKeys.TOPIC_CATEGORIES, intList);
 
+		// add TECHNICAL DOMAIN PROJECT
+		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
+		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
+		technicalDomain.put(MdekKeys.LEADER_DESCRIPTION, "TEST LEADER_DESCRIPTION");
+		technicalDomain.put(MdekKeys.MEMBER_DESCRIPTION, "TEST MEMBER_DESCRIPTION");
+		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST DESCRIPTION_OF_TECH_DOMAIN");
+		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_PROJECT, technicalDomain);
+
 		// add TECHNICAL DOMAIN DATASET
 		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
@@ -795,6 +803,9 @@ class MdekThread extends Thread {
 				intList.remove(intList.size()-1);
 				oRefetchedDoc.put(MdekKeys.TOPIC_CATEGORIES, intList);				
 			}
+
+			// TECHNICAL_DOMAIN_PROJECT raus !
+			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
 
 			// TECHNICAL_DOMAIN_DATASET raus !
 			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_DATASET);
@@ -1074,6 +1085,11 @@ class MdekThread extends Thread {
 		if (intList != null) {
 			System.out.println("  Topic Categories: " + intList.size() + " entries");
 			System.out.println("   " + intList);
+		}
+		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
+		if (myDoc != null) {
+			System.out.println("  technical domain project:");
+			System.out.println("   " + myDoc);								
 		}
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 		if (myDoc != null) {

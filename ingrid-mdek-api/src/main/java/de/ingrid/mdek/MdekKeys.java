@@ -230,13 +230,24 @@ public class MdekKeys {
     /** Value: Integer  */
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
     
+    // TECHNICAL DOMAIN PROJECT
+    /** Value: IngridDocument encapsulating all PROJECT data */
+    public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";
+    /** Value: String  */
+    public final static String LEADER_DESCRIPTION = "leader-description";
+    /** Value: String  */
+    public final static String MEMBER_DESCRIPTION = "member-description";
+    /** Value: String  */
+    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+	
     // TECHNICAL DOMAIN DATASET
     /** Value: IngridDocument encapsulating all DATASET data */
     public final static String TECHNICAL_DOMAIN_DATASET = "technical-domain-dataset";
     /** Value: String  */
     public final static String METHOD = "method";
     /** Value: String  */
-    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+    // defined above
+//    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
     /** Value: List of IngridDocs  */
     public final static String PARAMETERS = "parameters";
     /** Value: String  */
