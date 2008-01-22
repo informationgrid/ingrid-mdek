@@ -620,6 +620,25 @@ class MdekThread extends Thread {
 		strList.add("TEST NEW T015Legist entry");
 		oDocIn.put(MdekKeys.LEGISLATIONS, strList);
 
+		// add TECHNICAL DOMAIN MAP
+		List<IngridDocument> technicalDomains = (List<IngridDocument>) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_MAPS);
+		technicalDomains = (technicalDomains == null) ? new ArrayList<IngridDocument>() : technicalDomains;
+		IngridDocument technicalDomain = new IngridDocument();
+
+		technicalDomain.put(MdekKeys.TECHNICAL_BASE, "technical-base");
+		technicalDomain.put(MdekKeys.DATA, "data");
+		technicalDomain.put(MdekKeys.METHOD_OF_PRODUCTION, "method-of-production");
+		technicalDomain.put(MdekKeys.COORDINATE_SYSTEM, "coordinate-system");
+		technicalDomain.put(MdekKeys.RESOLUTION, new Double(1.1));
+		technicalDomain.put(MdekKeys.DEGREE_OF_RECORD, new Double(1.2));
+		technicalDomain.put(MdekKeys.HIERARCHY_LEVEL, new Integer(5));
+		technicalDomain.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, new Integer(6));
+		technicalDomain.put(MdekKeys.REFERENCESYSTEM_ID, new Integer(7));
+		technicalDomain.put(MdekKeys.POS_ACCURACY_VERTICAL, new Double(1.5));
+		technicalDomain.put(MdekKeys.KEYC_INCL_W_DATASET, new Integer(8));
+		technicalDomains.add(technicalDomain);
+		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_MAPS, technicalDomains);
+		
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
@@ -731,6 +750,13 @@ class MdekThread extends Thread {
 				oDocIn.put(MdekKeys.LEGISLATIONS, strList);				
 			}
 
+			// TECHNICLA DOMAIN MAP wieder wie vorher !
+			technicalDomains = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.TECHNICAL_DOMAIN_MAPS);
+			if (technicalDomains != null && technicalDomains.size() > 1) {
+				technicalDomains.remove(technicalDomains.size()-1);
+				oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_MAPS, technicalDomains);				
+			}
+			
 			// DATA_FORMATS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_FORMATS);
 			if (docList != null && docList.size() > 0) {
@@ -1006,6 +1032,13 @@ class MdekThread extends Thread {
 		if (strList != null) {
 			System.out.println("  Legislations: " + strList.size() + " entries");
 			System.out.println("   " + strList);
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.TECHNICAL_DOMAIN_MAPS);
+		if (docList != null) {
+			System.out.println("  technical domain map: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_FORMATS);
 		if (docList != null) {

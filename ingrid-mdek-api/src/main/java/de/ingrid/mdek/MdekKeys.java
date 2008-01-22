@@ -200,6 +200,36 @@ public class MdekKeys {
     // EXPORTS
     /** Value: List of Strings */
     public final static String EXPORTS = "exports";
+    
+    // TECHNICAL DOMAIN MAP
+    /** Value: List of IngridDocs  */
+    public final static String TECHNICAL_DOMAIN_MAPS = "technical-domain-maps";
+    
+    /** Value: String  */
+    public final static String TECHNICAL_BASE = "technical-base";
+    /** Value: String  */
+    public final static String DATA = "data";
+    /** Value: String  */
+    public final static String METHOD_OF_PRODUCTION = "method-of-production";
+    /** Value: String  */
+    public final static String COORDINATE_SYSTEM = "coordinate-system";
+    /** Value: Double  */
+    public final static String RESOLUTION = "resolution";
+    /** Value: Double  */
+    public final static String DEGREE_OF_RECORD = "degree-of-record";
+    /** Value: Integer  */
+    public final static String HIERARCHY_LEVEL = "hierarchy-level";
+    /** Value: Integer  */
+    public final static String VECTOR_TOPOLOGY_LEVEL = "vector-topology-level";
+    /** Value: Integer  */
+    public final static String REFERENCESYSTEM_ID = "referencesystem-id";
+    /** Value: Double  */
+    public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
+    /** Value: Integer  */
+    public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
+    
+	
+	
 
     // LEGISLATIONS
     /** Value: List of Strings */

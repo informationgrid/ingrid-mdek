@@ -36,7 +36,7 @@
 			<xs:element name="title" type="xs:string"/>
 			<xs:element name="abstract" type="xs:string"/>
 			
-			<xs:element name="GEO_MAP" type="GEO_MAP"/>
+			<xs:element name="SPATIAL_REF_MAP" type="SPATIAL_REF_MAP"/>
 			<xs:element name="TIME_MAP" type="TIME_MAP"/>
 			
 			<xs:element name="metadata-language" type="xs:string"/>
@@ -74,6 +74,7 @@
 			<xs:element name="env-topics" type="STRING_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
+			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_LIST"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -160,7 +161,7 @@
 			<xs:element name="INTEGER" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="GEO_MAP">
+	<xs:complexType name="SPATIAL_REF_MAP">
 		<xs:sequence>
 			<xs:element name="vertical-extent-minimum" type="xs:double"/>
 			<xs:element name="vertical-extent-maximum" type="xs:double"/>
@@ -239,6 +240,26 @@
 		<xs:sequence>
 			<xs:element name="dataset-reference-date" type="TIMESTAMP"/>
 			<xs:element name="dataset-reference-type" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_MAP_MAP">
+		<xs:sequence>
+			<xs:element name="technical-base" type="xs:string"/>
+			<xs:element name="data" type="xs:string"/>
+			<xs:element name="method-of-production" type="xs:string"/>
+			<xs:element name="coordinate-system" type="xs:string"/>
+			<xs:element name="resolution" type="xs:double"/>
+			<xs:element name="degree-of-record" type="xs:double"/>
+			<xs:element name="hierarchy-level" type="xs:integer"/>
+			<xs:element name="vector-topology-level" type="xs:integer"/>
+			<xs:element name="referencesystem-id" type="xs:integer"/>
+			<xs:element name="pos-accuracy-vertical" type="xs:double"/>
+			<xs:element name="keyc-incl-w-dataset" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_MAP_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="TECHNICAL_DOMAIN_MAP_MAP" type="TECHNICAL_DOMAIN_MAP_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="DATA_FORMAT_LIST">
