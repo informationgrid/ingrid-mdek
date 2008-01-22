@@ -233,7 +233,6 @@ public class MdekKeys {
     // TECHNICAL DOMAIN MAP - KEY CATALOG
     /** Value: List of IngridDocs  */
     public final static String KEY_CATALOG_LIST = "key-catalog-list";
-
     /** Value: String  */
     public final static String SUBJECT_CAT = "subject-cat";
     /** Value: String  */
@@ -241,6 +240,16 @@ public class MdekKeys {
     /** Value: String  */
     public final static String EDITION = "edition";
 
+    // TECHNICAL DOMAIN MAP - PUBLICATION SCALE
+    /** Value: List of IngridDocs  */
+    public final static String PUBLICATION_SCALE_LIST = "publication-scale-list";
+    /** Value: Integer  */
+    public final static String SCALE = "scale";
+    /** Value: Double  */
+    public final static String RESOLUTION_GROUND = "resolution-ground";
+    /** Value: Double  */
+    public final static String RESOLUTION_SCAN = "resolution-scan";
+    
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";

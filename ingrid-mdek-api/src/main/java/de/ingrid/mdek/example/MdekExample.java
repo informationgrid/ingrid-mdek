@@ -644,6 +644,15 @@ class MdekThread extends Thread {
 		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.KEY_CATALOG_LIST, docList);
+		// add TECHNICAL DOMAIN MAP - publication scale
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.PUBLICATION_SCALE_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.SCALE, new Integer(123));
+		testDoc.put(MdekKeys.RESOLUTION_GROUND, new Double(1.123));
+		testDoc.put(MdekKeys.RESOLUTION_SCAN, new Double(1.456));
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.PUBLICATION_SCALE_LIST, docList);
 		
 		
 		// add entry to DATA_FORMATS
@@ -1069,10 +1078,16 @@ class MdekThread extends Thread {
 		if (myDoc != null) {
 			System.out.println("  technical domain map:");
 			System.out.println("   " + myDoc);								
-			
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.KEY_CATALOG_LIST);
 			if (docList != null) {
 				System.out.println("  technical domain map - key catalogs: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("   " + doc);								
+				}			
+			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.PUBLICATION_SCALE_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain map - publication scales: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("   " + doc);								
 				}			
