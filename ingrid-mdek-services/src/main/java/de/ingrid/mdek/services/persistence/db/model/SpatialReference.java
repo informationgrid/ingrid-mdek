@@ -10,7 +10,6 @@ public class SpatialReference implements IEntity {
 	private Integer line;
 	private Long spatialRefId;
 
-
 	private SpatialRefValue spatialRefValue;
 
 	public SpatialReference() {}
@@ -54,6 +53,7 @@ public class SpatialReference implements IEntity {
 	public void setSpatialRefId(Long spatialRefId) {
 		this.spatialRefId = spatialRefId;
 	}
+
 
 	public SpatialRefValue getSpatialRefValue() {
 		return spatialRefValue;

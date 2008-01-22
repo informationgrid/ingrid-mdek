@@ -42,6 +42,7 @@ public class T01Object implements IEntity {
 	private Integer verticalExtentVdatum;
 	private String fees;
 	private String orderingInstructions;
+	private String isCatalogData;
 	private String lastexportTime;
 	private String expiryTime;
 	private String workState;
@@ -358,6 +359,14 @@ public class T01Object implements IEntity {
 
 	public void setOrderingInstructions(String orderingInstructions) {
 		this.orderingInstructions = orderingInstructions;
+	}
+
+	public String getIsCatalogData() {
+		return isCatalogData;
+	}
+
+	public void setIsCatalogData(String isCatalogData) {
+		this.isCatalogData = isCatalogData;
 	}
 
 	public String getLastexportTime() {

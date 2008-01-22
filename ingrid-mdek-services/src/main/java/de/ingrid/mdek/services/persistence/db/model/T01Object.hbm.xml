@@ -40,6 +40,7 @@
       <property name="verticalExtentVdatum" type="integer" column="vertical_extent_vdatum"/>
       <property name="fees" type="string" column="fees"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
+      <property name="isCatalogData" type="string" column="is_catalog_data"/>
       <property name="lastexportTime" type="string" column="lastexport_time"/>
       <property name="expiryTime" type="string" column="expiry_time"/>
       <property name="workState" type="string" column="work_state"/>

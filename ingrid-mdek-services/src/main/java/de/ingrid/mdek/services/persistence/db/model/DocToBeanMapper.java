@@ -142,6 +142,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
 			oIn.setAvailAccessNote((String) oDocIn.get(MdekKeys.USE_CONSTRAINTS));
 			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
+			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
 
 			// update associations
 			updateObjectReferences(oDocIn, oIn);
