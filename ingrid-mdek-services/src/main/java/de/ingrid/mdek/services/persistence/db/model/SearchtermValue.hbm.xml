@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="SearchtermValue" table="searchterm_value">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="type" type="string" column="type"/>
+      <property name="searchtermSnsId" type="long" column="searchterm_sns_id"/>
+      <property name="term" type="string" column="term"/>
+
+      <many-to-one name="searchtermSns" class="SearchtermSns" column="searchterm_sns_id"
+                   update="false"
+                   insert="false"/>
+   </class>
+
+</hibernate-mapping>

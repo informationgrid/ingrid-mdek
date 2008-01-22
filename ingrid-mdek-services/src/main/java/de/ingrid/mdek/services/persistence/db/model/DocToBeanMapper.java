@@ -12,6 +12,8 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.utils.IngridDocument;
@@ -29,7 +31,11 @@ public class DocToBeanMapper implements IMapper {
 	
 	private ISpatialRefSnsDao daoSpatialRefSns;
 	private ISpatialRefValueDao daoSpatialRefValue;
+	private ISearchtermSnsDao daoSearchtermSns;
+	private ISearchtermValueDao daoSearchtermValue;
+
 	private IGenericDao<IEntity> daoSpatialReference;
+	private IGenericDao<IEntity> daoSearchtermObj;
 	private IGenericDao<IEntity> daoT012ObjAdr;
 	private IGenericDao<IEntity> daoObjectReference;
 	private IGenericDao<IEntity> daoT017UrlRef;
@@ -50,7 +56,11 @@ public class DocToBeanMapper implements IMapper {
 	private DocToBeanMapper(DaoFactory daoFactory) {
 		daoSpatialRefSns = daoFactory.getSpatialRefSnsDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
+		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
+		daoSearchtermValue = daoFactory.getSearchtermValueDao();
+
 		daoSpatialReference = daoFactory.getDao(SpatialReference.class);
+		daoSearchtermObj = daoFactory.getDao(SearchtermObj.class);
 		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 		daoT017UrlRef = daoFactory.getDao(T017UrlRef.class);
@@ -125,6 +135,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectReferences(oDocIn, oIn);
 			updateT012ObjAdrs(oDocIn, oIn, howMuch);
 			updateSpatialReferences(oDocIn, oIn);
+			updateSearchtermObjs(oDocIn, oIn);
 			updateT017UrlRefs(oDocIn, oIn);
 			updateT0113DatasetReferences(oDocIn, oIn);
 			updateT014InfoImparts(oDocIn, oIn);
@@ -294,7 +305,6 @@ public class DocToBeanMapper implements IMapper {
 
 		return spRef;
 	}
-
 	/**
 	 * Transfer data to passed bean.
 	 */
@@ -319,7 +329,6 @@ public class DocToBeanMapper implements IMapper {
 
 		return spRefValue;
 	}
-
 	private void updateSpatialReferences(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> locList = (List) oDocIn.get(MdekKeys.LOCATIONS);
 		if (locList == null) {
@@ -610,5 +619,97 @@ public class DocToBeanMapper implements IMapper {
 			refs.add(ref);
 			line++;
 		}
+	}
+
+	private SearchtermObj mapSearchtermObj(T01Object oFrom,
+		SearchtermValue refValue,
+		SearchtermObj ref,
+		int line) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setSearchtermValue(refValue);			
+		ref.setSearchtermId(refValue.getId());
+		ref.setLine(line);
+
+		return ref;
+	}
+	private SearchtermValue mapSearchtermValue(SearchtermSns refSns,
+		IngridDocument refDoc,
+		SearchtermValue refValue) 
+	{
+		refValue.setTerm((String) refDoc.get(MdekKeys.TERM_NAME));
+		refValue.setType((String) refDoc.get(MdekKeys.TERM_TYPE));
+
+		Long refSnsId = null;
+		if (refSns != null) {
+			refSnsId = refSns.getId();			
+		}
+		refValue.setSearchtermSns(refSns);			
+		refValue.setSearchtermSnsId(refSnsId);
+
+		return refValue;
+	}
+	private void updateSearchtermObjs(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.SUBJECT_TERMS);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<SearchtermObj> refs = oIn.getSearchtermObjs();
+		ArrayList<SearchtermObj> refs_unprocessed = new ArrayList<SearchtermObj>(refs);
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			String refDocName = (String) refDoc.get(MdekKeys.TERM_NAME);
+			String refDocName_notNull = (refDocName == null) ? "" : refDocName;
+			String refDocType = (String) refDoc.get(MdekKeys.TERM_TYPE);
+			String refDocSnsId = (String) refDoc.get(MdekKeys.TERM_SNS_ID);
+			String refDocSnsId_notNull = (refDocSnsId == null) ? "" : refDocSnsId;
+			boolean found = false;
+			for (SearchtermObj ref : refs) {
+				SearchtermValue refValue = ref.getSearchtermValue();
+				if (refValue != null) {
+					SearchtermSns refSns = refValue.getSearchtermSns();
+
+					String refName_notNull = (refValue.getTerm() == null) ? "" : refValue.getTerm();
+					String refType = refValue.getType();
+					String refSnsId_notNull = (refSns == null) ? "" : refSns.getSnsId();
+					if (refDocName_notNull.equals(refName_notNull) &&
+						refDocType.equals(refType) &&
+						refDocSnsId_notNull.equals(refSnsId_notNull))
+					{
+						mapSearchtermValue(refSns, refDoc, refValue);
+						// update line
+						ref.setLine(line);
+						refs_unprocessed.remove(ref);
+						found = true;
+						break;
+					}					
+				}
+			}
+			if (!found) {
+				// add new one
+				
+				// first load/create SpatialRefSns
+				SearchtermSns refSns = null;
+				if (refDocSnsId != null) {
+					refSns = daoSearchtermSns.loadOrCreate(refDocSnsId);
+				}
+
+				// then load/create SpatialRefValue
+				SearchtermValue refValue = daoSearchtermValue.loadOrCreate(refDocType, refDocName, refSns, oIn.getId());
+				mapSearchtermValue(refSns, refDoc, refValue);
+
+				// then create SpatialReference
+				SearchtermObj ref = new SearchtermObj();
+				mapSearchtermObj(oIn, refValue, ref, line);
+				refs.add(ref);
+			}
+			line++;
+		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (SearchtermObj ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoSearchtermObj.makeTransient(ref);
+		}		
 	}
 }

@@ -30,10 +30,10 @@
             <value>de/ingrid/mdek/services/persistence/db/model/Role.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/RolePermission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
+-->
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermValue.hbm.xml</value>
--->
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefSns.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefValue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialReference.hbm.xml</value>

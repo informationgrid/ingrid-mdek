@@ -6,16 +6,21 @@ package de.ingrid.mdek.services.persistence.db;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.ObjectNodeDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermSnsDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermValueDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefSnsDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefValueDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
@@ -53,11 +58,21 @@ public class DaoFactory implements IDaoFactory {
         return new SpatialRefSnsDaoHibernate(_sessionFactory);
     }
 
+    public ISearchtermValueDao getSearchtermValueDao() {
+        return new SearchtermValueDaoHibernate(_sessionFactory);
+    }
+
+    public ISearchtermSnsDao getSearchtermSnsDao() {
+        return new SearchtermSnsDaoHibernate(_sessionFactory);
+    }
+
     public IGenericDao<IEntity> getDao(Class clazz) {
 		IGenericDao dao = null;
 
 		if (clazz.isAssignableFrom(SpatialReference.class)) {
 			dao = new GenericHibernateDao<SpatialReference>(_sessionFactory, SpatialReference.class);
+		} else if (clazz.isAssignableFrom(SearchtermObj.class)) {
+			dao = new GenericHibernateDao<SearchtermObj>(_sessionFactory, SearchtermObj.class);
 		} else if (clazz.isAssignableFrom(T012ObjAdr.class)) {
 			dao = new GenericHibernateDao<T012ObjAdr>(_sessionFactory, T012ObjAdr.class);
 		} else if (clazz.isAssignableFrom(ObjectReference.class)) {

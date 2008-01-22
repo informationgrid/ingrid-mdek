@@ -109,6 +109,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectReferences(o.getObjectReferences(), objectDoc, howMuch);
 			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc, howMuch);
 			mapSpatialReferences(o.getSpatialReferences(), objectDoc);
+			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc);
 			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
 			mapT0113DatasetReferences(o.getT0113DatasetReferences(), objectDoc);
 			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
@@ -361,7 +362,6 @@ public class BeanToDocMapper implements IMapper {
 
 		return locDoc;
 	}
-
 	/**
 	 * Transfer data of passed bean to passed doc.
 	 * @return doc containing additional data.
@@ -375,7 +375,6 @@ public class BeanToDocMapper implements IMapper {
 
 		return locDoc;
 	}
-
 	private IngridDocument mapSpatialReferences(Set<SpatialReference> spatRefs, IngridDocument objectDoc) {
 		if (spatRefs == null) {
 			return objectDoc;
@@ -432,15 +431,15 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	private IngridDocument mapT0113DatasetReference(T0113DatasetReference ref, IngridDocument urlDoc) {
+	private IngridDocument mapT0113DatasetReference(T0113DatasetReference ref, IngridDocument refDoc) {
 		if (ref == null) {
-			return urlDoc;
+			return refDoc;
 		}
 
-		urlDoc.put(MdekKeys.DATASET_REFERENCE_DATE, ref.getReferenceDate());
-		urlDoc.put(MdekKeys.DATASET_REFERENCE_TYPE, ref.getType());
+		refDoc.put(MdekKeys.DATASET_REFERENCE_DATE, ref.getReferenceDate());
+		refDoc.put(MdekKeys.DATASET_REFERENCE_TYPE, ref.getType());
 
-		return urlDoc;
+		return refDoc;
 	}
 	private IngridDocument mapT0113DatasetReferences(Set<T0113DatasetReference> refs, IngridDocument objectDoc) {
 		if (refs == null) {
@@ -483,17 +482,17 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	private IngridDocument mapT0110AvailFormat(T0110AvailFormat ref, IngridDocument urlDoc) {
+	private IngridDocument mapT0110AvailFormat(T0110AvailFormat ref, IngridDocument refDoc) {
 		if (ref == null) {
-			return urlDoc;
+			return refDoc;
 		}
 
-		urlDoc.put(MdekKeys.FORMAT_NAME, ref.getName());
-		urlDoc.put(MdekKeys.FORMAT_VERSION, ref.getVer());
-		urlDoc.put(MdekKeys.FORMAT_SPECIFICATION, ref.getSpecification());
-		urlDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, ref.getFileDecompressionTechnique());
+		refDoc.put(MdekKeys.FORMAT_NAME, ref.getName());
+		refDoc.put(MdekKeys.FORMAT_VERSION, ref.getVer());
+		refDoc.put(MdekKeys.FORMAT_SPECIFICATION, ref.getSpecification());
+		refDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, ref.getFileDecompressionTechnique());
 
-		return urlDoc;
+		return refDoc;
 	}
 	private IngridDocument mapT0110AvailFormats(Set<T0110AvailFormat> refs, IngridDocument objectDoc) {
 		if (refs == null) {
@@ -511,16 +510,16 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 
-	private IngridDocument mapT0112MediaOption(T0112MediaOption ref, IngridDocument urlDoc) {
+	private IngridDocument mapT0112MediaOption(T0112MediaOption ref, IngridDocument refDoc) {
 		if (ref == null) {
-			return urlDoc;
+			return refDoc;
 		}
 
-		urlDoc.put(MdekKeys.MEDIUM_NAME, ref.getMediumName());
-		urlDoc.put(MdekKeys.MEDIUM_TRANSFER_SIZE, ref.getTransferSize());
-		urlDoc.put(MdekKeys.MEDIUM_NOTE, ref.getMediumNote());
+		refDoc.put(MdekKeys.MEDIUM_NAME, ref.getMediumName());
+		refDoc.put(MdekKeys.MEDIUM_TRANSFER_SIZE, ref.getTransferSize());
+		refDoc.put(MdekKeys.MEDIUM_NOTE, ref.getMediumNote());
 
-		return urlDoc;
+		return refDoc;
 	}
 	private IngridDocument mapT0112MediaOptions(Set<T0112MediaOption> refs, IngridDocument objectDoc) {
 		if (refs == null) {
@@ -533,6 +532,47 @@ public class BeanToDocMapper implements IMapper {
 			refList.add(refDoc);
 		}
 		objectDoc.put(MdekKeys.MEDIUM_OPTIONS, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapSearchtermValue(SearchtermValue ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.TERM_NAME, ref.getTerm());
+		refDoc.put(MdekKeys.TERM_TYPE, ref.getType());
+
+		return refDoc;
+	}
+	private IngridDocument mapSearchtermSns(SearchtermSns ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.TERM_SNS_ID, ref.getSnsId());
+
+		return refDoc;
+	}
+	private IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (SearchtermObj ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			SearchtermValue refValue = ref.getSearchtermValue();
+			if (refValue != null) {
+				mapSearchtermValue(refValue, refDoc);
+				SearchtermSns refSns = refValue.getSearchtermSns();
+				mapSearchtermSns(refSns, refDoc);
+				refList.add(refDoc);					
+			} else {
+				LOG.warn("SearchtermObj " + ref.getSearchtermId() + " has no SearchtermValue !!! We skip this SearchtermObj.");
+			}
+		}
+		objectDoc.put(MdekKeys.SUBJECT_TERMS, refList);
 		
 		return objectDoc;
 	}

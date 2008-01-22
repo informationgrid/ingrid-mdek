@@ -44,7 +44,7 @@ public interface ISpatialRefValueDao
 	/** Load SpatialRefValue according to given values. If not found create AND save it !
 	 * @param type
 	 * @param name
-	 * @param spatialRefSnsId id of record in SpatialRefSns
+	 * @param spRefSns according bean (or null)
 	 * @param nativekey
 	 * @param objectId connected to this object
 	 * @return persisted SpatialRefValue (with Id)
