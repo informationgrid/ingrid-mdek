@@ -584,6 +584,11 @@ class MdekThread extends Thread {
 			System.out.println("REMOVE FIRST SUBJECT TERM: " + termRemoved);
 			docList.remove(0);			
 		}
+		IngridDocument newTerm = new IngridDocument();
+		newTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		newTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
+		System.out.println("ADD NEW SUBJECT TERM: " + newTerm);
+		docList.add(newTerm);
 
 		// remove first url reference !
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.LINKAGES);
