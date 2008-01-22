@@ -70,6 +70,7 @@ public class T01Object implements IEntity {
 	private Set t011ObjProjects = new HashSet();
 	private Set t011ObjServs = new HashSet();
 */
+	private Set t011ObjTopicCats = new HashSet();
 	private Set t012ObjAdrs = new HashSet();
 	private Set t014InfoImparts = new HashSet();
 	private Set t015Legists = new HashSet();
@@ -552,6 +553,14 @@ public class T01Object implements IEntity {
 		this.t011ObjServs = t011ObjServs;
 	}
 */
+	public Set getT011ObjTopicCats() {
+		return t011ObjTopicCats;
+	}
+
+	public void setT011ObjTopicCats(Set t011ObjTopicCats) {
+		this.t011ObjTopicCats = t011ObjTopicCats;
+	}
+
 	public Set getT012ObjAdrs() {
 		return t012ObjAdrs;
 	}

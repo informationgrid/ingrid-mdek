@@ -46,6 +46,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT0112MediaOption;
 	private IGenericDao<IEntity> daoT0114EnvCategory;
 	private IGenericDao<IEntity> daoT0114EnvTopic;
+	private IGenericDao<IEntity> daoT011ObjTopicCat;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -73,6 +74,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
 		daoT0114EnvCategory = daoFactory.getDao(T0114EnvCategory.class);
 		daoT0114EnvTopic = daoFactory.getDao(T0114EnvTopic.class);
+		daoT011ObjTopicCat = daoFactory.getDao(T011ObjTopicCat.class);
 	}
 
 	/**
@@ -148,6 +150,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT0112MediaOptions(oDocIn, oIn);
 			updateT0114EnvCategorys(oDocIn, oIn);
 			updateT0114EnvTopics(oDocIn, oIn);
+			updateT011ObjTopicCats(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -752,7 +755,6 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 
-
 	private T0114EnvTopic mapT0114EnvTopic(T01Object oFrom,
 			String name,
 			T0114EnvTopic ref,
@@ -781,6 +783,39 @@ public class DocToBeanMapper implements IMapper {
 		int line = 1;
 		for (String refName : refNames) {
 			T0114EnvTopic ref = mapT0114EnvTopic(oIn, refName, new T0114EnvTopic(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+	private T011ObjTopicCat mapT011ObjTopicCat(T01Object oFrom,
+			Integer category,
+			T011ObjTopicCat ref,
+			int line)
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setTopicCategory(category);
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT011ObjTopicCats(IngridDocument oDocIn, T01Object oIn) {
+		List<Integer> refCats = (List) oDocIn.get(MdekKeys.TOPIC_CATEGORIES);
+		if (refCats == null) {
+			refCats = new ArrayList<Integer>(0);
+		}
+		Set<T011ObjTopicCat> refs = oIn.getT011ObjTopicCats();
+		ArrayList<T011ObjTopicCat> refs_unprocessed = new ArrayList<T011ObjTopicCat>(refs);
+		// remove all !
+		for (T011ObjTopicCat ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjTopicCat.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (Integer refCat : refCats) {
+			T011ObjTopicCat ref = mapT011ObjTopicCat(oIn, refCat, new T011ObjTopicCat(), line);
 			refs.add(ref);
 			line++;
 		}

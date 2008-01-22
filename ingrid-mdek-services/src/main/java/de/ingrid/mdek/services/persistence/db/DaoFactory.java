@@ -27,6 +27,7 @@ import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
 import de.ingrid.mdek.services.persistence.db.model.T0114EnvCategory;
 import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
@@ -95,6 +96,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T0114EnvCategory>(_sessionFactory, T0114EnvCategory.class);
 		} else if (clazz.isAssignableFrom(T0114EnvTopic.class)) {
 			dao = new GenericHibernateDao<T0114EnvTopic>(_sessionFactory, T0114EnvTopic.class);
+		} else if (clazz.isAssignableFrom(T011ObjTopicCat.class)) {
+			dao = new GenericHibernateDao<T011ObjTopicCat>(_sessionFactory, T011ObjTopicCat.class);
 		} 
 
         return dao;
