@@ -52,8 +52,8 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjDataPara.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeo.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoKeyc.hbm.xml</value>
-<!--
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoScale.hbm.xml</value>
+<!--
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSymc.hbm.xml</value>

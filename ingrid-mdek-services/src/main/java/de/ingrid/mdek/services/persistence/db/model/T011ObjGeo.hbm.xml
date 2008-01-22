@@ -25,13 +25,13 @@
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoKeyc" not-found="ignore"/>
       </set>
-<!-- 
       <set name="t011ObjGeoScales" order-by="line" table="t011_obj_geo_scale"
            inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoScale" not-found="ignore"/>
       </set>
+<!-- 
       <set name="t011ObjGeoSpatialReps" order-by="line" table="t011_obj_geo_spatial_rep"
            inverse="true"
            cascade="all-delete-orphan">

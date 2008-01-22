@@ -504,8 +504,10 @@ public class BeanToDocMapper implements IMapper {
 
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAP, refDoc);
 		
-		// add key catalog
+		// add key catalogs
 		mapT011ObjGeoKeycs(ref.getT011ObjGeoKeycs(), refDoc);
+		// add publication scales
+		mapT011ObjGeoScales(ref.getT011ObjGeoScales(), refDoc);
 		
 		return objectDoc;
 	}
@@ -527,6 +529,24 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	private IngridDocument mapT011ObjGeoScales(Set<T011ObjGeoScale> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjGeoScale ref : refs) {
+			IngridDocument doc = new IngridDocument();
+			doc.put(MdekKeys.SCALE, ref.getScale());
+			doc.put(MdekKeys.RESOLUTION_GROUND, ref.getResolutionGround());
+			doc.put(MdekKeys.RESOLUTION_SCAN, ref.getResolutionScan());
+			locList.add(doc);					
+		}
+		objectDoc.put(MdekKeys.PUBLICATION_SCALE_LIST, locList);
+		
+		return objectDoc;
+	}
+	
+	
 	private IngridDocument mapT015Legists(Set<T015Legist> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;

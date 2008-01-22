@@ -43,6 +43,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT014InfoImpart;
 	private IGenericDao<IEntity> daoT011ObjGeo;
 	private IGenericDao<IEntity> daoT011ObjGeoKeyc;
+	private IGenericDao<IEntity> daoT011ObjGeoScale;
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
 	private IGenericDao<IEntity> daoT0112MediaOption;
@@ -572,6 +573,8 @@ public class DocToBeanMapper implements IMapper {
 			
 			// map 1:N relations
 			updateT011ObjGeoKeycs(refDoc, ref);
+			updateT011ObjGeoScales(refDoc, ref);
+			
 			refs.add(ref);
 		}
 		
@@ -594,22 +597,45 @@ public class DocToBeanMapper implements IMapper {
 		int line = 1;
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
-			T011ObjGeoKeyc ref = mapT011ObjGeoKeyc(in, refDoc, new T011ObjGeoKeyc(), line);
+			T011ObjGeoKeyc ref = new T011ObjGeoKeyc();
+			ref.setObjGeoId(in.getId());
+			ref.setSubjectCat(refDoc.getString(MdekKeys.SUBJECT_CAT));
+			ref.setKeyDate(refDoc.getString(MdekKeys.KEY_DATE));
+			ref.setEdition(refDoc.getString(MdekKeys.EDITION));
+			ref.setLine(line);
 			refs.add(ref);
 			line++;
 		}
 	}
 
-	private T011ObjGeoKeyc mapT011ObjGeoKeyc(T011ObjGeo in, IngridDocument refDoc, T011ObjGeoKeyc ref, int line) {
-		ref.setObjGeoId(in.getId());
-		ref.setSubjectCat((String) refDoc.get(MdekKeys.SUBJECT_CAT));
-		ref.setKeyDate((String) refDoc.get(MdekKeys.KEY_DATE));
-		ref.setEdition((String) refDoc.get(MdekKeys.EDITION));
-		ref.setLine(line);
-
-		return ref;
-	}
-
+	private void updateT011ObjGeoScales(IngridDocument docIn, T011ObjGeo in) {
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.PUBLICATION_SCALE_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T011ObjGeoScale> refs = in.getT011ObjGeoScales();
+		ArrayList<T011ObjGeoScale> refs_unprocessed = new ArrayList<T011ObjGeoScale>(refs);
+		// remove all !
+		for (T011ObjGeoScale ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjGeoScale.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T011ObjGeoScale ref = new T011ObjGeoScale();
+			ref.setObjGeoId(in.getId());
+			ref.setScale((Integer)refDoc.get(MdekKeys.SCALE));
+			ref.setResolutionGround((Double)refDoc.get(MdekKeys.RESOLUTION_GROUND));
+			ref.setResolutionScan((Double)refDoc.get(MdekKeys.RESOLUTION_SCAN));
+			ref.setLine(line);
+			refs.add(ref);
+			line++;
+		}
+	}	
+	
 	private T015Legist mapT015Legist(T01Object oFrom,
 			String name,
 			T015Legist ref, 
