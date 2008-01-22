@@ -117,6 +117,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT0110AvailFormats(o.getT0110AvailFormats(), objectDoc);
 			mapT0112MediaOptions(o.getT0112MediaOptions(), objectDoc);
 			mapT0114EnvCategorys(o.getT0114EnvCategorys(), objectDoc);
+			mapT0114EnvTopics(o.getT0114EnvTopics(), objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -587,6 +588,19 @@ public class BeanToDocMapper implements IMapper {
 			refList.add(ref.getName());				
 		}
 		objectDoc.put(MdekKeys.ENV_CATEGORIES, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT0114EnvTopics(Set<T0114EnvTopic> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		for (T0114EnvTopic ref : refs) {
+			refList.add(ref.getName());				
+		}
+		objectDoc.put(MdekKeys.ENV_TOPICS, refList);
 		
 		return objectDoc;
 	}

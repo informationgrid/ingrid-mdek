@@ -61,8 +61,8 @@ public class T01Object implements IEntity {
 	private Set t0112MediaOptions = new HashSet();
 	private Set t0113DatasetReferences = new HashSet();
 	private Set t0114EnvCategorys = new HashSet();
-/*
 	private Set t0114EnvTopics = new HashSet();
+/*
 	private Set t011ObjDatas = new HashSet();
 	private Set t011ObjDataParas = new HashSet();
 	private Set t011ObjGeos = new HashSet();
@@ -495,7 +495,7 @@ public class T01Object implements IEntity {
 	public void setT0114EnvCategorys(Set t0114EnvCategorys) {
 		this.t0114EnvCategorys = t0114EnvCategorys;
 	}
-/*
+
 	public Set getT0114EnvTopics() {
 		return t0114EnvTopics;
 	}
@@ -503,7 +503,7 @@ public class T01Object implements IEntity {
 	public void setT0114EnvTopics(Set t0114EnvTopics) {
 		this.t0114EnvTopics = t0114EnvTopics;
 	}
-
+/*
 	public Set getT011ObjDatas() {
 		return t011ObjDatas;
 	}
