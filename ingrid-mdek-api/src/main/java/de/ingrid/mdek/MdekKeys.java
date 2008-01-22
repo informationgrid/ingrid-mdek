@@ -205,12 +205,15 @@ public class MdekKeys {
     /** Value: List of Strings */
     public final static String LEGISLATIONS = "legislations";
 
-    // 
-    // ENVIRONMENT TOPICS / CATEGORIES
+    // ENVIRONMENT-TOPICS / -CATEGORIES
     /** Value: List of Strings */
     public final static String ENV_CATEGORIES = "env-categories";
     /** Value: List of Strings */
     public final static String ENV_TOPICS = "env-topics";
+
+    // TOPIC-CATEGORIES
+    /** Value: List of Integer */
+    public final static String TOPIC_CATEGORIES = "topic-categories";
 
     // DATA FORMATS
     /** Value: List of IngridDocs */

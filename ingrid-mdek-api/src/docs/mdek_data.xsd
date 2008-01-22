@@ -72,6 +72,7 @@
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
 			<xs:element name="env-categories" type="STRING_LIST"/>
 			<xs:element name="env-topics" type="STRING_LIST"/>
+			<xs:element name="topic-categories" type="INTEGER_LIST"/>
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
 	</xs:complexType>
@@ -152,6 +153,11 @@
 	<xs:complexType name="STRING_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="STRING" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="INTEGER_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="INTEGER" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="GEO_MAP">
