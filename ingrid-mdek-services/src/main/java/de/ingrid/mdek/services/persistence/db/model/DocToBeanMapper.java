@@ -44,6 +44,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
 	private IGenericDao<IEntity> daoT0112MediaOption;
+	private IGenericDao<IEntity> daoT0114EnvCategory;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -69,6 +70,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT015Legist = daoFactory.getDao(T015Legist.class);
 		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
 		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
+		daoT0114EnvCategory = daoFactory.getDao(T0114EnvCategory.class);
 	}
 
 	/**
@@ -142,6 +144,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT015Legists(oDocIn, oIn);
 			updateT0110AvailFormats(oDocIn, oIn);
 			updateT0112MediaOptions(oDocIn, oIn);
+			updateT0114EnvCategorys(oDocIn, oIn);
 		}			
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -711,5 +714,39 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			daoSearchtermObj.makeTransient(ref);
 		}		
+	}
+
+	private T0114EnvCategory mapT0114EnvCategory(T01Object oFrom,
+			String name,
+			T0114EnvCategory ref,
+			int line)
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setName(name);
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT0114EnvCategorys(IngridDocument oDocIn, T01Object oIn) {
+		List<String> refNames = (List) oDocIn.get(MdekKeys.ENV_CATEGORIES);
+		if (refNames == null) {
+			refNames = new ArrayList<String>(0);
+		}
+		Set<T0114EnvCategory> refs = oIn.getT0114EnvCategorys();
+		ArrayList<T0114EnvCategory> refs_unprocessed = new ArrayList<T0114EnvCategory>(refs);
+		// remove all !
+		for (T0114EnvCategory ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT0114EnvCategory.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (String refName : refNames) {
+			// add all as new ones
+			T0114EnvCategory ref = mapT0114EnvCategory(oIn, refName, new T0114EnvCategory(), line);
+			refs.add(ref);
+			line++;
+		}
 	}
 }

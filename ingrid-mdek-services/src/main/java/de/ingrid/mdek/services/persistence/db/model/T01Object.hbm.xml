@@ -89,13 +89,13 @@
          <key column="obj_id"/>
          <one-to-many class="T0113DatasetReference" not-found="ignore"/>
       </set>
-<!--
       <set name="t0114EnvCategorys" order-by="line" table="t0114_env_category"
            inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T0114EnvCategory" not-found="ignore"/>
       </set>
+<!--
       <set name="t0114EnvTopics" order-by="line" table="t0114_env_topic" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
