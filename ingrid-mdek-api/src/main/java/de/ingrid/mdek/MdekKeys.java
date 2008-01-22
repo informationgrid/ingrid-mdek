@@ -203,7 +203,7 @@ public class MdekKeys {
     
     // TECHNICAL DOMAIN MAP
     /** Value: List of IngridDocs  */
-    public final static String TECHNICAL_DOMAIN_MAPS = "technical-domain-maps";
+    public final static String TECHNICAL_DOMAIN_MAP = "technical-domain-map";
     
     /** Value: String  */
     public final static String TECHNICAL_BASE = "technical-base";

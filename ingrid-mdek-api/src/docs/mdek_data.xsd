@@ -74,7 +74,7 @@
 			<xs:element name="env-topics" type="STRING_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
-			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_LIST"/>
+			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_MAP"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -255,11 +255,6 @@
 			<xs:element name="referencesystem-id" type="xs:integer"/>
 			<xs:element name="pos-accuracy-vertical" type="xs:double"/>
 			<xs:element name="keyc-incl-w-dataset" type="xs:integer"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_MAP_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="TECHNICAL_DOMAIN_MAP_MAP" type="TECHNICAL_DOMAIN_MAP_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="DATA_FORMAT_LIST">
