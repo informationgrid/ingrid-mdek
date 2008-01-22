@@ -205,6 +205,11 @@ public class MdekKeys {
     /** Value: List of Strings */
     public final static String LEGISLATIONS = "legislations";
 
+    // 
+    // ENVIRONMENT TOPICS / CATEGORIES
+    /** Value: List of Strings */
+    public final static String ENV_CATEGORIES = "env-categories";
+
     // DATA FORMATS
     /** Value: List of IngridDocs */
     public final static String DATA_FORMATS = "data-formats";

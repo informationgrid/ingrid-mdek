@@ -70,6 +70,7 @@
 			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
 			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
+			<xs:element name="env-categories" type="ENV_CATEGORY_LIST"/>
 			
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 		</xs:all>
@@ -240,6 +241,11 @@
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="LEGISLATION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="STRING" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ENV_CATEGORY_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="STRING" type="xs:string"/>
 		</xs:sequence>

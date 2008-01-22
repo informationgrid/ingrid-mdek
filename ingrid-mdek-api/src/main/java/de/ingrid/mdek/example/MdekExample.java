@@ -636,6 +636,13 @@ class MdekThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.MEDIUM_OPTIONS, docList);
 
+		// add entry to ENV_CATEGORIES
+		strList = (List<String>) oDocIn.get(MdekKeys.ENV_CATEGORIES);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST NEW T0114EnvCategory entry");
+		oDocIn.put(MdekKeys.ENV_CATEGORIES, strList);
+
+
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
@@ -695,31 +702,39 @@ class MdekThread extends Thread {
 
 			// EXPORTS wieder wie vorher !
 			strList = (List<String>) oRefetchedDoc.get(MdekKeys.EXPORTS);
-			if (strList != null && strList.size() > 1) {
+			if (strList != null && strList.size() > 0) {
 				strList.remove(strList.size()-1);
 				oDocIn.put(MdekKeys.EXPORTS, strList);				
 			}
 
 			// LEGISLATIONS wieder wie vorher !
 			strList = (List<String>) oRefetchedDoc.get(MdekKeys.LEGISLATIONS);
-			if (strList != null && strList.size() > 1) {
+			if (strList != null && strList.size() > 0) {
 				strList.remove(strList.size()-1);
 				oDocIn.put(MdekKeys.LEGISLATIONS, strList);				
 			}
 
 			// DATA_FORMATS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_FORMATS);
-			if (docList != null && docList.size() > 1) {
+			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oDocIn.put(MdekKeys.DATA_FORMATS, docList);				
 			}
 
 			// MEDIUM_OPTIONS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.MEDIUM_OPTIONS);
-			if (docList != null && docList.size() > 1) {
+			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oDocIn.put(MdekKeys.MEDIUM_OPTIONS, docList);				
 			}
+
+			// ENV_CATEGORIES wieder wie vorher !
+			strList = (List<String>) oRefetchedDoc.get(MdekKeys.ENV_CATEGORIES);
+			if (strList != null && strList.size() > 0) {
+				strList.remove(strList.size()-1);
+				oDocIn.put(MdekKeys.ENV_CATEGORIES, strList);				
+			}
+
 
 			// store
 			System.out.println("STORE");
@@ -974,6 +989,11 @@ class MdekThread extends Thread {
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
+		}
+		strList = (List<String>) o.get(MdekKeys.ENV_CATEGORIES);
+		if (strList != null) {
+			System.out.println("  Env Categories: " + strList.size() + " entries");
+			System.out.println("   " + strList);
 		}
 	}
 
