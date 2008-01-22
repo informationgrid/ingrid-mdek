@@ -73,8 +73,11 @@
 			<xs:element name="env-categories" type="STRING_LIST"/>
 			<xs:element name="env-topics" type="STRING_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
+			
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
+
 			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_MAP"/>
+			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -316,6 +319,24 @@
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
 			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_DATASET_MAP">
+		<xs:sequence>
+			<xs:element name="method" type="xs:string"/>
+			<xs:element name="description-of-tech-domain" type="xs:string"/>
+			<xs:element name="parameters" type="TECHNICAL_DOMAIN_DATASET_PARA_LIST"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_DATASET_PARA_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="TECHNICAL_DOMAIN_DATASET_PARA_MAP" type="TECHNICAL_DOMAIN_DATASET_PARA_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_DATASET_PARA_MAP">
+		<xs:sequence>
+			<xs:element name="parameter" type="xs:string"/>
+			<xs:element name="supplementary-information" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

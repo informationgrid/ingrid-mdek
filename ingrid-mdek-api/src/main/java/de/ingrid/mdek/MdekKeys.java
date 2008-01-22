@@ -228,7 +228,19 @@ public class MdekKeys {
     /** Value: Integer  */
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
     
-	
+    // TECHNICAL DOMAIN DATASET
+    /** Value: IngridDocument encapsulating all DATASET data */
+    public final static String TECHNICAL_DOMAIN_DATASET = "technical-domain-dataset";
+    /** Value: String  */
+    public final static String METHOD = "method";
+    /** Value: String  */
+    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+    /** Value: List of IngridDocs  */
+    public final static String PARAMETERS = "parameters";
+    /** Value: String  */
+    public final static String PARAMETER = "parameter";
+    /** Value: String  */
+    public final static String SUPPLEMENTARY_INFORMATION = "supplementary-information";
 	
 
     // LEGISLATIONS
