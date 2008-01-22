@@ -120,6 +120,10 @@ public class BeanToDocMapper implements IMapper {
 			mapT0114EnvCategorys(o.getT0114EnvCategorys(), objectDoc);
 			mapT0114EnvTopics(o.getT0114EnvTopics(), objectDoc);
 			mapT011ObjTopicCats(o.getT011ObjTopicCats(), objectDoc);
+
+			// technical domain dateset -> mapping order is important !
+			mapT011ObjData(o.getT011ObjDatas(), objectDoc);
+			mapT011ObjDataParas(o.getT011ObjDataParas(), objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -539,7 +543,6 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-
 	private IngridDocument mapT0112MediaOption(T0112MediaOption ref, IngridDocument refDoc) {
 		if (ref == null) {
 			return refDoc;
@@ -642,6 +645,55 @@ public class BeanToDocMapper implements IMapper {
 			refList.add(ref.getTopicCategory());				
 		}
 		objectDoc.put(MdekKeys.TOPIC_CATEGORIES, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT011ObjData(T011ObjData ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.METHOD, ref.getBase());
+		refDoc.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, ref.getDescription());
+
+		return refDoc;
+	}
+	private IngridDocument mapT011ObjData(Set<T011ObjData> refs, IngridDocument objectDoc) {
+		if (refs == null || refs.size() == 0) {
+			return objectDoc;
+		}
+
+		IngridDocument domainDoc = new IngridDocument();
+		mapT011ObjData(refs.iterator().next(), domainDoc);
+		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, domainDoc);
+		
+		return objectDoc;
+	}
+	private IngridDocument mapT011ObjDataPara(T011ObjDataPara ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.PARAMETER, ref.getParameter());
+		refDoc.put(MdekKeys.SUPPLEMENTARY_INFORMATION, ref.getUnit());
+
+		return refDoc;
+	}
+	private IngridDocument mapT011ObjDataParas(Set<T011ObjDataPara> refs, IngridDocument objectDoc) {
+		if (refs == null || refs.size() == 0) {
+			return objectDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjDataPara ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT011ObjDataPara(ref, refDoc);
+			refList.add(refDoc);
+		}
+
+		IngridDocument domainDoc = (IngridDocument) objectDoc.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
+		domainDoc.put(MdekKeys.PARAMETERS, refList);
 		
 		return objectDoc;
 	}
