@@ -122,6 +122,9 @@ public class BeanToDocMapper implements IMapper {
 			mapT0114EnvTopics(o.getT0114EnvTopics(), objectDoc);
 			mapT011ObjTopicCats(o.getT011ObjTopicCats(), objectDoc);
 
+			// technical domain project
+			mapT011ObjProject(o.getT011ObjProjects(), objectDoc);
+
 			// technical domain dateset -> mapping order is important !
 			mapT011ObjData(o.getT011ObjDatas(), objectDoc);
 			mapT011ObjDataParas(o.getT011ObjDataParas(), objectDoc);
@@ -695,6 +698,29 @@ public class BeanToDocMapper implements IMapper {
 
 		IngridDocument domainDoc = (IngridDocument) objectDoc.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 		domainDoc.put(MdekKeys.PARAMETERS, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT011ObjProject(T011ObjProject ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.LEADER_DESCRIPTION, ref.getLeader());
+		refDoc.put(MdekKeys.MEMBER_DESCRIPTION, ref.getMember());
+		refDoc.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, ref.getDescription());
+
+		return refDoc;
+	}
+	private IngridDocument mapT011ObjProject(Set<T011ObjProject> refs, IngridDocument objectDoc) {
+		if (refs == null || refs.size() == 0) {
+			return objectDoc;
+		}
+
+		IngridDocument domainDoc = new IngridDocument();
+		mapT011ObjProject(refs.iterator().next(), domainDoc);
+		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_PROJECT, domainDoc);
 		
 		return objectDoc;
 	}

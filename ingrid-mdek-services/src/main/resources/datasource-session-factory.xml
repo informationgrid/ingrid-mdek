@@ -60,7 +60,9 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoTopicCat.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoVector.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjLiterature.hbm.xml</value>
+-->
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjProject.hbm.xml</value>
+<!--
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServ.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpConnpoint.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpDepends.hbm.xml</value>

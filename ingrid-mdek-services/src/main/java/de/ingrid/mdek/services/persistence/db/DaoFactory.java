@@ -30,6 +30,7 @@ import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
@@ -107,6 +108,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjData>(_sessionFactory, T011ObjData.class);
 		} else if (clazz.isAssignableFrom(T011ObjDataPara.class)) {
 			dao = new GenericHibernateDao<T011ObjDataPara>(_sessionFactory, T011ObjDataPara.class);
+		} else if (clazz.isAssignableFrom(T011ObjProject.class)) {
+			dao = new GenericHibernateDao<T011ObjProject>(_sessionFactory, T011ObjProject.class);
 		} 
 
         return dao;

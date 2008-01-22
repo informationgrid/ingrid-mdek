@@ -50,6 +50,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjTopicCat;
 	private IGenericDao<IEntity> daoT011ObjData;
 	private IGenericDao<IEntity> daoT011ObjDataPara;
+	private IGenericDao<IEntity> daoT011ObjProject;
 	
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -81,6 +82,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjTopicCat = daoFactory.getDao(T011ObjTopicCat.class);
 		daoT011ObjData = daoFactory.getDao(T011ObjData.class);
 		daoT011ObjDataPara = daoFactory.getDao(T011ObjDataPara.class);
+		daoT011ObjProject = daoFactory.getDao(T011ObjProject.class);
 	}
 
 	/**
@@ -159,6 +161,9 @@ public class DocToBeanMapper implements IMapper {
 			updateT0114EnvCategorys(oDocIn, oIn);
 			updateT0114EnvTopics(oDocIn, oIn);
 			updateT011ObjTopicCats(oDocIn, oIn);
+
+			// technical domain project
+			updateT011ObjProject(oDocIn, oIn);
 
 			// technical domain dataset
 			updateT011ObjData(oDocIn, oIn);
@@ -884,10 +889,9 @@ public class DocToBeanMapper implements IMapper {
 			daoT011ObjData.makeTransient(ref);			
 		}		
 		// and add new one !
-		IngridDocument refDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
-		if (refDoc != null) {
-			// add all as new ones
-			T011ObjData ref = mapT011ObjData(oIn, refDoc, new T011ObjData());
+		IngridDocument domainDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
+		if (domainDoc != null) {
+			T011ObjData ref = mapT011ObjData(oIn, domainDoc, new T011ObjData());
 			refs.add(ref);
 		}
 	}
@@ -928,6 +932,34 @@ public class DocToBeanMapper implements IMapper {
 				refs.add(ref);
 				line++;
 			}
+		}
+	}
+
+	private T011ObjProject mapT011ObjProject(T01Object oFrom,
+			IngridDocument refDoc,
+			T011ObjProject ref) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setLeader(refDoc.getString(MdekKeys.LEADER_DESCRIPTION));
+		ref.setMember(refDoc.getString(MdekKeys.MEMBER_DESCRIPTION));
+		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
+
+		return ref;
+	}
+	private void updateT011ObjProject(IngridDocument oDocIn, T01Object oIn) {
+		Set<T011ObjProject> refs = oIn.getT011ObjProjects();
+		ArrayList<T011ObjProject> refs_unprocessed = new ArrayList<T011ObjProject>(refs);
+		// remove all !
+		for (T011ObjProject ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjProject.makeTransient(ref);			
+		}		
+		// and add new one !
+		IngridDocument domainDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
+		if (domainDoc != null) {
+			T011ObjProject ref = mapT011ObjProject(oIn, domainDoc, new T011ObjProject());
+			refs.add(ref);
 		}
 	}
 }
