@@ -42,6 +42,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT0113DatasetReference;
 	private IGenericDao<IEntity> daoT014InfoImpart;
 	private IGenericDao<IEntity> daoT011ObjGeo;
+	private IGenericDao<IEntity> daoT011ObjGeoKeyc;
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
 	private IGenericDao<IEntity> daoT0112MediaOption;
@@ -540,10 +541,6 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	private void updateT011ObjGeos(IngridDocument oDocIn, T01Object oIn) {
-		IngridDocument refDoc = (IngridDocument)oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
-		if (refDoc == null) {
-			return;
-		}
 		Set<T011ObjGeo> refs = oIn.getT011ObjGeos();
 		ArrayList<T011ObjGeo> refs_unprocessed = new ArrayList<T011ObjGeo>(refs);
 		// remove all !
@@ -551,26 +548,68 @@ public class DocToBeanMapper implements IMapper {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
 			daoT011ObjGeo.makeTransient(ref);			
-		}		
-		// and the new one, should be only one, because of the 1:1 relation of tables 
-		T011ObjGeo ref = new T011ObjGeo();
-		ref.setObjId(oIn.getId());
-		ref.setSpecialBase(refDoc.getString(MdekKeys.TECHNICAL_BASE));
-		ref.setDataBase(refDoc.getString(MdekKeys.DATA));
-		ref.setMethod(refDoc.getString(MdekKeys.METHOD_OF_PRODUCTION));
-		ref.setCoord(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
-		ref.setRecExact((Double)refDoc.get(MdekKeys.RESOLUTION));
-		ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
-		ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
-		ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
-		ref.setReferencesystemId((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
-		ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
-		ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
+		}
 		
-		// map 1:N relations
+		IngridDocument refDoc = (IngridDocument)oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
+		if (refDoc != null) {
+			// and the new one, should be only one, because of the 1:1 relation of tables 
+			T011ObjGeo ref = new T011ObjGeo();
+			ref.setObjId(oIn.getId());
+			ref.setSpecialBase(refDoc.getString(MdekKeys.TECHNICAL_BASE));
+			ref.setDataBase(refDoc.getString(MdekKeys.DATA));
+			ref.setMethod(refDoc.getString(MdekKeys.METHOD_OF_PRODUCTION));
+			ref.setCoord(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
+			ref.setRecExact((Double)refDoc.get(MdekKeys.RESOLUTION));
+			ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
+			ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
+			ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
+			ref.setReferencesystemId((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
+			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
+			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
+			
+			// save the object and get ID from database (cascading insert do not work??)
+			daoT011ObjGeo.makePersistent(ref);
+			
+			// map 1:N relations
+			updateT011ObjGeoKeycs(refDoc, ref);
+			refs.add(ref);
+		}
 		
-		refs.add(ref);
 	}
+	
+	private void updateT011ObjGeoKeycs(IngridDocument docIn, T011ObjGeo in) {
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.KEY_CATALOG_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T011ObjGeoKeyc> refs = in.getT011ObjGeoKeycs();
+		ArrayList<T011ObjGeoKeyc> refs_unprocessed = new ArrayList<T011ObjGeoKeyc>(refs);
+		// remove all !
+		for (T011ObjGeoKeyc ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjGeoKeyc.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T011ObjGeoKeyc ref = mapT011ObjGeoKeyc(in, refDoc, new T011ObjGeoKeyc(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+	private T011ObjGeoKeyc mapT011ObjGeoKeyc(T011ObjGeo in, IngridDocument refDoc, T011ObjGeoKeyc ref, int line) {
+		ref.setObjGeoId(in.getId());
+		ref.setSubjectCat((String) refDoc.get(MdekKeys.SUBJECT_CAT));
+		ref.setKeyDate((String) refDoc.get(MdekKeys.KEY_DATE));
+		ref.setEdition((String) refDoc.get(MdekKeys.EDITION));
+		ref.setLine(line);
+
+		return ref;
+	}
+
 	private T015Legist mapT015Legist(T01Object oFrom,
 			String name,
 			T015Legist ref, 

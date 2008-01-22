@@ -20,12 +20,12 @@
       <property name="posAccuracyVertical" type="double" column="pos_accuracy_vertical"/>
       <property name="keycInclWDataset" type="integer" column="keyc_incl_w_dataset"/>
 
-<!-- 
       <set name="t011ObjGeoKeycs" order-by="line" table="t011_obj_geo_keyc" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoKeyc" not-found="ignore"/>
       </set>
+<!-- 
       <set name="t011ObjGeoScales" order-by="line" table="t011_obj_geo_scale"
            inverse="true"
            cascade="all-delete-orphan">

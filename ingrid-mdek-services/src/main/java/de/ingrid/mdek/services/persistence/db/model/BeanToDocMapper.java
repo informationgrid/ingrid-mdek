@@ -504,6 +504,26 @@ public class BeanToDocMapper implements IMapper {
 
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAP, refDoc);
 		
+		// add key catalog
+		mapT011ObjGeoKeycs(ref.getT011ObjGeoKeycs(), refDoc);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT011ObjGeoKeycs(Set<T011ObjGeoKeyc> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjGeoKeyc ref : refs) {
+			IngridDocument doc = new IngridDocument();
+			doc.put(MdekKeys.SUBJECT_CAT, ref.getSubjectCat());
+			doc.put(MdekKeys.KEY_DATE, ref.getKeyDate());
+			doc.put(MdekKeys.EDITION, ref.getEdition());
+			locList.add(doc);					
+		}
+		objectDoc.put(MdekKeys.KEY_CATALOG_LIST, locList);
+		
 		return objectDoc;
 	}
 
