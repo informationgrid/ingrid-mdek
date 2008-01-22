@@ -65,7 +65,9 @@ public class T01Object implements IEntity {
 /*
 	private Set t011ObjDatas = new HashSet();
 	private Set t011ObjDataParas = new HashSet();
+*/
 	private Set t011ObjGeos = new HashSet();
+/*
 	private Set t011ObjLiteratures = new HashSet();
 	private Set t011ObjProjects = new HashSet();
 	private Set t011ObjServs = new HashSet();
@@ -520,6 +522,7 @@ public class T01Object implements IEntity {
 	public void setT011ObjDataParas(Set t011ObjDataParas) {
 		this.t011ObjDataParas = t011ObjDataParas;
 	}
+*/
 
 	public Set getT011ObjGeos() {
 		return t011ObjGeos;
@@ -528,7 +531,7 @@ public class T01Object implements IEntity {
 	public void setT011ObjGeos(Set t011ObjGeos) {
 		this.t011ObjGeos = t011ObjGeos;
 	}
-
+/*
 	public Set getT011ObjLiteratures() {
 		return t011ObjLiteratures;
 	}

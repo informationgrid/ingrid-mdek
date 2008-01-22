@@ -25,6 +25,7 @@ import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
 import de.ingrid.mdek.services.persistence.db.model.T0114EnvCategory;
 import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
@@ -86,6 +87,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T0113DatasetReference>(_sessionFactory, T0113DatasetReference.class);
 		} else if (clazz.isAssignableFrom(T014InfoImpart.class)) {
 			dao = new GenericHibernateDao<T014InfoImpart>(_sessionFactory, T014InfoImpart.class);
+		} else if (clazz.isAssignableFrom(T011ObjGeo.class)) {
+			dao = new GenericHibernateDao<T011ObjGeo>(_sessionFactory, T011ObjGeo.class);
 		} else if (clazz.isAssignableFrom(T015Legist.class)) {
 			dao = new GenericHibernateDao<T015Legist>(_sessionFactory, T015Legist.class);
 		} else if (clazz.isAssignableFrom(T0110AvailFormat.class)) {
