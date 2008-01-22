@@ -54,7 +54,7 @@ public class SearchtermValueDaoHibernate
 		Session session = getSession();
 
 		String qString = "from SearchtermObj termObj " +
-			"left join fetch termObj.SearchtermValue termVal " +
+			"left join fetch termObj.searchtermValue termVal " +
 			"where termVal.type = '" + SearchtermType.FREI.getDbValue() + "' " +
 			"and termVal.term = ? " +
 			"and termObj.objId = ?";
