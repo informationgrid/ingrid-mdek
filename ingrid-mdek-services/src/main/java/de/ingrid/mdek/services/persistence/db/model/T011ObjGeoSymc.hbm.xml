@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T011ObjGeoSymc" table="t011_obj_geo_symc">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objGeoId" type="long" column="obj_geo_id"/>
+      <property name="line" type="integer" column="line"/>
+      <property name="symbolCat" type="string" column="symbol_cat"/>
+      <property name="symbolDate" type="string" column="symbol_date"/>
+      <property name="edition" type="string" column="edition"/>
+
+   </class>
+
+</hibernate-mapping>

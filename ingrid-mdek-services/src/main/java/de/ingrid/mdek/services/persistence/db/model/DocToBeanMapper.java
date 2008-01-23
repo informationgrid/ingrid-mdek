@@ -44,6 +44,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjGeo;
 	private IGenericDao<IEntity> daoT011ObjGeoKeyc;
 	private IGenericDao<IEntity> daoT011ObjGeoScale;
+	private IGenericDao<IEntity> daoT011ObjGeoSymc;
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
 	private IGenericDao<IEntity> daoT0112MediaOption;
@@ -76,6 +77,9 @@ public class DocToBeanMapper implements IMapper {
 		daoT0113DatasetReference = daoFactory.getDao(T0113DatasetReference.class);
 		daoT014InfoImpart = daoFactory.getDao(T014InfoImpart.class);
 		daoT011ObjGeo = daoFactory.getDao(T011ObjGeo.class);
+		daoT011ObjGeoKeyc = daoFactory.getDao(T011ObjGeoKeyc.class);
+		daoT011ObjGeoScale = daoFactory.getDao(T011ObjGeoScale.class);
+		daoT011ObjGeoSymc = daoFactory.getDao(T011ObjGeoSymc.class);
 		daoT015Legist = daoFactory.getDao(T015Legist.class);
 		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
 		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
@@ -574,6 +578,7 @@ public class DocToBeanMapper implements IMapper {
 			// map 1:N relations
 			updateT011ObjGeoKeycs(refDoc, ref);
 			updateT011ObjGeoScales(refDoc, ref);
+			updateT011ObjGeoSymcs(refDoc, ref);
 			
 			refs.add(ref);
 		}
@@ -635,6 +640,34 @@ public class DocToBeanMapper implements IMapper {
 			line++;
 		}
 	}	
+
+	private void updateT011ObjGeoSymcs(IngridDocument docIn, T011ObjGeo in) {
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.SYMBOL_CATALOG_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T011ObjGeoSymc> refs = in.getT011ObjGeoSymcs();
+		ArrayList<T011ObjGeoSymc> refs_unprocessed = new ArrayList<T011ObjGeoSymc>(refs);
+		// remove all !
+		for (T011ObjGeoSymc ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjGeoSymc.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T011ObjGeoSymc ref = new T011ObjGeoSymc();
+			ref.setObjGeoId(in.getId());
+			ref.setSymbolCat(refDoc.getString(MdekKeys.SYMBOL_CAT));
+			ref.setSymbolDate(refDoc.getString(MdekKeys.SYMBOL_DATE));
+			ref.setEdition(refDoc.getString(MdekKeys.SYMBOL_EDITION));
+			ref.setLine(line);
+			refs.add(ref);
+			line++;
+		}
+	}
 	
 	private T015Legist mapT015Legist(T01Object oFrom,
 			String name,
