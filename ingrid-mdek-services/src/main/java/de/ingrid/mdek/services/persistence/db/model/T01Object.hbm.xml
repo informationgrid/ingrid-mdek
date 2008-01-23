@@ -127,13 +127,11 @@
          <key column="obj_id"/>
          <one-to-many class="T011ObjProject" not-found="ignore"/>
       </set>
-<!--
       <set name="t011ObjServs" table="t011_obj_serv" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjServ" not-found="ignore"/>
       </set>
--->
       <set name="t011ObjTopicCats" table="t011_obj_topic_cat" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>

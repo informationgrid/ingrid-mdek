@@ -125,6 +125,8 @@ public class BeanToDocMapper implements IMapper {
 			mapT011ObjGeo(o.getT011ObjGeos(), objectDoc);
 			// technical domain document
 			mapT011ObjLiterature(o.getT011ObjLiteratures(), objectDoc);
+			// technical domain service
+			mapT011ObjServ(o.getT011ObjServs(), objectDoc);
 			// technical domain project
 			mapT011ObjProject(o.getT011ObjProjects(), objectDoc);
 			// technical domain dataset
@@ -863,6 +865,31 @@ public class BeanToDocMapper implements IMapper {
 		IngridDocument domainDoc = new IngridDocument();
 		mapT011ObjProject(refs.iterator().next(), domainDoc);
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_PROJECT, domainDoc);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT011ObjServ(T011ObjServ ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.SERVICE_TYPE, ref.getType());
+		refDoc.put(MdekKeys.SYSTEM_HISTORY, ref.getHistory());
+		refDoc.put(MdekKeys.SYSTEM_ENVIRONMENT, ref.getEnvironment());
+		refDoc.put(MdekKeys.DATABASE_OF_SYSTEM, ref.getBase());
+		refDoc.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, ref.getDescription());
+
+		return refDoc;
+	}
+	private IngridDocument mapT011ObjServ(Set<T011ObjServ> refs, IngridDocument objectDoc) {
+		if (refs == null || refs.size() == 0) {
+			return objectDoc;
+		}
+
+		IngridDocument domainDoc = new IngridDocument();
+		mapT011ObjServ(refs.iterator().next(), domainDoc);
+		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, domainDoc);
 		
 		return objectDoc;
 	}

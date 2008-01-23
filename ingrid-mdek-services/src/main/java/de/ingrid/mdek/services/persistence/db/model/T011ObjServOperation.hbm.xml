@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T011ObjServOperation" table="t011_obj_serv_operation">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objServId" type="long" column="obj_serv_id"/>
+      <property name="line" type="integer" column="line"/>
+      <property name="name" type="string" column="name"/>
+      <property name="descr" type="string" column="descr"/>
+      <property name="invocationName" type="string" column="invocation_name"/>
+
+      <set name="t011ObjServOpConnpoints" order-by="line"
+           table="t011_obj_serv_op_connpoint"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_serv_op_id"/>
+         <one-to-many class="T011ObjServOpConnpoint" not-found="ignore"/>
+      </set>
+      <set name="t011ObjServOpDependss" order-by="line" table="t011_obj_serv_op_depends"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_serv_op_id"/>
+         <one-to-many class="T011ObjServOpDepends" not-found="ignore"/>
+      </set>
+      <set name="t011ObjServOpParas" order-by="line" table="t011_obj_serv_op_para"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_serv_op_id"/>
+         <one-to-many class="T011ObjServOpPara" not-found="ignore"/>
+      </set>
+      <set name="t011ObjServOpPlatforms" order-by="line" table="t011_obj_serv_op_platform"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_serv_op_id"/>
+         <one-to-many class="T011ObjServOpPlatform" not-found="ignore"/>
+      </set>
+   </class>
+
+</hibernate-mapping>

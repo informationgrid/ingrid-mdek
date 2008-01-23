@@ -58,6 +58,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjDataPara;
 	private IGenericDao<IEntity> daoT011ObjProject;
 	private IGenericDao<IEntity> daoT011ObjLiterature;
+	private IGenericDao<IEntity> daoT011ObjServ;
 	
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -97,6 +98,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjDataPara = daoFactory.getDao(T011ObjDataPara.class);
 		daoT011ObjProject = daoFactory.getDao(T011ObjProject.class);
 		daoT011ObjLiterature = daoFactory.getDao(T011ObjLiterature.class);
+		daoT011ObjServ = daoFactory.getDao(T011ObjServ.class);
 	}
 
 	/**
@@ -176,9 +178,11 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjTopicCats(oDocIn, oIn);
 
 			// technical domain map
-			updateT011ObjGeos(oDocIn, oIn);
+			updateT011ObjGeo(oDocIn, oIn);
 			// technical domain literature
 			updateT011ObjLiterature(oDocIn, oIn);
+			// technical domain service
+			updateT011ObjServ(oDocIn, oIn);
 			// technical domain project
 			updateT011ObjProject(oDocIn, oIn);
 			// technical domain dataset
@@ -554,7 +558,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 
-	private void updateT011ObjGeos(IngridDocument oDocIn, T01Object oIn) {
+	private void updateT011ObjGeo(IngridDocument oDocIn, T01Object oIn) {
 		Set<T011ObjGeo> refs = oIn.getT011ObjGeos();
 		ArrayList<T011ObjGeo> refs_unprocessed = new ArrayList<T011ObjGeo>(refs);
 		// remove all !
@@ -1185,6 +1189,41 @@ public class DocToBeanMapper implements IMapper {
 		IngridDocument domainDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
 		if (domainDoc != null) {
 			T011ObjProject ref = mapT011ObjProject(oIn, domainDoc, new T011ObjProject());
+			refs.add(ref);
+		}
+	}
+
+
+	private T011ObjServ mapT011ObjServ(T01Object oFrom,
+			IngridDocument refDoc,
+			T011ObjServ ref) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setType(refDoc.getString(MdekKeys.SERVICE_TYPE));
+		ref.setHistory(refDoc.getString(MdekKeys.SYSTEM_HISTORY));
+		ref.setEnvironment(refDoc.getString(MdekKeys.SYSTEM_ENVIRONMENT));
+		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
+		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
+
+		return ref;
+	}
+	private void updateT011ObjServ(IngridDocument oDocIn, T01Object oIn) {
+		Set<T011ObjServ> refs = oIn.getT011ObjServs();
+		ArrayList<T011ObjServ> refs_unprocessed = new ArrayList<T011ObjServ>(refs);
+		// remove all !
+		for (T011ObjServ ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjServ.makeTransient(ref);			
+		}		
+		// and add new one !
+		IngridDocument domainDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+		if (domainDoc != null) {
+			T011ObjServ ref = mapT011ObjServ(oIn, domainDoc, new T011ObjServ());
+
+			// save the object and get ID from database (cascading insert do not work??)
+			daoT011ObjServ.makePersistent(ref);
+			
 			refs.add(ref);
 		}
 	}

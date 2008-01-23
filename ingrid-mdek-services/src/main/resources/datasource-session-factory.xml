@@ -59,7 +59,6 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjLiterature.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjProject.hbm.xml</value>
-<!--
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServ.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpConnpoint.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpDepends.hbm.xml</value>
@@ -67,7 +66,6 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPlatform.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOperation.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServVersion.hbm.xml</value>
--->
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjTopicCat.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T014InfoImpart.hbm.xml</value>

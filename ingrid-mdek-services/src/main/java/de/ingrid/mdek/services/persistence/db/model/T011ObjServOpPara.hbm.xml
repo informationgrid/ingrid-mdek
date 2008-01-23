@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T011ObjServOpPara" table="t011_obj_serv_op_para">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objServOpId" type="long" column="obj_serv_op_id"/>
+      <property name="line" type="integer" column="line"/>
+      <property name="name" type="string" column="name"/>
+      <property name="direction" type="string" column="direction"/>
+      <property name="descr" type="string" column="descr"/>
+      <property name="optional" type="integer" column="optional"/>
+      <property name="repeatability" type="integer" column="repeatability"/>
+
+   </class>
+
+</hibernate-mapping>

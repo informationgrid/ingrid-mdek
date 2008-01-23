@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T011ObjServ" table="t011_obj_serv">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objId" type="long" column="obj_id"/>
+      <property name="type" type="string" column="type"/>
+      <property name="history" type="string" column="history"/>
+      <property name="environment" type="string" column="environment"/>
+      <property name="base" type="string" column="base"/>
+      <property name="description" type="string" column="description"/>
+
+      <set name="t011ObjServOperations" order-by="line" table="t011_obj_serv_operation"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_serv_id"/>
+         <one-to-many class="T011ObjServOperation" not-found="ignore"/>
+      </set>
+      <set name="t011ObjServVersions" order-by="line" table="t011_obj_serv_version"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_serv_id"/>
+         <one-to-many class="T011ObjServVersion" not-found="ignore"/>
+      </set>
+   </class>
+
+</hibernate-mapping>
