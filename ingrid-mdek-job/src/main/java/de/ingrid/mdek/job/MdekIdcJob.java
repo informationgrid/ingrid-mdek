@@ -254,6 +254,27 @@ public class MdekIdcJob extends MdekJob {
 		}
 	}
 
+	public IngridDocument getInitialObject(IngridDocument oDocIn) {
+		try {
+			daoObjectNode.beginTransaction();
+			
+			// take over "thesaurus" searchterms from parent
+			String parentUuid = oDocIn.getString(MdekKeys.PARENT_UUID);
+			if (parentUuid != null) {
+				List<IngridDocument> termDocs = daoObjectNode.getObjectThesaurusTerms(parentUuid);
+				oDocIn.put(MdekKeys.SUBJECT_TERMS, termDocs);
+			}
+
+			daoObjectNode.commitTransaction();
+			return oDocIn;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		try {
 			daoObjectNode.beginTransaction();
@@ -267,6 +288,8 @@ public class MdekIdcJob extends MdekJob {
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 
 			if (uuid == null) {
+				// NEW Object !
+
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
