@@ -250,6 +250,17 @@ public class MdekKeys {
     /** Value: Double  */
     public final static String RESOLUTION_SCAN = "resolution-scan";
     
+    // TECHNICAL DOMAIN MAP - SYMBOL CATALOG
+    /** Value: List of IngridDocs  */
+    public final static String SYMBOL_CATALOG_LIST = "symbol-catalog-list";
+    /** Value: String  */
+    public final static String SYMBOL_CAT = "symbol-cat";
+    /** Value: String  */
+    public final static String SYMBOL_DATE = "symbol-date";
+    /** Value: String  */
+    public final static String SYMBOL_EDITION = "symbol-edition";
+    
+    
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";
