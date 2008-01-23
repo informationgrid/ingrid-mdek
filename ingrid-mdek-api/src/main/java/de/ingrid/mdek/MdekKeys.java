@@ -312,21 +312,31 @@ public class MdekKeys {
     // TECHNICAL DOMAIN SERVICE
     /** Value: IngridDocument encapsulating all SERVICE data */
     public final static String TECHNICAL_DOMAIN_SERVICE = "technical-domain-service";
-    /** Value: String  */
+    /** Value: String */
     public final static String SERVICE_TYPE = "service-type";
-    /** Value: String  */
+    /** Value: String */
     public final static String SYSTEM_HISTORY = "system-history";
-    /** Value: String  */
+    /** Value: String */
     public final static String SYSTEM_ENVIRONMENT = "system-environment";
-    /** Value: String  */
+    /** Value: String */
     public final static String DATABASE_OF_SYSTEM = "database-of-system";
-    /** Value: String  */
     // defined below
+//    /** Value: String  */
 //    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+    // TECHNICAL DOMAIN SERVICE - VERSION
     /** Value: List of Strings  */
     public final static String SERVICE_VERSION_LIST = "service-version-list";
+    // TECHNICAL DOMAIN SERVICE - OPERATION
+    /** Value: List of IngridDocs  */
+    public final static String SERVICE_OPERATION_LIST = "service-operation-list";
+    /** Value: String */
+    public final static String SERVICE_OPERATION_NAME = "service-operation-name";
+    /** Value: String */
+    public final static String SERVICE_OPERATION_DESCRIPTION = "service-operation-description";
+    /** Value: String */
+    public final static String INVOCATION_NAME = "invocation-name";
 
-    
+
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";
@@ -345,6 +355,7 @@ public class MdekKeys {
     /** Value: String  */
     // defined above
 //    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+    // TECHNICAL DOMAIN DATASET - PARAMETERS
     /** Value: List of IngridDocs  */
     public final static String PARAMETERS = "parameters";
     /** Value: String  */

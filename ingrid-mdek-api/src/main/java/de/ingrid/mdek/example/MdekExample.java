@@ -784,6 +784,15 @@ class MdekThread extends Thread {
 		strList.add("TEST SERVICE_VERSION1");
 		strList.add("TEST SERVICE_VERSION2");
 		technicalDomain.put(MdekKeys.SERVICE_VERSION_LIST, strList);
+		// add TECHNICAL DOMAIN SERVICE - operations
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_OPERATION_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME, "TEST SERVICE_OPERATION_NAME");
+		testDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, "TEST SERVICE_OPERATION_DESCRIPTION");
+		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
 
 		// add TECHNICAL DOMAIN PROJECT
 		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
@@ -1273,8 +1282,15 @@ class MdekThread extends Thread {
 			System.out.println("    " + myDoc);								
 			strList = (List<String>) myDoc.get(MdekKeys.SERVICE_VERSION_LIST);
 			if (strList != null) {
-				System.out.println("    SERVICE - service versions: " + strList.size() + " entries");
+				System.out.println("    SERVICE - versions: " + strList.size() + " entries");
 				System.out.println("     " + strList);
+			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SERVICE_OPERATION_LIST);
+			if (docList != null) {
+				System.out.println("    SERVICE - operations: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("     " + doc);								
+				}			
 			}
 		}
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
