@@ -46,6 +46,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjGeoScale;
 	private IGenericDao<IEntity> daoT011ObjGeoSymc;
 	private IGenericDao<IEntity> daoT011ObjGeoSupplinfo;
+	private IGenericDao<IEntity> daoT011ObjGeoVector;
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
 	private IGenericDao<IEntity> daoT0112MediaOption;
@@ -82,6 +83,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjGeoScale = daoFactory.getDao(T011ObjGeoScale.class);
 		daoT011ObjGeoSymc = daoFactory.getDao(T011ObjGeoSymc.class);
 		daoT011ObjGeoSupplinfo = daoFactory.getDao(T011ObjGeoSupplinfo.class);
+		daoT011ObjGeoVector = daoFactory.getDao(T011ObjGeoVector.class);
 		daoT015Legist = daoFactory.getDao(T015Legist.class);
 		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
 		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
@@ -581,6 +583,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjGeoScales(refDoc, ref);
 			updateT011ObjGeoSymcs(refDoc, ref);
 			updateT011ObjGeoSupplinfos(refDoc, ref);
+			updateT011ObjGeoVectors(refDoc, ref);
 			
 			refs.add(ref);
 		}
@@ -588,10 +591,6 @@ public class DocToBeanMapper implements IMapper {
 	}
 	
 	private void updateT011ObjGeoKeycs(IngridDocument docIn, T011ObjGeo in) {
-		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.KEY_CATALOG_LIST);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
-		}
 		Set<T011ObjGeoKeyc> refs = in.getT011ObjGeoKeycs();
 		ArrayList<T011ObjGeoKeyc> refs_unprocessed = new ArrayList<T011ObjGeoKeyc>(refs);
 		// remove all !
@@ -600,26 +599,26 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			daoT011ObjGeoKeyc.makeTransient(ref);			
 		}		
-		// and add all new ones !
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			// add all as new ones
-			T011ObjGeoKeyc ref = new T011ObjGeoKeyc();
-			ref.setObjGeoId(in.getId());
-			ref.setSubjectCat(refDoc.getString(MdekKeys.SUBJECT_CAT));
-			ref.setKeyDate(refDoc.getString(MdekKeys.KEY_DATE));
-			ref.setEdition(refDoc.getString(MdekKeys.EDITION));
-			ref.setLine(line);
-			refs.add(ref);
-			line++;
+		
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.KEY_CATALOG_LIST);
+		if (refDocs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				T011ObjGeoKeyc ref = new T011ObjGeoKeyc();
+				ref.setObjGeoId(in.getId());
+				ref.setSubjectCat(refDoc.getString(MdekKeys.SUBJECT_CAT));
+				ref.setKeyDate(refDoc.getString(MdekKeys.KEY_DATE));
+				ref.setEdition(refDoc.getString(MdekKeys.EDITION));
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
 		}
 	}
 
 	private void updateT011ObjGeoScales(IngridDocument docIn, T011ObjGeo in) {
-		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.PUBLICATION_SCALE_LIST);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
-		}
 		Set<T011ObjGeoScale> refs = in.getT011ObjGeoScales();
 		ArrayList<T011ObjGeoScale> refs_unprocessed = new ArrayList<T011ObjGeoScale>(refs);
 		// remove all !
@@ -628,26 +627,26 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			daoT011ObjGeoScale.makeTransient(ref);			
 		}		
-		// and add all new ones !
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			// add all as new ones
-			T011ObjGeoScale ref = new T011ObjGeoScale();
-			ref.setObjGeoId(in.getId());
-			ref.setScale((Integer)refDoc.get(MdekKeys.SCALE));
-			ref.setResolutionGround((Double)refDoc.get(MdekKeys.RESOLUTION_GROUND));
-			ref.setResolutionScan((Double)refDoc.get(MdekKeys.RESOLUTION_SCAN));
-			ref.setLine(line);
-			refs.add(ref);
-			line++;
+		
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.PUBLICATION_SCALE_LIST);
+		if (refDocs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				T011ObjGeoScale ref = new T011ObjGeoScale();
+				ref.setObjGeoId(in.getId());
+				ref.setScale((Integer)refDoc.get(MdekKeys.SCALE));
+				ref.setResolutionGround((Double)refDoc.get(MdekKeys.RESOLUTION_GROUND));
+				ref.setResolutionScan((Double)refDoc.get(MdekKeys.RESOLUTION_SCAN));
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
 		}
 	}	
 
 	private void updateT011ObjGeoSymcs(IngridDocument docIn, T011ObjGeo in) {
-		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.SYMBOL_CATALOG_LIST);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
-		}
 		Set<T011ObjGeoSymc> refs = in.getT011ObjGeoSymcs();
 		ArrayList<T011ObjGeoSymc> refs_unprocessed = new ArrayList<T011ObjGeoSymc>(refs);
 		// remove all !
@@ -656,26 +655,26 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			daoT011ObjGeoSymc.makeTransient(ref);			
 		}		
-		// and add all new ones !
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			// add all as new ones
-			T011ObjGeoSymc ref = new T011ObjGeoSymc();
-			ref.setObjGeoId(in.getId());
-			ref.setSymbolCat(refDoc.getString(MdekKeys.SYMBOL_CAT));
-			ref.setSymbolDate(refDoc.getString(MdekKeys.SYMBOL_DATE));
-			ref.setEdition(refDoc.getString(MdekKeys.SYMBOL_EDITION));
-			ref.setLine(line);
-			refs.add(ref);
-			line++;
+		
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.SYMBOL_CATALOG_LIST);
+		if (refDocs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				T011ObjGeoSymc ref = new T011ObjGeoSymc();
+				ref.setObjGeoId(in.getId());
+				ref.setSymbolCat(refDoc.getString(MdekKeys.SYMBOL_CAT));
+				ref.setSymbolDate(refDoc.getString(MdekKeys.SYMBOL_DATE));
+				ref.setEdition(refDoc.getString(MdekKeys.SYMBOL_EDITION));
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
 		}
 	}
 	
 	private void updateT011ObjGeoSupplinfos(IngridDocument docIn, T011ObjGeo in) {
-		List<String> refStrs = (List<String>)docIn.get(MdekKeys.FEATURE_TYPE_LIST);
-		if (refStrs == null) {
-			refStrs = new ArrayList<String>(0);
-		}
 		Set<T011ObjGeoSupplinfo> refs = in.getT011ObjGeoSupplinfos();
 		ArrayList<T011ObjGeoSupplinfo> refs_unprocessed = new ArrayList<T011ObjGeoSupplinfo>(refs);
 		// remove all !
@@ -684,16 +683,47 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			daoT011ObjGeoSupplinfo.makeTransient(ref);			
 		}		
-		// and add all new ones !
-		int line = 1;
-		for (String refStr : refStrs) {
-			// add all as new ones
-			T011ObjGeoSupplinfo ref = new T011ObjGeoSupplinfo();
-			ref.setObjGeoId(in.getId());
-			ref.setFeatureType(refStr);
-			ref.setLine(line);
-			refs.add(ref);
-			line++;
+		
+		List<String> refStrs = (List<String>)docIn.get(MdekKeys.FEATURE_TYPE_LIST);
+		if (refStrs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (String refStr : refStrs) {
+				// add all as new ones
+				T011ObjGeoSupplinfo ref = new T011ObjGeoSupplinfo();
+				ref.setObjGeoId(in.getId());
+				ref.setFeatureType(refStr);
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
+		}
+	}	
+
+	private void updateT011ObjGeoVectors(IngridDocument docIn, T011ObjGeo in) {
+		Set<T011ObjGeoVector> refs = in.getT011ObjGeoVectors();
+		ArrayList<T011ObjGeoVector> refs_unprocessed = new ArrayList<T011ObjGeoVector>(refs);
+		// remove all !
+		for (T011ObjGeoVector ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjGeoVector.makeTransient(ref);			
+		}		
+		
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.GEO_VECTOR_LIST);
+		if (refDocs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				T011ObjGeoVector ref = new T011ObjGeoVector();
+				ref.setObjGeoId(in.getId());
+				ref.setGeometricObjectType((Integer)refDoc.get(MdekKeys.GEOMETRIC_OBJECT_TYPE));
+				ref.setGeometricObjectCount((Integer)refDoc.get(MdekKeys.GEOMETRIC_OBJECT_COUNT));
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
 		}
 	}	
 	

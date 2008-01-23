@@ -511,6 +511,8 @@ public class BeanToDocMapper implements IMapper {
 		mapT011ObjGeoSymcs(ref.getT011ObjGeoSymcs(), refDoc);
 		// add feature types
 		mapT011ObjGeoSupplinfos(ref.getT011ObjGeoSupplinfos(), refDoc);
+		// add vector formats geo vector list
+		mapT011ObjGeoVectors(ref.getT011ObjGeoVectors(), refDoc);
 		
 		return objectDoc;
 	}
@@ -578,6 +580,23 @@ public class BeanToDocMapper implements IMapper {
 		
 		return objectDoc;
 	}
+
+	private IngridDocument mapT011ObjGeoVectors(Set<T011ObjGeoVector> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjGeoVector ref : refs) {
+			IngridDocument doc = new IngridDocument();
+			doc.put(MdekKeys.GEOMETRIC_OBJECT_TYPE, ref.getGeometricObjectType());
+			doc.put(MdekKeys.GEOMETRIC_OBJECT_COUNT, ref.getGeometricObjectCount());
+			locList.add(doc);					
+		}
+		objectDoc.put(MdekKeys.GEO_VECTOR_LIST, locList);
+		
+		return objectDoc;
+	}
+	
 	
 	private IngridDocument mapT015Legists(Set<T015Legist> refs, IngridDocument objectDoc) {
 		if (refs == null) {

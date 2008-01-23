@@ -57,13 +57,13 @@
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoTopicCat" not-found="ignore"/>
       </set>
+ -->
       <set name="t011ObjGeoVectors" order-by="line" table="t011_obj_geo_vector"
            inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoVector" not-found="ignore"/>
       </set>
- -->
     </class>
 
 </hibernate-mapping>
