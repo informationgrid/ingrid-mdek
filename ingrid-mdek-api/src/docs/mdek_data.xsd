@@ -82,6 +82,7 @@
 			<xs:element name="technical-domain-project" type="TECHNICAL_DOMAIN_PROJECT_MAP"/>
 			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
 			<xs:element name="technical-domain-document" type="TECHNICAL_DOMAIN_DOCUMENT_MAP"/>
+			<xs:element name="comments" type="COMMENT_LIST"/>
 			
 		</xs:all>
 	</xs:complexType>
@@ -429,6 +430,18 @@
 		<xs:sequence>
 			<xs:element name="parameter" type="xs:string"/>
 			<xs:element name="supplementary-information" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="COMMENT_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="COMMENT_MAP" type="COMMENT_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="COMMENT_MAP">
+		<xs:sequence>
+			<xs:element name="comment" type="xs:string"/>
+			<xs:element name="create_uuid" type="xs:string"/>
+			<xs:element name="create_time" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

@@ -807,6 +807,14 @@ class MdekThread extends Thread {
 		technicalDomain.put(MdekKeys.PARAMETERS, docList);
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, technicalDomain);
 
+		// add OBJECT COMMENT
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.COMMENT_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMENT, "TEST " + MdekKeys.COMMENT);
+		testDoc.put(MdekKeys.CREATE_TIME, "12345678901234567");
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.COMMENT_LIST, docList);
 
 		// store
 		System.out.println("STORE");
@@ -929,6 +937,12 @@ class MdekThread extends Thread {
 			// TECHNICAL_DOMAIN_DATASET raus !
 			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 
+			// COMMENT wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.COMMENT_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.COMMENT_LIST, docList);				
+			}
 
 			// store
 			System.out.println("STORE");
@@ -1272,6 +1286,13 @@ class MdekThread extends Thread {
 		if (myDoc != null) {
 			System.out.println("  technical domain DATASET:");
 			System.out.println("    " + myDoc);								
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.COMMENT_LIST);
+		if (docList != null) {
+			System.out.println("  Object comments: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
 		}
 	}
 

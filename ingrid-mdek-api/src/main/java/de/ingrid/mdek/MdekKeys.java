@@ -309,7 +309,6 @@ public class MdekKeys {
     // defined below
     //public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
 
-
     // TECHNICAL DOMAIN SERVICE
     /** Value: IngridDocument encapsulating all SERVICE data */
     public final static String TECHNICAL_DOMAIN_SERVICE = "technical-domain-service";
@@ -327,7 +326,7 @@ public class MdekKeys {
     /** Value: List of Strings  */
     public final static String SERVICE_VERSION_LIST = "service-version-list";
 
-
+    
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";
@@ -441,6 +440,17 @@ public class MdekKeys {
     public final static String RESPONSIBLE_UUID = "responsible-uuid";
 
 
+    // COMMENTS
+    /** Value: List of IngridDocs */
+    public final static String COMMENT_LIST = "comment_list";
+    /** Value: String */
+    public final static String COMMENT = "comment";
+    /** Value: String */
+    public final static String CREATE_UUID = "create-uuid";
+    /** Value: String */
+    public final static String CREATE_TIME = "create-time";
+    
+    
     // ADDRESS DATA
     // ------------
 
@@ -480,6 +490,5 @@ public class MdekKeys {
 
     /** Value: String */
     public final static String RELATION_DATE_OF_LAST_MODIFICATION = "relation-date-of-last-modification";
-
 
 }
