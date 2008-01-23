@@ -386,6 +386,7 @@
 			<xs:element name="system-environment" type="xs:string"/>
 			<xs:element name="database-of-system" type="xs:string"/>
 			<xs:element name="description-of-tech-domain" type="xs:string"/>
+			<xs:element name="service-version-list" type="STRING_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_PROJECT_MAP">

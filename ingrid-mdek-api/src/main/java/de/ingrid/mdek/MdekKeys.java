@@ -324,6 +324,8 @@ public class MdekKeys {
     /** Value: String  */
     // defined below
 //    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+    /** Value: List of Strings  */
+    public final static String SERVICE_VERSION_LIST = "service-version-list";
 
 
     // TECHNICAL DOMAIN PROJECT
