@@ -947,6 +947,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT011ObjServOpPlatforms(ref.getT011ObjServOpPlatforms(), refDoc);
 			mapT011ObjServOpDependss(ref.getT011ObjServOpDependss(), refDoc);
 			mapT011ObjServOpConnpoints(ref.getT011ObjServOpConnpoints(), refDoc);
+			mapT011ObjServOpParas(ref.getT011ObjServOpParas(), refDoc);
 
 			refList.add(refDoc);
 		}
@@ -1001,5 +1002,34 @@ public class BeanToDocMapper implements IMapper {
 		inDoc.put(MdekKeys.CONNECT_POINT_LIST, refList);
 		
 		return inDoc;
+	}
+	private IngridDocument mapT011ObjServOpParas(Set<T011ObjServOpPara> refs, IngridDocument inDoc) {
+		if (refs == null || refs.size() == 0) {
+			return inDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjServOpPara ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT011ObjServOpPara(ref, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeys.PARAMETER_LIST, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapT011ObjServOpPara(T011ObjServOpPara ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.PARAMETER_NAME, ref.getName());
+		refDoc.put(MdekKeys.DIRECTION, ref.getDirection());
+		refDoc.put(MdekKeys.DESCRIPTION, ref.getDescr());
+		refDoc.put(MdekKeys.OPTIONALITY, ref.getOptional());
+		refDoc.put(MdekKeys.REPEATABILITY, ref.getRepeatability());
+
+		return refDoc;
 	}
 }

@@ -65,6 +65,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjServOpPlatform;
 	private IGenericDao<IEntity> daoT011ObjServOpDepends;
 	private IGenericDao<IEntity> daoT011ObjServOpConnpoint;
+	private IGenericDao<IEntity> daoT011ObjServOpPara;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -111,6 +112,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServOpPlatform = daoFactory.getDao(T011ObjServOpPlatform.class);
 		daoT011ObjServOpDepends = daoFactory.getDao(T011ObjServOpDepends.class);
 		daoT011ObjServOpConnpoint = daoFactory.getDao(T011ObjServOpConnpoint.class);
+		daoT011ObjServOpPara = daoFactory.getDao(T011ObjServOpPara.class);
 	}
 
 	/**
@@ -1336,6 +1338,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjServOpPlatforms(refDoc, ref);
 			updateT011ObjServOpDependss(refDoc, ref);
 			updateT011ObjServOpConnpoints(refDoc, ref);
+			updateT011ObjServOpParas(refDoc, ref);
 
 			refs.add(ref);
 			line++;
@@ -1450,5 +1453,42 @@ public class DocToBeanMapper implements IMapper {
 
 		return ref;
 	}
+	private void updateT011ObjServOpParas(IngridDocument oDocIn, T011ObjServOperation oIn) {
+		Set<T011ObjServOpPara> refs = oIn.getT011ObjServOpParas();
+		ArrayList<T011ObjServOpPara> refs_unprocessed = new ArrayList<T011ObjServOpPara>(refs);
+		// remove all !
+		for (T011ObjServOpPara ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjServOpPara.makeTransient(ref);			
+		}
 
+		// and add new ones !
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.PARAMETER_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			T011ObjServOpPara ref = mapT011ObjServOpPara(oIn, refDoc, new T011ObjServOpPara(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServOpPara mapT011ObjServOpPara(T011ObjServOperation oFrom,
+			IngridDocument refDoc,
+			T011ObjServOpPara ref,
+			int line)
+	{
+		ref.setObjServOpId(oFrom.getId());
+		ref.setName(refDoc.getString(MdekKeys.PARAMETER_NAME));
+		ref.setDirection(refDoc.getString(MdekKeys.DIRECTION));
+		ref.setDescr(refDoc.getString(MdekKeys.DESCRIPTION));
+		ref.setOptional((Integer) refDoc.get(MdekKeys.OPTIONALITY));
+		ref.setRepeatability((Integer) refDoc.get(MdekKeys.REPEATABILITY));
+		ref.setLine(line);
+
+		return ref;
+	}
 }
