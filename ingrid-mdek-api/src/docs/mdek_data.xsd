@@ -78,6 +78,7 @@
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 
 			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_MAP"/>
+			<xs:element name="technical-domain-service" type="TECHNICAL_DOMAIN_SERVICE_MAP"/>
 			<xs:element name="technical-domain-project" type="TECHNICAL_DOMAIN_PROJECT_MAP"/>
 			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
 			<xs:element name="technical-domain-document" type="TECHNICAL_DOMAIN_DOCUMENT_MAP"/>
@@ -249,6 +250,67 @@
 			<xs:element name="dataset-reference-type" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="DATA_FORMAT_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="DATA_FORMAT_MAP" type="DATA_FORMAT_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DATA_FORMAT_MAP">
+		<xs:sequence>
+			<xs:element name="format-name" type="xs:string"/>
+			<xs:element name="format-version" type="xs:string"/>
+			<xs:element name="format-specification" type="xs:string"/>
+			<xs:element name="format-file-decompression-technique" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MEDIUM_OPTION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="MEDIUM_OPTION_MAP" type="MEDIUM_OPTION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MEDIUM_OPTION_MAP">
+		<xs:sequence>
+			<xs:element name="medium-name" type="xs:integer"/>
+			<xs:element name="medium-transfer-size" type="xs:double"/>
+			<xs:element name="medium-note" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OBJ_RELATIONS_MAP">
+		<xs:sequence>
+			<xs:element ref="relation-type-name"/>
+			<xs:element ref="relation-type-ref"/>
+			<xs:element name="relation-description" type="xs:string"/>
+			<xs:element name="objReferencesFrom" type="OBJECT_LIST"/>
+			<xs:element name="objReferencesTo" type="OBJECT_LIST"/>
+			<xs:element name="adrReferencesTo" type="ADDRESS_LIST"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ADDRESS_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="COMMUNICATION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="COMMUNICATION_MAP" type="COMMUNICATION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="COMMUNICATION_MAP">
+		<xs:sequence>
+			<xs:element name="communication-medium" type="xs:string"/>
+			<xs:element name="communication-value"  type="xs:string"/>
+			<xs:element name="communication-description" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ADR_RELATIONS_MAP">
+		<xs:sequence>
+			<!-- db: type -->
+			<xs:element name="relation-type-id" type="xs:integer"/>
+			<xs:element ref="relation-type-name"/>
+			<xs:element ref="relation-type-ref"/>
+			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_MAP_MAP">
 		<xs:sequence>
 			<xs:element name="technical-base" type="xs:string"/>
@@ -317,65 +379,13 @@
 			<xs:element name="symbol-edition" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="DATA_FORMAT_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="DATA_FORMAT_MAP" type="DATA_FORMAT_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="DATA_FORMAT_MAP">
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_MAP">
 		<xs:sequence>
-			<xs:element name="format-name" type="xs:string"/>
-			<xs:element name="format-version" type="xs:string"/>
-			<xs:element name="format-specification" type="xs:string"/>
-			<xs:element name="format-file-decompression-technique" type="xs:string"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="MEDIUM_OPTION_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="MEDIUM_OPTION_MAP" type="MEDIUM_OPTION_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="MEDIUM_OPTION_MAP">
-		<xs:sequence>
-			<xs:element name="medium-name" type="xs:integer"/>
-			<xs:element name="medium-transfer-size" type="xs:double"/>
-			<xs:element name="medium-note" type="xs:string"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="OBJ_RELATIONS_MAP">
-		<xs:sequence>
-			<xs:element ref="relation-type-name"/>
-			<xs:element ref="relation-type-ref"/>
-			<xs:element name="relation-description" type="xs:string"/>
-			<xs:element name="objReferencesFrom" type="OBJECT_LIST"/>
-			<xs:element name="objReferencesTo" type="OBJECT_LIST"/>
-			<xs:element name="adrReferencesTo" type="ADDRESS_LIST"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="ADDRESS_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="COMMUNICATION_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="COMMUNICATION_MAP" type="COMMUNICATION_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="COMMUNICATION_MAP">
-		<xs:sequence>
-			<xs:element name="communication-medium" type="xs:string"/>
-			<xs:element name="communication-value"  type="xs:string"/>
-			<xs:element name="communication-description" type="xs:string"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="ADR_RELATIONS_MAP">
-		<xs:sequence>
-			<!-- db: type -->
-			<xs:element name="relation-type-id" type="xs:integer"/>
-			<xs:element ref="relation-type-name"/>
-			<xs:element ref="relation-type-ref"/>
-			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
+			<xs:element name="service-type" type="xs:string"/>
+			<xs:element name="system-history" type="xs:string"/>
+			<xs:element name="system-environment" type="xs:string"/>
+			<xs:element name="database-of-system" type="xs:string"/>
+			<xs:element name="description-of-tech-domain" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_PROJECT_MAP">

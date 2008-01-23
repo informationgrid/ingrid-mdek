@@ -650,6 +650,45 @@ class MdekThread extends Thread {
 		strList.add("TEST NEW T015Legist entry");
 		oDocIn.put(MdekKeys.LEGISLATIONS, strList);
 
+		// add entry to ENV_CATEGORIES
+		strList = (List<String>) oDocIn.get(MdekKeys.ENV_CATEGORIES);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST NEW T0114EnvCategory entry");
+		oDocIn.put(MdekKeys.ENV_CATEGORIES, strList);
+
+		// add entry to ENV_TOPICS
+		strList = (List<String>) oDocIn.get(MdekKeys.ENV_TOPICS);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST NEW T0114EnvTopic entry");
+		oDocIn.put(MdekKeys.ENV_TOPICS, strList);
+
+		// add entry to TOPIC_CATEGORIES
+		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.TOPIC_CATEGORIES);
+		intList = (intList == null) ? new ArrayList<Integer>() : intList;
+		intList.add(1);
+		oDocIn.put(MdekKeys.TOPIC_CATEGORIES, intList);
+
+		// add entry to DATA_FORMATS
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.FORMAT_NAME, "TEST DATA_FORMAT_NAME");
+		testDoc.put(MdekKeys.FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
+		testDoc.put(MdekKeys.FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
+		testDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.DATA_FORMATS, docList);
+
+		// add entry to MEDIUM_OPTIONS
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.MEDIUM_OPTIONS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.MEDIUM_NAME, new Integer(1));
+		testDoc.put(MdekKeys.MEDIUM_TRANSFER_SIZE, new Double(1.11));
+		testDoc.put(MdekKeys.MEDIUM_NOTE, "TEST MEDIUM_NOTE");
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.MEDIUM_OPTIONS, docList);
+
 		// add TECHNICAL DOMAIN MAP
 		IngridDocument technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
 		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
@@ -668,7 +707,7 @@ class MdekThread extends Thread {
 		// add TECHNICAL DOMAIN MAP - key catalog
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.KEY_CATALOG_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		IngridDocument testDoc = new IngridDocument();
+		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.SUBJECT_CAT, "TEST " + MdekKeys.SUBJECT_CAT);
 		testDoc.put(MdekKeys.KEY_DATE, "TEST " + MdekKeys.KEY_DATE);
 		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
@@ -706,7 +745,7 @@ class MdekThread extends Thread {
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.GEO_VECTOR_LIST, docList);
 		// add TECHNICAL DOMAIN MAP - spatial representations
-		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
+		intList = (List<Integer>) oDocIn.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
 		intList = (intList == null) ? new ArrayList<Integer>() : intList;
 		intList.add(new Integer(1001));
 		technicalDomain.put(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST, intList);
@@ -730,44 +769,15 @@ class MdekThread extends Thread {
 		technicalDomain.put(MdekKeys.VOLUME, "TEST " + MdekKeys.VOLUME);
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT, technicalDomain);
 		
-		// add entry to DATA_FORMATS
-		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
-		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.FORMAT_NAME, "TEST DATA_FORMAT_NAME");
-		testDoc.put(MdekKeys.FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
-		testDoc.put(MdekKeys.FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
-		testDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
-		docList.add(testDoc);
-		oDocIn.put(MdekKeys.DATA_FORMATS, docList);
-
-		// add entry to MEDIUM_OPTIONS
-		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.MEDIUM_OPTIONS);
-		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.MEDIUM_NAME, new Integer(1));
-		testDoc.put(MdekKeys.MEDIUM_TRANSFER_SIZE, new Double(1.11));
-		testDoc.put(MdekKeys.MEDIUM_NOTE, "TEST MEDIUM_NOTE");
-		docList.add(testDoc);
-		oDocIn.put(MdekKeys.MEDIUM_OPTIONS, docList);
-
-		// add entry to ENV_CATEGORIES
-		strList = (List<String>) oDocIn.get(MdekKeys.ENV_CATEGORIES);
-		strList = (strList == null) ? new ArrayList<String>() : strList;
-		strList.add("TEST NEW T0114EnvCategory entry");
-		oDocIn.put(MdekKeys.ENV_CATEGORIES, strList);
-
-		// add entry to ENV_TOPICS
-		strList = (List<String>) oDocIn.get(MdekKeys.ENV_TOPICS);
-		strList = (strList == null) ? new ArrayList<String>() : strList;
-		strList.add("TEST NEW T0114EnvTopic entry");
-		oDocIn.put(MdekKeys.ENV_TOPICS, strList);
-
-		// add entry to TOPIC_CATEGORIES
-		intList = (List<Integer>) oDocIn.get(MdekKeys.TOPIC_CATEGORIES);
-		intList = (intList == null) ? new ArrayList<Integer>() : intList;
-		intList.add(1);
-		oDocIn.put(MdekKeys.TOPIC_CATEGORIES, intList);
+		// add TECHNICAL DOMAIN SERVICE
+		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
+		technicalDomain.put(MdekKeys.SERVICE_TYPE, "TEST SERVICE_TYPE");
+		technicalDomain.put(MdekKeys.SYSTEM_HISTORY, "TEST SYSTEM_HISTORY");
+		technicalDomain.put(MdekKeys.SYSTEM_ENVIRONMENT, "TEST SYSTEM_ENVIRONMENT");
+		technicalDomain.put(MdekKeys.DATABASE_OF_SYSTEM, "TEST DATABASE_OF_SYSTEM");
+		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST DESCRIPTION_OF_TECH_DOMAIN");
+		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
 
 		// add TECHNICAL DOMAIN PROJECT
 		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
@@ -863,12 +873,6 @@ class MdekThread extends Thread {
 				oRefetchedDoc.put(MdekKeys.LEGISLATIONS, strList);				
 			}
 			
-			// REMOVE TECHNICAL DOMAIN MAP
-			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_MAP);
-
-			// REMOVE TECHNICAL DOMAIN DOCUMENT
-			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
-			
 			// DATA_FORMATS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_FORMATS);
 			if (docList != null && docList.size() > 0) {
@@ -903,6 +907,15 @@ class MdekThread extends Thread {
 				intList.remove(intList.size()-1);
 				oRefetchedDoc.put(MdekKeys.TOPIC_CATEGORIES, intList);				
 			}
+
+			// REMOVE TECHNICAL DOMAIN MAP
+			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_MAP);
+
+			// REMOVE TECHNICAL DOMAIN DOCUMENT
+			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
+			
+			// TECHNICAL_DOMAIN_SERVICE raus !
+			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
 
 			// TECHNICAL_DOMAIN_PROJECT raus !
 			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
@@ -1152,54 +1165,6 @@ class MdekThread extends Thread {
 			System.out.println("  Legislations: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
-		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
-		if (myDoc != null) {
-			System.out.println("  technical domain map:");
-			System.out.println("   " + myDoc);								
-			docList = (List<IngridDocument>) myDoc.get(MdekKeys.KEY_CATALOG_LIST);
-			if (docList != null) {
-				System.out.println("  technical domain map - key catalogs: " + docList.size() + " entries");
-				for (IngridDocument doc : docList) {
-					System.out.println("   " + doc);								
-				}			
-			}
-			docList = (List<IngridDocument>) myDoc.get(MdekKeys.PUBLICATION_SCALE_LIST);
-			if (docList != null) {
-				System.out.println("  technical domain map - publication scales: " + docList.size() + " entries");
-				for (IngridDocument doc : docList) {
-					System.out.println("   " + doc);								
-				}			
-			}
-			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SYMBOL_CATALOG_LIST);
-			if (docList != null) {
-				System.out.println("  technical domain map - symbol catalogs: " + docList.size() + " entries");
-				for (IngridDocument doc : docList) {
-					System.out.println("   " + doc);								
-				}			
-			}
-			strList = (List<String>) myDoc.get(MdekKeys.FEATURE_TYPE_LIST);
-			if (docList != null) {
-				System.out.println("  technical domain map - feature types: " + strList.size() + " entries");
-				for (String str : strList) {
-					System.out.println("   " + str);								
-				}			
-			}
-			docList = (List<IngridDocument>) myDoc.get(MdekKeys.GEO_VECTOR_LIST);
-			if (docList != null) {
-				System.out.println("  technical domain map - vector formats, geo vector list: " + docList.size() + " entries");
-				for (IngridDocument doc : docList) {
-					System.out.println("   " + doc);								
-				}			
-			}
-			List<Integer> intList = (List<Integer>) myDoc.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
-			if (docList != null) {
-				System.out.println("  technical domain map - spatial rep types: " + intList.size() + " entries");
-				for (Integer i : intList) {
-					System.out.println("   " + i);								
-				}			
-			}
-		}
-		
 		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_FORMATS);
 		if (docList != null) {
 			System.out.println("  Data Formats: " + docList.size() + " entries");
@@ -1229,19 +1194,72 @@ class MdekThread extends Thread {
 			System.out.println("  Topic Categories: " + intList.size() + " entries");
 			System.out.println("   " + intList);
 		}
+
+		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
+		if (myDoc != null) {
+			System.out.println("  technical domain MAP:");
+			System.out.println("   " + myDoc);								
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.KEY_CATALOG_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain MAP - key catalogs: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("   " + doc);								
+				}			
+			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.PUBLICATION_SCALE_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain MAP - publication scales: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("   " + doc);								
+				}			
+			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SYMBOL_CATALOG_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain MAP - symbol catalogs: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("   " + doc);								
+				}			
+			}
+			strList = (List<String>) myDoc.get(MdekKeys.FEATURE_TYPE_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain MAP - feature types: " + strList.size() + " entries");
+				for (String str : strList) {
+					System.out.println("   " + str);								
+				}			
+			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.GEO_VECTOR_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain MAP - vector formats, geo vector list: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("   " + doc);								
+				}			
+			}
+			intList = (List<Integer>) myDoc.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain MAP - spatial rep types: " + intList.size() + " entries");
+				for (Integer i : intList) {
+					System.out.println("   " + i);								
+				}			
+			}
+		}
+		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
+		if (myDoc != null) {
+			System.out.println("  technical domain DOCUMENT:");
+			System.out.println("   " + myDoc);								
+		}
+		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+		if (myDoc != null) {
+			System.out.println("  technical domain SERVICE:");
+			System.out.println("   " + myDoc);								
+		}
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
 		if (myDoc != null) {
-			System.out.println("  technical domain project:");
+			System.out.println("  technical domain PROJECT:");
 			System.out.println("   " + myDoc);								
 		}
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 		if (myDoc != null) {
-			System.out.println("  technical domain dataset:");
-			System.out.println("   " + myDoc);								
-		}
-		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
-		if (myDoc != null) {
-			System.out.println("  technical domain document:");
+			System.out.println("  technical domain DATASET:");
 			System.out.println("   " + myDoc);								
 		}
 	}

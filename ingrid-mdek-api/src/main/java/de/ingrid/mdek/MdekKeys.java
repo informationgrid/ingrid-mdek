@@ -308,13 +308,24 @@ public class MdekKeys {
     /** Value: String  */
     // defined below
     //public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
-    
-    
-    
-    
-    
 
-    
+
+    // TECHNICAL DOMAIN SERVICE
+    /** Value: IngridDocument encapsulating all SERVICE data */
+    public final static String TECHNICAL_DOMAIN_SERVICE = "technical-domain-service";
+    /** Value: String  */
+    public final static String SERVICE_TYPE = "service-type";
+    /** Value: String  */
+    public final static String SYSTEM_HISTORY = "system-history";
+    /** Value: String  */
+    public final static String SYSTEM_ENVIRONMENT = "system-environment";
+    /** Value: String  */
+    public final static String DATABASE_OF_SYSTEM = "database-of-system";
+    /** Value: String  */
+    // defined below
+//    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+
+
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";
