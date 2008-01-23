@@ -62,6 +62,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjServ;
 	private IGenericDao<IEntity> daoT011ObjServVersion;
 	private IGenericDao<IEntity> daoT011ObjServOperation;
+	private IGenericDao<IEntity> daoT011ObjServOpPlatform;
 	
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -105,6 +106,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServ = daoFactory.getDao(T011ObjServ.class);
 		daoT011ObjServVersion = daoFactory.getDao(T011ObjServVersion.class);
 		daoT011ObjServOperation = daoFactory.getDao(T011ObjServOperation.class);
+		daoT011ObjServOpPlatform = daoFactory.getDao(T011ObjServOpPlatform.class);
 	}
 
 	/**
@@ -1327,6 +1329,7 @@ public class DocToBeanMapper implements IMapper {
 			daoT011ObjServOperation.makePersistent(ref);
 
 			// map 1:N relations
+			updateT011ObjServOpPlatforms(refDoc, ref);
 
 			refs.add(ref);
 			line++;
@@ -1341,6 +1344,38 @@ public class DocToBeanMapper implements IMapper {
 		ref.setName(refDoc.getString(MdekKeys.SERVICE_OPERATION_NAME));
 		ref.setDescr(refDoc.getString(MdekKeys.SERVICE_OPERATION_DESCRIPTION));
 		ref.setInvocationName(refDoc.getString(MdekKeys.INVOCATION_NAME));
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT011ObjServOpPlatforms(IngridDocument oDocIn, T011ObjServOperation oIn) {
+		List<String> platforms = (List) oDocIn.get(MdekKeys.SERVICE_OPERATION_PLATFORM_LIST);
+		if (platforms == null) {
+			platforms = new ArrayList<String>(0);
+		}
+		Set<T011ObjServOpPlatform> refs = oIn.getT011ObjServOpPlatforms();
+		ArrayList<T011ObjServOpPlatform> refs_unprocessed = new ArrayList<T011ObjServOpPlatform>(refs);
+		// remove all !
+		for (T011ObjServOpPlatform ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjServOpPlatform.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (String platform : platforms) {
+			T011ObjServOpPlatform ref = mapT011ObjServOpPlatform(oIn, platform, new T011ObjServOpPlatform(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServOpPlatform mapT011ObjServOpPlatform(T011ObjServOperation oFrom,
+			String platform,
+			T011ObjServOpPlatform ref,
+			int line)
+	{
+		ref.setObjServOpId(oFrom.getId());
+		ref.setPlatform(platform);
 		ref.setLine(line);
 
 		return ref;
