@@ -261,7 +261,7 @@ public class MdekKeys {
     public final static String SYMBOL_EDITION = "symbol-edition";
     
     // TECHNICAL DOMAIN MAP - FEATURE TYPE
-    /** Value: List of IngridDocs  */
+    /** Value: List of Strings  */
     public final static String FEATURE_TYPE_LIST = "feature-type-list";
 
     // TECHNICAL DOMAIN MAP - VECTOR FORMAT GEO VECTOR
@@ -271,6 +271,10 @@ public class MdekKeys {
     public final static String GEOMETRIC_OBJECT_TYPE = "geometric-object-type";
     /** Value: Integer  */
     public final static String GEOMETRIC_OBJECT_COUNT = "geometric-object-count";
+
+    // TECHNICAL DOMAIN MAP - SPATIAL REPRESENTATION TYPE
+    /** Value: List of Integer  */
+    public final static String SPATIAL_REPRESENTATION_TYPE_LIST = "spatial-representation-type-list";
     
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */

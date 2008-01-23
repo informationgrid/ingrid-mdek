@@ -675,6 +675,11 @@ class MdekThread extends Thread {
 		testDoc.put(MdekKeys.GEOMETRIC_OBJECT_COUNT, new Integer(100));
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.GEO_VECTOR_LIST, docList);
+		// add TECHNICAL DOMAIN MAP - spatial representations
+		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
+		intList = (intList == null) ? new ArrayList<Integer>() : intList;
+		intList.add(new Integer(1001));
+		technicalDomain.put(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST, intList);
 		
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
@@ -710,7 +715,7 @@ class MdekThread extends Thread {
 		oDocIn.put(MdekKeys.ENV_TOPICS, strList);
 
 		// add entry to TOPIC_CATEGORIES
-		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.TOPIC_CATEGORIES);
+		intList = (List<Integer>) oDocIn.get(MdekKeys.TOPIC_CATEGORIES);
 		intList = (intList == null) ? new ArrayList<Integer>() : intList;
 		intList.add(1);
 		oDocIn.put(MdekKeys.TOPIC_CATEGORIES, intList);
@@ -1132,6 +1137,13 @@ class MdekThread extends Thread {
 				System.out.println("  technical domain map - vector formats, geo vector list: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("   " + doc);								
+				}			
+			}
+			List<Integer> intList = (List<Integer>) myDoc.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain map - spatial rep types: " + intList.size() + " entries");
+				for (Integer i : intList) {
+					System.out.println("   " + i);								
 				}			
 			}
 		}

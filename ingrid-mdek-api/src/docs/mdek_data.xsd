@@ -265,6 +265,7 @@
 			<xs:element name="symbol-catalog-list" type="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_LIST"/>
 			<xs:element name="feature-type-list" type="STRING_LIST"/>
 			<xs:element name="geo-vector-list" type="TECHNICAL_DOMAIN_MAP_GEO_VECTOR_LIST"/>
+			<xs:element name="spatial-representation-type-list" type="INTEGER_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_MAP_GEO_VECTOR_LIST">
