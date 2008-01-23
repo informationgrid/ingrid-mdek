@@ -58,6 +58,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjDataPara;
 	private IGenericDao<IEntity> daoT011ObjProject;
 	private IGenericDao<IEntity> daoT011ObjLiterature;
+	private IGenericDao<IEntity> daoObjectComment;
 	private IGenericDao<IEntity> daoT011ObjServ;
 	private IGenericDao<IEntity> daoT011ObjServVersion;
 	
@@ -99,6 +100,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjDataPara = daoFactory.getDao(T011ObjDataPara.class);
 		daoT011ObjProject = daoFactory.getDao(T011ObjProject.class);
 		daoT011ObjLiterature = daoFactory.getDao(T011ObjLiterature.class);
+		daoObjectComment = daoFactory.getDao(ObjectComment.class);
 		daoT011ObjServ = daoFactory.getDao(T011ObjServ.class);
 		daoT011ObjServVersion = daoFactory.getDao(T011ObjServVersion.class);
 	}
@@ -189,6 +191,10 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjProject(oDocIn, oIn);
 			// technical domain dataset
 			updateT011ObjData(oDocIn, oIn);
+
+			// comments
+			updateObjectComments(oDocIn, oIn);
+		
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -444,6 +450,37 @@ public class DocToBeanMapper implements IMapper {
 		}		
 	}
 
+	
+	private void updateObjectComments(IngridDocument oDocIn, T01Object oIn) {
+		Set<ObjectComment> refs = oIn.getObjectComments();
+		ArrayList<ObjectComment> refs_unprocessed = new ArrayList<ObjectComment>(refs);
+		// remove all !
+		for (ObjectComment ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoObjectComment.makeTransient(ref);			
+		}		
+		
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.COMMENT_LIST);
+		if (refDocs != null) {
+			// and add all new ones !
+			String now = MdekUtils.dateToTimestamp(new Date());
+			for (IngridDocument refDoc : refDocs) {
+				ObjectComment ref = new ObjectComment();
+				ref.setObjId(oIn.getId());
+				ref.setComment(refDoc.getString(MdekKeys.COMMENT));
+				String createTime = refDoc.getString(MdekKeys.CREATE_TIME);
+				if (createTime == null) {
+					createTime = now;
+				}
+				ref.setCreateTime(createTime);
+				// TODO: add mapping of create_UUID
+				refs.add(ref);
+			}
+		}
+	}
+	
+	
 	/**
 	 * Transfer data to passed bean.
 	 */

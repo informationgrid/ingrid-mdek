@@ -52,9 +52,7 @@ public class T01Object implements IEntity {
 	private String modTime;
 	private String modUuid;
 	private String responsibleUuid;
-/*
-	private Set commentObjs = new HashSet();
-*/
+	private Set objectComments = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set searchtermObjs = new HashSet();
 	private Set spatialReferences = new HashSet();
@@ -439,15 +437,14 @@ public class T01Object implements IEntity {
 		this.responsibleUuid = responsibleUuid;
 	}
 
-/*
-	public Set getCommentObjs() {
-		return commentObjs;
+	public Set getObjectComments() {
+		return objectComments;
 	}
 
-	public void setCommentObjs(Set commentObjs) {
-		this.commentObjs = commentObjs;
+	public void setObjectComments(Set objectComments) {
+		this.objectComments = objectComments;
 	}
-*/
+
 	public Set getObjectReferences() {
 		return objectReferences;
 	}

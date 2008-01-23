@@ -131,6 +131,10 @@ public class BeanToDocMapper implements IMapper {
 			mapT011ObjProject(o.getT011ObjProjects(), objectDoc);
 			// technical domain dataset
 			mapT011ObjData(o, objectDoc);
+
+			// object comments
+			mapObjectComments(o.getObjectComments(), objectDoc);
+		
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -149,6 +153,22 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.RESPONSIBLE_UUID, o.getResponsibleUuid());
 		}
 
+		return objectDoc;
+	}
+
+	private IngridDocument mapObjectComments(Set<ObjectComment> objSet, IngridDocument objectDoc) {
+		if (objSet == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(objSet.size());
+		for (ObjectComment obj : objSet) {
+			IngridDocument oToDoc = new IngridDocument();
+			oToDoc.put(MdekKeys.COMMENT, obj.getComment());
+			oToDoc.put(MdekKeys.CREATE_TIME, obj.getCreateTime());
+			// TODO: map create_uuid
+			docList.add(oToDoc);					
+		}
+		objectDoc.put(MdekKeys.COMMENT_LIST, docList);
 		return objectDoc;
 	}
 

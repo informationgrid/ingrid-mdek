@@ -19,6 +19,7 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefSnsDaoHibe
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefValueDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
@@ -133,6 +134,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjGeoVector>(_sessionFactory, T011ObjGeoVector.class);
 		} else if (clazz.isAssignableFrom(T011ObjGeoSpatialRep.class)) {
 			dao = new GenericHibernateDao<T011ObjGeoSpatialRep>(_sessionFactory, T011ObjGeoSpatialRep.class);
+		} else if (clazz.isAssignableFrom(ObjectComment.class)) {
+			dao = new GenericHibernateDao<ObjectComment>(_sessionFactory, ObjectComment.class);
 		} else if (clazz.isAssignableFrom(T011ObjServ.class)) {
 			dao = new GenericHibernateDao<T011ObjServ>(_sessionFactory, T011ObjServ.class);
 		} else if (clazz.isAssignableFrom(T011ObjServVersion.class)) {

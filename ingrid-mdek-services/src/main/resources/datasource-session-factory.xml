@@ -15,10 +15,9 @@
       <property name="mappingResources">
          <list>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
 <!--
-            <value>de/ingrid/mdek/services/persistence/db/model/Comment.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/CommentAdr.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/CommentObj.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/Group.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/GroupPermission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/HibernateUniqueKey.hbm.xml</value>
