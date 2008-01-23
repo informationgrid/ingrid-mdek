@@ -63,7 +63,8 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjServVersion;
 	private IGenericDao<IEntity> daoT011ObjServOperation;
 	private IGenericDao<IEntity> daoT011ObjServOpPlatform;
-	
+	private IGenericDao<IEntity> daoT011ObjServOpDepends;
+
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
 		if (myInstance == null) {
@@ -107,6 +108,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServVersion = daoFactory.getDao(T011ObjServVersion.class);
 		daoT011ObjServOperation = daoFactory.getDao(T011ObjServOperation.class);
 		daoT011ObjServOpPlatform = daoFactory.getDao(T011ObjServOpPlatform.class);
+		daoT011ObjServOpDepends = daoFactory.getDao(T011ObjServOpDepends.class);
 	}
 
 	/**
@@ -1330,6 +1332,7 @@ public class DocToBeanMapper implements IMapper {
 
 			// map 1:N relations
 			updateT011ObjServOpPlatforms(refDoc, ref);
+			updateT011ObjServOpDependss(refDoc, ref);
 
 			refs.add(ref);
 			line++;
@@ -1349,7 +1352,7 @@ public class DocToBeanMapper implements IMapper {
 		return ref;
 	}
 	private void updateT011ObjServOpPlatforms(IngridDocument oDocIn, T011ObjServOperation oIn) {
-		List<String> platforms = (List) oDocIn.get(MdekKeys.SERVICE_OPERATION_PLATFORM_LIST);
+		List<String> platforms = (List) oDocIn.get(MdekKeys.PLATFORM_LIST);
 		if (platforms == null) {
 			platforms = new ArrayList<String>(0);
 		}
@@ -1376,6 +1379,38 @@ public class DocToBeanMapper implements IMapper {
 	{
 		ref.setObjServOpId(oFrom.getId());
 		ref.setPlatform(platform);
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT011ObjServOpDependss(IngridDocument oDocIn, T011ObjServOperation oIn) {
+		List<String> dependsOns = (List) oDocIn.get(MdekKeys.DEPENDS_ON_LIST);
+		if (dependsOns == null) {
+			dependsOns = new ArrayList<String>(0);
+		}
+		Set<T011ObjServOpDepends> refs = oIn.getT011ObjServOpDependss();
+		ArrayList<T011ObjServOpDepends> refs_unprocessed = new ArrayList<T011ObjServOpDepends>(refs);
+		// remove all !
+		for (T011ObjServOpDepends ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjServOpDepends.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (String dependsOn : dependsOns) {
+			T011ObjServOpDepends ref = mapT011ObjServOpDepends(oIn, dependsOn, new T011ObjServOpDepends(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServOpDepends mapT011ObjServOpDepends(T011ObjServOperation oFrom,
+			String dependsOn,
+			T011ObjServOpDepends ref,
+			int line)
+	{
+		ref.setObjServOpId(oFrom.getId());
+		ref.setDependsOn(dependsOn);
 		ref.setLine(line);
 
 		return ref;
