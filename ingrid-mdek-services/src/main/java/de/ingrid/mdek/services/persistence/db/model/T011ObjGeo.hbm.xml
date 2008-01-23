@@ -31,14 +31,12 @@
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoScale" not-found="ignore"/>
       </set>
-<!-- 
       <set name="t011ObjGeoSpatialReps" order-by="line" table="t011_obj_geo_spatial_rep"
            inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoSpatialRep" not-found="ignore"/>
       </set>
--->
       <set name="t011ObjGeoSupplinfos" order-by="line" table="t011_obj_geo_supplinfo"
            inverse="true"
            cascade="all-delete-orphan">
@@ -50,14 +48,6 @@
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoSymc" not-found="ignore"/>
       </set>
-<!-- 
-      <set name="t011ObjGeoTopicCats" order-by="line" table="t011_obj_geo_topic_cat"
-           inverse="true"
-           cascade="all-delete-orphan">
-         <key column="obj_geo_id"/>
-         <one-to-many class="T011ObjGeoTopicCat" not-found="ignore"/>
-      </set>
- -->
       <set name="t011ObjGeoVectors" order-by="line" table="t011_obj_geo_vector"
            inverse="true"
            cascade="all-delete-orphan">

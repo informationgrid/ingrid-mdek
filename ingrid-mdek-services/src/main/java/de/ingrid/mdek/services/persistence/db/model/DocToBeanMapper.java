@@ -47,6 +47,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjGeoSymc;
 	private IGenericDao<IEntity> daoT011ObjGeoSupplinfo;
 	private IGenericDao<IEntity> daoT011ObjGeoVector;
+	private IGenericDao<IEntity> daoT011ObjGeoSpatialRep;
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
 	private IGenericDao<IEntity> daoT0112MediaOption;
@@ -84,6 +85,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjGeoSymc = daoFactory.getDao(T011ObjGeoSymc.class);
 		daoT011ObjGeoSupplinfo = daoFactory.getDao(T011ObjGeoSupplinfo.class);
 		daoT011ObjGeoVector = daoFactory.getDao(T011ObjGeoVector.class);
+		daoT011ObjGeoSpatialRep= daoFactory.getDao(T011ObjGeoSpatialRep.class);
 		daoT015Legist = daoFactory.getDao(T015Legist.class);
 		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
 		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
@@ -584,6 +586,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjGeoSymcs(refDoc, ref);
 			updateT011ObjGeoSupplinfos(refDoc, ref);
 			updateT011ObjGeoVectors(refDoc, ref);
+			updateT011ObjGeoSpatialReps(refDoc, ref);
 			
 			refs.add(ref);
 		}
@@ -726,6 +729,33 @@ public class DocToBeanMapper implements IMapper {
 			}
 		}
 	}	
+
+	private void updateT011ObjGeoSpatialReps(IngridDocument docIn, T011ObjGeo in) {
+		Set<T011ObjGeoSpatialRep> refs = in.getT011ObjGeoSpatialReps();
+		ArrayList<T011ObjGeoSpatialRep> refs_unprocessed = new ArrayList<T011ObjGeoSpatialRep>(refs);
+		// remove all !
+		for (T011ObjGeoSpatialRep ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjGeoSpatialRep.makeTransient(ref);			
+		}		
+		
+		List<Integer> refInts = (List<Integer>)docIn.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
+		if (refInts != null) {
+			// and add all new ones !
+			int line = 1;
+			for (Integer refInt : refInts) {
+				// add all as new ones
+				T011ObjGeoSpatialRep ref = new T011ObjGeoSpatialRep();
+				ref.setObjGeoId(in.getId());
+				ref.setType(refInt);
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
+		}
+	}	
+	
 	
 	private T015Legist mapT015Legist(T01Object oFrom,
 			String name,

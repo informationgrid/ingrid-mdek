@@ -513,6 +513,8 @@ public class BeanToDocMapper implements IMapper {
 		mapT011ObjGeoSupplinfos(ref.getT011ObjGeoSupplinfos(), refDoc);
 		// add vector formats geo vector list
 		mapT011ObjGeoVectors(ref.getT011ObjGeoVectors(), refDoc);
+		// add vector formats geo vector list
+		mapT011ObjGeoSpatialReps(ref.getT011ObjGeoSpatialReps(), refDoc);
 		
 		return objectDoc;
 	}
@@ -593,6 +595,19 @@ public class BeanToDocMapper implements IMapper {
 			locList.add(doc);					
 		}
 		objectDoc.put(MdekKeys.GEO_VECTOR_LIST, locList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT011ObjGeoSpatialReps(Set<T011ObjGeoSpatialRep> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<Integer> locList = new ArrayList<Integer>(refs.size());
+		for (T011ObjGeoSpatialRep ref : refs) {
+			locList.add(ref.getType());
+		}
+		objectDoc.put(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST, locList);
 		
 		return objectDoc;
 	}
