@@ -711,6 +711,25 @@ class MdekThread extends Thread {
 		intList.add(new Integer(1001));
 		technicalDomain.put(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST, intList);
 		
+		// add TECHNICAL DOMAIN DOCUMENT
+		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
+		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
+		technicalDomain.put(MdekKeys.AUTHOR, "TEST " + MdekKeys.AUTHOR);
+		technicalDomain.put(MdekKeys.SOURCE, "TEST " + MdekKeys.SOURCE);
+		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST " + MdekKeys.DESCRIPTION_OF_TECH_DOMAIN);
+		technicalDomain.put(MdekKeys.ADDITIONAL_BIBLIOGRAPHIC_INFO, "TEST " + MdekKeys.ADDITIONAL_BIBLIOGRAPHIC_INFO);
+		technicalDomain.put(MdekKeys.ISBN, "TEST " + MdekKeys.ISBN);
+		technicalDomain.put(MdekKeys.LOCATION, "TEST " + MdekKeys.LOCATION);
+		technicalDomain.put(MdekKeys.EDITOR, "TEST " + MdekKeys.EDITOR);
+		technicalDomain.put(MdekKeys.PUBLISHED_IN, "TEST " + MdekKeys.PUBLISHED_IN);
+		technicalDomain.put(MdekKeys.PUBLISHER, "TEST " + MdekKeys.PUBLISHER);
+		technicalDomain.put(MdekKeys.PUBLISHING_PLACE, "TEST " + MdekKeys.PUBLISHING_PLACE);
+		technicalDomain.put(MdekKeys.YEAR, "TEST " + MdekKeys.YEAR);
+		technicalDomain.put(MdekKeys.PAGES, "TEST " + MdekKeys.PAGES);
+		technicalDomain.put(MdekKeys.TYPE_OF_DOCUMENT, "TEST " + MdekKeys.TYPE_OF_DOCUMENT);
+		technicalDomain.put(MdekKeys.VOLUME, "TEST " + MdekKeys.VOLUME);
+		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT, technicalDomain);
+		
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
@@ -847,6 +866,9 @@ class MdekThread extends Thread {
 			// REMOVE TECHNICAL DOMAIN MAP
 			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_MAP);
 
+			// REMOVE TECHNICAL DOMAIN DOCUMENT
+			oRefetchedDoc.remove(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
+			
 			// DATA_FORMATS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_FORMATS);
 			if (docList != null && docList.size() > 0) {
@@ -1215,6 +1237,11 @@ class MdekThread extends Thread {
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 		if (myDoc != null) {
 			System.out.println("  technical domain dataset:");
+			System.out.println("   " + myDoc);								
+		}
+		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
+		if (myDoc != null) {
+			System.out.println("  technical domain document:");
 			System.out.println("   " + myDoc);								
 		}
 	}

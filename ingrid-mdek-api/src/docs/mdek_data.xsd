@@ -80,6 +80,8 @@
 			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_MAP"/>
 			<xs:element name="technical-domain-project" type="TECHNICAL_DOMAIN_PROJECT_MAP"/>
 			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
+			<xs:element name="technical-domain-document" type="TECHNICAL_DOMAIN_DOCUMENT_MAP"/>
+			
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -381,6 +383,23 @@
 			<xs:element name="leader-description" type="xs:string"/>
 			<xs:element name="member-description" type="xs:string"/>
 			<xs:element name="description-of-tech-domain" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_DOCUMENT_MAP">
+		<xs:sequence>
+			<xs:element name="author" type="xs:string"/>
+			<xs:element name="editor" type="xs:string"/>
+			<xs:element name="type-of-document" type="xs:string"/>
+			<xs:element name="published-in" type="xs:string"/>
+			<xs:element name="volume" type="xs:string"/>
+			<xs:element name="pages" type="xs:string"/>
+			<xs:element name="year" type="xs:string"/>
+			<xs:element name="publishing-place" type="xs:string"/>
+			<xs:element name="location" type="xs:string"/>
+			<xs:element name="additional-bibliographic-info" type="xs:string"/>
+			<xs:element name="source" type="xs:string"/>
+			<xs:element name="isbn" type="xs:string"/>
+			<xs:element name="publisher" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_DATASET_MAP">

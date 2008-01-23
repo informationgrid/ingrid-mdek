@@ -276,6 +276,45 @@ public class MdekKeys {
     /** Value: List of Integer  */
     public final static String SPATIAL_REPRESENTATION_TYPE_LIST = "spatial-representation-type-list";
     
+    // TECHNICAL DOMAIN DOCUMENT (LITERATURE)
+    /** Value: IngridDocument encapsulating all LITERATURE data */
+    public final static String TECHNICAL_DOMAIN_DOCUMENT = "technical-domain-document";
+    /** Value: String  */
+    public final static String AUTHOR = "author";
+    /** Value: String  */
+    public final static String EDITOR = "editor";
+    /** Value: String  */
+    public final static String TYPE_OF_DOCUMENT = "type-of-document";
+    /** Value: String  */
+    public final static String PUBLISHED_IN = "published-in";
+    /** Value: String  */
+    public final static String VOLUME = "volume";
+    /** Value: String  */
+    public final static String PAGES = "pages";
+    /** Value: String  */
+    public final static String YEAR = "year";
+    /** Value: String  */
+    public final static String PUBLISHING_PLACE = "publishing-place";
+    /** Value: String  */
+    public final static String LOCATION = "location";
+    /** Value: String  */
+    public final static String ADDITIONAL_BIBLIOGRAPHIC_INFO = "additional-bibliographic-info";
+    /** Value: String  */
+    public final static String SOURCE = "source";
+    /** Value: String  */
+    public final static String ISBN = "isbn";
+    /** Value: String  */
+    public final static String PUBLISHER = "publisher";
+    /** Value: String  */
+    // defined below
+    //public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+    
+    
+    
+    
+    
+
+    
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";
