@@ -834,7 +834,7 @@ public class BeanToDocMapper implements IMapper {
 		mapT011ObjData(refs.iterator().next(), domainDoc);
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, domainDoc);
 
-		mapT011ObjDataParas(obj.getT011ObjDataParas(), objectDoc);
+		mapT011ObjDataParas(obj.getT011ObjDataParas(), domainDoc);
 
 		return objectDoc;
 	}
@@ -848,9 +848,9 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
-	private IngridDocument mapT011ObjDataParas(Set<T011ObjDataPara> refs, IngridDocument objectDoc) {
+	private IngridDocument mapT011ObjDataParas(Set<T011ObjDataPara> refs, IngridDocument inDoc) {
 		if (refs == null || refs.size() == 0) {
-			return objectDoc;
+			return inDoc;
 		}
 
 		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
@@ -860,10 +860,9 @@ public class BeanToDocMapper implements IMapper {
 			refList.add(refDoc);
 		}
 
-		IngridDocument domainDoc = (IngridDocument) objectDoc.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
-		domainDoc.put(MdekKeys.PARAMETERS, refList);
+		inDoc.put(MdekKeys.PARAMETERS, refList);
 		
-		return objectDoc;
+		return inDoc;
 	}
 
 	private IngridDocument mapT011ObjProject(T011ObjProject ref, IngridDocument refDoc) {
@@ -904,6 +903,8 @@ public class BeanToDocMapper implements IMapper {
 
 		// add service versions
 		mapT011ObjServVersions(ref.getT011ObjServVersions(), domainDoc);
+		// add service operations
+		mapT011ObjServOperations(ref.getT011ObjServOperations(), domainDoc);
 
 		return objectDoc;
 	}
@@ -920,17 +921,44 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
-	private IngridDocument mapT011ObjServVersions(Set<T011ObjServVersion> refs, IngridDocument objectDoc) {
+	private IngridDocument mapT011ObjServVersions(Set<T011ObjServVersion> refs, IngridDocument inDoc) {
 		if (refs == null) {
-			return objectDoc;
+			return inDoc;
 		}
 		ArrayList<String> refList = new ArrayList<String>(refs.size());
 		for (T011ObjServVersion ref : refs) {
 			refList.add(ref.getServVersion());				
 		}
-		objectDoc.put(MdekKeys.SERVICE_VERSION_LIST, refList);
+		inDoc.put(MdekKeys.SERVICE_VERSION_LIST, refList);
 		
-		return objectDoc;
+		return inDoc;
+	}
+	private IngridDocument mapT011ObjServOperations(Set<T011ObjServOperation> refs, IngridDocument inDoc) {
+		if (refs == null || refs.size() == 0) {
+			return inDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjServOperation ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT011ObjServOperation(ref, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeys.SERVICE_OPERATION_LIST, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapT011ObjServOperation(T011ObjServOperation ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.SERVICE_OPERATION_NAME, ref.getName());
+		refDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, ref.getDescr());
+		refDoc.put(MdekKeys.INVOCATION_NAME, ref.getInvocationName());
+
+		return refDoc;
 	}
 
 }

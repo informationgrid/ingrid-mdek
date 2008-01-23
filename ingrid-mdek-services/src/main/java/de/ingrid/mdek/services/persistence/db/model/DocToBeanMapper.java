@@ -61,6 +61,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoObjectComment;
 	private IGenericDao<IEntity> daoT011ObjServ;
 	private IGenericDao<IEntity> daoT011ObjServVersion;
+	private IGenericDao<IEntity> daoT011ObjServOperation;
 	
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -103,6 +104,7 @@ public class DocToBeanMapper implements IMapper {
 		daoObjectComment = daoFactory.getDao(ObjectComment.class);
 		daoT011ObjServ = daoFactory.getDao(T011ObjServ.class);
 		daoT011ObjServVersion = daoFactory.getDao(T011ObjServVersion.class);
+		daoT011ObjServOperation = daoFactory.getDao(T011ObjServOperation.class);
 	}
 
 	/**
@@ -1251,6 +1253,7 @@ public class DocToBeanMapper implements IMapper {
 
 			// map 1:N relations
 			updateT011ObjServVersions(domainDoc, ref);
+			updateT011ObjServOperations(domainDoc, ref);
 
 			refs.add(ref);
 		}
@@ -1296,6 +1299,48 @@ public class DocToBeanMapper implements IMapper {
 	{
 		ref.setObjServId(oFrom.getId());
 		ref.setServVersion(version);
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT011ObjServOperations(IngridDocument oDocIn, T011ObjServ oIn) {
+		Set<T011ObjServOperation> refs = oIn.getT011ObjServOperations();
+		ArrayList<T011ObjServOperation> refs_unprocessed = new ArrayList<T011ObjServOperation>(refs);
+		// remove all !
+		for (T011ObjServOperation ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjServOperation.makeTransient(ref);			
+		}
+
+		// and add new ones !
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.SERVICE_OPERATION_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			T011ObjServOperation ref = mapT011ObjServOperation(oIn, refDoc, new T011ObjServOperation(), line);
+			
+			// save the object and get ID from database (cascading insert do not work??)
+			daoT011ObjServOperation.makePersistent(ref);
+
+			// map 1:N relations
+
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServOperation mapT011ObjServOperation(T011ObjServ oFrom,
+			IngridDocument refDoc,
+			T011ObjServOperation ref,
+			int line)
+	{
+		ref.setObjServId(oFrom.getId());
+		ref.setName(refDoc.getString(MdekKeys.SERVICE_OPERATION_NAME));
+		ref.setDescr(refDoc.getString(MdekKeys.SERVICE_OPERATION_DESCRIPTION));
+		ref.setInvocationName(refDoc.getString(MdekKeys.INVOCATION_NAME));
 		ref.setLine(line);
 
 		return ref;
