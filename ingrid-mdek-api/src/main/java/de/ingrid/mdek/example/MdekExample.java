@@ -667,6 +667,14 @@ class MdekThread extends Thread {
 		strList = (strList == null) ? new ArrayList<String>() : strList;
 		strList.add("TEST feature type");
 		technicalDomain.put(MdekKeys.FEATURE_TYPE_LIST, strList);
+		// add TECHNICAL DOMAIN MAP - vector format -> geo vector list
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.GEO_VECTOR_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.GEOMETRIC_OBJECT_TYPE, new Integer(1));
+		testDoc.put(MdekKeys.GEOMETRIC_OBJECT_COUNT, new Integer(100));
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.GEO_VECTOR_LIST, docList);
 		
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
@@ -1117,6 +1125,13 @@ class MdekThread extends Thread {
 				System.out.println("  technical domain map - feature types: " + strList.size() + " entries");
 				for (String str : strList) {
 					System.out.println("   " + str);								
+				}			
+			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.GEO_VECTOR_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain map - vector formats, geo vector list: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("   " + doc);								
 				}			
 			}
 		}

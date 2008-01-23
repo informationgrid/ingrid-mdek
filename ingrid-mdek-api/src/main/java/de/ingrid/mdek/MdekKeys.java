@@ -263,6 +263,14 @@ public class MdekKeys {
     // TECHNICAL DOMAIN MAP - FEATURE TYPE
     /** Value: List of IngridDocs  */
     public final static String FEATURE_TYPE_LIST = "feature-type-list";
+
+    // TECHNICAL DOMAIN MAP - VECTOR FORMAT GEO VECTOR
+    /** Value: List of IngridDocs  */
+    public final static String GEO_VECTOR_LIST = "geo-vector-list";
+    /** Value: Integer  */
+    public final static String GEOMETRIC_OBJECT_TYPE = "geometric-object-type";
+    /** Value: Integer  */
+    public final static String GEOMETRIC_OBJECT_COUNT = "geometric-object-count";
     
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
