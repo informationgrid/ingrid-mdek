@@ -869,6 +869,24 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	private IngridDocument mapT011ObjServ(Set<T011ObjServ> refs, IngridDocument objectDoc) {
+		if (refs == null || refs.size() == 0) {
+			return objectDoc;
+		}
+
+		// there should only be one object in the set because of the 1:1 relation between tables 
+		// get first object from iterator
+		T011ObjServ ref = refs.iterator().next();
+
+		IngridDocument domainDoc = new IngridDocument();
+		mapT011ObjServ(ref, domainDoc);
+		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, domainDoc);
+
+		// add service versions
+		mapT011ObjServVersions(ref.getT011ObjServVersions(), domainDoc);
+
+		return objectDoc;
+	}
 	private IngridDocument mapT011ObjServ(T011ObjServ ref, IngridDocument refDoc) {
 		if (ref == null) {
 			return refDoc;
@@ -882,15 +900,17 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
-	private IngridDocument mapT011ObjServ(Set<T011ObjServ> refs, IngridDocument objectDoc) {
-		if (refs == null || refs.size() == 0) {
+	private IngridDocument mapT011ObjServVersions(Set<T011ObjServVersion> refs, IngridDocument objectDoc) {
+		if (refs == null) {
 			return objectDoc;
 		}
-
-		IngridDocument domainDoc = new IngridDocument();
-		mapT011ObjServ(refs.iterator().next(), domainDoc);
-		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, domainDoc);
+		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		for (T011ObjServVersion ref : refs) {
+			refList.add(ref.getServVersion());				
+		}
+		objectDoc.put(MdekKeys.SERVICE_VERSION_LIST, refList);
 		
 		return objectDoc;
 	}
+
 }

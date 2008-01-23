@@ -59,6 +59,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjProject;
 	private IGenericDao<IEntity> daoT011ObjLiterature;
 	private IGenericDao<IEntity> daoT011ObjServ;
+	private IGenericDao<IEntity> daoT011ObjServVersion;
 	
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -99,6 +100,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjProject = daoFactory.getDao(T011ObjProject.class);
 		daoT011ObjLiterature = daoFactory.getDao(T011ObjLiterature.class);
 		daoT011ObjServ = daoFactory.getDao(T011ObjServ.class);
+		daoT011ObjServVersion = daoFactory.getDao(T011ObjServVersion.class);
 	}
 
 	/**
@@ -1193,20 +1195,6 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 
-
-	private T011ObjServ mapT011ObjServ(T01Object oFrom,
-			IngridDocument refDoc,
-			T011ObjServ ref) 
-	{
-		ref.setObjId(oFrom.getId());
-		ref.setType(refDoc.getString(MdekKeys.SERVICE_TYPE));
-		ref.setHistory(refDoc.getString(MdekKeys.SYSTEM_HISTORY));
-		ref.setEnvironment(refDoc.getString(MdekKeys.SYSTEM_ENVIRONMENT));
-		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
-		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
-
-		return ref;
-	}
 	private void updateT011ObjServ(IngridDocument oDocIn, T01Object oIn) {
 		Set<T011ObjServ> refs = oIn.getT011ObjServs();
 		ArrayList<T011ObjServ> refs_unprocessed = new ArrayList<T011ObjServ>(refs);
@@ -1223,8 +1211,57 @@ public class DocToBeanMapper implements IMapper {
 
 			// save the object and get ID from database (cascading insert do not work??)
 			daoT011ObjServ.makePersistent(ref);
-			
+
+			// map 1:N relations
+			updateT011ObjServVersions(domainDoc, ref);
+
 			refs.add(ref);
 		}
 	}
+	private T011ObjServ mapT011ObjServ(T01Object oFrom,
+			IngridDocument refDoc,
+			T011ObjServ ref) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setType(refDoc.getString(MdekKeys.SERVICE_TYPE));
+		ref.setHistory(refDoc.getString(MdekKeys.SYSTEM_HISTORY));
+		ref.setEnvironment(refDoc.getString(MdekKeys.SYSTEM_ENVIRONMENT));
+		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
+		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
+
+		return ref;
+	}
+	private void updateT011ObjServVersions(IngridDocument oDocIn, T011ObjServ oIn) {
+		List<String> versions = (List) oDocIn.get(MdekKeys.SERVICE_VERSION_LIST);
+		if (versions == null) {
+			versions = new ArrayList<String>(0);
+		}
+		Set<T011ObjServVersion> refs = oIn.getT011ObjServVersions();
+		ArrayList<T011ObjServVersion> refs_unprocessed = new ArrayList<T011ObjServVersion>(refs);
+		// remove all !
+		for (T011ObjServVersion ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjServVersion.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (String version : versions) {
+			T011ObjServVersion ref = mapT011ObjServVersion(oIn, version, new T011ObjServVersion(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServVersion mapT011ObjServVersion(T011ObjServ oFrom,
+			String version,
+			T011ObjServVersion ref,
+			int line)
+	{
+		ref.setObjServId(oFrom.getId());
+		ref.setServVersion(version);
+		ref.setLine(line);
+
+		return ref;
+	}
+
 }
