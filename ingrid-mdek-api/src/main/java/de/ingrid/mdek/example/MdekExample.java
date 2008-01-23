@@ -791,6 +791,11 @@ class MdekThread extends Thread {
 		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME, "TEST SERVICE_OPERATION_NAME");
 		testDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, "TEST SERVICE_OPERATION_DESCRIPTION");
 		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
+		// add TECHNICAL DOMAIN SERVICE - operation platforms
+		strList = new ArrayList<String>();
+		strList.add("TEST SERVICE_OPERATION_PLATFORM1");
+		strList.add("TEST SERVICE_OPERATION_PLATFORM2");
+		testDoc.put(MdekKeys.SERVICE_OPERATION_PLATFORM_LIST, strList);
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
 
@@ -1289,8 +1294,13 @@ class MdekThread extends Thread {
 			if (docList != null) {
 				System.out.println("    SERVICE - operations: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
-					System.out.println("     " + doc);								
-				}			
+					System.out.println("      " + doc);								
+					strList = (List<String>) doc.get(MdekKeys.SERVICE_OPERATION_PLATFORM_LIST);
+					if (strList != null) {
+						System.out.println("      SERVICE - operation - platforms: " + strList.size() + " entries");
+						System.out.println("        " + strList);
+					}
+				}
 			}
 		}
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);

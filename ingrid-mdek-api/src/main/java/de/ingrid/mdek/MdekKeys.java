@@ -323,10 +323,10 @@ public class MdekKeys {
     // defined below
 //    /** Value: String  */
 //    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
-    // TECHNICAL DOMAIN SERVICE - VERSION
+    // TECHNICAL DOMAIN SERVICE - VERSIONS
     /** Value: List of Strings  */
     public final static String SERVICE_VERSION_LIST = "service-version-list";
-    // TECHNICAL DOMAIN SERVICE - OPERATION
+    // TECHNICAL DOMAIN SERVICE - OPERATIONS
     /** Value: List of IngridDocs  */
     public final static String SERVICE_OPERATION_LIST = "service-operation-list";
     /** Value: String */
@@ -335,6 +335,9 @@ public class MdekKeys {
     public final static String SERVICE_OPERATION_DESCRIPTION = "service-operation-description";
     /** Value: String */
     public final static String INVOCATION_NAME = "invocation-name";
+    // TECHNICAL DOMAIN SERVICE OPERATION - PLATFORMS
+    /** Value: List of Strings  */
+    public final static String SERVICE_OPERATION_PLATFORM_LIST = "service-operation-platform-list";
 
 
     // TECHNICAL DOMAIN PROJECT
