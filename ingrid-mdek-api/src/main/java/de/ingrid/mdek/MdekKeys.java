@@ -338,9 +338,12 @@ public class MdekKeys {
     // TECHNICAL DOMAIN SERVICE OPERATION - PLATFORMS
     /** Value: List of Strings  */
     public final static String PLATFORM_LIST = "platform-list";
-    // TECHNICAL DOMAIN SERVICE OPERATION - DEPENDS ON
+    // TECHNICAL DOMAIN SERVICE OPERATION - DEPENDS ONS
     /** Value: List of Strings  */
     public final static String DEPENDS_ON_LIST = "depends-on-list";
+    // TECHNICAL DOMAIN SERVICE OPERATION - CONNPOINTS
+    /** Value: List of Strings  */
+    public final static String CONNECT_POINT_LIST = "connect-point-list";
 
 
     // TECHNICAL DOMAIN PROJECT

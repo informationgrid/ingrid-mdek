@@ -403,6 +403,7 @@
 			<xs:element name="invocation-name" type="xs:string"/>
 			<xs:element name="platform-list" type="STRING_LIST"/>
 			<xs:element name="depends-on-list" type="STRING_LIST"/>
+			<xs:element name="connect-point-list" type="STRING_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_PROJECT_MAP">

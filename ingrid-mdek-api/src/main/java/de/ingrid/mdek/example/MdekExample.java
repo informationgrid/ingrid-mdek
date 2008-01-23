@@ -801,6 +801,11 @@ class MdekThread extends Thread {
 		strList.add("TEST DEPENDS_ON1");
 		strList.add("TEST DEPENDS_ON2");
 		testDoc.put(MdekKeys.DEPENDS_ON_LIST, strList);
+		// add TECHNICAL DOMAIN SERVICE - connectPoints
+		strList = new ArrayList<String>();
+		strList.add("TEST CONNECT_POINT1");
+		strList.add("TEST CONNECT_POINT2");
+		testDoc.put(MdekKeys.CONNECT_POINT_LIST, strList);
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
 
@@ -1308,6 +1313,11 @@ class MdekThread extends Thread {
 					strList = (List<String>) doc.get(MdekKeys.DEPENDS_ON_LIST);
 					if (strList != null) {
 						System.out.println("      SERVICE - operation - dependsOns: " + strList.size() + " entries");
+						System.out.println("        " + strList);
+					}
+					strList = (List<String>) doc.get(MdekKeys.CONNECT_POINT_LIST);
+					if (strList != null) {
+						System.out.println("      SERVICE - operation - connectPoints: " + strList.size() + " entries");
 						System.out.println("        " + strList);
 					}
 				}
