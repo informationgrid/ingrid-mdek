@@ -30,6 +30,13 @@ import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoVector;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
@@ -110,7 +117,23 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjDataPara>(_sessionFactory, T011ObjDataPara.class);
 		} else if (clazz.isAssignableFrom(T011ObjProject.class)) {
 			dao = new GenericHibernateDao<T011ObjProject>(_sessionFactory, T011ObjProject.class);
-		} 
+		} else if (clazz.isAssignableFrom(T011ObjLiterature.class)) {
+			dao = new GenericHibernateDao<T011ObjLiterature>(_sessionFactory, T011ObjLiterature.class);
+		} else if (clazz.isAssignableFrom(T011ObjGeoKeyc.class)) {
+			dao = new GenericHibernateDao<T011ObjGeoKeyc>(_sessionFactory, T011ObjGeoKeyc.class);
+		} else if (clazz.isAssignableFrom(T011ObjGeoScale.class)) {
+			dao = new GenericHibernateDao<T011ObjGeoScale>(_sessionFactory, T011ObjGeoScale.class);
+		} else if (clazz.isAssignableFrom(T011ObjGeoSymc.class)) {
+			dao = new GenericHibernateDao<T011ObjGeoSymc>(_sessionFactory, T011ObjGeoSymc.class);
+		} else if (clazz.isAssignableFrom(T011ObjGeoSupplinfo.class)) {
+			dao = new GenericHibernateDao<T011ObjGeoSupplinfo>(_sessionFactory, T011ObjGeoSupplinfo.class);
+		} else if (clazz.isAssignableFrom(T011ObjGeoVector.class)) {
+			dao = new GenericHibernateDao<T011ObjGeoVector>(_sessionFactory, T011ObjGeoVector.class);
+		} else if (clazz.isAssignableFrom(T011ObjGeoSpatialRep.class)) {
+			dao = new GenericHibernateDao<T011ObjGeoSpatialRep>(_sessionFactory, T011ObjGeoSpatialRep.class);
+		} else {
+			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
+		}
 
         return dao;
     }

@@ -123,6 +123,8 @@ public class BeanToDocMapper implements IMapper {
 
 			// technical domain map
 			mapT011ObjGeo(o.getT011ObjGeos(), objectDoc);
+			// technical domain document
+			mapT011ObjLiterature(o.getT011ObjLiteratures(), objectDoc);
 			// technical domain project
 			mapT011ObjProject(o.getT011ObjProjects(), objectDoc);
 			// technical domain dataset
@@ -611,6 +613,37 @@ public class BeanToDocMapper implements IMapper {
 		
 		return objectDoc;
 	}
+	
+
+	private IngridDocument mapT011ObjLiterature(Set<T011ObjLiterature> refs, IngridDocument objectDoc) {
+		if (refs == null || refs.size() == 0) {
+			return objectDoc;
+		}
+		IngridDocument refDoc = new IngridDocument();
+		
+		// there should only be one object in the set because of the 1:1 relation between tables 
+		// get first object from iterator
+		T011ObjLiterature ref = refs.iterator().next();
+
+		refDoc.put(MdekKeys.AUTHOR, ref.getAuthor());
+		refDoc.put(MdekKeys.SOURCE, ref.getBase());
+		refDoc.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, ref.getDescription());
+		refDoc.put(MdekKeys.ADDITIONAL_BIBLIOGRAPHIC_INFO, ref.getDocInfo());
+		refDoc.put(MdekKeys.ISBN, ref.getIsbn());
+		refDoc.put(MdekKeys.LOCATION, ref.getLoc());
+		refDoc.put(MdekKeys.EDITOR, ref.getPublisher());
+		refDoc.put(MdekKeys.PUBLISHED_IN, ref.getPublishIn());
+		refDoc.put(MdekKeys.PUBLISHER, ref.getPublishing());
+		refDoc.put(MdekKeys.PUBLISHING_PLACE, ref.getPublishLoc());
+		refDoc.put(MdekKeys.YEAR, ref.getPublishYear());
+		refDoc.put(MdekKeys.PAGES, ref.getSides());
+		refDoc.put(MdekKeys.TYPE_OF_DOCUMENT, ref.getType());
+		refDoc.put(MdekKeys.VOLUME, ref.getVolume());
+
+		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT, refDoc);
+		
+		return objectDoc;
+	}	
 	
 	
 	private IngridDocument mapT015Legists(Set<T015Legist> refs, IngridDocument objectDoc) {

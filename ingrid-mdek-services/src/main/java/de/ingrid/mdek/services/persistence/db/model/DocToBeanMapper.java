@@ -57,6 +57,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjData;
 	private IGenericDao<IEntity> daoT011ObjDataPara;
 	private IGenericDao<IEntity> daoT011ObjProject;
+	private IGenericDao<IEntity> daoT011ObjLiterature;
 	
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -95,6 +96,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjData = daoFactory.getDao(T011ObjData.class);
 		daoT011ObjDataPara = daoFactory.getDao(T011ObjDataPara.class);
 		daoT011ObjProject = daoFactory.getDao(T011ObjProject.class);
+		daoT011ObjLiterature = daoFactory.getDao(T011ObjLiterature.class);
 	}
 
 	/**
@@ -175,6 +177,8 @@ public class DocToBeanMapper implements IMapper {
 
 			// technical domain map
 			updateT011ObjGeos(oDocIn, oIn);
+			// technical domain literature
+			updateT011ObjLiterature(oDocIn, oIn);
 			// technical domain project
 			updateT011ObjProject(oDocIn, oIn);
 			// technical domain dataset
@@ -756,6 +760,40 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}	
 	
+
+	private void updateT011ObjLiterature(IngridDocument oDocIn, T01Object oIn) {
+		Set<T011ObjLiterature> refs = oIn.getT011ObjLiteratures();
+		ArrayList<T011ObjLiterature> refs_unprocessed = new ArrayList<T011ObjLiterature>(refs);
+		// remove all !
+		for (T011ObjLiterature ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjLiterature.makeTransient(ref);			
+		}
+		
+		IngridDocument refDoc = (IngridDocument)oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
+		if (refDoc != null) {
+			// and the new one, should be only one, because of the 1:1 relation of tables 
+			T011ObjLiterature ref = new T011ObjLiterature();
+			ref.setObjId(oIn.getId());
+			ref.setAuthor(refDoc.getString(MdekKeys.AUTHOR));
+			ref.setBase(refDoc.getString(MdekKeys.SOURCE));
+			ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
+			ref.setDocInfo(refDoc.getString(MdekKeys.ADDITIONAL_BIBLIOGRAPHIC_INFO));
+			ref.setIsbn(refDoc.getString(MdekKeys.ISBN));
+			ref.setLoc(refDoc.getString(MdekKeys.LOCATION));
+			ref.setPublisher(refDoc.getString(MdekKeys.EDITOR));
+			ref.setPublishIn(refDoc.getString(MdekKeys.PUBLISHED_IN));
+			ref.setPublishing(refDoc.getString(MdekKeys.PUBLISHER));
+			ref.setPublishLoc(refDoc.getString(MdekKeys.PUBLISHING_PLACE));
+			ref.setPublishYear(refDoc.getString(MdekKeys.YEAR));
+			ref.setSides(refDoc.getString(MdekKeys.PAGES));
+			ref.setType(refDoc.getString(MdekKeys.TYPE_OF_DOCUMENT));
+			ref.setVolume(refDoc.getString(MdekKeys.VOLUME));
+			refs.add(ref);
+		}
+		
+	}	
 	
 	private T015Legist mapT015Legist(T01Object oFrom,
 			String name,
