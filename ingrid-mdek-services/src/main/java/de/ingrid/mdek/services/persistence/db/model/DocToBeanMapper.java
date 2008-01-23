@@ -162,7 +162,6 @@ public class DocToBeanMapper implements IMapper {
 			updateT017UrlRefs(oDocIn, oIn);
 			updateT0113DatasetReferences(oDocIn, oIn);
 			updateT014InfoImparts(oDocIn, oIn);
-			updateT011ObjGeos(oDocIn, oIn);
 			updateT015Legists(oDocIn, oIn);
 			updateT0110AvailFormats(oDocIn, oIn);
 			updateT0112MediaOptions(oDocIn, oIn);
@@ -170,12 +169,12 @@ public class DocToBeanMapper implements IMapper {
 			updateT0114EnvTopics(oDocIn, oIn);
 			updateT011ObjTopicCats(oDocIn, oIn);
 
+			// technical domain map
+			updateT011ObjGeos(oDocIn, oIn);
 			// technical domain project
 			updateT011ObjProject(oDocIn, oIn);
-
 			// technical domain dataset
 			updateT011ObjData(oDocIn, oIn);
-			updateT011ObjDataParas(oDocIn, oIn);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -1021,6 +1020,8 @@ public class DocToBeanMapper implements IMapper {
 			T011ObjData ref = mapT011ObjData(oIn, domainDoc, new T011ObjData());
 			refs.add(ref);
 		}
+
+		updateT011ObjDataParas(oDocIn, oIn);
 	}
 
 	private T011ObjDataPara mapT011ObjDataPara(T01Object oFrom,

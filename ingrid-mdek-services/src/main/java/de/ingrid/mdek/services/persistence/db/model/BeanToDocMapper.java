@@ -114,7 +114,6 @@ public class BeanToDocMapper implements IMapper {
 			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
 			mapT0113DatasetReferences(o.getT0113DatasetReferences(), objectDoc);
 			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
-			mapT011ObjGeo(o.getT011ObjGeos(), objectDoc);
 			mapT015Legists(o.getT015Legists(), objectDoc);
 			mapT0110AvailFormats(o.getT0110AvailFormats(), objectDoc);
 			mapT0112MediaOptions(o.getT0112MediaOptions(), objectDoc);
@@ -122,12 +121,12 @@ public class BeanToDocMapper implements IMapper {
 			mapT0114EnvTopics(o.getT0114EnvTopics(), objectDoc);
 			mapT011ObjTopicCats(o.getT011ObjTopicCats(), objectDoc);
 
+			// technical domain map
+			mapT011ObjGeo(o.getT011ObjGeos(), objectDoc);
 			// technical domain project
 			mapT011ObjProject(o.getT011ObjProjects(), objectDoc);
-
-			// technical domain dateset -> mapping order is important !
-			mapT011ObjData(o.getT011ObjDatas(), objectDoc);
-			mapT011ObjDataParas(o.getT011ObjDataParas(), objectDoc);
+			// technical domain dataset
+			mapT011ObjData(o, objectDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -736,7 +735,8 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
-	private IngridDocument mapT011ObjData(Set<T011ObjData> refs, IngridDocument objectDoc) {
+	private IngridDocument mapT011ObjData(T01Object obj, IngridDocument objectDoc) {
+		Set<T011ObjData> refs = obj.getT011ObjDatas();
 		if (refs == null || refs.size() == 0) {
 			return objectDoc;
 		}
@@ -744,7 +744,9 @@ public class BeanToDocMapper implements IMapper {
 		IngridDocument domainDoc = new IngridDocument();
 		mapT011ObjData(refs.iterator().next(), domainDoc);
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, domainDoc);
-		
+
+		mapT011ObjDataParas(obj.getT011ObjDataParas(), objectDoc);
+
 		return objectDoc;
 	}
 	private IngridDocument mapT011ObjDataPara(T011ObjDataPara ref, IngridDocument refDoc) {
