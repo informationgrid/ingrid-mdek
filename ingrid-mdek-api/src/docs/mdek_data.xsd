@@ -263,6 +263,7 @@
 			<xs:element name="key-catalog-list" type="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_LIST"/>
 			<xs:element name="publication-scale-list" type="TECHNICAL_DOMAIN_MAP_PUBLICATION_SCALE_LIST"/>
 			<xs:element name="symbol-catalog-list" type="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_LIST"/>
+			<xs:element name="feature-type-list" type="STRING_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_LIST">
@@ -289,12 +290,12 @@
 			<xs:element name="resolution-scan" type="xs:double"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_MAP_KEY_SYMBOL_LIST">
+	<xs:complexType name="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="TECHNICAL_DOMAIN_MAP_KEY_SYMBOL_MAP" type="TECHNICAL_DOMAIN_MAP_KEY_SYMBOL_MAP"/>
+			<xs:element name="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_MAP" type="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_MAP_KEY_SYMBOL_MAP">
+	<xs:complexType name="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_MAP">
 		<xs:sequence>
 			<xs:element name="symbol-cat" type="xs:string"/>
 			<xs:element name="symbol-date" type="xs:string"/>

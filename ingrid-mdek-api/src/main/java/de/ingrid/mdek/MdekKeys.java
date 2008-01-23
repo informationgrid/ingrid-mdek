@@ -260,6 +260,9 @@ public class MdekKeys {
     /** Value: String  */
     public final static String SYMBOL_EDITION = "symbol-edition";
     
+    // TECHNICAL DOMAIN MAP - FEATURE TYPE
+    /** Value: List of IngridDocs  */
+    public final static String FEATURE_TYPE_LIST = "feature-type-list";
     
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */

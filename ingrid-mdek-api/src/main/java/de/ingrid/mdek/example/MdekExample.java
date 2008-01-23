@@ -662,7 +662,11 @@ class MdekThread extends Thread {
 		testDoc.put(MdekKeys.SYMBOL_EDITION, "TEST " + MdekKeys.SYMBOL_EDITION);
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.SYMBOL_CATALOG_LIST, docList);
-		
+		// add TECHNICAL DOMAIN MAP - feature types
+		strList = (List<String>) oDocIn.get(MdekKeys.FEATURE_TYPE_LIST);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST feature type");
+		technicalDomain.put(MdekKeys.FEATURE_TYPE_LIST, strList);
 		
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
@@ -1106,6 +1110,13 @@ class MdekThread extends Thread {
 				System.out.println("  technical domain map - symbol catalogs: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("   " + doc);								
+				}			
+			}
+			strList = (List<String>) myDoc.get(MdekKeys.FEATURE_TYPE_LIST);
+			if (docList != null) {
+				System.out.println("  technical domain map - feature types: " + strList.size() + " entries");
+				for (String str : strList) {
+					System.out.println("   " + str);								
 				}			
 			}
 		}
