@@ -793,9 +793,14 @@ class MdekThread extends Thread {
 		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
 		// add TECHNICAL DOMAIN SERVICE - operation platforms
 		strList = new ArrayList<String>();
-		strList.add("TEST SERVICE_OPERATION_PLATFORM1");
-		strList.add("TEST SERVICE_OPERATION_PLATFORM2");
-		testDoc.put(MdekKeys.SERVICE_OPERATION_PLATFORM_LIST, strList);
+		strList.add("TEST PLATFORM1");
+		strList.add("TEST PLATFORM2");
+		testDoc.put(MdekKeys.PLATFORM_LIST, strList);
+		// add TECHNICAL DOMAIN SERVICE - dependsOns
+		strList = new ArrayList<String>();
+		strList.add("TEST DEPENDS_ON1");
+		strList.add("TEST DEPENDS_ON2");
+		testDoc.put(MdekKeys.DEPENDS_ON_LIST, strList);
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
 
@@ -1295,9 +1300,14 @@ class MdekThread extends Thread {
 				System.out.println("    SERVICE - operations: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("      " + doc);								
-					strList = (List<String>) doc.get(MdekKeys.SERVICE_OPERATION_PLATFORM_LIST);
+					strList = (List<String>) doc.get(MdekKeys.PLATFORM_LIST);
 					if (strList != null) {
 						System.out.println("      SERVICE - operation - platforms: " + strList.size() + " entries");
+						System.out.println("        " + strList);
+					}
+					strList = (List<String>) doc.get(MdekKeys.DEPENDS_ON_LIST);
+					if (strList != null) {
+						System.out.println("      SERVICE - operation - dependsOns: " + strList.size() + " entries");
 						System.out.println("        " + strList);
 					}
 				}

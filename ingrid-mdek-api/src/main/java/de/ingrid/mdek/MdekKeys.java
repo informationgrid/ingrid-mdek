@@ -337,7 +337,10 @@ public class MdekKeys {
     public final static String INVOCATION_NAME = "invocation-name";
     // TECHNICAL DOMAIN SERVICE OPERATION - PLATFORMS
     /** Value: List of Strings  */
-    public final static String SERVICE_OPERATION_PLATFORM_LIST = "service-operation-platform-list";
+    public final static String PLATFORM_LIST = "platform-list";
+    // TECHNICAL DOMAIN SERVICE OPERATION - DEPENDS ON
+    /** Value: List of Strings  */
+    public final static String DEPENDS_ON_LIST = "depends-on-list";
 
 
     // TECHNICAL DOMAIN PROJECT

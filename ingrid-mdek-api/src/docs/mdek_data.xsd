@@ -401,7 +401,8 @@
 			<xs:element name="service-operation-name" type="xs:string"/>
 			<xs:element name="service-operation-description" type="xs:string"/>
 			<xs:element name="invocation-name" type="xs:string"/>
-			<xs:element name="service-operation-platform-list" type="STRING_LIST"/>
+			<xs:element name="platform-list" type="STRING_LIST"/>
+			<xs:element name="depends-on-list" type="STRING_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_PROJECT_MAP">
