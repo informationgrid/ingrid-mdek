@@ -174,17 +174,27 @@ class MdekThread extends Thread {
 		System.out.println("STORE TEST new object");
 		System.out.println("=========================");
 
-		System.out.println("\n----- store new object (with address, object references, spatial refs ...) -----");
-		IngridDocument objDoc = new IngridDocument();
-		objDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		objDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
-		objDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
-		objDoc.put(MdekKeys.LOCATIONS, oMap.get(MdekKeys.LOCATIONS));
-		objDoc.put(MdekKeys.SUBJECT_TERMS, oMap.get(MdekKeys.SUBJECT_TERMS));
+		System.out.println("\n----- first load initial data (e.g. from parent " + parentUuid + ") -----");
+		IngridDocument newObjDoc = new IngridDocument();
 		// supply parent uuid !
-		objDoc.put(MdekKeys.PARENT_UUID, parentUuid);
+		newObjDoc.put(MdekKeys.PARENT_UUID, parentUuid);
+		newObjDoc = getInitialObject(newObjDoc);
 
-		oMap = storeObject(objDoc);
+		System.out.println("\n----- extend initial object (with address, object references, spatial refs, free term ...) and store -----");
+		// extend initial object with own data !
+		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
+		newObjDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
+		newObjDoc.put(MdekKeys.LOCATIONS, oMap.get(MdekKeys.LOCATIONS));
+
+		List<IngridDocument> terms = (List<IngridDocument>) newObjDoc.get(MdekKeys.SUBJECT_TERMS);
+		IngridDocument newTerm = new IngridDocument();
+		newTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		newTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
+		System.out.println("ADD NEW SUBJECT TERM: " + newTerm);
+		terms.add(newTerm);
+
+		oMap = storeObject(newObjDoc);
 		// uuid created !
 		String newObjUuid = (String) oMap.get(MdekKeys.UUID);
 
@@ -224,9 +234,9 @@ class MdekThread extends Thread {
 		oMap = copyObject(objectFrom, objectTo, false);
 		String copy1Uuid = (String)oMap.get(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
-		System.out.println("\n\n----- load original one -----");
+		System.out.println("----- load original one -----");
 		fetchObject(objectFrom, Quantity.DETAIL_ENTITY);
-		System.out.println("\n\n----- load copy -----");
+		System.out.println("\n----- then load copy -----");
 		fetchObject(copy1Uuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n\n----- verify NO copied sub objects -> load children of copy -----");
 		fetchSubObjects(copy1Uuid);
@@ -505,6 +515,31 @@ class MdekThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument getInitialObject(IngridDocument newBasicObject) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getInitialObject ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.getInitialObject(newBasicObject);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	private IngridDocument checkObjectSubTree(String uuid) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
@@ -584,11 +619,6 @@ class MdekThread extends Thread {
 			System.out.println("REMOVE FIRST SUBJECT TERM: " + termRemoved);
 			docList.remove(0);			
 		}
-		IngridDocument newTerm = new IngridDocument();
-		newTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
-		newTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
-		System.out.println("ADD NEW SUBJECT TERM: " + newTerm);
-		docList.add(newTerm);
 
 		// remove first url reference !
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.LINKAGES);

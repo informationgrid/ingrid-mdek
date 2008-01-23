@@ -120,6 +120,12 @@ public interface IMdekCaller {
 	 */
 	IngridDocument moveObject(String fromUuid, String toUuid, boolean performCheck);
 
+	/**
+	 * Get initial data for a new object. Pass data needed to determine initial data (e.g. uuid of parent).
+	 * @param newBasicObject basic new object with data needed to determine initial data, e.g. parent uuid ...
+	 * @return extended newObject, e.g. containing terms of parent etc.
+	 */
+	IngridDocument getInitialObject(IngridDocument newBasicObject);
 
 	// uncomment when needed ! then recheck functionality and implementation !
 //	IngridDocument fetchTopAddresses();

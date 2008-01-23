@@ -203,6 +203,13 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument getInitialObject(IngridDocument newBasicObject) {
+		IngridDocument jobParams = newBasicObject;
+		List jobMethods = setUpJobMethod("getInitialObject", jobParams);
+
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
+
 
 /*
 	public IngridDocument fetchTopAddresses() {
