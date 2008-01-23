@@ -698,7 +698,7 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
-	private IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc) {
+	public IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
 		}
