@@ -64,6 +64,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjServOperation;
 	private IGenericDao<IEntity> daoT011ObjServOpPlatform;
 	private IGenericDao<IEntity> daoT011ObjServOpDepends;
+	private IGenericDao<IEntity> daoT011ObjServOpConnpoint;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -109,6 +110,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServOperation = daoFactory.getDao(T011ObjServOperation.class);
 		daoT011ObjServOpPlatform = daoFactory.getDao(T011ObjServOpPlatform.class);
 		daoT011ObjServOpDepends = daoFactory.getDao(T011ObjServOpDepends.class);
+		daoT011ObjServOpConnpoint = daoFactory.getDao(T011ObjServOpConnpoint.class);
 	}
 
 	/**
@@ -1333,6 +1335,7 @@ public class DocToBeanMapper implements IMapper {
 			// map 1:N relations
 			updateT011ObjServOpPlatforms(refDoc, ref);
 			updateT011ObjServOpDependss(refDoc, ref);
+			updateT011ObjServOpConnpoints(refDoc, ref);
 
 			refs.add(ref);
 			line++;
@@ -1411,6 +1414,38 @@ public class DocToBeanMapper implements IMapper {
 	{
 		ref.setObjServOpId(oFrom.getId());
 		ref.setDependsOn(dependsOn);
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT011ObjServOpConnpoints(IngridDocument oDocIn, T011ObjServOperation oIn) {
+		List<String> connectPoints = (List) oDocIn.get(MdekKeys.CONNECT_POINT_LIST);
+		if (connectPoints == null) {
+			connectPoints = new ArrayList<String>(0);
+		}
+		Set<T011ObjServOpConnpoint> refs = oIn.getT011ObjServOpConnpoints();
+		ArrayList<T011ObjServOpConnpoint> refs_unprocessed = new ArrayList<T011ObjServOpConnpoint>(refs);
+		// remove all !
+		for (T011ObjServOpConnpoint ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjServOpConnpoint.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (String connectPoint : connectPoints) {
+			T011ObjServOpConnpoint ref = mapT011ObjServOpConnpoint(oIn, connectPoint, new T011ObjServOpConnpoint(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServOpConnpoint mapT011ObjServOpConnpoint(T011ObjServOperation oFrom,
+			String connectPoint,
+			T011ObjServOpConnpoint ref,
+			int line)
+	{
+		ref.setObjServOpId(oFrom.getId());
+		ref.setConnectPoint(connectPoint);
 		ref.setLine(line);
 
 		return ref;

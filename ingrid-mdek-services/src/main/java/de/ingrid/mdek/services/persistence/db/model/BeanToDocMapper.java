@@ -946,6 +946,7 @@ public class BeanToDocMapper implements IMapper {
 			// 1:n relations
 			mapT011ObjServOpPlatforms(ref.getT011ObjServOpPlatforms(), refDoc);
 			mapT011ObjServOpDependss(ref.getT011ObjServOpDependss(), refDoc);
+			mapT011ObjServOpConnpoints(ref.getT011ObjServOpConnpoints(), refDoc);
 
 			refList.add(refDoc);
 		}
@@ -986,6 +987,18 @@ public class BeanToDocMapper implements IMapper {
 			refList.add(ref.getDependsOn());				
 		}
 		inDoc.put(MdekKeys.DEPENDS_ON_LIST, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapT011ObjServOpConnpoints(Set<T011ObjServOpConnpoint> refs, IngridDocument inDoc) {
+		if (refs == null) {
+			return inDoc;
+		}
+		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		for (T011ObjServOpConnpoint ref : refs) {
+			refList.add(ref.getConnectPoint());				
+		}
+		inDoc.put(MdekKeys.CONNECT_POINT_LIST, refList);
 		
 		return inDoc;
 	}

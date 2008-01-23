@@ -40,6 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoVector;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpConnpoint;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
@@ -149,6 +150,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjServOpPlatform>(_sessionFactory, T011ObjServOpPlatform.class);
 		} else if (clazz.isAssignableFrom(T011ObjServOpDepends.class)) {
 			dao = new GenericHibernateDao<T011ObjServOpDepends>(_sessionFactory, T011ObjServOpDepends.class);
+		} else if (clazz.isAssignableFrom(T011ObjServOpConnpoint.class)) {
+			dao = new GenericHibernateDao<T011ObjServOpConnpoint>(_sessionFactory, T011ObjServOpConnpoint.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}
