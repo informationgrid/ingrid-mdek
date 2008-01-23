@@ -388,15 +388,15 @@
 			<xs:element name="database-of-system" type="xs:string"/>
 			<xs:element name="description-of-tech-domain" type="xs:string"/>
 			<xs:element name="service-version-list" type="STRING_LIST"/>
-			<xs:element name="service-operation-list" type="TECHNICAL_DOMAIN_SERVICE_OPERATION_LIST"/>
+			<xs:element name="service-operation-list" type="TECHNICAL_DOMAIN_SERVICE_OP_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OPERATION_LIST">
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="TECHNICAL_DOMAIN_SERVICE_OPERATION_MAP" type="TECHNICAL_DOMAIN_SERVICE_OPERATION_MAP"/>
+			<xs:element name="TECHNICAL_DOMAIN_SERVICE_OP_MAP" type="TECHNICAL_DOMAIN_SERVICE_OP_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OPERATION_MAP">
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_MAP">
 		<xs:sequence>
 			<xs:element name="service-operation-name" type="xs:string"/>
 			<xs:element name="service-operation-description" type="xs:string"/>
@@ -404,6 +404,21 @@
 			<xs:element name="platform-list" type="STRING_LIST"/>
 			<xs:element name="depends-on-list" type="STRING_LIST"/>
 			<xs:element name="connect-point-list" type="STRING_LIST"/>
+			<xs:element name="parameter-list" type="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_LIST"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_MAP" type="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_MAP">
+		<xs:sequence>
+			<xs:element name="parameter-name" type="xs:string"/>
+			<xs:element name="direction" type="xs:string"/>
+			<xs:element name="description" type="xs:string"/>
+			<xs:element name="optionality" type="xs:integer"/>
+			<xs:element name="repeatability" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_PROJECT_MAP">

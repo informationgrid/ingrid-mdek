@@ -791,6 +791,8 @@ class MdekThread extends Thread {
 		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME, "TEST SERVICE_OPERATION_NAME");
 		testDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, "TEST SERVICE_OPERATION_DESCRIPTION");
 		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
 		// add TECHNICAL DOMAIN SERVICE - operation platforms
 		strList = new ArrayList<String>();
 		strList.add("TEST PLATFORM1");
@@ -806,8 +808,16 @@ class MdekThread extends Thread {
 		strList.add("TEST CONNECT_POINT1");
 		strList.add("TEST CONNECT_POINT2");
 		testDoc.put(MdekKeys.CONNECT_POINT_LIST, strList);
-		docList.add(testDoc);
-		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
+		// add TECHNICAL DOMAIN SERVICE - params
+		List<IngridDocument> docList2 = new ArrayList<IngridDocument>();
+		IngridDocument testDoc2 = new IngridDocument();
+		testDoc2.put(MdekKeys.PARAMETER_NAME, "TEST PARAMETER_NAME");
+		testDoc2.put(MdekKeys.DIRECTION, "TEST DIRECTION");
+		testDoc2.put(MdekKeys.DESCRIPTION, "TEST DESCRIPTION");
+		testDoc2.put(MdekKeys.OPTIONALITY, 1);
+		testDoc2.put(MdekKeys.REPEATABILITY, 2);
+		docList2.add(testDoc2);
+		testDoc.put(MdekKeys.PARAMETER_LIST, docList2);
 
 		// add TECHNICAL DOMAIN PROJECT
 		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
@@ -1319,6 +1329,13 @@ class MdekThread extends Thread {
 					if (strList != null) {
 						System.out.println("      SERVICE - operation - connectPoints: " + strList.size() + " entries");
 						System.out.println("        " + strList);
+					}
+					List<IngridDocument> docList2 = (List<IngridDocument>) doc.get(MdekKeys.PARAMETER_LIST);
+					if (docList2 != null) {
+						System.out.println("      SERVICE - operation - parameters: " + docList2.size() + " entries");
+						for (IngridDocument doc2 : docList2) {
+							System.out.println("        " + doc2);
+						}			
 					}
 				}
 			}

@@ -344,7 +344,19 @@ public class MdekKeys {
     // TECHNICAL DOMAIN SERVICE OPERATION - CONNPOINTS
     /** Value: List of Strings  */
     public final static String CONNECT_POINT_LIST = "connect-point-list";
-
+    // TECHNICAL DOMAIN SERVICE - OPERATION - PARAMETERS
+    /** Value: List of IngridDocs  */
+    public final static String PARAMETER_LIST = "parameter-list";
+    /** Value: String */
+    public final static String PARAMETER_NAME = "parameter-name";
+    /** Value: String */
+    public final static String DIRECTION = "direction";
+    /** Value: String */
+    public final static String DESCRIPTION = "description";
+    /** Value: Integer */
+    public final static String OPTIONALITY = "optionality";
+    /** Value: Integer */
+    public final static String REPEATABILITY = "repeatability";
 
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
