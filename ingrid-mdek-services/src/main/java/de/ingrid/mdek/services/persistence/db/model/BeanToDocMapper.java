@@ -510,6 +510,8 @@ public class BeanToDocMapper implements IMapper {
 		mapT011ObjGeoScales(ref.getT011ObjGeoScales(), refDoc);
 		// add symbol catalogs
 		mapT011ObjGeoSymcs(ref.getT011ObjGeoSymcs(), refDoc);
+		// add feature types
+		mapT011ObjGeoSupplinfos(ref.getT011ObjGeoSupplinfos(), refDoc);
 		
 		return objectDoc;
 	}
@@ -561,6 +563,19 @@ public class BeanToDocMapper implements IMapper {
 			locList.add(doc);					
 		}
 		objectDoc.put(MdekKeys.SYMBOL_CATALOG_LIST, locList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapT011ObjGeoSupplinfos(Set<T011ObjGeoSupplinfo> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<String> locList = new ArrayList<String>(refs.size());
+		for (T011ObjGeoSupplinfo ref : refs) {
+			locList.add(ref.getFeatureType());
+		}
+		objectDoc.put(MdekKeys.FEATURE_TYPE_LIST, locList);
 		
 		return objectDoc;
 	}

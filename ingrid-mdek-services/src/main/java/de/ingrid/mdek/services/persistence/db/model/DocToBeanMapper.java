@@ -45,6 +45,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjGeoKeyc;
 	private IGenericDao<IEntity> daoT011ObjGeoScale;
 	private IGenericDao<IEntity> daoT011ObjGeoSymc;
+	private IGenericDao<IEntity> daoT011ObjGeoSupplinfo;
 	private IGenericDao<IEntity> daoT015Legist;
 	private IGenericDao<IEntity> daoT0110AvailFormat;
 	private IGenericDao<IEntity> daoT0112MediaOption;
@@ -80,6 +81,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjGeoKeyc = daoFactory.getDao(T011ObjGeoKeyc.class);
 		daoT011ObjGeoScale = daoFactory.getDao(T011ObjGeoScale.class);
 		daoT011ObjGeoSymc = daoFactory.getDao(T011ObjGeoSymc.class);
+		daoT011ObjGeoSupplinfo = daoFactory.getDao(T011ObjGeoSupplinfo.class);
 		daoT015Legist = daoFactory.getDao(T015Legist.class);
 		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
 		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
@@ -579,6 +581,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjGeoKeycs(refDoc, ref);
 			updateT011ObjGeoScales(refDoc, ref);
 			updateT011ObjGeoSymcs(refDoc, ref);
+			updateT011ObjGeoSupplinfos(refDoc, ref);
 			
 			refs.add(ref);
 		}
@@ -668,6 +671,32 @@ public class DocToBeanMapper implements IMapper {
 			line++;
 		}
 	}
+	
+	private void updateT011ObjGeoSupplinfos(IngridDocument docIn, T011ObjGeo in) {
+		List<String> refStrs = (List<String>)docIn.get(MdekKeys.FEATURE_TYPE_LIST);
+		if (refStrs == null) {
+			refStrs = new ArrayList<String>(0);
+		}
+		Set<T011ObjGeoSupplinfo> refs = in.getT011ObjGeoSupplinfos();
+		ArrayList<T011ObjGeoSupplinfo> refs_unprocessed = new ArrayList<T011ObjGeoSupplinfo>(refs);
+		// remove all !
+		for (T011ObjGeoSupplinfo ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			daoT011ObjGeoSupplinfo.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (String refStr : refStrs) {
+			// add all as new ones
+			T011ObjGeoSupplinfo ref = new T011ObjGeoSupplinfo();
+			ref.setObjGeoId(in.getId());
+			ref.setFeatureType(refStr);
+			ref.setLine(line);
+			refs.add(ref);
+			line++;
+		}
+	}	
 	
 	private T015Legist mapT015Legist(T01Object oFrom,
 			String name,

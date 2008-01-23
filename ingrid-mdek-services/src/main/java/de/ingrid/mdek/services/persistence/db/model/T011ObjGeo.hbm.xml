@@ -38,13 +38,13 @@
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoSpatialRep" not-found="ignore"/>
       </set>
+-->
       <set name="t011ObjGeoSupplinfos" order-by="line" table="t011_obj_geo_supplinfo"
            inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoSupplinfo" not-found="ignore"/>
       </set>
--->
       <set name="t011ObjGeoSymcs" order-by="line" table="t011_obj_geo_symc" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_geo_id"/>
