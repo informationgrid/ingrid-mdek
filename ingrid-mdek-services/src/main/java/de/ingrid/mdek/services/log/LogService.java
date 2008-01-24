@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Enumeration;
 
 import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -13,9 +14,16 @@ import org.apache.log4j.PatternLayout;
 public class LogService implements ILogService {
 
 	private final File _logDirectory;
+	private final boolean _logToConsole;
 
-	public LogService(File logDirectory) {
+	public LogService(File logDirectory, Boolean logToConsole) {
 		_logDirectory = logDirectory;
+		if (logToConsole == null) {
+			_logToConsole = false;
+		} else {
+			_logToConsole = logToConsole.booleanValue();
+		}
+		
 	}
 
 	public Logger getLogger(Class clazz) {
@@ -33,6 +41,16 @@ public class LogService implements ILogService {
 		debugAppender.setThreshold(Level.DEBUG);
 		debugAppender.activateOptions();
 		setAppender(debugAppender, clazz.getName());
+		if (_logToConsole) {
+			ConsoleAppender consoleAppender = new ConsoleAppender();
+			consoleAppender.setName(clazz.getName() + "console");
+			consoleAppender.setLayout(new PatternLayout(
+					"%5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%L) - %m%n"));
+			consoleAppender.setThreshold(Level.DEBUG);
+			consoleAppender.activateOptions();
+			setAppender(consoleAppender, clazz.getName());
+		}
+		
 		return logger;
 	}
 

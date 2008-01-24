@@ -20,5 +20,6 @@
 	</bean>
 	<bean class="de.ingrid.mdek.services.log.LogService" id="de.ingrid.mdek.services.log.ILogService">
 		<constructor-arg value="${job.log.dir}"/>
+		<constructor-arg value="true"/>
 	</bean>
 </beans>
