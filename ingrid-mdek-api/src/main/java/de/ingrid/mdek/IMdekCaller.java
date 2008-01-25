@@ -153,5 +153,11 @@ public interface IMdekCaller {
 	 * -> then <code>getErrorMsgFromResponse</code> contains exception
 	 */
 	List<MdekError> getErrorsFromResponse(IngridDocument mdekResponse);
+	
+	/**
+	 * Fetch The catalog object, represented by an CATALOG_MAP type in xsd.
+	 * @return response containing result: map representation of the catalog object
+	 */
+	IngridDocument fetchCatalog();
 
 }

@@ -323,4 +323,9 @@ public class MdekCaller implements IMdekCaller {
 
 		log.debug("IngridDocument: " + doc);			
 	}
+
+	public IngridDocument fetchCatalog() {
+		List jobMethods = setUpJobMethod("getCatalogObject", null);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
 }

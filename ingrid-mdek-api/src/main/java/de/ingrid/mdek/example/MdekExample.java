@@ -1357,11 +1357,6 @@ class MdekThread extends Thread {
 				System.out.println("   " + doc);								
 			}			
 		}
-		myDoc = (IngridDocument) o.get(MdekKeys.CATALOG);
-		if (myDoc != null) {
-			System.out.println("  catalog data:");
-			System.out.println("    " + myDoc);								
-		}
 		myDoc = (IngridDocument) o.get(MdekKeys.PARENT_INFO);
 		if (myDoc != null) {
 			System.out.println("  parent info:");

@@ -484,8 +484,6 @@ public class MdekKeys {
     
     
     // CATALOG DATA
-    /** Value: IngridDoc */
-    public final static String CATALOG = "catalog";
     /** Value: String */
     public final static String CATALOG_NAME = "catalog-name";
     /** Value: String */
