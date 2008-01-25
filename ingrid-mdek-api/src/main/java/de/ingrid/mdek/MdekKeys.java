@@ -503,6 +503,10 @@ public class MdekKeys {
     // defined above
     // public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
     
+    // PARENT INFO
+    /** Value: IngridDoc */
+    public final static String PARENT_INFO = "parent-info";
+    
     
     // ADDRESS DATA
     // ------------
