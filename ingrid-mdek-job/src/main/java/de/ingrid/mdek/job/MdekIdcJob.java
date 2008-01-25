@@ -15,6 +15,7 @@ import de.ingrid.mdek.MdekErrors.MdekError;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
@@ -24,6 +25,7 @@ import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -41,7 +43,7 @@ public class MdekIdcJob extends MdekJob {
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
 	private ISpatialRefValueDao daoSpatialRefValue;
-
+	private IGenericDao daoT03Catalog;
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
 
@@ -57,6 +59,7 @@ public class MdekIdcJob extends MdekJob {
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
+		daoT03Catalog = daoFactory.getDao(T03Catalogue.class);
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = docToBeanMapper.getInstance(daoFactory);
@@ -135,6 +138,40 @@ public class MdekIdcJob extends MdekJob {
 			result.put(MdekKeys.UI_FREE_SPATIAL_REFERENCES, list);
 
 			daoSpatialRefValue.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoSpatialRefValue.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+	
+	public IngridDocument getCatalogObject() {
+		try {
+			daoT03Catalog.beginTransaction();
+
+			// fetch top Objects
+			List<T03Catalogue> list = daoT03Catalog.findAll();
+			
+			if (list.size() > 0) {
+				T03Catalogue catalog = list.get(0);
+				IngridDocument result = new IngridDocument();
+				result.put(MdekKeys.UUID, catalog.getCatUuid());
+				result.put(MdekKeys.CATALOG_NAME, catalog.getCatName());
+				result.put(MdekKeys.COUNTRY, catalog.getCountryCode());
+				result.put(MdekKeys.WORKFLOW_CONTROL, catalog.getWorkflowControl());
+				result.put(MdekKeys.EXPIRY_DURATION, catalog.getExpiryDuration());
+				result.put(MdekKeys.DATE_OF_CREATION, catalog.getCreateTime());
+				result.put(MdekKeys.MODIFICATOR_IDENTIFIER, catalog.getModUuid());
+				result.put(MdekKeys.DATE_OF_LAST_MODIFICATION, catalog.getModTime());
+				
+			}
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UI_FREE_SPATIAL_REFERENCES, list);
+
+			daoT03Catalog.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
