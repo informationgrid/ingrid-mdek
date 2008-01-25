@@ -151,21 +151,8 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.MARK_DELETED, o.getMarkDeleted());
 			objectDoc.put(MdekKeys.MOD_UUID, o.getModUuid());
 			objectDoc.put(MdekKeys.RESPONSIBLE_UUID, o.getResponsibleUuid());
-		} else if (howMuch == MappingQuantity.DETAIL_ENTITY) {
-			mapT03Catalog(o.getT03Catalogue(), objectDoc);
 		}
 
-		return objectDoc;
-	}
-
-	private IngridDocument mapT03Catalog(T03Catalogue obj, IngridDocument objectDoc) {
-		if (obj == null) {
-			return objectDoc;
-		}
-		IngridDocument oToDoc = new IngridDocument();
-		oToDoc.put(MdekKeys.UUID, obj.getCatUuid());
-		oToDoc.put(MdekKeys.CATALOG_NAME, obj.getCatName());
-		objectDoc.put(MdekKeys.CATALOG, oToDoc);
 		return objectDoc;
 	}
 
@@ -1055,4 +1042,17 @@ public class BeanToDocMapper implements IMapper {
 		resultDoc.put(MdekKeys.PARENT_INFO, refDoc);
 		return resultDoc;
 	}
+	
+	public IngridDocument mapT03Catalog(T03Catalogue obj, IngridDocument resultDoc) {
+		resultDoc.put(MdekKeys.UUID, obj.getCatUuid());
+		resultDoc.put(MdekKeys.CATALOG_NAME, obj.getCatName());
+		resultDoc.put(MdekKeys.COUNTRY, obj.getCountryCode());
+		resultDoc.put(MdekKeys.WORKFLOW_CONTROL, obj.getWorkflowControl());
+		resultDoc.put(MdekKeys.EXPIRY_DURATION, obj.getExpiryDuration());
+		resultDoc.put(MdekKeys.DATE_OF_CREATION, obj.getCreateTime());
+		resultDoc.put(MdekKeys.MODIFICATOR_IDENTIFIER, obj.getModUuid());
+		resultDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, obj.getModTime());
+		return resultDoc;
+	}
+	
 }
