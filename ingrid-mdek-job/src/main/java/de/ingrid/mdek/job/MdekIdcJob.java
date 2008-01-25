@@ -221,6 +221,9 @@ public class MdekIdcJob extends MdekJob {
 
 	public IngridDocument getObjDetails(IngridDocument params) {
 		String uuid = (String) params.get(MdekKeys.UUID);
+		if (log.isDebugEnabled()) {
+			log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
+		}
 		return getObjDetails(uuid);
 	}
 
