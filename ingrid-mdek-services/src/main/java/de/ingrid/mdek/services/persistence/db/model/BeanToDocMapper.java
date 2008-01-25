@@ -151,8 +151,21 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.MARK_DELETED, o.getMarkDeleted());
 			objectDoc.put(MdekKeys.MOD_UUID, o.getModUuid());
 			objectDoc.put(MdekKeys.RESPONSIBLE_UUID, o.getResponsibleUuid());
+		} else if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+			mapT03Catalog(o.getT03Catalogue(), objectDoc);
 		}
 
+		return objectDoc;
+	}
+
+	private IngridDocument mapT03Catalog(T03Catalogue obj, IngridDocument objectDoc) {
+		if (obj == null) {
+			return objectDoc;
+		}
+		IngridDocument oToDoc = new IngridDocument();
+		oToDoc.put(MdekKeys.UUID, obj.getCatUuid());
+		oToDoc.put(MdekKeys.CATALOG_NAME, obj.getCatName());
+		objectDoc.put(MdekKeys.CATALOG, oToDoc);
 		return objectDoc;
 	}
 

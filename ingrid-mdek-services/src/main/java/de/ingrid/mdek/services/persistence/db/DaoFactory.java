@@ -51,6 +51,7 @@ import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
+import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 
 public class DaoFactory implements IDaoFactory {
 
@@ -155,6 +156,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjServOpConnpoint>(_sessionFactory, T011ObjServOpConnpoint.class);
 		} else if (clazz.isAssignableFrom(T011ObjServOpPara.class)) {
 			dao = new GenericHibernateDao<T011ObjServOpPara>(_sessionFactory, T011ObjServOpPara.class);
+		} else if (clazz.isAssignableFrom(T03Catalogue.class)) {
+			dao = new GenericHibernateDao<T03Catalogue>(_sessionFactory, T03Catalogue.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

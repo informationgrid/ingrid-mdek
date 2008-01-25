@@ -66,6 +66,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjServOpDepends;
 	private IGenericDao<IEntity> daoT011ObjServOpConnpoint;
 	private IGenericDao<IEntity> daoT011ObjServOpPara;
+	private IGenericDao<IEntity> daoT03Catalog;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -113,6 +114,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServOpDepends = daoFactory.getDao(T011ObjServOpDepends.class);
 		daoT011ObjServOpConnpoint = daoFactory.getDao(T011ObjServOpConnpoint.class);
 		daoT011ObjServOpPara = daoFactory.getDao(T011ObjServOpPara.class);
+		daoT03Catalog = daoFactory.getDao(T03Catalogue.class);
 	}
 
 	/**
