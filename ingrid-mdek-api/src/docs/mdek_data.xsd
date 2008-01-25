@@ -83,7 +83,7 @@
 			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
 			<xs:element name="technical-domain-document" type="TECHNICAL_DOMAIN_DOCUMENT_MAP"/>
 			<xs:element name="comments" type="COMMENT_LIST"/>
-			
+			<xs:element name="catalog" type="CATALOG_SIMPLE_MAP"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -473,6 +473,12 @@
 			<xs:element name="comment" type="xs:string"/>
 			<xs:element name="create_uuid" type="xs:string"/>
 			<xs:element name="create_time" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CATALOG_SIMPLE_MAP">
+		<xs:sequence>
+			<xs:element name="uuid" type="xs:string"/>
+			<xs:element name="catalog-name" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

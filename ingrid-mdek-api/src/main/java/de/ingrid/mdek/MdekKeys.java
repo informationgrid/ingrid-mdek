@@ -483,6 +483,27 @@ public class MdekKeys {
     public final static String CREATE_TIME = "create-time";
     
     
+    // CATALOG DATA
+    /** Value: IngridDoc */
+    public final static String CATALOG = "catalog";
+    /** Value: String */
+    public final static String CATALOG_NAME = "catalog-name";
+    /** Value: String */
+    public final static String COUNTRY = "country";
+    /** Value: String */
+    public final static String WORKFLOW_CONTROL = "workflow-control";
+    /** Value: Integer */
+    public final static String EXPIRY_DURATION = "expiry-duration";
+    /** Value: String */
+    // defined above
+    // public final static String DATE_OF_CREATION = "date-of-creation";
+    /** Value: String */
+    public final static String MODIFICATOR_IDENTIFIER = "modificator-identifier";
+    /** Value: String */
+    // defined above
+    // public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
+    
+    
     // ADDRESS DATA
     // ------------
 
