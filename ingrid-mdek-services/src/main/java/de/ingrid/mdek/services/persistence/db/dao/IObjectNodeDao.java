@@ -41,6 +41,9 @@ public interface IObjectNodeDao
 	/** Fetches object with given uuid containing all detailed object data. */
 	ObjectNode getObjDetails(String uuid);
 
+	/** Load parent object of object with given uuid. Returns null if not found.  */
+	ObjectNode getParent(String uuid);
+
 	/** Fetch Objects referencing the object with the passed uuid */
 	List<ObjectNode> getObjectReferencesFrom(String uuid);
 

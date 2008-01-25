@@ -119,6 +119,15 @@ public class ObjectNodeDaoHibernate
 		
 		return isSubNode;
 	}
+	
+	public ObjectNode getParent(String uuid) {
+		ObjectNode oN = loadByUuid(uuid);
+		if (oN != null && oN.getFkObjUuid() != null && !oN.getFkObjUuid().equals("ROOT")) {
+			return loadByUuid(oN.getFkObjUuid());
+		} else {
+			return null;
+		}
+	}
 
 
 	public ObjectNode getObjDetails(String uuid) {

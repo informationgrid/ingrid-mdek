@@ -1045,4 +1045,14 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
+
+	public IngridDocument mapParentData(T01Object parentObject, IngridDocument resultDoc) {
+		if (parentObject == null) {
+			return resultDoc;
+		}
+		IngridDocument refDoc = new IngridDocument();
+		refDoc.put(MdekKeys.PUBLICATION_CONDITION, parentObject.getPublishId());
+		resultDoc.put(MdekKeys.PARENT_INFO, refDoc);
+		return resultDoc;
+	}
 }
