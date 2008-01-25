@@ -246,6 +246,12 @@ public class MdekIdcJob extends MdekJob {
 			// then get "external" data (objects referencing the given object ...)
 			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
 			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+			
+			// get parent data
+			ObjectNode pNode = daoObjectNode.getParent(uuid);
+			if (pNode != null) {
+				beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), resultDoc);
+			}
 
 			daoObjectNode.commitTransaction();
 			return resultDoc;
