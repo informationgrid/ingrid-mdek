@@ -151,13 +151,12 @@ public class MdekIdcJob extends MdekJob {
 		try {
 			daoT03Catalog.beginTransaction();
 
-			// fetch top Objects
-			List<T03Catalogue> list = daoT03Catalog.findAll();
-			if (list == null || list.size() == 0) {
+			// fetch catalog
+			T03Catalogue catalog = (T03Catalogue) daoT03Catalog.findFirst();
+			if (catalog == null) {
 				throw new MdekException(MdekError.CATALOG_NOT_FOUND);
 			}
 
-			T03Catalogue catalog = list.get(0);
 			IngridDocument result = new IngridDocument();
 			beanToDocMapper.mapT03Catalog(catalog, result);
 
@@ -299,6 +298,22 @@ public class MdekIdcJob extends MdekJob {
 			if (parentUuid != null) {
 				List<IngridDocument> termDocs = daoObjectNode.getObjectThesaurusTerms(parentUuid);
 				oDocIn.put(MdekKeys.SUBJECT_TERMS, termDocs);
+			}
+
+			// take over spatial reference from catalog
+			T03Catalogue catalog = (T03Catalogue) daoT03Catalog.findFirst();
+			if (catalog == null) {
+				throw new MdekException(MdekError.CATALOG_NOT_FOUND);
+			}
+
+			IngridDocument catalogDoc = new IngridDocument();
+			beanToDocMapper.mapT03Catalog(catalog, catalogDoc);
+
+			IngridDocument catDocLoc = (IngridDocument) catalogDoc.get(MdekKeys.CATALOG_LOCATION);
+			if (catDocLoc != null) {
+				ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(1);
+				locList.add(catDocLoc);					
+				oDocIn.put(MdekKeys.LOCATIONS, locList);
 			}
 
 			daoObjectNode.commitTransaction();
