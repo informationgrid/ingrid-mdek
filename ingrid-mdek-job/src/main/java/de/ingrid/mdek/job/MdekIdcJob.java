@@ -147,35 +147,25 @@ public class MdekIdcJob extends MdekJob {
 		}
 	}
 	
-	public IngridDocument getCatalogObject() {
+	public IngridDocument getCatalog() {
 		try {
 			daoT03Catalog.beginTransaction();
 
 			// fetch top Objects
 			List<T03Catalogue> list = daoT03Catalog.findAll();
-			
-			if (list.size() > 0) {
-				T03Catalogue catalog = list.get(0);
-				IngridDocument result = new IngridDocument();
-				result.put(MdekKeys.UUID, catalog.getCatUuid());
-				result.put(MdekKeys.CATALOG_NAME, catalog.getCatName());
-				result.put(MdekKeys.COUNTRY, catalog.getCountryCode());
-				result.put(MdekKeys.WORKFLOW_CONTROL, catalog.getWorkflowControl());
-				result.put(MdekKeys.EXPIRY_DURATION, catalog.getExpiryDuration());
-				result.put(MdekKeys.DATE_OF_CREATION, catalog.getCreateTime());
-				result.put(MdekKeys.MODIFICATOR_IDENTIFIER, catalog.getModUuid());
-				result.put(MdekKeys.DATE_OF_LAST_MODIFICATION, catalog.getModTime());
-				
+			if (list == null || list.size() == 0) {
+				throw new MdekException(MdekError.CATALOG_NOT_FOUND);
 			}
 
+			T03Catalogue catalog = list.get(0);
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.UI_FREE_SPATIAL_REFERENCES, list);
+			beanToDocMapper.mapT03Catalog(catalog, result);
 
 			daoT03Catalog.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
-			daoSpatialRefValue.rollbackTransaction();
+			daoT03Catalog.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
