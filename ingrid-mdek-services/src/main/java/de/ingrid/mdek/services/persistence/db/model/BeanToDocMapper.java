@@ -1050,7 +1050,7 @@ public class BeanToDocMapper implements IMapper {
 		resultDoc.put(MdekKeys.WORKFLOW_CONTROL, obj.getWorkflowControl());
 		resultDoc.put(MdekKeys.EXPIRY_DURATION, obj.getExpiryDuration());
 		resultDoc.put(MdekKeys.DATE_OF_CREATION, obj.getCreateTime());
-		resultDoc.put(MdekKeys.MODIFICATOR_IDENTIFIER, obj.getModUuid());
+		resultDoc.put(MdekKeys.MOD_UUID, obj.getModUuid());
 		resultDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, obj.getModTime());
 		return resultDoc;
 	}

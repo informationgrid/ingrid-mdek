@@ -122,7 +122,7 @@ public class ObjectNodeDaoHibernate
 	
 	public ObjectNode getParent(String uuid) {
 		ObjectNode oN = loadByUuid(uuid);
-		if (oN != null && oN.getFkObjUuid() != null && !oN.getFkObjUuid().equals("ROOT")) {
+		if (oN != null && oN.getFkObjUuid() != null) {
 			return loadByUuid(oN.getFkObjUuid());
 		} else {
 			return null;
