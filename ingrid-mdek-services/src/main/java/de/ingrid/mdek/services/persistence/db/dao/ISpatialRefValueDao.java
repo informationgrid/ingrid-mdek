@@ -51,7 +51,4 @@ public interface ISpatialRefValueDao
 	 */
 	SpatialRefValue loadOrCreate(String type, String name, SpatialRefSns spRefSns, String nativekey, Long objectId);
 
-	/** returns a list of all names (unique) of the freien SpatialRefValues ordered by name */
-	List<String> getFreieRefValueNames();
-
 }

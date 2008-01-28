@@ -1,7 +1,5 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -127,19 +125,5 @@ public class SpatialRefValueDaoHibernate
 		}
 		
 		return spRefValue;
-	}
-
-	public List<String> getFreieRefValueNames() {
-		Session session = getSession();
-
-		List<String> freeNames = session.createQuery("select refValue.name " +
-				"from SpatialRefValue refValue " +
-				"where refValue.type = '" + SpatialReferenceType.FREI.getDbValue() + "' " +
-				"and refValue.name is not null " +
-				"group by refValue.name " +
-				"order by refValue.name")
-				.list();
-		
-		return freeNames;
 	}
 }

@@ -52,6 +52,7 @@ public class T01Object implements IEntity {
 	private String modTime;
 	private String modUuid;
 	private String responsibleUuid;
+
 	private Set objectComments = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set searchtermObjs = new HashSet();
@@ -436,6 +437,7 @@ public class T01Object implements IEntity {
 	public void setResponsibleUuid(String responsibleUuid) {
 		this.responsibleUuid = responsibleUuid;
 	}
+
 
 	public Set getObjectComments() {
 		return objectComments;

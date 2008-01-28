@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="SysList" table="sys_list">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <property name="version" type="integer" column="version"/>
+      <property name="lstId" type="integer" column="lst_id"/>
+      <property name="entryId" type="integer" column="entry_id"/>
+      <property name="langId" type="integer" column="lang_id"/>
+      <property name="name" type="string" column="name"/>
+      <property name="description" type="string" column="description"/>
+      <property name="maintainable" type="integer" column="maintainable"/>
+
+   </class>
+
+</hibernate-mapping>

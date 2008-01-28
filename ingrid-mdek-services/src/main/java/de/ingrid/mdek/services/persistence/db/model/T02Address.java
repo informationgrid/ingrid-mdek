@@ -37,7 +37,7 @@ public class T02Address implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 
-//	private Set commentAdrs = new HashSet();
+//	private Set addressComments = new HashSet();
 //	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
 //	private T03Catalogue t03Catalogue;
@@ -277,12 +277,12 @@ public class T02Address implements IEntity {
 	}
 
 /*
-	public Set getCommentAdrs() {
-		return commentAdrs;
+	public Set getAddressComments() {
+		return addressComments;
 	}
 
-	public void setCommentAdrs(Set commentAdrs) {
-		this.commentAdrs = commentAdrs;
+	public void setAddressComments(Set addressComments) {
+		this.addressComments = addressComments;
 	}
 
 	public Set getSearchtermAdrs() {

@@ -1064,5 +1064,32 @@ public class BeanToDocMapper implements IMapper {
 
 		return resultDoc;
 	}
-	
+
+	/**
+	 * Transfer SysList to passed doc.
+	 * @param list a fetched SysList
+	 * @param listId lst_id of given list
+	 * @param listDoc doc where data should be added
+	 * @return doc containing additional data.
+	 */
+	public IngridDocument mapSysList(List<SysList> list,
+			int listId,
+			IngridDocument listDoc) {
+		if (list == null) {
+			return listDoc;
+		}
+
+		listDoc.put(MdekKeys.LST_ID, listId);
+		
+		ArrayList<IngridDocument> entryList = new ArrayList<IngridDocument>(list.size());
+		for (SysList entry : list) {
+			IngridDocument entryDoc = new IngridDocument();
+			entryDoc.put(MdekKeys.ENTRY_ID, entry.getEntryId());
+			entryDoc.put(MdekKeys.ENTRY_NAME, entry.getName());
+			entryList.add(entryDoc);
+		}
+		listDoc.put(MdekKeys.LST_ENTRY_LIST, entryList);
+
+		return listDoc;
+	}
 }

@@ -24,7 +24,8 @@
          <key column="fk_addr_uuid" property-ref="addrUuid"/>
          <one-to-many class="AddressNode" not-found="ignore"/>
       </set>
-      <set name="t012ObjAdrs" table="t012_obj_adr" inverse="true">
+      <set name="t012ObjAdrs" table="t012_obj_adr" inverse="true"
+           cascade="all-delete-orphan">
          <key column="adr_uuid" property-ref="addrUuid"/>
          <one-to-many class="T012ObjAdr" not-found="ignore"/>
       </set>

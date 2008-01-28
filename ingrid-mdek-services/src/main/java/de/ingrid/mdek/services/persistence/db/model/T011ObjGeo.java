@@ -27,7 +27,6 @@ public class T011ObjGeo implements IEntity {
 	private Set t011ObjGeoSpatialReps = new HashSet();
 	private Set t011ObjGeoSupplinfos = new HashSet();
 	private Set t011ObjGeoSymcs = new HashSet();
-	private Set t011ObjGeoTopicCats = new HashSet();
 	private Set t011ObjGeoVectors = new HashSet();
 
 	public T011ObjGeo() {}
@@ -183,14 +182,6 @@ public class T011ObjGeo implements IEntity {
 
 	public void setT011ObjGeoSymcs(Set t011ObjGeoSymcs) {
 		this.t011ObjGeoSymcs = t011ObjGeoSymcs;
-	}
-
-	public Set getT011ObjGeoTopicCats() {
-		return t011ObjGeoTopicCats;
-	}
-
-	public void setT011ObjGeoTopicCats(Set t011ObjGeoTopicCats) {
-		this.t011ObjGeoTopicCats = t011ObjGeoTopicCats;
 	}
 
 	public Set getT011ObjGeoVectors() {

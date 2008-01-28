@@ -54,6 +54,6 @@
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoVector" not-found="ignore"/>
       </set>
-    </class>
+   </class>
 
 </hibernate-mapping>
