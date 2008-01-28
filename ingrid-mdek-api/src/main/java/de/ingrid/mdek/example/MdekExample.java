@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.IMdekCaller;
@@ -126,8 +127,8 @@ class MdekThread extends Thread {
 		// -----------------------------------
 		// ui: initial lists
 
-		System.out.println("\n----- UI List Values -----");
-		getUiListValues();
+		System.out.println("\n----- SysList Values -----");
+		getSysLists(new Integer[] { 1100, 1350, 1370, 3555, 3535, 3345, 3210, 3100});
 
 		// -----------------------------------
 		// tree: top objects
@@ -407,7 +408,7 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument getUiListValues() {
+	private IngridDocument getSysLists(Integer[] listIds) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
@@ -415,18 +416,23 @@ class MdekThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getUiListValues ######");
+		System.out.println("\n###### INVOKE getSysLists ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getUiListValues();
+		response = mdekCaller.getSysLists(listIds);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: ");
-			System.out.println(result);
-			List l = (List) result.get(MdekKeys.UI_FREE_SPATIAL_REFERENCES);
-			System.out.println("  freie Raumbezüge (" + l.size() + "): " + l);
+			Set<String> listKeys = result.keySet();
+			System.out.println("SUCCESS: " + listKeys.size() + " sys-lists");
+			for (String listKey : listKeys) {
+				IngridDocument listDoc = (IngridDocument) result.get(listKey);
+				List<IngridDocument> entryDocs =
+					(List<IngridDocument>) listDoc.get(MdekKeys.LST_ENTRY_LIST);
+				System.out.println("  " + listKey + ": " + entryDocs.size() + " entries");
+				System.out.println("    " + entryDocs);				
+			}
 			
 		} else {
 			handleError(response);

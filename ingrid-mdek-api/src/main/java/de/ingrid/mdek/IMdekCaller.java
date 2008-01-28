@@ -20,8 +20,8 @@ public interface IMdekCaller {
 
 //	IngridDocument testMdekEntity(int threadNumber);
 
-	/** Returns a map containing the lists for the UI select boxes */
-	IngridDocument getUiListValues();
+	/** Returns a map containing the entries of lists with given ids */
+	IngridDocument getSysLists(Integer[] listIds);
 
 	/**
 	 * Fetch single object with given uuid.

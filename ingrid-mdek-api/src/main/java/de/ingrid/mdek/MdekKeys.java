@@ -20,11 +20,21 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_PERFORM_CHECK = "requestinfo_performCheck";
 
-    // UI Lists
-    // --------
+    // SYS LISTS
+    // -----------
 
-    /** Value: List of Strings */
-    public final static String UI_FREE_SPATIAL_REFERENCES = "ui_freeSpatialReferences";
+    /** Value: Integer[] -> all ids of syslists to fetch */
+    public final static String SYS_LIST_IDS = "sys-list-ids";
+    /** Prefix for all sys-lists in result, e.g. sys-list-1100 */
+    public final static String SYS_LIST_KEY_PREFIX = "sys-list-";
+    /** Value: Integer */
+    public final static String LST_ID = "lst-id";
+    /** Value: List of IngridDocs */
+    public final static String LST_ENTRY_LIST = "lst-entry-list";
+    /** Value: Integer */
+    public final static String ENTRY_ID = "entry-id";
+    /** Value: String */
+    public final static String ENTRY_NAME = "entry-name";
 
     // Top Result Lists
     // ----------------
