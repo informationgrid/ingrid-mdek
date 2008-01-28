@@ -42,6 +42,17 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
         return findByCriteria();
     }
 
+    public T findFirst() {
+        T entity = null;
+        
+        List<T> all = findByCriteria();
+		if (all != null && all.size() > 0) {
+			entity = all.get(0);
+		}
+		
+		return entity;
+    }
+
     public List<T> findByExample(T exampleInstance) {
         return findByExample(exampleInstance, -1, new String[0]);
     }

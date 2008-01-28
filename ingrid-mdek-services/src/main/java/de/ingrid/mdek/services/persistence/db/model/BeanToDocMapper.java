@@ -1052,6 +1052,16 @@ public class BeanToDocMapper implements IMapper {
 		resultDoc.put(MdekKeys.DATE_OF_CREATION, obj.getCreateTime());
 		resultDoc.put(MdekKeys.MOD_UUID, obj.getModUuid());
 		resultDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, obj.getModTime());
+
+		SpatialRefValue spRefVal = obj.getSpatialRefValue();
+		if (spRefVal != null) {
+			IngridDocument locDoc = new IngridDocument();
+			mapSpatialRefValue(spRefVal, locDoc);
+			SpatialRefSns spatRefSns = spRefVal.getSpatialRefSns();
+			mapSpatialRefSns(spatRefSns, locDoc);
+			resultDoc.put(MdekKeys.CATALOG_LOCATION, locDoc);
+		}
+
 		return resultDoc;
 	}
 	
