@@ -18,12 +18,14 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
@@ -43,6 +45,7 @@ public class MdekIdcJob extends MdekJob {
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
 	private ISpatialRefValueDao daoSpatialRefValue;
+	private ISysListDao daoSysList;
 	private IGenericDao daoT03Catalog;
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
@@ -59,6 +62,7 @@ public class MdekIdcJob extends MdekJob {
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
+		daoSysList = daoFactory.getSysListDao();
 		daoT03Catalog = daoFactory.getDao(T03Catalogue.class);
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
@@ -127,21 +131,27 @@ public class MdekIdcJob extends MdekJob {
 		return result;
 	}
 */
-	public IngridDocument getUiListValues() {
+	public IngridDocument getSysLists(IngridDocument params) {
 		try {
-			daoSpatialRefValue.beginTransaction();
-
-			// fetch top Objects
-			List<String> list = daoSpatialRefValue.getFreieRefValueNames();
+			daoSysList.beginTransaction();
+			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.UI_FREE_SPATIAL_REFERENCES, list);
+			
+			for (int lstId : lstIds) {
+				List<SysList> list = daoSysList.getSysList(lstId);
+				
+				IngridDocument listDoc = new IngridDocument();
+				beanToDocMapper.mapSysList(list, lstId, listDoc);
+				
+				result.put(MdekKeys.SYS_LIST_KEY_PREFIX + lstId,  listDoc);
+			}
 
-			daoSpatialRefValue.commitTransaction();
+			daoSysList.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
-			daoSpatialRefValue.rollbackTransaction();
+			daoSysList.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
