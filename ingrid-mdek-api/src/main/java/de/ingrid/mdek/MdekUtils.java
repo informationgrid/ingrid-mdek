@@ -96,7 +96,7 @@ public class MdekUtils {
 			String out = displayDateFormatter.format(in);
 			return out;
 		} catch (Exception ex){
-			LOG.debug("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);
+//			LOG.debug("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);
 			return "";
 		}
 	}

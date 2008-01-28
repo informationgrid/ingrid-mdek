@@ -19,6 +19,8 @@ public interface IGenericDao<T extends IEntity> extends
 
 	List<T> findAll();
 
+	T findFirst();
+
 	List<T> findByExample(T exampleInstance);
 
 	List<T> findByExample(T exampleInstance, int maxResults);

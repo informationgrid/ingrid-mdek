@@ -489,6 +489,7 @@
 			<xs:element name="country" type="xs:string"/>
 			<xs:element name="workflow-control" type="xs:string"/>
 			<xs:element name="expiry-duration" type="xs:integer"/>
+			<xs:element name="catalog-location" type="LOCATION_MAP"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="mod-uuid"/>
 			<xs:element ref="date-of-last-modification"/>

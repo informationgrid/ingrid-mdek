@@ -563,7 +563,7 @@ class MdekThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			System.out.println(result);
+			debugObjectDoc(result);
 		} else {
 			handleError(response);
 		}

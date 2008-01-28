@@ -204,7 +204,7 @@ public class MdekKeys {
     public final static String EXPORTS = "exports";
     
     // TECHNICAL DOMAIN MAP
-    /** Value: List of IngridDocs  */
+    /** Value: IngridDocument encapsulating all MAP data */
     public final static String TECHNICAL_DOMAIN_MAP = "technical-domain-map";
     
     /** Value: String  */
@@ -492,6 +492,8 @@ public class MdekKeys {
     public final static String WORKFLOW_CONTROL = "workflow-control";
     /** Value: Integer */
     public final static String EXPIRY_DURATION = "expiry-duration";
+    /** Value: IngridDocument encapsulating all SPATIAL REFERENCE data */
+    public final static String CATALOG_LOCATION = "catalog-location";
     /** Value: String */
     // defined above
     // public final static String DATE_OF_CREATION = "date-of-creation";
