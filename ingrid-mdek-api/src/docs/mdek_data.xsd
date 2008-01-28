@@ -19,6 +19,7 @@
 			<xs:element name="path" type="UUID_LIST"/>
 			<xs:element name="RESULT_ADDITIONAL_INFO_MAP" type="RESULT_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="RESULT_UI_MAP" type="RESULT_UI_MAP"/>
+			<xs:element name="CATALOG_MAP" type="CATALOG_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -61,7 +62,7 @@
 			<xs:element name="expiry-time" type="TIMESTAMP"/>
 			<xs:element name="work-version" type="xs:integer"/>
 			<xs:element name="mark-deleted" type="xs:string"/>
-			<xs:element name="mod-uuid" type="UUID"/>
+			<xs:element ref="mod-uuid"/>
 			<xs:element name="responsible-uuid" type="UUID"/>
 
 			<xs:element name="linkages" type="LINKAGE_LIST"/>
@@ -122,7 +123,8 @@
 	<xs:element name="relation-type-name" type="xs:string"/>
 	<!-- db: special_ref  -->
 	<xs:element name="relation-type-ref" type="xs:integer"/>
-
+	<xs:element name="mod-uuid" type="UUID"/>
+	
 	<xs:simpleType name="TIMESTAMP">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
@@ -309,7 +311,7 @@
 			<xs:element name="relation-type-id" type="xs:integer"/>
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
-			<xs:element name="relation-date-of-last-modification" type="xs:string"/>
+			<xs:element name="relation-date-of-last-modification" type="TIMESTAMP"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_MAP_MAP">
@@ -482,14 +484,14 @@
 	</xs:complexType>
 	<xs:complexType name="CATALOG_MAP">
 		<xs:sequence>
-			<xs:element name="uuid" type="xs:string"/>
+			<xs:element ref="uuid"/>
 			<xs:element name="catalog-name" type="xs:string"/>
 			<xs:element name="country" type="xs:string"/>
 			<xs:element name="workflow-control" type="xs:string"/>
 			<xs:element name="expiry-duration" type="xs:integer"/>
-			<xs:element name="date-of-creation" type="xs:string"/>
-			<xs:element name="modificator-identifier" type="xs:string"/>
-			<xs:element name="date-of-last-modification" type="xs:string"/>
+			<xs:element ref="date-of-creation"/>
+			<xs:element ref="mod-uuid"/>
+			<xs:element ref="date-of-last-modification"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

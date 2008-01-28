@@ -16,13 +16,14 @@ public class MdekErrors {
 		UUID_NOT_FOUND("10"),
 		FROM_UUID_NOT_FOUND("11"),
 		TO_UUID_NOT_FOUND("12"),
+		CATALOG_NOT_FOUND("13"),
 
 		// e.g. publish of child not allowed when parent not published
 		PARENT_NOT_PUBLISHED("20"),
 
 		// e.g. move of tree node to subnode not allowed
 		TARGET_IS_SUBNODE_OF_SOURCE("30"),
-		// e.g. then no move allowed ! term "Subtree" includes top node !
+		// e.g. then no move allowed ! includes top node of subtree !
 		SUBTREE_HAS_WORKING_COPIES("31");
 
 		MdekError(String errorCode) {

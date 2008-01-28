@@ -496,7 +496,8 @@ public class MdekKeys {
     // defined above
     // public final static String DATE_OF_CREATION = "date-of-creation";
     /** Value: String */
-    public final static String MODIFICATOR_IDENTIFIER = "modificator-identifier";
+    // defined above
+    // public final static String MOD_UUID = "mod-uuid";
     /** Value: String */
     // defined above
     // public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";

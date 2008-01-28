@@ -118,6 +118,12 @@ class MdekThread extends Thread {
 		//mdekCaller.testMdekEntity(threadNumber);
 
 		// -----------------------------------
+		// catalog
+
+		System.out.println("\n----- CATALOG data -----");
+		getCatalog();
+
+		// -----------------------------------
 		// ui: initial lists
 
 		System.out.println("\n----- UI List Values -----");
@@ -376,6 +382,31 @@ class MdekThread extends Thread {
 		isRunning = false;
 	}
 	
+	private IngridDocument getCatalog() {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE fetchCatalog ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.fetchCatalog();
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	private IngridDocument getUiListValues() {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
