@@ -181,10 +181,10 @@ class MdekThread extends Thread {
 		System.out.println("STORE TEST new object");
 		System.out.println("=========================");
 
-		System.out.println("\n----- first load initial data (e.g. from parent " + parentUuid + ") -----");
+		System.out.println("\n----- first load initial data (e.g. from parent " + objUuid + ") -----");
 		IngridDocument newObjDoc = new IngridDocument();
 		// supply parent uuid !
-		newObjDoc.put(MdekKeys.PARENT_UUID, parentUuid);
+		newObjDoc.put(MdekKeys.PARENT_UUID, objUuid);
 		newObjDoc = getInitialObject(newObjDoc);
 
 		System.out.println("\n----- extend initial object (with address, object references, spatial refs, free term ...) and store -----");
@@ -206,28 +206,7 @@ class MdekThread extends Thread {
 		String newObjUuid = (String) oMap.get(MdekKeys.UUID);
 
 		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
-		fetchSubObjects(parentUuid);
-
-		// -----------------------------------
-		// tree: move object sub tree
-		System.out.println("\n\n=========================");
-		System.out.println("MOVE TEST");
-		System.out.println("=========================");
-
-		System.out.println("\n\n----- move new object WITHOUT CHECK -----");
-		String oldParentUuid = parentUuid;
-		String newParentUuid = objUuid;
-		moveObject(newObjUuid, newParentUuid, false);
-		System.out.println("\n----- verify old parent subobjects (cut) -----");
-		fetchSubObjects(oldParentUuid);
-		System.out.println("\n----- verify new parent subobjects (added) -----");
-		fetchSubObjects(newParentUuid);
-		System.out.println("\n----- check new parent subtree -----");
-		checkObjectSubTree(newParentUuid);
-		System.out.println("\n\n----- move new parent WITH CHECK (not allowed) -----");
-		moveObject(newParentUuid, null, true);
-		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
-		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false);
+		fetchSubObjects(objUuid);
 
 		// -----------------------------------
 		// tree: copy object sub tree
@@ -236,7 +215,7 @@ class MdekThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n\n----- copy parent of new object to top (WITHOUT sub tree) -----");
-		String objectFrom = newParentUuid;
+		String objectFrom = objUuid;
 		String objectTo = null;
 		oMap = copyObject(objectFrom, objectTo, false);
 		String copy1Uuid = (String)oMap.get(MdekKeys.UUID);
@@ -258,12 +237,33 @@ class MdekThread extends Thread {
 		deleteObjectWorkingCopy(copy1Uuid);
 		deleteObjectWorkingCopy(copy2Uuid);
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new object below new object (WITH sub tree) -----");
-		copyObject(newParentUuid, newObjUuid, true);
+		copyObject(objUuid, newObjUuid, true);
 		System.out.println("\n\n----- verify copy -> load children of new object -----");
 		fetchSubObjects(newObjUuid);
 		// Following is allowed now ! Don't execute -> huge tree is copied !
 //		System.out.println("\n----- do \"forbidden\" copy -----");
 //		copyObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", true);
+
+		// -----------------------------------
+		// tree: move object sub tree
+		System.out.println("\n\n=========================");
+		System.out.println("MOVE TEST");
+		System.out.println("=========================");
+
+		System.out.println("\n\n----- move new object WITHOUT CHECK -----");
+		String oldParentUuid = objUuid;
+		String newParentUuid = parentUuid;
+		moveObject(newObjUuid, newParentUuid, false);
+		System.out.println("\n----- verify old parent subobjects (cut) -----");
+		fetchSubObjects(oldParentUuid);
+		System.out.println("\n----- verify new parent subobjects (added) -----");
+		fetchSubObjects(newParentUuid);
+		System.out.println("\n----- check new parent subtree -----");
+		checkObjectSubTree(newParentUuid);
+		System.out.println("\n\n----- move new parent WITH CHECK (not allowed) -----");
+		moveObject(newParentUuid, null, true);
+		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
+		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false);
 
 		// -----------------------------------
 		// object: delete new object and verify deletion
@@ -1093,7 +1093,7 @@ class MdekThread extends Thread {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS");
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
 			System.out.println(result);
 		} else {
 			handleError(response);
