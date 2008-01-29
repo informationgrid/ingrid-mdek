@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -23,15 +24,22 @@ public class SysListDaoHibernate
         super(factory, SysList.class);
     }
 
-	public List<SysList> getSysList(int lstId) {
+	public List<SysList> getSysList(int lstId, Integer languageCode) {
 		Session session = getSession();
 
-		List<SysList> retList = session.createQuery("from SysList " +
-				"where lstId = ? " +
-				"order by entryId")
-				.setInteger(0, lstId)
-				.list();
+		String qString = "from SysList " +
+			"where lstId = ? ";
 
-		return retList;
+		if (languageCode != null) {
+			qString += "and langId = ? ";
+		}
+
+		Query q = session.createQuery(qString);
+		q.setInteger(0, lstId);
+		if (languageCode != null) {
+			q.setInteger(1, languageCode);			
+		}
+
+		return q.list();
 	}
 }
