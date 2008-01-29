@@ -605,9 +605,9 @@ public class MdekIdcJob extends MdekJob {
 			fromNode.setFkObjUuid(toUuid);		
 			daoObjectNode.makePersistent(fromNode);
 
-			// SUCCESS: we just transmit uuid of moved object (or something else ?)
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.UUID, fromNode.getObjUuid());
+			// change date and mod_uuid of all moved nodes !
+			// TODO: pass correct user uuid
+			IngridDocument result = processMovedNodes(fromNode, "USER UUID");
 
 			daoObjectNode.commitTransaction();
 			return result;		
@@ -617,6 +617,47 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
+	}
+
+	/**
+	 * Process the moved tree, meaning set modification date and user in every node ...
+	 * @param rootNode root node of moved tree
+	 * @param modUuid user uuid to set as modification user
+	 * @return doc containing additional info (number processed nodes ...)
+	 */
+	private IngridDocument processMovedNodes(ObjectNode rootNode, String modUuid)
+	{
+		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+
+		// copy iteratively via stack to avoid recursive stack overflow
+		Stack<ObjectNode> stack = new Stack<ObjectNode>();
+		stack.push(rootNode);
+
+		int numberOfProcessedObj = 0;
+		while (!stack.isEmpty()) {
+			ObjectNode objNode = stack.pop();
+			T01Object obj = objNode.getT01ObjectWork();
+			obj.setModTime(currentTime);
+			// TODO: set modUuid
+//			obj.setModUuid(modUuid);
+
+			daoT01Object.makePersistent(obj);
+			numberOfProcessedObj++;
+
+			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(objNode.getObjUuid(), true);
+			for (ObjectNode subNode : subNodes) {
+				// add to stack, will be processed
+				stack.push(subNode);
+			}
+		}
+		
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfProcessedObj);
+		if (log.isDebugEnabled()) {
+			log.debug("Number of moved objects: " + numberOfProcessedObj);
+		}
+
+		return result;
 	}
 
 	/** Checks whether subtree of object has working copies. */
