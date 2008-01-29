@@ -324,6 +324,20 @@ class MdekThread extends Thread {
 		fetchTopObjects();
 		System.out.println("\n----- delete 1. published copy (FULL) -----");
 		deleteObject(pub1Uuid);
+		
+		System.out.println("\n\n=========================");
+		System.out.println("CACHE TEST");
+		System.out.println("=========================");
+		System.out.println("\n----- loading 2 objects 10 times -----");
+		
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime = System.currentTimeMillis();
+		for (int i=0; i< 10; i++) {
+			mdekCaller.fetchObject(parentUuid, Quantity.DETAIL_ENTITY);
+			mdekCaller.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		}
+		System.out.println("EXECUTION TIME: " + (System.currentTimeMillis() - startTime)  + " ms");
+
 
 
 /*
