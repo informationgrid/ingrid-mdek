@@ -304,11 +304,17 @@ public class MdekIdcJob extends MdekJob {
 		try {
 			daoObjectNode.beginTransaction();
 			
-			// take over "thesaurus" searchterms from parent
+			// take over "thesaurus" searchterms from parent etc.
 			String parentUuid = oDocIn.getString(MdekKeys.PARENT_UUID);
 			if (parentUuid != null) {
 				List<IngridDocument> termDocs = daoObjectNode.getObjectThesaurusTerms(parentUuid);
 				oDocIn.put(MdekKeys.SUBJECT_TERMS, termDocs);
+
+				// supply parent info
+				ObjectNode pNode = daoObjectNode.getParent(parentUuid);
+				if (pNode != null) {
+					beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), oDocIn);
+				}
 			}
 
 			// take over spatial reference from catalog
