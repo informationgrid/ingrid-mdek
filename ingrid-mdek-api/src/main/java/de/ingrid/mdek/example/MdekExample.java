@@ -127,8 +127,10 @@ class MdekThread extends Thread {
 		// -----------------------------------
 		// ui: initial lists
 
-		System.out.println("\n----- SysList Values -----");
-		getSysLists(new Integer[] { 1100, 1350, 1370, 3555, 3535, 3345, 3210, 3100});
+		System.out.println("\n----- SysList Values WITHOUT language code -----");
+		getSysLists(new Integer[] { 100, 1100, 1350}, null);
+		System.out.println("\n----- SysList Values WITH language code -----");
+		getSysLists(new Integer[] { 100, 1100, 1350}, 121);
 
 		// -----------------------------------
 		// tree: top objects
@@ -264,6 +266,9 @@ class MdekThread extends Thread {
 		moveObject(newParentUuid, null, true);
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
 		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false);
+
+// Make another move to check via DB whether mod_time was updated for all moved nodes
+//		moveObject(objUuid, null, true);
 
 		// -----------------------------------
 		// object: delete new object and verify deletion
@@ -408,7 +413,7 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument getSysLists(Integer[] listIds) {
+	private IngridDocument getSysLists(Integer[] listIds, Integer langCode) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
@@ -418,7 +423,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE getSysLists ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getSysLists(listIds);
+		response = mdekCaller.getSysLists(listIds, langCode);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

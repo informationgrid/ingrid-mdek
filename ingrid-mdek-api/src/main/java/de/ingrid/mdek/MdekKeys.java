@@ -20,6 +20,9 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_PERFORM_CHECK = "requestinfo_performCheck";
 
+    /** Value: Integer */
+    public final static String LANGUAGE_CODE = "language-code";
+
     // SYS LISTS
     // -----------
 

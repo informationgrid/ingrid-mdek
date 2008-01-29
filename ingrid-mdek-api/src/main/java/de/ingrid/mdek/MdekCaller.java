@@ -105,9 +105,10 @@ public class MdekCaller implements IMdekCaller {
 	}
 */
 
-	public IngridDocument getSysLists(Integer[] listIds) {
+	public IngridDocument getSysLists(Integer[] listIds, Integer langCode) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.SYS_LIST_IDS, listIds);
+		jobParams.put(MdekKeys.LANGUAGE_CODE, langCode);
 		List jobMethods = setUpJobMethod("getSysLists", jobParams);
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}

@@ -20,8 +20,9 @@ public interface IMdekCaller {
 
 //	IngridDocument testMdekEntity(int threadNumber);
 
-	/** Returns a map containing the entries of lists with given ids */
-	IngridDocument getSysLists(Integer[] listIds);
+	/** Returns a map containing the entries of lists with given ids.
+	 * Pass null as languageCode if it doesn't matter. */
+	IngridDocument getSysLists(Integer[] listIds, Integer languageCode);
 
 	/**
 	 * Fetch single object with given uuid.
