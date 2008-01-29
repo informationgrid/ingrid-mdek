@@ -28,7 +28,9 @@ public class SysListDaoHibernate
 		Session session = getSession();
 
 		String qString = "from SysList " +
-			"where lstId = ? ";
+			"where lstId = ? " +
+			// skip 0 entries -> invalid entries for select boxes !
+			"and entryId != 0 ";
 
 		if (languageCode != null) {
 			qString += "and langId = ? ";
