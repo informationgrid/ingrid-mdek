@@ -128,9 +128,9 @@ class MdekThread extends Thread {
 		// ui: initial lists
 
 		System.out.println("\n----- SysList Values WITHOUT language code -----");
-		getSysLists(new Integer[] { 100, 1100, 1350}, null);
+		getSysLists(new Integer[] { 100, 1100, 1350, 3555}, null);
 		System.out.println("\n----- SysList Values WITH language code -----");
-		getSysLists(new Integer[] { 100, 1100, 1350}, 121);
+		getSysLists(new Integer[] { 100, 1100, 1350, 3555}, 121);
 
 		// -----------------------------------
 		// tree: top objects
@@ -324,7 +324,8 @@ class MdekThread extends Thread {
 		fetchTopObjects();
 		System.out.println("\n----- delete 1. published copy (FULL) -----");
 		deleteObject(pub1Uuid);
-		
+
+/*		
 		System.out.println("\n\n=========================");
 		System.out.println("CACHE TEST");
 		System.out.println("=========================");
@@ -337,9 +338,7 @@ class MdekThread extends Thread {
 			mdekCaller.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 		}
 		System.out.println("EXECUTION TIME: " + (System.currentTimeMillis() - startTime)  + " ms");
-
-
-
+*/
 /*
 		System.out.println("\n\n----- DELETE TEST (DELETES WHOLE SUBTREE) -----");
 		
