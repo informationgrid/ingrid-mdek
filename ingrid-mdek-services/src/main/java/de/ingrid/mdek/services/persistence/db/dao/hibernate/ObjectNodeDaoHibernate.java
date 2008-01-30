@@ -37,6 +37,10 @@ public class ObjectNodeDaoHibernate
     }
 
 	public ObjectNode loadByUuid(String uuid) {
+		if (uuid == null) {
+			return null;
+		}
+
 		Session session = getSession();
 
 		ObjectNode oN = (ObjectNode) session.createQuery("from ObjectNode oNode " +
