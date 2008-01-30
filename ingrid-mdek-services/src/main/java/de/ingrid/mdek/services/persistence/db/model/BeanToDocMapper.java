@@ -182,14 +182,9 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
+		objectDoc.put(MdekKeys.RELATION_TYPE_REF, oR.getSpecialRef());
 		objectDoc.put(MdekKeys.RELATION_TYPE_NAME, oR.getSpecialName());
 		objectDoc.put(MdekKeys.RELATION_DESCRIPTION, oR.getDescr());
-
-		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			// uuid should be already set in objectDoc
-//			objectDoc.put(MdekKeys.UUID, oR.getObjToUuid());
-			objectDoc.put(MdekKeys.RELATION_TYPE_REF, oR.getSpecialRef());
-		}
 
 		return objectDoc;
 	}
