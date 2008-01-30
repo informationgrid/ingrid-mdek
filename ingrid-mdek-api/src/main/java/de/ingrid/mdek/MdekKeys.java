@@ -19,6 +19,9 @@ public class MdekKeys {
      * whether subnodes don't have working copy)
      *  Value: Boolean */
     public final static String REQUESTINFO_PERFORM_CHECK = "requestinfo_performCheck";
+    /** Apply publication condition to subnodes ?
+     *  Value: Boolean */
+    public final static String REQUESTINFO_FORCE_PUBLICATION_CONDITION = "requestinfo_forcePublicationCondition";
 
     /** Value: Integer */
     public final static String LANGUAGE_CODE = "language-code";

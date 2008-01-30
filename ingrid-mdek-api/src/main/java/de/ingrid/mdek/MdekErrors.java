@@ -24,7 +24,11 @@ public class MdekErrors {
 		// e.g. move of tree node to subnode not allowed
 		TARGET_IS_SUBNODE_OF_SOURCE("30"),
 		// e.g. then no move allowed ! includes top node of subtree !
-		SUBTREE_HAS_WORKING_COPIES("31");
+		SUBTREE_HAS_WORKING_COPIES("31"),
+		// e.g. when publication condition of parent was decreased !
+		SUBTREE_HAS_LARGER_PUBLICATION_CONDITION("32"),
+		// e.g. when object is saved and publication conditions don't fit
+		PARENT_HAS_SMALLER_PUBLICATION_CONDITION("33");
 
 		MdekError(String errorCode) {
 			this.errorCode = errorCode;

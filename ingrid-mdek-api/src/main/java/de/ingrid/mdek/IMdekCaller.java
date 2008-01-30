@@ -36,11 +36,16 @@ public interface IMdekCaller {
 	 * Create or store object INTO WORKING COPY !
 	 * @param obj map representation of object.
 	 * 		If no id/uuid is set object will be created else updated.
-	 * @param refetchAfterStore true=fetch and return Object after store, false=no fetch, just store
+	 * @param refetchAfterStore immediately refetch Object after store (true)
+	 * 		or just store without refetching (false)
+	 * @param forcePublicationCondition apply restricted PubCondition to subobjects (true)
+	 * 		or receive Error when subobjects PubCondition conflicts (false)
 	 * @return response containing result: map representation of created/updated object when refetching,
 	 * 		otherwise map containing uuid of stored object (was generated when new object)  
 	 */
-	IngridDocument storeObject(IngridDocument obj, boolean refetchAfterStore);
+	IngridDocument storeObject(IngridDocument obj,
+			boolean refetchAfterStore,
+			boolean forcePublicationCondition);
 
 	/**
 	 * Create or store object INTO PUBLISHED VERSION ! PERFORMS CHECKS ON DATA !

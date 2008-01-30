@@ -14,6 +14,7 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekCaller.Quantity;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
 
@@ -86,6 +87,7 @@ public class MdekExample {
 class MdekThread extends Thread {
 
 	private int threadNumber;
+	boolean doDebug = true;
 	
 	private boolean isRunning = false;
 
@@ -96,6 +98,9 @@ class MdekThread extends Thread {
 
 	public void run() {
 		isRunning = true;
+
+		long exampleStartTime = System.currentTimeMillis();
+//		this.doDebug = false;
 
 		// TOP OBJECT
 //		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
@@ -169,7 +174,7 @@ class MdekThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- change and store existing object -> working copy ! -----");
-		storeObject(oMap);
+		storeObjectWithManipulation(oMap);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		deleteObjectWorkingCopy(objUuid);
@@ -203,7 +208,7 @@ class MdekThread extends Thread {
 		System.out.println("ADD NEW SUBJECT TERM: " + newTerm);
 		terms.add(newTerm);
 
-		oMap = storeObject(newObjDoc);
+		oMap = storeObjectWithManipulation(newObjDoc);
 		// uuid created !
 		String newObjUuid = (String) oMap.get(MdekKeys.UUID);
 
@@ -325,6 +330,68 @@ class MdekThread extends Thread {
 		System.out.println("\n----- delete 1. published copy (FULL) -----");
 		deleteObject(pub1Uuid);
 
+		// -----------------------------------
+		// copy object and publish ! create new object and publish !
+		System.out.println("\n\n=========================");
+		System.out.println("PUBLICATION CONDITION TEST");
+		System.out.println("=========================");
+
+		this.doDebug = false;
+
+		parentUuid = "38665130-B449-11D2-9A86-080000507261";
+		String childUuid = "38665131-B449-11D2-9A86-080000507261";
+
+		System.out.println("\n----- fetch parent -----");
+		IngridDocument oMapParent = fetchObject(parentUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- sub objects -----");
+		fetchSubObjects(parentUuid);
+
+		System.out.println("\n----- fetch child -----");
+		IngridDocument oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
+		
+		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> ERROR -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		storeObjectWithoutManipulation(oMapParent, false, false);
+
+		System.out.println("\n----- change child to INTRANET -> SUCCESS -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		storeObjectWithoutManipulation(oMapChild, true, false);
+
+		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		storeObjectWithoutManipulation(oMapParent, true, false);
+
+		System.out.println("\n----- change child to INTERNET -> ERROR -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		storeObjectWithoutManipulation(oMapChild, false, false);
+
+		System.out.println("\n----- change parent to INTERNET (FORCED publication condition) -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		storeObjectWithoutManipulation(oMapParent, true, true);
+
+		System.out.println("\n----- refetch child -> STILL INTRANET -----");
+		oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- change child to INTERNET -> SUCCESS -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		storeObjectWithoutManipulation(oMapChild, true, false);
+
+		System.out.println("\n----- change parent to INTRANET (FORCED publication condition) -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		storeObjectWithoutManipulation(oMapParent, true, true);
+
+		System.out.println("\n----- refetch child -> NOW INTRANET -----");
+		oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		deleteObjectWorkingCopy(parentUuid);
+		deleteObjectWorkingCopy(childUuid);
+		
+		this.doDebug = true;
+
+
+		
 /*		
 		System.out.println("\n\n=========================");
 		System.out.println("CACHE TEST");
@@ -397,6 +464,10 @@ class MdekThread extends Thread {
 			handleError(response);
 		}
 */
+
+		long exampleEndTime = System.currentTimeMillis();
+		long exampleNeededTime = exampleEndTime - exampleStartTime;
+		System.out.println("EXAMPLE EXECUTION TIME: " + exampleNeededTime + " ms");
 
 		isRunning = false;
 	}
@@ -620,7 +691,47 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument storeObject(IngridDocument oDocIn) {
+	private IngridDocument storeObjectWithoutManipulation(IngridDocument oDocIn,
+			boolean refetchObject,
+			boolean forcePublicationCondition) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeObject ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		System.out.println("storeObject -> " +
+			"refetchObject: " + refetchObject +
+			", forcePublicationCondition: " + forcePublicationCondition);
+		response = mdekCaller.storeObject(oDocIn, refetchObject, forcePublicationCondition);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugObjectDoc(result);
+			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument storeObjectWithManipulation(IngridDocument oDocIn) {
 		// check whether we have an object
 		if (oDocIn == null) {
 			return null;
@@ -909,7 +1020,7 @@ class MdekThread extends Thread {
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		System.out.println("storeObject WITHOUT refetching object: ");
-		response = mdekCaller.storeObject(oDocIn, false);
+		response = mdekCaller.storeObject(oDocIn, false, false);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1037,7 +1148,7 @@ class MdekThread extends Thread {
 			System.out.println("STORE");
 			startTime = System.currentTimeMillis();
 			System.out.println("storeObject WITH refetching object: ");
-			response = mdekCaller.storeObject(oRefetchedDoc, true);
+			response = mdekCaller.storeObject(oRefetchedDoc, true, false);
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1201,29 +1312,36 @@ class MdekThread extends Thread {
 	private void debugObjectDoc(IngridDocument o) {
 		System.out.println("Object: " + o.get(MdekKeys.ID) 
 			+ ", " + o.get(MdekKeys.UUID)
-			+ ", " + o.get(MdekKeys.TITLE)
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
+			+ ", " + o.get(MdekKeys.TITLE));
+		System.out.println("        "
+			+ "created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
+			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
 		);
-		System.out.println(" " + o);
+		System.out.println("  " + o);
+
+		if (!doDebug) {
+			return;
+		}
+
 		IngridDocument myDoc;
 		List<IngridDocument> docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_TO);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects TO (Querverweise): " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Addresses TO: " + docList.size() + " Entities");
 			for (IngridDocument a : docList) {
 				System.out.println("   " + a);								
@@ -1237,69 +1355,69 @@ class MdekThread extends Thread {
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.LOCATIONS);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Locations (Spatial References): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.SUBJECT_TERMS);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Subject terms (Searchterms): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.LINKAGES);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  URL References: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.DATASET_REFERENCES);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Dataset References: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		List<String> strList = (List<String>) o.get(MdekKeys.EXPORTS);
-		if (strList != null) {
+		if (strList != null && strList.size() > 0) {
 			System.out.println("  Exports: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
 		strList = (List<String>) o.get(MdekKeys.LEGISLATIONS);
-		if (strList != null) {
+		if (strList != null && strList.size() > 0) {
 			System.out.println("  Legislations: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_FORMATS);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Data Formats: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.MEDIUM_OPTIONS);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Medium Options: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
 		strList = (List<String>) o.get(MdekKeys.ENV_CATEGORIES);
-		if (strList != null) {
+		if (strList != null && strList.size() > 0) {
 			System.out.println("  Env Categories: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
 		strList = (List<String>) o.get(MdekKeys.ENV_TOPICS);
-		if (strList != null) {
+		if (strList != null && strList.size() > 0) {
 			System.out.println("  Env Topics: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
 		List<Integer> intList = (List<Integer>) o.get(MdekKeys.TOPIC_CATEGORIES);
-		if (intList != null) {
+		if (intList != null && intList.size() > 0) {
 			System.out.println("  Topic Categories: " + intList.size() + " entries");
 			System.out.println("   " + intList);
 		}
@@ -1309,42 +1427,42 @@ class MdekThread extends Thread {
 			System.out.println("  technical domain MAP:");
 			System.out.println("    " + myDoc);								
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.KEY_CATALOG_LIST);
-			if (docList != null) {
+			if (docList != null && docList.size() > 0) {
 				System.out.println("    MAP - key catalogs: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("     " + doc);								
 				}			
 			}
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.PUBLICATION_SCALE_LIST);
-			if (docList != null) {
+			if (docList != null && docList.size() > 0) {
 				System.out.println("    MAP - publication scales: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("     " + doc);								
 				}			
 			}
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SYMBOL_CATALOG_LIST);
-			if (docList != null) {
+			if (docList != null && docList.size() > 0) {
 				System.out.println("    MAP - symbol catalogs: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("     " + doc);								
 				}			
 			}
 			strList = (List<String>) myDoc.get(MdekKeys.FEATURE_TYPE_LIST);
-			if (docList != null) {
+			if (docList != null && docList.size() > 0) {
 				System.out.println("    MAP - feature types: " + strList.size() + " entries");
 				for (String str : strList) {
 					System.out.println("     " + str);								
 				}			
 			}
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.GEO_VECTOR_LIST);
-			if (docList != null) {
+			if (docList != null && docList.size() > 0) {
 				System.out.println("    MAP - vector formats, geo vector list: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("     " + doc);								
 				}			
 			}
 			intList = (List<Integer>) myDoc.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
-			if (docList != null) {
+			if (docList != null && docList.size() > 0) {
 				System.out.println("    MAP - spatial rep types: " + intList.size() + " entries");
 				for (Integer i : intList) {
 					System.out.println("     " + i);								
@@ -1361,27 +1479,27 @@ class MdekThread extends Thread {
 			System.out.println("  technical domain SERVICE:");
 			System.out.println("    " + myDoc);								
 			strList = (List<String>) myDoc.get(MdekKeys.SERVICE_VERSION_LIST);
-			if (strList != null) {
+			if (strList != null && strList.size() > 0) {
 				System.out.println("    SERVICE - versions: " + strList.size() + " entries");
 				System.out.println("     " + strList);
 			}
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SERVICE_OPERATION_LIST);
-			if (docList != null) {
+			if (docList != null && docList.size() > 0) {
 				System.out.println("    SERVICE - operations: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("      " + doc);								
 					strList = (List<String>) doc.get(MdekKeys.PLATFORM_LIST);
-					if (strList != null) {
+					if (strList != null && strList.size() > 0) {
 						System.out.println("      SERVICE - operation - platforms: " + strList.size() + " entries");
 						System.out.println("        " + strList);
 					}
 					strList = (List<String>) doc.get(MdekKeys.DEPENDS_ON_LIST);
-					if (strList != null) {
+					if (strList != null && strList.size() > 0) {
 						System.out.println("      SERVICE - operation - dependsOns: " + strList.size() + " entries");
 						System.out.println("        " + strList);
 					}
 					strList = (List<String>) doc.get(MdekKeys.CONNECT_POINT_LIST);
-					if (strList != null) {
+					if (strList != null && strList.size() > 0) {
 						System.out.println("      SERVICE - operation - connectPoints: " + strList.size() + " entries");
 						System.out.println("        " + strList);
 					}
@@ -1406,7 +1524,7 @@ class MdekThread extends Thread {
 			System.out.println("    " + myDoc);								
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.COMMENT_LIST);
-		if (docList != null) {
+		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object comments: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								

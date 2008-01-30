@@ -76,6 +76,38 @@ public class MdekUtils {
 		String description;
 	}
 
+	/** Publish condition */
+	public enum PublishType implements IMdekEnum {
+		INTERNET(1, "Internet"),
+		INTRANET(2, "Intranet"),
+		AMTSINTERN(3, "amtsintern");
+
+		PublishType(Integer dbValue, String description) {
+			this.dbValue = dbValue;
+			this.description = description;
+		}
+		public Integer getDbValue() {
+			return dbValue;
+		}
+		public String toString() {
+			return description;
+		}
+		/**
+		 * Is this type "broader" or "equal" the passed type ? e.g.<br>
+		 * INTERNET.includes(INTERNET) -> true<br>
+		 * INTERNET.includes(INTRANET) -> true<br>
+		 * INTRANET.includes(INTERNET) -> false<br>
+		 */
+		public boolean includes(PublishType inType) {
+			if (this.getDbValue() <= inType.getDbValue()) {
+				return true;
+			}
+			return false;
+		}
+		Integer dbValue;
+		String description;
+	}
+
 /*
 	private static MdekUtils myInstance;
 
