@@ -85,5 +85,86 @@
 -->
          </list>
       </property>
-   </bean>
+      <property name="entityCacheStrategies">
+         <props>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.AddressNode">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectComment">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectNode">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectReference">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.SearchtermObj">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.SearchtermValue">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialRefValue">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialReference">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T0112MediaOption">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T0114EnvCategory">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjData">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoVector">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjProject">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServ">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOpConnpoint">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T012ObjAdr">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T014InfoImpart">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T015Legist">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T017UrlRef">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T021Communication">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T02Address">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T03Catalogue">read-write</prop>
+         </props>
+      </property>
+      <property name="collectionCacheStrategies">
+         <props>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoKeycs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoScales">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoSpatialReps">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoSupplinfos">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoSymcs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoVectors">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServ.t011ObjServOperations">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServ.t011ObjServVersions">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation.t011ObjServOpConnpoints">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation.t011ObjServOpDependss">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation.t011ObjServOpParas">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation.t011ObjServOpPlatforms">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.objectComments">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.objectReferences">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.searchtermObjs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.spatialReferences">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0110AvailFormats">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0112MediaOptions">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0113DatasetReferences">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0114EnvCategorys">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0114EnvTopics">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjDatas">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjDataParas">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjGeos">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjLiteratures">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjProjects">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjServs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjTopicCats">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t012ObjAdrs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t014InfoImparts">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t015Legists">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t017UrlRefs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T02Address.t021Communications">read-write</prop>
+         </props>
+      </property>
+    </bean>
 </beans>
