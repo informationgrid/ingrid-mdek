@@ -7,11 +7,13 @@ import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekErrorHandler;
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekErrors.MdekError;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -346,15 +348,24 @@ public class MdekIdcJob extends MdekJob {
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		try {
 			daoObjectNode.beginTransaction();
+			String currentTime = MdekUtils.dateToTimestamp(new Date());
+
+			// first perform checks !
+
+			// check publication condition of parent
+			checkObjectPublicationConditionParent(oDocIn);
+			// check/adapt publication condition of subtree
+			checkObjectPublicationConditionSubTree(oDocIn, currentTime);
+
+			// checks ok, proceed
 
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
-			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
 			// set common data to transfer to working copy !
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
-
+			
 			if (uuid == null) {
 				// NEW Object !
 
@@ -370,36 +381,33 @@ public class MdekIdcJob extends MdekJob {
 			}
 			
 			// get/create working copy
-			T01Object oWork = oNode.getT01ObjectWork();
-			Long oWorkId = (oWork != null) ? oWork.getId() : null; 
-			T01Object oPub = oNode.getT01ObjectPublished();
-			Long oPubId = (oPub != null) ? oPub.getId() : null; 
-			if (oWorkId == null || oWorkId.equals(oPubId)) {
+			if (!hasWorkingCopy(oNode)) {
 				// no working copy yet, create new object with BASIC data
 
 				// set some missing data which may not be passed from client.
 				// set from published version if existent
+				T01Object oPub = oNode.getT01ObjectPublished();
 				if (oPub != null) {
 					oDocIn.put(MdekKeys.DATE_OF_CREATION, oPub.getCreateTime());				
 				} else {
 					oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 				}
-				oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+				T01Object oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
 				 // save it to generate id needed for mapping
 				daoT01Object.makePersistent(oWork);
+				
+				// update node
+				oNode.setObjId(oWork.getId());
+				oNode.setT01ObjectWork(oWork);
+				daoObjectNode.makePersistent(oNode);
 			}
 
 			// transfer new data and store.
+			T01Object oWork = oNode.getT01ObjectWork();
 			docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
 			daoT01Object.makePersistent(oWork);
 
-			// and update ObjectNode with working copy if not set yet
-			oWorkId = oWork.getId();
-			if (!oWorkId.equals(oNode.getObjId())) {
-				oNode.setObjId(oWorkId);
-				daoObjectNode.makePersistent(oNode);
-			}
-			
+			// return uuid (may be new generated uuid if new object)
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
 
@@ -590,22 +598,21 @@ public class MdekIdcJob extends MdekJob {
 			Boolean performAdditionalCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 
-			// perform additional check whether subnodes are ok IN OWN TRANSACTION !!!
+			daoObjectNode.beginTransaction();
+
+			// perform additional check whether subnodes are ok !!!
 			if (performAdditionalCheck) {
-				IngridDocument checkResult = checkObjectSubTree(fromUuid);
+				IngridDocument checkResult = checkObjectSubTreeWorkingCopies(fromUuid);
 				if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
 					throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
 				}
 			}
 
-			// OK, perform move in separate transaction !
-
-			daoObjectNode.beginTransaction();
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 
 			// perform basic checks
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-			checkNodesForMove(fromNode, toUuid);
+			checkObjectNodesForMove(fromNode, toUuid);
 			
 			// move object when checks ok
 			// set new parent, may be null, then top node !
@@ -669,63 +676,66 @@ public class MdekIdcJob extends MdekJob {
 
 	/** Checks whether subtree of object has working copies. */
 	public IngridDocument checkObjectSubTree(IngridDocument params) {
-		String rootUuid = (String) params.get(MdekKeys.UUID);
-		return checkObjectSubTree(rootUuid);
-	}
-
-	/** Checks whether subtree of object has working copies. */
-	private IngridDocument checkObjectSubTree(String rootUuid) {
 		try {
+			String rootUuid = (String) params.get(MdekKeys.UUID);
+
 			daoObjectNode.beginTransaction();
 
-			// load "root"
-			ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid);
-			if (rootNode == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
-			}
-
-			// traverse iteratively via stack
-			Stack<ObjectNode> stack = new Stack<ObjectNode>();
-			stack.push(rootNode);
-
-			boolean hasWorkingCopy = false;
-			String uuidOfWorkingCopy = null;
-			int numberOfCheckedObj = 0;
-			while (!hasWorkingCopy && !stack.isEmpty()) {
-				ObjectNode node = stack.pop();
-				
-				// check
-				numberOfCheckedObj++;
-				if (!node.getObjId().equals(node.getObjIdPublished())) {
-					hasWorkingCopy = true;
-					uuidOfWorkingCopy = node.getObjUuid();
-				}
-
-				if (!hasWorkingCopy) {
-					List<ObjectNode> subNodes =
-						daoObjectNode.getSubObjects(node.getObjUuid(), false);
-					for (ObjectNode subNode : subNodes) {
-						stack.push(subNode);
-					}					
-				}
-			}
-			if (log.isDebugEnabled()) {
-				log.debug("Number of checked objects: " + numberOfCheckedObj);
-			}
-
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.RESULTINFO_HAS_WORKING_COPY, hasWorkingCopy);
-			result.put(MdekKeys.RESULTINFO_UUID_OF_FOUND_ENTITY, uuidOfWorkingCopy);
-			result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCheckedObj);
+			IngridDocument checkResult = checkObjectSubTreeWorkingCopies(rootUuid);
 
 			daoObjectNode.commitTransaction();
-			return result;		
+			return checkResult;		
 
 		} catch (RuntimeException e) {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
+	}
+
+	/** Checks whether subtree of object has working copies. */
+	private IngridDocument checkObjectSubTreeWorkingCopies(String rootUuid) {
+		// load "root"
+		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid);
+		if (rootNode == null) {
+			throw new MdekException(MdekError.UUID_NOT_FOUND);
+		}
+
+		// traverse iteratively via stack
+		Stack<ObjectNode> stack = new Stack<ObjectNode>();
+		stack.push(rootNode);
+
+		boolean hasWorkingCopy = false;
+		String uuidOfWorkingCopy = null;
+		int numberOfCheckedObj = 0;
+		while (!hasWorkingCopy && !stack.isEmpty()) {
+			ObjectNode node = stack.pop();
+			
+			// check
+			numberOfCheckedObj++;
+			if (!node.getObjId().equals(node.getObjIdPublished())) {
+				hasWorkingCopy = true;
+				uuidOfWorkingCopy = node.getObjUuid();
+			}
+
+			if (!hasWorkingCopy) {
+				List<ObjectNode> subNodes =
+					daoObjectNode.getSubObjects(node.getObjUuid(), false);
+				for (ObjectNode subNode : subNodes) {
+					stack.push(subNode);
+				}					
+			}
+		}
+		if (log.isDebugEnabled()) {
+			log.debug("Number of checked objects: " + numberOfCheckedObj);
+		}
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_HAS_WORKING_COPY, hasWorkingCopy);
+		result.put(MdekKeys.RESULTINFO_UUID_OF_FOUND_ENTITY, uuidOfWorkingCopy);
+		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCheckedObj);
+
+		return result;		
 	}
 
 	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied root object. */
@@ -781,7 +791,7 @@ public class MdekIdcJob extends MdekJob {
 	/** Check whether passed nodes are valid for move operation
 	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
 	 */
-	private void checkNodesForMove(ObjectNode fromNode, String toUuid) {
+	private void checkObjectNodesForMove(ObjectNode fromNode, String toUuid) {
 		ArrayList<MdekError> errors = new ArrayList<MdekError>();
 
 		if (fromNode == null) {
@@ -823,6 +833,118 @@ public class MdekIdcJob extends MdekJob {
 			if (pathNode.getObjIdPublished() == null) {
 				throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
 			}
+		}
+	}
+
+	/** Check whether publication condition of parent fits to publication condition of object.
+	 * Throws Exception if not. */
+	private void checkObjectPublicationConditionParent(IngridDocument oDocIn) {
+
+		// get current pub type. No check, if still null (stored with value not set yet ?)
+		Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
+		PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeIn);
+		if (pubTypeObj == null) {
+			return;
+		}
+
+		// Load Parent
+		String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+		if (parentUuuid == null) {
+			String uuid = (String) oDocIn.get(MdekKeys.UUID);
+			parentUuuid = daoObjectNode.loadByUuid(uuid).getFkObjUuid();
+		}
+		// return if top node
+		if (parentUuuid == null) {
+			return;
+		}
+		T01Object parentObj = daoObjectNode.loadByUuid(parentUuuid).getT01ObjectWork();
+		
+		// check whether publish type of parent is smaller
+		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentObj.getPublishId());
+		if (!pubTypeParent.includes(pubTypeObj)) {
+			throw new MdekException(MdekError.PARENT_HAS_SMALLER_PUBLICATION_CONDITION);					
+		}
+	}
+
+	/** Checks whether sub nodes publication condition fits to publication condition of passed parent.
+	 * ALSO ADAPTS SUB TREE IF REQUESTED IN PASSED IngridDoc (mod_time, mod_uuid, publish_id ...) !
+	 * @param oDocIn new object data from client
+	 * @param modTime modification time to store in sub objects if subtree is adapted 
+	 */
+	private void checkObjectPublicationConditionSubTree(IngridDocument oDocIn, String modTime) {
+
+		String uuid = (String) oDocIn.get(MdekKeys.UUID);
+		// no check if new object !
+		if (uuid == null) {
+			return;
+		}
+
+		// get current pub type. No check, if still null (stored with value not set yet ?)
+		Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
+		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeIn);
+		if (pubTypeNew == null) {
+			return;
+		}
+		
+		// check whether publish type has "decreased"
+		ObjectNode inNode = daoObjectNode.loadByUuid(uuid);
+		T01Object inObj = inNode.getT01ObjectWork();
+		PublishType pubTypeOld = EnumUtil.mapDatabaseToEnumConst(PublishType.class, inObj.getPublishId());
+		if (pubTypeNew.includes(pubTypeOld)) {
+			return;
+		}
+		
+		// pub type has decreased -> should we adapt all subnodes ?
+		Boolean adaptSubTree = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
+		if (!Boolean.TRUE.equals(adaptSubTree)) {
+			adaptSubTree = false;			
+		}
+
+		// traverse iteratively via stack
+		Stack<ObjectNode> stack = new Stack<ObjectNode>();
+		stack.push(inNode);
+		while (!stack.isEmpty()) {
+			ObjectNode subNode = stack.pop();
+			
+			// skip top node
+			if (!subNode.equals(inNode)) {
+
+				// check whether publication condition of sub node is "critical"
+				T01Object subObjWork = subNode.getT01ObjectWork();
+				PublishType subPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, subObjWork.getPublishId());				
+				boolean subNodeCritical = !pubTypeNew.includes(subPubType);
+
+				// throw "warning" for user when not adapting sub tree !
+				if (subNodeCritical && !adaptSubTree) {
+					throw new MdekException(MdekError.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION);					
+				}
+
+				if (adaptSubTree) {
+					// subnodes should be adapted
+					// TODO: REALLY adapt all subnodes ? even if no change ? 
+					
+					// create WorkingCopy if not there yet
+					if (!hasWorkingCopy(subNode)) {
+						subObjWork = createWorkingCopyFromPublished(subNode);
+					}
+					
+					// set time and user
+					subObjWork.setModTime(modTime);
+					// TODO: pass User and adapt here !
+//					subObjWork.setModUuid(modUuid);
+					
+					if (subNodeCritical) {
+						subObjWork.setPublishId(pubTypeNew.getDbValue());
+					}
+					daoT01Object.makePersistent(subObjWork);
+				}
+			}
+			
+			// add next level of subnodes to stack
+			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(subNode.getObjUuid(), true);
+			for (ObjectNode sN : subNodes) {
+				stack.push(sN);
+			}					
 		}
 	}
 
@@ -965,6 +1087,34 @@ public class MdekIdcJob extends MdekJob {
 
 		return targetObj;
 	}
+
+	private boolean hasWorkingCopy(ObjectNode oNode) {
+		Long oWorkId = oNode.getObjId(); 
+		Long oPubId = oNode.getObjIdPublished(); 
+		if (oWorkId == null || oWorkId.equals(oPubId)) {
+			return false;
+		}
+		
+		return true;
+	}
+
+	/** Create Working Copy in given node, meaning the published object is copied and set "In Bearbeitung".<br>
+	 * NOTICE: published object has to exist, so don't use this method when generating a NEW Node !<br>
+	 * NOTICE: ALREADY PERSISTED (Node and T01Object !) */
+	private T01Object createWorkingCopyFromPublished(ObjectNode oNode) {
+		if (!hasWorkingCopy(oNode)) {
+			T01Object objWork = createT01ObjectCopy(oNode.getT01ObjectPublished(), oNode.getObjUuid());
+			// set in Bearbeitung !
+			objWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
+			
+			oNode.setObjId(objWork.getId());
+			oNode.setT01ObjectWork(objWork);
+			daoObjectNode.makePersistent(oNode);			
+		}
+		
+		return oNode.getT01ObjectWork();
+	}
+
 
 /*
 	public IngridDocument getTopAddresses() {
