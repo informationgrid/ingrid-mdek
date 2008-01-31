@@ -8,7 +8,6 @@ import java.util.Stack;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
-import de.ingrid.mdek.MdekErrorHandler;
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
@@ -36,7 +35,7 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcJob extends MdekJob {
 
     /** Logger configured via Properties. ONLY if no logger via logservice is specified
-     * for same class !. If Logservice logger is specified, this one uses
+     * for same class !. If Logservice logger is specified, the following logger uses
      * Logservice configuration -> writes to separate logfile for this Job. */
 //    private final static Log log = LogFactory.getLog(MdekTreeJob.class);
 
@@ -52,7 +51,7 @@ public class MdekIdcJob extends MdekJob {
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
 
-	private MdekErrorHandler errorHandler;
+	private String JOB_DESCR_COPY = "COPY";
 
 	public MdekIdcJob(ILogService logService,
 			DaoFactory daoFactory) {
@@ -69,9 +68,6 @@ public class MdekIdcJob extends MdekJob {
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = docToBeanMapper.getInstance(daoFactory);
-
-		errorHandler = MdekErrorHandler.getInstance();
-
 	}
 /*
 	public IngridDocument testMdekEntity(IngridDocument params) {
@@ -743,6 +739,10 @@ public class MdekIdcJob extends MdekJob {
 		try {
 			daoObjectNode.beginTransaction();
 
+			// first add basic running jobs info !
+			String userId = getCurrentUserId(params);
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, 1));
+
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
@@ -763,7 +763,7 @@ public class MdekIdcJob extends MdekJob {
 			}
 
 			// copy fromNode
-			IngridDocument copyResult = createObjectNodeCopy(fromNode, toNode, copySubtree);
+			IngridDocument copyResult = createObjectNodeCopy(fromNode, toNode, copySubtree, userId);
 			ObjectNode fromNodeCopy = (ObjectNode) copyResult.get(MdekKeys.OBJ_ENTITIES);
 			Integer numCopiedObjects = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
 			if (log.isDebugEnabled()) {
@@ -785,6 +785,8 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(getCurrentUserId(params));
 		}
 	}
 
@@ -959,13 +961,24 @@ public class MdekIdcJob extends MdekJob {
 	/**
 	 * Creates a copy of the given ObjectNode and adds it under the given parent.
 	 * Also copies whole subtree dependent from passed flag.
-	 * NOTICE: supports also copy of a tree to one of its subnodes !
+	 * NOTICE: also supports copy of a tree to one of its subnodes !
 	 * Copied nodes are already Persisted !!!
-	 * @return doc containing additional info (copy of root node, number copied objects ...)
+	 * @param sourceNode copy this node
+	 * @param newParentNode under this node
+	 * @param copySubtree including subtree or not
+	 * @param userId current user id needed to update running jobs
+	 * @return doc containing additional info (copy of source node, number copied objects ...)
 	 */
 	private IngridDocument createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode,
-			boolean copySubtree)
+			boolean copySubtree, String userId)
 	{
+		// refine running jobs info
+		int totalNumToCopy = 1;
+		if (copySubtree) {
+			totalNumToCopy = daoObjectNode.countSubObjects(sourceNode.getObjUuid());
+			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy));				
+		}
+
 		// check whether we copy to subnode
 		// then we have to check already copied nodes to avoid endless copy !
 		boolean isCopyToOwnSubnode = false;
@@ -1029,6 +1042,9 @@ public class MdekIdcJob extends MdekJob {
 			targetNode.setFkObjUuid(newParentUuid);
 			daoObjectNode.makePersistent(targetNode);
 			numberOfCopiedObj++;
+			// update our job information ! may be polled from client !
+			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, numberOfCopiedObj, totalNumToCopy));
+
 			if (rootNodeCopy == null) {
 				rootNodeCopy = targetNode;
 			}
