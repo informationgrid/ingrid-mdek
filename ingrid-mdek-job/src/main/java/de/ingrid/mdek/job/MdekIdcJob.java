@@ -895,8 +895,11 @@ public class MdekIdcJob extends MdekJob {
 		ObjectNode inNode = daoObjectNode.loadByUuid(uuid);
 		T01Object inObj = inNode.getT01ObjectWork();
 		PublishType pubTypeOld = EnumUtil.mapDatabaseToEnumConst(PublishType.class, inObj.getPublishId());
-		if (pubTypeNew.includes(pubTypeOld)) {
-			return;
+		// former pub type was not set assume it has decreased !
+		if (pubTypeOld != null) {
+			if (pubTypeNew.includes(pubTypeOld)) {
+				return;
+			}			
 		}
 		
 		// pub type has decreased -> should we adapt all subnodes ?
