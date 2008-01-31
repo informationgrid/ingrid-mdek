@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -108,6 +109,26 @@ public class ObjectNodeDaoHibernate
 				.list();
 		
 		return childUuids;
+	}
+
+	public int countSubObjects(String parentUuid) {
+		int totalNum = 0;
+
+		Stack<String> uuidStack = new Stack<String>();
+		uuidStack.push(parentUuid);
+
+		while (!uuidStack.isEmpty()) {
+			String uuid = uuidStack.pop();
+			if (!uuid.equals(parentUuid)) {
+				totalNum++;
+			}
+			List<String> subUuids = getSubObjectUuids(uuid);
+			for (String subUuid : subUuids) {
+				uuidStack.push(subUuid);
+			}
+		}
+		
+		return totalNum;
 	}
 
 	public boolean isSubNode(String uuidToCheck, String uuidParent) {
