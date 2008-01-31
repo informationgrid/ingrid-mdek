@@ -107,8 +107,8 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.IS_CATALOG_DATA, o.getIsCatalogData());
 
 			// map associations
-			mapObjectReferences(o.getObjectReferences(), objectDoc, howMuch);
-			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc, howMuch);
+			mapObjectReferences(o.getObjectReferences(), objectDoc);
+			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc);
 			mapSpatialReferences(o.getSpatialReferences(), objectDoc);
 			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc);
 			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
@@ -176,8 +176,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer object relation data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	private IngridDocument mapObjectReference(ObjectReference oR, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
+	private IngridDocument mapObjectReference(ObjectReference oR, IngridDocument objectDoc) {
 		if (oR == null) {
 			return objectDoc;
 		}
@@ -189,19 +188,18 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	private IngridDocument mapObjectReferences(Set<ObjectReference> oRefs, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
+	private IngridDocument mapObjectReferences(Set<ObjectReference> oRefs, IngridDocument objectDoc) {
 		if (oRefs == null) {
 			return objectDoc;
 		}
 		ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRefs.size());
 		for (ObjectReference oRef : oRefs) {
 			IngridDocument oToDoc = new IngridDocument();
-			mapObjectReference(oRef, oToDoc, howMuch);
+			mapObjectReference(oRef, oToDoc);
 			ObjectNode oNode = oRef.getObjectNode();
 			if (oNode != null) {
 				T01Object oTo = oNode.getT01ObjectWork();
-				mapT01Object(oTo, oToDoc, howMuch);
+				mapT01Object(oTo, oToDoc, MappingQuantity.TABLE_ENTITY);
 				objsList.add(oToDoc);					
 			} else {
 				LOG.warn("Object " + oRef.getObjToUuid() + " has no ObjectNode !!! We skip this object reference.");
@@ -237,7 +235,7 @@ public class BeanToDocMapper implements IMapper {
 			Set<ObjectReference> oRefs = oFrom.getObjectReferences();
 			for (ObjectReference oRef : oRefs) {
 				if (uuidObjectTo.equals(oRef.getObjToUuid())) {
-					mapObjectReference(oRef, oFromDoc, howMuch);
+					mapObjectReference(oRef, oFromDoc);
 					break;
 				}
 			}
@@ -252,38 +250,31 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer relation data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	private IngridDocument mapT012ObjAdr(T012ObjAdr oA, IngridDocument adressDoc,
-			MappingQuantity howMuch) {
+	private IngridDocument mapT012ObjAdr(T012ObjAdr oA, IngridDocument adressDoc) {
 		if (oA == null) {
 			return adressDoc;
 		}
 
 		adressDoc.put(MdekKeys.RELATION_TYPE_ID, oA.getType());
 		adressDoc.put(MdekKeys.RELATION_TYPE_NAME, oA.getSpecialName());
-
-		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			// uuid should be already set in objectDoc
-//			adressDoc.put(MdekKeys.UUID, oA.getAdrUuid());
-			adressDoc.put(MdekKeys.RELATION_TYPE_REF, oA.getSpecialRef());
-			adressDoc.put(MdekKeys.RELATION_DATE_OF_LAST_MODIFICATION, oA.getModTime());
-		}
+		adressDoc.put(MdekKeys.RELATION_TYPE_REF, oA.getSpecialRef());
+		adressDoc.put(MdekKeys.RELATION_DATE_OF_LAST_MODIFICATION, oA.getModTime());
 
 		return adressDoc;
 	}
 
-	private IngridDocument mapT012ObjAdrs(Set<T012ObjAdr> oAs, IngridDocument objectDoc,
-			MappingQuantity howMuch) {
+	private IngridDocument mapT012ObjAdrs(Set<T012ObjAdr> oAs, IngridDocument objectDoc) {
 		if (oAs == null) {
 			return objectDoc;
 		}
 		ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
 		for (T012ObjAdr oA : oAs) {
 			IngridDocument aDoc = new IngridDocument();
-			mapT012ObjAdr(oA, aDoc, howMuch);
+			mapT012ObjAdr(oA, aDoc);
 			AddressNode aNode = oA.getAddressNode();
 			if (aNode != null) {
 				T02Address a = aNode.getT02AddressWork();
-				mapT02Address(a, aDoc, howMuch);
+				mapT02Address(a, aDoc, MappingQuantity.TABLE_ENTITY);
 				adrsList.add(aDoc);					
 			} else {
 				LOG.warn("Address " + oA.getAdrUuid() + " has no AddressNode !!! We skip this address reference.");
