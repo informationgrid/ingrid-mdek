@@ -859,8 +859,13 @@ public class MdekIdcJob extends MdekJob {
 		}
 		T01Object parentObj = daoObjectNode.loadByUuid(parentUuuid).getT01ObjectWork();
 		
-		// check whether publish type of parent is smaller
+		// get publish type of parent
 		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentObj.getPublishId());
+		if (pubTypeParent == null) {
+			return;
+		}
+
+		// check whether publish type of parent is smaller
 		if (!pubTypeParent.includes(pubTypeObj)) {
 			throw new MdekException(MdekError.PARENT_HAS_SMALLER_PUBLICATION_CONDITION);					
 		}
