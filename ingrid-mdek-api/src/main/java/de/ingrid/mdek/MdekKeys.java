@@ -9,6 +9,10 @@ public class MdekKeys {
 
     // ADDITIONAL INFO IN REQUEST
     // -------------------------
+    /** Specifies current user for tracking running jobs 
+     *  Value: String */
+    public final static String USER_ID = "user-id";
+
     /** Refetch an entity after an operation was performed ? 
      *  Value: Boolean */
     public final static String REQUESTINFO_REFETCH_ENTITY = "requestinfo_refetchEntity";
@@ -72,6 +76,18 @@ public class MdekKeys {
     /** uuid of the entity which was found (e.g. when looking for working copy in subtree) 
      *  Value: String */
     public final static String RESULTINFO_UUID_OF_FOUND_ENTITY = "resultinfo_uuidOfFoundEntity";
+    
+    // INFO ABOUT RUNNING JOBS
+    // -----------------------
+    /** Plain text description of job which is still running on server<br>
+     *  Value: String */
+    public final static String RUNNINGJOB_DESCRIPTION = "runningjob-description";
+    /** Additional info: How many entities already processed ?<br>
+     *  Value: Integer */
+    public final static String RUNNINGJOB_NUMBER_PROCESSED_ENTITIES = "runningjob-number-processed-entities";
+    /** Additional info: Total number of entities to process<br>
+     *  Value: Integer */
+    public final static String RUNNINGJOB_NUMBER_TOTAL_ENTITIES = "runningjob-number-total-entities";
 
     // COMMON DATA
     // -----------

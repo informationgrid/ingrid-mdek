@@ -2,6 +2,8 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 	<xs:complexType name="MDEK_REQUEST_MAP">
 		<xs:all>
+			<!-- user-id specifies current user for tracking running jobs -->
+			<xs:element name="user-id" type="xs:string"/>
 			<xs:element ref="uuid"/>
 			<xs:element name="parent-uuid" type="UUID"/>
 			<xs:element name="from-uuid" type="UUID"/>
@@ -22,6 +24,7 @@
 			<xs:element name="RESULT_ADDITIONAL_INFO_MAP" type="RESULT_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="RESULT_SYS_LIST_MAP" type="RESULT_SYS_LIST_MAP"/>
 			<xs:element name="CATALOG_MAP" type="CATALOG_MAP"/>
+			<xs:element name="RUNNING_JOBS_INFO_MAP" type="RUNNING_JOBS_INFO_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -148,6 +151,13 @@
 			<xs:element name="resultinfo_hasWorkingCopy" type="xs:boolean"/>
 			<xs:element name="resultinfo_numberOfProcessedEntities" type="xs:integer"/>
 			<xs:element name="resultinfo_uuidOfFoundEntity" type="UUID"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="RUNNING_JOBS_INFO_MAP">
+		<xs:all>
+			<xs:element name="runningjob-description" type="xs:string"/>
+			<xs:element name="runningjob-number-processed-entities" type="xs:integer"/>
+			<xs:element name="runningjob-number-total-entities" type="xs:integer"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SYS_LIST_MAP">

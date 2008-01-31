@@ -108,10 +108,12 @@ public interface IMdekCaller {
 	 * @param fromUuid uuid of node to copy
 	 * @param toUuid uuid of parent where to copy to (new subnode)
 	 * @param copySubtree true=also copy subtree, false=only object without subObjects
+	 * @param userId current user to track jobs of user
 	 * @return response containing result: map containing basic data of copied object
 	 * and additional info (number of copied objects ...)
 	 */
-	IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree);
+	IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree,
+			String userId);
 
 	/**
 	 * Move an object with its subtree to another parent.
@@ -164,5 +166,12 @@ public interface IMdekCaller {
 	 * @return response containing result: map representation of the catalog object
 	 */
 	IngridDocument fetchCatalog();
+
+	/**
+	 * Returns information about currently running job of passed user.
+	 * @param userId user identifier
+	 * @return response containing result: map containing job infos or empty map if no job running !
+	 */
+	IngridDocument getRunningJobInfo(String userId);
 
 }

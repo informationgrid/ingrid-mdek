@@ -186,12 +186,14 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree)
+	public IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree,
+		String userId)
 	{
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
 		jobParams.put(MdekKeys.TO_UUID, toUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_COPY_SUBTREE, copySubtree);
+		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("copyObject", jobParams);
 
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
@@ -215,6 +217,18 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
+
+	public IngridDocument fetchCatalog() {
+		List jobMethods = setUpJobMethod("getCatalog", null);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getRunningJobInfo(String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getRunningJobInfo", jobParams);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
 
 /*
 	public IngridDocument fetchTopAddresses() {
@@ -327,10 +341,5 @@ public class MdekCaller implements IMdekCaller {
 		}
 
 		log.debug("IngridDocument: " + doc);			
-	}
-
-	public IngridDocument fetchCatalog() {
-		List jobMethods = setUpJobMethod("getCatalog", null);
-		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 }

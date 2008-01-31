@@ -87,6 +87,7 @@ public class MdekExample {
 class MdekThread extends Thread {
 
 	private int threadNumber;
+	String myUserId;
 	boolean doDebug = true;
 	
 	private boolean isRunning = false;
@@ -94,6 +95,7 @@ class MdekThread extends Thread {
 	public MdekThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
+		myUserId = "EXAMPLE_USER_" + threadNumber;
 	}
 
 	public void run() {
@@ -122,15 +124,31 @@ class MdekThread extends Thread {
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//IMdekCaller mdekCaller = MdekCaller.getInstance();
 		//mdekCaller.testMdekEntity(threadNumber);
+
+// --------------
 /*
 		// test single stuff
-		boolean tmp = true;
-		fetchObject("2F4D9A08-BCD0-11D2-A63A-444553540000", Quantity.DETAIL_ENTITY);
-		if (tmp) {
+		boolean alwaysTrue = true;
+
+		// track server job !
+		// ------------------
+		boolean timeout = false;
+		try {
+			copyObject("15C69C20-FE15-11D2-AF34-0060084A4596", null, true);			
+		} catch(Exception ex) {
+			timeout = true;
+		}
+		if (timeout) {
+			trackRunningJob(3000);
+		}
+
+		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
 */
+// --------------
+
 		// -----------------------------------
 		// catalog
 
@@ -168,6 +186,9 @@ class MdekThread extends Thread {
 
 		System.out.println("\n----- object details -----");
 		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- object mit Verweis auf sich selbst ... -----");
+		fetchObject("2F4D9A08-BCD0-11D2-A63A-444553540000", Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		// object: check sub tree
@@ -1250,7 +1271,7 @@ class MdekThread extends Thread {
 		String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
 		System.out.println("\n###### INVOKE copyObject " + copySubtreeInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.copyObject(fromUuid, toUuid, copySubtree);
+		response = mdekCaller.copyObject(fromUuid, toUuid, copySubtree, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1263,6 +1284,40 @@ class MdekThread extends Thread {
 		}
 		
 		return result;
+	}
+
+	private void trackRunningJob(int sleepTimeMillis) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		IngridDocument response;
+		IngridDocument result;
+		System.out.println("\n###### INVOKE getRunningJobInfo ######");
+
+		boolean jobIsRunning = true;
+		while (jobIsRunning) {
+			response = mdekCaller.getRunningJobInfo(myUserId);
+			result = mdekCaller.getResultFromResponse(response);
+			if (result != null) {
+				String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
+				Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
+				Integer total = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
+				if (jobDescr == null) {
+					// job finished !
+					jobIsRunning = false;					
+					System.out.println("JOB FINISHED\n");
+				} else {
+					System.out.println("job:" + jobDescr + ", entities:" + numObjs + ", total:" + total);
+				}
+			} else {
+				handleError(response);
+				jobIsRunning = false;
+			}
+			
+			try {
+				Thread.sleep(sleepTimeMillis);				
+			} catch(Exception ex) {
+				System.out.println(ex);
+			}
+		}
 	}
 
 	private IngridDocument deleteObjectWorkingCopy(String uuid) {
