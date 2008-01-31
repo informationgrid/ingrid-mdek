@@ -122,7 +122,15 @@ class MdekThread extends Thread {
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//IMdekCaller mdekCaller = MdekCaller.getInstance();
 		//mdekCaller.testMdekEntity(threadNumber);
-
+/*
+		// test single stuff
+		boolean tmp = true;
+		fetchObject("2F4D9A08-BCD0-11D2-A63A-444553540000", Quantity.DETAIL_ENTITY);
+		if (tmp) {
+			isRunning = false;
+			return;
+		}
+*/
 		// -----------------------------------
 		// catalog
 
