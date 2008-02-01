@@ -26,6 +26,8 @@ public class MdekErrors {
 
 		/** e.g. publish of child not allowed when parent not published */
 		PARENT_NOT_PUBLISHED("20"),
+		/** e.g. move with unpublished sub entities (check method not called before !) */
+		ENTITY_NOT_PUBLISHED("21"),
 
 		/** e.g. move of tree node to subnode not allowed */
 		TARGET_IS_SUBNODE_OF_SOURCE("30"),

@@ -88,7 +88,7 @@ class MdekThread extends Thread {
 
 	private int threadNumber;
 	String myUserId;
-	boolean doDebug = true;
+	boolean doFullOutput = true;
 	
 	private boolean isRunning = false;
 
@@ -100,9 +100,9 @@ class MdekThread extends Thread {
 
 	public void run() {
 		isRunning = true;
+//		this.doFullOutput = false;
 
 		long exampleStartTime = System.currentTimeMillis();
-//		this.doDebug = false;
 
 		// TOP OBJECT
 //		String parentUuid = "3866463B-B449-11D2-9A86-080000507261";
@@ -229,6 +229,7 @@ class MdekThread extends Thread {
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
 		newObjDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
 		newObjDoc.put(MdekKeys.LOCATIONS, oMap.get(MdekKeys.LOCATIONS));
+		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
 
 		List<IngridDocument> terms = (List<IngridDocument>) newObjDoc.get(MdekKeys.SUBJECT_TERMS);
 		IngridDocument newTerm = new IngridDocument();
@@ -237,9 +238,9 @@ class MdekThread extends Thread {
 		System.out.println("ADD NEW SUBJECT TERM: " + newTerm);
 		terms.add(newTerm);
 
-		oMap = storeObjectWithManipulation(newObjDoc);
+		IngridDocument oMapNew = storeObjectWithManipulation(newObjDoc);
 		// uuid created !
-		String newObjUuid = (String) oMap.get(MdekKeys.UUID);
+		String newObjUuid = (String) oMapNew.get(MdekKeys.UUID);
 
 		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
 		fetchSubObjects(objUuid);
@@ -273,7 +274,8 @@ class MdekThread extends Thread {
 		deleteObjectWorkingCopy(copy1Uuid);
 		deleteObjectWorkingCopy(copy2Uuid);
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new object below new object (WITH sub tree) -----");
-		copyObject(objUuid, newObjUuid, true);
+		IngridDocument subtreeCopyDoc = copyObject(objUuid, newObjUuid, true);
+		String subtreeCopyUuid = subtreeCopyDoc.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy -> load children of new object -----");
 		fetchSubObjects(newObjUuid);
 		// Following is allowed now ! Don't execute -> huge tree is copied !
@@ -286,18 +288,24 @@ class MdekThread extends Thread {
 		System.out.println("MOVE TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n\n----- move new object WITHOUT CHECK -----");
+		System.out.println("\n\n----- move new object WITHOUT CHECK WORKING COPIES -> ERROR (not published yet) -----");
 		String oldParentUuid = objUuid;
 		String newParentUuid = parentUuid;
 		moveObject(newObjUuid, newParentUuid, false);
+		System.out.println("\n----- publish new object -> create pub version/delete work version -----");
+		publishObject(oMapNew, true, true);
+		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
+		moveObject(newObjUuid, newParentUuid, true);
+		System.out.println("\n----- check new object subtree -----");
+		checkObjectSubTree(newParentUuid);
+		System.out.println("\n\n----- delete subtree -----");
+		deleteObject(subtreeCopyUuid);
+		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
+		moveObject(newObjUuid, newParentUuid, true);
 		System.out.println("\n----- verify old parent subobjects (cut) -----");
 		fetchSubObjects(oldParentUuid);
 		System.out.println("\n----- verify new parent subobjects (added) -----");
 		fetchSubObjects(newParentUuid);
-		System.out.println("\n----- check new parent subtree -----");
-		checkObjectSubTree(newParentUuid);
-		System.out.println("\n\n----- move new parent WITH CHECK (not allowed) -----");
-		moveObject(newParentUuid, null, true);
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
 		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false);
 
@@ -332,19 +340,20 @@ class MdekThread extends Thread {
 		System.out.println("\n----- publish NEW SUB OBJECT immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc.put(MdekKeys.TITLE, "TEST NEUES SUB OBJEKT DIREKT PUBLISH");
+		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
 		// sub object of unpublished parent !!!
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
-		publishObject(newPubDoc, true);
+		publishObject(newPubDoc, true, false);
 
 		System.out.println("\n----- refetch FULL PARENT and change title, IS UNPUBLISHED !!! -----");
 		oMap = fetchObject(pub1Uuid, Quantity.DETAIL_ENTITY);
 		oMap.put(MdekKeys.TITLE, "COPIED, Title CHANGED and PUBLISHED: " + oMap.get(MdekKeys.TITLE));	
 
 		System.out.println("\n----- and publish PARENT -> create pub version/delete work version -----");
-		publishObject(oMap, true);
+		publishObject(oMap, true, false);
 
 		System.out.println("\n----- NOW CREATE AND PUBLISH OF NEW CHILD POSSIBLE -> create pub version, set also as work version -----");
-		oMap = publishObject(newPubDoc, true);
+		oMap = publishObject(newPubDoc, true, false);
 		// uuid created !
 		String pub2Uuid = (String) oMap.get(MdekKeys.UUID);
 
@@ -365,7 +374,7 @@ class MdekThread extends Thread {
 		System.out.println("PUBLICATION CONDITION TEST");
 		System.out.println("=========================");
 
-		this.doDebug = false;
+		this.doFullOutput = false;
 
 		parentUuid = "38665130-B449-11D2-9A86-080000507261";
 		String childUuid = "38665131-B449-11D2-9A86-080000507261";
@@ -381,43 +390,47 @@ class MdekThread extends Thread {
 		
 		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> ERROR -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
-		storeObjectWithoutManipulation(oMapParent, false, false);
+		publishObject(oMapParent, false, false);
 
 		System.out.println("\n----- change child to INTRANET -> SUCCESS -----");
 		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
-		storeObjectWithoutManipulation(oMapChild, true, false);
+		publishObject(oMapChild, true, false);
 
 		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> SUCCESS -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
-		storeObjectWithoutManipulation(oMapParent, true, false);
+		publishObject(oMapParent, true, false);
 
 		System.out.println("\n----- change child to INTERNET -> ERROR -----");
 		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
-		storeObjectWithoutManipulation(oMapChild, false, false);
+		publishObject(oMapChild, false, false);
 
 		System.out.println("\n----- change parent to INTERNET (FORCED publication condition) -> SUCCESS -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
-		storeObjectWithoutManipulation(oMapParent, true, true);
+		publishObject(oMapParent, true, true);
 
 		System.out.println("\n----- refetch child -> STILL INTRANET -----");
 		oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- change child to INTERNET -> SUCCESS -----");
 		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
-		storeObjectWithoutManipulation(oMapChild, true, false);
+		publishObject(oMapChild, true, false);
 
 		System.out.println("\n----- change parent to INTRANET (FORCED publication condition) -> SUCCESS -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
-		storeObjectWithoutManipulation(oMapParent, true, true);
+		publishObject(oMapParent, true, true);
 
 		System.out.println("\n----- refetch child -> NOW INTRANET -----");
 		oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
 
-		System.out.println("\n----- discard changes -> back to published version -----");
-		deleteObjectWorkingCopy(parentUuid);
-		deleteObjectWorkingCopy(childUuid);
-		
-		this.doDebug = true;
+		System.out.println("\n----- change parent back to INTERNET -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		publishObject(oMapParent, true, true);
+
+		System.out.println("\n----- change child back to INTERNET -> SUCCESS -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		publishObject(oMapChild, true, true);
+
+		this.doFullOutput = true;
 
 
 		
@@ -721,8 +734,7 @@ class MdekThread extends Thread {
 	}
 
 	private IngridDocument storeObjectWithoutManipulation(IngridDocument oDocIn,
-			boolean refetchObject,
-			boolean forcePublicationCondition) {
+			boolean refetchObject) {
 		// check whether we have an object
 		if (oDocIn == null) {
 			return null;
@@ -740,10 +752,7 @@ class MdekThread extends Thread {
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
-		System.out.println("storeObject -> " +
-			"refetchObject: " + refetchObject +
-			", forcePublicationCondition: " + forcePublicationCondition);
-		response = mdekCaller.storeObject(oDocIn, refetchObject, forcePublicationCondition);
+		response = mdekCaller.storeObject(oDocIn, refetchObject);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1049,7 +1058,7 @@ class MdekThread extends Thread {
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		System.out.println("storeObject WITHOUT refetching object: ");
-		response = mdekCaller.storeObject(oDocIn, false, false);
+		response = mdekCaller.storeObject(oDocIn, false);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1177,7 +1186,7 @@ class MdekThread extends Thread {
 			System.out.println("STORE");
 			startTime = System.currentTimeMillis();
 			System.out.println("storeObject WITH refetching object: ");
-			response = mdekCaller.storeObject(oRefetchedDoc, true, false);
+			response = mdekCaller.storeObject(oRefetchedDoc, true);
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1197,7 +1206,9 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument publishObject(IngridDocument oDocIn, boolean withRefetch) {
+	private IngridDocument publishObject(IngridDocument oDocIn,
+			boolean withRefetch,
+			boolean forcePublicationCondition) {
 		// check whether we have an object
 		if (oDocIn == null) {
 			return null;
@@ -1211,9 +1222,11 @@ class MdekThread extends Thread {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE publishObject ######");
+		System.out.println("publishObject -> " +
+				"refetchObject: " + withRefetch +
+				", forcePublicationCondition: " + forcePublicationCondition);
 		startTime = System.currentTimeMillis();
-		System.out.println("publishObject -> refetching object: " + withRefetch);
-		response = mdekCaller.publishObject(oDocIn, withRefetch);
+		response = mdekCaller.publishObject(oDocIn, withRefetch, forcePublicationCondition);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1384,7 +1397,7 @@ class MdekThread extends Thread {
 		);
 		System.out.println("  " + o);
 
-		if (!doDebug) {
+		if (!doFullOutput) {
 			return;
 		}
 

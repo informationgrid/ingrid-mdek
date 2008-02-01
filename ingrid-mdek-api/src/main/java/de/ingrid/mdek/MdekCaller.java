@@ -126,16 +126,17 @@ public class MdekCaller implements IMdekCaller {
 	}
 
 	public IngridDocument storeObject(IngridDocument objDoc,
-			boolean refetchAfterStore,
-			boolean forcePublicationCondition) {
+			boolean refetchAfterStore) {
 		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		objDoc.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
 		List jobMethods = setUpJobMethod("storeObject", objDoc);
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument publishObject(IngridDocument objDoc, boolean refetchAfterStore) {
+	public IngridDocument publishObject(IngridDocument objDoc,
+			boolean refetchAfterStore,
+			boolean forcePublicationCondition) {
 		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		objDoc.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
 		List jobMethods = setUpJobMethod("publishObject", objDoc);
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
