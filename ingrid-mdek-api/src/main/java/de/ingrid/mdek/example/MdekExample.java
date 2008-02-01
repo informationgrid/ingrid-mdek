@@ -318,8 +318,10 @@ class MdekThread extends Thread {
 		System.out.println("DELETE TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n----- delete new object (WORKING COPY) -> FULL DELETE -----");
+		System.out.println("\n----- delete new object (WORKING COPY) -> NO full delete -----");
 		deleteObjectWorkingCopy(newObjUuid);
+		System.out.println("\n----- delete new object (FULL) -> full delete -----");
+		deleteObject(newObjUuid);
 		System.out.println("\n----- verify deletion of new object -----");
 		fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
@@ -378,6 +380,7 @@ class MdekThread extends Thread {
 
 		parentUuid = "38665130-B449-11D2-9A86-080000507261";
 		String childUuid = "38665131-B449-11D2-9A86-080000507261";
+		String moveUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
 
 		System.out.println("\n----- fetch parent -----");
 		IngridDocument oMapParent = fetchObject(parentUuid, Quantity.DETAIL_ENTITY);
@@ -421,6 +424,9 @@ class MdekThread extends Thread {
 
 		System.out.println("\n----- refetch child -> NOW INTRANET -----");
 		oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- test MOVE INTERNET child to INTRANET parent -> ERROR -----");
+		moveObject(moveUuid, parentUuid, false);
 
 		System.out.println("\n----- change parent back to INTERNET -> SUCCESS -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
@@ -1246,7 +1252,7 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument moveObject(String fromUuid, String toUuid, boolean performCheck) {
+	private IngridDocument moveObject(String fromUuid, String toUuid, boolean performSubtreeCheck) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
@@ -1254,11 +1260,11 @@ class MdekThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		String performCheckInfo = (performCheck) ? "WITH CHECK SUBTREE (working copies)" 
+		String performCheckInfo = (performSubtreeCheck) ? "WITH CHECK SUBTREE (working copies)" 
 			: "WITHOUT CHECK SUBTREE (working copies)";
 		System.out.println("\n###### INVOKE moveObject " + performCheckInfo + "######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.moveObject(fromUuid, toUuid, performCheck);
+		response = mdekCaller.moveObject(fromUuid, toUuid, performSubtreeCheck);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
