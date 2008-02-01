@@ -590,26 +590,19 @@ public class MdekIdcJob extends MdekJob {
 	/** Move Object with its subtree to new parent. */
 	public IngridDocument moveObject(IngridDocument params) {
 		try {
-			Boolean performAdditionalCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
+			Boolean performSubtreeCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 
 			daoObjectNode.beginTransaction();
 
-			// perform additional check whether subnodes are ok !!!
-			if (performAdditionalCheck) {
-				IngridDocument checkResult = checkObjectSubTreeWorkingCopies(fromUuid);
-				if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
-					throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
-				}
-			}
+			// PERFORM CHECKS
 
-			String toUuid = (String) params.get(MdekKeys.TO_UUID);
-
-			// perform basic checks
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-			checkObjectNodesForMove(fromNode, toUuid);
-			
-			// move object when checks ok
+			checkObjectNodesForMove(fromNode, toUuid, performSubtreeCheck);
+
+			// CHECKS OK, proceed
+
 			// set new parent, may be null, then top node !
 			fromNode.setFkObjUuid(toUuid);		
 			daoObjectNode.makePersistent(fromNode);
@@ -798,9 +791,9 @@ public class MdekIdcJob extends MdekJob {
 	/** Check whether passed nodes are valid for move operation
 	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
 	 */
-	private void checkObjectNodesForMove(ObjectNode fromNode, String toUuid) {
-		ArrayList<MdekError> errors = new ArrayList<MdekError>();
-
+	private void checkObjectNodesForMove(ObjectNode fromNode, String toUuid,
+		Boolean performSubtreeCheck)
+	{
 		if (fromNode == null) {
 			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
 		}		
@@ -810,9 +803,29 @@ public class MdekIdcJob extends MdekJob {
 			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
 		}		
 
+		// NOTICE: top node when toUuid = null
 		if (toUuid != null) {
+			
+			// load toNode
+			ObjectNode toNode = daoObjectNode.loadByUuid(toUuid);
+			if (toNode == null) {
+				throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+			}		
+
+			// are pubTypes compatible ?
+			checkObjectsPublicationConditions(fromNode, toNode);
+			
+			// is target subnode ?
 			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
 				throw new MdekException(MdekError.TARGET_IS_SUBNODE_OF_SOURCE);				
+			}
+		}
+
+		// perform additional check whether subnodes are ok !!!
+		if (performSubtreeCheck) {
+			IngridDocument checkResult = checkObjectSubTreeWorkingCopies(fromUuid);
+			if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
+				throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
 			}
 		}
 	}
@@ -872,6 +885,28 @@ public class MdekIdcJob extends MdekJob {
 
 		// check whether publish type of parent is smaller
 		if (!pubTypeParent.includes(pubTypeObj)) {
+			throw new MdekException(MdekError.PARENT_HAS_SMALLER_PUBLICATION_CONDITION);					
+		}
+	}
+
+	private void checkObjectsPublicationConditions(ObjectNode childNode, ObjectNode parentNode) {
+
+		T01Object childObjPub = childNode.getT01ObjectPublished();
+		if (childObjPub == null) {
+			throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+		}
+		Integer pubType = childObjPub.getPublishId();
+		PublishType pubTypeChild = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubType);
+
+		T01Object parentObjPub = parentNode.getT01ObjectPublished();
+		if (childObjPub == null) {
+			throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+		}
+		pubType = parentObjPub.getPublishId();
+		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubType);
+
+		// check whether publish type of parent is smaller
+		if (!pubTypeParent.includes(pubTypeChild)) {
 			throw new MdekException(MdekError.PARENT_HAS_SMALLER_PUBLICATION_CONDITION);					
 		}
 	}
