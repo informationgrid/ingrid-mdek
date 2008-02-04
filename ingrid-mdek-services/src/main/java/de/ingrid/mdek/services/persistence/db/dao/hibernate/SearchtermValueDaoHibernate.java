@@ -31,7 +31,7 @@ public class SearchtermValueDaoHibernate
     
 	public SearchtermValue loadSearchterm(String type, String term, Long searchtermSnsId, Long objId) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("type: " + type + ", term: " + term + ", SearchtermSns_ID: " + searchtermSnsId);			
+//			LOG.debug("type: " + type + ", term: " + term + ", SearchtermSns_ID: " + searchtermSnsId);			
 		}
 
 		SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, type);

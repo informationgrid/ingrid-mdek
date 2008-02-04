@@ -31,7 +31,7 @@ public class SpatialRefValueDaoHibernate
     
 	public SpatialRefValue loadRefValue(String type, String name, Long spatialRefSnsId, String nativekey, Long objId) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("type: " + type + ", name: " + name + ", SpatialRefSns_ID: " + spatialRefSnsId + ", nativeKey: " + nativekey);			
+//			LOG.debug("type: " + type + ", name: " + name + ", SpatialRefSns_ID: " + spatialRefSnsId + ", nativeKey: " + nativekey);			
 		}
 
 		SpatialReferenceType spRefType = EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, type);
