@@ -1,6 +1,5 @@
 package de.ingrid.mdek;
 
-import org.apache.log4j.Logger;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -8,8 +7,6 @@ import de.ingrid.mdek.MdekErrors.MdekError;
 
 
 public class MdekErrorHandler {
-
-	private static final Logger LOG = Logger.getLogger(MdekErrorHandler.class);
 
 	private static MdekErrorHandler myInstance;
 

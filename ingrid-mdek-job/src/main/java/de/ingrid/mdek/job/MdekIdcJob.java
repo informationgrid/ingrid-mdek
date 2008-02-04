@@ -739,7 +739,7 @@ public class MdekIdcJob extends MdekJob {
 
 			// first add basic running jobs info !
 			String userId = getCurrentUserId(params);
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, 1));
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
 
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
@@ -1007,7 +1007,7 @@ public class MdekIdcJob extends MdekJob {
 		int totalNumToCopy = 1;
 		if (copySubtree) {
 			totalNumToCopy = daoObjectNode.countSubObjects(sourceNode.getObjUuid());
-			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy));				
+			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
 		}
 
 		// check whether we copy to subnode
@@ -1034,6 +1034,10 @@ public class MdekIdcJob extends MdekJob {
 			nodeDoc = stack.pop();
 			sourceNode = (ObjectNode) nodeDoc.get("NODE");
 			newParentNode = (ObjectNode) nodeDoc.get("PARENT_NODE");
+
+			if (log.isDebugEnabled()) {
+				log.debug("Copying entity " + sourceNode.getObjUuid());
+			}
 
 			// copy source work version !
 			String newUuid = UuidGenerator.getInstance().generateUuid();
@@ -1074,7 +1078,9 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.makePersistent(targetNode);
 			numberOfCopiedObj++;
 			// update our job information ! may be polled from client !
-			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, numberOfCopiedObj, totalNumToCopy));
+			// NOTICE: also checks whether job was canceled !
+			updateRunningJob(userId, createRunningJobDescription(
+				JOB_DESCR_COPY, numberOfCopiedObj, totalNumToCopy, false));
 
 			if (rootNodeCopy == null) {
 				rootNodeCopy = targetNode;
