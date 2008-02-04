@@ -17,6 +17,8 @@ public class MdekErrors {
 		USER_ID_NOT_SET("5"),
 		/** There are still running jobs of user */
 		USER_HAS_RUNNING_JOBS("6"),
+		/** User canceled job */
+		USER_CANCELED_JOB("7"),
 
 		UUID_NOT_FOUND("10"),
 		FROM_UUID_NOT_FOUND("11"),

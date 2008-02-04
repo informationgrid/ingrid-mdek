@@ -139,7 +139,7 @@ class MdekThread extends Thread {
 			timeout = true;
 		}
 		if (timeout) {
-			trackRunningJob(3000);
+			trackRunningJob(3000, true);
 		}
 
 		if (alwaysTrue) {
@@ -1305,14 +1305,20 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private void trackRunningJob(int sleepTimeMillis) {
+	private void trackRunningJob(int sleepTimeMillis, boolean doCancel) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		IngridDocument response;
 		IngridDocument result;
 		System.out.println("\n###### INVOKE getRunningJobInfo ######");
 
 		boolean jobIsRunning = true;
+		int counter = 0;
 		while (jobIsRunning) {
+			if (doCancel && counter > 4) {
+				cancelRunningJob();
+				return;
+			}
+
 			response = mdekCaller.getRunningJobInfo(myUserId);
 			result = mdekCaller.getResultFromResponse(response);
 			if (result != null) {
@@ -1336,6 +1342,25 @@ class MdekThread extends Thread {
 			} catch(Exception ex) {
 				System.out.println(ex);
 			}
+			counter++;
+		}
+	}
+
+	private void cancelRunningJob() {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		System.out.println("\n###### INVOKE cancelRunningJob ######");
+
+		IngridDocument response = mdekCaller.cancelRunningJob(myUserId);
+		IngridDocument result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
+			if (jobDescr == null) {
+				System.out.println("JOB FINISHED\n");
+			} else {
+				System.out.println("JOB CANCELED: " + result);
+			}
+		} else {
+			handleError(response);
 		}
 	}
 

@@ -135,6 +135,27 @@ public interface IMdekCaller {
 	 */
 	IngridDocument getInitialObject(IngridDocument newBasicObject);
 
+	/**
+	 * Fetch The catalog object, represented by an CATALOG_MAP type in xsd.
+	 * @return response containing result: map representation of the catalog object
+	 */
+	IngridDocument fetchCatalog();
+
+	/**
+	 * Returns information about currently running job of passed user.
+	 * @param userId user identifier
+	 * @return response containing result: map containing job infos or empty map if no job running !
+	 */
+	IngridDocument getRunningJobInfo(String userId);
+
+	/**
+	 * Cancel the currently running job of passed user.
+	 * @param userId user identifier
+	 * @return response containing result: map containing infos about canceled job, or empty map if no job running
+	 * (or null if something went wrong)<br>
+	 */
+	IngridDocument cancelRunningJob(String userId);
+
 	// uncomment when needed ! then recheck functionality and implementation !
 //	IngridDocument fetchTopAddresses();
 //	IngridDocument fetchSubAddresses(String adrUuid);
@@ -161,18 +182,4 @@ public interface IMdekCaller {
 	 * -> then <code>getErrorMsgFromResponse</code> contains exception
 	 */
 	List<MdekError> getErrorsFromResponse(IngridDocument mdekResponse);
-	
-	/**
-	 * Fetch The catalog object, represented by an CATALOG_MAP type in xsd.
-	 * @return response containing result: map representation of the catalog object
-	 */
-	IngridDocument fetchCatalog();
-
-	/**
-	 * Returns information about currently running job of passed user.
-	 * @param userId user identifier
-	 * @return response containing result: map containing job infos or empty map if no job running !
-	 */
-	IngridDocument getRunningJobInfo(String userId);
-
 }

@@ -88,6 +88,9 @@ public class MdekKeys {
     /** Additional info: Total number of entities to process<br>
      *  Value: Integer */
     public final static String RUNNINGJOB_NUMBER_TOTAL_ENTITIES = "runningjob-number-total-entities";
+    /** Additional info: Was the currently running job canceled by user<br>
+     *  Value: Boolean */
+    public final static String RUNNINGJOB_CANCELED_BY_USER = "runningjob-canceled-by-user";
 
     // COMMON DATA
     // -----------

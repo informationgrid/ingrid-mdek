@@ -158,6 +158,7 @@
 			<xs:element name="runningjob-description" type="xs:string"/>
 			<xs:element name="runningjob-number-processed-entities" type="xs:integer"/>
 			<xs:element name="runningjob-number-total-entities" type="xs:integer"/>
+			<xs:element name="runningjob-canceled-by-user" type="xs:boolean"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SYS_LIST_MAP">

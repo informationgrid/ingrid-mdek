@@ -231,6 +231,13 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument cancelRunningJob(String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("cancelRunningJob", jobParams);
+		return callJob(MDEK_IDC_JOB_ID, jobMethods);
+	}
+
 /*
 	public IngridDocument fetchTopAddresses() {
 		List jobMethods = setUpJobMethod("getTopAddresses", null);
