@@ -530,7 +530,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchCatalog ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchCatalog();
+		response = mdekCaller.fetchCatalog(myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -555,7 +555,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE getSysLists ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getSysLists(listIds, langCode);
+		response = mdekCaller.getSysLists(listIds, langCode, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -588,7 +588,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchTopObjects ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchTopObjects();
+		response = mdekCaller.fetchTopObjects(myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -616,7 +616,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchSubObjects ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchSubObjects(uuid);
+		response = mdekCaller.fetchSubObjects(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -644,7 +644,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE getObjectPath ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getObjectPath(uuidIn);
+		response = mdekCaller.getObjectPath(uuidIn, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -674,7 +674,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchObject(uuid, howMuch);
+		response = mdekCaller.fetchObject(uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -699,7 +699,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE getInitialObject ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getInitialObject(newBasicObject);
+		response = mdekCaller.getInitialObject(newBasicObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -724,7 +724,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE checkObjectSubTree ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.checkObjectSubTree(uuid);
+		response = mdekCaller.checkObjectSubTree(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -758,7 +758,7 @@ class MdekThread extends Thread {
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.storeObject(oDocIn, refetchObject);
+		response = mdekCaller.storeObject(oDocIn, refetchObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1064,7 +1064,7 @@ class MdekThread extends Thread {
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		System.out.println("storeObject WITHOUT refetching object: ");
-		response = mdekCaller.storeObject(oDocIn, false);
+		response = mdekCaller.storeObject(oDocIn, false, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1192,7 +1192,7 @@ class MdekThread extends Thread {
 			System.out.println("STORE");
 			startTime = System.currentTimeMillis();
 			System.out.println("storeObject WITH refetching object: ");
-			response = mdekCaller.storeObject(oRefetchedDoc, true);
+			response = mdekCaller.storeObject(oRefetchedDoc, true, myUserId);
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1232,7 +1232,7 @@ class MdekThread extends Thread {
 				"refetchObject: " + withRefetch +
 				", forcePublicationCondition: " + forcePublicationCondition);
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.publishObject(oDocIn, withRefetch, forcePublicationCondition);
+		response = mdekCaller.publishObject(oDocIn, withRefetch, forcePublicationCondition, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1264,7 +1264,7 @@ class MdekThread extends Thread {
 			: "WITHOUT CHECK SUBTREE (working copies)";
 		System.out.println("\n###### INVOKE moveObject " + performCheckInfo + "######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.moveObject(fromUuid, toUuid, performSubtreeCheck);
+		response = mdekCaller.moveObject(fromUuid, toUuid, performSubtreeCheck, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1374,7 +1374,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE deleteObjectWorkingCopy ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.deleteObjectWorkingCopy(uuid);
+		response = mdekCaller.deleteObjectWorkingCopy(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1400,7 +1400,7 @@ class MdekThread extends Thread {
 
 		System.out.println("\n###### INVOKE deleteObject ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.deleteObject(uuid);
+		response = mdekCaller.deleteObject(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

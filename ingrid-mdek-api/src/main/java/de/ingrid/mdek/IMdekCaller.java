@@ -22,7 +22,8 @@ public interface IMdekCaller {
 
 	/** Returns a map containing the entries of lists with given ids.
 	 * Pass null as languageCode if it doesn't matter. */
-	IngridDocument getSysLists(Integer[] listIds, Integer languageCode);
+	IngridDocument getSysLists(Integer[] listIds, Integer languageCode,
+			String userId);
 
 	/**
 	 * Fetch single object with given uuid.
@@ -30,7 +31,8 @@ public interface IMdekCaller {
 	 * @param howMuch how much data to fetch from object
 	 * @return response containing result: map representation of object containing requested data
 	 */
-	IngridDocument fetchObject(String uuid, Quantity howMuch);
+	IngridDocument fetchObject(String uuid, Quantity howMuch,
+			String userId);
 
 	/**
 	 * Create or store object INTO WORKING COPY !
@@ -42,7 +44,8 @@ public interface IMdekCaller {
 	 * 		otherwise map containing uuid of stored object (was generated when new object)  
 	 */
 	IngridDocument storeObject(IngridDocument obj,
-			boolean refetchAfterStore);
+			boolean refetchAfterStore,
+			String userId);
 
 	/**
 	 * Create or store object INTO PUBLISHED VERSION ! PERFORMS CHECKS ON DATA !
@@ -56,7 +59,8 @@ public interface IMdekCaller {
 	 */
 	IngridDocument publishObject(IngridDocument obj,
 			boolean refetchAfterStore,
-			boolean forcePublicationCondition);
+			boolean forcePublicationCondition,
+			String userId);
 
 	/**
 	 * DELETE ONLY WORKING COPY.
@@ -65,7 +69,8 @@ public interface IMdekCaller {
 	 * @param uuid object uuid
 	 * @return response containing result: map containing info whether object was fully deleted
 	 */
-	IngridDocument deleteObjectWorkingCopy(String uuid);
+	IngridDocument deleteObjectWorkingCopy(String uuid,
+			String userId);
 
 	/**
 	 * FULL DELETE: working copy and published version are removed INCLUDING subobjects !
@@ -73,27 +78,30 @@ public interface IMdekCaller {
 	 * @param uuid object uuid
 	 * @return response containing result: map containing info about success
 	 */
-	IngridDocument deleteObject(String uuid);
+	IngridDocument deleteObject(String uuid,
+			String userId);
 
 	/**
 	 * Fetch all top objects of tree.
 	 * @return response containing result: map containing representations of all root objects
 	 */
-	IngridDocument fetchTopObjects();
+	IngridDocument fetchTopObjects(String userId);
 
 	/**
 	 * Fetch all sub objects of of object with given uuid
 	 * @param uuid object uuid
 	 * @return response containing result: map containing representations of all sub objects
 	 */
-	IngridDocument fetchSubObjects(String uuid);
+	IngridDocument fetchSubObjects(String uuid,
+			String userId);
 
 	/**
 	 * Get Path of object in tree starting at root
 	 * @param uuid object uuid
 	 * @return response containing result: map containing path (List of uuids starting at root)
 	 */
-	IngridDocument getObjectPath(String uuid);
+	IngridDocument getObjectPath(String uuid,
+			String userId);
 
 	/**
 	 * Check whether operations with the subtree of the given object
@@ -102,7 +110,8 @@ public interface IMdekCaller {
 	 * @return response containing result: map containing info about examination
 	 * (has working copies, uuid of found working copy, number checked objects ...)
 	 */
-	IngridDocument checkObjectSubTree(String uuid);
+	IngridDocument checkObjectSubTree(String uuid,
+			String userId);
 
 	/**
 	 * Copy an object to another parent.
@@ -126,20 +135,22 @@ public interface IMdekCaller {
 	 * 	called before moving !
 	 * @return response containing result: map containing info (number of moved objects ...)
 	 */
-	IngridDocument moveObject(String fromUuid, String toUuid, boolean performSubtreeCheck);
+	IngridDocument moveObject(String fromUuid, String toUuid, boolean performSubtreeCheck,
+			String userId);
 
 	/**
 	 * Get initial data for a new object. Pass data needed to determine initial data (e.g. uuid of parent).
 	 * @param newBasicObject basic new object with data needed to determine initial data, e.g. parent uuid ...
 	 * @return extended newObject, e.g. containing terms of parent etc.
 	 */
-	IngridDocument getInitialObject(IngridDocument newBasicObject);
+	IngridDocument getInitialObject(IngridDocument newBasicObject,
+			String userId);
 
 	/**
 	 * Fetch The catalog object, represented by an CATALOG_MAP type in xsd.
 	 * @return response containing result: map representation of the catalog object
 	 */
-	IngridDocument fetchCatalog();
+	IngridDocument fetchCatalog(String userId);
 
 	/**
 	 * Returns information about currently running job of passed user.
