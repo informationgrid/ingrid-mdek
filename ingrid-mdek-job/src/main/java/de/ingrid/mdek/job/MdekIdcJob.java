@@ -51,7 +51,13 @@ public class MdekIdcJob extends MdekJob {
 	private BeanToDocMapper beanToDocMapper;
 	private DocToBeanMapper docToBeanMapper;
 
+	private String JOB_DESCR_READ = "READ";
+	private String JOB_DESCR_STORE = "STORE";
+	private String JOB_DESCR_PUBLISH = "PUBLISH";
 	private String JOB_DESCR_COPY = "COPY";
+	private String JOB_DESCR_MOVE = "MOVE";
+	private String JOB_DESCR_DELETE = "DELETE";
+	private String JOB_DESCR_CHECK = "CHECK";
 
 	public MdekIdcJob(ILogService logService,
 			DaoFactory daoFactory) {
@@ -130,7 +136,11 @@ public class MdekIdcJob extends MdekJob {
 	}
 */
 	public IngridDocument getSysLists(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+
 			daoSysList.beginTransaction();
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
 			Integer langCode = (Integer) params.get(MdekKeys.LANGUAGE_CODE);
@@ -153,11 +163,17 @@ public class MdekIdcJob extends MdekJob {
 			daoSysList.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 	
-	public IngridDocument getCatalog() {
+	public IngridDocument getCatalog(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+
 			daoT03Catalog.beginTransaction();
 
 			// fetch catalog
@@ -176,11 +192,17 @@ public class MdekIdcJob extends MdekJob {
 			daoT03Catalog.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
-	public IngridDocument getTopObjects() {
+	public IngridDocument getTopObjects(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+
 			daoObjectNode.beginTransaction();
 
 			// fetch top Objects
@@ -203,14 +225,20 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
 	public IngridDocument getSubObjects(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
-			daoObjectNode.beginTransaction();
-			String uuid = (String) params.get(MdekKeys.UUID);
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
+			daoObjectNode.beginTransaction();
+
+			String uuid = (String) params.get(MdekKeys.UUID);
 			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
@@ -231,14 +259,20 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
 	public IngridDocument getObjectPath(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
-			daoObjectNode.beginTransaction();
-			String uuid = (String) params.get(MdekKeys.UUID);
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
+			daoObjectNode.beginTransaction();
+
+			String uuid = (String) params.get(MdekKeys.UUID);
 			List<String> uuidList = daoObjectNode.getObjectPath(uuid);
 
 			IngridDocument result = new IngridDocument();
@@ -251,55 +285,69 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
 	public IngridDocument getObjDetails(IngridDocument params) {
-		String uuid = (String) params.get(MdekKeys.UUID);
-		if (log.isDebugEnabled()) {
-			log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
-		}
-		return getObjDetails(uuid);
-	}
-
-	private IngridDocument getObjDetails(String uuid) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+
 			daoObjectNode.beginTransaction();
 
-			// first get all "internal" object data (referenced addresses ...)
-			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-			if (oNode == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			String uuid = (String) params.get(MdekKeys.UUID);
+			if (log.isDebugEnabled()) {
+				log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
 			}
-
-			IngridDocument resultDoc = new IngridDocument();
-			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+			IngridDocument result = getObjDetails(uuid);
 			
-			// also map ObjectNode for published info
-			beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
-		
-			// then get "external" data (objects referencing the given object ...)
-			List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
-			beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-			
-			// get parent data
-			ObjectNode pNode = daoObjectNode.getParent(uuid);
-			if (pNode != null) {
-				beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), resultDoc);
-			}
-
 			daoObjectNode.commitTransaction();
-			return resultDoc;
-
+			return result;
+			
 		} catch (RuntimeException e) {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
+	private IngridDocument getObjDetails(String uuid) {
+		// first get all "internal" object data (referenced addresses ...)
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode == null) {
+			throw new MdekException(MdekError.UUID_NOT_FOUND);
+		}
+
+		IngridDocument resultDoc = new IngridDocument();
+		beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+		
+		// also map ObjectNode for published info
+		beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
+	
+		// then get "external" data (objects referencing the given object ...)
+		List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
+		beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		
+		// get parent data
+		ObjectNode pNode = daoObjectNode.getParent(uuid);
+		if (pNode != null) {
+			beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), resultDoc);
+		}
+
+		return resultDoc;
+	}
+
 	public IngridDocument getInitialObject(IngridDocument oDocIn) {
+		String userId = getCurrentUserId(oDocIn);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+
 			daoObjectNode.beginTransaction();
 			
 			// take over "thesaurus" searchterms from parent etc.
@@ -338,11 +386,17 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
+		String userId = getCurrentUserId(oDocIn);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
 			daoObjectNode.beginTransaction();
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
@@ -398,10 +452,13 @@ public class MdekIdcJob extends MdekJob {
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
 
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
 
 			if (refetchAfterStore) {
+				daoObjectNode.beginTransaction();
 				result = getObjDetails(uuid);
+				daoObjectNode.commitTransaction();
 			}
 			
 			return result;
@@ -410,11 +467,17 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
 	public IngridDocument publishObject(IngridDocument oDocIn) {
+		String userId = getCurrentUserId(oDocIn);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_PUBLISH, 0, 1, false));
+
 			daoObjectNode.beginTransaction();
 
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
@@ -484,10 +547,13 @@ public class MdekIdcJob extends MdekJob {
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
 
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
 
 			if (refetchAfterStore) {
+				daoObjectNode.beginTransaction();
 				result = getObjDetails(uuid);
+				daoObjectNode.commitTransaction();
 			}
 			
 			return result;
@@ -496,7 +562,9 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
-		}		
+		} finally {
+			removeRunningJob(userId);
+		}
 	}
 
 	/**
@@ -505,7 +573,11 @@ public class MdekIdcJob extends MdekJob {
 	 * (including all subobjects !)
 	 */
 	public IngridDocument deleteObjectWorkingCopy(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 
@@ -543,7 +615,7 @@ public class MdekIdcJob extends MdekJob {
 			}
 
 			if (performFullDelete) {
-				result = deleteObject(params);
+				result = deleteObject(uuid);
 			}
 
 			daoObjectNode.commitTransaction();
@@ -553,6 +625,8 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
@@ -561,21 +635,15 @@ public class MdekIdcJob extends MdekJob {
 	 * Object is non existent afterwards !
 	 */
 	public IngridDocument deleteObject(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 
-			// NOTICE: this one also contains Parent Association !
-			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-			if (oNode == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
-			}
-
-			// delete complete Node ! rest is deleted per cascade !
-			daoObjectNode.makeTransient(oNode);
-
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+			IngridDocument result = deleteObject(uuid);
 
 			daoObjectNode.commitTransaction();
 			return result;
@@ -584,12 +652,34 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
-		}		
+		} finally {
+			removeRunningJob(userId);
+		}
+	}
+
+	private IngridDocument deleteObject(String uuid) {
+		// NOTICE: this one also contains Parent Association !
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode == null) {
+			throw new MdekException(MdekError.UUID_NOT_FOUND);
+		}
+
+		// delete complete Node ! rest is deleted per cascade !
+		daoObjectNode.makeTransient(oNode);
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+
+		return result;
 	}
 
 	/** Move Object with its subtree to new parent. */
 	public IngridDocument moveObject(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
+
 			Boolean performSubtreeCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
@@ -618,6 +708,8 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
@@ -670,7 +762,11 @@ public class MdekIdcJob extends MdekJob {
 
 	/** Checks whether subtree of object has working copies. */
 	public IngridDocument checkObjectSubTree(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_CHECK, 0, 1, false));
+
 			String rootUuid = (String) params.get(MdekKeys.UUID);
 
 			daoObjectNode.beginTransaction();
@@ -684,6 +780,8 @@ public class MdekIdcJob extends MdekJob {
 			daoObjectNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
+		} finally {
+			removeRunningJob(userId);
 		}
 	}
 
@@ -734,12 +832,12 @@ public class MdekIdcJob extends MdekJob {
 
 	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied root object. */
 	public IngridDocument copyObject(IngridDocument params) {
+		String userId = getCurrentUserId(params);
 		try {
-			daoObjectNode.beginTransaction();
-
 			// first add basic running jobs info !
-			String userId = getCurrentUserId(params);
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
+
+			daoObjectNode.beginTransaction();
 
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
@@ -784,7 +882,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(getCurrentUserId(params));
+			removeRunningJob(userId);
 		}
 	}
 
