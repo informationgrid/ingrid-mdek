@@ -291,23 +291,23 @@ class MdekThread extends Thread {
 		System.out.println("\n\n----- move new object WITHOUT CHECK WORKING COPIES -> ERROR (not published yet) -----");
 		String oldParentUuid = objUuid;
 		String newParentUuid = parentUuid;
-		moveObject(newObjUuid, newParentUuid, false);
+		moveObject(newObjUuid, newParentUuid, false, false);
 		System.out.println("\n----- publish new object -> create pub version/delete work version -----");
 		publishObject(oMapNew, true, true);
 		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
-		moveObject(newObjUuid, newParentUuid, true);
+		moveObject(newObjUuid, newParentUuid, true, false);
 		System.out.println("\n----- check new object subtree -----");
 		checkObjectSubTree(newParentUuid);
 		System.out.println("\n\n----- delete subtree -----");
 		deleteObject(subtreeCopyUuid);
 		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
-		moveObject(newObjUuid, newParentUuid, true);
+		moveObject(newObjUuid, newParentUuid, true, false);
 		System.out.println("\n----- verify old parent subobjects (cut) -----");
 		fetchSubObjects(oldParentUuid);
 		System.out.println("\n----- verify new parent subobjects (added) -----");
 		fetchSubObjects(newParentUuid);
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
-		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false);
+		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false, false);
 
 // Make another move to check via DB whether mod_time was updated for all moved nodes
 //		moveObject(objUuid, null, true);
@@ -380,7 +380,6 @@ class MdekThread extends Thread {
 
 		parentUuid = "38665130-B449-11D2-9A86-080000507261";
 		String childUuid = "38665131-B449-11D2-9A86-080000507261";
-		String moveUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
 
 		System.out.println("\n----- fetch parent -----");
 		IngridDocument oMapParent = fetchObject(parentUuid, Quantity.DETAIL_ENTITY);
@@ -425,8 +424,25 @@ class MdekThread extends Thread {
 		System.out.println("\n----- refetch child -> NOW INTRANET -----");
 		oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
 
-		System.out.println("\n----- test MOVE INTERNET child to INTRANET parent -> ERROR -----");
-		moveObject(moveUuid, parentUuid, false);
+		System.out.println("\n----- verify INTERNET parent and children to MOVE -----");
+		String moveUuid = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
+		String moveChild1Uuid = "37D89A8E-3E4F-4907-A3FF-B01E3FE13B4C";
+		String moveChild2Uuid = "2F121A74-C02F-4856-BBF1-48A7FC69D99A";
+		fetchObject(moveUuid, Quantity.DETAIL_ENTITY);
+		fetchSubObjects(moveUuid);
+		fetchObject(moveChild1Uuid, Quantity.DETAIL_ENTITY);
+		fetchObject(moveChild2Uuid, Quantity.DETAIL_ENTITY);
+		
+		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> ERROR -----");
+		moveObject(moveUuid, parentUuid, false, false);
+
+		System.out.println("\n----- test MOVE INTERNET child to INTRANET parent -> SUCCESS -----");
+		moveObject(moveUuid, parentUuid, false, true);
+
+		System.out.println("\n----- verify -> all moved nodes INTRANET ! -----");
+		fetchObject(moveUuid, Quantity.DETAIL_ENTITY);
+		fetchObject(moveChild1Uuid, Quantity.DETAIL_ENTITY);
+		fetchObject(moveChild2Uuid, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- change parent back to INTERNET -> SUCCESS -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
@@ -1252,7 +1268,9 @@ class MdekThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument moveObject(String fromUuid, String toUuid, boolean performSubtreeCheck) {
+	private IngridDocument moveObject(String fromUuid, String toUuid,
+			boolean performSubtreeCheck,
+			boolean forcePublicationCondition) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
@@ -1260,11 +1278,13 @@ class MdekThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		String performCheckInfo = (performSubtreeCheck) ? "WITH CHECK SUBTREE (working copies)" 
-			: "WITHOUT CHECK SUBTREE (working copies)";
-		System.out.println("\n###### INVOKE moveObject " + performCheckInfo + "######");
+		String performCheckInfo = (performSubtreeCheck) ? "WITH CHECK SUBTREE (working copies) " 
+			: "WITHOUT CHECK SUBTREE (working copies) ";
+		String forcePubCondInfo = (forcePublicationCondition) ? "WITH FORCE publicationCondition" 
+				: "WITHOUT FORCE publicationCondition";
+		System.out.println("\n###### INVOKE moveObject " + performCheckInfo + forcePubCondInfo + "######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.moveObject(fromUuid, toUuid, performSubtreeCheck, myUserId);
+		response = mdekCaller.moveObject(fromUuid, toUuid, performSubtreeCheck, forcePublicationCondition, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

@@ -133,9 +133,12 @@ public interface IMdekCaller {
 	 * 	true=check whether move is possible (e.g. subtree contains no working copies)<br>
 	 * 	false=no check, move subtree as it is -> <code>checkObjectSubTree</code> should be
 	 * 	called before moving !
+	 * @param forcePublicationCondition apply restricted PubCondition of new parent to
+	 * 		subobjects (true) or receive Error when subobjects PubCondition conflicts (false)
 	 * @return response containing result: map containing info (number of moved objects ...)
 	 */
 	IngridDocument moveObject(String fromUuid, String toUuid, boolean performSubtreeCheck,
+			boolean forcePublicationCondition,
 			String userId);
 
 	/**

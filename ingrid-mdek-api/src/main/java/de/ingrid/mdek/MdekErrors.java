@@ -35,9 +35,9 @@ public class MdekErrors {
 		TARGET_IS_SUBNODE_OF_SOURCE("30"),
 		/** e.g. then no move allowed ! Also thrown if top node has WorkingCopy ! */
 		SUBTREE_HAS_WORKING_COPIES("31"),
-		/** e.g. when object is saved and publication conditions don't fit */
+		/** e.g. when object is published and sub publication conditions don't fit */
 		SUBTREE_HAS_LARGER_PUBLICATION_CONDITION("32"),
-		/** e.g. when object is saved and publication conditions don't fit */
+		/** e.g. when object is published and publication condition doesn't fit to parent */
 		PARENT_HAS_SMALLER_PUBLICATION_CONDITION("33");
 
 		MdekError(String errorCode) {
