@@ -32,4 +32,13 @@ public class MdekException extends RuntimeException {
 		
 		return ret;
 	}
+
+	/** Does this exception contain the passed Error ? */
+	public boolean containsError(MdekError errorToCheck) {
+		if (errors.contains(errorToCheck)) {
+			return true;
+		}
+		
+		return false;
+	}
 }

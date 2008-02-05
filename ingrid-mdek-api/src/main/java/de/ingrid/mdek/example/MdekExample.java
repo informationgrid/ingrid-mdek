@@ -138,6 +138,10 @@ class MdekThread extends Thread {
 		} catch(Exception ex) {
 			timeout = true;
 		}
+
+		// once again -> ERROR: job running
+		copyObject("15C69C20-FE15-11D2-AF34-0060084A4596", null, true);
+
 		if (timeout) {
 			trackRunningJob(3000, true);
 		}
