@@ -136,7 +136,7 @@ public class MdekIdcJob extends MdekJob {
 		String userId = getCurrentUserId(params);
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+//			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
 			daoSysList.beginTransaction();
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
@@ -161,7 +161,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(userId);
+//			removeRunningJob(userId);
 		}
 	}
 	
@@ -169,7 +169,7 @@ public class MdekIdcJob extends MdekJob {
 		String userId = getCurrentUserId(params);
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+//			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
 			daoT03Catalog.beginTransaction();
 
@@ -190,7 +190,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(userId);
+//			removeRunningJob(userId);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class MdekIdcJob extends MdekJob {
 		String userId = getCurrentUserId(params);
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+//			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
 
@@ -223,7 +223,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(userId);
+//			removeRunningJob(userId);
 		}
 	}
 
@@ -231,7 +231,7 @@ public class MdekIdcJob extends MdekJob {
 		String userId = getCurrentUserId(params);
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+//			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
 
@@ -257,7 +257,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(userId);
+//			removeRunningJob(userId);
 		}
 	}
 
@@ -265,7 +265,7 @@ public class MdekIdcJob extends MdekJob {
 		String userId = getCurrentUserId(params);
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+//			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
 
@@ -283,7 +283,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(userId);
+//			removeRunningJob(userId);
 		}
 	}
 
@@ -291,7 +291,7 @@ public class MdekIdcJob extends MdekJob {
 		String userId = getCurrentUserId(params);
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+//			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
 
@@ -309,7 +309,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(userId);
+//			removeRunningJob(userId);
 		}
 	}
 
@@ -343,7 +343,7 @@ public class MdekIdcJob extends MdekJob {
 		String userId = getCurrentUserId(oDocIn);
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
+//			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_READ, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
 			
@@ -384,7 +384,7 @@ public class MdekIdcJob extends MdekJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		} finally {
-			removeRunningJob(userId);
+//			removeRunningJob(userId);
 		}
 	}
 
