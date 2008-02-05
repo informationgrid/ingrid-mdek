@@ -436,7 +436,7 @@ class MdekThread extends Thread {
 		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> ERROR -----");
 		moveObject(moveUuid, parentUuid, false, false);
 
-		System.out.println("\n----- test MOVE INTERNET child to INTRANET parent -> SUCCESS -----");
+		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> SUCCESS -----");
 		moveObject(moveUuid, parentUuid, false, true);
 
 		System.out.println("\n----- verify -> all moved nodes INTRANET ! -----");
