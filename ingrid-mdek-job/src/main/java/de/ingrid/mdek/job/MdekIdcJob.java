@@ -18,7 +18,6 @@ import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
@@ -45,7 +44,6 @@ public class MdekIdcJob extends MdekJob {
 	private IObjectNodeDao daoObjectNode;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
-	private ISpatialRefValueDao daoSpatialRefValue;
 	private ISysListDao daoSysList;
 	private IGenericDao daoT03Catalog;
 	private BeanToDocMapper beanToDocMapper;
@@ -68,7 +66,6 @@ public class MdekIdcJob extends MdekJob {
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
-		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 		daoSysList = daoFactory.getSysListDao();
 		daoT03Catalog = daoFactory.getDao(T03Catalogue.class);
 
@@ -485,13 +482,17 @@ public class MdekIdcJob extends MdekJob {
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
 			// PERFORM CHECKS
+			// NOTICE: passed object may NOT exist yet (new object published immediately)
 
 			// all parents published ?
 			checkObjectPathForPublish(uuid, false);
-			// check publication condition of parent
-			checkObjectPublicationConditionParent(oDocIn);
-			// check/adapt publication condition of subtree
-			checkObjectPublicationConditionSubTree(oDocIn, currentTime);
+			// publication condition of parent fits to object ?
+			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+			Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
+			checkObjectPublicationConditionParent(parentUuuid, uuid, pubTypeIn);
+			// publication conditions of sub nodes fit to object ?
+			Boolean forcePubCondition = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
+			checkObjectPublicationConditionSubTree(uuid, pubTypeIn, forcePubCondition, true, currentTime);
 
 			// CHECKS OK, proceed
 
@@ -681,6 +682,7 @@ public class MdekIdcJob extends MdekJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
 
 			Boolean performSubtreeCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
+			Boolean forcePubCondition = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 
@@ -689,7 +691,7 @@ public class MdekIdcJob extends MdekJob {
 			// PERFORM CHECKS
 
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-			checkObjectNodesForMove(fromNode, toUuid, performSubtreeCheck);
+			checkObjectNodesForMove(fromNode, toUuid, performSubtreeCheck, forcePubCondition);
 
 			// CHECKS OK, proceed
 
@@ -890,41 +892,52 @@ public class MdekIdcJob extends MdekJob {
 	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
 	 */
 	private void checkObjectNodesForMove(ObjectNode fromNode, String toUuid,
-		Boolean performSubtreeCheck)
+		Boolean performSubtreeCheck,
+		Boolean forcePubCondition)
 	{
 		if (fromNode == null) {
 			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
 		}		
-
 		String fromUuid = fromNode.getObjUuid();
-		if (fromUuid == null) {
-			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
-		}		
+
+		// nodes to move must be published !
+		T01Object fromObj = fromNode.getT01ObjectPublished();
+		if (fromObj == null) {
+			throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+		}
+
+		// perform additional check whether subnodes have working copies -> not allowed
+		if (performSubtreeCheck) {
+			IngridDocument checkResult = checkObjectSubTreeWorkingCopies(fromUuid);
+			if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
+				throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
+			}
+		}
 
 		// NOTICE: top node when toUuid = null
 		if (toUuid != null) {
-			
 			// load toNode
 			ObjectNode toNode = daoObjectNode.loadByUuid(toUuid);
 			if (toNode == null) {
 				throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
 			}		
 
-			// are pubTypes compatible ?
-			checkObjectsPublicationConditions(fromNode, toNode);
-			
+			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
+			T01Object toObj = toNode.getT01ObjectPublished();
+			if (toObj == null) {
+				throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+			}
+
 			// is target subnode ?
 			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
 				throw new MdekException(MdekError.TARGET_IS_SUBNODE_OF_SOURCE);				
 			}
-		}
-
-		// perform additional check whether subnodes are ok !!!
-		if (performSubtreeCheck) {
-			IngridDocument checkResult = checkObjectSubTreeWorkingCopies(fromUuid);
-			if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
-				throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
-			}
+			
+			// are pubTypes compatible ?
+			Integer publicationTypeTo = toObj.getPublishId();
+			// adapt all child nodes !
+			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+			checkObjectPublicationConditionSubTree(fromUuid, publicationTypeTo, forcePubCondition, false, currentTime);
 		}
 	}
 
@@ -954,26 +967,24 @@ public class MdekIdcJob extends MdekJob {
 		}
 	}
 
-	/** Check whether publication condition of parent fits to publication condition of passed object map.<br>
+	/** Check whether publication condition of parent fits to publication condition of child.<br>
 	 * NOTICE: PublishedVersion of parent is checked !<br>
-	 * Throws Exception if not. */
-	private void checkObjectPublicationConditionParent(IngridDocument oDocIn) {
+	 * Throws Exception if not fitting */
+	private void checkObjectPublicationConditionParent(String parentUuid,
+			String childUuid,
+			Integer pubTypeChildDB) {
 
-		// get current pub type. Should be set !!! (mandatory when publishing)
-		Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
-		PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeIn);
+		PublishType pubTypeChild = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeChildDB);
 
 		// Load Parent
-		String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-		if (parentUuuid == null) {
-			String uuid = (String) oDocIn.get(MdekKeys.UUID);
-			parentUuuid = daoObjectNode.loadByUuid(uuid).getFkObjUuid();
+		if (parentUuid == null) {
+			parentUuid = daoObjectNode.loadByUuid(childUuid).getFkObjUuid();
 		}
 		// return if top node
-		if (parentUuuid == null) {
+		if (parentUuid == null) {
 			return;
 		}
-		T01Object parentObjPub = daoObjectNode.loadByUuid(parentUuuid).getT01ObjectPublished();
+		T01Object parentObjPub = daoObjectNode.loadByUuid(parentUuid).getT01ObjectPublished();
 		if (parentObjPub == null) {
 			throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
 		}
@@ -982,53 +993,36 @@ public class MdekIdcJob extends MdekJob {
 		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentObjPub.getPublishId());
 
 		// check whether publish type of parent is smaller
-		if (!pubTypeParent.includes(pubTypeObj)) {
-			throw new MdekException(MdekError.PARENT_HAS_SMALLER_PUBLICATION_CONDITION);					
-		}
-	}
-
-	private void checkObjectsPublicationConditions(ObjectNode childNode, ObjectNode parentNode) {
-
-		T01Object childObjPub = childNode.getT01ObjectPublished();
-		if (childObjPub == null) {
-			throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
-		}
-		Integer pubType = childObjPub.getPublishId();
-		PublishType pubTypeChild = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubType);
-
-		T01Object parentObjPub = parentNode.getT01ObjectPublished();
-		if (childObjPub == null) {
-			throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
-		}
-		pubType = parentObjPub.getPublishId();
-		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubType);
-
-		// check whether publish type of parent is smaller
 		if (!pubTypeParent.includes(pubTypeChild)) {
 			throw new MdekException(MdekError.PARENT_HAS_SMALLER_PUBLICATION_CONDITION);					
 		}
 	}
 
-	/** Checks whether sub nodes publication condition fits to publication condition of passed parent.
-	 * ALSO ADAPTS SUB TREE IF REQUESTED IN PASSED IngridDoc (mod_time, mod_uuid, publish_id ...) !<br>
-	 * NOTICE: Only PublishedVersion of subnodes is checked !!!
-	 * @param oDocIn new object data from client
-	 * @param modTime modification time to store in sub objects if subtree is adapted 
+	/** Checks whether a tree fits to a new publication condition.
+	 * ALSO ADAPTS Publication Conditions IF REQUESTED !<br>
+	 * NOTICE: Only published versions of subnodes are checked !!!
+	 * @param topUuid uuid of top node of tree
+	 * @param pubTypeTopDB new publication type
+	 * @param forcePubCondition force change of nodes (modification time, publicationType, ...)
+	 * @param skipTopNode check/change top node, e.g. when moving (true) or not, e.g. when publishing (false)
+	 * @param modTime modification time to store in modified nodes
 	 */
-	private void checkObjectPublicationConditionSubTree(IngridDocument oDocIn, String modTime) {
+	private void checkObjectPublicationConditionSubTree(String topUuid,
+			Integer pubTypeTopDB,
+			Boolean forcePubCondition,
+			boolean skipTopNode,
+			String modTime) {
 
-		String uuid = (String) oDocIn.get(MdekKeys.UUID);
 		// no check if new object ! No children !
-		if (uuid == null) {
+		if (topUuid == null) {
 			return;
 		}
 
 		// get current pub type. Should be set !!! (mandatory when publishing)
-		Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
-		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeIn);
+		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);
 		
 		// check whether publish type has "decreased"
-		ObjectNode inNode = daoObjectNode.loadByUuid(uuid);
+		ObjectNode inNode = daoObjectNode.loadByUuid(topUuid);
 		T01Object inObj = inNode.getT01ObjectWork();
 		PublishType pubTypeOld = EnumUtil.mapDatabaseToEnumConst(PublishType.class, inObj.getPublishId());
 		// if former pub type was not set assume it has decreased !
@@ -1040,9 +1034,8 @@ public class MdekIdcJob extends MdekJob {
 		}
 		
 		// pub type has decreased -> should we adapt all subnodes ?
-		Boolean adaptSubTree = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
-		if (!Boolean.TRUE.equals(adaptSubTree)) {
-			adaptSubTree = false;			
+		if (!Boolean.TRUE.equals(forcePubCondition)) {
+			forcePubCondition = false;			
 		}
 
 		// traverse iteratively via stack
@@ -1051,8 +1044,15 @@ public class MdekIdcJob extends MdekJob {
 		while (!stack.isEmpty()) {
 			ObjectNode subNode = stack.pop();
 			
-			// skip top node
-			if (!subNode.equals(inNode)) {
+			// skip top node ?
+			boolean processNode = true;
+			if (subNode.equals(inNode)) {
+				if (skipTopNode) {
+					processNode = false;
+				}
+			}
+			
+			if (processNode) {
 
 				// check whether publication condition of sub node is "critical"
 				T01Object subObjPub = subNode.getT01ObjectPublished();
@@ -1065,7 +1065,7 @@ public class MdekIdcJob extends MdekJob {
 
 				if (subNodeCritical) {
 					// throw "warning" for user when not adapting sub tree !
-					if (!adaptSubTree) {
+					if (!forcePubCondition) {
 						throw new MdekException(MdekError.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION);					
 					}
 
