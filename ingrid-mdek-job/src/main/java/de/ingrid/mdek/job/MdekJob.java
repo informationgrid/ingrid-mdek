@@ -1,9 +1,5 @@
 package de.ingrid.mdek.job;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekErrorHandler;
@@ -22,11 +18,11 @@ public abstract class MdekJob implements IJob {
 	private static final Logger LOG = Logger.getLogger(MdekJob.class);
 
 	protected MdekErrorHandler errorHandler;	
-	private Map<String, IngridDocument> runningJobsMap;
+	protected MdekJobHandler jobHandler;
 
 	public MdekJob() {
 		errorHandler = MdekErrorHandler.getInstance();
-		runningJobsMap = Collections.synchronizedMap(new HashMap<String, IngridDocument>());
+		jobHandler = MdekJobHandler.getInstance();
 	}
 
 	/**
@@ -41,34 +37,12 @@ public abstract class MdekJob implements IJob {
 
 	/** Called from Client */
 	public IngridDocument getRunningJobInfo(IngridDocument params) {
-		IngridDocument result = new IngridDocument();
-
-		String userId = params.getString(MdekKeys.USER_ID);
-		return getRunningJobInfo(userId);
+		return jobHandler.getRunningJobInfo(params);
 	}
 
 	/** Called from Client */
 	public IngridDocument cancelRunningJob(IngridDocument params) {
-		IngridDocument result = new IngridDocument();
-
-		String userId = params.getString(MdekKeys.USER_ID);
-		IngridDocument runningJob = runningJobsMap.get(userId);
-		if (runningJob != null) {
-			runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, true);
-			result = runningJob;
-		}
-		
-		return result;
-	}
-
-	/** THROWS EXCEPTION IF USER NOT SET in passed doc */
-	protected String getCurrentUserId(IngridDocument inDoc) {
-		String userId = inDoc.getString(MdekKeys.USER_ID);
-		if (userId == null) {
-			throw new MdekException(MdekError.USER_ID_NOT_SET);
-		}
-		
-		return userId;
+		return jobHandler.cancelRunningJob(params);
 	}
 
 	/**
@@ -83,63 +57,34 @@ public abstract class MdekJob implements IJob {
 			Integer numProcessed,
 			Integer numTotal,
 			boolean canceledByUser) {
-		IngridDocument runningJob = new IngridDocument();
-		runningJob.put(MdekKeys.RUNNINGJOB_DESCRIPTION, jobDescr);
-		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
-		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
-		runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, canceledByUser);
-		
-		return runningJob;
+		return jobHandler.createRunningJobDescription(jobDescr,
+				numProcessed,
+				numTotal,
+				canceledByUser);
 	}
 
 	/** THROWS EXCEPTION IF USER ALREADY HAS A RUNNING JOB */
 	protected void addRunningJob(String userId, IngridDocument jobDescr) {
-		// first check whether there is already a running job
-		IngridDocument runningJob = runningJobsMap.get(userId);
-		if (runningJob != null) {
-			// TODO: transfer info about running job !
-			throw new MdekException(MdekError.USER_HAS_RUNNING_JOBS);			
-		}
-
-		runningJobsMap.put(userId, jobDescr);
+		jobHandler.addRunningJob(userId, jobDescr);
 	}
 
 	/** NO checks whether jobs are already running !<br>
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
 	protected void updateRunningJob(String userId, IngridDocument jobDescr) {
-		// throws exception if canceled !
-		checkRunningJobCanceledByUser(userId);
-
-		runningJobsMap.put(userId, jobDescr);
-	}
-
-	/** NOTICE: returns empty Document if no running job ! */
-	protected IngridDocument getRunningJobInfo(String userId) {
-		IngridDocument result = new IngridDocument();
-
-		IngridDocument runningJob = runningJobsMap.get(userId);
-		if (runningJob != null) {
-			result = runningJob;
-		}
-		
-		return result;
+		jobHandler.updateRunningJob(userId, jobDescr);
 	}
 
 	protected void removeRunningJob(String userId) {
-		runningJobsMap.put(userId, null);
+		jobHandler.removeRunningJob(userId);
 	}
 
-	/** THROWS EXCEPTION if job canceled */
-	private void checkRunningJobCanceledByUser(String userId) {
-		IngridDocument runningJob = getRunningJobInfo(userId);
-		Boolean wasCanceled = (Boolean) runningJob.get(MdekKeys.RUNNINGJOB_CANCELED_BY_USER);
-		wasCanceled = (wasCanceled == null) ? false : wasCanceled;
-
-		if (wasCanceled) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Job " + runningJob.get(MdekKeys.RUNNINGJOB_DESCRIPTION) + " was canceled by user !");
-			}
-			throw new MdekException(MdekError.USER_CANCELED_JOB);
+	/** THROWS EXCEPTION IF USER NOT SET in passed doc */
+	public static String getCurrentUserId(IngridDocument inDoc) {
+		String userId = inDoc.getString(MdekKeys.USER_ID);
+		if (userId == null) {
+			throw new MdekException(MdekError.USER_ID_NOT_SET);
 		}
+		
+		return userId;
 	}
 }
