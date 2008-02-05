@@ -37,7 +37,7 @@ public class LogService implements ILogService {
 		debugAppender.setAppend(true);
 
 		debugAppender.setLayout(new PatternLayout(
-				"%5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%L) - %m%n"));
+				"%5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%M:%L) - %m%n"));
 		debugAppender.setThreshold(Level.DEBUG);
 		debugAppender.activateOptions();
 		setAppender(debugAppender, clazz.getName());
@@ -45,7 +45,7 @@ public class LogService implements ILogService {
 			ConsoleAppender consoleAppender = new ConsoleAppender();
 			consoleAppender.setName(clazz.getName() + "console");
 			consoleAppender.setLayout(new PatternLayout(
-					"%5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%L) - %m%n"));
+					"%5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%M:%L) - %m%n"));
 			consoleAppender.setThreshold(Level.DEBUG);
 			consoleAppender.activateOptions();
 			setAppender(consoleAppender, clazz.getName());
