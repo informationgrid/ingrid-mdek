@@ -2,26 +2,38 @@ package de.ingrid.mdek.job;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekErrorHandler;
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.utils.IngridDocument;
 
 /**
- * Abstract base class of mdek jobs encapsulating common stuff and default behaviour
- * 
- * @author Martin
+ * Abstract base class of mdek jobs encapsulating common stuff and default behaviour.
  */
 public abstract class MdekJob implements IJob {
 
-	private static final Logger LOG = Logger.getLogger(MdekJob.class);
+    /** Logger configured via Properties. ONLY if no logger via logservice is specified
+     * for same class !. If Logservice logger is specified, the following logger uses
+     * Logservice configuration -> writes to separate logfile for this Job. */
+//    private final static Log log = LogFactory.getLog(MdekTreeJob.class);
 
-	protected MdekErrorHandler errorHandler;	
+	/** logs in separate File (job specific log file) */
+	protected Logger log;
+
 	protected MdekJobHandler jobHandler;
 
-	public MdekJob() {
-		errorHandler = MdekErrorHandler.getInstance();
+	// Descriptions of running methods when setting up JobDescription to track ! 
+	protected String JOB_DESCR_READ = "READ";
+	protected String JOB_DESCR_STORE = "STORE";
+	protected String JOB_DESCR_PUBLISH = "PUBLISH";
+	protected String JOB_DESCR_COPY = "COPY";
+	protected String JOB_DESCR_MOVE = "MOVE";
+	protected String JOB_DESCR_DELETE = "DELETE";
+	protected String JOB_DESCR_CHECK = "CHECK";
+
+	public MdekJob(Logger log) {
+		this.log = log;
+
 		jobHandler = MdekJobHandler.getInstance();
 	}
 
