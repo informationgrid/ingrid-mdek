@@ -2,11 +2,11 @@ package de.ingrid.mdek;
 
 
 /**
- * Class encapsulating error types/ methods.
+ * Interface defining MdekError Types
  * 
  * @author Martin
  */
-public class MdekErrors {
+public interface IMdekErrors {
 
 	/** Error Codes ! Encapsulated "dbValue" represents error code. */
 	public enum MdekError implements IMdekEnum {

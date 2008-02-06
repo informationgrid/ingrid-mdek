@@ -13,7 +13,7 @@ import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekCaller.Quantity;
+import de.ingrid.mdek.IMdekCallerCommon.Quantity;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;

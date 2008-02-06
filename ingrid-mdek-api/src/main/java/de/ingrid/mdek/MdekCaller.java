@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekErrors.MdekError;
+import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;

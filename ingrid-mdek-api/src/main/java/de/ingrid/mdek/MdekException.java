@@ -3,7 +3,7 @@ package de.ingrid.mdek;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.ingrid.mdek.MdekErrors.MdekError;
+import de.ingrid.mdek.IMdekErrors.MdekError;
 
 public class MdekException extends RuntimeException {
 
