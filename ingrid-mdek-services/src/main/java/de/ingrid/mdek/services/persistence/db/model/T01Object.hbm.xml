@@ -132,7 +132,8 @@
          <key column="obj_id"/>
          <one-to-many class="T011ObjServ" not-found="ignore"/>
       </set>
-      <set name="t011ObjTopicCats" table="t011_obj_topic_cat" inverse="true"
+      <set name="t011ObjTopicCats" order-by="line" table="t011_obj_topic_cat"
+           inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T011ObjTopicCat" not-found="ignore"/>

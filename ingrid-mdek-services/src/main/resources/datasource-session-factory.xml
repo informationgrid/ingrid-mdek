@@ -14,14 +14,16 @@
       <property name="exposeTransactionAwareSessionFactory" value="false"/>
       <property name="mappingResources">
          <list>
-            <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
 <!--
             <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
+-->
+            <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
+<!--
             <value>de/ingrid/mdek/services/persistence/db/model/Group.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/GroupPermission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/HibernateUniqueKey.hbm.xml</value>
 -->
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
 <!--
@@ -51,10 +53,10 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeo.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoKeyc.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoScale.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSymc.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoVector.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSymc.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoVector.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjLiterature.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjProject.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServ.hbm.xml</value>
@@ -166,5 +168,5 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T02Address.t021Communications">read-write</prop>
          </props>
       </property>
-    </bean>
+   </bean>
 </beans>

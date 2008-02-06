@@ -6,7 +6,7 @@
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
-      <property name="version" type="integer" column="version"/>
+      <version name="version" type="integer" column="version"/>
       <property name="lstId" type="integer" column="lst_id"/>
       <property name="entryId" type="integer" column="entry_id"/>
       <property name="langId" type="integer" column="lang_id"/>
