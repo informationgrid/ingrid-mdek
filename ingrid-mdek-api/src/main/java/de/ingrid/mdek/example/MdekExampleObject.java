@@ -18,7 +18,7 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
 
-public class MdekExample {
+public class MdekExampleObject {
 
 	private static Map readParameters(String[] args) {
 		Map<String, String> argumentMap = new HashMap<String, String>();
