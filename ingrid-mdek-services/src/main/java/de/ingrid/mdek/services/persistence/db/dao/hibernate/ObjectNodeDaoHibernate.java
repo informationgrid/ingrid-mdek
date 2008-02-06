@@ -12,7 +12,7 @@ import org.hibernate.SessionFactory;
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekErrors.MdekError;
+import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
