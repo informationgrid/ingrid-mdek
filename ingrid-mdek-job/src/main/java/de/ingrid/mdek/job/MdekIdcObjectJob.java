@@ -11,7 +11,7 @@ import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekErrors.MdekError;
+import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;

@@ -3,7 +3,7 @@ package de.ingrid.mdek;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.ConstraintViolationException;
 
-import de.ingrid.mdek.MdekErrors.MdekError;
+import de.ingrid.mdek.IMdekErrors.MdekError;
 
 
 /**
