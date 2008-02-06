@@ -88,7 +88,6 @@ public class MdekJobHandler {
 		// first check whether there is already a running job
 		IngridDocument runningJob = runningJobsMap.get(userId);
 		if (runningJob != null) {
-			// TODO: transfer info about running job !
 			throw new MdekException(MdekError.USER_HAS_RUNNING_JOBS);			
 		}
 

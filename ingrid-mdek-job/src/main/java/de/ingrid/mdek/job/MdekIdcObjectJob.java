@@ -537,8 +537,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.makePersistent(fromNode);
 
 			// change date and mod_uuid of all moved nodes !
-			// TODO: pass correct user uuid
-			IngridDocument result = processMovedNodes(fromNode, "USER UUID");
+			IngridDocument result = processMovedNodes(fromNode, userId);
 
 			daoObjectNode.commitTransaction();
 			return result;		

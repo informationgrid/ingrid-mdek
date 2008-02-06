@@ -41,8 +41,6 @@ public class MdekErrorHandler {
 			// Unique constraint violated, someone else added/updated entity
 			retExc = new MdekException(MdekError.ENTITY_CHANGED_IN_BETWEEN);
 		}
-
-		// TODO: handle other types of exceptions e.g. hibernate exceptions ...
 		
 		return retExc;
 	}
