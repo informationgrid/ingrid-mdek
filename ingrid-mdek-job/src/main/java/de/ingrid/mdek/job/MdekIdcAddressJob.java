@@ -29,8 +29,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		try {
 			daoAddressNode.beginTransaction();
 
+			Boolean onlyFreeAddressesIn = (Boolean) params.get(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES);
+			boolean onlyFreeAddresses = (onlyFreeAddressesIn == null) ? false : onlyFreeAddressesIn;
+
 			// fetch top Objects
-			List<AddressNode> aNs = daoAddressNode.getTopAddresses();
+			List<AddressNode> aNs = daoAddressNode.getTopAddresses(onlyFreeAddresses);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNs.size());
 			for (AddressNode aN : aNs) {
