@@ -100,6 +100,9 @@ class MdekExampleAddressThread extends Thread {
 
 		long exampleStartTime = System.currentTimeMillis();
 
+		// TOP OBJECT
+		String topUuid = "A7D04CEB-77EF-11D3-AF93-0060084A4596";
+
 		// -----------------------------------
 		// tree: top addresses
 
@@ -107,8 +110,16 @@ class MdekExampleAddressThread extends Thread {
 		fetchTopAddresses(true);
 		fetchTopAddresses(false);
 
+		// -----------------------------------
+		// tree: sub objects
+
+		System.out.println("\n----- sub objects -----");
+		fetchSubAddresses(topUuid);
+
+		// -----------------------------------
 		long exampleEndTime = System.currentTimeMillis();
 		long exampleNeededTime = exampleEndTime - exampleStartTime;
+		System.out.println("\n----------");
 		System.out.println("EXAMPLE EXECUTION TIME: " + exampleNeededTime + " ms");
 
 		isRunning = false;
@@ -136,6 +147,34 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
 				System.out.println(o);				
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument fetchSubAddresses(String uuid) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE fetchSubAddresses ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.fetchSubAddresses(uuid, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);
 			}
 		} else {
 			handleError(response);

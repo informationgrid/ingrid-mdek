@@ -16,4 +16,13 @@ public interface IMdekCallerAddress {
 	 * @return response containing result: map containing representations of root addresses
 	 */
 	IngridDocument fetchTopAddresses(String userId, boolean onlyFreeAddresses);
+
+	/**
+	 * Fetch all sub addresses of address with given uuid
+	 * @param uuid address uuid
+	 * @return response containing result: map containing representations of sub addresses
+	 */
+	IngridDocument fetchSubAddresses(String uuid,
+			String userId);
+
 }
