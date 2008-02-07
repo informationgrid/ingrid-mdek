@@ -145,6 +145,7 @@
 			<xs:element name="requestinfo_copySubtree" type="xs:boolean"/>
 			<xs:element name="requestinfo_performCheck" type="xs:boolean"/>
 			<xs:element name="requestinfo_forcePublicationCondition" type="xs:boolean"/>
+			<xs:element name="requestinfo_onlyFreeAddresses" type="xs:boolean"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">

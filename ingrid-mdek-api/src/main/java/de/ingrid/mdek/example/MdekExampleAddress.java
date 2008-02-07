@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.IMdekCaller;
@@ -105,7 +104,8 @@ class MdekExampleAddressThread extends Thread {
 		// tree: top addresses
 
 		System.out.println("\n----- top addresses -----");
-		fetchTopAddresses();
+		fetchTopAddresses(true);
+		fetchTopAddresses(false);
 
 		long exampleEndTime = System.currentTimeMillis();
 		long exampleNeededTime = exampleEndTime - exampleStartTime;
@@ -114,7 +114,7 @@ class MdekExampleAddressThread extends Thread {
 		isRunning = false;
 	}
 
-	private IngridDocument fetchTopAddresses() {
+	private IngridDocument fetchTopAddresses(boolean onlyFreeAddresses) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
@@ -123,8 +123,10 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE fetchTopAddresses ######");
+		System.out.println("fetchTopAddresses -> " +
+				"onlyFreeAddresses: " + onlyFreeAddresses);
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchTopAddresses(myUserId);
+		response = mdekCaller.fetchTopAddresses(myUserId, onlyFreeAddresses);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

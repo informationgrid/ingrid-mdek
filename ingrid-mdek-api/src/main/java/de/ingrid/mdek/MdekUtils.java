@@ -108,6 +108,27 @@ public class MdekUtils {
 		String description;
 	}
 
+	/** Type of addresses */
+	public enum AddressType implements IMdekEnum {
+		INSTITUTION(0, "Institution"),
+		EINHEIT(1, "Einheit"),
+		PERSON(2, "Person"),
+		FREI(3, "Freie Adresse");
+
+		AddressType(Integer dbValue, String description) {
+			this.dbValue = dbValue;
+			this.description = description;
+		}
+		public Integer getDbValue() {
+			return dbValue;
+		}
+		public String toString() {
+			return description;
+		}
+		Integer dbValue;
+		String description;
+	}
+
 /*
 	private static MdekUtils myInstance;
 

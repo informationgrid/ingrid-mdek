@@ -178,9 +178,10 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument fetchTopAddresses(String userId) {
+	public IngridDocument fetchTopAddresses(String userId, boolean nurFreieAdressen) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES, nurFreieAdressen);
 		List jobMethods = setUpJobMethod("getTopAddresses", jobParams);
 
 		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);

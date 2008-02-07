@@ -26,6 +26,9 @@ public class MdekKeys {
     /** Apply publication condition to subnodes ?
      *  Value: Boolean */
     public final static String REQUESTINFO_FORCE_PUBLICATION_CONDITION = "requestinfo_forcePublicationCondition";
+    /** Fetch only free addresses or only NOT free addresses ?
+     *  Value: Boolean */
+    public final static String REQUESTINFO_ONLY_FREE_ADDRESSES = "requestinfo_onlyFreeAddresses";
 
     /** Value: Integer */
     public final static String LANGUAGE_CODE = "language-code";
