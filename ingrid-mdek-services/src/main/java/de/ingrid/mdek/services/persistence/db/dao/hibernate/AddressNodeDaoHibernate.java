@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -27,16 +28,20 @@ public class AddressNodeDaoHibernate
         super(factory, AddressNode.class);
     }
 
-	public List<AddressNode> getTopAddresses() {
+	public List<AddressNode> getTopAddresses(boolean onlyFreeAddresses) {
 		Session session = getSession();
 		ArrayList<AddressNode> retList = new ArrayList<AddressNode>();
 
-		List<AddressNode> aNs = session.createQuery("from AddressNode aNode " +
-				"left join fetch aNode.t02AddressWork a " +
-				"left join fetch aNode.addressNodeChildren aChildren " +
-				"where aNode.fkAddrUuid is null " +
-				"order by a.institution, a.lastname, a.firstname")
-				.list();
+		String query = "from AddressNode aNode " +
+			"left join fetch aNode.t02AddressWork a " +
+			"left join fetch aNode.addressNodeChildren aChildren " +
+			"where aNode.fkAddrUuid is null ";
+		if (onlyFreeAddresses) {
+			query += "and a.adrType=" + AddressType.FREI.getDbValue();
+		}
+		query += "order by a.institution, a.lastname, a.firstname";
+		
+		List<AddressNode> aNs = session.createQuery(query).list();
 
 		// NOTICE: upper query returns objects multiple times, filter them !
 		for (AddressNode aN : aNs) {

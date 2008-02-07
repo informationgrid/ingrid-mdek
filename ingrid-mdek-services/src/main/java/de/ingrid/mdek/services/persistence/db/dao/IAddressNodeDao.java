@@ -13,6 +13,8 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 public interface IAddressNodeDao
 	extends IGenericDao<AddressNode> {
 	
-	/** Get root addresses. */
-	List<AddressNode> getTopAddresses();
+	/** Get root addresses.
+	 * @param onlyFreeAddresses true= only free top addresses, false=only NOT free top addresses
+	 */
+	List<AddressNode> getTopAddresses(boolean onlyFreeAddresses);
 }
