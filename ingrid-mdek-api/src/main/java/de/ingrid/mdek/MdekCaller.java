@@ -29,6 +29,7 @@ public class MdekCaller implements IMdekCaller {
 
 	// Jobs
 	private static String MDEK_IDC_OBJECT_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
+	private static String MDEK_IDC_ADDRESS_JOB_ID = "de.ingrid.mdek.job.MdekIdcAddressJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -175,6 +176,14 @@ public class MdekCaller implements IMdekCaller {
 		List jobMethods = setUpJobMethod("getTopObjects", jobParams);
 
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument fetchTopAddresses(String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getTopAddresses", jobParams);
+
+		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchSubObjects(String objUuid,

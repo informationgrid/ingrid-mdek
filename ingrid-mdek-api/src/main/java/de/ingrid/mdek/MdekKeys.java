@@ -562,6 +562,8 @@ public class MdekKeys {
     /** Value: String */
     public final static String POSTAL_CODE_OF_COUNTRY = "postal-code-of-country";
     /** Value: String */
+    public final static String POSTAL_CODE = "postal-code";
+    /** Value: String */
     public final static String CITY = "city";
     /** Value: String */
     public final static String POST_BOX_POSTAL_CODE = "post-box-postal-code";
@@ -571,6 +573,8 @@ public class MdekKeys {
     public final static String FUNCTION = "function";
     /** Value: String */
     public final static String ADDRESS_DESCRIPTION = "address-description";
+    /** Value: String */
+    public final static String ORIGINAL_ADDRESS_IDENTIFIER = "original-address-identifier";
 
     /** Value: List of IngridDocs */
     public final static String COMMUNICATION = "communication";

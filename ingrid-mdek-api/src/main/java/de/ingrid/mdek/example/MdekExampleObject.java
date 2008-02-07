@@ -56,10 +56,10 @@ public class MdekExampleObject {
 
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
-		MdekThread[] threads = new MdekThread[numThreads];
+		MdekExampleObjectThread[] threads = new MdekExampleObjectThread[numThreads];
 		// initialize
 		for (int i=0; i<numThreads; i++) {
-			threads[i] = new MdekThread(i+1);
+			threads[i] = new MdekExampleObjectThread(i+1);
 		}
 		// fire
 		for (int i=0; i<numThreads; i++) {
@@ -84,7 +84,7 @@ public class MdekExampleObject {
 	}
 }
 
-class MdekThread extends Thread {
+class MdekExampleObjectThread extends Thread {
 
 	private int threadNumber;
 	String myUserId;
@@ -92,7 +92,7 @@ class MdekThread extends Thread {
 	
 	private boolean isRunning = false;
 
-	public MdekThread(int threadNumber)
+	public MdekExampleObjectThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
 		myUserId = "EXAMPLE_USER_" + threadNumber;

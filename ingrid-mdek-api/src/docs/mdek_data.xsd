@@ -105,11 +105,13 @@
 			<xs:element name="title-or-function" type="xs:string"/>
 			<xs:element name="street" type="xs:string"/>
 			<xs:element name="postal-code-of-country" type="xs:string"/>
+			<xs:element name="postal-code" type="xs:string"/>
 			<xs:element name="city" type="xs:string"/>
 			<xs:element name="post-box-postal-code" type="xs:string"/>
 			<xs:element name="post-box" type="xs:string"/>
 			<xs:element name="function" type="xs:string"/>
 			<xs:element name="address-description" type="xs:string"/>
+			<xs:element name="original-address-identifier" type="xs:string"/>
 			<xs:element name="communication" type="COMMUNICATION_LIST"/>
 			
 			<xs:element name="ADR_RELATIONS_MAP" type="ADR_RELATIONS_MAP"/>
