@@ -39,11 +39,10 @@ public abstract class MdekIdcJob extends MdekJob {
 		daoT03Catalog = daoFactory.getDao(T03Catalogue.class);
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
-		docToBeanMapper = docToBeanMapper.getInstance(daoFactory);
+		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 	}
 
 	public IngridDocument getSysLists(IngridDocument params) {
-		String userId = getCurrentUserId(params);
 		try {
 			daoSysList.beginTransaction();
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
@@ -71,7 +70,6 @@ public abstract class MdekIdcJob extends MdekJob {
 	}
 	
 	public IngridDocument getCatalog(IngridDocument params) {
-		String userId = getCurrentUserId(params);
 		try {
 			daoT03Catalog.beginTransaction();
 

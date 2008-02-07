@@ -40,7 +40,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getTopObjects(IngridDocument params) {
-		String userId = getCurrentUserId(params);
 		try {
 			daoObjectNode.beginTransaction();
 
@@ -68,7 +67,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getSubObjects(IngridDocument params) {
-		String userId = getCurrentUserId(params);
 		try {
 			daoObjectNode.beginTransaction();
 
@@ -97,7 +95,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getObjectPath(IngridDocument params) {
-		String userId = getCurrentUserId(params);
 		try {
 			daoObjectNode.beginTransaction();
 
@@ -118,7 +115,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getObjDetails(IngridDocument params) {
-		String userId = getCurrentUserId(params);
 		try {
 			daoObjectNode.beginTransaction();
 
@@ -165,7 +161,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getInitialObject(IngridDocument oDocIn) {
-		String userId = getCurrentUserId(oDocIn);
 		try {
 			daoObjectNode.beginTransaction();
 			
