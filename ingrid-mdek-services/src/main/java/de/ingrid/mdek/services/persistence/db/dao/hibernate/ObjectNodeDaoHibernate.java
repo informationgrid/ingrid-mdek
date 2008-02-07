@@ -18,7 +18,6 @@ import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -34,7 +33,7 @@ public class ObjectNodeDaoHibernate
 	private static final Logger LOG = Logger.getLogger(ObjectNodeDaoHibernate.class);
 
     public ObjectNodeDaoHibernate(SessionFactory factory) {
-        super(factory, T01Object.class);
+        super(factory, ObjectNode.class);
     }
 
 	public ObjectNode loadByUuid(String uuid) {

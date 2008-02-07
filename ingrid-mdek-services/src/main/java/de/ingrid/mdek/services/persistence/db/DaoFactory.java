@@ -5,6 +5,7 @@ package de.ingrid.mdek.services.persistence.db;
 
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
@@ -13,6 +14,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.AddressNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.ObjectNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermSnsDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermValueDaoHibernate;
@@ -65,6 +67,10 @@ public class DaoFactory implements IDaoFactory {
 
     public IObjectNodeDao getObjectNodeDao() {
         return new ObjectNodeDaoHibernate(_sessionFactory);
+    }
+
+    public IAddressNodeDao getAddressNodeDao() {
+        return new AddressNodeDaoHibernate(_sessionFactory);
     }
 
     public IT01ObjectDao getT01ObjectDao() {

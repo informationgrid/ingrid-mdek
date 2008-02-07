@@ -55,6 +55,30 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 	/**
+	 * Transfer structural info ("hasChild") to passed doc.
+	 * @return doc containing additional data.
+	 */
+	public IngridDocument mapAddressNode(AddressNode aNIn, IngridDocument addressDoc,
+		MappingQuantity howMuch) {
+		if (aNIn == null) {
+			return addressDoc;
+		}
+
+		// published info
+		boolean isPublished = (aNIn.getAddrIdPublished() == null) ? false : true;
+		addressDoc.putBoolean(MdekKeys.IS_PUBLISHED, isPublished);
+
+		if (howMuch == MappingQuantity.TREE_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY) {
+			// child info
+	    	boolean hasChild = (aNIn.getAddressNodeChildren().size() > 0) ? true : false;
+			addressDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
+		}
+
+		return addressDoc;
+	}
+
+	/**
 	 * Transfer object data of passed bean to passed doc.
 	 * Also includes all related data (e.g. addresses etc) dependent from MappingQuantity.
 	 * @return doc containing additional data.
@@ -302,6 +326,7 @@ public class BeanToDocMapper implements IMapper {
 		adressDoc.put(MdekKeys.NAME, a.getLastname());
 		adressDoc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
 		adressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
+		adressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
 
 		if (howMuch == MappingQuantity.TABLE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
@@ -309,57 +334,65 @@ public class BeanToDocMapper implements IMapper {
 		{
 			adressDoc.put(MdekKeys.STREET, a.getStreet());
 			adressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
+			adressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
 			adressDoc.put(MdekKeys.CITY, a.getCity());
 			adressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
 			adressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
 
-			// add communication data (emails etc.) 
-			Set<T021Communication> comms = a.getT021Communications();
-			ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(comms.size());
-			for (T021Communication c : comms) {
-				IngridDocument commDoc = new IngridDocument();
-				docList.add(mapT021Communication(c, commDoc, howMuch));
-			}
-			adressDoc.put(MdekKeys.COMMUNICATION, docList);				
+			// map associations
+			mapT021Communications(a.getT021Communications(), adressDoc);
 		}
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
+			adressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
+			adressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
+
 			adressDoc.put(MdekKeys.FUNCTION, a.getJob());			
 			adressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
 			adressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			// TODO: Extent MappingQuantity.FULL_ENTITY for copy			
+			adressDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, a.getOrgAdrId());
+			adressDoc.put(MdekKeys.NO_OF_PARENTS, a.getRoot());
+			adressDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, a.getCatId());
+			adressDoc.put(MdekKeys.LASTEXPORT_TIME, a.getLastexportTime());
+			adressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
+			adressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
+			adressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
+			adressDoc.put(MdekKeys.MOD_UUID, a.getModUuid());
+			adressDoc.put(MdekKeys.RESPONSIBLE_UUID, a.getResponsibleUuid());
 		}
 
 		return adressDoc;
 	}
 
-	/**
-	 * Transfer communication data of passed bean to passed doc.
-	 * @return doc containing additional data.
-	 */
-	public IngridDocument mapT021Communication(T021Communication c, IngridDocument commDoc,
-			MappingQuantity howMuch) {
+	private IngridDocument mapT021Communications(Set<T021Communication> refs, IngridDocument inDoc) {
+		if (refs == null || refs.size() == 0) {
+			return inDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T021Communication ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT021Communication(ref, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeys.COMMUNICATION, refList);
+		
+		return inDoc;
+	}
+	public IngridDocument mapT021Communication(T021Communication c, IngridDocument commDoc) {
 		if (c == null) {
 			return commDoc;
 		}
 
 		commDoc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommType());
 		commDoc.put(MdekKeys.COMMUNICATION_VALUE, c.getCommValue());
-
-		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
-			howMuch == MappingQuantity.COPY_ENTITY)
-		{
-			commDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, c.getDescr());
-		}
-
-		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			// TODO: Extent MappingQuantity.FULL_ENTITY for copy			
-		}
+		commDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, c.getDescr());
 
 		return commDoc;
 	}

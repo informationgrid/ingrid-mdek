@@ -1,0 +1,49 @@
+package de.ingrid.mdek.services.persistence.db.dao.hibernate;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+
+/**
+ * Hibernate-specific implementation of the <tt>IAddressNodeDao</tt>
+ * non-CRUD (Create, Read, Update, Delete) data access object.
+ * 
+ * @author Martin
+ */
+public class AddressNodeDaoHibernate
+	extends GenericHibernateDao<AddressNode>
+	implements  IAddressNodeDao {
+
+	private static final Logger LOG = Logger.getLogger(AddressNodeDaoHibernate.class);
+
+    public AddressNodeDaoHibernate(SessionFactory factory) {
+        super(factory, AddressNode.class);
+    }
+
+	public List<AddressNode> getTopAddresses() {
+		Session session = getSession();
+		ArrayList<AddressNode> retList = new ArrayList<AddressNode>();
+
+		List<AddressNode> aNs = session.createQuery("from AddressNode aNode " +
+				"left join fetch aNode.t02AddressWork a " +
+				"left join fetch aNode.addressNodeChildren aChildren " +
+				"where aNode.fkAddrUuid is null " +
+				"order by a.institution, a.lastname, a.firstname")
+				.list();
+
+		// NOTICE: upper query returns objects multiple times, filter them !
+		for (AddressNode aN : aNs) {
+			if (!retList.contains(aN)) {
+				retList.add(aN);
+			}
+		}
+		return retList;
+	}
+}
