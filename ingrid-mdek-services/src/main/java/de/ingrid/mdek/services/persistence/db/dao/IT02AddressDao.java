@@ -10,9 +10,4 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
  */
 public interface IT02AddressDao
 	extends IGenericDao<T02Address> {
-
-//	List<T02Address> getTopAddresses();
-	
-	/** Fetches sub addresses of address with given id */
-//	Set<T02Address> getSubAddresses(String uuid);
 }

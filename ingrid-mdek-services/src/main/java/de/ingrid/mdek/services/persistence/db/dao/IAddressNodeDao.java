@@ -17,4 +17,11 @@ public interface IAddressNodeDao
 	 * @param onlyFreeAddresses true= only free top addresses, false=only NOT free top addresses
 	 */
 	List<AddressNode> getTopAddresses(boolean onlyFreeAddresses);
+
+	/** Fetches sub address nodes of parent with given uuid.
+	 * @param parentUuid uuid of parent
+	 * @param fetchAddressLevel also fetch T02Address level encapsulated by AddressNode ?
+	 * @return
+	 */
+	List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel);
 }

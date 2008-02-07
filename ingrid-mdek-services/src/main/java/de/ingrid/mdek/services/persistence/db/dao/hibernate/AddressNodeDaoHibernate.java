@@ -43,10 +43,37 @@ public class AddressNodeDaoHibernate
 		
 		List<AddressNode> aNs = session.createQuery(query).list();
 
-		// NOTICE: upper query returns objects multiple times, filter them !
+		// NOTICE: upper query returns entities multiple times, filter them !
 		for (AddressNode aN : aNs) {
 			if (!retList.contains(aN)) {
 				retList.add(aN);
+			}
+		}
+		return retList;
+	}
+
+	public List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel) {
+		Session session = getSession();
+		ArrayList<AddressNode> retList = new ArrayList<AddressNode>();
+
+		String q = "from AddressNode aNode ";
+		if (fetchAddressLevel) {
+			q += "left join fetch aNode.t02AddressWork a " +
+				 "left join fetch aNode.addressNodeChildren aChildren ";
+		}
+		q += "where aNode.fkAddrUuid = ? ";
+		if (fetchAddressLevel) {
+			q += "order by a.institution, a.lastname, a.firstname"; 
+		}
+		
+		List<AddressNode> aNodes = session.createQuery(q)
+				.setString(0, parentUuid)
+				.list();
+
+		// NOTICE: upper query returns entities multiple times, filter them !
+		for (AddressNode aNode : aNodes) {
+			if (!retList.contains(aNode)) {
+				retList.add(aNode);
 			}
 		}
 		return retList;
