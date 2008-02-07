@@ -55,25 +55,31 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-/*
 	public IngridDocument getSubAddresses(IngridDocument params) {
-		IngridDocument result = new IngridDocument();
-		String uuid = (String) params.get(MdekKeys.UUID);
+		try {
+			daoAddressNode.beginTransaction();
 
-		daoT02Address.beginTransaction();
+			String uuid = (String) params.get(MdekKeys.UUID);
+			List<AddressNode> aNodes = daoAddressNode.getSubAddresses(uuid, true);
 
-		Set<T02Address> adrs = daoT02Address.getSubAddresses(uuid);
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNodes.size());
+			for (AddressNode aNode : aNodes) {
+				IngridDocument adrDoc = new IngridDocument();
+				beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
+				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
+				resultList.add(adrDoc);
+			}
 
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(adrs.size());
-		BeanToDocMapper mapper = BeanToDocMapper.getInstance();
-		for (T02Address adr : adrs) {
-			resultList.add(mapper.mapT02Address(adr, MappingType.SUB_ENTITY));
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.ADR_ENTITIES, resultList);
+
+			daoAddressNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
 		}
-
-		daoT02Address.commitTransaction();
-
-		result.put(MdekKeys.ADR_ENTITIES, resultList);
-		return result;
 	}
-*/
 }
