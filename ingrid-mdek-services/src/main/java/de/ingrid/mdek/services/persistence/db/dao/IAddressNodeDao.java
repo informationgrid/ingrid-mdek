@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 
 /**
  * Business DAO operations related to the <tt>AddressNode</tt> entity.
@@ -27,4 +28,7 @@ public interface IAddressNodeDao
 
 	/** Fetches address with given uuid containing all detailed address data. */
 	AddressNode getAdrDetails(String uuid);
+
+	/** Fetch Objects referencing the address with the passed uuid */
+	List<ObjectNode> getObjectReferencesFrom(String addressUuid);
 }

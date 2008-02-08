@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 
 /**
  * Hibernate-specific implementation of the <tt>IAddressNodeDao</tt>
@@ -94,5 +95,26 @@ public class AddressNodeDaoHibernate
 			.uniqueResult();
 
 		return aN;
+	}
+
+	public List<ObjectNode> getObjectReferencesFrom(String addressUuid) {
+		Session session = getSession();
+		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
+
+		// fetch all at once (one select with outer joins)
+		List<ObjectNode> oNs = session.createQuery("from ObjectNode oNode " +
+			"left join fetch oNode.t01ObjectWork oWork " +
+			"left join fetch oWork.t012ObjAdrs objAdr " +
+			"where objAdr.adrUuid = ?")
+			.setString(0, addressUuid)
+			.list();
+
+		// NOTICE: upper query returns objects multiple times, filter them !
+		for (ObjectNode oN : oNs) {
+			if (!retList.contains(oN)) {
+				retList.add(oN);
+			}
+		}
+		return retList;
 	}
 }
