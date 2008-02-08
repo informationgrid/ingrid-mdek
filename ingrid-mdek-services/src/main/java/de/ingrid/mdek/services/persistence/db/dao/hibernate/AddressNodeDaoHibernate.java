@@ -78,4 +78,21 @@ public class AddressNodeDaoHibernate
 		}
 		return retList;
 	}
+
+	public AddressNode getAdrDetails(String uuid) {
+		Session session = getSession();
+
+		// fetch all at once (one select with outer joins)
+		AddressNode aN = (AddressNode) session.createQuery("from AddressNode aNode " +
+			"left join fetch aNode.t02AddressWork aWork " +
+			"left join fetch aWork.t021Communications aComm " +
+
+// TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
+
+			"where aNode.addrUuid = ?")
+			.setString(0, uuid)
+			.uniqueResult();
+
+		return aN;
+	}
 }

@@ -320,6 +320,8 @@ public class BeanToDocMapper implements IMapper {
 			return adressDoc;
 		}
 
+		// just to track ID in test suite !
+		adressDoc.put(MdekKeys.ID, a.getId());
 		adressDoc.put(MdekKeys.UUID, a.getAdrUuid());
 		adressDoc.put(MdekKeys.CLASS, a.getAdrType());
 		adressDoc.put(MdekKeys.ORGANISATION, a.getInstitution());

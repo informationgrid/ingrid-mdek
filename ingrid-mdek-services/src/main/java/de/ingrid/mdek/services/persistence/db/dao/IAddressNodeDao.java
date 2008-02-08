@@ -24,4 +24,7 @@ public interface IAddressNodeDao
 	 * @return
 	 */
 	List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel);
+
+	/** Fetches address with given uuid containing all detailed address data. */
+	AddressNode getAdrDetails(String uuid);
 }

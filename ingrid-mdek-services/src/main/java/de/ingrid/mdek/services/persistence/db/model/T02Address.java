@@ -40,7 +40,7 @@ public class T02Address implements IEntity {
 //	private Set addressComments = new HashSet();
 //	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
-//	private T03Catalogue t03Catalogue;
+	private T03Catalogue t03Catalogue;
 
 	public T02Address() {}
 
@@ -300,7 +300,7 @@ public class T02Address implements IEntity {
 	public void setT021Communications(Set t021Communications) {
 		this.t021Communications = t021Communications;
 	}
-/*
+
 	public T03Catalogue getT03Catalogue() {
 		return t03Catalogue;
 	}
@@ -308,5 +308,5 @@ public class T02Address implements IEntity {
 	public void setT03Catalogue(T03Catalogue t03Catalogue) {
 		this.t03Catalogue = t03Catalogue;
 	}
-*/
+
 }
