@@ -10,6 +10,7 @@ import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -117,11 +118,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		
 		// also map ObjectNode for published info
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
-/*
-		// then get "external" data (objects referencing the given object ...)
-		List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
+
+		// then get "external" data (objects referencing the given address ...)
+		List<ObjectNode> oNs = daoAddressNode.getObjectReferencesFrom(uuid);
 		beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-		
+/*
 		// get parent data
 		ObjectNode pNode = daoObjectNode.getParent(uuid);
 		if (pNode != null) {
