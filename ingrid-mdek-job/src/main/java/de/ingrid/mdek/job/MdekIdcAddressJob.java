@@ -3,7 +3,9 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
@@ -81,5 +83,51 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
+	}
+
+	public IngridDocument getAdrDetails(IngridDocument params) {
+		try {
+			daoAddressNode.beginTransaction();
+
+			String uuid = (String) params.get(MdekKeys.UUID);
+			if (log.isDebugEnabled()) {
+				log.debug("Invoke getAdrDetails (uuid='"+uuid+"').");
+			}
+			IngridDocument result = getAdrDetails(uuid);
+			
+			daoAddressNode.commitTransaction();
+			return result;
+			
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	private IngridDocument getAdrDetails(String uuid) {
+		// first get all "internal" address data
+		AddressNode aNode = daoAddressNode.getAdrDetails(uuid);
+		if (aNode == null) {
+			throw new MdekException(MdekError.UUID_NOT_FOUND);
+		}
+
+		IngridDocument resultDoc = new IngridDocument();
+		beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+		
+		// also map ObjectNode for published info
+		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
+/*
+		// then get "external" data (objects referencing the given object ...)
+		List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
+		beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		
+		// get parent data
+		ObjectNode pNode = daoObjectNode.getParent(uuid);
+		if (pNode != null) {
+			beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), resultDoc);
+		}
+*/
+		return resultDoc;
 	}
 }
