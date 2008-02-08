@@ -154,7 +154,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// get parent data
 		ObjectNode pNode = daoObjectNode.getParent(uuid);
 		if (pNode != null) {
-			beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), resultDoc);
+			beanToDocMapper.mapObjectParentData(pNode.getT01ObjectWork(), resultDoc);
 		}
 
 		return resultDoc;
@@ -173,7 +173,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				// supply parent info
 				ObjectNode pNode = daoObjectNode.getParent(parentUuid);
 				if (pNode != null) {
-					beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), oDocIn);
+					beanToDocMapper.mapObjectParentData(pNode.getT01ObjectWork(), oDocIn);
 				}
 			}
 

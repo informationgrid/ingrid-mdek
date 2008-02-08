@@ -122,13 +122,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// then get "external" data (objects referencing the given address ...)
 		List<ObjectNode> oNs = daoAddressNode.getObjectReferencesFrom(uuid);
 		beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-/*
+
 		// get parent data
-		ObjectNode pNode = daoObjectNode.getParent(uuid);
+		AddressNode pNode = daoAddressNode.getParent(uuid);
 		if (pNode != null) {
-			beanToDocMapper.mapParentData(pNode.getT01ObjectWork(), resultDoc);
+			beanToDocMapper.mapAddressParentData(pNode.getT02AddressWork(), resultDoc);
 		}
-*/
+
 		return resultDoc;
 	}
 }
