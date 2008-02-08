@@ -133,6 +133,10 @@ public class MdekKeys {
     /** Value: String */
     public final static String WORK_STATE = "work-state";
 
+    /** Infos about the parent of an object/address 
+     * Value: IngridDoc */
+    public final static String PARENT_INFO = "parent-info";
+    
     // OBJECT DATA
     // -----------
 
@@ -541,10 +545,6 @@ public class MdekKeys {
     /** Value: String */
     // defined above
     // public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
-    
-    // PARENT INFO
-    /** Value: IngridDoc */
-    public final static String PARENT_INFO = "parent-info";
     
     
     // ADDRESS DATA

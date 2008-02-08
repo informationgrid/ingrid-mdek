@@ -236,6 +236,8 @@ class MdekExampleAddressThread extends Thread {
 		if (!doFullOutput) {
 			return;
 		}
+
+		IngridDocument myDoc;
 		List<IngridDocument> docList = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Communication: " + docList.size() + " Entities");
@@ -249,6 +251,11 @@ class MdekExampleAddressThread extends Thread {
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
+		}
+		myDoc = (IngridDocument) a.get(MdekKeys.PARENT_INFO);
+		if (myDoc != null) {
+			System.out.println("  parent info:");
+			System.out.println("    " + myDoc);								
 		}
 	}
 
