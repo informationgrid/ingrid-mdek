@@ -104,7 +104,7 @@ class MdekExampleAddressThread extends Thread {
 		// TOP OBJECT
 		String topUuid = "A7D04CEB-77EF-11D3-AF93-0060084A4596";
 		// DETAIL OBJECT
-		String adrUuid = "E39A6392-3B86-11D4-9956-0060084A480F";
+		String adrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 		IngridDocument aMap;
 
 		// -----------------------------------
@@ -241,6 +241,13 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("  Communication: " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("    " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) a.get(MdekKeys.OBJ_REFERENCES_FROM);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
 			}			
 		}
 	}

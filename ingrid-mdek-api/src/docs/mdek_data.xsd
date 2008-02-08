@@ -352,6 +352,7 @@
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
 			<xs:element name="relation-date-of-last-modification" type="TIMESTAMP"/>
+			<xs:element name="objReferencesFrom" type="OBJECT_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_MAP_MAP">
