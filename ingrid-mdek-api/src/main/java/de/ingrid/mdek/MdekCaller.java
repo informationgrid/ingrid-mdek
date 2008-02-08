@@ -126,7 +126,19 @@ public class MdekCaller implements IMdekCaller {
 			return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 		}
 		
-		// TODO implement other quantities of fetching object ?
+		return new IngridDocument();
+	}
+
+	public IngridDocument fetchAddress(String uuid, Quantity howMuch,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		if (howMuch == Quantity.DETAIL_ENTITY) {
+			List jobMethods = setUpJobMethod("getAdrDetails", jobParams);
+			return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		}
+
 		return new IngridDocument();
 	}
 

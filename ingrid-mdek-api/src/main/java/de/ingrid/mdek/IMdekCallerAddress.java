@@ -1,5 +1,6 @@
 package de.ingrid.mdek;
 
+import de.ingrid.mdek.IMdekCallerCommon.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -23,6 +24,15 @@ public interface IMdekCallerAddress {
 	 * @return response containing result: map containing representations of sub addresses
 	 */
 	IngridDocument fetchSubAddresses(String uuid,
+			String userId);
+
+	/**
+	 * Fetch single address with given uuid.
+	 * @param uuid address uuid
+	 * @param howMuch how much data to fetch from address
+	 * @return response containing result: map representation of address containing requested data
+	 */
+	IngridDocument fetchAddress(String uuid, Quantity howMuch,
 			String userId);
 
 }

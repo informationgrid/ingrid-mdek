@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.IMdekCallerCommon.Quantity;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
 
@@ -102,6 +103,9 @@ class MdekExampleAddressThread extends Thread {
 
 		// TOP OBJECT
 		String topUuid = "A7D04CEB-77EF-11D3-AF93-0060084A4596";
+		// DETAIL OBJECT
+		String adrUuid = "E39A6392-3B86-11D4-9956-0060084A480F";
+		IngridDocument aMap;
 
 		// -----------------------------------
 		// tree: top addresses
@@ -115,6 +119,12 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n----- sub objects -----");
 		fetchSubAddresses(topUuid);
+
+		// -----------------------------------
+		// load
+
+		System.out.println("\n----- address details -----");
+		aMap = fetchAddress(adrUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		long exampleEndTime = System.currentTimeMillis();
@@ -183,6 +193,31 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument fetchAddress(String uuid, Quantity howMuch) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE fetchAddress (Details) ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.fetchAddress(uuid, howMuch, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	private void debugAddressDoc(IngridDocument a) {
 		System.out.println("Address: " + a.get(MdekKeys.ID) 
 			+ ", " + a.get(MdekKeys.UUID)
@@ -200,6 +235,13 @@ class MdekExampleAddressThread extends Thread {
 
 		if (!doFullOutput) {
 			return;
+		}
+		List<IngridDocument> docList = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Communication: " + docList.size() + " Entities");
+			for (IngridDocument doc : docList) {
+				System.out.println("    " + doc);								
+			}			
 		}
 	}
 
