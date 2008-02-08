@@ -145,14 +145,14 @@ public class ObjectNodeDaoHibernate
 	}
 	
 	public ObjectNode getParent(String uuid) {
+		ObjectNode parentNode = null;
 		ObjectNode oN = loadByUuid(uuid);
 		if (oN != null && oN.getFkObjUuid() != null) {
-			return loadByUuid(oN.getFkObjUuid());
-		} else {
-			return null;
+			parentNode = loadByUuid(oN.getFkObjUuid());
 		}
+		
+		return parentNode;
 	}
-
 
 	public ObjectNode getObjDetails(String uuid) {
 		Session session = getSession();

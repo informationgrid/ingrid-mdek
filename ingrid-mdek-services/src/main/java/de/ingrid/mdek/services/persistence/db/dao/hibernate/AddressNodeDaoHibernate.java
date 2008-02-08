@@ -29,6 +29,21 @@ public class AddressNodeDaoHibernate
         super(factory, AddressNode.class);
     }
 
+	public AddressNode loadByUuid(String uuid) {
+		if (uuid == null) {
+			return null;
+		}
+
+		Session session = getSession();
+
+		AddressNode aN = (AddressNode) session.createQuery("from AddressNode aNode " +
+			"where aNode.addrUuid = ?")
+			.setString(0, uuid)
+			.uniqueResult();
+		
+		return aN;
+	}
+
 	public List<AddressNode> getTopAddresses(boolean onlyFreeAddresses) {
 		Session session = getSession();
 		ArrayList<AddressNode> retList = new ArrayList<AddressNode>();
@@ -116,5 +131,15 @@ public class AddressNodeDaoHibernate
 			}
 		}
 		return retList;
+	}
+
+	public AddressNode getParent(String uuid) {
+		AddressNode parentNode = null;
+		AddressNode aN = loadByUuid(uuid);
+		if (aN != null && aN.getFkAddrUuid() != null) {
+			parentNode = loadByUuid(aN.getFkAddrUuid());
+		}
+		
+		return parentNode;
 	}
 }
