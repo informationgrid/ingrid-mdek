@@ -924,7 +924,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					Set<ObjectComment> commentSet = subObjPub.getObjectComments();
 					ObjectComment newComment = new ObjectComment();
 					newComment.setObjId(subObjPub.getId());
-					newComment.setComment("Hinweis: Durch Änderung des Wertes des Feldes 'Veröffentlichung' im übergeordneten Objekt '" + subObjPub.getObjName() + "' ist der Wert dieses Feldes für dieses Objekt auf '" + pubTypeNew.toString() + "' gesetzt worden.");
+					newComment.setComment("Hinweis: Durch Änderung des Wertes des Feldes 'Veröffentlichung' im übergeordneten Objekt '" + inObj.getObjName() + "' ist der Wert dieses Feldes für dieses Objekt auf '" + pubTypeNew.toString() + "' gesetzt worden.");
 					newComment.setCreateTime(subObjPub.getModTime());
 					newComment.setCreateUuid(subObjPub.getModUuid());
 					commentSet.add(newComment);
