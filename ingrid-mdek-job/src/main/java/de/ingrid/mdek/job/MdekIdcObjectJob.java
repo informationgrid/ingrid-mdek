@@ -3,6 +3,7 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import de.ingrid.mdek.EnumUtil;
@@ -17,6 +18,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
+import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
@@ -917,7 +919,17 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					subObjPub.setModTime(modTime);
 					// TODO: pass User and adapt here !
 //					subObjWork.setModUuid(modUuid);
+					
+					// add comment to object, document the automatic change of the publish condition
+					Set<ObjectComment> commentSet = subObjPub.getObjectComments();
+					ObjectComment newComment = new ObjectComment();
+					newComment.setObjId(subObjPub.getId());
+					newComment.setComment("Hinweis: Durch Änderung des Wertes des Feldes 'Veröffentlichung' im übergeordneten Objekt '" + subObjPub.getObjName() + "' ist der Wert dieses Feldes für dieses Objekt auf '" + pubTypeNew.toString() + "' gesetzt worden.");
+					newComment.setCreateTime(subObjPub.getModTime());
+					newComment.setCreateUuid(subObjPub.getModUuid());
+					commentSet.add(newComment);
 					daoT01Object.makePersistent(subObjPub);
+					
 				}
 			}
 			
