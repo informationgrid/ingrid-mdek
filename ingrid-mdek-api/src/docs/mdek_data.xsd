@@ -80,7 +80,7 @@
 			<xs:element name="env-categories" type="STRING_LIST"/>
 			<xs:element name="env-topics" type="STRING_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
-			<xs:element name="comments" type="COMMENT_LIST"/>
+			<xs:element name="comment_list" type="COMMENT_LIST"/>
 
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 
@@ -115,6 +115,7 @@
 
 			<xs:element name="communication" type="COMMUNICATION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
+			<xs:element name="comment_list" type="COMMENT_LIST"/>
 			
 			<xs:element name="ADR_RELATIONS_MAP" type="ADR_RELATIONS_MAP"/>
 			<xs:element name="parent-info" type="ADDR_PARENT_INFO_MAP"/>
