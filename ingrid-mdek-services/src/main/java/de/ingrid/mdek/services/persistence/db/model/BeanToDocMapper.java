@@ -179,20 +179,101 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	private IngridDocument mapObjectComments(Set<ObjectComment> objSet, IngridDocument objectDoc) {
-		if (objSet == null) {
+	/**
+	 * Transfer address data of passed bean to passed doc.
+	 * Also includes communication etc. dependent from MappingQuantity.
+	 * @return doc containing additional data.
+	 */
+	public IngridDocument mapT02Address(T02Address a, IngridDocument adressDoc,
+			MappingQuantity howMuch) {
+		if (a == null) {
+			return adressDoc;
+		}
+
+		// just to track ID in test suite !
+		adressDoc.put(MdekKeys.ID, a.getId());
+		adressDoc.put(MdekKeys.UUID, a.getAdrUuid());
+		adressDoc.put(MdekKeys.CLASS, a.getAdrType());
+		adressDoc.put(MdekKeys.ORGANISATION, a.getInstitution());
+		adressDoc.put(MdekKeys.NAME, a.getLastname());
+		adressDoc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
+		adressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
+		adressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
+
+		if (howMuch == MappingQuantity.TABLE_ENTITY ||
+			howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY)
+		{
+			adressDoc.put(MdekKeys.STREET, a.getStreet());
+			adressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
+			adressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
+			adressDoc.put(MdekKeys.CITY, a.getCity());
+			adressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
+			adressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
+
+			// map associations
+			mapT021Communications(a.getT021Communications(), adressDoc);
+		}
+
+		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY)
+		{
+			adressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
+			adressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
+
+			adressDoc.put(MdekKeys.FUNCTION, a.getJob());			
+			adressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
+			adressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
+
+			// map associations
+			mapSearchtermAdrs(a.getSearchtermAdrs(), adressDoc);
+			mapAddressComments(a.getAddressComments(), adressDoc);
+		}
+
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			adressDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, a.getOrgAdrId());
+			adressDoc.put(MdekKeys.NO_OF_PARENTS, a.getRoot());
+			adressDoc.put(MdekKeys.LASTEXPORT_TIME, a.getLastexportTime());
+			adressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
+			adressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
+			adressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
+			adressDoc.put(MdekKeys.MOD_UUID, a.getModUuid());
+			adressDoc.put(MdekKeys.RESPONSIBLE_UUID, a.getResponsibleUuid());
+		}
+
+		return adressDoc;
+	}
+
+	private IngridDocument mapObjectComments(Set<ObjectComment> refs, IngridDocument objectDoc) {
+		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(objSet.size());
-		for (ObjectComment obj : objSet) {
-			IngridDocument oToDoc = new IngridDocument();
-			oToDoc.put(MdekKeys.COMMENT, obj.getComment());
-			oToDoc.put(MdekKeys.CREATE_TIME, obj.getCreateTime());
+		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
+		for (ObjectComment ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			refDoc.put(MdekKeys.COMMENT, ref.getComment());
+			refDoc.put(MdekKeys.CREATE_TIME, ref.getCreateTime());
 			// TODO: add mapping of create_UUID
-			docList.add(oToDoc);					
+			docList.add(refDoc);					
 		}
 		objectDoc.put(MdekKeys.COMMENT_LIST, docList);
 		return objectDoc;
+	}
+
+	private IngridDocument mapAddressComments(Set<AddressComment> refs, IngridDocument addressDoc) {
+		if (refs == null) {
+			return addressDoc;
+		}
+		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
+		for (AddressComment ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			refDoc.put(MdekKeys.COMMENT, ref.getComment());
+			refDoc.put(MdekKeys.CREATE_TIME, ref.getCreateTime());
+			// TODO: add mapping of create_UUID
+			docList.add(refDoc);					
+		}
+		addressDoc.put(MdekKeys.COMMENT_LIST, docList);
+		return addressDoc;
 	}
 
 	/**
@@ -306,72 +387,6 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.ADR_REFERENCES_TO, adrsList);
 		
 		return objectDoc;
-	}
-
-	/**
-	 * Transfer address data of passed bean to passed doc.
-	 * Also includes communication etc. dependent from MappingQuantity.
-	 * @return doc containing additional data.
-	 */
-	public IngridDocument mapT02Address(T02Address a, IngridDocument adressDoc,
-			MappingQuantity howMuch) {
-		if (a == null) {
-			return adressDoc;
-		}
-
-		// just to track ID in test suite !
-		adressDoc.put(MdekKeys.ID, a.getId());
-		adressDoc.put(MdekKeys.UUID, a.getAdrUuid());
-		adressDoc.put(MdekKeys.CLASS, a.getAdrType());
-		adressDoc.put(MdekKeys.ORGANISATION, a.getInstitution());
-		adressDoc.put(MdekKeys.NAME, a.getLastname());
-		adressDoc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
-		adressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
-		adressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
-
-		if (howMuch == MappingQuantity.TABLE_ENTITY ||
-			howMuch == MappingQuantity.DETAIL_ENTITY ||
-			howMuch == MappingQuantity.COPY_ENTITY)
-		{
-			adressDoc.put(MdekKeys.STREET, a.getStreet());
-			adressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
-			adressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
-			adressDoc.put(MdekKeys.CITY, a.getCity());
-			adressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
-			adressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
-
-			// map associations
-			mapT021Communications(a.getT021Communications(), adressDoc);
-		}
-
-		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
-			howMuch == MappingQuantity.COPY_ENTITY)
-		{
-			adressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
-			adressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
-
-			adressDoc.put(MdekKeys.FUNCTION, a.getJob());			
-			adressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
-			adressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
-
-			// TODO: Missing Associations
-			mapSearchtermAdrs(a.getSearchtermAdrs(), adressDoc);
-//			mapAddressComments(a.getAddressComments(), adressDoc);
-		}
-
-		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			adressDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, a.getOrgAdrId());
-			adressDoc.put(MdekKeys.NO_OF_PARENTS, a.getRoot());
-			adressDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, a.getCatId());
-			adressDoc.put(MdekKeys.LASTEXPORT_TIME, a.getLastexportTime());
-			adressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
-			adressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
-			adressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
-			adressDoc.put(MdekKeys.MOD_UUID, a.getModUuid());
-			adressDoc.put(MdekKeys.RESPONSIBLE_UUID, a.getResponsibleUuid());
-		}
-
-		return adressDoc;
 	}
 
 	private IngridDocument mapT021Communications(Set<T021Communication> refs, IngridDocument inDoc) {

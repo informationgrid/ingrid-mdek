@@ -11,7 +11,6 @@ public class T02Address implements IEntity {
 	private int version;
 	private String adrUuid;
 	private String orgAdrId;
-	private Long catId;
 	private Integer root;
 	private Integer adrType;
 	private String institution;
@@ -37,7 +36,7 @@ public class T02Address implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 
-//	private Set addressComments = new HashSet();
+	private Set addressComments = new HashSet();
 	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
 
@@ -73,14 +72,6 @@ public class T02Address implements IEntity {
 
 	public void setOrgAdrId(String orgAdrId) {
 		this.orgAdrId = orgAdrId;
-	}
-
-	public Long getCatId() {
-		return catId;
-	}
-
-	public void setCatId(Long catId) {
-		this.catId = catId;
 	}
 
 	public Integer getRoot() {
@@ -275,7 +266,7 @@ public class T02Address implements IEntity {
 		this.responsibleUuid = responsibleUuid;
 	}
 
-/*
+
 	public Set getAddressComments() {
 		return addressComments;
 	}
@@ -283,7 +274,7 @@ public class T02Address implements IEntity {
 	public void setAddressComments(Set addressComments) {
 		this.addressComments = addressComments;
 	}
-*/
+
 	public Set getSearchtermAdrs() {
 		return searchtermAdrs;
 	}

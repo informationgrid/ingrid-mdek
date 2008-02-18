@@ -14,9 +14,7 @@
       <property name="exposeTransactionAwareSessionFactory" value="false"/>
       <property name="mappingResources">
          <list>
-<!--
             <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
--->
             <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
 <!--
             <value>de/ingrid/mdek/services/persistence/db/model/Group.hbm.xml</value>
