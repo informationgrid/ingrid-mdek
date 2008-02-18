@@ -173,7 +173,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				oDocIn.put(MdekKeys.SUBJECT_TERMS, termDocs);
 
 				// supply parent info
-				ObjectNode pNode = daoObjectNode.getParent(parentUuid);
+				ObjectNode pNode = daoObjectNode.loadByUuid(parentUuid);
 				if (pNode != null) {
 					beanToDocMapper.mapObjectParentData(pNode.getT01ObjectWork(), oDocIn);
 				}

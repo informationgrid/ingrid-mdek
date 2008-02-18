@@ -131,4 +131,31 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		return resultDoc;
 	}
+
+	public IngridDocument getInitialAddress(IngridDocument aDocIn) {
+		try {
+			daoAddressNode.beginTransaction();
+			
+			// take over "thesaurus" searchterms from parent etc.
+			String parentUuid = aDocIn.getString(MdekKeys.PARENT_UUID);
+			if (parentUuid != null) {
+				List<IngridDocument> termDocs = daoAddressNode.getAddressThesaurusTerms(parentUuid);
+				aDocIn.put(MdekKeys.SUBJECT_TERMS, termDocs);
+
+				// supply parent info
+				AddressNode pNode = daoAddressNode.loadByUuid(parentUuid);
+				if (pNode != null) {
+					beanToDocMapper.mapAddressParentData(pNode.getT02AddressWork(), aDocIn);
+				}
+			}
+
+			daoAddressNode.commitTransaction();
+			return aDocIn;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
 }
