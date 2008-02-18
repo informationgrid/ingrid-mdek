@@ -80,7 +80,8 @@
 			<xs:element name="env-categories" type="STRING_LIST"/>
 			<xs:element name="env-topics" type="STRING_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
-			
+			<xs:element name="comments" type="COMMENT_LIST"/>
+
 			<xs:element name="OBJ_RELATIONS_MAP" type="OBJ_RELATIONS_MAP"/>
 
 			<xs:element name="technical-domain-map" type="TECHNICAL_DOMAIN_MAP_MAP"/>
@@ -88,7 +89,6 @@
 			<xs:element name="technical-domain-project" type="TECHNICAL_DOMAIN_PROJECT_MAP"/>
 			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
 			<xs:element name="technical-domain-document" type="TECHNICAL_DOMAIN_DOCUMENT_MAP"/>
-			<xs:element name="comments" type="COMMENT_LIST"/>
 			<xs:element name="parent-info" type="OBJ_PARENT_INFO_MAP"/>
 		</xs:all>
 	</xs:complexType>
@@ -112,7 +112,9 @@
 			<xs:element name="function" type="xs:string"/>
 			<xs:element name="address-description" type="xs:string"/>
 			<xs:element name="original-address-identifier" type="xs:string"/>
+
 			<xs:element name="communication" type="COMMUNICATION_LIST"/>
+			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
 			
 			<xs:element name="ADR_RELATIONS_MAP" type="ADR_RELATIONS_MAP"/>
 			<xs:element name="parent-info" type="ADDR_PARENT_INFO_MAP"/>

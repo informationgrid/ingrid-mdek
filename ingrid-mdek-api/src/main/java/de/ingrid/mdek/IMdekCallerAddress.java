@@ -35,4 +35,11 @@ public interface IMdekCallerAddress {
 	IngridDocument fetchAddress(String uuid, Quantity howMuch,
 			String userId);
 
+	/**
+	 * Get initial data for a new address. Pass data needed to determine initial data (e.g. uuid of parent).
+	 * @param newBasicAddress basic new address with data needed to determine initial data, e.g. parent uuid ...
+	 * @return extended newAddress, e.g. containing terms of parent etc.
+	 */
+	IngridDocument getInitialAddress(IngridDocument newBasicAddress,
+			String userId);
 }

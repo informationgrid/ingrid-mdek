@@ -277,6 +277,14 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument getInitialAddress(IngridDocument newBasicAddress,
+			String userId) {
+		IngridDocument jobParams = newBasicAddress;
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getInitialAddress", jobParams);
+
+		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+	}
 
 	public IngridDocument fetchCatalog(String userId) {
 		IngridDocument jobParams = new IngridDocument();
