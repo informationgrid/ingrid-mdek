@@ -38,9 +38,8 @@ public class T02Address implements IEntity {
 	private String responsibleUuid;
 
 //	private Set addressComments = new HashSet();
-//	private Set searchtermAdrs = new HashSet();
+	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
-	private T03Catalogue t03Catalogue;
 
 	public T02Address() {}
 
@@ -284,7 +283,7 @@ public class T02Address implements IEntity {
 	public void setAddressComments(Set addressComments) {
 		this.addressComments = addressComments;
 	}
-
+*/
 	public Set getSearchtermAdrs() {
 		return searchtermAdrs;
 	}
@@ -292,21 +291,13 @@ public class T02Address implements IEntity {
 	public void setSearchtermAdrs(Set searchtermAdrs) {
 		this.searchtermAdrs = searchtermAdrs;
 	}
-*/
+
 	public Set getT021Communications() {
 		return t021Communications;
 	}
 
 	public void setT021Communications(Set t021Communications) {
 		this.t021Communications = t021Communications;
-	}
-
-	public T03Catalogue getT03Catalogue() {
-		return t03Catalogue;
-	}
-
-	public void setT03Catalogue(T03Catalogue t03Catalogue) {
-		this.t03Catalogue = t03Catalogue;
 	}
 
 }

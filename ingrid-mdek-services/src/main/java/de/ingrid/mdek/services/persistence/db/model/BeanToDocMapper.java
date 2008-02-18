@@ -158,7 +158,6 @@ public class BeanToDocMapper implements IMapper {
 
 			// object comments
 			mapObjectComments(o.getObjectComments(), objectDoc);
-		
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -354,6 +353,10 @@ public class BeanToDocMapper implements IMapper {
 			adressDoc.put(MdekKeys.FUNCTION, a.getJob());			
 			adressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
 			adressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
+
+			// TODO: Missing Associations
+			mapSearchtermAdrs(a.getSearchtermAdrs(), adressDoc);
+//			mapAddressComments(a.getAddressComments(), adressDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -794,6 +797,28 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.SUBJECT_TERMS, refList);
 		
 		return objectDoc;
+	}
+
+	public IngridDocument mapSearchtermAdrs(Set<SearchtermAdr> refs, IngridDocument addressDoc) {
+		if (refs == null) {
+			return addressDoc;
+		}
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (SearchtermAdr ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			SearchtermValue refValue = ref.getSearchtermValue();
+			if (refValue != null) {
+				mapSearchtermValue(refValue, refDoc);
+				SearchtermSns refSns = refValue.getSearchtermSns();
+				mapSearchtermSns(refSns, refDoc);
+				refList.add(refDoc);					
+			} else {
+				LOG.warn("SearchtermAdr " + ref.getSearchtermId() + " has no SearchtermValue !!! We skip this SearchtermAdr.");
+			}
+		}
+		addressDoc.put(MdekKeys.SUBJECT_TERMS, refList);
+		
+		return addressDoc;
 	}
 
 	private IngridDocument mapT0114EnvCategorys(Set<T0114EnvCategory> refs, IngridDocument objectDoc) {
