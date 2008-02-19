@@ -36,10 +36,33 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
+	 * Create or store address INTO WORKING COPY !
+	 * @param adr map representation of address.
+	 * 		If no id/uuid is set address will be created else updated.
+	 * @param refetchAfterStore immediately refetch address after store (true)
+	 * 		or just store without refetching (false)
+	 * @return response containing result: map representation of created/updated address when refetching,
+	 * 		otherwise map containing uuid of stored address (was generated when new address)  
+	 */
+	IngridDocument storeAddress(IngridDocument adr,
+			boolean refetchAfterStore,
+			String userId);
+
+	/**
 	 * Get initial data for a new address. Pass data needed to determine initial data (e.g. uuid of parent).
 	 * @param newBasicAddress basic new address with data needed to determine initial data, e.g. parent uuid ...
 	 * @return extended newAddress, e.g. containing terms of parent etc.
 	 */
 	IngridDocument getInitialAddress(IngridDocument newBasicAddress,
+			String userId);
+
+	/**
+	 * DELETE ONLY WORKING COPY.
+	 * Notice: If no published version exists the address is deleted completely, meaning non existent afterwards
+	 * (including all subobjects !)
+	 * @param uuid object uuid
+	 * @return response containing result: map containing info whether address was fully deleted
+	 */
+	IngridDocument deleteAddressWorkingCopy(String uuid,
 			String userId);
 }

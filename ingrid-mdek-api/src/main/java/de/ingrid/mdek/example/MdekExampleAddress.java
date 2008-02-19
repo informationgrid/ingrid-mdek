@@ -1,6 +1,8 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +130,20 @@ class MdekExampleAddressThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
+		System.out.println("STORE TEST existing address");
+		System.out.println("=========================");
+
+		System.out.println("\n----- change and store existing address -> working copy ! -----");
+		storeAddressWithManipulation(aMap);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		deleteAddressWorkingCopy(adrUuid);
+		
+		System.out.println("\n----- and reload -----");
+		aMap = fetchAddress(adrUuid, Quantity.DETAIL_ENTITY);
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
 		System.out.println("STORE TEST new address");
 		System.out.println("=========================");
 
@@ -229,6 +245,128 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument storeAddressWithManipulation(IngridDocument aDocIn) {
+		if (aDocIn == null) {
+			return null;
+		}
+
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeAddress ######");
+		
+		// manipulate former loaded address !
+		System.out.println("MANIPULATE ADDRESS");
+
+		System.out.println("- change test ORGANISATION, GIVEN_NAME");
+		aDocIn.put(MdekKeys.ORGANISATION, "TEST " + aDocIn.get(MdekKeys.ORGANISATION));
+		aDocIn.put(MdekKeys.GIVEN_NAME, "TEST " + aDocIn.get(MdekKeys.GIVEN_NAME));
+
+		// add entry to COMMUNICATION
+		System.out.println("- add test COMMUNICATION");
+		List<IngridDocument> docList = (List<IngridDocument>) aDocIn.get(MdekKeys.COMMUNICATION);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM, "TEST COMMUNIC_MEDIUM");
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "TEST COMMUNICATION_VALUE");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		aDocIn.put(MdekKeys.COMMUNICATION, docList);
+
+		// add entry to SUBJECT_TERMS
+		System.out.println("- add test SUBJECT_TERM");
+		docList = (List<IngridDocument>) aDocIn.get(MdekKeys.SUBJECT_TERMS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.TERM_NAME, "TEST TERM_NAME");
+		testDoc.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		testDoc.put(MdekKeys.TERM_SNS_ID, "TEST TERM_SNS_ID");
+		docList.add(testDoc);
+		aDocIn.put(MdekKeys.SUBJECT_TERMS, docList);
+
+		// add entry to COMMENT_LIST
+		System.out.println("- add test COMMENT");
+		docList = (List<IngridDocument>) aDocIn.get(MdekKeys.COMMENT_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMENT, "TEST COMMENT");
+		testDoc.put(MdekKeys.CREATE_TIME, MdekUtils.dateToTimestamp(new Date()));
+		testDoc.put(MdekKeys.CREATE_UUID, "TEST CREATE_UUID");
+		docList.add(testDoc);
+		aDocIn.put(MdekKeys.COMMENT_LIST, docList);
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		System.out.println("storeAddress WITHOUT refetching address: ");
+		response = mdekCaller.storeAddress(aDocIn, false, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			String uuidStoredAddress = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuidStoredAddress);
+			System.out.println("refetch Address");
+			IngridDocument aRefetchedDoc = fetchAddress(uuidStoredAddress, Quantity.DETAIL_ENTITY);
+			System.out.println("");
+
+			System.out.println("MANIPULATE ADDRESS: back to origin");
+
+			// COMMUNICATION wieder wie vorher !
+			System.out.println("- remove test COMMUNICATION");
+			docList = (List<IngridDocument>) aRefetchedDoc.get(MdekKeys.COMMUNICATION);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				aRefetchedDoc.put(MdekKeys.COMMUNICATION, docList);				
+			}
+
+			// SUBJECT_TERMS wieder wie vorher !
+			System.out.println("- remove test SUBJECT_TERM");
+			docList = (List<IngridDocument>) aRefetchedDoc.get(MdekKeys.SUBJECT_TERMS);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				aRefetchedDoc.put(MdekKeys.SUBJECT_TERMS, docList);				
+			}
+
+			// COMMENT wieder wie vorher !
+			System.out.println("- remove test COMMENT");
+			docList = (List<IngridDocument>) aRefetchedDoc.get(MdekKeys.COMMENT_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				aRefetchedDoc.put(MdekKeys.COMMENT_LIST, docList);				
+			}
+
+			// store
+			System.out.println("STORE");
+			startTime = System.currentTimeMillis();
+			System.out.println("storeAddress WITH refetching object: ");
+			response = mdekCaller.storeAddress(aRefetchedDoc, true, myUserId);
+			endTime = System.currentTimeMillis();
+			neededTime = endTime - startTime;
+			System.out.println("EXECUTION TIME: " + neededTime + " ms");
+			result = mdekCaller.getResultFromResponse(response);
+
+			if (result != null) {
+				System.out.println("SUCCESS: ");
+				debugAddressDoc(result);
+			} else {
+				handleError(response);
+			}					
+			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
 	private IngridDocument getInitialAddress(IngridDocument newBasicAddress) {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
@@ -247,6 +385,32 @@ class MdekExampleAddressThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument deleteAddressWorkingCopy(String uuid) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE deleteAddressWorkingCopy ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.deleteAddressWorkingCopy(uuid, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
 		} else {
 			handleError(response);
 		}
