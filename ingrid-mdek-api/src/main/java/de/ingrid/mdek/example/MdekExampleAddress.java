@@ -147,7 +147,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("STORE TEST new address");
 		System.out.println("=========================");
 
-		System.out.println("\n----- first load initial data (e.g. from parent " + adrUuid + ") -----");
+		System.out.println("\n----- first load initial data (from parent " + adrUuid + ") -----");
 		IngridDocument newAdrDoc = new IngridDocument();
 		// supply parent uuid !
 		newAdrDoc.put(MdekKeys.PARENT_UUID, adrUuid);
