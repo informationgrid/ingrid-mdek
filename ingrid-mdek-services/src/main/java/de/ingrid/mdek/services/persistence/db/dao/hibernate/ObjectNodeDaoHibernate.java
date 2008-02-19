@@ -2,7 +2,6 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
@@ -10,15 +9,10 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.MdekException;
-import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
-import de.ingrid.mdek.services.persistence.db.model.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
-import de.ingrid.utils.IngridDocument;
 
 /**
  * Hibernate-specific implementation of the <tt>IObjectNodeDao</tt>
@@ -223,42 +217,5 @@ public class ObjectNodeDaoHibernate
 		}
 
 		return uuidList;
-	}
-
-	public List<IngridDocument> getObjectThesaurusTerms(String uuid) {
-		Session session = getSession();
-		ArrayList<IngridDocument> retList = new ArrayList<IngridDocument>();
-
-		// fetch all at once (one select with outer joins)
-		ObjectNode oN = (ObjectNode) session.createQuery("from ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork oWork " +
-			"left join fetch oWork.searchtermObjs termObj " +
-			"left join fetch termObj.searchtermValue termVal " +
-			"left join fetch termVal.searchtermSns " +
-			"where oNode.objUuid = ?")
-			.setString(0, uuid)
-			.uniqueResult();
-
-		if (oN == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
-		}
-
-		// map ALL searchterms via mapper
-		Set<SearchtermObj> searchtermObjs = oN.getT01ObjectWork().getSearchtermObjs();
-		BeanToDocMapper beanToDocMapper = BeanToDocMapper.getInstance();
-		IngridDocument tmpDoc = new IngridDocument();
-		beanToDocMapper.mapSearchtermObjs(searchtermObjs, tmpDoc);
-
-		// then filter: get thesaurus terms
-		ArrayList<IngridDocument> termDocs =
-			(ArrayList<IngridDocument>) tmpDoc.get(MdekKeys.SUBJECT_TERMS);
-		String THESAURUS_TYPE = MdekUtils.SearchtermType.THESAURUS.getDbValue();
-		for (IngridDocument termDoc : termDocs) {
-			if (THESAURUS_TYPE.equals(termDoc.getString(MdekKeys.TERM_TYPE))) {
-				retList.add(termDoc);
-			}
-		}
-		
-		return retList;
 	}
 }

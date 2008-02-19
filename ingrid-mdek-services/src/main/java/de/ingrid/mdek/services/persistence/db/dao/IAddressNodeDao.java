@@ -5,7 +5,6 @@ import java.util.List;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.utils.IngridDocument;
 
 /**
  * Business DAO operations related to the <tt>AddressNode</tt> entity.
@@ -38,8 +37,4 @@ public interface IAddressNodeDao
 
 	/** Fetch Objects referencing the address with the passed uuid */
 	List<ObjectNode> getObjectReferencesFrom(String addressUuid);
-
-	/** Get Thesaurus searchterms of address with given uuid.
-	 * Each Term is mapped to IngridDoc according to defined mapping. */
-	List<IngridDocument> getAddressThesaurusTerms(String uuid);
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.utils.IngridDocument;
 
 
 
@@ -49,8 +48,4 @@ public interface IObjectNodeDao
 
 	/** Fetch Objects referencing the object with the passed uuid */
 	List<ObjectNode> getObjectReferencesFrom(String uuid);
-
-	/** Get Thesaurus searchterms of object with given uuid.
-	 * Each Term is mapped to IngridDoc according to defined mapping. */
-	List<IngridDocument> getObjectThesaurusTerms(String uuid);
 }

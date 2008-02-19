@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -88,8 +89,16 @@ public class BeanToDocMapper implements IMapper {
 		if (o == null) {
 			return objectDoc;
 		}
-		
-		// just to track ID in test suite !
+
+		// supply initial data when entity is created
+		if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+			// map associations
+			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc, howMuch);
+
+			return objectDoc;
+		}
+
+		// also ID, just to track ID in test suite !
 		objectDoc.put(MdekKeys.ID, o.getId());
 		objectDoc.put(MdekKeys.UUID, o.getObjUuid());
 		objectDoc.put(MdekKeys.CLASS, o.getObjClass());
@@ -134,7 +143,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectReferences(o.getObjectReferences(), objectDoc);
 			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc);
 			mapSpatialReferences(o.getSpatialReferences(), objectDoc);
-			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc);
+			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc, howMuch);
 			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
 			mapT0113DatasetReferences(o.getT0113DatasetReferences(), objectDoc);
 			mapT014InfoImparts(o.getT014InfoImparts(), objectDoc);
@@ -184,64 +193,80 @@ public class BeanToDocMapper implements IMapper {
 	 * Also includes communication etc. dependent from MappingQuantity.
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapT02Address(T02Address a, IngridDocument adressDoc,
+	public IngridDocument mapT02Address(T02Address a, IngridDocument addressDoc,
 			MappingQuantity howMuch) {
 		if (a == null) {
-			return adressDoc;
+			return addressDoc;
 		}
 
-		// just to track ID in test suite !
-		adressDoc.put(MdekKeys.ID, a.getId());
-		adressDoc.put(MdekKeys.UUID, a.getAdrUuid());
-		adressDoc.put(MdekKeys.CLASS, a.getAdrType());
-		adressDoc.put(MdekKeys.ORGANISATION, a.getInstitution());
-		adressDoc.put(MdekKeys.NAME, a.getLastname());
-		adressDoc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
-		adressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
-		adressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
+		// supply initial data when entity is created
+		if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+			addressDoc.put(MdekKeys.STREET, a.getStreet());
+			addressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
+			addressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
+			addressDoc.put(MdekKeys.CITY, a.getCity());
+			addressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
+			addressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
+
+			// map associations
+			mapT021Communications(a.getT021Communications(), addressDoc);
+			mapSearchtermAdrs(a.getSearchtermAdrs(), addressDoc, howMuch);
+
+			return addressDoc;
+		}
+
+		// also ID, just to track ID in test suite !
+		addressDoc.put(MdekKeys.ID, a.getId());
+		addressDoc.put(MdekKeys.UUID, a.getAdrUuid());
+		addressDoc.put(MdekKeys.CLASS, a.getAdrType());
+		addressDoc.put(MdekKeys.ORGANISATION, a.getInstitution());
+		addressDoc.put(MdekKeys.NAME, a.getLastname());
+		addressDoc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
+		addressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
+		addressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
 
 		if (howMuch == MappingQuantity.TABLE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
-			adressDoc.put(MdekKeys.STREET, a.getStreet());
-			adressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
-			adressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
-			adressDoc.put(MdekKeys.CITY, a.getCity());
-			adressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
-			adressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
+			addressDoc.put(MdekKeys.STREET, a.getStreet());
+			addressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
+			addressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
+			addressDoc.put(MdekKeys.CITY, a.getCity());
+			addressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
+			addressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
 
 			// map associations
-			mapT021Communications(a.getT021Communications(), adressDoc);
+			mapT021Communications(a.getT021Communications(), addressDoc);
 		}
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
-			adressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
-			adressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
+			addressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
+			addressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
 
-			adressDoc.put(MdekKeys.FUNCTION, a.getJob());			
-			adressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
-			adressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
+			addressDoc.put(MdekKeys.FUNCTION, a.getJob());			
+			addressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
+			addressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
 
 			// map associations
-			mapSearchtermAdrs(a.getSearchtermAdrs(), adressDoc);
-			mapAddressComments(a.getAddressComments(), adressDoc);
+			mapSearchtermAdrs(a.getSearchtermAdrs(), addressDoc, howMuch);
+			mapAddressComments(a.getAddressComments(), addressDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			adressDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, a.getOrgAdrId());
-			adressDoc.put(MdekKeys.NO_OF_PARENTS, a.getRoot());
-			adressDoc.put(MdekKeys.LASTEXPORT_TIME, a.getLastexportTime());
-			adressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
-			adressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
-			adressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
-			adressDoc.put(MdekKeys.MOD_UUID, a.getModUuid());
-			adressDoc.put(MdekKeys.RESPONSIBLE_UUID, a.getResponsibleUuid());
+			addressDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, a.getOrgAdrId());
+			addressDoc.put(MdekKeys.NO_OF_PARENTS, a.getRoot());
+			addressDoc.put(MdekKeys.LASTEXPORT_TIME, a.getLastexportTime());
+			addressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
+			addressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
+			addressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
+			addressDoc.put(MdekKeys.MOD_UUID, a.getModUuid());
+			addressDoc.put(MdekKeys.RESPONSIBLE_UUID, a.getResponsibleUuid());
 		}
 
-		return adressDoc;
+		return addressDoc;
 	}
 
 	private IngridDocument mapObjectComments(Set<ObjectComment> refs, IngridDocument objectDoc) {
@@ -792,44 +817,66 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
-	public IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc) {
+	public IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc,
+		MappingQuantity howMuch)
+	{
 		if (refs == null) {
 			return objectDoc;
 		}
 		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		String THESAURUS_TYPE = MdekUtils.SearchtermType.THESAURUS.getDbValue();
 		for (SearchtermObj ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			SearchtermValue refValue = ref.getSearchtermValue();
-			if (refValue != null) {
-				mapSearchtermValue(refValue, refDoc);
-				SearchtermSns refSns = refValue.getSearchtermSns();
-				mapSearchtermSns(refSns, refDoc);
-				refList.add(refDoc);					
-			} else {
+			if (refValue == null) {
 				LOG.warn("SearchtermObj " + ref.getSearchtermId() + " has no SearchtermValue !!! We skip this SearchtermObj.");
+				continue;
 			}
+
+			if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+				// only take over thesaurus terms !
+				if (!THESAURUS_TYPE.equals(refValue.getType())) {
+					continue;
+				}
+			}
+
+			mapSearchtermValue(refValue, refDoc);
+			SearchtermSns refSns = refValue.getSearchtermSns();
+			mapSearchtermSns(refSns, refDoc);
+			refList.add(refDoc);					
 		}
 		objectDoc.put(MdekKeys.SUBJECT_TERMS, refList);
 		
 		return objectDoc;
 	}
 
-	public IngridDocument mapSearchtermAdrs(Set<SearchtermAdr> refs, IngridDocument addressDoc) {
+	private IngridDocument mapSearchtermAdrs(Set<SearchtermAdr> refs, IngridDocument addressDoc,
+		MappingQuantity howMuch)
+	{
 		if (refs == null) {
 			return addressDoc;
 		}
 		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		String THESAURUS_TYPE = MdekUtils.SearchtermType.THESAURUS.getDbValue();
 		for (SearchtermAdr ref : refs) {
-			IngridDocument refDoc = new IngridDocument();
 			SearchtermValue refValue = ref.getSearchtermValue();
-			if (refValue != null) {
-				mapSearchtermValue(refValue, refDoc);
-				SearchtermSns refSns = refValue.getSearchtermSns();
-				mapSearchtermSns(refSns, refDoc);
-				refList.add(refDoc);					
-			} else {
+			if (refValue == null) {
 				LOG.warn("SearchtermAdr " + ref.getSearchtermId() + " has no SearchtermValue !!! We skip this SearchtermAdr.");
+				continue;
 			}
+
+			if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+				// only take over thesaurus terms !
+				if (!THESAURUS_TYPE.equals(refValue.getType())) {
+					continue;
+				}
+			}
+
+			IngridDocument refDoc = new IngridDocument();
+			mapSearchtermValue(refValue, refDoc);
+			SearchtermSns refSns = refValue.getSearchtermSns();
+			mapSearchtermSns(refSns, refDoc);
+			refList.add(refDoc);					
 		}
 		addressDoc.put(MdekKeys.SUBJECT_TERMS, refList);
 		
