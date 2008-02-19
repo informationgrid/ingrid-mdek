@@ -103,7 +103,7 @@ public class AddressNodeDaoHibernate
 		return retList;
 	}
 
-	public AddressNode getAdrDetails(String uuid) {
+	public AddressNode getAddrDetails(String uuid) {
 		Session session = getSession();
 
 		// fetch all at once (one select with outer joins)

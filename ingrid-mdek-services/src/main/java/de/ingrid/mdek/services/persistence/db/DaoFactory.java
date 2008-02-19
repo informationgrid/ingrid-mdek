@@ -23,8 +23,10 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefValueDaoHi
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysListDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
@@ -55,6 +57,7 @@ import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
+import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 
 public class DaoFactory implements IDaoFactory {
@@ -108,6 +111,10 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<SpatialReference>(_sessionFactory, SpatialReference.class);
 		} else if (clazz.isAssignableFrom(SearchtermObj.class)) {
 			dao = new GenericHibernateDao<SearchtermObj>(_sessionFactory, SearchtermObj.class);
+		} else if (clazz.isAssignableFrom(SearchtermAdr.class)) {
+			dao = new GenericHibernateDao<SearchtermAdr>(_sessionFactory, SearchtermAdr.class);
+		} else if (clazz.isAssignableFrom(T021Communication.class)) {
+			dao = new GenericHibernateDao<T021Communication>(_sessionFactory, T021Communication.class);
 		} else if (clazz.isAssignableFrom(T012ObjAdr.class)) {
 			dao = new GenericHibernateDao<T012ObjAdr>(_sessionFactory, T012ObjAdr.class);
 		} else if (clazz.isAssignableFrom(ObjectReference.class)) {
@@ -154,6 +161,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjGeoSpatialRep>(_sessionFactory, T011ObjGeoSpatialRep.class);
 		} else if (clazz.isAssignableFrom(ObjectComment.class)) {
 			dao = new GenericHibernateDao<ObjectComment>(_sessionFactory, ObjectComment.class);
+		} else if (clazz.isAssignableFrom(AddressComment.class)) {
+			dao = new GenericHibernateDao<AddressComment>(_sessionFactory, AddressComment.class);
 		} else if (clazz.isAssignableFrom(T011ObjServ.class)) {
 			dao = new GenericHibernateDao<T011ObjServ>(_sessionFactory, T011ObjServ.class);
 		} else if (clazz.isAssignableFrom(T011ObjServVersion.class)) {

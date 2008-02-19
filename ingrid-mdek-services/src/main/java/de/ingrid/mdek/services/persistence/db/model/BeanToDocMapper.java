@@ -253,7 +253,7 @@ public class BeanToDocMapper implements IMapper {
 			IngridDocument refDoc = new IngridDocument();
 			refDoc.put(MdekKeys.COMMENT, ref.getComment());
 			refDoc.put(MdekKeys.CREATE_TIME, ref.getCreateTime());
-			// TODO: add mapping of create_UUID
+			// TODO: add mapping of CREATE_UUID
 			docList.add(refDoc);					
 		}
 		objectDoc.put(MdekKeys.COMMENT_LIST, docList);
