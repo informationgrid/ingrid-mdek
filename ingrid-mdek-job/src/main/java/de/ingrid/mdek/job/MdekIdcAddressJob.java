@@ -1,16 +1,22 @@
 package de.ingrid.mdek.job;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
+import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.IMapper.MappingQuantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -20,12 +26,14 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private IAddressNodeDao daoAddressNode;
+	private IT02AddressDao daoT02Address;
 
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
+		daoT02Address = daoFactory.getT02AddressDao();
 	}
 
 	public IngridDocument getTopAddresses(IngridDocument params) {
@@ -86,15 +94,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	public IngridDocument getAdrDetails(IngridDocument params) {
+	public IngridDocument getAddrDetails(IngridDocument params) {
 		try {
 			daoAddressNode.beginTransaction();
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			if (log.isDebugEnabled()) {
-				log.debug("Invoke getAdrDetails (uuid='"+uuid+"').");
+				log.debug("Invoke getAddrDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getAdrDetails(uuid);
+			IngridDocument result = getAddrDetails(uuid);
 			
 			daoAddressNode.commitTransaction();
 			return result;
@@ -106,9 +114,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument getAdrDetails(String uuid) {
+	private IngridDocument getAddrDetails(String uuid) {
 		// first get all "internal" address data
-		AddressNode aNode = daoAddressNode.getAdrDetails(uuid);
+		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
 		if (aNode == null) {
 			throw new MdekException(MdekError.UUID_NOT_FOUND);
 		}
@@ -157,5 +165,181 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
+	}
+
+	public IngridDocument storeAddress(IngridDocument aDocIn) {
+		String userId = getCurrentUserId(aDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			daoAddressNode.beginTransaction();
+			String currentTime = MdekUtils.dateToTimestamp(new Date());
+
+			String uuid = (String) aDocIn.get(MdekKeys.UUID);
+			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+
+			// set common data to transfer to working copy !
+			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+			aDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
+			
+			if (uuid == null) {
+				// NEW Address !
+
+				// create new uuid
+				uuid = UuidGenerator.getInstance().generateUuid();
+				aDocIn.put(MdekKeys.UUID, uuid);
+			}
+			
+			// load node
+			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+			if (aNode == null) {
+				aNode = docToBeanMapper.mapAddressNode(aDocIn, new AddressNode());			
+			}
+			
+			// get/create working copy
+			if (!hasWorkingCopy(aNode)) {
+				// no working copy yet, create new address with BASIC data
+
+				// set some missing data which may not be passed from client.
+				// set from published version if existent
+				T02Address aPub = aNode.getT02AddressPublished();
+				if (aPub != null) {
+					aDocIn.put(MdekKeys.DATE_OF_CREATION, aPub.getCreateTime());				
+				} else {
+					aDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+				}
+				T02Address aWork = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
+				 // save it to generate id needed for mapping
+				daoT02Address.makePersistent(aWork);
+				
+				// update node
+				aNode.setAddrId(aWork.getId());
+				aNode.setT02AddressWork(aWork);
+				daoAddressNode.makePersistent(aNode);
+			}
+
+			// transfer new data and store.
+			T02Address aWork = aNode.getT02AddressWork();
+			docToBeanMapper.mapT02Address(aDocIn, aWork, MappingQuantity.DETAIL_ENTITY);
+			daoT02Address.makePersistent(aWork);
+
+			// return uuid (may be new generated uuid if new address)
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
+
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
+			daoAddressNode.commitTransaction();
+
+			if (refetchAfterStore) {
+				daoAddressNode.beginTransaction();
+				result = getAddrDetails(uuid);
+				daoAddressNode.commitTransaction();
+			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	/**
+	 * DELETE ONLY WORKING COPY.
+	 * Notice: If no published version exists the address is deleted completely, meaning non existent afterwards
+	 * (including all sub addresses !)
+	 */
+	public IngridDocument deleteAddressWorkingCopy(IngridDocument params) {
+		String userId = getCurrentUserId(params);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+
+			daoAddressNode.beginTransaction();
+			String uuid = (String) params.get(MdekKeys.UUID);
+
+			// NOTICE: this one also contains Parent Association !
+			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+			if (aNode == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
+
+			boolean performFullDelete = false;
+			Long idPublished = aNode.getAddrIdPublished();
+			Long idWorkingCopy = aNode.getAddrId();
+
+			// if we have NO published version -> delete complete node !
+			IngridDocument result = new IngridDocument();
+			if (idPublished == null) {
+				performFullDelete = true;
+			} else {
+				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);			
+
+				// perform delete of working copy only if really different version
+				if (!idPublished.equals(idWorkingCopy)) {
+					// remove already fetched working copy from node 
+					T02Address aWorkingCopy = aNode.getT02AddressWork();
+					// and delete it
+					daoT02Address.makeTransient(aWorkingCopy);
+					
+					// and set published one as working copy
+					aNode.setAddrId(idPublished);
+					aNode.setT02AddressWork(aNode.getT02AddressPublished());
+					daoAddressNode.makePersistent(aNode);
+				}
+			}
+
+			if (performFullDelete) {
+				result = deleteAddress(uuid);
+			}
+
+			daoAddressNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	private IngridDocument deleteAddress(String uuid) {
+		// NOTICE: this one also contains Parent Association !
+		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+		if (aNode == null) {
+			throw new MdekException(MdekError.UUID_NOT_FOUND);
+		}
+
+		// delete complete Node ! rest is deleted per cascade !
+		daoAddressNode.makeTransient(aNode);
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+
+		return result;
+	}
+
+	private boolean hasWorkingCopy(AddressNode node) {
+		Long workId = node.getAddrId(); 
+		Long pubId = node.getAddrIdPublished(); 
+		if (workId == null || workId.equals(pubId)) {
+			return false;
+		}
+		
+		return true;
 	}
 }
