@@ -144,17 +144,21 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		try {
 			daoAddressNode.beginTransaction();
 			
-			// take over "thesaurus" searchterms from parent etc.
+			// take over data from parent (if set)
 			String parentUuid = aDocIn.getString(MdekKeys.PARENT_UUID);
 			if (parentUuid != null) {
-				List<IngridDocument> termDocs = daoAddressNode.getAddressThesaurusTerms(parentUuid);
-				aDocIn.put(MdekKeys.SUBJECT_TERMS, termDocs);
-
-				// supply parent info
 				AddressNode pNode = daoAddressNode.loadByUuid(parentUuid);
-				if (pNode != null) {
-					beanToDocMapper.mapAddressParentData(pNode.getT02AddressWork(), aDocIn);
+				if (pNode == null) {
+					throw new MdekException(MdekError.UUID_NOT_FOUND);
 				}
+
+				T02Address aParent = pNode.getT02AddressWork();
+
+				// supply separate parent info
+				beanToDocMapper.mapAddressParentData(aParent, aDocIn);
+				
+				// take over initial data from parent
+				beanToDocMapper.mapT02Address(aParent, aDocIn, MappingQuantity.INITIAL_ENTITY);
 			}
 
 			daoAddressNode.commitTransaction();
