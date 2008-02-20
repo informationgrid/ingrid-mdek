@@ -103,11 +103,12 @@ class MdekExampleAddressThread extends Thread {
 
 		long exampleStartTime = System.currentTimeMillis();
 
-		// TOP OBJECT
-		String topUuid = "A7D04CEB-77EF-11D3-AF93-0060084A4596";
-		// DETAIL OBJECT
+		// TOP ADDRESS
+		String topUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
+		// PARENT ADDRESS
+		String parentUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
+		// DETAIL ADDRESS
 		String adrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
-		IngridDocument aMap;
 
 		// ===================================
 		System.out.println("\n----- top addresses -----");
@@ -124,7 +125,7 @@ class MdekExampleAddressThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n----- address details -----");
-		aMap = fetchAddress(adrUuid, Quantity.DETAIL_ENTITY);
+		IngridDocument aMap = fetchAddress(adrUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -145,11 +146,30 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("STORE TEST new address");
 		System.out.println("=========================");
 
-		System.out.println("\n----- first load initial data (from parent " + adrUuid + ") -----");
+		System.out.println("\n----- first load initial data (from " + adrUuid + ") -----");
+		// initial data from person address (to test take over of SUBJECT_TERMS)
 		IngridDocument newAdrDoc = new IngridDocument();
-		// supply parent uuid !
 		newAdrDoc.put(MdekKeys.PARENT_UUID, adrUuid);
 		newAdrDoc = getInitialAddress(newAdrDoc);
+
+		System.out.println("\n----- extend initial address and store -----");
+
+		// extend initial object with own data !
+		System.out.println("- add NAME, GIVEN_NAME, TITLE_OR_FUNCTION, CLASS");
+		newAdrDoc.put(MdekKeys.NAME, "testNAME");
+		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
+		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.PERSON.getDbValue());
+
+		// new parent
+		System.out.println("- store under parent: " + parentUuid);
+		newAdrDoc.put(MdekKeys.PARENT_UUID, parentUuid);
+		IngridDocument aMapNew = storeAddressWithManipulation(newAdrDoc);
+		// uuid created !
+		String newAdrUuid = (String) aMapNew.get(MdekKeys.UUID);
+
+		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
+		fetchSubAddresses(parentUuid);
 
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();
@@ -273,6 +293,42 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument storeAddressWithoutManipulation(IngridDocument oDocIn,
+			boolean refetchObject) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeAddress ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.storeAddress(oDocIn, refetchObject, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugAddressDoc(result);
+			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
 	private IngridDocument storeAddressWithManipulation(IngridDocument aDocIn) {
 		if (aDocIn == null) {
 			return null;
@@ -291,8 +347,10 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("MANIPULATE ADDRESS");
 
 		System.out.println("- change test ORGANISATION, GIVEN_NAME");
-		aDocIn.put(MdekKeys.ORGANISATION, "TEST " + aDocIn.get(MdekKeys.ORGANISATION));
-		aDocIn.put(MdekKeys.GIVEN_NAME, "TEST " + aDocIn.get(MdekKeys.GIVEN_NAME));
+		String origORGANISATION = aDocIn.getString(MdekKeys.ORGANISATION);
+		String origGIVEN_NAME = aDocIn.getString(MdekKeys.GIVEN_NAME);
+		aDocIn.put(MdekKeys.ORGANISATION, "TEST/" + origORGANISATION);
+		aDocIn.put(MdekKeys.GIVEN_NAME, "TEST/" + origGIVEN_NAME);
 
 		// add entry to COMMUNICATION
 		System.out.println("- add test COMMUNICATION");
@@ -346,6 +404,10 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("");
 
 			System.out.println("MANIPULATE ADDRESS: back to origin");
+
+			System.out.println("- set original ORGANISATION, GIVEN_NAME");
+			aRefetchedDoc.put(MdekKeys.ORGANISATION, origORGANISATION);
+			aRefetchedDoc.put(MdekKeys.GIVEN_NAME, origGIVEN_NAME);
 
 			// COMMUNICATION wieder wie vorher !
 			System.out.println("- remove test COMMUNICATION");
