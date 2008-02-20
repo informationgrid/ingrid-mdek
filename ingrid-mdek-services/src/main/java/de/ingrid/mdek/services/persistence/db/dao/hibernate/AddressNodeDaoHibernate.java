@@ -158,4 +158,27 @@ public class AddressNodeDaoHibernate
 
 		return uuidList;
 	}
+
+
+	public List<String> getAddressPathOrganisation(String inUuid, boolean includeEndNode) {
+		ArrayList<String> orgaList = new ArrayList<String>();
+		String uuid = inUuid;
+		while(uuid != null) {
+			AddressNode aN = loadByUuid(uuid);
+			if (aN == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
+			boolean addToPath = true;
+			if (uuid == inUuid && !includeEndNode) {
+				addToPath = false;
+			}
+			if (addToPath) {
+				String orga = aN.getT02AddressWork().getInstitution();
+				orgaList.add(0, orga);				
+			}
+			uuid = aN.getFkAddrUuid();
+		}
+
+		return orgaList;
+	}
 }
