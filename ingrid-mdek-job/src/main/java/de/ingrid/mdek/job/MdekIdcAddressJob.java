@@ -94,6 +94,26 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument getAddressPath(IngridDocument params) {
+		try {
+			daoAddressNode.beginTransaction();
+
+			String uuid = (String) params.get(MdekKeys.UUID);
+			List<String> uuidList = daoAddressNode.getAddressPath(uuid);
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.PATH, uuidList);
+
+			daoAddressNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument getAddrDetails(IngridDocument params) {
 		try {
 			daoAddressNode.beginTransaction();
