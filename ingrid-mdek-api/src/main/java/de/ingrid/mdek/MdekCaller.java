@@ -248,6 +248,16 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);		
 	}
 
+	public IngridDocument getAddressPath(String uuid,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getAddressPath", jobParams);
+
+		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);		
+	}
+
 	public IngridDocument checkObjectSubTree(String uuid,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();

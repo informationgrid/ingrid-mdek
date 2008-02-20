@@ -27,6 +27,14 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
+	 * Get Path of address in tree starting at root
+	 * @param uuid address uuid
+	 * @return response containing result: map containing path (List of uuids starting at root)
+	 */
+	IngridDocument getAddressPath(String uuid,
+			String userId);
+
+	/**
 	 * Fetch single address with given uuid.
 	 * @param uuid address uuid
 	 * @param howMuch how much data to fetch from address

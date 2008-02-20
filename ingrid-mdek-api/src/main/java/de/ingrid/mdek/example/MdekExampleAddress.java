@@ -109,22 +109,20 @@ class MdekExampleAddressThread extends Thread {
 		String adrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 		IngridDocument aMap;
 
-		// -----------------------------------
-		// tree: top addresses
-
+		// ===================================
 		System.out.println("\n----- top addresses -----");
 		fetchTopAddresses(true);
 		fetchTopAddresses(false);
 
 		// -----------------------------------
-		// tree: sub objects
-
 		System.out.println("\n----- sub objects -----");
 		fetchSubAddresses(topUuid);
 
 		// -----------------------------------
-		// load
+		System.out.println("\n----- address path -----");
+		getAddressPath(adrUuid);
 
+		// -----------------------------------
 		System.out.println("\n----- address details -----");
 		aMap = fetchAddress(adrUuid, Quantity.DETAIL_ENTITY);
 
@@ -153,7 +151,7 @@ class MdekExampleAddressThread extends Thread {
 		newAdrDoc.put(MdekKeys.PARENT_UUID, adrUuid);
 		newAdrDoc = getInitialAddress(newAdrDoc);
 
-		// -----------------------------------
+		// ===================================
 		long exampleEndTime = System.currentTimeMillis();
 		long exampleNeededTime = exampleEndTime - exampleStartTime;
 		System.out.println("\n----------");
@@ -212,6 +210,36 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
 				System.out.println(o);
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument getAddressPath(String uuidIn) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getAddressPath ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.getAddressPath(uuidIn, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List<String> uuidList = (List<String>) result.get(MdekKeys.PATH);
+			System.out.println("SUCCESS: " + uuidList.size() + " levels");
+			String indent = " ";
+			for (String uuid : uuidList) {
+				System.out.println(indent + uuid);
+				indent += " ";
 			}
 		} else {
 			handleError(response);
