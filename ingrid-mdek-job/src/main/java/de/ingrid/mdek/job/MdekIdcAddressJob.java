@@ -157,6 +157,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			beanToDocMapper.mapAddressParentData(pNode.getT02AddressWork(), resultDoc);
 		}
 
+		// supply path info
+		List<String> pathList = daoAddressNode.getAddressPathOrganisation(uuid, false);
+		resultDoc.put(MdekKeys.PATH, pathList);
+
 		return resultDoc;
 	}
 
@@ -179,6 +183,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				
 				// take over initial data from parent
 				beanToDocMapper.mapT02Address(aParent, aDocIn, MappingQuantity.INITIAL_ENTITY);
+
+				// supply path info
+				List<String> pathList = daoAddressNode.getAddressPathOrganisation(parentUuid, true);
+				aDocIn.put(MdekKeys.PATH, pathList);
 			}
 
 			daoAddressNode.commitTransaction();
