@@ -80,7 +80,7 @@ public interface IMdekCallerObject extends IMdekCallerCommon {
 
 	/**
 	 * Get Path of object in tree starting at root
-	 * @param uuid object uuid
+	 * @param uuid object uuid = end node in path (included in path !)
 	 * @return response containing result: map containing path (List of uuids starting at root)
 	 */
 	IngridDocument getObjectPath(String uuid,

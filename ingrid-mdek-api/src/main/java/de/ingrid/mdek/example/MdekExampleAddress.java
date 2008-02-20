@@ -467,7 +467,10 @@ class MdekExampleAddressThread extends Thread {
 		}
 
 		IngridDocument myDoc;
-		List<IngridDocument> docList = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
+		List<IngridDocument> docList;
+		List<String> strList;
+
+		docList = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Communication: " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
@@ -495,11 +498,15 @@ class MdekExampleAddressThread extends Thread {
 				System.out.println("   " + doc);								
 			}			
 		}
-
 		myDoc = (IngridDocument) a.get(MdekKeys.PARENT_INFO);
 		if (myDoc != null) {
 			System.out.println("  parent info:");
 			System.out.println("    " + myDoc);								
+		}
+		strList = (List<String>) a.get(MdekKeys.PATH);
+		if (strList != null && strList.size() > 0) {
+			System.out.println("  Path: " + strList.size() + " entries");
+			System.out.println("   " + strList);
 		}
 	}
 
