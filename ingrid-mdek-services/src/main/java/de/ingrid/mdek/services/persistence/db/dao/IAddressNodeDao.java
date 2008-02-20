@@ -29,6 +29,9 @@ public interface IAddressNodeDao
 	 */
 	List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel);
 
+	/** Get Path (list of uuids) of address in tree starting at root. */
+	List<String> getAddressPath(String uuid);
+
 	/** Fetches address with given uuid containing all detailed address data. */
 	AddressNode getAddrDetails(String uuid);
 

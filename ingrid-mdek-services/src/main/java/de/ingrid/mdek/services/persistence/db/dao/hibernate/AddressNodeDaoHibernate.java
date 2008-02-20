@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekException;
+import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
@@ -141,5 +143,19 @@ public class AddressNodeDaoHibernate
 		}
 		
 		return parentNode;
+	}
+
+	public List<String> getAddressPath(String uuid) {
+		ArrayList<String> uuidList = new ArrayList<String>();
+		while(uuid != null) {
+			AddressNode aN = loadByUuid(uuid);
+			if (aN == null) {
+				throw new MdekException(MdekError.UUID_NOT_FOUND);
+			}
+			uuidList.add(0, uuid);
+			uuid = aN.getFkAddrUuid();
+		}
+
+		return uuidList;
 	}
 }
