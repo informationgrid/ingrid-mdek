@@ -57,7 +57,6 @@
 			<xs:element name="is-catalog-data" type="xs:string"/>
 			
 			<xs:element name="original-control-identifier" type="xs:string"/>
-			<xs:element name="no-of-parents" type="xs:integer"/>
 			<xs:element name="catalogue-identifier" type="xs:long"/>
 			<xs:element name="dataset-character-set" type="xs:integer"/>
 			<xs:element name="metadata-character-set" type="xs:integer"/>
@@ -98,6 +97,9 @@
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
+			<xs:element ref="date-of-creation"/>
+			<xs:element ref="date-of-last-modification"/>
+			<xs:element ref="work-state"/>
 			<xs:element name="organisation" type="xs:string"/>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="given-name" type="xs:string"/>
@@ -112,6 +114,13 @@
 			<xs:element name="function" type="xs:string"/>
 			<xs:element name="address-description" type="xs:string"/>
 			<xs:element name="original-address-identifier" type="xs:string"/>
+
+			<xs:element name="lastexport-time" type="TIMESTAMP"/>
+			<xs:element name="expiry-time" type="TIMESTAMP"/>
+			<xs:element name="work-version" type="xs:integer"/>
+			<xs:element name="mark-deleted" type="xs:string"/>
+			<xs:element ref="mod-uuid"/>
+			<xs:element name="responsible-uuid" type="UUID"/>
 
 			<xs:element name="communication" type="COMMUNICATION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>

@@ -488,8 +488,6 @@ public class MdekKeys {
 
     /** Value: String */
     public final static String ORIGINAL_CONTROL_IDENTIFIER = "original-control-identifier";
-    /** Value: Integer */
-    public final static String NO_OF_PARENTS = "no-of-parents";
     /** Value: Long */
     public final static String CATALOGUE_IDENTIFIER = "catalogue-identifier";
     /** Value: Integer */
