@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -99,6 +100,52 @@ public class AddressNodeDaoHibernate
 		return retList;
 	}
 
+	public List<String> getSubAddressUuids(String parentUuid) {
+		Session session = getSession();
+
+		List<String> childUuids = session.createQuery("select aNode.addrUuid " +
+				"from AddressNode aNode " +
+				"where aNode.fkAddrUuid = ?")
+				.setString(0, parentUuid)
+				.list();
+		
+		return childUuids;
+	}
+
+	public int countSubAddresses(String parentUuid) {
+		int totalNum = 0;
+
+		Stack<String> uuidStack = new Stack<String>();
+		uuidStack.push(parentUuid);
+
+		while (!uuidStack.isEmpty()) {
+			String uuid = uuidStack.pop();
+			if (!uuid.equals(parentUuid)) {
+				totalNum++;
+			}
+			List<String> subUuids = getSubAddressUuids(uuid);
+			for (String subUuid : subUuids) {
+				uuidStack.push(subUuid);
+			}
+		}
+		
+		return totalNum;
+	}
+
+	public boolean isSubNode(String uuidToCheck, String uuidParent) {
+		boolean isSubNode = false;
+
+		List<String> path = getAddressPath(uuidToCheck);
+		
+		if (path != null) {
+			if (path.contains(uuidParent)) {
+				isSubNode = true;
+			}
+		}
+		
+		return isSubNode;
+	}
+	
 	public AddressNode getAddrDetails(String uuid) {
 		Session session = getSession();
 

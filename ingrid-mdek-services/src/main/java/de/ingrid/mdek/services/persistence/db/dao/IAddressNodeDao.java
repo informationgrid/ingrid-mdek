@@ -29,8 +29,17 @@ public interface IAddressNodeDao
 	 */
 	List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel);
 
+	/** Get sub uuids of parent with given uuid (only next level) */
+	List<String> getSubAddressUuids(String parentUuid);
+
+	/** Get total number of subaddresses in subtree (all levels) */
+	int countSubAddresses(String parentUuid);
+
 	/** Get Path of UUIDS in tree starting at root, INCLUDING given uuid. */
 	List<String> getAddressPath(String uuid);
+
+	/** Checks whether the given uuid is ANYWHERE below the given parent uuid. */
+	boolean isSubNode(String uuidToCheck, String uuidParent);
 
 	/** Get Path of ORGANISATIONS in tree starting at root.
 	 * @param uuid uuid of endNode of path
