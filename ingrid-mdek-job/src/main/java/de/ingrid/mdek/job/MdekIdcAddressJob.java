@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -252,9 +254,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				daoAddressNode.makePersistent(aNode);
 			}
 
-			// transfer new data and store.
+			// transfer new data
 			T02Address aWork = aNode.getT02AddressWork();
 			docToBeanMapper.mapT02Address(aDocIn, aWork, MappingQuantity.DETAIL_ENTITY);
+
+			// PERFORM CHECKS
+			// check: "free address" has to be root node
+			checkFreeAddress(aWork, aNode.getFkAddrUuid());
+
+			// store when ok
 			daoT02Address.makePersistent(aWork);
 
 			// return uuid (may be new generated uuid if new address)
@@ -373,5 +381,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 		
 		return true;
+	}
+
+	/** Checks whether address is "free address" and valid (free addresses have NO parent). */
+	private void checkFreeAddress(T02Address a, String parentUuid) {
+		AddressType aType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.getAdrType());
+		if (aType == AddressType.FREI) {
+			if (parentUuid != null) {
+				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+			}
+		}
 	}
 }
