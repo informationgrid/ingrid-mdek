@@ -676,7 +676,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		return result;		
 	}
 
-	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied root object. */
+	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied top object. */
 	public IngridDocument copyObject(IngridDocument params) {
 		String userId = getCurrentUserId(params);
 		boolean removeRunningJob = true;

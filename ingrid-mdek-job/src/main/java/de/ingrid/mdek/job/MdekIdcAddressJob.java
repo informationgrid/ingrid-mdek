@@ -3,6 +3,7 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekException;
@@ -292,6 +293,66 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	/** Copy Address to new parent (with or without its subtree). Returns basic data of copied top address. */
+	public IngridDocument copyAddress(IngridDocument params) {
+		String userId = getCurrentUserId(params);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
+
+			daoAddressNode.beginTransaction();
+
+			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+			String toUuid = (String) params.get(MdekKeys.TO_UUID);
+			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
+
+			// perform checks
+			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid);
+			if (fromNode == null) {
+				throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+			}
+
+			AddressNode toNode = null;
+			// NOTICE: copy to top when toUuid is null
+			if (toUuid != null) {
+				toNode = daoAddressNode.loadByUuid(toUuid);
+				if (toNode == null) {
+					throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+				}
+			}
+
+			// copy fromNode
+			IngridDocument copyResult = createAddressNodeCopy(fromNode, toNode, copySubtree, userId);
+			AddressNode fromNodeCopy = (AddressNode) copyResult.get(MdekKeys.ADR_ENTITIES);
+			Integer numCopiedAddresses = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
+			if (log.isDebugEnabled()) {
+				log.debug("Number of copied addresses: " + numCopiedAddresses);
+			}
+
+			// success
+			IngridDocument resultDoc = new IngridDocument();
+			beanToDocMapper.mapT02Address(fromNodeCopy.getT02AddressWork(), resultDoc, MappingQuantity.TABLE_ENTITY);
+			// also child info
+			beanToDocMapper.mapAddressNode(fromNodeCopy, resultDoc, MappingQuantity.COPY_ENTITY);
+			// and additional info
+			resultDoc.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numCopiedAddresses);
+
+			daoAddressNode.commitTransaction();
+			return resultDoc;		
+		
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
 	/**
 	 * DELETE ONLY WORKING COPY.
 	 * Notice: If no published version exists the address is deleted completely, meaning non existent afterwards
@@ -371,6 +432,166 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 
 		return result;
+	}
+
+	/**
+	 * Creates a copy of the given AddressNode and adds it under the given parent.
+	 * Also copies whole subtree dependent from passed flag.
+	 * NOTICE: also supports copy of a tree to one of its subnodes !
+	 * Copied nodes are already Persisted !!!
+	 * @param sourceNode copy this node
+	 * @param newParentNode under this node
+	 * @param copySubtree including subtree or not
+	 * @param userId current user id needed to update running jobs
+	 * @return doc containing additional info (copy of source node, number copied nodes ...)
+	 */
+	private IngridDocument createAddressNodeCopy(AddressNode sourceNode, AddressNode newParentNode,
+			boolean copySubtree, String userId)
+	{
+		// refine running jobs info
+		int totalNumToCopy = 1;
+		if (copySubtree) {
+			totalNumToCopy = daoAddressNode.countSubAddresses(sourceNode.getAddrUuid());
+			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
+		}
+
+		// check whether we copy to subnode
+		// then we have to check already copied nodes to avoid endless copy !
+		boolean isCopyToOwnSubnode = false;
+		ArrayList<String> uuidsCopiedNodes = null;
+		if (newParentNode != null) {
+			if (daoAddressNode.isSubNode(newParentNode.getAddrUuid(), sourceNode.getAddrUuid())) {
+				isCopyToOwnSubnode = true;
+				uuidsCopiedNodes = new ArrayList<String>();
+			}
+		}
+
+		// copy iteratively via stack to avoid recursive stack overflow
+		Stack<IngridDocument> stack = new Stack<IngridDocument>();
+		IngridDocument nodeDoc = new IngridDocument();
+		nodeDoc.put("NODE", sourceNode);
+		nodeDoc.put("PARENT_NODE", newParentNode);
+		stack.push(nodeDoc);
+
+		int numberOfCopiedAddr = 0;
+		AddressNode rootNodeCopy = null;
+		while (!stack.isEmpty()) {
+			nodeDoc = stack.pop();
+			sourceNode = (AddressNode) nodeDoc.get("NODE");
+			newParentNode = (AddressNode) nodeDoc.get("PARENT_NODE");
+
+			if (log.isDebugEnabled()) {
+				log.debug("Copying entity " + sourceNode.getAddrUuid());
+			}
+
+			// copy source work version !
+			String newUuid = UuidGenerator.getInstance().generateUuid();
+			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid);
+			// set in Bearbeitung !
+			targetAddrWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
+
+			T02Address targetAddrPub = null;
+/*
+			// NEVER COPY PUBLISHED VERSION !
+				// check whether we also have a published version to copy !
+				Long sourceObjPubId = sourceNode.getObjIdPublished();
+				Long sourceObjWorkId = sourceNode.getObjId();		
+				if (sourceObjPubId != null) {
+					if (sourceObjPubId.equals(sourceObjWorkId)) {
+						targetObjPub = targetObjWork;
+					} else {
+						targetObjPub = createT01ObjectCopy(sourceNode.getT01ObjectPublished(), newUuid);
+					}
+				}		
+*/
+			// create new Node and set data !
+			// we also set Beans in address node, so we can access them afterwards.
+			Long targetAddrWorkId = targetAddrWork.getId();
+			Long targetAddrPubId = (targetAddrPub != null) ? targetAddrPub.getId() : null;
+			String newParentUuid = null;
+			if (newParentNode != null) {
+				newParentUuid = newParentNode.getAddrUuid();
+			}
+			
+			AddressNode targetNode = new AddressNode();
+			targetNode.setAddrUuid(newUuid);
+			targetNode.setAddrId(targetAddrWorkId);
+			targetNode.setT02AddressWork(targetAddrWork);
+			targetNode.setAddrIdPublished(targetAddrPubId);
+			targetNode.setT02AddressPublished(targetAddrPub);
+			targetNode.setFkAddrUuid(newParentUuid);
+			daoAddressNode.makePersistent(targetNode);
+			numberOfCopiedAddr++;
+			// update our job information ! may be polled from client !
+			// NOTICE: also checks whether job was canceled !
+			updateRunningJob(userId, createRunningJobDescription(
+				JOB_DESCR_COPY, numberOfCopiedAddr, totalNumToCopy, false));
+
+			if (rootNodeCopy == null) {
+				rootNodeCopy = targetNode;
+			}
+
+			if (isCopyToOwnSubnode) {
+				uuidsCopiedNodes.add(newUuid);
+			}
+			
+			// add child bean to parent bean, so we can determine child info when mapping (without reloading)
+			if (newParentNode != null) {
+				newParentNode.getAddressNodeChildren().add(targetNode);
+			}
+
+			// copy subtree ? only if not already a copied node !
+			if (copySubtree) {
+				List<AddressNode> sourceSubNodes = daoAddressNode.getSubAddresses(sourceNode.getAddrUuid(), true);
+				for (AddressNode sourceSubNode : sourceSubNodes) {
+					if (isCopyToOwnSubnode) {
+						if (uuidsCopiedNodes.contains(sourceSubNode.getAddrUuid())) {
+							// skip this node ! is one of our copied ones !
+							continue;
+						}
+					}
+					
+					// add to stack, will be copied
+					nodeDoc = new IngridDocument();
+					nodeDoc.put("NODE", sourceSubNode);
+					nodeDoc.put("PARENT_NODE", targetNode);
+					stack.push(nodeDoc);
+				}
+			}
+		}
+		
+		IngridDocument result = new IngridDocument();
+		// copy of rootNode returned via ADR_ENTITIES key !
+		result.put(MdekKeys.ADR_ENTITIES, rootNodeCopy);
+		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCopiedAddr);
+
+		return result;
+	}
+
+	/**
+	 * Creates a copy of the given T02Address with the given NEW uuid. Already Persisted !
+	 */
+	private T02Address createT02AddressCopy(T02Address sourceAddr, String newUuid) {
+		// create new address with new uuid and save it (to generate id !)
+		T02Address targetAddr = new T02Address();
+		targetAddr.setAdrUuid(newUuid);
+		daoT02Address.makePersistent(targetAddr);
+
+		// then copy content via mappers
+		
+		// map source bean to doc
+		IngridDocument sourceAddrDoc =
+			beanToDocMapper.mapT02Address(sourceAddr, new IngridDocument(), MappingQuantity.COPY_ENTITY);
+		
+		// update new data in doc !
+		sourceAddrDoc.put(MdekKeys.UUID, newUuid);
+
+		// and transfer data from doc to new bean
+		docToBeanMapper.mapT02Address(sourceAddrDoc, targetAddr, MappingQuantity.COPY_ENTITY);
+
+		daoT02Address.makePersistent(targetAddr);
+
+		return targetAddr;
 	}
 
 	private boolean hasWorkingCopy(AddressNode node) {
