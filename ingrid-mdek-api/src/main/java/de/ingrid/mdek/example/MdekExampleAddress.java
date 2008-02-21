@@ -171,6 +171,12 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
 		fetchSubAddresses(parentUuid);
 
+		System.out.println("\n----- do \"forbidden\" store -> \"free address\" WITH parent -----");
+		Integer origType = (Integer) aMapNew.get(MdekKeys.CLASS);
+		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.FREI.getDbValue());
+		storeAddressWithoutManipulation(aMapNew, false);
+		aMapNew.put(MdekKeys.CLASS, origType);
+
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();
 		long exampleNeededTime = exampleEndTime - exampleStartTime;

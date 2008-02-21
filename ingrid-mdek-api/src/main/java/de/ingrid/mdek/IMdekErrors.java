@@ -38,7 +38,10 @@ public interface IMdekErrors {
 		/** e.g. when object is published and sub publication conditions don't fit */
 		SUBTREE_HAS_LARGER_PUBLICATION_CONDITION("32"),
 		/** e.g. when object is published and publication condition doesn't fit to parent */
-		PARENT_HAS_SMALLER_PUBLICATION_CONDITION("33");
+		PARENT_HAS_SMALLER_PUBLICATION_CONDITION("33"),
+
+		/** when free address is NOT a root node */
+		FREE_ADDRESS_WITH_PARENT("41");
 
 		MdekError(String errorCode) {
 			this.errorCode = errorCode;
