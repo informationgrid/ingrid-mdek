@@ -56,6 +56,8 @@ public class AddressNodeDaoHibernate
 			"where aNode.fkAddrUuid is null ";
 		if (onlyFreeAddresses) {
 			query += "and a.adrType=" + AddressType.FREI.getDbValue();
+		} else {
+			query += "and a.adrType!=" + AddressType.FREI.getDbValue();			
 		}
 		query += "order by a.institution, a.lastname, a.firstname";
 		
