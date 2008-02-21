@@ -14,6 +14,7 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekCallerCommon.Quantity;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
 
@@ -107,9 +108,12 @@ class MdekExampleAddressThread extends Thread {
 		String topUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
 		// PARENT ADDRESS
 		String parentUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
-		// DETAIL ADDRESS
-		String adrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+		// PERSON ADDRESS
+		String personUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 
+		// FREE ADDRESS
+		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
+		
 		// ===================================
 		System.out.println("\n----- top addresses -----");
 		fetchTopAddresses(true);
@@ -121,11 +125,11 @@ class MdekExampleAddressThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n----- address path -----");
-		getAddressPath(adrUuid);
+		getAddressPath(personUuid);
 
 		// -----------------------------------
 		System.out.println("\n----- address details -----");
-		IngridDocument aMap = fetchAddress(adrUuid, Quantity.DETAIL_ENTITY);
+		IngridDocument aMap = fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -136,20 +140,20 @@ class MdekExampleAddressThread extends Thread {
 		storeAddressWithManipulation(aMap);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
-		deleteAddressWorkingCopy(adrUuid);
+		deleteAddressWorkingCopy(personUuid);
 		
 		System.out.println("\n----- and reload -----");
-		aMap = fetchAddress(adrUuid, Quantity.DETAIL_ENTITY);
+		aMap = fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
 		System.out.println("STORE TEST new address");
 		System.out.println("=========================");
 
-		System.out.println("\n----- first load initial data (from " + adrUuid + ") -----");
+		System.out.println("\n----- first load initial data (from " + personUuid + ") -----");
 		// initial data from person address (to test take over of SUBJECT_TERMS)
 		IngridDocument newAdrDoc = new IngridDocument();
-		newAdrDoc.put(MdekKeys.PARENT_UUID, adrUuid);
+		newAdrDoc.put(MdekKeys.PARENT_UUID, personUuid);
 		newAdrDoc = getInitialAddress(newAdrDoc);
 
 		System.out.println("\n----- extend initial address and store -----");
@@ -182,33 +186,58 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("COPY TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n\n----- copy parent of new address to top (WITHOUT sub tree) -----");
-		String addressFrom = parentUuid;
+		System.out.println("\n\n----- copy PERSON address to FREE ADDRESS (WITH sub tree) -> ERROR -----");
+		String addressFrom = personUuid;
 		String addressTo = null;
-		aMap = copyAddress(addressFrom, addressTo, false);
+		aMap = copyAddress(addressFrom, addressTo, true, true);
+		System.out.println("\n\n----- copy PERSON address to FREE ADDRESS (WITHOUT sub tree) -----");
+		aMap = copyAddress(addressFrom, addressTo, false, true);
 		String copy1Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
 		System.out.println("----- load original one -----");
 		fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- then load copy -----");
 		fetchAddress(copy1Uuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n\n----- verify NO copied sub addresses -> load children of copy -----");
-		fetchSubAddresses(copy1Uuid);
-		System.out.println("\n\n----- copy parent of new address to top (WITH sub tree) -----");
-		aMap = copyAddress(addressFrom, addressTo, true);
+		System.out.println("\n----- verify copy, load top FREE ADDRESSES -> new FREE ADDRESS -----");
+		fetchTopAddresses(true);
+
+		System.out.println("\n\n----- copy FREE Address under parent of new address -----");
+		addressFrom = freeUuid;
+		addressTo = parentUuid;
+		aMap = copyAddress(addressFrom, addressTo, true, false);
 		String copy2Uuid = aMap.getString(MdekKeys.UUID);
-		System.out.println("\n\n----- verify copied sub addresses -> load children of copy -----");
-		fetchSubAddresses(copy2Uuid);
-		System.out.println("\n----- verify copy, load top -> new top addresses -----");
-		fetchTopAddresses(false);
+		System.out.println("\n\n----- verify copy  -----");
+		System.out.println("----- load original one -----");
+		fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- then load copy -----");
+		fetchAddress(copy2Uuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- verify children -> new child -----");
+		fetchSubAddresses(addressTo);
+
+		System.out.println("\n\n----- copy FREE Address to FREE address -----");
+		addressFrom = freeUuid;
+		addressTo = null;
+		aMap = copyAddress(addressFrom, addressTo, false, true);
+		String copy3Uuid = aMap.getString(MdekKeys.UUID);
+		System.out.println("\n\n----- verify copy  -----");
+		System.out.println("----- load original one -----");
+		fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- then load copy -----");
+		fetchAddress(copy3Uuid, Quantity.DETAIL_ENTITY);
+
 		System.out.println("\n----- delete copies (WORKING COPY) -> FULL DELETE -----");
 		deleteAddressWorkingCopy(copy1Uuid);
 		deleteAddressWorkingCopy(copy2Uuid);
+		deleteAddressWorkingCopy(copy3Uuid);
+
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new address below new address (WITH sub tree) -----");
-		IngridDocument subtreeCopyDoc = copyAddress(parentUuid, newAdrUuid, true);
+		IngridDocument subtreeCopyDoc = copyAddress(parentUuid, newAdrUuid, true, false);
 		String subtreeCopyUuid = subtreeCopyDoc.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy -> load children of new address -----");
 		fetchSubAddresses(newAdrUuid);
+		System.out.println("\n\n----- verify copied sub addresses -> load children of copy -----");
+		fetchSubAddresses(subtreeCopyUuid);
+
 
 		// -----------------------------------
 
@@ -229,9 +258,8 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE fetchTopAddresses ######");
-		System.out.println("fetchTopAddresses -> " +
-				"onlyFreeAddresses: " + onlyFreeAddresses);
+		String onlyFreeAddressesInfo = (onlyFreeAddresses) ? "ONLY FREE ADDRESSES" : "ONLY NO FREE ADDRESSES";
+		System.out.println("\n###### INVOKE fetchTopAddresses " + onlyFreeAddressesInfo + " ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.fetchTopAddresses(myUserId, onlyFreeAddresses);
 		endTime = System.currentTimeMillis();
@@ -348,7 +376,8 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE storeAddress ######");
+		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeAddress (no manipulation) " + refetchAddressInfo + " ######");
 
 		// store
 		System.out.println("STORE");
@@ -382,7 +411,7 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE storeAddress ######");
+		System.out.println("\n###### INVOKE storeAddress (with manipulation) ######");
 		
 		// manipulate former loaded address !
 		System.out.println("MANIPULATE ADDRESS");
@@ -549,7 +578,9 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument copyAddress(String fromUuid, String toUuid, boolean copySubtree) {
+	private IngridDocument copyAddress(String fromUuid, String toUuid,
+		boolean copySubtree, boolean copyToFreeAddress) 
+	{
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
@@ -558,16 +589,18 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument result;
 
 		String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
-		System.out.println("\n###### INVOKE copyAddress " + copySubtreeInfo + " ######");
+		String copyToFreeAddressInfo = (copyToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
+		System.out.println("\n###### INVOKE copyAddress " + copySubtreeInfo + copyToFreeAddressInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.copyAddress(fromUuid, toUuid, copySubtree, myUserId);
+		response = mdekCaller.copyAddress(fromUuid, toUuid, copySubtree, copyToFreeAddress, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
-			System.out.println("Root Copy: " + result);
+			System.out.println("Copy Node (rudimentary): ");
+			debugAddressDoc(result);
 		} else {
 			handleError(response);
 		}
@@ -582,7 +615,7 @@ class MdekExampleAddressThread extends Thread {
 			+ ", name: " + a.get(MdekKeys.TITLE_OR_FUNCTION)
 			+ " " + a.get(MdekKeys.GIVEN_NAME)
 			+ " " + a.get(MdekKeys.NAME)
-			+ ", class: " + a.get(MdekKeys.CLASS)
+			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.get(MdekKeys.CLASS))
 		);
 		System.out.println("        "
 			+ "status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, a.get(MdekKeys.WORK_STATE))

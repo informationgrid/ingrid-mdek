@@ -41,7 +41,9 @@ public interface IMdekErrors {
 		PARENT_HAS_SMALLER_PUBLICATION_CONDITION("33"),
 
 		/** when free address is NOT a root node */
-		FREE_ADDRESS_WITH_PARENT("41");
+		FREE_ADDRESS_WITH_PARENT("41"),
+		/** when free address has subnodes (e.g. copy of node with subnodes to free address) */
+		FREE_ADDRESS_WITH_SUBTREE("42");
 
 		MdekError(String errorCode) {
 			this.errorCode = errorCode;

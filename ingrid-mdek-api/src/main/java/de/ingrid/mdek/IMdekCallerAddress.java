@@ -78,12 +78,19 @@ public interface IMdekCallerAddress {
 	 * Copy an address to another parent.
 	 * @param fromUuid uuid of node to copy
 	 * @param toUuid uuid of parent where to copy to (new subnode)
-	 * @param copySubtree true=also copy subtree, false=only address without subAddresses
+	 * @param copySubtree<br>
+	 * 		true=also copy subtree<br>
+	 * 		false=only address without subAddresses
+	 * @param copyToFreeAddress<br>
+	 * 		true=copied node is free address, parent has to be null<br>
+	 * 		false=copied node is NOT free address, parent can be set, when parent is null
+	 * 		copy is "normal" top address
 	 * @param userId current user to track jobs of user
 	 * @return response containing result: map containing basic data of copied address
 	 * and additional info (number of copied addresses ...)
 	 */
-	IngridDocument copyAddress(String fromUuid, String toUuid, boolean copySubtree,
+	IngridDocument copyAddress(String fromUuid, String toUuid,
+			boolean copySubtree, boolean copyToFreeAddress,
 			String userId);
 
 }
