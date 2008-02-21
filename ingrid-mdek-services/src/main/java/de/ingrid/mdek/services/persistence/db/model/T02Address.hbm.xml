@@ -9,7 +9,6 @@
       <version name="version" type="integer" column="version"/>
       <property name="adrUuid" type="string" column="adr_uuid"/>
       <property name="orgAdrId" type="string" column="org_adr_id"/>
-      <property name="root" type="integer" column="root"/>
       <property name="adrType" type="integer" column="adr_type"/>
       <property name="institution" type="string" column="institution"/>
       <property name="lastname" type="string" column="lastname"/>

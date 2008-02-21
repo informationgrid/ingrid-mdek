@@ -12,7 +12,6 @@ public class T01Object implements IEntity {
 	private String objUuid;
 	private String objName;
 	private String orgObjId;
-	private Integer root;
 	private Integer objClass;
 	private String objDescr;
 	private Long catId;
@@ -116,14 +115,6 @@ public class T01Object implements IEntity {
 
 	public void setOrgObjId(String orgObjId) {
 		this.orgObjId = orgObjId;
-	}
-
-	public Integer getRoot() {
-		return root;
-	}
-
-	public void setRoot(Integer root) {
-		this.root = root;
 	}
 
 	public Integer getObjClass() {

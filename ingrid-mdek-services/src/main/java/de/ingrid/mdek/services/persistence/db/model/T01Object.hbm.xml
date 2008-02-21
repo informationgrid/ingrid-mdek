@@ -10,7 +10,6 @@
       <property name="objUuid" type="string" column="obj_uuid"/>
       <property name="objName" type="string" column="obj_name"/>
       <property name="orgObjId" type="string" column="org_obj_id"/>
-      <property name="root" type="integer" column="root"/>
       <property name="objClass" type="integer" column="obj_class"/>
       <property name="objDescr" type="string" column="obj_descr"/>
       <property name="catId" type="long" column="cat_id"/>

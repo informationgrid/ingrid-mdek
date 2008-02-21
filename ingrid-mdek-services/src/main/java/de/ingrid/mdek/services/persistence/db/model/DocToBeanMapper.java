@@ -226,7 +226,6 @@ public class DocToBeanMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
 			oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
-			oIn.setRoot((Integer) oDocIn.get(MdekKeys.NO_OF_PARENTS));
 			oIn.setCatId((Long) oDocIn.get(MdekKeys.CATALOGUE_IDENTIFIER));
 			oIn.setDatasetCharacterSet((Integer) oDocIn.get(MdekKeys.DATASET_CHARACTER_SET));
 			oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));
@@ -280,7 +279,6 @@ public class DocToBeanMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
 			aIn.setOrgAdrId(aDocIn.getString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER));
-			aIn.setRoot((Integer) aDocIn.get(MdekKeys.NO_OF_PARENTS));
 			aIn.setLastexportTime(aDocIn.getString(MdekKeys.LASTEXPORT_TIME));
 			aIn.setExpiryTime(aDocIn.getString(MdekKeys.EXPIRY_TIME));
 			aIn.setWorkVersion((Integer) aDocIn.get(MdekKeys.WORK_VERSION));

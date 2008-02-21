@@ -11,7 +11,6 @@ public class T02Address implements IEntity {
 	private int version;
 	private String adrUuid;
 	private String orgAdrId;
-	private Integer root;
 	private Integer adrType;
 	private String institution;
 	private String lastname;
@@ -72,14 +71,6 @@ public class T02Address implements IEntity {
 
 	public void setOrgAdrId(String orgAdrId) {
 		this.orgAdrId = orgAdrId;
-	}
-
-	public Integer getRoot() {
-		return root;
-	}
-
-	public void setRoot(Integer root) {
-		this.root = root;
 	}
 
 	public Integer getAdrType() {
