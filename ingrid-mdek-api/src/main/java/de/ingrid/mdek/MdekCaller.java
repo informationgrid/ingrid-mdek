@@ -280,6 +280,19 @@ public class MdekCaller implements IMdekCaller {
 
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
+	public IngridDocument copyAddress(String fromUuid, String toUuid, boolean copySubtree,
+			String userId)
+		{
+			IngridDocument jobParams = new IngridDocument();
+			jobParams.put(MdekKeys.FROM_UUID, fromUuid);
+			jobParams.put(MdekKeys.TO_UUID, toUuid);
+			jobParams.put(MdekKeys.REQUESTINFO_COPY_SUBTREE, copySubtree);
+			jobParams.put(MdekKeys.USER_ID, userId);
+			List jobMethods = setUpJobMethod("copyAddress", jobParams);
+
+			return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		}
+
 
 	public IngridDocument moveObject(String fromUuid, String toUuid,
 			boolean performSubtreeCheck,

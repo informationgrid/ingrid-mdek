@@ -73,4 +73,17 @@ public interface IMdekCallerAddress {
 	 */
 	IngridDocument deleteAddressWorkingCopy(String uuid,
 			String userId);
+
+	/**
+	 * Copy an address to another parent.
+	 * @param fromUuid uuid of node to copy
+	 * @param toUuid uuid of parent where to copy to (new subnode)
+	 * @param copySubtree true=also copy subtree, false=only address without subAddresses
+	 * @param userId current user to track jobs of user
+	 * @return response containing result: map containing basic data of copied address
+	 * and additional info (number of copied addresses ...)
+	 */
+	IngridDocument copyAddress(String fromUuid, String toUuid, boolean copySubtree,
+			String userId);
+
 }
