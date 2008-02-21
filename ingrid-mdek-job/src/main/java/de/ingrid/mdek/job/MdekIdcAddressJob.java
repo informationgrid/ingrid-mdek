@@ -147,7 +147,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		IngridDocument resultDoc = new IngridDocument();
 		beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
 		
-		// also map ObjectNode for published info
+		// also map AddressNode for published info
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// then get "external" data (objects referencing the given address ...)
@@ -306,24 +306,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
-
-			// perform checks
-			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid);
-			if (fromNode == null) {
-				throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
-			}
-
-			AddressNode toNode = null;
-			// NOTICE: copy to top when toUuid is null
-			if (toUuid != null) {
-				toNode = daoAddressNode.loadByUuid(toUuid);
-				if (toNode == null) {
-					throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
-				}
-			}
+			Boolean copyToFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_TO_FREE_ADDRESS);
 
 			// copy fromNode
-			IngridDocument copyResult = createAddressNodeCopy(fromNode, toNode, copySubtree, userId);
+			IngridDocument copyResult = createAddressNodeCopy(fromUuid, toUuid,
+					copySubtree, copyToFreeAddress, userId);
 			AddressNode fromNodeCopy = (AddressNode) copyResult.get(MdekKeys.ADR_ENTITIES);
 			Integer numCopiedAddresses = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
 			if (log.isDebugEnabled()) {
@@ -337,6 +324,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			beanToDocMapper.mapAddressNode(fromNodeCopy, resultDoc, MappingQuantity.COPY_ENTITY);
 			// and additional info
 			resultDoc.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numCopiedAddresses);
+			// and path info
+			List<String> pathList = daoAddressNode.getAddressPathOrganisation(fromNodeCopy.getAddrUuid(), false);
+			resultDoc.put(MdekKeys.PATH, pathList);
 
 			daoAddressNode.commitTransaction();
 			return resultDoc;		
@@ -439,15 +429,32 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * Also copies whole subtree dependent from passed flag.
 	 * NOTICE: also supports copy of a tree to one of its subnodes !
 	 * Copied nodes are already Persisted !!!
-	 * @param sourceNode copy this node
-	 * @param newParentNode under this node
+	 * @param sourceUuid copy this node
+	 * @param newParentUuid under this node
 	 * @param copySubtree including subtree or not
+	 * @param copyToFreeAddress copy is "free address"
 	 * @param userId current user id needed to update running jobs
 	 * @return doc containing additional info (copy of source node, number copied nodes ...)
 	 */
-	private IngridDocument createAddressNodeCopy(AddressNode sourceNode, AddressNode newParentNode,
-			boolean copySubtree, String userId)
+	private IngridDocument createAddressNodeCopy(String sourceUuid, String newParentUuid,
+			boolean copySubtree, boolean copyToFreeAddress, String userId)
 	{
+		// PERFORM CHECKS
+		
+		// parent node exists ?
+		// NOTICE: copy to top when newParentUuid is null
+		AddressNode newParentNode = null;
+		if (newParentUuid != null) {
+			newParentNode = daoAddressNode.loadByUuid(newParentUuid);
+			if (newParentNode == null) {
+				throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+			}
+		}
+		// further checks
+		AddressNode sourceNode = daoAddressNode.loadByUuid(sourceUuid);
+		checkAddressNodesForCopy(sourceNode, newParentNode, copySubtree, copyToFreeAddress);
+
+
 		// refine running jobs info
 		int totalNumToCopy = 1;
 		if (copySubtree) {
@@ -474,7 +481,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		stack.push(nodeDoc);
 
 		int numberOfCopiedAddr = 0;
-		AddressNode rootNodeCopy = null;
+		AddressNode nodeCopy = null;
 		while (!stack.isEmpty()) {
 			nodeDoc = stack.pop();
 			sourceNode = (AddressNode) nodeDoc.get("NODE");
@@ -487,28 +494,30 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// copy source work version !
 			String newUuid = UuidGenerator.getInstance().generateUuid();
 			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid);
-			// set in Bearbeitung !
+
+			// Process copy
+			
+			// in bearbeitung !
 			targetAddrWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
 
-			T02Address targetAddrPub = null;
-/*
-			// NEVER COPY PUBLISHED VERSION !
-				// check whether we also have a published version to copy !
-				Long sourceObjPubId = sourceNode.getObjIdPublished();
-				Long sourceObjWorkId = sourceNode.getObjId();		
-				if (sourceObjPubId != null) {
-					if (sourceObjPubId.equals(sourceObjWorkId)) {
-						targetObjPub = targetObjWork;
-					} else {
-						targetObjPub = createT01ObjectCopy(sourceNode.getT01ObjectPublished(), newUuid);
-					}
-				}		
-*/
+			// handle copies from/to "free address"
+			boolean isFreeAddress = AddressType.FREI.getDbValue().equals(targetAddrWork.getAdrType());
+			if (copyToFreeAddress) {
+				if (!isFreeAddress) {
+					targetAddrWork.setAdrType(AddressType.FREI.getDbValue());
+					targetAddrWork.setInstitution("");
+				}
+			} else {
+				if (isFreeAddress) {
+					targetAddrWork.setAdrType(AddressType.PERSON.getDbValue());
+					targetAddrWork.setInstitution("");
+				}				
+			}
+
 			// create new Node and set data !
 			// we also set Beans in address node, so we can access them afterwards.
 			Long targetAddrWorkId = targetAddrWork.getId();
-			Long targetAddrPubId = (targetAddrPub != null) ? targetAddrPub.getId() : null;
-			String newParentUuid = null;
+			newParentUuid = null;
 			if (newParentNode != null) {
 				newParentUuid = newParentNode.getAddrUuid();
 			}
@@ -517,8 +526,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			targetNode.setAddrUuid(newUuid);
 			targetNode.setAddrId(targetAddrWorkId);
 			targetNode.setT02AddressWork(targetAddrWork);
-			targetNode.setAddrIdPublished(targetAddrPubId);
-			targetNode.setT02AddressPublished(targetAddrPub);
 			targetNode.setFkAddrUuid(newParentUuid);
 			daoAddressNode.makePersistent(targetNode);
 			numberOfCopiedAddr++;
@@ -527,8 +534,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			updateRunningJob(userId, createRunningJobDescription(
 				JOB_DESCR_COPY, numberOfCopiedAddr, totalNumToCopy, false));
 
-			if (rootNodeCopy == null) {
-				rootNodeCopy = targetNode;
+			if (nodeCopy == null) {
+				nodeCopy = targetNode;
 			}
 
 			if (isCopyToOwnSubnode) {
@@ -562,7 +569,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		
 		IngridDocument result = new IngridDocument();
 		// copy of rootNode returned via ADR_ENTITIES key !
-		result.put(MdekKeys.ADR_ENTITIES, rootNodeCopy);
+		result.put(MdekKeys.ADR_ENTITIES, nodeCopy);
 		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCopiedAddr);
 
 		return result;
@@ -602,6 +609,28 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 		
 		return true;
+	}
+
+	/** Check whether passed nodes are valid for copy operation
+	 * (e.g. check free address conditions ...). Throws MdekException if not valid.
+	 */
+	private void checkAddressNodesForCopy(AddressNode fromNode, AddressNode toNode,
+		Boolean copySubtree,
+		Boolean copyToFreeAddress)
+	{
+		if (fromNode == null) {
+			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+		}
+
+		// rudimentary checks
+		if (copyToFreeAddress) {
+			if (toNode != null) {
+				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+			}
+			if (copySubtree) {
+				throw new MdekException(MdekError.FREE_ADDRESS_WITH_SUBTREE);
+			}
+		}
 	}
 
 	/** Checks whether address is "free address" and valid (free addresses have NO parent). */
