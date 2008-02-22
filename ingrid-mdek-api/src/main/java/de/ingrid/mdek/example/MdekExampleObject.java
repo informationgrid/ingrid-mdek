@@ -150,6 +150,25 @@ class MdekExampleObjectThread extends Thread {
 			isRunning = false;
 			return;
 		}
+
+// -----------------------------------
+
+		// EH CACHE BUG !!! referenced Adress Node not fetched in refetch of 2. store !
+		boolean alwaysTrue = true;
+
+		System.out.println("\n----- load 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
+		oMap = fetchObject("79297FDD-729B-4BC5-BF40-C1F3FB53D2F2", Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- store 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
+		oMap = storeObjectWithoutManipulation(oMap, true);
+
+		System.out.println("\n----- store 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
+		oMap = storeObjectWithoutManipulation(oMap, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 */
 // --------------
 
@@ -1461,21 +1480,21 @@ class MdekExampleObjectThread extends Thread {
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects TO (Querverweise): " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
+				System.out.println("   " + doc.get(MdekKeys.UUID) + ": " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
+				System.out.println("   " + doc.get(MdekKeys.UUID) + ": " + doc);								
 			}			
 		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Addresses TO: " + docList.size() + " Entities");
 			for (IngridDocument a : docList) {
-				System.out.println("   " + a);								
+				System.out.println("   " + a.get(MdekKeys.UUID) + ": " + a);								
 				List<IngridDocument> coms = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
 				if (coms != null) {
 					System.out.println("    Communication: " + coms.size() + " Entities");
