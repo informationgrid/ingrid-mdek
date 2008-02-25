@@ -281,14 +281,15 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 	public IngridDocument copyAddress(String fromUuid, String toUuid,
-			boolean copySubtree, boolean copyToFreeAddress,
+			boolean copySubtree,
+			boolean copyToFreeAddress,
 			String userId)
 		{
 			IngridDocument jobParams = new IngridDocument();
 			jobParams.put(MdekKeys.FROM_UUID, fromUuid);
 			jobParams.put(MdekKeys.TO_UUID, toUuid);
 			jobParams.put(MdekKeys.REQUESTINFO_COPY_SUBTREE, copySubtree);
-			jobParams.put(MdekKeys.REQUESTINFO_COPY_TO_FREE_ADDRESS, copyToFreeAddress);
+			jobParams.put(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS, copyToFreeAddress);
 			jobParams.put(MdekKeys.USER_ID, userId);
 			List jobMethods = setUpJobMethod("copyAddress", jobParams);
 
@@ -311,6 +312,22 @@ public class MdekCaller implements IMdekCaller {
 
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
+	public IngridDocument moveAddress(String fromUuid, String toUuid,
+			boolean performSubtreeCheck,
+			boolean moveToFreeAddress,
+			String userId)
+	{
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
+		jobParams.put(MdekKeys.TO_UUID, toUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_PERFORM_CHECK, performSubtreeCheck);
+		jobParams.put(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS, moveToFreeAddress);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("moveAddress", jobParams);
+
+		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+	}
+
 
 	public IngridDocument getInitialObject(IngridDocument newBasicObject,
 			String userId) {

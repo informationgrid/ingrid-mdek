@@ -320,7 +320,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
 		moveObject(newObjUuid, newParentUuid, true, false);
 		System.out.println("\n----- check new object subtree -----");
-		checkObjectSubTree(newParentUuid);
+		checkObjectSubTree(newObjUuid);
 		System.out.println("\n\n----- delete subtree -----");
 		deleteObject(subtreeCopyUuid);
 		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");

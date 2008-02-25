@@ -67,8 +67,8 @@ public interface IMdekCallerAddress {
 	/**
 	 * DELETE ONLY WORKING COPY.
 	 * Notice: If no published version exists the address is deleted completely, meaning non existent afterwards
-	 * (including all subobjects !)
-	 * @param uuid object uuid
+	 * (including all subaddresses !)
+	 * @param uuid address uuid
 	 * @return response containing result: map containing info whether address was fully deleted
 	 */
 	IngridDocument deleteAddressWorkingCopy(String uuid,
@@ -93,4 +93,21 @@ public interface IMdekCallerAddress {
 			boolean copySubtree, boolean copyToFreeAddress,
 			String userId);
 
+	/**
+	 * Move an address with its subtree to another parent.
+	 * @param fromUuid uuid of node to move (this one will be removed from its parent)
+	 * @param toUuid uuid of new parent
+	 * @param performSubtreeCheck
+	 * 	true=check whether move is possible (e.g. subtree contains no working copies)<br>
+	 * 	false=no check, move subtree as it is -> <code>checkAddressSubTree</code> should be
+	 * 	called before moving !
+	 * @param moveToFreeAddress<br>
+	 * 		true=moved node is free address, parent has to be null<br>
+	 * 		false=moved node is NOT free address, parent can be set, when parent is null
+	 * 		copy is "normal" top address
+	 * @return response containing result: map containing info (number of moved addresses ...)
+	 */
+	IngridDocument moveAddress(String fromUuid, String toUuid,
+			boolean performSubtreeCheck, boolean moveToFreeAddress,
+			String userId);
 }

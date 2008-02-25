@@ -106,9 +106,9 @@ class MdekExampleAddressThread extends Thread {
 
 		// TOP ADDRESS
 		String topUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
-		// PARENT ADDRESS
+		// PARENT ADDRESS (sub address of topUuid)
 		String parentUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
-		// PERSON ADDRESS
+		// PERSON ADDRESS (sub address of parentUuid)
 		String personUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 
 		// FREE ADDRESS
@@ -238,7 +238,33 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n\n----- verify copied sub addresses -> load children of copy -----");
 		fetchSubAddresses(subtreeCopyUuid);
 
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("MOVE TEST");
+		System.out.println("=========================");
 
+		System.out.println("\n\n----- move new address WITHOUT CHECK WORKING COPIES -> ERROR (not published yet) -----");
+		String oldParentUuid = parentUuid;
+		String newParentUuid = topUuid;
+		moveAddress(newAdrUuid, newParentUuid, false, false);
+/*
+		System.out.println("\n----- publish new address -> create pub version/delete work version -----");
+		publishAddress(aMapNew, true, true);
+		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
+		moveAddress(newAdrUuid, newParentUuid, true, false);
+		System.out.println("\n----- check new address subtree -----");
+		checkAddressSubTree(newAdrUuid);
+		System.out.println("\n\n----- delete subtree -----");
+		deleteAddress(subtreeCopyUuid);
+		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
+		moveAddress(newAdrUuid, newParentUuid, true, false);
+		System.out.println("\n----- verify old parent subaddresses (cut) -----");
+		fetchSubAddresses(oldParentUuid);
+		System.out.println("\n----- verify new parent subaddresses (added) -----");
+		fetchSubAddresses(newParentUuid);
+		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
+		moveAddress(topUuid, parentUuid, false);
+*/
 		// -----------------------------------
 
 		// ===================================
@@ -579,7 +605,7 @@ class MdekExampleAddressThread extends Thread {
 	}
 
 	private IngridDocument copyAddress(String fromUuid, String toUuid,
-		boolean copySubtree, boolean copyToFreeAddress) 
+		boolean copySubtree, boolean copyToFreeAddress)
 	{
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
@@ -601,6 +627,36 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
 			System.out.println("Copy Node (rudimentary): ");
 			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument moveAddress(String fromUuid, String toUuid,
+			boolean performSubtreeCheck, boolean moveToFreeAddress)
+	{
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String performCheckInfo = (performSubtreeCheck) ? "WITH CHECK SUBTREE (working copies)" 
+			: "WITHOUT CHECK SUBTREE (working copies)";
+		String moveToFreeAddressInfo = (moveToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
+		System.out.println("\n###### INVOKE moveAddress " + performCheckInfo + moveToFreeAddressInfo + "######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.moveAddress(fromUuid, toUuid, performSubtreeCheck, moveToFreeAddress, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
+			System.out.println(result);
 		} else {
 			handleError(response);
 		}

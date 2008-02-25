@@ -19,9 +19,9 @@ public class MdekKeys {
     /** Also copy subtree when an entity is copied ? 
      *  Value: Boolean */
     public final static String REQUESTINFO_COPY_SUBTREE = "requestinfo_copySubtree";
-    /** Address copy is a "free address" ? 
+    /** when copying or moving address indicates whether copy/move is to a "free address" ? 
      *  Value: Boolean */
-    public final static String REQUESTINFO_COPY_TO_FREE_ADDRESS = "requestinfo_copyToFreeAddress";
+    public final static String REQUESTINFO_TARGET_IS_FREE_ADDRESS = "requestinfo_targetIsFreeAddress";
     /** Perform check before executing requested action ? (e.g. when moving node check
      * whether subnodes don't have working copy)
      *  Value: Boolean */
