@@ -43,7 +43,9 @@ public interface IMdekErrors {
 		/** when free address is NOT a root node */
 		FREE_ADDRESS_WITH_PARENT("41"),
 		/** when free address has subnodes (e.g. copy of node with subnodes to free address) */
-		FREE_ADDRESS_WITH_SUBTREE("42");
+		FREE_ADDRESS_WITH_SUBTREE("42"),
+		/** for all type of address type conflicts, e.g. when child type doesn't fit to parent ... */
+		ADDRESS_TYPE_CONFLICT("43");
 
 		MdekError(String errorCode) {
 			this.errorCode = errorCode;

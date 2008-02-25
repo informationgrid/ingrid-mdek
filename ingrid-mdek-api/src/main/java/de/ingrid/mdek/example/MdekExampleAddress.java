@@ -163,7 +163,7 @@ class MdekExampleAddressThread extends Thread {
 		newAdrDoc.put(MdekKeys.NAME, "testNAME");
 		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
-		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.PERSON.getDbValue());
+		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
 
 		// new parent
 		System.out.println("- store under parent: " + parentUuid);
@@ -247,9 +247,9 @@ class MdekExampleAddressThread extends Thread {
 		String oldParentUuid = parentUuid;
 		String newParentUuid = topUuid;
 		moveAddress(newAdrUuid, newParentUuid, false, false);
-/*
 		System.out.println("\n----- publish new address -> create pub version/delete work version -----");
-		publishAddress(aMapNew, true, true);
+		publishAddress(aMapNew, true, false);
+/*
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
 		moveAddress(newAdrUuid, newParentUuid, true, false);
 		System.out.println("\n----- check new address subtree -----");
@@ -647,7 +647,7 @@ class MdekExampleAddressThread extends Thread {
 		String performCheckInfo = (performSubtreeCheck) ? "WITH CHECK SUBTREE (working copies)" 
 			: "WITHOUT CHECK SUBTREE (working copies)";
 		String moveToFreeAddressInfo = (moveToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
-		System.out.println("\n###### INVOKE moveAddress " + performCheckInfo + moveToFreeAddressInfo + "######");
+		System.out.println("\n###### INVOKE moveAddress " + performCheckInfo + moveToFreeAddressInfo + " ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCaller.moveAddress(fromUuid, toUuid, performSubtreeCheck, moveToFreeAddress, myUserId);
 		endTime = System.currentTimeMillis();
@@ -661,6 +661,43 @@ class MdekExampleAddressThread extends Thread {
 			handleError(response);
 		}
 		
+		return result;
+	}
+
+	private IngridDocument publishAddress(IngridDocument aDocIn,
+			boolean withRefetch, boolean isFreeAddress) {
+		if (aDocIn == null) {
+			return null;
+		}
+
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String withRefetchInfo = (withRefetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		String isFreeAddressInfo = (isFreeAddress) ? " / IS FREE ADDRESS" : " / IS NOT FREE ADDRESS";
+		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + isFreeAddressInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.publishAddress(aDocIn, withRefetch, isFreeAddress, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			String uuid = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuid);
+			if (withRefetch) {
+				debugAddressDoc(result);
+			}
+		} else {
+			handleError(response);
+		}
+
 		return result;
 	}
 
