@@ -249,11 +249,11 @@ class MdekExampleAddressThread extends Thread {
 		moveAddress(newAdrUuid, newParentUuid, false, false);
 		System.out.println("\n----- publish new address -> create pub version/delete work version -----");
 		publishAddress(aMapNew, true);
-/*
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
 		moveAddress(newAdrUuid, newParentUuid, true, false);
 		System.out.println("\n----- check new address subtree -----");
 		checkAddressSubTree(newAdrUuid);
+/*
 		System.out.println("\n\n----- delete subtree -----");
 		deleteAddress(subtreeCopyUuid);
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
@@ -571,6 +571,31 @@ class MdekExampleAddressThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument checkAddressSubTree(String uuid) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE checkAddressSubTree ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.checkAddressSubTree(uuid, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
 		} else {
 			handleError(response);
 		}

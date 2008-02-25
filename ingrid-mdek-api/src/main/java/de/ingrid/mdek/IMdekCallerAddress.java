@@ -121,4 +121,14 @@ public interface IMdekCallerAddress {
 	IngridDocument moveAddress(String fromUuid, String toUuid,
 			boolean performSubtreeCheck, boolean moveToFreeAddress,
 			String userId);
+
+	/**
+	 * Check whether operations (move,copy) with the subtree of the given address
+	 * are permitted or prohibited (e.g. no rights, subtree has working copies ...)
+	 * @param uuid address uuid of top node
+	 * @return response containing result: map containing info about examination
+	 * (has working copies, uuid of found working copy, number checked addresses ...)
+	 */
+	IngridDocument checkAddressSubTree(String uuid,
+			String userId);
 }
