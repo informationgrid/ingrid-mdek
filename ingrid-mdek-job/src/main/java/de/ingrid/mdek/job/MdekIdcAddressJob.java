@@ -309,7 +309,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Integer childType = (Integer) aDocIn.get(MdekKeys.CLASS);
 			// additional info
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
-			Boolean isFreeAddress = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 
 			// set common data to transfer
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
@@ -363,7 +362,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.makePersistent(aNode);
 
 			// PERFORM CHECKS BEFORE COMMITTING !!!
-			checkAddressNodeForPublish(aNode, isFreeAddress);			
+			checkAddressNodeForPublish(aNode);			
 			// checks ok !
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -772,13 +771,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * (e.g. check free address conditions ...). CHECKS PUBLISHED VERSION IN NODE !
 	 * Throws MdekException if not valid.
 	 */
-	private void checkAddressNodeForPublish(AddressNode node,
-		Boolean isFreeAddress)
+	private void checkAddressNodeForPublish(AddressNode node)
 	{
 		if (node == null) {
 			throw new MdekException(MdekError.UUID_NOT_FOUND);
 		}
 
+		AddressType nodeType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
+				node.getT02AddressPublished().getAdrType());
+		boolean isFreeAddress = (nodeType == AddressType.FREI);
 		String parentUuid = node.getFkAddrUuid();
 
 		// basic free address checks
@@ -816,9 +817,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 
 		// check address type conflicts !
-		AddressType type = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
-				node.getT02AddressPublished().getAdrType());
-		checkAddressTypes(parentType, type, isFreeAddress, true);
+		checkAddressTypes(parentType, nodeType, isFreeAddress, true);
 	}
 
 	/** Check whether passed nodes are valid for copy operation
@@ -969,13 +968,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * @param parentType pass null if no parent (top node). 
 	 * @param childType type of child
 	 * @param finalIsFreeAddress finally child should be free address (under the free address node) ?
-	 * @param finalState <br>
-	 * 		true=both types are already final state<br>
-	 * 		false=types are state before copy or move operation (pre check)
+	 * @param isFinalState <br>
+	 * 		true=both types are already in final state<br>
+	 * 		false=types are in state before copy or move operation (pre check)
 	 */
 	private void checkAddressTypes(AddressType parentType, AddressType childType,
 			boolean finalIsFreeAddress,
-			boolean finalState) {
+			boolean isFinalState) {
 		if (childType == null) {
 			throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
 		}
@@ -986,8 +985,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			if (parentType != null) {
 				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
 			}
-			if (finalState) {
-				if (childType == AddressType.FREI) {
+			if (isFinalState) {
+				if (childType != AddressType.FREI) {
 					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
 				}
 			} else {
@@ -1003,7 +1002,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			if (parentType == AddressType.FREI) {
 				throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);					
 			}
-			if (finalState) {
+			if (isFinalState) {
 				if (childType == AddressType.FREI) {
 					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
 				}
