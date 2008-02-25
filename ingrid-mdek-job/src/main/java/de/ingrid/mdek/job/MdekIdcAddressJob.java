@@ -46,7 +46,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Boolean onlyFreeAddressesIn = (Boolean) params.get(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES);
 			boolean onlyFreeAddresses = (onlyFreeAddressesIn == null) ? false : onlyFreeAddressesIn;
 
-			// fetch top Objects
+			// fetch top Addresses
 			List<AddressNode> aNs = daoAddressNode.getTopAddresses(onlyFreeAddresses);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNs.size());
@@ -262,6 +262,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// PERFORM CHECKS
 			// check: "free address" has to be root node
 			checkFreeAddress(aWork, aNode.getFkAddrUuid());
+			
+			// TODO: check AddressType compatibilities !?
 
 			// store when ok
 			daoT02Address.makePersistent(aWork);
@@ -306,11 +308,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
-			Boolean copyToFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_TO_FREE_ADDRESS);
+			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 
 			// copy fromNode
 			IngridDocument copyResult = createAddressNodeCopy(fromUuid, toUuid,
-					copySubtree, copyToFreeAddress, userId);
+					copySubtree, targetIsFreeAddress, userId);
 			AddressNode fromNodeCopy = (AddressNode) copyResult.get(MdekKeys.ADR_ENTITIES);
 			Integer numCopiedAddresses = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
 			if (log.isDebugEnabled()) {
@@ -331,6 +333,50 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.commitTransaction();
 			return resultDoc;		
 		
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	/** Move Address with its subtree to new parent. */
+	public IngridDocument moveAddress(IngridDocument params) {
+		String userId = getCurrentUserId(params);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
+
+			Boolean performSubtreeCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
+			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
+			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
+			String toUuid = (String) params.get(MdekKeys.TO_UUID);
+
+			daoAddressNode.beginTransaction();
+
+			// PERFORM CHECKS
+
+			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid);
+			checkAddressNodesForMove(fromNode, toUuid, performSubtreeCheck, targetIsFreeAddress);
+
+			// CHECKS OK, proceed
+
+			// set new parent, may be null, then top node !
+			fromNode.setFkAddrUuid(toUuid);		
+			daoAddressNode.makePersistent(fromNode);
+
+			// change date and mod_uuid of all moved nodes !
+			IngridDocument result = processMovedNodes(fromNode, userId);
+
+			daoAddressNode.commitTransaction();
+			return result;		
+
 		} catch (RuntimeException e) {
 			daoAddressNode.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
@@ -453,7 +499,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// further checks
 		AddressNode sourceNode = daoAddressNode.loadByUuid(sourceUuid);
 		checkAddressNodesForCopy(sourceNode, newParentNode, copySubtree, copyToFreeAddress);
-
 
 		// refine running jobs info
 		int totalNumToCopy = 1;
@@ -611,6 +656,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		return true;
 	}
 
+	private boolean hasChildren(AddressNode node) {
+    	return (node.getAddressNodeChildren().size() > 0) ? true : false;
+	}
+
 	/** Check whether passed nodes are valid for copy operation
 	 * (e.g. check free address conditions ...). Throws MdekException if not valid.
 	 */
@@ -631,6 +680,112 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				throw new MdekException(MdekError.FREE_ADDRESS_WITH_SUBTREE);
 			}
 		}
+
+		// TODO: check AddressType compatibilities !?
+	}
+
+	/** Check whether passed nodes are valid for move operation
+	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
+	 */
+	private void checkAddressNodesForMove(AddressNode fromNode, String toUuid,
+		Boolean performSubtreeCheck,
+		Boolean moveToFreeAddress)
+	{
+		if (fromNode == null) {
+			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+		}		
+		String fromUuid = fromNode.getAddrUuid();
+
+		// nodes to move must be published !
+		T02Address fromAddr = fromNode.getT02AddressPublished();
+		if (fromAddr == null) {
+			throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+		}
+
+		// perform additional check whether subnodes have working copies -> not allowed
+		if (performSubtreeCheck) {
+			IngridDocument checkResult = checkAddressSubTreeWorkingCopies(fromUuid);
+			if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
+				throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
+			}
+		}
+
+		// NOTICE: top node when toUuid = null
+		if (toUuid != null) {
+			// load toNode
+			AddressNode toNode = daoAddressNode.loadByUuid(toUuid);
+			if (toNode == null) {
+				throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+			}		
+
+			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
+			T02Address toAddr = toNode.getT02AddressPublished();
+			if (toAddr == null) {
+				throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+			}
+
+			// is target subnode ?
+			if (daoAddressNode.isSubNode(toUuid, fromUuid)) {
+				throw new MdekException(MdekError.TARGET_IS_SUBNODE_OF_SOURCE);				
+			}
+
+			// rudimentary checks
+			if (moveToFreeAddress) {
+				if (toNode != null) {
+					throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+				}
+				if (hasChildren(fromNode)) {
+					throw new MdekException(MdekError.FREE_ADDRESS_WITH_SUBTREE);
+				}
+			}
+
+			// TODO: check AddressType compatibilities !?
+		}
+	}
+
+	/** Checks whether subtree of address has working copies. */
+	private IngridDocument checkAddressSubTreeWorkingCopies(String rootUuid) {
+		// load "root"
+		AddressNode rootNode = daoAddressNode.loadByUuid(rootUuid);
+		if (rootNode == null) {
+			throw new MdekException(MdekError.UUID_NOT_FOUND);
+		}
+
+		// traverse iteratively via stack
+		Stack<AddressNode> stack = new Stack<AddressNode>();
+		stack.push(rootNode);
+
+		boolean hasWorkingCopy = false;
+		String uuidOfWorkingCopy = null;
+		int numberOfCheckedAddr = 0;
+		while (!hasWorkingCopy && !stack.isEmpty()) {
+			AddressNode node = stack.pop();
+			
+			// check
+			numberOfCheckedAddr++;
+			if (!node.getAddrId().equals(node.getAddrIdPublished())) {
+				hasWorkingCopy = true;
+				uuidOfWorkingCopy = node.getAddrUuid();
+			}
+
+			if (!hasWorkingCopy) {
+				List<AddressNode> subNodes =
+					daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
+				for (AddressNode subNode : subNodes) {
+					stack.push(subNode);
+				}					
+			}
+		}
+		if (log.isDebugEnabled()) {
+			log.debug("Number of checked addresses: " + numberOfCheckedAddr);
+		}
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_HAS_WORKING_COPY, hasWorkingCopy);
+		result.put(MdekKeys.RESULTINFO_UUID_OF_FOUND_ENTITY, uuidOfWorkingCopy);
+		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCheckedAddr);
+
+		return result;		
 	}
 
 	/** Checks whether address is "free address" and valid (free addresses have NO parent). */
@@ -641,5 +796,52 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
 			}
 		}
+	}
+
+	/**
+	 * Process the moved tree, meaning set modification date and user in every node ...
+	 * NOTICE: There should be NO Working Copies in Tree Nodes (checked before move) 
+	 * @param rootNode root node of moved tree
+	 * @param modUuid user uuid to set as modification user
+	 * @return doc containing additional info (number processed nodes ...)
+	 */
+	private IngridDocument processMovedNodes(AddressNode rootNode, String modUuid)
+	{
+		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+
+		// process iteratively via stack to avoid recursive stack overflow
+		Stack<AddressNode> stack = new Stack<AddressNode>();
+		stack.push(rootNode);
+
+		int numberOfProcessedNodes = 0;
+		while (!stack.isEmpty()) {
+			AddressNode node = stack.pop();
+			
+			// Publish Version should be set ! (No work version allowed, when check was performed before)
+			T02Address addr = node.getT02AddressPublished();
+			if (addr == null) {
+				throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+			}
+			addr.setModTime(currentTime);
+			// TODO: set modUuid
+//			addr.setModUuid(modUuid);
+
+			daoT02Address.makePersistent(addr);
+			numberOfProcessedNodes++;
+
+			List<AddressNode> subNodes = daoAddressNode.getSubAddresses(node.getAddrUuid(), true);
+			for (AddressNode subNode : subNodes) {
+				// add to stack, will be processed
+				stack.push(subNode);
+			}
+		}
+		
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfProcessedNodes);
+		if (log.isDebugEnabled()) {
+			log.debug("Number of processed addresses: " + numberOfProcessedNodes);
+		}
+
+		return result;
 	}
 }
