@@ -485,6 +485,36 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+
+	/** Checks whether subtree of address has working copies. */
+	public IngridDocument checkAddressSubTree(IngridDocument params) {
+		String userId = getCurrentUserId(params);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_CHECK, 0, 1, false));
+
+			String rootUuid = (String) params.get(MdekKeys.UUID);
+
+			daoAddressNode.beginTransaction();
+
+			IngridDocument checkResult = checkAddressSubTreeWorkingCopies(rootUuid);
+
+			daoAddressNode.commitTransaction();
+			return checkResult;		
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
 	/**
 	 * DELETE ONLY WORKING COPY.
 	 * Notice: If no published version exists the address is deleted completely, meaning non existent afterwards
