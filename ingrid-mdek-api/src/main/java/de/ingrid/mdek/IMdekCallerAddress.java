@@ -61,16 +61,11 @@ public interface IMdekCallerAddress {
 	 * @param addrDoc map representation of address.
 	 * 		If no id/uuid is set address will be created else updated.
 	 * @param refetchAfterStore true=fetch and return address after store, false=no fetch, just store
-	 * @param isFreeAddress<br>
-	 * 		true=published node is free address, parent has to be null etc.<br>
-	 * 		false=published node is NOT free address, parent can be set, when parent is null
-	 * 		node is "normal" top address
 	 * @return response containing result: map representation of created/updated address when refetching,
 	 * 		otherwise map containing uuid of stored address (was generated when new address)  
 	 */
 	IngridDocument publishAddress(IngridDocument addrDoc,
-			boolean refetchAfterStore, boolean isFreeAddress,
-			String userId);
+			boolean refetchAfterStore, String userId);
 
 	/**
 	 * Get initial data for a new address. Pass data needed to determine initial data (e.g. uuid of parent).

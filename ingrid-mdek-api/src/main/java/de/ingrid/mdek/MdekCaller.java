@@ -171,10 +171,9 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 	public IngridDocument publishAddress(IngridDocument addrDoc,
-			boolean refetchAfterStore, boolean isFreeAddress,
+			boolean refetchAfterStore,
 			String userId) {
 		addrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		addrDoc.put(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS, isFreeAddress);
 		addrDoc.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("publishAddress", addrDoc);
 		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);

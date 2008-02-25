@@ -248,7 +248,7 @@ class MdekExampleAddressThread extends Thread {
 		String newParentUuid = topUuid;
 		moveAddress(newAdrUuid, newParentUuid, false, false);
 		System.out.println("\n----- publish new address -> create pub version/delete work version -----");
-		publishAddress(aMapNew, true, false);
+		publishAddress(aMapNew, true);
 /*
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
 		moveAddress(newAdrUuid, newParentUuid, true, false);
@@ -665,7 +665,7 @@ class MdekExampleAddressThread extends Thread {
 	}
 
 	private IngridDocument publishAddress(IngridDocument aDocIn,
-			boolean withRefetch, boolean isFreeAddress) {
+			boolean withRefetch) {
 		if (aDocIn == null) {
 			return null;
 		}
@@ -678,10 +678,9 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument result;
 
 		String withRefetchInfo = (withRefetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		String isFreeAddressInfo = (isFreeAddress) ? " / IS FREE ADDRESS" : " / IS NOT FREE ADDRESS";
-		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + isFreeAddressInfo + " ######");
+		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.publishAddress(aDocIn, withRefetch, isFreeAddress, myUserId);
+		response = mdekCaller.publishAddress(aDocIn, withRefetch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
