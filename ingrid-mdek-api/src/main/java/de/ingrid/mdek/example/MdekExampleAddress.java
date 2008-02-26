@@ -170,7 +170,7 @@ class MdekExampleAddressThread extends Thread {
 		newAdrDoc.put(MdekKeys.PARENT_UUID, parentUuid);
 		IngridDocument aMapNew = storeAddressWithManipulation(newAdrDoc);
 		// uuid created !
-		String newAdrUuid = (String) aMapNew.get(MdekKeys.UUID);
+		String newAddrUuid = (String) aMapNew.get(MdekKeys.UUID);
 
 		System.out.println("\n----- verify new subaddress -> load parent subaddresses -----");
 		fetchSubAddresses(parentUuid);
@@ -231,10 +231,10 @@ class MdekExampleAddressThread extends Thread {
 		deleteAddressWorkingCopy(copy3Uuid);
 
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new address below new address (WITH sub tree) -----");
-		IngridDocument subtreeCopyDoc = copyAddress(parentUuid, newAdrUuid, true, false);
+		IngridDocument subtreeCopyDoc = copyAddress(parentUuid, newAddrUuid, true, false);
 		String subtreeCopyUuid = subtreeCopyDoc.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy -> load children of new address -----");
-		fetchSubAddresses(newAdrUuid);
+		fetchSubAddresses(newAddrUuid);
 		System.out.println("\n\n----- verify copied sub addresses -> load children of copy -----");
 		fetchSubAddresses(subtreeCopyUuid);
 
@@ -246,17 +246,17 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n\n----- move new address WITHOUT CHECK WORKING COPIES -> ERROR (not published yet) -----");
 		String oldParentUuid = parentUuid;
 		String newParentUuid = topUuid;
-		moveAddress(newAdrUuid, newParentUuid, false, false);
+		moveAddress(newAddrUuid, newParentUuid, false, false);
 		System.out.println("\n----- publish new address -> create pub version/delete work version -----");
 		publishAddress(aMapNew, true);
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
-		moveAddress(newAdrUuid, newParentUuid, true, false);
+		moveAddress(newAddrUuid, newParentUuid, true, false);
 		System.out.println("\n----- check new address subtree -----");
-		checkAddressSubTree(newAdrUuid);
+		checkAddressSubTree(newAddrUuid);
 		System.out.println("\n\n----- delete subtree -----");
 		deleteAddress(subtreeCopyUuid);
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
-		moveAddress(newAdrUuid, newParentUuid, true, false);
+		moveAddress(newAddrUuid, newParentUuid, true, false);
 		System.out.println("\n----- verify old parent subaddresses (cut) -----");
 		fetchSubAddresses(oldParentUuid);
 		System.out.println("\n----- verify new parent subaddresses (added) -----");
@@ -265,6 +265,20 @@ class MdekExampleAddressThread extends Thread {
 		moveAddress(topUuid, parentUuid, false, false);
 		System.out.println("\n----- do \"forbidden\" move (institution to free address) -----");
 		moveAddress(topUuid, null, false, true);
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("DELETE TEST");
+		System.out.println("=========================");
+
+		System.out.println("\n----- delete new address (WORKING COPY) -> NO full delete -----");
+		deleteAddressWorkingCopy(newAddrUuid);
+		System.out.println("\n----- delete new address (FULL) -> full delete -----");
+		deleteAddress(newAddrUuid);
+		System.out.println("\n----- verify deletion of new address -----");
+		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
+		fetchSubAddresses(newParentUuid);
 
 		// -----------------------------------
 
