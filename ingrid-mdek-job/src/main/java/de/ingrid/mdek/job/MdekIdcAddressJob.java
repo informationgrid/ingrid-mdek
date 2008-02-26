@@ -580,6 +580,37 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	/**
+	 * FULL DELETE: working copy and published version are removed INCLUDING subaddresses !
+	 * Address is non existent afterwards !
+	 */
+	public IngridDocument deleteAddress(IngridDocument params) {
+		String userId = getCurrentUserId(params);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+
+			daoAddressNode.beginTransaction();
+			String uuid = (String) params.get(MdekKeys.UUID);
+
+			IngridDocument result = deleteAddress(uuid);
+
+			daoAddressNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
 	private IngridDocument deleteAddress(String uuid) {
 		// NOTICE: this one also contains Parent Association !
 		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
