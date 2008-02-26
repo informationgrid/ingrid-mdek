@@ -140,4 +140,17 @@ public interface IMdekCallerAddress {
 	 */
 	IngridDocument checkAddressSubTree(String uuid,
 			String userId);
+
+	/**
+	 * Search Addresses according to given parameters in map.
+	 * @param searchParams search parameters (Key:Value pairs in map)
+	 * @param startHit hit to start with (first hit is 0) 
+	 * @param numHits number of hits requested, beginning from startHit
+	 * @param userId
+	 * @return response containing result: map containing hits and additional
+	 * info (total number of hits)
+	 */
+	IngridDocument searchAddresses(IngridDocument searchParams,
+			int startHit, int numHits,
+			String userId);
 }

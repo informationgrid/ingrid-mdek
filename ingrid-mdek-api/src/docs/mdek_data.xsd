@@ -12,6 +12,7 @@
 			<xs:element name="language-code" type="xs:integer"/>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
+			<xs:element name="SEARCH_MAP" type="SEARCH_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -25,6 +26,7 @@
 			<xs:element name="RESULT_SYS_LIST_MAP" type="RESULT_SYS_LIST_MAP"/>
 			<xs:element name="CATALOG_MAP" type="CATALOG_MAP"/>
 			<xs:element name="RUNNING_JOBS_INFO_MAP" type="RUNNING_JOBS_INFO_MAP"/>
+			<xs:element name="SEARCH_RESULT_MAP" type="SEARCH_RESULT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -162,6 +164,20 @@
 			<xs:element name="requestinfo_targetIsFreeAddress" type="xs:boolean"/>
 		</xs:all>
 	</xs:complexType>	
+	<xs:complexType name="SEARCH_MAP">
+		<xs:all>
+			<xs:element name="search-start-hit" type="xs:integer"/>
+			<xs:element name="search-num-hits" type="xs:integer"/>
+			<xs:element name="search-params" type="SEARCH_PARAMS_MAP"/>
+		</xs:all>
+	</xs:complexType>	
+	<xs:complexType name="SEARCH_PARAMS_MAP">
+		<xs:all>
+			<xs:element name="organisation" type="xs:string"/>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="given-name" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>	
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">
 		<xs:all>
 			<xs:element name="resultinfo_wasFullyDeleted" type="xs:boolean"/>
@@ -170,6 +186,14 @@
 			<xs:element name="resultinfo_uuidOfFoundEntity" type="UUID"/>
 		</xs:all>
 	</xs:complexType>
+	<xs:complexType name="SEARCH_RESULT_MAP">
+		<xs:all>
+			<xs:element name="search-num-hits" type="xs:integer"/>
+			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
+			<xs:element name="search-total-num-hits" type="xs:long"/>
+		</xs:all>
+	</xs:complexType>	
+
 	<xs:complexType name="RUNNING_JOBS_INFO_MAP">
 		<xs:all>
 			<xs:element name="runningjob-description" type="xs:string"/>

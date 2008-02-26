@@ -36,6 +36,24 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String LANGUAGE_CODE = "language-code";
 
+    // SEARCH
+    // ------
+    // REQUEST
+    /** hit to start with (first hit == 0)<br>Value: Integer */
+    public final static String SEARCH_START_HIT = "search-start-hit";
+    /** number of hits requested starting at start hit<br>Value: Integer */
+    public final static String SEARCH_NUM_HITS = "search-num-hits";
+    /** Value: IngridDocument encapsulating all search parameters in REQUEST */
+    public final static String SEARCH_PARAMS = "search-params";
+
+    // RESULT
+    /** total number of hits<br>Value: Long */
+    public final static String SEARCH_TOTAL_NUM_HITS = "search-total-num-hits";
+//    /** number of hits delivered in result */
+//    public final static String SEARCH_NUM_HITS = "search-num-hits";
+//    /** delivered hits<br>Value: List of IngridDocs */
+//    public final static String ADR_ENTITIES = "adrEntities";
+
     // SYS LISTS
     // -----------
 

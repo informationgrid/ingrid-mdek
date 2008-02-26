@@ -113,7 +113,7 @@ class MdekExampleAddressThread extends Thread {
 
 		// FREE ADDRESS
 		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
-		
+/*		
 		// ===================================
 		System.out.println("\n----- top addresses -----");
 		fetchTopAddresses(true);
@@ -294,9 +294,9 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- publish NEW SUB ADDRESS immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc.put(MdekKeys.ORGANISATION, "TEST NEW SUB ADDRESS DIRECT PUBLISH");
-		newAdrDoc.put(MdekKeys.NAME, "testNAME");
-		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
-		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
+		newPubDoc.put(MdekKeys.NAME, "testNAME");
+		newPubDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newPubDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newPubDoc.put(MdekKeys.CLASS, AddressType.PERSON.getDbValue());
 		// sub address of unpublished parent !!!
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
@@ -322,6 +322,18 @@ class MdekExampleAddressThread extends Thread {
 		deleteAddress(pub2Uuid);
 		System.out.println("\n----- delete 1. published copy = sub-address (FULL) -----");
 		deleteAddress(pub1Uuid);
+*/
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("SEARCH TEST");
+		System.out.println("=========================");
+
+		System.out.println("\n----- search address by orga, name, given-name -----");
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.ORGANISATION, "Bezirksregierung");
+//		searchParams.put(MdekKeys.NAME, "Dahlmann");
+//		searchParams.put(MdekKeys.GIVEN_NAME, "Irene");
+		searchAddress(searchParams, 0, 10);
 
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();
@@ -800,6 +812,46 @@ class MdekExampleAddressThread extends Thread {
 			if (withRefetch) {
 				debugAddressDoc(result);
 			}
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument searchAddress(IngridDocument searchParams,
+			int startHit, int numHits) {
+		if (searchParams == null) {
+			return null;
+		}
+
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE searchAddress ######");
+		System.out.println("- startHit:" + startHit);
+		System.out.println("- numHits:" + numHits);
+		System.out.println("- searchParams:" + searchParams);
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.searchAddresses(searchParams, startHit, numHits, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			System.out.println("SUCCESS: " + l.size() + " Entities out of " + totalNumHits);
+			doFullOutput = false;
+			for (IngridDocument a : l) {
+				debugAddressDoc(a);
+			}
+			doFullOutput = true;
 		} else {
 			handleError(response);
 		}
