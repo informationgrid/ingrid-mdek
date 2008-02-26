@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="Group" table="group">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="name" type="string" column="name"/>
+      <property name="createTime" type="string" column="create_time"/>
+      <property name="modTime" type="string" column="mod_time"/>
+      <property name="modUuid" type="string" column="mod_uuid"/>
+
+      <set name="permissionAddrs" table="permission_addr" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="group_id"/>
+         <one-to-many class="PermissionAddr" not-found="ignore"/>
+      </set>
+      <set name="permissionObjs" table="permission_obj" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="group_id"/>
+         <one-to-many class="PermissionObj" not-found="ignore"/>
+      </set>
+   </class>
+
+</hibernate-mapping>

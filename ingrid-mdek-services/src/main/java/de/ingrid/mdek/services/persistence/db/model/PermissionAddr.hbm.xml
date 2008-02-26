@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="PermissionAddr" table="permission_addr">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="addrUuid" type="string" column="addr_uuid"/>
+      <property name="permissionId" type="long" column="permission_id"/>
+      <property name="groupId" type="long" column="group_id"/>
+
+      <many-to-one name="permission" class="Permission" column="permission_id" update="false"
+                   insert="false"/>
+   </class>
+
+</hibernate-mapping>
