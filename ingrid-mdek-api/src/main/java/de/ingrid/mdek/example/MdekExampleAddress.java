@@ -253,7 +253,6 @@ class MdekExampleAddressThread extends Thread {
 		moveAddress(newAdrUuid, newParentUuid, true, false);
 		System.out.println("\n----- check new address subtree -----");
 		checkAddressSubTree(newAdrUuid);
-/*
 		System.out.println("\n\n----- delete subtree -----");
 		deleteAddress(subtreeCopyUuid);
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
@@ -263,8 +262,10 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- verify new parent subaddresses (added) -----");
 		fetchSubAddresses(newParentUuid);
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
-		moveAddress(topUuid, parentUuid, false);
-*/
+		moveAddress(topUuid, parentUuid, false, false);
+		System.out.println("\n----- do \"forbidden\" move (institution to free address) -----");
+		moveAddress(topUuid, null, false, true);
+
 		// -----------------------------------
 
 		// ===================================
@@ -596,6 +597,32 @@ class MdekExampleAddressThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument deleteAddress(String uuid) {
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE deleteAddress ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCaller.deleteAddress(uuid, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
 		} else {
 			handleError(response);
 		}

@@ -86,6 +86,15 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
+	 * FULL DELETE: working copy and published version are removed INCLUDING subaddresses !
+	 * Address non existent afterwards !
+	 * @param uuid address uuid
+	 * @return response containing result: map containing info about success
+	 */
+	IngridDocument deleteAddress(String uuid,
+			String userId);
+
+	/**
 	 * Copy an address to another parent.
 	 * @param fromUuid uuid of node to copy
 	 * @param toUuid uuid of parent where to copy to (new subnode)
