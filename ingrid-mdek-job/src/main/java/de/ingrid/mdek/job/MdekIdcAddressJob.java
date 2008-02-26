@@ -485,7 +485,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-
 	/** Checks whether subtree of address has working copies. */
 	public IngridDocument checkAddressSubTree(IngridDocument params) {
 		String userId = getCurrentUserId(params);
@@ -625,6 +624,45 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 
 		return result;
+	}
+
+	public IngridDocument searchAddresses(IngridDocument params) {
+		try {
+			Integer inStartHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
+			Integer inNumHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			IngridDocument inSearchParams = (IngridDocument) params.get(MdekKeys.SEARCH_PARAMS);
+
+			daoAddressNode.beginTransaction();
+
+			long totalNumHits = daoAddressNode.searchTotalNumAddresses(inSearchParams);
+
+			List<AddressNode> hits = new ArrayList<AddressNode>();
+			if (totalNumHits > 0 &&	inStartHit < totalNumHits) {
+				hits = daoAddressNode.searchAddresses(inSearchParams, inStartHit, inNumHits);
+			}
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(hits.size());
+			for (AddressNode hit : hits) {
+				IngridDocument adrDoc = new IngridDocument();
+				beanToDocMapper.mapAddressNode(hit, adrDoc, MappingQuantity.BASIC_ENTITY);
+				beanToDocMapper.mapT02Address(hit.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
+				resultList.add(adrDoc);
+			}
+
+			daoAddressNode.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.ADR_ENTITIES, resultList);
+			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}
 
 	/**
