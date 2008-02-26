@@ -9,12 +9,14 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.MdekException;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.utils.IngridDocument;
 
 /**
  * Hibernate-specific implementation of the <tt>IAddressNodeDao</tt>
@@ -229,5 +231,76 @@ public class AddressNodeDaoHibernate
 		}
 
 		return orgaList;
+	}
+
+	public long searchTotalNumAddresses(IngridDocument searchParams) {
+
+		String institution = searchParams.getString(MdekKeys.ORGANISATION);
+		String lastname = searchParams.getString(MdekKeys.NAME);
+		String firstname = searchParams.getString(MdekKeys.GIVEN_NAME);
+
+		if (institution == null && lastname == null && firstname == null) {
+			return 0;
+		}
+
+		Session session = getSession();
+
+		String qString = "select count(*) from AddressNode aNode " +
+			"inner join aNode.t02AddressWork address " +
+			"where " +
+			// dummy, so we can start with "and"
+			"aNode.id IS NOT NULL ";
+
+		if (institution != null) {
+			qString += "and address.institution LIKE '%" + institution + "%' ";
+		}
+		if (lastname != null) {
+			qString += "and address.lastname LIKE '%" + lastname + "%' ";
+		}
+		if (firstname != null) {
+			qString += "and address.firstname LIKE '%" + firstname + "%' ";
+		}
+
+		Long totalNum = (Long) session.createQuery(qString).uniqueResult();
+
+		return totalNum;
+	}
+
+	public List<AddressNode> searchAddresses(IngridDocument searchParams,
+			int startHit, int numHits) {
+		List<AddressNode> retList = new ArrayList<AddressNode>();
+
+		String institution = searchParams.getString(MdekKeys.ORGANISATION);
+		String lastname = searchParams.getString(MdekKeys.NAME);
+		String firstname = searchParams.getString(MdekKeys.GIVEN_NAME);
+
+		if (institution == null && lastname == null && firstname == null) {
+			return retList;
+		}
+
+		Session session = getSession();
+
+		String qString = "from AddressNode aNode " +
+			"left join fetch aNode.t02AddressWork address " +
+			"where " +
+			// dummy, so we can start with "and"
+			"aNode.id IS NOT NULL ";
+
+		if (institution != null) {
+			qString += "and address.institution LIKE '%" + institution + "%' ";
+		}
+		if (lastname != null) {
+			qString += "and address.lastname LIKE '%" + lastname + "%' ";
+		}
+		if (firstname != null) {
+			qString += "and address.firstname LIKE '%" + firstname + "%' ";
+		}
+
+		// TODO: handle startHit, numHits
+		// TODO: handle order adrType, institution, lastname, firstname
+
+		retList = session.createQuery(qString).list();
+
+		return retList;
 	}
 }

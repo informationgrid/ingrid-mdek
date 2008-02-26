@@ -5,6 +5,7 @@ import java.util.List;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.utils.IngridDocument;
 
 /**
  * Business DAO operations related to the <tt>AddressNode</tt> entity.
@@ -56,4 +57,20 @@ public interface IAddressNodeDao
 
 	/** Fetch Objects referencing the address with the passed uuid */
 	List<ObjectNode> getObjectReferencesFrom(String addressUuid);
+
+	/** Get total number of addresses matching the given search parameters.
+	 * @param searchParams search parameters (Key:Value pairs in map)
+	 * @return number of found addresses
+	 */
+	long searchTotalNumAddresses(IngridDocument searchParams);
+
+	/**
+	 * Search Addresses according to given parameters in map.
+	 * @param searchParams search parameters (Key:Value pairs in map)
+	 * @param startHit hit to start with (first hit is 0) 
+	 * @param numHits number of hits requested, beginning from startHit
+	 * @return list of found addresses
+	 */
+	List<AddressNode> searchAddresses(IngridDocument searchParams,
+			int startHit, int numHits);
 }
