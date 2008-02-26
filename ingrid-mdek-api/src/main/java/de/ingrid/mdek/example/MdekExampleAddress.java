@@ -277,10 +277,51 @@ class MdekExampleAddressThread extends Thread {
 		deleteAddress(newAddrUuid);
 		System.out.println("\n----- verify deletion of new address -----");
 		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
+		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subaddresses -----");
 		fetchSubAddresses(newParentUuid);
 
 		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("PUBLISH TEST");
+		System.out.println("=========================");
+
+		System.out.println("\n----- copy address (without subnodes) -> returns only \"TREE Data\" of copied address -----");
+		addressFrom = newParentUuid;
+		addressTo = topUuid;
+		aMap = copyAddress(addressFrom, addressTo, false, false);
+		String pub1Uuid = aMap.getString(MdekKeys.UUID);
+
+		System.out.println("\n----- publish NEW SUB ADDRESS immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
+		IngridDocument newPubDoc = new IngridDocument();
+		newPubDoc.put(MdekKeys.ORGANISATION, "TEST NEW SUB ADDRESS DIRECT PUBLISH");
+		newAdrDoc.put(MdekKeys.NAME, "testNAME");
+		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
+		newPubDoc.put(MdekKeys.CLASS, AddressType.PERSON.getDbValue());
+		// sub address of unpublished parent !!!
+		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
+		publishAddress(newPubDoc, true);
+
+		System.out.println("\n----- refetch FULL PARENT and change organization, IS UNPUBLISHED !!! -----");
+		aMap = fetchAddress(pub1Uuid, Quantity.DETAIL_ENTITY);
+		aMap.put(MdekKeys.ORGANISATION, "COPIED, Orga CHANGED and PUBLISHED: " + aMap.get(MdekKeys.ORGANISATION));	
+
+		System.out.println("\n----- and publish PARENT -> create pub version/delete work version -----");
+		publishAddress(aMap, true);
+
+		System.out.println("\n----- NOW CREATE AND PUBLISH OF NEW CHILD POSSIBLE -> create pub version, set also as work version -----");
+		aMap = publishAddress(newPubDoc, true);
+		// uuid created !
+		String pub2Uuid = aMap.getString(MdekKeys.UUID);
+
+		System.out.println("\n----- verify -> load sub addresses of parent of copy -----");
+		fetchSubAddresses(addressTo);
+		System.out.println("\n----- delete 1. published copy = sub-address (WORKING COPY) -> NO DELETE -----");
+		deleteAddressWorkingCopy(pub1Uuid);
+		System.out.println("\n----- delete 2. published copy = sub-sub-address (FULL) -----");
+		deleteAddress(pub2Uuid);
+		System.out.println("\n----- delete 1. published copy = sub-address (FULL) -----");
+		deleteAddress(pub1Uuid);
 
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();

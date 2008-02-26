@@ -516,42 +516,6 @@ class MdekExampleObjectThread extends Thread {
 */
 		// -----------------------------------
 
-/*
-		System.out.println("\n###### INVOKE fetchTopAddresses ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchTopAddresses();
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities");
-			for (Object o : l) {
-				System.out.println(o);				
-			}
-		} else {
-			handleError(response);
-		}
-
-		System.out.println("\n###### INVOKE fetchSubAddresses ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchSubAddresses("0DAE03C6-373D-45FE-AF45-4D8359750A08");
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities");
-			for (Object o : l) {
-				System.out.println(o);				
-			}
-		} else {
-			handleError(response);
-		}
-*/
-
 		long exampleEndTime = System.currentTimeMillis();
 		long exampleNeededTime = exampleEndTime - exampleStartTime;
 		System.out.println("EXAMPLE EXECUTION TIME: " + exampleNeededTime + " ms");
