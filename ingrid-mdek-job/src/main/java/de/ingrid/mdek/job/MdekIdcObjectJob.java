@@ -387,6 +387,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				daoObjectNode.beginTransaction();
 				result = getObjDetails(uuid);
 				daoObjectNode.commitTransaction();
+
+				if (log.isDebugEnabled()) {
+					if (!MdekIdcEntityComparer.compareObjectMaps(oDocIn, result, null)) {
+						log.debug("Differences in Documents after publish/refetch detected!");
+					}
+				}
 			}
 			
 			return result;

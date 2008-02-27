@@ -277,6 +277,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				daoAddressNode.beginTransaction();
 				result = getAddrDetails(uuid);
 				daoAddressNode.commitTransaction();
+
+				if (log.isDebugEnabled()) {
+					if (!MdekIdcEntityComparer.compareAddressMaps(aDocIn, result, null)) {
+						log.debug("Differences in Documents after store/refetch detected!");
+					}
+				}
 			}
 			
 			return result;
@@ -375,6 +381,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				daoAddressNode.beginTransaction();
 				result = getAddrDetails(uuid);
 				daoAddressNode.commitTransaction();
+
+				if (log.isDebugEnabled()) {
+					if (!MdekIdcEntityComparer.compareAddressMaps(aDocIn, result, null)) {
+						log.debug("Differences in Documents after publish/refetch detected!");
+					}
+				}
 			}
 			
 			return result;
