@@ -16,19 +16,9 @@
          <list>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
-<!--
-            <value>de/ingrid/mdek/services/persistence/db/model/Group.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/GroupPermission.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/HibernateUniqueKey.hbm.xml</value>
--->
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
-<!--
-            <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/Role.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/RolePermission.hbm.xml</value>
--->
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>
@@ -36,10 +26,6 @@
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefSns.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefValue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialReference.hbm.xml</value>
-<!--
-            <value>de/ingrid/mdek/services/persistence/db/model/SysExport.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/SysGenericKey.hbm.xml</value>
--->
             <value>de/ingrid/mdek/services/persistence/db/model/SysList.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0110AvailFormat.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0112MediaOption.hbm.xml</value>
@@ -73,16 +59,6 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T03Catalogue.hbm.xml</value>
-<!--
-            <value>de/ingrid/mdek/services/persistence/db/model/T08Attr.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrList.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrType.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/User.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/UserGroup.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/UserHierarchy.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/UserPermission.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/UserRole.hbm.xml</value>
--->
          </list>
       </property>
       <property name="entityCacheStrategies">
