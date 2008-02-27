@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
@@ -235,33 +236,18 @@ public class AddressNodeDaoHibernate
 
 	public long searchTotalNumAddresses(IngridDocument searchParams) {
 
-		String institution = searchParams.getString(MdekKeys.ORGANISATION);
-		String lastname = searchParams.getString(MdekKeys.NAME);
-		String firstname = searchParams.getString(MdekKeys.GIVEN_NAME);
-
-		if (institution == null && lastname == null && firstname == null) {
+		String qString = createSearchQueryString(searchParams, true);
+		
+		if (qString == null) {
 			return 0;
 		}
 
+		qString = "select count(*) " + qString;
+
 		Session session = getSession();
 
-		String qString = "select count(*) from AddressNode aNode " +
-			"inner join aNode.t02AddressWork address " +
-			"where " +
-			// dummy, so we can start with "and"
-			"aNode.id IS NOT NULL ";
-
-		if (institution != null) {
-			qString += "and address.institution LIKE '%" + institution + "%' ";
-		}
-		if (lastname != null) {
-			qString += "and address.lastname LIKE '%" + lastname + "%' ";
-		}
-		if (firstname != null) {
-			qString += "and address.firstname LIKE '%" + firstname + "%' ";
-		}
-
-		Long totalNum = (Long) session.createQuery(qString).uniqueResult();
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
 
 		return totalNum;
 	}
@@ -270,37 +256,62 @@ public class AddressNodeDaoHibernate
 			int startHit, int numHits) {
 		List<AddressNode> retList = new ArrayList<AddressNode>();
 
-		String institution = searchParams.getString(MdekKeys.ORGANISATION);
-		String lastname = searchParams.getString(MdekKeys.NAME);
-		String firstname = searchParams.getString(MdekKeys.GIVEN_NAME);
-
-		if (institution == null && lastname == null && firstname == null) {
+		String qString = createSearchQueryString(searchParams, false);
+		
+		if (qString == null) {
 			return retList;
 		}
 
+		qString += "order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+
 		Session session = getSession();
 
+		retList = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		return retList;
+	}
+	
+	/**
+	 * Create basic query string for search (no order etc.) dependent from passed search parameters.
+	 * @param searchParams search parameters
+	 * @param isCountQuery<br>
+	 * 		true=create query for counting total results<br>
+	 * 		false=create query for fetching results
+	 * @return basic query string or null if no parameters. 
+	 */
+	private String createSearchQueryString(IngridDocument searchParams, boolean isCountQuery) {
+		String institution = MdekUtils.processStringParameter(searchParams.getString(MdekKeys.ORGANISATION));
+		String lastname = MdekUtils.processStringParameter(searchParams.getString(MdekKeys.NAME));
+		String firstname = MdekUtils.processStringParameter(searchParams.getString(MdekKeys.GIVEN_NAME));
+
+		if (institution == null && lastname == null && firstname == null) {
+			return null;
+		}
+
+		String join = "inner join fetch ";
+		if (isCountQuery) {
+			join = "inner join ";
+		}
+
 		String qString = "from AddressNode aNode " +
-			"left join fetch aNode.t02AddressWork address " +
+			join + "aNode.t02AddressWork addr " +
 			"where " +
 			// dummy, so we can start with "and"
 			"aNode.id IS NOT NULL ";
 
 		if (institution != null) {
-			qString += "and address.institution LIKE '%" + institution + "%' ";
+			qString += "and addr.institution LIKE '%" + institution + "%' ";
 		}
 		if (lastname != null) {
-			qString += "and address.lastname LIKE '%" + lastname + "%' ";
+			qString += "and addr.lastname LIKE '%" + lastname + "%' ";
 		}
 		if (firstname != null) {
-			qString += "and address.firstname LIKE '%" + firstname + "%' ";
+			qString += "and addr.firstname LIKE '%" + firstname + "%' ";
 		}
-
-		// TODO: handle startHit, numHits
-		// TODO: handle order adrType, institution, lastname, firstname
-
-		retList = session.createQuery(qString).list();
-
-		return retList;
+		
+		return qString;
 	}
 }
