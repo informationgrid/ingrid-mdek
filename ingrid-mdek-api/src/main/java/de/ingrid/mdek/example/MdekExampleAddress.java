@@ -333,7 +333,7 @@ class MdekExampleAddressThread extends Thread {
 		searchParams.put(MdekKeys.ORGANISATION, "Bezirksregierung");
 //		searchParams.put(MdekKeys.NAME, "Dahlmann");
 //		searchParams.put(MdekKeys.GIVEN_NAME, "Irene");
-		searchAddress(searchParams, 0, 10);
+		searchAddress(searchParams, 3, 5);
 
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();

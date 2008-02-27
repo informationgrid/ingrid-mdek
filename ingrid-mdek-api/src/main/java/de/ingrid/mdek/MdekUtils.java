@@ -163,4 +163,20 @@ public class MdekUtils {
 			return "";
 		}
 	}
+
+	/**
+	 * Processes given string. Returns null if String is empty or only whitespaces etc.
+	 * @param param the string to process
+	 * @return the processed string
+	 */
+	public static String processStringParameter(String param) {
+		if (param != null) {
+			param = param.trim();
+			if (param.length() == 0) {
+				param = null;
+			}
+		}
+		
+		return param;
+	}
 }
