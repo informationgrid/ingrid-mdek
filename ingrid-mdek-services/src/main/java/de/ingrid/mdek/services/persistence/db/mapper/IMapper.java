@@ -1,4 +1,4 @@
-package de.ingrid.mdek.services.persistence.db.model;
+package de.ingrid.mdek.services.persistence.db.mapper;
 
 
 /**
