@@ -160,12 +160,6 @@
       </set>
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
                    insert="false"/>
-<!--
-      <set name="t08Attrs" table="t08_attr" inverse="true" cascade="all-delete-orphan">
-         <key column="obj_id"/>
-         <one-to-many class="T08Attr" not-found="ignore"/>
-      </set>
--->
    </class>
 
    <filter-def name="t012ObjAdrFilter">

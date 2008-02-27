@@ -73,7 +73,6 @@ public class T01Object implements IEntity {
 	private Set t015Legists = new HashSet();
 	private Set t017UrlRefs = new HashSet();
 	private T03Catalogue t03Catalogue;
-//	private Set t08Attrs = new HashSet();
 
 	public T01Object() {}
 
@@ -598,13 +597,4 @@ public class T01Object implements IEntity {
 		this.t03Catalogue = t03Catalogue;
 	}
 
-/*
-	public Set getT08Attrs() {
-		return t08Attrs;
-	}
-
-	public void setT08Attrs(Set t08Attrs) {
-		this.t08Attrs = t08Attrs;
-	}
-*/
 }
