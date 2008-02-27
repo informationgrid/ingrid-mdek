@@ -113,7 +113,7 @@ class MdekExampleAddressThread extends Thread {
 
 		// FREE ADDRESS
 		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
-/*		
+		
 		// ===================================
 		System.out.println("\n----- top addresses -----");
 		fetchTopAddresses(true);
@@ -322,7 +322,7 @@ class MdekExampleAddressThread extends Thread {
 		deleteAddress(pub2Uuid);
 		System.out.println("\n----- delete 1. published copy = sub-address (FULL) -----");
 		deleteAddress(pub1Uuid);
-*/
+
 		// -----------------------------------
 		System.out.println("\n\n=========================");
 		System.out.println("SEARCH TEST");
@@ -333,7 +333,9 @@ class MdekExampleAddressThread extends Thread {
 		searchParams.put(MdekKeys.ORGANISATION, "Bezirksregierung");
 //		searchParams.put(MdekKeys.NAME, "Dahlmann");
 //		searchParams.put(MdekKeys.GIVEN_NAME, "Irene");
-		searchAddress(searchParams, 3, 5);
+		searchAddress(searchParams, 0, 5);
+		searchAddress(searchParams, 5, 5);
+		searchAddress(searchParams, 10, 5);
 
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();
