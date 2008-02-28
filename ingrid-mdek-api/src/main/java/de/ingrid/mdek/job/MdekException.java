@@ -1,8 +1,9 @@
-package de.ingrid.mdek;
+package de.ingrid.mdek.job;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.mdek.IMdekErrors;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 
 public class MdekException extends RuntimeException {
