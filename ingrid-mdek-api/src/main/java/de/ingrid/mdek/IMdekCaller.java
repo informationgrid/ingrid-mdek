@@ -6,5 +6,9 @@ package de.ingrid.mdek;
  *
  * @author Martin
  */
-public interface IMdekCaller extends IMdekCallerObject, IMdekCallerAddress {
+public interface IMdekCaller extends
+	IMdekCallerCommon, 
+	IMdekCallerObject,
+	IMdekCallerAddress,
+	IMdekCallerQuery {
 }

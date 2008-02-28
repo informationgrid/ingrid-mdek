@@ -1,12 +1,13 @@
 package de.ingrid.mdek;
 
+import de.ingrid.mdek.IMdekCallerCommon.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 /**
  * Defines the interface to be implemented to communicate with the Mdek backend
  * concerning OBJECT Manipulation.
  */
-public interface IMdekCallerObject extends IMdekCallerCommon {
+public interface IMdekCallerObject {
 
 	/**
 	 * Fetch single object with given uuid.
