@@ -8,8 +8,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
