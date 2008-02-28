@@ -61,6 +61,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T03Catalogue.hbm.xml</value>
          </list>
       </property>
+<!--
       <property name="entityCacheStrategies">
          <props>
             <prop key="de.ingrid.mdek.services.persistence.db.model.AddressNode">read-write</prop>
@@ -142,5 +143,6 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T02Address.t021Communications">read-write</prop>
          </props>
       </property>
+-->
    </bean>
 </beans>
