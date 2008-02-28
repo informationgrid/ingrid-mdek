@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Stack;
 
 import de.ingrid.mdek.EnumUtil;
-import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekErrors.MdekError;

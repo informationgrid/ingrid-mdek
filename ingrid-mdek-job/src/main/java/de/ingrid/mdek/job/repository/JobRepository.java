@@ -10,8 +10,8 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.job.IJob;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.register.IRegistrationService;
 import de.ingrid.utils.IngridDocument;
 

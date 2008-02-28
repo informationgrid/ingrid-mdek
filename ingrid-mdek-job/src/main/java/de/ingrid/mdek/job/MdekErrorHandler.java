@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.ConstraintViolationException;
 
-import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 
 

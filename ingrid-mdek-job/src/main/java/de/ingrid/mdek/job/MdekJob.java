@@ -2,7 +2,6 @@ package de.ingrid.mdek.job;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekException;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.utils.IngridDocument;
