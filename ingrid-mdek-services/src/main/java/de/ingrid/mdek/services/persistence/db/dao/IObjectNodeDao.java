@@ -48,4 +48,20 @@ public interface IObjectNodeDao
 
 	/** Fetch Objects referencing the object with the passed uuid */
 	List<ObjectNode> getObjectReferencesFrom(String uuid);
+
+	/** Query total number of objects associated with passed thesaurus term.
+	 * @param termSnsId sns id of thesaurus term
+	 * @return number of found addresses
+	 */
+	long queryObjectsThesaurusTermTotalNum(String termSnsId);
+
+	/**
+	 * Query objects associated with passed thesaurus term.
+	 * @param termSnsId sns id of thesaurus term
+	 * @param startHit hit to start with (first hit is 0) 
+	 * @param numHits number of hits requested, beginning from startHit
+	 * @return list of found objects
+	 */
+	List<ObjectNode> queryObjectsThesaurusTerm(String termSnsId,
+			int startHit, int numHits);
 }

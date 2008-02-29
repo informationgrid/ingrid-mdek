@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
@@ -217,5 +218,76 @@ public class ObjectNodeDaoHibernate
 		}
 
 		return uuidList;
+	}
+
+	public long queryObjectsThesaurusTermTotalNum(String termSnsId) {
+
+		String qString = createThesaurusQueryString(termSnsId, true);
+		
+		if (qString == null) {
+			return 0;
+		}
+
+		qString = "select count(*) " + qString;
+
+		Session session = getSession();
+
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
+
+		return totalNum;
+	}
+
+	public List<ObjectNode> queryObjectsThesaurusTerm(String termSnsId,
+			int startHit, int numHits) {
+		List<ObjectNode> retList = new ArrayList<ObjectNode>();
+
+		String qString = createThesaurusQueryString(termSnsId, false);
+		
+		if (qString == null) {
+			return retList;
+		}
+
+		qString += "order by obj.objClass, obj.objName";
+
+		Session session = getSession();
+
+		retList = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		return retList;
+	}
+	
+	/**
+	 * Create basic query string for querying objects associated with passed thesaurus term.
+	 * @param termSnsId sns id of thesaurus term
+	 * @param isCountQuery<br>
+	 * 		true=create query for counting total results<br>
+	 * 		false=create query for fetching results
+	 * @return basic query string or null if no parameters. 
+	 */
+	private String createThesaurusQueryString(String termSnsId, boolean isCountQuery) {
+		termSnsId = MdekUtils.processStringParameter(termSnsId);
+
+		if (termSnsId == null) {
+			return null;
+		}
+
+		String join = "inner join fetch ";
+		if (isCountQuery) {
+			join = "inner join ";
+		}
+
+		String qString = "from ObjectNode oNode " +
+			join + "oNode.t01ObjectWork obj " +
+			join + "obj.searchtermObjs termObjs " +
+			join + "termObjs.searchtermValue termVal " +
+			join + "termVal.searchtermSns termSns " +
+			"where " +
+			"termSns.snsId = '" + termSnsId + "'";
+		
+		return qString;
 	}
 }

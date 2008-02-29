@@ -1,7 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
-import de.ingrid.mdek.services.persistence.db.mapper.IMapper.IdcEntityType;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 

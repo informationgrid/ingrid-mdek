@@ -73,4 +73,20 @@ public interface IAddressNodeDao
 	 */
 	List<AddressNode> searchAddresses(IngridDocument searchParams,
 			int startHit, int numHits);
+
+	/** Query total number of addresses associated with passed thesaurus term.
+	 * @param termSnsId sns id of thesaurus term
+	 * @return number of found addresses
+	 */
+	long queryAddressesThesaurusTermTotalNum(String termSnsId);
+
+	/**
+	 * Query addresses associated with passed thesaurus term.
+	 * @param termSnsId sns id of thesaurus term
+	 * @param startHit hit to start with (first hit is 0) 
+	 * @param numHits number of hits requested, beginning from startHit
+	 * @return list of found addresses
+	 */
+	List<AddressNode> queryAddressesThesaurusTerm(String termSnsId,
+			int startHit, int numHits);
 }

@@ -314,4 +314,75 @@ public class AddressNodeDaoHibernate
 		
 		return qString;
 	}
+
+	public long queryAddressesThesaurusTermTotalNum(String termSnsId) {
+
+		String qString = createThesaurusQueryString(termSnsId, true);
+		
+		if (qString == null) {
+			return 0;
+		}
+
+		qString = "select count(*) " + qString;
+
+		Session session = getSession();
+
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
+
+		return totalNum;
+	}
+
+	public List<AddressNode> queryAddressesThesaurusTerm(String termSnsId,
+			int startHit, int numHits) {
+		List<AddressNode> retList = new ArrayList<AddressNode>();
+
+		String qString = createThesaurusQueryString(termSnsId, false);
+		
+		if (qString == null) {
+			return retList;
+		}
+
+		qString += "order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+
+		Session session = getSession();
+
+		retList = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		return retList;
+	}
+	
+	/**
+	 * Create basic query string for querying addresses associated with passed thesaurus term.
+	 * @param termSnsId sns id of thesaurus term
+	 * @param isCountQuery<br>
+	 * 		true=create query for counting total results<br>
+	 * 		false=create query for fetching results
+	 * @return basic query string or null if no parameters. 
+	 */
+	private String createThesaurusQueryString(String termSnsId, boolean isCountQuery) {
+		termSnsId = MdekUtils.processStringParameter(termSnsId);
+
+		if (termSnsId == null) {
+			return null;
+		}
+
+		String join = "inner join fetch ";
+		if (isCountQuery) {
+			join = "inner join ";
+		}
+
+		String qString = "from AddressNode aNode " +
+			join + "aNode.t02AddressWork addr " +
+			join + "addr.searchtermAdrs termAdrs " +
+			join + "termAdrs.searchtermValue termVal " +
+			join + "termVal.searchtermSns termSns " +
+			"where " +
+			"termSns.snsId = '" + termSnsId + "'";
+		
+		return qString;
+	}
 }
