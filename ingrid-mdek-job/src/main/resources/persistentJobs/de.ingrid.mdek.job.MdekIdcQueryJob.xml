@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="de.ingrid.mdek.job.MdekIdcQueryJob" class="de.ingrid.mdek.job.MdekIdcQueryJob" >
+		<constructor-arg ref="de.ingrid.mdek.services.log.ILogService"/>
+		<constructor-arg ref="de.ingrid.mdek.services.persistence.db.IDaoFactory"/>
+	</bean>
+</beans>
