@@ -173,9 +173,12 @@
 	</xs:complexType>	
 	<xs:complexType name="SEARCH_PARAMS_MAP">
 		<xs:all>
+			<!-- address search -->
 			<xs:element name="organisation" type="xs:string"/>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="given-name" type="xs:string"/>
+			<!-- query: thesaurus term -->
+			<xs:element name="term-sns-id" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">

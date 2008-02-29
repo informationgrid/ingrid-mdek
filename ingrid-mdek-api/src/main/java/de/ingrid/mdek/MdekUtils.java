@@ -17,6 +17,12 @@ public class MdekUtils {
 	private final static SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 
+	/** Type of entities */
+	public enum IdcEntityType {
+		OBJECT,
+		ADDRESS;
+	}
+
 	/** WorkState of entities */
 	public enum WorkState implements IMdekEnum {
 		VEROEFFENTLICHT("V", "ver\u00f6ffentlicht"),

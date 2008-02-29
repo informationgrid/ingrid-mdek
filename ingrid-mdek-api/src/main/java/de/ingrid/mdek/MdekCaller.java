@@ -30,6 +30,7 @@ public class MdekCaller implements IMdekCaller {
 	// Jobs
 	private static String MDEK_IDC_OBJECT_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
 	private static String MDEK_IDC_ADDRESS_JOB_ID = "de.ingrid.mdek.job.MdekIdcAddressJob";
+	private static String MDEK_IDC_QUERY_JOB_ID = "de.ingrid.mdek.job.MdekIdcQueryJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -393,6 +394,40 @@ public class MdekCaller implements IMdekCaller {
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument queryAddressesThesaurusTerm(String termSnsId,
+			int startHit, int numHits,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
+		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
+		
+		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
+		List jobMethods = setUpJobMethod("queryAddressesThesaurusTerm", jobParams);
+
+		return callJob(MDEK_IDC_QUERY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument queryObjectsThesaurusTerm(String termSnsId,
+			int startHit, int numHits,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
+		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
+		
+		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
+		List jobMethods = setUpJobMethod("queryObjectsThesaurusTerm", jobParams);
+
+		return callJob(MDEK_IDC_QUERY_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument getRunningJobInfo(String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
@@ -406,22 +441,6 @@ public class MdekCaller implements IMdekCaller {
 		List jobMethods = setUpJobMethod("cancelRunningJob", jobParams);
 		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
-
-/*
-	public IngridDocument fetchTopAddresses() {
-		List jobMethods = setUpJobMethod("getTopAddresses", null);
-
-		return callJob(MDEK_IDC_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument fetchSubAddresses(String adrUuid) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, adrUuid);
-		List jobMethods = setUpJobMethod("getSubAddresses", jobParams);
-
-		return callJob(MDEK_IDC_JOB_ID, jobMethods);
-	}
-*/
 
 	public IngridDocument getResultFromResponse(IngridDocument mdekResponse) {
 		IngridDocument result = null;
