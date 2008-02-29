@@ -101,7 +101,8 @@ class MdekExampleQueryThread extends Thread {
 		isRunning = true;
 
 		// thesaurs terms (sns ids)
-		String termSnsId = "uba_thes_10923";
+		// Naturschutz = uba_thes_28749: Institutionen, Einheiten und Personen
+		String termSnsId = "uba_thes_28749";
 
 		long exampleStartTime = System.currentTimeMillis();
 
@@ -112,7 +113,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- search addresses by thesaurus term (id) -----");
-		List<IngridDocument> hits = queryAddressesThesaurusTerm(termSnsId, 0, 5);
+		List<IngridDocument> hits = queryAddressesThesaurusTerm(termSnsId, 0, 10);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			String uuid = hits.get(0).getString(MdekKeys.UUID);
