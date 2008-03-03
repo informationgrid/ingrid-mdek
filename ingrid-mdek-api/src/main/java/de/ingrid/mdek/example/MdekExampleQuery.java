@@ -7,11 +7,17 @@ import java.util.Map;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.IMdekCaller;
+import de.ingrid.mdek.IMdekCallerAddress;
+import de.ingrid.mdek.IMdekCallerObject;
+import de.ingrid.mdek.IMdekCallerQuery;
 import de.ingrid.mdek.MdekCaller;
+import de.ingrid.mdek.MdekCallerAddress;
+import de.ingrid.mdek.MdekCallerObject;
+import de.ingrid.mdek.MdekCallerQuery;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekCallerCommon.Quantity;
+import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -50,8 +56,13 @@ public class MdekExampleQuery {
 		}
 		System.out.println("THREADS: " + numThreads);
 
-		// INITIALIZE MDEK INTERFACE ONCE !
+		// INITIALIZE CENTRAL MDEK CALLER !
 		MdekCaller.initialize(new File((String) map.get("--descriptor")));
+		// and our specific job caller !
+		MdekCallerQuery.initialize(MdekCaller.getInstance());
+		MdekCallerAddress.initialize(MdekCaller.getInstance());
+		MdekCallerObject.initialize(MdekCaller.getInstance());
+
 
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
@@ -91,10 +102,20 @@ class MdekExampleQueryThread extends Thread {
 	
 	private boolean isRunning = false;
 
+	private IMdekCaller mdekCaller;
+	private IMdekCallerQuery mdekCallerQuery;
+	private IMdekCallerAddress mdekCallerAddress;
+	private IMdekCallerObject mdekCallerObject;
+
 	public MdekExampleQueryThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
 		myUserId = "EXAMPLE_USER_" + threadNumber;
+		
+		mdekCaller = MdekCaller.getInstance();
+		mdekCallerQuery = MdekCallerQuery.getInstance();
+		mdekCallerObject = MdekCallerObject.getInstance();
+		mdekCallerAddress = MdekCallerAddress.getInstance();
 	}
 
 	public void run() {
@@ -139,7 +160,6 @@ class MdekExampleQueryThread extends Thread {
 	}
 
 	private IngridDocument fetchAddress(String uuid, Quantity howMuch) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -148,7 +168,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchAddress (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchAddress(uuid, howMuch, myUserId);
+		response = mdekCallerAddress.fetchAddress(uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -164,7 +184,6 @@ class MdekExampleQueryThread extends Thread {
 	}
 
 	private IngridDocument fetchObject(String uuid, Quantity howMuch) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -173,7 +192,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchObject(uuid, howMuch, myUserId);
+		response = mdekCallerObject.fetchObject(uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -190,7 +209,6 @@ class MdekExampleQueryThread extends Thread {
 
 	private List<IngridDocument> queryAddressesThesaurusTerm(String termSnsId,
 			int startHit, int numHits) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -202,7 +220,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("- numHits:" + numHits);
 		System.out.println("- termSnsId:" + termSnsId);
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.queryAddressesThesaurusTerm(termSnsId, startHit, numHits, myUserId);
+		response = mdekCallerQuery.queryAddressesThesaurusTerm(termSnsId, startHit, numHits, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -226,7 +244,6 @@ class MdekExampleQueryThread extends Thread {
 
 	private List<IngridDocument> queryObjectsThesaurusTerm(String termSnsId,
 			int startHit, int numHits) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -238,7 +255,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("- numHits:" + numHits);
 		System.out.println("- termSnsId:" + termSnsId);
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.queryObjectsThesaurusTerm(termSnsId, startHit, numHits, myUserId);
+		response = mdekCallerQuery.queryObjectsThesaurusTerm(termSnsId, startHit, numHits, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -315,7 +332,6 @@ class MdekExampleQueryThread extends Thread {
 	}
 
 	private void handleError(IngridDocument response) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
 		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));			
 		

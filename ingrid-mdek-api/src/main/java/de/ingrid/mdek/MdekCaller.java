@@ -14,7 +14,8 @@ import de.ingrid.utils.IngridDocument;
 
 
 /**
- * Singleton implementing methods to communicate with the Mdek backend.
+ * Singleton implementing basic central methods to communicate with the Mdek backend (jobs).
+ * SINGLETON BECAUSE MdekClient IS SINGLETON AND THIS IS FACADE TO MdekClient.
  * 
  * @author Martin
  */
@@ -28,21 +29,19 @@ public class MdekCaller implements IMdekCaller {
 	private static IJobRepositoryFacade jobRepo;
 
 	// Jobs
+	// TODO: better create separate job for handling job synchronization (at the moment we use object job !)
 	private static String MDEK_IDC_OBJECT_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
-	private static String MDEK_IDC_ADDRESS_JOB_ID = "de.ingrid.mdek.job.MdekIdcAddressJob";
-	private static String MDEK_IDC_QUERY_JOB_ID = "de.ingrid.mdek.job.MdekIdcQueryJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
-	 * Has to be called once before calling getInstance() !!!
+	 * Has to be called once before calling getInstance() !
+	 * To instantiate new instance shutdown() has to be called !
 	 * @param communicationProperties props specifying communication
 	 */
 	public static synchronized void initialize(File communicationProperties) {
-		if (myInstance != null) {
-			log.warn("MULTIPLE initialization of MdekCaller !!!");
+		if (myInstance == null) {
+			myInstance = new MdekCaller(communicationProperties);
 		}
-
-		myInstance = new MdekCaller(communicationProperties);
 	}
 
     private MdekCaller() {};
@@ -67,7 +66,7 @@ public class MdekCaller implements IMdekCaller {
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !
 	 * @return null if not initialized
 	 */
-	public static IMdekCaller getInstance() {
+	public static MdekCaller getInstance() {
 		if (myInstance == null) {
 			log.warn("WARNING! INITIALIZE MdekCaller Instance before fetching it !!! we return null !!!");
 		}
@@ -95,6 +94,7 @@ public class MdekCaller implements IMdekCaller {
         	jobRepo = null;
         }
 	}
+
 /*
 	public IngridDocument testMdekEntity(int threadNumber) {
 		IngridDocument jobParams = new IngridDocument();
@@ -107,324 +107,24 @@ public class MdekCaller implements IMdekCaller {
 	}
 */
 
-	public IngridDocument fetchCatalog(String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getCatalog", jobParams);
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+	public List setUpJobMethod(String methodName, IngridDocument methodParams) {
+		debugDocument("PARAMETERS:", methodParams);
+
+		ArrayList<Pair> methodList = new ArrayList<Pair>();
+		methodList.add(new Pair(methodName, methodParams));
+		return methodList;
 	}
 
-	public IngridDocument getSysLists(Integer[] listIds, Integer langCode,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.SYS_LIST_IDS, listIds);
-		jobParams.put(MdekKeys.LANGUAGE_CODE, langCode);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getSysLists", jobParams);
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
+	public IngridDocument callJob(String jobId, List jobMethods) {
+		IngridDocument invokeDocument = new IngridDocument();
+		invokeDocument.put(IJobRepository.JOB_ID, jobId);
+		invokeDocument.put(IJobRepository.JOB_METHODS, jobMethods);
+//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
-	public IngridDocument fetchObject(String uuid, Quantity howMuch,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		if (howMuch == Quantity.DETAIL_ENTITY) {
-			List jobMethods = setUpJobMethod("getObjDetails", jobParams);
-			return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-		}
+		IngridDocument response = jobRepo.execute(invokeDocument);
+		debugDocument("RESPONSE:", response);
 		
-		return new IngridDocument();
-	}
-
-	public IngridDocument storeObject(IngridDocument objDoc,
-			boolean refetchAfterStore,
-			String userId) {
-		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		objDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("storeObject", objDoc);
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument publishObject(IngridDocument objDoc,
-			boolean refetchAfterStore,
-			boolean forcePublicationCondition,
-			String userId) {
-		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		objDoc.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
-		objDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("publishObject", objDoc);
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument deleteObjectWorkingCopy(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("deleteObjectWorkingCopy", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument deleteObject(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("deleteObject", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument fetchTopObjects(String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getTopObjects", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument fetchSubObjects(String objUuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, objUuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getSubObjects", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument getObjectPath(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getObjectPath", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);		
-	}
-
-	public IngridDocument checkObjectSubTree(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("checkObjectSubTree", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
-		jobParams.put(MdekKeys.TO_UUID, toUuid);
-		jobParams.put(MdekKeys.REQUESTINFO_COPY_SUBTREE, copySubtree);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("copyObject", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument moveObject(String fromUuid, String toUuid,
-			boolean performSubtreeCheck,
-			boolean forcePublicationCondition,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
-		jobParams.put(MdekKeys.TO_UUID, toUuid);
-		jobParams.put(MdekKeys.REQUESTINFO_PERFORM_CHECK, performSubtreeCheck);
-		jobParams.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("moveObject", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument getInitialObject(IngridDocument newBasicObject,
-			String userId) {
-		IngridDocument jobParams = newBasicObject;
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getInitialObject", jobParams);
-
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument fetchAddress(String uuid, Quantity howMuch,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		if (howMuch == Quantity.DETAIL_ENTITY) {
-			List jobMethods = setUpJobMethod("getAddrDetails", jobParams);
-			return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-		}
-
-		return new IngridDocument();
-	}
-
-	public IngridDocument storeAddress(IngridDocument adrDoc,
-			boolean refetchAfterStore,
-			String userId) {
-		adrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		adrDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("storeAddress", adrDoc);
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument publishAddress(IngridDocument addrDoc,
-			boolean refetchAfterStore,
-			String userId) {
-		addrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		addrDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("publishAddress", addrDoc);
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument deleteAddressWorkingCopy(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("deleteAddressWorkingCopy", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument deleteAddress(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("deleteAddress", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument fetchTopAddresses(String userId, boolean nurFreieAdressen) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES, nurFreieAdressen);
-		List jobMethods = setUpJobMethod("getTopAddresses", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument fetchSubAddresses(String adrUuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, adrUuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getSubAddresses", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument getAddressPath(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getAddressPath", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);		
-	}
-
-	public IngridDocument checkAddressSubTree(String uuid,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("checkAddressSubTree", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument copyAddress(String fromUuid, String toUuid,
-			boolean copySubtree,
-			boolean copyToFreeAddress,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
-		jobParams.put(MdekKeys.TO_UUID, toUuid);
-		jobParams.put(MdekKeys.REQUESTINFO_COPY_SUBTREE, copySubtree);
-		jobParams.put(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS, copyToFreeAddress);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("copyAddress", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument moveAddress(String fromUuid, String toUuid,
-			boolean performSubtreeCheck,
-			boolean moveToFreeAddress,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
-		jobParams.put(MdekKeys.TO_UUID, toUuid);
-		jobParams.put(MdekKeys.REQUESTINFO_PERFORM_CHECK, performSubtreeCheck);
-		jobParams.put(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS, moveToFreeAddress);
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("moveAddress", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument getInitialAddress(IngridDocument newBasicAddress,
-			String userId) {
-		IngridDocument jobParams = newBasicAddress;
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getInitialAddress", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument searchAddresses(IngridDocument searchParams,
-			int startHit, int numHits,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
-		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
-		List jobMethods = setUpJobMethod("searchAddresses", jobParams);
-
-		return callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument queryAddressesThesaurusTerm(String termSnsId,
-			int startHit, int numHits,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
-
-		IngridDocument searchParams = new IngridDocument();
-		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
-		
-		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
-		List jobMethods = setUpJobMethod("queryAddressesThesaurusTerm", jobParams);
-
-		return callJob(MDEK_IDC_QUERY_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument queryObjectsThesaurusTerm(String termSnsId,
-			int startHit, int numHits,
-			String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
-
-		IngridDocument searchParams = new IngridDocument();
-		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
-		
-		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
-		List jobMethods = setUpJobMethod("queryObjectsThesaurusTerm", jobParams);
-
-		return callJob(MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return response;
 	}
 
 	public IngridDocument getRunningJobInfo(String userId) {
@@ -499,26 +199,6 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument response = jobRepo.execute(deregisterDocument);
 		debugDocument("deregisterJob " + jobId + ": ", response);
 
-		return response;
-	}
-
-	private List setUpJobMethod(String methodName, IngridDocument methodParams) {
-		debugDocument("PARAMETERS:", methodParams);
-
-		ArrayList<Pair> methodList = new ArrayList<Pair>();
-		methodList.add(new Pair(methodName, methodParams));
-		return methodList;
-	}
-
-	private IngridDocument callJob(String jobId, List jobMethods) {
-		IngridDocument invokeDocument = new IngridDocument();
-		invokeDocument.put(IJobRepository.JOB_ID, jobId);
-		invokeDocument.put(IJobRepository.JOB_METHODS, jobMethods);
-//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
-
-		IngridDocument response = jobRepo.execute(invokeDocument);
-		debugDocument("RESPONSE:", response);
-		
 		return response;
 	}
 

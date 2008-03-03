@@ -9,11 +9,15 @@ import java.util.Set;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.IMdekCaller;
+import de.ingrid.mdek.IMdekCallerCatalog;
+import de.ingrid.mdek.IMdekCallerObject;
 import de.ingrid.mdek.MdekCaller;
+import de.ingrid.mdek.MdekCallerCatalog;
+import de.ingrid.mdek.MdekCallerObject;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekCallerCommon.Quantity;
+import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
@@ -51,8 +55,11 @@ public class MdekExampleObject {
 		}
 		System.out.println("THREADS: " + numThreads);
 
-		// INITIALIZE MDEK INTERFACE ONCE !
+		// INITIALIZE CENTRAL MDEK CALLER !
 		MdekCaller.initialize(new File((String) map.get("--descriptor")));
+		// and our specific job callers !
+		MdekCallerObject.initialize(MdekCaller.getInstance());
+		MdekCallerCatalog.initialize(MdekCaller.getInstance());
 
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
@@ -92,10 +99,18 @@ class MdekExampleObjectThread extends Thread {
 	
 	private boolean isRunning = false;
 
+	private IMdekCaller mdekCaller;
+	private IMdekCallerObject mdekCallerObject;
+	private IMdekCallerCatalog mdekCallerCatalog;
+
 	public MdekExampleObjectThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
 		myUserId = "EXAMPLE_USER_" + threadNumber;
+
+		mdekCaller = MdekCaller.getInstance();
+		mdekCallerObject = MdekCallerObject.getInstance();
+		mdekCallerCatalog = MdekCallerCatalog.getInstance();
 	}
 
 	public void run() {
@@ -122,7 +137,6 @@ class MdekExampleObjectThread extends Thread {
 		IngridDocument oMap;
 
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
-		//IMdekCaller mdekCaller = MdekCaller.getInstance();
 		//mdekCaller.testMdekEntity(threadNumber);
 
 // --------------
@@ -485,7 +499,6 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("=========================");
 		System.out.println("\n----- loading 2 objects 10 times -----");
 		
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime = System.currentTimeMillis();
 		for (int i=0; i< 10; i++) {
 			mdekCaller.fetchObject(parentUuid, Quantity.DETAIL_ENTITY);
@@ -524,7 +537,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 	
 	private IngridDocument getCatalog() {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -533,7 +545,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchCatalog ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchCatalog(myUserId);
+		response = mdekCallerCatalog.fetchCatalog(myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -549,7 +561,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument getSysLists(Integer[] listIds, Integer langCode) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -558,7 +569,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE getSysLists ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getSysLists(listIds, langCode, myUserId);
+		response = mdekCallerCatalog.getSysLists(listIds, langCode, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -582,7 +593,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument fetchTopObjects() {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -591,7 +601,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchTopObjects ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchTopObjects(myUserId);
+		response = mdekCallerObject.fetchTopObjects(myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -610,7 +620,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument fetchSubObjects(String uuid) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -619,7 +628,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchSubObjects ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchSubObjects(uuid, myUserId);
+		response = mdekCallerObject.fetchSubObjects(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -638,7 +647,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument getObjectPath(String uuidIn) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -647,7 +655,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE getObjectPath ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getObjectPath(uuidIn, myUserId);
+		response = mdekCallerObject.getObjectPath(uuidIn, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -668,7 +676,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument fetchObject(String uuid, Quantity howMuch) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -677,7 +684,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.fetchObject(uuid, howMuch, myUserId);
+		response = mdekCallerObject.fetchObject(uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -693,7 +700,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument getInitialObject(IngridDocument newBasicObject) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -702,7 +708,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE getInitialObject ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.getInitialObject(newBasicObject, myUserId);
+		response = mdekCallerObject.getInitialObject(newBasicObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -718,7 +724,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument checkObjectSubTree(String uuid) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -727,7 +732,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE checkObjectSubTree ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.checkObjectSubTree(uuid, myUserId);
+		response = mdekCallerObject.checkObjectSubTree(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -749,7 +754,6 @@ class MdekExampleObjectThread extends Thread {
 			return null;
 		}
 
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -761,7 +765,7 @@ class MdekExampleObjectThread extends Thread {
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.storeObject(oDocIn, refetchObject, myUserId);
+		response = mdekCallerObject.storeObject(oDocIn, refetchObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -784,7 +788,6 @@ class MdekExampleObjectThread extends Thread {
 			return null;
 		}
 
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -1067,7 +1070,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		System.out.println("storeObject WITHOUT refetching object: ");
-		response = mdekCaller.storeObject(oDocIn, false, myUserId);
+		response = mdekCallerObject.storeObject(oDocIn, false, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1195,7 +1198,7 @@ class MdekExampleObjectThread extends Thread {
 			System.out.println("STORE");
 			startTime = System.currentTimeMillis();
 			System.out.println("storeObject WITH refetching object: ");
-			response = mdekCaller.storeObject(oRefetchedDoc, true, myUserId);
+			response = mdekCallerObject.storeObject(oRefetchedDoc, true, myUserId);
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1223,7 +1226,6 @@ class MdekExampleObjectThread extends Thread {
 			return null;
 		}
 
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -1235,7 +1237,7 @@ class MdekExampleObjectThread extends Thread {
 				"refetchObject: " + withRefetch +
 				", forcePublicationCondition: " + forcePublicationCondition);
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.publishObject(oDocIn, withRefetch, forcePublicationCondition, myUserId);
+		response = mdekCallerObject.publishObject(oDocIn, withRefetch, forcePublicationCondition, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1258,7 +1260,6 @@ class MdekExampleObjectThread extends Thread {
 	private IngridDocument moveObject(String fromUuid, String toUuid,
 			boolean performSubtreeCheck,
 			boolean forcePublicationCondition) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -1271,7 +1272,7 @@ class MdekExampleObjectThread extends Thread {
 				: "WITHOUT FORCE publicationCondition";
 		System.out.println("\n###### INVOKE moveObject " + performCheckInfo + forcePubCondInfo + "######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.moveObject(fromUuid, toUuid, performSubtreeCheck, forcePublicationCondition, myUserId);
+		response = mdekCallerObject.moveObject(fromUuid, toUuid, performSubtreeCheck, forcePublicationCondition, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1287,7 +1288,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -1297,7 +1297,7 @@ class MdekExampleObjectThread extends Thread {
 		String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
 		System.out.println("\n###### INVOKE copyObject " + copySubtreeInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.copyObject(fromUuid, toUuid, copySubtree, myUserId);
+		response = mdekCallerObject.copyObject(fromUuid, toUuid, copySubtree, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1313,7 +1313,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private void trackRunningJob(int sleepTimeMillis, boolean doCancel) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		IngridDocument response;
 		IngridDocument result;
 		System.out.println("\n###### INVOKE getRunningJobInfo ######");
@@ -1354,7 +1353,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private void cancelRunningJob() {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		System.out.println("\n###### INVOKE cancelRunningJob ######");
 
 		IngridDocument response = mdekCaller.cancelRunningJob(myUserId);
@@ -1372,7 +1370,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument deleteObjectWorkingCopy(String uuid) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -1381,7 +1378,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE deleteObjectWorkingCopy ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.deleteObjectWorkingCopy(uuid, myUserId);
+		response = mdekCallerObject.deleteObjectWorkingCopy(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1398,7 +1395,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument deleteObject(String uuid) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -1407,7 +1403,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE deleteObject ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCaller.deleteObject(uuid, myUserId);
+		response = mdekCallerObject.deleteObject(uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1652,7 +1648,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private void handleError(IngridDocument response) {
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
 		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
 		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));			
 		

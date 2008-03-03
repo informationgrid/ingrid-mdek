@@ -1,6 +1,6 @@
 package de.ingrid.mdek;
 
-import de.ingrid.mdek.IMdekCallerCommon.Quantity;
+import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 
