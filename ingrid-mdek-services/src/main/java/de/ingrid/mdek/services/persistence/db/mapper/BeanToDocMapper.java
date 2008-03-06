@@ -266,7 +266,8 @@ public class BeanToDocMapper implements IMapper {
 		addressDoc.put(MdekKeys.ORGANISATION, a.getInstitution());
 		addressDoc.put(MdekKeys.NAME, a.getLastname());
 		addressDoc.put(MdekKeys.GIVEN_NAME, a.getFirstname());
-		addressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitle());
+		addressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitleValue());
+		addressDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, a.getTitleKey());
 		addressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
 
 		if (howMuch == MappingQuantity.TABLE_ENTITY ||
@@ -291,7 +292,8 @@ public class BeanToDocMapper implements IMapper {
 			addressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
 
 			addressDoc.put(MdekKeys.FUNCTION, a.getJob());			
-			addressDoc.put(MdekKeys.NAME_FORM, a.getAddress());
+			addressDoc.put(MdekKeys.NAME_FORM, a.getAddressValue());
+			addressDoc.put(MdekKeys.NAME_FORM_KEY, a.getAddressKey());
 			addressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
 
 			// map associations
@@ -478,7 +480,8 @@ public class BeanToDocMapper implements IMapper {
 			return commDoc;
 		}
 
-		commDoc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommType());
+		commDoc.put(MdekKeys.COMMUNICATION_MEDIUM, c.getCommtypeValue());
+		commDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, c.getCommtypeKey());
 		commDoc.put(MdekKeys.COMMUNICATION_VALUE, c.getCommValue());
 		commDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, c.getDescr());
 
@@ -494,7 +497,8 @@ public class BeanToDocMapper implements IMapper {
 			return locDoc;
 		}
 
-		locDoc.put(MdekKeys.LOCATION_NAME, spatRefValue.getName());
+		locDoc.put(MdekKeys.LOCATION_NAME, spatRefValue.getNameValue());
+		locDoc.put(MdekKeys.LOCATION_NAME_KEY, spatRefValue.getNameKey());
 		locDoc.put(MdekKeys.LOCATION_TYPE, spatRefValue.getType());
 		locDoc.put(MdekKeys.LOCATION_CODE, spatRefValue.getNativekey());
 		locDoc.put(MdekKeys.WEST_BOUNDING_COORDINATE, spatRefValue.getX1());
@@ -547,7 +551,8 @@ public class BeanToDocMapper implements IMapper {
 		urlDoc.put(MdekKeys.LINKAGE_URL, url.getUrlLink());
 		urlDoc.put(MdekKeys.LINKAGE_REFERENCE_ID, url.getSpecialRef());
 		urlDoc.put(MdekKeys.LINKAGE_REFERENCE, url.getSpecialName());
-		urlDoc.put(MdekKeys.LINKAGE_DATATYPE, url.getDatatype());
+		urlDoc.put(MdekKeys.LINKAGE_DATATYPE, url.getDatatypeValue());
+		urlDoc.put(MdekKeys.LINKAGE_DATATYPE_KEY, url.getDatatypeKey());
 		urlDoc.put(MdekKeys.LINKAGE_VOLUME, url.getVolume());
 		urlDoc.put(MdekKeys.LINKAGE_ICON_URL, url.getIcon());
 		urlDoc.put(MdekKeys.LINKAGE_ICON_TEXT, url.getIconText());
@@ -602,13 +607,27 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
 		for (T014InfoImpart ref : refs) {
-			refList.add(ref.getName());				
+			IngridDocument refDoc = new IngridDocument();
+			mapT014InfoImpart(ref, refDoc);
+			refList.add(refDoc);
 		}
 		objectDoc.put(MdekKeys.EXPORTS, refList);
 		
 		return objectDoc;
+	}
+
+	private IngridDocument mapT014InfoImpart(T014InfoImpart ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.EXPORT_KEY, ref.getImpartKey());
+		refDoc.put(MdekKeys.EXPORT_VALUE, ref.getImpartValue());
+
+		return refDoc;
 	}
 
 	private IngridDocument mapT011ObjGeo(Set<T011ObjGeo> refs, IngridDocument objectDoc) {
@@ -623,12 +642,12 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.TECHNICAL_BASE, ref.getSpecialBase());
 		refDoc.put(MdekKeys.DATA, ref.getDataBase());
 		refDoc.put(MdekKeys.METHOD_OF_PRODUCTION, ref.getMethod());
-		refDoc.put(MdekKeys.COORDINATE_SYSTEM, ref.getCoord());
+		refDoc.put(MdekKeys.COORDINATE_SYSTEM, ref.getReferencesystemValue());
 		refDoc.put(MdekKeys.RESOLUTION, ref.getRecExact());
 		refDoc.put(MdekKeys.DEGREE_OF_RECORD, ref.getRecGrade());
 		refDoc.put(MdekKeys.HIERARCHY_LEVEL, ref.getHierarchyLevel());
 		refDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, ref.getVectorTopologyLevel());
-		refDoc.put(MdekKeys.REFERENCESYSTEM_ID, ref.getReferencesystemId());
+		refDoc.put(MdekKeys.REFERENCESYSTEM_ID, ref.getReferencesystemKey());
 		refDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, ref.getPosAccuracyVertical());
 		refDoc.put(MdekKeys.KEYC_INCL_W_DATASET, ref.getKeycInclWDataset());
 
@@ -657,7 +676,8 @@ public class BeanToDocMapper implements IMapper {
 		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
 		for (T011ObjGeoKeyc ref : refs) {
 			IngridDocument doc = new IngridDocument();
-			doc.put(MdekKeys.SUBJECT_CAT, ref.getSubjectCat());
+			doc.put(MdekKeys.SUBJECT_CAT, ref.getKeycValue());
+			doc.put(MdekKeys.SUBJECT_CAT_KEY, ref.getKeycKey());
 			doc.put(MdekKeys.KEY_DATE, ref.getKeyDate());
 			doc.put(MdekKeys.EDITION, ref.getEdition());
 			locList.add(doc);					
@@ -691,7 +711,8 @@ public class BeanToDocMapper implements IMapper {
 		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
 		for (T011ObjGeoSymc ref : refs) {
 			IngridDocument doc = new IngridDocument();
-			doc.put(MdekKeys.SYMBOL_CAT, ref.getSymbolCat());
+			doc.put(MdekKeys.SYMBOL_CAT, ref.getSymbolCatValue());
+			doc.put(MdekKeys.SYMBOL_CAT_KEY, ref.getSymbolCatKey());
 			doc.put(MdekKeys.SYMBOL_DATE, ref.getSymbolDate());
 			doc.put(MdekKeys.SYMBOL_EDITION, ref.getEdition());
 			locList.add(doc);					
@@ -766,7 +787,8 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.PUBLISHING_PLACE, ref.getPublishLoc());
 		refDoc.put(MdekKeys.YEAR, ref.getPublishYear());
 		refDoc.put(MdekKeys.PAGES, ref.getSides());
-		refDoc.put(MdekKeys.TYPE_OF_DOCUMENT, ref.getType());
+		refDoc.put(MdekKeys.TYPE_OF_DOCUMENT, ref.getTypeValue());
+		refDoc.put(MdekKeys.TYPE_OF_DOCUMENT_KEY, ref.getTypeKey());
 		refDoc.put(MdekKeys.VOLUME, ref.getVolume());
 
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT, refDoc);
@@ -779,13 +801,26 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
 		for (T015Legist ref : refs) {
-			refList.add(ref.getName());				
+			IngridDocument refDoc = new IngridDocument();
+			mapT015Legist(ref, refDoc);
+			refList.add(refDoc);
 		}
 		objectDoc.put(MdekKeys.LEGISLATIONS, refList);
 		
 		return objectDoc;
+	}
+
+	private IngridDocument mapT015Legist(T015Legist ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+		refDoc.put(MdekKeys.LEGISLATION_VALUE, ref.getLegistValue());
+		refDoc.put(MdekKeys.LEGISLATION_KEY, ref.getLegistKey());
+		
+		return refDoc;
 	}
 
 	private IngridDocument mapT0110AvailFormat(T0110AvailFormat ref, IngridDocument refDoc) {
@@ -793,7 +828,8 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
-		refDoc.put(MdekKeys.FORMAT_NAME, ref.getName());
+		refDoc.put(MdekKeys.FORMAT_NAME, ref.getFormatValue());
+		refDoc.put(MdekKeys.FORMAT_NAME_KEY, ref.getFormatKey());
 		refDoc.put(MdekKeys.FORMAT_VERSION, ref.getVer());
 		refDoc.put(MdekKeys.FORMAT_SPECIFICATION, ref.getSpecification());
 		refDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, ref.getFileDecompressionTechnique());
@@ -930,9 +966,9 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		ArrayList<Integer> refList = new ArrayList<Integer>(refs.size());
 		for (T0114EnvCategory ref : refs) {
-			refList.add(ref.getName());				
+			refList.add(ref.getCatKey());				
 		}
 		objectDoc.put(MdekKeys.ENV_CATEGORIES, refList);
 		
@@ -943,9 +979,9 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		ArrayList<Integer> refList = new ArrayList<Integer>(refs.size());
 		for (T0114EnvTopic ref : refs) {
-			refList.add(ref.getName());				
+			refList.add(ref.getTopicKey());				
 		}
 		objectDoc.put(MdekKeys.ENV_TOPICS, refList);
 		
@@ -1064,7 +1100,8 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
-		refDoc.put(MdekKeys.SERVICE_TYPE, ref.getType());
+		refDoc.put(MdekKeys.SERVICE_TYPE, ref.getTypeValue());
+		refDoc.put(MdekKeys.SERVICE_TYPE_KEY, ref.getTypeKey());
 		refDoc.put(MdekKeys.SYSTEM_HISTORY, ref.getHistory());
 		refDoc.put(MdekKeys.SYSTEM_ENVIRONMENT, ref.getEnvironment());
 		refDoc.put(MdekKeys.DATABASE_OF_SYSTEM, ref.getBase());
@@ -1112,7 +1149,8 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
-		refDoc.put(MdekKeys.SERVICE_OPERATION_NAME, ref.getName());
+		refDoc.put(MdekKeys.SERVICE_OPERATION_NAME, ref.getNameValue());
+		refDoc.put(MdekKeys.SERVICE_OPERATION_NAME_KEY, ref.getNameKey());
 		refDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, ref.getDescr());
 		refDoc.put(MdekKeys.INVOCATION_NAME, ref.getInvocationName());
 

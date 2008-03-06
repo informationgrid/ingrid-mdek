@@ -11,7 +11,8 @@ public class SpatialRefValue implements IEntity {
 	private int version;
 	private String type;
 	private Long spatialRefSnsId;
-	private String name;
+	private Integer nameKey;
+	private String nameValue;
 	private String nativekey;
 	private Double x1;
 	private Double y1;
@@ -54,12 +55,20 @@ public class SpatialRefValue implements IEntity {
 		this.spatialRefSnsId = spatialRefSnsId;
 	}
 
-	public String getName() {
-		return name;
+	public Integer getNameKey() {
+		return nameKey;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setNameKey(Integer nameKey) {
+		this.nameKey = nameKey;
+	}
+
+	public String getNameValue() {
+		return nameValue;
+	}
+
+	public void setNameValue(String nameValue) {
+		this.nameValue = nameValue;
 	}
 
 	public String getNativekey() {

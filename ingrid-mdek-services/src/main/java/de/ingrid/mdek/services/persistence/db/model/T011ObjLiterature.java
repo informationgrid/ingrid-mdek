@@ -9,7 +9,8 @@ public class T011ObjLiterature implements IEntity {
 	private Long objId;
 	private String author;
 	private String publisher;
-	private String type;
+	private Integer typeKey;
+	private String typeValue;
 	private String publishIn;
 	private String volume;
 	private String sides;
@@ -65,12 +66,20 @@ public class T011ObjLiterature implements IEntity {
 		this.publisher = publisher;
 	}
 
-	public String getType() {
-		return type;
+	public Integer getTypeKey() {
+		return typeKey;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setTypeKey(Integer typeKey) {
+		this.typeKey = typeKey;
+	}
+
+	public String getTypeValue() {
+		return typeValue;
+	}
+
+	public void setTypeValue(String typeValue) {
+		this.typeValue = typeValue;
 	}
 
 	public String getPublishIn() {

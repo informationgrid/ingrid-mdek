@@ -9,7 +9,8 @@
       <version name="version" type="integer" column="version"/>
       <property name="objGeoId" type="long" column="obj_geo_id"/>
       <property name="line" type="integer" column="line"/>
-      <property name="symbolCat" type="string" column="symbol_cat"/>
+      <property name="symbolCatKey" type="integer" column="symbol_cat_key"/>
+      <property name="symbolCatValue" type="string" column="symbol_cat_value"/>
       <property name="symbolDate" type="string" column="symbol_date"/>
       <property name="edition" type="string" column="edition"/>
 

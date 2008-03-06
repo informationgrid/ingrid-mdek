@@ -8,7 +8,8 @@
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="objId" type="long" column="obj_id"/>
-      <property name="type" type="string" column="type"/>
+      <property name="typeKey" type="integer" column="type_key"/>
+      <property name="typeValue" type="string" column="type_value"/>
       <property name="history" type="string" column="history"/>
       <property name="environment" type="string" column="environment"/>
       <property name="base" type="string" column="base"/>

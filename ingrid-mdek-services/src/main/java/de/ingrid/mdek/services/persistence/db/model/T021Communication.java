@@ -8,7 +8,8 @@ public class T021Communication implements IEntity {
 	private int version;
 	private Long adrId;
 	private Integer line;
-	private String commType;
+	private Integer commtypeKey;
+	private String commtypeValue;
 	private String commValue;
 	private String descr;
 
@@ -47,12 +48,20 @@ public class T021Communication implements IEntity {
 		this.line = line;
 	}
 
-	public String getCommType() {
-		return commType;
+	public Integer getCommtypeKey() {
+		return commtypeKey;
 	}
 
-	public void setCommType(String commType) {
-		this.commType = commType;
+	public void setCommtypeKey(Integer commtypeKey) {
+		this.commtypeKey = commtypeKey;
+	}
+
+	public String getCommtypeValue() {
+		return commtypeValue;
+	}
+
+	public void setCommtypeValue(String commtypeValue) {
+		this.commtypeValue = commtypeValue;
 	}
 
 	public String getCommValue() {

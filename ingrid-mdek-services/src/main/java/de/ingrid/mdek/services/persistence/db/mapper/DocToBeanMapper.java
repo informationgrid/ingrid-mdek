@@ -293,7 +293,8 @@ public class DocToBeanMapper implements IMapper {
 		aIn.setInstitution(aDocIn.getString(MdekKeys.ORGANISATION));
 		aIn.setLastname(aDocIn.getString(MdekKeys.NAME));
 		aIn.setFirstname(aDocIn.getString(MdekKeys.GIVEN_NAME));
-		aIn.setTitle(aDocIn.getString(MdekKeys.TITLE_OR_FUNCTION));
+		aIn.setTitleValue(aDocIn.getString(MdekKeys.TITLE_OR_FUNCTION));
+		aIn.setTitleKey((Integer)aDocIn.get(MdekKeys.TITLE_OR_FUNCTION_KEY));
 		aIn.setWorkState((String) aDocIn.get(MdekKeys.WORK_STATE));
 		String creationDate = (String) aDocIn.get(MdekKeys.DATE_OF_CREATION);
 		if (creationDate != null) {
@@ -312,7 +313,8 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setPostbox(aDocIn.getString(MdekKeys.POST_BOX));
 
 			aIn.setJob(aDocIn.getString(MdekKeys.FUNCTION));
-			aIn.setAddress(aDocIn.getString(MdekKeys.NAME_FORM));
+			aIn.setAddressValue(aDocIn.getString(MdekKeys.NAME_FORM));
+			aIn.setAddressKey((Integer)aDocIn.get(MdekKeys.NAME_FORM_KEY));
 			aIn.setDescr(aDocIn.getString(MdekKeys.ADDRESS_DESCRIPTION));
 
 			// update associations
@@ -483,7 +485,8 @@ public class DocToBeanMapper implements IMapper {
 		IngridDocument locDoc,
 		SpatialRefValue spRefValue) 
 	{
-		spRefValue.setName((String) locDoc.get(MdekKeys.LOCATION_NAME));
+		spRefValue.setNameValue(locDoc.getString(MdekKeys.LOCATION_NAME));
+		spRefValue.setNameKey((Integer)locDoc.get(MdekKeys.LOCATION_NAME_KEY));
 		spRefValue.setType((String) locDoc.get(MdekKeys.LOCATION_TYPE));
 		spRefValue.setNativekey((String) locDoc.get(MdekKeys.LOCATION_CODE));
 		spRefValue.setX1((Double) locDoc.get(MdekKeys.WEST_BOUNDING_COORDINATE));
@@ -509,8 +512,11 @@ public class DocToBeanMapper implements IMapper {
 		ArrayList<SpatialReference> spatialRefs_unprocessed = new ArrayList<SpatialReference>(spatialRefs);
 		int line = 1;
 		for (IngridDocument loc : locList) {
-			String locName = (String) loc.get(MdekKeys.LOCATION_NAME);
-			String locName_notNull = (locName == null) ? "" : locName;
+			// TODO: @Martin, bitte check mal die Einführung von name key value an der Stelle
+			String locNameValue = (String) loc.get(MdekKeys.LOCATION_NAME);
+			String locNameValue_notNull = (locNameValue == null) ? "" : locNameValue;
+			Integer locNameKey = (Integer) loc.get(MdekKeys.LOCATION_NAME_KEY);
+			Integer locNameKey_notNull = (locNameKey == null) ? new Integer(-1) : locNameKey;
 			String locType = (String) loc.get(MdekKeys.LOCATION_TYPE);
 			String locSnsId = (String) loc.get(MdekKeys.LOCATION_SNS_ID);
 			String locSnsId_notNull = (locSnsId == null) ? "" : locSnsId;
@@ -522,11 +528,13 @@ public class DocToBeanMapper implements IMapper {
 				if (spRefValue != null) {
 					SpatialRefSns spRefSns = spRefValue.getSpatialRefSns();
 
-					String refName_notNull = (spRefValue.getName() == null) ? "" : spRefValue.getName();
+					String refNameValue_notNull = (spRefValue.getNameValue() == null) ? "" : spRefValue.getNameValue();
+					Integer refNameKey_notNull = (spRefValue.getNameKey() == null) ? new Integer(-1) : spRefValue.getNameKey();
 					String refType = spRefValue.getType();
 					String refSnsId_notNull = (spRefSns == null) ? "" : spRefSns.getSnsId();
 					String refCode_notNull = (spRefValue.getNativekey() == null) ? "" : spRefValue.getNativekey();
-					if (locName_notNull.equals(refName_notNull) &&
+					if (locNameValue_notNull.equals(refNameValue_notNull) &&
+						locNameKey_notNull.intValue() == refNameKey_notNull.intValue() &&
 						locType.equals(refType) &&
 						locSnsId_notNull.equals(refSnsId_notNull) &&
 						locCode_notNull.equals(refCode_notNull))
@@ -550,7 +558,7 @@ public class DocToBeanMapper implements IMapper {
 				}
 
 				// then load/create SpatialRefValue
-				SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locName, spRefSns, locCode, oIn.getId());
+				SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, locCode, oIn.getId());
 				mapSpatialRefValue(spRefSns, loc, spRefValue);
 
 				// then create SpatialReference
@@ -656,7 +664,8 @@ public class DocToBeanMapper implements IMapper {
 		int line)
 	{
 		ref.setAdrId(aFrom.getId());
-		ref.setCommType(refDoc.getString(MdekKeys.COMMUNICATION_MEDIUM));
+		ref.setCommtypeValue(refDoc.getString(MdekKeys.COMMUNICATION_MEDIUM));
+		ref.setCommtypeKey((Integer)refDoc.get(MdekKeys.COMMUNICATION_MEDIUM_KEY));
 		ref.setCommValue(refDoc.getString(MdekKeys.COMMUNICATION_VALUE));
 		ref.setDescr(refDoc.getString(MdekKeys.COMMUNICATION_DESCRIPTION));
 		ref.setLine(line);
@@ -676,7 +685,8 @@ public class DocToBeanMapper implements IMapper {
 		urlRef.setUrlLink((String) urlDoc.get(MdekKeys.LINKAGE_URL));
 		urlRef.setSpecialRef((Integer) urlDoc.get(MdekKeys.LINKAGE_REFERENCE_ID));
 		urlRef.setSpecialName((String) urlDoc.get(MdekKeys.LINKAGE_REFERENCE));
-		urlRef.setDatatype((String) urlDoc.get(MdekKeys.LINKAGE_DATATYPE));
+		urlRef.setDatatypeValue((String) urlDoc.get(MdekKeys.LINKAGE_DATATYPE));
+		urlRef.setDatatypeKey((Integer)urlDoc.get(MdekKeys.LINKAGE_DATATYPE_KEY));
 		urlRef.setVolume((String) urlDoc.get(MdekKeys.LINKAGE_VOLUME));
 		urlRef.setIcon((String) urlDoc.get(MdekKeys.LINKAGE_ICON_URL));
 		urlRef.setIconText((String) urlDoc.get(MdekKeys.LINKAGE_ICON_TEXT));
@@ -747,20 +757,21 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	private T014InfoImpart mapT014InfoImpart(T01Object oFrom,
-			String name,
+			IngridDocument refDoc,
 			T014InfoImpart ref, 
 			int line) 
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setName(name);
+		ref.setImpartValue(refDoc.getString(MdekKeys.EXPORT_VALUE));
+		ref.setImpartKey((Integer)refDoc.get(MdekKeys.EXPORT_KEY));
 		ref.setLine(line);
 
 		return ref;
 	}
 	private void updateT014InfoImparts(IngridDocument oDocIn, T01Object oIn) {
-		List<String> refDocs = (List) oDocIn.get(MdekKeys.EXPORTS);
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.EXPORTS);
 		if (refDocs == null) {
-			refDocs = new ArrayList<String>(0);
+			refDocs = new ArrayList<IngridDocument>(0);
 		}
 		Set<T014InfoImpart> refs = oIn.getT014InfoImparts();
 		ArrayList<T014InfoImpart> refs_unprocessed = new ArrayList<T014InfoImpart>(refs);
@@ -772,9 +783,9 @@ public class DocToBeanMapper implements IMapper {
 		}		
 		// and add all new ones !
 		int line = 1;
-		for (String refName : refDocs) {
+		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
-			T014InfoImpart ref = mapT014InfoImpart(oIn, refName, new T014InfoImpart(), line);
+			T014InfoImpart ref = mapT014InfoImpart(oIn, refDoc, new T014InfoImpart(), line);
 			refs.add(ref);
 			line++;
 		}
@@ -798,12 +809,12 @@ public class DocToBeanMapper implements IMapper {
 			ref.setSpecialBase(refDoc.getString(MdekKeys.TECHNICAL_BASE));
 			ref.setDataBase(refDoc.getString(MdekKeys.DATA));
 			ref.setMethod(refDoc.getString(MdekKeys.METHOD_OF_PRODUCTION));
-			ref.setCoord(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
+			ref.setReferencesystemValue(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
 			ref.setRecExact((Double)refDoc.get(MdekKeys.RESOLUTION));
 			ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
 			ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
 			ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
-			ref.setReferencesystemId((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
+			ref.setReferencesystemKey((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
 			
@@ -841,7 +852,8 @@ public class DocToBeanMapper implements IMapper {
 				// add all as new ones
 				T011ObjGeoKeyc ref = new T011ObjGeoKeyc();
 				ref.setObjGeoId(in.getId());
-				ref.setSubjectCat(refDoc.getString(MdekKeys.SUBJECT_CAT));
+				ref.setKeycValue(refDoc.getString(MdekKeys.SUBJECT_CAT));
+				ref.setKeycKey((Integer)refDoc.get(MdekKeys.SUBJECT_CAT_KEY));
 				ref.setKeyDate(refDoc.getString(MdekKeys.KEY_DATE));
 				ref.setEdition(refDoc.getString(MdekKeys.EDITION));
 				ref.setLine(line);
@@ -897,7 +909,8 @@ public class DocToBeanMapper implements IMapper {
 				// add all as new ones
 				T011ObjGeoSymc ref = new T011ObjGeoSymc();
 				ref.setObjGeoId(in.getId());
-				ref.setSymbolCat(refDoc.getString(MdekKeys.SYMBOL_CAT));
+				ref.setSymbolCatValue(refDoc.getString(MdekKeys.SYMBOL_CAT));
+				ref.setSymbolCatKey((Integer)refDoc.get(MdekKeys.SYMBOL_CAT_KEY));
 				ref.setSymbolDate(refDoc.getString(MdekKeys.SYMBOL_DATE));
 				ref.setEdition(refDoc.getString(MdekKeys.SYMBOL_EDITION));
 				ref.setLine(line);
@@ -1014,7 +1027,8 @@ public class DocToBeanMapper implements IMapper {
 			ref.setPublishLoc(refDoc.getString(MdekKeys.PUBLISHING_PLACE));
 			ref.setPublishYear(refDoc.getString(MdekKeys.YEAR));
 			ref.setSides(refDoc.getString(MdekKeys.PAGES));
-			ref.setType(refDoc.getString(MdekKeys.TYPE_OF_DOCUMENT));
+			ref.setTypeValue(refDoc.getString(MdekKeys.TYPE_OF_DOCUMENT));
+			ref.setTypeKey((Integer)refDoc.get(MdekKeys.TYPE_OF_DOCUMENT_KEY));
 			ref.setVolume(refDoc.getString(MdekKeys.VOLUME));
 			refs.add(ref);
 		}
@@ -1022,20 +1036,21 @@ public class DocToBeanMapper implements IMapper {
 	}	
 	
 	private T015Legist mapT015Legist(T01Object oFrom,
-			String name,
+			IngridDocument refDoc,
 			T015Legist ref, 
 			int line)
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setName(name);
+		ref.setLegistValue(refDoc.getString(MdekKeys.LEGISLATION_VALUE));
+		ref.setLegistKey((Integer)refDoc.get(MdekKeys.LEGISLATION_KEY));
 		ref.setLine(line);
 
 		return ref;
 	}
 	private void updateT015Legists(IngridDocument oDocIn, T01Object oIn) {
-		List<String> refDocs = (List) oDocIn.get(MdekKeys.LEGISLATIONS);
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.LEGISLATIONS);
 		if (refDocs == null) {
-			refDocs = new ArrayList<String>(0);
+			refDocs = new ArrayList<IngridDocument>(0);
 		}
 		Set<T015Legist> refs = oIn.getT015Legists();
 		ArrayList<T015Legist> refs_unprocessed = new ArrayList<T015Legist>(refs);
@@ -1047,9 +1062,9 @@ public class DocToBeanMapper implements IMapper {
 		}		
 		// and add all new ones !
 		int line = 1;
-		for (String refName : refDocs) {
+		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
-			T015Legist ref = mapT015Legist(oIn, refName, new T015Legist(), line);
+			T015Legist ref = mapT015Legist(oIn, refDoc, new T015Legist(), line);
 			refs.add(ref);
 			line++;
 		}
@@ -1061,7 +1076,8 @@ public class DocToBeanMapper implements IMapper {
 			int line) 
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setName((String) refDoc.get(MdekKeys.FORMAT_NAME));
+		ref.setFormatValue((String) refDoc.get(MdekKeys.FORMAT_NAME));
+		ref.setFormatKey((Integer) refDoc.get(MdekKeys.FORMAT_NAME_KEY));
 		ref.setVer((String) refDoc.get(MdekKeys.FORMAT_VERSION));
 		ref.setSpecification((String) refDoc.get(MdekKeys.FORMAT_SPECIFICATION));
 		ref.setFileDecompressionTechnique((String) refDoc.get(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE));
@@ -1301,20 +1317,20 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	private T0114EnvCategory mapT0114EnvCategory(T01Object oFrom,
-			String name,
+			Integer refValue,
 			T0114EnvCategory ref,
 			int line)
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setName(name);
+		ref.setCatKey(refValue);
 		ref.setLine(line);
 
 		return ref;
 	}
 	private void updateT0114EnvCategorys(IngridDocument oDocIn, T01Object oIn) {
-		List<String> refNames = (List) oDocIn.get(MdekKeys.ENV_CATEGORIES);
-		if (refNames == null) {
-			refNames = new ArrayList<String>(0);
+		List<Integer> refValues = (List) oDocIn.get(MdekKeys.ENV_CATEGORIES);
+		if (refValues == null) {
+			refValues = new ArrayList<Integer>(0);
 		}
 		Set<T0114EnvCategory> refs = oIn.getT0114EnvCategorys();
 		ArrayList<T0114EnvCategory> refs_unprocessed = new ArrayList<T0114EnvCategory>(refs);
@@ -1326,28 +1342,28 @@ public class DocToBeanMapper implements IMapper {
 		}		
 		// and add all new ones !
 		int line = 1;
-		for (String refName : refNames) {
-			T0114EnvCategory ref = mapT0114EnvCategory(oIn, refName, new T0114EnvCategory(), line);
+		for (Integer refVal : refValues) {
+			T0114EnvCategory ref = mapT0114EnvCategory(oIn, refVal, new T0114EnvCategory(), line);
 			refs.add(ref);
 			line++;
 		}
 	}
 
 	private T0114EnvTopic mapT0114EnvTopic(T01Object oFrom,
-			String name,
+			Integer refValue,
 			T0114EnvTopic ref,
 			int line)
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setName(name);
+		ref.setTopicKey(refValue);
 		ref.setLine(line);
 
 		return ref;
 	}
 	private void updateT0114EnvTopics(IngridDocument oDocIn, T01Object oIn) {
-		List<String> refNames = (List) oDocIn.get(MdekKeys.ENV_TOPICS);
-		if (refNames == null) {
-			refNames = new ArrayList<String>(0);
+		List<Integer> refValues = (List) oDocIn.get(MdekKeys.ENV_TOPICS);
+		if (refValues == null) {
+			refValues = new ArrayList<Integer>(0);
 		}
 		Set<T0114EnvTopic> refs = oIn.getT0114EnvTopics();
 		ArrayList<T0114EnvTopic> refs_unprocessed = new ArrayList<T0114EnvTopic>(refs);
@@ -1359,8 +1375,8 @@ public class DocToBeanMapper implements IMapper {
 		}		
 		// and add all new ones !
 		int line = 1;
-		for (String refName : refNames) {
-			T0114EnvTopic ref = mapT0114EnvTopic(oIn, refName, new T0114EnvTopic(), line);
+		for (Integer refValue : refValues) {
+			T0114EnvTopic ref = mapT0114EnvTopic(oIn, refValue, new T0114EnvTopic(), line);
 			refs.add(ref);
 			line++;
 		}
@@ -1524,7 +1540,8 @@ public class DocToBeanMapper implements IMapper {
 			T011ObjServ ref) 
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setType(refDoc.getString(MdekKeys.SERVICE_TYPE));
+		ref.setTypeValue(refDoc.getString(MdekKeys.SERVICE_TYPE));
+		ref.setTypeKey((Integer)refDoc.get(MdekKeys.SERVICE_TYPE_KEY));
 		ref.setHistory(refDoc.getString(MdekKeys.SYSTEM_HISTORY));
 		ref.setEnvironment(refDoc.getString(MdekKeys.SYSTEM_ENVIRONMENT));
 		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
@@ -1603,7 +1620,8 @@ public class DocToBeanMapper implements IMapper {
 			int line)
 	{
 		ref.setObjServId(oFrom.getId());
-		ref.setName(refDoc.getString(MdekKeys.SERVICE_OPERATION_NAME));
+		ref.setNameValue(refDoc.getString(MdekKeys.SERVICE_OPERATION_NAME));
+		ref.setNameKey((Integer)refDoc.get(MdekKeys.SERVICE_OPERATION_NAME_KEY));
 		ref.setDescr(refDoc.getString(MdekKeys.SERVICE_OPERATION_DESCRIPTION));
 		ref.setInvocationName(refDoc.getString(MdekKeys.INVOCATION_NAME));
 		ref.setLine(line);

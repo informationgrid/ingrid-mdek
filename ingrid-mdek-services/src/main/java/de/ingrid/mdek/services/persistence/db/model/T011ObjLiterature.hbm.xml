@@ -10,7 +10,8 @@
       <property name="objId" type="long" column="obj_id"/>
       <property name="author" type="string" column="author"/>
       <property name="publisher" type="string" column="publisher"/>
-      <property name="type" type="string" column="type"/>
+      <property name="typeKey" type="integer" column="type_key"/>
+      <property name="typeValue" type="string" column="type_value"/>
       <property name="publishIn" type="string" column="publish_in"/>
       <property name="volume" type="string" column="volume"/>
       <property name="sides" type="string" column="sides"/>

@@ -9,7 +9,8 @@
       <version name="version" type="integer" column="version"/>
       <property name="objServId" type="long" column="obj_serv_id"/>
       <property name="line" type="integer" column="line"/>
-      <property name="name" type="string" column="name"/>
+      <property name="nameKey" type="integer" column="name_key"/>
+      <property name="nameValue" type="string" column="name_value"/>
       <property name="descr" type="string" column="descr"/>
       <property name="invocationName" type="string" column="invocation_name"/>
 

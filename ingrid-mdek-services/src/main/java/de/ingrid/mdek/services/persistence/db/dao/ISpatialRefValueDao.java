@@ -24,14 +24,14 @@ public interface ISpatialRefValueDao
 	 * @param objectId connected to this object
 	 * @return SpatialRefValue or null
 	 */
-	SpatialRefValue loadRefValue(String type, String name, Long spatialRefSnsId, String nativekey, Long objId);
+	SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey, Long spatialRefSnsId, String nativekey, Long objId);
 
 	/** Load Freien SpatialRefValue according to given values. Returns null if not found. 
 	 * @param name
 	 * @param objectId connected to this object
 	 * @return SpatialRefValue or null
 	 */
-	SpatialRefValue loadFreiRefValue(String name, Long objId);
+	SpatialRefValue loadFreiRefValue(String nameValue, Integer nameKey, Long objId);
 
 	/** Load SNS Geo-Thesaurus SpatialRefValue according to given values. Returns null if not found. 
 	 * @param name
@@ -43,12 +43,13 @@ public interface ISpatialRefValueDao
 
 	/** Load SpatialRefValue according to given values. If not found create AND save it !
 	 * @param type
-	 * @param name
+	 * @param nameValue
+	 * @param nameKey
 	 * @param spRefSns according bean (or null)
 	 * @param nativekey
 	 * @param objectId connected to this object
 	 * @return persisted SpatialRefValue (with Id)
 	 */
-	SpatialRefValue loadOrCreate(String type, String name, SpatialRefSns spRefSns, String nativekey, Long objectId);
+	SpatialRefValue loadOrCreate(String type, String nameValue, Integer nameKey, SpatialRefSns spRefSns, String nativekey, Long objectId);
 
 }

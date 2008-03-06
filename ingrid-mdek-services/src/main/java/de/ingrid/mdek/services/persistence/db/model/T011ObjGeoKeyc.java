@@ -8,7 +8,8 @@ public class T011ObjGeoKeyc implements IEntity {
 	private int version;
 	private Long objGeoId;
 	private Integer line;
-	private String subjectCat;
+	private Integer keycKey;
+	private String keycValue;
 	private String keyDate;
 	private String edition;
 
@@ -47,12 +48,20 @@ public class T011ObjGeoKeyc implements IEntity {
 		this.line = line;
 	}
 
-	public String getSubjectCat() {
-		return subjectCat;
+	public Integer getKeycKey() {
+		return keycKey;
 	}
 
-	public void setSubjectCat(String subjectCat) {
-		this.subjectCat = subjectCat;
+	public void setKeycKey(Integer keycKey) {
+		this.keycKey = keycKey;
+	}
+
+	public String getKeycValue() {
+		return keycValue;
+	}
+
+	public void setKeycValue(String keycValue) {
+		this.keycValue = keycValue;
 	}
 
 	public String getKeyDate() {

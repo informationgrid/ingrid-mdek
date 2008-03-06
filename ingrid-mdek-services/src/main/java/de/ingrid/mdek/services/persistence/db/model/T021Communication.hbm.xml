@@ -9,7 +9,8 @@
       <version name="version" type="integer" column="version"/>
       <property name="adrId" type="long" column="adr_id"/>
       <property name="line" type="integer" column="line"/>
-      <property name="commType" type="string" column="comm_type"/>
+      <property name="commtypeKey" type="integer" column="commtype_key"/>
+      <property name="commtypeValue" type="string" column="commtype_value"/>
       <property name="commValue" type="string" column="comm_value"/>
       <property name="descr" type="string" column="descr"/>
 

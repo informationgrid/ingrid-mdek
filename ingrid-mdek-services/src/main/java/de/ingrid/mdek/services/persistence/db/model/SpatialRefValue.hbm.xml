@@ -9,7 +9,8 @@
       <version name="version" type="integer" column="version"/>
       <property name="type" type="string" column="type"/>
       <property name="spatialRefSnsId" type="long" column="spatial_ref_sns_id"/>
-      <property name="name" type="string" column="name"/>
+      <property name="nameKey" type="integer" column="name_key"/>
+      <property name="nameValue" type="string" column="name_value"/>
       <property name="nativekey" type="string" column="nativekey"/>
       <property name="x1" type="double" column="x1"/>
       <property name="y1" type="double" column="y1"/>

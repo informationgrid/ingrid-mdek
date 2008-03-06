@@ -11,12 +11,12 @@
       <property name="specialBase" type="string" column="special_base"/>
       <property name="dataBase" type="string" column="data_base"/>
       <property name="method" type="string" column="method"/>
-      <property name="coord" type="string" column="coord"/>
+      <property name="referencesystemValue" type="string" column="referencesystem_value"/>
+      <property name="referencesystemKey" type="integer" column="referencesystem_key"/>
       <property name="recExact" type="double" column="rec_exact"/>
       <property name="recGrade" type="double" column="rec_grade"/>
       <property name="hierarchyLevel" type="integer" column="hierarchy_level"/>
       <property name="vectorTopologyLevel" type="integer" column="vector_topology_level"/>
-      <property name="referencesystemId" type="integer" column="referencesystem_id"/>
       <property name="posAccuracyVertical" type="double" column="pos_accuracy_vertical"/>
       <property name="keycInclWDataset" type="integer" column="keyc_incl_w_dataset"/>
 

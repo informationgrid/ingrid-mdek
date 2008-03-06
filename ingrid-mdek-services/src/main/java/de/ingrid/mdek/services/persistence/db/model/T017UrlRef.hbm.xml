@@ -13,7 +13,8 @@
       <property name="specialRef" type="integer" column="special_ref"/>
       <property name="specialName" type="string" column="special_name"/>
       <property name="content" type="string" column="content"/>
-      <property name="datatype" type="string" column="datatype"/>
+      <property name="datatypeKey" type="integer" column="datatype_key"/>
+      <property name="datatypeValue" type="string" column="datatype_value"/>
       <property name="volume" type="string" column="volume"/>
       <property name="icon" type="string" column="icon"/>
       <property name="iconText" type="string" column="icon_text"/>

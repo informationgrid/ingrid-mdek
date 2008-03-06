@@ -10,7 +10,8 @@ public class T011ObjServ implements IEntity {
 	private Long id;
 	private int version;
 	private Long objId;
-	private String type;
+	private Integer typeKey;
+	private String typeValue;
 	private String history;
 	private String environment;
 	private String base;
@@ -45,12 +46,20 @@ public class T011ObjServ implements IEntity {
 		this.objId = objId;
 	}
 
-	public String getType() {
-		return type;
+	public Integer getTypeKey() {
+		return typeKey;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setTypeKey(Integer typeKey) {
+		this.typeKey = typeKey;
+	}
+
+	public String getTypeValue() {
+		return typeValue;
+	}
+
+	public void setTypeValue(String typeValue) {
+		this.typeValue = typeValue;
 	}
 
 	public String getHistory() {

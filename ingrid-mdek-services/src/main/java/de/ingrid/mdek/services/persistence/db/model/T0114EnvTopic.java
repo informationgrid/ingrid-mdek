@@ -8,7 +8,7 @@ public class T0114EnvTopic implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
-	private String name;
+	private Integer topicKey;
 
 
 	public T0114EnvTopic() {}
@@ -45,12 +45,12 @@ public class T0114EnvTopic implements IEntity {
 		this.line = line;
 	}
 
-	public String getName() {
-		return name;
+	public Integer getTopicKey() {
+		return topicKey;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setTopicKey(Integer topicKey) {
+		this.topicKey = topicKey;
 	}
 
 

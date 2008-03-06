@@ -29,7 +29,7 @@ public class SpatialRefValueDaoHibernate
         super(factory, SpatialRefValue.class);
     }
     
-	public SpatialRefValue loadRefValue(String type, String name, Long spatialRefSnsId, String nativekey, Long objId) {
+	public SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey, Long spatialRefSnsId, String nativekey, Long objId) {
 		if (LOG.isDebugEnabled()) {
 //			LOG.debug("type: " + type + ", name: " + name + ", SpatialRefSns_ID: " + spatialRefSnsId + ", nativeKey: " + nativekey);			
 		}
@@ -38,10 +38,10 @@ public class SpatialRefValueDaoHibernate
 
 		SpatialRefValue spRefValue = null;
 		if (SpatialReferenceType.FREI == spRefType) {
-			spRefValue = loadFreiRefValue(name, objId);
+			spRefValue = loadFreiRefValue(nameValue, nameKey, objId);
 
 		} else if (SpatialReferenceType.GEO_THESAURUS == spRefType) {
-			spRefValue = loadThesaurusRefValue(name, spatialRefSnsId, nativekey);
+			spRefValue = loadThesaurusRefValue(nameValue, spatialRefSnsId, nativekey);
 			
 		} else {
 			LOG.warn("Unknown Type of SpatialRefValue, type: " + type);
@@ -50,18 +50,53 @@ public class SpatialRefValueDaoHibernate
 		return spRefValue;
 	}
 
-	public SpatialRefValue loadFreiRefValue(String name, Long objId) {
+	public SpatialRefValue loadFreiRefValue(String nameValue, Integer nameKey, Long objId) {
 		Session session = getSession();
 
 		String qString = "from SpatialReference spRef " +
 			"left join spRef.spatialRefValue spRefVal " +
 			"where spRefVal.type = '" + SpatialReferenceType.FREI.getDbValue() + "' " +
-			"and spRefVal.name = ? " +
-			"and spRef.objId = ?";
-	
-		Query q = session.createQuery(qString);
-		q.setString(0, name);
-		q.setLong(1, objId);
+			"and spRef.objId = ? ";
+		Query q;
+		if (nameKey != null && nameKey.equals("-1")) {
+			if (nameValue != null) {
+				qString = qString + "and spRefVal.nameValue = ?";
+				q = session.createQuery(qString);
+				q.setLong(0, objId);
+				q.setString(0, nameValue);
+			} else {
+				qString = qString + "and spRefVal.nameValue is null";
+				q = session.createQuery(qString);
+				q.setLong(0, objId);
+			}
+		} else if (nameKey != null && !nameKey.equals("-1")) {
+			qString = qString + "and spRefVal.nameKey = ?";
+			q = session.createQuery(qString);
+			q.setLong(0, objId);
+			q.setInteger(1, nameKey);
+		} else {
+			if (nameKey != null && nameValue != null) {
+				qString = qString + "and spRefVal.nameKey = ? and spRefVal.nameValue = ?";
+				q = session.createQuery(qString);
+				q.setLong(0, objId);
+				q.setInteger(1, nameKey);
+				q.setString(2, nameValue);
+			} else if (nameKey == null && nameValue != null) {
+				qString = qString + "and spRefVal.nameKey is null and spRefVal.nameValue = ?";
+				q = session.createQuery(qString);
+				q.setLong(0, objId);
+				q.setString(2, nameValue);
+			} else if (nameKey != null && nameValue == null) {
+				qString = qString + "and spRefVal.nameKey = ? and spRefVal.nameValue is null";
+				q = session.createQuery(qString);
+				q.setLong(0, objId);
+				q.setInteger(1, nameKey);
+			} else {
+				qString = qString + "and spRefVal.nameKey is null and spRefVal.nameValue is null";
+				q = session.createQuery(qString);
+				q.setLong(0, objId);
+			}
+		}
 
 		SpatialRefValue spRefValue = null;
 		SpatialReference spRef = (SpatialReference) q.uniqueResult();
@@ -72,17 +107,17 @@ public class SpatialRefValueDaoHibernate
 		return spRefValue; 
 	}
 
-	public SpatialRefValue loadThesaurusRefValue(String name, Long spatialRefSnsId, String nativekey) {
+	public SpatialRefValue loadThesaurusRefValue(String nameValue, Long spatialRefSnsId, String nativekey) {
 		Session session = getSession();
 
 		String qString = "from SpatialRefValue spRefVal " +
 			"left join fetch spRefVal.spatialRefSns " +
 			"where spRefVal.type = '" + SpatialReferenceType.GEO_THESAURUS.getDbValue() + "' ";
 
-		if (name != null) {
-			qString += "and spRefVal.name = ? ";
+		if (nameValue != null) {
+			qString += "and spRefVal.nameValue = ? ";
 		} else {
-			qString += "and spRefVal.name is null ";			
+			qString += "and spRefVal.nameValue is null ";			
 		}
 		if (spatialRefSnsId != null) {
 			qString += "and spRefVal.spatialRefSnsId = ? ";
@@ -97,8 +132,8 @@ public class SpatialRefValueDaoHibernate
 	
 		Query q = session.createQuery(qString);
 		int nextPos = 0;
-		if (name != null) {
-			q.setString(nextPos++, name);
+		if (nameValue != null) {
+			q.setString(nextPos++, nameValue);
 		}
 		if (spatialRefSnsId != null) {
 			q.setLong(nextPos++, spatialRefSnsId);			
@@ -110,14 +145,15 @@ public class SpatialRefValueDaoHibernate
 		return (SpatialRefValue) q.uniqueResult();
 	}
 
-	public SpatialRefValue loadOrCreate(String type, String name, SpatialRefSns spRefSns, String nativekey, Long objId) {
+	public SpatialRefValue loadOrCreate(String type, String nameValue, Integer nameKey, SpatialRefSns spRefSns, String nativekey, Long objId) {
 		Long spRefSnsId = (spRefSns != null) ? spRefSns.getId() : null; 
-		SpatialRefValue spRefValue = loadRefValue(type, name, spRefSnsId, nativekey, objId);
+		SpatialRefValue spRefValue = loadRefValue(type, nameValue, nameKey, spRefSnsId, nativekey, objId);
 		
 		if (spRefValue == null) {
 			spRefValue = new SpatialRefValue();
 			spRefValue.setType(type);
-			spRefValue.setName(name);
+			spRefValue.setNameValue(nameValue);
+			spRefValue.setNameKey(nameKey);
 			spRefValue.setSpatialRefSns(spRefSns);
 			spRefValue.setSpatialRefSnsId(spRefSnsId);
 			spRefValue.setNativekey(nativekey);

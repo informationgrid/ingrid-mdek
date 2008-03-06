@@ -8,7 +8,7 @@ public class T0114EnvCategory implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
-	private String name;
+	private Integer catKey;
 
 
 	public T0114EnvCategory() {}
@@ -45,12 +45,12 @@ public class T0114EnvCategory implements IEntity {
 		this.line = line;
 	}
 
-	public String getName() {
-		return name;
+	public Integer getCatKey() {
+		return catKey;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setCatKey(Integer catKey) {
+		this.catKey = catKey;
 	}
 
 

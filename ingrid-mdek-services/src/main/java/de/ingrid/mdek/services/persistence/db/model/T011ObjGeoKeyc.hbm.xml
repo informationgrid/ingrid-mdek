@@ -9,7 +9,8 @@
       <version name="version" type="integer" column="version"/>
       <property name="objGeoId" type="long" column="obj_geo_id"/>
       <property name="line" type="integer" column="line"/>
-      <property name="subjectCat" type="string" column="subject_cat"/>
+      <property name="keycKey" type="integer" column="keyc_key"/>
+      <property name="keycValue" type="string" column="keyc_value"/>
       <property name="keyDate" type="string" column="key_date"/>
       <property name="edition" type="string" column="edition"/>
 

@@ -15,8 +15,10 @@ public class T02Address implements IEntity {
 	private String institution;
 	private String lastname;
 	private String firstname;
-	private String address;
-	private String title;
+	private Integer addressKey;
+	private String addressValue;
+	private Integer titleKey;
+	private String titleValue;
 	private String street;
 	private String postcode;
 	private String postbox;
@@ -105,20 +107,36 @@ public class T02Address implements IEntity {
 		this.firstname = firstname;
 	}
 
-	public String getAddress() {
-		return address;
+	public Integer getAddressKey() {
+		return addressKey;
 	}
 
-	public void setAddress(String address) {
-		this.address = address;
+	public void setAddressKey(Integer addressKey) {
+		this.addressKey = addressKey;
 	}
 
-	public String getTitle() {
-		return title;
+	public String getAddressValue() {
+		return addressValue;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setAddressValue(String addressValue) {
+		this.addressValue = addressValue;
+	}
+
+	public Integer getTitleKey() {
+		return titleKey;
+	}
+
+	public void setTitleKey(Integer titleKey) {
+		this.titleKey = titleKey;
+	}
+
+	public String getTitleValue() {
+		return titleValue;
+	}
+
+	public void setTitleValue(String titleValue) {
+		this.titleValue = titleValue;
 	}
 
 	public String getStreet() {

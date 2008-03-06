@@ -12,7 +12,8 @@ public class T017UrlRef implements IEntity {
 	private Integer specialRef;
 	private String specialName;
 	private String content;
-	private String datatype;
+	private Integer datatypeKey;
+	private String datatypeValue;
 	private String volume;
 	private String icon;
 	private String iconText;
@@ -86,12 +87,20 @@ public class T017UrlRef implements IEntity {
 		this.content = content;
 	}
 
-	public String getDatatype() {
-		return datatype;
+	public Integer getDatatypeKey() {
+		return datatypeKey;
 	}
 
-	public void setDatatype(String datatype) {
-		this.datatype = datatype;
+	public void setDatatypeKey(Integer datatypeKey) {
+		this.datatypeKey = datatypeKey;
+	}
+
+	public String getDatatypeValue() {
+		return datatypeValue;
+	}
+
+	public void setDatatypeValue(String datatypeValue) {
+		this.datatypeValue = datatypeValue;
 	}
 
 	public String getVolume() {

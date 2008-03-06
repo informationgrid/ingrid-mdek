@@ -11,7 +11,8 @@ public class T011ObjServOperation implements IEntity {
 	private int version;
 	private Long objServId;
 	private Integer line;
-	private String name;
+	private Integer nameKey;
+	private String nameValue;
 	private String descr;
 	private String invocationName;
 
@@ -54,12 +55,20 @@ public class T011ObjServOperation implements IEntity {
 		this.line = line;
 	}
 
-	public String getName() {
-		return name;
+	public Integer getNameKey() {
+		return nameKey;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setNameKey(Integer nameKey) {
+		this.nameKey = nameKey;
+	}
+
+	public String getNameValue() {
+		return nameValue;
+	}
+
+	public void setNameValue(String nameValue) {
+		this.nameValue = nameValue;
 	}
 
 	public String getDescr() {

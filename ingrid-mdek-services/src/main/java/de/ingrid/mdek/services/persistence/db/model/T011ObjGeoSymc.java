@@ -8,7 +8,8 @@ public class T011ObjGeoSymc implements IEntity {
 	private int version;
 	private Long objGeoId;
 	private Integer line;
-	private String symbolCat;
+	private Integer symbolCatKey;
+	private String symbolCatValue;
 	private String symbolDate;
 	private String edition;
 
@@ -47,12 +48,20 @@ public class T011ObjGeoSymc implements IEntity {
 		this.line = line;
 	}
 
-	public String getSymbolCat() {
-		return symbolCat;
+	public Integer getSymbolCatKey() {
+		return symbolCatKey;
 	}
 
-	public void setSymbolCat(String symbolCat) {
-		this.symbolCat = symbolCat;
+	public void setSymbolCatKey(Integer symbolCatKey) {
+		this.symbolCatKey = symbolCatKey;
+	}
+
+	public String getSymbolCatValue() {
+		return symbolCatValue;
+	}
+
+	public void setSymbolCatValue(String symbolCatValue) {
+		this.symbolCatValue = symbolCatValue;
 	}
 
 	public String getSymbolDate() {

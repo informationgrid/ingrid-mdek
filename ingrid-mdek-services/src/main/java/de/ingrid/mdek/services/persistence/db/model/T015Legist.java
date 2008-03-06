@@ -8,7 +8,8 @@ public class T015Legist implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
-	private String name;
+	private String legistValue;
+	private Integer legistKey;
 
 
 	public T015Legist() {}
@@ -45,12 +46,20 @@ public class T015Legist implements IEntity {
 		this.line = line;
 	}
 
-	public String getName() {
-		return name;
+	public String getLegistValue() {
+		return legistValue;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setLegistValue(String legistValue) {
+		this.legistValue = legistValue;
+	}
+
+	public Integer getLegistKey() {
+		return legistKey;
+	}
+
+	public void setLegistKey(Integer legistKey) {
+		this.legistKey = legistKey;
 	}
 
 

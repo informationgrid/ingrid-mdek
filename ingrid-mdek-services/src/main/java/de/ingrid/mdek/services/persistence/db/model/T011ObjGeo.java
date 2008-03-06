@@ -13,12 +13,12 @@ public class T011ObjGeo implements IEntity {
 	private String specialBase;
 	private String dataBase;
 	private String method;
-	private String coord;
+	private String referencesystemValue;
+	private Integer referencesystemKey;
 	private Double recExact;
 	private Double recGrade;
 	private Integer hierarchyLevel;
 	private Integer vectorTopologyLevel;
-	private Integer referencesystemId;
 	private Double posAccuracyVertical;
 	private Integer keycInclWDataset;
 
@@ -79,12 +79,20 @@ public class T011ObjGeo implements IEntity {
 		this.method = method;
 	}
 
-	public String getCoord() {
-		return coord;
+	public String getReferencesystemValue() {
+		return referencesystemValue;
 	}
 
-	public void setCoord(String coord) {
-		this.coord = coord;
+	public void setReferencesystemValue(String referencesystemValue) {
+		this.referencesystemValue = referencesystemValue;
+	}
+
+	public Integer getReferencesystemKey() {
+		return referencesystemKey;
+	}
+
+	public void setReferencesystemKey(Integer referencesystemKey) {
+		this.referencesystemKey = referencesystemKey;
 	}
 
 	public Double getRecExact() {
@@ -117,14 +125,6 @@ public class T011ObjGeo implements IEntity {
 
 	public void setVectorTopologyLevel(Integer vectorTopologyLevel) {
 		this.vectorTopologyLevel = vectorTopologyLevel;
-	}
-
-	public Integer getReferencesystemId() {
-		return referencesystemId;
-	}
-
-	public void setReferencesystemId(Integer referencesystemId) {
-		this.referencesystemId = referencesystemId;
 	}
 
 	public Double getPosAccuracyVertical() {

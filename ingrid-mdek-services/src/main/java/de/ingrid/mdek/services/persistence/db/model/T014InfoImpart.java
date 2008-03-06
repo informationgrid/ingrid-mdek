@@ -8,7 +8,8 @@ public class T014InfoImpart implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
-	private String name;
+	private String impartValue;
+	private Integer impartKey;
 
 
 	public T014InfoImpart() {}
@@ -45,12 +46,20 @@ public class T014InfoImpart implements IEntity {
 		this.line = line;
 	}
 
-	public String getName() {
-		return name;
+	public String getImpartValue() {
+		return impartValue;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setImpartValue(String impartValue) {
+		this.impartValue = impartValue;
+	}
+
+	public Integer getImpartKey() {
+		return impartKey;
+	}
+
+	public void setImpartKey(Integer impartKey) {
+		this.impartKey = impartKey;
 	}
 
 

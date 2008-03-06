@@ -8,7 +8,8 @@ public class T0110AvailFormat implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
-	private String name;
+	private String formatValue;
+	private Integer formatKey;
 	private String ver;
 	private String fileDecompressionTechnique;
 	private String specification;
@@ -48,12 +49,20 @@ public class T0110AvailFormat implements IEntity {
 		this.line = line;
 	}
 
-	public String getName() {
-		return name;
+	public String getFormatValue() {
+		return formatValue;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setFormatValue(String formatValue) {
+		this.formatValue = formatValue;
+	}
+
+	public Integer getFormatKey() {
+		return formatKey;
+	}
+
+	public void setFormatKey(Integer formatKey) {
+		this.formatKey = formatKey;
 	}
 
 	public String getVer() {

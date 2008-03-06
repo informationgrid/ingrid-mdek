@@ -13,8 +13,10 @@
       <property name="institution" type="string" column="institution"/>
       <property name="lastname" type="string" column="lastname"/>
       <property name="firstname" type="string" column="firstname"/>
-      <property name="address" type="string" column="address"/>
-      <property name="title" type="string" column="title"/>
+      <property name="addressKey" type="integer" column="address_key"/>
+      <property name="addressValue" type="string" column="address_value"/>
+      <property name="titleKey" type="integer" column="title_key"/>
+      <property name="titleValue" type="string" column="title_value"/>
       <property name="street" type="string" column="street"/>
       <property name="postcode" type="string" column="postcode"/>
       <property name="postbox" type="string" column="postbox"/>
