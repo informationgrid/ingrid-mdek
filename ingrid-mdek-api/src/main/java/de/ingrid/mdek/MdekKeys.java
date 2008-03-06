@@ -194,6 +194,8 @@ public class MdekKeys {
     /** Value: String */
     public final static String LOCATION_NAME = "location-name";
     /** Value: String */
+    public final static String LOCATION_NAME_KEY = "location-name-key";
+    /** Value: String */
     public final static String LOCATION_TYPE = "location-type";
     /** Value: String */
     public final static String LOCATION_CODE = "location-code";
@@ -266,8 +268,13 @@ public class MdekKeys {
     public final static String DATASET_REFERENCE_TYPE = "dataset-reference-type";
 
     // EXPORTS
-    /** Value: List of Strings */
+    /** Value: List of IngridDocs */
     public final static String EXPORTS = "exports";
+
+    /** Value: Integer  */
+    public final static String EXPORT_KEY = "export-key";
+    /** Value: Integer  */
+    public final static String EXPORT_VALUE = "export-value";
     
     // TECHNICAL DOMAIN MAP
     /** Value: IngridDocument encapsulating all MAP data */
@@ -301,6 +308,8 @@ public class MdekKeys {
     public final static String KEY_CATALOG_LIST = "key-catalog-list";
     /** Value: String  */
     public final static String SUBJECT_CAT = "subject-cat";
+    /** Value: Integer  */
+    public final static String SUBJECT_CAT_KEY = "subject-cat-key";
     /** Value: String  */
     public final static String KEY_DATE = "key-date";
     /** Value: String  */
@@ -321,6 +330,8 @@ public class MdekKeys {
     public final static String SYMBOL_CATALOG_LIST = "symbol-catalog-list";
     /** Value: String  */
     public final static String SYMBOL_CAT = "symbol-cat";
+    /** Value: Integer */
+    public final static String SYMBOL_CAT_KEY = "symbol-cat-key";
     /** Value: String  */
     public final static String SYMBOL_DATE = "symbol-date";
     /** Value: String  */
@@ -351,6 +362,8 @@ public class MdekKeys {
     public final static String EDITOR = "editor";
     /** Value: String  */
     public final static String TYPE_OF_DOCUMENT = "type-of-document";
+    /** Value: Integer  */
+    public final static String TYPE_OF_DOCUMENT_KEY = "type-of-document-key";
     /** Value: String  */
     public final static String PUBLISHED_IN = "published-in";
     /** Value: String  */
@@ -380,6 +393,8 @@ public class MdekKeys {
     public final static String TECHNICAL_DOMAIN_SERVICE = "technical-domain-service";
     /** Value: String */
     public final static String SERVICE_TYPE = "service-type";
+    /** Value: Integer */
+    public final static String SERVICE_TYPE_KEY = "service-type-key";
     /** Value: String */
     public final static String SYSTEM_HISTORY = "system-history";
     /** Value: String */
@@ -397,6 +412,8 @@ public class MdekKeys {
     public final static String SERVICE_OPERATION_LIST = "service-operation-list";
     /** Value: String */
     public final static String SERVICE_OPERATION_NAME = "service-operation-name";
+    /** Value: String */
+    public final static String SERVICE_OPERATION_NAME_KEY = "service-operation-name-key";
     /** Value: String */
     public final static String SERVICE_OPERATION_DESCRIPTION = "service-operation-description";
     /** Value: String */
@@ -451,13 +468,19 @@ public class MdekKeys {
     public final static String SUPPLEMENTARY_INFORMATION = "supplementary-information";
 
     // LEGISLATIONS
-    /** Value: List of Strings */
+    /** Value: List of IngridDocument */
     public final static String LEGISLATIONS = "legislations";
 
+    /** Value: String  */
+    public final static String LEGISLATION_VALUE = "legislation-value";
+    /** Value: Integer  */
+    public final static String LEGISLATION_KEY = "legislation-key";
+    
+    
     // ENVIRONMENT-TOPICS / -CATEGORIES
-    /** Value: List of Strings */
+    /** Value: List of Integer */
     public final static String ENV_CATEGORIES = "env-categories";
-    /** Value: List of Strings */
+    /** Value: List of Integer */
     public final static String ENV_TOPICS = "env-topics";
 
     // TOPIC-CATEGORIES
@@ -469,6 +492,8 @@ public class MdekKeys {
     public final static String DATA_FORMATS = "data-formats";
     /** Value: String */
     public final static String FORMAT_NAME = "format-name";
+    /** Value: Integer */
+    public final static String FORMAT_NAME_KEY = "format-name-key";
     /** Value: String */
     public final static String FORMAT_VERSION = "format-version";
     /** Value: String */
@@ -497,6 +522,8 @@ public class MdekKeys {
     public final static String LINKAGE_REFERENCE = "linkage-reference";
     /** Value: String */
     public final static String LINKAGE_DATATYPE = "linkage-datatype";
+    /** Value: Integer */
+    public final static String LINKAGE_DATATYPE_KEY = "linkage-datatype-key";
     /** Value: String */
     public final static String LINKAGE_VOLUME = "linkage-volume";
     /** Value: String */
@@ -580,8 +607,12 @@ public class MdekKeys {
     public final static String GIVEN_NAME = "given-name";
     /** Value: String */
     public final static String NAME_FORM = "name-form";
+    /** Value: Integer */
+    public final static String NAME_FORM_KEY = "name-form-key";
     /** Value: String */
     public final static String TITLE_OR_FUNCTION = "title-or-function";
+    /** Value: Integer */
+    public final static String TITLE_OR_FUNCTION_KEY = "title-or-function-key";
     /** Value: String */
     public final static String STREET = "street";
     /** Value: String */
@@ -605,6 +636,8 @@ public class MdekKeys {
     public final static String COMMUNICATION = "communication";
     /** Value: String */
     public final static String COMMUNICATION_MEDIUM = "communication-medium";
+    /** Value: Integer */
+    public final static String COMMUNICATION_MEDIUM_KEY = "communication-medium-key";
     /** Value: String */
     public final static String COMMUNICATION_VALUE = "communication-value";
     /** Value: String */

@@ -173,6 +173,7 @@ class MdekExampleAddressThread extends Thread {
 		newAdrDoc.put(MdekKeys.NAME, "testNAME");
 		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
+		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
 
 		// new parent
@@ -305,8 +306,11 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc.put(MdekKeys.ORGANISATION, "TEST NEW SUB ADDRESS DIRECT PUBLISH");
 		newPubDoc.put(MdekKeys.NAME, "testNAME");
+		newPubDoc.put(MdekKeys.NAME_FORM, "Herr");
+		newPubDoc.put(MdekKeys.NAME_FORM_KEY, new Integer(-1));
 		newPubDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
 		newPubDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
+		newPubDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newPubDoc.put(MdekKeys.CLASS, AddressType.PERSON.getDbValue());
 		// sub address of unpublished parent !!!
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
@@ -528,6 +532,7 @@ class MdekExampleAddressThread extends Thread {
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM, "TEST COMMUNIC_MEDIUM");
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, new Integer(-1));
 		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "TEST COMMUNICATION_VALUE");
 		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
 		docList.add(testDoc);

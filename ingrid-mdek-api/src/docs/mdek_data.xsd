@@ -73,13 +73,13 @@
 
 			<xs:element name="linkages" type="LINKAGE_LIST"/>
 			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
-			<xs:element name="exports" type="STRING_LIST"/>
-			<xs:element name="legislations" type="STRING_LIST"/>
+			<xs:element name="exports" type="EXPORT_LIST"/>
+			<xs:element name="legislations" type="LEGISLATION_LIST"/>
 			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
 			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
-			<xs:element name="env-categories" type="STRING_LIST"/>
-			<xs:element name="env-topics" type="STRING_LIST"/>
+			<xs:element name="env-categories" type="INTEGER_LIST"/>
+			<xs:element name="env-topics" type="INTEGER_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
 			<xs:element name="comment_list" type="COMMENT_LIST"/>
 
@@ -106,7 +106,9 @@
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="given-name" type="xs:string"/>
 			<xs:element name="name-form" type="xs:string"/>
+			<xs:element name="name-form-key" type="xs:integer"/>
 			<xs:element name="title-or-function" type="xs:string"/>
+			<xs:element name="title-or-function-key" type="xs:integer"/>
 			<xs:element name="street" type="xs:string"/>
 			<xs:element name="postal-code-of-country" type="xs:string"/>
 			<xs:element name="postal-code" type="xs:string"/>
@@ -271,6 +273,7 @@
 	<xs:complexType name="LOCATION_MAP">
 		<xs:sequence>
 			<xs:element name="location-name" type="xs:string"/>
+			<xs:element name="location-name-key" type="xs:integer"/>
 			<xs:element name="location-type" type="xs:string"/>
 			<xs:element name="location-code" type="xs:string"/>
 			<xs:element name="location-sns-id" type="xs:string"/>
@@ -315,6 +318,7 @@
 			<xs:element name="linkage-reference-id" type="xs:integer"/>
 			<xs:element name="linkage-reference" type="xs:string"/>
 			<xs:element name="linkage-datatype" type="xs:string"/>
+			<xs:element name="linkage-datatype-key" type="xs:integer"/>
 			<xs:element name="linkage-volume" type="xs:string"/>
 			<xs:element name="linkage-icon-url" type="xs:string"/>
 			<xs:element name="linkage-icon-text" type="xs:string"/>
@@ -382,6 +386,7 @@
 	<xs:complexType name="COMMUNICATION_MAP">
 		<xs:sequence>
 			<xs:element name="communication-medium" type="xs:string"/>
+			<xs:element name="communication-medium-key" type="xs:integer"/>
 			<xs:element name="communication-value"  type="xs:string"/>
 			<xs:element name="communication-description" type="xs:string"/>
 		</xs:sequence>
@@ -436,6 +441,7 @@
 	<xs:complexType name="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_MAP">
 		<xs:sequence>
 			<xs:element name="subject-cat" type="xs:string"/>
+			<xs:element name="subject-cat-key" type="xs:integer"/>
 			<xs:element name="key-date" type="xs:string"/>
 			<xs:element name="edition" type="xs:string"/>
 		</xs:sequence>
@@ -460,6 +466,7 @@
 	<xs:complexType name="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_MAP">
 		<xs:sequence>
 			<xs:element name="symbol-cat" type="xs:string"/>
+			<xs:element name="symbol-cat-key" type="xs:integer"/>
 			<xs:element name="symbol-date" type="xs:string"/>
 			<xs:element name="symbol-edition" type="xs:string"/>
 		</xs:sequence>
@@ -467,6 +474,7 @@
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_MAP">
 		<xs:sequence>
 			<xs:element name="service-type" type="xs:string"/>
+			<xs:element name="service-type-key" type="xs:integer"/>
 			<xs:element name="system-history" type="xs:string"/>
 			<xs:element name="system-environment" type="xs:string"/>
 			<xs:element name="database-of-system" type="xs:string"/>
@@ -483,6 +491,7 @@
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_MAP">
 		<xs:sequence>
 			<xs:element name="service-operation-name" type="xs:string"/>
+			<xs:element name="service-operation-name-key" type="xs:integer"/>
 			<xs:element name="service-operation-description" type="xs:string"/>
 			<xs:element name="invocation-name" type="xs:string"/>
 			<xs:element name="platform-list" type="STRING_LIST"/>
@@ -517,6 +526,7 @@
 			<xs:element name="author" type="xs:string"/>
 			<xs:element name="editor" type="xs:string"/>
 			<xs:element name="type-of-document" type="xs:string"/>
+			<xs:element name="type-of-document-key" type="xs:integer"/>
 			<xs:element name="published-in" type="xs:string"/>
 			<xs:element name="volume" type="xs:string"/>
 			<xs:element name="pages" type="xs:string"/>
@@ -580,6 +590,28 @@
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="mod-uuid"/>
 			<xs:element ref="date-of-last-modification"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EXPORT_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="EXPORT_MAP" type="EXPORT_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EXPORT_MAP">
+		<xs:sequence>
+			<xs:element name="export-value" type="xs:string"/>
+			<xs:element name="export-key" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LEGISLATION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="LEGISLATION_MAP" type="LEGISLATION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LEGISLATION_MAP">
+		<xs:sequence>
+			<xs:element name="legislation-value" type="xs:string"/>
+			<xs:element name="legislation-key" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

@@ -166,24 +166,50 @@ class MdekExampleObjectThread extends Thread {
 		}
 
 // -----------------------------------
+*/
 
 		// EH CACHE BUG !!! referenced Adress Node not fetched in refetch of 2. store !
-		boolean alwaysTrue = true;
+		boolean alwaysTrue = false;
 
-		System.out.println("\n----- load 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
-		oMap = fetchObject("79297FDD-729B-4BC5-BF40-C1F3FB53D2F2", Quantity.DETAIL_ENTITY);
+		for (int i=0; i< 1; i++) {
+		
+			System.out.println("\n----- load 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
+			oMap = fetchObject("79297FDD-729B-4BC5-BF40-C1F3FB53D2F2", Quantity.DETAIL_ENTITY);
+	
+			System.out.println("\n----- store 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
+			oMap = storeObjectWithoutManipulation(oMap, true);
+			
+			if (oMap.get(MdekKeys.ADR_REFERENCES_TO) == null || ((List)oMap.get(MdekKeys.ADR_REFERENCES_TO)).size() == 0) {
+				System.out.println("\n----- MISSING ADDRESS IN MAPPED DATA, EXITING TEST!! -----");
+				break;
+			}
+			if (((HashMap)((List)oMap.get(MdekKeys.ADR_REFERENCES_TO)).get(0)) == null) {
+				System.out.println("\n----- MISSING ADDRESS IN MAPPED DATA, EXITING TEST!! -----");
+				break;
+			}
+	
+	//		oMap = fetchObject("79297FDD-729B-4BC5-BF40-C1F3FB53D2F2", Quantity.DETAIL_ENTITY);
+			
+			System.out.println("\n----- store 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
+			oMap = storeObjectWithoutManipulation(oMap, true);
 
-		System.out.println("\n----- store 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
-		oMap = storeObjectWithoutManipulation(oMap, true);
+			if (oMap.get(MdekKeys.ADR_REFERENCES_TO) == null || ((List)oMap.get(MdekKeys.ADR_REFERENCES_TO)).size() == 0) {
+				System.out.println("\n----- MISSING ADDRESS IN MAPPED DATA, EXITING TEST!! -----");
+				break;
+			}
+			if (((HashMap)((List)oMap.get(MdekKeys.ADR_REFERENCES_TO)).get(0)) == null) {
+				System.out.println("\n----- MISSING ADDRESS IN MAPPED DATA, EXITING TEST!! -----");
+				break;
+			}
+		
+		}
 
-		System.out.println("\n----- store 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
-		oMap = storeObjectWithoutManipulation(oMap, true);
-
+//		oMap = fetchObject("79297FDD-729B-4BC5-BF40-C1F3FB53D2F2", Quantity.DETAIL_ENTITY);
+		
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
-*/
 // --------------
 
 		// -----------------------------------
@@ -855,31 +881,37 @@ class MdekExampleObjectThread extends Thread {
 		}
 
 		// add entry to EXPORTS
-		List<String> strList = (List<String>) oDocIn.get(MdekKeys.EXPORTS);
-		strList = (strList == null) ? new ArrayList<String>() : strList;
-		strList.add("TEST NEW T014InfoImpart entry");
-		oDocIn.put(MdekKeys.EXPORTS, strList);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.EXPORTS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.EXPORT_VALUE, "TEST DATA_FORMAT_NAME");
+		testDoc.put(MdekKeys.EXPORT_KEY, new Integer(-1));
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.EXPORTS, docList);
 
 		// add entry to LEGISLATIONS
-		strList = (List<String>) oDocIn.get(MdekKeys.LEGISLATIONS);
-		strList = (strList == null) ? new ArrayList<String>() : strList;
-		strList.add("TEST NEW T015Legist entry");
-		oDocIn.put(MdekKeys.LEGISLATIONS, strList);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.LEGISLATIONS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.LEGISLATION_VALUE, "TEST NEW T015Legist entry");
+		testDoc.put(MdekKeys.LEGISLATION_KEY, new Integer(-1));
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.LEGISLATIONS, docList);
 
 		// add entry to ENV_CATEGORIES
-		strList = (List<String>) oDocIn.get(MdekKeys.ENV_CATEGORIES);
-		strList = (strList == null) ? new ArrayList<String>() : strList;
-		strList.add("TEST NEW T0114EnvCategory entry");
-		oDocIn.put(MdekKeys.ENV_CATEGORIES, strList);
+		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.ENV_CATEGORIES);
+		intList = (intList == null) ? new ArrayList<Integer>() : intList;
+		intList.add(new Integer(1234));
+		oDocIn.put(MdekKeys.ENV_CATEGORIES, intList);
 
 		// add entry to ENV_TOPICS
-		strList = (List<String>) oDocIn.get(MdekKeys.ENV_TOPICS);
-		strList = (strList == null) ? new ArrayList<String>() : strList;
-		strList.add("TEST NEW T0114EnvTopic entry");
-		oDocIn.put(MdekKeys.ENV_TOPICS, strList);
+		intList = (List<Integer>) oDocIn.get(MdekKeys.ENV_TOPICS);
+		intList = (intList == null) ? new ArrayList<Integer>() : intList;
+		intList.add(new Integer(122));
+		oDocIn.put(MdekKeys.ENV_TOPICS, intList);
 
 		// add entry to TOPIC_CATEGORIES
-		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.TOPIC_CATEGORIES);
+		intList = (List<Integer>) oDocIn.get(MdekKeys.TOPIC_CATEGORIES);
 		intList = (intList == null) ? new ArrayList<Integer>() : intList;
 		intList.add(1);
 		oDocIn.put(MdekKeys.TOPIC_CATEGORIES, intList);
@@ -887,7 +919,7 @@ class MdekExampleObjectThread extends Thread {
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		IngridDocument testDoc = new IngridDocument();
+		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.FORMAT_NAME, "TEST DATA_FORMAT_NAME");
 		testDoc.put(MdekKeys.FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
 		testDoc.put(MdekKeys.FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
@@ -925,6 +957,7 @@ class MdekExampleObjectThread extends Thread {
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.SUBJECT_CAT, "TEST " + MdekKeys.SUBJECT_CAT);
+		testDoc.put(MdekKeys.SUBJECT_CAT_KEY, new Integer(-1));
 		testDoc.put(MdekKeys.KEY_DATE, "TEST " + MdekKeys.KEY_DATE);
 		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
 		docList.add(testDoc);
@@ -943,12 +976,13 @@ class MdekExampleObjectThread extends Thread {
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.SYMBOL_CAT, "TEST " + MdekKeys.SYMBOL_CAT);
+		testDoc.put(MdekKeys.SYMBOL_CAT_KEY, new Integer(-1));
 		testDoc.put(MdekKeys.SYMBOL_DATE, "TEST " + MdekKeys.SYMBOL_DATE);
 		testDoc.put(MdekKeys.SYMBOL_EDITION, "TEST " + MdekKeys.SYMBOL_EDITION);
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.SYMBOL_CATALOG_LIST, docList);
 		// add TECHNICAL DOMAIN MAP - feature types
-		strList = (List<String>) technicalDomain.get(MdekKeys.FEATURE_TYPE_LIST);
+		List<String> strList = (List<String>) technicalDomain.get(MdekKeys.FEATURE_TYPE_LIST);
 		strList = (strList == null) ? new ArrayList<String>() : strList;
 		strList.add("TEST feature type");
 		technicalDomain.put(MdekKeys.FEATURE_TYPE_LIST, strList);
@@ -982,6 +1016,7 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.YEAR, "TEST " + MdekKeys.YEAR);
 		technicalDomain.put(MdekKeys.PAGES, "TEST " + MdekKeys.PAGES);
 		technicalDomain.put(MdekKeys.TYPE_OF_DOCUMENT, "TEST " + MdekKeys.TYPE_OF_DOCUMENT);
+		technicalDomain.put(MdekKeys.TYPE_OF_DOCUMENT_KEY, new Integer(-1));
 		technicalDomain.put(MdekKeys.VOLUME, "TEST " + MdekKeys.VOLUME);
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT, technicalDomain);
 		
@@ -989,6 +1024,7 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
 		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
 		technicalDomain.put(MdekKeys.SERVICE_TYPE, "TEST SERVICE_TYPE");
+		technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, new Integer(-1));
 		technicalDomain.put(MdekKeys.SYSTEM_HISTORY, "TEST SYSTEM_HISTORY");
 		technicalDomain.put(MdekKeys.SYSTEM_ENVIRONMENT, "TEST SYSTEM_ENVIRONMENT");
 		technicalDomain.put(MdekKeys.DATABASE_OF_SYSTEM, "TEST DATABASE_OF_SYSTEM");
@@ -1005,6 +1041,7 @@ class MdekExampleObjectThread extends Thread {
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME, "TEST SERVICE_OPERATION_NAME");
+		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME_KEY, new Integer(-1));
 		testDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, "TEST SERVICE_OPERATION_DESCRIPTION");
 		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
 		docList.add(testDoc);
@@ -1124,17 +1161,17 @@ class MdekExampleObjectThread extends Thread {
 			}
 
 			// EXPORTS wieder wie vorher !
-			strList = (List<String>) oRefetchedDoc.get(MdekKeys.EXPORTS);
-			if (strList != null && strList.size() > 0) {
-				strList.remove(strList.size()-1);
-				oRefetchedDoc.put(MdekKeys.EXPORTS, strList);				
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.EXPORTS);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.EXPORTS, docList);				
 			}
 
 			// LEGISLATIONS wieder wie vorher !
-			strList = (List<String>) oRefetchedDoc.get(MdekKeys.LEGISLATIONS);
-			if (strList != null && strList.size() > 0) {
-				strList.remove(strList.size()-1);
-				oRefetchedDoc.put(MdekKeys.LEGISLATIONS, strList);				
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LEGISLATIONS);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.LEGISLATIONS, docList);				
 			}
 			
 			// DATA_FORMATS wieder wie vorher !
@@ -1152,17 +1189,17 @@ class MdekExampleObjectThread extends Thread {
 			}
 
 			// ENV_CATEGORIES wieder wie vorher !
-			strList = (List<String>) oRefetchedDoc.get(MdekKeys.ENV_CATEGORIES);
-			if (strList != null && strList.size() > 0) {
-				strList.remove(strList.size()-1);
-				oRefetchedDoc.put(MdekKeys.ENV_CATEGORIES, strList);				
+			intList = (List<Integer>) oRefetchedDoc.get(MdekKeys.ENV_CATEGORIES);
+			if (intList != null && intList.size() > 0) {
+				intList.remove(intList.size()-1);
+				oRefetchedDoc.put(MdekKeys.ENV_CATEGORIES, intList);				
 			}
 
 			// ENV_TOPICS wieder wie vorher !
-			strList = (List<String>) oRefetchedDoc.get(MdekKeys.ENV_TOPICS);
-			if (strList != null && strList.size() > 0) {
-				strList.remove(strList.size()-1);
-				oRefetchedDoc.put(MdekKeys.ENV_TOPICS, strList);				
+			intList = (List<Integer>) oRefetchedDoc.get(MdekKeys.ENV_TOPICS);
+			if (intList != null && intList.size() > 0) {
+				intList.remove(intList.size()-1);
+				oRefetchedDoc.put(MdekKeys.ENV_TOPICS, intList);				
 			}
 
 			// TOPIC_CATEGORIES wieder wie vorher !
