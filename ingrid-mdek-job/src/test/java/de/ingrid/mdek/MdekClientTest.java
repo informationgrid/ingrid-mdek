@@ -20,7 +20,7 @@ import de.ingrid.utils.IngridDocument;
 public class MdekClientTest {
 
     @Test
-    public void testShutdown() {
+    public void testShutdown() throws Exception {
         MdekServer temp = null;
         try {
             temp = new MdekServer(new File(File.class.getResource("/communication-server.properties").toURI()),
@@ -67,6 +67,9 @@ public class MdekClientTest {
         IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade("message-server");
         Assert.assertNotNull(jobRepositoryFacade);
         mdekClient.shutdown();
+        
+        temp.shutdown();
+        Thread.sleep(6000);
     }
 
     @Test
@@ -90,7 +93,7 @@ public class MdekClientTest {
                 try {
                     mdekServer.run();
                 } catch (IOException e1) {
-                    Assert.fail();
+                    // ignore
                 }
             }
         });
@@ -101,10 +104,13 @@ public class MdekClientTest {
         List mdekServerList = mdekClient.getRegisteredMdekServers();
         Assert.assertNotNull(mdekServerList);
         Assert.assertEquals(1, mdekServerList.size());
-        Assert.assertEquals("message-client", mdekServerList.get(0));
-        IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade("message-client");
+        Assert.assertEquals("message-client", (String) mdekServerList.get(0));
+        IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade((String) mdekServerList.get(0));
         Assert.assertNotNull(jobRepositoryFacade);
         mdekClient.shutdown();
+        
+        temp.shutdown();
+        Thread.sleep(6000);
     }
 
     @Test
@@ -118,7 +124,7 @@ public class MdekClientTest {
         try {
             temp = new MdekServer(new File(File.class.getResource("/communication-client.properties").toURI()),
                     new JobRepositoryFacade(null));
-        } catch (URISyntaxException e1) {
+        } catch (URISyntaxException e) {
             Assert.fail();
         }
         final MdekServer mdekServer = temp;
@@ -140,7 +146,7 @@ public class MdekClientTest {
         Assert.assertNotNull(mdekServerList);
         Assert.assertEquals(1, mdekServerList.size());
         Assert.assertEquals("message-client", mdekServerList.get(0));
-        IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade("message-client");
+        IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade((String) mdekServerList.get(0));
         Assert.assertNotNull(jobRepositoryFacade);
         jobRepositoryFacade.execute(new IngridDocument());
 
@@ -158,5 +164,8 @@ public class MdekClientTest {
         Assert.assertNotNull(mdekServerList);
         Assert.assertEquals(0, mdekServerList.size());
         mdekClient.shutdown();
+        
+        temp.shutdown();
+        Thread.sleep(6000);
     }
 }
