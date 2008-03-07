@@ -16,6 +16,7 @@ public class LogServiceTest extends TestCase {
 		String property = System.getProperty("java.io.tmpdir");
 		File file = new File(property, LogServiceTest.class.getName() + "-"
 				+ System.currentTimeMillis());
+		file.mkdir();
 		LogService service = new LogService(file, false);
 		Logger logger = service.getLogger(IJob.class);
 
