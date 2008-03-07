@@ -20,8 +20,6 @@ public class MdekClient {
 
     private static ICommunication _communication;
 
-    private Map _repositoryFacadeStore = new HashMap();
-
     private MdekClient() {
         // singleton
     }
@@ -35,20 +33,13 @@ public class MdekClient {
     }
 
     public IJobRepositoryFacade getJobRepositoryFacade(final String proxyServiceUrl) {
-        IJobRepositoryFacade result = null;
-        if (_repositoryFacadeStore.containsKey(proxyServiceUrl)) {
-            result = (IJobRepositoryFacade) _repositoryFacadeStore.get(proxyServiceUrl);
-        } else {
-            result = createRepositoryFacade(proxyServiceUrl);
-            _repositoryFacadeStore.put(proxyServiceUrl, result);
-        }
-        return result;
+        return createRepositoryFacade(proxyServiceUrl);
     }
 
     public void shutdown() {
         try {
             _communication.closeConnection(null);
-        } catch (IOException e) {
+        } catch (Exception e) {
             // ignore this
         }
         _communication.shutdown();

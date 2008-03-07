@@ -21,6 +21,8 @@ public class MdekServer implements IMdekServer {
 
     private final IJobRepositoryFacade _jobRepositoryFacade;
 
+    private ICommunication _communication;
+
     public MdekServer(File communicationProperties, IJobRepositoryFacade jobRepositoryFacade) {
         _communicationProperties = communicationProperties;
         _jobRepositoryFacade = jobRepositoryFacade;
@@ -28,19 +30,25 @@ public class MdekServer implements IMdekServer {
     }
 
     public void run() throws IOException {
-        ICommunication communication = initCommunication(_communicationProperties);
+        _communication = initCommunication(_communicationProperties);
 
-        ProxyService.createProxyServer(communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
+        ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
         
         synchronized (MdekServer.class) {
             try {
                 MdekServer.class.wait();
             } catch (InterruptedException e) {
                 throw new IOException(e.getMessage());
+            } finally {
+                shutdown();
             }
         }
     }
 
+    public void shutdown() {
+        _communication.shutdown();
+    }
+    
     private ICommunication initCommunication(File properties) throws IOException {
         FileInputStream confIS = new FileInputStream(properties);
         ICommunication communication = StartCommunication.create(confIS);
