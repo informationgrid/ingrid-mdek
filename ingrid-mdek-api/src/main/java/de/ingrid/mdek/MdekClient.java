@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
@@ -43,6 +41,7 @@ public class MdekClient {
             // ignore this
         }
         _communication.shutdown();
+        _client = null;
     }
 
     private IJobRepositoryFacade createRepositoryFacade(final String proxyServiceUrl) {
