@@ -3,6 +3,10 @@ package de.ingrid.mdek;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
@@ -12,60 +16,64 @@ import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 
 public class MdekClient {
 
-	private static MdekClient _client = null;
+    private static MdekClient _client = null;
 
-	private static IJobRepositoryFacade _repository;
+    private static ICommunication _communication;
 
-	private ICommunication _communication;
+    private Map _repositoryFacadeStore = new HashMap();
 
-	public MdekClient() {
-		// private
-	}
+    private MdekClient() {
+        // singleton
+    }
 
-	public static MdekClient getInstance(File communicationProperties)
-			throws IOException {
-		if (_client == null) {
-			_client = new MdekClient();
-			_repository = _client.startup(communicationProperties);
-		}
-		return _client;
-	}
+    public static MdekClient getInstance(File communicationProperties) throws IOException {
+        if (_client == null) {
+            _client = new MdekClient();
+            _communication = _client.initCommunication(communicationProperties);
+        }
+        return _client;
+    }
 
-	public IJobRepositoryFacade getJobRepositoryFacade() {
-		return _repository;
-	}
+    public IJobRepositoryFacade getJobRepositoryFacade(final String proxyServiceUrl) {
+        IJobRepositoryFacade result = null;
+        if (_repositoryFacadeStore.containsKey(proxyServiceUrl)) {
+            result = (IJobRepositoryFacade) _repositoryFacadeStore.get(proxyServiceUrl);
+        } else {
+            result = createRepositoryFacade(proxyServiceUrl);
+            _repositoryFacadeStore.put(proxyServiceUrl, result);
+        }
+        return result;
+    }
 
-	public void shutdown() {
-	    try {
+    public void shutdown() {
+        try {
             _communication.closeConnection(null);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            // ignore this
         }
-		_communication.shutdown();
-	}
+        _communication.shutdown();
+    }
 
-	private IJobRepositoryFacade startup(File communicationProperties)
-			throws IOException {
-		_communication = initCommunication(communicationProperties);
+    private IJobRepositoryFacade createRepositoryFacade(final String proxyServiceUrl) {
+        IJobRepositoryFacade repository = (IJobRepositoryFacade) ProxyService.createProxy(_communication,
+                IJobRepositoryFacade.class, proxyServiceUrl);
+        return repository;
+    }
 
-		String proxyServiceUrl = null;
-		if (_communication instanceof TcpCommunication) {
-			TcpCommunication tcpComm = (TcpCommunication) _communication;
-			proxyServiceUrl = (String) tcpComm.getServerNames().get(0);
-		}
-		IJobRepositoryFacade repository = (IJobRepositoryFacade) ProxyService
-				.createProxy(_communication, IJobRepositoryFacade.class,
-						proxyServiceUrl);
+    private ICommunication initCommunication(File properties) throws IOException {
+        FileInputStream confIS = new FileInputStream(properties);
+        ICommunication communication = StartCommunication.create(confIS);
+        communication.startup();
 
-		return repository;
-	}
+        return communication;
+    }
 
-	private ICommunication initCommunication(File properties)
-			throws IOException {
-		FileInputStream confIS = new FileInputStream(properties);
-		ICommunication communication = StartCommunication.create(confIS);
-		communication.startup();
-
-		return communication;
-	}
+    public List getRegisteredMdekServers() {
+        List result = new ArrayList();
+        if (_communication instanceof TcpCommunication) {
+            TcpCommunication tcpCom = (TcpCommunication) _communication;
+            result = tcpCom.getRegisteredClients();
+        }
+        return result;
+    }
 }

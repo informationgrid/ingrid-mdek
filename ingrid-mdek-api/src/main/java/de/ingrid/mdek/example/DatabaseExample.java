@@ -41,7 +41,7 @@ public class DatabaseExample {
 
 		Thread.sleep(2000);
 		IJobRepositoryFacade jobRepositoryFacade = client
-				.getJobRepositoryFacade();
+				.getJobRepositoryFacade("/101tec-group:101tec-mdek-server");
 
 		// Job Parameters and other data
 		System.out.println("\n###### PARAMS ######");

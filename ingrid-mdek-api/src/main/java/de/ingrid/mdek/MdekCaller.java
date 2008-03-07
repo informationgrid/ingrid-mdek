@@ -44,7 +44,7 @@ public class MdekCaller implements IMdekCaller {
 		}
 	}
 
-    private MdekCaller() {};
+    private MdekCaller() {}
 
     private MdekCaller(File communicationProperties) {
         try {
@@ -52,7 +52,7 @@ public class MdekCaller implements IMdekCaller {
     		client = MdekClient.getInstance(communicationProperties);
     		Thread.sleep(2000);
 
-        	jobRepo = client.getJobRepositoryFacade();
+        	jobRepo = client.getJobRepositoryFacade("/101tec-group:101tec-mdek-server");
 
         	// explicit registration of jobs if not persistent !
 //    		registerJob(MDEK_JOB_ID, MDEK_JOB_XML);
@@ -60,7 +60,7 @@ public class MdekCaller implements IMdekCaller {
         } catch (Throwable t) {
         	log.fatal("Error initiating the Mdek interface.", t);
         }
-    };
+    }
 
 	/**
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !

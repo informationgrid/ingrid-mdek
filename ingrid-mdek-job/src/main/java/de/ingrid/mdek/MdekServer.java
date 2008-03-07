@@ -31,7 +31,7 @@ public class MdekServer implements IMdekServer {
         ICommunication communication = initCommunication(_communicationProperties);
 
         ProxyService.createProxyServer(communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-
+        
         synchronized (MdekServer.class) {
             try {
                 MdekServer.class.wait();

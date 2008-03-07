@@ -38,7 +38,7 @@ public class RandomExample {
 
 		Thread.sleep(2000);
 		IJobRepositoryFacade jobRepositoryFacade = client
-				.getJobRepositoryFacade();
+				.getJobRepositoryFacade("/101tec-group:101tec-mdek-server");
 
 		final String jobXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 				+ "<!DOCTYPE beans PUBLIC \"-//SPRING//DTD BEAN//EN\" \"http://www.springframework.org/dtd/spring-beans.dtd\">"
