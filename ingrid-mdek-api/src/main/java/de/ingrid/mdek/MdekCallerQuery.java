@@ -36,11 +36,11 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		}
 	}
 
-    private MdekCallerQuery() {};
+    private MdekCallerQuery() {}
 
     private MdekCallerQuery(IMdekCaller mdekCaller) {
     	this.mdekCaller = mdekCaller;
-    };
+    }
 
 	/**
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !

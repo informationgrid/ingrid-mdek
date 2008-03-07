@@ -36,11 +36,11 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		}
 	}
 
-    private MdekCallerObject() {};
+    private MdekCallerObject() {}
 
     private MdekCallerObject(IMdekCaller mdekCaller) {
     	this.mdekCaller = mdekCaller;
-    };
+    }
 
 	/**
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !

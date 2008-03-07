@@ -36,11 +36,11 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		}
 	}
 
-    private MdekCallerAddress() {};
+    private MdekCallerAddress() {}
 
     private MdekCallerAddress(IMdekCaller mdekCaller) {
     	this.mdekCaller = mdekCaller;
-    };
+    }
 
 	/**
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !

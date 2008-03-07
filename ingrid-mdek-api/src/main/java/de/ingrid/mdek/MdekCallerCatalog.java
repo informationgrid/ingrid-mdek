@@ -37,11 +37,11 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		}
 	}
 
-    private MdekCallerCatalog() {};
+    private MdekCallerCatalog() {}
 
     private MdekCallerCatalog(IMdekCaller mdekCaller) {
     	this.mdekCaller = mdekCaller;
-    };
+    }
 
 	/**
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !
