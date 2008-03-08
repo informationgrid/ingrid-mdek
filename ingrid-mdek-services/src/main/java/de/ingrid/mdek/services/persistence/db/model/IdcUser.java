@@ -5,23 +5,23 @@ import java.util.Set;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class User implements IEntity {
+public class IdcUser implements IEntity {
 
 	private Long id;
 	private int version;
 	private Long parentId;
-	private Long adrId;
+	private String addrUuid;
 	private String createTime;
 	private String modTime;
 	private String modUuid;
-	private Long groupId;
-	private Integer role;
+	private Long idcGroupId;
+	private Integer idcRole;
 
-	private Group group;
-	private Set users = new HashSet();
-	private Set userPermissions = new HashSet();
+	private IdcGroup idcGroup;
+	private Set idcUsers = new HashSet();
+	private Set idcUserPermissions = new HashSet();
 
-	public User() {}
+	public IdcUser() {}
 
 	public Long getId() {
 		return id;
@@ -47,12 +47,12 @@ public class User implements IEntity {
 		this.parentId = parentId;
 	}
 
-	public Long getAdrId() {
-		return adrId;
+	public String getAddrUuid() {
+		return addrUuid;
 	}
 
-	public void setAdrId(Long adrId) {
-		this.adrId = adrId;
+	public void setAddrUuid(String addrUuid) {
+		this.addrUuid = addrUuid;
 	}
 
 	public String getCreateTime() {
@@ -79,45 +79,45 @@ public class User implements IEntity {
 		this.modUuid = modUuid;
 	}
 
-	public Long getGroupId() {
-		return groupId;
+	public Long getIdcGroupId() {
+		return idcGroupId;
 	}
 
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
+	public void setIdcGroupId(Long idcGroupId) {
+		this.idcGroupId = idcGroupId;
 	}
 
-	public Integer getRole() {
-		return role;
+	public Integer getIdcRole() {
+		return idcRole;
 	}
 
-	public void setRole(Integer role) {
-		this.role = role;
+	public void setIdcRole(Integer idcRole) {
+		this.idcRole = idcRole;
 	}
 
 
-	public Group getGroup() {
-		return group;
+	public IdcGroup getIdcGroup() {
+		return idcGroup;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
+	public void setIdcGroup(IdcGroup idcGroup) {
+		this.idcGroup = idcGroup;
 	}
 
-	public Set getUsers() {
-		return users;
+	public Set getIdcUsers() {
+		return idcUsers;
 	}
 
-	public void setUsers(Set users) {
-		this.users = users;
+	public void setIdcUsers(Set idcUsers) {
+		this.idcUsers = idcUsers;
 	}
 
-	public Set getUserPermissions() {
-		return userPermissions;
+	public Set getIdcUserPermissions() {
+		return idcUserPermissions;
 	}
 
-	public void setUserPermissions(Set userPermissions) {
-		this.userPermissions = userPermissions;
+	public void setIdcUserPermissions(Set idcUserPermissions) {
+		this.idcUserPermissions = idcUserPermissions;
 	}
 
 }

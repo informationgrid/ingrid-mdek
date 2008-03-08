@@ -2,13 +2,13 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="UserPermission" table="user_permission">
+   <class name="IdcUserPermission" table="idc_user_permission">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="permissionId" type="long" column="permission_id"/>
-      <property name="userId" type="long" column="user_id"/>
+      <property name="idcUserId" type="long" column="idc_user_id"/>
 
       <many-to-one name="permission" class="Permission" column="permission_id" update="false"
                    insert="false"/>

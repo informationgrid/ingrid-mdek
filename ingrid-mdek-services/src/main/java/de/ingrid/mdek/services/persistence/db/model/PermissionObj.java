@@ -6,9 +6,9 @@ public class PermissionObj implements IEntity {
 
 	private Long id;
 	private int version;
-	private String objUuid;
+	private String uuid;
 	private Long permissionId;
-	private Long groupId;
+	private Long idcGroupId;
 
 	private Permission permission;
 
@@ -30,12 +30,12 @@ public class PermissionObj implements IEntity {
 		this.version = version;
 	}
 
-	public String getObjUuid() {
-		return objUuid;
+	public String getUuid() {
+		return uuid;
 	}
 
-	public void setObjUuid(String objUuid) {
-		this.objUuid = objUuid;
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 	public Long getPermissionId() {
@@ -46,12 +46,12 @@ public class PermissionObj implements IEntity {
 		this.permissionId = permissionId;
 	}
 
-	public Long getGroupId() {
-		return groupId;
+	public Long getIdcGroupId() {
+		return idcGroupId;
 	}
 
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
+	public void setIdcGroupId(Long idcGroupId) {
+		this.idcGroupId = idcGroupId;
 	}
 
 

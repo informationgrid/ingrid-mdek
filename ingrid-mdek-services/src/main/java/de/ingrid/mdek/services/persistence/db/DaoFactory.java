@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
@@ -16,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.AddressNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.ObjectNodeDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.PermissionDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermSnsDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermValueDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefSnsDaoHibernate;
@@ -24,8 +26,14 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysListDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
+import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.Permission;
+import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
+import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
@@ -104,6 +112,10 @@ public class DaoFactory implements IDaoFactory {
         return new SysListDaoHibernate(_sessionFactory);
     }
 
+    public IPermissionDao getPermissionDao() {
+        return new PermissionDaoHibernate(_sessionFactory);
+    }
+    
     public IGenericDao<IEntity> getDao(Class clazz) {
 		IGenericDao dao = null;
 
@@ -179,6 +191,18 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjServOpPara>(_sessionFactory, T011ObjServOpPara.class);
 		} else if (clazz.isAssignableFrom(T03Catalogue.class)) {
 			dao = new GenericHibernateDao<T03Catalogue>(_sessionFactory, T03Catalogue.class);
+		} else if (clazz.isAssignableFrom(IdcUser.class)) {
+			dao = new GenericHibernateDao<IdcUser>(_sessionFactory, IdcUser.class);
+		} else if (clazz.isAssignableFrom(IdcGroup.class)) {
+			dao = new GenericHibernateDao<IdcGroup>(_sessionFactory, IdcGroup.class);
+		} else if (clazz.isAssignableFrom(Permission.class)) {
+			dao = new GenericHibernateDao<Permission>(_sessionFactory, Permission.class);
+		} else if (clazz.isAssignableFrom(IdcUserPermission.class)) {
+			dao = new GenericHibernateDao<IdcUserPermission>(_sessionFactory, IdcUserPermission.class);
+		} else if (clazz.isAssignableFrom(PermissionObj.class)) {
+			dao = new GenericHibernateDao<PermissionObj>(_sessionFactory, PermissionObj.class);
+		} else if (clazz.isAssignableFrom(PermissionAddr.class)) {
+			dao = new GenericHibernateDao<PermissionAddr>(_sessionFactory, PermissionAddr.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

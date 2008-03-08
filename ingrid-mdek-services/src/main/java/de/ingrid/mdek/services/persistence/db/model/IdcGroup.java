@@ -5,7 +5,7 @@ import java.util.Set;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class Group implements IEntity {
+public class IdcGroup implements IEntity {
 
 	private Long id;
 	private int version;
@@ -17,7 +17,7 @@ public class Group implements IEntity {
 	private Set permissionAddrs = new HashSet();
 	private Set permissionObjs = new HashSet();
 
-	public Group() {}
+	public IdcGroup() {}
 
 	public Long getId() {
 		return id;

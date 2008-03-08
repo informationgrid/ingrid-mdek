@@ -22,4 +22,8 @@
 		<constructor-arg value="${job.log.dir}"/>
 		<constructor-arg value="true"/>
 	</bean>
+	<bean class="de.ingrid.mdek.services.security.DefaultSecurityService" id="de.ingrid.mdek.services.security.ISecurityService">
+		<constructor-arg ref="de.ingrid.mdek.services.persistence.db.IDaoFactory"/>
+		<constructor-arg ref="de.ingrid.mdek.services.log.ILogService"/>
+	</bean>
 </beans>

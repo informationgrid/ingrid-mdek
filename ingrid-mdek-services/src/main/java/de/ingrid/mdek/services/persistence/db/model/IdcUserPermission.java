@@ -2,16 +2,16 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class UserPermission implements IEntity {
+public class IdcUserPermission implements IEntity {
 
 	private Long id;
 	private int version;
 	private Long permissionId;
-	private Long userId;
+	private Long idcUserId;
 
 	private Permission permission;
 
-	public UserPermission() {}
+	public IdcUserPermission() {}
 
 	public Long getId() {
 		return id;
@@ -37,12 +37,12 @@ public class UserPermission implements IEntity {
 		this.permissionId = permissionId;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public Long getIdcUserId() {
+		return idcUserId;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setIdcUserId(Long idcUserId) {
+		this.idcUserId = idcUserId;
 	}
 
 
