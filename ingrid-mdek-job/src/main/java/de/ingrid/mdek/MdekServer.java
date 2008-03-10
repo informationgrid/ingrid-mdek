@@ -8,7 +8,9 @@ import java.util.Map;
 
 import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
+import net.weta.components.communication.reflect.ReflectMessageHandler;
 import net.weta.components.communication.tcp.StartCommunication;
+import net.weta.components.communication.tcp.TcpCommunication;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -30,25 +32,43 @@ public class MdekServer implements IMdekServer {
     }
 
     public void run() throws IOException {
-        _communication = initCommunication(_communicationProperties);
+        while (true) {
+            _communication = initCommunication(_communicationProperties);
+            if (_communication instanceof TcpCommunication) {
+                TcpCommunication tcpCom = (TcpCommunication) _communication;
+                if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
+                    try {
+                        Thread.sleep(15000);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                } else {
+                    synchronized (MdekServer.class) {
+                        try {
+                            ReflectMessageHandler messageHandler = ProxyService.createProxyServer(_communication,
+                                    IJobRepositoryFacade.class, _jobRepositoryFacade);
+                            MdekServer.class.wait();
+                        } catch (InterruptedException e) {
+                            shutdown();
+                            throw new IOException(e.getMessage());
+                        }
+                    }
+                }
 
-        ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-        
-        synchronized (MdekServer.class) {
-            try {
-                MdekServer.class.wait();
-            } catch (InterruptedException e) {
-                throw new IOException(e.getMessage());
-            } finally {
-                shutdown();
             }
         }
     }
 
     public void shutdown() {
+        try {
+            _communication.closeConnection(null);
+        } catch (Exception e) {
+            // ignore this
+        }
         _communication.shutdown();
+        _communication = null;
     }
-    
+
     private ICommunication initCommunication(File properties) throws IOException {
         FileInputStream confIS = new FileInputStream(properties);
         ICommunication communication = StartCommunication.create(confIS);
@@ -66,8 +86,7 @@ public class MdekServer implements IMdekServer {
     }
 
     private static void printUsage() {
-        System.err.println("Usage: " + MdekServer.class.getName()
-                + "--descriptor <communication.properties>");
+        System.err.println("Usage: " + MdekServer.class.getName() + "--descriptor <communication.properties>");
         System.exit(0);
     }
 
@@ -80,7 +99,8 @@ public class MdekServer implements IMdekServer {
         String communicationFile = (String) map.get("--descriptor");
 
         ApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "startup.xml" });
-        IJobRepositoryFacade jobRepositoryFacade = (IJobRepositoryFacade) context.getBean(IJobRepositoryFacade.class.getName());
+        IJobRepositoryFacade jobRepositoryFacade = (IJobRepositoryFacade) context.getBean(IJobRepositoryFacade.class
+                .getName());
         MdekServer server = new MdekServer(new File(communicationFile), jobRepositoryFacade);
         server.run();
     }

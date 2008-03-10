@@ -15,7 +15,6 @@ import org.junit.Test;
 
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.JobRepositoryFacade;
-import de.ingrid.utils.IngridDocument;
 
 public class MdekClientTest {
 
@@ -114,7 +113,7 @@ public class MdekClientTest {
     }
 
     @Test(expected = IOException.class)
-    public void testMdekClientAsComServerWithNoMdekServer() throws InterruptedException, IOException, Exception {
+    public void testMdekClientAsComServerWithNoMdekServer() throws Exception {
         MdekClient mdekClient = MdekClient.getInstance(new File(File.class.getResource(
                 "/communication-server.properties").toURI()));
         Thread.sleep(6000);
@@ -123,11 +122,7 @@ public class MdekClientTest {
         try {
             Thread.sleep(6000);
             new Socket("localhost", 56561);
-        } catch (UnknownHostException e) {
-            Assert.fail();
         } catch (IOException e) {
-            Assert.fail();
-        } catch (InterruptedException e) {
             Assert.fail();
         }
 
@@ -145,13 +140,47 @@ public class MdekClientTest {
             }
         });
         server.start();
-        Thread.sleep(6000);
+        Thread.sleep(10000);
 
         mdekClient.shutdown();
+        Thread.sleep(10000);
 
-        Thread.sleep(6000);
         new Socket("localhost", 56561);
 
+        temp.shutdown();
+        Thread.sleep(6000);
+    }
+    
+    @Test
+    public void testMdekServerAsComClientReconnection() throws Exception {
+        MdekServer temp = new MdekServer(new File(File.class.getResource("/communication-client.properties").toURI()),
+                new JobRepositoryFacade(null));
+        final MdekServer mdekServer = temp;
+        Assert.assertNotNull(mdekServer);
+        Thread server = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    mdekServer.run();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        });
+        server.start();
+        Thread.sleep(6000);
+        
+        MdekClient mdekClient = MdekClient.getInstance(new File(File.class.getResource(
+                "/communication-server.properties").toURI()));
+        Thread.sleep(6000);
+        Assert.assertNotNull(mdekClient);
+        Thread.sleep(15000);
+
+        List registeredMdekServers = mdekClient.getRegisteredMdekServers();
+        Assert.assertNotNull(registeredMdekServers);
+        Assert.assertEquals(1, registeredMdekServers.size());
+
+        mdekClient.shutdown();
+        Thread.sleep(6000);
         temp.shutdown();
         Thread.sleep(6000);
     }
