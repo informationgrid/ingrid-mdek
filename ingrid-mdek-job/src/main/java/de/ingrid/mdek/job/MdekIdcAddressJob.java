@@ -631,6 +631,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// delete complete Node ! rest is deleted per cascade !
 		daoAddressNode.makeTransient(aNode);
 
+		// TODO: also delete "Object-Address-Querverweise"
+
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 
