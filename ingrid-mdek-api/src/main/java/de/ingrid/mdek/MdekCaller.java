@@ -48,11 +48,9 @@ public class MdekCaller implements IMdekCaller {
 
     private MdekCaller(File communicationProperties) {
         try {
-    		// instantiate client
+    		// instantiate client (ibus)
     		client = MdekClient.getInstance(communicationProperties);
     		Thread.sleep(2000);
-
-        	jobRepo = client.getJobRepositoryFacade("/101tec-group:101tec-mdek-server");
 
         	// explicit registration of jobs if not persistent !
 //    		registerJob(MDEK_JOB_ID, MDEK_JOB_XML);
@@ -95,6 +93,10 @@ public class MdekCaller implements IMdekCaller {
         }
 	}
 
+	public List<String> getRegisteredIPlugs() {
+		return client.getRegisteredMdekServers();
+	}
+
 /*
 	public IngridDocument testMdekEntity(int threadNumber) {
 		IngridDocument jobParams = new IngridDocument();
@@ -115,11 +117,17 @@ public class MdekCaller implements IMdekCaller {
 		return methodList;
 	}
 
+//	public IngridDocument callJob(String plugId, String jobId, List jobMethods) {
 	public IngridDocument callJob(String jobId, List jobMethods) {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, jobId);
 		invokeDocument.put(IJobRepository.JOB_METHODS, jobMethods);
 //		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+
+		// TODO: plug id muss uebergeben werden
+		// TODO: in ehcache merken und alle halbe stunde invalidieren
+		String plugId = "mdek-iplug-idctest";
+    	jobRepo = client.getJobRepositoryFacade(plugId);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);

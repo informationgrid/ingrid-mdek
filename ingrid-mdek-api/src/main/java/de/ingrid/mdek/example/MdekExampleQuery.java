@@ -57,13 +57,32 @@ public class MdekExampleQuery {
 		System.out.println("THREADS: " + numThreads);
 
 		// INITIALIZE CENTRAL MDEK CALLER !
+		System.out.println("\n###### start mdek iBus ######\n");
 		MdekCaller.initialize(new File((String) map.get("--descriptor")));
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+
 		// and our specific job caller !
-		MdekCallerQuery.initialize(MdekCaller.getInstance());
-		MdekCallerAddress.initialize(MdekCaller.getInstance());
-		MdekCallerObject.initialize(MdekCaller.getInstance());
+		MdekCallerQuery.initialize(mdekCaller);
+		MdekCallerAddress.initialize(mdekCaller);
+		MdekCallerObject.initialize(mdekCaller);
 
+		// wait till iPlug registered !
+		System.out.println("\n###### waiting for mdek iPlug to register ######\n");
+		boolean plugRegistered = false;
+		while (!plugRegistered) {
+			List<String> iPlugs = mdekCaller.getRegisteredIPlugs();
+			if (iPlugs.size() > 0) {
+				plugRegistered = true;
+				System.out.println("Registered iPlugs: " + iPlugs);
+			} else {
+				System.out.println("wait ...");
+				Thread.sleep(6000);
+			}
+		}
 
+		System.out.println("\n###### mdek iPlug REGISTERED ! ######\n");
+        Thread.sleep(10000);
+/*
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
 		MdekExampleQueryThread[] threads = new MdekExampleQueryThread[numThreads];
@@ -88,9 +107,10 @@ public class MdekExampleQuery {
 				}
 			}
 		}
-
+*/
 		// shutdown mdek
 		MdekCaller.shutdown();
+        Thread.sleep(10000);
 	}
 }
 

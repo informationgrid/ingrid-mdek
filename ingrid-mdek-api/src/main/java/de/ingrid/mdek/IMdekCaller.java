@@ -14,6 +14,11 @@ import de.ingrid.utils.IngridDocument;
 public interface IMdekCaller {
 
 	/**
+	 * Returns a list of mdek plug ids registered at the mdek bus.
+	 */
+	public List<String> getRegisteredIPlugs();
+
+	/**
 	 * Create structure for calling method in mdek backend !
 	 * @param methodName name of method
 	 * @param methodParams parameters of method

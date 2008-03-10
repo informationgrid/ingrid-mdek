@@ -54,9 +54,26 @@ public class MdekExampleAddress {
 		System.out.println("THREADS: " + numThreads);
 
 		// INITIALIZE CENTRAL MDEK CALLER !
+		System.out.println("\n###### start mdek iBus ######\n");
 		MdekCaller.initialize(new File((String) map.get("--descriptor")));
+		IMdekCaller mdekCaller = MdekCaller.getInstance();
+
 		// and our specific job caller !
-		MdekCallerAddress.initialize(MdekCaller.getInstance());
+		MdekCallerAddress.initialize(mdekCaller);
+		
+		// wait till iPlug registered !
+		System.out.println("\n###### waiting for mdek iPlug to register ######\n");
+		boolean plugRegistered = false;
+		while (!plugRegistered) {
+			List<String> iPlugs = mdekCaller.getRegisteredIPlugs();
+			if (iPlugs.size() > 0) {
+				plugRegistered = true;
+				System.out.println("Registered iPlugs: " + iPlugs);
+			} else {
+				System.out.println("wait ...");
+				Thread.sleep(6000);
+			}
+		}
 
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
