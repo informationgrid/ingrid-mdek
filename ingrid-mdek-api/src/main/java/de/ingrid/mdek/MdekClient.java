@@ -36,7 +36,10 @@ public class MdekClient {
 
     public void shutdown() {
         try {
-            _communication.closeConnection(null);
+            List registeredMdekServers = getRegisteredMdekServers();
+            for (Object mdekServerName : registeredMdekServers) {
+                _communication.closeConnection((String) mdekServerName);
+            }
         } catch (Exception e) {
             // ignore this
         }
@@ -58,8 +61,8 @@ public class MdekClient {
         return communication;
     }
 
-    public List getRegisteredMdekServers() {
-        List result = new ArrayList();
+    public List<String> getRegisteredMdekServers() {
+        List<String> result = new ArrayList();
         if (_communication instanceof TcpCommunication) {
             TcpCommunication tcpCom = (TcpCommunication) _communication;
             result = tcpCom.getRegisteredClients();
