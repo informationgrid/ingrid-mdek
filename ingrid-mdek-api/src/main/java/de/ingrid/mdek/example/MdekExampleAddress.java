@@ -71,7 +71,7 @@ public class MdekExampleAddress {
 				System.out.println("Registered iPlugs: " + iPlugs);
 			} else {
 				System.out.println("wait ...");
-				Thread.sleep(6000);
+				Thread.sleep(2000);
 			}
 		}
 
@@ -148,7 +148,8 @@ class MdekExampleAddressThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n----- sub addresses -----");
-		fetchSubAddresses(topUuid);
+//		fetchSubAddresses(topUuid);
+		fetchSubAddresses("386644BF-B449-11D2-9A86-080000507261");
 
 		// -----------------------------------
 		System.out.println("\n----- address path -----");
@@ -396,7 +397,9 @@ class MdekExampleAddressThread extends Thread {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
-				System.out.println(o);				
+				doFullOutput = false;
+				debugAddressDoc((IngridDocument)o);
+				doFullOutput = true;
 			}
 		} else {
 			handleError(response);
@@ -423,7 +426,9 @@ class MdekExampleAddressThread extends Thread {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
-				System.out.println(o);
+				doFullOutput = false;
+				debugAddressDoc((IngridDocument)o);
+				doFullOutput = true;
 			}
 		} else {
 			handleError(response);
@@ -893,11 +898,12 @@ class MdekExampleAddressThread extends Thread {
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 		);
-		System.out.println("  " + a);
 
 		if (!doFullOutput) {
 			return;
 		}
+
+		System.out.println("  " + a);
 
 		IngridDocument myDoc;
 		List<IngridDocument> docList;
