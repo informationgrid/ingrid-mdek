@@ -63,7 +63,7 @@ public class AddressNodeDaoHibernate
 		} else {
 			query += "and a.adrType!=" + AddressType.FREI.getDbValue();			
 		}
-		query += "order by a.institution, a.lastname, a.firstname";
+		query += "order by a.adrType desc, a.institution, a.lastname, a.firstname";
 		
 		List<AddressNode> aNs = session.createQuery(query).list();
 
@@ -87,7 +87,7 @@ public class AddressNodeDaoHibernate
 		}
 		q += "where aNode.fkAddrUuid = ? ";
 		if (fetchAddressLevel) {
-			q += "order by a.institution, a.lastname, a.firstname"; 
+			q += "order by a.adrType desc, a.institution, a.lastname, a.firstname"; 
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q)
