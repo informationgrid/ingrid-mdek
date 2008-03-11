@@ -83,7 +83,7 @@ public class MdekExampleQuery {
 		System.out.println("\n###### mdek iPlug REGISTERED ! ######\n");
 		System.out.println("we wait a little bit ...");
         Thread.sleep(10000);
-/*
+
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
 		MdekExampleQueryThread[] threads = new MdekExampleQueryThread[numThreads];
@@ -108,13 +108,25 @@ public class MdekExampleQuery {
 				}
 			}
 		}
-*/
+
 		// shutdown mdek
 		System.out.println("\n###### SHUTDOWN mdek iBus ######\n");
 		MdekCaller.shutdown();
 		System.out.println("wait a little bit after shutdown ...");
         Thread.sleep(10000);
 		System.out.println("END OF EXAMPLE (end of main())");
+
+		System.out.println(Thread.activeCount());
+		Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
+		for (StackTraceElement[] st : allStackTraces.values()) {
+			for (StackTraceElement stackTraceElement : st) {
+		        System.out.println(stackTraceElement);
+            }
+            System.out.println("===============");
+		}
+
+//		System.exit(0);
+//		return;
 	}
 }
 
