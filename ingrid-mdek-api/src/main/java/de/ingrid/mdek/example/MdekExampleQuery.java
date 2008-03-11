@@ -81,6 +81,7 @@ public class MdekExampleQuery {
 		}
 
 		System.out.println("\n###### mdek iPlug REGISTERED ! ######\n");
+		System.out.println("we wait a little bit ...");
         Thread.sleep(10000);
 /*
 		// start threads calling job
@@ -109,8 +110,11 @@ public class MdekExampleQuery {
 		}
 */
 		// shutdown mdek
+		System.out.println("\n###### SHUTDOWN mdek iBus ######\n");
 		MdekCaller.shutdown();
+		System.out.println("wait a little bit after shutdown ...");
         Thread.sleep(10000);
+		System.out.println("END OF EXAMPLE (end of main())");
 	}
 }
 
