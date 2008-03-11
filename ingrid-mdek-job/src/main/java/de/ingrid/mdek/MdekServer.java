@@ -3,7 +3,9 @@ package de.ingrid.mdek;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.weta.components.communication.ICommunication;
@@ -32,31 +34,32 @@ public class MdekServer implements IMdekServer {
     }
 
     public void run() throws IOException {
-        while (true) {
+        //while (true) {
             _communication = initCommunication(_communicationProperties);
-            if (_communication instanceof TcpCommunication) {
-                TcpCommunication tcpCom = (TcpCommunication) _communication;
-                if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
-                    try {
-                        Thread.sleep(15000);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                } else {
+//            if (_communication instanceof TcpCommunication) {
+//                TcpCommunication tcpCom = (TcpCommunication) _communication;
+//                if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
+//                    try {
+//                        Thread.sleep(15000);
+//                    } catch (InterruptedException e) {
+//                        // ignore
+//                    }
+//                } else {
                     synchronized (MdekServer.class) {
                         try {
                             ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class,
                                     _jobRepositoryFacade);
                             MdekServer.class.wait();
+                            //break;
                         } catch (InterruptedException e) {
                             throw new IOException(e.getMessage());
                         } finally {
-                            closeConnections();
+                        //    closeConnections();
                         }
                     }
-                }
-            }
-        }
+//                }
+//            }
+        //}
     }
 
     public void shutdown() {
@@ -67,7 +70,10 @@ public class MdekServer implements IMdekServer {
 
     private void closeConnections() {
         try {
-            _communication.closeConnection(null);
+            List registeredMdekServers = getRegisteredMdekServers();
+            for (Object mdekServerName : registeredMdekServers) {
+                _communication.closeConnection((String) mdekServerName);
+            }
         } catch (Exception e) {
             // ignore this
         }
@@ -109,5 +115,14 @@ public class MdekServer implements IMdekServer {
                 .getName());
         MdekServer server = new MdekServer(new File(communicationFile), jobRepositoryFacade);
         server.run();
+    }
+    
+    private List<String> getRegisteredMdekServers() {
+        List<String> result = new ArrayList<String>();
+        if (_communication instanceof TcpCommunication) {
+            TcpCommunication tcpCom = (TcpCommunication) _communication;
+            result = tcpCom.getRegisteredClients();
+        }
+        return result;
     }
 }
