@@ -140,17 +140,19 @@ public class MdekClientTest {
             }
         });
         server.start();
-        Thread.sleep(10000);
+        Thread.sleep(6000);
 
         mdekClient.shutdown();
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         new Socket("localhost", 56561);
+
+        Thread.sleep(10000);
 
         temp.shutdown();
         Thread.sleep(6000);
     }
-    
+
     @Test
     public void testMdekServerAsComClientReconnection() throws Exception {
         MdekServer temp = new MdekServer(new File(File.class.getResource("/communication-client.properties").toURI()),
@@ -168,7 +170,7 @@ public class MdekClientTest {
         });
         server.start();
         Thread.sleep(6000);
-        
+
         MdekClient mdekClient = MdekClient.getInstance(new File(File.class.getResource(
                 "/communication-server.properties").toURI()));
         Thread.sleep(6000);
@@ -181,6 +183,20 @@ public class MdekClientTest {
 
         mdekClient.shutdown();
         Thread.sleep(6000);
+
+        mdekClient = MdekClient.getInstance(new File(File.class.getResource(
+                "/communication-server.properties").toURI()));
+        Thread.sleep(6000);
+        Assert.assertNotNull(mdekClient);
+        Thread.sleep(15000);
+
+        registeredMdekServers = mdekClient.getRegisteredMdekServers();
+        Assert.assertNotNull(registeredMdekServers);
+        Assert.assertEquals(1, registeredMdekServers.size());
+
+        mdekClient.shutdown();
+        Thread.sleep(6000);
+
         temp.shutdown();
         Thread.sleep(6000);
     }

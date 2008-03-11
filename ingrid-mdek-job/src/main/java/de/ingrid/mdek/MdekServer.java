@@ -45,21 +45,27 @@ public class MdekServer implements IMdekServer {
                 } else {
                     synchronized (MdekServer.class) {
                         try {
-                            ReflectMessageHandler messageHandler = ProxyService.createProxyServer(_communication,
-                                    IJobRepositoryFacade.class, _jobRepositoryFacade);
+                            ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class,
+                                    _jobRepositoryFacade);
                             MdekServer.class.wait();
                         } catch (InterruptedException e) {
-                            shutdown();
                             throw new IOException(e.getMessage());
+                        } finally {
+                            closeConnections();
                         }
                     }
                 }
-
             }
         }
     }
 
     public void shutdown() {
+        synchronized (MdekServer.class) {
+            MdekServer.class.notifyAll();
+        }
+    }
+
+    private void closeConnections() {
         try {
             _communication.closeConnection(null);
         } catch (Exception e) {
