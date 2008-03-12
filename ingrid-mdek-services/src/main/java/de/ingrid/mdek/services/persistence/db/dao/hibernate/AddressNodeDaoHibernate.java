@@ -212,8 +212,8 @@ public class AddressNodeDaoHibernate
 	}
 
 
-	public List<String> getAddressPathOrganisation(String inUuid, boolean includeEndNode) {
-		ArrayList<String> orgaList = new ArrayList<String>();
+	public List<IngridDocument> getAddressPathOrganisation(String inUuid, boolean includeEndNode) {
+		ArrayList<IngridDocument> pathList = new ArrayList<IngridDocument>();
 		String uuid = inUuid;
 		while(uuid != null) {
 			AddressNode aN = loadByUuid(uuid);
@@ -226,12 +226,16 @@ public class AddressNodeDaoHibernate
 			}
 			if (addToPath) {
 				String orga = aN.getT02AddressWork().getInstitution();
-				orgaList.add(0, orga);				
+				Integer type = aN.getT02AddressWork().getAdrType();
+				IngridDocument pathDoc = new IngridDocument();
+				pathDoc.put(MdekKeys.ORGANISATION, orga);
+				pathDoc.put(MdekKeys.CLASS, type);
+				pathList.add(0, pathDoc);
 			}
 			uuid = aN.getFkAddrUuid();
 		}
 
-		return orgaList;
+		return pathList;
 	}
 
 	public long searchTotalNumAddresses(IngridDocument searchParams) {

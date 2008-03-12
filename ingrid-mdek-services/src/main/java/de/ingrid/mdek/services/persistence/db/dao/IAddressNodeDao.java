@@ -42,9 +42,9 @@ public interface IAddressNodeDao
 	/** Get Path of ORGANISATIONS in tree starting at root.
 	 * @param uuid uuid of endNode of path
 	 * @param includeEndNode determines whether endNode is included in path (true) or not (false).
-	 * @return
+	 * @return list of organizations as IngridDocs containing orga-name and address type. 
 	 */
-	List<String> getAddressPathOrganisation(String uuid, boolean includeEndNode);
+	List<IngridDocument> getAddressPathOrganisation(String uuid, boolean includeEndNode);
 
 	/** Checks whether the given uuid is ANYWHERE below the given parent uuid. */
 	boolean isSubNode(String uuidToCheck, String uuidParent);
