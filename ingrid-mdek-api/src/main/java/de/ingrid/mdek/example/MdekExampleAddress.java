@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.IMdekCaller;
@@ -142,6 +143,10 @@ class MdekExampleAddressThread extends Thread {
 		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
 		
 		// ===================================
+		System.out.println("\n----- backend version -----");
+		getVersion();;
+
+		// -----------------------------------
 		System.out.println("\n----- top addresses -----");
 		fetchTopAddresses(true);
 		fetchTopAddresses(false);
@@ -376,6 +381,28 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("EXAMPLE EXECUTION TIME: " + exampleNeededTime + " ms");
 
 		isRunning = false;
+	}
+
+	private IngridDocument getVersion() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getVersion ######");
+		startTime = System.currentTimeMillis();
+		// ACHTUNG: ist DIREKT result ! sollte nie null sein (hoechstens leer)
+		result = mdekCaller.getVersion();
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		
+		Set<Map.Entry> entries = result.entrySet();
+		for (Map.Entry entry : entries) {
+			System.out.println(entry);
+		}
+		
+		return result;
 	}
 
 	private IngridDocument fetchTopAddresses(boolean onlyFreeAddresses) {

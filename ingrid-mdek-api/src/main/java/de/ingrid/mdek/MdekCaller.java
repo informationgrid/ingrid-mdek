@@ -2,7 +2,9 @@ package de.ingrid.mdek;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
@@ -91,6 +93,20 @@ public class MdekCaller implements IMdekCaller {
         	client = null;
         	jobRepo = null;
         }
+	}
+
+	public IngridDocument getVersion() {
+		IngridDocument retDoc = new IngridDocument();
+
+		// version data in version.properties
+		ResourceBundle resourceBundle = ResourceBundle.getBundle("version");   
+		Enumeration<String> keys = resourceBundle.getKeys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			retDoc.put(key, resourceBundle.getObject(key));
+		}
+
+		return retDoc;
 	}
 
 	public List<String> getRegisteredIPlugs() {

@@ -14,6 +14,11 @@ import de.ingrid.utils.IngridDocument;
 public interface IMdekCaller {
 
 	/**
+	 * Returns info about the version of the MdekServer (iPlug).
+	 */
+	public IngridDocument getVersion();
+
+	/**
 	 * Returns a list of mdek plug ids registered at the mdek bus.
 	 */
 	public List<String> getRegisteredIPlugs();
