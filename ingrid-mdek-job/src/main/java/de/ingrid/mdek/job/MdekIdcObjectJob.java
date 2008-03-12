@@ -880,11 +880,14 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 
 		// get current pub type. Should be set !!! (mandatory when publishing)
-		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);
-		
-		// check whether publish type has "decreased"
+		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);		
 		ObjectNode inNode = daoObjectNode.loadByUuid(topUuid);
 		T01Object inObj = inNode.getT01ObjectWork();
+
+		// check whether publish type has "decreased"
+		// NO ! we always check ! publish type may be the same as before (when object was stored
+		// before and now gets published)
+/*
 		PublishType pubTypeOld = EnumUtil.mapDatabaseToEnumConst(PublishType.class, inObj.getPublishId());
 		// if former pub type was not set assume it has decreased !
 		if (pubTypeOld != null) {
@@ -893,8 +896,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				return;
 			}			
 		}
-		
-		// pub type has decreased -> should we adapt all subnodes ?
+*/
+		// should we adapt all subnodes ?
 		if (!Boolean.TRUE.equals(forcePubCondition)) {
 			forcePubCondition = false;			
 		}
