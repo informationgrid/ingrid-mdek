@@ -160,8 +160,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 
 		// supply path info
-		List<String> pathList = daoAddressNode.getAddressPathOrganisation(uuid, false);
-		resultDoc.put(MdekKeys.PATH, pathList);
+		List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(uuid, false);
+		resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
 
 		return resultDoc;
 	}
@@ -187,8 +187,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				beanToDocMapper.mapT02Address(aParent, aDocIn, MappingQuantity.INITIAL_ENTITY);
 
 				// supply path info
-				List<String> pathList = daoAddressNode.getAddressPathOrganisation(parentUuid, true);
-				aDocIn.put(MdekKeys.PATH, pathList);
+				List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(parentUuid, true);
+				aDocIn.put(MdekKeys.PATH_ORGANISATIONS, pathList);
 			}
 
 			daoAddressNode.commitTransaction();
@@ -434,8 +434,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// and additional info
 			resultDoc.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numCopiedAddresses);
 			// and path info
-			List<String> pathList = daoAddressNode.getAddressPathOrganisation(fromNodeCopy.getAddrUuid(), false);
-			resultDoc.put(MdekKeys.PATH, pathList);
+			List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(fromNodeCopy.getAddrUuid(), false);
+			resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
 
 			daoAddressNode.commitTransaction();
 			return resultDoc;		
