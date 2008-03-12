@@ -19,9 +19,11 @@
 	<xs:complexType name="MDEK_RESULT_MAP">
 		<xs:all>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
+			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 			<xs:element name="objEntities" type="OBJECT_LIST"/>
 			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
 			<xs:element name="path" type="UUID_LIST"/>
+			<xs:element name="path_organisations" type="PATH_LIST"/>
 			<xs:element name="RESULT_ADDITIONAL_INFO_MAP" type="RESULT_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="RESULT_SYS_LIST_MAP" type="RESULT_SYS_LIST_MAP"/>
 			<xs:element name="CATALOG_MAP" type="CATALOG_MAP"/>
@@ -102,9 +104,9 @@
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="work-state"/>
-			<xs:element name="organisation" type="xs:string"/>
-			<xs:element name="name" type="xs:string"/>
-			<xs:element name="given-name" type="xs:string"/>
+			<xs:element ref="organisation"/>
+			<xs:element ref="name"/>
+			<xs:element ref="given-name"/>
 			<xs:element name="name-form" type="xs:string"/>
 			<xs:element name="name-form-key" type="xs:integer"/>
 			<xs:element name="title-or-function" type="xs:string"/>
@@ -148,7 +150,10 @@
 	<!-- db: special_ref  -->
 	<xs:element name="relation-type-ref" type="xs:integer"/>
 	<xs:element name="mod-uuid" type="UUID"/>
-	
+	<xs:element name="organisation" type="xs:string"/>
+	<xs:element name="name" type="xs:string"/>
+	<xs:element name="given-name" type="xs:string"/>
+
 	<xs:simpleType name="TIMESTAMP">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
@@ -171,16 +176,29 @@
 			<xs:element name="search-start-hit" type="xs:integer"/>
 			<xs:element name="search-num-hits" type="xs:integer"/>
 			<xs:element name="search-params" type="SEARCH_PARAMS_MAP"/>
+			<!-- query: HQL query -->
+			<xs:element name="hql-query" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="SEARCH_PARAMS_MAP">
 		<xs:all>
 			<!-- address search -->
-			<xs:element name="organisation" type="xs:string"/>
-			<xs:element name="name" type="xs:string"/>
-			<xs:element name="given-name" type="xs:string"/>
+			<xs:element ref="organisation"/>
+			<xs:element ref="name"/>
+			<xs:element ref="given-name"/>
 			<!-- query: thesaurus term -->
-			<xs:element name="term-sns-id" type="xs:string"/>
+			<xs:element ref="term-sns-id"/>
+		</xs:all>
+	</xs:complexType>	
+	<xs:complexType name="PATH_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="PATH_MAP" type="PATH_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PATH_MAP">
+		<xs:all>
+			<xs:element ref="organisation"/>
+			<xs:element ref="class"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">
@@ -211,6 +229,7 @@
 		<xs:all>
 			<!-- SYS LIST EXAMPLE ! list ids are passed in request ! -->
 			<xs:element name="sys-list-1100" type="SYS_LIST_MAP"/>
+			<xs:element name="sys-list-...." type="SYS_LIST_MAP"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="SYS_LIST_MAP">
@@ -292,9 +311,11 @@
 		<xs:sequence>
 			<xs:element name="term-name" type="xs:string"/>
 			<xs:element name="term-type" type="xs:string"/>
-			<xs:element name="term-sns-id" type="xs:string"/>
+			<xs:element ref="term-sns-id"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:element name="term-sns-id" type="xs:string"/>
+
 	<xs:complexType name="TIME_MAP">
 		<xs:sequence>
 			<xs:element name="time-type" type="xs:string"/>

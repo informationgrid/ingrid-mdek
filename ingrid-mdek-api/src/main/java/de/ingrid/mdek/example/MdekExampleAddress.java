@@ -947,6 +947,13 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("  Path: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
+		docList = (List<IngridDocument>) a.get(MdekKeys.PATH_ORGANISATIONS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Path Organisations: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);
+			}			
+		}
 	}
 
 	private void handleError(IngridDocument response) {

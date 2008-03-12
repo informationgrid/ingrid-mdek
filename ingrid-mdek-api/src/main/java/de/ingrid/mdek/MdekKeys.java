@@ -47,6 +47,9 @@ public class MdekKeys {
     public final static String SEARCH_NUM_HITS = "search-num-hits";
     /** Value: IngridDocument encapsulating all search parameters in REQUEST */
     public final static String SEARCH_PARAMS = "search-params";
+    /** HQL query string for querying objects/addresses<br>
+     * Value: String */
+    public final static String HQL_QUERY = "hql-query";
 
     // RESULT
     /** total number of hits<br>
@@ -86,8 +89,12 @@ public class MdekKeys {
     public final static String OBJ_REFERENCES_TO = "objReferencesTo";
     /** Value: List of IngridDocs */
     public final static String ADR_REFERENCES_TO = "adrReferencesTo";
-    /** Value: List of Strings (uuids) */
+    /** Path in tree to entity containing uuids<br>
+     * Value: List of Strings (uuids) */
     public final static String PATH = "path";
+    /** Path in tree to entity containing organizations etc.<br>
+     * Value: List of IngridDocs containing organization/adrType */
+    public final static String PATH_ORGANISATIONS = "path_organisations";
 
     // ADDITIONAL INFO IN RESULT
     // -------------------------
