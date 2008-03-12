@@ -26,7 +26,7 @@
 <!--
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
 -->
-				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.show_sql">true</prop>
 			</props>
 		</property>
 	</bean>
