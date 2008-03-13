@@ -155,7 +155,9 @@ public class MdekUtils {
 			String out = displayDateFormatter.format(in);
 			return out;
 		} catch (Exception ex){
-			LOG.debug("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);
+			if (yyyyMMddHHmmssSSS != null && yyyyMMddHHmmssSSS.length() > 0) {
+				LOG.warn("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);				
+			}
 			return "";
 		}
 	}
@@ -165,7 +167,7 @@ public class MdekUtils {
 			String out = timestampFormatter.format(date);
 			return out;
 		} catch (Exception ex){
-			LOG.debug("Problems formating date to timestamp: " + date, ex);
+			LOG.warn("Problems formating date to timestamp: " + date, ex);
 			return "";
 		}
 	}
@@ -176,7 +178,9 @@ public class MdekUtils {
 			String out = displayDateFormatter.format(in);
 			return out;
 		} catch (Exception ex){
-			LOG.debug("Problems parsing millisec: " + millisec, ex);
+			if (millisec != null && millisec.length() > 0) {
+				LOG.warn("Problems parsing millisec: " + millisec, ex);
+			}
 			return "";
 		}
 	}
