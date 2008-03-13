@@ -4,7 +4,6 @@ import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
 
 
 
@@ -14,7 +13,7 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
  * @author Joachim
  */
 public interface IPermissionDao
-	extends IGenericDao<SysList> {
+	extends IGenericDao<Permission> {
 
 	public List<Permission> getObjectPermissions(String addrId, String uuid);
 	

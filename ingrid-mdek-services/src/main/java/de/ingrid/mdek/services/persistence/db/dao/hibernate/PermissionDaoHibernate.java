@@ -21,20 +21,20 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
  * @author Joachim
  */
 public class PermissionDaoHibernate
-	extends GenericHibernateDao<SysList>
+	extends GenericHibernateDao<Permission>
 	implements  IPermissionDao {
 
     public PermissionDaoHibernate(SessionFactory factory) {
-        super(factory, SysList.class);
+        super(factory, Permission.class);
     }
 
 	public List<Permission> getAddressPermissions(String addrId, String uuid) {
 		
 		Session session = getSession();
-		List<Permission> ps = session.createQuery("select distinct p from IdcUser u " +
+		List<Permission> ps = session.createQuery("select distinct permission from IdcUser u " +
 				"left join u.idcGroup g " +
 				"left join g.permissionAddrs pA " +
-				"left join g.permission p " +
+				"left join pA.permission permission " +
 				"where u.addrUuid = ? and pA.uuid = ?").setString(0, addrId).setString(1, uuid)
 				.list();
 
@@ -44,11 +44,11 @@ public class PermissionDaoHibernate
 	public List<Permission> getObjectPermissions(String addrId, String uuid) {
 		Session session = getSession();
 
-		List<Permission> ps = session.createQuery("select distinct p from IdcUser u " +
+		List<Permission> ps = session.createQuery("select distinct permission from IdcUser u " +
 				"left join u.idcGroup g " +
-				"left join g.permissionObjs pA " +
-				"left join g.permission p " +
-				"where u.addrUuid = ? and pA.uuid = ?").setString(0, addrId).setString(1, uuid)
+				"left join g.permissionObjs pO " +
+				"left join pO.permission permission " +
+				"where u.addrUuid = ? and pO.uuid = ?").setString(0, addrId).setString(1, uuid)
 				.list();
 
 		return ps;
@@ -57,9 +57,9 @@ public class PermissionDaoHibernate
 	public List<Permission> getUserPermissions(String addrId) {
 		Session session = getSession();
 
-		List<Permission> ps = session.createQuery("select distinct p from IdcUser u " +
+		List<Permission> ps = session.createQuery("select distinct permission from IdcUser u " +
 				"left join u.idcUserPermissions up " +
-				"left join up.getPermission p " +
+				"left join up.getPermission permission " +
 				"where u.addrId = ?").setString(0, addrId)
 				.list();
 

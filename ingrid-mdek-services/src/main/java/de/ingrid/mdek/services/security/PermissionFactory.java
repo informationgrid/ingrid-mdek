@@ -11,36 +11,36 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
  */
 public class PermissionFactory {
 
-	public static Permission getSingleObjectPermission(String uuid) {
+	public static EntityPermission getSingleObjectPermission(String uuid) {
 		Permission p = new Permission();
 		p.setClassName("IdcObjectPermission");
-		p.setName(uuid);
+		p.setName("");
 		p.setAction("write");
-		return p;
+		return new EntityPermission(p, uuid);
 	}
 	
-	public static Permission getTreeObjectPermission(String uuid)  {
+	public static EntityPermission getTreeObjectPermission(String uuid)  {
 		Permission p = new Permission();
 		p.setClassName("IdcObjectPermission");
-		p.setName(uuid);
+		p.setName("");
 		p.setAction("write-tree");
-		return p;
+		return new EntityPermission(p, uuid);
 	}
 	
-	public static Permission getSingleAddressPermission(String uuid)  {
+	public static EntityPermission getSingleAddressPermission(String uuid)  {
 		Permission p = new Permission();
 		p.setClassName("IdcAdressPermission");
-		p.setName(uuid);
+		p.setName("");
 		p.setAction("write");
-		return p;
+		return new EntityPermission(p, uuid);
 	}
 
-	public static Permission getTreeAdressPermission(String uuid)  {
+	public static EntityPermission getTreeAdressPermission(String uuid)  {
 		Permission p = new Permission();
 		p.setClassName("IdcAdressPermission");
-		p.setName(uuid);
+		p.setName("");
 		p.setAction("write-tree");
-		return p;
+		return new EntityPermission(p, uuid);
 	}
 	
 	public static Permission getCreateRootPermission() {
