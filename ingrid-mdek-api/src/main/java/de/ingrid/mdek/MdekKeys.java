@@ -9,29 +9,32 @@ public class MdekKeys {
 
     // ADDITIONAL INFO IN REQUEST
     // -------------------------
-    /** Specifies current user for tracking running jobs 
+    /** Specifies current user for tracking running jobs<br>
      *  Value: String */
     public final static String USER_ID = "user-id";
 
-    /** Refetch an entity after an operation was performed ? 
+    /** Refetch an entity after an operation was performed ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_REFETCH_ENTITY = "requestinfo_refetchEntity";
-    /** Also copy subtree when an entity is copied ? 
+    /** Also copy subtree when an entity is copied ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_COPY_SUBTREE = "requestinfo_copySubtree";
-    /** when copying or moving address indicates whether copy/move is to a "free address" ? 
+    /** when copying or moving address indicates whether copy/move is to a "free address" ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_TARGET_IS_FREE_ADDRESS = "requestinfo_targetIsFreeAddress";
     /** Perform check before executing requested action ? (e.g. when moving node check
-     * whether subnodes don't have working copy)
+     * whether subnodes don't have working copy)<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_PERFORM_CHECK = "requestinfo_performCheck";
-    /** Apply publication condition to subnodes ?
+    /** Apply publication condition to subnodes ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_FORCE_PUBLICATION_CONDITION = "requestinfo_forcePublicationCondition";
-    /** Fetch only free addresses or only NOT free addresses ?
+    /** Fetch only free addresses or only NOT free addresses ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_ONLY_FREE_ADDRESSES = "requestinfo_onlyFreeAddresses";
+    /** if entity is deleted also delete references ? if false and references exist causes error<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_DELETE_REFERENCES = "requestinfo_deleteReferences";
 
     /** Value: Integer */
     public final static String LANGUAGE_CODE = "language-code";

@@ -156,13 +156,15 @@ class MdekExampleObjectThread extends Thread {
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//mdekCaller.testMdekEntity(threadNumber);
 
-// --------------
 /*
+// ====================
 		// test single stuff
-		boolean alwaysTrue = true;
+
+// -----------------------------------
 
 		// track server job !
 		// ------------------
+		boolean alwaysTrue = true;
 		boolean timeout = false;
 		try {
 			copyObject("15C69C20-FE15-11D2-AF34-0060084A4596", null, true);			
@@ -174,6 +176,7 @@ class MdekExampleObjectThread extends Thread {
 		copyObject("15C69C20-FE15-11D2-AF34-0060084A4596", null, true);
 
 		if (timeout) {
+			// also cancels Running Job !
 			trackRunningJob(3000, true);
 		}
 
@@ -183,11 +186,10 @@ class MdekExampleObjectThread extends Thread {
 		}
 
 // -----------------------------------
-*/
 
 		// EH CACHE BUG !!! referenced Adress Node not fetched in refetch of 2. store !
+		// ------------------
 		boolean alwaysTrue = false;
-
 		for (int i=0; i< 1; i++) {
 		
 			System.out.println("\n----- load 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
@@ -227,7 +229,9 @@ class MdekExampleObjectThread extends Thread {
 			isRunning = false;
 			return;
 		}
-// --------------
+
+// ====================
+*/
 
 		// -----------------------------------
 		// catalog
@@ -286,7 +290,7 @@ class MdekExampleObjectThread extends Thread {
 		storeObjectWithManipulation(oMap);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
-		deleteObjectWorkingCopy(objUuid);
+		deleteObjectWorkingCopy(objUuid, false);
 		
 		System.out.println("\n----- and reload -----");
 		oMap = fetchObject(objUuid, Quantity.DETAIL_ENTITY);
@@ -351,8 +355,8 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- verify copy, load top -> new top objects -----");
 		fetchTopObjects();
 		System.out.println("\n----- delete copies (WORKING COPY) -> FULL DELETE -----");
-		deleteObjectWorkingCopy(copy1Uuid);
-		deleteObjectWorkingCopy(copy2Uuid);
+		deleteObjectWorkingCopy(copy1Uuid, true);
+		deleteObjectWorkingCopy(copy2Uuid, true);
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new object below new object (WITH sub tree) -----");
 		IngridDocument subtreeCopyDoc = copyObject(objUuid, newObjUuid, true);
 		String subtreeCopyUuid = subtreeCopyDoc.getString(MdekKeys.UUID);
@@ -379,7 +383,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- check new object subtree -----");
 		checkObjectSubTree(newObjUuid);
 		System.out.println("\n\n----- delete subtree -----");
-		deleteObject(subtreeCopyUuid);
+		deleteObject(subtreeCopyUuid, true);
 		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
 		moveObject(newObjUuid, newParentUuid, true, false);
 		System.out.println("\n----- verify old parent subobjects (cut) -----");
@@ -399,13 +403,44 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- delete new object (WORKING COPY) -> NO full delete -----");
-		deleteObjectWorkingCopy(newObjUuid);
+		deleteObjectWorkingCopy(newObjUuid, false);
 		System.out.println("\n----- delete new object (FULL) -> full delete -----");
-		deleteObject(newObjUuid);
+		deleteObject(newObjUuid, false);
 		System.out.println("\n----- verify deletion of new object -----");
 		fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
 		fetchSubObjects(newParentUuid);
+
+		// ----------
+		System.out.println("\n----- test deletion of object references / WARNINGS -----");
+
+		System.out.println("\n----- create new OBJECT_TO to be REFERENCED -----");
+		IngridDocument toObjDoc = new IngridDocument();
+		toObjDoc = getInitialObject(toObjDoc);
+		toObjDoc.put(MdekKeys.TITLE, "TEST OBJECT_TO -> wird referenziert");
+		toObjDoc = storeObjectWithoutManipulation(toObjDoc, true);
+		// uuid created !
+		String toObjUuid = (String) toObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new OBJECT_FROM is REFERENCING OBJECT_TO -----");
+		IngridDocument fromObjDoc = new IngridDocument();
+		fromObjDoc = getInitialObject(fromObjDoc);
+		fromObjDoc.put(MdekKeys.TITLE, "TEST OBJECT_FROM -> referenziert");
+		ArrayList<IngridDocument> objRefsList = new ArrayList<IngridDocument>(1);
+		objRefsList.add(toObjDoc);
+		fromObjDoc.put(MdekKeys.OBJ_REFERENCES_TO, objRefsList);
+		fromObjDoc = storeObjectWithoutManipulation(fromObjDoc, true);
+		// uuid created !
+		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- delete OBJECT_TO (WORKING COPY) without refs -> Error -----");
+		deleteObjectWorkingCopy(toObjUuid, false);
+		System.out.println("\n----- delete OBJECT_TO (FULL) without refs -> Error -----");
+		deleteObject(toObjUuid, false);
+		System.out.println("\n----- delete OBJECT_TO (WORKING COPY) WITH refs -> OK -----");
+		deleteObjectWorkingCopy(toObjUuid, true);
+		System.out.println("\n----- delete OBJECT_FROM (WORKING COPY) without refs -> OK -----");
+		deleteObjectWorkingCopy(fromObjUuid, false);
 
 		// -----------------------------------
 		// copy object and publish ! create new object and publish !
@@ -442,13 +477,13 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- verify -> load top objects -----");
 		fetchTopObjects();
 		System.out.println("\n----- delete 1. published copy (WORKING COPY) -> NO DELETE -----");
-		deleteObjectWorkingCopy(pub1Uuid);
+		deleteObjectWorkingCopy(pub1Uuid, true);
 		System.out.println("\n----- delete 2. published copy (FULL) -----");
-		deleteObject(pub2Uuid);
+		deleteObject(pub2Uuid, true);
 		System.out.println("\n----- verify -> load top objects -----");
 		fetchTopObjects();
 		System.out.println("\n----- delete 1. published copy (FULL) -----");
-		deleteObject(pub1Uuid);
+		deleteObject(pub1Uuid, true);
 
 		// -----------------------------------
 		// copy object and publish ! create new object and publish !
@@ -1423,16 +1458,18 @@ class MdekExampleObjectThread extends Thread {
 		}
 	}
 
-	private IngridDocument deleteObjectWorkingCopy(String uuid) {
+	private IngridDocument deleteObjectWorkingCopy(String uuid,
+			boolean deleteReferences) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE deleteObjectWorkingCopy ######");
+		String deleteRefsInfo = (deleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObjectWorkingCopy(uuid, myUserId);
+		response = mdekCallerObject.deleteObjectWorkingCopy(uuid, deleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1448,16 +1485,18 @@ class MdekExampleObjectThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument deleteObject(String uuid) {
+	private IngridDocument deleteObject(String uuid,
+		boolean deleteReferences) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE deleteObject ######");
+		String deleteRefsInfo = (deleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObject(uuid, myUserId);
+		response = mdekCallerObject.deleteObject(uuid, deleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

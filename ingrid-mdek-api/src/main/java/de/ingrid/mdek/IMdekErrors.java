@@ -45,7 +45,10 @@ public interface IMdekErrors {
 		/** when free address has subnodes (e.g. copy of node with subnodes to free address) */
 		FREE_ADDRESS_WITH_SUBTREE("42"),
 		/** for all type of address type conflicts, e.g. when child type doesn't fit to parent ... */
-		ADDRESS_TYPE_CONFLICT("43");
+		ADDRESS_TYPE_CONFLICT("43"),
+
+		/** e.g. when object deleted and and is referenced by other objects */
+		ENTITY_REFERENCED_BY_OBJ("51");
 
 		MdekError(String errorCode) {
 			this.errorCode = errorCode;

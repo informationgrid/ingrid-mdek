@@ -14,12 +14,15 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.utils.IngridDocument;
@@ -31,6 +34,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	private IObjectNodeDao daoObjectNode;
 	private IT01ObjectDao daoT01Object;
+	private IGenericDao<IEntity> daoObjectReference;
 
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory) {
@@ -38,6 +42,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
+		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 	}
 
 	public IngridDocument getTopObjects(IngridDocument params) {
@@ -422,6 +427,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
+			Boolean deleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_DELETE_REFERENCES);
 
 			// NOTICE: this one also contains Parent Association !
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
@@ -457,7 +463,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
 			if (performFullDelete) {
-				result = deleteObject(uuid);
+				result = deleteObject(uuid, deleteReferences);
 			}
 
 			daoObjectNode.commitTransaction();
@@ -488,8 +494,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
+			Boolean deleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_DELETE_REFERENCES);
 
-			IngridDocument result = deleteObject(uuid);
+			IngridDocument result = deleteObject(uuid, deleteReferences);
 
 			daoObjectNode.commitTransaction();
 			return result;
@@ -506,17 +513,30 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument deleteObject(String uuid) {
+	private IngridDocument deleteObject(String uuid, boolean deleteReferences) {
 		// NOTICE: this one also contains Parent Association !
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		ObjectNode oNode = daoObjectNode.loadByUuid(uuid);
 		if (oNode == null) {
 			throw new MdekException(MdekError.UUID_NOT_FOUND);
 		}
 
+		ObjectReference exampleInstance = new ObjectReference();
+		exampleInstance.setObjToUuid(uuid);
+		List<IEntity> objRefs = daoObjectReference.findByExample(exampleInstance);
+		
+		if (!deleteReferences) {
+			if (objRefs.size() > 0) {
+				throw new MdekException(MdekError.ENTITY_REFERENCED_BY_OBJ);
+			}
+		}
+		
+		// delete references (querverweise)
+		for (IEntity objRef : objRefs) {
+			daoObjectReference.makeTransient(objRef);
+		}
+
 		// delete complete Node ! rest is deleted per cascade !
 		daoObjectNode.makeTransient(oNode);
-
-		// TODO: also delete "Object-Object-Querverweise"
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);

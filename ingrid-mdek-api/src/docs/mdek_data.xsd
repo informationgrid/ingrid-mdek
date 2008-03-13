@@ -170,6 +170,7 @@
 			<xs:element name="requestinfo_forcePublicationCondition" type="xs:boolean"/>
 			<xs:element name="requestinfo_onlyFreeAddresses" type="xs:boolean"/>
 			<xs:element name="requestinfo_targetIsFreeAddress" type="xs:boolean"/>
+			<xs:element name="requestinfo_deleteReferences" type="xs:boolean"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="SEARCH_MAP">
