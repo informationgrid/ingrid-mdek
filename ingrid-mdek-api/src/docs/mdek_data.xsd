@@ -29,6 +29,7 @@
 			<xs:element name="CATALOG_MAP" type="CATALOG_MAP"/>
 			<xs:element name="RUNNING_JOBS_INFO_MAP" type="RUNNING_JOBS_INFO_MAP"/>
 			<xs:element name="SEARCH_RESULT_MAP" type="SEARCH_RESULT_MAP"/>
+			<xs:element name="VERSION_MAP" type="VERSION_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -216,7 +217,15 @@
 			<xs:element name="search-total-num-hits" type="xs:long"/>
 		</xs:all>
 	</xs:complexType>	
-
+	<xs:complexType name="VERSION_MAP">
+		<xs:all>
+			<xs:element name="build.name" type="xs:string"/>
+			<xs:element name="build.version" type="xs:string"/>
+			<xs:element name="build.number" type="xs:string"/>
+			<xs:element name="build.timestamp" type="xs:string"/>
+		</xs:all>
+	</xs:complexType>	
+	
 	<xs:complexType name="RUNNING_JOBS_INFO_MAP">
 		<xs:all>
 			<xs:element name="runningjob-description" type="xs:string"/>

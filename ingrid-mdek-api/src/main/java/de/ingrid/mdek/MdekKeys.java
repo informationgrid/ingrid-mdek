@@ -60,8 +60,19 @@ public class MdekKeys {
 //    /** delivered hits<br>Value: List of IngridDocs */
 //    public final static String ADR_ENTITIES = "adrEntities";
 
+    // VERSIONING (read from properties file)
+    // ----------
+    /** Value: String */
+    public final static String BUILD_NAME = "build.name";
+    /** Value: String */
+    public final static String BUILD_VERSION = "build.version";
+    /** Value: String */
+    public final static String BUILD_NUMBER = "build.number";
+    /** Value: String */
+    public final static String BUILD_TIMESTAMP = "build.timestamp";
+
     // SYS LISTS
-    // -----------
+    // ---------
 
     /** Value: Integer[] -> all ids of syslists to fetch */
     public final static String SYS_LIST_IDS = "sys-list-ids";

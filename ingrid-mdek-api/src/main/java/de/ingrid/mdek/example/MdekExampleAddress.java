@@ -397,10 +397,16 @@ class MdekExampleAddressThread extends Thread {
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		
+		System.out.println("All entries in Map: ");
 		Set<Map.Entry> entries = result.entrySet();
 		for (Map.Entry entry : entries) {
-			System.out.println(entry);
+			System.out.println("  " + entry);
 		}
+		System.out.println("Explicit read of entries: ");
+		System.out.println("  BUILD_NAME: " + result.get(MdekKeys.BUILD_NAME));
+		System.out.println("  BUILD_VERSION: " + result.get(MdekKeys.BUILD_VERSION));
+		System.out.println("  BUILD_NUMBER: " + result.get(MdekKeys.BUILD_NUMBER));
+		System.out.println("  BUILD_TIMESTAMP (converted): " + MdekUtils.millisecToDisplayDate(result.getString(MdekKeys.BUILD_TIMESTAMP)));
 		
 		return result;
 	}

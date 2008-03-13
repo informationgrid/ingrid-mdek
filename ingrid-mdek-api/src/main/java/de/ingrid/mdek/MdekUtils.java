@@ -148,14 +148,14 @@ public class MdekUtils {
 	private MdekUtils() {}
 */
 
-	/** Format database timestamp to displayable date. */
+	/** Format database timestamp to display date. */
 	public static String timestampToDisplayDate(String yyyyMMddHHmmssSSS) {
 		try {
 			Date in = timestampFormatter.parse(yyyyMMddHHmmssSSS);
 			String out = displayDateFormatter.format(in);
 			return out;
 		} catch (Exception ex){
-//			LOG.debug("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);
+			LOG.debug("Problems parsing timestamp from database: " + yyyyMMddHHmmssSSS, ex);
 			return "";
 		}
 	}
@@ -166,6 +166,17 @@ public class MdekUtils {
 			return out;
 		} catch (Exception ex){
 			LOG.debug("Problems formating date to timestamp: " + date, ex);
+			return "";
+		}
+	}
+	/** Format milliseconds since January 1, 1970, 00:00:00 GMT to display date. */
+	public static String millisecToDisplayDate(String millisec) {
+		try {
+			Date in = new Date(Long.valueOf(millisec));
+			String out = displayDateFormatter.format(in);
+			return out;
+		} catch (Exception ex){
+			LOG.debug("Problems parsing millisec: " + millisec, ex);
 			return "";
 		}
 	}
