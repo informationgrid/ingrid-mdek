@@ -88,11 +88,11 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 	}
 
 	public IngridDocument deleteObjectWorkingCopy(String uuid,
-			boolean deleteReferences,
+			boolean forceDeleteReferences,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.REQUESTINFO_DELETE_REFERENCES, deleteReferences);
+		jobParams.put(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, forceDeleteReferences);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("deleteObjectWorkingCopy", jobParams);
 
@@ -100,11 +100,11 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 	}
 
 	public IngridDocument deleteObject(String uuid,
-			boolean deleteReferences,
+			boolean forceDeleteReferences,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
-		jobParams.put(MdekKeys.REQUESTINFO_DELETE_REFERENCES, deleteReferences);
+		jobParams.put(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, forceDeleteReferences);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("deleteObject", jobParams);
 

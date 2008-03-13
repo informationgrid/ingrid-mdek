@@ -86,9 +86,11 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 	}
 
 	public IngridDocument deleteAddressWorkingCopy(String uuid,
+			boolean forceDeleteReferences,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
+		jobParams.put(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, forceDeleteReferences);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("deleteAddressWorkingCopy", jobParams);
 
@@ -96,9 +98,11 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 	}
 
 	public IngridDocument deleteAddress(String uuid,
+			boolean forceDeleteReferences,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
+		jobParams.put(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, forceDeleteReferences);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("deleteAddress", jobParams);
 

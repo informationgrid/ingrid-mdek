@@ -80,18 +80,26 @@ public interface IMdekCallerAddress {
 	 * Notice: If no published version exists the address is deleted completely, meaning non existent afterwards
 	 * (including all subaddresses !)
 	 * @param uuid address uuid
+	 * @param forceDeleteReferences only relevant if deletion of working copy causes FULL DELETION (no published version !)<br>
+	 * 		true=all references to this address are also deleted
+	 * 		false=error if references to this address exist
 	 * @return response containing result: map containing info whether address was fully deleted
 	 */
 	IngridDocument deleteAddressWorkingCopy(String uuid,
+			boolean forceDeleteReferences,
 			String userId);
 
 	/**
 	 * FULL DELETE: working copy and published version are removed INCLUDING subaddresses !
 	 * Address non existent afterwards !
 	 * @param uuid address uuid
+	 * @param forceDeleteReferences how to handle references to this address ?<br>
+	 * 		true=all references to this address are also deleted
+	 * 		false=error if references to this address exist
 	 * @return response containing result: map containing info about success
 	 */
 	IngridDocument deleteAddress(String uuid,
+			boolean forceDeleteReferences,
 			String userId);
 
 	/**

@@ -158,8 +158,7 @@ class MdekExampleObjectThread extends Thread {
 
 /*
 // ====================
-		// test single stuff
-
+// test single stuff
 // -----------------------------------
 
 		// track server job !
@@ -1459,17 +1458,17 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument deleteObjectWorkingCopy(String uuid,
-			boolean deleteReferences) {
+			boolean forceDeleteReferences) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		String deleteRefsInfo = (deleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObjectWorkingCopy(uuid, deleteReferences, myUserId);
+		response = mdekCallerObject.deleteObjectWorkingCopy(uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1486,17 +1485,17 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument deleteObject(String uuid,
-		boolean deleteReferences) {
+			boolean forceDeleteReferences) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		String deleteRefsInfo = (deleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObject(uuid, deleteReferences, myUserId);
+		response = mdekCallerObject.deleteObject(uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

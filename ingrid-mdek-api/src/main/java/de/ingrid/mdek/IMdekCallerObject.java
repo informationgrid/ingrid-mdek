@@ -51,26 +51,26 @@ public interface IMdekCallerObject {
 	 * Notice: If no published version exists the object is deleted completely, meaning non existent afterwards
 	 * (including all subobjects !)
 	 * @param uuid object uuid
-	 * @param deleteReferences handles deletion of references IF OBJECT IS FULLY DELETED<br>
+	 * @param forceDeleteReferences only relevant if deletion of working copy causes FULL DELETION (no published version !)<br>
 	 * 		true=all references to this object are also deleted
 	 * 		false=error if references to this object exist
 	 * @return response containing result: map containing info whether object was fully deleted
 	 */
 	IngridDocument deleteObjectWorkingCopy(String uuid,
-			boolean deleteReferences,
+			boolean forceDeleteReferences,
 			String userId);
 
 	/**
 	 * FULL DELETE: working copy and published version are removed INCLUDING subobjects !
 	 * Object non existent afterwards !
 	 * @param uuid object uuid
-	 * @param deleteReferences handles deletion of references<br>
+	 * @param forceDeleteReferences how to handle references to this object ?<br>
 	 * 		true=all references to this object are also deleted
 	 * 		false=error if references to this object exist
 	 * @return response containing result: map containing info about success
 	 */
 	IngridDocument deleteObject(String uuid,
-			boolean deleteReferences,
+			boolean forceDeleteReferences,
 			String userId);
 
 	/**

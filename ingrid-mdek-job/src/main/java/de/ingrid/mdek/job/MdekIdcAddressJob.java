@@ -13,12 +13,15 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.utils.IngridDocument;
 
@@ -29,6 +32,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
+	private IGenericDao<IEntity> daoT012ObjAdr;
 
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory) {
@@ -36,6 +40,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 	}
 
 	public IngridDocument getTopAddresses(IngridDocument params) {
@@ -539,6 +544,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
+			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
 			// NOTICE: this one also contains Parent Association !
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
@@ -572,7 +578,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			if (performFullDelete) {
-				result = deleteAddress(uuid);
+				result = deleteAddress(uuid, forceDeleteReferences);
 			}
 
 			daoAddressNode.commitTransaction();
@@ -603,8 +609,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
+			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
-			IngridDocument result = deleteAddress(uuid);
+			IngridDocument result = deleteAddress(uuid, forceDeleteReferences);
 
 			daoAddressNode.commitTransaction();
 			return result;
@@ -621,17 +628,33 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument deleteAddress(String uuid) {
+	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences) {
 		// NOTICE: this one also contains Parent Association !
 		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
 		if (aNode == null) {
 			throw new MdekException(MdekError.UUID_NOT_FOUND);
 		}
 
+		// handle references to address
+		T012ObjAdr exampleRef = new T012ObjAdr();
+		exampleRef.setAdrUuid(uuid);
+		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
+		
+		if (!forceDeleteReferences) {
+			if (addrRefs.size() > 0) {
+				throw new MdekException(MdekError.ENTITY_REFERENCED_BY_OBJ);
+			}
+		}
+		
+		// TODO: Starke Address-Querverweise NICHT loeschbar !!!
+
+		// delete references (querverweise)
+		for (IEntity addrRef : addrRefs) {
+			daoT012ObjAdr.makeTransient(addrRef);
+		}
+
 		// delete complete Node ! rest is deleted per cascade !
 		daoAddressNode.makeTransient(aNode);
-
-		// TODO: also delete "Object-Address-Querverweise"
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);

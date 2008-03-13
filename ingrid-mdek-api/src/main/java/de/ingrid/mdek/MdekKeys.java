@@ -34,7 +34,7 @@ public class MdekKeys {
     public final static String REQUESTINFO_ONLY_FREE_ADDRESSES = "requestinfo_onlyFreeAddresses";
     /** if entity is deleted also delete references ? if false and references exist causes error<br>
      *  Value: Boolean */
-    public final static String REQUESTINFO_DELETE_REFERENCES = "requestinfo_deleteReferences";
+    public final static String REQUESTINFO_FORCE_DELETE_REFERENCES = "requestinfo_forceDeleteReferences";
 
     /** Value: Integer */
     public final static String LANGUAGE_CODE = "language-code";

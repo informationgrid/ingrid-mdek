@@ -427,7 +427,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
-			Boolean deleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_DELETE_REFERENCES);
+			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
 			// NOTICE: this one also contains Parent Association !
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
@@ -463,7 +463,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
 			if (performFullDelete) {
-				result = deleteObject(uuid, deleteReferences);
+				result = deleteObject(uuid, forceDeleteReferences);
 			}
 
 			daoObjectNode.commitTransaction();
@@ -494,9 +494,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
-			Boolean deleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_DELETE_REFERENCES);
+			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
-			IngridDocument result = deleteObject(uuid, deleteReferences);
+			IngridDocument result = deleteObject(uuid, forceDeleteReferences);
 
 			daoObjectNode.commitTransaction();
 			return result;
@@ -513,18 +513,19 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument deleteObject(String uuid, boolean deleteReferences) {
+	private IngridDocument deleteObject(String uuid, boolean forceDeleteReferences) {
 		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = daoObjectNode.loadByUuid(uuid);
 		if (oNode == null) {
 			throw new MdekException(MdekError.UUID_NOT_FOUND);
 		}
 
-		ObjectReference exampleInstance = new ObjectReference();
-		exampleInstance.setObjToUuid(uuid);
-		List<IEntity> objRefs = daoObjectReference.findByExample(exampleInstance);
+		// handle references to object
+		ObjectReference exampleRef = new ObjectReference();
+		exampleRef.setObjToUuid(uuid);
+		List<IEntity> objRefs = daoObjectReference.findByExample(exampleRef);
 		
-		if (!deleteReferences) {
+		if (!forceDeleteReferences) {
 			if (objRefs.size() > 0) {
 				throw new MdekException(MdekError.ENTITY_REFERENCED_BY_OBJ);
 			}

@@ -11,13 +11,16 @@ import java.util.Set;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.IMdekCaller;
 import de.ingrid.mdek.IMdekCallerAddress;
+import de.ingrid.mdek.IMdekCallerObject;
 import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekCallerAddress;
+import de.ingrid.mdek.MdekCallerObject;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
 
@@ -61,6 +64,7 @@ public class MdekExampleAddress {
 
 		// and our specific job caller !
 		MdekCallerAddress.initialize(mdekCaller);
+		MdekCallerObject.initialize(mdekCaller);
 		
 		// wait till iPlug registered !
 		System.out.println("\n###### waiting for mdek iPlug to register ######\n");
@@ -116,6 +120,7 @@ class MdekExampleAddressThread extends Thread {
 
 	private IMdekCaller mdekCaller;
 	private IMdekCallerAddress mdekCallerAddress;
+	private IMdekCallerObject mdekCallerObject;
 
 	public MdekExampleAddressThread(int threadNumber)
 	{
@@ -124,6 +129,7 @@ class MdekExampleAddressThread extends Thread {
 		
 		mdekCaller = MdekCaller.getInstance();
 		mdekCallerAddress = MdekCallerAddress.getInstance();
+		mdekCallerObject = MdekCallerObject.getInstance();
 	}
 
 	public void run() {
@@ -141,7 +147,22 @@ class MdekExampleAddressThread extends Thread {
 
 		// FREE ADDRESS
 		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
-		
+
+// ====================
+// test single stuff
+// -----------------------------------
+/*
+		boolean alwaysTrue = true;
+
+		// add functionality !
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+// ====================
+
 		// ===================================
 		System.out.println("\n----- backend version -----");
 		getVersion();;
@@ -173,7 +194,7 @@ class MdekExampleAddressThread extends Thread {
 		storeAddressWithManipulation(aMap);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
-		deleteAddressWorkingCopy(personUuid);
+		deleteAddressWorkingCopy(personUuid, true);
 		
 		System.out.println("\n----- and reload -----");
 		aMap = fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
@@ -260,9 +281,9 @@ class MdekExampleAddressThread extends Thread {
 		fetchAddress(copy3Uuid, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- delete copies (WORKING COPY) -> FULL DELETE -----");
-		deleteAddressWorkingCopy(copy1Uuid);
-		deleteAddressWorkingCopy(copy2Uuid);
-		deleteAddressWorkingCopy(copy3Uuid);
+		deleteAddressWorkingCopy(copy1Uuid, true);
+		deleteAddressWorkingCopy(copy2Uuid, true);
+		deleteAddressWorkingCopy(copy3Uuid, true);
 
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new address below new address (WITH sub tree) -----");
 		IngridDocument subtreeCopyDoc = copyAddress(parentUuid, newAddrUuid, true, false);
@@ -288,7 +309,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- check new address subtree -----");
 		checkAddressSubTree(newAddrUuid);
 		System.out.println("\n\n----- delete subtree -----");
-		deleteAddress(subtreeCopyUuid);
+		deleteAddress(subtreeCopyUuid, true);
 		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
 		moveAddress(newAddrUuid, newParentUuid, true, false);
 		System.out.println("\n----- verify old parent subaddresses (cut) -----");
@@ -306,14 +327,46 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- delete new address (WORKING COPY) -> NO full delete -----");
-		deleteAddressWorkingCopy(newAddrUuid);
+		deleteAddressWorkingCopy(newAddrUuid, true);
 		System.out.println("\n----- delete new address (FULL) -> full delete -----");
-		deleteAddress(newAddrUuid);
+		deleteAddress(newAddrUuid, true);
 		System.out.println("\n----- verify deletion of new address -----");
 		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subaddresses -----");
 		fetchSubAddresses(newParentUuid);
 
+		System.out.println("\n----- test deletion of references / WARNINGS -----");
+
+		System.out.println("\n----- create new ADDRESS to be REFERENCED -----");
+		IngridDocument toAddrDoc = new IngridDocument();
+		toAddrDoc = getInitialAddress(toAddrDoc);
+		toAddrDoc.put(MdekKeys.ORGANISATION, "TEST ADDRESS -> wird referenziert");
+		toAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
+		toAddrDoc = storeAddressWithoutManipulation(toAddrDoc, true);
+		// uuid created !
+		String toAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS -----");
+		IngridDocument fromObjDoc = new IngridDocument();
+		fromObjDoc = getInitialObject(fromObjDoc);
+		fromObjDoc.put(MdekKeys.TITLE, "TEST OBJECT -> referenziert");
+		ArrayList<IngridDocument> adrRefsList = new ArrayList<IngridDocument>(1);
+		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, -1); // needed !
+		adrRefsList.add(toAddrDoc);
+		fromObjDoc.put(MdekKeys.ADR_REFERENCES_TO, adrRefsList);
+		fromObjDoc = storeObjectWithoutManipulation(fromObjDoc, true);
+		// uuid created !
+		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- delete ADDRESS (WORKING COPY) without refs -> Error -----");
+		deleteAddressWorkingCopy(toAddrUuid, false);
+		System.out.println("\n----- delete ADDRESS (FULL) without refs -> Error -----");
+		deleteAddress(toAddrUuid, false);
+		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITH refs -> OK -----");
+		deleteAddressWorkingCopy(toAddrUuid, true);
+		System.out.println("\n----- delete OBJECT (WORKING COPY) without refs -> OK -----");
+		deleteObject(fromObjUuid, false);
+				
 		// -----------------------------------
 		System.out.println("\n\n=========================");
 		System.out.println("PUBLISH TEST");
@@ -354,11 +407,11 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- verify -> load sub addresses of parent of copy -----");
 		fetchSubAddresses(addressTo);
 		System.out.println("\n----- delete 1. published copy = sub-address (WORKING COPY) -> NO DELETE -----");
-		deleteAddressWorkingCopy(pub1Uuid);
+		deleteAddressWorkingCopy(pub1Uuid, true);
 		System.out.println("\n----- delete 2. published copy = sub-sub-address (FULL) -----");
-		deleteAddress(pub2Uuid);
+		deleteAddress(pub2Uuid, true);
 		System.out.println("\n----- delete 1. published copy = sub-address (FULL) -----");
-		deleteAddress(pub1Uuid);
+		deleteAddress(pub1Uuid, true);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -520,6 +573,40 @@ class MdekExampleAddressThread extends Thread {
 			handleError(response);
 		}
 		
+		return result;
+	}
+
+	private IngridDocument storeObjectWithoutManipulation(IngridDocument oDocIn,
+			boolean refetchObject) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeObject ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.storeObject(oDocIn, refetchObject, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugObjectDoc(result);
+		} else {
+			handleError(response);
+		}
+
 		return result;
 	}
 
@@ -711,6 +798,30 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument getInitialObject(IngridDocument newBasicObject) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getInitialObject ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.getInitialObject(newBasicObject, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugObjectDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	private IngridDocument checkAddressSubTree(String uuid) {
 		long startTime;
 		long endTime;
@@ -735,16 +846,18 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument deleteAddress(String uuid) {
+	private IngridDocument deleteAddress(String uuid,
+			boolean forceDeleteReferences) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE deleteAddress ######");
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteAddress " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddress(uuid, myUserId);
+		response = mdekCallerAddress.deleteAddress(uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -760,16 +873,45 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument deleteAddressWorkingCopy(String uuid) {
+	private IngridDocument deleteObject(String uuid,
+			boolean forceDeleteReferences) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE deleteAddressWorkingCopy ######");
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddressWorkingCopy(uuid, myUserId);
+		response = mdekCallerObject.deleteObject(uuid, forceDeleteReferences, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument deleteAddressWorkingCopy(String uuid,
+			boolean forceDeleteReferences) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.deleteAddressWorkingCopy(uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -986,6 +1128,29 @@ class MdekExampleAddressThread extends Thread {
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}			
+		}
+	}
+
+	private void debugObjectDoc(IngridDocument o) {
+		System.out.println("Object: " + o.get(MdekKeys.ID) 
+			+ ", " + o.get(MdekKeys.UUID)
+			+ ", " + o.get(MdekKeys.TITLE));
+		System.out.println("        "
+			+ "created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
+			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
+		);
+		System.out.println("  " + o);
+
+		List<IngridDocument>  docList = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Addresses TO: " + docList.size() + " Entities");
+			doFullOutput = false;
+			for (IngridDocument a : docList) {
+				debugAddressDoc(a);
+			}			
+			doFullOutput = true;
 		}
 	}
 
