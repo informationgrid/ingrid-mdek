@@ -50,7 +50,11 @@ public class MdekError implements Serializable {
 		/** for all type of address type conflicts, e.g. when child type doesn't fit to parent ... */
 		ADDRESS_TYPE_CONFLICT("43"),
 
-		/** e.g. when object deleted and and is referenced by other objects */
+		/** e.g. when object is deleted and and is referenced by other objects<br>
+		 * contains detailed error info about referenced and referencing entities:<br>
+		 * <b>errorInfo-Map</b> = referenced entity (object or address)<br>
+		 * <b>errorInfo-Map.OBJ_ENTITIES</b> = List of object maps (referencing objects)
+		 */
 		ENTITY_REFERENCED_BY_OBJ("51");
 
 		MdekErrorType(String errorCode) {
