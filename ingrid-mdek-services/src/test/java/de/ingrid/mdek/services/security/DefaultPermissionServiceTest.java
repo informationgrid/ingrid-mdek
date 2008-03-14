@@ -46,15 +46,16 @@ public class DefaultPermissionServiceTest extends AbstractPermissionTest {
         
         dao.makePersistent(pa);
         this.commitTransaction();
-        
-		this.getSessionFactory();
 	}
 
+	
 
 	@Test
 	public void testHasPermissionForAddress() {
 		
 		IPermissionService s = getPermissionService();
+		this.beginNewTransaction();
 		assertEquals(s.hasPermissionForAddress("addr1", PermissionFactory.getSingleAddressPermission("adr_uuid_1")), true);
+		this.commitTransaction();
 	}
 }

@@ -1,18 +1,13 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
-import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
 
 /**
  * Hibernate-specific implementation of the <tt>IPermissionDao</tt>
@@ -28,6 +23,7 @@ public class PermissionDaoHibernate
         super(factory, Permission.class);
     }
 
+	@SuppressWarnings("unchecked")
 	public List<Permission> getAddressPermissions(String addrId, String uuid) {
 		
 		Session session = getSession();
@@ -41,6 +37,7 @@ public class PermissionDaoHibernate
 		return ps;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Permission> getObjectPermissions(String addrId, String uuid) {
 		Session session = getSession();
 
@@ -54,6 +51,7 @@ public class PermissionDaoHibernate
 		return ps;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Permission> getUserPermissions(String addrId) {
 		Session session = getSession();
 

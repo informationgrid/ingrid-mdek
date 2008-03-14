@@ -48,16 +48,4 @@ public class EntityPermission extends Permission {
 		this.permission = p;
 	}
 
-	public boolean equalsPermission(Permission p) {
-		if (p.getAction().equals(permission.getAction())
-				&& p.getClassName().equals(permission.getClassName())
-				&& p.getName().equals(permission.getName())
-				) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	
 }
