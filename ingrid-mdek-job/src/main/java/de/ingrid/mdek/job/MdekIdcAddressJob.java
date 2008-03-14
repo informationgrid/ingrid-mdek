@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Stack;
 
 import de.ingrid.mdek.EnumUtil;
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
@@ -16,12 +17,14 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.utils.IngridDocument;
 
@@ -33,6 +36,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
 	private IGenericDao<IEntity> daoT012ObjAdr;
+	private IT01ObjectDao daoT01Object;
 
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory) {
@@ -41,6 +45,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
+		daoT01Object = daoFactory.getT01ObjectDao();
 	}
 
 	public IngridDocument getTopAddresses(IngridDocument params) {
@@ -145,7 +150,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// first get all "internal" address data
 		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
 		if (aNode == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		IngridDocument resultDoc = new IngridDocument();
@@ -180,7 +185,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			if (parentUuid != null) {
 				AddressNode pNode = daoAddressNode.loadByUuid(parentUuid);
 				if (pNode == null) {
-					throw new MdekException(MdekError.UUID_NOT_FOUND);
+					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
 
 				T02Address aParent = pNode.getT02AddressWork();
@@ -549,7 +554,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// NOTICE: this one also contains Parent Association !
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
 			if (aNode == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
 
 			boolean performFullDelete = false;
@@ -630,9 +635,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences) {
 		// NOTICE: this one also contains Parent Association !
-		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+		AddressNode aNode = daoAddressNode.loadByUuid(uuid);
 		if (aNode == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		// handle references to address
@@ -640,9 +645,30 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		exampleRef.setAdrUuid(uuid);
 		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
 		
+		// throw exception with detailed errors when address referenced without reference deletion !
 		if (!forceDeleteReferences) {
-			if (addrRefs.size() > 0) {
-				throw new MdekException(MdekError.ENTITY_REFERENCED_BY_OBJ);
+			int numRefs = addrRefs.size();
+			if (numRefs > 0) {
+				// existing references -> throw exception with according error info !
+
+				// add info about referenced address
+				IngridDocument errInfo =
+					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+
+				// add info about objects referencing !
+				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
+				for (IEntity ent : addrRefs) {
+					T012ObjAdr ref = (T012ObjAdr) ent;
+					// fetch object referencing the address
+					T01Object o = daoT01Object.getById(ref.getObjId());
+					IngridDocument objInfo =
+						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+					objList.add(objInfo);
+				}
+				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
+
+				// and throw exception encapsulating errors
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
 			}
 		}
 		
@@ -724,7 +750,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		if (newParentUuid != null) {
 			newParentNode = daoAddressNode.loadByUuid(newParentUuid);
 			if (newParentNode == null) {
-				throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}
 		}
 		// further checks
@@ -886,7 +912,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private void checkAddressNodeForStore(AddressNode node)
 	{
 		if (node == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		String parentUuid = node.getFkAddrUuid();
@@ -894,10 +920,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		AddressType aType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, aWork.getAdrType());
 		if (aType == AddressType.FREI) {
 			if (parentUuid != null) {
-				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
 			}
 			if (hasChildren(node)) {
-				throw new MdekException(MdekError.FREE_ADDRESS_WITH_SUBTREE);
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
 			}
 		}
 	}
@@ -909,7 +935,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private void checkAddressNodeForPublish(AddressNode node)
 	{
 		if (node == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		AddressType nodeType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
@@ -920,10 +946,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// basic free address checks
 		if (isFreeAddress) {
 			if (parentUuid != null) {
-				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
 			}
 			if (hasChildren(node)) {
-				throw new MdekException(MdekError.FREE_ADDRESS_WITH_SUBTREE);
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
 			}
 		}
 
@@ -938,10 +964,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			for (String pathUuid : pathUuids) {
 				AddressNode pathNode = daoAddressNode.loadByUuid(pathUuid);
 				if (pathNode == null) {
-					throw new MdekException(MdekError.UUID_NOT_FOUND);
+					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
 				if (pathNode.getAddrIdPublished() == null) {
-					throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+					throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 				}
 			}
 
@@ -963,7 +989,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		Boolean copyToFreeAddress)
 	{
 		if (fromNode == null) {
-			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
 		}
 		AddressType fromType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
 				fromNode.getT02AddressWork().getAdrType());
@@ -971,10 +997,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// basic free address checks
 		if (copyToFreeAddress) {
 			if (toNode != null) {
-				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
 			}
 			if (copySubtree) {
-				throw new MdekException(MdekError.FREE_ADDRESS_WITH_SUBTREE);
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
 			}
 		}
 
@@ -996,14 +1022,14 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		Boolean moveToFreeAddress)
 	{
 		if (fromNode == null) {
-			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
 		}		
 		String fromUuid = fromNode.getAddrUuid();
 
 		// nodes to move must be published !
 		T02Address fromAddr = fromNode.getT02AddressPublished();
 		if (fromAddr == null) {
-			throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
 		}
 		AddressType fromType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, fromAddr.getAdrType());
 
@@ -1011,7 +1037,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		if (performSubtreeCheck) {
 			IngridDocument checkResult = checkAddressSubTreeWorkingCopies(fromUuid);
 			if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
-				throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
+				throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_WORKING_COPIES));
 			}
 		}
 
@@ -1021,27 +1047,27 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// load toNode
 			AddressNode toNode = daoAddressNode.loadByUuid(toUuid);
 			if (toNode == null) {
-				throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}		
 
 			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
 			T02Address toAddr = toNode.getT02AddressPublished();
 			if (toAddr == null) {
-				throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 
 			// is target subnode ?
 			if (daoAddressNode.isSubNode(toUuid, fromUuid)) {
-				throw new MdekException(MdekError.TARGET_IS_SUBNODE_OF_SOURCE);				
+				throw new MdekException(new MdekError(MdekErrorType.TARGET_IS_SUBNODE_OF_SOURCE));				
 			}
 
 			// rudimentary checks
 			if (moveToFreeAddress) {
 				if (toNode != null) {
-					throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+					throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
 				}
 				if (hasChildren(fromNode)) {
-					throw new MdekException(MdekError.FREE_ADDRESS_WITH_SUBTREE);
+					throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
 				}
 			}
 
@@ -1058,7 +1084,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// load "root"
 		AddressNode rootNode = daoAddressNode.loadByUuid(rootUuid);
 		if (rootNode == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		// traverse iteratively via stack
@@ -1111,35 +1137,35 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			boolean finalIsFreeAddress,
 			boolean isFinalState) {
 		if (childType == null) {
-			throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 		}
 
 		if (finalIsFreeAddress) {
 			// FREE ADDRESS !
 
 			if (parentType != null) {
-				throw new MdekException(MdekError.FREE_ADDRESS_WITH_PARENT);
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
 			}
 			if (isFinalState) {
 				if (childType != AddressType.FREI) {
-					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
 			} else {
 				// check before copy or move operation
 				if (childType != AddressType.PERSON &&
 					childType != AddressType.FREI) {
-					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
 			}
 		} else {
 			// NO FREE ADDRESS !
 
 			if (parentType == AddressType.FREI) {
-				throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);					
+				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
 			}
 			if (isFinalState) {
 				if (childType == AddressType.FREI) {
-					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
 			}
 
@@ -1147,18 +1173,18 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				// TOP ADDRESS
 
 				if (childType != AddressType.INSTITUTION) {
-					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);					
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
 				}
 			} else {
 				// NO TOP ADDRESS
 
 				if (parentType == AddressType.EINHEIT) {
 					if (childType == AddressType.INSTITUTION) {
-						throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
+						throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 					}
 
 				} else if (parentType == AddressType.PERSON) {
-					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
 			}
 		}
@@ -1189,7 +1215,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// Publish Version should be set ! (No work version allowed, when check was performed before)
 			T02Address addr = node.getT02AddressPublished();
 			if (addr == null) {
-				throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
 			}
 			addr.setModTime(currentTime);
 			// TODO: set modUuid
@@ -1228,7 +1254,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			if (!wasFreeAddress) {
 				AddressType formerType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.getAdrType());
 				if (formerType != AddressType.PERSON) {
-					throw new MdekException(MdekError.ADDRESS_TYPE_CONFLICT);
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
 				a.setAdrType(AddressType.FREI.getDbValue());
 				a.setInstitution("");

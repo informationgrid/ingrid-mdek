@@ -15,9 +15,11 @@ import de.ingrid.mdek.MdekCaller;
 import de.ingrid.mdek.MdekCallerCatalog;
 import de.ingrid.mdek.MdekCallerObject;
 import de.ingrid.mdek.MdekClient;
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
@@ -1514,18 +1516,20 @@ class MdekExampleObjectThread extends Thread {
 	private void debugObjectDoc(IngridDocument o) {
 		System.out.println("Object: " + o.get(MdekKeys.ID) 
 			+ ", " + o.get(MdekKeys.UUID)
-			+ ", " + o.get(MdekKeys.TITLE));
-		System.out.println("        "
-			+ "created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", " + o.get(MdekKeys.TITLE)
+//		);
+//		System.out.println("        "
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
 			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
 		);
-		System.out.println("  " + o);
 
 		if (!doFullOutput) {
 			return;
 		}
+
+		System.out.println("  " + o);
 
 		IngridDocument myDoc;
 		List<IngridDocument> docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_TO);
@@ -1742,7 +1746,29 @@ class MdekExampleObjectThread extends Thread {
 	private void handleError(IngridDocument response) {
 		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
 		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));			
-		
+
+		if (!doFullOutput) {
+			return;
+		}
+
+		// detailed output  
+		List<MdekError> errors = mdekCaller.getErrorsFromResponse(response);
+		doFullOutput = false;
+		for (MdekError err : errors) {
+			if (err.getErrorType().equals(MdekErrorType.ENTITY_REFERENCED_BY_OBJ)) {
+				IngridDocument info = err.getErrorInfo();
+				// referenced object
+				debugObjectDoc(info);
+				// objects referencing
+				List<IngridDocument> oDocs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
+				if (oDocs != null) {
+					for (IngridDocument oDoc : oDocs) {
+						debugObjectDoc(oDoc);
+					}
+				}
+			}
+		}
+		doFullOutput = true;
 	}
 
 	public void start() {

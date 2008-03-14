@@ -7,9 +7,10 @@ import java.util.Set;
 import java.util.Stack;
 
 import de.ingrid.mdek.EnumUtil;
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.log.ILogService;
@@ -144,7 +145,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// first get all "internal" object data (referenced addresses ...)
 		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 		if (oNode == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		IngridDocument resultDoc = new IngridDocument();
@@ -175,7 +176,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			if (parentUuid != null) {
 				ObjectNode pNode = daoObjectNode.loadByUuid(parentUuid);
 				if (pNode == null) {
-					throw new MdekException(MdekError.UUID_NOT_FOUND);
+					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
 
 				T01Object oParent = pNode.getT01ObjectWork();
@@ -190,7 +191,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// take over spatial reference from catalog
 			T03Catalogue catalog = (T03Catalogue) daoT03Catalog.findFirst();
 			if (catalog == null) {
-				throw new MdekException(MdekError.CATALOG_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.CATALOG_NOT_FOUND));
 			}
 
 			IngridDocument catalogDoc = new IngridDocument();
@@ -432,7 +433,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// NOTICE: this one also contains Parent Association !
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 			if (oNode == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
 
 			boolean performFullDelete = false;
@@ -517,7 +518,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = daoObjectNode.loadByUuid(uuid);
 		if (oNode == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		// handle references to object
@@ -525,9 +526,30 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		exampleRef.setObjToUuid(uuid);
 		List<IEntity> objRefs = daoObjectReference.findByExample(exampleRef);
 		
+		// throw exception with detailed errors when address referenced without reference deletion !
 		if (!forceDeleteReferences) {
-			if (objRefs.size() > 0) {
-				throw new MdekException(MdekError.ENTITY_REFERENCED_BY_OBJ);
+			int numRefs = objRefs.size();
+			if (numRefs > 0) {
+				// existing references -> throw exception with according error info !
+
+				// add info about referenced object
+				IngridDocument errInfo =
+					beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+
+				// add info about objects referencing !
+				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
+				for (IEntity ent : objRefs) {
+					ObjectReference ref = (ObjectReference) ent;
+					// fetch object referencing the address
+					T01Object o = daoT01Object.getById(ref.getObjFromId());
+					IngridDocument objInfo =
+						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+					objList.add(objInfo);
+				}
+				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
+
+				// and throw exception encapsulating errors
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
 			}
 		}
 		
@@ -611,7 +633,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// Publish Version should be set ! (No work version allowed, when check was performed before)
 			T01Object obj = objNode.getT01ObjectPublished();
 			if (obj == null) {
-				throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
 			}
 			obj.setModTime(currentTime);
 			// TODO: set modUuid
@@ -670,7 +692,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// load "root"
 		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid);
 		if (rootNode == null) {
-			throw new MdekException(MdekError.UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		// traverse iteratively via stack
@@ -727,7 +749,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// perform checks
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
 			if (fromNode == null) {
-				throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
 			}
 
 			ObjectNode toNode = null;
@@ -735,7 +757,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			if (toUuid != null) {
 				toNode = daoObjectNode.loadByUuid(toUuid);
 				if (toNode == null) {
-					throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+					throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 				}
 			}
 
@@ -778,21 +800,21 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		Boolean forcePubCondition)
 	{
 		if (fromNode == null) {
-			throw new MdekException(MdekError.FROM_UUID_NOT_FOUND);
+			throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
 		}		
 		String fromUuid = fromNode.getObjUuid();
 
 		// nodes to move must be published !
 		T01Object fromObj = fromNode.getT01ObjectPublished();
 		if (fromObj == null) {
-			throw new MdekException(MdekError.ENTITY_NOT_PUBLISHED);
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
 		}
 
 		// perform additional check whether subnodes have working copies -> not allowed
 		if (performSubtreeCheck) {
 			IngridDocument checkResult = checkObjectSubTreeWorkingCopies(fromUuid);
 			if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
-				throw new MdekException(MdekError.SUBTREE_HAS_WORKING_COPIES);
+				throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_WORKING_COPIES));
 			}
 		}
 
@@ -801,18 +823,18 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// load toNode
 			ObjectNode toNode = daoObjectNode.loadByUuid(toUuid);
 			if (toNode == null) {
-				throw new MdekException(MdekError.TO_UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}		
 
 			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
 			T01Object toObj = toNode.getT01ObjectPublished();
 			if (toObj == null) {
-				throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 
 			// is target subnode ?
 			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
-				throw new MdekException(MdekError.TARGET_IS_SUBNODE_OF_SOURCE);				
+				throw new MdekException(new MdekError(MdekErrorType.TARGET_IS_SUBNODE_OF_SOURCE));				
 			}
 			
 			// are pubTypes compatible ?
@@ -839,12 +861,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 			ObjectNode pathNode = daoObjectNode.loadByUuid(pathUuid);
 			if (pathNode == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
 			
 			// check
 			if (pathNode.getObjIdPublished() == null) {
-				throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 		}
 	}
@@ -868,7 +890,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 		T01Object parentObjPub = daoObjectNode.loadByUuid(parentUuid).getT01ObjectPublished();
 		if (parentObjPub == null) {
-			throw new MdekException(MdekError.PARENT_NOT_PUBLISHED);
+			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 		}
 		
 		// get publish type of parent
@@ -876,7 +898,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		// check whether publish type of parent is smaller
 		if (!pubTypeParent.includes(pubTypeChild)) {
-			throw new MdekException(MdekError.PARENT_HAS_SMALLER_PUBLICATION_CONDITION);					
+			throw new MdekException(new MdekError(MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION));					
 		}
 	}
 
@@ -951,7 +973,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				if (subNodeCritical) {
 					// throw "warning" for user when not adapting sub tree !
 					if (!forcePubCondition) {
-						throw new MdekException(MdekError.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION);					
+						throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION));					
 					}
 
 					// subnodes should be adapted -> in PublishedVersion !

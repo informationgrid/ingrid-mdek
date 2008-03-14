@@ -8,8 +8,9 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
@@ -211,7 +212,7 @@ public class ObjectNodeDaoHibernate
 		while(uuid != null) {
 			ObjectNode oN = loadByUuid(uuid);
 			if (oN == null) {
-				throw new MdekException(MdekError.UUID_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
 			uuidList.add(0, uuid);
 			uuid = oN.getFkObjUuid();

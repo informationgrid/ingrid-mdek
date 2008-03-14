@@ -1,15 +1,18 @@
 package de.ingrid.mdek;
 
+import java.io.Serializable;
+
+import de.ingrid.utils.IngridDocument;
 
 /**
- * Interface defining MdekError Types
+ * Class describing a known mdek error. 
  * 
  * @author Martin
  */
-public interface IMdekErrors {
+public class MdekError implements Serializable {
 
-	/** Error Codes ! Encapsulated "dbValue" represents error code. */
-	public enum MdekError implements IMdekEnum {
+	/** Error Codes ! */
+	public enum MdekErrorType implements IMdekEnum {
 		/** Another user changed an entity in between */
 		ENTITY_CHANGED_IN_BETWEEN("1"),
 
@@ -50,7 +53,7 @@ public interface IMdekErrors {
 		/** e.g. when object deleted and and is referenced by other objects */
 		ENTITY_REFERENCED_BY_OBJ("51");
 
-		MdekError(String errorCode) {
+		MdekErrorType(String errorCode) {
 			this.errorCode = errorCode;
 		}
 		/** represents the error code of this enumeration constant.
@@ -60,5 +63,37 @@ public interface IMdekErrors {
 			return errorCode;
 		}
 		String errorCode;
+	}
+
+	protected MdekErrorType errorType;
+	protected IngridDocument errorInfo;
+
+    private MdekError() {}
+
+	/** Constructs an exception containing the passed error. */
+    public MdekError(MdekErrorType errorType) {
+    	this.errorType = errorType;
+    }
+	/** Constructs an exception containing the passed error and error information. */
+    public MdekError(MdekErrorType errorType, IngridDocument errorInfo) {
+    	this.errorType = errorType;
+    	this.errorInfo = errorInfo;
+    }
+
+	public MdekErrorType getErrorType() {
+		return errorType;
+	}
+	public IngridDocument getErrorInfo() {
+		return errorInfo;
+	}
+
+	public String toString() {
+		String retStr = "[";
+		retStr += errorType;
+		retStr += ", ";
+		retStr += errorInfo;		
+		retStr += "]";
+
+		return retStr;
 	}
 }

@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
@@ -74,7 +75,7 @@ public abstract class MdekIdcJob extends MdekJob {
 			// fetch catalog
 			T03Catalogue catalog = (T03Catalogue) daoT03Catalog.findFirst();
 			if (catalog == null) {
-				throw new MdekException(MdekError.CATALOG_NOT_FOUND);
+				throw new MdekException(new MdekError(MdekErrorType.CATALOG_NOT_FOUND));
 			}
 
 			IngridDocument result = new IngridDocument();

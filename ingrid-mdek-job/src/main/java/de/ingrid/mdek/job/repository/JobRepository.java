@@ -102,7 +102,7 @@ public class JobRepository implements IJobRepository {
 				MdekException mdekExc = (MdekException) e.getCause();
 				ret.put(JOB_INVOKE_ERROR_MDEK, mdekExc.getMdekErrors());
 
-				ret.put(JOB_INVOKE_ERROR_MESSAGE, "Mdek Error Codes: " + mdekExc.getMdekErrors());
+				ret.put(JOB_INVOKE_ERROR_MESSAGE, "Mdek Errors: " + mdekExc);
 
 			// or an "unhandled" exception
 			} else {

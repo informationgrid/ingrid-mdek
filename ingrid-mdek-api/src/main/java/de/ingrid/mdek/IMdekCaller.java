@@ -2,7 +2,6 @@ package de.ingrid.mdek;
 
 import java.util.List;
 
-import de.ingrid.mdek.IMdekErrors.MdekError;
 import de.ingrid.utils.IngridDocument;
 
 

@@ -3,8 +3,8 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.ingrid.mdek.IMdekErrors;
-import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 
 public class MdekException extends RuntimeException {
 
@@ -27,17 +27,24 @@ public class MdekException extends RuntimeException {
     }
 
 	public String toString() {
-		String ret = "errors: ";
+		String retStr = "";
 		
-		ret += errors.toString();
+		for (MdekError err : errors) {
+			if (retStr.length() > 0) {
+				retStr += ", ";				
+			}
+			retStr += err;
+		}
 		
-		return ret;
+		return retStr;
 	}
 
 	/** Does this exception contain the passed Error ? */
-	public boolean containsError(MdekError errorToCheck) {
-		if (errors.contains(errorToCheck)) {
-			return true;
+	public boolean containsError(MdekErrorType errorToCheck) {
+		for (MdekError err : errors) {
+			if (err.getErrorType().equals(errorToCheck)) {
+				return true;
+			}
 		}
 		
 		return false;

@@ -6,8 +6,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -87,7 +88,7 @@ public class MdekJobHandler {
 		// first check whether there is already a running job
 		IngridDocument runningJob = runningJobsMap.get(userId);
 		if (runningJob != null) {
-			throw new MdekException(MdekError.USER_HAS_RUNNING_JOBS);			
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_RUNNING_JOBS));			
 		}
 
 		if (LOG.isDebugEnabled()) {
@@ -124,7 +125,7 @@ public class MdekJobHandler {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("Job " + runningJob.get(MdekKeys.RUNNINGJOB_DESCRIPTION) + " was canceled by user !");
 			}
-			throw new MdekException(MdekError.USER_CANCELED_JOB);
+			throw new MdekException(new MdekError(MdekErrorType.USER_CANCELED_JOB));
 		}
 	}
 }

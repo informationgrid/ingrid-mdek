@@ -2,8 +2,9 @@ package de.ingrid.mdek.job;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.IMdekErrors.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -93,7 +94,7 @@ public abstract class MdekJob implements IJob {
 	public static String getCurrentUserId(IngridDocument inDoc) {
 		String userId = inDoc.getString(MdekKeys.USER_ID);
 		if (userId == null) {
-			throw new MdekException(MdekError.USER_ID_NOT_SET);
+			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
 		}
 		
 		return userId;
