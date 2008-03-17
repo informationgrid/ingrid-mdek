@@ -1,7 +1,5 @@
 package de.ingrid.mdek.services.persistence.db;
 
-import java.util.List;
-
 import org.hibernate.SessionFactory;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
