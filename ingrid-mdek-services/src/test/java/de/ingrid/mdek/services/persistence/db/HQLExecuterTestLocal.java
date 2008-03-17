@@ -3,6 +3,8 @@ package de.ingrid.mdek.services.persistence.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Test;
+
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.utils.IngridDocument;
@@ -45,6 +47,7 @@ public class HQLExecuterTestLocal extends AbstractDaoTest {
 		}
 	}
 
+	@Test
 	public void testUpdate() throws Exception {
 
 		IngridDocument document = new IngridDocument();
@@ -94,6 +97,7 @@ public class HQLExecuterTestLocal extends AbstractDaoTest {
 
 	}
 
+	@Test
 	public void testDelete() throws Exception {
 		System.out.println("HQLExecuterTestLocal.testDelete()");
 		IngridDocument document = new IngridDocument();
