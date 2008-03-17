@@ -10,20 +10,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
 public class HddPersistenceTest  {
 
 	protected File _testFolder = new File(System.getProperty("java.io.tmpdir"),
 			"" + System.currentTimeMillis() + "_hdd");
 
 	@Before
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		Assert.assertTrue(_testFolder.mkdirs());
 	}
 
 	@After
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		File[] files = _testFolder.listFiles();
 		for (File file : files) {
 		    Assert.assertTrue(file.delete());
