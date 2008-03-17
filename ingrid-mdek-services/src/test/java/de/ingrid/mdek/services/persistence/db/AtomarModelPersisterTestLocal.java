@@ -106,6 +106,7 @@ public class AtomarModelPersisterTestLocal extends AbstractDaoTest {
 		assertTrue(checkOk);
 	}
 
+	@Test
 	public void testDelete() throws Exception {
 		DaoFactory factory = new DaoFactory(getSessionFactory());
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
