@@ -415,10 +415,20 @@ class MdekExampleObjectThread extends Thread {
 		// ----------
 		System.out.println("\n----- test deletion of object references / WARNINGS -----");
 
-		System.out.println("\n----- create new OBJECT_TO to be REFERENCED -----");
+		System.out.println("\n----- create new TOP OBJECT -----");
 		IngridDocument toObjDoc = new IngridDocument();
 		toObjDoc = getInitialObject(toObjDoc);
-		toObjDoc.put(MdekKeys.TITLE, "TEST OBJECT_TO -> wird referenziert");
+		toObjDoc.put(MdekKeys.TITLE, "TEST TOP OBJECT");
+		toObjDoc = storeObjectWithoutManipulation(toObjDoc, true);
+		// uuid created !
+		String topObjUuid = (String) toObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new SUB OBJECT to be REFERENCED -----");
+		// initial data from parent
+		toObjDoc = new IngridDocument();
+		toObjDoc.put(MdekKeys.PARENT_UUID, topObjUuid);
+		toObjDoc = getInitialObject(toObjDoc);
+		toObjDoc.put(MdekKeys.TITLE, "TEST SUB OBJECT -> wird referenziert");
 		toObjDoc = storeObjectWithoutManipulation(toObjDoc, true);
 		// uuid created !
 		String toObjUuid = (String) toObjDoc.get(MdekKeys.UUID);
@@ -434,12 +444,12 @@ class MdekExampleObjectThread extends Thread {
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- delete OBJECT_TO (WORKING COPY) without refs -> Error -----");
-		deleteObjectWorkingCopy(toObjUuid, false);
-		System.out.println("\n----- delete OBJECT_TO (FULL) without refs -> Error -----");
-		deleteObject(toObjUuid, false);
+		System.out.println("\n----- delete OBJECT_TO (WORKING COPY) WITHOUT refs -> Error -----");
+		deleteObjectWorkingCopy(topObjUuid, false);
+		System.out.println("\n----- delete OBJECT_TO (FULL) WITHOUT refs -> Error -----");
+		deleteObject(topObjUuid, false);
 		System.out.println("\n----- delete OBJECT_TO (WORKING COPY) WITH refs -> OK -----");
-		deleteObjectWorkingCopy(toObjUuid, true);
+		deleteObjectWorkingCopy(topObjUuid, true);
 		System.out.println("\n----- delete OBJECT_FROM (WORKING COPY) without refs -> OK -----");
 		deleteObjectWorkingCopy(fromObjUuid, false);
 

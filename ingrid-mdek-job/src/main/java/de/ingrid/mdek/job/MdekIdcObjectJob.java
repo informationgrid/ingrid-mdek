@@ -521,42 +521,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		// handle references to object
-		ObjectReference exampleRef = new ObjectReference();
-		exampleRef.setObjToUuid(uuid);
-		List<IEntity> objRefs = daoObjectReference.findByExample(exampleRef);
-		
-		// throw exception with detailed errors when address referenced without reference deletion !
-		if (!forceDeleteReferences) {
-			int numRefs = objRefs.size();
-			if (numRefs > 0) {
-				// existing references -> throw exception with according error info !
-
-				// add info about referenced object
-				IngridDocument errInfo =
-					beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-
-				// add info about objects referencing !
-				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
-				for (IEntity ent : objRefs) {
-					ObjectReference ref = (ObjectReference) ent;
-					// fetch object referencing the address
-					T01Object o = daoT01Object.getById(ref.getObjFromId());
-					IngridDocument objInfo =
-						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-					objList.add(objInfo);
-				}
-				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
-
-				// and throw exception encapsulating errors
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
-			}
-		}
-		
-		// delete references (querverweise)
-		for (IEntity objRef : objRefs) {
-			daoObjectReference.makeTransient(objRef);
-		}
+		checkObjectSubTreeReferences(oNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade !
 		daoObjectNode.makeTransient(oNode);
@@ -1000,6 +965,79 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(subNode.getObjUuid(), true);
 			for (ObjectNode sN : subNodes) {
 				stack.push(sN);
+			}					
+		}
+	}
+
+	/**
+	 * Checks whether object node is referenced by other objects.
+	 * @param oNode object to check
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkObjectNodeReferences(ObjectNode oNode, boolean forceDeleteReferences) {
+		// handle references to object
+		String oUuid = oNode.getObjUuid();
+		ObjectReference exampleRef = new ObjectReference();
+		exampleRef.setObjToUuid(oUuid);
+		List<IEntity> objRefs = daoObjectReference.findByExample(exampleRef);
+		
+		// throw exception with detailed errors when address referenced without reference deletion !
+		if (!forceDeleteReferences) {
+			int numRefs = objRefs.size();
+			if (numRefs > 0) {
+				// existing references -> throw exception with according error info !
+
+				// add info about referenced object
+				IngridDocument errInfo =
+					beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+
+				// add info about objects referencing !
+				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
+				for (IEntity ent : objRefs) {
+					ObjectReference ref = (ObjectReference) ent;
+					// fetch object referencing the address
+					T01Object o = daoT01Object.getById(ref.getObjFromId());
+					IngridDocument objInfo =
+						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+					objList.add(objInfo);
+				}
+				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
+
+				// and throw exception encapsulating errors
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
+			}
+		}
+		
+		// delete references (querverweise)
+		for (IEntity objRef : objRefs) {
+			daoObjectReference.makeTransient(objRef);
+		}
+	}
+
+	/**
+	 * Checks whether object tree contains nodes referenced by other objects.
+	 * @param topNode top node of tree to check (included in check !)
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkObjectSubTreeReferences(ObjectNode topNode, boolean forceDeleteReferences) {
+		// traverse iteratively via stack
+		Stack<ObjectNode> stack = new Stack<ObjectNode>();
+		stack.push(topNode);
+
+		while (!stack.isEmpty()) {
+			ObjectNode node = stack.pop();
+			
+			// check
+			checkObjectNodeReferences(node, forceDeleteReferences);
+
+			List<ObjectNode> subNodes =
+				daoObjectNode.getSubObjects(node.getObjUuid(), false);
+			for (ObjectNode subNode : subNodes) {
+				stack.push(subNode);
 			}					
 		}
 	}
