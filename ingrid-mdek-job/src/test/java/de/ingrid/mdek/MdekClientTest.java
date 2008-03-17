@@ -98,7 +98,7 @@ public class MdekClientTest {
         });
         server.start();
 
-        Thread.sleep(6000);
+        Thread.sleep(15000);
 
         List mdekServerList = mdekClient.getRegisteredMdekServers();
         Assert.assertNotNull(mdekServerList);
@@ -140,7 +140,7 @@ public class MdekClientTest {
             }
         });
         server.start();
-        Thread.sleep(6000);
+        Thread.sleep(15000);
 
         mdekClient.shutdown();
         Thread.sleep(1000);
@@ -169,11 +169,11 @@ public class MdekClientTest {
             }
         });
         server.start();
-        Thread.sleep(6000);
+        Thread.sleep(15000);
 
         MdekClient mdekClient = MdekClient.getInstance(new File(File.class.getResource(
                 "/communication-server.properties").toURI()));
-        Thread.sleep(6000);
+        Thread.sleep(15000);
         Assert.assertNotNull(mdekClient);
         Thread.sleep(15000);
 
