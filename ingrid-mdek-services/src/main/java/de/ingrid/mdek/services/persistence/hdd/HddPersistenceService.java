@@ -54,6 +54,7 @@ public class HddPersistenceService<T extends Serializable> implements
 				stream = new ObjectInputStream(new FileInputStream(file));
 				Object object = stream.readObject();
 				list.add((T) object);
+				stream.close();
 			}
 		} catch (FileNotFoundException e) {
 			if (LOG.isEnabledFor(Level.ERROR)) {
