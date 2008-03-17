@@ -18,18 +18,6 @@ public abstract class AbstractDaoTest extends
 	@Override
 	protected void onSetUp() throws Exception {
 		super.onSetUp();
-		cleanDatabase();
-	}
-
-	private void cleanDatabase() {
-		beginNewTransaction();
-		GenericHibernateDao<Metadata> dao = new GenericHibernateDao<Metadata>(
-				_sessionFactory, Metadata.class);
-		List<Metadata> list = dao.findAll();
-		for (Metadata metadata : list) {
-			dao.makeTransient(metadata);
-		}
-		commitTransaction();
 	}
 
 	@Override
