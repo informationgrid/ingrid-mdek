@@ -6,6 +6,7 @@ package de.ingrid.mdek.services.persistence.db;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
@@ -16,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.AddressNodeDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcUserDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.ObjectNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.PermissionDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermSnsDaoHibernate;
@@ -115,6 +117,10 @@ public class DaoFactory implements IDaoFactory {
     public IPermissionDao getPermissionDao() {
         return new PermissionDaoHibernate(_sessionFactory);
     }
+
+    public IIdcUserDao getIdcUserDao() {
+        return new IdcUserDaoHibernate(_sessionFactory);
+    }
     
     public IGenericDao<IEntity> getDao(Class clazz) {
 		IGenericDao dao = null;
@@ -191,8 +197,6 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjServOpPara>(_sessionFactory, T011ObjServOpPara.class);
 		} else if (clazz.isAssignableFrom(T03Catalogue.class)) {
 			dao = new GenericHibernateDao<T03Catalogue>(_sessionFactory, T03Catalogue.class);
-		} else if (clazz.isAssignableFrom(IdcUser.class)) {
-			dao = new GenericHibernateDao<IdcUser>(_sessionFactory, IdcUser.class);
 		} else if (clazz.isAssignableFrom(IdcGroup.class)) {
 			dao = new GenericHibernateDao<IdcGroup>(_sessionFactory, IdcGroup.class);
 		} else if (clazz.isAssignableFrom(Permission.class)) {

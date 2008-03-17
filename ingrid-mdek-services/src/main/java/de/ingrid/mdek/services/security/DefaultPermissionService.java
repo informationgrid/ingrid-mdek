@@ -11,6 +11,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -288,10 +289,8 @@ public class DefaultPermissionService implements IPermissionService {
 	 * @return
 	 */
 	private IdcUser getUserByAddrUuid(String addrUuid) {
-		IGenericDao<IEntity> idcUserDao = daoFactory.getDao(IdcUser.class);
-		IdcUser iu = new IdcUser();
-		iu.setAddrUuid(addrUuid);
-		return (IdcUser) idcUserDao.findUniqueByExample(iu);
+		IIdcUserDao idcUserDao = daoFactory.getIdcUserDao();
+		return idcUserDao.getIdcUserByAddrUuid(addrUuid);
 	}
 
 }
