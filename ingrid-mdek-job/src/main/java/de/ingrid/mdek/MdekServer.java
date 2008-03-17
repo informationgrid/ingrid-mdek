@@ -26,6 +26,8 @@ public class MdekServer implements IMdekServer {
     private final IJobRepositoryFacade _jobRepositoryFacade;
 
     private ICommunication _communication;
+    
+    private volatile boolean _shutdown = false;
 
     public MdekServer(File communicationProperties, IJobRepositoryFacade jobRepositoryFacade) {
         _communicationProperties = communicationProperties;
@@ -34,35 +36,48 @@ public class MdekServer implements IMdekServer {
     }
 
     public void run() throws IOException {
-        //while (true) {
-            _communication = initCommunication(_communicationProperties);
-//            if (_communication instanceof TcpCommunication) {
-//                TcpCommunication tcpCom = (TcpCommunication) _communication;
-//                if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
-//                    try {
-//                        Thread.sleep(15000);
-//                    } catch (InterruptedException e) {
-//                        // ignore
-//                    }
-//                } else {
-                    synchronized (MdekServer.class) {
-                        try {
-                            ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class,
-                                    _jobRepositoryFacade);
-                            MdekServer.class.wait();
-                            //break;
-                        } catch (InterruptedException e) {
-                            throw new IOException(e.getMessage());
-                        } finally {
-                        //    closeConnections();
-                        }
+        _communication = initCommunication(_communicationProperties);
+        ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
+        waitForConnection();
+        while (!_shutdown) {
+            if (_communication instanceof TcpCommunication) {
+                TcpCommunication tcpCom = (TcpCommunication) _communication;
+                if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
+                    closeConnections();
+                    _communication = initCommunication(_communicationProperties);
+                    ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
+                    waitForConnection();
+                }
+
+                synchronized (MdekServer.class) {
+                    try {
+                        MdekServer.class.wait(30000);
+                    } catch (InterruptedException e) {
+                        closeConnections();
+                        throw new IOException(e.getMessage());
                     }
-//                }
-//            }
-        //}
+                }
+            }
+        }
+    }
+
+    private void waitForConnection() {
+        int count = 0;
+        if (_communication instanceof TcpCommunication) {
+            TcpCommunication tcpCom = (TcpCommunication) _communication;
+            while (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0)) && (count < 30)) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+                count++;
+            }
+        }        
     }
 
     public void shutdown() {
+        _shutdown = true;
         synchronized (MdekServer.class) {
             MdekServer.class.notifyAll();
         }
@@ -116,7 +131,7 @@ public class MdekServer implements IMdekServer {
         MdekServer server = new MdekServer(new File(communicationFile), jobRepositoryFacade);
         server.run();
     }
-    
+
     private List<String> getRegisteredMdekServers() {
         List<String> result = new ArrayList<String>();
         if (_communication instanceof TcpCommunication) {
