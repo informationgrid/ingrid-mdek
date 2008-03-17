@@ -274,6 +274,9 @@ public class DefaultPermissionService implements IPermissionService {
 	 * @return
 	 */
 	private boolean isEqualPermissions(Permission p1, Permission p2) {
+		if (p1 == null || p2 == null) {
+			return false;
+		}
 		if (p1.getAction().equals(p2.getAction()) && p1.getClassName().equals(p2.getClassName())
 				&& p1.getName().equals(p2.getName())) {
 			return true;
