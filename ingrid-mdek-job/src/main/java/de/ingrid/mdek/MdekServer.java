@@ -10,7 +10,6 @@ import java.util.Map;
 
 import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
-import net.weta.components.communication.reflect.ReflectMessageHandler;
 import net.weta.components.communication.tcp.StartCommunication;
 import net.weta.components.communication.tcp.TcpCommunication;
 
@@ -20,6 +19,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 
 public class MdekServer implements IMdekServer {
+
+    private static int _intervall = 30;
 
     private final File _communicationProperties;
 
@@ -38,7 +39,7 @@ public class MdekServer implements IMdekServer {
     public void run() throws IOException {
         _communication = initCommunication(_communicationProperties);
         ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-        waitForConnection();
+        waitForConnection(_intervall);
         while (!_shutdown) {
             if (_communication instanceof TcpCommunication) {
                 TcpCommunication tcpCom = (TcpCommunication) _communication;
@@ -46,12 +47,12 @@ public class MdekServer implements IMdekServer {
                     closeConnections();
                     _communication = initCommunication(_communicationProperties);
                     ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-                    waitForConnection();
+                    waitForConnection(_intervall);
                 }
 
                 synchronized (MdekServer.class) {
                     try {
-                        MdekServer.class.wait(30000);
+                        MdekServer.class.wait(10000);
                     } catch (InterruptedException e) {
                         closeConnections();
                         throw new IOException(e.getMessage());
@@ -61,15 +62,17 @@ public class MdekServer implements IMdekServer {
         }
     }
 
-    private void waitForConnection() {
+    private void waitForConnection(int retries) {
         int count = 0;
         if (_communication instanceof TcpCommunication) {
             TcpCommunication tcpCom = (TcpCommunication) _communication;
-            while (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0)) && (count < 30)) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    // ignore
+            while (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0)) && (count < retries)) {
+                synchronized (MdekServer.class) {
+                    try {
+                        MdekServer.class.wait(1000);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
                 }
                 count++;
             }
@@ -113,17 +116,23 @@ public class MdekServer implements IMdekServer {
     }
 
     private static void printUsage() {
-        System.err.println("Usage: " + MdekServer.class.getName() + "--descriptor <communication.properties>");
+        System.err.println("Usage: " + MdekServer.class.getName() + "--descriptor <communication.properties> --reconnectIntervall <seconds>");
         System.exit(0);
     }
 
     public static void main(String[] args) throws IOException {
         Map map = readParameters(args);
-        if (map.size() != 1) {
+        if (map.size() < 1 || map.size() > 2) {
             printUsage();
         }
 
         String communicationFile = (String) map.get("--descriptor");
+        
+        if (map.containsKey("--reconnectIntervall")) {
+            String intervall = (String) map.get("--reconnectIntervall");
+            _intervall = Integer.parseInt(intervall);
+        }
+        
 
         ApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "startup.xml" });
         IJobRepositoryFacade jobRepositoryFacade = (IJobRepositoryFacade) context.getBean(IJobRepositoryFacade.class
