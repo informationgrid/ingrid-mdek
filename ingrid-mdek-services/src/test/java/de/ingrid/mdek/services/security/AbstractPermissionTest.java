@@ -1,7 +1,12 @@
 package de.ingrid.mdek.services.security;
 
+import java.util.List;
+
 import org.hibernate.SessionFactory;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+
+import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 
 public abstract class AbstractPermissionTest extends AbstractDependencyInjectionSpringContextTests {
 
@@ -18,8 +23,21 @@ public abstract class AbstractPermissionTest extends AbstractDependencyInjection
 	@Override
 	protected void onSetUp() throws Exception {
 		super.onSetUp();
+		cleanDatabase();
+		
 	}
 
+	private void cleanDatabase() {
+		beginNewTransaction();
+		GenericHibernateDao<IdcGroup> dao = new GenericHibernateDao<IdcGroup>(
+				_sessionFactory, IdcGroup.class);
+		List<IdcGroup> list = dao.findAll();
+		for (IdcGroup group : list) {
+			dao.makeTransient(group);
+		}
+		commitTransaction();
+	}	
+	
 	@Override
 	protected String[] getConfigLocations() {
 		return new String[] { APPLICATION_CONTEXT_XML, APPLICATION_CONTEXT_CONFIGURATION };

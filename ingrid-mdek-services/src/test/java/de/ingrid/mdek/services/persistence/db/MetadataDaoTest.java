@@ -1,10 +1,11 @@
 package de.ingrid.mdek.services.persistence.db;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 
-public class MetadataDaoTestLocal extends AbstractDaoTest {
+public class MetadataDaoTest extends AbstractDaoTest {
 
     @Test
 	public void testSave() throws Exception {
@@ -25,7 +26,7 @@ public class MetadataDaoTestLocal extends AbstractDaoTest {
 		dao.beginTransaction();
 
 		byId = dao.getById(group.getId());
-		assertNotNull(byId);
-		assertEquals("test group", byId.getName());
+		Assert.assertNotNull(byId);
+		Assert.assertEquals("test group", byId.getName());
 	}
 }

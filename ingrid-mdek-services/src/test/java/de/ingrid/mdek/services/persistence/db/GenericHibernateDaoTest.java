@@ -4,11 +4,12 @@
 package de.ingrid.mdek.services.persistence.db;
 
 import org.hibernate.StaleObjectStateException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 
-public class GenericHibernateDaoTestLocal extends AbstractDaoTest {
+public class GenericHibernateDaoTest extends AbstractDaoTest {
 
 	IdcGroup g1 = null;
 	IdcGroup g2 = null;
@@ -47,26 +48,10 @@ public class GenericHibernateDaoTestLocal extends AbstractDaoTest {
 		try {
 			dao.makePersistent(g1);
 			dao.commitTransaction();
-			fail("We override a version that we doesn't know.");
+			Assert.fail("We override a version that we doesn't know.");
 		} catch (StaleObjectStateException e) {
 			dao.rollbackTransaction();
-			assertTrue(true);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.springframework.test.AbstractSingleSpringContextTests#onTearDown()
-	 */
-	@Override
-	protected void onTearDown() throws Exception {
-		super.onTearDown();
-		
-		if (g1 != null) {
-			GenericHibernateDao<IdcGroup> dao = new GenericHibernateDao<IdcGroup>(getSessionFactory(), IdcGroup.class);
-			dao.beginTransaction();
-			g1 = dao.getById(g1.getId(), false);
-			dao.makeTransient(g1);
-			dao.commitTransaction();
+			Assert.assertTrue(true);
 		}
 	}
 
@@ -103,10 +88,10 @@ public class GenericHibernateDaoTestLocal extends AbstractDaoTest {
 		try {
 			dao.makeTransient(g1);
 			dao.commitTransaction();
-			fail("We delete a version that we doesn't know.");
+			Assert.fail("We delete a version that we doesn't know.");
 		} catch (StaleObjectStateException e) {
 			dao.rollbackTransaction();
-			assertTrue(true);
+			Assert.assertTrue(true);
 		}
 	}
 }

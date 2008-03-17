@@ -3,13 +3,14 @@ package de.ingrid.mdek.services.persistence.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.utils.IngridDocument;
 
-public class HQLExecuterTestLocal extends AbstractDaoTest {
+public class HQLExecuterTest extends AbstractDaoTest {
 
 	IdcGroup group = null;
 	
@@ -26,25 +27,6 @@ public class HQLExecuterTestLocal extends AbstractDaoTest {
 		dao.makePersistent(group);
 		dao.commitTransaction();
 
-	}
-
-	/* (non-Javadoc)
-	 * @see org.springframework.test.AbstractSingleSpringContextTests#onTearDown()
-	 */
-	@Override
-	protected void onTearDown() throws Exception {
-		super.onTearDown();
-		if (group != null) {
-			GenericHibernateDao<IdcGroup> dao = new GenericHibernateDao<IdcGroup>(
-					getSessionFactory(), IdcGroup.class);
-			commitAndBeginnNewTransaction();
-			group = dao.loadById(group.getId());
-			try {
-				dao.makeTransient(group);
-			} catch (RuntimeException e) {
-			}
-			commitTransaction();
-		}
 	}
 
 	@Test
@@ -66,14 +48,14 @@ public class HQLExecuterTestLocal extends AbstractDaoTest {
 		System.out.println(response);
 		commitAndBeginnNewTransaction();
 
-		assertEquals(2, response.size());
-		assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
+		Assert.assertEquals(2, response.size());
+		Assert.assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
 		List<Pair> list = (List<Pair>) response.get(IHQLExecuter.HQL_RESULT);
 		Pair pair = list.get(0);
-		assertNotNull(pair);
-		assertEquals("from IdcGroup", pair.getKey());
+		Assert.assertNotNull(pair);
+		Assert.assertEquals("from IdcGroup", pair.getKey());
 		System.out.println(pair.getValue().getClass().getName());
-		assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(1)
+		Assert.assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(0)
 				).getName());
 
 		pairList.remove(selectPair);
@@ -85,21 +67,21 @@ public class HQLExecuterTestLocal extends AbstractDaoTest {
 		pairList.remove(updatePair);
 		response = executer.execute(document);
 
-		assertEquals(2, response.size());
-		assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
+		Assert.assertEquals(2, response.size());
+		Assert.assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
 		list = (List<Pair>) response.get(IHQLExecuter.HQL_RESULT);
-		assertTrue(list.size() == 1);
+		Assert.assertTrue(list.size() == 1);
 		pair = list.get(0);
-		assertNotNull(pair);
-		assertEquals("from IdcGroup", pair.getKey());
-		assertEquals("test group 1", ((IdcGroup)((List) pair.getValue()).get(1)
+		Assert.assertNotNull(pair);
+		Assert.assertEquals("from IdcGroup", pair.getKey());
+		Assert.assertEquals("test group 1", ((IdcGroup)((List) pair.getValue()).get(0)
 		).getName());
 
 	}
 
 	@Test
 	public void testDelete() throws Exception {
-		System.out.println("HQLExecuterTestLocal.testDelete()");
+		System.out.println("HQLExecuterTest.testDelete()");
 		IngridDocument document = new IngridDocument();
 		Pair selectPair = new Pair(IHQLExecuter.HQL_SELECT, "from IdcGroup");
 		Pair deletePair = new Pair(IHQLExecuter.HQL_DELETE,
@@ -115,17 +97,17 @@ public class HQLExecuterTestLocal extends AbstractDaoTest {
 
 		commitAndBeginnNewTransaction();
 
-		assertEquals(2, response.size());
+		Assert.assertEquals(2, response.size());
 		List listResponse = (List) response.get(IHQLExecuter.HQL_RESULT);
-		assertEquals(2, listResponse.size());
+		Assert.assertEquals(2, listResponse.size());
 		Pair pair = (Pair) listResponse.get(0);
-		assertEquals("from IdcGroup", pair.getKey());
-		assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(1)
+		Assert.assertEquals("from IdcGroup", pair.getKey());
+		Assert.assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(0)
 		).getName());
 		pair = (Pair) listResponse.get(1);
-		assertEquals("delete IdcGroup where name is 'test group'", pair
+		Assert.assertEquals("delete IdcGroup where name is 'test group'", pair
 				.getKey());
-		assertEquals(1, pair.getValue());
+		Assert.assertEquals(1, pair.getValue());
 
 		list.clear();
 		list.add(selectPair);
@@ -137,12 +119,12 @@ public class HQLExecuterTestLocal extends AbstractDaoTest {
 		document.put(IHQLExecuter.HQL_QUERIES, list);
 		response = executer.execute(document);
 		System.out.println("-" + response);
-		assertTrue(response.getBoolean(IHQLExecuter.HQL_STATE));
+		Assert.assertTrue(response.getBoolean(IHQLExecuter.HQL_STATE));
 		listResponse = (List) response.get(IHQLExecuter.HQL_RESULT);
-		assertEquals(1, listResponse.size());
+		Assert.assertEquals(1, listResponse.size());
 		pair = (Pair) listResponse.get(0);
-		assertEquals("from IdcGroup", pair.getKey());
-		assertTrue(((List) pair.getValue()).size() == 1);
+		Assert.assertEquals("from IdcGroup", pair.getKey());
+		Assert.assertTrue(((List) pair.getValue()).size() == 0);
 
 	}
 }

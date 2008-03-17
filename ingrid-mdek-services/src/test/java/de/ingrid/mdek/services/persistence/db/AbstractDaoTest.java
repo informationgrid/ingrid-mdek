@@ -1,7 +1,11 @@
 package de.ingrid.mdek.services.persistence.db;
 
+import java.util.List;
+
 import org.hibernate.SessionFactory;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 
 public abstract class AbstractDaoTest extends
 		AbstractDependencyInjectionSpringContextTests {
@@ -16,6 +20,18 @@ public abstract class AbstractDaoTest extends
 	@Override
 	protected void onSetUp() throws Exception {
 		super.onSetUp();
+		cleanDatabase();
+	}
+
+	private void cleanDatabase() {
+		beginNewTransaction();
+		GenericHibernateDao<IdcGroup> dao = new GenericHibernateDao<IdcGroup>(
+				_sessionFactory, IdcGroup.class);
+		List<IdcGroup> list = dao.findAll();
+		for (IdcGroup group : list) {
+			dao.makeTransient(group);
+		}
+		commitTransaction();
 	}
 
 	@Override

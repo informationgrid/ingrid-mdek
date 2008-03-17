@@ -4,37 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.utils.IngridDocument;
 
-public class AtomarModelPersisterTestLocal extends AbstractDaoTest {
-
-	/* (non-Javadoc)
-	 * @see org.springframework.test.AbstractSingleSpringContextTests#onTearDown()
-	 */
-	@Override
-	protected void onTearDown() throws Exception {
-		super.onTearDown();
-		DaoFactory factory = new DaoFactory(getSessionFactory());
-		AtomarModelPersister persister = new AtomarModelPersister(factory);
-
-		IngridDocument document = persister.selectAll(IdcGroup.class);
-		List instances = (List) document
-				.get(IAtomarModelPersister.MODEL_INSTANCES);
-
-		List<Serializable> ids = new ArrayList<Serializable>();
-		for (Object object : instances) {
-			IdcGroup group = (IdcGroup) object;
-			// exclude default data
-			if (!group.getName().equalsIgnoreCase("administrators")) {
-				ids.add(group.getId());
-			}
-		}
-		persister.delete(IdcGroup.class, ids);
-		
-	}
+public class AtomarModelPersisterTest extends AbstractDaoTest {
 
 	@Test
 	public void testInsert() throws Exception {
@@ -43,9 +19,9 @@ public class AtomarModelPersisterTestLocal extends AbstractDaoTest {
 		AtomarModelPersister persister = new AtomarModelPersister(factory);
 
 		IngridDocument document = persister.selectAll(IdcGroup.class);
-		assertNotNull(document);
+		Assert.assertNotNull(document);
 		System.out.println(document);
-		assertEquals(2, document.size());
+		Assert.assertEquals(2, document.size());
 
 		ArrayList<IEntity> list = new ArrayList<IEntity>();
 		for (int i = 0; i < 10; i++) {
@@ -55,17 +31,17 @@ public class AtomarModelPersisterTestLocal extends AbstractDaoTest {
 		}
 
 		document = persister.insert(IdcGroup.class, list);
-		assertNotNull(document);
+		Assert.assertNotNull(document);
 		System.out.println(document);
-		assertEquals(1, document.size());
+		Assert.assertEquals(1, document.size());
 
 		document = persister.selectAll(IdcGroup.class);
-		assertNotNull(document);
+		Assert.assertNotNull(document);
 		System.out.println(document);
-		assertEquals(2, document.size());
+		Assert.assertEquals(2, document.size());
 		List instances = (List) document
 				.get(IAtomarModelPersister.MODEL_INSTANCES);
-		assertEquals(10 < instances.size(), true);
+		Assert.assertTrue(instances.size() == 10);
 	}
 
 	@Test
@@ -84,26 +60,18 @@ public class AtomarModelPersisterTestLocal extends AbstractDaoTest {
 		IngridDocument document = persister.selectAll(IdcGroup.class);
 		List instances = (List) document
 				.get(IAtomarModelPersister.MODEL_INSTANCES);
-		boolean renamed = false;
 		for (Object object : instances) {
 			IdcGroup group = (IdcGroup) object;
-			if (group.getName().startsWith("foo")) {
-				group.setName("mb" + "->" + group.getName());
-				renamed = true;
-			}
+			Assert.assertTrue(group.getName().startsWith("foo"));
+			group.setName("mb->" + group.getName());
 		}
-		assertTrue(renamed);
 		persister.update(IdcGroup.class, instances);
 		document = persister.selectAll(IdcGroup.class);
 		instances = (List) document.get(IAtomarModelPersister.MODEL_INSTANCES);
-		boolean checkOk = false;
 		for (Object object : instances) {
 			IdcGroup group = (IdcGroup) object;
-			if (group.getName().startsWith("mb->")) {
-				checkOk = true;
-			}
+			Assert.assertTrue(group.getName().startsWith("mb->"));
 		}
-		assertTrue(checkOk);
 	}
 
 	@Test
@@ -122,21 +90,18 @@ public class AtomarModelPersisterTestLocal extends AbstractDaoTest {
 		IngridDocument document = persister.selectAll(IdcGroup.class);
 		List instances = (List) document
 				.get(IAtomarModelPersister.MODEL_INSTANCES);
-		assertEquals(10 < instances.size(), true);
+		Assert.assertTrue(instances.size() == 10);
 
 		List<Serializable> ids = new ArrayList<Serializable>();
 		for (Object object : instances) {
 			IdcGroup group = (IdcGroup) object;
-			// exclude default data
-			if (!group.getName().equalsIgnoreCase("administrators")) {
-				ids.add(group.getId());
-			}
+			ids.add(group.getId());
 		}
 		persister.delete(IdcGroup.class, ids);
 
 		document = persister.selectAll(IdcGroup.class);
 		instances = (List) document.get(IAtomarModelPersister.MODEL_INSTANCES);
-		assertEquals(1, instances.size());
+		Assert.assertEquals(0, instances.size());
 	}
 
 }
