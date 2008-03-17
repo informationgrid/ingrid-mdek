@@ -1,10 +1,12 @@
 package de.ingrid.mdek.services.persistence.db;
 
+import org.junit.Test;
+
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
-import de.ingrid.utils.IngridDocument;
 
 public class MetadataDaoTestLocal extends AbstractDaoTest {
 
+    @Test
 	public void testSave() throws Exception {
 		beginNewTransaction();
 
