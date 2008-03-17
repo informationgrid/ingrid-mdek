@@ -640,44 +640,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		// handle references to address
-		T012ObjAdr exampleRef = new T012ObjAdr();
-		exampleRef.setAdrUuid(uuid);
-		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
-		
-		// throw exception with detailed errors when address referenced without reference deletion !
-		if (!forceDeleteReferences) {
-			int numRefs = addrRefs.size();
-			if (numRefs > 0) {
-				// existing references -> throw exception with according error info !
-
-				// add info about referenced address
-				IngridDocument errInfo =
-					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-
-				// add info about objects referencing !
-				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
-				for (IEntity ent : addrRefs) {
-					T012ObjAdr ref = (T012ObjAdr) ent;
-					// fetch object referencing the address
-					T01Object o = daoT01Object.getById(ref.getObjId());
-					IngridDocument objInfo =
-						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-					objList.add(objInfo);
-				}
-				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
-
-				// and throw exception encapsulating errors
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
-			}
-		}
-		
-		// TODO: Starke Address-Querverweise NICHT loeschbar !!!
-
-		// delete references (querverweise)
-		for (IEntity addrRef : addrRefs) {
-			daoT012ObjAdr.makeTransient(addrRef);
-		}
+		checkAddressSubTreeReferences(aNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade !
 		daoAddressNode.makeTransient(aNode);
@@ -981,6 +944,53 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		checkAddressTypes(parentType, nodeType, isFreeAddress, true);
 	}
 
+	/**
+	 * Checks whether address node is referenced by other objects.
+	 * @param aNode address to check
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkAddressNodeReferences(AddressNode aNode, boolean forceDeleteReferences) {
+		// handle references to address
+		String aUuid = aNode.getAddrUuid();
+		T012ObjAdr exampleRef = new T012ObjAdr();
+		exampleRef.setAdrUuid(aUuid);
+		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
+		
+		// throw exception with detailed errors when address referenced without reference deletion !
+		if (!forceDeleteReferences) {
+			int numRefs = addrRefs.size();
+			if (numRefs > 0) {
+				// existing references -> throw exception with according error info !
+
+				// add info about referenced address
+				IngridDocument errInfo =
+					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+
+				// add info about objects referencing !
+				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
+				for (IEntity ent : addrRefs) {
+					T012ObjAdr ref = (T012ObjAdr) ent;
+					// fetch object referencing the address
+					T01Object o = daoT01Object.getById(ref.getObjId());
+					IngridDocument objInfo =
+						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+					objList.add(objInfo);
+				}
+				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
+
+				// and throw exception encapsulating errors
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
+			}
+		}
+		
+		// delete references (querverweise)
+		for (IEntity addrRef : addrRefs) {
+			daoT012ObjAdr.makeTransient(addrRef);
+		}
+	}
+
 	/** Check whether passed nodes are valid for copy operation
 	 * (e.g. check free address conditions ...). Throws MdekException if not valid.
 	 */
@@ -1122,6 +1132,32 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCheckedAddr);
 
 		return result;		
+	}
+
+	/**
+	 * Checks whether address tree contains nodes referenced by other objects.
+	 * @param topNode top node of tree to check (included in check !)
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkAddressSubTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
+		// traverse iteratively via stack
+		Stack<AddressNode> stack = new Stack<AddressNode>();
+		stack.push(topNode);
+
+		while (!stack.isEmpty()) {
+			AddressNode node = stack.pop();
+			
+			// check
+			checkAddressNodeReferences(node, forceDeleteReferences);
+
+			List<AddressNode> subNodes =
+				daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
+			for (AddressNode subNode : subNodes) {
+				stack.push(subNode);
+			}					
+		}
 	}
 
 	/**

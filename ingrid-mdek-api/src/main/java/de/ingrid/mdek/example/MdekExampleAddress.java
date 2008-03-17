@@ -339,15 +339,26 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n----- test deletion of references / WARNINGS -----");
 
-		System.out.println("\n----- create new ADDRESS to be REFERENCED -----");
+		System.out.println("\n----- create new TOP ADDRESS -----");
 		IngridDocument toAddrDoc = new IngridDocument();
 		toAddrDoc = getInitialAddress(toAddrDoc);
-		toAddrDoc.put(MdekKeys.ORGANISATION, "TEST ADDRESS -> wird referenziert");
+		toAddrDoc.put(MdekKeys.ORGANISATION, "TEST TOP ADDRESS");
+		toAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
+		toAddrDoc = storeAddressWithoutManipulation(toAddrDoc, true);
+		// uuid created !
+		String topAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new SUB ADDRESS to be REFERENCED -----");
+		// initial data from parent
+		toAddrDoc = new IngridDocument();
+		toAddrDoc.put(MdekKeys.PARENT_UUID, topAddrUuid);
+		toAddrDoc = getInitialAddress(toAddrDoc);
+		toAddrDoc.put(MdekKeys.ORGANISATION, "TEST SUB ADDRESS -> wird referenziert");
 		toAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
 		toAddrDoc = storeAddressWithoutManipulation(toAddrDoc, true);
 		// uuid created !
 		String toAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
-
+		
 		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS -----");
 		IngridDocument fromObjDoc = new IngridDocument();
 		fromObjDoc = getInitialObject(fromObjDoc);
@@ -360,12 +371,12 @@ class MdekExampleAddressThread extends Thread {
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- delete ADDRESS (WORKING COPY) without refs -> Error -----");
-		deleteAddressWorkingCopy(toAddrUuid, false);
-		System.out.println("\n----- delete ADDRESS (FULL) without refs -> Error -----");
-		deleteAddress(toAddrUuid, false);
+		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITHOUT refs -> Error -----");
+		deleteAddressWorkingCopy(topAddrUuid, false);
+		System.out.println("\n----- delete ADDRESS (FULL) WITHOUT refs -> Error -----");
+		deleteAddress(topAddrUuid, false);
 		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITH refs -> OK -----");
-		deleteAddressWorkingCopy(toAddrUuid, true);
+		deleteAddressWorkingCopy(topAddrUuid, true);
 		System.out.println("\n----- delete OBJECT (WORKING COPY) without refs -> OK -----");
 		deleteObject(fromObjUuid, false);
 
