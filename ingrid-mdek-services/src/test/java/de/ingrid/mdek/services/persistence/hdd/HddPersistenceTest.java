@@ -5,88 +5,100 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import junit.framework.TestCase;
 
-public class HddPersistenceTest extends TestCase {
+public class HddPersistenceTest  {
 
 	protected File _testFolder = new File(System.getProperty("java.io.tmpdir"),
 			"" + System.currentTimeMillis() + "_hdd");
 
+	@Before
 	protected void setUp() throws Exception {
-		assertTrue(_testFolder.mkdirs());
+		Assert.assertTrue(_testFolder.mkdirs());
 	}
 
+	@After
 	protected void tearDown() throws Exception {
 		File[] files = _testFolder.listFiles();
 		for (File file : files) {
-			assertTrue(file.delete());
+		    Assert.assertTrue(file.delete());
 		}
-		assertTrue(_testFolder.delete());
+		Assert.assertTrue(_testFolder.delete());
 	}
 
+	@Test
 	public void testMakePersistent() throws Exception {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put("testKey", 23);
 		IHddPersistence<HashMap> persistence = new HddPersistenceService<HashMap>(
 				_testFolder);
-		assertEquals(0, _testFolder.listFiles().length);
+		Assert.assertEquals(0, _testFolder.listFiles().length);
 		persistence.makePersistent("foo", map);
-		assertEquals(1, _testFolder.listFiles().length);
-		assertEquals("foo.ser", _testFolder.listFiles()[0].getName());
+		Assert.assertEquals(1, _testFolder.listFiles().length);
+		Assert.assertEquals("foo.ser", _testFolder.listFiles()[0].getName());
 	}
 
+	@Test
 	public void testMakePersistentFails() throws Exception {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put("testKey", 23);
 		IHddPersistence<HashMap> persistence = new HddPersistenceService<HashMap>(
 				_testFolder);
-		assertEquals(0, _testFolder.listFiles().length);
+		Assert.assertEquals(0, _testFolder.listFiles().length);
 		persistence.makePersistent("foo", map);
-		assertEquals(1, _testFolder.listFiles().length);
-		assertEquals("foo.ser", _testFolder.listFiles()[0].getName());
+		Assert.assertEquals(1, _testFolder.listFiles().length);
+		Assert.assertEquals("foo.ser", _testFolder.listFiles()[0].getName());
 
 		try {
 			persistence.makePersistent("foo", map);
-			fail();
+			Assert.fail();
 		} catch (IOException e) {
 			// nothong todo
 		}
 	}
 
+	@Test
 	public void testMakeTransient() throws Exception {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put("testKey", 23);
 		IHddPersistence<HashMap> persistence = new HddPersistenceService<HashMap>(
 				_testFolder);
 		persistence.makePersistent("foo", map);
-		assertEquals(1, _testFolder.listFiles().length);
+		Assert.assertEquals(1, _testFolder.listFiles().length);
 		persistence.makeTransient("foo");
-		assertEquals(0, _testFolder.listFiles().length);
+		Assert.assertEquals(0, _testFolder.listFiles().length);
 	}
 
+	@Test
 	public void testMakeTransientFails() throws Exception {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put("testKey", 23);
 		IHddPersistence<HashMap> persistence = new HddPersistenceService<HashMap>(
 				_testFolder);
 		persistence.makePersistent("foo", map);
-		assertEquals(1, _testFolder.listFiles().length);
+		Assert.assertEquals(1, _testFolder.listFiles().length);
 		persistence.makeTransient("foo");
-		assertEquals(0, _testFolder.listFiles().length);
+		Assert.assertEquals(0, _testFolder.listFiles().length);
 
 		try {
 			persistence.makeTransient("foo");
-			fail();
+			Assert.fail();
 		} catch (IOException e) {
 			// expected
 		}
 	}
 
+	@Test
 	public void testFindAll() throws Exception {
 		IHddPersistence<HashMap> persistence = new HddPersistenceService<HashMap>(
 				_testFolder);
 		List<HashMap> list = persistence.findAll();
-		assertEquals(0, list.size());
+		Assert.assertEquals(0, list.size());
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put("testKey", 23);
 		persistence = new HddPersistenceService<HashMap>(_testFolder);
@@ -94,9 +106,10 @@ public class HddPersistenceTest extends TestCase {
 		persistence.makePersistent("foo2", map);
 		persistence.makePersistent("foo3", map);
 		list = persistence.findAll();
-		assertEquals(3, list.size());
+		Assert.assertEquals(3, list.size());
 	}
 
+	@Test
 	public void testFindById() throws Exception {
 		IHddPersistence<HashMap> persistence = new HddPersistenceService<HashMap>(
 				_testFolder);
@@ -106,19 +119,19 @@ public class HddPersistenceTest extends TestCase {
 
 		try {
 			persistence.findById("foo1", true);
-			fail();
+			Assert.fail();
 		} catch (IOException e) {
 			// expected
 		}
 
 		HashMap map2 = persistence.findById("foo1", false);
-		assertNull(map2);
+		Assert.assertNull(map2);
 
 		persistence.makePersistent("foo1", map);
 
 		map2 = persistence.findById("foo1", true);
-		assertNotNull(map2);
-		assertEquals(23, map2.get("testKey"));
+		Assert.assertNotNull(map2);
+		Assert.assertEquals(23, map2.get("testKey"));
 	}
 
 }
