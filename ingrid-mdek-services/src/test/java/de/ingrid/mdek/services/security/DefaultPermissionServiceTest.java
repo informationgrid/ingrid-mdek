@@ -194,8 +194,6 @@ public class DefaultPermissionServiceTest extends AbstractPermissionTest {
 		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate()), true);
 		s.revokeUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate());
 		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate()), false);
-		// recreate user permission, revert to initial state of the database
-		s.grantUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate());
 
 		this.commitTransaction();
 	}
