@@ -6,6 +6,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.job.repository.IJobRepository;
@@ -26,12 +30,15 @@ public class MdekCaller implements IMdekCaller {
 
 	private static MdekCaller myInstance;
 	
+	/** Interface to backend */
 	private static MdekClient client;
-	private static IJobRepositoryFacade jobRepo;
+	
+	private static CacheManager cacheManager;
+	private static Cache jobRepoCache;
 
 	// Jobs
 	// TODO: better create separate job for handling job synchronization (at the moment we use object job !)
-	private static String MDEK_IDC_OBJECT_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
+	private static String MDEK_IDC_SYNC_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -49,6 +56,10 @@ public class MdekCaller implements IMdekCaller {
 
     private MdekCaller(File communicationProperties) {
         try {
+    		// First set up cache for use !
+    		cacheManager = new CacheManager();
+    		jobRepoCache = cacheManager.getCache("mdekJobRepoCache");
+ 
     		// instantiate client (ibus)
     		client = MdekClient.getInstance(communicationProperties);
     		Thread.sleep(2000);
@@ -85,12 +96,14 @@ public class MdekCaller implements IMdekCaller {
     		// shutdown client
     		client.shutdown();
 
+    		// shutdown cache at last !
+        	cacheManager.shutdown();
+
         } catch (Throwable t) {
         	log.error("Problems SHUTTING DOWN Mdek interface.", t);
         } finally {
         	myInstance = null;
         	client = null;
-        	jobRepo = null;
         }
 	}
 
@@ -142,7 +155,7 @@ public class MdekCaller implements IMdekCaller {
 		// TODO: plug id muss uebergeben werden
 		// TODO: in ehcache merken und alle halbe stunde invalidieren
 		String plugId = "mdek-iplug-idctest";
-    	jobRepo = client.getJobRepositoryFacade(plugId);
+		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
 		debugDocument("RESPONSE:", response);
@@ -154,14 +167,14 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getRunningJobInfo", jobParams);
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_SYNC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument cancelRunningJob(String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("cancelRunningJob", jobParams);
-		return callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(MDEK_IDC_SYNC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getResultFromResponse(IngridDocument mdekResponse) {
@@ -204,11 +217,43 @@ public class MdekCaller implements IMdekCaller {
 		return retMsg;
 	}
 
+	/**
+	 * Get JobRepo for passed MdekServer. Uses cache !
+	 */
+	private IJobRepositoryFacade getJobRepo(String plugId) {
+		IJobRepositoryFacade jobRepo;
+
+		// get repo from cache
+		Element elem = jobRepoCache.get(plugId);
+
+		if (elem != null) {
+			// repo in cache
+			jobRepo = (IJobRepositoryFacade) elem.getObjectValue();
+
+		} else {
+			// no repo in cache
+			// get it from client and put it to cache
+			jobRepo = client.getJobRepositoryFacade(plugId);
+			jobRepoCache.put(new Element(plugId, jobRepo));
+
+			if (log.isDebugEnabled()) {
+	        	log.debug("Fetching JobRepository from MdekServer: " + plugId);
+			}
+		}
+		
+		return jobRepo;
+	}
+
 	private IngridDocument registerJob(String jobId, String jobXml) {
 		IngridDocument registerDocument = new IngridDocument();
 		registerDocument.put(IJobRepository.JOB_ID, jobId);
 		registerDocument.put(IJobRepository.JOB_DESCRIPTION, jobXml);
 		registerDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+
+		// TODO: pass plugId
+		String plugId = "mdek-iplug-idctest";
+		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
+
 		IngridDocument response = jobRepo.execute(registerDocument);
 		debugDocument("registerJob " + jobId + ": ", response);
 
@@ -219,6 +264,11 @@ public class MdekCaller implements IMdekCaller {
 		IngridDocument deregisterDocument = new IngridDocument();
 		deregisterDocument.put(IJobRepository.JOB_ID, jobId);
 		deregisterDocument.put(IJobRepository.JOB_PERSIST, false);
+
+		// TODO: pass plugId
+		String plugId = "mdek-iplug-idctest";
+		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
+
 		IngridDocument response = jobRepo.execute(deregisterDocument);
 		debugDocument("deregisterJob " + jobId + ": ", response);
 
