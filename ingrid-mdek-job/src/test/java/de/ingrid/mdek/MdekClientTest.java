@@ -22,7 +22,7 @@ public class MdekClientTest {
     public void testShutdown() throws Exception {
         MdekServer temp = null;
         try {
-            temp = new MdekServer(new File(File.class.getResource("/communication-server.properties").toURI()),
+            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-server.properties").toURI()),
                     new JobRepositoryFacade(null));
         } catch (URISyntaxException e1) {
             Assert.fail();
@@ -52,7 +52,7 @@ public class MdekClientTest {
 
         MdekClient mdekClient = null;
         try {
-            mdekClient = MdekClient.getInstance(new File(File.class.getResource("/communication-client.properties")
+            mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource("/communication-client.properties")
                     .toURI()));
             Thread.sleep(6000);
         } catch (IOException e) {
@@ -73,14 +73,14 @@ public class MdekClientTest {
 
     @Test
     public void testMdekClientAsComServer() throws InterruptedException, IOException, Exception {
-        MdekClient mdekClient = MdekClient.getInstance(new File(File.class.getResource(
+        MdekClient mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
                 "/communication-server.properties").toURI()));
         Thread.sleep(6000);
         Assert.assertNotNull(mdekClient);
 
         MdekServer temp = null;
         try {
-            temp = new MdekServer(new File(File.class.getResource("/communication-client.properties").toURI()),
+            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
                     new JobRepositoryFacade(null));
         } catch (URISyntaxException e1) {
             Assert.fail();
@@ -114,7 +114,7 @@ public class MdekClientTest {
 
     @Test(expected = IOException.class)
     public void testMdekClientAsComServerWithNoMdekServer() throws Exception {
-        MdekClient mdekClient = MdekClient.getInstance(new File(File.class.getResource(
+        MdekClient mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
                 "/communication-server.properties").toURI()));
         Thread.sleep(6000);
         Assert.assertNotNull(mdekClient);
@@ -126,7 +126,7 @@ public class MdekClientTest {
             Assert.fail();
         }
 
-        MdekServer temp = new MdekServer(new File(File.class.getResource("/communication-client.properties").toURI()),
+        MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
                 new JobRepositoryFacade(null));
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
@@ -155,7 +155,7 @@ public class MdekClientTest {
 
     @Test
     public void testMdekServerAsComClientReconnection() throws Exception {
-        MdekServer temp = new MdekServer(new File(File.class.getResource("/communication-client.properties").toURI()),
+        MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
                 new JobRepositoryFacade(null));
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
@@ -171,7 +171,7 @@ public class MdekClientTest {
         server.start();
         Thread.sleep(15000);
 
-        MdekClient mdekClient = MdekClient.getInstance(new File(File.class.getResource(
+        MdekClient mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
                 "/communication-server.properties").toURI()));
         Thread.sleep(15000);
         Assert.assertNotNull(mdekClient);
@@ -184,7 +184,7 @@ public class MdekClientTest {
         mdekClient.shutdown();
         Thread.sleep(6000);
 
-        mdekClient = MdekClient.getInstance(new File(File.class.getResource(
+        mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
                 "/communication-server.properties").toURI()));
         Thread.sleep(6000);
         Assert.assertNotNull(mdekClient);
