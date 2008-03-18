@@ -462,10 +462,22 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("PUBLISH TEST");
 		System.out.println("=========================");
 
+		System.out.println("\n----- publish NEW TOP OBJECT immediately -----");
+		IngridDocument newTopDoc = new IngridDocument();
+		newTopDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT DIREKT PUBLISH");
+		newTopDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		oMap = publishObject(newTopDoc, true, false);
+		// uuid created !
+		String newTopUuid = (String)oMap.get(MdekKeys.UUID);
+
+		System.out.println("\n----- delete NEW TOP OBJECT (FULL) -----");
+		deleteObject(newTopUuid, true);
+
 		System.out.println("\n----- copy object (without subnodes) -> returns only TREE Data of object -----");
 		objectFrom = newParentUuid;
 		objectTo = null;
 		oMap = copyObject(objectFrom, objectTo, false);
+		// uuid created !
 		String pub1Uuid = (String)oMap.get(MdekKeys.UUID);
 
 		System.out.println("\n----- publish NEW SUB OBJECT immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
@@ -494,8 +506,8 @@ class MdekExampleObjectThread extends Thread {
 		deleteObjectWorkingCopy(pub1Uuid, true);
 		System.out.println("\n----- delete 2. published copy (FULL) -----");
 		deleteObject(pub2Uuid, true);
-		System.out.println("\n----- verify -> load top objects -----");
-		fetchTopObjects();
+//		System.out.println("\n----- verify -> load top objects -----");
+//		fetchTopObjects();
 		System.out.println("\n----- delete 1. published copy (FULL) -----");
 		deleteObject(pub1Uuid, true);
 

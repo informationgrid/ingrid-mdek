@@ -314,7 +314,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
+			// uuid is null when new object !
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
+			// parentUuid only passed if new object !
+			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+
+			Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
+			Boolean forcePubCondition = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 
@@ -322,13 +328,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// NOTICE: passed object may NOT exist yet (new object published immediately)
 
 			// all parents published ?
-			checkObjectPathForPublish(uuid, false);
+			checkObjectPathForPublish(parentUuid, uuid);
 			// publication condition of parent fits to object ?
-			String parentUuuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-			Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
-			checkObjectPublicationConditionParent(parentUuuid, uuid, pubTypeIn);
+			checkObjectPublicationConditionParent(parentUuid, uuid, pubTypeIn);
 			// publication conditions of sub nodes fit to object ?
-			Boolean forcePubCondition = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 			checkObjectPublicationConditionSubTree(uuid, pubTypeIn, forcePubCondition, true, currentTime);
 
 			// CHECKS OK, proceed
@@ -342,9 +345,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
-				// and get parent, that's the one to check
-				String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-				checkObjectPathForPublish(parentUuid, true);
 			}
 
 			// load node
@@ -811,17 +811,27 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	/** Checks whether node has unpublished parents. Throws MdekException if so. */
-	private void checkObjectPathForPublish(String inUuid, boolean includeInNode) {
-		// no check when parent node is null
+	private void checkObjectPathForPublish(String parentUuid, String inUuid) {
+		// default
+		String endOfPath = inUuid;
+		boolean includeEndOfPath = false;
+
+		// new node (uuid not generated yet) ? parent should be passed !
 		if (inUuid == null) {
+			endOfPath = parentUuid;
+			includeEndOfPath = true;
+		}
+		
+		// no check if top node !
+		if (endOfPath == null) {
 			return;
 		}
 		
 		// check whether a parent is not published
-		List<String> pathUuids = daoObjectNode.getObjectPath(inUuid);
-		
+
+		List<String> pathUuids = daoObjectNode.getObjectPath(endOfPath);
 		for (String pathUuid : pathUuids) {
-			if (pathUuid.equals(inUuid) && !includeInNode) {
+			if (pathUuid.equals(endOfPath) && !includeEndOfPath) {
 				continue;
 			}
 			ObjectNode pathNode = daoObjectNode.loadByUuid(pathUuid);
@@ -845,9 +855,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		PublishType pubTypeChild = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeChildDB);
 
-		// Load Parent
+		// Load Parent from child
+		// NOTICE: childUuid can be null if uuid not generated yet (new object)
 		if (parentUuid == null) {
-			parentUuid = daoObjectNode.loadByUuid(childUuid).getFkObjUuid();
+			// if childUuid is null then we have a new top object !
+			if (childUuid != null) {
+				parentUuid = daoObjectNode.loadByUuid(childUuid).getFkObjUuid();				
+			}
 		}
 		// return if top node
 		if (parentUuid == null) {
