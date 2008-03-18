@@ -66,13 +66,21 @@ public class MdekKeys {
     // VERSIONING (read from properties file)
     // ----------
     /** Value: String */
-    public final static String BUILD_NAME = "build.name";
+    public final static String API_BUILD_NAME = "api.build.name";
     /** Value: String */
-    public final static String BUILD_VERSION = "build.version";
+    public final static String API_BUILD_VERSION = "api.build.version";
     /** Value: String */
-    public final static String BUILD_NUMBER = "build.number";
+    public final static String API_BUILD_NUMBER = "api.build.number";
     /** Value: String */
-    public final static String BUILD_TIMESTAMP = "build.timestamp";
+    public final static String API_BUILD_TIMESTAMP = "api.build.timestamp";
+    /** Value: String */
+    public final static String SERVER_BUILD_NAME = "server.build.name";
+    /** Value: String */
+    public final static String SERVER_BUILD_VERSION = "server.build.version";
+    /** Value: String */
+    public final static String SERVER_BUILD_NUMBER = "server.build.number";
+    /** Value: String */
+    public final static String SERVER_BUILD_TIMESTAMP = "server.build.timestamp";
 
     // SYS LISTS
     // ---------

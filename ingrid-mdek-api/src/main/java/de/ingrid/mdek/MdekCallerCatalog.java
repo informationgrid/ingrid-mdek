@@ -22,7 +22,7 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 
 	// Jobs
 	// TODO: better create separate job for handling catalog stuff (at the moment we use object job !)
-	private static String MDEK_IDC_OBJECT_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
+	private static String MDEK_IDC_CATALOG_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -59,7 +59,7 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getCatalog", jobParams);
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getSysLists(String plugId, Integer[] listIds, Integer langCode,
@@ -69,6 +69,6 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.LANGUAGE_CODE, langCode);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getSysLists", jobParams);
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 }

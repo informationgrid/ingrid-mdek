@@ -220,10 +220,16 @@
 	</xs:complexType>	
 	<xs:complexType name="VERSION_MAP">
 		<xs:all>
-			<xs:element name="build.name" type="xs:string"/>
-			<xs:element name="build.version" type="xs:string"/>
-			<xs:element name="build.number" type="xs:string"/>
-			<xs:element name="build.timestamp" type="xs:string"/>
+			<!-- version of mdek api (client )-->
+			<xs:element name="api.build.name" type="xs:string"/>
+			<xs:element name="api.build.version" type="xs:string"/>
+			<xs:element name="api.build.number" type="xs:string"/>
+			<xs:element name="api.build.timestamp" type="xs:string"/>
+			<!-- version of mdek server (iPlug )-->
+			<xs:element name="server.build.name" type="xs:string"/>
+			<xs:element name="server.build.version" type="xs:string"/>
+			<xs:element name="server.build.number" type="xs:string"/>
+			<xs:element name="server.build.timestamp" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>	
 	

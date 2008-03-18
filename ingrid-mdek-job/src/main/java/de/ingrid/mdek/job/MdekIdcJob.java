@@ -1,6 +1,8 @@
 package de.ingrid.mdek.job;
 
+import java.util.Enumeration;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
@@ -39,6 +41,26 @@ public abstract class MdekIdcJob extends MdekJob {
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+	}
+
+	public IngridDocument getVersion(IngridDocument params) {
+		try {
+			IngridDocument resultDoc = new IngridDocument();
+
+			// extract version properties from version.properties
+			ResourceBundle resourceBundle = ResourceBundle.getBundle("version");   
+			Enumeration<String> keys = resourceBundle.getKeys();
+			while (keys.hasMoreElements()) {
+				String key = keys.nextElement();
+				resultDoc.put(key, resourceBundle.getObject(key));
+			}
+
+			return resultDoc;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}
 
 	public IngridDocument getSysLists(IngridDocument params) {

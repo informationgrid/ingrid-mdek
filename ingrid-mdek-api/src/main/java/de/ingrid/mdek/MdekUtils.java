@@ -16,6 +16,7 @@ public class MdekUtils {
 
 	private final static SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+	private final static SimpleDateFormat displayDateTimeFormatter = new SimpleDateFormat("dd.MM.yyyy/HH:mm");
 
 	/** Type of entities */
 	public enum IdcEntityType {
@@ -171,11 +172,11 @@ public class MdekUtils {
 			return "";
 		}
 	}
-	/** Format milliseconds since January 1, 1970, 00:00:00 GMT to display date. */
-	public static String millisecToDisplayDate(String millisec) {
+	/** Format milliseconds since January 1, 1970, 00:00:00 GMT to display date/time. */
+	public static String millisecToDisplayDateTime(String millisec) {
 		try {
 			Date in = new Date(Long.valueOf(millisec));
-			String out = displayDateFormatter.format(in);
+			String out = displayDateTimeFormatter.format(in);
 			return out;
 		} catch (Exception ex){
 			if (millisec != null && millisec.length() > 0) {

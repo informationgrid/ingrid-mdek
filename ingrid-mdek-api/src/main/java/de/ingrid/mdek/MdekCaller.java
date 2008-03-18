@@ -39,6 +39,7 @@ public class MdekCaller implements IMdekCaller {
 	// Jobs
 	// TODO: better create separate job for handling job synchronization (at the moment we use object job !)
 	private static String MDEK_IDC_SYNC_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
+	private static String MDEK_IDC_VERSION_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -107,18 +108,24 @@ public class MdekCaller implements IMdekCaller {
         }
 	}
 
-	public IngridDocument getVersion() {
-		IngridDocument retDoc = new IngridDocument();
+	public IngridDocument getVersion(String plugId) {
+		// fetch version of mdek server !
+		IngridDocument jobParams = new IngridDocument();
+		List jobMethods = setUpJobMethod("getVersion", jobParams);
+		IngridDocument response = callJob(plugId, MDEK_IDC_VERSION_JOB_ID, jobMethods);
 
-		// version data in version.properties
+		IngridDocument resultDoc = getResultFromResponse(response);
+
+		// then version of api (in client)
+		// NOTICE: has to have different property names !
 		ResourceBundle resourceBundle = ResourceBundle.getBundle("version");   
 		Enumeration<String> keys = resourceBundle.getKeys();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();
-			retDoc.put(key, resourceBundle.getObject(key));
+			resultDoc.put(key, resourceBundle.getObject(key));
 		}
 
-		return retDoc;
+		return response;
 	}
 
 	public List<String> getRegisteredIPlugs() {

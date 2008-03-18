@@ -452,32 +452,41 @@ class MdekExampleAddressThread extends Thread {
 		isRunning = false;
 	}
 
-	private IngridDocument getVersion() {
+	private void getVersion() {
 		long startTime;
 		long endTime;
 		long neededTime;
+		IngridDocument response;
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getVersion ######");
 		startTime = System.currentTimeMillis();
 		// ACHTUNG: ist DIREKT result ! sollte nie null sein (hoechstens leer)
-		result = mdekCaller.getVersion();
+		response = mdekCaller.getVersion(plugId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		
-		System.out.println("All entries in Map: ");
-		Set<Map.Entry> entries = result.entrySet();
-		for (Map.Entry entry : entries) {
-			System.out.println("  " + entry);
+
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("All entries in Map: ");
+			Set<Map.Entry> entries = result.entrySet();
+			for (Map.Entry entry : entries) {
+				System.out.println("  " + entry);
+			}
+			System.out.println("Explicit read of entries: ");
+			System.out.println("  API_BUILD_NAME: " + result.get(MdekKeys.API_BUILD_NAME));
+			System.out.println("  API_BUILD_VERSION: " + result.get(MdekKeys.API_BUILD_VERSION));
+			System.out.println("  API_BUILD_NUMBER: " + result.get(MdekKeys.API_BUILD_NUMBER));
+			System.out.println("  API_BUILD_TIMESTAMP (converted): " + MdekUtils.millisecToDisplayDateTime(result.getString(MdekKeys.API_BUILD_TIMESTAMP)));
+			System.out.println("  SERVER_BUILD_NAME: " + result.get(MdekKeys.SERVER_BUILD_NAME));
+			System.out.println("  SERVER_BUILD_VERSION: " + result.get(MdekKeys.SERVER_BUILD_VERSION));
+			System.out.println("  SERVER_BUILD_NUMBER: " + result.get(MdekKeys.SERVER_BUILD_NUMBER));
+			System.out.println("  SERVER_BUILD_TIMESTAMP (converted): " + MdekUtils.millisecToDisplayDateTime(result.getString(MdekKeys.SERVER_BUILD_TIMESTAMP)));
+
+		} else {
+			handleError(response);
 		}
-		System.out.println("Explicit read of entries: ");
-		System.out.println("  BUILD_NAME: " + result.get(MdekKeys.BUILD_NAME));
-		System.out.println("  BUILD_VERSION: " + result.get(MdekKeys.BUILD_VERSION));
-		System.out.println("  BUILD_NUMBER: " + result.get(MdekKeys.BUILD_NUMBER));
-		System.out.println("  BUILD_TIMESTAMP (converted): " + MdekUtils.millisecToDisplayDate(result.getString(MdekKeys.BUILD_TIMESTAMP)));
-		
-		return result;
 	}
 
 	private IngridDocument fetchTopAddresses(boolean onlyFreeAddresses) {

@@ -14,8 +14,10 @@ public interface IMdekCaller {
 
 	/**
 	 * Returns info about the version of the MdekServer (iPlug).
+	 * @param plugId which mdek server (iplug)
+	 * @return response containing result: map containing version info
 	 */
-	public IngridDocument getVersion();
+	public IngridDocument getVersion(String plugId);
 
 	/**
 	 * Returns a list of mdek plug ids registered at the mdek bus.
