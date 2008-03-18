@@ -54,7 +54,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		return myInstance;
 	}
 
-	public IngridDocument queryAddressesThesaurusTerm(String termSnsId,
+	public IngridDocument queryAddressesThesaurusTerm(String plugId, String termSnsId,
 			int startHit, int numHits,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
@@ -68,10 +68,10 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
 		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesThesaurusTerm", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument queryObjectsThesaurusTerm(String termSnsId,
+	public IngridDocument queryObjectsThesaurusTerm(String plugId, String termSnsId,
 			int startHit, int numHits,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
@@ -85,10 +85,10 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
 		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsThesaurusTerm", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument queryHQL(String hqlQuery,
+	public IngridDocument queryHQL(String plugId, String hqlQuery,
 			int startHit, int numHits,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
@@ -99,6 +99,6 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		
 		List jobMethods = mdekCaller.setUpJobMethod("queryHQL", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 }

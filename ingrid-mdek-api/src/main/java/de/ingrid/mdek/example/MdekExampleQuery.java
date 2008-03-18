@@ -134,6 +134,9 @@ class MdekExampleQueryThread extends Thread {
 	
 	private boolean isRunning = false;
 
+	// MDEK SERVER TO CALL !
+	private String plugId = "mdek-iplug-idctest";
+	
 	private IMdekCaller mdekCaller;
 	private IMdekCallerQuery mdekCallerQuery;
 	private IMdekCallerAddress mdekCallerAddress;
@@ -228,7 +231,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchAddress (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchAddress(uuid, howMuch, myUserId);
+		response = mdekCallerAddress.fetchAddress(plugId, uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -252,7 +255,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.fetchObject(uuid, howMuch, myUserId);
+		response = mdekCallerObject.fetchObject(plugId, uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -280,7 +283,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("- numHits:" + numHits);
 		System.out.println("- termSnsId:" + termSnsId);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerQuery.queryAddressesThesaurusTerm(termSnsId, startHit, numHits, myUserId);
+		response = mdekCallerQuery.queryAddressesThesaurusTerm(plugId, termSnsId, startHit, numHits, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -315,7 +318,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("- numHits:" + numHits);
 		System.out.println("- termSnsId:" + termSnsId);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerQuery.queryObjectsThesaurusTerm(termSnsId, startHit, numHits, myUserId);
+		response = mdekCallerQuery.queryObjectsThesaurusTerm(plugId, termSnsId, startHit, numHits, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -350,7 +353,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("- numHits:" + numHits);
 		System.out.println("- query:" + qString);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerQuery.queryHQL(qString, startHit, numHits, myUserId);
+		response = mdekCallerQuery.queryHQL(plugId, qString, startHit, numHits, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

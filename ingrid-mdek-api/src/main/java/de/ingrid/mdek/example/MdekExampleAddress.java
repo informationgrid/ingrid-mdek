@@ -120,6 +120,9 @@ class MdekExampleAddressThread extends Thread {
 	
 	private boolean isRunning = false;
 
+	// MDEK SERVER TO CALL !
+	private String plugId = "mdek-iplug-idctest";
+	
 	private IMdekCaller mdekCaller;
 	private IMdekCallerAddress mdekCallerAddress;
 	private IMdekCallerObject mdekCallerObject;
@@ -487,7 +490,7 @@ class MdekExampleAddressThread extends Thread {
 		String onlyFreeAddressesInfo = (onlyFreeAddresses) ? "ONLY FREE ADDRESSES" : "ONLY NO FREE ADDRESSES";
 		System.out.println("\n###### INVOKE fetchTopAddresses " + onlyFreeAddressesInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchTopAddresses(myUserId, onlyFreeAddresses);
+		response = mdekCallerAddress.fetchTopAddresses(plugId, myUserId, onlyFreeAddresses);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -516,7 +519,7 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchSubAddresses ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchSubAddresses(uuid, myUserId);
+		response = mdekCallerAddress.fetchSubAddresses(plugId, uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -545,7 +548,7 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n###### INVOKE getAddressPath ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getAddressPath(uuidIn, myUserId);
+		response = mdekCallerAddress.getAddressPath(plugId, uuidIn, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -574,7 +577,7 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchAddress (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchAddress(uuid, howMuch, myUserId);
+		response = mdekCallerAddress.fetchAddress(plugId, uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -607,7 +610,7 @@ class MdekExampleAddressThread extends Thread {
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.storeObject(oDocIn, refetchObject, myUserId);
+		response = mdekCallerObject.storeObject(plugId, oDocIn, refetchObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -642,7 +645,7 @@ class MdekExampleAddressThread extends Thread {
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.storeAddress(aDocIn, refetchAddress, myUserId);
+		response = mdekCallerAddress.storeAddress(plugId, aDocIn, refetchAddress, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -719,7 +722,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		System.out.println("storeAddress WITHOUT refetching address: ");
-		response = mdekCallerAddress.storeAddress(aDocIn, false, myUserId);
+		response = mdekCallerAddress.storeAddress(plugId, aDocIn, false, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -767,7 +770,7 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("STORE");
 			startTime = System.currentTimeMillis();
 			System.out.println("storeAddress WITH refetching address: ");
-			response = mdekCallerAddress.storeAddress(aRefetchedDoc, true, myUserId);
+			response = mdekCallerAddress.storeAddress(plugId, aRefetchedDoc, true, myUserId);
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -796,7 +799,7 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n###### INVOKE getInitialAddress ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getInitialAddress(newBasicAddress, myUserId);
+		response = mdekCallerAddress.getInitialAddress(plugId, newBasicAddress, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -820,7 +823,7 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n###### INVOKE getInitialObject ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getInitialObject(newBasicObject, myUserId);
+		response = mdekCallerObject.getInitialObject(plugId, newBasicObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -844,7 +847,7 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n###### INVOKE checkAddressSubTree ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.checkAddressSubTree(uuid, myUserId);
+		response = mdekCallerAddress.checkAddressSubTree(plugId, uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -870,7 +873,7 @@ class MdekExampleAddressThread extends Thread {
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteAddress " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddress(uuid, forceDeleteReferences, myUserId);
+		response = mdekCallerAddress.deleteAddress(plugId, uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -897,7 +900,7 @@ class MdekExampleAddressThread extends Thread {
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObject(uuid, forceDeleteReferences, myUserId);
+		response = mdekCallerObject.deleteObject(plugId, uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -924,7 +927,7 @@ class MdekExampleAddressThread extends Thread {
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddressWorkingCopy(uuid, forceDeleteReferences, myUserId);
+		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -953,7 +956,7 @@ class MdekExampleAddressThread extends Thread {
 		String copyToFreeAddressInfo = (copyToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
 		System.out.println("\n###### INVOKE copyAddress " + copySubtreeInfo + copyToFreeAddressInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.copyAddress(fromUuid, toUuid, copySubtree, copyToFreeAddress, myUserId);
+		response = mdekCallerAddress.copyAddress(plugId, fromUuid, toUuid, copySubtree, copyToFreeAddress, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -983,7 +986,7 @@ class MdekExampleAddressThread extends Thread {
 		String moveToFreeAddressInfo = (moveToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
 		System.out.println("\n###### INVOKE moveAddress " + performCheckInfo + moveToFreeAddressInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.moveAddress(fromUuid, toUuid, performSubtreeCheck, moveToFreeAddress, myUserId);
+		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, performSubtreeCheck, moveToFreeAddress, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1013,7 +1016,7 @@ class MdekExampleAddressThread extends Thread {
 		String withRefetchInfo = (withRefetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.publishAddress(aDocIn, withRefetch, myUserId);
+		response = mdekCallerAddress.publishAddress(plugId, aDocIn, withRefetch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1050,7 +1053,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("- numHits:" + numHits);
 		System.out.println("- searchParams:" + searchParams);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.searchAddresses(searchParams, startHit, numHits, myUserId);
+		response = mdekCallerAddress.searchAddresses(plugId, searchParams, startHit, numHits, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

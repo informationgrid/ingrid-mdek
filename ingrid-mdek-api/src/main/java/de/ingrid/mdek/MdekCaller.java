@@ -145,16 +145,12 @@ public class MdekCaller implements IMdekCaller {
 		return methodList;
 	}
 
-//	public IngridDocument callJob(String plugId, String jobId, List jobMethods) {
-	public IngridDocument callJob(String jobId, List jobMethods) {
+	public IngridDocument callJob(String plugId, String jobId, List jobMethods) {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, jobId);
 		invokeDocument.put(IJobRepository.JOB_METHODS, jobMethods);
 //		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
-		// TODO: plug id muss uebergeben werden
-		// TODO: in ehcache merken und alle halbe stunde invalidieren
-		String plugId = "mdek-iplug-idctest";
 		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
@@ -163,18 +159,18 @@ public class MdekCaller implements IMdekCaller {
 		return response;
 	}
 
-	public IngridDocument getRunningJobInfo(String userId) {
+	public IngridDocument getRunningJobInfo(String plugId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getRunningJobInfo", jobParams);
-		return callJob(MDEK_IDC_SYNC_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_SYNC_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument cancelRunningJob(String userId) {
+	public IngridDocument cancelRunningJob(String plugId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("cancelRunningJob", jobParams);
-		return callJob(MDEK_IDC_SYNC_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_SYNC_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getResultFromResponse(IngridDocument mdekResponse) {

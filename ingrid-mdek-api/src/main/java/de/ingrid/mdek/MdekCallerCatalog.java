@@ -55,20 +55,20 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		return myInstance;
 	}
 
-	public IngridDocument fetchCatalog(String userId) {
+	public IngridDocument fetchCatalog(String plugId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getCatalog", jobParams);
-		return mdekCaller.callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getSysLists(Integer[] listIds, Integer langCode,
+	public IngridDocument getSysLists(String plugId, Integer[] listIds, Integer langCode,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.SYS_LIST_IDS, listIds);
 		jobParams.put(MdekKeys.LANGUAGE_CODE, langCode);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getSysLists", jobParams);
-		return mdekCaller.callJob(MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 }

@@ -11,6 +11,7 @@ public interface IMdekCallerQuery {
 
 	/**
 	 * Search addresses via thesaurus term.
+	 * @param plugId which mdek server (iplug)
 	 * @param termSnsId sns id of thesaurus term
 	 * @param startHit hit to start with (first hit is 0) 
 	 * @param numHits number of hits requested, beginning from startHit
@@ -18,12 +19,13 @@ public interface IMdekCallerQuery {
 	 * @return response containing result: map containing hits and additional
 	 * info (total number of hits)
 	 */
-	IngridDocument queryAddressesThesaurusTerm(String termSnsId,
+	IngridDocument queryAddressesThesaurusTerm(String plugId, String termSnsId,
 			int startHit, int numHits,
 			String userId);
 
 	/**
 	 * Search objects via thesaurus term.
+	 * @param plugId which mdek server (iplug)
 	 * @param termSnsId sns id of thesaurus term
 	 * @param startHit hit to start with (first hit is 0) 
 	 * @param numHits number of hits requested, beginning from startHit
@@ -31,19 +33,20 @@ public interface IMdekCallerQuery {
 	 * @return response containing result: map containing hits and additional
 	 * info (total number of hits)
 	 */
-	IngridDocument queryObjectsThesaurusTerm(String termSnsId,
+	IngridDocument queryObjectsThesaurusTerm(String plugId, String termSnsId,
 			int startHit, int numHits,
 			String userId);
 
 	/**
 	 * Execute HQL Query fetching objects/addresses.
+	 * @param plugId which mdek server (iplug)
 	 * @param hqlQuery hql query ! NO UPDATE !
 	 * @param startHit hit to start with (first hit is 0) 
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return
 	 */
-	IngridDocument queryHQL(String hqlQuery,
+	IngridDocument queryHQL(String plugId, String hqlQuery,
 			int startHit, int numHits,
 			String userId);
 }

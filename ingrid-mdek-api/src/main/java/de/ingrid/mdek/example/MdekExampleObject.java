@@ -118,6 +118,9 @@ class MdekExampleObjectThread extends Thread {
 	
 	private boolean isRunning = false;
 
+	// MDEK SERVER TO CALL !
+	private String plugId = "mdek-iplug-idctest";
+	
 	private IMdekCaller mdekCaller;
 	private IMdekCallerObject mdekCallerObject;
 	private IMdekCallerCatalog mdekCallerCatalog;
@@ -634,7 +637,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchCatalog ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.fetchCatalog(myUserId);
+		response = mdekCallerCatalog.fetchCatalog(plugId, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -658,7 +661,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE getSysLists ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getSysLists(listIds, langCode, myUserId);
+		response = mdekCallerCatalog.getSysLists(plugId, listIds, langCode, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -690,7 +693,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchTopObjects ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.fetchTopObjects(myUserId);
+		response = mdekCallerObject.fetchTopObjects(plugId, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -717,7 +720,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchSubObjects ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.fetchSubObjects(uuid, myUserId);
+		response = mdekCallerObject.fetchSubObjects(plugId, uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -744,7 +747,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE getObjectPath ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getObjectPath(uuidIn, myUserId);
+		response = mdekCallerObject.getObjectPath(plugId, uuidIn, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -773,7 +776,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.fetchObject(uuid, howMuch, myUserId);
+		response = mdekCallerObject.fetchObject(plugId, uuid, howMuch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -797,7 +800,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE getInitialObject ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getInitialObject(newBasicObject, myUserId);
+		response = mdekCallerObject.getInitialObject(plugId, newBasicObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -821,7 +824,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n###### INVOKE checkObjectSubTree ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.checkObjectSubTree(uuid, myUserId);
+		response = mdekCallerObject.checkObjectSubTree(plugId, uuid, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -854,7 +857,7 @@ class MdekExampleObjectThread extends Thread {
 		// store
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.storeObject(oDocIn, refetchObject, myUserId);
+		response = mdekCallerObject.storeObject(plugId, oDocIn, refetchObject, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1170,7 +1173,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		System.out.println("storeObject WITHOUT refetching object: ");
-		response = mdekCallerObject.storeObject(oDocIn, false, myUserId);
+		response = mdekCallerObject.storeObject(plugId, oDocIn, false, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1298,7 +1301,7 @@ class MdekExampleObjectThread extends Thread {
 			System.out.println("STORE");
 			startTime = System.currentTimeMillis();
 			System.out.println("storeObject WITH refetching object: ");
-			response = mdekCallerObject.storeObject(oRefetchedDoc, true, myUserId);
+			response = mdekCallerObject.storeObject(plugId, oRefetchedDoc, true, myUserId);
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1337,7 +1340,7 @@ class MdekExampleObjectThread extends Thread {
 				"refetchObject: " + withRefetch +
 				", forcePublicationCondition: " + forcePublicationCondition);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.publishObject(oDocIn, withRefetch, forcePublicationCondition, myUserId);
+		response = mdekCallerObject.publishObject(plugId, oDocIn, withRefetch, forcePublicationCondition, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1372,7 +1375,7 @@ class MdekExampleObjectThread extends Thread {
 				: "WITHOUT FORCE publicationCondition";
 		System.out.println("\n###### INVOKE moveObject " + performCheckInfo + forcePubCondInfo + "######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.moveObject(fromUuid, toUuid, performSubtreeCheck, forcePublicationCondition, myUserId);
+		response = mdekCallerObject.moveObject(plugId, fromUuid, toUuid, performSubtreeCheck, forcePublicationCondition, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1397,7 +1400,7 @@ class MdekExampleObjectThread extends Thread {
 		String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
 		System.out.println("\n###### INVOKE copyObject " + copySubtreeInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.copyObject(fromUuid, toUuid, copySubtree, myUserId);
+		response = mdekCallerObject.copyObject(plugId, fromUuid, toUuid, copySubtree, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1425,7 +1428,7 @@ class MdekExampleObjectThread extends Thread {
 				return;
 			}
 
-			response = mdekCaller.getRunningJobInfo(myUserId);
+			response = mdekCaller.getRunningJobInfo(plugId, myUserId);
 			result = mdekCaller.getResultFromResponse(response);
 			if (result != null) {
 				String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
@@ -1455,7 +1458,7 @@ class MdekExampleObjectThread extends Thread {
 	private void cancelRunningJob() {
 		System.out.println("\n###### INVOKE cancelRunningJob ######");
 
-		IngridDocument response = mdekCaller.cancelRunningJob(myUserId);
+		IngridDocument response = mdekCaller.cancelRunningJob(plugId, myUserId);
 		IngridDocument result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
@@ -1480,7 +1483,7 @@ class MdekExampleObjectThread extends Thread {
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObjectWorkingCopy(uuid, forceDeleteReferences, myUserId);
+		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1507,7 +1510,7 @@ class MdekExampleObjectThread extends Thread {
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObject(uuid, forceDeleteReferences, myUserId);
+		response = mdekCallerObject.deleteObject(plugId, uuid, forceDeleteReferences, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

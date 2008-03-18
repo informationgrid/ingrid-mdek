@@ -32,26 +32,29 @@ public interface IMdekCaller {
 
 	/**
 	 * Call method(s) in mdek job 
+	 * @param plugId which mdek server (iplug)
 	 * @param jobId which job
-	 * @param jobMethods which method
+	 * @param jobMethods which method(s)
 	 * @return response encapsulating result of method !
 	 */
-	IngridDocument callJob(String jobId, List jobMethods);
+	IngridDocument callJob(String plugId, String jobId, List jobMethods);
 
 	/**
 	 * Returns information about currently running job of passed user.
+	 * @param plugId which mdek server (iplug)
 	 * @param userId user identifier
 	 * @return response containing result: map containing job infos or empty map if no job running !
 	 */
-	IngridDocument getRunningJobInfo(String userId);
+	IngridDocument getRunningJobInfo(String plugId, String userId);
 
 	/**
 	 * Cancel the currently running job of passed user.
+	 * @param plugId which mdek server (iplug)
 	 * @param userId user identifier
 	 * @return response containing result: map containing infos about canceled job, or empty map if no job running
 	 * (or null if something went wrong)<br>
 	 */
-	IngridDocument cancelRunningJob(String userId);
+	IngridDocument cancelRunningJob(String plugId, String userId);
 
 	/**
 	 * Get pure requested result data from response of mdek call (without "protocol" overhead in response).

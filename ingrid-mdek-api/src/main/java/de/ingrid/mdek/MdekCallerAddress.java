@@ -54,38 +54,38 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return myInstance;
 	}
 
-	public IngridDocument fetchAddress(String uuid, Quantity howMuch,
+	public IngridDocument fetchAddress(String plugId, String uuid, Quantity howMuch,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		if (howMuch == Quantity.DETAIL_ENTITY) {
 			List jobMethods = mdekCaller.setUpJobMethod("getAddrDetails", jobParams);
-			return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+			return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 		}
 
 		return new IngridDocument();
 	}
 
-	public IngridDocument storeAddress(IngridDocument adrDoc,
+	public IngridDocument storeAddress(String plugId, IngridDocument adrDoc,
 			boolean refetchAfterStore,
 			String userId) {
 		adrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		adrDoc.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("storeAddress", adrDoc);
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument publishAddress(IngridDocument addrDoc,
+	public IngridDocument publishAddress(String plugId, IngridDocument addrDoc,
 			boolean refetchAfterStore,
 			String userId) {
 		addrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		addrDoc.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("publishAddress", addrDoc);
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument deleteAddressWorkingCopy(String uuid,
+	public IngridDocument deleteAddressWorkingCopy(String plugId, String uuid,
 			boolean forceDeleteReferences,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
@@ -94,10 +94,10 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("deleteAddressWorkingCopy", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument deleteAddress(String uuid,
+	public IngridDocument deleteAddress(String plugId, String uuid,
 			boolean forceDeleteReferences,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
@@ -106,49 +106,49 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("deleteAddress", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument fetchTopAddresses(String userId, boolean nurFreieAdressen) {
+	public IngridDocument fetchTopAddresses(String plugId, String userId, boolean nurFreieAdressen) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES, nurFreieAdressen);
 		List jobMethods = mdekCaller.setUpJobMethod("getTopAddresses", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument fetchSubAddresses(String adrUuid,
+	public IngridDocument fetchSubAddresses(String plugId, String adrUuid,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, adrUuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getSubAddresses", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getAddressPath(String uuid,
+	public IngridDocument getAddressPath(String plugId, String uuid,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getAddressPath", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);		
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);		
 	}
 
-	public IngridDocument checkAddressSubTree(String uuid,
+	public IngridDocument checkAddressSubTree(String plugId, String uuid,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("checkAddressSubTree", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument copyAddress(String fromUuid, String toUuid,
+	public IngridDocument copyAddress(String plugId, String fromUuid, String toUuid,
 			boolean copySubtree,
 			boolean copyToFreeAddress,
 			String userId) {
@@ -160,10 +160,10 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("copyAddress", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument moveAddress(String fromUuid, String toUuid,
+	public IngridDocument moveAddress(String plugId, String fromUuid, String toUuid,
 			boolean performSubtreeCheck,
 			boolean moveToFreeAddress,
 			String userId) {
@@ -175,19 +175,19 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("moveAddress", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getInitialAddress(IngridDocument newBasicAddress,
+	public IngridDocument getInitialAddress(String plugId, IngridDocument newBasicAddress,
 			String userId) {
 		IngridDocument jobParams = newBasicAddress;
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getInitialAddress", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument searchAddresses(IngridDocument searchParams,
+	public IngridDocument searchAddresses(String plugId, IngridDocument searchParams,
 			int startHit, int numHits,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
@@ -197,6 +197,6 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
 		List jobMethods = mdekCaller.setUpJobMethod("searchAddresses", jobParams);
 
-		return mdekCaller.callJob(MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 }
