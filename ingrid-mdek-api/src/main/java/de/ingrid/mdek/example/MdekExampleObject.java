@@ -76,7 +76,7 @@ public class MdekExampleObject {
 				System.out.println("Registered iPlugs: " + iPlugs);
 			} else {
 				System.out.println("wait ...");
-				Thread.sleep(6000);
+				Thread.sleep(2000);
 			}
 		}
 

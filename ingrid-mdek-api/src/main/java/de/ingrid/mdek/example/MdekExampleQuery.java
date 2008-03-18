@@ -19,6 +19,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
@@ -76,13 +77,9 @@ public class MdekExampleQuery {
 				System.out.println("Registered iPlugs: " + iPlugs);
 			} else {
 				System.out.println("wait ...");
-				Thread.sleep(6000);
+				Thread.sleep(2000);
 			}
 		}
-
-		System.out.println("\n###### mdek iPlug REGISTERED ! ######\n");
-		System.out.println("we wait a little bit ...");
-        Thread.sleep(10000);
 
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
@@ -110,10 +107,8 @@ public class MdekExampleQuery {
 		}
 
 		// shutdown mdek
-		System.out.println("\n###### SHUTDOWN mdek iBus ######\n");
 		MdekCaller.shutdown();
-		System.out.println("wait a little bit after shutdown ...");
-        Thread.sleep(10000);
+/*
 		System.out.println("END OF EXAMPLE (end of main())");
 
 		System.out.println(Thread.activeCount());
@@ -127,6 +122,7 @@ public class MdekExampleQuery {
 
 //		System.exit(0);
 //		return;
+*/
 	}
 }
 
@@ -184,6 +180,34 @@ class MdekExampleQueryThread extends Thread {
 			String uuid = hits.get(0).getString(MdekKeys.UUID);
 			fetchObject(uuid, Quantity.DETAIL_ENTITY);
 		}
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println(" HQL QUERY");
+		System.out.println("=========================");
+
+		System.out.println("\n----- search addresses by hql query -----");
+		String hqlQuery = "from AddressNode aNode " +
+			"inner join aNode.t02AddressWork addr " +
+			"inner join addr.searchtermAdrs termAdrs " +
+			"inner join termAdrs.searchtermValue termVal " +
+			"inner join termVal.searchtermSns termSns " +
+			"where " +
+			"termSns.snsId = '" + termSnsId + "' " +
+			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+		queryHQL(hqlQuery, 0, 10);
+
+		System.out.println("\n----- search objects by hql query -----");
+		hqlQuery = "from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork obj " +
+			"inner join obj.searchtermObjs termObjs " +
+			"inner join termObjs.searchtermValue termVal " +
+			"inner join termVal.searchtermSns termSns " +
+			"where " +
+			"termSns.snsId = '" + termSnsId + "' " +
+			"order by obj.objClass, obj.objName";
+		queryHQL(hqlQuery, 0, 10);
 
 		// ===================================
 
@@ -313,6 +337,48 @@ class MdekExampleQueryThread extends Thread {
 		return hits;
 	}
 
+	private void queryHQL(String qString,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE queryHQL ######");
+		System.out.println("- startHit:" + startHit);
+		System.out.println("- numHits:" + numHits);
+		System.out.println("- query:" + qString);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerQuery.queryHQL(qString, startHit, numHits, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		List<IngridDocument> hits = null;
+		if (result != null) {
+			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			IdcEntityType type = IdcEntityType.OBJECT;
+			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			if (hits == null) {
+				hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+				type = IdcEntityType.ADDRESS;				
+			}
+			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
+			doFullOutput = false;
+			for (IngridDocument hit : hits) {
+				if (IdcEntityType.OBJECT.equals(type)) {
+					debugObjectDoc(hit);
+				} else {
+					debugAddressDoc(hit);
+				}
+			}
+			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+	}
+
 	private void debugAddressDoc(IngridDocument a) {
 		System.out.println("Address: " + a.get(MdekKeys.ID) 
 			+ ", " + a.get(MdekKeys.UUID)
@@ -321,17 +387,18 @@ class MdekExampleQueryThread extends Thread {
 			+ " " + a.get(MdekKeys.GIVEN_NAME)
 			+ " " + a.get(MdekKeys.NAME)
 			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.get(MdekKeys.CLASS))
-		);
-		System.out.println("        "
-			+ "status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, a.get(MdekKeys.WORK_STATE))
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
+//		);
+//		System.out.println("        "
+			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, a.get(MdekKeys.WORK_STATE))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
 		);
-		System.out.println("  " + a);
 
 		if (!doFullOutput) {
 			return;
 		}
+
+		System.out.println("  " + a);
 
 		List<IngridDocument> docList;
 
@@ -347,13 +414,19 @@ class MdekExampleQueryThread extends Thread {
 	private void debugObjectDoc(IngridDocument o) {
 		System.out.println("Object: " + o.get(MdekKeys.ID) 
 			+ ", " + o.get(MdekKeys.UUID)
-			+ ", " + o.get(MdekKeys.TITLE));
-		System.out.println("        "
-			+ "status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", " + o.get(MdekKeys.TITLE)
+//		);
+//		System.out.println("        "
+			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
 			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
 		);
+
+		if (!doFullOutput) {
+			return;
+		}
+
 		System.out.println("  " + o);
 
 		List<IngridDocument> docList;

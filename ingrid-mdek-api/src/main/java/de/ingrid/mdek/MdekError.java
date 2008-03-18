@@ -55,7 +55,11 @@ public class MdekError implements Serializable {
 		 * <b>errorInfo-Map</b> = referenced entity (object or address)<br>
 		 * <b>errorInfo-Map.OBJ_ENTITIES</b> = List of object maps (referencing objects)
 		 */
-		ENTITY_REFERENCED_BY_OBJ("51");
+		ENTITY_REFERENCED_BY_OBJ("51"),
+
+		/** entered HQL not valid for "Datenbanksuche" */
+		HQL_NOT_VALID("61")
+		;
 
 		MdekErrorType(String errorCode) {
 			this.errorCode = errorCode;

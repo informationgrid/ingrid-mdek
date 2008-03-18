@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -20,6 +22,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 
 	private IAddressNodeDao daoAddressNode;
 	private IObjectNodeDao daoObjectNode;
+	private IHQLDao daoHQL;
 
 	public MdekIdcQueryJob(ILogService logService,
 			DaoFactory daoFactory) {
@@ -27,6 +30,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoObjectNode = daoFactory.getObjectNodeDao();
+		daoHQL = daoFactory.getHQLDao();
 	}
 
 	public IngridDocument queryAddressesThesaurusTerm(IngridDocument params) {
@@ -104,6 +108,69 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 
 		} catch (RuntimeException e) {
 			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument queryHQL(IngridDocument params) {
+		try {
+			Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
+			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
+
+			daoHQL.beginTransaction();
+
+			long totalNumHits = daoHQL.queryHQLTotalNum(hqlQuery);
+
+			IngridDocument queryDoc = new IngridDocument();
+			if (totalNumHits > 0 &&	startHit < totalNumHits) {
+				queryDoc = daoHQL.queryHQL(hqlQuery, startHit, numHits);
+			}
+			
+			// default is object beans
+			List hits = new ArrayList(0);;
+			IdcEntityType entityType = null;
+			if (queryDoc.get(MdekKeys.OBJ_ENTITIES) != null) {
+				// do we have object entities ?
+				hits = (List) queryDoc.get(MdekKeys.OBJ_ENTITIES);
+				entityType = IdcEntityType.OBJECT;
+			} else if (queryDoc.get(MdekKeys.ADR_ENTITIES) != null) {
+				// or do we have address entities ?
+				hits = (List) queryDoc.get(MdekKeys.ADR_ENTITIES);
+				entityType = IdcEntityType.ADDRESS;				
+			}
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(hits.size());
+			for (Object hit : hits) {
+				IngridDocument hitDoc = new IngridDocument();
+				if (entityType == IdcEntityType.OBJECT) {
+					ObjectNode oNode = (ObjectNode) hit;
+					beanToDocMapper.mapObjectNode(oNode, hitDoc, MappingQuantity.BASIC_ENTITY);
+					beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), hitDoc, MappingQuantity.BASIC_ENTITY);					
+				} else {
+					AddressNode aNode = (AddressNode) hit;
+					beanToDocMapper.mapAddressNode(aNode, hitDoc, MappingQuantity.BASIC_ENTITY);
+					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), hitDoc, MappingQuantity.BASIC_ENTITY);
+				}
+				resultList.add(hitDoc);
+			}
+
+			daoHQL.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			if (entityType == IdcEntityType.OBJECT) {
+				result.put(MdekKeys.OBJ_ENTITIES, resultList);
+			} else {
+				result.put(MdekKeys.ADR_ENTITIES, resultList);
+			}
+			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+
+			return result;
+
+		} catch (RuntimeException e) {
+			daoHQL.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
