@@ -318,14 +318,12 @@ class MdekExampleObjectThread extends Thread {
 		newObjDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
 		newObjDoc.put(MdekKeys.LOCATIONS, oMap.get(MdekKeys.LOCATIONS));
 		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
-
 		List<IngridDocument> terms = (List<IngridDocument>) newObjDoc.get(MdekKeys.SUBJECT_TERMS);
 		IngridDocument newTerm = new IngridDocument();
 		newTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
 		newTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
 		System.out.println("ADD NEW SUBJECT TERM: " + newTerm);
 		terms.add(newTerm);
-
 		IngridDocument oMapNew = storeObjectWithManipulation(newObjDoc);
 		// uuid created !
 		String newObjUuid = (String) oMapNew.get(MdekKeys.UUID);
@@ -409,7 +407,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- delete new object (WORKING COPY) -> NO full delete -----");
 		deleteObjectWorkingCopy(newObjUuid, false);
 		System.out.println("\n----- delete new object (FULL) -> full delete -----");
-		deleteObject(newObjUuid, false);
+		deleteObject(newObjUuid, true);
 		System.out.println("\n----- verify deletion of new object -----");
 		fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
@@ -447,14 +445,14 @@ class MdekExampleObjectThread extends Thread {
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- delete OBJECT_TO (WORKING COPY) WITHOUT refs -> Error -----");
+		System.out.println("\n----- delete TOP OBJECT (WORKING COPY) WITHOUT refs -> Error (Subtree has references) -----");
 		deleteObjectWorkingCopy(topObjUuid, false);
-		System.out.println("\n----- delete OBJECT_TO (FULL) WITHOUT refs -> Error -----");
+		System.out.println("\n----- delete TOP OBJECT (FULL) WITHOUT refs -> Error (Subtree has references) -----");
 		deleteObject(topObjUuid, false);
-		System.out.println("\n----- delete OBJECT_TO (WORKING COPY) WITH refs -> OK -----");
-		deleteObjectWorkingCopy(topObjUuid, true);
-		System.out.println("\n----- delete OBJECT_FROM (WORKING COPY) without refs -> OK -----");
-		deleteObjectWorkingCopy(fromObjUuid, false);
+		System.out.println("\n----- delete TOP OBJECT (FULL) WITH refs -> OK -----");
+		deleteObject(topObjUuid, true);
+		System.out.println("\n----- delete OBJECT_FROM (FULL) WITHOUT refs -> OK -----");
+		deleteObject(fromObjUuid, false);
 
 		// -----------------------------------
 		// copy object and publish ! create new object and publish !
@@ -515,9 +513,12 @@ class MdekExampleObjectThread extends Thread {
 		// copy object and publish ! create new object and publish !
 		System.out.println("\n\n=========================");
 		System.out.println("PUBLICATION CONDITION TEST");
+		System.out.println("NOTICE: manipulates database !!!!!!");
 		System.out.println("=========================");
 
 		this.doFullOutput = false;
+
+		System.out.println("\n\n===== TEST simple change of publication condition in hierarchy  =====");
 
 		parentUuid = "38665130-B449-11D2-9A86-080000507261";
 		String childUuid = "38665131-B449-11D2-9A86-080000507261";
@@ -565,7 +566,12 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- refetch child -> NOW INTRANET -----");
 		oMapChild = fetchObject(childUuid, Quantity.DETAIL_ENTITY);
 
+
+		System.out.println("\n\n===== TEST change of publication condition VIA MOVE ! =====");
+		
 		System.out.println("\n----- verify INTERNET parent and children to MOVE -----");
+
+		// NOTICE: UUid to move is TOP OBJECT !
 		String moveUuid = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
 		String moveChild1Uuid = "37D89A8E-3E4F-4907-A3FF-B01E3FE13B4C";
 		String moveChild2Uuid = "2F121A74-C02F-4856-BBF1-48A7FC69D99A";
@@ -581,9 +587,23 @@ class MdekExampleObjectThread extends Thread {
 		moveObject(moveUuid, parentUuid, false, true);
 
 		System.out.println("\n----- verify -> all moved nodes INTRANET ! -----");
-		fetchObject(moveUuid, Quantity.DETAIL_ENTITY);
-		fetchObject(moveChild1Uuid, Quantity.DETAIL_ENTITY);
-		fetchObject(moveChild2Uuid, Quantity.DETAIL_ENTITY);
+		IngridDocument oMapMoved1 = fetchObject(moveUuid, Quantity.DETAIL_ENTITY);
+		IngridDocument oMapMoved2 = fetchObject(moveChild1Uuid, Quantity.DETAIL_ENTITY);
+		IngridDocument oMapMoved3 = fetchObject(moveChild2Uuid, Quantity.DETAIL_ENTITY);
+
+		
+		System.out.println("\n===== Clean Up ! back to old state of DB ! =====");
+		
+		System.out.println("\n----- move node back to top -----");
+		moveObject(moveUuid, null, false, true);
+
+		System.out.println("\n----- and change all moved nodes back to INTERNET -> SUCCESS -----");
+		oMapMoved1.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		publishObject(oMapMoved1, false, true);
+		oMapMoved2.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		publishObject(oMapMoved2, false, true);
+		oMapMoved3.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		publishObject(oMapMoved3, false, true);
 
 		System.out.println("\n----- change parent back to INTERNET -> SUCCESS -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
@@ -594,8 +614,6 @@ class MdekExampleObjectThread extends Thread {
 		publishObject(oMapChild, true, true);
 
 		this.doFullOutput = true;
-
-
 		
 /*		
 		System.out.println("\n\n=========================");
