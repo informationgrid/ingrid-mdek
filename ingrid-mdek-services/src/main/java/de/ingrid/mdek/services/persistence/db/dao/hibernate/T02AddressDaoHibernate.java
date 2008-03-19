@@ -19,31 +19,4 @@ public class T02AddressDaoHibernate
     public T02AddressDaoHibernate(SessionFactory factory) {
         super(factory, T02Address.class);
     }
-/*
-	public List<T02Address> getTopAddresses() {
-		Session session = getSession();
-
-		// fetch top Addresses
-		List adrs = session.createQuery("from T02Address adr " +
-			"where adr.root = 1")
-			.list();
-		
-		return adrs;
-	}
-
-	public Set<T02Address> getSubAddresses(String uuid) {
-		Session session = getSession();
-
-		T02Address a = (T02Address) session.createQuery("from T02Address adr " +
-			"left join fetch adr.t022AdrAdrs child " +
-			"left join fetch child.t022AdrAdrs " +
-			"where adr.id = ?")
-			.setString(0, uuid)
-			.uniqueResult();
-		
-		Set<T02Address> adrs = a.getT022AdrAdrs();
-
-		return adrs;
-	}
-*/
 }

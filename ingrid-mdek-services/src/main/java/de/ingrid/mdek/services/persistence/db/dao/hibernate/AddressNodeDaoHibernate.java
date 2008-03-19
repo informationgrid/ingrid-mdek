@@ -53,9 +53,7 @@ public class AddressNodeDaoHibernate
 
 	public List<AddressNode> getTopAddresses(boolean onlyFreeAddresses) {
 		Session session = getSession();
-		ArrayList<AddressNode> retList = new ArrayList<AddressNode>();
-
-		String query = "from AddressNode aNode " +
+		String query = "select distinct aNode from AddressNode aNode " +
 			"left join fetch aNode.t02AddressWork a " +
 			"left join fetch aNode.addressNodeChildren aChildren " +
 			"where aNode.fkAddrUuid is null ";
@@ -66,22 +64,14 @@ public class AddressNodeDaoHibernate
 		}
 		query += "order by a.adrType desc, a.institution, a.lastname, a.firstname";
 		
-		List<AddressNode> aNs = session.createQuery(query).list();
+		List<AddressNode> aNodes = session.createQuery(query).list();
 
-		// NOTICE: upper query returns entities multiple times, filter them !
-		for (AddressNode aN : aNs) {
-			if (!retList.contains(aN)) {
-				retList.add(aN);
-			}
-		}
-		return retList;
+		return aNodes;
 	}
 
 	public List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel) {
 		Session session = getSession();
-		ArrayList<AddressNode> retList = new ArrayList<AddressNode>();
-
-		String q = "from AddressNode aNode ";
+		String q = "select distinct aNode from AddressNode aNode ";
 		if (fetchAddressLevel) {
 			q += "left join fetch aNode.t02AddressWork a " +
 				 "left join fetch aNode.addressNodeChildren aChildren ";
@@ -95,13 +85,7 @@ public class AddressNodeDaoHibernate
 				.setString(0, parentUuid)
 				.list();
 
-		// NOTICE: upper query returns entities multiple times, filter them !
-		for (AddressNode aNode : aNodes) {
-			if (!retList.contains(aNode)) {
-				retList.add(aNode);
-			}
-		}
-		return retList;
+		return aNodes;
 	}
 
 	public List<String> getSubAddressUuids(String parentUuid) {
@@ -169,23 +153,16 @@ public class AddressNodeDaoHibernate
 
 	public List<ObjectNode> getObjectReferencesFrom(String addressUuid) {
 		Session session = getSession();
-		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
-
 		// fetch all at once (one select with outer joins)
-		List<ObjectNode> oNs = session.createQuery("from ObjectNode oNode " +
+		List<ObjectNode> oNodes = session.createQuery(
+			"select distinct oNode from ObjectNode oNode " +
 			"left join fetch oNode.t01ObjectWork oWork " +
 			"left join fetch oWork.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = ?")
 			.setString(0, addressUuid)
 			.list();
 
-		// NOTICE: upper query returns objects multiple times, filter them !
-		for (ObjectNode oN : oNs) {
-			if (!retList.contains(oN)) {
-				retList.add(oN);
-			}
-		}
-		return retList;
+		return oNodes;
 	}
 
 	public AddressNode getParent(String uuid) {
@@ -241,13 +218,13 @@ public class AddressNodeDaoHibernate
 
 	public long searchTotalNumAddresses(IngridDocument searchParams) {
 
-		String qString = createSearchQueryString(searchParams, true);
+		String qString = createSearchQueryString(searchParams);
 		
 		if (qString == null) {
 			return 0;
 		}
 
-		qString = "select count(*) " + qString;
+		qString = "select count(distinct aNode) " + qString;
 
 		Session session = getSession();
 
@@ -261,13 +238,14 @@ public class AddressNodeDaoHibernate
 			int startHit, int numHits) {
 		List<AddressNode> retList = new ArrayList<AddressNode>();
 
-		String qString = createSearchQueryString(searchParams, false);
+		String qString = createSearchQueryString(searchParams);
 		
 		if (qString == null) {
 			return retList;
 		}
 
-		qString += "order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+		qString = "select distinct aNode " + qString;
+		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 
 		Session session = getSession();
 
@@ -287,7 +265,7 @@ public class AddressNodeDaoHibernate
 	 * 		false=create query for fetching results
 	 * @return basic query string or null if no parameters. 
 	 */
-	private String createSearchQueryString(IngridDocument searchParams, boolean isCountQuery) {
+	private String createSearchQueryString(IngridDocument searchParams) {
 		String institution = MdekUtils.processStringParameter(searchParams.getString(MdekKeys.ORGANISATION));
 		String lastname = MdekUtils.processStringParameter(searchParams.getString(MdekKeys.NAME));
 		String firstname = MdekUtils.processStringParameter(searchParams.getString(MdekKeys.GIVEN_NAME));
@@ -296,13 +274,9 @@ public class AddressNodeDaoHibernate
 			return null;
 		}
 
-		String join = "inner join fetch ";
-		if (isCountQuery) {
-			join = "inner join ";
-		}
-
+		// NOTICE: Errors when using "join fetch" !
 		String qString = "from AddressNode aNode " +
-			join + "aNode.t02AddressWork addr " +
+			"inner join aNode.t02AddressWork addr " +
 			"where " +
 			// dummy, so we can start with "and"
 			"aNode.id IS NOT NULL ";
@@ -322,13 +296,13 @@ public class AddressNodeDaoHibernate
 
 	public long queryAddressesThesaurusTermTotalNum(String termSnsId) {
 
-		String qString = createThesaurusQueryString(termSnsId, true);
+		String qString = createThesaurusQueryString(termSnsId);
 		
 		if (qString == null) {
 			return 0;
 		}
 
-		qString = "select count(*) " + qString;
+		qString = "select count(distinct aNode) " + qString;
 
 		Session session = getSession();
 
@@ -342,13 +316,14 @@ public class AddressNodeDaoHibernate
 			int startHit, int numHits) {
 		List<AddressNode> retList = new ArrayList<AddressNode>();
 
-		String qString = createThesaurusQueryString(termSnsId, false);
+		String qString = createThesaurusQueryString(termSnsId);
 		
 		if (qString == null) {
 			return retList;
 		}
 
-		qString += "order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+		qString = "select distinct aNode " + qString;
+		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 
 		Session session = getSession();
 
@@ -368,23 +343,19 @@ public class AddressNodeDaoHibernate
 	 * 		false=create query for fetching results
 	 * @return basic query string or null if no parameters. 
 	 */
-	private String createThesaurusQueryString(String termSnsId, boolean isCountQuery) {
+	private String createThesaurusQueryString(String termSnsId) {
 		termSnsId = MdekUtils.processStringParameter(termSnsId);
 
 		if (termSnsId == null) {
 			return null;
 		}
 
-		String join = "inner join fetch ";
-		if (isCountQuery) {
-			join = "inner join ";
-		}
-
+		// NOTICE: Errors when using "join fetch" !
 		String qString = "from AddressNode aNode " +
-			join + "aNode.t02AddressWork addr " +
-			join + "addr.searchtermAdrs termAdrs " +
-			join + "termAdrs.searchtermValue termVal " +
-			join + "termVal.searchtermSns termSns " +
+			"inner join aNode.t02AddressWork addr " +
+			"inner join addr.searchtermAdrs termAdrs " +
+			"inner join termAdrs.searchtermValue termVal " +
+			"inner join termVal.searchtermSns termSns " +
 			"where " +
 			"termSns.snsId = '" + termSnsId + "'";
 		

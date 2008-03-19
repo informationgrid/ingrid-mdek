@@ -49,49 +49,35 @@ public class ObjectNodeDaoHibernate
 
 	public List<ObjectNode> getTopObjects() {
 		Session session = getSession();
-		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
-
-		List<ObjectNode> oNs = session.createQuery("from ObjectNode oNd " +
-				"left join fetch oNd.t01ObjectWork o " +
-				"left join fetch oNd.objectNodeChildren oChildren " +
-				"where oNd.fkObjUuid is null " +
+		List<ObjectNode> oNodes = session.createQuery(
+				"select distinct oNode from ObjectNode oNode " +
+				"left join fetch oNode.t01ObjectWork o " +
+				"left join fetch oNode.objectNodeChildren oChildren " +
+				"where oNode.fkObjUuid is null " +
 				"order by o.objName")
 				.list();
 
-		// NOTICE: upper query returns objects multiple times, filter them !
-		for (ObjectNode oN : oNs) {
-			if (!retList.contains(oN)) {
-				retList.add(oN);
-			}
-		}
-		return retList;
+		return oNodes;
 	}
 
 	public List<ObjectNode> getSubObjects(String parentUuid, boolean fetchObjectLevel) {
 		Session session = getSession();
-		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
 
-		String q = "from ObjectNode oNd ";
+		String q = "select distinct oNode from ObjectNode oNode ";
 		if (fetchObjectLevel) {
-			q += "left join fetch oNd.t01ObjectWork o " +
-				 "left join fetch oNd.objectNodeChildren oChildren ";
+			q += "left join fetch oNode.t01ObjectWork o " +
+				 "left join fetch oNode.objectNodeChildren oChildren ";
 		}
-		q += "where oNd.fkObjUuid = ? ";
+		q += "where oNode.fkObjUuid = ? ";
 		if (fetchObjectLevel) {
 			q += "order by o.objName"; 
 		}
 		
-		List<ObjectNode> oNs = session.createQuery(q)
+		List<ObjectNode> oNodes = session.createQuery(q)
 				.setString(0, parentUuid)
 				.list();
 
-		// NOTICE: upper query returns objects multiple times, filter them !
-		for (ObjectNode oN : oNs) {
-			if (!retList.contains(oN)) {
-				retList.add(oN);
-			}
-		}
-		return retList;
+		return oNodes;
 	}
 
 	public List<String> getSubObjectUuids(String parentUuid) {
@@ -188,23 +174,17 @@ public class ObjectNodeDaoHibernate
 
 	public List<ObjectNode> getObjectReferencesFrom(String uuid) {
 		Session session = getSession();
-		ArrayList<ObjectNode> retList = new ArrayList<ObjectNode>();
 
 		// fetch all at once (one select with outer joins)
-		List<ObjectNode> oNs = session.createQuery("from ObjectNode oNode " +
+		List<ObjectNode> oNodes = session.createQuery(
+			"select distinct oNode from ObjectNode oNode " +
 			"left join fetch oNode.t01ObjectWork oWork " +
 			"left join fetch oWork.objectReferences oRef " +
 			"where oRef.objToUuid = ?")
 			.setString(0, uuid)
 			.list();
 
-		// NOTICE: upper query returns objects multiple times, filter them !
-		for (ObjectNode oN : oNs) {
-			if (!retList.contains(oN)) {
-				retList.add(oN);
-			}
-		}
-		return retList;
+		return oNodes;
 	}
 
 	public List<String> getObjectPath(String uuid) {
@@ -223,13 +203,13 @@ public class ObjectNodeDaoHibernate
 
 	public long queryObjectsThesaurusTermTotalNum(String termSnsId) {
 
-		String qString = createThesaurusQueryString(termSnsId, true);
+		String qString = createThesaurusQueryString(termSnsId);
 		
 		if (qString == null) {
 			return 0;
 		}
 
-		qString = "select count(*) " + qString;
+		qString = "select count(distinct oNode) " + qString;
 
 		Session session = getSession();
 
@@ -243,13 +223,14 @@ public class ObjectNodeDaoHibernate
 			int startHit, int numHits) {
 		List<ObjectNode> retList = new ArrayList<ObjectNode>();
 
-		String qString = createThesaurusQueryString(termSnsId, false);
+		String qString = createThesaurusQueryString(termSnsId);
 		
 		if (qString == null) {
 			return retList;
 		}
 
-		qString += "order by obj.objClass, obj.objName";
+		qString = "select distinct oNode " + qString;
+		qString += " order by obj.objClass, obj.objName";
 
 		Session session = getSession();
 
@@ -269,23 +250,19 @@ public class ObjectNodeDaoHibernate
 	 * 		false=create query for fetching results
 	 * @return basic query string or null if no parameters. 
 	 */
-	private String createThesaurusQueryString(String termSnsId, boolean isCountQuery) {
+	private String createThesaurusQueryString(String termSnsId) {
 		termSnsId = MdekUtils.processStringParameter(termSnsId);
 
 		if (termSnsId == null) {
 			return null;
 		}
 
-		String join = "inner join fetch ";
-		if (isCountQuery) {
-			join = "inner join ";
-		}
-
+		// NOTICE: Errors when using "join fetch" !
 		String qString = "from ObjectNode oNode " +
-			join + "oNode.t01ObjectWork obj " +
-			join + "obj.searchtermObjs termObjs " +
-			join + "termObjs.searchtermValue termVal " +
-			join + "termVal.searchtermSns termSns " +
+			"inner join oNode.t01ObjectWork obj " +
+			"inner join obj.searchtermObjs termObjs " +
+			"inner join termObjs.searchtermValue termVal " +
+			"inner join termVal.searchtermSns termSns " +
 			"where " +
 			"termSns.snsId = '" + termSnsId + "'";
 		

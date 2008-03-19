@@ -158,7 +158,9 @@ class MdekExampleQueryThread extends Thread {
 
 		// thesaurs terms (sns ids)
 		// Naturschutz = uba_thes_28749: Institutionen, Einheiten und Personen
-		String termSnsId = "uba_thes_28749";
+//		String termSnsId = "uba_thes_28749";
+		// Emissionsüberwachung = uba_thes_8007: Institutionen und Personen
+		String termSnsId = "uba_thes_8007";
 
 		long exampleStartTime = System.currentTimeMillis();
 
@@ -169,7 +171,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- search addresses by thesaurus term (id) -----");
-		List<IngridDocument> hits = queryAddressesThesaurusTerm(termSnsId, 0, 10);
+		List<IngridDocument> hits = queryAddressesThesaurusTerm(termSnsId, 0, 20);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			String uuid = hits.get(0).getString(MdekKeys.UUID);
@@ -177,7 +179,7 @@ class MdekExampleQueryThread extends Thread {
 		}
 
 		System.out.println("\n----- search objects by thesaurus term (id) -----");
-		hits = queryObjectsThesaurusTerm(termSnsId, 0, 5);
+		hits = queryObjectsThesaurusTerm(termSnsId, 0, 20);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			String uuid = hits.get(0).getString(MdekKeys.UUID);

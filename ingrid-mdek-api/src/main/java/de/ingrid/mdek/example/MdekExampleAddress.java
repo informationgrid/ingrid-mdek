@@ -388,6 +388,17 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("PUBLISH TEST");
 		System.out.println("=========================");
 
+		System.out.println("\n----- publish NEW TOP ADDRESS immediately -----");
+		IngridDocument newTopDoc = new IngridDocument();
+		newTopDoc.put(MdekKeys.ORGANISATION, "TEST NEW TOP ADDRESS DIRECT PUBLISH");
+		newTopDoc.put(MdekKeys.CLASS, AddressType.INSTITUTION.getDbValue());
+		aMap = publishAddress(newTopDoc, true);
+		// uuid created !
+		String newTopUuid = (String)aMap.get(MdekKeys.UUID);
+
+		System.out.println("\n----- delete NEW TOP ADDRESS (FULL) -----");
+		deleteAddress(newTopUuid, true);
+
 		System.out.println("\n----- copy address (without subnodes) -> returns only \"TREE Data\" of copied address -----");
 		addressFrom = newParentUuid;
 		addressTo = topUuid;
@@ -434,14 +445,17 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("SEARCH TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n----- search address by orga, name, given-name -----");
+		System.out.println("\n----- search address by orga / name,given-name -----");
 		IngridDocument searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.ORGANISATION, "Bezirksregierung");
-//		searchParams.put(MdekKeys.NAME, "Dahlmann");
-//		searchParams.put(MdekKeys.GIVEN_NAME, "Irene");
 		searchAddress(searchParams, 0, 5);
 		searchAddress(searchParams, 5, 5);
 		searchAddress(searchParams, 10, 5);
+
+		searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.NAME, "Dahlmann");
+		searchParams.put(MdekKeys.GIVEN_NAME, "Irene");
+		searchAddress(searchParams, 0, 5);
 
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();
