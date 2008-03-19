@@ -193,7 +193,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- search addresses by hql query -----");
-		String hqlQuery = "from AddressNode aNode " +
+		String hqlQuery = "from AddressNode as aNode " +
 			"inner join aNode.t02AddressWork addr " +
 			"inner join addr.searchtermAdrs termAdrs " +
 			"inner join termAdrs.searchtermValue termVal " +
@@ -201,6 +201,9 @@ class MdekExampleQueryThread extends Thread {
 			"where " +
 			"termSns.snsId = '" + termSnsId + "' " +
 			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+		queryHQL(hqlQuery, 0, 10);
+
+		hqlQuery = "from AddressNode";
 		queryHQL(hqlQuery, 0, 10);
 
 		System.out.println("\n----- search objects by hql query -----");

@@ -25,22 +25,32 @@ public class HQLDaoHibernate
 	extends TransactionService
 	implements IHQLDao {
 
-	private static String KEY_ENTITY_TYPE = "ENTITY_TYPE";
+	private static String KEY_ENTITY_TYPE = "_ENTITY_TYPE";
+	private static String KEY_ENTITY_ALIAS = "_ENTITY_ALIAS";
+	private static String KEY_FROM_START_INDEX = "_FROM_START_INDEX";
 
-    public HQLDaoHibernate(SessionFactory factory) {
+	public HQLDaoHibernate(SessionFactory factory) {
         super(factory);
     }
 
 	public long queryHQLTotalNum(String hqlQuery) {
 
-		IngridDocument hqlDoc = preprocessHQL(hqlQuery, true);
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
+		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
 
 		if (qString == null) {
 			return 0;
 		}
 
-		qString = "select count(*) " + qString;
+		if (entityAlias == null) {
+			qString = "select count(*) "
+				+ qString;			
+		} else {
+			qString = "select count(distinct "
+				+ entityAlias + ") "
+				+ qString;
+		}
 
 		Session session = getSession();
 
@@ -52,12 +62,20 @@ public class HQLDaoHibernate
 
 	public IngridDocument queryHQL(String hqlQuery,
 			int startHit, int numHits) {
-		IngridDocument hqlDoc = preprocessHQL(hqlQuery, false);
-		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
+		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
+		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
 
 		List entityList = new ArrayList();
 		if (qString != null) {
+			
+			if (entityAlias != null) {
+				qString = "select distinct "
+					+ entityAlias + " " 
+					+ qString;
+			}
+			
 			Session session = getSession();
 
 			entityList = session.createQuery(qString)
@@ -80,7 +98,7 @@ public class HQLDaoHibernate
 	 * Process HQL query string for querying entities (objects or addresses).
 	 * Performs checks etc.
 	 */
-	private IngridDocument preprocessHQL(String hqlQuery, boolean isCountQuery) {
+	private IngridDocument preprocessHQL(String hqlQuery) {
 		IngridDocument result = new IngridDocument();
 		
 		hqlQuery = MdekUtils.processStringParameter(hqlQuery);
@@ -88,27 +106,61 @@ public class HQLDaoHibernate
 			return result;
 		}
 
-		IdcEntityType entityType = null; 
-		if (hqlQuery.startsWith("from ObjectNode")) {
-			entityType = IdcEntityType.OBJECT;
-		} else if (hqlQuery.startsWith("from AddressNode")) {
-			entityType = IdcEntityType.ADDRESS;			
+		// check DML statements !
+		// ----------
+		String hqlUPPERCASE = hqlQuery.toUpperCase();
+		String[] notAllowed_UPPERCASE = new String[] {
+			"DELETE", "UPDATE", "INSERT"
+		};
+		for (String noGo : notAllowed_UPPERCASE) {
+			if (hqlUPPERCASE.indexOf(noGo) != -1) {
+				throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
+			}
 		}
 
-		// wrong bean queried ?
-		if (entityType == null) {
-			throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
-		}
-		// fetch not allowed ! (we handle this ourselves !
-		if (hqlQuery.indexOf("join fetch") != -1) {
+		// check "fetch"
+		// ----------
+		// fetch not allowed ! Problems with select count()
+		if (hqlUPPERCASE.indexOf("JOIN FETCH") != -1) {
 			throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));			
 		}
 
-		if (!isCountQuery) {
-			hqlQuery = hqlQuery.replace("join", "join fetch");
+		// check which entity
+		// ----------
+		IdcEntityType entityType = null;
+		Integer fromStartIndex = hqlUPPERCASE.indexOf("FROM OBJECTNODE");
+		if (fromStartIndex != -1) {
+			entityType = IdcEntityType.OBJECT;
+		}
+		Integer fromAddrStartIndex = hqlUPPERCASE.indexOf("FROM ADDRESSNODE");
+		if (fromAddrStartIndex != -1) {
+			if (entityType != null) {
+				throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
+			}
+			entityType = IdcEntityType.ADDRESS;
+			fromStartIndex = fromAddrStartIndex;
+		}
+		// wrong entity queried ?
+		if (entityType == null) {
+			throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
 		}
 
+		// determine entity alias!
+		// ----------
+		String entityAlias = null;
+		String[] tokens = hqlQuery.substring(fromStartIndex).split(" ");
+		if (tokens.length > 2) {
+			entityAlias = tokens[2];
+			if (entityAlias.toUpperCase().equals("AS")) {
+				if (tokens.length > 3) {
+					entityAlias = tokens[3];					
+				}
+			}
+		}
+		
 		result.put(KEY_ENTITY_TYPE, entityType);
+		result.put(KEY_ENTITY_ALIAS, entityAlias);
+		result.put(KEY_FROM_START_INDEX, fromStartIndex);
 		result.put(MdekKeys.HQL_QUERY, hqlQuery);
 
 		return result;
