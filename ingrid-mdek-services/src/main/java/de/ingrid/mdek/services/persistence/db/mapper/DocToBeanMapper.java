@@ -438,10 +438,13 @@ public class DocToBeanMapper implements IMapper {
 		ArrayList<T012ObjAdr> oAs_unprocessed = new ArrayList<T012ObjAdr>(oAs);
 		int line = 1;
 		for (IngridDocument aDocTo : aDocsTo) {
-			String aUuidTo = (String) aDocTo.get(MdekKeys.UUID);
+			String inUuidTo = (String) aDocTo.get(MdekKeys.UUID);
+			Integer inRelType = (Integer) aDocTo.get(MdekKeys.RELATION_TYPE_ID);
 			boolean found = false;
 			for (T012ObjAdr oA : oAs) {
-				if (oA.getAdrUuid().equals(aUuidTo)) {
+				if (oA.getAdrUuid().equals(inUuidTo) &&
+					oA.getType().equals(inRelType))
+				{
 					mapT012ObjAdr(oIn, aDocTo, oA, line, howMuch);
 					oAs_unprocessed.remove(oA);
 					found = true;
@@ -557,6 +560,12 @@ public class DocToBeanMapper implements IMapper {
 				}
 
 				// then load/create SpatialRefValue
+				// NOTICE: Freie Raumbezuege (SpatialRefValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
+				// Selbst wenn der identische Freie Raumbezug vorhanden ist. Beim Loeschen des Objektes wird nur die Referenz geloescht
+				// (cascade nicht moeglich, da hier auch Thesaurusbegriffe drin stehen, die erhalten bleiben sollen ! bei denen wird
+				// der vorhandene Thesaurus Begriff genommen, wenn schon da; dies ist bei Freien nicht moeglich, da die ja Objektspezifisch
+				// geaendertw erden koennen). -> Aufraeum Job noetig ! 
+				// TODO: Aufraeum Job noetig, der Freie Raumbezug Leichen (in SpatialRefValue) beseitigt !!!
 				SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, locCode, oIn.getId());
 				mapSpatialRefValue(spRefSns, loc, spRefValue);
 

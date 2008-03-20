@@ -161,6 +161,7 @@ class MdekExampleObjectThread extends Thread {
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//mdekCaller.testMdekEntity(threadNumber);
 
+		boolean alwaysTrue = true;
 /*
 // ====================
 // test single stuff
@@ -168,7 +169,6 @@ class MdekExampleObjectThread extends Thread {
 
 		// track server job !
 		// ------------------
-		boolean alwaysTrue = true;
 		boolean timeout = false;
 		try {
 			copyObject("15C69C20-FE15-11D2-AF34-0060084A4596", null, true);			
@@ -193,7 +193,6 @@ class MdekExampleObjectThread extends Thread {
 
 		// EH CACHE BUG !!! referenced Adress Node not fetched in refetch of 2. store !
 		// ------------------
-		boolean alwaysTrue = false;
 		for (int i=0; i< 1; i++) {
 		
 			System.out.println("\n----- load 79297FDD-729B-4BC5-BF40-C1F3FB53D2F2 -----");
@@ -236,11 +235,8 @@ class MdekExampleObjectThread extends Thread {
 
 // -----------------------------------
 
-		// Raumbezuege BUG !!!
+		// Raumbezuege BUG !!! Freie gab Class Cast Exception see INGRIDII-116
 		// ------------------
-		boolean alwaysTrue = true;
-
-		// add functionality !
 
 		IngridDocument newDoc = new IngridDocument();
 		newDoc = getInitialObject(newDoc);
@@ -298,6 +294,46 @@ class MdekExampleObjectThread extends Thread {
 
 		// once again with same data ! references should be there !
 		publishObject(oMap, true, false);
+
+		deleteObject(newUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// -----------------------------------
+
+		// Verweise auf gleiche Adresse unterschiedlicher VerweisTyp BUG !!! wurde nur einmal gespeichert see INGRIDII-113
+		// ------------------
+		IngridDocument newDoc = new IngridDocument();
+		newDoc = getInitialObject(newDoc);
+
+		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		ArrayList<IngridDocument> addrs = new ArrayList<IngridDocument>();
+		IngridDocument addressDoc = new IngridDocument();
+		addressDoc.put(MdekKeys.RELATION_TYPE_ID, 7);
+		addressDoc.put(MdekKeys.RELATION_TYPE_NAME, "Auskunft");
+		addressDoc.put(MdekKeys.RELATION_TYPE_REF, null);
+		addressDoc.put(MdekKeys.UUID, "6E04D073-BC3A-11D2-A63A-444553540000");
+		addrs.add(addressDoc);
+		addressDoc = new IngridDocument();
+		addressDoc.put(MdekKeys.RELATION_TYPE_ID, 6);
+		addressDoc.put(MdekKeys.RELATION_TYPE_NAME, "Herkunft");
+		addressDoc.put(MdekKeys.RELATION_TYPE_REF, null);
+		addressDoc.put(MdekKeys.UUID, "6E04D073-BC3A-11D2-A63A-444553540000");
+		addrs.add(addressDoc);
+		addressDoc = new IngridDocument();
+		addressDoc.put(MdekKeys.RELATION_TYPE_ID, 5);
+		addressDoc.put(MdekKeys.RELATION_TYPE_NAME, "Vertrieb");
+		addressDoc.put(MdekKeys.RELATION_TYPE_REF, null);
+		addressDoc.put(MdekKeys.UUID, "6E04D073-BC3A-11D2-A63A-444553540000");
+		addrs.add(addressDoc);
+		newDoc.put(MdekKeys.ADR_REFERENCES_TO, addrs);
+
+		oMap = publishObject(newDoc, true, false);
+		// uuid created !
+		String newUuid = (String)oMap.get(MdekKeys.UUID);
 
 		deleteObject(newUuid, true);
 
