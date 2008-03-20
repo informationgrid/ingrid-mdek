@@ -58,7 +58,12 @@ public class MdekError implements Serializable {
 		ENTITY_REFERENCED_BY_OBJ("51"),
 
 		/** entered HQL not valid for "Datenbanksuche" */
-		HQL_NOT_VALID("61")
+		HQL_NOT_VALID("61"),
+
+		/** List key has to be -1 if "freier Eintrag", never NULL ! */
+		LIST_KEY_NULL_NOT_ALLOWED("101"),
+		/** List data in record has no key AND no value !  Has to have one of both ! */
+		LIST_NO_KEY_NO_VALUE("102")
 		;
 
 		MdekErrorType(String errorCode) {

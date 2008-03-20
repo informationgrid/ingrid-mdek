@@ -512,7 +512,6 @@ public class DocToBeanMapper implements IMapper {
 		ArrayList<SpatialReference> spatialRefs_unprocessed = new ArrayList<SpatialReference>(spatialRefs);
 		int line = 1;
 		for (IngridDocument loc : locList) {
-			// TODO: @Martin, bitte check mal die Einführung von name key value an der Stelle
 			String locNameValue = (String) loc.get(MdekKeys.LOCATION_NAME);
 			String locNameValue_notNull = (locNameValue == null) ? "" : locNameValue;
 			Integer locNameKey = (Integer) loc.get(MdekKeys.LOCATION_NAME_KEY);

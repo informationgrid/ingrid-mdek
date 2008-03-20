@@ -234,9 +234,80 @@ class MdekExampleObjectThread extends Thread {
 			return;
 		}
 
+// -----------------------------------
+
+		// Raumbezuege BUG !!!
+		// ------------------
+		boolean alwaysTrue = true;
+
+		// add functionality !
+
+		IngridDocument newDoc = new IngridDocument();
+		newDoc = getInitialObject(newDoc);
+
+		// extend initial object with own data !
+		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		// add locations !!!
+		ArrayList<IngridDocument> locs = new ArrayList<IngridDocument>();
+		IngridDocument locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME, "Hintertupfingen");
+		locDoc.put(MdekKeys.LOCATION_NAME_KEY, -1);
+		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
+		locs.add(locDoc);
+		locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME_KEY, 5);
+		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
+		locs.add(locDoc);
+		locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME, "Oberammergau");
+		locDoc.put(MdekKeys.LOCATION_NAME_KEY, -1);
+		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
+		locs.add(locDoc);
+		locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME, "freie Fläche");
+		locDoc.put(MdekKeys.LOCATION_NAME_KEY, -1);
+		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
+		locs.add(locDoc);
+		locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME, "blah");
+		locDoc.put(MdekKeys.LOCATION_NAME_KEY, -1);
+		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
+		locs.add(locDoc);
+		locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME, "54353");
+		locDoc.put(MdekKeys.LOCATION_NAME_KEY, -1);
+		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
+		locs.add(locDoc);
+		locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME, "Alpen");
+		locDoc.put(MdekKeys.LOCATION_TYPE, "G");
+		locDoc.put(MdekKeys.LOCATION_CODE, null);
+		locDoc.put(MdekKeys.LOCATION_SNS_ID, "NATURRAUM5000");
+		locs.add(locDoc);
+		locDoc = new IngridDocument();
+		locDoc.put(MdekKeys.LOCATION_NAME, "Allgäuer Alpen");
+		locDoc.put(MdekKeys.LOCATION_TYPE, "G");
+		locDoc.put(MdekKeys.LOCATION_CODE, null);
+		locDoc.put(MdekKeys.LOCATION_SNS_ID, "GEBIRGE218");
+		locs.add(locDoc);
+		newDoc.put(MdekKeys.LOCATIONS, locs);
+
+		oMap = publishObject(newDoc, true, false);
+		// uuid created !
+		String newUuid = (String)oMap.get(MdekKeys.UUID);
+
+		// once again with same data ! references should be there !
+		publishObject(oMap, true, false);
+
+		deleteObject(newUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
 // ====================
 */
-
 		// -----------------------------------
 		// catalog
 
