@@ -49,4 +49,14 @@ public interface IMdekCallerQuery {
 	IngridDocument queryHQL(String plugId, String hqlQuery,
 			int startHit, int numHits,
 			String userId);
+
+	/**
+	 * Execute HQL Query fetching objects/addresses and "export" data to csv.
+	 * @param plugId which mdek server (iplug)
+	 * @param hqlQuery hql query ! NO UPDATE !
+	 * @param userId
+	 * @return
+	 */
+	IngridDocument queryHQLToCsv(String plugId, String hqlQuery,
+			String userId);
 }

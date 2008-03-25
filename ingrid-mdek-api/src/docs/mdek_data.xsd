@@ -213,9 +213,14 @@
 	</xs:complexType>
 	<xs:complexType name="SEARCH_RESULT_MAP">
 		<xs:all>
+			<!-- number of entities in array -->
 			<xs:element name="search-num-hits" type="xs:integer"/>
 			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
+			<xs:element name="objEntities" type="OBJECT_LIST"/>
+			<!-- total number of entities -->
 			<xs:element name="search-total-num-hits" type="xs:long"/>
+			<!-- csv result as string containing csv lines -->
+			<xs:element name="csv-result" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="VERSION_MAP">

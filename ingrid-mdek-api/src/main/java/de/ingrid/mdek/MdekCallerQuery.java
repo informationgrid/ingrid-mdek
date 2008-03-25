@@ -101,4 +101,15 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument queryHQLToCsv(String plugId, String hqlQuery,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
+		
+		List jobMethods = mdekCaller.setUpJobMethod("queryHQLToCsv", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+	}
 }

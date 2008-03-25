@@ -1,8 +1,10 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -12,8 +14,10 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.TransactionService;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
+import de.ingrid.mdek.services.utils.csv.ExcelCSVPrinter;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -25,8 +29,13 @@ public class HQLDaoHibernate
 	extends TransactionService
 	implements IHQLDao {
 
+	private static final Logger LOG = Logger.getLogger(HQLDaoHibernate.class);
+
+	/** Value: IdcEntityType */
 	private static String KEY_ENTITY_TYPE = "_ENTITY_TYPE";
+	/** Value: String */
 	private static String KEY_ENTITY_ALIAS = "_ENTITY_ALIAS";
+	/** Value: Integer */
 	private static String KEY_FROM_START_INDEX = "_FROM_START_INDEX";
 
 	public HQLDaoHibernate(SessionFactory factory) {
@@ -38,18 +47,21 @@ public class HQLDaoHibernate
 		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
+		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
 
 		if (qString == null) {
 			return 0;
 		}
 
+		String qStringFrom = qString.substring(fromStartIndex);
+		
 		if (entityAlias == null) {
 			qString = "select count(*) "
-				+ qString;			
+				+ qStringFrom;			
 		} else {
 			qString = "select count(distinct "
 				+ entityAlias + ") "
-				+ qString;
+				+ qStringFrom;
 		}
 
 		Session session = getSession();
@@ -66,14 +78,17 @@ public class HQLDaoHibernate
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
 		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
+		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
 
 		List entityList = new ArrayList();
 		if (qString != null) {
 			
+			String qStringFrom = qString.substring(fromStartIndex);
+
 			if (entityAlias != null) {
 				qString = "select distinct "
 					+ entityAlias + " " 
-					+ qString;
+					+ qStringFrom;
 			}
 			
 			Session session = getSession();
@@ -90,6 +105,46 @@ public class HQLDaoHibernate
 		} else {
 			result.put(MdekKeys.ADR_ENTITIES, entityList);
 		}
+
+		return result;
+	}
+
+	public IngridDocument queryHQLToCsv(String hqlQuery) {
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
+		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
+		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
+//		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
+//		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
+
+		List hits = new ArrayList();
+		if (qString != null) {
+			Session session = getSession();
+			hits = session.createQuery(qString)
+				.list();
+		}
+
+		// our csv writer !
+		StringWriter sw = new StringWriter();
+		ExcelCSVPrinter ecsvp = new ExcelCSVPrinter(sw);
+
+		// titles
+		String[] titles = extractCsvTitles(qString.substring(0, fromStartIndex));
+		ecsvp.println(titles);
+
+		for (Object hit : hits) {
+			String[] csvValues = extractCsvValues(hit);
+			ecsvp.println(csvValues);
+		}
+
+		try {
+			ecsvp.close();			
+		} catch (Exception ex) {
+			LOG.error("Problems closing ExcelCSVPrinter !", ex);
+		}
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.CSV_RESULT, sw.toString());
+		result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, new Integer(hits.size()).longValue());
 
 		return result;
 	}
@@ -147,16 +202,7 @@ public class HQLDaoHibernate
 
 		// determine entity alias!
 		// ----------
-		String entityAlias = null;
-		String[] tokens = hqlQuery.substring(fromStartIndex).split(" ");
-		if (tokens.length > 2) {
-			entityAlias = tokens[2];
-			if (entityAlias.toUpperCase().equals("AS")) {
-				if (tokens.length > 3) {
-					entityAlias = tokens[3];					
-				}
-			}
-		}
+		String entityAlias = extractEntityAlias(hqlQuery.substring(fromStartIndex));
 		
 		result.put(KEY_ENTITY_TYPE, entityType);
 		result.put(KEY_ENTITY_ALIAS, entityAlias);
@@ -164,5 +210,81 @@ public class HQLDaoHibernate
 		result.put(MdekKeys.HQL_QUERY, hqlQuery);
 
 		return result;
+	}
+
+	private String extractEntityAlias(String hqlFromClause) {
+		String entityAlias = null;
+
+		String[] tokens = hqlFromClause.split(" ");
+		int numTokens = 0;
+		boolean aliasLongVersion = false;
+		for (String token : tokens) {
+			// skip empty strings (when multiple " " in a row)
+			if (token.length() == 0) {
+				continue;
+			}
+			numTokens++;
+			if (numTokens == 3) {
+				entityAlias = token;
+				if (entityAlias.toUpperCase().equals("AS")) {
+					entityAlias = null;
+					aliasLongVersion = true;
+					continue;
+				}
+			}
+			// take next token after AS
+			if (aliasLongVersion) {
+				entityAlias = token;
+			}
+			if (entityAlias != null) {
+				break;
+			}
+		}
+		
+		return entityAlias;
+	}
+
+	private String[] extractCsvTitles(String hqlSelectClause) {
+		ArrayList<String> titles = new ArrayList<String>();
+
+		String[] tokens = hqlSelectClause.split(",");
+		for (String token : tokens) {
+			token = token.trim();
+			String tokenUpp = token.toUpperCase();
+			if (tokenUpp.startsWith("SELECT") ||
+				tokenUpp.startsWith("DISTINCT")) {
+				int startIndex = token.lastIndexOf(" ");
+				token = token.substring(startIndex+1);
+			}
+			titles.add(token);
+		}
+
+		return titles.toArray(new String[titles.size()]);
+	}
+
+	private String[] extractCsvValues(Object hit) {
+		ArrayList<String> values = new ArrayList<String>();
+		
+		if (hit instanceof Object[]) {
+			Object[] objs = (Object[]) hit;
+			for (Object obj : objs) {
+				appendCsvValues(obj, values);
+			}
+
+		} else {
+			appendCsvValues(hit, values);
+		}
+		
+		return values.toArray(new String[values.size()]);
+	}
+
+	private void appendCsvValues(Object resultObject, ArrayList<String> values) {
+		if (resultObject instanceof IEntity) {
+			// TODO: IEntity fuer CSV aufloesen !
+			values.add("" + resultObject);
+			
+		} else {
+			values.add("" + resultObject);
+		}
 	}
 }

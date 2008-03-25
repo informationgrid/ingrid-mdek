@@ -58,10 +58,9 @@ public class MdekKeys {
     /** total number of hits<br>
      * Value: Long */
     public final static String SEARCH_TOTAL_NUM_HITS = "search-total-num-hits";
-//    /** number of hits delivered in result */
-//    public final static String SEARCH_NUM_HITS = "search-num-hits";
-//    /** delivered hits<br>Value: List of IngridDocs */
-//    public final static String ADR_ENTITIES = "adrEntities";
+    /** Value: String (csv lines, first line contains "titles") */
+    public final static String CSV_RESULT = "csv-result";
+
 
     // VERSIONING (read from properties file)
     // ----------

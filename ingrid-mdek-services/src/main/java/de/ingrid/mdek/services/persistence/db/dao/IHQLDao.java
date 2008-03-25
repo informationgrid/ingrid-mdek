@@ -27,4 +27,11 @@ public interface IHQLDao
 	 */
 	IngridDocument queryHQL(String hqlQuery,
 			int startHit, int numHits);
+
+	/**
+	 * Query entities with the passed hql query and return data as csv
+	 * @param hqlQuery arbitrary hql query ! ONLY READS !
+	 * @return IngridDocument containing csv records
+	 */
+	IngridDocument queryHQLToCsv(String hqlQuery);
 }

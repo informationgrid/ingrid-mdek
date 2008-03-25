@@ -193,7 +193,9 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- search addresses by hql query -----");
-		String hqlQuery = "from AddressNode as aNode " +
+		String hqlQueryAddr1 =
+			"select distinct addr, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term " +
+			"from AddressNode as aNode " +
 			"inner join aNode.t02AddressWork addr " +
 			"inner join addr.searchtermAdrs termAdrs " +
 			"inner join termAdrs.searchtermValue termVal " +
@@ -201,13 +203,13 @@ class MdekExampleQueryThread extends Thread {
 			"where " +
 			"termSns.snsId = '" + termSnsId + "' " +
 			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
-		queryHQL(hqlQuery, 0, 10);
+		queryHQL(hqlQueryAddr1, 0, 10);
 
-		hqlQuery = "from AddressNode";
-		queryHQL(hqlQuery, 0, 10);
+		String hqlQueryAddr2 = "from AddressNode";
+		queryHQL(hqlQueryAddr2, 0, 10);
 
 		System.out.println("\n----- search objects by hql query -----");
-		hqlQuery = "from ObjectNode oNode " +
+		String hqlQueryObj1 = "from ObjectNode oNode " +
 			"inner join oNode.t01ObjectWork obj " +
 			"inner join obj.searchtermObjs termObjs " +
 			"inner join termObjs.searchtermValue termVal " +
@@ -215,7 +217,16 @@ class MdekExampleQueryThread extends Thread {
 			"where " +
 			"termSns.snsId = '" + termSnsId + "' " +
 			"order by obj.objClass, obj.objName";
-		queryHQL(hqlQuery, 0, 10);
+		queryHQL(hqlQueryObj1, 0, 10);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println(" HQL QUERY TO CSV");
+		System.out.println("=========================");
+
+		System.out.println("\n----- search addresses by hql to csv -----");
+		queryHQLToCsv(hqlQueryAddr1);
 
 		// ===================================
 
@@ -382,6 +393,32 @@ class MdekExampleQueryThread extends Thread {
 				}
 			}
 			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+	}
+
+	private void queryHQLToCsv(String qString) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE queryHQLToCsv ######");
+		System.out.println("- query:" + qString);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerQuery.queryHQLToCsv(plugId, qString, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
+			String csvResult = result.getString(MdekKeys.CSV_RESULT);
+			System.out.println(csvResult);
+			
 		} else {
 			handleError(response);
 		}

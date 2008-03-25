@@ -175,4 +175,23 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 		    throw handledExc;
 		}
 	}
+
+	public IngridDocument queryHQLToCsv(IngridDocument params) {
+		try {
+			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
+
+			daoHQL.beginTransaction();
+
+			IngridDocument csvDoc = daoHQL.queryHQLToCsv(hqlQuery);
+
+			daoHQL.commitTransaction();
+
+			return csvDoc;
+
+		} catch (RuntimeException e) {
+			daoHQL.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
 }
