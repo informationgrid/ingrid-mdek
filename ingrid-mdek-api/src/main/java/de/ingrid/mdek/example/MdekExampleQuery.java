@@ -194,7 +194,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n----- search addresses by hql query -----");
 		String hqlQueryAddr1 =
-			"select distinct addr, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term " +
+			"select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term " +
 			"from AddressNode as aNode " +
 			"inner join aNode.t02AddressWork addr " +
 			"inner join addr.searchtermAdrs termAdrs " +
@@ -227,6 +227,14 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n----- search addresses by hql to csv -----");
 		queryHQLToCsv(hqlQueryAddr1);
+		queryHQLToCsv(hqlQueryAddr2);
+
+		String hqlQueryAddr3 =
+			"select distinct addr " +
+			"from AddressNode as aNode " +
+			"inner join aNode.t02AddressWork addr " +
+			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+		queryHQLToCsv(hqlQueryAddr3);
 
 		// ===================================
 

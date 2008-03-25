@@ -1,9 +1,13 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -113,8 +117,6 @@ public class HQLDaoHibernate
 		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
-//		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
-//		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
 
 		List hits = new ArrayList();
 		if (qString != null) {
@@ -125,15 +127,19 @@ public class HQLDaoHibernate
 
 		// our csv writer !
 		StringWriter sw = new StringWriter();
-		ExcelCSVPrinter ecsvp = new ExcelCSVPrinter(sw);
-
-		// titles
-		String[] titles = extractCsvTitles(qString.substring(0, fromStartIndex));
-		ecsvp.println(titles);
-
+		ExcelCSVPrinter ecsvp = null;
 		for (Object hit : hits) {
-			String[] csvValues = extractCsvValues(hit);
-			ecsvp.println(csvValues);
+
+			if (ecsvp == null) {
+				// START !!!
+				ecsvp = new ExcelCSVPrinter(sw);
+
+				List<String> titles = extractCsvTitles(qString.substring(0, fromStartIndex), hit);
+				ecsvp.println(titles.toArray(new String[titles.size()]));
+			}
+
+			List<String> csvValues = extractCsvValues(hit);
+			ecsvp.println(csvValues.toArray(new String[csvValues.size()]));
 		}
 
 		try {
@@ -244,9 +250,10 @@ public class HQLDaoHibernate
 		return entityAlias;
 	}
 
-	private String[] extractCsvTitles(String hqlSelectClause) {
+	private ArrayList<String> extractCsvTitles(String hqlSelectClause, Object hit) {
 		ArrayList<String> titles = new ArrayList<String>();
 
+		// first extract titles from select attributes !
 		String[] tokens = hqlSelectClause.split(",");
 		for (String token : tokens) {
 			token = token.trim();
@@ -256,13 +263,74 @@ public class HQLDaoHibernate
 				int startIndex = token.lastIndexOf(" ");
 				token = token.substring(startIndex+1);
 			}
-			titles.add(token);
+			titles.add(token);				
 		}
 
-		return titles.toArray(new String[titles.size()]);
+		// now we have plain hql select "attributes"
+		// check whether there is an IEntity queried and resolve attributes of IEntity as titles !
+		if (hit instanceof Object[]) {
+			Object[] objs = (Object[]) hit;
+			for (int i=0; i < objs.length; i++) {
+				resolveCsvTitlesOfEntity(objs[i], titles, i);
+			}
+		} else {
+			resolveCsvTitlesOfEntity(hit, titles, 0);
+		}
+
+		return titles;
 	}
 
-	private String[] extractCsvValues(Object hit) {
+	private void resolveCsvTitlesOfEntity(Object resultObject, ArrayList<String> titles, int indexTitleToResolve) {
+		if (resultObject instanceof IEntity) {
+			String entityAlias = titles.get(indexTitleToResolve);
+			List<String> entityTitles = extractCsvTitlesFromEntity((IEntity)resultObject, entityAlias);
+			// replace entity alias with entity properties ! 
+			titles.remove(indexTitleToResolve);
+			titles.addAll(indexTitleToResolve, entityTitles);
+		}
+	}
+
+	private ArrayList<String> extractCsvTitlesFromEntity(IEntity mdekEntity, String entityAlias) {
+		ArrayList<String> titles = new ArrayList<String>();
+
+		String prefix = "";
+		if (entityAlias != null && entityAlias.trim().length() > 0) {
+			prefix = entityAlias + ".";			
+		}
+
+		PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(mdekEntity.getClass());
+		for (PropertyDescriptor prop : props) {
+			// skip collections !
+			if (!skipProperty(prop)) {
+				titles.add(prefix + prop.getDisplayName());
+			}
+		}
+
+		return titles;
+	}
+	
+	private boolean skipProperty(PropertyDescriptor prop) {
+		boolean skip = false;
+		
+		Class propClass = prop.getPropertyType();
+		if (propClass == null) {
+			skip = true;
+		} else if (Collection.class.isAssignableFrom(propClass)) {
+			skip = true;
+		} else if (IEntity.class.isAssignableFrom(propClass)) {
+			skip = true;
+		} else if (propClass.isAssignableFrom(Serializable.class)) {
+			// id is serializabel !
+			// or compare property name ?
+			skip = false;
+		} else if (propClass.isAssignableFrom(Class.class)) {
+			skip = true;
+		}
+		
+		return skip;
+	}
+
+	private List<String> extractCsvValues(Object hit) {
 		ArrayList<String> values = new ArrayList<String>();
 		
 		if (hit instanceof Object[]) {
@@ -275,16 +343,36 @@ public class HQLDaoHibernate
 			appendCsvValues(hit, values);
 		}
 		
-		return values.toArray(new String[values.size()]);
+		return values;
 	}
 
 	private void appendCsvValues(Object resultObject, ArrayList<String> values) {
 		if (resultObject instanceof IEntity) {
-			// TODO: IEntity fuer CSV aufloesen !
-			values.add("" + resultObject);
+			values.addAll(extractCsvValuesFromEntity((IEntity) resultObject));
 			
 		} else {
 			values.add("" + resultObject);
 		}
+	}
+
+	private ArrayList<String> extractCsvValuesFromEntity(IEntity mdekEntity) {
+		ArrayList<String> values = new ArrayList<String>();
+
+		PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(mdekEntity.getClass());
+		for (PropertyDescriptor prop : props) {
+			// skip collections !
+			if (!skipProperty(prop)) {
+				String val;
+				try {
+					val = "" + prop.getReadMethod().invoke(mdekEntity);
+				} catch (Exception ex) {
+					LOG.error("Problems getting IEntity value via reflection !", ex);
+					val = "!!! Error !!!";
+				}
+				values.add(val);
+			}
+		}
+
+		return values;
 	}
 }
