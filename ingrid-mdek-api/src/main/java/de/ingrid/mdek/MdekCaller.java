@@ -279,16 +279,20 @@ public class MdekCaller implements IMdekCaller {
 	}
 
 	private void debugDocument(String title, IngridDocument doc) {
-		if (!log.isDebugEnabled()) {
+		if (!log.isInfoEnabled()) {
 			return;
 		}
 
 		if (title != null) {
-			log.debug(title);
+			log.info(title);
 		}
 		if (doc != null) {
 			int docLength = doc.toString().length();
-			log.debug("IngridDocument length: " + docLength);
+			log.info("IngridDocument length: " + docLength);
+		}
+
+		if (!log.isDebugEnabled()) {
+			return;
 		}
 
 		log.debug("IngridDocument: " + doc);			

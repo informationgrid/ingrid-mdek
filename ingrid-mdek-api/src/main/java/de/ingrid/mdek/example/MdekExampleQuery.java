@@ -209,7 +209,8 @@ class MdekExampleQueryThread extends Thread {
 		queryHQL(hqlQueryAddr2, 0, 10);
 
 		System.out.println("\n----- search objects by hql query -----");
-		String hqlQueryObj1 = "from ObjectNode oNode " +
+		String hqlQueryObj1 = "select distinct oNode, obj.objName, termVal.term " +
+			"from ObjectNode oNode " +
 			"inner join oNode.t01ObjectWork obj " +
 			"inner join obj.searchtermObjs termObjs " +
 			"inner join termObjs.searchtermValue termVal " +
@@ -219,6 +220,9 @@ class MdekExampleQueryThread extends Thread {
 			"order by obj.objClass, obj.objName";
 		queryHQL(hqlQueryObj1, 0, 10);
 
+		String hqlQueryObj2 = "from ObjectNode";
+		queryHQL(hqlQueryObj2, 0, 10);
+
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
@@ -227,14 +231,19 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n----- search addresses by hql to csv -----");
 		queryHQLToCsv(hqlQueryAddr1);
-		queryHQLToCsv(hqlQueryAddr2);
-
-		String hqlQueryAddr3 =
-			"select distinct addr " +
+		String hqlQueryAddr3 = "select distinct addr " +
 			"from AddressNode as aNode " +
 			"inner join aNode.t02AddressWork addr " +
 			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 		queryHQLToCsv(hqlQueryAddr3);
+
+		System.out.println("\n----- search objects by hql to csv -----");
+		queryHQLToCsv(hqlQueryObj1);
+		String hqlQueryObj3 = "select distinct obj " +
+			"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork obj " +
+			"order by obj.objClass, obj.objName";
+		queryHQLToCsv(hqlQueryObj3);
 
 		// ===================================
 
