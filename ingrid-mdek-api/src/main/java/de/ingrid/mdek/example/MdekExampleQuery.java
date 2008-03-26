@@ -229,6 +229,8 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println(" HQL QUERY TO CSV");
 		System.out.println("=========================");
 
+		doFullOutput = false;
+
 		System.out.println("\n----- search addresses by hql to csv -----");
 		queryHQLToCsv(hqlQueryAddr1);
 		String hqlQueryAddr3 = "select distinct addr " +
@@ -244,6 +246,8 @@ class MdekExampleQueryThread extends Thread {
 			"inner join oNode.t01ObjectWork obj " +
 			"order by obj.objClass, obj.objName";
 		queryHQLToCsv(hqlQueryObj3);
+
+		doFullOutput = true;
 
 		// ===================================
 
@@ -433,9 +437,19 @@ class MdekExampleQueryThread extends Thread {
 		if (result != null) {
 			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
 			System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
-			String csvResult = result.getString(MdekKeys.CSV_RESULT);
-			System.out.println(csvResult);
-			
+			String csvResult = result.getString(MdekKeys.CSV_RESULT);			
+			if (doFullOutput) {
+				System.out.println(csvResult);
+			} else {
+				if (csvResult.length() > 5000) {
+					int endIndex = csvResult.indexOf("\n", 3000);
+					System.out.print(csvResult.substring(0, endIndex));					
+					System.out.println("...");					
+				} else {
+					System.out.println(csvResult);					
+				}
+			}
+
 		} else {
 			handleError(response);
 		}
