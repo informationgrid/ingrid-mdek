@@ -13,6 +13,7 @@
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="SEARCH_MAP" type="SEARCH_MAP"/>
+			<xs:element name="USER_MANAGEMENT_MAP" type="USER_MANAGEMENT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -30,6 +31,7 @@
 			<xs:element name="RUNNING_JOBS_INFO_MAP" type="RUNNING_JOBS_INFO_MAP"/>
 			<xs:element name="SEARCH_RESULT_MAP" type="SEARCH_RESULT_MAP"/>
 			<xs:element name="VERSION_MAP" type="VERSION_MAP"/>
+			<xs:element name="USER_MANAGEMENT_RESULT_MAP" type="USER_MANAGEMENT_RESULT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -191,6 +193,10 @@
 			<!-- query: thesaurus term -->
 			<xs:element ref="term-sns-id"/>
 		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="USER_MANAGEMENT_MAP">
+		<xs:all>
+		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -237,7 +243,26 @@
 			<xs:element name="server.build.timestamp" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>	
-	
+	<xs:complexType name="USER_MANAGEMENT_RESULT_MAP">
+		<xs:all>
+			<xs:element name="groups" type="GROUP_LIST"/>
+		</xs:all>
+	</xs:complexType>	
+	<xs:complexType name="GROUP_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GROUP_MAP">
+		<xs:all>
+			<xs:element ref="id"/>
+			<xs:element ref="name"/>
+			<xs:element ref="date-of-creation"/>
+			<xs:element ref="date-of-last-modification"/>
+			<xs:element ref="mod-uuid"/>
+		</xs:all>
+	</xs:complexType>	
+
 	<xs:complexType name="RUNNING_JOBS_INFO_MAP">
 		<xs:all>
 			<xs:element name="runningjob-description" type="xs:string"/>

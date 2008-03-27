@@ -16,9 +16,15 @@
          <list>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/IdcGroup.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/IdcUser.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/IdcUserPermission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/PermissionObj.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>
@@ -65,9 +71,15 @@
       <property name="entityCacheStrategies">
          <props>
             <prop key="de.ingrid.mdek.services.persistence.db.model.AddressNode">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUserPermission">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectComment">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectNode">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectReference">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.Permission">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionAddr">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionObj">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SearchtermObj">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SearchtermValue">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialRefValue">read-write</prop>
@@ -108,6 +120,10 @@
       </property>
       <property name="collectionCacheStrategies">
          <props>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup.permissionAddrs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup.permissionObjs">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser.idcUsers">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser.idcUserPermissions">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoKeycs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoScales">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoSpatialReps">read-write</prop>

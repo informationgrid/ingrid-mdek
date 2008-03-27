@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.MdekClient;
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekKeysUser;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerUser;
 import de.ingrid.mdek.caller.MdekCaller;
@@ -157,7 +160,9 @@ class MdekExampleUserThread extends Thread {
 
 		// ===================================
 
-		// MAIN FUNCTIONALITY
+		// -----------------------------------
+		System.out.println("\n----- groups -----");
+		getGroups();
 
 		// ===================================
 
@@ -167,6 +172,50 @@ class MdekExampleUserThread extends Thread {
 		System.out.println("EXAMPLE EXECUTION TIME: " + exampleNeededTime + " ms");
 
 		isRunning = false;
+	}
+
+	private IngridDocument getGroups() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getGroups ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerUser.getGroups(plugId, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysUser.GROUPS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				doFullOutput = false;
+				debugGroupDoc((IngridDocument)o);
+				doFullOutput = true;
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private void debugGroupDoc(IngridDocument g) {
+		System.out.println("Group: " + g.get(MdekKeys.ID) 
+			+ ", " + g.get(MdekKeys.NAME)
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", modUuid: " + g.get(MdekKeys.MOD_UUID)
+		);
+
+		if (!doFullOutput) {
+			return;
+		}
+
+		System.out.println("  " + g);
 	}
 
 	private void handleError(IngridDocument response) {

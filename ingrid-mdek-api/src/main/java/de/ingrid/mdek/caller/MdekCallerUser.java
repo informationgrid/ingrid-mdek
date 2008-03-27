@@ -1,6 +1,11 @@
 package de.ingrid.mdek.caller;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
+
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.utils.IngridDocument;
 
 
 
@@ -47,5 +52,15 @@ public class MdekCallerUser extends MdekCallerAbstract implements IMdekCallerUse
 		}
 
 		return myInstance;
+	}
+
+	public IngridDocument getGroups(String plugId,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+
+		List jobMethods = mdekCaller.setUpJobMethod("getGroups", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_USER_JOB_ID, jobMethods);
 	}
 }

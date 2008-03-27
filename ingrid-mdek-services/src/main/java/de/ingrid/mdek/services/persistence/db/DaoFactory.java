@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
@@ -19,6 +20,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.AddressNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.HQLDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcGroupDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcUserDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.ObjectNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.PermissionDaoHibernate;
@@ -125,6 +127,10 @@ public class DaoFactory implements IDaoFactory {
 
     public IIdcUserDao getIdcUserDao() {
         return new IdcUserDaoHibernate(_sessionFactory);
+    }
+
+    public IIdcGroupDao getIdcGroupDao() {
+        return new IdcGroupDaoHibernate(_sessionFactory);
     }
     
     public IGenericDao<IEntity> getDao(Class clazz) {
