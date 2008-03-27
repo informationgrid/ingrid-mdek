@@ -6,22 +6,22 @@ import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.EnumUtil;
-import de.ingrid.mdek.IMdekCaller;
-import de.ingrid.mdek.IMdekCallerAddress;
-import de.ingrid.mdek.IMdekCallerObject;
-import de.ingrid.mdek.IMdekCallerQuery;
-import de.ingrid.mdek.MdekCaller;
-import de.ingrid.mdek.MdekCallerAddress;
-import de.ingrid.mdek.MdekCallerObject;
-import de.ingrid.mdek.MdekCallerQuery;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCaller;
+import de.ingrid.mdek.caller.IMdekCallerAddress;
+import de.ingrid.mdek.caller.IMdekCallerObject;
+import de.ingrid.mdek.caller.IMdekCallerQuery;
+import de.ingrid.mdek.caller.MdekCaller;
+import de.ingrid.mdek.caller.MdekCallerAddress;
+import de.ingrid.mdek.caller.MdekCallerObject;
+import de.ingrid.mdek.caller.MdekCallerQuery;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQuery {

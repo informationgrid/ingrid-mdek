@@ -1,4 +1,4 @@
-package de.ingrid.mdek;
+package de.ingrid.mdek.caller;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +12,9 @@ import net.sf.ehcache.Element;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekClient;
+import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;

@@ -1,4 +1,4 @@
-package de.ingrid.mdek;
+package de.ingrid.mdek.caller;
 
 import de.ingrid.utils.IngridDocument;
 

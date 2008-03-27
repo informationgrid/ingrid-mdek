@@ -1,4 +1,4 @@
-package de.ingrid.mdek;
+package de.ingrid.mdek.caller;
 
 /**
  * Abstract interface for all mdek job callers implementing common methods and data types.

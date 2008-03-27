@@ -1,7 +1,8 @@
-package de.ingrid.mdek;
+package de.ingrid.mdek.caller;
 
 import java.util.List;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.utils.IngridDocument;
 
 

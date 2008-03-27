@@ -8,20 +8,20 @@ import java.util.Map;
 import java.util.Set;
 
 import de.ingrid.mdek.EnumUtil;
-import de.ingrid.mdek.IMdekCaller;
-import de.ingrid.mdek.IMdekCallerCatalog;
-import de.ingrid.mdek.IMdekCallerObject;
-import de.ingrid.mdek.MdekCaller;
-import de.ingrid.mdek.MdekCallerCatalog;
-import de.ingrid.mdek.MdekCallerObject;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCaller;
+import de.ingrid.mdek.caller.IMdekCallerCatalog;
+import de.ingrid.mdek.caller.IMdekCallerObject;
+import de.ingrid.mdek.caller.MdekCaller;
+import de.ingrid.mdek.caller.MdekCallerCatalog;
+import de.ingrid.mdek.caller.MdekCallerObject;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleObject {
