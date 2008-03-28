@@ -7,15 +7,15 @@ import java.util.Map;
 
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekKeysUser;
+import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.caller.IMdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerUser;
+import de.ingrid.mdek.caller.IMdekCallerSecurity;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.MdekCallerUser;
+import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.utils.IngridDocument;
 
-public class MdekExampleUser {
+public class MdekExampleSecurity {
 
 	private static Map readParameters(String[] args) {
 		Map<String, String> argumentMap = new HashMap<String, String>();
@@ -54,7 +54,7 @@ public class MdekExampleUser {
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 
 		// and our specific job caller !
-		MdekCallerUser.initialize(mdekCaller);
+		MdekCallerSecurity.initialize(mdekCaller);
 
 		// wait till iPlug registered !
 		System.out.println("\n###### waiting for mdek iPlug to register ######\n");
@@ -72,10 +72,10 @@ public class MdekExampleUser {
 
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
-		MdekExampleUserThread[] threads = new MdekExampleUserThread[numThreads];
+		MdekExampleSecurityThread[] threads = new MdekExampleSecurityThread[numThreads];
 		// initialize
 		for (int i=0; i<numThreads; i++) {
-			threads[i] = new MdekExampleUserThread(i+1);
+			threads[i] = new MdekExampleSecurityThread(i+1);
 		}
 		// fire
 		for (int i=0; i<numThreads; i++) {
@@ -115,7 +115,7 @@ public class MdekExampleUser {
 	}
 }
 
-class MdekExampleUserThread extends Thread {
+class MdekExampleSecurityThread extends Thread {
 
 	private int threadNumber;
 	String myUserId;
@@ -127,15 +127,15 @@ class MdekExampleUserThread extends Thread {
 	private String plugId = "mdek-iplug-idctest";
 	
 	private IMdekCaller mdekCaller;
-	private IMdekCallerUser mdekCallerUser;
+	private IMdekCallerSecurity mdekCallerSecurity;
 
-	public MdekExampleUserThread(int threadNumber)
+	public MdekExampleSecurityThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
 		myUserId = "EXAMPLE_USER_" + threadNumber;
 		
 		mdekCaller = MdekCaller.getInstance();
-		mdekCallerUser = MdekCallerUser.getInstance();
+		mdekCallerSecurity = MdekCallerSecurity.getInstance();
 	}
 
 	public void run() {
@@ -183,13 +183,13 @@ class MdekExampleUserThread extends Thread {
 
 		System.out.println("\n###### INVOKE getGroups ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerUser.getGroups(plugId, myUserId);
+		response = mdekCallerSecurity.getGroups(plugId, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			List l = (List) result.get(MdekKeysUser.GROUPS);
+			List l = (List) result.get(MdekKeysSecurity.GROUPS);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
 			for (Object o : l) {
 				doFullOutput = false;

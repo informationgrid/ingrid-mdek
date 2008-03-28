@@ -11,17 +11,17 @@ import de.ingrid.utils.IngridDocument;
 
 /**
  * Singleton implementing methods to communicate with the Mdek backend
- * concerning USER MANAGEMENT (permissions etc.).
+ * concerning SECURITY / USER MANAGEMENT.
  */
-public class MdekCallerUser extends MdekCallerAbstract implements IMdekCallerUser {
+public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCallerSecurity {
 
-	private final static Logger log = Logger.getLogger(MdekCallerUser.class);
+	private final static Logger log = Logger.getLogger(MdekCallerSecurity.class);
 
-	private static MdekCallerUser myInstance;
+	private static MdekCallerSecurity myInstance;
 	private IMdekCaller mdekCaller;
 
 	// Jobs
-	private static String MDEK_IDC_USER_JOB_ID = "de.ingrid.mdek.job.MdekIdcUserJob";
+	private static String MDEK_IDC_SECURITY_JOB_ID = "de.ingrid.mdek.job.MdekIdcSecurityJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -30,15 +30,15 @@ public class MdekCallerUser extends MdekCallerAbstract implements IMdekCallerUse
 	 */
 	public static synchronized void initialize(IMdekCaller mdekCaller) {
 		if (myInstance == null) {
-			myInstance = new MdekCallerUser(mdekCaller);
+			myInstance = new MdekCallerSecurity(mdekCaller);
 		} else {
 			log.warn("WARNING! MULTIPLE INITIALIZATION OF " + myInstance.getClass() + " !");
 		}
 	}
 
-    private MdekCallerUser() {}
+    private MdekCallerSecurity() {}
 
-    private MdekCallerUser(IMdekCaller mdekCaller) {
+    private MdekCallerSecurity(IMdekCaller mdekCaller) {
     	this.mdekCaller = mdekCaller;
     }
 
@@ -46,9 +46,9 @@ public class MdekCallerUser extends MdekCallerAbstract implements IMdekCallerUse
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !
 	 * @return null if not initialized
 	 */
-	public static MdekCallerUser getInstance() {
+	public static MdekCallerSecurity getInstance() {
 		if (myInstance == null) {
-			log.warn("WARNING! INITIALIZE " + MdekCallerUser.class + " instance before fetching it !!! we return null !!!");
+			log.warn("WARNING! INITIALIZE " + MdekCallerSecurity.class + " instance before fetching it !!! we return null !!!");
 		}
 
 		return myInstance;
@@ -61,6 +61,6 @@ public class MdekCallerUser extends MdekCallerAbstract implements IMdekCallerUse
 
 		List jobMethods = mdekCaller.setUpJobMethod("getGroups", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_USER_JOB_ID, jobMethods);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
 }

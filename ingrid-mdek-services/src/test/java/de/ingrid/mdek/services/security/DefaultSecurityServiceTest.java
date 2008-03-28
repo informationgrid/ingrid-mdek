@@ -16,7 +16,7 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 
-public class DefaultPermissionServiceTest extends AbstractPermissionTest {
+public class DefaultSecurityServiceTest extends AbstractSecurityTest {
 
 	IdcUser user = null;
 
@@ -149,7 +149,7 @@ public class DefaultPermissionServiceTest extends AbstractPermissionTest {
 	@Test
 	public void testHasPermissionFor() {
 
-		IPermissionService s = getPermissionService();
+		ISecurityService s = getSecurityService();
 		this.beginNewTransaction();
 
 		s.grantAddressPermission(user.getAddrUuid(), PermissionFactory.getSingleAddressPermissionTemplate("address-uuid-1"));

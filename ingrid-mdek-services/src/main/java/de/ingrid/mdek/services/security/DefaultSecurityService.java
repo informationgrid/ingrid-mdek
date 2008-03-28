@@ -27,13 +27,13 @@ import de.ingrid.mdek.services.persistence.hdd.HddPersistenceService;
  * @author Administrator
  * 
  */
-public class DefaultPermissionService implements IPermissionService {
+public class DefaultSecurityService implements ISecurityService {
 
 	private static final Logger LOG = Logger.getLogger(HddPersistenceService.class);
 
 	protected DaoFactory daoFactory;
 
-	public DefaultPermissionService(DaoFactory daoFactory) {
+	public DefaultSecurityService(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
 

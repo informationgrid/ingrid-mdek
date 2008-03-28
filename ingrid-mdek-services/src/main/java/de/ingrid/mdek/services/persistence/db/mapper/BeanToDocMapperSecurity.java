@@ -8,23 +8,23 @@ import de.ingrid.utils.IngridDocument;
 
 /**
  * Singleton encapsulating methods for mapping hibernate beans to ingrid documents
- * concerning USER MANAGEMENT.
+ * concerning SECURITY / USER MANAGEMENT.
  */
-public class BeanToDocMapperUser implements IMapper {
+public class BeanToDocMapperSecurity implements IMapper {
 
-	private static final Logger LOG = Logger.getLogger(BeanToDocMapperUser.class);
+	private static final Logger LOG = Logger.getLogger(BeanToDocMapperSecurity.class);
 
-	private static BeanToDocMapperUser myInstance;
+	private static BeanToDocMapperSecurity myInstance;
 
 	/** Get The Singleton */
-	public static synchronized BeanToDocMapperUser getInstance() {
+	public static synchronized BeanToDocMapperSecurity getInstance() {
 		if (myInstance == null) {
-	        myInstance = new BeanToDocMapperUser();
+	        myInstance = new BeanToDocMapperSecurity();
 	      }
 		return myInstance;
 	}
 
-	private BeanToDocMapperUser() {}
+	private BeanToDocMapperSecurity() {}
 
 	/**
 	 * Transfer data of passed bean to passed doc.

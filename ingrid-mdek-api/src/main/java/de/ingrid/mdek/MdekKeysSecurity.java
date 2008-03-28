@@ -2,9 +2,9 @@ package de.ingrid.mdek;
 
 /**
  * Class encapsulating static keys for accessing data in IngridDocument
- * concerning USER MANAGEMENT.
+ * concerning SECURITY / USER MANAGEMENT.
  */
-public class MdekKeysUser extends MdekKeys {
+public class MdekKeysSecurity extends MdekKeys {
 
 	// GROUP(S)
     // --------

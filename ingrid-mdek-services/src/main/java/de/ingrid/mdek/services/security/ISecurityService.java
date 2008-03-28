@@ -6,13 +6,13 @@ package de.ingrid.mdek.services.security;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 
 /**
- * Describes all public methods of the permission service.
+ * Describes all public methods of the security service.
  * 
  * 
  * @author joachim
  * 
  */
-public interface IPermissionService {
+public interface ISecurityService {
 
 	/**
 	 * Checks an object defined by uuid for a EntityPermission permission for a

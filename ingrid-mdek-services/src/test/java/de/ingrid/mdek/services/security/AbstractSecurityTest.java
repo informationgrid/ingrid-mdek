@@ -8,7 +8,7 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 
-public abstract class AbstractPermissionTest extends AbstractDependencyInjectionSpringContextTests {
+public abstract class AbstractSecurityTest extends AbstractDependencyInjectionSpringContextTests {
 
 	private static final String APPLICATION_CONTEXT_XML = "security-services-test.xml";
 
@@ -18,7 +18,7 @@ public abstract class AbstractPermissionTest extends AbstractDependencyInjection
 	private SessionFactory _sessionFactory;
 
 	// spring bean
-	private IPermissionService _permissionService;
+	private ISecurityService _securityService;
 
 	@Override
 	protected void onSetUp() throws Exception {
@@ -51,12 +51,12 @@ public abstract class AbstractPermissionTest extends AbstractDependencyInjection
 		return _sessionFactory;
 	}
 
-	public void setPermissionService(IPermissionService permissionService) {
-		_permissionService = permissionService;
+	public void setSecurityService(ISecurityService securityService) {
+		_securityService = securityService;
 	}
 
-	public IPermissionService getPermissionService() {
-		return _permissionService;
+	public ISecurityService getSecurityService() {
+		return _securityService;
 	}
 
 	protected void commitTransaction() {
