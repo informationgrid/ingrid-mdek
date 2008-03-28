@@ -165,13 +165,11 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 	}
 
 	public IngridDocument moveAddress(String plugId, String fromUuid, String toUuid,
-			boolean performSubtreeCheck,
 			boolean moveToFreeAddress,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
 		jobParams.put(MdekKeys.TO_UUID, toUuid);
-		jobParams.put(MdekKeys.REQUESTINFO_PERFORM_CHECK, performSubtreeCheck);
 		jobParams.put(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS, moveToFreeAddress);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("moveAddress", jobParams);

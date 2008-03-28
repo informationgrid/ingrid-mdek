@@ -470,7 +470,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
 
-			Boolean performSubtreeCheck = (Boolean) params.get(MdekKeys.REQUESTINFO_PERFORM_CHECK);
 			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
@@ -480,7 +479,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// PERFORM CHECKS
 
 			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid);
-			checkAddressNodesForMove(fromNode, toUuid, performSubtreeCheck, targetIsFreeAddress);
+			checkAddressNodesForMove(fromNode, toUuid, targetIsFreeAddress);
 
 			// CHECKS OK, proceed
 
@@ -692,9 +691,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/**
 	 * Creates a copy of the given AddressNode and adds it under the given parent.
-	 * Also copies whole subtree dependent from passed flag.
-	 * NOTICE: also supports copy of a tree to one of its subnodes !
-	 * Copied nodes are already Persisted !!!
+	 * Copies ONLY working version and IGNORES published version !
+	 * Copied nodes are already Persisted !!!<br>
+	 * NOTICE: Also copies whole subtree dependent from passed flag.<br>
+	 * NOTICE: also supports copy of a tree to one of its subnodes !<br>
 	 * @param sourceUuid copy this node
 	 * @param newParentUuid under this node
 	 * @param copySubtree including subtree or not
@@ -1028,7 +1028,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
 	 */
 	private void checkAddressNodesForMove(AddressNode fromNode, String toUuid,
-		Boolean performSubtreeCheck,
 		Boolean moveToFreeAddress)
 	{
 		if (fromNode == null) {
@@ -1036,24 +1035,19 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}		
 		String fromUuid = fromNode.getAddrUuid();
 
-		// nodes to move must be published !
-		T02Address fromAddr = fromNode.getT02AddressPublished();
-		if (fromAddr == null) {
-			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
-		}
-		AddressType fromType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, fromAddr.getAdrType());
-
-		// perform additional check whether subnodes have working copies -> not allowed
-		if (performSubtreeCheck) {
-			IngridDocument checkResult = checkAddressSubTreeWorkingCopies(fromUuid);
-			if ((Boolean) checkResult.get(MdekKeys.RESULTINFO_HAS_WORKING_COPY)) {
-				throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_WORKING_COPIES));
-			}
-		}
+		T02Address fromAddrWork = fromNode.getT02AddressWork();
+		AddressType fromTypeWork = EnumUtil.mapDatabaseToEnumConst(AddressType.class, fromAddrWork.getAdrType());
 
 		// NOTICE: top node when toUuid = null
-		AddressType toType = null;
+		AddressType toTypeWork = null;
 		if (toUuid != null) {
+			// move to a new NODE -> NO TOP NODE
+
+			// free address has to be top node !
+			if (moveToFreeAddress) {
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
+			}
+
 			// load toNode
 			AddressNode toNode = daoAddressNode.loadByUuid(toUuid);
 			if (toNode == null) {
@@ -1061,8 +1055,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}		
 
 			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
-			T02Address toAddr = toNode.getT02AddressPublished();
-			if (toAddr == null) {
+			T02Address toAddrPub = toNode.getT02AddressPublished();
+			if (toAddrPub == null) {
 				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 
@@ -1071,22 +1065,22 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				throw new MdekException(new MdekError(MdekErrorType.TARGET_IS_SUBNODE_OF_SOURCE));				
 			}
 
-			// rudimentary checks
+			T02Address toAddrWork = toNode.getT02AddressWork();
+			toTypeWork = EnumUtil.mapDatabaseToEnumConst(AddressType.class, toAddrWork.getAdrType());
+
+		} else {
+			// move to TOP !
+			
 			if (moveToFreeAddress) {
-				if (toNode != null) {
-					throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
-				}
+				// free address has no subnodes !
 				if (hasChildren(fromNode)) {
 					throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
 				}
 			}
-
-			toType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
-					toNode.getT02AddressWork().getAdrType());
 		}
 
 		// check address type conflicts !
-		checkAddressTypes(toType, fromType, moveToFreeAddress, false);
+		checkAddressTypes(toTypeWork, fromTypeWork, moveToFreeAddress, false);
 	}
 
 	/** Checks whether subtree of address has working copies. */
@@ -1200,6 +1194,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
 			}
 			if (isFinalState) {
+				// final state frei not possible. FREI is copied/moved !
 				if (childType == AddressType.FREI) {
 					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
@@ -1208,6 +1203,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			if (parentType == null) {
 				// TOP ADDRESS
 
+				// only institutions at top
 				if (childType != AddressType.INSTITUTION) {
 					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
 				}
@@ -1215,11 +1211,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				// NO TOP ADDRESS
 
 				if (parentType == AddressType.EINHEIT) {
+					// only einheit and person below einheit
 					if (childType == AddressType.INSTITUTION) {
 						throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 					}
 
 				} else if (parentType == AddressType.PERSON) {
+					// nothing below person
 					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
 			}
@@ -1227,8 +1225,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Process the moved tree, meaning set modification date and user in every node ...
-	 * NOTICE: There should be NO Working Copies in Tree Nodes (checked before move) 
+	 * Process the moved tree, meaning set modification date and user in every node (in
+	 * published and working version !).
 	 * @param rootNode root node of moved tree
 	 * @param modUuid user uuid to set as modification user
 	 * @return doc containing additional info (number processed nodes ...)
@@ -1248,19 +1246,34 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		while (!stack.isEmpty()) {
 			AddressNode node = stack.pop();
 			
-			// Publish Version should be set ! (No work version allowed, when check was performed before)
-			T02Address addr = node.getT02AddressPublished();
-			if (addr == null) {
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
+			// set modification time and user (in both versions when present)
+			T02Address addrWork = node.getT02AddressWork();
+			T02Address addrPub = node.getT02AddressPublished();
+			
+			// check whether we have a different published version !
+			boolean hasDifferentPublishedVersion = false;
+			if (addrPub != null && addrWork.getId() != addrPub.getId()) {
+				hasDifferentPublishedVersion = true;
 			}
-			addr.setModTime(currentTime);
-			// TODO: set modUuid
-//			addr.setModUuid(modUuid);
+
+			// change mod time and uuid
+			addrWork.setModTime(currentTime);
+			addrWork.setModUuid(modUuid);
+			if (hasDifferentPublishedVersion) {
+				addrPub.setModTime(currentTime);
+				addrPub.setModUuid(modUuid);				
+			}
 
 			// handle move from/to "free address"
-			processMovedOrCopiedAddress(addr, isNowFreeAddress);
+			processMovedOrCopiedAddress(addrWork, isNowFreeAddress);
+			if (hasDifferentPublishedVersion) {
+				processMovedOrCopiedAddress(addrPub, isNowFreeAddress);
+			}
 
-			daoT02Address.makePersistent(addr);
+			daoT02Address.makePersistent(addrWork);
+			if (hasDifferentPublishedVersion) {
+				daoT02Address.makePersistent(addrPub);
+			}
 			numberOfProcessedNodes++;
 
 			List<AddressNode> subNodes = daoAddressNode.getSubAddresses(node.getAddrUuid(), true);
@@ -1280,7 +1293,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Change the passed address concerning type, institution after copied/moved to new location. 
+	 * Change the passed address concerning type, institution after copied/moved to new location.<br>
+	 * NOTICE: changes working and published version !
 	 * @param a the address as it was moved/copied
 	 * @param isNowFreeAddress new location is free address
 	 */
@@ -1288,15 +1302,23 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		boolean wasFreeAddress = AddressType.FREI.getDbValue().equals(a.getAdrType());
 		if (isNowFreeAddress) {
 			if (!wasFreeAddress) {
+
+				// MOVE NON FREE ADDRESS TO FREE ADDRESS !
+
+				// only Persons can be moved to free addresses !
 				AddressType formerType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.getAdrType());
 				if (formerType != AddressType.PERSON) {
 					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
 				}
+
 				a.setAdrType(AddressType.FREI.getDbValue());
 				a.setInstitution("");
 			}
 		} else {
 			if (wasFreeAddress) {
+
+				// MOVE FREE ADDRESS TO NON FREE ADDRESS !
+
 				a.setAdrType(AddressType.PERSON.getDbValue());
 				a.setInstitution("");
 			}				

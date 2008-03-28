@@ -137,10 +137,6 @@ public interface IMdekCallerAddress {
 	 * @param plugId which mdek server (iplug)
 	 * @param fromUuid uuid of node to move (this one will be removed from its parent)
 	 * @param toUuid uuid of new parent
-	 * @param performSubtreeCheck
-	 * 	true=check whether move is possible (e.g. subtree contains no working copies)<br>
-	 * 	false=no check, move subtree as it is -> <code>checkAddressSubTree</code> should be
-	 * 	called before moving !
 	 * @param moveToFreeAddress<br>
 	 * 		true=moved node is free address, parent has to be null<br>
 	 * 		false=moved node is NOT free address, parent can be set, when parent is null
@@ -148,7 +144,7 @@ public interface IMdekCallerAddress {
 	 * @return response containing result: map containing info (number of moved addresses ...)
 	 */
 	IngridDocument moveAddress(String plugId, String fromUuid, String toUuid,
-			boolean performSubtreeCheck, boolean moveToFreeAddress,
+			boolean moveToFreeAddress,
 			String userId);
 
 	/**

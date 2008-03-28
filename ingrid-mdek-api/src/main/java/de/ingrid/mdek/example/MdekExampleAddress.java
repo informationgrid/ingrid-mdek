@@ -303,28 +303,61 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("MOVE TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n\n----- move new address WITHOUT CHECK WORKING COPIES -> ERROR (not published yet) -----");
+		System.out.println("\n----- create NEW TOP ADDRESS -----");
+		IngridDocument newTopAddrDoc = new IngridDocument();
+		newTopAddrDoc = getInitialAddress(newTopAddrDoc);
+		newTopAddrDoc.put(MdekKeys.ORGANISATION, "TEST TOP ADDRESS");
+		newTopAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
+		newTopAddrDoc = storeAddressWithoutManipulation(newTopAddrDoc, true);
+		// uuid created !
+		String newTopAddrUuid = (String) newTopAddrDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n\n----- move new address to NEW TOP ADDRESS -> ERROR (new parent not published) -----");
 		String oldParentUuid = parentUuid;
-		String newParentUuid = topUuid;
-		moveAddress(newAddrUuid, newParentUuid, false, false);
-		System.out.println("\n----- publish new address -> create pub version/delete work version -----");
-		publishAddress(aMapNew, true);
-		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
-		moveAddress(newAddrUuid, newParentUuid, true, false);
-		System.out.println("\n----- check new address subtree -----");
+		String newParentUuid = newTopAddrUuid;
+		moveAddress(newAddrUuid, newParentUuid, false);
+		System.out.println("\n----- publish NEW TOP ADDRESS -----");
+		publishAddress(newTopAddrDoc, true);
+		System.out.println("\n\n----- move new address again -> SUCCESS (new parent published) -----");
+		moveAddress(newAddrUuid, newParentUuid, false);
+		System.out.println("\n----- check new address subtree -> has working copies ! (move worked !) -----");
 		checkAddressSubTree(newAddrUuid);
-		System.out.println("\n\n----- delete subtree -----");
-		deleteAddress(subtreeCopyUuid, true);
-		System.out.println("\n\n----- move new address again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
-		moveAddress(newAddrUuid, newParentUuid, true, false);
 		System.out.println("\n----- verify old parent subaddresses (cut) -----");
 		fetchSubAddresses(oldParentUuid);
 		System.out.println("\n----- verify new parent subaddresses (added) -----");
 		fetchSubAddresses(newParentUuid);
+
+		System.out.println("\n----- move new Address to FREE Address ! -> ERROR: has subtree -----");
+		moveAddress(newAddrUuid, null, true);
+		System.out.println("\n\n----- delete subtree of new Address -----");
+		deleteAddress(subtreeCopyUuid, true);
+		System.out.println("\n----- move new Address to FREE Address ! -> ERROR (type conflicts -> EINHEIT) -----");
+		moveAddress(newAddrUuid, null, true);
+		System.out.println("\n----- publish new Address as PERSON -----");
+		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.PERSON.getDbValue());
+		publishAddress(aMapNew, true);
+		System.out.println("\n----- store changed working copy of new Address -----");
+		aMapNew.put(MdekKeys.GIVEN_NAME, "changed!!!!!!!!");
+		storeAddressWithoutManipulation(aMapNew, true);
+		System.out.println("\n----- move new Address to FREE Address ! -> SUCCESS -----");
+		moveAddress(newAddrUuid, null, true);
+		doFullOutput = false;
+		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		doFullOutput = true;
+		System.out.println("\n----- move new FREE Address to NOT FREE Address ! -> SUCCESS -----");
+		newParentUuid = topUuid;
+		moveAddress(newAddrUuid, newParentUuid, false);
+		doFullOutput = false;
+		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		doFullOutput = true;
+
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
-		moveAddress(topUuid, parentUuid, false, false);
+		moveAddress(topUuid, parentUuid, false);
 		System.out.println("\n----- do \"forbidden\" move (institution to free address) -----");
-		moveAddress(topUuid, null, false, true);
+		moveAddress(topUuid, null, true);
+
+		System.out.println("\n----- delete NEW TOP ADDRESS -----");
+		deleteAddress(newTopAddrUuid, true);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -419,11 +452,11 @@ class MdekExampleAddressThread extends Thread {
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
 		publishAddress(newPubDoc, true);
 
-		System.out.println("\n----- refetch FULL PARENT and change organization, IS UNPUBLISHED !!! -----");
+		System.out.println("\n----- refetch FULL PARENT, UNPUBLISHED !  -----");
 		aMap = fetchAddress(pub1Uuid, Quantity.DETAIL_ENTITY);
-		aMap.put(MdekKeys.ORGANISATION, "COPIED, Orga CHANGED and PUBLISHED: " + aMap.get(MdekKeys.ORGANISATION));	
 
-		System.out.println("\n----- and publish PARENT -> create pub version/delete work version -----");
+		System.out.println("\n----- change organization and publish PARENT -> create pub version/\"delete\" work version -----");
+		aMap.put(MdekKeys.ORGANISATION, "COPIED, Orga CHANGED and PUBLISHED: " + aMap.get(MdekKeys.ORGANISATION));	
 		publishAddress(aMap, true);
 
 		System.out.println("\n----- NOW CREATE AND PUBLISH OF NEW CHILD POSSIBLE -> create pub version, set also as work version -----");
@@ -996,7 +1029,7 @@ class MdekExampleAddressThread extends Thread {
 	}
 
 	private IngridDocument moveAddress(String fromUuid, String toUuid,
-			boolean performSubtreeCheck, boolean moveToFreeAddress)
+			boolean moveToFreeAddress)
 	{
 		long startTime;
 		long endTime;
@@ -1004,12 +1037,10 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		String performCheckInfo = (performSubtreeCheck) ? "WITH CHECK SUBTREE (working copies)" 
-			: "WITHOUT CHECK SUBTREE (working copies)";
 		String moveToFreeAddressInfo = (moveToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
-		System.out.println("\n###### INVOKE moveAddress " + performCheckInfo + moveToFreeAddressInfo + " ######");
+		System.out.println("\n###### INVOKE moveAddress " + moveToFreeAddressInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, performSubtreeCheck, moveToFreeAddress, myUserId);
+		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, moveToFreeAddress, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
