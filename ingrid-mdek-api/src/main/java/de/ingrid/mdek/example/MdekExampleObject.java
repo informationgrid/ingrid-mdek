@@ -481,29 +481,58 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("MOVE TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n\n----- move new object WITHOUT CHECK WORKING COPIES -> ERROR (not published yet) -----");
-		String oldParentUuid = objUuid;
-		String newParentUuid = parentUuid;
-		moveObject(newObjUuid, newParentUuid, false, false);
-		System.out.println("\n----- publish new object -> create pub version/delete work version -----");
-		publishObject(oMapNew, true, true);
-		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> ERROR (subtree has working copies) -----");
-		moveObject(newObjUuid, newParentUuid, true, false);
-		System.out.println("\n----- check new object subtree -----");
-		checkObjectSubTree(newObjUuid);
-		System.out.println("\n\n----- delete subtree -----");
-		deleteObject(subtreeCopyUuid, true);
-		System.out.println("\n\n----- move new object again WITH CHECK WORKING COPIES -> SUCCESS (published AND no working copies ) -----");
-		moveObject(newObjUuid, newParentUuid, true, false);
-		System.out.println("\n----- verify old parent subobjects (cut) -----");
-		fetchSubObjects(oldParentUuid);
-		System.out.println("\n----- verify new parent subobjects (added) -----");
-		fetchSubObjects(newParentUuid);
-		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
-		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false, false);
+		System.out.println("\n----- create NEW TOP OBJECT (parent to move to) = INTRANET -----");
+		IngridDocument newTopObjDoc = new IngridDocument();
+		newTopObjDoc = getInitialObject(newTopObjDoc);
+		newTopObjDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT");
+		newTopObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		newTopObjDoc = storeObjectWithoutManipulation(newTopObjDoc, true);
+		// uuid created !
+		String newTopObjUuid = (String) newTopObjDoc.get(MdekKeys.UUID);
 
-// Make another move to check via DB whether mod_time was updated for all moved nodes
-//		moveObject(objUuid, null, true);
+		System.out.println("\n\n----- move new object to NEW TOP OBJECT -> ERROR (new parent not published) -----");
+		String oldParentUuid = objUuid;
+		String newParentUuid = newTopObjUuid;
+		moveObject(newObjUuid, newParentUuid, true);
+		System.out.println("\n----- publish NEW TOP OBJECT -----");
+		publishObject(newTopObjDoc, true, true);
+		System.out.println("\n----- set new object to INTERNET and publish (pub=work=INTERNET) -----");
+		newObjDoc = fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
+		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		newObjDoc = publishObject(newObjDoc, true, false);
+		System.out.println("\n----- create work version -> change title (pub=INTERNET, work=INTERNET) -----");
+		newObjDoc.put(MdekKeys.TITLE, "TEST CHANGED!!! TITLE");
+		newObjDoc = storeObjectWithoutManipulation(newObjDoc, true);
+		System.out.println("\n\n----- move new object to TOP INTRANET -> ERROR (pub=INTERNET) -----");
+		moveObject(newObjUuid, newParentUuid, false);
+		System.out.println("\n\n----- move new object again with forcePubCondition -> SUCCESS: but only pubVersion was adapted (pub=INTRANET, work=INTERNET !) -----");
+		moveObject(newObjUuid, newParentUuid, true);
+		System.out.println("\n\n----- verify moved object (work=INTERNET although parent=INTRANET) -----");
+		newObjDoc = fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n\n----- publish moved object -> ERROR: parent INTRANET -----");
+		publishObject(newObjDoc, true, false);
+		System.out.println("\n----- change moved object to INTRANET and store -----");
+		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		newObjDoc = storeObjectWithoutManipulation(newObjDoc, true);
+		System.out.println("\n\n----- publish again -> SUCCESS (pub=work=INTRANET) ALTHOUGH subNodes are INTERNET, but these are NOT published yet !!! -----");
+		publishObject(newObjDoc, true, false);
+		System.out.println("\n----- check new address subtree -> has working copies ! (move worked !) -----");
+		checkObjectSubTree(newObjUuid);
+		System.out.println("\n----- verify old parent subaddresses (cut) -----");
+		fetchSubObjects(oldParentUuid);
+		System.out.println("\n----- verify new parent subaddresses (added) -----");
+		fetchSubObjects(newParentUuid);
+
+		System.out.println("\n\n----- delete subtree of new Object -----");
+		deleteObject(subtreeCopyUuid, true);
+		System.out.println("\n\n----- move new object again to new parent -----");
+		newParentUuid = parentUuid;
+		moveObject(newObjUuid, newParentUuid, false);
+		System.out.println("\n----- delete NEW TOP ADDRESS -----");
+		deleteObject(newTopObjUuid, true);
+
+		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
+		moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false);
 
 		// -----------------------------------
 		// object: delete new object and verify deletion
@@ -688,10 +717,10 @@ class MdekExampleObjectThread extends Thread {
 		fetchObject(moveChild2Uuid, Quantity.DETAIL_ENTITY);
 		
 		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> ERROR -----");
-		moveObject(moveUuid, parentUuid, false, false);
+		moveObject(moveUuid, parentUuid, false);
 
 		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> SUCCESS -----");
-		moveObject(moveUuid, parentUuid, false, true);
+		moveObject(moveUuid, parentUuid, true);
 
 		System.out.println("\n----- verify -> all moved nodes INTRANET ! -----");
 		IngridDocument oMapMoved1 = fetchObject(moveUuid, Quantity.DETAIL_ENTITY);
@@ -702,7 +731,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n===== Clean Up ! back to old state of DB ! =====");
 		
 		System.out.println("\n----- move node back to top -----");
-		moveObject(moveUuid, null, false, true);
+		moveObject(moveUuid, null, true);
 
 		System.out.println("\n----- and change all moved nodes back to INTERNET -> SUCCESS -----");
 		oMapMoved1.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
@@ -1498,7 +1527,6 @@ class MdekExampleObjectThread extends Thread {
 	}
 
 	private IngridDocument moveObject(String fromUuid, String toUuid,
-			boolean performSubtreeCheck,
 			boolean forcePublicationCondition) {
 		long startTime;
 		long endTime;
@@ -1506,13 +1534,11 @@ class MdekExampleObjectThread extends Thread {
 		IngridDocument response;
 		IngridDocument result;
 
-		String performCheckInfo = (performSubtreeCheck) ? "WITH CHECK SUBTREE (working copies) " 
-			: "WITHOUT CHECK SUBTREE (working copies) ";
 		String forcePubCondInfo = (forcePublicationCondition) ? "WITH FORCE publicationCondition" 
 				: "WITHOUT FORCE publicationCondition";
-		System.out.println("\n###### INVOKE moveObject " + performCheckInfo + forcePubCondInfo + "######");
+		System.out.println("\n###### INVOKE moveObject " + forcePubCondInfo + "######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.moveObject(plugId, fromUuid, toUuid, performSubtreeCheck, forcePublicationCondition, myUserId);
+		response = mdekCallerObject.moveObject(plugId, fromUuid, toUuid, forcePublicationCondition, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
