@@ -46,8 +46,15 @@ public interface IObjectNodeDao
 	/** Load parent of object with given uuid. Returns null if top node.  */
 	ObjectNode getParent(String uuid);
 
-	/** Fetch Objects referencing the object with the passed uuid */
-	List<ObjectNode> getObjectReferencesFrom(String uuid);
+	/** Fetch Objects referencing the object with the passed uuid.
+	 * @param uuid 
+	 * @return 2 List of objects:<br>
+	 * - index 0: list of objects referencing the given uuid in their working version
+	 * 		(which might equal the published version)<br>
+	 * - index 1: list of objects referencing the given uuid ONLY in their published
+	 * 		version (and NOT in their work version -> ref deleted in work version)
+	 */
+	List<ObjectNode>[] getObjectReferencesFrom(String uuid);
 
 	/** Query total number of objects associated with passed thesaurus term.
 	 * @param termSnsId sns id of thesaurus term

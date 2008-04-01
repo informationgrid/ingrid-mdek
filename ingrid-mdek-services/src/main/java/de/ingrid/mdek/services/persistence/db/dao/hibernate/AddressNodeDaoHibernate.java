@@ -151,18 +151,66 @@ public class AddressNodeDaoHibernate
 		return aN;
 	}
 
-	public List<ObjectNode> getObjectReferencesFrom(String addressUuid) {
+	public List<ObjectNode>[] getObjectReferencesFrom(String addressUuid) {
 		Session session = getSession();
-		// fetch all at once (one select with outer joins)
-		List<ObjectNode> oNodes = session.createQuery(
-			"select distinct oNode from ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork oWork " +
-			"left join fetch oWork.t012ObjAdrs objAdr " +
-			"where objAdr.adrUuid = ?")
-			.setString(0, addressUuid)
-			.list();
 
-		return oNodes;
+		// first select all references from working copies (node ids)
+		// NOTICE: working copy == published one if not "in Bearbeitung" !
+		List<Long> nodeIdsWork = session.createQuery(
+				"select distinct oNode.id from ObjectNode oNode " +
+				"left join oNode.t01ObjectWork oWork " +
+				"left join oWork.t012ObjAdrs objAdr " +
+				"where objAdr.adrUuid = ?")
+				.setString(0, addressUuid)
+				.list();
+
+		// then select all references from published ones
+		List<Long> nodeIdsPub = session.createQuery(
+				"select distinct oNode.id from ObjectNode oNode " +
+				"left join oNode.t01ObjectPublished oPub " +
+				"left join oPub.t012ObjAdrs objAdr " +
+				"where objAdr.adrUuid = ?")
+				.setString(0, addressUuid)
+				.list();
+
+		// then remove all published references also contained in working references.
+		// we get the ones only in published version, meaning they were deleted in the
+		// working copies !
+		List<Long> nodeIdsPubOnly = new ArrayList<Long>();
+		for (Long idPub : nodeIdsPub) {
+			if (!nodeIdsWork.contains(idPub)) {
+				nodeIdsPubOnly.add(idPub);
+			}
+		}
+		
+		// fetch all "nodes with work references"
+		List<ObjectNode> nodesWork = new ArrayList<ObjectNode>();
+		if (nodeIdsWork.size() > 0) {
+			nodesWork = session.createQuery(
+					"select distinct oNode from ObjectNode oNode " +
+					"left join fetch oNode.t01ObjectWork oWork " +
+					"where oNode.id in (:idList)")
+					.setParameterList("idList", nodeIdsWork)
+					.list();			
+		}
+
+		// fetch all "nodes with only publish references"
+		List<ObjectNode> nodesPubOnly = new ArrayList<ObjectNode>();
+		if (nodeIdsPubOnly.size() > 0) {
+			nodesPubOnly = session.createQuery(
+					"select distinct oNode from ObjectNode oNode " +
+					"left join fetch oNode.t01ObjectPublished oPub " +
+					"where oNode.id in (:idList)")
+					.setParameterList("idList", nodeIdsPubOnly)
+					.list();			
+		}
+		
+		List<ObjectNode>[] retObjects = new List[] {
+			nodesWork,
+			nodesPubOnly
+		};
+
+		return retObjects;
 	}
 
 	public AddressNode getParent(String uuid) {

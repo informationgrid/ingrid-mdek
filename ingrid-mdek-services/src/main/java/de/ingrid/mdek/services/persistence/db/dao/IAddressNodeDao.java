@@ -55,8 +55,15 @@ public interface IAddressNodeDao
 	/** Load parent of address with given uuid. Returns null if top node.  */
 	AddressNode getParent(String uuid);
 
-	/** Fetch Objects referencing the address with the passed uuid */
-	List<ObjectNode> getObjectReferencesFrom(String addressUuid);
+	/** Fetch Objects referencing the address with the passed uuid.
+	 * @param addressUuid
+	 * @return 2 List of objects:<br>
+	 * - index 0: list of objects referencing the given uuid in their working version
+	 * 		(which might equal the published version)<br>
+	 * - index 1: list of objects referencing the given uuid ONLY in their published
+	 * 		version (and NOT in their work version -> ref deleted in work version)
+	 */
+	List<ObjectNode>[] getObjectReferencesFrom(String addressUuid);
 
 	/** Get total number of addresses matching the given search parameters.
 	 * @param searchParams search parameters (Key:Value pairs in map)

@@ -155,8 +155,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 	
 		// then get "external" data (objects referencing the given object ...)
-		List<ObjectNode> oNs = daoObjectNode.getObjectReferencesFrom(uuid);
-		beanToDocMapper.mapObjectReferencesFrom(oNs, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(uuid);
+		beanToDocMapper.mapObjectReferencesFrom(fromLists, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 		
 		// get parent data
 		ObjectNode pNode = daoObjectNode.getParent(uuid);
@@ -979,6 +979,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/**
 	 * Checks whether object node is referenced by other objects.
+	 * All references to node are taken into account, no matter whether from a working or a published version !
 	 * @param oNode object to check
 	 * @param forceDeleteReferences<br>
 	 * 		true=delete all references found, no exception<br>
@@ -1026,6 +1027,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/**
 	 * Checks whether object tree contains nodes referenced by other objects.
+	 * All references to a node are taken into account, no matter whether from a working or a published version !
 	 * @param topNode top node of tree to check (included in check !)
 	 * @param forceDeleteReferences<br>
 	 * 		true=delete all references found, no exception<br>

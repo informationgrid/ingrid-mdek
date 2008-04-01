@@ -386,13 +386,17 @@ public class BeanToDocMapper implements IMapper {
 
 	/**
 	 * Transfer From-objectReferences (passed beans) to passed doc.
-	 * @param oNodesFrom from object references
+	 * @param oNodesFrom "from-object references" in an array of lists !
+	 * - index 0: list of objects referencing the given uuid in their working version
+	 * 		(which might equal the published version)<br>
+	 * - index 1: list of objects referencing the given uuid ONLY in their published
+	 * 		version (and NOT in their work version -> ref deleted in work version)
 	 * @param uuidObjectTo uuid of to object
 	 * @param objectDoc doc where data is added
 	 * @param howMuch how much data should be added
 	 * @return doc containing additional data.
 	 */
-	public IngridDocument mapObjectReferencesFrom(List<ObjectNode> oNodesFrom,
+	public IngridDocument mapObjectReferencesFrom(List<ObjectNode> oNodesFrom[],
 			String uuidObjectTo,
 			IngridDocument objectDoc,
 			MappingQuantity howMuch) {
@@ -400,22 +404,39 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> oRefFromList = new ArrayList<IngridDocument>(oNodesFrom.size());
-		for (ObjectNode oN : oNodesFrom) {
-			IngridDocument oFromDoc = new IngridDocument();
-			T01Object oFrom = oN.getT01ObjectWork();
-			mapT01Object(oFrom, oFromDoc, howMuch);
-			// also map relation info
-			Set<ObjectReference> oRefs = oFrom.getObjectReferences();
-			for (ObjectReference oRef : oRefs) {
-				if (uuidObjectTo.equals(oRef.getObjToUuid())) {
-					mapObjectReference(oRef, oFromDoc);
-					break;
+		int INDEX_REFS_WORK = 0;
+		int INDEX_REFS_PUBLISHED = 1;
+
+		List<IngridDocument> docLists[] = new ArrayList[oNodesFrom.length];
+		for (int i=0; i < oNodesFrom.length; i++) {
+			List<ObjectNode> nodeList = oNodesFrom[i];
+			List<IngridDocument> docList = new ArrayList<IngridDocument>(nodeList.size());
+			// map every node to IngridDoc
+			for (ObjectNode oN : nodeList) {
+				IngridDocument oFromDoc = new IngridDocument();
+				// map working or published version, dependent from list !
+				T01Object oFrom;
+				if (i == INDEX_REFS_PUBLISHED) {
+					oFrom = oN.getT01ObjectPublished();
+				} else {
+					oFrom = oN.getT01ObjectWork();
 				}
+				mapT01Object(oFrom, oFromDoc, howMuch);
+				// also map relation info
+				Set<ObjectReference> oRefs = oFrom.getObjectReferences();
+				for (ObjectReference oRef : oRefs) {
+					if (uuidObjectTo.equals(oRef.getObjToUuid())) {
+						mapObjectReference(oRef, oFromDoc);
+						break;
+					}
+				}
+				docList.add(oFromDoc);
 			}
-			oRefFromList.add(oFromDoc);
+			docLists[i] = docList;
 		}
-		objectDoc.put(MdekKeys.OBJ_REFERENCES_FROM, oRefFromList);
+
+		objectDoc.put(MdekKeys.OBJ_REFERENCES_FROM, docLists[INDEX_REFS_WORK]);
+		objectDoc.put(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY, docLists[INDEX_REFS_PUBLISHED]);
 
 		return objectDoc;
 	}

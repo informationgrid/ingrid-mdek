@@ -342,6 +342,46 @@ class MdekExampleObjectThread extends Thread {
 			return;
 		}
 
+// -----------------------------------
+
+		// Change Request 22, see INGRIDII-127
+		// deliver "from object references" from published versions which were deleted in working version
+		// ------------------
+		String objFrom = "BCB59E87-17A0-11D5-8835-0060084A4596";
+		String objTo = "05438065-16C3-11D5-8834-0060084A4596";
+
+		System.out.println("\n----- load object from -----");
+		oMap = fetchObject(objFrom, Quantity.DETAIL_ENTITY);
+		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.OBJ_REFERENCES_TO);
+		// find object to remove
+		IngridDocument docToRemove = null;
+		for (IngridDocument doc : docList) {
+			if (objTo.equals(doc.get(MdekKeys.UUID))) {
+				docToRemove = doc;
+				break;
+			}
+		}
+
+		System.out.println("\n----- remove reference to object / store working version -----");
+		if (docToRemove != null) {
+			docList.remove(docToRemove);
+		}
+		storeObjectWithoutManipulation(oMap, true);
+
+		System.out.println("\n----- load referenced object -> has reference from published object only ! -----");
+		fetchObject(objTo, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		deleteObjectWorkingCopy(objFrom, true);
+
+		System.out.println("\n----- verify from object, no working version and references to object again ! -----");
+		fetchObject(objFrom, Quantity.DETAIL_ENTITY);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
 // ====================
 */
 		// -----------------------------------
@@ -1718,6 +1758,13 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc.get(MdekKeys.UUID) + ": " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Objects FROM (Querverweise) ONLY PUBLISHED !!!: " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc.get(MdekKeys.UUID) + ": " + doc);								
 			}			

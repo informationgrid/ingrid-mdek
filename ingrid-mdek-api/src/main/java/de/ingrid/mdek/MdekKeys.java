@@ -106,6 +106,9 @@ public class MdekKeys {
     public final static String ADR_ENTITIES = "adrEntities";
     /** Value: List of IngridDocs */
     public final static String OBJ_REFERENCES_FROM = "objReferencesFrom";
+    /** References only from published version (deleted in work version !)
+     * Value: List of IngridDocs */
+    public final static String OBJ_REFERENCES_FROM_PUBLISHED_ONLY = "objReferencesFromPublishedOnly";
     /** Value: List of IngridDocs */
     public final static String OBJ_REFERENCES_TO = "objReferencesTo";
     /** Value: List of IngridDocs */

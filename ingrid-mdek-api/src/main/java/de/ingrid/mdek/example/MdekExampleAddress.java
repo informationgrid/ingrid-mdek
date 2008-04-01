@@ -153,21 +153,61 @@ class MdekExampleAddressThread extends Thread {
 		// FREE ADDRESS
 		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
 
+		boolean alwaysTrue = true;
+
 // ====================
 // test single stuff
 // -----------------------------------
 /*
-		boolean alwaysTrue = true;
-
 		// add functionality !
 
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
-*/
-// ====================
 
+// -----------------------------------
+
+		// Change Request 22, see INGRIDII-127
+		// deliver "from object references" from published versions which were deleted in working version
+		// ------------------
+		String objFrom = "012CBA09-87F6-11D4-89C7-C1AAE1E96727";
+		String adrTo = "012CBA0B-87F6-11D4-89C7-C1AAE1E96727";
+
+		System.out.println("\n----- load object from -----");
+		IngridDocument oMap = fetchObject(objFrom, Quantity.DETAIL_ENTITY);
+		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.ADR_REFERENCES_TO);
+		// find address to remove
+		IngridDocument docToRemove = null;
+		for (IngridDocument doc : docList) {
+			if (adrTo.equals(doc.get(MdekKeys.UUID))) {
+				docToRemove = doc;
+				break;
+			}
+		}
+
+		System.out.println("\n----- remove reference to address / store working version -----");
+		if (docToRemove != null) {
+			docList.remove(docToRemove);
+		}
+		storeObjectWithoutManipulation(oMap, true);
+
+		System.out.println("\n----- load referenced address -> has reference from published object only ! -----");
+		fetchAddress(adrTo, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		deleteObjectWorkingCopy(objFrom, true);
+
+		System.out.println("\n----- verify from object, no working version and references to address again ! -----");
+		fetchObject(objFrom, Quantity.DETAIL_ENTITY);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// ====================
+*/
 		// ===================================
 		System.out.println("\n----- backend version -----");
 		getVersion();;
@@ -648,6 +688,30 @@ class MdekExampleAddressThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument fetchObject(String uuid, Quantity howMuch) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE fetchObject (Details) ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.fetchObject(plugId, uuid, howMuch, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugObjectDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	private IngridDocument storeObjectWithoutManipulation(IngridDocument oDocIn,
 			boolean refetchObject) {
 		// check whether we have an object
@@ -679,6 +743,33 @@ class MdekExampleAddressThread extends Thread {
 			handleError(response);
 		}
 
+		return result;
+	}
+
+	private IngridDocument deleteObjectWorkingCopy(String uuid,
+			boolean forceDeleteReferences) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
+		} else {
+			handleError(response);
+		}
+		
 		return result;
 	}
 
@@ -1164,6 +1255,13 @@ class MdekExampleAddressThread extends Thread {
 		docList = (List<IngridDocument>) a.get(MdekKeys.OBJ_REFERENCES_FROM);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) a.get(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Objects FROM (Querverweise) ONLY PUBLISHED !!!: " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
