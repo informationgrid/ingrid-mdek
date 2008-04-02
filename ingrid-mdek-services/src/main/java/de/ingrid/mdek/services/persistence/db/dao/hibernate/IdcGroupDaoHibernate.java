@@ -21,6 +21,21 @@ public class IdcGroupDaoHibernate
 		super(factory, IdcGroup.class);
 	}
 
+	public IdcGroup loadByName(String name) {
+		if (name == null) {
+			return null;
+		}
+
+		Session session = getSession();
+
+		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
+			"where grp.name = ?")
+			.setString(0, name)
+			.uniqueResult();
+		
+		return grp;
+	}
+
 	public List<IdcGroup> getGroups() {
 		Session session = getSession();
 		String query = "select group from IdcGroup group " +
@@ -29,5 +44,22 @@ public class IdcGroupDaoHibernate
 		List<IdcGroup> groups = session.createQuery(query).list();
 
 		return groups;
+	}
+
+	public IdcGroup getGroupDetails(String name) {
+		Session session = getSession();
+
+		// fetch all at once (one select with outer joins)
+		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
+//			"left join fetch aNode.t02AddressWork aWork " +
+//			"left join fetch aWork.t021Communications aComm " +
+
+// TODO: FETCH ASSOCIATIONS
+
+			"where grp.name = ?")
+			.setString(0, name)
+			.uniqueResult();
+
+		return grp;
 	}
 }

@@ -2,7 +2,7 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.utils.IngridDocument;
 
@@ -38,14 +38,14 @@ public class BeanToDocMapperSecurity implements IMapper {
 		}
 
 		// also ID, just to track ID in test suite !
-		groupDoc.put(MdekKeys.ID, group.getId());
-		groupDoc.put(MdekKeys.NAME, group.getName());
+		groupDoc.put(MdekKeysSecurity.ID, group.getId());
+		groupDoc.put(MdekKeysSecurity.NAME, group.getName());
 		
 		if (howMuch == MappingQuantity.DETAIL_ENTITY) 
 		{
-			groupDoc.put(MdekKeys.DATE_OF_CREATION, group.getCreateTime());
-			groupDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, group.getModTime());
-			groupDoc.put(MdekKeys.MOD_UUID, group.getModUuid());
+			groupDoc.put(MdekKeysSecurity.DATE_OF_CREATION, group.getCreateTime());
+			groupDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, group.getModTime());
+			groupDoc.put(MdekKeysSecurity.MOD_UUID, group.getModUuid());
 
 			// map associations
 			// TODO: map associations in IdcGroup

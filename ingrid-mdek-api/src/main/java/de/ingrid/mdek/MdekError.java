@@ -15,6 +15,10 @@ public class MdekError implements Serializable {
 	public enum MdekErrorType implements IMdekEnum {
 		/** Another user changed an entity in between */
 		ENTITY_CHANGED_IN_BETWEEN("1"),
+		/** e.g. unique entity should be created but already exists (e.g. group with a given name) */
+		ENTITY_ALREADY_EXISTS("2"),
+		/** generic error if entity wasn't found (e.g. security group etc.) */
+		ENTITY_NOT_FOUND("3"),
 
 		/** No user set in request ! */
 		USER_ID_NOT_SET("5"),

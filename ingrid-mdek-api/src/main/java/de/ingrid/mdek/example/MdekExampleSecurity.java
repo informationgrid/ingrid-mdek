@@ -161,8 +161,18 @@ class MdekExampleSecurityThread extends Thread {
 		// ===================================
 
 		// -----------------------------------
-		System.out.println("\n----- groups -----");
+		System.out.println("\n----- get all groups -----");
 		getGroups();
+
+		System.out.println("\n----- create new group -----");
+		String nameNewGrp = "TEST-Gruppe Neu";
+
+		IngridDocument newDoc = new IngridDocument();
+		newDoc.put(MdekKeys.NAME, nameNewGrp);
+		newDoc = createGroup(newDoc, true);
+
+		System.out.println("\n----- get group details -----");
+		newDoc = getGroupDetails(nameNewGrp);
 
 		// ===================================
 
@@ -196,6 +206,60 @@ class MdekExampleSecurityThread extends Thread {
 				debugGroupDoc((IngridDocument)o);
 				doFullOutput = true;
 			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument createGroup(IngridDocument docIn,
+			boolean refetch) {
+		if (docIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE createGroup " + refetchInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.createGroup(plugId, docIn, refetch, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugGroupDoc(result);
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument getGroupDetails(String grpName) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getGroupDetails ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getGroupDetails(plugId, grpName, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugGroupDoc(result);
 		} else {
 			handleError(response);
 		}
