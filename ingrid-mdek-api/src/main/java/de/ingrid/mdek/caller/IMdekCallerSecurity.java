@@ -35,9 +35,23 @@ public interface IMdekCallerSecurity {
 	 * @param refetchAfterStore immediately refetch group after store (true)
 	 * 		or just store without refetching (false)
 	 * @return response containing result: detailed map representation of created
-	 * 		group when refetching otherwise map containing basic data (name)  
+	 * 		group when refetching otherwise map containing basic data (generated id)  
 	 */
 	IngridDocument createGroup(String plugId,
+			IngridDocument groupDoc,
+			boolean refetchAfterStore,
+			String userId);
+
+	/**
+	 * Store an existing group. NOTICE: Passed groupDoc must contain ID of group ! 
+	 * @param plugId which mdek server (iplug)
+	 * @param groupDoc map representation of group, CONTAINS ALSO ID OF GROUP !
+	 * @param refetchAfterStore immediately refetch group after store (true)
+	 * 		or just store without refetching (false)
+	 * @return response containing result: detailed map representation of
+	 * 		group when refetching otherwise map containing basic data (id)  
+	 */
+	IngridDocument storeGroup(String plugId,
 			IngridDocument groupDoc,
 			boolean refetchAfterStore,
 			String userId);

@@ -165,14 +165,19 @@ class MdekExampleSecurityThread extends Thread {
 		getGroups();
 
 		System.out.println("\n----- create new group -----");
-		String nameNewGrp = "TEST-Gruppe Neu";
+		String nameNewGrp = "neue TEST-Gruppe";
 
-		IngridDocument newDoc = new IngridDocument();
-		newDoc.put(MdekKeys.NAME, nameNewGrp);
-		newDoc = createGroup(newDoc, true);
+		IngridDocument doc = new IngridDocument();
+		doc.put(MdekKeys.NAME, nameNewGrp);
+		doc = createGroup(doc, true);
 
 		System.out.println("\n----- get group details -----");
-		newDoc = getGroupDetails(nameNewGrp);
+		doc = getGroupDetails(nameNewGrp);
+		
+		System.out.println("\n----- change name of group and store -----");
+		nameNewGrp += " CHANGED!";
+		doc.put(MdekKeys.NAME, nameNewGrp);
+		doc = storeGroup(doc, true);
 
 		// ===================================
 
@@ -229,6 +234,36 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n###### INVOKE createGroup " + refetchInfo + " ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerSecurity.createGroup(plugId, docIn, refetch, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugGroupDoc(result);
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument storeGroup(IngridDocument docIn,
+			boolean refetch) {
+		if (docIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeGroup " + refetchInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.storeGroup(plugId, docIn, refetch, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

@@ -81,4 +81,14 @@ public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCalle
 		List jobMethods = mdekCaller.setUpJobMethod("createGroup", groupDoc);
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument storeGroup(String plugId,
+			IngridDocument groupDoc,
+			boolean refetchAfterStore,
+			String userId) {
+		groupDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		groupDoc.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("storeGroup", groupDoc);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+	}
 }

@@ -132,13 +132,66 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoIdcGroup.commitTransaction();
 
-			// return basic data (id was generated, but we don't need id)
+			// return basic data
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.NAME, name);
+			result.put(MdekKeys.ID, newGrp.getId());
 
 			if (refetchAfterStore) {
 				daoIdcGroup.beginTransaction();
 				result = getGroupDetails(name);
+				daoIdcGroup.commitTransaction();
+			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			daoIdcGroup.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument storeGroup(IngridDocument gDocIn) {
+		String userId = getCurrentUserId(gDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			daoIdcGroup.beginTransaction();
+			String currentTime = MdekUtils.dateToTimestamp(new Date());
+
+			Long grpId = (Long) gDocIn.get(MdekKeys.ID);
+			Boolean refetchAfterStore = (Boolean) gDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+
+			// set common data to transfer !
+			gDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+			gDocIn.put(MdekKeys.MOD_UUID, userId);
+			
+			// exception if group not existing
+			IdcGroup grp = daoIdcGroup.getGroupDetails(grpId);
+			if (grp == null) {
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+			}
+			
+			docToBeanMapperSecurity.mapIdcGroup(gDocIn, grp, MappingQuantity.DETAIL_ENTITY);
+			daoIdcGroup.makePersistent(grp);
+			
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
+			daoIdcGroup.commitTransaction();
+
+			// return basic data
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.ID, grp.getId());
+
+			if (refetchAfterStore) {
+				daoIdcGroup.beginTransaction();
+				result = getGroupDetails(grp.getName());
 				daoIdcGroup.commitTransaction();
 			}
 			

@@ -62,4 +62,21 @@ public class IdcGroupDaoHibernate
 
 		return grp;
 	}
+
+	public IdcGroup getGroupDetails(Long groupId) {
+		Session session = getSession();
+
+		// fetch all at once (one select with outer joins)
+		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
+//			"left join fetch aNode.t02AddressWork aWork " +
+//			"left join fetch aWork.t021Communications aComm " +
+
+// TODO: FETCH ASSOCIATIONS
+
+			"where grp.id = ?")
+			.setLong(0, groupId)
+			.uniqueResult();
+
+		return grp;
+	}
 }

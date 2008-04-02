@@ -16,8 +16,8 @@ public interface IIdcGroupDao extends IGenericDao<IdcGroup> {
 	/** Get ALL groups. */
 	List<IdcGroup> getGroups();
 
-	/** Fetches group with given name containing all detailed group data. */
+	/** Get group with given name containing all prefetched group data. */
 	IdcGroup getGroupDetails(String name);
-
-
+	/** Get group with given id containing all prefetched group data. */
+	IdcGroup getGroupDetails(Long id);
 }

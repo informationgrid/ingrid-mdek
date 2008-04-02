@@ -37,7 +37,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 			return groupDoc;
 		}
 
-		// also ID, just to track ID in test suite !
+		// also ID, is needed when name is changed !!!
 		groupDoc.put(MdekKeysSecurity.ID, group.getId());
 		groupDoc.put(MdekKeysSecurity.NAME, group.getName());
 		
