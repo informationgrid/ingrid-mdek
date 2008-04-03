@@ -67,12 +67,12 @@ public abstract class MdekIdcJob extends MdekJob {
 		try {
 			daoSysList.beginTransaction();
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
-			Integer langCode = (Integer) params.get(MdekKeys.LANGUAGE_CODE);
+			String language = params.getString(MdekKeys.LANGUAGE);
 
 			IngridDocument result = new IngridDocument();
 			
 			for (int lstId : lstIds) {
-				List<SysList> list = daoSysList.getSysList(lstId, langCode);
+				List<SysList> list = daoSysList.getSysList(lstId, language);
 				
 				IngridDocument listDoc = new IngridDocument();
 				beanToDocMapper.mapSysList(list, lstId, listDoc);

@@ -1263,17 +1263,18 @@ public class BeanToDocMapper implements IMapper {
 		return resultDoc;
 	}
 	
-	public IngridDocument mapT03Catalog(T03Catalogue obj, IngridDocument resultDoc) {
-		resultDoc.put(MdekKeys.UUID, obj.getCatUuid());
-		resultDoc.put(MdekKeys.CATALOG_NAME, obj.getCatName());
-		resultDoc.put(MdekKeys.COUNTRY, obj.getCountryCode());
-		resultDoc.put(MdekKeys.WORKFLOW_CONTROL, obj.getWorkflowControl());
-		resultDoc.put(MdekKeys.EXPIRY_DURATION, obj.getExpiryDuration());
-		resultDoc.put(MdekKeys.DATE_OF_CREATION, obj.getCreateTime());
-		resultDoc.put(MdekKeys.MOD_UUID, obj.getModUuid());
-		resultDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, obj.getModTime());
+	public IngridDocument mapT03Catalog(T03Catalogue cat, IngridDocument resultDoc) {
+		resultDoc.put(MdekKeys.UUID, cat.getCatUuid());
+		resultDoc.put(MdekKeys.CATALOG_NAME, cat.getCatName());
+		resultDoc.put(MdekKeys.COUNTRY, cat.getCountryCode());
+		resultDoc.put(MdekKeys.LANGUAGE, cat.getLanguageCode());
+		resultDoc.put(MdekKeys.WORKFLOW_CONTROL, cat.getWorkflowControl());
+		resultDoc.put(MdekKeys.EXPIRY_DURATION, cat.getExpiryDuration());
+		resultDoc.put(MdekKeys.DATE_OF_CREATION, cat.getCreateTime());
+		resultDoc.put(MdekKeys.MOD_UUID, cat.getModUuid());
+		resultDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, cat.getModTime());
 
-		SpatialRefValue spRefVal = obj.getSpatialRefValue();
+		SpatialRefValue spRefVal = cat.getSpatialRefValue();
 		if (spRefVal != null) {
 			IngridDocument locDoc = new IngridDocument();
 			mapSpatialRefValue(spRefVal, locDoc);

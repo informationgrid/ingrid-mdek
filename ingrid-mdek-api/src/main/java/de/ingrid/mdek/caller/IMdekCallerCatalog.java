@@ -14,11 +14,11 @@ public interface IMdekCallerCatalog {
 	 * Pass null as languageCode if it doesn't matter.
 	 * @param plugId which mdek server (iplug)
 	 * @param listIds which lists
-	 * @param languageCode which language
+	 * @param language which language
 	 * @param userId calling user
 	 * @return response containing result: map with list entries
 	 */
-	IngridDocument getSysLists(String plugId, Integer[] listIds, Integer languageCode,
+	IngridDocument getSysLists(String plugId, Integer[] listIds, String language,
 			String userId);
 
 	/**

@@ -16,6 +16,8 @@
          <list>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/FullIndexAddr.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/FullIndexObj.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/IdcGroup.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/IdcUser.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/IdcUserPermission.hbm.xml</value>

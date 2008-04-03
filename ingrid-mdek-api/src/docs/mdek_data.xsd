@@ -9,7 +9,7 @@
 			<xs:element name="from-uuid" type="UUID"/>
 			<xs:element name="to-uuid" type="UUID"/>
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
-			<xs:element name="language-code" type="xs:integer"/>
+			<xs:element name="language" type="xs:string"/>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="REQUEST_SEARCH_MAP" type="REQUEST_SEARCH_MAP"/>
@@ -654,6 +654,7 @@
 			<xs:element ref="uuid"/>
 			<xs:element name="catalog-name" type="xs:string"/>
 			<xs:element name="country" type="xs:string"/>
+			<xs:element name="language" type="xs:string"/>
 			<xs:element name="workflow-control" type="xs:string"/>
 			<xs:element name="expiry-duration" type="xs:integer"/>
 			<xs:element name="catalog-location" type="LOCATION_MAP"/>

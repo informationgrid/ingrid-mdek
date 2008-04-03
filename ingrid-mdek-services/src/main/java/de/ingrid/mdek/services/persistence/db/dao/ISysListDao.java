@@ -16,6 +16,6 @@ public interface ISysListDao
 	extends IGenericDao<SysList> {
 
 	/** returns all entries of the given list ordered by entry id */
-	List<SysList> getSysList(int lstId, Integer languageCode);
+	List<SysList> getSysList(int lstId, String language);
 
 }

@@ -50,6 +50,11 @@
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
 
+      <set name="fullIndexObjs" table="full_index_obj" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="FullIndexObj" not-found="ignore"/>
+      </set>
       <set name="objectComments" table="object_comment" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>

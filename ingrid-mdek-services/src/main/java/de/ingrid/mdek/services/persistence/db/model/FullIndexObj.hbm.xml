@@ -2,17 +2,14 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="SysList" table="sys_list">
+   <class name="FullIndexObj" table="full_index_obj">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
       <version name="version" type="integer" column="version"/>
-      <property name="lstId" type="integer" column="lst_id"/>
-      <property name="entryId" type="integer" column="entry_id"/>
-      <property name="langId" type="string" column="lang_id"/>
-      <property name="name" type="string" column="name"/>
-      <property name="description" type="string" column="description"/>
-      <property name="maintainable" type="integer" column="maintainable"/>
+      <property name="objId" type="long" column="obj_id"/>
+      <property name="idxName" type="string" column="idx_name"/>
+      <property name="idxValue" type="string" column="idx_value"/>
 
    </class>
 

@@ -12,6 +12,7 @@ public class T03Catalogue implements IEntity {
 	private String catUuid;
 	private String catName;
 	private String countryCode;
+	private String languageCode;
 	private Long spatialRefId;
 	private String workflowControl;
 	private Integer expiryDuration;
@@ -61,6 +62,14 @@ public class T03Catalogue implements IEntity {
 
 	public void setCountryCode(String countryCode) {
 		this.countryCode = countryCode;
+	}
+
+	public String getLanguageCode() {
+		return languageCode;
+	}
+
+	public void setLanguageCode(String languageCode) {
+		this.languageCode = languageCode;
 	}
 
 	public Long getSpatialRefId() {

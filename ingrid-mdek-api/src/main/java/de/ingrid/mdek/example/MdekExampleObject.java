@@ -388,15 +388,17 @@ class MdekExampleObjectThread extends Thread {
 		// catalog
 
 		System.out.println("\n----- CATALOG data -----");
-		getCatalog();
+		IngridDocument catDoc = getCatalog();
+		String catLang = catDoc.getString(MdekKeys.LANGUAGE);
+		System.out.println("catalog language=" + catLang);
 
 		// -----------------------------------
 		// ui: initial lists
 
-		System.out.println("\n----- SysList Values WITHOUT language code -----");
+		System.out.println("\n----- SysList Values NO language -----");
 		getSysLists(new Integer[] { 100, 1100, 1350, 3555}, null);
-		System.out.println("\n----- SysList Values WITH language code -----");
-		getSysLists(new Integer[] { 100, 1100, 1350, 3555}, 121);
+		System.out.println("\n----- SysList Values language: " + catLang + " -----");
+		getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLang);
 
 		// -----------------------------------
 		// tree: top objects
@@ -858,16 +860,16 @@ class MdekExampleObjectThread extends Thread {
 		return result;
 	}
 
-	private IngridDocument getSysLists(Integer[] listIds, Integer langCode) {
+	private IngridDocument getSysLists(Integer[] listIds, String language) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getSysLists ######");
+		System.out.println("\n###### INVOKE getSysLists, language: " + language + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getSysLists(plugId, listIds, langCode, myUserId);
+		response = mdekCallerCatalog.getSysLists(plugId, listIds, language, myUserId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

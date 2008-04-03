@@ -52,6 +52,7 @@ public class T01Object implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 
+	private Set fullIndexObjs = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set searchtermObjs = new HashSet();
@@ -428,6 +429,14 @@ public class T01Object implements IEntity {
 		this.responsibleUuid = responsibleUuid;
 	}
 
+
+	public Set getFullIndexObjs() {
+		return fullIndexObjs;
+	}
+
+	public void setFullIndexObjs(Set fullIndexObjs) {
+		this.fullIndexObjs = fullIndexObjs;
+	}
 
 	public Set getObjectComments() {
 		return objectComments;

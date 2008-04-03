@@ -24,7 +24,7 @@ public class SysListDaoHibernate
         super(factory, SysList.class);
     }
 
-	public List<SysList> getSysList(int lstId, Integer languageCode) {
+	public List<SysList> getSysList(int lstId, String language) {
 		Session session = getSession();
 
 		String qString = "from SysList " +
@@ -32,14 +32,14 @@ public class SysListDaoHibernate
 			// skip 0 entries -> invalid entries for select boxes !
 			"and entryId != 0 ";
 
-		if (languageCode != null) {
+		if (language != null) {
 			qString += "and langId = ? ";
 		}
 
 		Query q = session.createQuery(qString);
 		q.setInteger(0, lstId);
-		if (languageCode != null) {
-			q.setInteger(1, languageCode);			
+		if (language != null) {
+			q.setString(1, language);			
 		}
 
 		return q.list();

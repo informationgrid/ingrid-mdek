@@ -36,8 +36,8 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_FORCE_DELETE_REFERENCES = "requestinfo_forceDeleteReferences";
 
-    /** Value: Integer */
-    public final static String LANGUAGE_CODE = "language-code";
+    /** Value: String */
+    public final static String LANGUAGE = "language";
 
     // SEARCH / QUERY (Recherche)
     // --------------------------
