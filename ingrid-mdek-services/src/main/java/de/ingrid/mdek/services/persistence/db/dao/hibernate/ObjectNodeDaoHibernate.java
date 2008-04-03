@@ -24,7 +24,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
  */
 public class ObjectNodeDaoHibernate
 	extends GenericHibernateDao<ObjectNode>
-	implements  IObjectNodeDao {
+	implements  IObjectNodeDao, IFullIndexAccess {
 
 	private static final Logger LOG = Logger.getLogger(ObjectNodeDaoHibernate.class);
 
@@ -313,6 +313,70 @@ public class ObjectNodeDaoHibernate
 			"where " +
 			"termSns.snsId = '" + termSnsId + "'";
 		
+		return qString;
+	}
+
+	public long queryObjectsFullTextTotalNum(String searchTerm) {
+
+		String qString = createFullTextQueryString(searchTerm);
+		
+		if (qString == null) {
+			return 0;
+		}
+
+		qString = "select count(distinct oNode) " + qString;
+
+		Session session = getSession();
+
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
+
+		return totalNum;
+	}
+
+	public List<ObjectNode> queryObjectsFullText(String searchTerm,
+			int startHit, int numHits) {
+		List<ObjectNode> retList = new ArrayList<ObjectNode>();
+
+		String qString = createFullTextQueryString(searchTerm);
+		
+		if (qString == null) {
+			return retList;
+		}
+
+		qString = "select distinct oNode " + qString;
+		qString += " order by obj.objClass, obj.objName";
+
+		Session session = getSession();
+
+		retList = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		return retList;
+	}
+	
+	/**
+	 * Create basic query string for querying addresses concerning full text.
+	 * @param searchTerm term to search for
+	 * @return basic query string or null if no parameters. 
+	 */
+	private String createFullTextQueryString(String searchTerm) {
+		searchTerm = MdekUtils.processStringParameter(searchTerm);
+
+		if (searchTerm == null) {
+			return null;
+		}
+
+		// NOTICE: Errors when using "join fetch" !
+		String qString = "from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork obj " +
+			"inner join obj.fullIndexObjs fidx " +
+			"where " +
+			"fidx.idxName = '" + IDX_NAME_FULLTEXT + "' " +
+			"and fidx.idxValue like '%" + searchTerm + "%'";
+
 		return qString;
 	}
 }

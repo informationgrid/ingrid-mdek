@@ -28,7 +28,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class AddressNodeDaoHibernate
 	extends GenericHibernateDao<AddressNode>
-	implements  IAddressNodeDao {
+	implements  IAddressNodeDao, IFullIndexAccess {
 
 	private static final Logger LOG = Logger.getLogger(AddressNodeDaoHibernate.class);
 
@@ -308,9 +308,6 @@ public class AddressNodeDaoHibernate
 	/**
 	 * Create basic query string for search (no order etc.) dependent from passed search parameters.
 	 * @param searchParams search parameters
-	 * @param isCountQuery<br>
-	 * 		true=create query for counting total results<br>
-	 * 		false=create query for fetching results
 	 * @return basic query string or null if no parameters. 
 	 */
 	private String createSearchQueryString(IngridDocument searchParams) {
@@ -386,9 +383,6 @@ public class AddressNodeDaoHibernate
 	/**
 	 * Create basic query string for querying addresses associated with passed thesaurus term.
 	 * @param termSnsId sns id of thesaurus term
-	 * @param isCountQuery<br>
-	 * 		true=create query for counting total results<br>
-	 * 		false=create query for fetching results
 	 * @return basic query string or null if no parameters. 
 	 */
 	private String createThesaurusQueryString(String termSnsId) {
@@ -406,6 +400,70 @@ public class AddressNodeDaoHibernate
 			"inner join termVal.searchtermSns termSns " +
 			"where " +
 			"termSns.snsId = '" + termSnsId + "'";
+		
+		return qString;
+	}
+
+	public long queryAddressesFullTextTotalNum(String searchTerm) {
+
+		String qString = createFullTextQueryString(searchTerm);
+		
+		if (qString == null) {
+			return 0;
+		}
+
+		qString = "select count(distinct aNode) " + qString;
+
+		Session session = getSession();
+
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
+
+		return totalNum;
+	}
+
+	public List<AddressNode> queryAddressesFullText(String searchTerm,
+			int startHit, int numHits) {
+		List<AddressNode> retList = new ArrayList<AddressNode>();
+
+		String qString = createFullTextQueryString(searchTerm);
+		
+		if (qString == null) {
+			return retList;
+		}
+
+		qString = "select distinct aNode " + qString;
+		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+
+		Session session = getSession();
+
+		retList = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		return retList;
+	}
+	
+	/**
+	 * Create basic query string for querying addresses concerning full text.
+	 * @param searchTerm term to search for
+	 * @return basic query string or null if no parameters. 
+	 */
+	private String createFullTextQueryString(String searchTerm) {
+		searchTerm = MdekUtils.processStringParameter(searchTerm);
+
+		if (searchTerm == null) {
+			return null;
+		}
+
+		// NOTICE: Errors when using "join fetch" !
+		String qString = "from AddressNode aNode " +
+			"inner join aNode.t02AddressWork addr " +
+			"inner join addr.fullIndexAddrs fidx " +
+			"where " +
+			"fidx.idxName = '" + IDX_NAME_FULLTEXT + "' " +
+			"and fidx.idxValue like '%" + searchTerm + "%'";
 		
 		return qString;
 	}

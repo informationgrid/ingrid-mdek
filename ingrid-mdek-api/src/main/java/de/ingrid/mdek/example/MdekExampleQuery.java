@@ -156,22 +156,51 @@ class MdekExampleQueryThread extends Thread {
 	public void run() {
 		isRunning = true;
 
+		long exampleStartTime = System.currentTimeMillis();
+
 		// thesaurs terms (sns ids)
 		// Naturschutz = uba_thes_28749: Institutionen, Einheiten und Personen
 //		String termSnsId = "uba_thes_28749";
 		// Emissionsüberwachung = uba_thes_8007: Institutionen und Personen
 		String termSnsId = "uba_thes_8007";
 
-		long exampleStartTime = System.currentTimeMillis();
+		List<IngridDocument> hits;		
+		boolean alwaysTrue = true;
 
-		// ===================================
+// ====================
+// test single stuff
+// -----------------------------------
+/*
+		// add functionality !
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// ===================================
+*/
+
+		System.out.println("\n\n=========================");
+		System.out.println(" QUERY");
+		System.out.println("=========================");
+
+		String fullQueryTerm = "Hannover";
+
+		System.out.println("\n----- search addresses by full text -----");
+		hits = queryAddressesFullText(fullQueryTerm, 0, 20);
+
+		System.out.println("\n----- search objects by full text -----");
+		hits = queryObjectsFullText(fullQueryTerm, 0, 20);
+
+		// -----------------------------------
 
 		System.out.println("\n\n=========================");
 		System.out.println(" THESAURUS QUERY");
 		System.out.println("=========================");
 
 		System.out.println("\n----- search addresses by thesaurus term (id) -----");
-		List<IngridDocument> hits = queryAddressesThesaurusTerm(termSnsId, 0, 20);
+		hits = queryAddressesThesaurusTerm(termSnsId, 0, 20);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			String uuid = hits.get(0).getString(MdekKeys.UUID);
@@ -307,6 +336,41 @@ class MdekExampleQueryThread extends Thread {
 		return result;
 	}
 
+	private List<IngridDocument> queryAddressesFullText(String queryTerm,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE queryAddressesFullText ######");
+		System.out.println("- startHit:" + startHit);
+		System.out.println("- numHits:" + numHits);
+		System.out.println("- queryTerm:" + queryTerm);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerQuery.queryAddressesFullText(plugId, queryTerm, startHit, numHits, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		List<IngridDocument> hits = null;
+		if (result != null) {
+			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
+			doFullOutput = false;
+			for (IngridDocument hit : hits) {
+				debugAddressDoc(hit);
+			}
+			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+
+		return hits;
+	}
+
 	private List<IngridDocument> queryAddressesThesaurusTerm(String termSnsId,
 			int startHit, int numHits) {
 		long startTime;
@@ -333,6 +397,41 @@ class MdekExampleQueryThread extends Thread {
 			doFullOutput = false;
 			for (IngridDocument hit : hits) {
 				debugAddressDoc(hit);
+			}
+			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+
+		return hits;
+	}
+
+	private List<IngridDocument> queryObjectsFullText(String searchTerm,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE queryObjectsFullText ######");
+		System.out.println("- startHit:" + startHit);
+		System.out.println("- numHits:" + numHits);
+		System.out.println("- searchTerm:" + searchTerm);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerQuery.queryObjectsFullText(plugId, searchTerm, startHit, numHits, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		List<IngridDocument> hits = null;
+		if (result != null) {
+			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
+			doFullOutput = false;
+			for (IngridDocument hit : hits) {
+				debugObjectDoc(hit);
 			}
 			doFullOutput = true;
 		} else {

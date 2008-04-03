@@ -55,6 +55,23 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		return myInstance;
 	}
 
+	public IngridDocument queryAddressesFullText(String plugId, String searchTerm,
+			int startHit, int numHits,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
+		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.SEARCH_TERM, searchTerm);
+		
+		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
+		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesFullText", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument queryAddressesThesaurusTerm(String plugId, String termSnsId,
 			int startHit, int numHits,
 			String userId) {
@@ -68,6 +85,23 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
 		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesThesaurusTerm", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument queryObjectsFullText(String plugId, String searchTerm,
+			int startHit, int numHits,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
+		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.SEARCH_TERM, searchTerm);
+		
+		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
+		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsFullText", jobParams);
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}

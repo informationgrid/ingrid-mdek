@@ -71,4 +71,20 @@ public interface IObjectNodeDao
 	 */
 	List<ObjectNode> queryObjectsThesaurusTerm(String termSnsId,
 			int startHit, int numHits);
+
+	/** Query total number of objects containing passed term in full text index.
+	 * @param searchTerm term to search for
+	 * @return number of found objects
+	 */
+	long queryObjectsFullTextTotalNum(String searchTerm);
+
+	/**
+	 * Query objects containing passed term in full text index.
+	 * @param searchTerm term to search for
+	 * @param startHit hit to start with (first hit is 0) 
+	 * @param numHits number of hits requested, beginning from startHit
+	 * @return list of found objects
+	 */
+	List<ObjectNode> queryObjectsFullText(String searchTerm,
+			int startHit, int numHits);
 }

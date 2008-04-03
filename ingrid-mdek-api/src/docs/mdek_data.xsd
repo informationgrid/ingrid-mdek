@@ -186,10 +186,12 @@
 	</xs:complexType>	
 	<xs:complexType name="SEARCH_PARAMS_MAP">
 		<xs:all>
-			<!-- address search -->
+			<!-- address: search -->
 			<xs:element ref="organisation"/>
 			<xs:element ref="name"/>
 			<xs:element ref="given-name"/>
+			<!-- query: full text -->
+			<xs:element name="search_term" type="xs:string"/>
 			<!-- query: thesaurus term -->
 			<xs:element ref="term-sns-id"/>
 		</xs:all>

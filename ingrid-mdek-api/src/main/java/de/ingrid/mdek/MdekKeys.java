@@ -50,6 +50,8 @@ public class MdekKeys {
     public final static String SEARCH_NUM_HITS = "search-num-hits";
     /** Value: IngridDocument encapsulating all search parameters in REQUEST */
     public final static String SEARCH_PARAMS = "search-params";
+    /** Value: String */
+    public final static String SEARCH_TERM = "search_term";
     /** HQL query string for querying objects/addresses<br>
      * Value: String */
     public final static String HQL_QUERY = "hql-query";
