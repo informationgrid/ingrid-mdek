@@ -33,6 +33,7 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernat
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
+import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
@@ -221,6 +222,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<PermissionAddr>(_sessionFactory, PermissionAddr.class);
 		} else if (clazz.isAssignableFrom(FullIndexAddr.class)) {
 			dao = new GenericHibernateDao<PermissionAddr>(_sessionFactory, FullIndexAddr.class);
+		} else if (clazz.isAssignableFrom(FullIndexObj.class)) {
+			dao = new GenericHibernateDao<PermissionAddr>(_sessionFactory, FullIndexObj.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

@@ -165,6 +165,7 @@ class MdekExampleQueryThread extends Thread {
 		String termSnsId = "uba_thes_8007";
 
 		String uuid;
+		String searchterm;
 		IngridDocument doc;
 		List<IngridDocument> hits;
 
@@ -210,16 +211,12 @@ class MdekExampleQueryThread extends Thread {
 */
 
 		System.out.println("\n\n=========================");
-		System.out.println(" QUERY");
+		System.out.println(" QUERY/UPDATE FULL TEXT ADDRESS");
 		System.out.println("=========================");
 
 		System.out.println("\n----- search addresses via full text (searchterm is syslist entry !) -----");
-		String searchterm = "Prof. Dr.";
+		searchterm = "Prof. Dr.";
 		queryAddressesFullText(searchterm, 0, 20);
-
-		System.out.println("\n----- search objects via full text -----");
-		searchterm = "Hannover";
-		queryObjectsFullText(searchterm, 0, 20);
 
 		System.out.println("\n----- check: update address index on STORE -----");
 		System.out.println("----- search address via full text -> no result -----");
@@ -228,7 +225,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("\n----- fetch arbitrary address -----");
 		uuid = "095130C2-DDE9-11D2-BB32-006097FE70B1";
 		doc = fetchAddress(uuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n----- change organization to searchterm and STORE -----");
+		System.out.println("\n----- change organization to searchterm and STORE (result is WORKING COPY !!!) -----");
 		doc.put(MdekKeys.ORGANISATION, searchterm);
 		storeAddress(doc, true);
 		System.out.println("\n----- search again via full text -> RESULT (is working copy !) -----");
@@ -251,11 +248,51 @@ class MdekExampleQueryThread extends Thread {
 		doc.put(MdekKeys.ORGANISATION, origOrganization);
 		publishAddress(doc, true);
 
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println(" QUERY/UPDATE FULL TEXT OBJECT");
+		System.out.println("=========================");
+
+		System.out.println("\n----- search objects via full text (searchterm is syslist entry !) -----");
+		searchterm = "Basisdaten";
+		queryObjectsFullText(searchterm, 0, 20);
+
+		System.out.println("\n----- check: update object index on STORE -----");
+		System.out.println("----- search object via full text -> no result -----");
+		searchterm = "sdfhljkhfösh";
+		queryObjectsFullText(searchterm, 0, 20);
+		System.out.println("\n----- fetch arbitrary object -----");
+		uuid = "3A295152-5091-11D3-AE6C-00104B57C66D";
+		doc = fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- change title to searchterm and STORE (result is WORKING COPY !!!) -----");
+		doc.put(MdekKeys.TITLE, searchterm);
+		storeObject(doc, true);
+		System.out.println("\n----- search again via full text -> RESULT (is working copy !) -----");
+		queryObjectsFullText(searchterm, 0, 20);
+		System.out.println("\n----- clean up -----");
+		deleteObjectWorkingCopy(uuid, true);
+
+		System.out.println("\n----- check: update object index on PUBLISH -----");
+		System.out.println("----- search object via full text -> no result -----");
+		queryObjectsFullText(searchterm, 0, 20);
+		System.out.println("\n----- fetch again -----");
+		doc = fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- change title to searchterm and PUBLISH -----");
+		String origTitle = doc.getString(MdekKeys.TITLE);
+		doc.put(MdekKeys.TITLE, searchterm);
+		doc = publishObject(doc, true, false);
+		System.out.println("\n----- search again via full text -> RESULT (is published one, no separate working copy) -----");
+		queryObjectsFullText(searchterm, 0, 20);
+		System.out.println("\n----- clean up (set orig data and publish) -----");
+		doc.put(MdekKeys.TITLE, origTitle);
+		publishObject(doc, true, false);
+/*
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
-
+*/
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
@@ -467,6 +504,107 @@ class MdekExampleQueryThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugObjectDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument storeObject(IngridDocument oDocIn,
+			boolean refetchObject) {
+		if (oDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeObject " + refetchInfo + " ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.storeObject(plugId, oDocIn, refetchObject, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugObjectDoc(result);
+			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument publishObject(IngridDocument oDocIn,
+			boolean withRefetch,
+			boolean forcePublicationCondition) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE publishObject ######");
+		System.out.println("publishObject -> " +
+				"refetchObject: " + withRefetch +
+				", forcePublicationCondition: " + forcePublicationCondition);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.publishObject(plugId, oDocIn, withRefetch, forcePublicationCondition, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			String uuidStoredObject = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuidStoredObject);
+			if (withRefetch) {
+				debugObjectDoc(result);
+			}
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument deleteObjectWorkingCopy(String uuid,
+			boolean forceDeleteReferences) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
 		} else {
 			handleError(response);
 		}

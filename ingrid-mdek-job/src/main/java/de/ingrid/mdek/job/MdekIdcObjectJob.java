@@ -13,6 +13,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -34,6 +35,8 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcObjectJob extends MdekIdcJob {
 
+	protected MdekFullIndexHandler fullIndexHandler;
+
 	private IObjectNodeDao daoObjectNode;
 	private IT01ObjectDao daoT01Object;
 	private IGenericDao<IEntity> daoObjectReference;
@@ -41,6 +44,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory) {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
+
+		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
@@ -269,12 +274,16 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
 			daoT01Object.makePersistent(oWork);
 
-			// return uuid (may be new generated uuid if new object)
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.UUID, uuid);
+			// UPDATE FULL INDEX !!!
+			// TODO: pass ObjectNode when associated with Node instead of plain object
+			fullIndexHandler.updateObjectIndex(oNode.getT01ObjectWork());
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
+
+			// return uuid (may be new generated uuid if new object)
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
 
 			if (refetchAfterStore) {
 				daoObjectNode.beginTransaction();
@@ -380,11 +389,15 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			oNode.setObjIdPublished(oPubId);
 			daoObjectNode.makePersistent(oNode);
 			
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.UUID, uuid);
+			// UPDATE FULL INDEX !!!
+			// TODO: pass ObjectNode when associated with Node instead of plain object
+			fullIndexHandler.updateObjectIndex(oNode.getT01ObjectWork());
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
 
 			if (refetchAfterStore) {
 				daoObjectNode.beginTransaction();

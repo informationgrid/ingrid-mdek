@@ -18,10 +18,27 @@ public class MdekUtils {
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 	private final static SimpleDateFormat displayDateTimeFormatter = new SimpleDateFormat("dd.MM.yyyy/HH:mm");
 
+	public final static String OBJ_SERV_TYPE_WMS = "WMS";
+	public final static String OBJ_SERV_TYPE_WFS = "WFS";
+
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1),
-		ADDRESS(4300),
-		TITLE(4305);
+		OBJ_GEO_REFERENCESYSTEM(100),
+		OBJ_GEO_KEYC(3535),
+		OBJ_GEO_SYMC(3555),
+		OBJ_LITERATURE_TYPE(3385),
+		OBJ_SERV_TYPE(5100),
+		OBJ_SERV_OPERATION_WMS(5110),
+		OBJ_SERV_OPERATION_WFS(5120),
+		INFO_IMPART(1370),
+		LEGIST(1350),
+		URL_REF_SPECIAL(2000),
+		URL_REF_DATATYPE(2240),
+		MEDIA_OPTION_MEDIUM(520),
+		SPATIAL_REF_VALUE(1100),
+		AVAIL_FORMAT(1320),
+		ADDRESS_VALUE(4300),
+		ADDRESS_TITLE(4305);
 
 		MdekSysList(Integer dbValue) {
 			this.dbValue = dbValue;
