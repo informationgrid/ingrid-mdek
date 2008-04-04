@@ -47,6 +47,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	}
 
 	/** Updates data of given address in full index. */
+	// TODO: pass AddressNode when associated with node instead of address
 	public void updateAddressIndex(T02Address a) {
 		// template for accessing data in index
 		FullIndexAddr template = new FullIndexAddr();

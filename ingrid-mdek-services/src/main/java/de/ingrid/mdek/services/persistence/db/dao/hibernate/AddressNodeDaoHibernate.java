@@ -457,7 +457,8 @@ public class AddressNodeDaoHibernate
 			return null;
 		}
 
-		// NOTICE: Errors when using "join fetch" !
+		// NOTICE: Errors when using "join fetch" because also used for count(*)
+		// TODO: join fullIndexAddrs with AddressNode not T02Address
 		String qString = "from AddressNode aNode " +
 			"inner join aNode.t02AddressWork addr " +
 			"inner join addr.fullIndexAddrs fidx " +

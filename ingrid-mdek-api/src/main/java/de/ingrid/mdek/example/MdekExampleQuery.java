@@ -221,20 +221,40 @@ class MdekExampleQueryThread extends Thread {
 		searchterm = "Hannover";
 		queryObjectsFullText(searchterm, 0, 20);
 
-		System.out.println("\n----- check: update address index on save/publish -----");
-		System.out.println("\n----- search address via full text -> no result -----");
+		System.out.println("\n----- check: update address index on STORE -----");
+		System.out.println("----- search address via full text -> no result -----");
 		searchterm = "sdfhljkhfösh";
 		queryAddressesFullText(searchterm, 0, 20);
 		System.out.println("\n----- fetch arbitrary address -----");
 		uuid = "095130C2-DDE9-11D2-BB32-006097FE70B1";
 		doc = fetchAddress(uuid, Quantity.DETAIL_ENTITY);
-		System.out.println("\n----- change organization to searchterm and store -----");
+		System.out.println("\n----- change organization to searchterm and STORE -----");
 		doc.put(MdekKeys.ORGANISATION, searchterm);
 		storeAddress(doc, true);
 		System.out.println("\n----- search again via full text -> RESULT (is working copy !) -----");
 		queryAddressesFullText(searchterm, 0, 20);
 		System.out.println("\n----- clean up -----");
 		deleteAddressWorkingCopy(uuid, true);
+
+		System.out.println("\n----- check: update address index on PUBLISH -----");
+		System.out.println("----- search address via full text -> no result -----");
+		queryAddressesFullText(searchterm, 0, 20);
+		System.out.println("\n----- fetch again -----");
+		doc = fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- change organization to searchterm and PUBLISH -----");
+		String origOrganization = doc.getString(MdekKeys.ORGANISATION);
+		doc.put(MdekKeys.ORGANISATION, searchterm);
+		doc = publishAddress(doc, true);
+		System.out.println("\n----- search again via full text -> RESULT (is published one, no separate working copy) -----");
+		queryAddressesFullText(searchterm, 0, 20);
+		System.out.println("\n----- clean up (set orig data and publish) -----");
+		doc.put(MdekKeys.ORGANISATION, origOrganization);
+		publishAddress(doc, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 
 		// -----------------------------------
 
@@ -361,6 +381,41 @@ class MdekExampleQueryThread extends Thread {
 			doFullOutput = false;
 			debugAddressDoc(result);
 			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument publishAddress(IngridDocument aDocIn,
+			boolean withRefetch) {
+		if (aDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String withRefetchInfo = (withRefetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.publishAddress(plugId, aDocIn, withRefetch, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			String uuid = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuid);
+			if (withRefetch) {
+				debugAddressDoc(result);
+			}
 		} else {
 			handleError(response);
 		}

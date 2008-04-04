@@ -282,8 +282,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoT02Address.makePersistent(aWork);
 
 			// UPDATE FULL INDEX !!!
-			// TODO: hier AddressNode uebergeben ? IndexHandler kann dann entscheiden welche Daten in den Index geschrieben werden !?
-			fullIndexHandler.updateAddressIndex(aWork);
+			// TODO: pass AddressNode when associated with Node instead of plain address
+			fullIndexHandler.updateAddressIndex(aNode.getT02AddressWork());
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -386,9 +386,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			aNode.setT02AddressPublished(aPub);
 			daoAddressNode.makePersistent(aNode);
 
-			// PERFORM CHECKS BEFORE COMMITTING !!!
+			// PERFORM CHECKS ON FINAL DATA BEFORE COMMITTING !!!
 			checkAddressNodeForPublish(aNode);			
 			// checks ok !
+
+			// UPDATE FULL INDEX !!!
+			// TODO: pass AddressNode when associated with Node instead of plain address
+			fullIndexHandler.updateAddressIndex(aNode.getT02AddressWork());
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
