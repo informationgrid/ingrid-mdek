@@ -44,4 +44,20 @@ public class SysListDaoHibernate
 
 		return q.list();
 	}
+
+	public SysList getSysListEntry(int lstId, int entryId, String language) {
+		Session session = getSession();
+		
+		String qString = "from SysList " +
+			"where lstId = ? " +
+			"and entryId = ? " +
+			"and langId = ?";
+
+		Query q = session.createQuery(qString);
+		q.setInteger(0, lstId);
+		q.setInteger(1, entryId);
+		q.setString(2, language);
+
+		return (SysList) q.uniqueResult();
+	}
 }

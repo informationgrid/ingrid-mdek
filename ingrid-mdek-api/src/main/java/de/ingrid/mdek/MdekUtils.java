@@ -18,6 +18,21 @@ public class MdekUtils {
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 	private final static SimpleDateFormat displayDateTimeFormatter = new SimpleDateFormat("dd.MM.yyyy/HH:mm");
 
+	public enum MdekSysList implements IMdekEnum {
+		FREE_ENTRY(-1),
+		ADDRESS(4300),
+		TITLE(4305);
+
+		MdekSysList(Integer dbValue) {
+			this.dbValue = dbValue;
+		}
+		/** returns syslist ID */
+		public Integer getDbValue() {
+			return dbValue;
+		}
+		Integer dbValue;
+	}
+
 	/** Type of entities */
 	public enum IdcEntityType {
 		OBJECT,

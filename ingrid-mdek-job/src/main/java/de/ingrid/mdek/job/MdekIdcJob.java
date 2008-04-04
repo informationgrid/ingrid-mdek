@@ -6,11 +6,10 @@ import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.tools.MdekCatalogHandler;
+import de.ingrid.mdek.job.tools.MdekErrorHandler;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
@@ -23,10 +22,10 @@ import de.ingrid.utils.IngridDocument;
  */
 public abstract class MdekIdcJob extends MdekJob {
 
-	protected MdekErrorHandler errorHandler;	
+	protected MdekErrorHandler errorHandler;
+	protected MdekCatalogHandler catalogHandler;
 
 	protected ISysListDao daoSysList;
-	protected IGenericDao daoT03Catalog;
 
 	protected BeanToDocMapper beanToDocMapper;
 	protected DocToBeanMapper docToBeanMapper;
@@ -35,9 +34,9 @@ public abstract class MdekIdcJob extends MdekJob {
 		super(log);
 
 		errorHandler = MdekErrorHandler.getInstance();
+		catalogHandler = MdekCatalogHandler.getInstance(daoFactory);
 
 		daoSysList = daoFactory.getSysListDao();
-		daoT03Catalog = daoFactory.getDao(T03Catalogue.class);
 
 		beanToDocMapper = BeanToDocMapper.getInstance();
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
@@ -92,22 +91,19 @@ public abstract class MdekIdcJob extends MdekJob {
 	
 	public IngridDocument getCatalog(IngridDocument params) {
 		try {
-			daoT03Catalog.beginTransaction();
+			daoSysList.beginTransaction();
 
-			// fetch catalog
-			T03Catalogue catalog = (T03Catalogue) daoT03Catalog.findFirst();
-			if (catalog == null) {
-				throw new MdekException(new MdekError(MdekErrorType.CATALOG_NOT_FOUND));
-			}
+			// fetch catalog via handler
+			T03Catalogue catalog = catalogHandler.getCatalog();
 
 			IngridDocument result = new IngridDocument();
 			beanToDocMapper.mapT03Catalog(catalog, result);
 
-			daoT03Catalog.commitTransaction();
+			daoSysList.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
-			daoT03Catalog.rollbackTransaction();
+			daoSysList.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}

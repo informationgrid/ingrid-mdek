@@ -1,4 +1,4 @@
-package de.ingrid.mdek.job;
+package de.ingrid.mdek.job.tools;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.job.MdekJob;
 import de.ingrid.utils.IngridDocument;
 
 

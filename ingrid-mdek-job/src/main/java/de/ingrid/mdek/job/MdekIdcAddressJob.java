@@ -12,6 +12,8 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
+import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -33,6 +35,8 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcAddressJob extends MdekIdcJob {
 
+	protected MdekFullIndexHandler fullIndexHandler;
+
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
 	private IGenericDao<IEntity> daoT012ObjAdr;
@@ -41,6 +45,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
+
+		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
@@ -274,6 +280,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// store when ok
 			daoT02Address.makePersistent(aWork);
+
+			// UPDATE FULL INDEX !!!
+			// TODO: hier AddressNode uebergeben ? IndexHandler kann dann entscheiden welche Daten in den Index geschrieben werden !?
+			fullIndexHandler.updateAddressIndex(aWork);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();

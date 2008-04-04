@@ -13,6 +13,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -189,11 +190,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
 			// take over spatial reference from catalog
-			T03Catalogue catalog = (T03Catalogue) daoT03Catalog.findFirst();
-			if (catalog == null) {
-				throw new MdekException(new MdekError(MdekErrorType.CATALOG_NOT_FOUND));
-			}
-
+			T03Catalogue catalog = catalogHandler.getCatalog();
 			IngridDocument catalogDoc = new IngridDocument();
 			beanToDocMapper.mapT03Catalog(catalog, catalogDoc);
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 
 /**
  * @author joachim
@@ -18,7 +19,7 @@ import de.ingrid.mdek.MdekKeys;
 public class MdekIdcObjectComparerTest {
 
 	/**
-	 * Test method for {@link de.ingrid.mdek.job.MdekIdcEntityComparer#compareObjectMaps(de.ingrid.utils.IngridDocument, de.ingrid.utils.IngridDocument, java.lang.String[])}.
+	 * Test method for {@link de.ingrid.mdek.job.tools.MdekIdcEntityComparer#compareObjectMaps(de.ingrid.utils.IngridDocument, de.ingrid.utils.IngridDocument, java.lang.String[])}.
 	 */
 	@Test
 	public void testCompareObjectMaps() {

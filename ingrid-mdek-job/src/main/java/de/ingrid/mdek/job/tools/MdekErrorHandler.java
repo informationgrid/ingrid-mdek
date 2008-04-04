@@ -1,10 +1,11 @@
-package de.ingrid.mdek.job;
+package de.ingrid.mdek.job.tools;
 
 import org.apache.log4j.Logger;
 import org.hibernate.StaleStateException;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.MdekException;
 
 
 /**

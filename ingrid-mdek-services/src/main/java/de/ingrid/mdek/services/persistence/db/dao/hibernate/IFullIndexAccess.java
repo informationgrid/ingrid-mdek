@@ -6,5 +6,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
  */
 public interface IFullIndexAccess {
 
+	static String IDX_SEPARATOR = "|";  
+
 	static String IDX_NAME_FULLTEXT = "full";  
 }

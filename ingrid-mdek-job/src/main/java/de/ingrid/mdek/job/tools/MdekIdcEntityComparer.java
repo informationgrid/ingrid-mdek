@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.ingrid.mdek.job;
+package de.ingrid.mdek.job.tools;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -164,8 +164,36 @@ class MdekExampleQueryThread extends Thread {
 		// Emissionsüberwachung = uba_thes_8007: Institutionen und Personen
 		String termSnsId = "uba_thes_8007";
 
-		List<IngridDocument> hits;		
+		String uuid;
+		IngridDocument doc;
+		List<IngridDocument> hits;
+
 		boolean alwaysTrue = true;
+
+		String hqlQueryAddr1 =
+			"select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term " +
+			"from AddressNode as aNode " +
+			"inner join aNode.t02AddressWork addr " +
+			"inner join addr.searchtermAdrs termAdrs " +
+			"inner join termAdrs.searchtermValue termVal " +
+			"inner join termVal.searchtermSns termSns " +
+			"where " +
+			"termSns.snsId = '" + termSnsId + "' " +
+			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+
+		String hqlQueryAddr2 = "from AddressNode";
+
+		String hqlQueryObj1 = "select distinct oNode, obj.objName, termVal.term " +
+			"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork obj " +
+			"inner join obj.searchtermObjs termObjs " +
+			"inner join termObjs.searchtermValue termVal " +
+			"inner join termVal.searchtermSns termSns " +
+			"where " +
+			"termSns.snsId = '" + termSnsId + "' " +
+			"order by obj.objClass, obj.objName";
+
+		String hqlQueryObj2 = "from ObjectNode";
 
 // ====================
 // test single stuff
@@ -185,13 +213,28 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println(" QUERY");
 		System.out.println("=========================");
 
-		String fullQueryTerm = "Hannover";
+		System.out.println("\n----- search addresses via full text (searchterm is syslist entry !) -----");
+		String searchterm = "Prof. Dr.";
+		queryAddressesFullText(searchterm, 0, 20);
 
-		System.out.println("\n----- search addresses by full text -----");
-		hits = queryAddressesFullText(fullQueryTerm, 0, 20);
+		System.out.println("\n----- search objects via full text -----");
+		searchterm = "Hannover";
+		queryObjectsFullText(searchterm, 0, 20);
 
-		System.out.println("\n----- search objects by full text -----");
-		hits = queryObjectsFullText(fullQueryTerm, 0, 20);
+		System.out.println("\n----- check: update address index on save/publish -----");
+		System.out.println("\n----- search address via full text -> no result -----");
+		searchterm = "sdfhljkhfösh";
+		queryAddressesFullText(searchterm, 0, 20);
+		System.out.println("\n----- fetch arbitrary address -----");
+		uuid = "095130C2-DDE9-11D2-BB32-006097FE70B1";
+		doc = fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- change organization to searchterm and store -----");
+		doc.put(MdekKeys.ORGANISATION, searchterm);
+		storeAddress(doc, true);
+		System.out.println("\n----- search again via full text -> RESULT (is working copy !) -----");
+		queryAddressesFullText(searchterm, 0, 20);
+		System.out.println("\n----- clean up -----");
+		deleteAddressWorkingCopy(uuid, true);
 
 		// -----------------------------------
 
@@ -203,7 +246,7 @@ class MdekExampleQueryThread extends Thread {
 		hits = queryAddressesThesaurusTerm(termSnsId, 0, 20);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
-			String uuid = hits.get(0).getString(MdekKeys.UUID);
+			uuid = hits.get(0).getString(MdekKeys.UUID);
 			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
 		}
 
@@ -211,7 +254,7 @@ class MdekExampleQueryThread extends Thread {
 		hits = queryObjectsThesaurusTerm(termSnsId, 0, 20);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
-			String uuid = hits.get(0).getString(MdekKeys.UUID);
+			uuid = hits.get(0).getString(MdekKeys.UUID);
 			fetchObject(uuid, Quantity.DETAIL_ENTITY);
 		}
 
@@ -222,34 +265,11 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- search addresses by hql query -----");
-		String hqlQueryAddr1 =
-			"select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term " +
-			"from AddressNode as aNode " +
-			"inner join aNode.t02AddressWork addr " +
-			"inner join addr.searchtermAdrs termAdrs " +
-			"inner join termAdrs.searchtermValue termVal " +
-			"inner join termVal.searchtermSns termSns " +
-			"where " +
-			"termSns.snsId = '" + termSnsId + "' " +
-			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 		queryHQL(hqlQueryAddr1, 0, 10);
-
-		String hqlQueryAddr2 = "from AddressNode";
 		queryHQL(hqlQueryAddr2, 0, 10);
 
 		System.out.println("\n----- search objects by hql query -----");
-		String hqlQueryObj1 = "select distinct oNode, obj.objName, termVal.term " +
-			"from ObjectNode oNode " +
-			"inner join oNode.t01ObjectWork obj " +
-			"inner join obj.searchtermObjs termObjs " +
-			"inner join termObjs.searchtermValue termVal " +
-			"inner join termVal.searchtermSns termSns " +
-			"where " +
-			"termSns.snsId = '" + termSnsId + "' " +
-			"order by obj.objClass, obj.objName";
 		queryHQL(hqlQueryObj1, 0, 10);
-
-		String hqlQueryObj2 = "from ObjectNode";
 		queryHQL(hqlQueryObj2, 0, 10);
 
 		// -----------------------------------
@@ -260,14 +280,6 @@ class MdekExampleQueryThread extends Thread {
 
 		doFullOutput = false;
 
-		System.out.println("\n----- search addresses by hql to csv -----");
-		queryHQLToCsv(hqlQueryAddr1);
-		String hqlQueryAddr3 = "select distinct addr " +
-			"from AddressNode as aNode " +
-			"inner join aNode.t02AddressWork addr " +
-			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
-		queryHQLToCsv(hqlQueryAddr3);
-
 		System.out.println("\n----- search objects by hql to csv -----");
 		queryHQLToCsv(hqlQueryObj1);
 		String hqlQueryObj3 = "select distinct obj " +
@@ -275,6 +287,14 @@ class MdekExampleQueryThread extends Thread {
 			"inner join oNode.t01ObjectWork obj " +
 			"order by obj.objClass, obj.objName";
 		queryHQLToCsv(hqlQueryObj3);
+
+		System.out.println("\n----- search addresses by hql to csv -----");
+		queryHQLToCsv(hqlQueryAddr1);
+		String hqlQueryAddr3 = "select distinct addr " +
+			"from AddressNode as aNode " +
+			"inner join aNode.t02AddressWork addr " +
+			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+		queryHQLToCsv(hqlQueryAddr3);
 
 		doFullOutput = true;
 
@@ -305,6 +325,69 @@ class MdekExampleQueryThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument storeAddress(IngridDocument aDocIn, boolean refetchAddress) {
+		// check whether we have an address
+		if (aDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeAddress " + refetchAddressInfo + " ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.storeAddress(plugId, aDocIn, refetchAddress, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			doFullOutput = false;
+			debugAddressDoc(result);
+			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument deleteAddressWorkingCopy(String uuid,
+			boolean forceDeleteReferences) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
 		} else {
 			handleError(response);
 		}
@@ -519,38 +602,43 @@ class MdekExampleQueryThread extends Thread {
 	}
 
 	private void queryHQLToCsv(String qString) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
+		try {
+			long startTime;
+			long endTime;
+			long neededTime;
+			IngridDocument response;
+			IngridDocument result;
 
-		System.out.println("\n###### INVOKE queryHQLToCsv ######");
-		System.out.println("- query:" + qString);
-		startTime = System.currentTimeMillis();
-		response = mdekCallerQuery.queryHQLToCsv(plugId, qString, myUserId);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
-			System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
-			String csvResult = result.getString(MdekKeys.CSV_RESULT);			
-			if (doFullOutput) {
-				System.out.println(csvResult);
-			} else {
-				if (csvResult.length() > 5000) {
-					int endIndex = csvResult.indexOf("\n", 3000);
-					System.out.print(csvResult.substring(0, endIndex));					
-					System.out.println("...");					
+			System.out.println("\n###### INVOKE queryHQLToCsv ######");
+			System.out.println("- query:" + qString);
+			startTime = System.currentTimeMillis();
+			response = mdekCallerQuery.queryHQLToCsv(plugId, qString, myUserId);
+			endTime = System.currentTimeMillis();
+			neededTime = endTime - startTime;
+			System.out.println("EXECUTION TIME: " + neededTime + " ms");
+			result = mdekCaller.getResultFromResponse(response);
+			if (result != null) {
+				Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+				System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
+				String csvResult = result.getString(MdekKeys.CSV_RESULT);			
+				if (doFullOutput) {
+					System.out.println(csvResult);
 				} else {
-					System.out.println(csvResult);					
+					if (csvResult.length() > 5000) {
+						int endIndex = csvResult.indexOf("\n", 3000);
+						System.out.print(csvResult.substring(0, endIndex));					
+						System.out.println("...");					
+					} else {
+						System.out.println(csvResult);					
+					}
 				}
-			}
 
-		} else {
-			handleError(response);
+			} else {
+				handleError(response);
+			}			
+		} catch (Throwable t) {
+			System.out.println("\nCatched Throwable in Example:");
+			printThrowable(t);
 		}
 	}
 
@@ -558,8 +646,9 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("Address: " + a.get(MdekKeys.ID) 
 			+ ", " + a.get(MdekKeys.UUID)
 			+ ", organisation: " + a.get(MdekKeys.ORGANISATION)
-			+ ", name: " + a.get(MdekKeys.TITLE_OR_FUNCTION)
-			+ " " + a.get(MdekKeys.GIVEN_NAME)
+			+ ", title (key/value): " + a.get(MdekKeys.TITLE_OR_FUNCTION_KEY)
+			+ " " + a.get(MdekKeys.TITLE_OR_FUNCTION)
+			+ ", name: " + a.get(MdekKeys.GIVEN_NAME)
 			+ " " + a.get(MdekKeys.NAME)
 			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.get(MdekKeys.CLASS))
 //		);
@@ -619,6 +708,20 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
 		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));			
 		
+	}
+
+	private void printThrowable(Throwable t) {
+		System.out.println(t);
+		System.out.println("   Stack Trace:");
+		StackTraceElement[] st = t.getStackTrace();
+		for (StackTraceElement stackTraceElement : st) {
+	        System.out.println(stackTraceElement);
+        }
+		Throwable cause = t.getCause();
+		if (cause != null) {
+			System.out.println("   Cause:");
+			printThrowable(cause);			
+		}
 	}
 
 	public void start() {

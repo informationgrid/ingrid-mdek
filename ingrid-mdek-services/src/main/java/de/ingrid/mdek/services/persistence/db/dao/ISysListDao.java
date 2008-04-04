@@ -17,5 +17,13 @@ public interface ISysListDao
 
 	/** returns all entries of the given list ordered by entry id */
 	List<SysList> getSysList(int lstId, String language);
-
+	
+	/**
+	 * Get a specific entry. DON'T PASS NULL VALUES !
+	 * @param lstId id of list -> NOT NULL.
+	 * @param entryId id of list entry -> NOT NULL
+	 * @param language language of list/entry -> NOT NULL 
+	 * @return the list entry or null if not found !
+	 */
+	SysList getSysListEntry(int lstId, int entryId, String language);
 }
