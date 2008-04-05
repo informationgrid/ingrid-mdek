@@ -6,7 +6,7 @@ public class FullIndexObj implements IEntity {
 
 	private Long id;
 	private int version;
-	private Long objId;
+	private Long objNodeId;
 	private String idxName;
 	private String idxValue;
 
@@ -29,12 +29,12 @@ public class FullIndexObj implements IEntity {
 		this.version = version;
 	}
 
-	public Long getObjId() {
-		return objId;
+	public Long getObjNodeId() {
+		return objNodeId;
 	}
 
-	public void setObjId(Long objId) {
-		this.objId = objId;
+	public void setObjNodeId(Long objNodeId) {
+		this.objNodeId = objNodeId;
 	}
 
 	public String getIdxName() {

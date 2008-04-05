@@ -17,6 +17,7 @@ public class AddressNode implements IEntity {
 	private T02Address t02AddressWork;
 	private T02Address t02AddressPublished;
 	private Set addressNodeChildren = new HashSet();
+	private Set fullIndexAddrs = new HashSet();
 	private Set t012ObjAdrs = new HashSet();
 
 	public AddressNode() {}
@@ -92,6 +93,14 @@ public class AddressNode implements IEntity {
 
 	public void setAddressNodeChildren(Set addressNodeChildren) {
 		this.addressNodeChildren = addressNodeChildren;
+	}
+
+	public Set getFullIndexAddrs() {
+		return fullIndexAddrs;
+	}
+
+	public void setFullIndexAddrs(Set fullIndexAddrs) {
+		this.fullIndexAddrs = fullIndexAddrs;
 	}
 
 	public Set getT012ObjAdrs() {

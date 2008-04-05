@@ -7,7 +7,7 @@
          <generator class="hilo"/>
       </id>
       <version name="version" type="integer" column="version"/>
-      <property name="addrId" type="long" column="addr_id"/>
+      <property name="addrNodeId" type="long" column="addr_node_id"/>
       <property name="idxName" type="string" column="idx_name"/>
       <property name="idxValue" type="string" column="idx_value"/>
 

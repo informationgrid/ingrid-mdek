@@ -40,11 +40,6 @@
          <key column="addr_id"/>
          <one-to-many class="AddressComment" not-found="ignore"/>
       </set>
-      <set name="fullIndexAddrs" table="full_index_addr" inverse="true"
-           cascade="all-delete-orphan">
-         <key column="addr_id"/>
-         <one-to-many class="FullIndexAddr" not-found="ignore"/>
-      </set>
       <set name="searchtermAdrs" order-by="line" table="searchterm_adr" inverse="true"
            cascade="all-delete-orphan">
          <key column="adr_id"/>

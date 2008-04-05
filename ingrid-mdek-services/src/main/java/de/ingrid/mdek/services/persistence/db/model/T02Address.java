@@ -38,7 +38,6 @@ public class T02Address implements IEntity {
 	private String responsibleUuid;
 
 	private Set addressComments = new HashSet();
-	private Set fullIndexAddrs = new HashSet();
 	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
 
@@ -283,14 +282,6 @@ public class T02Address implements IEntity {
 
 	public void setAddressComments(Set addressComments) {
 		this.addressComments = addressComments;
-	}
-
-	public Set getFullIndexAddrs() {
-		return fullIndexAddrs;
-	}
-
-	public void setFullIndexAddrs(Set fullIndexAddrs) {
-		this.fullIndexAddrs = fullIndexAddrs;
 	}
 
 	public Set getSearchtermAdrs() {

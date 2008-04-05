@@ -14,6 +14,7 @@ public class ObjectNode implements IEntity {
 	private Long objIdPublished;
 	private String fkObjUuid;
 
+	private Set fullIndexObjs = new HashSet();
 	private T01Object t01ObjectWork;
 	private Set objectNodeChildren = new HashSet();
 	private T01Object t01ObjectPublished;
@@ -68,6 +69,14 @@ public class ObjectNode implements IEntity {
 		this.fkObjUuid = fkObjUuid;
 	}
 
+
+	public Set getFullIndexObjs() {
+		return fullIndexObjs;
+	}
+
+	public void setFullIndexObjs(Set fullIndexObjs) {
+		this.fullIndexObjs = fullIndexObjs;
+	}
 
 	public T01Object getT01ObjectWork() {
 		return t01ObjectWork;

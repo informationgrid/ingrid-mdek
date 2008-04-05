@@ -372,7 +372,7 @@ public class ObjectNodeDaoHibernate
 		// NOTICE: Errors when using "join fetch" !
 		String qString = "from ObjectNode oNode " +
 			"inner join oNode.t01ObjectWork obj " +
-			"inner join obj.fullIndexObjs fidx " +
+			"inner join oNode.fullIndexObjs fidx " +
 			"where " +
 			"fidx.idxName = '" + IDX_NAME_FULLTEXT + "' " +
 			"and fidx.idxValue like '%" + searchTerm + "%'";

@@ -12,6 +12,11 @@
       <property name="objIdPublished" type="long" column="obj_id_published"/>
       <property name="fkObjUuid" type="string" column="fk_obj_uuid"/>
 
+      <set name="fullIndexObjs" table="full_index_obj" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_node_id"/>
+         <one-to-many class="FullIndexObj" not-found="ignore"/>
+      </set>
       <many-to-one name="t01ObjectWork" class="T01Object" column="obj_id" update="false"
                    insert="false"
                    cascade="delete"/>

@@ -6,7 +6,7 @@ public class FullIndexAddr implements IEntity {
 
 	private Long id;
 	private int version;
-	private Long addrId;
+	private Long addrNodeId;
 	private String idxName;
 	private String idxValue;
 
@@ -29,12 +29,12 @@ public class FullIndexAddr implements IEntity {
 		this.version = version;
 	}
 
-	public Long getAddrId() {
-		return addrId;
+	public Long getAddrNodeId() {
+		return addrNodeId;
 	}
 
-	public void setAddrId(Long addrId) {
-		this.addrId = addrId;
+	public void setAddrNodeId(Long addrNodeId) {
+		this.addrNodeId = addrNodeId;
 	}
 
 	public String getIdxName() {
