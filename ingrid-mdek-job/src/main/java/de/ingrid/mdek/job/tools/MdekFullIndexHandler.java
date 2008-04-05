@@ -2,6 +2,8 @@ package de.ingrid.mdek.job.tools;
 
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
@@ -13,9 +15,11 @@ import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
@@ -51,6 +55,8 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
  */
 public class MdekFullIndexHandler implements IFullIndexAccess {
 
+	private static final Logger LOG = Logger.getLogger(MdekFullIndexHandler.class);
+	
 	protected MdekCatalogHandler catalogHandler;
 
 	private IGenericDao<IEntity> daoFullIndexAddr;
@@ -76,11 +82,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	}
 
 	/** Updates data of given address in full index. */
-	// TODO: pass AddressNode when associated with node instead of plain address
-	public void updateAddressIndex(T02Address a) {
+	public void updateAddressIndex(AddressNode aNode) {
 		// template for accessing data in index
 		FullIndexAddr template = new FullIndexAddr();
-		template.setAddrId(a.getId());
+		template.setAddrNodeId(aNode.getId());
 
 		// update full data
 		template.setIdxName(IDX_NAME_FULLTEXT);
@@ -88,18 +93,17 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		if (idxEntry == null) {
 			idxEntry = template;
 		}
-		String data = getFullData(a);
+		String data = getFullData(aNode.getT02AddressWork());
 		idxEntry.setIdxValue(data);
 		
 		daoFullIndexAddr.makePersistent(idxEntry);
 	}
 
 	/** Updates data of given object in full index. */
-	// TODO: pass ObjectNode when associated with node instead of plain object
-	public void updateObjectIndex(T01Object o) {
+	public void updateObjectIndex(ObjectNode oNode) {
 		// template for accessing data in index
 		FullIndexObj template = new FullIndexObj();
-		template.setObjId(o.getId());
+		template.setObjNodeId(oNode.getId());
 
 		// update full data
 		template.setIdxName(IDX_NAME_FULLTEXT);
@@ -107,7 +111,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		if (idxEntry == null) {
 			idxEntry = template;
 		}
-		String data = getFullData(o);
+		String data = getFullData(oNode.getT01ObjectWork());
 		idxEntry.setIdxValue(data);
 		
 		daoFullIndexObj.makePersistent(idxEntry);
@@ -116,6 +120,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	/** Get full data of given address for updating full text index. */
 	private String getFullData(T02Address a) {
 		StringBuffer data = new StringBuffer();
+
+		if (a == null) {
+			// this should never happen, so log to this!
+			LOG.warn("Address for building full text index was null. Returning full text ''!!");
+			return data.toString();
+		}
 		
 		// AddressComment
 		Set<AddressComment> comments = a.getAddressComments();
@@ -160,6 +170,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	/** Get full data of given object for updating full text index. */
 	private String getFullData(T01Object o) {
 		StringBuffer data = new StringBuffer();
+		
+		if (o == null) {
+			// this should never happen, so log to this!
+			LOG.warn("Object for building full text index was null. Returning full text ''!!");
+			return data.toString();
+		}
 		
 		// ObjectComment
 		Set<ObjectComment> comments = o.getObjectComments();
@@ -376,7 +392,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	 * @param freeValue the free value from bean
 	 */
 	private void extendFullDataWithSysList(StringBuffer fullData,
-			MdekSysList sysList, int sysListEntryId, String freeValue) {
+			MdekSysList sysList, Integer sysListEntryId, String freeValue) {
 		String value = getSysListOrFreeValue(sysList, sysListEntryId, freeValue);
 		if (value != null) {
 			extendFullData(fullData, value);			
@@ -389,10 +405,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	 * @param freeValue the free value from bean
 	 * @return value (may be null if entry not found or free value is null ...)
 	 */
-	private String getSysListOrFreeValue(MdekSysList sysList, int sysListEntryId, String freeValue) {
+	private String getSysListOrFreeValue(MdekSysList sysList, Integer sysListEntryId, String freeValue) {
 		String retValue = null;
 
-		if (MdekSysList.FREE_ENTRY.getDbValue().equals(sysListEntryId)) {
+		if (sysListEntryId == null || freeValue == null) {
+			return retValue;
+		} else if (MdekSysList.FREE_ENTRY.getDbValue().equals(sysListEntryId)) {
 			retValue = freeValue;
 		} else {
 			String catalogLanguage = catalogHandler.getCatalogLanguage();

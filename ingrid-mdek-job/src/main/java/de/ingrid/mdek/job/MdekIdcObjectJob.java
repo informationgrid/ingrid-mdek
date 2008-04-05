@@ -275,8 +275,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoT01Object.makePersistent(oWork);
 
 			// UPDATE FULL INDEX !!!
-			// TODO: pass ObjectNode when associated with Node instead of plain object
-			fullIndexHandler.updateObjectIndex(oNode.getT01ObjectWork());
+			fullIndexHandler.updateObjectIndex(oNode);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
@@ -390,8 +389,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.makePersistent(oNode);
 			
 			// UPDATE FULL INDEX !!!
-			// TODO: pass ObjectNode when associated with Node instead of plain object
-			fullIndexHandler.updateObjectIndex(oNode.getT01ObjectWork());
+			fullIndexHandler.updateObjectIndex(oNode);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
@@ -471,6 +469,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					oNode.setObjId(idPublished);
 					oNode.setT01ObjectWork(oNode.getT01ObjectPublished());
 					daoObjectNode.makePersistent(oNode);
+					
+					// UPDATE FULL INDEX !!!
+					fullIndexHandler.updateObjectIndex(oNode);
+					
 				}
 			}
 

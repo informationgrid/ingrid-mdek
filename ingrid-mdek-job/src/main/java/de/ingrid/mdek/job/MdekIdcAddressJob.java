@@ -282,8 +282,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoT02Address.makePersistent(aWork);
 
 			// UPDATE FULL INDEX !!!
-			// TODO: pass AddressNode when associated with Node instead of plain address
-			fullIndexHandler.updateAddressIndex(aNode.getT02AddressWork());
+			fullIndexHandler.updateAddressIndex(aNode);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -391,8 +390,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// checks ok !
 
 			// UPDATE FULL INDEX !!!
-			// TODO: pass AddressNode when associated with Node instead of plain address
-			fullIndexHandler.updateAddressIndex(aNode.getT02AddressWork());
+			fullIndexHandler.updateAddressIndex(aNode);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -592,6 +590,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 					aNode.setAddrId(idPublished);
 					aNode.setT02AddressWork(aNode.getT02AddressPublished());
 					daoAddressNode.makePersistent(aNode);
+					
+					// UPDATE FULL INDEX !!!
+					fullIndexHandler.updateAddressIndex(aNode);
 				}
 			}
 
