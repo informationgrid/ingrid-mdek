@@ -8,13 +8,20 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
+
+import net.weta.components.communication.tcp.TimeoutException;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.ingrid.mdek.job.DateJob;
+import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.JobRepositoryFacade;
+import de.ingrid.mdek.job.repository.Pair;
+import de.ingrid.utils.IngridDocument;
 
 public class MdekClientTest {
 
@@ -196,6 +203,58 @@ public class MdekClientTest {
 
         mdekClient.shutdown();
         Thread.sleep(6000);
+
+        temp.shutdown();
+        Thread.sleep(6000);
+    }
+
+    @Test
+    public void testMessageToBig() throws URISyntaxException, InterruptedException, IOException {
+        MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource(
+                "/communication-server_WithSmallMessageSize.properties").toURI()), new JobRepositoryFacade(null));
+        final MdekServer mdekServer = temp;
+        Assert.assertNotNull(mdekServer);
+        Thread server = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    mdekServer.run();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        });
+        server.start();
+        Thread.sleep(15000);
+
+        MdekClient mdekClient = null;
+        mdekClient = MdekClient
+                .getInstance(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()));
+        Thread.sleep(6000);
+        Assert.assertNotNull(mdekClient);
+        IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade("message-server");
+        Assert.assertNotNull(jobRepositoryFacade);
+        
+        IngridDocument invokeDocument = new IngridDocument();
+        invokeDocument.put(IJobRepository.JOB_ID, DateJob.class.getName());
+        List<Pair> methodList = new ArrayList<Pair>();
+        methodList.add(new Pair("getResults", null));
+        invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
+        invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+        try {
+            jobRepositoryFacade.execute(invokeDocument);
+            Assert.fail();
+        } catch (Throwable e) {
+            // expected
+        }
+        mdekClient.shutdown();
+        mdekClient = MdekClient
+                .getInstance(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()));
+        Thread.sleep(6000);
+        Assert.assertNotNull(mdekClient);
+        jobRepositoryFacade = mdekClient.getJobRepositoryFacade("message-server");
+        Assert.assertNotNull(jobRepositoryFacade);
+
+        mdekClient.shutdown();
 
         temp.shutdown();
         Thread.sleep(6000);
