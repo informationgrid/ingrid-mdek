@@ -180,21 +180,68 @@
 			<xs:element name="search-start-hit" type="xs:integer"/>
 			<xs:element name="search-num-hits" type="xs:integer"/>
 			<xs:element name="search-params" type="SEARCH_PARAMS_MAP"/>
+			<xs:element name="search-ext-params" type="SEARCH_EXT_PARAMS_MAP"/>
 			<!-- query: HQL query -->
 			<xs:element name="hql-query" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="SEARCH_PARAMS_MAP">
-		<xs:all>
+		<xs:choice>
 			<!-- address: search -->
-			<xs:element ref="organisation"/>
-			<xs:element ref="name"/>
-			<xs:element ref="given-name"/>
+			<xs:sequence>
+				<xs:element ref="organisation" />
+				<xs:element ref="name" />
+				<xs:element ref="given-name" />
+			</xs:sequence>
 			<!-- query: full text -->
-			<xs:element name="search_term" type="xs:string"/>
+			<xs:element name="search_term" type="xs:string" />
 			<!-- query: thesaurus term -->
-			<xs:element ref="term-sns-id"/>
-		</xs:all>
+			<xs:element ref="term-sns-id" />
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="SEARCH_EXT_PARAMS_MAP">
+		<xs:choice>
+			<!-- address -->
+			<xs:sequence>
+				<!-- address: extended search: subject: search terms  -->
+				<xs:element name="queryTerm" type="xs:string"/>
+				<xs:element name="relation" type="xs:integer"/>
+				<!-- address: extended search: subject: search mode  -->
+				<xs:element name="searchType" type="xs:integer"/>
+				<xs:element name="searchRange" type="xs:integer"/>
+				<!-- address: extended search: spatial  -->
+				<xs:element name="street" type="xs:string"/>
+				<xs:element name="zipCode" type="xs:string"/>
+				<xs:element name="city" type="xs:string"/>
+			</xs:sequence>
+			<!-- object -->
+			<xs:sequence>
+				<!-- object: extended search: subject: search terms  -->
+				<xs:element name="queryTerm" type="xs:string"/>
+				<xs:element name="relation" type="xs:integer"/>
+				<!-- object: extended search: subject: object classes  -->
+				<xs:element name="objClasses" type="OBJECT_CLASS_LIST"/>
+				<!-- object: extended search: subject: dictionary  -->
+				<xs:element name="thesaurusTerms" type="SUBJECT_TERM_LIST"/>
+				<xs:element name="thesaurusRelation" type="xs:integer"/>
+				<!-- object: extended search: spatial: geo thesaurus  -->
+				<xs:element name="geoThesaurusTerms" type="LOCATION_LIST"/>
+				<xs:element name="geoThesaurusRelation" type="xs:integer"/>
+				<!-- object: extended search: spatial: free reference  -->
+				<xs:element name="customLocation" type="xs:integer"/>
+				<xs:element name="customLocationName" type="xs:string"/> <!-- optional -->
+				<!-- object: extended search: time  -->
+				<xs:choice>
+					<xs:sequence>
+						<xs:element name="timeFrom" type="xs:string"/>
+						<xs:element name="timeTo" type="xs:string"/>
+					</xs:sequence>
+					<xs:element name="timeAt" type="xs:string"/>
+				</xs:choice>
+				<xs:element name="timeIntersect" type="xs:boolean"/>
+				<xs:element name="timeContains" type="xs:boolean"/>
+			</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="REQUEST_SECURITY_MAP">
 		<xs:all>
@@ -685,6 +732,11 @@
 		<xs:sequence>
 			<xs:element name="legislation-value" type="xs:string"/>
 			<xs:element name="legislation-key" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OBJECT_CLASS_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="class"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>
