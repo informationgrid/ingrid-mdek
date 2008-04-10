@@ -147,4 +147,27 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument queryObjectsExtended(String plugId, String hqlQuery,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
+		
+		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsExtended", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument queryAddressesExtended(String plugId, String hqlQuery,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
+		
+		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesExtended", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+	}
+	
 }

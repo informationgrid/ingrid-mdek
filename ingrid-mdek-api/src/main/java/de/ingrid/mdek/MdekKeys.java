@@ -50,11 +50,24 @@ public class MdekKeys {
     public final static String SEARCH_NUM_HITS = "search-num-hits";
     /** Value: IngridDocument encapsulating all search parameters in REQUEST */
     public final static String SEARCH_PARAMS = "search-params";
+    /** Value: IngridDocument encapsulating all search parameters for extended search in REQUEST */
+    public final static String SEARCH_EXT_PARAMS = "search-ext-params";
     /** Value: String */
     public final static String SEARCH_TERM = "search_term";
     /** HQL query string for querying objects/addresses<br>
      * Value: String */
     public final static String HQL_QUERY = "hql-query";
+    
+    /** term for extended search querying objects/addresses<br>
+     * Value: String */
+	public static final String QUERY_TERM = "query-term";
+    /** relation (and, or) for terms for extended search querying objects/addresses<br>
+     * Value: Integer */
+	public static final String RELATION = "relation";
+    /** object classes for extended search querying objects<br>
+	/** Value: List of Integer */
+	public static final String OBJ_CLASSES = "obj-classes";
+    
 
     // RESULT
     /** total number of hits<br>
@@ -678,5 +691,6 @@ public class MdekKeys {
 
     /** Value: String */
     public final static String RELATION_DATE_OF_LAST_MODIFICATION = "relation-date-of-last-modification";
+
 
 }
