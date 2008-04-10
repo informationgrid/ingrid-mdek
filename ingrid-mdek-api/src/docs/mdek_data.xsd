@@ -204,42 +204,44 @@
 			<!-- address -->
 			<xs:sequence>
 				<!-- address: extended search: subject: search terms  -->
-				<xs:element name="queryTerm" type="xs:string"/>
+				<xs:element name="query-term" type="xs:string"/>
 				<xs:element name="relation" type="xs:integer"/>
-				<!-- address: extended search: subject: search mode  -->
-				<xs:element name="searchType" type="xs:integer"/>
-				<xs:element name="searchRange" type="xs:integer"/>
+				<!-- address: extended search: subject: search mode ('whole word'(0), 'partial word'(1)) -->
+				<xs:element name="search-type" type="xs:integer"/>
+				<xs:element name="search-range" type="xs:integer"/>
 				<!-- address: extended search: spatial  -->
 				<xs:element name="street" type="xs:string"/>
-				<xs:element name="zipCode" type="xs:string"/>
+				<xs:element name="zip-code" type="xs:string"/>
 				<xs:element name="city" type="xs:string"/>
 			</xs:sequence>
 			<!-- object -->
 			<xs:sequence>
 				<!-- object: extended search: subject: search terms  -->
-				<xs:element name="queryTerm" type="xs:string"/>
+				<xs:element name="query-term" type="xs:string"/>
+				<!-- object: extended search: subject: search term relations (and = 0, or = 1)  -->
 				<xs:element name="relation" type="xs:integer"/>
 				<!-- object: extended search: subject: object classes  -->
-				<xs:element name="objClasses" type="OBJECT_CLASS_LIST"/>
-				<!-- object: extended search: subject: dictionary  -->
-				<xs:element name="thesaurusTerms" type="SUBJECT_TERM_LIST"/>
-				<xs:element name="thesaurusRelation" type="xs:integer"/>
-				<!-- object: extended search: spatial: geo thesaurus  -->
-				<xs:element name="geoThesaurusTerms" type="LOCATION_LIST"/>
-				<xs:element name="geoThesaurusRelation" type="xs:integer"/>
+				<xs:element name="obj-classes" type="OBJECT_CLASS_LIST"/>
+				<!-- object: extended search: subject: dictionary (only the topic_id will be supplied) -->
+				<xs:element name="thesaurus-terms" type="SUBJECT_TERM_LIST"/>
+				<!-- object: extended search: subject: relations between entries (and = 0, or = 1) -->
+				<xs:element name="thesaurus-relation" type="xs:integer"/>
+				<!-- object: extended search: spatial: geo thesaurus (only the topic_id will be supplied) -->
+				<xs:element name="geo-thesaurus-terms" type="LOCATION_LIST"/>
+				<!-- object: extended search: spatial: relations between entries (and = 0, or = 1) -->
+				<xs:element name="geo-thesaurus-relation" type="xs:integer"/>
 				<!-- object: extended search: spatial: free reference  -->
-				<xs:element name="customLocation" type="xs:integer"/>
-				<xs:element name="customLocationName" type="xs:string"/> <!-- optional -->
+				<xs:element name="custom-location" type="xs:integer"/>
 				<!-- object: extended search: time  -->
 				<xs:choice>
 					<xs:sequence>
-						<xs:element name="timeFrom" type="xs:string"/>
-						<xs:element name="timeTo" type="xs:string"/>
+						<xs:element name="time-from" type="xs:string"/>
+						<xs:element name="time-to" type="xs:string"/>
 					</xs:sequence>
-					<xs:element name="timeAt" type="xs:string"/>
+					<xs:element name="time-at" type="xs:string"/>
 				</xs:choice>
-				<xs:element name="timeIntersect" type="xs:boolean"/>
-				<xs:element name="timeContains" type="xs:boolean"/>
+				<xs:element name="time-intersect" type="xs:boolean"/>
+				<xs:element name="time-contains" type="xs:boolean"/>
 			</xs:sequence>
 		</xs:choice>
 	</xs:complexType>
