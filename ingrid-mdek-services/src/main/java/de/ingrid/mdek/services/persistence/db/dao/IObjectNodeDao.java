@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.utils.IngridDocument;
 
 
 
@@ -87,4 +88,25 @@ public interface IObjectNodeDao
 	 */
 	List<ObjectNode> queryObjectsFullText(String searchTerm,
 			int startHit, int numHits);
+
+	
+	/**
+	 * Query objects according to the parameters supplied.
+	 * 
+	 * @param searchParams The parameters (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
+	 * @param numHits 
+	 * @param startHit 
+	 * @return list of found objects
+	 */
+	List<ObjectNode> queryObjectsExtended(IngridDocument searchParams, int startHit, int numHits);
+
+	
+	/**
+	 * Query total number of objects according to the parameters supplied.
+	 * 
+	 * @param searchParams
+	 * @return
+	 */
+	long queryObjectsExtendedTotalNum(IngridDocument searchParams);
+
 }

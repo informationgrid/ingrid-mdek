@@ -15,6 +15,8 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
+import de.ingrid.utils.IngridDocument;
 
 /**
  * Hibernate-specific implementation of the <tt>IObjectNodeDao</tt>
@@ -357,6 +359,44 @@ public class ObjectNodeDaoHibernate
 		return retList;
 	}
 	
+	public List<ObjectNode> queryObjectsExtended(IngridDocument searchParams,
+			int startHit, int numHits) {
+		
+		List<ObjectNode> retList = new ArrayList<ObjectNode>();
+		
+		// create hql from queryParams
+		String qString = ExtendedSearchHqlUtil.createObjectExtendedSearchQuery(searchParams);
+		
+		Session session = getSession();
+
+		retList = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		return retList;
+		
+	}
+	
+	public long queryObjectsExtendedTotalNum(IngridDocument searchParams) {
+		
+		// create hql from queryParams
+		String qString = ExtendedSearchHqlUtil.createObjectExtendedSearchQuery(searchParams);
+		
+		if (qString == null) {
+			return 0;
+		}
+
+		qString = "select count(distinct oNode) " + qString;
+
+		Session session = getSession();
+
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
+
+		return totalNum;
+	}
+
 	/**
 	 * Create basic query string for querying addresses concerning full text.
 	 * @param searchTerm term to search for
@@ -379,4 +419,5 @@ public class ObjectNodeDaoHibernate
 
 		return qString;
 	}
+
 }

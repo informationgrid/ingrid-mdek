@@ -1,10 +1,14 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -112,4 +116,24 @@ public interface IAddressNodeDao
 	 */
 	List<AddressNode> queryAddressesFullText(String searchTerm,
 			int startHit, int numHits);
+	
+	
+	/**
+	 * Query addresses according to the searchParams supplied.
+	 * 
+	 * @param searchParams The parameters (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
+	 * @param startHit
+	 * @param numHits
+	 * @return list of found addresses
+	 */
+	public List<AddressNode> queryAddressesExtended(IngridDocument searchParams, int startHit, int numHits);
+
+	/**
+	 * Query total number of addresses according to the parameters supplied.
+	 * 
+	 * @param searchParams
+	 * @return
+	 */
+	long queryAddressesExtendedTotalNum(IngridDocument searchParams);
+
 }

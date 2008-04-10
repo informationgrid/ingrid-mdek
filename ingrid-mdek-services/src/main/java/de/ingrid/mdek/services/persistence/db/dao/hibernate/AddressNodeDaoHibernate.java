@@ -18,6 +18,7 @@ import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -444,6 +445,45 @@ public class AddressNodeDaoHibernate
 
 		return retList;
 	}
+
+	public List<AddressNode> queryAddressesExtended(IngridDocument searchParams,
+			int startHit, int numHits) {
+		
+		List<AddressNode> retList = new ArrayList<AddressNode>();
+		
+		// create hql from queryParams
+		String qString = ExtendedSearchHqlUtil.createAddressExtendedSearchQuery(searchParams);
+		
+		Session session = getSession();
+
+		retList = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		return retList;
+		
+	}
+	
+	public long queryAddressesExtendedTotalNum(IngridDocument searchParams) {
+		
+		// create hql from queryParams
+		String qString = ExtendedSearchHqlUtil.createAddressExtendedSearchQuery(searchParams);
+		
+		if (qString == null) {
+			return 0;
+		}
+
+		qString = "select count(distinct aNode) " + qString;
+
+		Session session = getSession();
+
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
+
+		return totalNum;
+	}	
+	
 	
 	/**
 	 * Create basic query string for querying addresses concerning full text.
