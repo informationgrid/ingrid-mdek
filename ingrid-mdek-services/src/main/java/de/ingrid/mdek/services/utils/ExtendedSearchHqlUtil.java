@@ -29,36 +29,87 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		}
 		
 		String fromString = "from ObjectNode oNode inner join oNode.t01ObjectWork obj";
-		String whereString = "where";
+		String whereString = " where";
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
-		Integer relation = searchParams.getInt(MdekKeys.RELATION);
+		int relation = (Integer)searchParams.get(MdekKeys.RELATION);
 		// parse queryTerm to extract multiple search entries and phrase tokens
 		String[] searchTerms = getSearchTerms(queryTerm);
 		if (searchTerms.length > 0) {
 			fromString += " inner join oNode.fullIndexObjs fidx";
-			whereString += " fidx.idxName = '" + IDX_NAME_FULLTEXT + "'";
+			whereString += " fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (";
 			String op;
-			if (relation == null || relation.intValue() == 0) {
-				op = "and";
+			if (relation == 0) {
+				op = " and ";
 			} else {
-				op = "or";
+				op = " or ";
 			}
 			for (String term : searchTerms) {
-				whereString += " " + op + " fidx.idxValue like '%" + term + "%'";
+				whereString += "fidx.idxValue like '%" + term + "%'" + op;
 			}
+			whereString = whereString.substring(0, whereString.lastIndexOf(op));
+			whereString += ")";
 		}
 		
 		List<Integer> objClasses = (List<Integer>)searchParams.get(MdekKeys.OBJ_CLASSES);
 		if (objClasses != null && objClasses.size() > 0) {
 			whereString += " and (";
 			for (Integer objClass : objClasses) {
-				whereString += "obj.idxValue like '%" + objClass + "%' or ";
+				whereString += "obj.objClass = " + objClass + " or ";
 			}
 			whereString = whereString.substring(0, whereString.lastIndexOf(" or "));
 			whereString += ")";
 		}
+		
+		List<IngridDocument> thesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.THESAURUS_TERMS);
+		if (thesaurusTerms != null && thesaurusTerms.size() > 0) {
+			int thesaurusRelation = (Integer)searchParams.get(MdekKeys.THESAURUS_RELATION);
+			fromString += " inner join obj.searchtermObjs stObjs inner join stObjs.searchtermValue stVal inner join stVal.searchtermSns stSns";
+			whereString += " and stVal.type='T' and (";
+			String op;
+			if (thesaurusRelation == 0) {
+				op = " and ";
+			} else {
+				op = " or ";
+			}
+			for (IngridDocument thesTermDoc : thesaurusTerms) {
+				whereString += "stSns.snsId = '" + thesTermDoc.getString(MdekKeys.TERM_SNS_ID) + "'" + op;
+			}
+			whereString = whereString.substring(0, whereString.lastIndexOf(op));
+			whereString += ")";
+		}
 
+		List<IngridDocument> geoThesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.GEO_THESAURUS_TERMS);
+		if (geoThesaurusTerms != null && geoThesaurusTerms.size() > 0) {
+			int geoThesaurusRelation = (Integer)searchParams.get(MdekKeys.GEO_THESAURUS_RELATION);
+			fromString += " inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal inner join spcRefVal.spatialRefSns spcRefSns";
+			whereString += " and spcRefVal.type='G' and (";
+			String op;
+			if (geoThesaurusRelation == 0) {
+				op = " and ";
+			} else {
+				op = " or ";
+			}
+			for (IngridDocument geoThesTermDoc : geoThesaurusTerms) {
+				whereString += "spcRefSns.snsId LIKE '" + geoThesTermDoc.getString(MdekKeys.LOCATION_SNS_ID) + "%'" + op;
+			}
+			whereString = whereString.substring(0, whereString.lastIndexOf(op));
+			whereString += ")";
+		}
+		
+		Integer customLocation = (Integer)searchParams.get(MdekKeys.CUSTOM_LOCATION);
+		if (customLocation != null) {
+			if (fromString.indexOf("spcRefVal") == -1) {
+				fromString += " inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal";
+			}
+			whereString += " and spcRefVal.nameKey = " + customLocation;
+		}
+
+		String timeFrom = searchParams.getString(MdekKeys.TIME_FROM);
+		String timeTo = searchParams.getString(MdekKeys.TIME_TO);
+		String timeAr = searchParams.getString(MdekKeys.TIME_AT);
+		
+		
 		String qString = fromString + whereString;
 
 		return qString;
@@ -88,7 +139,11 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			TermQuery[] queries = getAllTerms(q);
 			String[] result = new String[queries.length];
 			for (int i=0; i<queries.length; i++) {
-				result[i] = queries[i].getTerm();
+				if (queries[i].getTerm().startsWith("\"") && queries[i].getTerm().endsWith("\"")) {
+					result[i] = queries[i].getTerm().substring(1).substring(0, queries[i].getTerm().lastIndexOf("\""));
+				} else {
+					result[i] = queries[i].getTerm();
+				}
 			}
 			return result;
 		} catch (ParseException e) {
