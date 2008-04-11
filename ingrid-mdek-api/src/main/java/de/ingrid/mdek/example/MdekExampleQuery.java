@@ -355,6 +355,26 @@ class MdekExampleQueryThread extends Thread {
 
 		doFullOutput = true;
 
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println(" EXTENDED SEARCH OBJECTS");
+		System.out.println("=========================");
+		
+		System.out.println("\n----- search objects by extended search -----");
+		System.out.println("\n----- search objects by extended search -----");
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.QUERY_TERM, "Göttingen");
+		searchParams.put(MdekKeys.RELATION, new Integer(0));
+
+		hits = queryObjectsExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		}
+
+		
 		// ===================================
 
 		long exampleEndTime = System.currentTimeMillis();
@@ -717,6 +737,42 @@ class MdekExampleQueryThread extends Thread {
 		return hits;
 	}
 
+	private List<IngridDocument> queryObjectsExtended(IngridDocument searchParams,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE queryObjectsExtended ######");
+		System.out.println("- startHit:" + startHit);
+		System.out.println("- numHits:" + numHits);
+		System.out.println("- searchParams:" + searchParams);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerQuery.queryObjectsExtended(plugId, searchParams, startHit, numHits, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		List<IngridDocument> hits = null;
+		if (result != null) {
+			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
+			doFullOutput = false;
+			for (IngridDocument hit : hits) {
+				debugObjectDoc(hit);
+			}
+			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+
+		return hits;
+	}
+	
+	
 	private List<IngridDocument> queryObjectsThesaurusTerm(String termSnsId,
 			int startHit, int numHits) {
 		long startTime;

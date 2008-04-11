@@ -91,6 +91,12 @@ public class MdekKeys {
     /** temporal reference for extended search querying objects<br>
 	/** Value: String */
 	public static final String TIME_AT = "time-at";
+    /** temporal reference for extended search querying objects<br>
+	/** Value: Boolean */
+	public static final String TIME_INTERSECT = "time-intersect";
+    /** temporal reference for extended search querying objects<br>
+	/** Value: Boolean */
+	public static final String TIME_CONTAINS = "time-contains";
 	
     
 
@@ -716,6 +722,7 @@ public class MdekKeys {
 
     /** Value: String */
     public final static String RELATION_DATE_OF_LAST_MODIFICATION = "relation-date-of-last-modification";
+
 
 
 

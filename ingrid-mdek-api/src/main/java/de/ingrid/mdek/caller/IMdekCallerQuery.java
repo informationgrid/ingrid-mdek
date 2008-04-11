@@ -1,5 +1,8 @@
 package de.ingrid.mdek.caller;
 
+import java.util.List;
+
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -87,4 +90,29 @@ public interface IMdekCallerQuery {
 	 */
 	IngridDocument queryHQLToCsv(String plugId, String hqlQuery,
 			String userId);
+
+	/**
+	 * Search objects according to the searchParams supplied (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
+	 * 
+	 * @param plugId which mdek server (iplug)
+	 * @param searchParams The search params (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
+	 * @param startHit hit to start with (first hit is 0) 
+	 * @param numHits number of hits requested, beginning from startHit
+	 * @param userId
+	 * @return
+	 */
+	IngridDocument queryObjectsExtended(String plugId, IngridDocument searchParams, int startHit, int numHits, String userId);
+
+	/**
+	 * Search addresses according to the searchParams supplied (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
+	 * 
+	 * @param plugId which mdek server (iplug)
+	 * @param searchParams The search params (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
+	 * @param startHit hit to start with (first hit is 0) 
+	 * @param numHits number of hits requested, beginning from startHit
+	 * @param userId
+	 * @return
+	 */
+	IngridDocument queryAddressesExtended(String plugId, IngridDocument searchParams, int startHit, int numHits, String userId);
+
 }

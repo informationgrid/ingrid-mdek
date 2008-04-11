@@ -18,11 +18,11 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 
 	private final static Logger log = Logger.getLogger(MdekCallerQuery.class);
 
-	private static MdekCallerQuery myInstance;
-	private IMdekCaller mdekCaller;
+	private static IMdekCallerQuery myInstance;
+	IMdekCaller mdekCaller;
 
 	// Jobs
-	private static String MDEK_IDC_QUERY_JOB_ID = "de.ingrid.mdek.job.MdekIdcQueryJob";
+	static String MDEK_IDC_QUERY_JOB_ID = "de.ingrid.mdek.job.MdekIdcQueryJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -47,7 +47,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !
 	 * @return null if not initialized
 	 */
-	public static MdekCallerQuery getInstance() {
+	public static IMdekCallerQuery getInstance() {
 		if (myInstance == null) {
 			log.warn("WARNING! INITIALIZE " + MdekCallerQuery.class + " instance before fetching it !!! we return null !!!");
 		}
@@ -148,22 +148,26 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument queryObjectsExtended(String plugId, String hqlQuery,
-			String userId) {
+	public IngridDocument queryObjectsExtended(String plugId, IngridDocument searchParams,
+			int startHit, int numHits, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
-		
+		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
+		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
+
 		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsExtended", jobParams);
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument queryAddressesExtended(String plugId, String hqlQuery,
-			String userId) {
+	public IngridDocument queryAddressesExtended(String plugId, IngridDocument searchParams,
+			int startHit, int numHits, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
+		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
+		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
 		
 		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesExtended", jobParams);
 
