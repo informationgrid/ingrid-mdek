@@ -107,8 +107,50 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 
 		String timeFrom = searchParams.getString(MdekKeys.TIME_FROM);
 		String timeTo = searchParams.getString(MdekKeys.TIME_TO);
-		String timeAr = searchParams.getString(MdekKeys.TIME_AT);
+		String timeAt = searchParams.getString(MdekKeys.TIME_AT);
+		Boolean timeIntersect = (Boolean)searchParams.get(MdekKeys.TIME_INTERSECT);
+		Boolean timeContains = (Boolean)searchParams.get(MdekKeys.TIME_CONTAINS);
+		if (timeFrom != null && timeFrom.length() == 0) {
+			timeFrom = null;
+		}
+		if (timeTo != null && timeTo.length() == 0) {
+			timeTo = null;
+		}
+		if (timeAt != null && timeAt.length() == 0) {
+			timeAt = null;
+		}
+		if (timeIntersect == null) {
+			timeIntersect = false;
+		}
+		if (timeContains == null) {
+			timeContains = false;
+		}
 		
+		if (timeFrom != null && timeTo != null) {
+			whereString += " and ((obj.timeFrom >= '" + timeFrom + "' and obj.timeTo <= '" + timeTo + "')";
+			if (timeContains) {
+				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo >= '" + timeTo + "')";
+			}
+			if (timeIntersect) {
+				whereString += " or (obj.timeFrom >= '" + timeFrom + "' and obj.timeTo >= '" + timeTo + "')";
+				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo <= '" + timeTo + "')";
+			}
+			whereString += ")";
+		} else if (timeFrom != null && timeTo == null) {
+			whereString += " and ((obj.timeFrom >= '" + timeFrom + "')";
+			if (timeIntersect) {
+				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo >= '" + timeFrom + "')";
+			}
+			whereString += ")";
+		} else if (timeFrom == null && timeTo != null) {
+			whereString += " and ((obj.timeTo <= '" + timeTo + "')";
+			if (timeIntersect) {
+				whereString += " or (obj.timeTo >= '" + timeTo + "' and obj.timeFrom <= '" + timeTo + "')";
+			}
+			whereString += ")";
+		} else if (timeAt != null) {
+			whereString += " and obj.timeFrom == '" + timeAt + "%' and obj.timeType == 'am'";
+		}
 		
 		String qString = fromString + whereString;
 
