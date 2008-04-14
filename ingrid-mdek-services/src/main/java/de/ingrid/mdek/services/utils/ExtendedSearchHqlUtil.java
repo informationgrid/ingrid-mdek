@@ -28,16 +28,16 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			return null;
 		}
 		
-		String fromString = "from ObjectNode oNode inner join oNode.t01ObjectWork obj";
-		String whereString = "";
+		StringBuilder fromString = new StringBuilder("from ObjectNode oNode inner join oNode.t01ObjectWork obj");
+		StringBuilder whereString = new StringBuilder("");
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
 		int relation = (Integer)searchParams.get(MdekKeys.RELATION);
 		// parse queryTerm to extract multiple search entries and phrase tokens
 		String[] searchTerms = getSearchTerms(queryTerm);
 		if (searchTerms.length > 0) {
-			fromString += " inner join oNode.fullIndexObjs fidx";
-			whereString += " fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (";
+			fromString.append(" inner join oNode.fullIndexObjs fidx");
+			whereString.append(" fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (");
 			String op;
 			if (relation == 0) {
 				op = " and ";
@@ -45,33 +45,33 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				op = " or ";
 			}
 			for (String term : searchTerms) {
-				whereString += "fidx.idxValue like '%" + term + "%'" + op;
+				whereString.append("fidx.idxValue like '%").append(term).append("%'").append(op);
 			}
-			whereString = whereString.substring(0, whereString.lastIndexOf(op));
-			whereString += ")";
+			whereString.delete(whereString.lastIndexOf(op), whereString.length());
+			whereString.append(")");
 		}
 		
 		List<Integer> objClasses = (List<Integer>)searchParams.get(MdekKeys.OBJ_CLASSES);
 		if (objClasses != null && objClasses.size() > 0) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " (";
+			whereString.append(" (");
 			for (Integer objClass : objClasses) {
-				whereString += "obj.objClass = " + objClass + " or ";
+				whereString.append("obj.objClass = ").append(objClass).append(" or ");
 			}
-			whereString = whereString.substring(0, whereString.lastIndexOf(" or "));
-			whereString += ")";
+			whereString.delete(whereString.lastIndexOf(" or "), whereString.length());
+			whereString.append(")");
 		}
 		
 		List<IngridDocument> thesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.THESAURUS_TERMS);
 		if (thesaurusTerms != null && thesaurusTerms.size() > 0) {
 			int thesaurusRelation = (Integer)searchParams.get(MdekKeys.THESAURUS_RELATION);
-			fromString += " inner join obj.searchtermObjs stObjs inner join stObjs.searchtermValue stVal inner join stVal.searchtermSns stSns";
+			fromString.append(" inner join obj.searchtermObjs stObjs inner join stObjs.searchtermValue stVal inner join stVal.searchtermSns stSns");
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " stVal.type='T' and (";
+			whereString.append(" stVal.type='T' and (");
 			String op;
 			if (thesaurusRelation == 0) {
 				op = " and ";
@@ -79,20 +79,20 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				op = " or ";
 			}
 			for (IngridDocument thesTermDoc : thesaurusTerms) {
-				whereString += "stSns.snsId = '" + thesTermDoc.getString(MdekKeys.TERM_SNS_ID) + "'" + op;
+				whereString.append("stSns.snsId = '").append(thesTermDoc.getString(MdekKeys.TERM_SNS_ID)).append("'").append(op);
 			}
-			whereString = whereString.substring(0, whereString.lastIndexOf(op));
-			whereString += ")";
+			whereString.delete(whereString.lastIndexOf(op), whereString.length());
+			whereString.append(")");
 		}
 
 		List<IngridDocument> geoThesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.GEO_THESAURUS_TERMS);
 		if (geoThesaurusTerms != null && geoThesaurusTerms.size() > 0) {
 			int geoThesaurusRelation = (Integer)searchParams.get(MdekKeys.GEO_THESAURUS_RELATION);
-			fromString += " inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal inner join spcRefVal.spatialRefSns spcRefSns";
+			fromString.append(" inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal inner join spcRefVal.spatialRefSns spcRefSns");
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " spcRefVal.type='G' and (";
+			whereString.append(" spcRefVal.type='G' and (");
 			String op;
 			if (geoThesaurusRelation == 0) {
 				op = " and ";
@@ -100,21 +100,21 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				op = " or ";
 			}
 			for (IngridDocument geoThesTermDoc : geoThesaurusTerms) {
-				whereString += "spcRefSns.snsId LIKE '" + geoThesTermDoc.getString(MdekKeys.LOCATION_SNS_ID) + "%'" + op;
+				whereString.append("spcRefSns.snsId LIKE '").append(geoThesTermDoc.getString(MdekKeys.LOCATION_SNS_ID)).append("%'").append(op);
 			}
-			whereString = whereString.substring(0, whereString.lastIndexOf(op));
-			whereString += ")";
+			whereString.delete(whereString.lastIndexOf(op), whereString.length());
+			whereString.append(")");
 		}
 		
 		Integer customLocation = (Integer)searchParams.get(MdekKeys.CUSTOM_LOCATION);
 		if (customLocation != null) {
 			if (fromString.indexOf("spcRefVal") == -1) {
-				fromString += " inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal";
+				fromString.append(" inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal");
 			}
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " spcRefVal.nameKey = " + customLocation;
+			whereString.append(" spcRefVal.nameKey = ").append(customLocation);
 		}
 
 		String timeFrom = searchParams.getString(MdekKeys.TIME_FROM);
@@ -140,43 +140,43 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		
 		if (timeFrom != null && timeTo != null) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " ((obj.timeFrom >= '" + timeFrom + "' and obj.timeTo <= '" + timeTo + "')";
+			whereString.append(" ((obj.timeFrom >= '").append(timeFrom).append("' and obj.timeTo <= '").append(timeTo).append("')");
 			if (timeContains) {
-				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo >= '" + timeTo + "')";
+				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeTo).append("')");
 			}
 			if (timeIntersect) {
-				whereString += " or (obj.timeFrom >= '" + timeFrom + "' and obj.timeTo >= '" + timeTo + "')";
-				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo <= '" + timeTo + "')";
+				whereString.append(" or (obj.timeFrom >= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeTo).append("')");
+				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo <= '").append(timeTo).append("')");
 			}
-			whereString += ")";
+			whereString.append(")");
 		} else if (timeFrom != null && timeTo == null) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " ((obj.timeFrom >= '" + timeFrom + "')";
+			whereString.append(" ((obj.timeFrom >= '").append(timeFrom).append("')");
 			if (timeIntersect) {
-				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo >= '" + timeFrom + "')";
+				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeFrom).append("')");
 			}
-			whereString += ")";
+			whereString.append(")");
 		} else if (timeFrom == null && timeTo != null) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " ((obj.timeTo <= '" + timeTo + "')";
+			whereString.append(" ((obj.timeTo <= '").append(timeTo).append("')");
 			if (timeIntersect) {
-				whereString += " or (obj.timeTo >= '" + timeTo + "' and obj.timeFrom <= '" + timeTo + "')";
+				whereString.append(" or (obj.timeTo >= '").append(timeTo).append("' and obj.timeFrom <= '").append(timeTo).append("')");
 			}
-			whereString += ")";
+			whereString.append(")");
 		} else if (timeAt != null) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " obj.timeFrom == '" + timeAt + "%' and obj.timeType == 'am'";
+			whereString.append(" obj.timeFrom == '").append(timeAt).append("%' and obj.timeType == 'am'");
 		}
 		
-		String qString = fromString + " where" + whereString;
+		String qString = fromString.append(" where").append(whereString).toString();
 
 		return qString;
 		
@@ -188,8 +188,8 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			return null;
 		}
 		
-		String fromString = "from AddressNode aNode inner join aNode.t02AddressWork addr";
-		String whereString = "";
+		StringBuilder fromString = new StringBuilder("from AddressNode aNode inner join aNode.t02AddressWork addr");
+		StringBuilder whereString = new StringBuilder("");
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
 		Integer relation = (Integer)searchParams.get(MdekKeys.RELATION);
@@ -198,11 +198,11 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		// parse queryTerm to extract multiple search entries and phrase tokens
 		String[] searchTerms = getSearchTerms(queryTerm);
 		if (searchTerms.length > 0) {
-			fromString += " inner join aNode.fullIndexAddrs fidx";
+			fromString.append(" inner join aNode.fullIndexAddrs fidx");
 			if (searchRange == null || searchRange == 0) {
-				whereString += " fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (";
+				whereString.append(" fidx.idxName = '").append(IDX_NAME_FULLTEXT).append("' and (");
 			} else {
-				whereString += " fidx.idxName = '" + IDX_NAME_PARTIAL + "' and (";
+				whereString.append(" fidx.idxName = '").append(IDX_NAME_PARTIAL).append("' and (");
 			}
 			String op;
 			if (relation == null || relation == 0) {
@@ -212,39 +212,39 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			}
 			for (String term : searchTerms) {
 				if (searchType == null || searchType == 0) {
-					whereString += "(fidx.idxValue like '% " + term + " %' or fidx.idxValue like '%|" + term + "%|' or fidx.idxValue like '%|" + term + " %' or fidx.idxValue like '%" + term + "|%')" + op;
+					whereString.append("(fidx.idxValue like '% ").append(term).append(" %' or fidx.idxValue like '%|").append(term).append("%|' or fidx.idxValue like '%|").append(term).append(" %' or fidx.idxValue like '%").append(term).append("|%')").append(op);
 				} else {
-					whereString += "fidx.idxValue like '%" + term + "%'" + op;
+					whereString.append("fidx.idxValue like '%").append(term).append("%'").append(op);
 				}
 			}
-			whereString = whereString.substring(0, whereString.lastIndexOf(op));
-			whereString += ")";
+			whereString.delete(whereString.lastIndexOf(op), whereString.length());
+			whereString.append(")");
 		}
 		
 		
 		String street = searchParams.getString(MdekKeys.STREET);
 		if (street != null && street.length() > 0) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " addr.street like '%" + street + "%'";
+			whereString.append(" addr.street like '%").append(street).append("%'");
 		}
 		String city = searchParams.getString(MdekKeys.CITY);
 		if (city != null && city.length() > 0) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " addr.city like '%" + city + "%'";
+			whereString.append(" addr.city like '%").append(city).append("%'");
 		}
 		String postalCode = searchParams.getString(MdekKeys.POSTAL_CODE);
 		if (postalCode != null && postalCode.length() > 0) {
 			if (whereString.length() > 0) {
-				whereString += " and";
+				whereString.append(" and");
 			}
-			whereString += " (addr.postcode like '%" + postalCode + "%' or addr.postboxPc like '%" + postalCode + "%')";
+			whereString.append(" (addr.postcode like '%").append(postalCode).append("%' or addr.postboxPc like '%").append(postalCode).append("%')");
 		}
 		
-		String qString = fromString + " where" + whereString;
+		String qString = fromString.append(" where").append(whereString).toString();
 
 		return qString;
 		
