@@ -64,7 +64,7 @@ public class MdekKeys {
     /** relation (and = 0, or = 1) for terms for extended search querying objects/addresses<br>
      * Value: Integer */
 	public static final String RELATION = "relation";
-    /** object classes for extended search querying objects<br>
+	/** object classes for extended search querying objects<br>
 	/** Value: List of Integer */
 	public static final String OBJ_CLASSES = "obj-classes";
     /** thesaurus for extended search querying objects (only the term-sns-id will be supplied)<br>
@@ -97,7 +97,12 @@ public class MdekKeys {
     /** temporal reference for extended search querying objects<br>
 	/** Value: Boolean */
 	public static final String TIME_CONTAINS = "time-contains";
-	
+    /** address: extended search: subject: search mode ('whole word'(0), 'partial word'(1))<br>
+     * Value: Integer */
+	public static final String SEARCH_TYPE = "search-type";
+    /** address: extended search: subject: search range ('all text fields'(0), 'institutions, person, description, keywords'(1))<br>
+     * Value: Integer */
+	public static final String SEARCH_RANGE = "search-range";
     
 
     // RESULT

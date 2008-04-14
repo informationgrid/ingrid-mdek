@@ -200,13 +200,57 @@ class MdekExampleQueryThread extends Thread {
 // ====================
 // test single stuff
 // -----------------------------------
-		/*
 		// add functionality !
+
+		System.out.println("\n\n=========================");
+		System.out.println(" EXTENDED SEARCH ADDRESSES");
+		System.out.println("=========================");
+		
+		System.out.println("\n----- search addresses by extended search query: Wirtschaft -----");
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.QUERY_TERM, "Wirtschaft");
+		searchParams.put(MdekKeys.RELATION, new Integer(0));
+
+		hits = queryAddressesExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		}
+		
+		System.out.println("\n----- search addresses by extended search query: Wirtschaft, partial word -----");
+		searchParams.put(MdekKeys.SEARCH_TYPE, new Integer(1));
+		hits = queryAddressesExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		}
+		
+		System.out.println("\n----- search addresses by extended search query: Wirtschaft, partial word, partial-index -----");
+		searchParams.put(MdekKeys.SEARCH_RANGE, new Integer(1));
+		hits = queryAddressesExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		}
+
+		System.out.println("\n----- search addresses by extended search query: Wirtschaft, partial word, partial-index, city:Braunschweig -----");
+		searchParams.put(MdekKeys.CITY, "Braunschweig");
+		hits = queryAddressesExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		}
+		
 
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
+		/*
 // ===================================
 */
 
@@ -362,7 +406,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("=========================");
 		
 		System.out.println("\n----- search objects by extended search query: Göttingen -----");
-		IngridDocument searchParams = new IngridDocument();
+		searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.QUERY_TERM, "Göttingen");
 		searchParams.put(MdekKeys.RELATION, new Integer(0));
 
@@ -800,7 +844,41 @@ class MdekExampleQueryThread extends Thread {
 
 		return hits;
 	}
-	
+
+	private List<IngridDocument> queryAddressesExtended(IngridDocument searchParams,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE queryAdressesExtended ######");
+		System.out.println("- startHit:" + startHit);
+		System.out.println("- numHits:" + numHits);
+		System.out.println("- searchParams:" + searchParams);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerQuery.queryAddressesExtended(plugId, searchParams, startHit, numHits, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		List<IngridDocument> hits = null;
+		if (result != null) {
+			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
+			doFullOutput = false;
+			for (IngridDocument hit : hits) {
+				debugAddressDoc(hit);
+			}
+			doFullOutput = true;
+		} else {
+			handleError(response);
+		}
+
+		return hits;
+	}	
 	
 	private List<IngridDocument> queryObjectsThesaurusTerm(String termSnsId,
 			int startHit, int numHits) {

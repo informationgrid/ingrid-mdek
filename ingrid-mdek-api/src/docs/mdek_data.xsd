@@ -208,10 +208,11 @@
 				<xs:element name="relation" type="xs:integer"/>
 				<!-- address: extended search: subject: search mode ('whole word'(0), 'partial word'(1)) -->
 				<xs:element name="search-type" type="xs:integer"/>
+				<!-- address: extended search: subject: search range ('all text fields'(0), 'institutions, person, description, keywords'(1)) -->
 				<xs:element name="search-range" type="xs:integer"/>
 				<!-- address: extended search: spatial  -->
 				<xs:element name="street" type="xs:string"/>
-				<xs:element name="zip-code" type="xs:string"/>
+				<xs:element name="postal-code" type="xs:string"/>
 				<xs:element name="city" type="xs:string"/>
 			</xs:sequence>
 			<!-- object -->
