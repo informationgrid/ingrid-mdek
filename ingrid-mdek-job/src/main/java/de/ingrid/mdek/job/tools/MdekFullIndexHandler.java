@@ -97,6 +97,22 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		idxEntry.setIdxValue(data);
 		
 		daoFullIndexAddr.makePersistent(idxEntry);
+
+		// template for accessing data in index
+		template = new FullIndexAddr();
+		template.setAddrNodeId(aNode.getId());
+
+		// update full data
+		template.setIdxName(IDX_NAME_PARTIAL);
+		idxEntry = (FullIndexAddr) daoFullIndexAddr.findUniqueByExample(template);		
+		if (idxEntry == null) {
+			idxEntry = template;
+		}
+		data = getPartialData(aNode.getT02AddressWork());
+		idxEntry.setIdxValue(data);
+		
+		daoFullIndexAddr.makePersistent(idxEntry);
+	
 	}
 
 	/** Updates data of given object in full index. */
@@ -141,6 +157,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 				extendFullData(data, termValue.getTerm());
 			} else if (termType == SearchtermType.THESAURUS) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
+				extendFullData(data, termValue.getTerm());
 			}
 		}
 		// T021Communication
@@ -167,6 +184,37 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		return data.toString();
 	}
 
+	/** Get partial data of given address for updating full text index. */
+	private String getPartialData(T02Address a) {
+		StringBuffer data = new StringBuffer();
+
+		if (a == null) {
+			// this should never happen, so log to this!
+			LOG.warn("Address for building partial index was null. Returning partial data ''!!");
+			return data.toString();
+		}
+		
+		// SearchtermAdr
+		Set<SearchtermAdr> terms = a.getSearchtermAdrs();
+		for (SearchtermAdr term : terms) {
+			SearchtermValue termValue = term.getSearchtermValue();
+			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
+			if (termType == SearchtermType.FREI) {
+				extendFullData(data, termValue.getTerm());
+			} else if (termType == SearchtermType.THESAURUS) {
+				extendFullData(data, termValue.getTerm());
+				extendFullData(data, termValue.getSearchtermSns().getSnsId());
+			}
+		}
+		// T02Address
+		extendFullData(data, a.getInstitution());
+		extendFullData(data, a.getLastname());
+		extendFullData(data, a.getFirstname());
+		extendFullData(data, a.getDescr());
+
+		return data.toString();
+	}	
+	
 	/** Get full data of given object for updating full text index. */
 	private String getFullData(T01Object o) {
 		StringBuffer data = new StringBuffer();
