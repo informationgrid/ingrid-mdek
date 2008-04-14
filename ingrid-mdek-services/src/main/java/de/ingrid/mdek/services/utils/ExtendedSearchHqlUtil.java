@@ -29,7 +29,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		}
 		
 		String fromString = "from ObjectNode oNode inner join oNode.t01ObjectWork obj";
-		String whereString = " where";
+		String whereString = "";
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
 		int relation = (Integer)searchParams.get(MdekKeys.RELATION);
@@ -53,7 +53,10 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		
 		List<Integer> objClasses = (List<Integer>)searchParams.get(MdekKeys.OBJ_CLASSES);
 		if (objClasses != null && objClasses.size() > 0) {
-			whereString += " and (";
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " (";
 			for (Integer objClass : objClasses) {
 				whereString += "obj.objClass = " + objClass + " or ";
 			}
@@ -65,7 +68,10 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		if (thesaurusTerms != null && thesaurusTerms.size() > 0) {
 			int thesaurusRelation = (Integer)searchParams.get(MdekKeys.THESAURUS_RELATION);
 			fromString += " inner join obj.searchtermObjs stObjs inner join stObjs.searchtermValue stVal inner join stVal.searchtermSns stSns";
-			whereString += " and stVal.type='T' and (";
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " stVal.type='T' and (";
 			String op;
 			if (thesaurusRelation == 0) {
 				op = " and ";
@@ -83,7 +89,10 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		if (geoThesaurusTerms != null && geoThesaurusTerms.size() > 0) {
 			int geoThesaurusRelation = (Integer)searchParams.get(MdekKeys.GEO_THESAURUS_RELATION);
 			fromString += " inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal inner join spcRefVal.spatialRefSns spcRefSns";
-			whereString += " and spcRefVal.type='G' and (";
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " spcRefVal.type='G' and (";
 			String op;
 			if (geoThesaurusRelation == 0) {
 				op = " and ";
@@ -102,7 +111,10 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			if (fromString.indexOf("spcRefVal") == -1) {
 				fromString += " inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal";
 			}
-			whereString += " and spcRefVal.nameKey = " + customLocation;
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " spcRefVal.nameKey = " + customLocation;
 		}
 
 		String timeFrom = searchParams.getString(MdekKeys.TIME_FROM);
@@ -127,7 +139,10 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		}
 		
 		if (timeFrom != null && timeTo != null) {
-			whereString += " and ((obj.timeFrom >= '" + timeFrom + "' and obj.timeTo <= '" + timeTo + "')";
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " ((obj.timeFrom >= '" + timeFrom + "' and obj.timeTo <= '" + timeTo + "')";
 			if (timeContains) {
 				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo >= '" + timeTo + "')";
 			}
@@ -137,22 +152,31 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			}
 			whereString += ")";
 		} else if (timeFrom != null && timeTo == null) {
-			whereString += " and ((obj.timeFrom >= '" + timeFrom + "')";
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " ((obj.timeFrom >= '" + timeFrom + "')";
 			if (timeIntersect) {
 				whereString += " or (obj.timeFrom <= '" + timeFrom + "' and obj.timeTo >= '" + timeFrom + "')";
 			}
 			whereString += ")";
 		} else if (timeFrom == null && timeTo != null) {
-			whereString += " and ((obj.timeTo <= '" + timeTo + "')";
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " ((obj.timeTo <= '" + timeTo + "')";
 			if (timeIntersect) {
 				whereString += " or (obj.timeTo >= '" + timeTo + "' and obj.timeFrom <= '" + timeTo + "')";
 			}
 			whereString += ")";
 		} else if (timeAt != null) {
-			whereString += " and obj.timeFrom == '" + timeAt + "%' and obj.timeType == 'am'";
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " obj.timeFrom == '" + timeAt + "%' and obj.timeType == 'am'";
 		}
 		
-		String qString = fromString + whereString;
+		String qString = fromString + " where" + whereString;
 
 		return qString;
 		
@@ -163,14 +187,67 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		if (searchParams == null) {
 			return null;
 		}
-
-		// NOTICE: Errors when using "join fetch" !
-		String qString = "from AddressNode aNode " +
-			"inner join aNode.t02AddressWork addr " +
-			"where " +
-			"addr.intitution = 'TEST'";
+		
+		String fromString = "from AddressNode aNode inner join aNode.t02AddressWork addr";
+		String whereString = "";
+		
+		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
+		Integer relation = (Integer)searchParams.get(MdekKeys.RELATION);
+		Integer searchType = (Integer)searchParams.get(MdekKeys.SEARCH_TYPE);
+		Integer searchRange = (Integer)searchParams.get(MdekKeys.SEARCH_RANGE);
+		// parse queryTerm to extract multiple search entries and phrase tokens
+		String[] searchTerms = getSearchTerms(queryTerm);
+		if (searchTerms.length > 0) {
+			fromString += " inner join aNode.fullIndexAddrs fidx";
+			if (searchRange == null || searchRange == 0) {
+				whereString += " fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (";
+			} else {
+				whereString += " fidx.idxName = '" + IDX_NAME_PARTIAL + "' and (";
+			}
+			String op;
+			if (relation == null || relation == 0) {
+				op = " and ";
+			} else {
+				op = " or ";
+			}
+			for (String term : searchTerms) {
+				if (searchType == null || searchType == 0) {
+					whereString += "(fidx.idxValue like '% " + term + " %' or fidx.idxValue like '%|" + term + "%|' or fidx.idxValue like '%|" + term + " %' or fidx.idxValue like '%" + term + "|%')" + op;
+				} else {
+					whereString += "fidx.idxValue like '%" + term + "%'" + op;
+				}
+			}
+			whereString = whereString.substring(0, whereString.lastIndexOf(op));
+			whereString += ")";
+		}
+		
+		
+		String street = searchParams.getString(MdekKeys.STREET);
+		if (street != null && street.length() > 0) {
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " addr.street like '%" + street + "%'";
+		}
+		String city = searchParams.getString(MdekKeys.CITY);
+		if (city != null && city.length() > 0) {
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " addr.city like '%" + city + "%'";
+		}
+		String postalCode = searchParams.getString(MdekKeys.POSTAL_CODE);
+		if (postalCode != null && postalCode.length() > 0) {
+			if (whereString.length() > 0) {
+				whereString += " and";
+			}
+			whereString += " (addr.postcode like '%" + postalCode + "%' or addr.postboxPc like '%" + postalCode + "%')";
+		}
+		
+		String qString = fromString + " where" + whereString;
 
 		return qString;
+		
 	}
 	
 	private static String[] getSearchTerms(String qString) {

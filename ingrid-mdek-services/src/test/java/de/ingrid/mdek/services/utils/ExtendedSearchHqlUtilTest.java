@@ -81,7 +81,12 @@ public class ExtendedSearchHqlUtilTest {
 	 */
 	@Test
 	public void testCreateAddressExtendedSearchQuery() {
-		fail("Not yet implemented");
+		IngridDocument searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.QUERY_TERM, "hallo term1 \"term2 term3\"");
+		searchParams.put(MdekKeys.RELATION, new Integer(0));
+		Assert.assertEquals("from AddressNode aNode inner join aNode.t02AddressWork addr inner join aNode.fullIndexAddrs fidx where fidx.idxName = 'full' and ((fidx.idxValue like '% hallo %' or fidx.idxValue like '%|hallo%|' or fidx.idxValue like '%|hallo %' or fidx.idxValue like '%hallo|%') and (fidx.idxValue like '% term1 %' or fidx.idxValue like '%|term1%|' or fidx.idxValue like '%|term1 %' or fidx.idxValue like '%term1|%') and (fidx.idxValue like '% term2 term3 %' or fidx.idxValue like '%|term2 term3%|' or fidx.idxValue like '%|term2 term3 %' or fidx.idxValue like '%term2 term3|%'))", ExtendedSearchHqlUtil.createAddressExtendedSearchQuery(searchParams));
+		searchParams.putInt(MdekKeys.RELATION, 1);
+		Assert.assertEquals("from AddressNode aNode inner join aNode.t02AddressWork addr inner join aNode.fullIndexAddrs fidx where fidx.idxName = 'full' and ((fidx.idxValue like '% hallo %' or fidx.idxValue like '%|hallo%|' or fidx.idxValue like '%|hallo %' or fidx.idxValue like '%hallo|%') or (fidx.idxValue like '% term1 %' or fidx.idxValue like '%|term1%|' or fidx.idxValue like '%|term1 %' or fidx.idxValue like '%term1|%') or (fidx.idxValue like '% term2 term3 %' or fidx.idxValue like '%|term2 term3%|' or fidx.idxValue like '%|term2 term3 %' or fidx.idxValue like '%term2 term3|%'))", ExtendedSearchHqlUtil.createAddressExtendedSearchQuery(searchParams));
 	}
 
 }

@@ -456,6 +456,9 @@ public class AddressNodeDaoHibernate
 		
 		Session session = getSession();
 
+		qString = "select distinct aNode " + qString;
+		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
+		
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
