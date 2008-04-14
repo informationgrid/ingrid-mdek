@@ -367,6 +367,9 @@ public class ObjectNodeDaoHibernate
 		// create hql from queryParams
 		String qString = ExtendedSearchHqlUtil.createObjectExtendedSearchQuery(searchParams);
 		
+		qString = "select distinct oNode " + qString;
+		qString += " order by obj.objClass, obj.objName";
+		
 		Session session = getSession();
 
 		retList = session.createQuery(qString)
