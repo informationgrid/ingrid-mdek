@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,14 +200,13 @@ class MdekExampleQueryThread extends Thread {
 // ====================
 // test single stuff
 // -----------------------------------
-/*
+		/*
 		// add functionality !
 
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
-
 // ===================================
 */
 
@@ -361,8 +361,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println(" EXTENDED SEARCH OBJECTS");
 		System.out.println("=========================");
 		
-		System.out.println("\n----- search objects by extended search -----");
-		System.out.println("\n----- search objects by extended search -----");
+		System.out.println("\n----- search objects by extended search query: Göttingen -----");
 		IngridDocument searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.QUERY_TERM, "Göttingen");
 		searchParams.put(MdekKeys.RELATION, new Integer(0));
@@ -374,6 +373,36 @@ class MdekExampleQueryThread extends Thread {
 			fetchObject(uuid, Quantity.DETAIL_ENTITY);
 		}
 
+		System.out.println("\n----- search objects by extended search query: Göttingen, Object class=0-----");
+		List<Integer> aList = new ArrayList<Integer>();
+		aList.add(0);
+		searchParams.put(MdekKeys.OBJ_CLASSES, aList);
+
+		hits = queryObjectsExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		}
+		
+		System.out.println("\n----- search objects by extended search query: Göttingen, Object class=0, sns_thesaurus_id:uba_thes_11450|uba_thes_11450 -----");
+		List<IngridDocument> docList = new ArrayList<IngridDocument>();
+		doc = new IngridDocument();
+		doc.put(MdekKeys.TERM_SNS_ID, "uba_thes_11450");
+		docList.add(doc);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.TERM_SNS_ID, "uba_thes_28711");
+		docList.add(doc);
+		searchParams.put(MdekKeys.THESAURUS_TERMS, docList);
+		searchParams.put(MdekKeys.THESAURUS_RELATION, new Integer(1));
+		
+		hits = queryObjectsExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		}		
+		
 		
 		// ===================================
 

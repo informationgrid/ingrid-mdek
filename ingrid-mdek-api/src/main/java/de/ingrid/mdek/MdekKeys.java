@@ -67,13 +67,13 @@ public class MdekKeys {
     /** object classes for extended search querying objects<br>
 	/** Value: List of Integer */
 	public static final String OBJ_CLASSES = "obj-classes";
-    /** thesaurus for extended search querying objects (only the topic_id will be supplied)<br>
+    /** thesaurus for extended search querying objects (only the term-sns-id will be supplied)<br>
 	/** Value: List of IngridDocuments */
 	public static final Object THESAURUS_TERMS = "thesaurus-terms";
     /** relation (and = 0, or = 1) for thesaurus term relation for extended search querying objects<br>
      * Value: Integer */
 	public static final String THESAURUS_RELATION = "thesaurus-relation";
-    /** geo thesaurus for extended search querying objects (only the topic_id will be supplied)<br>
+    /** geo thesaurus for extended search querying objects (only the term-sns-id will be supplied)<br>
 	/** Value: List of IngridDocuments */
 	public static final Object GEO_THESAURUS_TERMS = "geo-thesaurus-terms";
     /** relation (and = 0, or = 1) for geo thesaurus term relation for extended search querying objects<br>

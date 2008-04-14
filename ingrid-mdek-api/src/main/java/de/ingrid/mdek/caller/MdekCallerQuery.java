@@ -154,7 +154,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
 		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
-		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
+		jobParams.put(MdekKeys.SEARCH_EXT_PARAMS, searchParams);
 
 		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsExtended", jobParams);
 
@@ -167,7 +167,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
 		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
-		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
+		jobParams.put(MdekKeys.SEARCH_EXT_PARAMS, searchParams);
 		
 		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesExtended", jobParams);
 
