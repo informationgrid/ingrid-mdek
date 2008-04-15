@@ -32,23 +32,25 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		StringBuilder whereString = new StringBuilder("");
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
-		int relation = (Integer)searchParams.get(MdekKeys.RELATION);
-		// parse queryTerm to extract multiple search entries and phrase tokens
-		String[] searchTerms = getSearchTerms(queryTerm);
-		if (searchTerms.length > 0) {
-			fromString.append(" inner join oNode.fullIndexObjs fidx");
-			whereString.append(" fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (");
-			String op;
-			if (relation == 0) {
-				op = " and ";
-			} else {
-				op = " or ";
+		Integer relation = (Integer)searchParams.get(MdekKeys.RELATION);
+		if (queryTerm != null && queryTerm.length() > 0) {
+			// parse queryTerm to extract multiple search entries and phrase tokens
+			String[] searchTerms = getSearchTerms(queryTerm);
+			if (searchTerms.length > 0) {
+				fromString.append(" inner join oNode.fullIndexObjs fidx");
+				whereString.append(" fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (");
+				String op;
+				if (relation == null || relation == 0) {
+					op = " and ";
+				} else {
+					op = " or ";
+				}
+				for (String term : searchTerms) {
+					whereString.append("fidx.idxValue like '%").append(term).append("%'").append(op);
+				}
+				whereString.delete(whereString.lastIndexOf(op), whereString.length());
+				whereString.append(")");
 			}
-			for (String term : searchTerms) {
-				whereString.append("fidx.idxValue like '%").append(term).append("%'").append(op);
-			}
-			whereString.delete(whereString.lastIndexOf(op), whereString.length());
-			whereString.append(")");
 		}
 		
 		List<Integer> objClasses = (List<Integer>)searchParams.get(MdekKeys.OBJ_CLASSES);
@@ -66,14 +68,14 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		
 		List<IngridDocument> thesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.THESAURUS_TERMS);
 		if (thesaurusTerms != null && thesaurusTerms.size() > 0) {
-			int thesaurusRelation = (Integer)searchParams.get(MdekKeys.THESAURUS_RELATION);
+			Integer thesaurusRelation = (Integer)searchParams.get(MdekKeys.THESAURUS_RELATION);
 			fromString.append(" inner join obj.searchtermObjs stObjs inner join stObjs.searchtermValue stVal inner join stVal.searchtermSns stSns");
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
 			whereString.append(" stVal.type='T' and (");
 			String op;
-			if (thesaurusRelation == 0) {
+			if (thesaurusRelation == null || thesaurusRelation == 0) {
 				op = " and ";
 			} else {
 				op = " or ";
@@ -87,14 +89,14 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 
 		List<IngridDocument> geoThesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.GEO_THESAURUS_TERMS);
 		if (geoThesaurusTerms != null && geoThesaurusTerms.size() > 0) {
-			int geoThesaurusRelation = (Integer)searchParams.get(MdekKeys.GEO_THESAURUS_RELATION);
+			Integer geoThesaurusRelation = (Integer)searchParams.get(MdekKeys.GEO_THESAURUS_RELATION);
 			fromString.append(" inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal inner join spcRefVal.spatialRefSns spcRefSns");
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
 			whereString.append(" spcRefVal.type='G' and (");
 			String op;
-			if (geoThesaurusRelation == 0) {
+			if (geoThesaurusRelation == null || geoThesaurusRelation == 0) {
 				op = " and ";
 			} else {
 				op = " or ";
@@ -173,12 +175,14 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
-			whereString.append(" obj.timeFrom == '").append(timeAt).append("%' and obj.timeType == 'am'");
+			whereString.append(" obj.timeFrom = '").append(timeAt).append("%' and obj.timeType = 'am'");
 		}
 		
-		String qString = fromString.append(" where").append(whereString).toString();
-
-		return qString;
+		if (whereString.length() == 0) {
+			return fromString.toString();
+		} else {
+			return fromString.append(" where").append(whereString).toString();
+		}
 		
 	}
 
@@ -244,9 +248,11 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			whereString.append(" (addr.postcode like '%").append(postalCode).append("%' or addr.postboxPc like '%").append(postalCode).append("%')");
 		}
 		
-		String qString = fromString.append(" where").append(whereString).toString();
-
-		return qString;
+		if (whereString.length() == 0) {
+			return fromString.toString();
+		} else {
+			return fromString.append(" where").append(whereString).toString();
+		}
 		
 	}
 	
