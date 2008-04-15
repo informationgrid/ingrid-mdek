@@ -227,7 +227,7 @@
 				<xs:element name="thesaurus-terms" type="SUBJECT_TERM_LIST"/>
 				<!-- object: extended search: subject: relations between entries (and = 0, or = 1) -->
 				<xs:element name="thesaurus-relation" type="xs:integer"/>
-				<!-- object: extended search: spatial: geo thesaurus (only the topic_id will be supplied) -->
+				<!-- object: extended search: spatial: geo thesaurus (only the location-sns-id will be supplied) -->
 				<xs:element name="geo-thesaurus-terms" type="LOCATION_LIST"/>
 				<!-- object: extended search: spatial: relations between entries (and = 0, or = 1) -->
 				<xs:element name="geo-thesaurus-relation" type="xs:integer"/>

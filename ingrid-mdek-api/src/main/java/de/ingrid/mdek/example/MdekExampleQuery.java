@@ -202,10 +202,7 @@ class MdekExampleQueryThread extends Thread {
 // -----------------------------------
 		// add functionality !
 
-
-		
 		/*
-
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
@@ -399,6 +396,49 @@ class MdekExampleQueryThread extends Thread {
 		searchParams.put(MdekKeys.THESAURUS_TERMS, docList);
 		searchParams.put(MdekKeys.THESAURUS_RELATION, new Integer(1));
 		
+		hits = queryObjectsExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		}		
+		
+		System.out.println("\n----- search objects by extended search query: geothesaurus.location-sns-id:BUNDESLAND03 -----");
+		docList = new ArrayList<IngridDocument>();
+		doc = new IngridDocument();
+		doc.put(MdekKeys.LOCATION_SNS_ID, "BUNDESLAND03");
+		docList.add(doc);
+		searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.GEO_THESAURUS_TERMS, docList);
+		searchParams.put(MdekKeys.GEO_THESAURUS_RELATION, new Integer(1));
+
+		hits = queryObjectsExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		}
+
+		System.out.println("\n----- search objects by extended search query: Informationssystem thesaurus.term-sns-id:uba_thes_8007 -----");
+		docList = new ArrayList<IngridDocument>();
+		searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.QUERY_TERM, "Informationssystem");
+		searchParams.put(MdekKeys.RELATION, new Integer(0));
+		aList = new ArrayList<Integer>();
+		aList.add(0);
+		aList.add(1);
+		aList.add(2);
+		aList.add(3);
+		aList.add(4);
+		aList.add(5);
+		searchParams.put(MdekKeys.OBJ_CLASSES, aList);
+
+		doc = new IngridDocument();
+		doc.put(MdekKeys.TERM_SNS_ID, "uba_thes_8007");
+		docList.add(doc);
+		searchParams.put(MdekKeys.THESAURUS_TERMS, docList);
+		searchParams.put(MdekKeys.THESAURUS_RELATION, new Integer(0));
+
 		hits = queryObjectsExtended(searchParams, 0, 20);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
