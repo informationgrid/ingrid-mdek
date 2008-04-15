@@ -144,7 +144,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
-			whereString.append(" ((obj.timeFrom >= '").append(timeFrom).append("' and obj.timeTo <= '").append(timeTo).append("')");
+			whereString.append(" obj.timeType = 'von' and ((obj.timeFrom >= '").append(timeFrom).append("' and obj.timeTo <= '").append(timeTo).append("')");
 			if (timeContains) {
 				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeTo).append("')");
 			}
@@ -157,7 +157,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
-			whereString.append(" ((obj.timeFrom >= '").append(timeFrom).append("')");
+			whereString.append(" obj.timeType = 'seit' and ((obj.timeFrom >= '").append(timeFrom).append("')");
 			if (timeIntersect) {
 				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeFrom).append("')");
 			}
@@ -166,7 +166,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
-			whereString.append(" ((obj.timeTo <= '").append(timeTo).append("')");
+			whereString.append(" obj.timeType = 'von' and ((obj.timeTo <= '").append(timeTo).append("' and (obj.timeFrom is null or obj.timeFrom = ''))");
 			if (timeIntersect) {
 				whereString.append(" or (obj.timeTo >= '").append(timeTo).append("' and obj.timeFrom <= '").append(timeTo).append("')");
 			}
@@ -175,7 +175,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
-			whereString.append(" obj.timeFrom = '").append(timeAt).append("%' and obj.timeType = 'am'");
+			whereString.append(" obj.timeFrom = '").append(timeAt).append("' and obj.timeType = 'am'");
 		}
 		
 		if (whereString.length() == 0) {
@@ -216,7 +216,16 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			}
 			for (String term : searchTerms) {
 				if (searchType == null || searchType == 0) {
-					whereString.append("(fidx.idxValue like '% ").append(term).append(" %' or fidx.idxValue like '%|").append(term).append("%|' or fidx.idxValue like '%|").append(term).append(" %' or fidx.idxValue like '%").append(term).append("|%')").append(op);
+					whereString
+						.append("(fidx.idxValue like '% ").append(term).append(" %'")
+						.append(" or fidx.idxValue like '%|").append(term).append("|%'")
+						.append(" or fidx.idxValue like '%|").append(term).append(" %'")
+						.append(" or fidx.idxValue like '% ").append(term).append("|%'")
+						.append(" or fidx.idxValue like '% ").append(term).append("')")
+						.append(" or fidx.idxValue like '%|").append(term).append("')")
+						.append(" or fidx.idxValue like '").append(term).append(" %')")
+						.append(" or fidx.idxValue like '").append(term).append("|%')")
+						.append(op);
 				} else {
 					whereString.append("fidx.idxValue like '%").append(term).append("%'").append(op);
 				}
