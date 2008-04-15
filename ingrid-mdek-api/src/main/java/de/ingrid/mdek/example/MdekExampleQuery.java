@@ -446,6 +446,18 @@ class MdekExampleQueryThread extends Thread {
 			fetchObject(uuid, Quantity.DETAIL_ENTITY);
 		}		
 
+		System.out.println("\n----- search objects by extended search query: time-from:19690821000000000 time-to:20081231000000000 -----");
+		searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.TIME_FROM, "19690821000000000");
+		searchParams.put(MdekKeys.TIME_TO, "20081231000000000");
+
+		hits = queryObjectsExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		}
+		
 		// -----------------------------------
 		
 		System.out.println("\n\n=========================");
@@ -456,7 +468,6 @@ class MdekExampleQueryThread extends Thread {
 		searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.QUERY_TERM, "Wirtschaft");
 		searchParams.put(MdekKeys.RELATION, new Integer(0));
-
 		hits = queryAddressesExtended(searchParams, 0, 20);
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
@@ -490,6 +501,30 @@ class MdekExampleQueryThread extends Thread {
 			uuid = hits.get(0).getString(MdekKeys.UUID);
 			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
 		}		
+
+		System.out.println("\n----- search addresses by extended search query: Peter -----");
+		searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.QUERY_TERM, "Peter");
+		searchParams.put(MdekKeys.RELATION, new Integer(0));
+		hits = queryAddressesExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		}
+		
+		System.out.println("\n----- search addresses by extended search query: Peter search-range:1 -----");
+		searchParams = new IngridDocument();
+		searchParams.put(MdekKeys.QUERY_TERM, "Peter");
+		searchParams.put(MdekKeys.RELATION, new Integer(0));
+		searchParams.put(MdekKeys.SEARCH_RANGE, new Integer(1));
+		
+		hits = queryAddressesExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\n----- verify: fetch first result ! -----");
+			uuid = hits.get(0).getString(MdekKeys.UUID);
+			fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		}
 		
 		// ===================================
 
