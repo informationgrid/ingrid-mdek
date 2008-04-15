@@ -102,7 +102,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		template = new FullIndexAddr();
 		template.setAddrNodeId(aNode.getId());
 
-		// update full data
+		// update partial data
 		template.setIdxName(IDX_NAME_PARTIAL);
 		idxEntry = (FullIndexAddr) daoFullIndexAddr.findUniqueByExample(template);		
 		if (idxEntry == null) {
