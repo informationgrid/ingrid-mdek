@@ -159,6 +159,9 @@ class MdekExampleSecurityThread extends Thread {
 // ====================
 
 		// ===================================
+		System.out.println("\n----------------------------");
+		System.out.println("\n----- TEST GROUP STUFF -----");
+		System.out.println("\n----------------------------");
 
 		// -----------------------------------
 		System.out.println("\n----- get all groups -----");
@@ -180,7 +183,38 @@ class MdekExampleSecurityThread extends Thread {
 		doc = storeGroup(doc, true);
 
 		// ===================================
+		System.out.println("\n----------------------------");
+		System.out.println("\n----- TEST USER STUFF -----");
+		System.out.println("\n----------------------------");
 
+		System.out.println("\n----- create new user -----");
+		String addrUuid = "15C69BE6-FE15-11D2-AF34-0060084A4596";
+
+		IngridDocument group = getGroupDetails(nameNewGrp);
+
+		doc = new IngridDocument();
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
+		doc.put(MdekKeysSecurity.IDC_GROUP_ID, group.get(MdekKeysSecurity.IDC_GROUP_ID));
+		doc.put(MdekKeysSecurity.IDC_ROLE, MdekKeysSecurity.IDC_ROLE_METADATA_ADMINISTRATOR);
+		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, (Long)(getCatalogAdmin().get(MdekKeysSecurity.IDC_USER_ID)));
+		doc = createUser(doc, true);
+
+		System.out.println("\n----- change addr uuid of user and store -----");
+		addrUuid = "6C6A3485-59E0-11D3-AE74-00104B57C66D";
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
+		doc = storeUser(doc, true);		
+		
+		System.out.println("\n----- fetch user details -----");
+		getUserDetails("6C6A3485-59E0-11D3-AE74-00104B57C66D");
+		
+		
+		System.out.println("\n----- remove user -----");
+		deleteUser((Long)doc.get(MdekKeysSecurity.IDC_USER_ID));
+
+		System.out.println("\n----- remove group -----");
+		deleteGroup((Long)doc.get(MdekKeysSecurity.IDC_GROUP_ID));
+		
+		
 		long exampleEndTime = System.currentTimeMillis();
 		long exampleNeededTime = exampleEndTime - exampleStartTime;
 		System.out.println("\n----------");
@@ -302,8 +336,173 @@ class MdekExampleSecurityThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument getUserDetails(String addrUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getUserDetails ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUserDetails(plugId, addrUuid, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugUserDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+	
+	private IngridDocument getCatalogAdmin() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getCatalogAdmin ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getCatalogAdmin(plugId, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugGroupDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+	
+	private IngridDocument createUser(IngridDocument docIn,
+			boolean refetch) {
+		if (docIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE createUser " + refetchInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.createUser(plugId, docIn, refetch, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugUserDoc(result);
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}	
+
+	
+	private IngridDocument storeUser(IngridDocument docIn,
+			boolean refetch) {
+		if (docIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeUser " + refetchInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.storeUser(plugId, docIn, refetch, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugGroupDoc(result);
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}	
+
+	
+	private IngridDocument deleteUser(Long idcUserId) {
+		if (idcUserId == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE deleteUser ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.deleteUser(plugId, idcUserId, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}	
+
+	private IngridDocument deleteGroup(Long idcGroupId) {
+		if (idcGroupId == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE deleteGroup ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.deleteGroup(plugId, idcGroupId, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}	
+	
+	
 	private void debugGroupDoc(IngridDocument g) {
-		System.out.println("Group: " + g.get(MdekKeys.ID) 
+		System.out.println("Group: " + g.get(MdekKeysSecurity.IDC_GROUP_ID) 
 			+ ", " + g.get(MdekKeys.NAME)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
@@ -317,6 +516,22 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("  " + g);
 	}
 
+	private void debugUserDoc(IngridDocument g) {
+		System.out.println("User: " + g.get(MdekKeysSecurity.IDC_USER_ID) 
+			+ ", " + g.get(MdekKeysSecurity.IDC_USER_ADDR_UUID)
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", modUuid: " + g.get(MdekKeys.MOD_UUID)
+		);
+
+		if (!doFullOutput) {
+			return;
+		}
+
+		System.out.println("  " + g);
+	}
+	
+	
 	private void handleError(IngridDocument response) {
 		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
 		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));			

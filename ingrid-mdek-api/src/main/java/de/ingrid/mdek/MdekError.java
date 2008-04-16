@@ -67,7 +67,16 @@ public class MdekError implements Serializable {
 		/** List key has to be -1 if "freier Eintrag", never NULL ! */
 		LIST_KEY_NULL_NOT_ALLOWED("101"),
 		/** List data in record has no key AND no value !  Has to have one of both ! */
-		LIST_NO_KEY_NO_VALUE("102")
+		LIST_NO_KEY_NO_VALUE("102"),
+		
+		/** try to store a user that has not the catalog admin role without an valid parent*/
+		USER_HAS_NO_VALID_PARENT("1000"), 
+		
+		/** try to remove a group that has still users attached */
+		GROUP_HAS_USERS("1001"), 
+		
+		/** try to remove a group that has still permissions (address, object) attached */
+		GROUP_HAS_PERMISSIONS("1002")
 		;
 
 		MdekErrorType(String errorCode) {

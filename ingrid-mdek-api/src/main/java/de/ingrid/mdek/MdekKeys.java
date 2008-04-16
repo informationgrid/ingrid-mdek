@@ -201,9 +201,7 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String RUNNINGJOB_CANCELED_BY_USER = "runningjob-canceled-by-user";
 
-    // COMMON DATA
-    // -----------
-
+    
     /** Value: Long */
     public final static String ID = "id";
     /** the uuid of the entity (object or address)<br>
