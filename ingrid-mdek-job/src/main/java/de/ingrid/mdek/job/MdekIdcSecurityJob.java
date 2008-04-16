@@ -16,7 +16,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
-import de.ingrid.mdek.services.security.ISecurityService;
+import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -26,7 +26,7 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/** service encapsulating security functionality */
-	ISecurityService securityService;
+	IPermissionService permissionService;
 
 	private IIdcGroupDao daoIdcGroup;
 
@@ -35,10 +35,10 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	public MdekIdcSecurityJob(ILogService logService,
 			DaoFactory daoFactory,
-			ISecurityService permissionHandler) {
+			IPermissionService permissionHandler) {
 		super(logService.getLogger(MdekIdcSecurityJob.class), daoFactory);
 		
-		this.securityService = permissionHandler;
+		this.permissionService = permissionHandler;
 		
 		daoIdcGroup = daoFactory.getIdcGroupDao();
 
