@@ -27,13 +27,13 @@ import de.ingrid.mdek.services.persistence.hdd.HddPersistenceService;
  * @author Administrator
  * 
  */
-public class DefaultSecurityService implements ISecurityService {
+public class DefaultPermissionService implements IPermissionService {
 
 	private static final Logger LOG = Logger.getLogger(HddPersistenceService.class);
 
 	protected DaoFactory daoFactory;
 
-	public DefaultSecurityService(DaoFactory daoFactory) {
+	public DefaultPermissionService(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
 
@@ -265,6 +265,15 @@ public class DefaultSecurityService implements ISecurityService {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see de.ingrid.mdek.services.security.IPermissionService#getCatalogAdmin()
+	 */
+	public IdcUser getCatalogAdmin() {
+		IIdcUserDao idcUserDao = daoFactory.getIdcUserDao();
+		return idcUserDao.getCatalogAdmin();
+	}
+	
+	
 	/**
 	 * Compares two Permission objects, return true if they are equal, false if
 	 * they are not equal.

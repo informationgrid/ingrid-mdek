@@ -18,7 +18,7 @@ public abstract class AbstractSecurityTest extends AbstractDependencyInjectionSp
 	private SessionFactory _sessionFactory;
 
 	// spring bean
-	private ISecurityService _securityService;
+	private IPermissionService _permissionService;
 
 	@Override
 	protected void onSetUp() throws Exception {
@@ -51,12 +51,12 @@ public abstract class AbstractSecurityTest extends AbstractDependencyInjectionSp
 		return _sessionFactory;
 	}
 
-	public void setSecurityService(ISecurityService securityService) {
-		_securityService = securityService;
+	public void setPermissionService(IPermissionService permissionService) {
+		_permissionService = permissionService;
 	}
 
-	public ISecurityService getSecurityService() {
-		return _securityService;
+	public IPermissionService getPermissionService() {
+		return _permissionService;
 	}
 
 	protected void commitTransaction() {

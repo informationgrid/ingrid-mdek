@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcUserDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
@@ -16,7 +17,7 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 
-public class DefaultSecurityServiceTest extends AbstractSecurityTest {
+public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 
 	IdcUser user = null;
 
@@ -42,6 +43,12 @@ public class DefaultSecurityServiceTest extends AbstractSecurityTest {
 			user = new IdcUser();
 			user.setAddrUuid("user-addrUuid");
 			user.setIdcGroupId(group.getId());
+			dao.makePersistent(user);
+
+			user = new IdcUser();
+			user.setAddrUuid("user-cat-admin");
+			user.setIdcGroupId(group.getId());
+			user.setIdcRole(IdcUserDaoHibernate.IDC_ROLE_CATALOG_ADMINISTRATOR);
 			dao.makePersistent(user);
 			
 			EntityPermission ep = PermissionFactory.getSingleObjectPermissionTemplate("");
@@ -147,9 +154,9 @@ public class DefaultSecurityServiceTest extends AbstractSecurityTest {
 	}
 
 	@Test
-	public void testHasPermissionFor() {
+	public void testPermissionService() {
 
-		ISecurityService s = getSecurityService();
+		IPermissionService s = getPermissionService();
 		this.beginNewTransaction();
 
 		s.grantAddressPermission(user.getAddrUuid(), PermissionFactory.getSingleAddressPermissionTemplate("address-uuid-1"));
@@ -195,6 +202,8 @@ public class DefaultSecurityServiceTest extends AbstractSecurityTest {
 		s.revokeUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate());
 		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate()), false);
 
+		Assert.assertEquals("user-cat-admin", s.getCatalogAdmin().getAddrUuid());
+		
 		this.commitTransaction();
 	}
 

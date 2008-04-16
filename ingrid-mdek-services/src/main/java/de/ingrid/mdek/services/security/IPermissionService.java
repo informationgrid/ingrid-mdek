@@ -3,7 +3,11 @@
  */
 package de.ingrid.mdek.services.security;
 
+import java.util.List;
+
+import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
+import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 
 /**
  * Describes all public methods of the security service.
@@ -12,7 +16,7 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
  * @author joachim
  * 
  */
-public interface ISecurityService {
+public interface IPermissionService {
 
 	/**
 	 * Checks an object defined by uuid for a EntityPermission permission for a
@@ -116,4 +120,11 @@ public interface ISecurityService {
 	 * @param p
 	 */
 	public void revokeUserPermission(String addrUuid, Permission p);
+
+	/**
+	 * Get the catalog administrator.
+	 * 
+	 */
+	public IdcUser getCatalogAdmin();
+
 }

@@ -41,7 +41,7 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 	public IdcUser getCatalogAdmin() {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
-				"where u.role = ?").setInteger(0, IDC_ROLE_CATALOG_ADMINISTRATOR)
+				"where u.idcRole = ?").setInteger(0, IDC_ROLE_CATALOG_ADMINISTRATOR)
 				.uniqueResult();
 	}
 
