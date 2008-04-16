@@ -2,9 +2,13 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
+import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -52,4 +56,28 @@ public class DocToBeanMapperSecurity implements IMapper {
 
 		return grpIn;
 	}
+
+	/**
+	 * Transfer data of passed doc to passed bean according to mapping quantity.
+	 */
+	public IdcUser mapIdcUser(IngridDocument docIn, IdcUser userIn) {
+
+		userIn.setAddrUuid(docIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID));
+		userIn.setIdcGroupId((Long)docIn.get(MdekKeysSecurity.IDC_GROUP_ID));
+		userIn.setIdcRole((Integer)docIn.get(MdekKeysSecurity.IDC_ROLE));
+		Long parentId = (Long)docIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
+		if (parentId == null && userIn.getIdcRole().intValue() != MdekKeysSecurity.IDC_ROLE_CATALOG_ADMINISTRATOR) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_VALID_PARENT));
+		}
+		userIn.setParentId(parentId);
+		String creationDate = docIn.getString(MdekKeysSecurity.DATE_OF_CREATION);
+		if (creationDate != null) {
+			userIn.setCreateTime(creationDate);				
+		}
+		userIn.setModTime(docIn.getString(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION));
+		userIn.setModUuid(docIn.getString(MdekKeysSecurity.MOD_UUID));
+
+		return userIn;
+	}
+
 }

@@ -1,5 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
+import java.util.List;
+
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 
@@ -24,5 +26,13 @@ public interface IIdcUserDao extends IGenericDao<IdcUser> {
 	 * @return
 	 */
 	public IdcUser getCatalogAdmin();
+	
+	/**
+	 * Returns all users belonging to a group.
+	 * 
+	 * @param groupId
+	 * @return
+	 */
+	public List<IdcUser> getIdcUsersByGroupId(Long groupId);
 
 }

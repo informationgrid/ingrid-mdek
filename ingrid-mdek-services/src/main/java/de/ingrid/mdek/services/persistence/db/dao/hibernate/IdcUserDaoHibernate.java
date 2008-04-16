@@ -6,6 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
@@ -24,13 +25,6 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
  */
 public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements IIdcUserDao {
 
-	public static int IDC_ROLE_CATALOG_ADMINISTRATOR = 1;
-	
-	public static int IDC_ROLE_METADATA_ADMINISTRATOR = 2;
-	
-	public static int IDC_ROLE_METADATA_AUTHOR = 3;
-	
-	
 	public IdcUserDaoHibernate(SessionFactory factory) {
 		super(factory, IdcUser.class);
 	}
@@ -41,7 +35,7 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 	public IdcUser getCatalogAdmin() {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
-				"where u.idcRole = ?").setInteger(0, IDC_ROLE_CATALOG_ADMINISTRATOR)
+				"where u.idcRole = ?").setInteger(0, MdekKeysSecurity.IDC_ROLE_CATALOG_ADMINISTRATOR)
 				.uniqueResult();
 	}
 
@@ -53,6 +47,13 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 		return (IdcUser)session.createQuery("from IdcUser u " +
 				"where u.addrUuid = ?").setString(0, addrUuid)
 				.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<IdcUser> getIdcUsersByGroupId(Long groupId) {
+		Session session = getSession();
+		return (List<IdcUser>)session.createQuery("from IdcUser u " +
+		"where u.idcGroupId = ?").setLong(0, groupId).list();
 	}
 
 }

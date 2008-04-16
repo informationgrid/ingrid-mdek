@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
+import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -38,7 +39,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 		}
 
 		// also ID, is needed when name is changed !!!
-		groupDoc.put(MdekKeysSecurity.ID, group.getId());
+		groupDoc.put(MdekKeysSecurity.IDC_GROUP_ID, group.getId());
 		groupDoc.put(MdekKeysSecurity.NAME, group.getName());
 		
 		if (howMuch == MappingQuantity.DETAIL_ENTITY) 
@@ -55,4 +56,32 @@ public class BeanToDocMapperSecurity implements IMapper {
 
 		return groupDoc;
 	}
+
+	/**
+	 * Transfer data of passed bean to passed doc.
+	 * @return doc containing mapped data.
+	 */
+	public IngridDocument mapIdcUser(IdcUser user, IngridDocument userDoc,
+			MappingQuantity howMuch) {
+		if (user == null) {
+			return userDoc;
+		}
+
+		// also ID, is needed when addr uuid is changed !!!
+		userDoc.put(MdekKeysSecurity.IDC_USER_ID, user.getId());
+		userDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, user.getAddrUuid());
+		userDoc.put(MdekKeysSecurity.IDC_GROUP_ID, user.getIdcGroupId());
+		userDoc.put(MdekKeysSecurity.IDC_ROLE, user.getIdcRole());
+		userDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, user.getParentId());
+		
+		if (howMuch == MappingQuantity.DETAIL_ENTITY) 
+		{
+			userDoc.put(MdekKeysSecurity.DATE_OF_CREATION, user.getCreateTime());
+			userDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, user.getModTime());
+			userDoc.put(MdekKeysSecurity.MOD_UUID, user.getModUuid());
+		}
+
+		return userDoc;
+	}
+
 }

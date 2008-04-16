@@ -5,9 +5,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.IEntity;
-import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcUserDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
@@ -48,7 +48,7 @@ public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 			user = new IdcUser();
 			user.setAddrUuid("user-cat-admin");
 			user.setIdcGroupId(group.getId());
-			user.setIdcRole(IdcUserDaoHibernate.IDC_ROLE_CATALOG_ADMINISTRATOR);
+			user.setIdcRole(MdekKeysSecurity.IDC_ROLE_CATALOG_ADMINISTRATOR);
 			dao.makePersistent(user);
 			
 			EntityPermission ep = PermissionFactory.getSingleObjectPermissionTemplate("");
