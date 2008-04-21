@@ -221,6 +221,8 @@
 				<xs:element name="query-term" type="xs:string"/>
 				<!-- object: extended search: subject: search term relations (and = 0, or = 1)  -->
 				<xs:element name="relation" type="xs:integer"/>
+				<!-- address: extended search: subject: search mode ('whole word'(0), 'partial word'(1)) -->
+				<xs:element name="search-type" type="xs:integer"/>
 				<!-- object: extended search: subject: object classes  -->
 				<xs:element name="obj-classes" type="OBJECT_CLASS_LIST"/>
 				<!-- object: extended search: subject: dictionary (only the topic_id will be supplied) -->

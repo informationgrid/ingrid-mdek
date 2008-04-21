@@ -51,7 +51,7 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 
 
 /**
- * Handles Update of Full Index.
+ * Handles Update of Index.
  */
 public class MdekFullIndexHandler implements IFullIndexAccess {
 
@@ -81,55 +81,95 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		daoSysList = daoFactory.getSysListDao();
 	}
 
-	/** Updates data of given address in full index. */
+	/** Updates data of given address in index. */
 	public void updateAddressIndex(AddressNode aNode) {
+		// we write data of working version into index !!!
+		T02Address a = aNode.getT02AddressWork();
+		if (a == null) {
+			// this should never happen, so log this!
+			LOG.warn("Address for building index is null. Writing empty index !!!");
+		}
+
+		// update FULL data
+
 		// template for accessing data in index
 		FullIndexAddr template = new FullIndexAddr();
 		template.setAddrNodeId(aNode.getId());
-
-		// update full data
 		template.setIdxName(IDX_NAME_FULLTEXT);
 		FullIndexAddr idxEntry = (FullIndexAddr) daoFullIndexAddr.findUniqueByExample(template);		
 		if (idxEntry == null) {
 			idxEntry = template;
 		}
-		String data = getFullData(aNode.getT02AddressWork());
-		idxEntry.setIdxValue(data);
-		
+		String data = getFullData(a);
+		// end with final separator !!!
+		idxEntry.setIdxValue(data + IDX_SEPARATOR);
 		daoFullIndexAddr.makePersistent(idxEntry);
 
-		// template for accessing data in index
+		// update PARTIAL data
+
 		template = new FullIndexAddr();
 		template.setAddrNodeId(aNode.getId());
-
-		// update partial data
 		template.setIdxName(IDX_NAME_PARTIAL);
 		idxEntry = (FullIndexAddr) daoFullIndexAddr.findUniqueByExample(template);		
 		if (idxEntry == null) {
 			idxEntry = template;
 		}
-		data = getPartialData(aNode.getT02AddressWork());
-		idxEntry.setIdxValue(data);
-		
+		data = getPartialData(a);
+		// end with final separator !!!
+		idxEntry.setIdxValue(data + IDX_SEPARATOR);
 		daoFullIndexAddr.makePersistent(idxEntry);
-	
 	}
 
-	/** Updates data of given object in full index. */
+	/** Updates data of given object in index. */
 	public void updateObjectIndex(ObjectNode oNode) {
+		// we write data of working version into index !!!
+		T01Object o = oNode.getT01ObjectWork();
+		if (o == null) {
+			// this should never happen, so log this!
+			LOG.warn("Object for building index is null. Writing empty index !!!");
+		}
+
+		// update FULL data
+
 		// template for accessing data in index
 		FullIndexObj template = new FullIndexObj();
 		template.setObjNodeId(oNode.getId());
-
-		// update full data
 		template.setIdxName(IDX_NAME_FULLTEXT);
 		FullIndexObj idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);		
 		if (idxEntry == null) {
 			idxEntry = template;
 		}
-		String data = getFullData(oNode.getT01ObjectWork());
-		idxEntry.setIdxValue(data);
-		
+		String data = getFullData(o);
+		// end with final separator !!!
+		idxEntry.setIdxValue(data + IDX_SEPARATOR);
+		daoFullIndexObj.makePersistent(idxEntry);
+
+		// update THESAURUS data
+
+		template = new FullIndexObj();
+		template.setObjNodeId(oNode.getId());
+		template.setIdxName(IDX_NAME_THESAURUS);
+		idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);		
+		if (idxEntry == null) {
+			idxEntry = template;
+		}
+		data = getThesaurusData(o);
+		// end with final separator !!!
+		idxEntry.setIdxValue(data + IDX_SEPARATOR);
+		daoFullIndexObj.makePersistent(idxEntry);
+
+		// update GEO THESAURUS data
+
+		template = new FullIndexObj();
+		template.setObjNodeId(oNode.getId());
+		template.setIdxName(IDX_NAME_GEOTHESAURUS);
+		idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);		
+		if (idxEntry == null) {
+			idxEntry = template;
+		}
+		data = getGeothesaurusData(o);
+		// end with final separator !!!
+		idxEntry.setIdxValue(data + IDX_SEPARATOR);
 		daoFullIndexObj.makePersistent(idxEntry);
 	}
 
@@ -138,8 +178,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		StringBuffer data = new StringBuffer();
 
 		if (a == null) {
-			// this should never happen, so log to this!
-			LOG.warn("Address for building full text index was null. Returning full text ''!!");
 			return data.toString();
 		}
 		
@@ -149,17 +187,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, comment.getComment());
 		}
 		// SearchtermAdr
-		Set<SearchtermAdr> terms = a.getSearchtermAdrs();
-		for (SearchtermAdr term : terms) {
-			SearchtermValue termValue = term.getSearchtermValue();
-			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
-			if (termType == SearchtermType.FREI) {
-				extendFullData(data, termValue.getTerm());
-			} else if (termType == SearchtermType.THESAURUS) {
-				extendFullData(data, termValue.getSearchtermSns().getSnsId());
-				extendFullData(data, termValue.getTerm());
-			}
-		}
+		data.append(getSearchtermData(a));
 		// T021Communication
 		Set<T021Communication> comms = a.getT021Communications();
 		for (T021Communication comm : comms) {
@@ -184,16 +212,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		return data.toString();
 	}
 
-	/** Get partial data of given address for updating full text index. */
-	private String getPartialData(T02Address a) {
+	/** Get searchterm/thesaurus data of given address for updating index. */
+	private String getSearchtermData(T02Address a) {
 		StringBuffer data = new StringBuffer();
 
-		if (a == null) {
-			// this should never happen, so log to this!
-			LOG.warn("Address for building partial index was null. Returning partial data ''!!");
-			return data.toString();
-		}
-		
 		// SearchtermAdr
 		Set<SearchtermAdr> terms = a.getSearchtermAdrs();
 		for (SearchtermAdr term : terms) {
@@ -206,6 +228,20 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
 			}
 		}
+
+		return data.toString();
+	}	
+	
+	/** Get partial data of given address for updating full text index. */
+	private String getPartialData(T02Address a) {
+		StringBuffer data = new StringBuffer();
+
+		if (a == null) {
+			return data.toString();
+		}
+		
+		// SearchtermAdr
+		data.append(getSearchtermData(a));
 		// T02Address
 		extendFullData(data, a.getInstitution());
 		extendFullData(data, a.getLastname());
@@ -214,14 +250,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 
 		return data.toString();
 	}	
-	
+
 	/** Get full data of given object for updating full text index. */
 	private String getFullData(T01Object o) {
 		StringBuffer data = new StringBuffer();
 		
 		if (o == null) {
-			// this should never happen, so log to this!
-			LOG.warn("Object for building full text index was null. Returning full text ''!!");
 			return data.toString();
 		}
 		
@@ -238,6 +272,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			if (termType == SearchtermType.FREI) {
 				extendFullData(data, termValue.getTerm());
 			} else if (termType == SearchtermType.THESAURUS) {
+				extendFullData(data, termValue.getTerm());
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
 			}
 		}
@@ -251,6 +286,8 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 				extendFullDataWithSysList(data, MdekSysList.SPATIAL_REF_VALUE,
 						spatRefValue.getNameKey(), spatRefValue.getNameValue());
 			} else if (spatRefType == SpatialReferenceType.GEO_THESAURUS) {
+				extendFullDataWithSysList(data, MdekSysList.SPATIAL_REF_VALUE,
+						spatRefValue.getNameKey(), spatRefValue.getNameValue());
 				extendFullData(data, spatRefValue.getSpatialRefSns().getSnsId());
 			}
 		}
@@ -424,6 +461,39 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		return data.toString();
 	}
 
+	/** Get thesaurus data of given object for updating thesaurus index. */
+	private String getThesaurusData(T01Object o) {
+		StringBuffer data = new StringBuffer();
+
+		// SearchtermObj
+		Set<SearchtermObj> terms = o.getSearchtermObjs();
+		for (SearchtermObj term : terms) {
+			SearchtermValue termValue = term.getSearchtermValue();
+			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
+			if (termType == SearchtermType.THESAURUS) {
+				extendFullData(data, termValue.getSearchtermSns().getSnsId());
+			}
+		}
+
+		return data.toString();
+	}	
+	
+	/** Get geothesaurus data of given object for updating geothesaurus index. */
+	private String getGeothesaurusData(T01Object o) {
+		StringBuffer data = new StringBuffer();
+
+		Set<SpatialReference> spatRefs = o.getSpatialReferences();
+		for (SpatialReference spatRef : spatRefs) {
+			SpatialRefValue spatRefValue = spatRef.getSpatialRefValue();
+			SpatialReferenceType spatRefType = EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, spatRefValue.getType());
+			if (spatRefType == SpatialReferenceType.GEO_THESAURUS) {
+				extendFullData(data, spatRefValue.getSpatialRefSns().getSnsId());
+			}
+		}
+
+		return data.toString();
+	}	
+	
 	/** Append a value to full data. also adds separator
 	 * @param fullData full data where value is appended
 	 * @param dataToAppend the value to append

@@ -7,21 +7,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;
-import de.ingrid.utils.queryparser.ParseException;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
 /**
  * @author Administrator
- *
  */
 public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 
+	private static final Logger LOG = Logger.getLogger(ExtendedSearchHqlUtil.class);
+	
 	public static String createObjectExtendedSearchQuery(IngridDocument searchParams) {
 		
 		if (searchParams == null) {
@@ -33,25 +35,31 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
 		Integer relation = (Integer)searchParams.get(MdekKeys.RELATION);
-		if (queryTerm != null && queryTerm.length() > 0) {
-			// parse queryTerm to extract multiple search entries and phrase tokens
-			String[] searchTerms = getSearchTerms(queryTerm);
-			if (searchTerms.length > 0) {
-				fromString.append(" inner join oNode.fullIndexObjs fidx");
-				whereString.append(" fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (");
-				String op;
-				if (relation == null || relation == 0) {
-					op = " and ";
-				} else {
-					op = " or ";
-				}
-				for (String term : searchTerms) {
-					whereString.append("fidx.idxValue like '%").append(term).append("%'").append(op);
-				}
-				whereString.delete(whereString.lastIndexOf(op), whereString.length());
-				whereString.append(")");
+		Integer searchType = (Integer)searchParams.get(MdekKeys.SEARCH_TYPE);
+		// parse queryTerm to extract multiple search entries and phrase tokens
+		String[] searchTerms = getSearchTerms(queryTerm);
+		if (searchTerms.length > 0) {
+			fromString.append(" inner join oNode.fullIndexObjs fidx");
+			whereString.append(" fidx.idxName = '" + IDX_NAME_FULLTEXT + "' and (");
+			String op;
+			if (relation == null || relation == 0) {
+				op = " and ";
+			} else {
+				op = " or ";
 			}
+			for (String term : searchTerms) {
+				if (searchType == null || searchType == 0) {
+					whereString.append(getWholeWordTerm(term))
+						.append(op);
+				} else {
+					whereString.append(getPartialWordTerm(term))
+						.append(op);
+				}
+			}
+			whereString.delete(whereString.lastIndexOf(op), whereString.length());
+			whereString.append(")");
 		}
+
 		
 		List<Integer> objClasses = (List<Integer>)searchParams.get(MdekKeys.OBJ_CLASSES);
 		if (objClasses != null && objClasses.size() > 0) {
@@ -69,11 +77,12 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		List<IngridDocument> thesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.THESAURUS_TERMS);
 		if (thesaurusTerms != null && thesaurusTerms.size() > 0) {
 			Integer thesaurusRelation = (Integer)searchParams.get(MdekKeys.THESAURUS_RELATION);
-			fromString.append(" inner join obj.searchtermObjs stObjs inner join stObjs.searchtermValue stVal inner join stVal.searchtermSns stSns");
+
+			fromString.append(" inner join oNode.fullIndexObjs fidxThes");
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
-			whereString.append(" stVal.type='T' and (");
+			whereString.append(" fidxThes.idxName = '" + IDX_NAME_THESAURUS + "' and (");
 			String op;
 			if (thesaurusRelation == null || thesaurusRelation == 0) {
 				op = " and ";
@@ -81,20 +90,26 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				op = " or ";
 			}
 			for (IngridDocument thesTermDoc : thesaurusTerms) {
-				whereString.append("stSns.snsId = '").append(thesTermDoc.getString(MdekKeys.TERM_SNS_ID)).append("'").append(op);
+				whereString.append("fidxThes.idxValue like '%")
+					.append(IDX_SEPARATOR)
+					.append(thesTermDoc.getString(MdekKeys.TERM_SNS_ID))
+					.append(IDX_SEPARATOR)
+					.append("%'")
+					.append(op);
 			}
 			whereString.delete(whereString.lastIndexOf(op), whereString.length());
 			whereString.append(")");
 		}
-
+		
 		List<IngridDocument> geoThesaurusTerms = (List<IngridDocument>)searchParams.get(MdekKeys.GEO_THESAURUS_TERMS);
 		if (geoThesaurusTerms != null && geoThesaurusTerms.size() > 0) {
 			Integer geoThesaurusRelation = (Integer)searchParams.get(MdekKeys.GEO_THESAURUS_RELATION);
-			fromString.append(" inner join obj.spatialReferences spcRefs inner join spcRefs.spatialRefValue spcRefVal inner join spcRefVal.spatialRefSns spcRefSns");
+
+			fromString.append(" inner join oNode.fullIndexObjs fidxGeothes");
 			if (whereString.length() > 0) {
 				whereString.append(" and");
 			}
-			whereString.append(" spcRefVal.type='G' and (");
+			whereString.append(" fidxGeothes.idxName = '" + IDX_NAME_GEOTHESAURUS + "' and (");
 			String op;
 			if (geoThesaurusRelation == null || geoThesaurusRelation == 0) {
 				op = " and ";
@@ -102,7 +117,15 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				op = " or ";
 			}
 			for (IngridDocument geoThesTermDoc : geoThesaurusTerms) {
-				whereString.append("spcRefSns.snsId LIKE '").append(geoThesTermDoc.getString(MdekKeys.LOCATION_SNS_ID)).append("%'").append(op);
+				// TODO: geothesaurus wie untergeordnete kreise/gemeinden finden ???
+				// LOCATION_SNS_ID enthaelt "BUNDESLAND" "KREIS" oder "GEMEINDE" + 2 oder 10 STELLIGER nativeKey !
+				// NativeKey Stellen: 12=Bundesland, 345=Kreis, 67890=Gemeinde
+				whereString.append("fidxGeothes.idxValue like '%")
+					.append(IDX_SEPARATOR)
+					.append(geoThesTermDoc.getString(MdekKeys.LOCATION_SNS_ID))
+					// funktioniert nicht, da LOCATION_SNS_ID sich nicht "erweitert", s.o.
+					.append("%'")
+					.append(op);
 			}
 			whereString.delete(whereString.lastIndexOf(op), whereString.length());
 			whereString.append(")");
@@ -216,18 +239,11 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 			}
 			for (String term : searchTerms) {
 				if (searchType == null || searchType == 0) {
-					whereString
-						.append("(fidx.idxValue like '% ").append(term).append(" %'")
-						.append(" or fidx.idxValue like '%|").append(term).append("|%'")
-						.append(" or fidx.idxValue like '%|").append(term).append(" %'")
-						.append(" or fidx.idxValue like '% ").append(term).append("|%'")
-						.append(" or fidx.idxValue like '% ").append(term).append("')")
-						.append(" or fidx.idxValue like '%|").append(term).append("')")
-						.append(" or fidx.idxValue like '").append(term).append(" %')")
-						.append(" or fidx.idxValue like '").append(term).append("|%')")
+					whereString.append(getWholeWordTerm(term))
 						.append(op);
 				} else {
-					whereString.append("fidx.idxValue like '%").append(term).append("%'").append(op);
+					whereString.append(getPartialWordTerm(term))
+						.append(op);
 				}
 			}
 			whereString.delete(whereString.lastIndexOf(op), whereString.length());
@@ -266,10 +282,12 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 	}
 	
 	private static String[] getSearchTerms(String qString) {
-		IngridQuery q;
-		
+		if (qString == null) {
+			return new String[] {};			
+		}
+
 		try {
-			q = QueryStringParser.parse(qString);
+			IngridQuery q = QueryStringParser.parse(qString);
 			TermQuery[] queries = getAllTerms(q);
 			String[] result = new String[queries.length];
 			for (int i=0; i<queries.length; i++) {
@@ -280,12 +298,10 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				}
 			}
 			return result;
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			LOG.warn("Problems extracting search terms from query", e);
 			return new String[] {};
 		}
-		
 	}
 
 	
@@ -312,6 +328,28 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 
         return ((TermQuery[]) result.toArray(new TermQuery[result.size()]));
     }
-	
-	
+
+	private static String getWholeWordTerm(String term) {
+		StringBuilder qString = new StringBuilder("");
+		qString
+			.append("(")
+			.append("fidx.idxValue like '% ").append(term).append(" %'")
+			.append(" or fidx.idxValue like '%|").append(term).append("|%'")
+			.append(" or fidx.idxValue like '%|").append(term).append(" %'")
+			.append(" or fidx.idxValue like '% ").append(term).append("|%'")
+			.append(" or fidx.idxValue like '% ").append(term).append("'")
+			.append(" or fidx.idxValue like '%|").append(term).append("'")
+			.append(" or fidx.idxValue like '").append(term).append(" %'")
+			.append(" or fidx.idxValue like '").append(term).append("|%'")
+			.append(")");
+		
+		return qString.toString();
+	}
+
+	private static String getPartialWordTerm(String term) {
+		StringBuilder qString = new StringBuilder("");		
+		qString.append("fidx.idxValue like '%").append(term).append("%'");
+		
+		return qString.toString();
+	}
 }

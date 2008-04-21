@@ -8,7 +8,8 @@ public interface IFullIndexAccess {
 
 	static String IDX_SEPARATOR = "|";  
 
-	static String IDX_NAME_FULLTEXT = "full";  
-
-	static String IDX_NAME_PARTIAL = "partial";  
+	static String IDX_NAME_FULLTEXT = "full";
+	static String IDX_NAME_PARTIAL = "partial";
+	static String IDX_NAME_THESAURUS = "thesaurus";
+	static String IDX_NAME_GEOTHESAURUS = "geothesaurus";
 }
