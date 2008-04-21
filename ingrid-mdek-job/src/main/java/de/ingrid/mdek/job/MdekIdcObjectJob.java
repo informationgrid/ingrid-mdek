@@ -384,8 +384,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				// delete working version
 				daoT01Object.makeTransient(oWork);
 			}
+			
+			// set data on node, also beans, so we can access them afterwards (index)
 			oNode.setObjId(oPubId);
+			oNode.setT01ObjectWork(oPub);
 			oNode.setObjIdPublished(oPubId);
+			oNode.setT01ObjectPublished(oPub);
 			daoObjectNode.makePersistent(oNode);
 			
 			// UPDATE FULL INDEX !!!
