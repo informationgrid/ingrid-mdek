@@ -310,7 +310,17 @@
 	</xs:complexType>
 	<xs:complexType name="GROUP_MAP">
 		<xs:all>
-			<xs:element ref="id"/>
+			<xs:element name="idc-group-id" type="xs:long"/>
+			<xs:element ref="name"/>
+			<xs:element ref="date-of-creation"/>
+			<xs:element ref="date-of-last-modification"/>
+			<xs:element ref="mod-uuid"/>
+		</xs:all>
+	</xs:complexType>	
+	<xs:complexType name="USER_MAP">
+		<xs:all>
+			<xs:element name="idc-user-id" type="xs:long"/>
+			<xs:element name="idc-user-addr-uuid" type="xs:string"/>
 			<xs:element ref="name"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
