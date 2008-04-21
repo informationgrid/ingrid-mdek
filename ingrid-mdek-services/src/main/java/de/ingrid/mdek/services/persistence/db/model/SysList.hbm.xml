@@ -13,6 +13,7 @@
       <property name="name" type="string" column="name"/>
       <property name="description" type="string" column="description"/>
       <property name="maintainable" type="integer" column="maintainable"/>
+      <property name="isDefault" type="string" column="is_default"/>
 
    </class>
 

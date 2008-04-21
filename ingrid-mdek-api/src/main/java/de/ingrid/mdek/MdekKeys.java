@@ -147,6 +147,8 @@ public class MdekKeys {
     public final static String ENTRY_ID = "entry-id";
     /** Value: String */
     public final static String ENTRY_NAME = "entry-name";
+    /** Value: String ("Y"/"N")*/
+    public final static String IS_DEFAULT = "is-default";
 
     // Top Result Lists
     // ----------------

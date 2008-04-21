@@ -1307,6 +1307,7 @@ public class BeanToDocMapper implements IMapper {
 			IngridDocument entryDoc = new IngridDocument();
 			entryDoc.put(MdekKeys.ENTRY_ID, entry.getEntryId());
 			entryDoc.put(MdekKeys.ENTRY_NAME, entry.getName());
+			entryDoc.put(MdekKeys.IS_DEFAULT, entry.getIsDefault());
 			entryList.add(entryDoc);
 		}
 		listDoc.put(MdekKeys.LST_ENTRY_LIST, entryList);

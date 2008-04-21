@@ -12,6 +12,7 @@ public class SysList implements IEntity {
 	private String name;
 	private String description;
 	private Integer maintainable;
+	private String isDefault;
 
 
 	public SysList() {}
@@ -78,6 +79,14 @@ public class SysList implements IEntity {
 
 	public void setMaintainable(Integer maintainable) {
 		this.maintainable = maintainable;
+	}
+
+	public String getIsDefault() {
+		return isDefault;
+	}
+
+	public void setIsDefault(String isDefault) {
+		this.isDefault = isDefault;
 	}
 
 

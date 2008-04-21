@@ -348,6 +348,7 @@
 		<xs:sequence>
 			<xs:element name="entry-id" type="xs:integer"/>
 			<xs:element name="entry-name" type="xs:string"/>
+			<xs:element name="is-default" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJECT_LIST">
