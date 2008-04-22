@@ -169,6 +169,7 @@ class MdekExampleQueryThread extends Thread {
 		String searchterm;
 		IngridDocument doc;
 		List<IngridDocument> hits;
+		IngridDocument searchParams;
 
 		boolean alwaysTrue = true;
 
@@ -201,14 +202,28 @@ class MdekExampleQueryThread extends Thread {
 // test single stuff
 // -----------------------------------
 		// add functionality !
+/*
+		searchParams = new IngridDocument();
+		// Harz
+		searchParams.put(MdekKeys.CUSTOM_LOCATION, 1);
+		searchParams.put(MdekKeys.RELATION, new Integer(0));
+//		searchParams.put(MdekKeys.TIME_AT, "19960101000000000");
+//		searchParams.put(MdekKeys.TIME_FROM, "19940101000000000");
+//		searchParams.put(MdekKeys.TIME_TO, "19970101000000000");
+		
+		searchParams.put(MdekKeys.TIME_FROM, "20010101000000000");
+		searchParams.put(MdekKeys.TIME_TO, "20061231000000000");
+		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+		searchParams.put(MdekKeys.TIME_CONTAINS, true);
 
-		/*
+		queryObjectsExtended(searchParams, 0, 20);
+
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
-// ===================================
 */
+// ===================================
 
 		System.out.println("\n\n=========================");
 		System.out.println(" QUERY/UPDATE FULL TEXT ADDRESS");
@@ -357,7 +372,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("=========================");
 		
 		System.out.println("\n----- search objects by extended search query: Göttingen -----");
-		IngridDocument searchParams = new IngridDocument();
+		searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.QUERY_TERM, "Göttingen");
 		searchParams.put(MdekKeys.RELATION, new Integer(0));
 
