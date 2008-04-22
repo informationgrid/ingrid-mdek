@@ -191,6 +191,12 @@ public class MdekCaller implements IMdekCaller {
 			List pairList = (List) mdekResponse.get(IJobRepository.JOB_INVOKE_RESULTS);
 			Pair pair = (Pair) pairList.get(0);
 			result = (IngridDocument) pair.getValue();
+			
+			// NOTICE: we return an empty document if the called method has no return data
+			// (but finished succesfully). So we avoid returning null WHICH INDICATES AN ERROR !
+			if (result == null) {
+				result = new IngridDocument();
+			}
 		}
 
 		return result;

@@ -187,6 +187,10 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- TEST USER STUFF -----");
 		System.out.println("\n----------------------------");
 
+		System.out.println("\n----- get catalog admin -----");
+		doc = getCatalogAdmin();
+		Long catalogAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+		
 		System.out.println("\n----- create new user -----");
 		String addrUuid = "15C69BE6-FE15-11D2-AF34-0060084A4596";
 
@@ -196,7 +200,7 @@ class MdekExampleSecurityThread extends Thread {
 		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
 		doc.put(MdekKeysSecurity.IDC_GROUP_ID, group.get(MdekKeysSecurity.IDC_GROUP_ID));
 		doc.put(MdekKeysSecurity.IDC_ROLE, MdekKeysSecurity.IDC_ROLE_METADATA_ADMINISTRATOR);
-		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, (Long)(getCatalogAdmin().get(MdekKeysSecurity.IDC_USER_ID)));
+		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		doc = createUser(doc, true);
 
 		System.out.println("\n----- change addr uuid of user and store -----");
@@ -376,7 +380,7 @@ class MdekExampleSecurityThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			debugGroupDoc(result);
+			debugUserDoc(result);
 		} else {
 			handleError(response);
 		}
@@ -437,7 +441,7 @@ class MdekExampleSecurityThread extends Thread {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			debugGroupDoc(result);
+			debugUserDoc(result);
 		} else {
 			handleError(response);
 		}

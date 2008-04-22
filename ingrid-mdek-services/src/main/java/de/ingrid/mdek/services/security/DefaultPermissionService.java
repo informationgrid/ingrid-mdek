@@ -102,7 +102,7 @@ public class DefaultPermissionService implements IPermissionService {
 	 *      de.ingrid.mdek.services.security.EntityPermission)
 	 */
 	public boolean hasInheritedPermissionForObject(String addrUuid, EntityPermission ep) {
-		EntityPermission localPermission = new EntityPermission(ep.permission, ep.getUuid());
+		EntityPermission localPermission = new EntityPermission(ep.getPermission(), ep.getUuid());
 		IObjectNodeDao objectNodeDao = daoFactory.getObjectNodeDao();
 		ObjectNode objectNode;
 		do {

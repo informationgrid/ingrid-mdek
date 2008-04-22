@@ -264,7 +264,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
 			Long grpId = (Long) docIn.get(MdekKeysSecurity.IDC_GROUP_ID);
@@ -412,7 +412,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
 
 			daoIdcUser.beginTransaction();
 			Long usrId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);
@@ -438,12 +438,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}	
 	
 	public IngridDocument getCatalogAdmin(IngridDocument uDocIn) {
-		String userId = getCurrentUserId(uDocIn);
-		boolean removeRunningJob = true;
 		try {
-			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
-
 			daoIdcUser.beginTransaction();
 			IdcUser user = daoIdcUser.getCatalogAdmin();
 			if (user == null) {
@@ -462,12 +457,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		} catch (RuntimeException e) {
 			daoIdcUser.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
-			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
-		} finally {
-			if (removeRunningJob) {
-				removeRunningJob(userId);				
-			}
 		}
 	}	
 	
