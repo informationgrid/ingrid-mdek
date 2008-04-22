@@ -172,8 +172,12 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeTo).append("')");
 			}
 			if (timeIntersect) {
-				whereString.append(" or (obj.timeFrom >= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeTo).append("')");
-				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo <= '").append(timeTo).append("')");
+				whereString.append(" or (obj.timeFrom >= '").append(timeFrom)
+					.append("' and obj.timeFrom <= '").append(timeTo)
+					.append("' and obj.timeTo >= '").append(timeTo).append("')");
+				whereString.append(" or (obj.timeFrom <= '").append(timeFrom)
+					.append("' and obj.timeTo >= '").append(timeFrom)
+					.append("' and obj.timeTo <= '").append(timeTo).append("')");
 			}
 			whereString.append(")");
 		} else if (timeFrom != null && timeTo == null) {
