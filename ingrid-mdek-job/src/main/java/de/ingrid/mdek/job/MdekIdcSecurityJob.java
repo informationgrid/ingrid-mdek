@@ -445,13 +445,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
 			
-			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
-			daoIdcUser.commitTransaction();
-
-			// return basic data
+			// map before committing, uses lazy loading
 			IngridDocument result = new IngridDocument();
 			beanToDocMapperSecurity.mapIdcUser(user, result, MappingQuantity.DETAIL_ENTITY);
 			
+			daoIdcUser.commitTransaction();
+
 			return result;
 
 		} catch (RuntimeException e) {

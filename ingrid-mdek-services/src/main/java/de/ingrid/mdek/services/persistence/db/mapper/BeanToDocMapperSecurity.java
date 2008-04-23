@@ -75,18 +75,19 @@ public class BeanToDocMapperSecurity implements IMapper {
 		userDoc.put(MdekKeysSecurity.IDC_ROLE, user.getIdcRole());
 		userDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, user.getParentId());
 		
+		if (howMuch == MappingQuantity.TREE_ENTITY ||
+			howMuch == MappingQuantity.DETAIL_ENTITY)
+		{
+			// child info
+	    	boolean hasChild = (user.getIdcUsers().size() > 0) ? true : false;
+	    	userDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
+		}
+
 		if (howMuch == MappingQuantity.DETAIL_ENTITY) 
 		{
 			userDoc.put(MdekKeysSecurity.DATE_OF_CREATION, user.getCreateTime());
 			userDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, user.getModTime());
 			userDoc.put(MdekKeysSecurity.MOD_UUID, user.getModUuid());
-		}
-
-		if (howMuch == MappingQuantity.TREE_ENTITY) 
-		{
-			// child info
-	    	boolean hasChild = (user.getIdcUsers().size() > 0) ? true : false;
-	    	userDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
 		}
 
 		return userDoc;
