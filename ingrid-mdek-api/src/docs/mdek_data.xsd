@@ -334,6 +334,7 @@
 			<xs:element name="idc-group-id" type="xs:long"/>
 			<xs:element name="idc-role" type="xs:integer"/>
 			<xs:element name="parent-idc-user-id" type="xs:long"/>
+			<xs:element ref="hasChild"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="mod-uuid"/>

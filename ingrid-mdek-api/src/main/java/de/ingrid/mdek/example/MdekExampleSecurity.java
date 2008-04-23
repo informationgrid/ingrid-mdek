@@ -154,6 +154,9 @@ class MdekExampleSecurityThread extends Thread {
 
 		long exampleStartTime = System.currentTimeMillis();
 
+		IngridDocument groupDoc;
+		String addrUuid;
+
 // ====================
 // test single stuff
 // -----------------------------------
@@ -204,20 +207,31 @@ class MdekExampleSecurityThread extends Thread {
 		doc = getCatalogAdmin();
 		Long catalogAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
 		
-		System.out.println("\n----- create new user -----");
-		String addrUuid = "15C69BE6-FE15-11D2-AF34-0060084A4596";
-
-		IngridDocument group = getGroupDetails(nameNewGrp);
+		System.out.println("\n----- create new user METADATA_ADMINISTRATOR -----");
+		addrUuid = "15C69BE6-FE15-11D2-AF34-0060084A4596";
+		groupDoc = getGroupDetails(nameNewGrp);
 
 		doc = new IngridDocument();
 		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
-		doc.put(MdekKeysSecurity.IDC_GROUP_ID, group.get(MdekKeysSecurity.IDC_GROUP_ID));
+		doc.put(MdekKeysSecurity.IDC_GROUP_ID, groupDoc.get(MdekKeysSecurity.IDC_GROUP_ID));
 		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		doc = createUser(doc, true);
+		Long metaAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+
+		System.out.println("\n----- create new user METADATA_AUTHOR -----");
+		addrUuid = "386645BC-B449-11D2-9A86-080000507261";
+
+		doc = new IngridDocument();
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
+		doc.put(MdekKeysSecurity.IDC_GROUP_ID, groupDoc.get(MdekKeysSecurity.IDC_GROUP_ID));
+		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
+		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, metaAdminId);
 		doc = createUser(doc, true);
 
 		System.out.println("\n----- get sub users -----");
 		getSubUsers(catalogAdminId);
+		getSubUsers(metaAdminId);
 
 		System.out.println("\n----- change addr uuid of user and store -----");
 		addrUuid = "6C6A3485-59E0-11D3-AE74-00104B57C66D";

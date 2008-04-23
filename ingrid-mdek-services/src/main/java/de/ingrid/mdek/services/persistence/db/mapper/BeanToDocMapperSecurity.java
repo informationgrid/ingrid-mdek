@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
@@ -79,6 +80,13 @@ public class BeanToDocMapperSecurity implements IMapper {
 			userDoc.put(MdekKeysSecurity.DATE_OF_CREATION, user.getCreateTime());
 			userDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, user.getModTime());
 			userDoc.put(MdekKeysSecurity.MOD_UUID, user.getModUuid());
+		}
+
+		if (howMuch == MappingQuantity.TREE_ENTITY) 
+		{
+			// child info
+	    	boolean hasChild = (user.getIdcUsers().size() > 0) ? true : false;
+	    	userDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
 		}
 
 		return userDoc;
