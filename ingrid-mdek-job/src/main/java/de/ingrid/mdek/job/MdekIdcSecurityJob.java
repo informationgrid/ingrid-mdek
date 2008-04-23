@@ -112,7 +112,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 
 	public IngridDocument createGroup(IngridDocument gDocIn) {
-		String userId = getCurrentUserId(gDocIn);
+		String userId = getCurrentUserUuid(gDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -167,7 +167,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 
 	public IngridDocument storeGroup(IngridDocument gDocIn) {
-		String userId = getCurrentUserId(gDocIn);
+		String userId = getCurrentUserUuid(gDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -220,7 +220,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 	
 	public void deleteGroup(IngridDocument docIn) {
-		String userId = getCurrentUserId(docIn);
+		String userId = getCurrentUserUuid(docIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -300,7 +300,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 	
 	public IngridDocument createUser(IngridDocument gDocIn) {
-		String userId = getCurrentUserId(gDocIn);
+		String userId = getCurrentUserUuid(gDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -355,7 +355,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 
 	public IngridDocument storeUser(IngridDocument uDocIn) {
-		String userId = getCurrentUserId(uDocIn);
+		String userId = getCurrentUserUuid(uDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -408,7 +408,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 
 	public void deleteUser(IngridDocument uDocIn) {
-		String userId = getCurrentUserId(uDocIn);
+		String userId = getCurrentUserUuid(uDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !

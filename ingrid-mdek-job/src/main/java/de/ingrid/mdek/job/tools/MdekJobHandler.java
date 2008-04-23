@@ -41,7 +41,7 @@ public class MdekJobHandler {
 	public IngridDocument cancelRunningJob(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
 
-		String userId = MdekJob.getCurrentUserId(params);
+		String userId = MdekJob.getCurrentUserUuid(params);
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("userId:" + userId);
@@ -57,7 +57,7 @@ public class MdekJobHandler {
 	}
 
 	public IngridDocument getRunningJobInfo(IngridDocument params) {
-		String userId = MdekJob.getCurrentUserId(params);
+		String userId = MdekJob.getCurrentUserUuid(params);
 		return getRunningJobInfo(userId);
 	}
 

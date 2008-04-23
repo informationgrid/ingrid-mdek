@@ -69,14 +69,15 @@ public class MdekError implements Serializable {
 		/** List data in record has no key AND no value !  Has to have one of both ! */
 		LIST_NO_KEY_NO_VALUE("102"),
 		
-		/** try to store a user that has not the catalog admin role without an valid parent*/
-		USER_HAS_NO_VALID_PARENT("1000"), 
+		/** try to store a user that has not the catalog admin role without a valid parent*/
+		USER_HAS_NO_VALID_PARENT("1000"),
+		/** user has no permission for executing the operation */
+		USER_HAS_NO_PERMISSION("1001"),
 		
 		/** try to remove a group that has still users attached */
-		GROUP_HAS_USERS("1001"), 
-		
+		GROUP_HAS_USERS("1021"), 
 		/** try to remove a group that has still permissions (address, object) attached */
-		GROUP_HAS_PERMISSIONS("1002")
+		GROUP_HAS_PERMISSIONS("1022")
 		;
 
 		MdekErrorType(String errorCode) {

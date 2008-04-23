@@ -3,11 +3,8 @@
  */
 package de.ingrid.mdek.services.security;
 
-import java.util.List;
-
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
-import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 
 /**
  * Describes all public methods of the security service.
@@ -22,22 +19,22 @@ public interface IPermissionService {
 	 * Checks an object defined by uuid for a EntityPermission permission for a
 	 * user represented by addrUuid.
 	 * 
-	 * @param addrUuid
+	 * @param objUuid
 	 * @param ep
 	 * @return True if the permission exists, false if not.
 	 */
-	public boolean hasPermissionForObject(String addrUuid, EntityPermission ep);
+	public boolean hasPermissionForObject(String objUuid, EntityPermission ep);
 
 	/**
 	 * Checks an object defined by uuid for a EntityPermission permission for a
 	 * user represented by addrUuid. The permission can also be inherited by one
 	 * of it's parent.
 	 * 
-	 * @param addrUuid
+	 * @param objUuid
 	 * @param ep
 	 * @return True if the permission exists, false if not.
 	 */
-	public boolean hasInheritedPermissionForObject(String addrUuid, EntityPermission ep);
+	public boolean hasInheritedPermissionForObject(String objUuid, EntityPermission ep);
 
 	/**
 	 * Checks an address defined by uuid for a EntityPermission permission for a

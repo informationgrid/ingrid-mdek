@@ -14,6 +14,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
+import de.ingrid.mdek.job.tools.MdekPermissionHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -28,6 +29,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
+import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -35,7 +37,8 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcAddressJob extends MdekIdcJob {
 
-	protected MdekFullIndexHandler fullIndexHandler;
+	private MdekFullIndexHandler fullIndexHandler;
+	private MdekPermissionHandler permissionHandler;
 
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
@@ -43,10 +46,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private IT01ObjectDao daoT01Object;
 
 	public MdekIdcAddressJob(ILogService logService,
-			DaoFactory daoFactory) {
+			DaoFactory daoFactory,
+			IPermissionService permissionService) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
+		permissionHandler = MdekPermissionHandler.getInstance(permissionService);
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
@@ -218,7 +223,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	public IngridDocument storeAddress(IngridDocument aDocIn) {
-		String userId = getCurrentUserId(aDocIn);
+		String userId = getCurrentUserUuid(aDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -318,7 +323,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	public IngridDocument publishAddress(IngridDocument aDocIn) {
-		String userId = getCurrentUserId(aDocIn);
+		String userId = getCurrentUserUuid(aDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -426,7 +431,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/** Copy Address to new parent (with or without its subtree). Returns basic data of copied top address. */
 	public IngridDocument copyAddress(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -476,7 +481,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/** Move Address with its subtree to new parent. */
 	public IngridDocument moveAddress(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -519,7 +524,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/** Checks whether subtree of address has working copies. */
 	public IngridDocument checkAddressSubTree(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -552,7 +557,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * (including all sub addresses !)
 	 */
 	public IngridDocument deleteAddressWorkingCopy(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -561,6 +566,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
+			
+			// first check User Permissions
+			if (!permissionHandler.hasWritePermissionForAddress(uuid, userId)) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+			}
 
 			// NOTICE: this one also contains Parent Association !
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
@@ -620,7 +630,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * Address is non existent afterwards !
 	 */
 	public IngridDocument deleteAddress(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !

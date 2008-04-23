@@ -57,7 +57,7 @@ public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 			dao.makePersistent(ep.getPermission());
 			ep = PermissionFactory.getTreeObjectPermissionTemplate("");
 			dao.makePersistent(ep.getPermission());
-			ep = PermissionFactory.getTreeAdressPermissionTemplate("");
+			ep = PermissionFactory.getTreeAddressPermissionTemplate("");
 			dao.makePersistent(ep.getPermission());
 			dao.makePersistent(PermissionFactory.getCreateRootPermissionTemplate());
 			dao.makePersistent(PermissionFactory.getQAPermissionTemplate());

@@ -42,6 +42,7 @@ public abstract class MdekIdcJob extends MdekJob {
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 	}
 
+	/** Returns info about the version of the MdekServer (iPlug). */
 	public IngridDocument getVersion(IngridDocument params) {
 		try {
 			IngridDocument resultDoc = new IngridDocument();

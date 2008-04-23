@@ -217,7 +217,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument storeObject(IngridDocument oDocIn) {
-		String userId = getCurrentUserId(oDocIn);
+		String userId = getCurrentUserUuid(oDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -311,7 +311,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument publishObject(IngridDocument oDocIn) {
-		String userId = getCurrentUserId(oDocIn);
+		String userId = getCurrentUserUuid(oDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -433,7 +433,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	 * (including all subobjects !)
 	 */
 	public IngridDocument deleteObjectWorkingCopy(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -504,7 +504,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	 * Object is non existent afterwards !
 	 */
 	public IngridDocument deleteObject(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -551,7 +551,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/** Move Object with its subtree to new parent. */
 	public IngridDocument moveObject(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -653,7 +653,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/** Checks whether subtree of object has working copies. */
 	public IngridDocument checkObjectSubTree(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -727,7 +727,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied top object. */
 	public IngridDocument copyObject(IngridDocument params) {
-		String userId = getCurrentUserId(params);
+		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !

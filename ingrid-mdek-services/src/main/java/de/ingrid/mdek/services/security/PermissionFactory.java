@@ -37,7 +37,7 @@ public class PermissionFactory {
 		return new EntityPermission(p, uuid);
 	}
 
-	public static EntityPermission getTreeAdressPermissionTemplate(String uuid) {
+	public static EntityPermission getTreeAddressPermissionTemplate(String uuid) {
 		Permission p = new Permission();
 		p.setClassName("IdcAddressPermission");
 		p.setName("address");

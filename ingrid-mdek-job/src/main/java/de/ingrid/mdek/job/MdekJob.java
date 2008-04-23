@@ -91,8 +91,13 @@ public abstract class MdekJob implements IJob {
 		jobHandler.removeRunningJob(userId);
 	}
 
-	/** THROWS EXCEPTION IF USER NOT SET in passed doc */
-	public static String getCurrentUserId(IngridDocument inDoc) {
+	/**
+	 * Return the AddressUuid of the user set in passed doc.
+	 * THROWS EXCEPTION IF USER NOT SET in passed doc.
+	 * @param inDoc
+	 * @return
+	 */
+	public static String getCurrentUserUuid(IngridDocument inDoc) {
 		String userId = inDoc.getString(MdekKeys.USER_ID);
 		if (userId == null) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
