@@ -9,6 +9,7 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerObject;
@@ -211,7 +212,7 @@ class MdekExampleSecurityThread extends Thread {
 		doc = new IngridDocument();
 		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
 		doc.put(MdekKeysSecurity.IDC_GROUP_ID, group.get(MdekKeysSecurity.IDC_GROUP_ID));
-		doc.put(MdekKeysSecurity.IDC_ROLE, MdekKeysSecurity.IDC_ROLE_METADATA_ADMINISTRATOR);
+		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		doc = createUser(doc, true);
 

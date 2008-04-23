@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -66,7 +67,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 		userIn.setIdcGroupId((Long)docIn.get(MdekKeysSecurity.IDC_GROUP_ID));
 		userIn.setIdcRole((Integer)docIn.get(MdekKeysSecurity.IDC_ROLE));
 		Long parentId = (Long)docIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
-		if (parentId == null && userIn.getIdcRole().intValue() != MdekKeysSecurity.IDC_ROLE_CATALOG_ADMINISTRATOR) {
+		if (parentId == null && userIn.getIdcRole().intValue() != MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue()) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_VALID_PARENT));
 		}
 		userIn.setParentId(parentId);

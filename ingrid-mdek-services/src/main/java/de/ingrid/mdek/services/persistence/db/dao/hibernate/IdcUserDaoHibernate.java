@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
@@ -28,7 +29,7 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 	public IdcUser getCatalogAdmin() {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
-				"where u.idcRole = ?").setInteger(0, MdekKeysSecurity.IDC_ROLE_CATALOG_ADMINISTRATOR)
+				"where u.idcRole = ?").setInteger(0, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue())
 				.uniqueResult();
 	}
 

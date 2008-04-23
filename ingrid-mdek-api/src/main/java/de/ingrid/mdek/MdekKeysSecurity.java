@@ -6,10 +6,6 @@ package de.ingrid.mdek;
  */
 public class MdekKeysSecurity extends MdekKeys {
 
-	public static int IDC_ROLE_CATALOG_ADMINISTRATOR = 1;
-	public static int IDC_ROLE_METADATA_ADMINISTRATOR = 2;
-	public static int IDC_ROLE_METADATA_AUTHOR = 3;
-
 	// GROUP(S)
     // --------
 
