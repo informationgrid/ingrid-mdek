@@ -18,14 +18,14 @@ public interface IIdcUserDao extends IGenericDao<IdcUser> {
 	 * @param addrUuid
 	 * @return
 	 */
-	public IdcUser getIdcUserByAddrUuid(String addrUuid);
+	IdcUser getIdcUserByAddrUuid(String addrUuid);
 
 	/**
 	 * Get the catalog administrator for this catalog.
 	 * 
 	 * @return
 	 */
-	public IdcUser getCatalogAdmin();
+	IdcUser getCatalogAdmin();
 	
 	/**
 	 * Returns all users belonging to a group.
@@ -33,6 +33,12 @@ public interface IIdcUserDao extends IGenericDao<IdcUser> {
 	 * @param groupId
 	 * @return
 	 */
-	public List<IdcUser> getIdcUsersByGroupId(Long groupId);
+	List<IdcUser> getIdcUsersByGroupId(Long groupId);
 
+	/**
+	 * Returns all subusers of user with given userId.
+	 * @param parentIdcUserId
+	 * @return
+	 */
+	List<IdcUser> getSubUsers(Long parentIdcUserId);
 }

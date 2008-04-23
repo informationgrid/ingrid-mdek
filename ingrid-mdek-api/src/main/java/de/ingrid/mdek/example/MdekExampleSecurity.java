@@ -203,6 +203,9 @@ class MdekExampleSecurityThread extends Thread {
 		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		doc = createUser(doc, true);
 
+		System.out.println("\n----- get sub users -----");
+		getSubUsers(catalogAdminId);
+
 		System.out.println("\n----- change addr uuid of user and store -----");
 		addrUuid = "6C6A3485-59E0-11D3-AE74-00104B57C66D";
 		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
@@ -476,6 +479,33 @@ class MdekExampleSecurityThread extends Thread {
 
 		return result;
 	}	
+
+	private IngridDocument getSubUsers(Long parentUserId) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getSubUsers ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getSubUsers(plugId, parentUserId, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				debugUserDoc((IngridDocument)o);
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
 
 	private IngridDocument deleteGroup(Long idcGroupId) {
 		if (idcGroupId == null) {

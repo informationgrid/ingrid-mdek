@@ -2,20 +2,13 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.List;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
-import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
-import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
-import de.ingrid.mdek.services.persistence.db.model.Permission;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 
 /**
  * Hibernate-specific implementation of the <tt>IIdcUserDao</tt> non-CRUD
@@ -56,4 +49,9 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 		"where u.idcGroupId = ?").setLong(0, groupId).list();
 	}
 
+	public List<IdcUser> getSubUsers(Long parentIdcUserId) {
+		Session session = getSession();
+		return (List<IdcUser>)session.createQuery("from IdcUser u " +
+		"where u.parentId = ?").setLong(0, parentIdcUserId).list();
+	}
 }

@@ -111,46 +111,6 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		return resultDoc;
 	}
 
-	public IngridDocument getUserDetails(IngridDocument params) {
-		try {
-			daoIdcUser.beginTransaction();
-
-			String addrUuid = params.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
-			IngridDocument result = getUserDetails(addrUuid);
-			
-			daoIdcUser.commitTransaction();
-			return result;
-			
-		} catch (RuntimeException e) {
-			daoIdcUser.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
-		    throw handledExc;
-		}
-	}
-	
-	
-	private IngridDocument getUserDetails(String addrUuid) {
-		IdcUser user = daoIdcUser.getIdcUserByAddrUuid(addrUuid);
-		if (user == null) {
-			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
-		}
-		
-		AddressNode addressNode = daoAddressNode.loadByUuid(addrUuid);
-		T02Address address = null;
-		if (addressNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
-		} else {
-			address = addressNode.getT02AddressWork();
-		}
-
-		IngridDocument resultDoc = new IngridDocument();
-		beanToDocMapperSecurity.mapIdcUser(user, resultDoc, MappingQuantity.DETAIL_ENTITY);
-		// map additional address attributes
-		BeanToDocMapper.getInstance().mapT02Address(address, resultDoc, MappingQuantity.BASIC_ENTITY);
-		
-		return resultDoc;
-	}
-	
 	public IngridDocument createGroup(IngridDocument gDocIn) {
 		String userId = getCurrentUserId(gDocIn);
 		boolean removeRunningJob = true;
@@ -298,6 +258,46 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			}
 		}
 	}	
+	
+	public IngridDocument getUserDetails(IngridDocument params) {
+		try {
+			daoIdcUser.beginTransaction();
+
+			String addrUuid = params.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+			IngridDocument result = getUserDetails(addrUuid);
+			
+			daoIdcUser.commitTransaction();
+			return result;
+			
+		} catch (RuntimeException e) {
+			daoIdcUser.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+	
+	
+	private IngridDocument getUserDetails(String addrUuid) {
+		IdcUser user = daoIdcUser.getIdcUserByAddrUuid(addrUuid);
+		if (user == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+		}
+		
+		AddressNode addressNode = daoAddressNode.loadByUuid(addrUuid);
+		T02Address address = null;
+		if (addressNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+		} else {
+			address = addressNode.getT02AddressWork();
+		}
+
+		IngridDocument resultDoc = new IngridDocument();
+		beanToDocMapperSecurity.mapIdcUser(user, resultDoc, MappingQuantity.DETAIL_ENTITY);
+		// map additional address attributes
+		BeanToDocMapper.getInstance().mapT02Address(address, resultDoc, MappingQuantity.BASIC_ENTITY);
+		
+		return resultDoc;
+	}
 	
 	public IngridDocument createUser(IngridDocument gDocIn) {
 		String userId = getCurrentUserId(gDocIn);
@@ -460,5 +460,32 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		    throw handledExc;
 		}
 	}	
-	
+
+	public IngridDocument getSubUsers(IngridDocument params) {
+		try {
+			daoIdcUser.beginTransaction();
+			Long usrId = (Long) params.get(MdekKeysSecurity.IDC_USER_ID);
+
+			List<IdcUser> subUsers = daoIdcUser.getSubUsers(usrId);
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(subUsers.size());
+			for (IdcUser subUser : subUsers) {
+				IngridDocument uDoc = new IngridDocument();
+				beanToDocMapperSecurity.mapIdcUser(subUser, uDoc, MappingQuantity.TREE_ENTITY);
+				resultList.add(uDoc);
+			}
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeysSecurity.IDC_USERS, resultList);
+
+			daoIdcUser.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoIdcUser.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 }

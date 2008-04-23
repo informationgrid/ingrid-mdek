@@ -11,6 +11,7 @@
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
 			<xs:element name="language" type="xs:string"/>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
+			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="REQUEST_SEARCH_MAP" type="REQUEST_SEARCH_MAP"/>
 			<xs:element name="REQUEST_SECURITY_MAP" type="REQUEST_SECURITY_MAP"/>
@@ -217,10 +218,10 @@
 			</xs:sequence>
 			<!-- object -->
 			<xs:sequence>
-				<!-- object: extended search: subject: search terms  -->
-				<xs:element name="query-term" type="xs:string"/>
 				<!-- object: extended search: subject: search term relations (and = 0, or = 1)  -->
 				<xs:element name="relation" type="xs:integer"/>
+				<!-- object: extended search: subject: search terms  -->
+				<xs:element name="query-term" type="xs:string"/>
 				<!-- address: extended search: subject: search mode ('whole word'(0), 'partial word'(1)) -->
 				<xs:element name="search-type" type="xs:integer"/>
 				<!-- object: extended search: subject: object classes  -->
@@ -249,9 +250,10 @@
 		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="REQUEST_SECURITY_MAP">
-		<xs:all>
+		<xs:choice>
 			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
-		</xs:all>
+			<xs:element name="USER_MAP" type="USER_MAP"/>
+		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -299,9 +301,12 @@
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="RESULT_SECURITY_MAP">
-		<xs:all>
+		<xs:choice>
+			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
+			<xs:element name="USER_MAP" type="USER_MAP"/>
 			<xs:element name="groups" type="GROUP_LIST"/>
-		</xs:all>
+			<xs:element name="idc-users" type="USER_LIST"/>
+		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="GROUP_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -317,17 +322,29 @@
 			<xs:element ref="mod-uuid"/>
 		</xs:all>
 	</xs:complexType>	
+	<xs:complexType name="USER_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="USER_MAP" type="USER_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="USER_MAP">
 		<xs:all>
 			<xs:element name="idc-user-id" type="xs:long"/>
 			<xs:element name="idc-user-addr-uuid" type="xs:string"/>
-			<xs:element ref="name"/>
+			<xs:element name="idc-group-id" type="xs:long"/>
+			<xs:element name="idc-role" type="xs:integer"/>
+			<xs:element name="parent-idc-user-id" type="xs:long"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="mod-uuid"/>
+			<xs:element name="USER_ADDRESS_MAP" type="USER_ADDRESS_MAP"/>
 		</xs:all>
 	</xs:complexType>	
-
+	<xs:complexType name="USER_ADDRESS_MAP">
+		<xs:choice>
+			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
+		</xs:choice>
+	</xs:complexType>	
 	<xs:complexType name="RESULT_RUNNING_JOBS_MAP">
 		<xs:all>
 			<xs:element name="runningjob-description" type="xs:string"/>

@@ -1,6 +1,6 @@
 package de.ingrid.mdek.caller;
 
-import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -29,20 +29,6 @@ public interface IMdekCallerSecurity {
 			String name,
 			String userId);
 
-	/**
-	 * Get a user.
-	 * @param plugId which mdek server (iplug)
-	 * @param addrUuid uuid of the users address
-	 * @param userId calling user
-	 * @return response containing result: map representation of group
-	 * @throws MdekException if the user not exists ((MdekErrorType.ENTITY_NOT_FOUND)). 
-	 * @throws MdekException if the addrUuid has no address node ((MdekErrorType.ENTITY_NOT_FOUND)). 
-	 */
-	IngridDocument getUserDetails(String plugId,
-			String addrUuid,
-			String userId);
-	
-	
 	/**
 	 * Create new group.
 	 * @param plugId which mdek server (iplug)
@@ -87,6 +73,20 @@ public interface IMdekCallerSecurity {
 	
 	
 	/**
+	 * Get a user.
+	 * @param plugId which mdek server (iplug)
+	 * @param addrUuid uuid of the users address
+	 * @param userId calling user
+	 * @return response containing result: map representation of group
+	 * @throws MdekException if the user not exists ((MdekErrorType.ENTITY_NOT_FOUND)). 
+	 * @throws MdekException if the addrUuid has no address node ((MdekErrorType.ENTITY_NOT_FOUND)). 
+	 */
+	IngridDocument getUserDetails(String plugId,
+			String addrUuid,
+			String userId);
+	
+	
+	/**
 	 * Create new user.
 	 * @param plugId which mdek server (iplug)
 	 * @param userDoc map representation of new user
@@ -122,8 +122,7 @@ public interface IMdekCallerSecurity {
 	 * Deletes an existing user. NOTICE: Passed userDoc must contain ID of user ! 
 	 * @param plugId which mdek server (iplug)
 	 * @param idcUserId user id.
-	 * @return response containing result: detailed map representation of
-	 * 		user when refetching otherwise map containing basic data (id)  
+	 * @return response containing result: success and error  
 	 * @throws MdekException if the user not exists (MdekErrorType.ENTITY_NOT_FOUND). 
 	 */
 	IngridDocument deleteUser(String plugId,
@@ -139,5 +138,17 @@ public interface IMdekCallerSecurity {
 	 */
 	IngridDocument getCatalogAdmin(String plugId,
 			String userId);
-	
+
+	/**
+	 * Get all sub users of given "parent user"
+	 * @param plugId which mdek server (iplug)
+	 * @param parentIdcUserId "parent user"
+	 * @param userId calling user
+	 * @return response containing result: map containing basic representations of sub users
+	 * @throws MdekException if the "parent user" not exists (MdekErrorType.ENTITY_NOT_FOUND). 
+	 */
+	IngridDocument getSubUsers(String plugId,
+			Long parentIdcUserId,
+			String userId);
+
 }
