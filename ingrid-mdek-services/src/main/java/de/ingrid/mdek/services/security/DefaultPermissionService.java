@@ -7,6 +7,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -71,6 +74,9 @@ public class DefaultPermissionService implements IPermissionService {
 				return true;
 			}
 			addressNode = addressNodeDao.loadByUuid(localPermission.getUuid());
+			if (addressNode == null) {
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+			}
 			localPermission.setUuid(addressNode.getFkAddrUuid());
 		} while (localPermission.getUuid() != null);
 		return false;
@@ -110,6 +116,9 @@ public class DefaultPermissionService implements IPermissionService {
 				return true;
 			}
 			objectNode = objectNodeDao.loadByUuid(localPermission.getUuid());
+			if (objectNode == null) {
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+			}
 			localPermission.setUuid(objectNode.getFkObjUuid());
 		} while (localPermission.getUuid() != null);
 		return false;

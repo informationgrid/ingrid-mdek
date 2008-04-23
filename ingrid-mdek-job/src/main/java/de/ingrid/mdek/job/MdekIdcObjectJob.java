@@ -15,6 +15,7 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
+import de.ingrid.mdek.job.tools.MdekPermissionHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -28,6 +29,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
+import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -36,16 +38,19 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcObjectJob extends MdekIdcJob {
 
 	protected MdekFullIndexHandler fullIndexHandler;
+	private MdekPermissionHandler permissionHandler;
 
 	private IObjectNodeDao daoObjectNode;
 	private IT01ObjectDao daoT01Object;
 	private IGenericDao<IEntity> daoObjectReference;
 
 	public MdekIdcObjectJob(ILogService logService,
-			DaoFactory daoFactory) {
+			DaoFactory daoFactory,
+			IPermissionService permissionService) {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
+		permissionHandler = MdekPermissionHandler.getInstance(permissionService);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
@@ -442,6 +447,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
+
+			// first check User Permissions
+			permissionHandler.checkWritePermissionForObject(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);

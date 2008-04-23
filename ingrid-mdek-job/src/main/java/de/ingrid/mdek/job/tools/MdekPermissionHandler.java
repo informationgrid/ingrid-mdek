@@ -2,6 +2,9 @@ package de.ingrid.mdek.job.tools;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
 
@@ -30,10 +33,16 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Check Write Permission of given user on given object !
-	 * @param objUuid
-	 * @param userAddrUuid
-	 * @return
+	 * Checks whether user has write permission on given object AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkWritePermissionForObject(String objUuid, String userAddrUuid) {
+		if (!hasWritePermissionForObject(objUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Check Write Permission of given user on given object and return "yes"/"no" !
 	 */
 	public boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
 		// first check explicit permission for object
@@ -49,10 +58,16 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Check Write Permission of given user on given address !
-	 * @param addrUuid
-	 * @param userAddrUuid
-	 * @return
+	 * Checks whether user has write permission on given address AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
+		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Check Write Permission of given user on given address and return "yes"/"no" !
 	 */
 	public boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
 		// first check explicit permission for address

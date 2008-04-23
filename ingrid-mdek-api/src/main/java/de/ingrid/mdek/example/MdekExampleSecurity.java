@@ -11,9 +11,11 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
+import de.ingrid.mdek.caller.IMdekCallerObject;
 import de.ingrid.mdek.caller.IMdekCallerSecurity;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekCallerAddress;
+import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.utils.IngridDocument;
 
@@ -57,6 +59,7 @@ public class MdekExampleSecurity {
 
 		// and our specific job caller !
 		MdekCallerSecurity.initialize(mdekCaller);
+		MdekCallerObject.initialize(mdekCaller);
 		MdekCallerAddress.initialize(mdekCaller);
 
 		// wait till iPlug registered !
@@ -131,6 +134,7 @@ class MdekExampleSecurityThread extends Thread {
 	
 	private IMdekCaller mdekCaller;
 	private IMdekCallerSecurity mdekCallerSecurity;
+	private IMdekCallerObject mdekCallerObject;
 	private IMdekCallerAddress mdekCallerAddress;
 
 	public MdekExampleSecurityThread(int threadNumber)
@@ -140,6 +144,7 @@ class MdekExampleSecurityThread extends Thread {
 		
 		mdekCaller = MdekCaller.getInstance();
 		mdekCallerSecurity = MdekCallerSecurity.getInstance();
+		mdekCallerObject = MdekCallerObject.getInstance();
 		mdekCallerAddress = MdekCallerAddress.getInstance();
 	}
 
@@ -234,8 +239,11 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- TEST PERMISSIONS -----");
 		System.out.println("\n----------------------------");
 
-		System.out.println("\n----- delete without permission -----");
+		System.out.println("\n----- delete address working copy without permission -----");
 		deleteAddressWorkingCopy("012CBA17-87F6-11D4-89C7-C1AAE1E96727", true);
+
+		System.out.println("\n----- delete object working copy without permission -----");
+		deleteObjectWorkingCopy("128EFA64-436E-11D3-A599-70A253C18B13", true);
 
 		// ===================================
 
@@ -549,7 +557,34 @@ class MdekExampleSecurityThread extends Thread {
 		}
 
 		return result;
-	}	
+	}
+
+	private IngridDocument deleteObjectWorkingCopy(String uuid,
+			boolean forceDeleteReferences) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
 
 	private IngridDocument deleteAddressWorkingCopy(String uuid,
 			boolean forceDeleteReferences) {

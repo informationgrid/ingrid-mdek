@@ -4,5 +4,6 @@
 	<bean id="de.ingrid.mdek.job.MdekIdcObjectJob" class="de.ingrid.mdek.job.MdekIdcObjectJob" >
 		<constructor-arg ref="de.ingrid.mdek.services.log.ILogService"/>
 		<constructor-arg ref="de.ingrid.mdek.services.persistence.db.IDaoFactory"/>
+		<constructor-arg ref="de.ingrid.mdek.services.security.IPermissionService"/>
 	</bean>
 </beans>
