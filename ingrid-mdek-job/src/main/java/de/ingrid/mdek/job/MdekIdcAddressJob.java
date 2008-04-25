@@ -233,6 +233,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
 			String uuid = (String) aDocIn.get(MdekKeys.UUID);
+			// NOTICE: parent may be null, then root node !
+			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
@@ -241,6 +243,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			
 			if (uuid == null) {
 				// NEW Address !
+				
+				// check User Permissions when new root node !
+				if (parentUuid == null) {
+					permissionHandler.checkCreateRootPermission(userId);					
+				}
 
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();

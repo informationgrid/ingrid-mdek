@@ -288,27 +288,59 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- delete object working copy -> ALLOWED -----");
 		deleteObjectWorkingCopy(objUuid, true);
 
-		System.out.println("\n----- remove permissions from group -----");
-		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
-		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
-		newGroupDoc = storeGroup(newGroupDoc, true);
-
 		System.out.println("\n----------------------------");
 		System.out.println("\n----- USER PERMISSIONS -----");
 		System.out.println("\n----------------------------");
 
-//		System.out.println("\n----- create top object -> NOT ALLOWED -----");
-//		deleteObjectWorkingCopy(objUuid, true);
+		System.out.println("\n----- create top address -> NOT ALLOWED -----");
+		System.out.println("\n----- first get initial data for top address -----");
+		IngridDocument newTopAdrDoc = new IngridDocument();
+		newTopAdrDoc.put(MdekKeys.PARENT_UUID, null);
+		newTopAdrDoc = getInitialAddress(newTopAdrDoc);
+		// extend initial address with own data !
+		newTopAdrDoc.put(MdekKeys.NAME, "testNAME");
+		newTopAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newTopAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
+		newTopAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
+		newTopAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
+		System.out.println("\n----- then store -> NOT ALLOWED -----");
+		storeAddress(newTopAdrDoc, false);
 
-//		System.out.println("\n----- create top address -> NOT ALLOWED -----");
-//		deleteObjectWorkingCopy(objUuid, true);
+		System.out.println("\n----- create top object -> NOT ALLOWED -----");
+		System.out.println("\n----- first get initial data for top object -----");
+		IngridDocument newTopObjDoc = new IngridDocument();
+		newTopObjDoc.put(MdekKeys.PARENT_UUID, null);
+		newTopObjDoc = getInitialObject(newTopObjDoc);
+		// extend initial address with own data !
+		newTopObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		System.out.println("\n----- then store -> NOT ALLOWED -----");
+		storeObject(newTopObjDoc, false);
 
-		System.out.println("\n----- add user permissions -----");
+		System.out.println("\n----- add user permission CREATE ROOT -----");
 		perms = (List<IngridDocument>) newMetaAuthorDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		newPerm = new IngridDocument();
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.CREATE_ROOT.getDbValue());
 		perms.add(newPerm);
 		newMetaAuthorDoc = storeUser(newMetaAuthorDoc, true);
+
+		System.out.println("\n----- create top address -> ALLOWED -----");
+		newTopAdrDoc = storeAddress(newTopAdrDoc, true);
+		String newTopAddrUuid = (String) newTopAdrDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create top object -> ALLOWED -----");
+		newTopObjDoc = storeObject(newTopObjDoc, true);
+		String newTopObjUuid = (String) newTopObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- and delete new top entities -> NOT ALLOWED -----");
+		deleteAddressWorkingCopy(newTopAddrUuid, true);
+		deleteObjectWorkingCopy(newTopObjUuid, true);
+
+		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		myUserUuid = catalogAdminUuid;
+
+		System.out.println("\n----- and delete new top entities -> ALLOWED -----");
+		deleteAddressWorkingCopy(newTopAddrUuid, true);
+		deleteObjectWorkingCopy(newTopObjUuid, true);
 
 		// ===================================
 		
@@ -319,6 +351,11 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- remove users -----");
 		deleteUser(newMetaAdminId);
 		deleteUser(newMetaAuthorId);
+
+		System.out.println("\n----- remove permissions from group -----");
+		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
+		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
+		newGroupDoc = storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- remove group -----");
 		deleteGroup(newGroupId);
@@ -637,6 +674,64 @@ class MdekExampleSecurityThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument getInitialObject(IngridDocument newBasicObject) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getInitialObject ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.getInitialObject(plugId, newBasicObject, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+//			debugObjectDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument storeObject(IngridDocument oDocIn,
+			boolean refetchObject) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeObject ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.storeObject(plugId, oDocIn, refetchObject, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+//			debugObjectDoc(result);
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
 	private IngridDocument deleteObjectWorkingCopy(String uuid,
 			boolean forceDeleteReferences) {
 		long startTime;
@@ -661,6 +756,65 @@ class MdekExampleSecurityThread extends Thread {
 			handleError(response);
 		}
 		
+		return result;
+	}
+
+	private IngridDocument getInitialAddress(IngridDocument newBasicAddress) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getInitialAddress ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.getInitialAddress(plugId, newBasicAddress, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+//			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument storeAddress(IngridDocument aDocIn,
+			boolean refetchAddress) {
+		// check whether we have an address
+		if (aDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeAddress " + refetchAddressInfo + " ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.storeAddress(plugId, aDocIn, refetchAddress, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+//			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+
 		return result;
 	}
 

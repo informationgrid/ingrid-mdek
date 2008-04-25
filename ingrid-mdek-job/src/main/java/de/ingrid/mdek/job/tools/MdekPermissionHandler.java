@@ -93,4 +93,29 @@ public class MdekPermissionHandler {
 		
 		return hasPermission;
 	}
+
+	/**
+	 * Checks whether user has "CreateRoot" permission AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkCreateRootPermission(String userAddrUuid) {
+		if (!hasCreateRootPermission(userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Check "CreateRoot" Permission of given user and return "yes"/"no" !
+	 */
+	public boolean hasCreateRootPermission(String userAddrUuid) {
+		// check catalog Admin
+		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
+
+		// check user
+		if (!hasPermission) {
+			hasPermission = permService.hasUserPermission(userAddrUuid, 
+				PermissionFactory.getPermissionTemplateCreateRoot());			
+		}
+
+		return hasPermission;
+	}
 }

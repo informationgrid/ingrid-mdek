@@ -232,6 +232,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
+			// NOTICE: parent may be null, then root node !
+			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
@@ -240,6 +242,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			
 			if (uuid == null) {
 				// NEW Object !
+
+				// check User Permissions when new root node !
+				if (parentUuid == null) {
+					permissionHandler.checkCreateRootPermission(userId);					
+				}
 
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
