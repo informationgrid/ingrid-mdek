@@ -292,8 +292,6 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 		IngridDocument resultDoc = new IngridDocument();
 		beanToDocMapperSecurity.mapIdcUser(user, resultDoc, MappingQuantity.DETAIL_ENTITY);
-		// map additional address attributes
-		BeanToDocMapper.getInstance().mapT02Address(address, resultDoc, MappingQuantity.BASIC_ENTITY);
 		
 		return resultDoc;
 	}

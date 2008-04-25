@@ -185,9 +185,9 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- create new group -----");
 		String nameNewGrp = "neue TEST-Gruppe";
 
-		IngridDocument doc = new IngridDocument();
-		doc.put(MdekKeys.NAME, nameNewGrp);
-		IngridDocument newGroupDoc = createGroup(doc, true);
+		IngridDocument newGroupDoc = new IngridDocument();
+		newGroupDoc.put(MdekKeys.NAME, nameNewGrp);
+		newGroupDoc = createGroup(newGroupDoc, true);
 		Long newGroupId = (Long) newGroupDoc.get(MdekKeysSecurity.IDC_GROUP_ID);
 
 		System.out.println("\n----- get group details -----");
@@ -205,40 +205,37 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----------------------------");
 
 		System.out.println("\n----- get catalog admin -----");
-		doc = getCatalogAdmin();
-		Long catalogAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
-		String catalogAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+		IngridDocument catalogAdminDoc = getCatalogAdmin();
+		Long catalogAdminId = (Long) catalogAdminDoc.get(MdekKeysSecurity.IDC_USER_ID);
+		String catalogAdminUuid = catalogAdminDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		
 		System.out.println("\n----- create new user METADATA_ADMINISTRATOR -----");
-		doc = new IngridDocument();
-		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
-		doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
-		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
-		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
-		doc = createUser(doc, true);
-		Long newMetaAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
-		String newMetaAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+		IngridDocument newMetaAdminDoc = new IngridDocument();
+		newMetaAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
+		newMetaAdminDoc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAdminDoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+		newMetaAdminDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		newMetaAdminDoc = createUser(newMetaAdminDoc, true);
+		Long newMetaAdminId = (Long) newMetaAdminDoc.get(MdekKeysSecurity.IDC_USER_ID);
+		String newMetaAdminUuid = newMetaAdminDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
 		System.out.println("\n----- create new user METADATA_AUTHOR -----");
-		doc = new IngridDocument();
-		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "386645BC-B449-11D2-9A86-080000507261");
-		doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
-		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
-		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdminId);
-		doc = createUser(doc, true);
-		Long newMetaAuthorId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+		IngridDocument newMetaAuthorDoc = new IngridDocument();
+		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "386645BC-B449-11D2-9A86-080000507261");
+		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
+		newMetaAuthorDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdminId);
+		newMetaAuthorDoc = createUser(newMetaAuthorDoc, true);
+		Long newMetaAuthorId = (Long) newMetaAuthorDoc.get(MdekKeysSecurity.IDC_USER_ID);
 
 		System.out.println("\n----- get sub users -----");
 		getSubUsers(catalogAdminId);
 		getSubUsers(newMetaAdminId);
 
 		System.out.println("\n----- change addr uuid of user and store -----");
-		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
-		doc = storeUser(doc, true);		
-		String newMetaAuthorUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
-		
-		System.out.println("\n----- fetch user details -----");
-		getUserDetails(newMetaAuthorUuid);
+		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
+		newMetaAuthorDoc = storeUser(newMetaAuthorDoc, true);		
+		String newMetaAuthorUuid = newMetaAuthorDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		
 		// ===================================
 		
@@ -246,30 +243,31 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- TEST PERMISSIONS -----");
 		System.out.println("\n----------------------------");
 
-		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
-		myUserUuid = newMetaAuthorUuid;
-
-		System.out.println("\n----- delete address working copy -> NOT ALLOWED -----");
-		addrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
-		deleteAddressWorkingCopy(addrUuid, true);
-
-		System.out.println("\n----- delete object working copy -> NOT ALLOWED -----");
-		objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
-		deleteObjectWorkingCopy(objUuid, true);
+		System.out.println("\n--------------------------------------");
+		System.out.println("\n----- ADDRESS/OBJECT PERMISSIONS -----");
+		System.out.println("\n--------------------------------------");
 
 		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		myUserUuid = catalogAdminUuid;
 
 		System.out.println("\n----- delete address working copy -> ALLOWED -----");
+		addrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 		deleteAddressWorkingCopy(addrUuid, true);
 
 		System.out.println("\n----- delete object working copy -> ALLOWED  -----");
+		objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
 		deleteObjectWorkingCopy(objUuid, true);
 
 		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
 		myUserUuid = newMetaAuthorUuid;
 
-		System.out.println("\n----- add permission to group -----");
+		System.out.println("\n----- delete address working copy -> NOT ALLOWED -----");
+		deleteAddressWorkingCopy(addrUuid, true);
+
+		System.out.println("\n----- delete object working copy -> NOT ALLOWED -----");
+		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- add address/object permissions to group -----");
 		// object permission
 		List<IngridDocument> perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		IngridDocument newPerm = new IngridDocument();
@@ -295,6 +293,22 @@ class MdekExampleSecurityThread extends Thread {
 		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
 		newGroupDoc = storeGroup(newGroupDoc, true);
 
+		System.out.println("\n----------------------------");
+		System.out.println("\n----- USER PERMISSIONS -----");
+		System.out.println("\n----------------------------");
+
+//		System.out.println("\n----- create top object -> NOT ALLOWED -----");
+//		deleteObjectWorkingCopy(objUuid, true);
+
+//		System.out.println("\n----- create top address -> NOT ALLOWED -----");
+//		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- add user permissions -----");
+		perms = (List<IngridDocument>) newMetaAuthorDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
+		newPerm = new IngridDocument();
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.CREATE_ROOT.getDbValue());
+		perms.add(newPerm);
+		newMetaAuthorDoc = storeUser(newMetaAuthorDoc, true);
 
 		// ===================================
 		
@@ -710,19 +724,33 @@ class MdekExampleSecurityThread extends Thread {
 		}
 	}
 
-	private void debugUserDoc(IngridDocument g) {
-		System.out.println("User: " + g.get(MdekKeysSecurity.IDC_USER_ID) 
-			+ ", " + g.get(MdekKeysSecurity.IDC_USER_ADDR_UUID)
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUuid: " + g.get(MdekKeys.MOD_UUID)
+	private void debugUserDoc(IngridDocument u) {
+		System.out.println("User: " + u.get(MdekKeysSecurity.IDC_USER_ID) 
+			+ ", " + u.get(MdekKeysSecurity.IDC_USER_ADDR_UUID)
+			+ ", name: " + u.get(MdekKeys.TITLE_OR_FUNCTION)
+			+ " " + u.get(MdekKeys.GIVEN_NAME)
+			+ " " + u.get(MdekKeys.NAME)
+			+ ", organisation: " + u.get(MdekKeys.ORGANISATION)
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)u.get(MdekKeys.DATE_OF_CREATION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)u.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", modUuid: " + u.get(MdekKeys.MOD_UUID)
 		);
 
 		if (!doFullOutput) {
 			return;
 		}
 
-		System.out.println("  " + g);
+		System.out.println("  " + u);
+
+		List<IngridDocument> docList;
+
+		docList = (List<IngridDocument>) u.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  User Permissions: " + docList.size() + " Entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("    " + doc);								
+			}			
+		}
 	}
 	
 	

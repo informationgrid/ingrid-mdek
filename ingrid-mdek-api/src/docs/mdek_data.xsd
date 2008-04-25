@@ -323,26 +323,7 @@
 			<xs:element name="idc-address-permissions" type="ENTITY_PERMISSION_LIST"/>
 			<xs:element name="idc-object-permissions" type="ENTITY_PERMISSION_LIST"/>
 		</xs:all>
-	</xs:complexType>	
-	<xs:complexType name="USER_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="USER_MAP" type="USER_MAP"/>
-		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="USER_MAP">
-		<xs:all>
-			<xs:element name="idc-user-id" type="xs:long"/>
-			<xs:element name="idc-user-addr-uuid" type="xs:string"/>
-			<xs:element name="idc-group-id" type="xs:long"/>
-			<xs:element name="idc-role" type="xs:integer"/>
-			<xs:element name="parent-idc-user-id" type="xs:long"/>
-			<xs:element ref="hasChild"/>
-			<xs:element ref="date-of-creation"/>
-			<xs:element ref="date-of-last-modification"/>
-			<xs:element ref="mod-uuid"/>
-			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
-		</xs:all>
-	</xs:complexType>	
 	<xs:complexType name="ENTITY_PERMISSION_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="ENTITY_PERMISSION_MAP" type="ENTITY_PERMISSION_MAP"/>
@@ -370,9 +351,40 @@
 				</xs:sequence>
 			</xs:choice>
 			<!-- permission (action) -->
+			<xs:element name="PERMISSION_MAP" type="PERMISSION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>	
+	<xs:complexType name="PERMISSION_MAP">
+		<xs:sequence>
+			<!-- permission (client side id string from enumeration) -->
 			<xs:element name="idc-permission" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>	
+	<xs:complexType name="USER_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="USER_MAP" type="USER_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="USER_MAP">
+		<xs:all>
+			<xs:element name="idc-user-id" type="xs:long"/>
+			<xs:element name="idc-user-addr-uuid" type="xs:string"/>
+			<xs:element name="idc-group-id" type="xs:long"/>
+			<xs:element name="idc-role" type="xs:integer"/>
+			<xs:element name="parent-idc-user-id" type="xs:long"/>
+			<xs:element ref="hasChild"/>
+			<xs:element ref="date-of-creation"/>
+			<xs:element ref="date-of-last-modification"/>
+			<xs:element ref="mod-uuid"/>
+			<xs:element name="idc-user-permissions" type="PERMISSION_LIST"/>
+			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
+		</xs:all>
+	</xs:complexType>	
+	<xs:complexType name="PERMISSION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="PERMISSION_MAP" type="PERMISSION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="RESULT_RUNNING_JOBS_MAP">
 		<xs:all>
 			<xs:element name="runningjob-description" type="xs:string"/>

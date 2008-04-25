@@ -10,6 +10,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
@@ -93,11 +94,17 @@ public class BeanToDocMapperSecurity implements IMapper {
 		{
 			// child info
 	    	boolean hasChild = (user.getIdcUsers().size() > 0) ? true : false;
-	    	userDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
+	    	userDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+
+			beanToDocMapper.mapT02Address(user.getAddressNode().getT02AddressWork(), userDoc, MappingQuantity.BASIC_ENTITY);
+			
+			// map associations
+			mapIdcUserPermissions(user.getIdcUserPermissions(), userDoc);
 		}
 
-		if (howMuch == MappingQuantity.DETAIL_ENTITY) 
+		if (howMuch == MappingQuantity.COPY_ENTITY) 
 		{
+			// not visible in client
 			userDoc.put(MdekKeysSecurity.DATE_OF_CREATION, user.getCreateTime());
 			userDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, user.getModTime());
 			userDoc.put(MdekKeysSecurity.MOD_UUID, user.getModUuid());
@@ -136,6 +143,16 @@ public class BeanToDocMapperSecurity implements IMapper {
 
 		return inDoc;
 	}
+	public IngridDocument mapIdcUserPermission(IdcUserPermission inRef, IngridDocument inDoc) {
+		if (inRef == null) {
+			return inDoc;
+		}
+
+		mapPermission(inRef.getPermission(), inDoc);
+
+		return inDoc;
+	}
+
 	public IngridDocument mapPermission(Permission inRef, IngridDocument inDoc) {
 		if (inRef == null) {
 			return inDoc;
@@ -177,6 +194,22 @@ public class BeanToDocMapperSecurity implements IMapper {
 		}
 
 		inDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapIdcUserPermissions(Set<IdcUserPermission> inRefs, IngridDocument inDoc) {
+		if (inRefs == null) {
+			inRefs = new HashSet<IdcUserPermission>(0); 
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(inRefs.size());
+		for (IdcUserPermission inRef : inRefs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapIdcUserPermission(inRef, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, refList);
 		
 		return inDoc;
 	}

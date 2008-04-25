@@ -17,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
@@ -99,6 +100,9 @@ public class DocToBeanMapperSecurity implements IMapper {
 		userIn.setModTime(docIn.getString(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION));
 		userIn.setModUuid(docIn.getString(MdekKeysSecurity.MOD_UUID));
 
+		// update associations
+		updateIdcUserPermissions(docIn, userIn);
+
 		return userIn;
 	}
 
@@ -122,6 +126,17 @@ public class DocToBeanMapperSecurity implements IMapper {
 	{
 		ref.setIdcGroupId(groupId);
 		ref.setUuid(addrUuid);
+		ref.setPermissionId(perm.getId());
+		ref.setPermission(perm);
+
+		return ref;
+	}
+
+	private IdcUserPermission mapIdcUserPermission(Long userId,
+			Permission perm,
+			IdcUserPermission ref)
+	{
+		ref.setIdcUserId(userId);
 		ref.setPermissionId(perm.getId());
 		ref.setPermission(perm);
 
@@ -194,6 +209,40 @@ public class DocToBeanMapperSecurity implements IMapper {
 		}
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (PermissionAddr ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);
+		}
+	}
+
+	private void updateIdcUserPermissions(IngridDocument uDocIn, IdcUser uIn) {
+		List<IngridDocument> refDocs = (List) uDocIn.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<IdcUserPermission> refs = uIn.getIdcUserPermissions();
+		ArrayList<IdcUserPermission> refs_unprocessed = new ArrayList<IdcUserPermission>(refs);
+		for (IngridDocument refDoc : refDocs) {
+			String inPermId = refDoc.getString(MdekKeysSecurity.IDC_PERMISSION);
+			Permission inPerm = permService.getPermissionByPermIdClient(inPermId);
+			boolean found = false;
+			for (IdcUserPermission ref : refs) {
+				Permission refPerm = ref.getPermission();
+				boolean samePermission = permService.isEqualPermissions(inPerm, refPerm);
+				if (samePermission) {
+					refs_unprocessed.remove(ref);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				// add new one
+				IdcUserPermission ref = mapIdcUserPermission(uIn.getId(), inPerm, new IdcUserPermission());
+				refs.add(ref);
+			}
+		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (IdcUserPermission ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
 			dao.makeTransient(ref);

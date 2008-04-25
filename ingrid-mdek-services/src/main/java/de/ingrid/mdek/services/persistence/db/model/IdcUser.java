@@ -17,6 +17,7 @@ public class IdcUser implements IEntity {
 	private Long idcGroupId;
 	private Integer idcRole;
 
+	private AddressNode addressNode;
 	private IdcGroup idcGroup;
 	private Set idcUsers = new HashSet();
 	private Set idcUserPermissions = new HashSet();
@@ -95,6 +96,14 @@ public class IdcUser implements IEntity {
 		this.idcRole = idcRole;
 	}
 
+
+	public AddressNode getAddressNode() {
+		return addressNode;
+	}
+
+	public void setAddressNode(AddressNode addressNode) {
+		this.addressNode = addressNode;
+	}
 
 	public IdcGroup getIdcGroup() {
 		return idcGroup;

@@ -15,6 +15,10 @@
       <property name="idcGroupId" type="long" column="idc_group_id"/>
       <property name="idcRole" type="integer" column="idc_role"/>
 
+      <many-to-one name="addressNode" class="AddressNode" column="addr_uuid"
+                   property-ref="addrUuid"
+                   update="false"
+                   insert="false"/>
       <many-to-one name="idcGroup" class="IdcGroup" column="idc_group_id" update="false"
                    insert="false"/>
       <set name="idcUsers" table="idc_user" inverse="true" cascade="all-delete-orphan">

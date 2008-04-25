@@ -37,9 +37,11 @@ public class MdekKeysSecurity extends MdekKeys {
 	// PERMISSION(S)
     // -------------
 
-    /** Value: List of IngridDocs (containing uuid and permission) */
+    /** Value: List of IngridDocs (containing permission) */
+    public final static String IDC_USER_PERMISSIONS = "idc-user-permissions";
+    /** Value: List of IngridDocs (containing address uuid and permission) */
     public final static String IDC_ADDRESS_PERMISSIONS = "idc-address-permissions";
-    /** Value: List of IngridDocs (containing uuid and permission) */
+    /** Value: List of IngridDocs (containing object uuid and permission) */
     public final static String IDC_OBJECT_PERMISSIONS = "idc-object-permissions";
     /** Specifies a permission via client side permission id, e.g. "writeTree" (defined in Enumeration, see "Utils")<br>
 	 *  Value: String */
