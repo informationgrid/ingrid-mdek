@@ -11,6 +11,7 @@ public class PermissionAddr implements IEntity {
 	private Long idcGroupId;
 
 	private Permission permission;
+	private AddressNode addressNode;
 
 	public PermissionAddr() {}
 
@@ -61,6 +62,14 @@ public class PermissionAddr implements IEntity {
 
 	public void setPermission(Permission permission) {
 		this.permission = permission;
+	}
+
+	public AddressNode getAddressNode() {
+		return addressNode;
+	}
+
+	public void setAddressNode(AddressNode addressNode) {
+		this.addressNode = addressNode;
 	}
 
 }

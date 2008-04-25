@@ -11,6 +11,7 @@ public class PermissionObj implements IEntity {
 	private Long idcGroupId;
 
 	private Permission permission;
+	private ObjectNode objectNode;
 
 	public PermissionObj() {}
 
@@ -61,6 +62,14 @@ public class PermissionObj implements IEntity {
 
 	public void setPermission(Permission permission) {
 		this.permission = permission;
+	}
+
+	public ObjectNode getObjectNode() {
+		return objectNode;
+	}
+
+	public void setObjectNode(ObjectNode objectNode) {
+		this.objectNode = objectNode;
 	}
 
 }

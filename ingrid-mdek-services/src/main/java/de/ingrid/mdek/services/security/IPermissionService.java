@@ -23,7 +23,7 @@ public interface IPermissionService {
 	 * @param ep
 	 * @return True if the permission exists, false if not.
 	 */
-	public boolean hasPermissionForObject(String objUuid, EntityPermission ep);
+	boolean hasPermissionForObject(String objUuid, EntityPermission ep);
 
 	/**
 	 * Checks an object defined by uuid for a EntityPermission permission for a
@@ -34,7 +34,7 @@ public interface IPermissionService {
 	 * @param ep
 	 * @return True if the permission exists, false if not.
 	 */
-	public boolean hasInheritedPermissionForObject(String objUuid, EntityPermission ep);
+	boolean hasInheritedPermissionForObject(String objUuid, EntityPermission ep);
 
 	/**
 	 * Checks an address defined by uuid for a EntityPermission permission for a
@@ -44,7 +44,7 @@ public interface IPermissionService {
 	 * @param ep
 	 * @return True if the permission exists, false if not.
 	 */
-	public boolean hasPermissionForAddress(String addrUuid, EntityPermission ep);
+	boolean hasPermissionForAddress(String addrUuid, EntityPermission ep);
 
 	/**
 	 * Checks an address defined by uuid for a EntityPermission permission for a
@@ -55,7 +55,7 @@ public interface IPermissionService {
 	 * @param ep
 	 * @return True if the permission exists, false if not.
 	 */
-	public boolean hasInheritedPermissionForAddress(String addrUuid, EntityPermission ep);
+	boolean hasInheritedPermissionForAddress(String addrUuid, EntityPermission ep);
 
 	/**
 	 * Checks user defined by addrUuid for a Permission permission.
@@ -64,7 +64,7 @@ public interface IPermissionService {
 	 * @param permission
 	 * @return True if the permission exists, false if not.
 	 */
-	public boolean hasUserPermission(String addrUuid, Permission p);
+	boolean hasUserPermission(String addrUuid, Permission p);
 
 	/**
 	 * Grants a specific EntityPermission on object defined by uuid for user
@@ -73,7 +73,7 @@ public interface IPermissionService {
 	 * @param addrUuid
 	 * @param ep
 	 */
-	public void grantObjectPermission(String addrUuid, EntityPermission ep);
+	void grantObjectPermission(String addrUuid, EntityPermission ep);
 
 	/**
 	 * Grants a specific EntityPermission on address defined by uuid for user
@@ -82,7 +82,7 @@ public interface IPermissionService {
 	 * @param addrUuid
 	 * @param ep
 	 */
-	public void grantAddressPermission(String addrUuid, EntityPermission ep);
+	void grantAddressPermission(String addrUuid, EntityPermission ep);
 
 	/**
 	 * Grants a specific Permission for user represented by addrUuid.
@@ -90,7 +90,7 @@ public interface IPermissionService {
 	 * @param addrUuid
 	 * @param p
 	 */
-	public void grantUserPermission(String addrUuid, Permission p);
+	void grantUserPermission(String addrUuid, Permission p);
 
 	/**
 	 * Revokes a specific EntityPermission on object defined by uuid for user
@@ -99,7 +99,7 @@ public interface IPermissionService {
 	 * @param addrUuid
 	 * @param ep
 	 */
-	public void revokeObjectPermission(String addrUuid, EntityPermission p);
+	void revokeObjectPermission(String addrUuid, EntityPermission p);
 
 	/**
 	 * Revokes a specific EntityPermission on address defined by uuid for user
@@ -108,7 +108,7 @@ public interface IPermissionService {
 	 * @param addrUuid
 	 * @param ep
 	 */
-	public void revokeAddressPermission(String addrUuid, EntityPermission ep);
+	void revokeAddressPermission(String addrUuid, EntityPermission ep);
 
 	/**
 	 * Revokes a specific Permission for user represented by addrUuid.
@@ -116,12 +116,39 @@ public interface IPermissionService {
 	 * @param addrUuid
 	 * @param p
 	 */
-	public void revokeUserPermission(String addrUuid, Permission p);
+	void revokeUserPermission(String addrUuid, Permission p);
+
+	/**
+	 * Loads a Permission from database identified by its identification used by client.
+	 * @param permIdClient permission identification used by client
+	 * @return
+	 */
+	Permission getPermissionByPermIdClient(String permIdClient);
+
+	/**
+	 * Maps a permission to its identification used by client !
+	 * @param p
+	 * @return
+	 */
+	String getPermIdClientByPermission(Permission p);
+	
+	/**
+	 * Compares two Permission objects, return true if they are equal, false if
+	 * they are not equal.
+	 * 
+	 * @param p1
+	 * @param p2
+	 * @return
+	 */
+	boolean isEqualPermissions(Permission p1, Permission p2);
 
 	/**
 	 * Get the catalog administrator.
-	 * 
 	 */
-	public IdcUser getCatalogAdmin();
+	IdcUser getCatalogAdmin();
 
+	/**
+	 * Check whether the given User is the catalog admin !
+	 */
+	boolean isCatalogAdmin(String userAddrUuid);
 }

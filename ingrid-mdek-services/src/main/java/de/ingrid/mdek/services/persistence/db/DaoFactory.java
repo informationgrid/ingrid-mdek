@@ -138,7 +138,10 @@ public class DaoFactory implements IDaoFactory {
     public IGenericDao<IEntity> getDao(Class clazz) {
 		IGenericDao dao = null;
 
-		if (clazz.isAssignableFrom(SpatialReference.class)) {
+		if (clazz.isAssignableFrom(IEntity.class)) {
+			// Generic dao for class unspecific operations !!!
+			dao = new GenericHibernateDao<SpatialReference>(_sessionFactory, IEntity.class);			
+		} else if (clazz.isAssignableFrom(SpatialReference.class)) {
 			dao = new GenericHibernateDao<SpatialReference>(_sessionFactory, SpatialReference.class);
 		} else if (clazz.isAssignableFrom(SearchtermObj.class)) {
 			dao = new GenericHibernateDao<SearchtermObj>(_sessionFactory, SearchtermObj.class);

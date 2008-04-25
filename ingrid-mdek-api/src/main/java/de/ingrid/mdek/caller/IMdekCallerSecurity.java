@@ -23,7 +23,7 @@ public interface IMdekCallerSecurity {
 	 * @param plugId which mdek server (iplug)
 	 * @param name name of group
 	 * @param userId calling user
-	 * @return response containing result: map representation of group
+	 * @return response containing result: map representation of group with permissions
 	 */
 	IngridDocument getGroupDetails(String plugId,
 			String name,

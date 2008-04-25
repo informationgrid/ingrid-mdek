@@ -51,11 +51,14 @@ public class IdcGroupDaoHibernate
 
 		// fetch all at once (one select with outer joins)
 		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
-//			"left join fetch aNode.t02AddressWork aWork " +
-//			"left join fetch aWork.t021Communications aComm " +
-
-// TODO: FETCH ASSOCIATIONS
-
+			"left join fetch grp.permissionAddrs permAddr " +
+			"left join fetch permAddr.permission permA " +
+			"left join fetch permAddr.addressNode aNode " +
+			"left join fetch aNode.t02AddressWork a " +
+			"left join fetch grp.permissionObjs permObj " +
+			"left join fetch permObj.permission permO " +
+			"left join fetch permObj.objectNode oNode " +
+			"left join fetch oNode.t01ObjectWork o " +
 			"where grp.name = ?")
 			.setString(0, name)
 			.uniqueResult();

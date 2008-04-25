@@ -13,6 +13,9 @@
 
       <many-to-one name="permission" class="Permission" column="permission_id" update="false"
                    insert="false"/>
+      <many-to-one name="objectNode" class="ObjectNode" column="uuid" property-ref="objUuid"
+                   update="false"
+                   insert="false"/>
    </class>
 
 </hibernate-mapping>

@@ -26,7 +26,7 @@ public class DocToBeanMapperSecurityTest {
 		inDoc.put(MdekKeys.MOD_UUID, "creating-user-id");
 
 		IdcGroup group = new IdcGroup();
-		DocToBeanMapperSecurity.getInstance(null).mapIdcGroup(inDoc, group, MappingQuantity.BASIC_ENTITY);
+		DocToBeanMapperSecurity.getInstance(null, null).mapIdcGroup(inDoc, group, MappingQuantity.BASIC_ENTITY);
 		Assert.assertEquals(group.getName(), "obj-name");
 		Assert.assertEquals(group.getCreateTime(), currentTime);
 		Assert.assertEquals(group.getModTime(), currentTime);
@@ -46,7 +46,7 @@ public class DocToBeanMapperSecurityTest {
 		inDoc.put(MdekKeys.MOD_UUID, "creating-user-id");
 
 		IdcUser user = new IdcUser();
-		DocToBeanMapperSecurity.getInstance(null).mapIdcUser(inDoc, user);
+		DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
 		Assert.assertEquals(user.getAddrUuid(), "idc-user-addr-uuid");
 		Assert.assertEquals(user.getIdcGroupId().longValue(), 123445453);
 		Assert.assertEquals(user.getIdcRole().intValue(), MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue());
@@ -57,14 +57,14 @@ public class DocToBeanMapperSecurityTest {
 
 		inDoc.remove(MdekKeysSecurity.PARENT_IDC_USER_ID);
 		try {
-			DocToBeanMapperSecurity.getInstance(null).mapIdcUser(inDoc, user);
+			DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
 		} catch (RuntimeException e) {
 			Assert.fail("Parent ID = null is allowed for role catalog administrator");
 		}
 
 		inDoc.put(MdekKeysSecurity.IDC_ROLE, new Integer(MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue()));
 		try {
-			DocToBeanMapperSecurity.getInstance(null).mapIdcUser(inDoc, user);
+			DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
 			Assert.fail("Parent ID = null is NOT allowed for role meta data administrator");
 		} catch (RuntimeException e) {
 		}

@@ -1,11 +1,19 @@
 package de.ingrid.mdek.services.persistence.db.mapper;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.Permission;
+import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
+import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
+import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -18,15 +26,21 @@ public class BeanToDocMapperSecurity implements IMapper {
 
 	private static BeanToDocMapperSecurity myInstance;
 
+	private static BeanToDocMapper beanToDocMapper;
+	private static IPermissionService permService;
+
 	/** Get The Singleton */
-	public static synchronized BeanToDocMapperSecurity getInstance() {
+	public static synchronized BeanToDocMapperSecurity getInstance(IPermissionService permissionService) {
 		if (myInstance == null) {
-	        myInstance = new BeanToDocMapperSecurity();
+	        myInstance = new BeanToDocMapperSecurity(permissionService);
 	      }
 		return myInstance;
 	}
 
-	private BeanToDocMapperSecurity() {}
+	private BeanToDocMapperSecurity(IPermissionService permissionService) {
+        permService = permissionService;
+        beanToDocMapper = BeanToDocMapper.getInstance();
+	}
 
 	/**
 	 * Transfer data of passed bean to passed doc.
@@ -50,9 +64,8 @@ public class BeanToDocMapperSecurity implements IMapper {
 			groupDoc.put(MdekKeysSecurity.MOD_UUID, group.getModUuid());
 
 			// map associations
-			// TODO: map associations in IdcGroup
-//			mapPermissionAddrs(group.getPermissionAddrs(), groupDoc);
-//			mapPermissionObjs(group.getPermissionObjs(), groupDoc);
+			mapPermissionAddrs(group.getPermissionAddrs(), groupDoc, howMuch);
+			mapPermissionObjs(group.getPermissionObjs(), groupDoc, howMuch);
 		}
 
 		return groupDoc;
@@ -93,4 +106,78 @@ public class BeanToDocMapperSecurity implements IMapper {
 		return userDoc;
 	}
 
+	public IngridDocument mapPermissionAddr(PermissionAddr inRef, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		if (inRef == null) {
+			return inDoc;
+		}
+
+		inDoc.put(MdekKeysSecurity.UUID, inRef.getUuid());
+		mapPermission(inRef.getPermission(), inDoc);
+
+		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+			beanToDocMapper.mapT02Address(inRef.getAddressNode().getT02AddressWork(), inDoc, MappingQuantity.BASIC_ENTITY);
+		}
+
+		return inDoc;
+	}
+	public IngridDocument mapPermissionObj(PermissionObj inRef, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		if (inRef == null) {
+			return inDoc;
+		}
+
+		inDoc.put(MdekKeysSecurity.UUID, inRef.getUuid());
+		mapPermission(inRef.getPermission(), inDoc);
+
+		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+			beanToDocMapper.mapT01Object(inRef.getObjectNode().getT01ObjectWork(), inDoc, MappingQuantity.BASIC_ENTITY);
+		}
+
+		return inDoc;
+	}
+	public IngridDocument mapPermission(Permission inRef, IngridDocument inDoc) {
+		if (inRef == null) {
+			return inDoc;
+		}
+
+		inDoc.put(MdekKeysSecurity.IDC_PERMISSION, permService.getPermIdClientByPermission(inRef));
+
+		return inDoc;
+	}
+
+	private IngridDocument mapPermissionAddrs(Set<PermissionAddr> inRefs, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		if (inRefs == null) {
+			inRefs = new HashSet<PermissionAddr>(0); 
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(inRefs.size());
+		for (PermissionAddr inRef : inRefs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapPermissionAddr(inRef, refDoc, howMuch);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapPermissionObjs(Set<PermissionObj> inRefs, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		if (inRefs == null) {
+			inRefs = new HashSet<PermissionObj>(0); 
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(inRefs.size());
+		for (PermissionObj inRef : inRefs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapPermissionObj(inRef, refDoc, howMuch);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, refList);
+		
+		return inDoc;
+	}
 }

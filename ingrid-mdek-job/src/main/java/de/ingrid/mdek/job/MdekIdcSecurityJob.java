@@ -43,17 +43,17 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	public MdekIdcSecurityJob(ILogService logService,
 			DaoFactory daoFactory,
-			IPermissionService permissionHandler) {
+			IPermissionService permissionService) {
 		super(logService.getLogger(MdekIdcSecurityJob.class), daoFactory);
 		
-		this.permissionService = permissionHandler;
+		this.permissionService = permissionService;
 		
 		daoIdcGroup = daoFactory.getIdcGroupDao();
 		daoIdcUser = daoFactory.getIdcUserDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
 
-		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance();
-		docToBeanMapperSecurity = DocToBeanMapperSecurity.getInstance(daoFactory);
+		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(permissionService);
+		docToBeanMapperSecurity = DocToBeanMapperSecurity.getInstance(daoFactory, permissionService);
 	}
 
 	public IngridDocument getGroups(IngridDocument params) {
@@ -136,7 +136,6 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			
 			IdcGroup newGrp = docToBeanMapperSecurity.mapIdcGroup(gDocIn, new IdcGroup(), MappingQuantity.DETAIL_ENTITY);
 			 // save it, generates id
-			// TODO: check whether first store with BASIC DATA to genrate id for detailed mapping
 			daoIdcGroup.makePersistent(newGrp);
 			
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -230,7 +229,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			Long grpId = (Long) docIn.get(MdekKeysSecurity.IDC_GROUP_ID);
 			
 			// exception if group not existing
-			IdcGroup group = daoIdcGroup.loadById(grpId);
+			IdcGroup group = daoIdcGroup.getById(grpId);
 			if (group == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -372,7 +371,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			uDocIn.put(MdekKeys.MOD_UUID, userId);
 			
 			// exception if group not existing
-			IdcUser user = daoIdcUser.loadById(usrId);
+			IdcUser user = daoIdcUser.getById(usrId);
 			if (user == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -418,7 +417,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			Long usrId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);
 			
 			// exception if group not existing
-			IdcUser user = daoIdcUser.loadById(usrId);
+			IdcUser user = daoIdcUser.getById(usrId);
 			if (user == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -440,7 +439,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getCatalogAdmin(IngridDocument uDocIn) {
 		try {
 			daoIdcUser.beginTransaction();
-			IdcUser user = daoIdcUser.getCatalogAdmin();
+
+			IdcUser user = permissionService.getCatalogAdmin();
 			if (user == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}

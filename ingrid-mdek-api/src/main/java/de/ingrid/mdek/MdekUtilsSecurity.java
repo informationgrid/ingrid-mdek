@@ -27,4 +27,26 @@ public class MdekUtilsSecurity {
 		Integer dbValue;
 		String description;
 	}
+
+	/** Client side representation of Permissions !!! */
+	public enum IdcPermission implements IMdekEnum {
+		WRITE_SINGLE("write", "Einzelberechtigung"),
+		WRITE_TREE("writeTree", "Teilbaumberechtigung"),
+		CREATE_ROOT("createRoot", "Root anlegen"),
+		QUALITY_ASSURANCE("qA", "Qualitätssicherung");
+
+		IdcPermission(String dbValue, String description) {
+			this.dbValue = dbValue;
+			this.description = description;
+		}
+		/** THIS IS THE STRING USED IN MAP TO IDENTIFY PERMISSION !!! */
+		public String getDbValue() {
+			return dbValue;
+		}
+		public String toString() {
+			return description;
+		}
+		String dbValue;
+		String description;
+	}
 }

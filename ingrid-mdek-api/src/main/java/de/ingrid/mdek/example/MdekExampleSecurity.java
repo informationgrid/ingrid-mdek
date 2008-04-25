@@ -125,7 +125,7 @@ public class MdekExampleSecurity {
 class MdekExampleSecurityThread extends Thread {
 
 	private int threadNumber;
-	String myUserId;
+	String myUserUuid;
 	boolean doFullOutput = true;
 	
 	private boolean isRunning = false;
@@ -141,7 +141,7 @@ class MdekExampleSecurityThread extends Thread {
 	public MdekExampleSecurityThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
-		myUserId = "EXAMPLE_USER_" + threadNumber;
+		myUserUuid = "EXAMPLE_USER_" + threadNumber;
 		
 		mdekCaller = MdekCaller.getInstance();
 		mdekCallerSecurity = MdekCallerSecurity.getInstance();
@@ -154,8 +154,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		long exampleStartTime = System.currentTimeMillis();
 
-		IngridDocument groupDoc;
 		String addrUuid;
+		String objUuid;
 
 // ====================
 // test single stuff
@@ -187,15 +187,16 @@ class MdekExampleSecurityThread extends Thread {
 
 		IngridDocument doc = new IngridDocument();
 		doc.put(MdekKeys.NAME, nameNewGrp);
-		doc = createGroup(doc, true);
+		IngridDocument newGroupDoc = createGroup(doc, true);
+		Long newGroupId = (Long) newGroupDoc.get(MdekKeysSecurity.IDC_GROUP_ID);
 
 		System.out.println("\n----- get group details -----");
-		doc = getGroupDetails(nameNewGrp);
+		newGroupDoc = getGroupDetails(nameNewGrp);
 		
 		System.out.println("\n----- change name of group and store -----");
 		nameNewGrp += " CHANGED!";
-		doc.put(MdekKeys.NAME, nameNewGrp);
-		doc = storeGroup(doc, true);
+		newGroupDoc.put(MdekKeys.NAME, nameNewGrp);
+		newGroupDoc = storeGroup(newGroupDoc, true);
 
 		// ===================================
 
@@ -206,59 +207,107 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- get catalog admin -----");
 		doc = getCatalogAdmin();
 		Long catalogAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String catalogAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		
 		System.out.println("\n----- create new user METADATA_ADMINISTRATOR -----");
-		addrUuid = "15C69BE6-FE15-11D2-AF34-0060084A4596";
-		groupDoc = getGroupDetails(nameNewGrp);
-
 		doc = new IngridDocument();
-		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
-		doc.put(MdekKeysSecurity.IDC_GROUP_ID, groupDoc.get(MdekKeysSecurity.IDC_GROUP_ID));
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
+		doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
 		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		doc = createUser(doc, true);
-		Long metaAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+		Long newMetaAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String newMetaAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
 		System.out.println("\n----- create new user METADATA_AUTHOR -----");
-		addrUuid = "386645BC-B449-11D2-9A86-080000507261";
-
 		doc = new IngridDocument();
-		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
-		doc.put(MdekKeysSecurity.IDC_GROUP_ID, groupDoc.get(MdekKeysSecurity.IDC_GROUP_ID));
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "386645BC-B449-11D2-9A86-080000507261");
+		doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
 		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
-		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, metaAdminId);
+		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdminId);
 		doc = createUser(doc, true);
+		Long newMetaAuthorId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
 
 		System.out.println("\n----- get sub users -----");
 		getSubUsers(catalogAdminId);
-		getSubUsers(metaAdminId);
+		getSubUsers(newMetaAdminId);
 
 		System.out.println("\n----- change addr uuid of user and store -----");
-		addrUuid = "6C6A3485-59E0-11D3-AE74-00104B57C66D";
-		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuid);
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
 		doc = storeUser(doc, true);		
+		String newMetaAuthorUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		
 		System.out.println("\n----- fetch user details -----");
-		getUserDetails("6C6A3485-59E0-11D3-AE74-00104B57C66D");
+		getUserDetails(newMetaAuthorUuid);
 		
-		
-		System.out.println("\n----- remove user -----");
-		deleteUser((Long)doc.get(MdekKeysSecurity.IDC_USER_ID));
-
-		System.out.println("\n----- remove group -----");
-		deleteGroup((Long)doc.get(MdekKeysSecurity.IDC_GROUP_ID));
-
 		// ===================================
 		
 		System.out.println("\n----------------------------");
 		System.out.println("\n----- TEST PERMISSIONS -----");
 		System.out.println("\n----------------------------");
 
-		System.out.println("\n----- delete address working copy without permission -----");
-		deleteAddressWorkingCopy("012CBA17-87F6-11D4-89C7-C1AAE1E96727", true);
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
+		myUserUuid = newMetaAuthorUuid;
 
-		System.out.println("\n----- delete object working copy without permission -----");
-		deleteObjectWorkingCopy("128EFA64-436E-11D3-A599-70A253C18B13", true);
+		System.out.println("\n----- delete address working copy -> NOT ALLOWED -----");
+		addrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+		deleteAddressWorkingCopy(addrUuid, true);
+
+		System.out.println("\n----- delete object working copy -> NOT ALLOWED -----");
+		objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
+		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		myUserUuid = catalogAdminUuid;
+
+		System.out.println("\n----- delete address working copy -> ALLOWED -----");
+		deleteAddressWorkingCopy(addrUuid, true);
+
+		System.out.println("\n----- delete object working copy -> ALLOWED  -----");
+		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
+		myUserUuid = newMetaAuthorUuid;
+
+		System.out.println("\n----- add permission to group -----");
+		// object permission
+		List<IngridDocument> perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
+		IngridDocument newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, objUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
+		perms.add(newPerm);
+		// address permission
+		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
+		newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, addrUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
+		perms.add(newPerm);
+		newGroupDoc = storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- delete address working copy -> ALLOWED -----");
+		deleteAddressWorkingCopy(addrUuid, true);
+
+		System.out.println("\n----- delete object working copy -> ALLOWED -----");
+		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- remove permissions from group -----");
+		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
+		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
+		newGroupDoc = storeGroup(newGroupDoc, true);
+
+
+		// ===================================
+		
+		System.out.println("\n----------------------------");
+		System.out.println("\n----- CLEAN UP -----");
+		System.out.println("\n----------------------------");
+		
+		System.out.println("\n----- remove users -----");
+		deleteUser(newMetaAdminId);
+		deleteUser(newMetaAuthorId);
+
+		System.out.println("\n----- remove group -----");
+		deleteGroup(newGroupId);
 
 		// ===================================
 
@@ -279,7 +328,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n###### INVOKE getGroups ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getGroups(plugId, myUserId);
+		response = mdekCallerSecurity.getGroups(plugId, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -314,7 +363,7 @@ class MdekExampleSecurityThread extends Thread {
 		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE createGroup " + refetchInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.createGroup(plugId, docIn, refetch, myUserId);
+		response = mdekCallerSecurity.createGroup(plugId, docIn, refetch, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -344,7 +393,7 @@ class MdekExampleSecurityThread extends Thread {
 		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE storeGroup " + refetchInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.storeGroup(plugId, docIn, refetch, myUserId);
+		response = mdekCallerSecurity.storeGroup(plugId, docIn, refetch, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -368,7 +417,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n###### INVOKE getGroupDetails ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getGroupDetails(plugId, grpName, myUserId);
+		response = mdekCallerSecurity.getGroupDetails(plugId, grpName, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -392,7 +441,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n###### INVOKE getUserDetails ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getUserDetails(plugId, addrUuid, myUserId);
+		response = mdekCallerSecurity.getUserDetails(plugId, addrUuid, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -416,7 +465,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n###### INVOKE getCatalogAdmin ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getCatalogAdmin(plugId, myUserId);
+		response = mdekCallerSecurity.getCatalogAdmin(plugId, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -446,7 +495,7 @@ class MdekExampleSecurityThread extends Thread {
 		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE createUser " + refetchInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.createUser(plugId, docIn, refetch, myUserId);
+		response = mdekCallerSecurity.createUser(plugId, docIn, refetch, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -477,7 +526,7 @@ class MdekExampleSecurityThread extends Thread {
 		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE storeUser " + refetchInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.storeUser(plugId, docIn, refetch, myUserId);
+		response = mdekCallerSecurity.storeUser(plugId, docIn, refetch, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -506,7 +555,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n###### INVOKE deleteUser ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.deleteUser(plugId, idcUserId, myUserId);
+		response = mdekCallerSecurity.deleteUser(plugId, idcUserId, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -529,7 +578,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n###### INVOKE getSubUsers ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getSubUsers(plugId, parentUserId, myUserId);
+		response = mdekCallerSecurity.getSubUsers(plugId, parentUserId, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -560,7 +609,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n###### INVOKE deleteGroup ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.deleteGroup(plugId, idcGroupId, myUserId);
+		response = mdekCallerSecurity.deleteGroup(plugId, idcGroupId, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -585,7 +634,7 @@ class MdekExampleSecurityThread extends Thread {
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
+		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -612,7 +661,7 @@ class MdekExampleSecurityThread extends Thread {
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserId);
+		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -642,6 +691,23 @@ class MdekExampleSecurityThread extends Thread {
 		}
 
 		System.out.println("  " + g);
+
+		List<IngridDocument> docList;
+
+		docList = (List<IngridDocument>) g.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Address Permissions: " + docList.size() + " Entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("    " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) g.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Object Permissions: " + docList.size() + " Entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("    " + doc);								
+			}			
+		}
 	}
 
 	private void debugUserDoc(IngridDocument g) {

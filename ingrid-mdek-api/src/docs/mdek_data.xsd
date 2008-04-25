@@ -320,6 +320,8 @@
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="mod-uuid"/>
+			<xs:element name="idc-address-permissions" type="ENTITY_PERMISSION_LIST"/>
+			<xs:element name="idc-object-permissions" type="ENTITY_PERMISSION_LIST"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="USER_LIST">
@@ -338,13 +340,38 @@
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="mod-uuid"/>
-			<xs:element name="USER_ADDRESS_MAP" type="USER_ADDRESS_MAP"/>
+			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 		</xs:all>
 	</xs:complexType>	
-	<xs:complexType name="USER_ADDRESS_MAP">
-		<xs:choice>
-			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
-		</xs:choice>
+	<xs:complexType name="ENTITY_PERMISSION_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ENTITY_PERMISSION_MAP" type="ENTITY_PERMISSION_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ENTITY_PERMISSION_MAP">
+		<xs:sequence>
+			<!-- entity uuid (address or object) -->
+			<xs:element ref="uuid"/>
+			<!-- detailed entity data only when requesting group -->
+			<xs:choice>
+				<!-- object -->
+				<xs:sequence>
+					<xs:element name="title" type="xs:string"/>
+					<xs:element ref="class"/>
+				</xs:sequence>
+				<!-- address -->
+				<xs:sequence>
+					<xs:element ref="organisation"/>
+					<xs:element ref="name"/>
+					<xs:element ref="given-name"/>
+					<xs:element name="title-or-function" type="xs:string"/>
+					<xs:element name="title-or-function-key" type="xs:integer"/>
+					<xs:element ref="class"/>
+				</xs:sequence>
+			</xs:choice>
+			<!-- permission (action) -->
+			<xs:element name="idc-permission" type="xs:string"/>
+		</xs:sequence>
 	</xs:complexType>	
 	<xs:complexType name="RESULT_RUNNING_JOBS_MAP">
 		<xs:all>

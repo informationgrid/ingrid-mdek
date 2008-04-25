@@ -9,12 +9,16 @@ import java.util.List;
 public interface IGenericDao<T extends IEntity> extends
 		ITransactionService {
 
+	/** Never returns null ! if object not exists returns empty proxy ! */
 	T loadById(Serializable id, boolean lock);
 
+	/** Returns null if object not exists */
 	T getById(Serializable id, boolean lock);
 
+	/** Never returns null ! if object not exists returns empty proxy ! */
 	T loadById(Serializable id);
 
+	/** Returns null if object not exists */
 	T getById(Serializable id);
 
 	List<T> findAll();

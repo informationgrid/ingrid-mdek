@@ -45,11 +45,17 @@ public class MdekPermissionHandler {
 	 * Check Write Permission of given user on given object and return "yes"/"no" !
 	 */
 	public boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
-		// first check explicit permission for object
-		boolean hasPermission = permService.hasPermissionForObject(userAddrUuid, 
-			PermissionFactory.getSingleObjectPermissionTemplate(objUuid));
+		// check catalog Admin
+		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
+
+		// check explicit permission for object
 		if (!hasPermission) {
-			// check inherited permission for object
+			hasPermission = permService.hasPermissionForObject(userAddrUuid, 
+					PermissionFactory.getSingleObjectPermissionTemplate(objUuid));			
+		}
+
+		// check inherited permission for object
+		if (!hasPermission) {
 			hasPermission =	permService.hasInheritedPermissionForObject(userAddrUuid, 
 				PermissionFactory.getTreeObjectPermissionTemplate(objUuid));
 		}
@@ -70,11 +76,17 @@ public class MdekPermissionHandler {
 	 * Check Write Permission of given user on given address and return "yes"/"no" !
 	 */
 	public boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
-		// first check explicit permission for address
-		boolean hasPermission = permService.hasPermissionForAddress(userAddrUuid, 
-			PermissionFactory.getSingleAddressPermissionTemplate(addrUuid));
+		// check catalog Admin
+		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
+
+		// check explicit permission for address
 		if (!hasPermission) {
-			// check inherited permission for address
+			hasPermission = permService.hasPermissionForAddress(userAddrUuid, 
+				PermissionFactory.getSingleAddressPermissionTemplate(addrUuid));			
+		}
+
+		// check inherited permission for address
+		if (!hasPermission) {
 			hasPermission =	permService.hasInheritedPermissionForAddress(userAddrUuid, 
 				PermissionFactory.getTreeAddressPermissionTemplate(addrUuid));
 		}

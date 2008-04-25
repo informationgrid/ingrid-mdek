@@ -60,8 +60,8 @@ public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 			dao.makePersistent(ep.getPermission());
 			ep = PermissionFactory.getTreeAddressPermissionTemplate("");
 			dao.makePersistent(ep.getPermission());
-			dao.makePersistent(PermissionFactory.getCreateRootPermissionTemplate());
-			dao.makePersistent(PermissionFactory.getQAPermissionTemplate());
+			dao.makePersistent(PermissionFactory.getPermissionTemplateCreateRoot());
+			dao.makePersistent(PermissionFactory.getPermissionTemplateQA());
 			
 			ObjectNode on = new ObjectNode();
 			on.setObjUuid("object-uuid-1");
@@ -198,13 +198,11 @@ public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 		Assert.assertEquals(s.hasInheritedPermissionForAddress(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-3")), false);
 
-		s.grantUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate());
-		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate()), true);
-		s.revokeUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate());
-		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getCreateRootPermissionTemplate()), false);
+		s.grantUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot());
+		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot()), true);
+		s.revokeUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot());
+		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot()), false);
 
-		Assert.assertEquals("user-cat-admin", s.getCatalogAdmin().getAddrUuid());
-		
 		this.commitTransaction();
 	}
 
