@@ -26,9 +26,12 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 
 		Session session = getSession();
 		List<Permission> ps = session.createQuery(
-				"select distinct permission from IdcUser u " + "left join u.idcGroup g "
-						+ "left join g.permissionAddrs pA " + "left join pA.permission permission "
-						+ "where u.addrUuid = ? and pA.uuid = ?").setString(0, addrUuid).setString(1, uuid).list();
+				"select distinct permission from IdcUser u " +
+					"inner join u.idcGroup g " +
+					"inner join g.permissionAddrs pA " +
+					"inner join pA.permission permission " +
+					"where u.addrUuid = ? and pA.uuid = ?")
+					.setString(0, addrUuid).setString(1, uuid).list();
 
 		return ps;
 	}
@@ -38,9 +41,12 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 		Session session = getSession();
 
 		List<Permission> ps = session.createQuery(
-				"select distinct permission from IdcUser u " + "left join u.idcGroup g "
-						+ "left join g.permissionObjs pO " + "left join pO.permission permission "
-						+ "where u.addrUuid = ? and pO.uuid = ?").setString(0, addrUuid).setString(1, uuid).list();
+				"select distinct permission from IdcUser u " +
+					"inner join u.idcGroup g " +
+					"inner join g.permissionObjs pO " +
+					"inner join pO.permission permission " +
+					"where u.addrUuid = ? and pO.uuid = ?")
+					.setString(0, addrUuid).setString(1, uuid).list();
 
 		return ps;
 	}
@@ -50,8 +56,12 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 		Session session = getSession();
 
 		List<Permission> ps = session.createQuery(
-				"select distinct permission from IdcUser u " + "left join u.idcUserPermissions up "
-						+ "left join up.permission permission " + "where u.addrUuid = ?").setString(0, addrUuid).list();
+			"select distinct permission from IdcUser u " + 
+				"inner join u.idcGroup g " +
+				"inner join g.idcUserPermissions pU " + 
+				"inner join pU.permission permission " +
+				"where u.addrUuid = ?")
+				.setString(0, addrUuid).list();
 
 		return ps;
 	}

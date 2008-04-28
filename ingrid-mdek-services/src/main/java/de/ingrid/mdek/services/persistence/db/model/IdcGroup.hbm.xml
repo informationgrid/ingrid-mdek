@@ -12,6 +12,11 @@
       <property name="modTime" type="string" column="mod_time"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
 
+      <set name="idcUserPermissions" table="idc_user_permission" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="idc_group_id"/>
+         <one-to-many class="IdcUserPermission" not-found="ignore"/>
+      </set>
       <set name="permissionAddrs" table="permission_addr" inverse="true"
            cascade="all-delete-orphan">
          <key column="idc_group_id"/>

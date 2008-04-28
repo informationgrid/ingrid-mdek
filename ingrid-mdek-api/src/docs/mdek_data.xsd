@@ -322,6 +322,7 @@
 			<xs:element ref="mod-uuid"/>
 			<xs:element name="idc-address-permissions" type="ENTITY_PERMISSION_LIST"/>
 			<xs:element name="idc-object-permissions" type="ENTITY_PERMISSION_LIST"/>
+			<xs:element name="idc-user-permissions" type="PERMISSION_LIST"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ENTITY_PERMISSION_LIST">
@@ -378,7 +379,6 @@
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="mod-uuid"/>
-			<xs:element name="idc-user-permissions" type="PERMISSION_LIST"/>
 			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 		</xs:all>
 	</xs:complexType>	

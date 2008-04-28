@@ -193,7 +193,7 @@ public class DefaultPermissionService implements IPermissionService {
 
 		IdcUserPermission iup = new IdcUserPermission();
 		iup.setPermissionId(permission.getId());
-		iup.setIdcUserId(idcUser.getId());
+		iup.setIdcGroupId(idcUser.getIdcGroupId());
 
 		IGenericDao<IEntity> idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
 		idcUserPermissionDao.makePersistent(iup);
@@ -257,7 +257,7 @@ public class DefaultPermissionService implements IPermissionService {
 
 		IdcUserPermission iup = new IdcUserPermission();
 		iup.setPermissionId(permission.getId());
-		iup.setIdcUserId(idcUser.getId());
+		iup.setIdcGroupId(idcUser.getIdcGroupId());
 
 		IGenericDao<IEntity> idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
 		List<IEntity> iel = idcUserPermissionDao.findByExample(iup);

@@ -316,12 +316,12 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- then store -> NOT ALLOWED -----");
 		storeObject(newTopObjDoc, false);
 
-		System.out.println("\n----- add user permission CREATE ROOT -----");
-		perms = (List<IngridDocument>) newMetaAuthorDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
+		System.out.println("\n----- add user permission CREATE ROOT to group -----");
+		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		newPerm = new IngridDocument();
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.CREATE_ROOT.getDbValue());
 		perms.add(newPerm);
-		newMetaAuthorDoc = storeUser(newMetaAuthorDoc, true);
+		newGroupDoc = storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- create top address -> ALLOWED -----");
 		newTopAdrDoc = storeAddress(newTopAdrDoc, true);
@@ -861,6 +861,14 @@ class MdekExampleSecurityThread extends Thread {
 
 		List<IngridDocument> docList;
 
+		docList = (List<IngridDocument>) g.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  User Permissions: " + docList.size() + " Entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("    " + doc);								
+			}			
+		}
+
 		docList = (List<IngridDocument>) g.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Address Permissions: " + docList.size() + " Entries");
@@ -894,16 +902,6 @@ class MdekExampleSecurityThread extends Thread {
 		}
 
 		System.out.println("  " + u);
-
-		List<IngridDocument> docList;
-
-		docList = (List<IngridDocument>) u.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  User Permissions: " + docList.size() + " Entries");
-			for (IngridDocument doc : docList) {
-				System.out.println("    " + doc);								
-			}			
-		}
 	}
 	
 	

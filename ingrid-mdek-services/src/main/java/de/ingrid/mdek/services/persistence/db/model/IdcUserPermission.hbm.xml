@@ -8,7 +8,7 @@
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="permissionId" type="long" column="permission_id"/>
-      <property name="idcUserId" type="long" column="idc_user_id"/>
+      <property name="idcGroupId" type="long" column="idc_group_id"/>
 
       <many-to-one name="permission" class="Permission" column="permission_id" update="false"
                    insert="false"/>

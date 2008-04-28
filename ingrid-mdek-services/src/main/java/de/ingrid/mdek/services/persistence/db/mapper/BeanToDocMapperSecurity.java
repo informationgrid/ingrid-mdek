@@ -67,6 +67,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 			// map associations
 			mapPermissionAddrs(group.getPermissionAddrs(), groupDoc, howMuch);
 			mapPermissionObjs(group.getPermissionObjs(), groupDoc, howMuch);
+			mapIdcUserPermissions(group.getIdcUserPermissions(), groupDoc);
 		}
 
 		return groupDoc;
@@ -97,9 +98,6 @@ public class BeanToDocMapperSecurity implements IMapper {
 	    	userDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
 
 			beanToDocMapper.mapT02Address(user.getAddressNode().getT02AddressWork(), userDoc, MappingQuantity.BASIC_ENTITY);
-			
-			// map associations
-			mapIdcUserPermissions(user.getIdcUserPermissions(), userDoc);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) 

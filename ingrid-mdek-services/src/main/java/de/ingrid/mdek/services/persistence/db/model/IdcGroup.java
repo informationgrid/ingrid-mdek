@@ -14,6 +14,7 @@ public class IdcGroup implements IEntity {
 	private String modTime;
 	private String modUuid;
 
+	private Set idcUserPermissions = new HashSet();
 	private Set permissionAddrs = new HashSet();
 	private Set permissionObjs = new HashSet();
 
@@ -67,6 +68,14 @@ public class IdcGroup implements IEntity {
 		this.modUuid = modUuid;
 	}
 
+
+	public Set getIdcUserPermissions() {
+		return idcUserPermissions;
+	}
+
+	public void setIdcUserPermissions(Set idcUserPermissions) {
+		this.idcUserPermissions = idcUserPermissions;
+	}
 
 	public Set getPermissionAddrs() {
 		return permissionAddrs;

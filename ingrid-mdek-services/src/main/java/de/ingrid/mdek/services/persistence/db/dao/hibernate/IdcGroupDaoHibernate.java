@@ -50,15 +50,8 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 
 		// fetch all at once (one select with outer joins)
-		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
-			"left join fetch grp.permissionAddrs permAddr " +
-			"left join fetch permAddr.permission permA " +
-			"left join fetch permAddr.addressNode aNode " +
-			"left join fetch aNode.t02AddressWork a " +
-			"left join fetch grp.permissionObjs permObj " +
-			"left join fetch permObj.permission permO " +
-			"left join fetch permObj.objectNode oNode " +
-			"left join fetch oNode.t01ObjectWork o " +
+		IdcGroup grp = (IdcGroup) session.createQuery(
+			createGroupDetailsQueryString() +
 			"where grp.name = ?")
 			.setString(0, name)
 			.uniqueResult();
@@ -70,16 +63,28 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 
 		// fetch all at once (one select with outer joins)
-		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
-//			"left join fetch aNode.t02AddressWork aWork " +
-//			"left join fetch aWork.t021Communications aComm " +
-
-// TODO: FETCH ASSOCIATIONS
-
+		IdcGroup grp = (IdcGroup) session.createQuery(
+			createGroupDetailsQueryString() +
 			"where grp.id = ?")
 			.setLong(0, groupId)
 			.uniqueResult();
 
 		return grp;
+	}
+	
+	private String createGroupDetailsQueryString() {
+		String qString = "from IdcGroup grp " +
+			"left join fetch grp.permissionAddrs permAddr " +
+			"left join fetch permAddr.permission permA " +
+			"left join fetch permAddr.addressNode aNode " +
+			"left join fetch aNode.t02AddressWork a " +
+			"left join fetch grp.permissionObjs permObj " +
+			"left join fetch permObj.permission permO " +
+			"left join fetch permObj.objectNode oNode " +
+			"left join fetch oNode.t01ObjectWork o " +
+			"left join fetch grp.idcUserPermissions permUser " +
+			"left join fetch permUser.permission permU ";
+		
+		return qString;
 	}
 }

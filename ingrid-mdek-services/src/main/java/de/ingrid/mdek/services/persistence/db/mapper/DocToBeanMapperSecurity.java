@@ -75,6 +75,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 			// update associations
 			updatePermissionAddrs(docIn, grpIn);
 			updatePermissionObjs(docIn, grpIn);
+			updateIdcUserPermissions(docIn, grpIn);
 		}
 
 		return grpIn;
@@ -99,9 +100,6 @@ public class DocToBeanMapperSecurity implements IMapper {
 		}
 		userIn.setModTime(docIn.getString(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION));
 		userIn.setModUuid(docIn.getString(MdekKeysSecurity.MOD_UUID));
-
-		// update associations
-		updateIdcUserPermissions(docIn, userIn);
 
 		return userIn;
 	}
@@ -132,11 +130,11 @@ public class DocToBeanMapperSecurity implements IMapper {
 		return ref;
 	}
 
-	private IdcUserPermission mapIdcUserPermission(Long userId,
+	private IdcUserPermission mapIdcUserPermission(Long groupId,
 			Permission perm,
 			IdcUserPermission ref)
 	{
-		ref.setIdcUserId(userId);
+		ref.setIdcGroupId(groupId);
 		ref.setPermissionId(perm.getId());
 		ref.setPermission(perm);
 
@@ -215,12 +213,12 @@ public class DocToBeanMapperSecurity implements IMapper {
 		}
 	}
 
-	private void updateIdcUserPermissions(IngridDocument uDocIn, IdcUser uIn) {
+	private void updateIdcUserPermissions(IngridDocument uDocIn, IdcGroup gIn) {
 		List<IngridDocument> refDocs = (List) uDocIn.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		if (refDocs == null) {
 			refDocs = new ArrayList<IngridDocument>(0);
 		}
-		Set<IdcUserPermission> refs = uIn.getIdcUserPermissions();
+		Set<IdcUserPermission> refs = gIn.getIdcUserPermissions();
 		ArrayList<IdcUserPermission> refs_unprocessed = new ArrayList<IdcUserPermission>(refs);
 		for (IngridDocument refDoc : refDocs) {
 			String inPermId = refDoc.getString(MdekKeysSecurity.IDC_PERMISSION);
@@ -237,7 +235,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				IdcUserPermission ref = mapIdcUserPermission(uIn.getId(), inPerm, new IdcUserPermission());
+				IdcUserPermission ref = mapIdcUserPermission(gIn.getId(), inPerm, new IdcUserPermission());
 				refs.add(ref);
 			}
 		}

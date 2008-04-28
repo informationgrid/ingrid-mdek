@@ -20,7 +20,6 @@ public class IdcUser implements IEntity {
 	private AddressNode addressNode;
 	private IdcGroup idcGroup;
 	private Set idcUsers = new HashSet();
-	private Set idcUserPermissions = new HashSet();
 
 	public IdcUser() {}
 
@@ -119,14 +118,6 @@ public class IdcUser implements IEntity {
 
 	public void setIdcUsers(Set idcUsers) {
 		this.idcUsers = idcUsers;
-	}
-
-	public Set getIdcUserPermissions() {
-		return idcUserPermissions;
-	}
-
-	public void setIdcUserPermissions(Set idcUserPermissions) {
-		this.idcUserPermissions = idcUserPermissions;
 	}
 
 }

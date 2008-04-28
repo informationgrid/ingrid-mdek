@@ -7,7 +7,7 @@ public class IdcUserPermission implements IEntity {
 	private Long id;
 	private int version;
 	private Long permissionId;
-	private Long idcUserId;
+	private Long idcGroupId;
 
 	private Permission permission;
 
@@ -37,12 +37,12 @@ public class IdcUserPermission implements IEntity {
 		this.permissionId = permissionId;
 	}
 
-	public Long getIdcUserId() {
-		return idcUserId;
+	public Long getIdcGroupId() {
+		return idcGroupId;
 	}
 
-	public void setIdcUserId(Long idcUserId) {
-		this.idcUserId = idcUserId;
+	public void setIdcGroupId(Long idcGroupId) {
+		this.idcGroupId = idcGroupId;
 	}
 
 
