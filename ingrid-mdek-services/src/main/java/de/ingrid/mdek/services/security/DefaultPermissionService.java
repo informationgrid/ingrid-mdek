@@ -184,6 +184,24 @@ public class DefaultPermissionService implements IPermissionService {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see de.ingrid.mdek.services.security.IPermissionService#grantUserPermission(java.lang.String,
+	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
+	 */
+	public void grantUserPermission(String addrUuid, Permission p) {
+		IdcUser idcUser = getUserByAddrUuid(addrUuid);
+		Permission permission = findUniquePermissionByExample(p);
+
+		IdcUserPermission iup = new IdcUserPermission();
+		iup.setPermissionId(permission.getId());
+		iup.setIdcUserId(idcUser.getId());
+
+		IGenericDao<IEntity> idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
+		idcUserPermissionDao.makePersistent(iup);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.ingrid.mdek.services.security.IPermissionService#revokeAddressPermission(java.lang.String,
 	 *      de.ingrid.mdek.services.security.EntityPermission)
 	 */
@@ -230,24 +248,6 @@ public class DefaultPermissionService implements IPermissionService {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#grantUserPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
-	 */
-	public void grantUserPermission(String addrUuid, Permission p) {
-		IdcUser idcUser = getUserByAddrUuid(addrUuid);
-		Permission permission = findUniquePermissionByExample(p);
-
-		IdcUserPermission iup = new IdcUserPermission();
-		iup.setPermissionId(permission.getId());
-		iup.setIdcUserId(idcUser.getId());
-
-		IGenericDao<IEntity> idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
-		idcUserPermissionDao.makePersistent(iup);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see de.ingrid.mdek.services.security.IPermissionService#revokeUserPermission(java.lang.String,
 	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
 	 */
@@ -263,6 +263,28 @@ public class DefaultPermissionService implements IPermissionService {
 		List<IEntity> iel = idcUserPermissionDao.findByExample(iup);
 		for (IEntity ie : iel) {
 			idcUserPermissionDao.makeTransient(ie);
+		}
+	}
+
+	public void deleteAddressPermissions(String addrUuid) {
+		PermissionAddr pTemplate = new PermissionAddr();
+		pTemplate.setUuid(addrUuid);
+
+		IGenericDao<IEntity> permissionAddrDao = daoFactory.getDao(PermissionAddr.class);
+		List<IEntity> iel = permissionAddrDao.findByExample(pTemplate);
+		for (IEntity ie : iel) {
+			permissionAddrDao.makeTransient(ie);
+		}
+	}
+
+	public void deleteObjectPermissions(String objUuid) {
+		PermissionObj pTemplate = new PermissionObj();
+		pTemplate.setUuid(objUuid);
+
+		IGenericDao<IEntity> permissionObjDao = daoFactory.getDao(PermissionObj.class);
+		List<IEntity> iel = permissionObjDao.findByExample(pTemplate);
+		for (IEntity ie : iel) {
+			permissionObjDao.makeTransient(ie);
 		}
 	}
 

@@ -72,6 +72,13 @@ public class MdekPermissionHandler {
 	}
 
 	/**
+	 * Delete all existing permissions for the given object (called when object is deleted ...).
+	 */
+	public void deletePermissionsForObject(String objUuid) {
+		permService.deleteObjectPermissions(objUuid); 
+	}
+
+	/**
 	 * Checks whether user has write permission on given address AND THROW EXCEPTION IF NOT !
 	 */
 	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
@@ -108,6 +115,13 @@ public class MdekPermissionHandler {
 	public void grantWriteTreePermissionForAddress(String addrUuid, String userAddrUuid) {
 		permService.grantAddressPermission(userAddrUuid, 
 			PermissionFactory.getTreeAddressPermissionTemplate(addrUuid));
+	}
+
+	/**
+	 * Delete all existing permissions for the given address (called when address is deleted ...).
+	 */
+	public void deletePermissionsForAddress(String addrUuid) {
+		permService.deleteAddressPermissions(addrUuid); 
 	}
 
 	/**

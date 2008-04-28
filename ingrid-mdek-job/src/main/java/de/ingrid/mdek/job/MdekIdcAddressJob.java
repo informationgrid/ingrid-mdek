@@ -682,6 +682,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// delete complete Node ! rest is deleted per cascade !
 		daoAddressNode.makeTransient(aNode);
 
+		// also delete ALL PERMISSIONS (no cascade by hibernate, we keep permissions out of data model)
+		permissionHandler.deletePermissionsForAddress(uuid);
+
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 
