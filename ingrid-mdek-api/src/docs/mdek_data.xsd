@@ -350,6 +350,8 @@
 					<xs:element ref="class"/>
 				</xs:sequence>
 			</xs:choice>
+			<!-- also child data, could be visualized in tree -->
+			<xs:element ref="hasChild"/>
 			<!-- permission (action) -->
 			<xs:element name="PERMISSION_MAP" type="PERMISSION_MAP"/>
 		</xs:sequence>

@@ -14,7 +14,6 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
-import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
