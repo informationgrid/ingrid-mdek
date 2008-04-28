@@ -222,7 +222,7 @@ class MdekExampleAddressThread extends Thread {
 */
 		// ===================================
 		System.out.println("\n----- backend version -----");
-		getVersion();;
+		getVersion();
 
 		// -----------------------------------
 		System.out.println("\n----- top addresses -----");

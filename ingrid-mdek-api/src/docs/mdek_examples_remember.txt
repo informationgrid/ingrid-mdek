@@ -1,0 +1,167 @@
+	Mdek-Specials aus Examples extrahiert
+	=====================================
+
+- Versionierung:
+- es wird die Version des Frontends (MdekApplication) und Backends angezeigt (vom Backend koennen 2 Versionen angezeigt werden, die des Callers in der API lib, die im Client benutzt wird UND die Version des eigentlichen Backends, Michael guckt noch, dass er die auch anzeigt ...)
+
+
+-------------------------------------------------------------------------------
+
+	OBJEKTE
+	=======
+
+- Kopieren:
+- wenns zu lange dauert wird der Job in der App getrackt (Anzahl kopierter Objekte) und kann abgebrochen werden (dann keinerlei Kopien)
+- Knoten kann auch unter seinen Subknoten kopiert werden (auch mit seinen Kindern, der Subknoten wird dann nicht weiter kopiert)
+
+- Move:
+- Zielknoten muss veröffentlicht sein (damit verschobene veröffentlichte Knoten nicht "verschwinden")
+
+- Veröffentlichung("sbreite"):
+- es wird immer nur die "publication condition" des VERÖFFENTLICHTEN OBJEKTES GEPRUEFT, die der Bearbeitungs version ist egal (und wird erst beim publish geprueft).
+- beim "Reduzieren" der "pub condition" kommt Meldung, wenn Kinder breitere "pub cond" haben (also z.B. Parent soll INTRANET, Kind ist INTERNET)
+	-> "pub condition" fuer alle Kinder (in ihrer veroeffentlichten Version) kann aber per Button Klick dann reduziert werden
+- auch beim Move wird so verfahren, also Bsp.:
+	- zu verschiebendes Objekt ist in in Bearbeitung, "pub condition" in beiden Versionen INTERNET
+	- Objekt wird verschoben nach Knoten mit veröffentlichter "pub condition" INTRANET
+	- erst Fehler, Benutzer wird gefragt ob Ziel "pub condition" (INTRANET) auf die Knoten uebertragen werden soll
+	- bei ja, bekommen alle verschobenen VEROEFFENTLICHTEN Versionen die "pub condition" INTRANET (Bearbeitungsversion bleibt INTERNET)
+	- beim publishen der Bearbeitungsversion (INTERNET) gibt's dann wieder nen Fehler, da parent INTRANET
+
+- Objekt Referenzen:
+- Die von der veröffentlichten Version, die in der Bearbeitung gelöscht wurden, werden grau dargestellt. Das Objekt muss dann erst veröffentlicht werden, bevor es gelöscht werden kann.
+
+- Bearbeitungskopie löschen:
+- führt bei neu erzeugtem, noch nicht veröffentlichtem Objekt zum "Full Delete" (Objekt wird komplett geloescht)
+
+- Löschen:
+- wenn zu loeschendes Objekt (auch dessen Sub-Objekte) noch von irgendwo referenziert wird, dann Meldung
+	-> Benutzer kann dann bestimmen, ob der Verweis mitgeloescht werden soll (im Dialog)
+
+- Veröffentlichen:
+- geht nur, wenn auch Parent veröffentlicht ist (also "von oben nach unten" veröffentlichen)
+
+- Erstellen von neuem OBJEKT:
+	- folgendes wird initial vom Parent übernommen (wenn nicht root node):
+		- "pub condition"
+		- Thesaurus Suchbegriffe !
+	- + Raumbezug vom Katalog (immer)
+
+-------------------------------------------------------------------------------
+
+	ADRESSEN
+	========
+
+- "pub condition" gibt's nicht bei Adressen ! dafuer haben die ne Zweiteilung: Freie Adressen <-> Nicht Freie Adressen
+
+- Erstellen von neuer ADRESSE:
+	- folgendes wird initial vom Parent übernommen (wenn nicht root node):
+		- Adress-Klasse
+		- Strasse, PLZ, Stadt, Postfach
+		- Kommunikations Verbindungen, also Telefon, Fax, Email ... (T021Communication)
+		- Thesaurus Suchbegriffe !
+	- sonst nix, d.h. wenn root node, dann "leere" Adresse
+
+Freie Adressen:
+- keine Subadressen
+- sind im Prinzip "Personen" (allerdings Klasse "Freie Adresse")
+
+Root Adressen:
+- können nur Institutionen sein
+- Erlaubte Hierarchie von Adressklassen s. Feinkonzept (Institution/Einheit/Person)
+	s. "Die Rubriken der Adressen" in http://wiki.media-style.com/display/INGRIDII/Hierarchie+und+Erfassung
+
+Kopieren/Verschieben Freie <-> Nicht Freie Adresse:
+- nur Personen von Nicht Frei nach Frei möglich
+- von Frei nach Frei immer moeglich
+- von Frei nach Nicht Frei wird Adresse automatisch zur Person (und muss dann unter Parent erlaubt sein, also z.B. nicht als Root möglich)
+- kein Subtree nach Frei möglich
+
+- ansonsten wie bei Objekte:
+	- Move: Zielknoten muss veröffentlicht sein
+	- Bearbeitungskopie loeschen fuehrt zu Full Delete wenn noch nicht veroeffentlicht ...
+	- Ausgegraute Referenzen wenn nur von veröffentlichtem Objekt
+	- ...
+
+
+-------------------------------------------------------------------------------
+
+	Recherche (Freie Suche (Index) / Erweiterte Suche / Thesaurus / Datenbank-Suche)
+	=========
+
+- Freie Suche
+	- sucht in Index, Index wird bei delete, store, publish etc. aktualisiert !
+
+- Erweiterte Suche
+	- eigener Index für "thesaurus" und "geothesaurus" terms, damit diese mit OR/AND gesucht werden koennen !
+	- GanzesWort/Teilwort in Objekte und Adressen
+	- Zeitbezug Suche geht noch nicht wegen Umbau Zeitangabe (z.B. "am 1996" wird zu "von 01.01.1996 bis 31.12.1996" ...)
+
+- Thesaurus Suche
+	- nix besonderes
+
+- Datenbanksuche
+	HQL Queries s. Mail an Klenke "HQL-Queries fuer Expertensuche" vom 17.4.08, 18:07
+
+		Hallo Herr Klenke,
+		
+		>> 1) Für den Test der Expertensuche wäre es gut, wenn Sie uns einige 
+		>> funktionierende HQL-Queries schicken würden. Mir ist es nicht wirklich 
+		>> gelungen eine erfolgreiche Abfrage zu starten
+		
+		zunächst hier der Link zur HQL-Doku:
+		http://www.hibernate.org/hib_docs/v3/reference/en/html/queryhql.html
+		
+		Beispiele aus unseren Tests:
+		
+		"alle Adressen:"
+		------------------
+		
+		from AddressNode
+		
+		
+		"Adressen (sucht in Bearbeitungsversion) mit bestimmter snsId, sortiert:"
+		------------------
+		
+		select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, 
+		addr.lastname, termVal.term
+		from AddressNode as aNode
+		inner join aNode.t02AddressWork addr
+		inner join addr.searchtermAdrs termAdrs
+		inner join termAdrs.searchtermValue termVal
+		inner join termVal.searchtermSns termSns
+		where
+		termSns.snsId = 'uba_thes_8007'
+		order by addr.adrType, addr.institution, addr.lastname, addr.firstname
+		
+		"Die Angabe der auszugebenden Attribute im "select ..." ist fuer die Anzeige 
+		irrelevant und spielt nur fuer die Ausgabe in die csv Datei eine Rolle. Wird ein 
+		komplettes "Entity" im select angegeben, so werden alle Attribute des entities 
+		in die csv Datei geschrieben, im Bsp "aNode". "
+		
+		
+		"alle Objekte:"
+		------------------
+		
+		from ObjectNode
+		
+		
+		"Objekte (sucht in Bearbeitungsversion) mit bestimmter snsId, sortiert:"
+		------------------
+		
+		select distinct oNode, obj.objName, termVal.term
+		from ObjectNode oNode
+		inner join oNode.t01ObjectWork obj
+		inner join obj.searchtermObjs termObjs
+		inner join termObjs.searchtermValue termVal
+		inner join termVal.searchtermSns termSns
+		where
+		termSns.snsId = 'uba_thes_8007'
+		order by obj.objClass, obj.objName
+
+-------------------------------------------------------------------------------
+
+	Benutzerverwaltung
+	===================
+
+- bei Erzeugung neuer Root Node wird auch gleich WriteTree Permission da drauf erteilt (fuer Gruppe !)
