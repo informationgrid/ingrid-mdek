@@ -234,17 +234,20 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
 			// NOTICE: parent may be null, then root node !
 			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+			boolean isRootNode = (parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 			
+			boolean isNewObject = false;
 			if (uuid == null) {
 				// NEW Object !
+				isNewObject = true;
 
 				// check User Permissions when new root node !
-				if (parentUuid == null) {
+				if (isRootNode) {
 					permissionHandler.checkCreateRootPermission(userId);					
 				}
 
@@ -288,6 +291,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// UPDATE FULL INDEX !!!
 			fullIndexHandler.updateObjectIndex(oNode);
+
+			// grant write tree permission if new root node (no permission yet)
+			if (isNewObject && isRootNode) {
+				permissionHandler.grantWriteTreePermissionForObject(oNode.getObjUuid(), userId);
+			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();

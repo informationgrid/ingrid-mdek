@@ -64,6 +64,14 @@ public class MdekPermissionHandler {
 	}
 
 	/**
+	 * Grant WriteTree Permission of given user on given object.
+	 */
+	public void grantWriteTreePermissionForObject(String objUuid, String userAddrUuid) {
+		permService.grantObjectPermission(userAddrUuid, 
+			PermissionFactory.getTreeObjectPermissionTemplate(objUuid));
+	}
+
+	/**
 	 * Checks whether user has write permission on given address AND THROW EXCEPTION IF NOT !
 	 */
 	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
@@ -92,6 +100,14 @@ public class MdekPermissionHandler {
 		}
 		
 		return hasPermission;
+	}
+
+	/**
+	 * Grant WriteTree Permission of given user on given address.
+	 */
+	public void grantWriteTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+		permService.grantAddressPermission(userAddrUuid, 
+			PermissionFactory.getTreeAddressPermissionTemplate(addrUuid));
 	}
 
 	/**

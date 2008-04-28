@@ -331,14 +331,7 @@ class MdekExampleSecurityThread extends Thread {
 		newTopObjDoc = storeObject(newTopObjDoc, true);
 		String newTopObjUuid = (String) newTopObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- and delete new top entities -> NOT ALLOWED -----");
-		deleteAddressWorkingCopy(newTopAddrUuid, true);
-		deleteObjectWorkingCopy(newTopObjUuid, true);
-
-		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
-		myUserUuid = catalogAdminUuid;
-
-		System.out.println("\n----- and delete new top entities -> ALLOWED -----");
+		System.out.println("\n----- and delete new top entities -> ALLOWED (write-tree granted on new root) -----");
 		deleteAddressWorkingCopy(newTopAddrUuid, true);
 		deleteObjectWorkingCopy(newTopObjUuid, true);
 

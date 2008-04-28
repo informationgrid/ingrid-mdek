@@ -235,17 +235,20 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String uuid = (String) aDocIn.get(MdekKeys.UUID);
 			// NOTICE: parent may be null, then root node !
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
+			boolean isRootNode = (parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
-			
+
+			boolean isNewAddress = false;
 			if (uuid == null) {
 				// NEW Address !
+				isNewAddress = true;
 				
 				// check User Permissions when new root node !
-				if (parentUuid == null) {
+				if (isRootNode) {
 					permissionHandler.checkCreateRootPermission(userId);					
 				}
 
@@ -295,6 +298,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// UPDATE FULL INDEX !!!
 			fullIndexHandler.updateAddressIndex(aNode);
+
+			// grant write tree permission if new root node (no permission yet)
+			if (isNewAddress && isRootNode) {
+				permissionHandler.grantWriteTreePermissionForAddress(aNode.getAddrUuid(), userId);
+			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
