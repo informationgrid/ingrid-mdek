@@ -37,7 +37,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcObjectJob extends MdekIdcJob {
 
-	protected MdekFullIndexHandler fullIndexHandler;
+	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 
 	private IObjectNodeDao daoObjectNode;

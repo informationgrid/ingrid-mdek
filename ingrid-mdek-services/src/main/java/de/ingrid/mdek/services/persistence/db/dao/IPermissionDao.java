@@ -12,10 +12,28 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
  */
 public interface IPermissionDao extends IGenericDao<Permission> {
 
-	public List<Permission> getObjectPermissions(String addrUuid, String uuid);
+	/**
+	 * Get "directly" set permissions of given user on given object entity (via group of user).
+	 * NO INHERITED PERMISSIONS.
+	 * @param userAddrUuid address uuid of user
+	 * @param objUuid uuid of object entity to check
+	 * @return list of permissions set for object (in group of user).
+	 */
+	public List<Permission> getObjectPermissions(String userAddrUuid, String objUuid);
 
-	public List<Permission> getAddressPermissions(String addrUuid, String uuid);
+	/**
+	 * Get "directly" set permissions of given user on given address entity (via group of user).
+	 * NO INHERITED PERMISSIONS.
+	 * @param userAddrUuid address uuid of user
+	 * @param addrUuid uuid of address entity to check
+	 * @return list of permissions set for address (in group of user).
+	 */
+	public List<Permission> getAddressPermissions(String userAddrUuid, String addrUuid);
 
-	public List<Permission> getUserPermissions(String addrUuid);
-
+	/**
+	 * Get user permissions of given user.
+	 * @param userAddrUuid address uuid of user
+	 * @return list of permissions set for user (in group of user).
+	 */
+	public List<Permission> getUserPermissions(String userAddrUuid);
 }

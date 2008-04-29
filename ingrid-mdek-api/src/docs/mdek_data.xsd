@@ -251,7 +251,11 @@
 	</xs:complexType>
 	<xs:complexType name="REQUEST_SECURITY_MAP">
 		<xs:choice>
+			<!-- get permissions on Object/Address via uuid -->
+			<xs:element ref="uuid"/>
+			<!-- get/save group -->
 			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
+			<!-- get/save user -->
 			<xs:element name="USER_MAP" type="USER_MAP"/>
 		</xs:choice>
 	</xs:complexType>	
@@ -302,10 +306,16 @@
 	</xs:complexType>	
 	<xs:complexType name="RESULT_SECURITY_MAP">
 		<xs:choice>
+			<!-- get group -->
 			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
+			<!-- get user -->
 			<xs:element name="USER_MAP" type="USER_MAP"/>
+			<!-- get groups -->
 			<xs:element name="groups" type="GROUP_LIST"/>
+			<!-- get users -->
 			<xs:element name="idc-users" type="USER_LIST"/>
+			<!-- get permissions on object/address -->
+			<xs:element name="idc-permissions" type="PERMISSION_LIST"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="GROUP_LIST">

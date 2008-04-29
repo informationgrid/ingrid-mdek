@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -166,6 +167,23 @@ public class BeanToDocMapperSecurity implements IMapper {
 
 		inDoc.put(MdekKeysSecurity.IDC_PERMISSION, permService.getPermIdClientByPermission(inRef));
 
+		return inDoc;
+	}
+
+	public IngridDocument mapPermissionList(List<Permission> inRefs, IngridDocument inDoc) {
+		if (inRefs == null) {
+			inRefs = new ArrayList<Permission>(0); 
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(inRefs.size());
+		for (Permission inRef : inRefs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapPermission(inRef, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeysSecurity.IDC_PERMISSIONS, refList);
+		
 		return inDoc;
 	}
 

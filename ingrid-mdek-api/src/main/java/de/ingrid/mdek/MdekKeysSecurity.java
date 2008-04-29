@@ -38,6 +38,8 @@ public class MdekKeysSecurity extends MdekKeys {
     // -------------
 
     /** Value: List of IngridDocs (containing permission) */
+    public final static String IDC_PERMISSIONS = "idc-permissions";
+    /** Value: List of IngridDocs (containing permission) */
     public final static String IDC_USER_PERMISSIONS = "idc-user-permissions";
     /** Value: List of IngridDocs (containing address uuid and permission) */
     public final static String IDC_ADDRESS_PERMISSIONS = "idc-address-permissions";

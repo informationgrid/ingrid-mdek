@@ -93,27 +93,6 @@ public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCalle
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument createUser(String plugId, IngridDocument userDoc, boolean refetchAfterStore, String userId) {
-		userDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		userDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("createUser", userDoc);
-		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument storeUser(String plugId, IngridDocument userDoc, boolean refetchAfterStore, String userId) {
-		userDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		userDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("storeUser", userDoc);
-		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument getCatalogAdmin(String plugId, String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getCatalogAdmin", jobParams);
-		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
-	}
-
 	public IngridDocument deleteGroup(String plugId, Long idcGroupId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
@@ -122,12 +101,27 @@ public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCalle
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument deleteUser(String plugId, Long idcUserId, String userId) {
+	public IngridDocument getAddressPermissions(String plugId, String addrUuid, String userAddrUuid) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeysSecurity.IDC_USER_ID, idcUserId);
-		List jobMethods = mdekCaller.setUpJobMethod("deleteUser", jobParams);
-		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+		jobParams.put(MdekKeys.USER_ID, userAddrUuid);
+		jobParams.put(MdekKeys.UUID, addrUuid);
+		List jobMethods = mdekCaller.setUpJobMethod("getAddressPermissions", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);		
+	}
+
+	public IngridDocument getObjectPermissions(String plugId, String objUuid, String userAddrUuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userAddrUuid);
+		jobParams.put(MdekKeys.UUID, objUuid);
+		List jobMethods = mdekCaller.setUpJobMethod("getObjectPermissions", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);		
+	}
+
+	public IngridDocument getUserPermissions(String plugId, String userAddrUuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userAddrUuid);
+		List jobMethods = mdekCaller.setUpJobMethod("getUserPermissions", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);		
 	}
 
 	public IngridDocument getUserDetails(String plugId, String addrUuid, String userId) {
@@ -143,6 +137,35 @@ public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCalle
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeysSecurity.IDC_USER_ID, parentIdcUserId);
 		List jobMethods = mdekCaller.setUpJobMethod("getSubUsers", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument createUser(String plugId, IngridDocument userDoc, boolean refetchAfterStore, String userId) {
+		userDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		userDoc.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("createUser", userDoc);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument storeUser(String plugId, IngridDocument userDoc, boolean refetchAfterStore, String userId) {
+		userDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		userDoc.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("storeUser", userDoc);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument deleteUser(String plugId, Long idcUserId, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeysSecurity.IDC_USER_ID, idcUserId);
+		List jobMethods = mdekCaller.setUpJobMethod("deleteUser", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getCatalogAdmin(String plugId, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getCatalogAdmin", jobParams);
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
 }

@@ -272,7 +272,7 @@ class MdekExampleSecurityThread extends Thread {
 		List<IngridDocument> perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		IngridDocument newPerm = new IngridDocument();
 		newPerm.put(MdekKeys.UUID, objUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
 		perms.add(newPerm);
 		// address permission
 		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
@@ -287,6 +287,12 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- delete object working copy -> ALLOWED -----");
 		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- verify permissions for object -----");
+		getObjectPermissions(objUuid);
+
+		System.out.println("\n----- verify permissions for address -----");
+		getAddressPermissions(addrUuid);
 
 		System.out.println("\n----------------------------");
 		System.out.println("\n----- USER PERMISSIONS -----");
@@ -322,6 +328,9 @@ class MdekExampleSecurityThread extends Thread {
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.CREATE_ROOT.getDbValue());
 		perms.add(newPerm);
 		newGroupDoc = storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- verify user permission -----");
+		getUserPermissions();
 
 		System.out.println("\n----- create top address -> ALLOWED -----");
 		newTopAdrDoc = storeAddress(newTopAdrDoc, true);
@@ -475,6 +484,78 @@ class MdekExampleSecurityThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugGroupDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument getObjectPermissions(String objUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getObjectPermissions ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getObjectPermissions(plugId, objUuid, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugPermissionsDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument getAddressPermissions(String addrUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getAddressPermissions ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getAddressPermissions(plugId, addrUuid, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugPermissionsDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument getUserPermissions() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getUserPermissions ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUserPermissions(plugId, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugPermissionsDoc(result);
 		} else {
 			handleError(response);
 		}
@@ -904,6 +985,15 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("  " + u);
 	}
 	
+	private void debugPermissionsDoc(IngridDocument p) {
+		List<IngridDocument> docList = (List<IngridDocument>) p.get(MdekKeysSecurity.IDC_PERMISSIONS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("Permissions: " + docList.size() + " Entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("    " + doc);								
+			}			
+		}
+	}
 	
 	private void handleError(IngridDocument response) {
 		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			

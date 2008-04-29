@@ -9,8 +9,11 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.tools.MdekPermissionHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
@@ -20,6 +23,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.utils.IngridDocument;
@@ -31,11 +35,15 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/** service encapsulating security functionality */
-	IPermissionService permissionService;
+	private IPermissionService permissionService;
+	private MdekPermissionHandler permissionHandler;
 
 	private IIdcGroupDao daoIdcGroup;
 	private IIdcUserDao daoIdcUser;
 	private IAddressNodeDao daoAddressNode;
+
+	/** generic dao: ENTITY UNSPECIFIC for transaction ops ... */
+	private IGenericDao<IEntity> dao;
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 	protected DocToBeanMapperSecurity docToBeanMapperSecurity;
@@ -46,7 +54,10 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcSecurityJob.class), daoFactory);
 		
 		this.permissionService = permissionService;
+		permissionHandler = MdekPermissionHandler.getInstance(permissionService);
 		
+		dao = daoFactory.getDao(IEntity.class);
+
 		daoIdcGroup = daoFactory.getIdcGroupDao();
 		daoIdcUser = daoFactory.getIdcUserDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
@@ -256,7 +267,72 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			}
 		}
 	}	
-	
+
+	public IngridDocument getAddressPermissions(IngridDocument params) {
+		try {
+			dao.beginTransaction();
+
+			String addrUuid = params.getString(MdekKeys.UUID);
+			String userAddrUuid = getCurrentUserUuid(params);
+
+			List<Permission> perms = permissionHandler.getPermissionsForAddress(addrUuid, userAddrUuid);
+
+			IngridDocument resultDoc = new IngridDocument();
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
+
+			dao.commitTransaction();
+			return resultDoc;
+			
+		} catch (RuntimeException e) {
+			dao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getObjectPermissions(IngridDocument params) {
+		try {
+			dao.beginTransaction();
+
+			String objUuid = params.getString(MdekKeys.UUID);
+			String userAddrUuid = getCurrentUserUuid(params);
+
+			List<Permission> perms = permissionHandler.getPermissionsForObject(objUuid, userAddrUuid);
+
+			IngridDocument resultDoc = new IngridDocument();
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
+
+			dao.commitTransaction();
+			return resultDoc;
+			
+		} catch (RuntimeException e) {
+			dao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getUserPermissions(IngridDocument params) {
+		try {
+			dao.beginTransaction();
+
+			String userAddrUuid = getCurrentUserUuid(params);
+
+			List<Permission> perms = permissionHandler.getUserPermissions(userAddrUuid);
+
+			IngridDocument resultDoc = new IngridDocument();
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
+
+			dao.commitTransaction();
+			return resultDoc;
+			
+		} catch (RuntimeException e) {
+			dao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument getUserDetails(IngridDocument params) {
 		try {
 			daoIdcUser.beginTransaction();
