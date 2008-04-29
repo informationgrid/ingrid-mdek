@@ -63,6 +63,30 @@ public class MdekPermissionHandler {
 	}
 
 	/**
+	 * Checks whether user has delete permission on given object AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkDeletePermissionForObject(String objUuid, String userAddrUuid) {
+		if (!hasDeletePermissionForObject(objUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Check Delete Permission of given user on given object and return "yes"/"no" !
+	 */
+	public boolean hasDeletePermissionForObject(String objUuid, String userAddrUuid) {
+		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
+		
+		for (Permission p : perms) {
+			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
 	 * Get "all" permissions of user for given object (ALSO INHERITED PERMISSIONS).
 	 * @param objUuid uuid of Object Entity to check
 	 * @param userAddrUuid users address uuid
@@ -74,17 +98,19 @@ public class MdekPermissionHandler {
 			// full access, we return "write-tree" permission
 			perms.add(PermissionFactory.getPermissionTemplateTree());
 
-		} else if (permService.hasPermissionForObject(userAddrUuid, 
-			PermissionFactory.getSingleObjectPermissionTemplate(objUuid)))
-		{
-			// single access, we return "write" permission
-			perms.add(PermissionFactory.getPermissionTemplateSingle());
+		} else {
+			// we return BOTH WRITE PERMISSIONS if set ! SHOULD NOT HAPPEN !
+			if (permService.hasPermissionForObject(userAddrUuid, 
+				PermissionFactory.getSingleObjectPermissionTemplate(objUuid)))
+			{
+				perms.add(PermissionFactory.getPermissionTemplateSingle());
 
-		} else if (permService.hasInheritedPermissionForObject(userAddrUuid, 
+			}
+			if (permService.hasInheritedPermissionForObject(userAddrUuid, 
 				PermissionFactory.getTreeObjectPermissionTemplate(objUuid)))
-		{
-			// full access, we return "write-tree" permission
-			perms.add(PermissionFactory.getPermissionTemplateTree());
+			{
+				perms.add(PermissionFactory.getPermissionTemplateTree());
+			}
 		}
 		
 		return perms;
@@ -132,6 +158,30 @@ public class MdekPermissionHandler {
 	}
 
 	/**
+	 * Checks whether user has delete permission on given address AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkDeletePermissionForAddress(String addrUuid, String userAddrUuid) {
+		if (!hasDeletePermissionForAddress(addrUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Check Delete Permission of given user on given address and return "yes"/"no" !
+	 */
+	public boolean hasDeletePermissionForAddress(String addrUuid, String userAddrUuid) {
+		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
+		
+		for (Permission p : perms) {
+			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
 	 * Get "all" permissions of user for given address (ALSO INHERITED PERMISSIONS).
 	 * @param addrUuid uuid of Address Entity to check
 	 * @param userAddrUuid users address uuid
@@ -143,17 +193,19 @@ public class MdekPermissionHandler {
 			// full access, we return "write-tree" permission
 			perms.add(PermissionFactory.getPermissionTemplateTree());
 
-		} else if (permService.hasPermissionForAddress(userAddrUuid, 
-			PermissionFactory.getSingleAddressPermissionTemplate(addrUuid)))
-		{
-			// single access, we return "write" permission
-			perms.add(PermissionFactory.getPermissionTemplateSingle());
+		} else {
+			// we return BOTH WRITE PERMISSIONS if set ! SHOULD NOT HAPPEN !
+			if (permService.hasPermissionForAddress(userAddrUuid, 
+					PermissionFactory.getSingleAddressPermissionTemplate(addrUuid)))
+			{
+				perms.add(PermissionFactory.getPermissionTemplateSingle());
 
-		} else if (permService.hasInheritedPermissionForAddress(userAddrUuid, 
-				PermissionFactory.getTreeAddressPermissionTemplate(addrUuid)))
-		{
-			// full access, we return "write-tree" permission
-			perms.add(PermissionFactory.getPermissionTemplateTree());
+			}
+			if (permService.hasInheritedPermissionForAddress(userAddrUuid, 
+					PermissionFactory.getTreeAddressPermissionTemplate(addrUuid)))
+			{
+				perms.add(PermissionFactory.getPermissionTemplateTree());
+			}
 		}
 		
 		return perms;

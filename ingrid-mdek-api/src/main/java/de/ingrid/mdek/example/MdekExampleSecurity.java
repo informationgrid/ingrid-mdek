@@ -267,10 +267,31 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- delete object working copy -> NOT ALLOWED -----");
 		deleteObjectWorkingCopy(objUuid, true);
 
-		System.out.println("\n----- add address/object permissions to group -----");
+		System.out.println("\n----- add address/object WRITE_SINGLE permissions to group -----");
 		// object permission
 		List<IngridDocument> perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		IngridDocument newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, objUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
+		perms.add(newPerm);
+		// address permission
+		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
+		newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, addrUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
+		perms.add(newPerm);
+		newGroupDoc = storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- delete address working copy -> NOT ALLOWED -----");
+		deleteAddressWorkingCopy(addrUuid, true);
+
+		System.out.println("\n----- delete object working copy -> NOT ALLOWED -----");
+		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- add address/object WRITE_TREE permissions to group -----");
+		// object permission
+		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
+		newPerm = new IngridDocument();
 		newPerm.put(MdekKeys.UUID, objUuid);
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
 		perms.add(newPerm);
@@ -278,7 +299,7 @@ class MdekExampleSecurityThread extends Thread {
 		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		newPerm = new IngridDocument();
 		newPerm.put(MdekKeys.UUID, addrUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
 		perms.add(newPerm);
 		newGroupDoc = storeGroup(newGroupDoc, true);
 
@@ -322,7 +343,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- then store -> NOT ALLOWED -----");
 		storeObject(newTopObjDoc, false);
 
-		System.out.println("\n----- add user permission CREATE ROOT to group -----");
+		System.out.println("\n----- add user permission CREATE_ROOT to group -----");
 		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		newPerm = new IngridDocument();
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.CREATE_ROOT.getDbValue());
@@ -340,10 +361,10 @@ class MdekExampleSecurityThread extends Thread {
 		newTopObjDoc = storeObject(newTopObjDoc, true);
 		String newTopObjUuid = (String) newTopObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- verify granted write permissions on new roots -> get group details -----");
+		System.out.println("\n----- verify granted WRITE_TREE permissions on new roots -> get group details -----");
 		getGroupDetails(nameNewGrp);
 
-		System.out.println("\n----- and delete new top entities -> ALLOWED (write-tree granted on new root) -----");
+		System.out.println("\n----- and delete new top entities -> ALLOWED (WRITE_TREE granted on new root) -----");
 		deleteAddressWorkingCopy(newTopAddrUuid, true);
 		deleteObjectWorkingCopy(newTopObjUuid, true);
 

@@ -464,7 +464,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
 			// first check User Permissions
-			permissionHandler.checkWritePermissionForObject(uuid, userId);
+			permissionHandler.checkDeletePermissionForObject(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);

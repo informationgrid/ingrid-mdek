@@ -583,7 +583,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 			
 			// first check User Permissions
-			permissionHandler.checkWritePermissionForAddress(uuid, userId);
+			permissionHandler.checkDeletePermissionForAddress(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
