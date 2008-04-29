@@ -232,7 +232,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
-			// NOTICE: parent may be null, then root node !
+			boolean isNewObject = (uuid == null) ? true : false;
 			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
 			boolean isRootNode = (parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
@@ -240,17 +240,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// set common data to transfer to working copy !
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
-			
-			boolean isNewObject = false;
-			if (uuid == null) {
-				// NEW Object !
-				isNewObject = true;
 
-				// check User Permissions when new root node !
-				if (isRootNode) {
-					permissionHandler.checkCreateRootPermission(userId);					
-				}
+			// check permissions !
+			permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);
 
+			if (isNewObject) {
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
@@ -464,7 +458,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
 			// first check User Permissions
-			permissionHandler.checkDeletePermissionForObject(uuid, userId);
+			permissionHandler.checkTreePermissionForObject(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
@@ -504,7 +498,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
 			if (performFullDelete) {
-				result = deleteObject(uuid, forceDeleteReferences);
+				result = deleteObject(uuid, forceDeleteReferences, userId);
 			}
 
 			daoObjectNode.commitTransaction();
@@ -537,7 +531,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
-			IngridDocument result = deleteObject(uuid, forceDeleteReferences);
+			IngridDocument result = deleteObject(uuid, forceDeleteReferences, userId);
 
 			daoObjectNode.commitTransaction();
 			return result;
@@ -554,7 +548,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument deleteObject(String uuid, boolean forceDeleteReferences) {
+	private IngridDocument deleteObject(String uuid, boolean forceDeleteReferences, String userUuid) {
+		// first check User Permissions
+		permissionHandler.checkTreePermissionForObject(uuid, userUuid);
+
 		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = daoObjectNode.loadByUuid(uuid);
 		if (oNode == null) {

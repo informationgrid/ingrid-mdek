@@ -233,7 +233,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
 			String uuid = (String) aDocIn.get(MdekKeys.UUID);
-			// NOTICE: parent may be null, then root node !
+			boolean isNewAddress = (uuid == null) ? true : false;
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
 			boolean isRootNode = (parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
@@ -242,16 +242,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 
-			boolean isNewAddress = false;
-			if (uuid == null) {
-				// NEW Address !
-				isNewAddress = true;
-				
-				// check User Permissions when new root node !
-				if (isRootNode) {
-					permissionHandler.checkCreateRootPermission(userId);					
-				}
+			// check permissions !
+			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
 
+			if (isNewAddress) {
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				aDocIn.put(MdekKeys.UUID, uuid);
@@ -582,8 +576,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 			
-			// first check User Permissions
-			permissionHandler.checkDeletePermissionForAddress(uuid, userId);
+			// first check permissions
+			permissionHandler.checkTreePermissionForAddress(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
@@ -620,7 +614,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			if (performFullDelete) {
-				result = deleteAddress(uuid, forceDeleteReferences);
+				result = deleteAddress(uuid, forceDeleteReferences, userId);
 			}
 
 			daoAddressNode.commitTransaction();
@@ -653,7 +647,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
-			IngridDocument result = deleteAddress(uuid, forceDeleteReferences);
+			IngridDocument result = deleteAddress(uuid, forceDeleteReferences, userId);
 
 			daoAddressNode.commitTransaction();
 			return result;
@@ -670,7 +664,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences) {
+	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences, String userUuid) {
+		// first check User Permissions
+		permissionHandler.checkTreePermissionForAddress(uuid, userUuid);
+
 		// NOTICE: this one also contains Parent Association !
 		AddressNode aNode = daoAddressNode.loadByUuid(uuid);
 		if (aNode == null) {

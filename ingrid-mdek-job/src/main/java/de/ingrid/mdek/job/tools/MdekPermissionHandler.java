@@ -37,56 +37,6 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Checks whether user has write permission on given object AND THROW EXCEPTION IF NOT !
-	 */
-	public void checkWritePermissionForObject(String objUuid, String userAddrUuid) {
-		if (!hasWritePermissionForObject(objUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
-		}		
-	}
-
-	/**
-	 * Check Write Permission of given user on given object and return "yes"/"no" !
-	 */
-	public boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
-		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
-		
-		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateSingle())) {
-				return true;
-			} else if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	/**
-	 * Checks whether user has delete permission on given object AND THROW EXCEPTION IF NOT !
-	 */
-	public void checkDeletePermissionForObject(String objUuid, String userAddrUuid) {
-		if (!hasDeletePermissionForObject(objUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
-		}		
-	}
-
-	/**
-	 * Check Delete Permission of given user on given object and return "yes"/"no" !
-	 */
-	public boolean hasDeletePermissionForObject(String objUuid, String userAddrUuid) {
-		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
-		
-		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	/**
 	 * Get "all" permissions of user for given object (ALSO INHERITED PERMISSIONS).
 	 * @param objUuid uuid of Object Entity to check
 	 * @param userAddrUuid users address uuid
@@ -114,71 +64,6 @@ public class MdekPermissionHandler {
 		}
 		
 		return perms;
-	}
-
-	/**
-	 * Grant WriteTree Permission of given user on given object.
-	 */
-	public void grantWriteTreePermissionForObject(String objUuid, String userAddrUuid) {
-		permService.grantObjectPermission(userAddrUuid, 
-			PermissionFactory.getTreeObjectPermissionTemplate(objUuid));
-	}
-
-	/**
-	 * Delete all "direct" permissions for the given object (called when object is deleted ...).
-	 */
-	public void deletePermissionsForObject(String objUuid) {
-		permService.deleteObjectPermissions(objUuid); 
-	}
-
-	/**
-	 * Checks whether user has write permission on given address AND THROW EXCEPTION IF NOT !
-	 */
-	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
-		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
-		}		
-	}
-
-	/**
-	 * Check Write Permission of given user on given address and return "yes"/"no" !
-	 */
-	public boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
-		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
-		
-		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateSingle())) {
-				return true;
-			} else if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	/**
-	 * Checks whether user has delete permission on given address AND THROW EXCEPTION IF NOT !
-	 */
-	public void checkDeletePermissionForAddress(String addrUuid, String userAddrUuid) {
-		if (!hasDeletePermissionForAddress(addrUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
-		}		
-	}
-
-	/**
-	 * Check Delete Permission of given user on given address and return "yes"/"no" !
-	 */
-	public boolean hasDeletePermissionForAddress(String addrUuid, String userAddrUuid) {
-		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
-		
-		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
-				return true;
-			}
-		}
-		
-		return false;
 	}
 
 	/**
@@ -211,45 +96,6 @@ public class MdekPermissionHandler {
 		return perms;
 	}
 
-	/**
-	 * Grant WriteTree Permission of given user on given address.
-	 */
-	public void grantWriteTreePermissionForAddress(String addrUuid, String userAddrUuid) {
-		permService.grantAddressPermission(userAddrUuid, 
-			PermissionFactory.getTreeAddressPermissionTemplate(addrUuid));
-	}
-
-	/**
-	 * Delete all "direct" permissions for the given address (called when address is deleted ...).
-	 */
-	public void deletePermissionsForAddress(String addrUuid) {
-		permService.deleteAddressPermissions(addrUuid); 
-	}
-
-	/**
-	 * Checks whether user has "CreateRoot" permission AND THROW EXCEPTION IF NOT !
-	 */
-	public void checkCreateRootPermission(String userAddrUuid) {
-		if (!hasCreateRootPermission(userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
-		}		
-	}
-
-	/**
-	 * Check "CreateRoot" Permission of given user and return "yes"/"no" !
-	 */
-	public boolean hasCreateRootPermission(String userAddrUuid) {
-		// check catalog Admin
-		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
-
-		// check user
-		if (!hasPermission) {
-			hasPermission = permService.hasUserPermission(userAddrUuid, 
-				PermissionFactory.getPermissionTemplateCreateRoot());			
-		}
-
-		return hasPermission;
-	}
 
 	/**
 	 * Get "user permissions" of given user.
@@ -269,5 +115,211 @@ public class MdekPermissionHandler {
 		}
 
 		return perms;
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the store operation AND THROW EXCEPTION IF NOT !
+	 * @param objUuid uuid of object to store
+	 * @param parentUuid uuid of parent of object
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForStoreObject(String objUuid, String parentUuid, String userUuid) {
+		boolean isNewObject = (objUuid == null) ? true : false;
+		boolean isRootNode = (parentUuid == null) ? true : false;
+
+		if (isNewObject) {
+			// has create permission ?
+			if (isRootNode) {
+				// has permission to create new root node ?
+				checkCreateRootPermission(userUuid);					
+			} else {
+				// has permission to create sub node on parent ?					
+				checkTreePermissionForObject(parentUuid, userUuid);					
+			}
+		} else {
+			// has write permission ?					
+			checkWritePermissionForObject(objUuid, userUuid);					
+		}
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the store operation AND THROWS EXCEPTION IF NOT !
+	 * @param addrUuid uuid of address to store
+	 * @param parentUuid uuid of parent of address
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForStoreAddress(String addrUuid, String parentUuid, String userUuid) {
+		boolean isNewAddress = (addrUuid == null) ? true : false;
+		boolean isRootNode = (parentUuid == null) ? true : false;
+
+		if (isNewAddress) {
+			// has create permission ?
+			if (isRootNode) {
+				// has permission to create new root node ?
+				checkCreateRootPermission(userUuid);					
+			} else {
+				// has permission to create sub node on parent ?					
+				checkTreePermissionForAddress(parentUuid, userUuid);					
+			}
+		} else {
+			// has write permission ?					
+			checkWritePermissionForAddress(addrUuid, userUuid);					
+		}
+	}
+
+	/**
+	 * Checks whether user has write permission on given object AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkWritePermissionForObject(String objUuid, String userAddrUuid) {
+		if (!hasWritePermissionForObject(objUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Checks whether user has WRITE_TREE permission on given object AND THROWS EXCEPTION IF NOT !
+	 */
+	public void checkTreePermissionForObject(String objUuid, String userAddrUuid) {
+		if (!hasTreePermissionForObject(objUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Checks whether user has write permission on given address AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
+		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Checks whether user has WRITE_TREE permission on given address AND THROW EXCEPTION IF NOT !
+	 */
+	public void checkTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+	/**
+	 * Checks whether user has "CreateRoot" permission AND THROW EXCEPTION IF NOT !
+	 */
+	private void checkCreateRootPermission(String userAddrUuid) {
+		if (!hasCreateRootPermission(userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+		}		
+	}
+
+
+	/**
+	 * Grant WriteTree Permission of given user on given object.
+	 */
+	public void grantWriteTreePermissionForObject(String objUuid, String userAddrUuid) {
+		permService.grantObjectPermission(userAddrUuid, 
+			PermissionFactory.getTreeObjectPermissionTemplate(objUuid));
+	}
+
+	/**
+	 * Grant WriteTree Permission of given user on given address.
+	 */
+	public void grantWriteTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+		permService.grantAddressPermission(userAddrUuid, 
+			PermissionFactory.getTreeAddressPermissionTemplate(addrUuid));
+	}
+
+	/**
+	 * Delete all "direct" permissions for the given object (called when object is deleted ...).
+	 */
+	public void deletePermissionsForObject(String objUuid) {
+		permService.deleteObjectPermissions(objUuid); 
+	}
+
+	/**
+	 * Delete all "direct" permissions for the given address (called when address is deleted ...).
+	 */
+	public void deletePermissionsForAddress(String addrUuid) {
+		permService.deleteAddressPermissions(addrUuid); 
+	}
+
+	/**
+	 * Check Write Permission of given user on given object and return "yes"/"no" !
+	 */
+	private boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
+		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
+		
+		for (Permission p : perms) {
+			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateSingle())) {
+				return true;
+			} else if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Check WRITE_TREE Permission of given user on given object and return "yes"/"no" !
+	 */
+	private boolean hasTreePermissionForObject(String objUuid, String userAddrUuid) {
+		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
+		
+		for (Permission p : perms) {
+			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Check Write Permission of given user on given address and return "yes"/"no" !
+	 */
+	private boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
+		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
+		
+		for (Permission p : perms) {
+			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateSingle())) {
+				return true;
+			} else if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Check WRITE_TREE Permission of given user on given address and return "yes"/"no" !
+	 */
+	private boolean hasTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
+		
+		for (Permission p : perms) {
+			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Check "CreateRoot" Permission of given user and return "yes"/"no" !
+	 */
+	private boolean hasCreateRootPermission(String userAddrUuid) {
+		// check catalog Admin
+		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
+
+		// check user
+		if (!hasPermission) {
+			hasPermission = permService.hasUserPermission(userAddrUuid, 
+				PermissionFactory.getPermissionTemplateCreateRoot());			
+		}
+
+		return hasPermission;
 	}
 }
