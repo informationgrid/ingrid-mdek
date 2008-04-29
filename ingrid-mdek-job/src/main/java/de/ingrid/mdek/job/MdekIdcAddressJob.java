@@ -234,8 +234,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String uuid = (String) aDocIn.get(MdekKeys.UUID);
 			boolean isNewAddress = (uuid == null) ? true : false;
+			// parentUuid only passed if new address !?
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
-			boolean isRootNode = (parentUuid == null) ? true : false;
+			boolean isNewRootNode = (isNewAddress && parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
@@ -294,7 +295,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			fullIndexHandler.updateAddressIndex(aNode);
 
 			// grant write tree permission if new root node (no permission yet)
-			if (isNewAddress && isRootNode) {
+			if (isNewRootNode) {
 				permissionHandler.grantWriteTreePermissionForAddress(aNode.getAddrUuid(), userId);
 			}
 
@@ -340,12 +341,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 
-			// uuid may be null when new address !
+			// uuid is null when new address !
 			String uuid = (String) aDocIn.get(MdekKeys.UUID);
-			// NOTICE: parent in doc only set if NEW node !
+			boolean isNewAddress = (uuid == null) ? true : false;
+			// parentUuid only passed if new address !
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
-			Integer childType = (Integer) aDocIn.get(MdekKeys.CLASS);
-			// additional info
+			boolean isNewRootNode = (isNewAddress && parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer
@@ -353,8 +354,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 
-			if (uuid == null) {
-				// NEW NODE !!!!
+			// check permissions !
+			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
+
+			if (isNewAddress) {
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				aDocIn.put(MdekKeys.UUID, uuid);
@@ -405,6 +408,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// UPDATE FULL INDEX !!!
 			fullIndexHandler.updateAddressIndex(aNode);
+
+			// grant write tree permission if new root node (no permission yet)
+			if (isNewRootNode) {
+				permissionHandler.grantWriteTreePermissionForAddress(aNode.getAddrUuid(), userId);
+			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -577,7 +585,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 			
 			// first check permissions
-			permissionHandler.checkTreePermissionForAddress(uuid, userId);
+			permissionHandler.checkWritePermissionForAddress(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);

@@ -275,15 +275,22 @@ class MdekExampleSecurityThread extends Thread {
 		deleteObject(objUuid, true);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- write address -> NOT ALLOWED -----");
+		System.out.println("----- store address -> NOT ALLOWED -----");
 		System.out.println("-- first fetch address");
 		doc = getAddressDetails(addrUuid);
 		storeAddress(doc, false);
 
-		System.out.println("\n----- write object -> NOT ALLOWED -----");
+		System.out.println("\n----- publish address -> NOT ALLOWED -----");
+		publishAddress(doc, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("\n----- store object -> NOT ALLOWED -----");
 		System.out.println("-- first fetch object");
 		doc = getObjectDetails(objUuid);
 		storeObject(doc, false);
+
+		System.out.println("\n----- publish object -> NOT ALLOWED -----");
+		publishObject(doc, false, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- add address/object WRITE_SINGLE permissions to group -----");
@@ -301,52 +308,45 @@ class MdekExampleSecurityThread extends Thread {
 		perms.add(newPerm);
 		newGroupDoc = storeGroup(newGroupDoc, true);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- delete address WORKING COPY -> NOT ALLOWED -----");
-		deleteAddressWorkingCopy(addrUuid, true);
-
-		System.out.println("\n----- delete object WORKING COPY -> NOT ALLOWED -----");
-		deleteObjectWorkingCopy(objUuid, true);
-
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- write address -> ALLOWED -----");
-		System.out.println("-- first fetch address");
-		doc = getAddressDetails(addrUuid);
-		storeAddress(doc, false);
-
-		System.out.println("\n----- write object -> ALLOWED -----");
-		System.out.println("-- first fetch object");
-		doc = getObjectDetails(objUuid);
-		storeObject(doc, false);
-
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- add address/object WRITE_TREE permissions to group -----");
-		// object permission
-		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
-		newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, objUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
-		perms.add(newPerm);
-		// address permission
-		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
-		newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, addrUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
-		perms.add(newPerm);
-		newGroupDoc = storeGroup(newGroupDoc, true);
-
-		System.out.println("\n----- delete address WORKING COPY -> ALLOWED -----");
-		deleteAddressWorkingCopy(addrUuid, true);
-
-		System.out.println("\n----- delete object WORKING COPY -> ALLOWED -----");
-		deleteObjectWorkingCopy(objUuid, true);
-
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- verify permissions for object -----");
+		System.out.println("\n----- verify permissions for object -----");
 		getObjectPermissions(objUuid);
 
 		System.out.println("\n----- verify permissions for address -----");
 		getAddressPermissions(addrUuid);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- delete address FULL -> NOT ALLOWED (no WRITE_TREE) -----");
+		deleteAddress(addrUuid, true);
+
+		System.out.println("\n----- delete object FULL -> NOT ALLOWED (no WRITE_TREE) -----");
+		deleteObject(objUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- delete address WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
+		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
+		deleteAddressWorkingCopy(addrUuid, true);
+
+		System.out.println("\n----- delete object WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
+		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
+		deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- write address -> ALLOWED (WRITE_SINGLE) -----");
+		System.out.println("-- first fetch address");
+		doc = getAddressDetails(addrUuid);
+		storeAddress(doc, false);
+
+		System.out.println("\n----- publish address -> ALLOWED ALLOWED (WRITE_SINGLE) -----");
+		publishAddress(doc, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("\n----- write object -> ALLOWED (WRITE_SINGLE) -----");
+		System.out.println("-- first fetch object");
+		doc = getObjectDetails(objUuid);
+		storeObject(doc, false);
+
+		System.out.println("\n----- publish object -> ALLOWED (WRITE_SINGLE) -----");
+		publishObject(doc, false, false);
 
 		System.out.println("\n------------------------------------------------");
 		System.out.println("----- ADDRESS/OBJECT: \"CREATE_ROOT\" PERMISSION -----");
@@ -966,6 +966,45 @@ class MdekExampleSecurityThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument publishObject(IngridDocument oDocIn,
+			boolean withRefetch,
+			boolean forcePublicationCondition) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE publishObject ######");
+		System.out.println("publishObject -> " +
+				"refetchObject: " + withRefetch +
+				", forcePublicationCondition: " + forcePublicationCondition);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.publishObject(plugId, oDocIn, withRefetch, forcePublicationCondition, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			String uuidStoredObject = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuidStoredObject);
+			if (withRefetch) {
+//				debugObjectDoc(result);
+			}
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
 	private IngridDocument deleteObjectWorkingCopy(String uuid,
 			boolean forceDeleteReferences) {
 		long startTime;
@@ -1123,6 +1162,41 @@ class MdekExampleSecurityThread extends Thread {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 //			debugAddressDoc(result);
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	private IngridDocument publishAddress(IngridDocument aDocIn,
+			boolean withRefetch) {
+		if (aDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String withRefetchInfo = (withRefetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.publishAddress(plugId, aDocIn, withRefetch, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			String uuid = (String) result.get(MdekKeys.UUID);
+			System.out.println("uuid = " + uuid);
+			if (withRefetch) {
+//				debugAddressDoc(result);
+			}
 		} else {
 			handleError(response);
 		}

@@ -120,16 +120,16 @@ public class MdekPermissionHandler {
 	/**
 	 * Checks whether user has permissions to perform the store operation AND THROW EXCEPTION IF NOT !
 	 * @param objUuid uuid of object to store
-	 * @param parentUuid uuid of parent of object
+	 * @param parentUuid uuid of parent of object, MAY ONLY BE PASSED IF NEW OBJECT
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForStoreObject(String objUuid, String parentUuid, String userUuid) {
 		boolean isNewObject = (objUuid == null) ? true : false;
-		boolean isRootNode = (parentUuid == null) ? true : false;
+		boolean isNewRootNode = (isNewObject && parentUuid == null) ? true : false;
 
 		if (isNewObject) {
 			// has create permission ?
-			if (isRootNode) {
+			if (isNewRootNode) {
 				// has permission to create new root node ?
 				checkCreateRootPermission(userUuid);					
 			} else {
@@ -145,16 +145,16 @@ public class MdekPermissionHandler {
 	/**
 	 * Checks whether user has permissions to perform the store operation AND THROWS EXCEPTION IF NOT !
 	 * @param addrUuid uuid of address to store
-	 * @param parentUuid uuid of parent of address
+	 * @param parentUuid uuid of parent of address, MAY ONLY BE PASSED IF NEW ADDRESS
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForStoreAddress(String addrUuid, String parentUuid, String userUuid) {
 		boolean isNewAddress = (addrUuid == null) ? true : false;
-		boolean isRootNode = (parentUuid == null) ? true : false;
+		boolean isNewRootNode = (isNewAddress && parentUuid == null) ? true : false;
 
 		if (isNewAddress) {
 			// has create permission ?
-			if (isRootNode) {
+			if (isNewRootNode) {
 				// has permission to create new root node ?
 				checkCreateRootPermission(userUuid);					
 			} else {

@@ -233,8 +233,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
 			boolean isNewObject = (uuid == null) ? true : false;
+			// parentUuid only passed if new object !?
 			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
-			boolean isRootNode = (parentUuid == null) ? true : false;
+			boolean isNewRootNode = (isNewObject && parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
@@ -287,7 +288,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			fullIndexHandler.updateObjectIndex(oNode);
 
 			// grant write tree permission if new root node (no permission yet)
-			if (isNewObject && isRootNode) {
+			if (isNewRootNode) {
 				permissionHandler.grantWriteTreePermissionForObject(oNode.getObjUuid(), userId);
 			}
 
@@ -335,8 +336,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// uuid is null when new object !
 			String uuid = (String) oDocIn.get(MdekKeys.UUID);
+			boolean isNewObject = (uuid == null) ? true : false;
 			// parentUuid only passed if new object !
 			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+			boolean isNewRootNode = (isNewObject && parentUuid == null) ? true : false;
 
 			Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
 			Boolean forcePubCondition = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
@@ -345,6 +348,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// PERFORM CHECKS
 			// NOTICE: passed object may NOT exist yet (new object published immediately)
+
+			// check permissions !
+			permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);
 
 			// all parents published ?
 			checkObjectPathForPublish(parentUuid, uuid);
@@ -360,8 +366,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 
-			if (uuid == null) {
-				// NEW NODE !!!!
+			if (isNewObject) {
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
@@ -408,6 +413,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			
 			// UPDATE FULL INDEX !!!
 			fullIndexHandler.updateObjectIndex(oNode);
+
+			// grant write tree permission if new root node (no permission yet)
+			if (isNewRootNode) {
+				permissionHandler.grantWriteTreePermissionForObject(oNode.getObjUuid(), userId);
+			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
@@ -458,7 +468,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
 			// first check User Permissions
-			permissionHandler.checkTreePermissionForObject(uuid, userId);
+			permissionHandler.checkWritePermissionForObject(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
