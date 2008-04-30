@@ -236,7 +236,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			boolean isNewAddress = (uuid == null) ? true : false;
 			// parentUuid only passed if new address !?
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
-			boolean isNewRootNode = (isNewAddress && parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
@@ -294,8 +293,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// UPDATE FULL INDEX !!!
 			fullIndexHandler.updateAddressIndex(aNode);
 
-			// grant write tree permission if new root node (no permission yet)
-			if (isNewRootNode) {
+			// grant write tree permission if not set yet (e.g. new root node)
+			if (isNewAddress) {
 				permissionHandler.grantWriteTreePermissionForAddress(aNode.getAddrUuid(), userId);
 			}
 
@@ -346,7 +345,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			boolean isNewAddress = (uuid == null) ? true : false;
 			// parentUuid only passed if new address !
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
-			boolean isNewRootNode = (isNewAddress && parentUuid == null) ? true : false;
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer
@@ -355,7 +353,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 
 			// check permissions !
-			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
+			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);
 
 			if (isNewAddress) {
 				// create new uuid
@@ -409,8 +407,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// UPDATE FULL INDEX !!!
 			fullIndexHandler.updateAddressIndex(aNode);
 
-			// grant write tree permission if new root node (no permission yet)
-			if (isNewRootNode) {
+			// grant write tree permission if not set yet (e.g. new root node)
+			if (isNewAddress) {
 				permissionHandler.grantWriteTreePermissionForAddress(aNode.getAddrUuid(), userId);
 			}
 
@@ -458,8 +456,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
+			boolean isNewRootNode = (toUuid == null) ? true : false;
 			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
 			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
+
+			// check permissions !
+			permissionHandler.checkPermissionsForCopyAddress(fromUuid, toUuid, userId);
 
 			// copy fromNode
 			IngridDocument copyResult = createAddressNodeCopy(fromUuid, toUuid,
@@ -480,6 +482,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// and path info
 			List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(fromNodeCopy.getAddrUuid(), false);
 			resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
+
+			// grant write tree permission if new root node
+			if (isNewRootNode) {
+				permissionHandler.grantWriteTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userId);
+			}
 
 			daoAddressNode.commitTransaction();
 			return resultDoc;		
@@ -507,10 +514,14 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
+			boolean isNewRootNode = (toUuid == null) ? true : false;
 
 			daoAddressNode.beginTransaction();
 
 			// PERFORM CHECKS
+
+			// check permissions !
+			permissionHandler.checkPermissionsForMoveAddress(fromUuid, toUuid, userId);
 
 			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid);
 			checkAddressNodesForMove(fromNode, toUuid, targetIsFreeAddress);
@@ -523,6 +534,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// change date and mod_uuid of all moved nodes !
 			IngridDocument result = processMovedNodes(fromNode, targetIsFreeAddress, userId);
+
+			// grant write tree permission if new root node
+			if (isNewRootNode) {
+				permissionHandler.grantWriteTreePermissionForAddress(fromUuid, userId);
+			}
 
 			daoAddressNode.commitTransaction();
 			return result;		
@@ -585,7 +601,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 			
 			// first check permissions
-			permissionHandler.checkWritePermissionForAddress(uuid, userId);
+			permissionHandler.checkPermissionsForDeleteWorkingCopyAddress(uuid, userId);
 
 			// NOTICE: this one also contains Parent Association !
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
@@ -674,7 +690,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences, String userUuid) {
 		// first check User Permissions
-		permissionHandler.checkTreePermissionForAddress(uuid, userUuid);
+		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
 
 		// NOTICE: this one also contains Parent Association !
 		AddressNode aNode = daoAddressNode.loadByUuid(uuid);

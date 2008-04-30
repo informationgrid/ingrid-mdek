@@ -9,6 +9,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
+import de.ingrid.mdek.services.security.EntityPermission;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
 
@@ -118,7 +119,7 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Checks whether user has permissions to perform the store operation AND THROW EXCEPTION IF NOT !
+	 * Checks whether user has permissions to perform the STORE operation AND THROW EXCEPTION IF NOT !
 	 * @param objUuid uuid of object to store
 	 * @param parentUuid uuid of parent of object, MAY ONLY BE PASSED IF NEW OBJECT
 	 * @param userUuid users address uuid
@@ -143,7 +144,7 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Checks whether user has permissions to perform the store operation AND THROWS EXCEPTION IF NOT !
+	 * Checks whether user has permissions to perform the STORE operation AND THROWS EXCEPTION IF NOT !
 	 * @param addrUuid uuid of address to store
 	 * @param parentUuid uuid of parent of address, MAY ONLY BE PASSED IF NEW ADDRESS
 	 * @param userUuid users address uuid
@@ -168,7 +169,137 @@ public class MdekPermissionHandler {
 	}
 
 	/**
+	 * Checks whether user has permissions to perform the PUBLISH operation AND THROW EXCEPTION IF NOT !
+	 * @param objUuid uuid of object to publish
+	 * @param parentUuid uuid of parent of object, MAY ONLY BE PASSED IF NEW OBJECT
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForPublishObject(String objUuid, String parentUuid, String userUuid) {
+		checkPermissionsForStoreObject(objUuid, parentUuid, userUuid);
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the PUBLISH operation AND THROWS EXCEPTION IF NOT !
+	 * @param addrUuid uuid of address to publish
+	 * @param parentUuid uuid of parent of address, MAY ONLY BE PASSED IF NEW ADDRESS
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForPublishAddress(String addrUuid, String parentUuid, String userUuid) {
+		checkPermissionsForStoreAddress(addrUuid, parentUuid, userUuid);
+	}
+
+
+	/**
+	 * Checks whether user has permissions to perform the COPY operation AND THROWS EXCEPTION IF NOT !
+	 * @param fromUuid uuid of object to move
+	 * @param toUuid uuid of parent to move object to
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForCopyObject(String fromUuid, String toUuid, String userUuid) {
+		if (toUuid == null) {
+			// has permission to create new root node ?
+			checkCreateRootPermission(userUuid);
+		} else {
+			// has permission to create sub node on parent ?					
+			checkTreePermissionForObject(toUuid, userUuid);					
+		}
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the COPY operation AND THROWS EXCEPTION IF NOT !
+	 * @param fromUuid uuid of address to move
+	 * @param toUuid uuid of parent to move address to
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForCopyAddress(String fromUuid, String toUuid, String userUuid) {
+		if (toUuid == null) {
+			// has permission to create new root node ?
+			checkCreateRootPermission(userUuid);
+		} else {
+			// has permission to create sub node on parent ?					
+			checkTreePermissionForAddress(toUuid, userUuid);					
+		}
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the MOVE operation AND THROWS EXCEPTION IF NOT !
+	 * @param fromUuid uuid of object to move
+	 * @param toUuid uuid of parent to move object to
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForMoveObject(String fromUuid, String toUuid, String userUuid) {
+		// has permission to remove from source (delete subnode) ?
+		checkTreePermissionForObject(fromUuid, userUuid);
+		
+		// check permissions on target via copy check (are the same)
+		checkPermissionsForCopyObject(fromUuid, toUuid, userUuid);
+
+		// permissions ok !
+		// we already remove a possible set WRITE_TREE perm of object to move to guarantee no
+		// nested WRITE_TREE perms after move !
+		permService.revokeObjectPermission(userUuid,
+				PermissionFactory.getTreeObjectPermissionTemplate(fromUuid));
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the MOVE operation AND THROWS EXCEPTION IF NOT !
+	 * @param fromUuid uuid of address to move
+	 * @param toUuid uuid of parent to move address to
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForMoveAddress(String fromUuid, String toUuid, String userUuid) {
+		// has permission to remove from source (delete subnode) ?
+		checkTreePermissionForAddress(fromUuid, userUuid);
+		
+		// check permissions on target via copy check (are the same)
+		checkPermissionsForCopyAddress(fromUuid, toUuid, userUuid);
+		
+		// permissions ok !
+		// we already remove a possible set WRITE_TREE perm of address to move to guarantee no
+		// nested WRITE_TREE perms after move !
+		permService.revokeAddressPermission(userUuid,
+				PermissionFactory.getTreeAddressPermissionTemplate(fromUuid));
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the DELETE WORKING COPY operation AND THROWS EXCEPTION IF NOT !
+	 * @param uuid uuid of object to delete working copy
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForDeleteWorkingCopyObject(String uuid, String userUuid) {
+		checkWritePermissionForObject(uuid, userUuid);
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the DELETE WORKING COPY operation AND THROWS EXCEPTION IF NOT !
+	 * @param uuid uuid of address to delete working copy
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForDeleteWorkingCopyAddress(String uuid, String userUuid) {
+		checkWritePermissionForAddress(uuid, userUuid);
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the FULL DELETE operation AND THROWS EXCEPTION IF NOT !
+	 * @param uuid uuid of object to delete
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForDeleteObject(String uuid, String userUuid) {
+		checkTreePermissionForObject(uuid, userUuid);
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the FULL DELETE operation AND THROWS EXCEPTION IF NOT !
+	 * @param uuid uuid of address to delete
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForDeleteAddress(String uuid, String userUuid) {
+		checkTreePermissionForAddress(uuid, userUuid);
+	}
+
+	/**
 	 * Checks whether user has write permission on given object AND THROW EXCEPTION IF NOT !
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void checkWritePermissionForObject(String objUuid, String userAddrUuid) {
 		if (!hasWritePermissionForObject(objUuid, userAddrUuid)) {
@@ -178,6 +309,7 @@ public class MdekPermissionHandler {
 
 	/**
 	 * Checks whether user has WRITE_TREE permission on given object AND THROWS EXCEPTION IF NOT !
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void checkTreePermissionForObject(String objUuid, String userAddrUuid) {
 		if (!hasTreePermissionForObject(objUuid, userAddrUuid)) {
@@ -187,6 +319,7 @@ public class MdekPermissionHandler {
 
 	/**
 	 * Checks whether user has write permission on given address AND THROW EXCEPTION IF NOT !
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
 		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid)) {
@@ -196,6 +329,7 @@ public class MdekPermissionHandler {
 
 	/**
 	 * Checks whether user has WRITE_TREE permission on given address AND THROW EXCEPTION IF NOT !
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void checkTreePermissionForAddress(String addrUuid, String userAddrUuid) {
 		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid)) {
@@ -214,19 +348,29 @@ public class MdekPermissionHandler {
 
 
 	/**
-	 * Grant WriteTree Permission of given user on given object.
+	 * Grant WriteTree Permission of given user on given objectIF NOT ALREADY GRANTED.
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void grantWriteTreePermissionForObject(String objUuid, String userAddrUuid) {
-		permService.grantObjectPermission(userAddrUuid, 
-			PermissionFactory.getTreeObjectPermissionTemplate(objUuid));
+		EntityPermission ep = PermissionFactory.getTreeObjectPermissionTemplate(objUuid);
+
+		boolean alreadyGranted = permService.hasInheritedPermissionForObject(userAddrUuid, ep);
+		if (!alreadyGranted) {
+			permService.grantObjectPermission(userAddrUuid, ep);
+		}
 	}
 
 	/**
-	 * Grant WriteTree Permission of given user on given address.
+	 * Grant WriteTree Permission of given user on given address IF NOT ALREADY GRANTED.
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void grantWriteTreePermissionForAddress(String addrUuid, String userAddrUuid) {
-		permService.grantAddressPermission(userAddrUuid, 
-			PermissionFactory.getTreeAddressPermissionTemplate(addrUuid));
+		EntityPermission ep = PermissionFactory.getTreeAddressPermissionTemplate(addrUuid);
+
+		boolean alreadyGranted = permService.hasInheritedPermissionForAddress(userAddrUuid, ep);
+		if (!alreadyGranted) {
+			permService.grantAddressPermission(userAddrUuid, ep);			
+		}
 	}
 
 	/**
@@ -245,6 +389,7 @@ public class MdekPermissionHandler {
 
 	/**
 	 * Check Write Permission of given user on given object and return "yes"/"no" !
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	private boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
@@ -261,7 +406,8 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Check WRITE_TREE Permission of given user on given object and return "yes"/"no" !
+	 * Check WRITE_TREE Permission of given user on given object and return "yes"/"no"
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	private boolean hasTreePermissionForObject(String objUuid, String userAddrUuid) {
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
@@ -277,6 +423,7 @@ public class MdekPermissionHandler {
 
 	/**
 	 * Check Write Permission of given user on given address and return "yes"/"no" !
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	private boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
 		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
@@ -294,6 +441,7 @@ public class MdekPermissionHandler {
 
 	/**
 	 * Check WRITE_TREE Permission of given user on given address and return "yes"/"no" !
+	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	private boolean hasTreePermissionForAddress(String addrUuid, String userAddrUuid) {
 		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);

@@ -155,11 +155,23 @@ class MdekExampleSecurityThread extends Thread {
 
 		long exampleStartTime = System.currentTimeMillis();
 
-		String topAddrUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
-		String topObjUuid = "3866463B-B449-11D2-9A86-080000507261";
+		// top nodes, not affecting nodes below !
+		String topAddrUuid = "3866447A-B449-11D2-9A86-080000507261";
+		String topObjUuid = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
 
-		String addrUuid;
-		String objUuid;
+		// top nodes of nodes below !!!
+//		String topAddrUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
+//		String topObjUuid = "3866463B-B449-11D2-9A86-080000507261";
+
+		// parents of children below
+//		String parentAddrUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
+//		String parentObjUuid = "D40743ED-1FC3-11D3-AF50-0060084A4596";
+
+		// children of parents above
+		String addrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+		String objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
+
+
 		IngridDocument doc;
 
 // ====================
@@ -257,11 +269,9 @@ class MdekExampleSecurityThread extends Thread {
 		myUserUuid = catalogAdminUuid;
 
 		System.out.println("\n----- delete address WORKING COPY -> ALLOWED -----");
-		addrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 		deleteAddressWorkingCopy(addrUuid, true);
 
 		System.out.println("\n----- delete object WORKING COPY -> ALLOWED  -----");
-		objUuid = "128EFA64-436E-11D3-A599-70A253C18B13";
 		deleteObjectWorkingCopy(objUuid, true);
 
 		System.out.println("\n-------------------------------------");
@@ -336,7 +346,7 @@ class MdekExampleSecurityThread extends Thread {
 		doc = getAddressDetails(addrUuid);
 		storeAddress(doc, false);
 
-		System.out.println("\n----- publish address -> ALLOWED ALLOWED (WRITE_SINGLE) -----");
+		System.out.println("\n----- publish address -> ALLOWED (WRITE_SINGLE) -----");
 		publishAddress(doc, false);
 
 		System.out.println("\n-------------------------------------");
@@ -348,7 +358,8 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- publish object -> ALLOWED (WRITE_SINGLE) -----");
 		publishObject(doc, false, false);
 
-		System.out.println("\n------------------------------------------------");
+
+		System.out.println("\n\n------------------------------------------------");
 		System.out.println("----- ADDRESS/OBJECT: \"CREATE_ROOT\" PERMISSION -----");
 		System.out.println("------------------------------------------------");
 
@@ -368,6 +379,13 @@ class MdekExampleSecurityThread extends Thread {
 		storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
+		System.out.println("----- move address to top -> NOT ALLOWED -----");
+		moveAddress(addrUuid, null, false);
+
+		System.out.println("\n----- copy address to top -> NOT ALLOWED -----");
+		copyAddress(addrUuid, null, false, false);
+
+		System.out.println("\n-------------------------------------");
 		System.out.println("----- create top object -> NOT ALLOWED -----");
 		System.out.println("----- first get initial data for top object -----");
 		IngridDocument newObjDoc = new IngridDocument();
@@ -377,6 +395,13 @@ class MdekExampleSecurityThread extends Thread {
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		System.out.println("\n----- then store -> NOT ALLOWED -----");
 		storeObject(newObjDoc, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- move object to top -> NOT ALLOWED -----");
+		moveObject(objUuid, null, false);
+
+		System.out.println("\n----- copy object to top -> NOT ALLOWED -----");
+		copyObject(objUuid, null, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- add user permission CREATE_ROOT to group -----");
@@ -399,6 +424,15 @@ class MdekExampleSecurityThread extends Thread {
 		String newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n-------------------------------------");
+		System.out.println("----- copy object to top -> ALLOWED -----");
+		doc = copyObject(objUuid, null, false);
+		String copiedObjUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n----- copy address to top -> ALLOWED BUT WRONG ADDRESS TYPE :) -----");
+		doc = copyAddress(addrUuid, null, false, false);
+		String copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n-------------------------------------");
 		System.out.println("----- verify granted WRITE_TREE permissions on new roots -> get group details -----");
 		getGroupDetails(nameNewGrp);
 
@@ -406,21 +440,28 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- and delete new top entities -> ALLOWED (WRITE_TREE granted on new root) -----");
 		deleteAddressWorkingCopy(newAddrUuid, true);
 		deleteObjectWorkingCopy(newObjUuid, true);
+		if (copiedAddrUuid != null) {
+			deleteAddressWorkingCopy(copiedAddrUuid, true);			
+		}
+		if (copiedObjUuid != null) {
+			deleteObjectWorkingCopy(copiedObjUuid, true);			
+		}
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- verify deletion of permissions on deleted entities -> get group details -----");
 		newGroupDoc = getGroupDetails(nameNewGrp);
 
-		System.out.println("\n--------------------------------------------------------");
+		
+		System.out.println("\n\n--------------------------------------------------------");
 		System.out.println("----- ADDRESS/OBJECT: \"CREATE\" SUBNODE PERMISSION -----");
 		System.out.println("--------------------------------------------------------");
 
-		System.out.println("\n-------------------------------------");
+		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- create sub address -> NOT ALLOWED -----");
 		System.out.println("----- first get initial data for sub address -----");
-		String parentAddrUuid = topAddrUuid;
+		String newParentAddrUuid = topAddrUuid;
 		newAdrDoc = new IngridDocument();
-		newAdrDoc.put(MdekKeys.PARENT_UUID, parentAddrUuid);
+		newAdrDoc.put(MdekKeys.PARENT_UUID, newParentAddrUuid);
 		newAdrDoc = getInitialAddress(newAdrDoc);
 		// extend initial address with own data !
 		newAdrDoc.put(MdekKeys.NAME, "testNAME");
@@ -432,11 +473,18 @@ class MdekExampleSecurityThread extends Thread {
 		storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
+		System.out.println("----- copy address to new parent -> NOT ALLOWED -----");
+		copyAddress(addrUuid, newParentAddrUuid, false, false);
+
+		System.out.println("\n----- move address to new parent -> NOT ALLOWED -----");
+		moveAddress(addrUuid, newParentAddrUuid, false);
+
+		System.out.println("\n-------------------------------------");
 		System.out.println("----- create sub object -> NOT ALLOWED -----");
 		System.out.println("----- first get initial data for sub object -----");
-		String parentObjUuid = topObjUuid;
+		String newParentObjUuid = topObjUuid;
 		newObjDoc = new IngridDocument();
-		newObjDoc.put(MdekKeys.PARENT_UUID, parentObjUuid);
+		newObjDoc.put(MdekKeys.PARENT_UUID, newParentObjUuid);
 		newObjDoc = getInitialObject(newObjDoc);
 		// extend initial address with own data !
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
@@ -444,26 +492,33 @@ class MdekExampleSecurityThread extends Thread {
 		storeObject(newObjDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- add user permission WRITE_TREE on parent -----");
+		System.out.println("----- copy object to new parent -> NOT ALLOWED -----");
+		copyObject(objUuid, newParentObjUuid, false);
+
+		System.out.println("\n----- move object to new parent -> NOT ALLOWED -----");
+		moveObject(objUuid, newParentObjUuid, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- add user permission WRITE_TREE on target parent -----");
 		// object permission
 		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, parentObjUuid);
+		newPerm.put(MdekKeys.UUID, newParentObjUuid);
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
 		perms.add(newPerm);
 		// address permission
 		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, parentAddrUuid);
+		newPerm.put(MdekKeys.UUID, newParentAddrUuid);
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
 		perms.add(newPerm);
 		newGroupDoc = storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- verify permissions for object -----");
-		getObjectPermissions(parentObjUuid);
+		getObjectPermissions(newParentObjUuid);
 
 		System.out.println("\n----- verify permissions for address -----");
-		getAddressPermissions(parentAddrUuid);
+		getAddressPermissions(newParentAddrUuid);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create sub address -> ALLOWED -----");
@@ -475,9 +530,31 @@ class MdekExampleSecurityThread extends Thread {
 		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n-------------------------------------");
+		System.out.println("----- copy object to new parent -> ALLOWED -----");
+		doc = copyObject(objUuid, newParentObjUuid, false);
+		copiedObjUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n----- copy address to new parent -> ALLOWED -----");
+		doc = copyAddress(addrUuid, newParentAddrUuid, false, false);
+		copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- move object to new parent -> NOT ALLOWED (no WRITE_TREE on object to move) -----");
+		moveObject(objUuid, newParentObjUuid, false);
+
+		System.out.println("\n----- move address to new parent -> NOT ALLOWED (no WRITE_TREE on address to move) -----");
+		moveAddress(addrUuid, newParentAddrUuid, false);
+
+		System.out.println("\n-------------------------------------");
 		System.out.println("----- and delete new sub entities -> ALLOWED (WRITE_TREE in parent!) -----");
 		deleteAddressWorkingCopy(newAddrUuid, true);
 		deleteObjectWorkingCopy(newObjUuid, true);
+		if (copiedAddrUuid != null) {
+			deleteAddressWorkingCopy(copiedAddrUuid, true);			
+		}
+		if (copiedObjUuid != null) {
+			deleteObjectWorkingCopy(copiedObjUuid, true);			
+		}
 
 		// ===================================
 		
@@ -488,6 +565,10 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- remove users -----");
 		deleteUser(newMetaAdminId);
 		deleteUser(newMetaAuthorId);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- verify no wrong permissions in group -> get group details -----");
+		newGroupDoc = getGroupDetails(nameNewGrp);
 
 		System.out.println("\n----- remove permissions from group -----");
 		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
@@ -1005,6 +1086,58 @@ class MdekExampleSecurityThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument moveObject(String fromUuid, String toUuid,
+			boolean forcePublicationCondition) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String forcePubCondInfo = (forcePublicationCondition) ? "WITH FORCE publicationCondition" 
+				: "WITHOUT FORCE publicationCondition";
+		System.out.println("\n###### INVOKE moveObject " + forcePubCondInfo + "######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.moveObject(plugId, fromUuid, toUuid, forcePublicationCondition, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument copyObject(String fromUuid, String toUuid, boolean copySubtree) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
+		System.out.println("\n###### INVOKE copyObject " + copySubtreeInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.copyObject(plugId, fromUuid, toUuid, copySubtree, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
+			System.out.println("Root Copy: " + result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	private IngridDocument deleteObjectWorkingCopy(String uuid,
 			boolean forceDeleteReferences) {
 		long startTime;
@@ -1044,33 +1177,6 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.deleteObject(plugId, uuid, forceDeleteReferences, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument deleteAddress(String uuid,
-			boolean forceDeleteReferences) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteAddress " + deleteRefsInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddress(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -1204,6 +1310,62 @@ class MdekExampleSecurityThread extends Thread {
 		return result;
 	}
 
+	private IngridDocument moveAddress(String fromUuid, String toUuid,
+			boolean moveToFreeAddress)
+	{
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String moveToFreeAddressInfo = (moveToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
+		System.out.println("\n###### INVOKE moveAddress " + moveToFreeAddressInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, moveToFreeAddress, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument copyAddress(String fromUuid, String toUuid,
+			boolean copySubtree, boolean copyToFreeAddress)
+		{
+			long startTime;
+			long endTime;
+			long neededTime;
+			IngridDocument response;
+			IngridDocument result;
+
+			String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
+			String copyToFreeAddressInfo = (copyToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
+			System.out.println("\n###### INVOKE copyAddress " + copySubtreeInfo + copyToFreeAddressInfo + " ######");
+			startTime = System.currentTimeMillis();
+			response = mdekCallerAddress.copyAddress(plugId, fromUuid, toUuid, copySubtree, copyToFreeAddress, myUserUuid);
+			endTime = System.currentTimeMillis();
+			neededTime = endTime - startTime;
+			System.out.println("EXECUTION TIME: " + neededTime + " ms");
+			result = mdekCaller.getResultFromResponse(response);
+			if (result != null) {
+				System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
+				System.out.println("Copy Node (rudimentary): ");
+//				debugAddressDoc(result);
+			} else {
+				handleError(response);
+			}
+			
+			return result;
+		}
+
 	private IngridDocument deleteAddressWorkingCopy(String uuid,
 			boolean forceDeleteReferences) {
 		long startTime;
@@ -1216,6 +1378,33 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS");
+			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
+			System.out.println("was fully deleted: " + fullyDeleted);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	private IngridDocument deleteAddress(String uuid,
+			boolean forceDeleteReferences) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
+		System.out.println("\n###### INVOKE deleteAddress " + deleteRefsInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.deleteAddress(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

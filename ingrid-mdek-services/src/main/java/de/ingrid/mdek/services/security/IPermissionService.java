@@ -16,7 +16,7 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 public interface IPermissionService {
 
 	/**
-	 * Checks an object defined by uuid for a EntityPermission permission for a
+	 * Checks an object defined by uuid for a "direct" EntityPermission permission for a
 	 * user represented by addrUuid.
 	 * 
 	 * @param objUuid
@@ -26,9 +26,9 @@ public interface IPermissionService {
 	boolean hasPermissionForObject(String objUuid, EntityPermission ep);
 
 	/**
-	 * Checks an object defined by uuid for a EntityPermission permission for a
-	 * user represented by addrUuid. The permission can also be inherited by one
-	 * of it's parent.
+	 * Checks an object defined by uuid for a "direct" or "inherited" EntityPermission
+	 * permission for a user represented by addrUuid. The permission can also be 
+	 * inherited by one of it's parent.
 	 * 
 	 * @param objUuid
 	 * @param ep
@@ -37,7 +37,7 @@ public interface IPermissionService {
 	boolean hasInheritedPermissionForObject(String objUuid, EntityPermission ep);
 
 	/**
-	 * Checks an address defined by uuid for a EntityPermission permission for a
+	 * Checks an address defined by uuid for a "direct" EntityPermission permission for a
 	 * user represented by addrUuid.
 	 * 
 	 * @param addrUuid
@@ -47,9 +47,9 @@ public interface IPermissionService {
 	boolean hasPermissionForAddress(String addrUuid, EntityPermission ep);
 
 	/**
-	 * Checks an address defined by uuid for a EntityPermission permission for a
-	 * user represented by addrUuid. The permission can also be inherited by one
-	 * of it's parent.
+	 * Checks an address defined by uuid for a "direct" or "inherited" EntityPermission
+	 * permission for a user represented by addrUuid. The permission can also be 
+	 * inherited by one of it's parent.
 	 * 
 	 * @param addrUuid
 	 * @param ep
