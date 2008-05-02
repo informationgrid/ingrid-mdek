@@ -6,26 +6,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekClient;
-import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
-import de.ingrid.mdek.MdekUtils.PublishType;
-import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerAddress;
-import de.ingrid.mdek.caller.IMdekCallerObject;
-import de.ingrid.mdek.caller.IMdekCallerSecurity;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.MdekCallerAddress;
-import de.ingrid.mdek.caller.MdekCallerObject;
-import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -67,11 +55,6 @@ public class MdekExampleAddress {
 		MdekCaller.initialize(new File((String) map.get("--descriptor")));
 		IMdekCaller mdekCaller = MdekCaller.getInstance();
 
-		// and our specific job caller !
-		MdekCallerSecurity.initialize(mdekCaller);
-		MdekCallerAddress.initialize(mdekCaller);
-		MdekCallerObject.initialize(mdekCaller);
-		
 		// wait till iPlug registered !
 		System.out.println("\n###### waiting for mdek iPlug to register ######\n");
 		boolean plugRegistered = false;
@@ -119,32 +102,15 @@ public class MdekExampleAddress {
 class MdekExampleAddressThread extends Thread {
 
 	private int threadNumber;
-	String myUserUuid;
-	boolean doFullOutput = true;
-	
 	private boolean isRunning = false;
 
-	// MDEK SERVER TO CALL !
-	private String plugId = "mdek-iplug-idctest";
-	
-	private IMdekCaller mdekCaller;
-	private IMdekCallerSecurity mdekCallerSecurity;
-	private IMdekCallerAddress mdekCallerAddress;
-	private IMdekCallerObject mdekCallerObject;
-	
-	private MdekExampleUtils exUtils;
+	private MdekExampleSupertool supertool;
 
 	public MdekExampleAddressThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
-		myUserUuid = "EXAMPLE_USER_" + threadNumber;
 		
-		mdekCaller = MdekCaller.getInstance();
-		mdekCallerSecurity = MdekCallerSecurity.getInstance();
-		mdekCallerAddress = MdekCallerAddress.getInstance();
-		mdekCallerObject = MdekCallerObject.getInstance();
-		
-		exUtils = MdekExampleUtils.getInstance();
+		supertool = new MdekExampleSupertool("mdek-iplug-idctest", "EXAMPLE_USER_" + threadNumber);
 	}
 
 	public void run() {
@@ -166,10 +132,10 @@ class MdekExampleAddressThread extends Thread {
 		boolean alwaysTrue = true;
 
 		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
-		IngridDocument doc = getCatalogAdmin();
+		IngridDocument doc = supertool.getCatalogAdmin();
 		Long catalogAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
 		String catalogAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
-		myUserUuid = catalogAdminUuid;
+		supertool.setCallingUser(catalogAdminUuid);
 
 // ====================
 // test single stuff
@@ -191,7 +157,7 @@ class MdekExampleAddressThread extends Thread {
 		String adrTo = "012CBA0B-87F6-11D4-89C7-C1AAE1E96727";
 
 		System.out.println("\n----- load object from -----");
-		IngridDocument oMap = fetchObject(objFrom, Quantity.DETAIL_ENTITY);
+		IngridDocument oMap = supertool.fetchObject(objFrom, Quantity.DETAIL_ENTITY);
 		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.ADR_REFERENCES_TO);
 		// find address to remove
 		IngridDocument docToRemove = null;
@@ -206,16 +172,16 @@ class MdekExampleAddressThread extends Thread {
 		if (docToRemove != null) {
 			docList.remove(docToRemove);
 		}
-		storeObjectWithoutManipulation(oMap, true);
+		supertool.storeObject(oMap, true);
 
 		System.out.println("\n----- load referenced address -> has reference from published object only ! -----");
-		fetchAddress(adrTo, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(adrTo, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
-		deleteObjectWorkingCopy(objFrom, true);
+		supertool.deleteObjectWorkingCopy(objFrom, true);
 
 		System.out.println("\n----- verify from object, no working version and references to address again ! -----");
-		fetchObject(objFrom, Quantity.DETAIL_ENTITY);
+		supertool.fetchObject(objFrom, Quantity.DETAIL_ENTITY);
 
 		if (alwaysTrue) {
 			isRunning = false;
@@ -226,25 +192,25 @@ class MdekExampleAddressThread extends Thread {
 */
 		// ===================================
 		System.out.println("\n----- backend version -----");
-		getVersion();
+		supertool.getVersion();
 
 		// -----------------------------------
 		System.out.println("\n----- top addresses -----");
-		fetchTopAddresses(true);
-		fetchTopAddresses(false);
+		supertool.fetchTopAddresses(true);
+		supertool.fetchTopAddresses(false);
 
 		// -----------------------------------
 		System.out.println("\n----- sub addresses -----");
 //		fetchSubAddresses(topUuid);
-		fetchSubAddresses("386644BF-B449-11D2-9A86-080000507261");
+		supertool.fetchSubAddresses("386644BF-B449-11D2-9A86-080000507261");
 
 		// -----------------------------------
 		System.out.println("\n----- address path -----");
-		getAddressPath(personUuid);
+		supertool.getAddressPath(personUuid);
 
 		// -----------------------------------
 		System.out.println("\n----- address details -----");
-		IngridDocument aMap = fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
+		IngridDocument aMap = supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -255,10 +221,10 @@ class MdekExampleAddressThread extends Thread {
 		storeAddressWithManipulation(aMap);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
-		deleteAddressWorkingCopy(personUuid, true);
+		supertool.deleteAddressWorkingCopy(personUuid, true);
 		
 		System.out.println("\n----- and reload -----");
-		aMap = fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
+		aMap = supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -269,7 +235,7 @@ class MdekExampleAddressThread extends Thread {
 		// initial data from person address (to test take over of SUBJECT_TERMS)
 		IngridDocument newAdrDoc = new IngridDocument();
 		newAdrDoc.put(MdekKeys.PARENT_UUID, personUuid);
-		newAdrDoc = getInitialAddress(newAdrDoc);
+		newAdrDoc = supertool.getInitialAddress(newAdrDoc);
 
 		System.out.println("\n----- extend initial address and store -----");
 
@@ -289,12 +255,12 @@ class MdekExampleAddressThread extends Thread {
 		String newAddrUuid = (String) aMapNew.get(MdekKeys.UUID);
 
 		System.out.println("\n----- verify new subaddress -> load parent subaddresses -----");
-		fetchSubAddresses(parentUuid);
+		supertool.fetchSubAddresses(parentUuid);
 
 		System.out.println("\n----- do \"forbidden\" store -> \"free address\" WITH parent -----");
 		Integer origType = (Integer) aMapNew.get(MdekKeys.CLASS);
 		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.FREI.getDbValue());
-		storeAddressWithoutManipulation(aMapNew, false);
+		supertool.storeAddress(aMapNew, false);
 		aMapNew.put(MdekKeys.CLASS, origType);
 
 		// -----------------------------------
@@ -305,54 +271,54 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n\n----- copy PERSON address to FREE ADDRESS (WITH sub tree) -> ERROR -----");
 		String addressFrom = personUuid;
 		String addressTo = null;
-		aMap = copyAddress(addressFrom, addressTo, true, true);
+		aMap = supertool.copyAddress(addressFrom, addressTo, true, true);
 		System.out.println("\n\n----- copy PERSON address to FREE ADDRESS (WITHOUT sub tree) -----");
-		aMap = copyAddress(addressFrom, addressTo, false, true);
+		aMap = supertool.copyAddress(addressFrom, addressTo, false, true);
 		String copy1Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
 		System.out.println("----- load original one -----");
-		fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- then load copy -----");
-		fetchAddress(copy1Uuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(copy1Uuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify copy, load top FREE ADDRESSES -> new FREE ADDRESS -----");
-		fetchTopAddresses(true);
+		supertool.fetchTopAddresses(true);
 
 		System.out.println("\n\n----- copy FREE Address under parent of new address -----");
 		addressFrom = freeUuid;
 		addressTo = parentUuid;
-		aMap = copyAddress(addressFrom, addressTo, true, false);
+		aMap = supertool.copyAddress(addressFrom, addressTo, true, false);
 		String copy2Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
 		System.out.println("----- load original one -----");
-		fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- then load copy -----");
-		fetchAddress(copy2Uuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(copy2Uuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify children -> new child -----");
-		fetchSubAddresses(addressTo);
+		supertool.fetchSubAddresses(addressTo);
 
 		System.out.println("\n\n----- copy FREE Address to FREE address -----");
 		addressFrom = freeUuid;
 		addressTo = null;
-		aMap = copyAddress(addressFrom, addressTo, false, true);
+		aMap = supertool.copyAddress(addressFrom, addressTo, false, true);
 		String copy3Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
 		System.out.println("----- load original one -----");
-		fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- then load copy -----");
-		fetchAddress(copy3Uuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(copy3Uuid, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- delete copies (WORKING COPY) -> FULL DELETE -----");
-		deleteAddressWorkingCopy(copy1Uuid, true);
-		deleteAddressWorkingCopy(copy2Uuid, true);
-		deleteAddressWorkingCopy(copy3Uuid, true);
+		supertool.deleteAddressWorkingCopy(copy1Uuid, true);
+		supertool.deleteAddressWorkingCopy(copy2Uuid, true);
+		supertool.deleteAddressWorkingCopy(copy3Uuid, true);
 
 		System.out.println("\n\n----- copy tree to own subnode !!! copy parent of new address below new address (WITH sub tree) -----");
-		IngridDocument subtreeCopyDoc = copyAddress(parentUuid, newAddrUuid, true, false);
+		IngridDocument subtreeCopyDoc = supertool.copyAddress(parentUuid, newAddrUuid, true, false);
 		String subtreeCopyUuid = subtreeCopyDoc.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy -> load children of new address -----");
-		fetchSubAddresses(newAddrUuid);
+		supertool.fetchSubAddresses(newAddrUuid);
 		System.out.println("\n\n----- verify copied sub addresses -> load children of copy -----");
-		fetchSubAddresses(subtreeCopyUuid);
+		supertool.fetchSubAddresses(subtreeCopyUuid);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -361,59 +327,59 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n----- create NEW TOP ADDRESS -----");
 		IngridDocument newTopAddrDoc = new IngridDocument();
-		newTopAddrDoc = getInitialAddress(newTopAddrDoc);
+		newTopAddrDoc = supertool.getInitialAddress(newTopAddrDoc);
 		newTopAddrDoc.put(MdekKeys.ORGANISATION, "TEST TOP ADDRESS");
 		newTopAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
-		newTopAddrDoc = storeAddressWithoutManipulation(newTopAddrDoc, true);
+		newTopAddrDoc = supertool.storeAddress(newTopAddrDoc, true);
 		// uuid created !
 		String newTopAddrUuid = (String) newTopAddrDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n\n----- move new address to NEW TOP ADDRESS -> ERROR (new parent not published) -----");
 		String oldParentUuid = parentUuid;
 		String newParentUuid = newTopAddrUuid;
-		moveAddress(newAddrUuid, newParentUuid, false);
+		supertool.moveAddress(newAddrUuid, newParentUuid, false);
 		System.out.println("\n----- publish NEW TOP ADDRESS -----");
-		publishAddress(newTopAddrDoc, true);
+		supertool.publishAddress(newTopAddrDoc, true);
 		System.out.println("\n\n----- move new address again -> SUCCESS (new parent published) -----");
-		moveAddress(newAddrUuid, newParentUuid, false);
+		supertool.moveAddress(newAddrUuid, newParentUuid, false);
 		System.out.println("\n----- check new address subtree -> has working copies ! (move worked !) -----");
-		checkAddressSubTree(newAddrUuid);
+		supertool.checkAddressSubTree(newAddrUuid);
 		System.out.println("\n----- verify old parent subaddresses (cut) -----");
-		fetchSubAddresses(oldParentUuid);
+		supertool.fetchSubAddresses(oldParentUuid);
 		System.out.println("\n----- verify new parent subaddresses (added) -----");
-		fetchSubAddresses(newParentUuid);
+		supertool.fetchSubAddresses(newParentUuid);
 
 		System.out.println("\n----- move new Address to FREE Address ! -> ERROR: has subtree -----");
-		moveAddress(newAddrUuid, null, true);
+		supertool.moveAddress(newAddrUuid, null, true);
 		System.out.println("\n\n----- delete subtree of new Address -----");
-		deleteAddress(subtreeCopyUuid, true);
+		supertool.deleteAddress(subtreeCopyUuid, true);
 		System.out.println("\n----- move new Address to FREE Address ! -> ERROR (type conflicts -> EINHEIT) -----");
-		moveAddress(newAddrUuid, null, true);
+		supertool.moveAddress(newAddrUuid, null, true);
 		System.out.println("\n----- publish new Address as PERSON -----");
 		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.PERSON.getDbValue());
-		publishAddress(aMapNew, true);
+		supertool.publishAddress(aMapNew, true);
 		System.out.println("\n----- store changed working copy of new Address -----");
 		aMapNew.put(MdekKeys.GIVEN_NAME, "changed!!!!!!!!");
-		storeAddressWithoutManipulation(aMapNew, true);
+		supertool.storeAddress(aMapNew, true);
 		System.out.println("\n----- move new Address to FREE Address ! -> SUCCESS -----");
-		moveAddress(newAddrUuid, null, true);
-		doFullOutput = false;
-		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
-		doFullOutput = true;
+		supertool.moveAddress(newAddrUuid, null, true);
+		supertool.setFullOutput(false);
+		supertool.fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		supertool.setFullOutput(true);
 		System.out.println("\n----- move new FREE Address to NOT FREE Address ! -> SUCCESS -----");
 		newParentUuid = topUuid;
-		moveAddress(newAddrUuid, newParentUuid, false);
-		doFullOutput = false;
-		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
-		doFullOutput = true;
+		supertool.moveAddress(newAddrUuid, newParentUuid, false);
+		supertool.setFullOutput(false);
+		supertool.fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		supertool.setFullOutput(true);
 
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
-		moveAddress(topUuid, parentUuid, false);
+		supertool.moveAddress(topUuid, parentUuid, false);
 		System.out.println("\n----- do \"forbidden\" move (institution to free address) -----");
-		moveAddress(topUuid, null, true);
+		supertool.moveAddress(topUuid, null, true);
 
 		System.out.println("\n----- delete NEW TOP ADDRESS -----");
-		deleteAddress(newTopAddrUuid, true);
+		supertool.deleteAddress(newTopAddrUuid, true);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -421,22 +387,22 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- delete new address (WORKING COPY) -> NO full delete -----");
-		deleteAddressWorkingCopy(newAddrUuid, true);
+		supertool.deleteAddressWorkingCopy(newAddrUuid, true);
 		System.out.println("\n----- delete new address (FULL) -> full delete -----");
-		deleteAddress(newAddrUuid, true);
+		supertool.deleteAddress(newAddrUuid, true);
 		System.out.println("\n----- verify deletion of new address -----");
-		fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subaddresses -----");
-		fetchSubAddresses(newParentUuid);
+		supertool.fetchSubAddresses(newParentUuid);
 
 		System.out.println("\n----- test deletion of references / WARNINGS -----");
 
 		System.out.println("\n----- create new TOP ADDRESS -----");
 		IngridDocument toAddrDoc = new IngridDocument();
-		toAddrDoc = getInitialAddress(toAddrDoc);
+		toAddrDoc = supertool.getInitialAddress(toAddrDoc);
 		toAddrDoc.put(MdekKeys.ORGANISATION, "TEST TOP ADDRESS");
 		toAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
-		toAddrDoc = storeAddressWithoutManipulation(toAddrDoc, true);
+		toAddrDoc = supertool.storeAddress(toAddrDoc, true);
 		// uuid created !
 		String topAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
 
@@ -444,33 +410,33 @@ class MdekExampleAddressThread extends Thread {
 		// initial data from parent
 		toAddrDoc = new IngridDocument();
 		toAddrDoc.put(MdekKeys.PARENT_UUID, topAddrUuid);
-		toAddrDoc = getInitialAddress(toAddrDoc);
+		toAddrDoc = supertool.getInitialAddress(toAddrDoc);
 		toAddrDoc.put(MdekKeys.ORGANISATION, "TEST SUB ADDRESS -> wird referenziert");
 		toAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
-		toAddrDoc = storeAddressWithoutManipulation(toAddrDoc, true);
+		toAddrDoc = supertool.storeAddress(toAddrDoc, true);
 		// uuid created !
 		String toAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
 		
 		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS -----");
 		IngridDocument fromObjDoc = new IngridDocument();
-		fromObjDoc = getInitialObject(fromObjDoc);
+		fromObjDoc = supertool.getInitialObject(fromObjDoc);
 		fromObjDoc.put(MdekKeys.TITLE, "TEST OBJECT -> referenziert");
 		ArrayList<IngridDocument> adrRefsList = new ArrayList<IngridDocument>(1);
 		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, -1); // needed !
 		adrRefsList.add(toAddrDoc);
 		fromObjDoc.put(MdekKeys.ADR_REFERENCES_TO, adrRefsList);
-		fromObjDoc = storeObjectWithoutManipulation(fromObjDoc, true);
+		fromObjDoc = supertool.storeObject(fromObjDoc, true);
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITHOUT refs -> Error -----");
-		deleteAddressWorkingCopy(topAddrUuid, false);
+		supertool.deleteAddressWorkingCopy(topAddrUuid, false);
 		System.out.println("\n----- delete ADDRESS (FULL) WITHOUT refs -> Error -----");
-		deleteAddress(topAddrUuid, false);
+		supertool.deleteAddress(topAddrUuid, false);
 		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITH refs -> OK -----");
-		deleteAddressWorkingCopy(topAddrUuid, true);
+		supertool.deleteAddressWorkingCopy(topAddrUuid, true);
 		System.out.println("\n----- delete OBJECT (WORKING COPY) without refs -> OK -----");
-		deleteObject(fromObjUuid, false);
+		supertool.deleteObject(fromObjUuid, false);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -481,17 +447,17 @@ class MdekExampleAddressThread extends Thread {
 		IngridDocument newTopDoc = new IngridDocument();
 		newTopDoc.put(MdekKeys.ORGANISATION, "TEST NEW TOP ADDRESS DIRECT PUBLISH");
 		newTopDoc.put(MdekKeys.CLASS, AddressType.INSTITUTION.getDbValue());
-		aMap = publishAddress(newTopDoc, true);
+		aMap = supertool.publishAddress(newTopDoc, true);
 		// uuid created !
 		String newTopUuid = (String)aMap.get(MdekKeys.UUID);
 
 		System.out.println("\n----- delete NEW TOP ADDRESS (FULL) -----");
-		deleteAddress(newTopUuid, true);
+		supertool.deleteAddress(newTopUuid, true);
 
 		System.out.println("\n----- copy address (without subnodes) -> returns only \"TREE Data\" of copied address -----");
 		addressFrom = newParentUuid;
 		addressTo = topUuid;
-		aMap = copyAddress(addressFrom, addressTo, false, false);
+		aMap = supertool.copyAddress(addressFrom, addressTo, false, false);
 		String pub1Uuid = aMap.getString(MdekKeys.UUID);
 
 		System.out.println("\n----- publish NEW SUB ADDRESS immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
@@ -506,28 +472,28 @@ class MdekExampleAddressThread extends Thread {
 		newPubDoc.put(MdekKeys.CLASS, AddressType.PERSON.getDbValue());
 		// sub address of unpublished parent !!!
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
-		publishAddress(newPubDoc, true);
+		supertool.publishAddress(newPubDoc, true);
 
 		System.out.println("\n----- refetch FULL PARENT, UNPUBLISHED !  -----");
-		aMap = fetchAddress(pub1Uuid, Quantity.DETAIL_ENTITY);
+		aMap = supertool.fetchAddress(pub1Uuid, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- change organization and publish PARENT -> create pub version/\"delete\" work version -----");
 		aMap.put(MdekKeys.ORGANISATION, "COPIED, Orga CHANGED and PUBLISHED: " + aMap.get(MdekKeys.ORGANISATION));	
-		publishAddress(aMap, true);
+		supertool.publishAddress(aMap, true);
 
 		System.out.println("\n----- NOW CREATE AND PUBLISH OF NEW CHILD POSSIBLE -> create pub version, set also as work version -----");
-		aMap = publishAddress(newPubDoc, true);
+		aMap = supertool.publishAddress(newPubDoc, true);
 		// uuid created !
 		String pub2Uuid = aMap.getString(MdekKeys.UUID);
 
 		System.out.println("\n----- verify -> load sub addresses of parent of copy -----");
-		fetchSubAddresses(addressTo);
+		supertool.fetchSubAddresses(addressTo);
 		System.out.println("\n----- delete 1. published copy = sub-address (WORKING COPY) -> NO DELETE -----");
-		deleteAddressWorkingCopy(pub1Uuid, true);
+		supertool.deleteAddressWorkingCopy(pub1Uuid, true);
 		System.out.println("\n----- delete 2. published copy = sub-sub-address (FULL) -----");
-		deleteAddress(pub2Uuid, true);
+		supertool.deleteAddress(pub2Uuid, true);
 		System.out.println("\n----- delete 1. published copy = sub-address (FULL) -----");
-		deleteAddress(pub1Uuid, true);
+		supertool.deleteAddress(pub1Uuid, true);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -537,14 +503,14 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- search address by orga / name,given-name -----");
 		IngridDocument searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.ORGANISATION, "Bezirksregierung");
-		searchAddress(searchParams, 0, 5);
-		searchAddress(searchParams, 5, 5);
-		searchAddress(searchParams, 10, 5);
+		supertool.searchAddress(searchParams, 0, 5);
+		supertool.searchAddress(searchParams, 5, 5);
+		supertool.searchAddress(searchParams, 10, 5);
 
 		searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.NAME, "Dahlmann");
 		searchParams.put(MdekKeys.GIVEN_NAME, "Irene");
-		searchAddress(searchParams, 0, 5);
+		supertool.searchAddress(searchParams, 0, 5);
 
 		// ===================================
 		long exampleEndTime = System.currentTimeMillis();
@@ -555,312 +521,14 @@ class MdekExampleAddressThread extends Thread {
 		isRunning = false;
 	}
 
-	private void getVersion() {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE getVersion ######");
-		startTime = System.currentTimeMillis();
-		// ACHTUNG: ist DIREKT result ! sollte nie null sein (hoechstens leer)
-		response = mdekCaller.getVersion(plugId);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("All entries in Map: ");
-			Set<Map.Entry> entries = result.entrySet();
-			for (Map.Entry entry : entries) {
-				System.out.println("  " + entry);
-			}
-			System.out.println("Explicit read of entries: ");
-			System.out.println("  API_BUILD_NAME: " + result.get(MdekKeys.API_BUILD_NAME));
-			System.out.println("  API_BUILD_VERSION: " + result.get(MdekKeys.API_BUILD_VERSION));
-			System.out.println("  API_BUILD_NUMBER: " + result.get(MdekKeys.API_BUILD_NUMBER));
-			System.out.println("  API_BUILD_TIMESTAMP (converted): " + MdekUtils.millisecToDisplayDateTime(result.getString(MdekKeys.API_BUILD_TIMESTAMP)));
-			System.out.println("  SERVER_BUILD_NAME: " + result.get(MdekKeys.SERVER_BUILD_NAME));
-			System.out.println("  SERVER_BUILD_VERSION: " + result.get(MdekKeys.SERVER_BUILD_VERSION));
-			System.out.println("  SERVER_BUILD_NUMBER: " + result.get(MdekKeys.SERVER_BUILD_NUMBER));
-			System.out.println("  SERVER_BUILD_TIMESTAMP (converted): " + MdekUtils.millisecToDisplayDateTime(result.getString(MdekKeys.SERVER_BUILD_TIMESTAMP)));
-
-		} else {
-			handleError(response);
-		}
-	}
-
-	private IngridDocument getCatalogAdmin() {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE getCatalogAdmin ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getCatalogAdmin(plugId, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			debugUserDoc(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-	
-	private IngridDocument fetchTopAddresses(boolean onlyFreeAddresses) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String onlyFreeAddressesInfo = (onlyFreeAddresses) ? "ONLY FREE ADDRESSES" : "ONLY NO FREE ADDRESSES";
-		System.out.println("\n###### INVOKE fetchTopAddresses " + onlyFreeAddressesInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchTopAddresses(plugId, myUserUuid, onlyFreeAddresses);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities");
-			for (Object o : l) {
-				doFullOutput = false;
-				debugAddressDoc((IngridDocument)o);
-				doFullOutput = true;
-			}
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument fetchSubAddresses(String uuid) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE fetchSubAddresses ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchSubAddresses(plugId, uuid, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities");
-			for (Object o : l) {
-				doFullOutput = false;
-				debugAddressDoc((IngridDocument)o);
-				doFullOutput = true;
-			}
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument getAddressPath(String uuidIn) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE getAddressPath ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getAddressPath(plugId, uuidIn, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List<String> uuidList = (List<String>) result.get(MdekKeys.PATH);
-			System.out.println("SUCCESS: " + uuidList.size() + " levels");
-			String indent = " ";
-			for (String uuid : uuidList) {
-				System.out.println(indent + uuid);
-				indent += " ";
-			}
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument fetchAddress(String uuid, Quantity howMuch) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE fetchAddress (Details) ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchAddress(plugId, uuid, howMuch, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			debugAddressDoc(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument fetchObject(String uuid, Quantity howMuch) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE fetchObject (Details) ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.fetchObject(plugId, uuid, howMuch, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			debugObjectDoc(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument storeObjectWithoutManipulation(IngridDocument oDocIn,
-			boolean refetchObject) {
-		// check whether we have an object
-		if (oDocIn == null) {
-			return null;
-		}
-
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE storeObject ######");
-
-		// store
-		System.out.println("STORE");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.storeObject(plugId, oDocIn, refetchObject, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			debugObjectDoc(result);
-		} else {
-			handleError(response);
-		}
-
-		return result;
-	}
-
-	private IngridDocument deleteObjectWorkingCopy(String uuid,
-			boolean forceDeleteReferences) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument storeAddressWithoutManipulation(IngridDocument aDocIn,
-			boolean refetchAddress) {
-		// check whether we have an address
-		if (aDocIn == null) {
-			return null;
-		}
-
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE storeAddress (no manipulation) " + refetchAddressInfo + " ######");
-
-		// store
-		System.out.println("STORE");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.storeAddress(plugId, aDocIn, refetchAddress, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			debugAddressDoc(result);
-			
-		} else {
-			handleError(response);
-		}
-
-		return result;
-	}
-
 	private IngridDocument storeAddressWithManipulation(IngridDocument aDocIn) {
 		if (aDocIn == null) {
 			return null;
 		}
 
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE storeAddress (with manipulation) ######");
+		System.out.println("\n###### CALLED storeAddress (with manipulation) !!!");
 		
 		// manipulate former loaded address !
 		System.out.println("MANIPULATE ADDRESS");
@@ -907,20 +575,14 @@ class MdekExampleAddressThread extends Thread {
 
 		// store
 		System.out.println("STORE");
-		startTime = System.currentTimeMillis();
-		System.out.println("storeAddress WITHOUT refetching address: ");
-		response = mdekCallerAddress.storeAddress(plugId, aDocIn, false, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = supertool.storeAddress(aDocIn, false);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			String uuidStoredAddress = (String) result.get(MdekKeys.UUID);
 			System.out.println("uuid = " + uuidStoredAddress);
 			System.out.println("refetch Address");
-			IngridDocument aRefetchedDoc = fetchAddress(uuidStoredAddress, Quantity.DETAIL_ENTITY);
+			IngridDocument aRefetchedDoc = supertool.fetchAddress(uuidStoredAddress, Quantity.DETAIL_ENTITY);
 			System.out.println("");
 
 			System.out.println("MANIPULATE ADDRESS: back to origin");
@@ -955,462 +617,10 @@ class MdekExampleAddressThread extends Thread {
 
 			// store
 			System.out.println("STORE");
-			startTime = System.currentTimeMillis();
-			System.out.println("storeAddress WITH refetching address: ");
-			response = mdekCallerAddress.storeAddress(plugId, aRefetchedDoc, true, myUserUuid);
-			endTime = System.currentTimeMillis();
-			neededTime = endTime - startTime;
-			System.out.println("EXECUTION TIME: " + neededTime + " ms");
-			result = mdekCaller.getResultFromResponse(response);
-
-			if (result != null) {
-				System.out.println("SUCCESS: ");
-				debugAddressDoc(result);
-			} else {
-				handleError(response);
-			}					
-			
-		} else {
-			handleError(response);
+			result = supertool.storeAddress(aRefetchedDoc, true);
 		}
 
 		return result;
-	}
-
-	private IngridDocument getInitialAddress(IngridDocument newBasicAddress) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE getInitialAddress ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getInitialAddress(plugId, newBasicAddress, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			debugAddressDoc(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument getInitialObject(IngridDocument newBasicObject) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE getInitialObject ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getInitialObject(plugId, newBasicObject, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			debugObjectDoc(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument checkAddressSubTree(String uuid) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE checkAddressSubTree ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.checkAddressSubTree(plugId, uuid, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			System.out.println(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument deleteAddress(String uuid,
-			boolean forceDeleteReferences) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteAddress " + deleteRefsInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddress(plugId, uuid, forceDeleteReferences, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument deleteObject(String uuid,
-			boolean forceDeleteReferences) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.deleteObject(plugId, uuid, forceDeleteReferences, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument deleteAddressWorkingCopy(String uuid,
-			boolean forceDeleteReferences) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument copyAddress(String fromUuid, String toUuid,
-		boolean copySubtree, boolean copyToFreeAddress)
-	{
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
-		String copyToFreeAddressInfo = (copyToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
-		System.out.println("\n###### INVOKE copyAddress " + copySubtreeInfo + copyToFreeAddressInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.copyAddress(plugId, fromUuid, toUuid, copySubtree, copyToFreeAddress, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
-			System.out.println("Copy Node (rudimentary): ");
-			debugAddressDoc(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument moveAddress(String fromUuid, String toUuid,
-			boolean moveToFreeAddress)
-	{
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String moveToFreeAddressInfo = (moveToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
-		System.out.println("\n###### INVOKE moveAddress " + moveToFreeAddressInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, moveToFreeAddress, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
-			System.out.println(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	private IngridDocument publishAddress(IngridDocument aDocIn,
-			boolean withRefetch) {
-		if (aDocIn == null) {
-			return null;
-		}
-
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		String withRefetchInfo = (withRefetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + " ######");
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.publishAddress(plugId, aDocIn, withRefetch, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			String uuid = (String) result.get(MdekKeys.UUID);
-			System.out.println("uuid = " + uuid);
-			if (withRefetch) {
-				debugAddressDoc(result);
-			}
-		} else {
-			handleError(response);
-		}
-
-		return result;
-	}
-
-	private IngridDocument searchAddress(IngridDocument searchParams,
-			int startHit, int numHits) {
-		if (searchParams == null) {
-			return null;
-		}
-
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE searchAddress ######");
-		System.out.println("- startHit:" + startHit);
-		System.out.println("- numHits:" + numHits);
-		System.out.println("- searchParams:" + searchParams);
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.searchAddresses(plugId, searchParams, startHit, numHits, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-
-		if (result != null) {
-			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
-			System.out.println("SUCCESS: " + l.size() + " Entities out of " + totalNumHits);
-			doFullOutput = false;
-			for (IngridDocument a : l) {
-				debugAddressDoc(a);
-			}
-			doFullOutput = true;
-		} else {
-			handleError(response);
-		}
-
-		return result;
-	}
-
-	private void debugUserDoc(IngridDocument g) {
-		System.out.println("User: " + g.get(MdekKeysSecurity.IDC_USER_ID) 
-			+ ", " + g.get(MdekKeysSecurity.IDC_USER_ADDR_UUID)
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUser: " + exUtils.extractModUserData((IngridDocument)g.get(MdekKeys.MOD_USER))
-		);
-
-		if (!doFullOutput) {
-			return;
-		}
-
-		System.out.println("  " + g);
-	}
-	
-	private void debugAddressDoc(IngridDocument a) {
-		System.out.println("Address: " + a.get(MdekKeys.ID) 
-			+ ", " + a.get(MdekKeys.UUID)
-			+ ", organisation: " + a.get(MdekKeys.ORGANISATION)
-			+ ", name: " + a.get(MdekKeys.TITLE_OR_FUNCTION)
-			+ " " + a.get(MdekKeys.GIVEN_NAME)
-			+ " " + a.get(MdekKeys.NAME)
-			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.get(MdekKeys.CLASS))
-//		);
-//		System.out.println("        "
-			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, a.get(MdekKeys.WORK_STATE))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUser: " + exUtils.extractModUserData((IngridDocument)a.get(MdekKeys.MOD_USER))
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
-		);
-
-		if (!doFullOutput) {
-			return;
-		}
-
-		System.out.println("  " + a);
-
-		IngridDocument myDoc;
-		List<IngridDocument> docList;
-		List<String> strList;
-
-		docList = (List<IngridDocument>) a.get(MdekKeys.COMMUNICATION);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Communication: " + docList.size() + " Entities");
-			for (IngridDocument doc : docList) {
-				System.out.println("    " + doc);								
-			}			
-		}
-		docList = (List<IngridDocument>) a.get(MdekKeys.OBJ_REFERENCES_FROM);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
-			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
-			}			
-		}
-		docList = (List<IngridDocument>) a.get(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Objects FROM (Querverweise) ONLY PUBLISHED !!!: " + docList.size() + " Entities");
-			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
-			}			
-		}
-		docList = (List<IngridDocument>) a.get(MdekKeys.SUBJECT_TERMS);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Subject terms (Searchterms): " + docList.size() + " entries");
-			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
-			}			
-		}
-		docList = (List<IngridDocument>) a.get(MdekKeys.COMMENT_LIST);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Address comments: " + docList.size() + " entries");
-			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
-			}			
-		}
-		myDoc = (IngridDocument) a.get(MdekKeys.PARENT_INFO);
-		if (myDoc != null) {
-			System.out.println("  parent info:");
-			System.out.println("    " + myDoc);								
-		}
-		strList = (List<String>) a.get(MdekKeys.PATH);
-		if (strList != null && strList.size() > 0) {
-			System.out.println("  Path: " + strList.size() + " entries");
-			System.out.println("   " + strList);
-		}
-		docList = (List<IngridDocument>) a.get(MdekKeys.PATH_ORGANISATIONS);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Path Organisations: " + docList.size() + " entries");
-			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);
-			}			
-		}
-	}
-
-	private void debugObjectDoc(IngridDocument o) {
-		System.out.println("Object: " + o.get(MdekKeys.ID) 
-			+ ", " + o.get(MdekKeys.UUID)
-			+ ", " + o.get(MdekKeys.TITLE)
-//		);
-//		System.out.println("        "
-			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
-			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUser: " + exUtils.extractModUserData((IngridDocument)o.get(MdekKeys.MOD_USER))
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
-		);
-
-		if (!doFullOutput) {
-			return;
-		}
-
-		System.out.println("  " + o);
-
-		List<IngridDocument>  docList = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Addresses TO: " + docList.size() + " Entities");
-			doFullOutput = false;
-			for (IngridDocument a : docList) {
-				debugAddressDoc(a);
-			}			
-			doFullOutput = true;
-		}
-	}
-
-	private void handleError(IngridDocument response) {
-		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
-		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));
-
-		if (!doFullOutput) {
-			return;
-		}
-
-		// detailed output  
-		List<MdekError> errors = mdekCaller.getErrorsFromResponse(response);
-		doFullOutput = false;
-		for (MdekError err : errors) {
-			if (err.getErrorType().equals(MdekErrorType.ENTITY_REFERENCED_BY_OBJ)) {
-				IngridDocument info = err.getErrorInfo();
-				// referenced address
-				debugAddressDoc(info);
-				// objects referencing
-				List<IngridDocument> oDocs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
-				if (oDocs != null) {
-					for (IngridDocument oDoc : oDocs) {
-						debugObjectDoc(oDoc);
-					}
-				}
-			}
-		}
-		doFullOutput = true;
 	}
 
 	public void start() {
