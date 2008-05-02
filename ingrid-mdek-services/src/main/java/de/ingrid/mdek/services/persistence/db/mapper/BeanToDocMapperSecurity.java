@@ -5,10 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
@@ -24,24 +23,25 @@ import de.ingrid.utils.IngridDocument;
  */
 public class BeanToDocMapperSecurity implements IMapper {
 
-	private static final Logger LOG = Logger.getLogger(BeanToDocMapperSecurity.class);
-
 	private static BeanToDocMapperSecurity myInstance;
 
 	private static BeanToDocMapper beanToDocMapper;
 	private static IPermissionService permService;
 
 	/** Get The Singleton */
-	public static synchronized BeanToDocMapperSecurity getInstance(IPermissionService permissionService) {
+	public static synchronized BeanToDocMapperSecurity getInstance(
+			DaoFactory daoFactory, 
+			IPermissionService permService)
+	{
 		if (myInstance == null) {
-	        myInstance = new BeanToDocMapperSecurity(permissionService);
+	        myInstance = new BeanToDocMapperSecurity(daoFactory, permService);
 	      }
 		return myInstance;
 	}
 
-	private BeanToDocMapperSecurity(IPermissionService permissionService) {
-        permService = permissionService;
-        beanToDocMapper = BeanToDocMapper.getInstance();
+	private BeanToDocMapperSecurity(DaoFactory daoFactory, IPermissionService inPermService) {
+		permService = inPermService;
+        beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 	}
 
 	/**
@@ -63,12 +63,14 @@ public class BeanToDocMapperSecurity implements IMapper {
 		{
 			groupDoc.put(MdekKeysSecurity.DATE_OF_CREATION, group.getCreateTime());
 			groupDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, group.getModTime());
-			groupDoc.put(MdekKeysSecurity.MOD_UUID, group.getModUuid());
 
 			// map associations
 			mapPermissionAddrs(group.getPermissionAddrs(), groupDoc, howMuch);
 			mapPermissionObjs(group.getPermissionObjs(), groupDoc, howMuch);
 			mapIdcUserPermissions(group.getIdcUserPermissions(), groupDoc);
+
+			// map only with initial data ! call mapping method explicitly if more data wanted.
+			beanToDocMapper.mapModUser(group.getModUuid(), groupDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		return groupDoc;
@@ -106,7 +108,9 @@ public class BeanToDocMapperSecurity implements IMapper {
 			// not visible in client
 			userDoc.put(MdekKeysSecurity.DATE_OF_CREATION, user.getCreateTime());
 			userDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, user.getModTime());
-			userDoc.put(MdekKeysSecurity.MOD_UUID, user.getModUuid());
+
+			// map only with initial data ! call mapping method explicitly if more data wanted.
+			beanToDocMapper.mapModUser(user.getModUuid(), userDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		return userDoc;

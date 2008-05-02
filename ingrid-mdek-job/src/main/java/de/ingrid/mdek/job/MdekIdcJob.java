@@ -38,7 +38,7 @@ public abstract class MdekIdcJob extends MdekJob {
 
 		daoSysList = daoFactory.getSysListDao();
 
-		beanToDocMapper = BeanToDocMapper.getInstance();
+		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 	}
 

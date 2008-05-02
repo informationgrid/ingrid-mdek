@@ -74,8 +74,8 @@
 			<xs:element name="expiry-time" type="TIMESTAMP"/>
 			<xs:element name="work-version" type="xs:integer"/>
 			<xs:element name="mark-deleted" type="xs:string"/>
-			<xs:element ref="mod-uuid"/>
-			<xs:element name="responsible-uuid" type="UUID"/>
+			<xs:element ref="mod-user"/>
+			<xs:element ref="responsible-user"/>
 
 			<xs:element name="linkages" type="LINKAGE_LIST"/>
 			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
@@ -129,8 +129,8 @@
 			<xs:element name="expiry-time" type="TIMESTAMP"/>
 			<xs:element name="work-version" type="xs:integer"/>
 			<xs:element name="mark-deleted" type="xs:string"/>
-			<xs:element ref="mod-uuid"/>
-			<xs:element name="responsible-uuid" type="UUID"/>
+			<xs:element ref="mod-user"/>
+			<xs:element ref="responsible-user"/>
 
 			<xs:element name="communication" type="COMMUNICATION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
@@ -153,7 +153,8 @@
 	<xs:element name="relation-type-name" type="xs:string"/>
 	<!-- db: special_ref  -->
 	<xs:element name="relation-type-ref" type="xs:integer"/>
-	<xs:element name="mod-uuid" type="UUID"/>
+	<xs:element name="mod-user"  type="ADDRESS_MAP"/>
+	<xs:element name="responsible-user"  type="ADDRESS_MAP"/>
 	<xs:element name="organisation" type="xs:string"/>
 	<xs:element name="name" type="xs:string"/>
 	<xs:element name="given-name" type="xs:string"/>
@@ -329,7 +330,7 @@
 			<xs:element ref="name"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
-			<xs:element ref="mod-uuid"/>
+			<xs:element ref="mod-user"/>
 			<xs:element name="idc-address-permissions" type="ENTITY_PERMISSION_LIST"/>
 			<xs:element name="idc-object-permissions" type="ENTITY_PERMISSION_LIST"/>
 			<xs:element name="idc-user-permissions" type="PERMISSION_LIST"/>
@@ -388,7 +389,7 @@
 			<xs:element ref="hasChild"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
-			<xs:element ref="mod-uuid"/>
+			<xs:element ref="mod-user"/>
 			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 		</xs:all>
 	</xs:complexType>	
@@ -793,7 +794,7 @@
 			<xs:element name="expiry-duration" type="xs:integer"/>
 			<xs:element name="catalog-location" type="LOCATION_MAP"/>
 			<xs:element ref="date-of-creation"/>
-			<xs:element ref="mod-uuid"/>
+			<xs:element ref="mod-user"/>
 			<xs:element ref="date-of-last-modification"/>
 		</xs:sequence>
 	</xs:complexType>

@@ -165,7 +165,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 
 		IngridDocument resultDoc = new IngridDocument();
-		beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+		T02Address a = aNode.getT02AddressWork();
+		beanToDocMapper.mapT02Address(a, resultDoc, MappingQuantity.DETAIL_ENTITY);
 		
 		// also map AddressNode for published info
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
@@ -183,6 +184,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// supply path info
 		List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(uuid, false);
 		resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
+
+		// then map detailed mod user data !
+		beanToDocMapper.mapModUser(a.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		return resultDoc;
 	}
@@ -241,6 +245,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// set common data to transfer to working copy !
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
+			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
 
 			// check permissions !
 			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
@@ -351,6 +356,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
+			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
 
 			// check permissions !
 			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);

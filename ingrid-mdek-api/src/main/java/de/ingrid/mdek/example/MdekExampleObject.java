@@ -130,6 +130,8 @@ class MdekExampleObjectThread extends Thread {
 	private IMdekCallerObject mdekCallerObject;
 	private IMdekCallerCatalog mdekCallerCatalog;
 
+	private MdekExampleUtils exUtils;
+
 	public MdekExampleObjectThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
@@ -139,6 +141,9 @@ class MdekExampleObjectThread extends Thread {
 		mdekCallerSecurity = MdekCallerSecurity.getInstance();
 		mdekCallerObject = MdekCallerObject.getInstance();
 		mdekCallerCatalog = MdekCallerCatalog.getInstance();
+
+		
+		exUtils = MdekExampleUtils.getInstance();
 	}
 
 	public void run() {
@@ -1785,7 +1790,7 @@ class MdekExampleObjectThread extends Thread {
 			+ ", " + g.get(MdekKeysSecurity.IDC_USER_ADDR_UUID)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUuid: " + g.get(MdekKeys.MOD_UUID)
+			+ ", modUuid: " + exUtils.extractModUserData((IngridDocument)g.get(MdekKeys.MOD_USER))
 		);
 
 		if (!doFullOutput) {
@@ -1804,6 +1809,7 @@ class MdekExampleObjectThread extends Thread {
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
 			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", modUser: " + exUtils.extractModUserData((IngridDocument)o.get(MdekKeys.MOD_USER))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
 		);
 

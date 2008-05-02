@@ -62,7 +62,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		daoIdcUser = daoFactory.getIdcUserDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
 
-		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(permissionService);
+		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		docToBeanMapperSecurity = DocToBeanMapperSecurity.getInstance(daoFactory, permissionService);
 	}
 
@@ -137,7 +137,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// set common data to transfer !
 			gDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			gDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			gDocIn.put(MdekKeys.MOD_UUID, userId);
+			beanToDocMapper.mapModUser(userId, gDocIn, MappingQuantity.INITIAL_ENTITY);
 			
 			// exception if group already exists
 			if (daoIdcGroup.loadByName(name) != null) {
@@ -190,7 +190,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// set common data to transfer !
 			gDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			gDocIn.put(MdekKeys.MOD_UUID, userId);
+			beanToDocMapper.mapModUser(userId, gDocIn, MappingQuantity.INITIAL_ENTITY);
 			
 			// exception if group not existing
 			IdcGroup grp = daoIdcGroup.getGroupDetails(grpId);
@@ -371,8 +371,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		return resultDoc;
 	}
 	
-	public IngridDocument createUser(IngridDocument gDocIn) {
-		String userId = getCurrentUserUuid(gDocIn);
+	public IngridDocument createUser(IngridDocument uDocIn) {
+		String userId = getCurrentUserUuid(uDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
@@ -381,20 +381,20 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
-			String addrUuid = gDocIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
-			Boolean refetchAfterStore = (Boolean) gDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			String addrUuid = uDocIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+			Boolean refetchAfterStore = (Boolean) uDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer !
-			gDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
-			gDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			gDocIn.put(MdekKeys.MOD_UUID, userId);
+			uDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+			uDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+			beanToDocMapper.mapModUser(userId, uDocIn, MappingQuantity.INITIAL_ENTITY);
 			
 			// exception if user already exists
 			if (daoIdcUser.getIdcUserByAddrUuid(addrUuid) != null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS));
 			}
 			
-			IdcUser newUser = docToBeanMapperSecurity.mapIdcUser(gDocIn, new IdcUser());
+			IdcUser newUser = docToBeanMapperSecurity.mapIdcUser(uDocIn, new IdcUser());
 			 // save it, generates id
 			// TODO: check whether first store with BASIC DATA to genrate id for detailed mapping
 			daoIdcUser.makePersistent(newUser);
@@ -441,7 +441,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// set common data to transfer !
 			uDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			uDocIn.put(MdekKeys.MOD_UUID, userId);
+			beanToDocMapper.mapModUser(userId, uDocIn, MappingQuantity.INITIAL_ENTITY);
 			
 			// exception if group not existing
 			IdcUser user = daoIdcUser.getById(usrId);

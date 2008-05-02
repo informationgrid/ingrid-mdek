@@ -639,10 +639,10 @@ public class MdekKeys {
     public final static String WORK_VERSION = "work-version";
     /** Value: String */
     public final static String MARK_DELETED = "mark-deleted";
-    /** Value: String */
-    public final static String MOD_UUID = "mod-uuid";
-    /** Value: String */
-    public final static String RESPONSIBLE_UUID = "responsible-uuid";
+    /** Value: IngridDocument (Address Map) */
+    public final static String MOD_USER = "mod-user";
+    /** Value: IngridDocument (Address Map) */
+    public final static String RESPONSIBLE_USER = "responsible-user";
 
 
     // COMMENTS

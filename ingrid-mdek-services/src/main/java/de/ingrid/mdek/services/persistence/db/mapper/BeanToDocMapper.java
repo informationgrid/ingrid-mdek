@@ -6,8 +6,14 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
@@ -66,15 +72,19 @@ public class BeanToDocMapper implements IMapper {
 
 	private static BeanToDocMapper myInstance;
 
+	private IAddressNodeDao daoAddressNode;
+
 	/** Get The Singleton */
-	public static synchronized BeanToDocMapper getInstance() {
+	public static synchronized BeanToDocMapper getInstance(DaoFactory daoFactory) {
 		if (myInstance == null) {
-	        myInstance = new BeanToDocMapper();
+	        myInstance = new BeanToDocMapper(daoFactory);
 	      }
 		return myInstance;
 	}
 
-	private BeanToDocMapper() {}
+	private BeanToDocMapper(DaoFactory daoFactory) {
+		daoAddressNode = daoFactory.getAddressNodeDao();
+	}
 
 	/**
 	 * Transfer structural info ("hasChild") to passed doc.
@@ -184,7 +194,7 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.FEES, o.getFees());
 			objectDoc.put(MdekKeys.IS_CATALOG_DATA, o.getIsCatalogData());
 
-			// map associations
+			// map associations		
 			mapObjectReferences(o.getObjectReferences(), objectDoc);
 			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc);
 			mapSpatialReferences(o.getSpatialReferences(), objectDoc);
@@ -212,6 +222,9 @@ public class BeanToDocMapper implements IMapper {
 
 			// object comments
 			mapObjectComments(o.getObjectComments(), objectDoc);
+
+			// map only with initial data ! call mapping method explicitly if more data wanted.
+			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -225,8 +238,8 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.EXPIRY_TIME, o.getExpiryTime());
 			objectDoc.put(MdekKeys.WORK_VERSION, o.getWorkVersion());
 			objectDoc.put(MdekKeys.MARK_DELETED, o.getMarkDeleted());
-			objectDoc.put(MdekKeys.MOD_UUID, o.getModUuid());
-			objectDoc.put(MdekKeys.RESPONSIBLE_UUID, o.getResponsibleUuid());
+			// map only with initial data ! call mapping method explicitly if more data wanted.
+			mapResponsibleUser(o.getResponsibleUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		return objectDoc;
@@ -299,6 +312,9 @@ public class BeanToDocMapper implements IMapper {
 			// map associations
 			mapSearchtermAdrs(a.getSearchtermAdrs(), addressDoc, howMuch);
 			mapAddressComments(a.getAddressComments(), addressDoc);
+
+			// map only with initial data ! call mapping method explicitly if more data wanted.
+			mapModUser(a.getModUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -307,11 +323,56 @@ public class BeanToDocMapper implements IMapper {
 			addressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
 			addressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
 			addressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
-			addressDoc.put(MdekKeys.MOD_UUID, a.getModUuid());
-			addressDoc.put(MdekKeys.RESPONSIBLE_UUID, a.getResponsibleUuid());
+			// map only with initial data ! call mapping method explicitly if more data wanted.
+			mapResponsibleUser(a.getResponsibleUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		return addressDoc;
+	}
+
+	/** Set passed user as mod user in passed doc.
+	 * Quantity determines how much (only uuid or address data). */
+	public IngridDocument mapModUser(String userAddrUuid, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		IngridDocument userDoc = new IngridDocument();
+		mapUserAddress(userAddrUuid, userDoc, howMuch);
+
+		inDoc.put(MdekKeys.MOD_USER, userDoc);
+
+		return inDoc;
+	}
+
+	/** Set passed user as responsible user in passed doc.
+	 * Quantity determines how much (only uuid or address data). */
+	public IngridDocument mapResponsibleUser(String userAddrUuid, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		IngridDocument userDoc = new IngridDocument();
+		mapUserAddress(userAddrUuid, userDoc, howMuch);
+
+		inDoc.put(MdekKeys.RESPONSIBLE_USER, userDoc);
+
+		return inDoc;
+	}
+
+	private IngridDocument mapUserAddress(String userAddrUuid, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		if (userAddrUuid == null) {
+			return inDoc;
+		}
+
+		if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+			inDoc.put(MdekKeys.UUID, userAddrUuid);
+			return inDoc;
+		}
+
+		AddressNode aN = daoAddressNode.loadByUuid(userAddrUuid);
+		if (aN == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+		// map basic data ! WE DON'T NEED MORE !
+		mapT02Address(aN.getT02AddressWork(), inDoc, MappingQuantity.BASIC_ENTITY);
+		
+		return inDoc;
 	}
 
 	private IngridDocument mapObjectComments(Set<ObjectComment> refs, IngridDocument objectDoc) {
@@ -1271,7 +1332,6 @@ public class BeanToDocMapper implements IMapper {
 		resultDoc.put(MdekKeys.WORKFLOW_CONTROL, cat.getWorkflowControl());
 		resultDoc.put(MdekKeys.EXPIRY_DURATION, cat.getExpiryDuration());
 		resultDoc.put(MdekKeys.DATE_OF_CREATION, cat.getCreateTime());
-		resultDoc.put(MdekKeys.MOD_UUID, cat.getModUuid());
 		resultDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, cat.getModTime());
 
 		SpatialRefValue spRefVal = cat.getSpatialRefValue();
@@ -1282,6 +1342,9 @@ public class BeanToDocMapper implements IMapper {
 			mapSpatialRefSns(spatRefSns, locDoc);
 			resultDoc.put(MdekKeys.CATALOG_LOCATION, locDoc);
 		}
+
+		// map only with initial data ! call mapping method explicitly if more data wanted.
+		mapModUser(cat.getModUuid(), resultDoc, MappingQuantity.INITIAL_ENTITY);
 
 		return resultDoc;
 	}

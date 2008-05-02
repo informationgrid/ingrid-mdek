@@ -23,9 +23,11 @@ public class DocToBeanMapperSecurityTest {
 		inDoc.put(MdekKeys.NAME, "obj-name");
 		inDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
 		inDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		inDoc.put(MdekKeys.MOD_UUID, "creating-user-id");
+		// TODO: How to get Dao Factory ?
+		BeanToDocMapper.getInstance(null).mapModUser("creating-user-id", inDoc, MappingQuantity.INITIAL_ENTITY);
 
 		IdcGroup group = new IdcGroup();
+		// TODO: How to get Dao Factory ?
 		DocToBeanMapperSecurity.getInstance(null, null).mapIdcGroup(inDoc, group, MappingQuantity.BASIC_ENTITY);
 		Assert.assertEquals(group.getName(), "obj-name");
 		Assert.assertEquals(group.getCreateTime(), currentTime);
@@ -43,9 +45,11 @@ public class DocToBeanMapperSecurityTest {
 		inDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, new Long(111111111));
 		inDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
 		inDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		inDoc.put(MdekKeys.MOD_UUID, "creating-user-id");
+		// TODO: How to get Dao Factory ?
+		BeanToDocMapper.getInstance(null).mapModUser("creating-user-id", inDoc, MappingQuantity.INITIAL_ENTITY);
 
 		IdcUser user = new IdcUser();
+		// TODO: How to get Dao Factory ?
 		DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
 		Assert.assertEquals(user.getAddrUuid(), "idc-user-addr-uuid");
 		Assert.assertEquals(user.getIdcGroupId().longValue(), 123445453);
@@ -68,7 +72,6 @@ public class DocToBeanMapperSecurityTest {
 			Assert.fail("Parent ID = null is NOT allowed for role meta data administrator");
 		} catch (RuntimeException e) {
 		}
-
 	}
 
 }

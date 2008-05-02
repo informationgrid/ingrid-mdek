@@ -160,20 +160,24 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 
 		IngridDocument resultDoc = new IngridDocument();
-		beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), resultDoc, MappingQuantity.DETAIL_ENTITY);
-		
+		T01Object o = oNode.getT01ObjectWork();
+		beanToDocMapper.mapT01Object(o, resultDoc, MappingQuantity.DETAIL_ENTITY);
+
 		// also map ObjectNode for published info
 		beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 	
 		// then get "external" data (objects referencing the given object ...)
 		List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(uuid);
 		beanToDocMapper.mapObjectReferencesFrom(fromLists, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-		
+
 		// get parent data
 		ObjectNode pNode = daoObjectNode.getParent(uuid);
 		if (pNode != null) {
 			beanToDocMapper.mapObjectParentData(pNode.getT01ObjectWork(), resultDoc);
 		}
+
+		// then map detailed mod user data !
+		beanToDocMapper.mapModUser(o.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		return resultDoc;
 	}
@@ -240,6 +244,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// set common data to transfer to working copy !
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
+			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
 
 			// check permissions !
 			permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);
@@ -363,6 +368,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// set common data to transfer
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
+			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
 
 			if (isNewObject) {
 				// create new uuid

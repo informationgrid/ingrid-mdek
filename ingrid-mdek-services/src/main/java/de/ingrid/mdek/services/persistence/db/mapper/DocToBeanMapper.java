@@ -237,6 +237,8 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
 
+			oIn.setModUuid(extractModUserUuid(oDocIn));
+
 			// update associations
 			updateObjectReferences(oDocIn, oIn);
 			updateT012ObjAdrs(oDocIn, oIn, howMuch);
@@ -264,8 +266,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjData(oDocIn, oIn);
 
 			// comments
-			updateObjectComments(oDocIn, oIn);
-		
+			updateObjectComments(oDocIn, oIn);		
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -279,8 +280,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setExpiryTime((String) oDocIn.get(MdekKeys.EXPIRY_TIME));
 			oIn.setWorkVersion((Integer) oDocIn.get(MdekKeys.WORK_VERSION));
 			oIn.setMarkDeleted((String) oDocIn.get(MdekKeys.MARK_DELETED));
-			oIn.setModUuid((String) oDocIn.get(MdekKeys.MOD_UUID));
-			oIn.setResponsibleUuid((String) oDocIn.get(MdekKeys.RESPONSIBLE_UUID));
+			oIn.setResponsibleUuid(extractResponsibleUserUuid(oDocIn));
 		}
 
 		return oIn;
@@ -317,6 +317,8 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setAddressKey((Integer)aDocIn.get(MdekKeys.NAME_FORM_KEY));
 			aIn.setDescr(aDocIn.getString(MdekKeys.ADDRESS_DESCRIPTION));
 
+			aIn.setModUuid(extractModUserUuid(aDocIn));
+
 			// update associations
 			updateT021Communications(aDocIn, aIn);
 			updateSearchtermAdrs(aDocIn, aIn);
@@ -329,11 +331,32 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setExpiryTime(aDocIn.getString(MdekKeys.EXPIRY_TIME));
 			aIn.setWorkVersion((Integer) aDocIn.get(MdekKeys.WORK_VERSION));
 			aIn.setMarkDeleted(aDocIn.getString(MdekKeys.MARK_DELETED));
-			aIn.setModUuid(aDocIn.getString(MdekKeys.MOD_UUID));
-			aIn.setResponsibleUuid(aDocIn.getString(MdekKeys.RESPONSIBLE_UUID));
+			aIn.setResponsibleUuid(extractResponsibleUserUuid(aDocIn));
 		}
 
 		return aIn;
+	}
+
+	public String extractModUserUuid(IngridDocument inDoc) {
+		String userUuid = null;
+		
+		IngridDocument userDoc = (IngridDocument) inDoc.get(MdekKeys.MOD_USER);
+		if (userDoc != null) {
+			userUuid = userDoc.getString(MdekKeys.UUID);
+		}
+		
+		return userUuid;
+	}
+
+	public String extractResponsibleUserUuid(IngridDocument inDoc) {
+		String userUuid = null;
+		
+		IngridDocument userDoc = (IngridDocument) inDoc.get(MdekKeys.RESPONSIBLE_USER);
+		if (userDoc != null) {
+			userUuid = userDoc.getString(MdekKeys.UUID);
+		}
+		
+		return userUuid;
 	}
 
 	/**

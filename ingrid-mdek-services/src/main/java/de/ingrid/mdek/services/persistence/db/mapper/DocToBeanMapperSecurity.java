@@ -34,6 +34,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 
 	private static DocToBeanMapperSecurity myInstance;
 
+	private static DocToBeanMapper docToBeanMapper;
 	private static IPermissionService permService;
 
 	/** Generic dao for class unspecific operations !!! */
@@ -50,8 +51,9 @@ public class DocToBeanMapperSecurity implements IMapper {
 		return myInstance;
 	}
 
-	private DocToBeanMapperSecurity(DaoFactory daoFactory, IPermissionService permService) {
-		this.permService = permService;
+	private DocToBeanMapperSecurity(DaoFactory daoFactory, IPermissionService inPermService) {
+		permService = inPermService;
+		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 
 		dao = daoFactory.getDao(IEntity.class);
 	}
@@ -67,7 +69,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 			grpIn.setCreateTime(creationDate);				
 		}
 		grpIn.setModTime(docIn.getString(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION));
-		grpIn.setModUuid(docIn.getString(MdekKeysSecurity.MOD_UUID));
+		grpIn.setModUuid(docToBeanMapper.extractModUserUuid(docIn));
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY)
@@ -99,7 +101,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 			userIn.setCreateTime(creationDate);				
 		}
 		userIn.setModTime(docIn.getString(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION));
-		userIn.setModUuid(docIn.getString(MdekKeysSecurity.MOD_UUID));
+		userIn.setModUuid(docToBeanMapper.extractModUserUuid(docIn));
 
 		return userIn;
 	}

@@ -139,6 +139,8 @@ class MdekExampleSecurityThread extends Thread {
 	private IMdekCallerObject mdekCallerObject;
 	private IMdekCallerAddress mdekCallerAddress;
 
+	private MdekExampleUtils exUtils;
+
 	public MdekExampleSecurityThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
@@ -148,6 +150,8 @@ class MdekExampleSecurityThread extends Thread {
 		mdekCallerSecurity = MdekCallerSecurity.getInstance();
 		mdekCallerObject = MdekCallerObject.getInstance();
 		mdekCallerAddress = MdekCallerAddress.getInstance();
+		
+		exUtils = MdekExampleUtils.getInstance();
 	}
 
 	public void run() {
@@ -1426,7 +1430,7 @@ class MdekExampleSecurityThread extends Thread {
 			+ ", " + g.get(MdekKeys.NAME)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUuid: " + g.get(MdekKeys.MOD_UUID)
+			+ ", modUuid: " + exUtils.extractModUserData((IngridDocument)g.get(MdekKeys.MOD_USER))
 		);
 
 		if (!doFullOutput) {
@@ -1470,7 +1474,7 @@ class MdekExampleSecurityThread extends Thread {
 			+ ", organisation: " + u.get(MdekKeys.ORGANISATION)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)u.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)u.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUuid: " + u.get(MdekKeys.MOD_UUID)
+			+ ", modUuid: " + exUtils.extractModUserData((IngridDocument)u.get(MdekKeys.MOD_USER))
 		);
 
 		if (!doFullOutput) {
