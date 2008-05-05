@@ -293,7 +293,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// grant write tree permission if not set yet (e.g. new root node)
 			if (isNewObject) {
-				permissionHandler.grantWriteTreePermissionForObject(oNode.getObjUuid(), userId);
+				permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId);
 			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
@@ -420,7 +420,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// grant write tree permission if not set yet (e.g. new root node)
 			if (isNewObject) {
-				permissionHandler.grantWriteTreePermissionForObject(oNode.getObjUuid(), userId);
+				permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId);
 			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
@@ -621,7 +621,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantWriteTreePermissionForObject(fromUuid, userId);
+				permissionHandler.grantTreePermissionForObject(fromUuid, userId);
 			}
 
 			daoObjectNode.commitTransaction();
@@ -823,7 +823,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantWriteTreePermissionForObject(fromNodeCopy.getObjUuid(), userId);
+				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userId);
 			}
 
 			daoObjectNode.commitTransaction();

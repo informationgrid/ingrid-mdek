@@ -238,6 +238,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
 
 			oIn.setModUuid(extractModUserUuid(oDocIn));
+			oIn.setResponsibleUuid(extractResponsibleUserUuid(oDocIn));
 
 			// update associations
 			updateObjectReferences(oDocIn, oIn);
@@ -280,7 +281,6 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setExpiryTime((String) oDocIn.get(MdekKeys.EXPIRY_TIME));
 			oIn.setWorkVersion((Integer) oDocIn.get(MdekKeys.WORK_VERSION));
 			oIn.setMarkDeleted((String) oDocIn.get(MdekKeys.MARK_DELETED));
-			oIn.setResponsibleUuid(extractResponsibleUserUuid(oDocIn));
 		}
 
 		return oIn;
@@ -318,6 +318,7 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setDescr(aDocIn.getString(MdekKeys.ADDRESS_DESCRIPTION));
 
 			aIn.setModUuid(extractModUserUuid(aDocIn));
+			aIn.setResponsibleUuid(extractResponsibleUserUuid(aDocIn));
 
 			// update associations
 			updateT021Communications(aDocIn, aIn);
@@ -331,7 +332,6 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setExpiryTime(aDocIn.getString(MdekKeys.EXPIRY_TIME));
 			aIn.setWorkVersion((Integer) aDocIn.get(MdekKeys.WORK_VERSION));
 			aIn.setMarkDeleted(aDocIn.getString(MdekKeys.MARK_DELETED));
-			aIn.setResponsibleUuid(extractResponsibleUserUuid(aDocIn));
 		}
 
 		return aIn;

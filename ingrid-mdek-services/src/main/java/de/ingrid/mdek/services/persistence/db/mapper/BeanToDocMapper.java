@@ -13,7 +13,6 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
-import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
@@ -225,6 +224,7 @@ public class BeanToDocMapper implements IMapper {
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
+			mapResponsibleUser(o.getResponsibleUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -238,8 +238,6 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.EXPIRY_TIME, o.getExpiryTime());
 			objectDoc.put(MdekKeys.WORK_VERSION, o.getWorkVersion());
 			objectDoc.put(MdekKeys.MARK_DELETED, o.getMarkDeleted());
-			// map only with initial data ! call mapping method explicitly if more data wanted.
-			mapResponsibleUser(o.getResponsibleUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		return objectDoc;
@@ -315,6 +313,7 @@ public class BeanToDocMapper implements IMapper {
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(a.getModUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
+			mapResponsibleUser(a.getResponsibleUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -323,8 +322,6 @@ public class BeanToDocMapper implements IMapper {
 			addressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
 			addressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
 			addressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
-			// map only with initial data ! call mapping method explicitly if more data wanted.
-			mapResponsibleUser(a.getResponsibleUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 		return addressDoc;

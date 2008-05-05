@@ -351,7 +351,7 @@ public class MdekPermissionHandler {
 	 * Grant WriteTree Permission of given user on given objectIF NOT ALREADY GRANTED.
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
-	public void grantWriteTreePermissionForObject(String objUuid, String userAddrUuid) {
+	public void grantTreePermissionForObject(String objUuid, String userAddrUuid) {
 		EntityPermission ep = PermissionFactory.getTreeObjectPermissionTemplate(objUuid);
 
 		boolean alreadyGranted = permService.hasInheritedPermissionForObject(userAddrUuid, ep);
@@ -364,7 +364,7 @@ public class MdekPermissionHandler {
 	 * Grant WriteTree Permission of given user on given address IF NOT ALREADY GRANTED.
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
-	public void grantWriteTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+	public void grantTreePermissionForAddress(String addrUuid, String userAddrUuid) {
 		EntityPermission ep = PermissionFactory.getTreeAddressPermissionTemplate(addrUuid);
 
 		boolean alreadyGranted = permService.hasInheritedPermissionForAddress(userAddrUuid, ep);

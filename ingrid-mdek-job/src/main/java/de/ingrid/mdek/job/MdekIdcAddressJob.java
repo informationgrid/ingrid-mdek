@@ -300,7 +300,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// grant write tree permission if not set yet (e.g. new root node)
 			if (isNewAddress) {
-				permissionHandler.grantWriteTreePermissionForAddress(aNode.getAddrUuid(), userId);
+				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
 			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -415,7 +415,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// grant write tree permission if not set yet (e.g. new root node)
 			if (isNewAddress) {
-				permissionHandler.grantWriteTreePermissionForAddress(aNode.getAddrUuid(), userId);
+				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
 			}
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -491,7 +491,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantWriteTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userId);
+				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userId);
 			}
 
 			daoAddressNode.commitTransaction();
@@ -543,7 +543,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantWriteTreePermissionForAddress(fromUuid, userId);
+				permissionHandler.grantTreePermissionForAddress(fromUuid, userId);
 			}
 
 			daoAddressNode.commitTransaction();
