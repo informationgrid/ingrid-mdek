@@ -796,8 +796,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * @param grp group to validate
 	 */
 	private void checkUsersOfGroup(IdcGroup grp) {
-		checkGroupUsersPermissionsOnWorkingObjects(grp);
-		checkGroupUsersPermissionsOnWorkingAddresses(grp);
+		checkMissingUserPermissionsOnObjects(grp);
+		checkMissingUserPermissionsOnAddresses(grp);
 	}
 
 	/**
@@ -805,7 +805,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * for these OBJECTS (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkGroupUsersPermissionsOnWorkingObjects(IdcGroup grp) {
+	private void checkMissingUserPermissionsOnObjects(IdcGroup grp) {
 		List<Map> objUserMaps = 
 			daoIdcGroup.getGroupUsersWithObjectsInGivenState(grp.getName(), WorkState.IN_BEARBEITUNG);
 		for (Map objUserMap : objUserMaps) {
@@ -825,7 +825,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * for these ADDRESSES (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkGroupUsersPermissionsOnWorkingAddresses(IdcGroup grp) {
+	private void checkMissingUserPermissionsOnAddresses(IdcGroup grp) {
 		List<Map> addrUserMaps = 
 			daoIdcGroup.getGroupUsersWithAddressesInGivenState(grp.getName(), WorkState.IN_BEARBEITUNG);
 		for (Map addrUserMap : addrUserMaps) {
