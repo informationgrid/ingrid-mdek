@@ -78,6 +78,10 @@ public class MdekError implements Serializable {
 		GROUP_HAS_USERS("1021"), 
 		/** try to remove a group that has still permissions (address, object) attached */
 		GROUP_HAS_PERMISSIONS("1022"),
+		/** a user write permission on an object has been removed although the user is still working on the object ! */
+		USER_OBJECT_PERMISSION_MISSING("1023"),
+		/** a user write permission on an address has been removed although the user is still working on the address ! */
+		USER_ADDRESS_PERMISSION_MISSING("1024"),
 
 		/** An object has multiple permissions set (in a group). errorInfo: object (in list) */
 		MULTIPLE_PERMISSIONS_ON_OBJECT("1051"),

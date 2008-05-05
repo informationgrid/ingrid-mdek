@@ -1,10 +1,12 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
@@ -86,5 +88,49 @@ public class IdcGroupDaoHibernate
 			"left join fetch permUser.permission permU ";
 		
 		return qString;
+	}
+
+	public List<Map> getGroupUsersWithObjectsInGivenState(String groupName,
+			WorkState objWorkState) {
+		Session session = getSession();
+
+		String q = "select distinct new Map(" +
+				"o.objUuid as " + KEY_ENTITY_UUID + 
+				", o.modUuid as " + KEY_USER_UUID + 
+			") " +
+			"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork o " +
+			"where " +
+			"o.workState = '" + objWorkState.getDbValue() + "' " +
+			"and o.modUuid in (" +
+				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
+				"where grp.name='" + groupName + "'" +
+			")";
+
+		List<Map> maps = session.createQuery(q).list();
+
+		return maps;
+	}
+
+	public List<Map> getGroupUsersWithAddressesInGivenState(String groupName,
+			WorkState addrWorkState) {
+		Session session = getSession();
+
+		String q = "select distinct new Map(" +
+				"a.adrUuid as " + KEY_ENTITY_UUID + 
+				", a.modUuid as " + KEY_USER_UUID + 
+			") " +
+			"from AddressNode aNode " +
+			"inner join aNode.t02AddressWork a " +
+			"where " +
+			"a.workState = '" + addrWorkState.getDbValue() + "' " +
+			"and a.modUuid in (" +
+				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
+				"where grp.name='" + groupName + "'" +
+			")";
+
+		List<Map> maps = session.createQuery(q).list();
+
+		return maps;
 	}
 }

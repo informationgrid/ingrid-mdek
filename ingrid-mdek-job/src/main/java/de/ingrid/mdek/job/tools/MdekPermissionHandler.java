@@ -55,7 +55,6 @@ public class MdekPermissionHandler {
 				PermissionFactory.getSingleObjectPermissionTemplate(objUuid)))
 			{
 				perms.add(PermissionFactory.getPermissionTemplateSingle());
-
 			}
 			if (permService.hasInheritedPermissionForObject(userAddrUuid, 
 				PermissionFactory.getTreeObjectPermissionTemplate(objUuid)))
@@ -391,7 +390,7 @@ public class MdekPermissionHandler {
 	 * Check Write Permission of given user on given object and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
-	private boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
+	public boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
 		
 		for (Permission p : perms) {
@@ -425,7 +424,7 @@ public class MdekPermissionHandler {
 	 * Check Write Permission of given user on given address and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
-	private boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
+	public boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
 		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
 		
 		for (Permission p : perms) {

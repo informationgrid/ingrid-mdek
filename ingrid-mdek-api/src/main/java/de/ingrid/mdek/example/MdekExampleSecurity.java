@@ -359,19 +359,14 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.deleteObject(objUuid, true);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- delete address WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
-		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
-		supertool.deleteAddressWorkingCopy(addrUuid, true);
-
-		System.out.println("\n----- delete object WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
-		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
-		supertool.deleteObjectWorkingCopy(objUuid, true);
-
-		System.out.println("\n-------------------------------------");
 		System.out.println("----- write address -> ALLOWED (WRITE_SINGLE) -----");
 		System.out.println("-- first fetch address");
 		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
 		supertool.storeAddress(doc, false);
+
+		System.out.println("\n----- delete address WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
+		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
+		supertool.deleteAddressWorkingCopy(addrUuid, true);
 
 		System.out.println("\n----- publish address -> ALLOWED (WRITE_SINGLE) -----");
 		supertool.publishAddress(doc, false);
@@ -382,9 +377,12 @@ class MdekExampleSecurityThread extends Thread {
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 		supertool.storeObject(doc, false);
 
+		System.out.println("\n----- delete object WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
+		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+
 		System.out.println("\n----- publish object -> ALLOWED (WRITE_SINGLE) -----");
 		supertool.publishObject(doc, false, false);
-
 
 		System.out.println("\n\n------------------------------------------------");
 		System.out.println("----- ADDRESS/OBJECT: \"CREATE_ROOT\" PERMISSION -----");
@@ -569,6 +567,54 @@ class MdekExampleSecurityThread extends Thread {
 		if (copiedObjUuid != null) {
 			supertool.deleteObjectWorkingCopy(copiedObjUuid, true);			
 		}
+
+		// ===================================
+		
+		System.out.println("\n\n------------------------------------------------");
+		System.out.println("----- GROUP: Remove Permission of User CURRENTLY WORKING ON OBJECT ! -----");
+		System.out.println("------------------------------------------------");
+
+		System.out.println("\n----- write object -> USER HAS WORKING COPY !");
+		System.out.println("-- first fetch object");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		supertool.storeObject(doc, false);
+
+		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
+		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- REMOVE permission and store group -> ERROR: User still working on object -----");
+		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- validate group: still write permissions ! -----");
+		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
+		
+		System.out.println("\n----- delete object WORKING COPY -> ALLOWED (still write permission in Group !) -----");
+		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n\n------------------------------------------------");
+		System.out.println("----- GROUP: Remove Permission of User CURRENTLY WORKING ON ADDRESS ! -----");
+		System.out.println("------------------------------------------------");
+
+		System.out.println("\n----- write address -> USER HAS WORKING COPY !");
+		System.out.println("-- first fetch address");
+		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		supertool.storeAddress(doc, false);
+
+		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
+		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- REMOVE permission and store group -> ERROR: User still working on address -----");
+		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- validate group: still write permissions ! -----");
+		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
+		
+		System.out.println("\n----- delete address WORKING COPY -> ALLOWED (still write permission in Group !) -----");
+		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
+		supertool.deleteAddressWorkingCopy(addrUuid, true);
 
 		// ===================================
 		

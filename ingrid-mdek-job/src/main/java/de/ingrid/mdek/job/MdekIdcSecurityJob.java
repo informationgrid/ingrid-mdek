@@ -3,6 +3,7 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import de.ingrid.mdek.MdekError;
@@ -10,6 +11,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekPermissionHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -194,8 +196,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
-			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
+			String currentTime = MdekUtils.dateToTimestamp(new Date());
 			Long grpId = (Long) gDocIn.get(MdekKeysSecurity.IDC_GROUP_ID);
 			Boolean refetchAfterStore = (Boolean) gDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
@@ -209,13 +211,17 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
 			
+			// transfer new data AND MAKE PERSISTENT, so oncoming checks have newest data !
 			docToBeanMapperSecurity.mapIdcGroup(gDocIn, grp, MappingQuantity.DETAIL_ENTITY);
+			daoIdcGroup.makePersistent(grp);
 
 			// perform checks, throws exception if not ok !
-			checkPermissionsOfGroup(grp);
 
-			daoIdcGroup.makePersistent(grp);
-			
+			// check for nested permissions
+			checkPermissionsOfGroup(grp);
+			// check for users editing entities with removed permissions
+			checkUsersOfGroup(grp);
+
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoIdcGroup.commitTransaction();
 
@@ -251,23 +257,13 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
+
 			Long grpId = (Long) docIn.get(MdekKeysSecurity.IDC_GROUP_ID);
-			
-			// exception if group not existing
 			IdcGroup group = daoIdcGroup.getById(grpId);
-			if (group == null) {
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
-			}
-			// check for attached permissions
-			if (group.getPermissionAddrs().size() > 0 || group.getPermissionObjs().size() > 0) {
-				throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_PERMISSIONS));
-			}
-			// check for attached users
-			List<IdcUser> connectedUsers = daoIdcUser.getIdcUsersByGroupId(group.getId());
-			if (connectedUsers.size() > 0) {
-				throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_USERS));
-			}
 			
+			// perform checks, throws exception if not ok !
+			checkDeleteGroup(group);
+
 			daoIdcGroup.makeTransient(group);
 			daoIdcGroup.commitTransaction();
 
@@ -575,6 +571,24 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		}
 	}
 
+	private void checkDeleteGroup(IdcGroup grp) {
+		if (grp == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+		}
+		// check for attached permissions
+		if (grp.getPermissionAddrs().size() > 0 || grp.getPermissionObjs().size() > 0) {
+			throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_PERMISSIONS));
+		}
+		// check for attached users
+		List<IdcUser> connectedUsers = daoIdcUser.getIdcUsersByGroupId(grp.getId());
+		if (connectedUsers.size() > 0) {
+			throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_USERS));
+		}
+
+		// check for users editing entities
+		checkUsersOfGroup(grp);
+	}
+
 	/**
 	 * Validate whether the assigned permissions of the given group are ok or whether there are
 	 * conflicts (e.g. "write" underneath "write-tree"). THROWS EXCEPTION IF A CONFLICT OCCURS
@@ -763,5 +777,66 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		aList.add(aDoc);
 		
 		return errInfo;
+	}
+
+	private IngridDocument setUpErrorInfoUser(IngridDocument errInfo, String userUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument aDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(userUuid).getT02AddressWork(),
+					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		errInfo.put(MdekKeys.MOD_USER, aDoc);
+		
+		return errInfo;
+	}
+
+	/**
+	 * Check whether there are group users with entities they work on and without write permissions
+	 * for the entity (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * @param grp group to validate
+	 */
+	private void checkUsersOfGroup(IdcGroup grp) {
+		checkGroupUsersPermissionsOnWorkingObjects(grp);
+		checkGroupUsersPermissionsOnWorkingAddresses(grp);
+	}
+
+	/**
+	 * Check whether there are group users with OBJECTS they work on and without write permissions
+	 * for these OBJECTS (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * @param grp group to validate
+	 */
+	private void checkGroupUsersPermissionsOnWorkingObjects(IdcGroup grp) {
+		List<Map> objUserMaps = 
+			daoIdcGroup.getGroupUsersWithObjectsInGivenState(grp.getName(), WorkState.IN_BEARBEITUNG);
+		for (Map objUserMap : objUserMaps) {
+			String userUuid = (String) objUserMap.get(daoIdcGroup.KEY_USER_UUID);
+			String objUuid = (String) objUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
+			
+			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid)) {
+				IngridDocument errInfo = setUpErrorInfoUser(new IngridDocument(), userUuid);
+				errInfo = setUpErrorInfoObj(errInfo, objUuid);
+				throw new MdekException(new MdekError(MdekErrorType.USER_OBJECT_PERMISSION_MISSING, errInfo));
+			}
+		}
+	}
+
+	/**
+	 * Check whether there are group users with ADDRESSES they work on and without write permissions
+	 * for these ADDRESSES (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * @param grp group to validate
+	 */
+	private void checkGroupUsersPermissionsOnWorkingAddresses(IdcGroup grp) {
+		List<Map> addrUserMaps = 
+			daoIdcGroup.getGroupUsersWithAddressesInGivenState(grp.getName(), WorkState.IN_BEARBEITUNG);
+		for (Map addrUserMap : addrUserMaps) {
+			String userUuid = (String) addrUserMap.get(daoIdcGroup.KEY_USER_UUID);
+			String addrUuid = (String) addrUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
+			
+			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid)) {
+				IngridDocument errInfo = setUpErrorInfoUser(new IngridDocument(), userUuid);
+				errInfo = setUpErrorInfoAddr(errInfo, addrUuid);
+				throw new MdekException(new MdekError(MdekErrorType.USER_ADDRESS_PERMISSION_MISSING, errInfo));
+			}
+		}
 	}
 }

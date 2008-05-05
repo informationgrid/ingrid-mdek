@@ -36,11 +36,18 @@
 		</xs:all>
 	</xs:complexType>
 
+	<!-- Additional Error Info when Mdek Exception is thrown concerning Security -->
 	<xs:complexType name="EXCEPTION_SECURITY_INFO_MAP">
-		<xs:choice>
-			<xs:element name="objEntities" type="OBJECT_LIST"/>
-			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
-		</xs:choice>
+		<xs:sequence>
+			<!-- The User affected by the exception -->
+			<xs:element ref="mod-user"/>
+			<xs:choice>
+				<!-- The Object(s) affected by the exception. NOTICE: When multiple then order is important (parent/child) -->
+				<xs:element name="objEntities" type="OBJECT_LIST"/>
+				<!-- The Address(es) affected by the exception. NOTICE: When multiple then order is important (parent/child) -->
+				<xs:element name="adrEntities" type="ADDRESS_LIST"/>
+			</xs:choice>
+		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="OBJECT_MAP">
