@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
@@ -140,8 +142,8 @@ class MdekExampleSecurityThread extends Thread {
 //		String topObjUuid = "3866463B-B449-11D2-9A86-080000507261";
 
 		// parents of children below
-//		String parentAddrUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
-//		String parentObjUuid = "D40743ED-1FC3-11D3-AF50-0060084A4596";
+		String parentAddrUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
+		String parentObjUuid = "D40743ED-1FC3-11D3-AF50-0060084A4596";
 
 		// children of parents above
 		String addrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
@@ -191,6 +193,65 @@ class MdekExampleSecurityThread extends Thread {
 		newGroupDoc.put(MdekKeys.NAME, nameNewGrp);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- VALIDATE GROUP OBJECT PERMISSIONS -----");
+
+		System.out.println("\n----- double permission on OBJECT -> ERROR -----");
+		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- tree below tree permission on OBJECT -> ERROR -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- single below tree permission on OBJECT -> ERROR -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- single ABOVE tree permission on OBJECT -> OK -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- VALIDATE GROUP ADDRESS PERMISSIONS -----");
+
+		System.out.println("\n----- double permission on ADDRESS -> ERROR -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- tree below tree permission on ADDRESS -> ERROR -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- single below tree permission on ADDRESS -> ERROR -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- single ABOVE tree permission on ADDRESS -> OK -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- clear all permissions ! -----");
+		clearPermissionsOfGroupDoc(newGroupDoc);
+		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		
 		// ===================================
 
 		System.out.println("\n----------------------------");
@@ -280,18 +341,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- add address/object WRITE_SINGLE permissions to group -----");
-		// object permission
-		List<IngridDocument> perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
-		IngridDocument newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, objUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
-		perms.add(newPerm);
-		// address permission
-		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
-		newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, addrUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE.getDbValue());
-		perms.add(newPerm);
+		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- verify permissions for object -----");
@@ -381,10 +432,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- add user permission CREATE_ROOT to group -----");
-		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
-		newPerm = new IngridDocument();
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.CREATE_ROOT.getDbValue());
-		perms.add(newPerm);
+		addUserPermissionToGroupDoc(newGroupDoc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- verify user permission -----");
@@ -476,18 +524,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- add user permission WRITE_TREE on target parent -----");
-		// object permission
-		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
-		newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, newParentObjUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
-		perms.add(newPerm);
-		// address permission
-		perms = (List<IngridDocument>) newGroupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
-		newPerm = new IngridDocument();
-		newPerm.put(MdekKeys.UUID, newParentAddrUuid);
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, MdekUtilsSecurity.IdcPermission.WRITE_TREE.getDbValue());
-		perms.add(newPerm);
+		addObjPermissionToGroupDoc(newGroupDoc, newParentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		addAddrPermissionToGroupDoc(newGroupDoc, newParentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- verify permissions for object -----");
@@ -547,9 +585,7 @@ class MdekExampleSecurityThread extends Thread {
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
 
 		System.out.println("\n----- remove permissions from group -----");
-		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
-		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
-		newGroupDoc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, null);
+		clearPermissionsOfGroupDoc(newGroupDoc);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- remove group -----");
@@ -572,5 +608,46 @@ class MdekExampleSecurityThread extends Thread {
 
 	public boolean isRunning() {
 		return isRunning;
+	}
+
+	private void clearPermissionsOfGroupDoc(IngridDocument groupDoc) {
+		groupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
+		groupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
+		groupDoc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, null);		
+	}
+
+	private void addObjPermissionToGroupDoc(IngridDocument groupDoc, String objUuid, IdcPermission idcPerm) {
+		List<IngridDocument> perms = (List<IngridDocument>) groupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
+		if (perms == null) {
+			perms = new ArrayList<IngridDocument>();
+			groupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, perms);
+		}
+		IngridDocument newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, objUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
+		perms.add(newPerm);
+	}
+
+	private void addAddrPermissionToGroupDoc(IngridDocument groupDoc, String addrUuid, IdcPermission idcPerm) {
+		List<IngridDocument> perms = (List<IngridDocument>) groupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
+		if (perms == null) {
+			perms = new ArrayList<IngridDocument>();
+			groupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, perms);
+		}
+		IngridDocument newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, addrUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
+		perms.add(newPerm);
+	}
+
+	private void addUserPermissionToGroupDoc(IngridDocument groupDoc, IdcPermission idcPerm) {
+		List<IngridDocument> perms = (List<IngridDocument>) groupDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
+		if (perms == null) {
+			perms = new ArrayList<IngridDocument>();
+			groupDoc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, perms);
+		}
+		IngridDocument newPerm = new IngridDocument();
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
+		perms.add(newPerm);
 	}
 }

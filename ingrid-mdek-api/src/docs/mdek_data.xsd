@@ -36,6 +36,13 @@
 		</xs:all>
 	</xs:complexType>
 
+	<xs:complexType name="EXCEPTION_SECURITY_INFO_MAP">
+		<xs:choice>
+			<xs:element name="objEntities" type="OBJECT_LIST"/>
+			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
+		</xs:choice>
+	</xs:complexType>
+
 	<xs:complexType name="OBJECT_MAP">
 		<xs:all>
 			<!--xs:element ref="id"/-->

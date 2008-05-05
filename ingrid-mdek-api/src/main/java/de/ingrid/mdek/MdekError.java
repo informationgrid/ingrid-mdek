@@ -77,7 +77,20 @@ public class MdekError implements Serializable {
 		/** try to remove a group that has still users attached */
 		GROUP_HAS_USERS("1021"), 
 		/** try to remove a group that has still permissions (address, object) attached */
-		GROUP_HAS_PERMISSIONS("1022")
+		GROUP_HAS_PERMISSIONS("1022"),
+
+		/** An object has multiple permissions set (in a group). errorInfo: object (in list) */
+		MULTIPLE_PERMISSIONS_ON_OBJECT("1051"),
+		/** "write-tree" object permissions are nested (in a group). errorInfo: order of objects determines parent/child ! */
+		TREE_BELOW_TREE_OBJECT_PERMISSION("1052"),
+		/** "write" object permission beneath "write-tree" permission (in a group). errorInfo: order of objects determines parent/child ! */
+		SINGLE_BELOW_TREE_OBJECT_PERMISSION("1053"),
+		/** An address has multiple permissions set (in a group). errorInfo: address (in list) */
+		MULTIPLE_PERMISSIONS_ON_ADDRESS("1061"),
+		/** "write-tree" address permissions are nested (in a group). errorInfo: order of address determines parent/child ! */
+		TREE_BELOW_TREE_ADDRESS_PERMISSION("1062"),
+		/** "write" address permission beneath "write-tree" permission (in a group). errorInfo: order of address determines parent/child ! */
+		SINGLE_BELOW_TREE_ADDRESS_PERMISSION("1063")
 		;
 
 		MdekErrorType(String errorCode) {

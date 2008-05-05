@@ -3,6 +3,7 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
@@ -17,6 +18,7 @@ import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
+import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
@@ -24,8 +26,11 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
+import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
+import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.security.PermissionFactory;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -35,12 +40,13 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/** service encapsulating security functionality */
-	private IPermissionService permissionService;
-	private MdekPermissionHandler permissionHandler;
+	private IPermissionService permService;
+	private MdekPermissionHandler permHandler;
 
 	private IIdcGroupDao daoIdcGroup;
 	private IIdcUserDao daoIdcUser;
 	private IAddressNodeDao daoAddressNode;
+	private IObjectNodeDao daoObjectNode;
 
 	/** generic dao: ENTITY UNSPECIFIC for transaction ops ... */
 	private IGenericDao<IEntity> dao;
@@ -53,14 +59,15 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			IPermissionService permissionService) {
 		super(logService.getLogger(MdekIdcSecurityJob.class), daoFactory);
 		
-		this.permissionService = permissionService;
-		permissionHandler = MdekPermissionHandler.getInstance(permissionService);
+		this.permService = permissionService;
+		permHandler = MdekPermissionHandler.getInstance(permissionService);
 		
 		dao = daoFactory.getDao(IEntity.class);
 
 		daoIdcGroup = daoFactory.getIdcGroupDao();
 		daoIdcUser = daoFactory.getIdcUserDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
+		daoObjectNode = daoFactory.getObjectNodeDao();
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		docToBeanMapperSecurity = DocToBeanMapperSecurity.getInstance(daoFactory, permissionService);
@@ -129,8 +136,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
-			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
+			String currentTime = MdekUtils.dateToTimestamp(new Date());
 			String name = gDocIn.getString(MdekKeys.NAME);
 			Boolean refetchAfterStore = (Boolean) gDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
@@ -138,13 +145,17 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			gDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			gDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			beanToDocMapper.mapModUser(userId, gDocIn, MappingQuantity.INITIAL_ENTITY);
-			
+
 			// exception if group already exists
 			if (daoIdcGroup.loadByName(name) != null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS));
 			}
 			
 			IdcGroup newGrp = docToBeanMapperSecurity.mapIdcGroup(gDocIn, new IdcGroup(), MappingQuantity.DETAIL_ENTITY);
+
+			// perform checks, throws exception if not ok !
+			checkPermissionsOfGroup(newGrp);
+
 			 // save it, generates id
 			daoIdcGroup.makePersistent(newGrp);
 			
@@ -199,6 +210,10 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			}
 			
 			docToBeanMapperSecurity.mapIdcGroup(gDocIn, grp, MappingQuantity.DETAIL_ENTITY);
+
+			// perform checks, throws exception if not ok !
+			checkPermissionsOfGroup(grp);
+
 			daoIdcGroup.makePersistent(grp);
 			
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -275,7 +290,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String addrUuid = params.getString(MdekKeys.UUID);
 			String userAddrUuid = getCurrentUserUuid(params);
 
-			List<Permission> perms = permissionHandler.getPermissionsForAddress(addrUuid, userAddrUuid);
+			List<Permission> perms = permHandler.getPermissionsForAddress(addrUuid, userAddrUuid);
 
 			IngridDocument resultDoc = new IngridDocument();
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
@@ -297,7 +312,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String objUuid = params.getString(MdekKeys.UUID);
 			String userAddrUuid = getCurrentUserUuid(params);
 
-			List<Permission> perms = permissionHandler.getPermissionsForObject(objUuid, userAddrUuid);
+			List<Permission> perms = permHandler.getPermissionsForObject(objUuid, userAddrUuid);
 
 			IngridDocument resultDoc = new IngridDocument();
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
@@ -318,7 +333,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			String userAddrUuid = getCurrentUserUuid(params);
 
-			List<Permission> perms = permissionHandler.getUserPermissions(userAddrUuid);
+			List<Permission> perms = permHandler.getUserPermissions(userAddrUuid);
 
 			IngridDocument resultDoc = new IngridDocument();
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
@@ -513,7 +528,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		try {
 			daoIdcUser.beginTransaction();
 
-			IdcUser user = permissionService.getCatalogAdmin();
+			IdcUser user = permService.getCatalogAdmin();
 			if (user == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -560,4 +575,193 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		}
 	}
 
+	/**
+	 * Validate whether the assigned permissions of the given group are ok or whether there are
+	 * conflicts (e.g. "write" underneath "write-tree"). THROWS EXCEPTION IF A CONFLICT OCCURS
+	 * WITH DETAILED DATA ABOUT CONFLICT.
+	 * @param grp group to validate
+	 */
+	private void checkPermissionsOfGroup(IdcGroup grp) {
+		checkObjectPermissionsOfGroup(grp);
+		checkAddressPermissionsOfGroup(grp);
+	}
+
+	/**
+	 * Validate whether the assigned OBJECT permissions of the given group are ok or whether there are
+	 * conflicts (e.g. "write" underneath "write-tree"). THROWS EXCEPTION IF A CONFLICT OCCURS
+	 * WITH DETAILED DATA ABOUT CONFLICT.
+	 * @param grp group to validate
+	 */
+	private void checkObjectPermissionsOfGroup(IdcGroup grp) {
+		Set<PermissionObj> pos = grp.getPermissionObjs();
+
+		// permission templates for checking
+		Permission pTemplateSingle = PermissionFactory.getPermissionTemplateSingle();
+		Permission pTemplateTree = PermissionFactory.getPermissionTemplateTree();
+
+		// separate uuids by permission types
+		ArrayList<String> uuidsSingle = new ArrayList<String>();
+		ArrayList<String> uuidsTree = new ArrayList<String>();
+		for (PermissionObj po : pos) {
+			Permission p = po.getPermission();
+			String oUuid = po.getUuid();
+
+			// check whether "double" permissions !
+			if (uuidsSingle.contains(oUuid) || uuidsTree.contains(oUuid)) {
+				IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), oUuid);
+				throw new MdekException(new MdekError(MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT, errInfo));
+			}
+
+			// separate uuids by permission type
+			if (permService.isEqualPermissions(p, pTemplateSingle)) {
+				uuidsSingle.add(oUuid);
+			} else if (permService.isEqualPermissions(p, pTemplateTree)) {
+				uuidsTree.add(oUuid);
+			}
+		}
+		
+		// check nested tree permissions
+		for (int i=0; i < uuidsTree.size(); i++) {
+			String uuid1 = uuidsTree.get(i);
+			List<String> path1 = daoObjectNode.getObjectPath(uuid1);
+			for (int j=0; j < uuidsTree.size(); j++) {
+				if (j==i) {
+					continue;
+				}
+				String uuid2 = uuidsTree.get(j);
+				List<String> path2 = daoObjectNode.getObjectPath(uuid2);
+				// order of uuids determines parent/child !
+				if (path1.contains(uuid2)) {
+					IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), uuid2);
+					errInfo = setUpErrorInfoObj(errInfo, uuid1);
+					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
+				} else if  (path2.contains(uuid1)) {
+					IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), uuid1);
+					errInfo = setUpErrorInfoObj(errInfo, uuid2);
+					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
+					
+				}
+			}
+		}
+
+		// check single permission beneath tree permission
+		for (int i=0; i < uuidsSingle.size(); i++) {
+			String uuidSingle = uuidsSingle.get(i);
+			List<String> pathSingle = daoObjectNode.getObjectPath(uuidSingle);
+			for (int j=0; j < uuidsTree.size(); j++) {
+				String uuidTree = uuidsTree.get(j);
+				// order of uuids determines parent/child !
+				if (pathSingle.contains(uuidTree)) {
+					IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), uuidTree);
+					errInfo = setUpErrorInfoObj(errInfo, uuidSingle);
+					throw new MdekException(new MdekError(MdekErrorType.SINGLE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
+				}
+			}
+		}
+	}
+
+	/**
+	 * Validate whether the assigned ADDRESS permissions of the given group are ok or whether there are
+	 * conflicts (e.g. "write" underneath "write-tree"). THROWS EXCEPTION IF A CONFLICT OCCURS
+	 * WITH DETAILED DATA ABOUT CONFLICT.
+	 * @param grp group to validate
+	 */
+	private void checkAddressPermissionsOfGroup(IdcGroup grp) {
+		Set<PermissionAddr> pas = grp.getPermissionAddrs();
+
+		// permission templates for checking
+		Permission pTemplateSingle = PermissionFactory.getPermissionTemplateSingle();
+		Permission pTemplateTree = PermissionFactory.getPermissionTemplateTree();
+
+		// separate uuids by permission types
+		ArrayList<String> uuidsSingle = new ArrayList<String>();
+		ArrayList<String> uuidsTree = new ArrayList<String>();
+		for (PermissionAddr pa : pas) {
+			Permission p = pa.getPermission();
+			String aUuid = pa.getUuid();
+
+			// check whether "double" permissions !
+			if (uuidsSingle.contains(aUuid) || uuidsTree.contains(aUuid)) {
+				IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), aUuid);
+				throw new MdekException(new MdekError(MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS, errInfo));
+			}
+
+			// separate uuids by permission type
+			if (permService.isEqualPermissions(p, pTemplateSingle)) {
+				uuidsSingle.add(aUuid);
+			} else if (permService.isEqualPermissions(p, pTemplateTree)) {
+				uuidsTree.add(aUuid);
+			}
+		}
+		
+		// check nested tree permissions
+		for (int i=0; i < uuidsTree.size(); i++) {
+			String uuid1 = uuidsTree.get(i);
+			List<String> path1 = daoAddressNode.getAddressPath(uuid1);
+			for (int j=0; j < uuidsTree.size(); j++) {
+				if (j==i) {
+					continue;
+				}
+				String uuid2 = uuidsTree.get(j);
+				List<String> path2 = daoAddressNode.getAddressPath(uuid2);
+				// order of uuids determines parent/child !
+				if (path1.contains(uuid2)) {
+					IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), uuid2);
+					errInfo = setUpErrorInfoAddr(errInfo, uuid1);
+					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
+				} else if  (path2.contains(uuid1)) {
+					IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), uuid1);
+					errInfo = setUpErrorInfoAddr(errInfo, uuid2);
+					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
+					
+				}
+			}
+		}
+
+		// check single permission beneath tree permission
+		for (int i=0; i < uuidsSingle.size(); i++) {
+			String uuidSingle = uuidsSingle.get(i);
+			List<String> pathSingle = daoAddressNode.getAddressPath(uuidSingle);
+			for (int j=0; j < uuidsTree.size(); j++) {
+				String uuidTree = uuidsTree.get(j);
+				// order of uuids determines parent/child !
+				if (pathSingle.contains(uuidTree)) {
+					IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), uuidTree);
+					errInfo = setUpErrorInfoAddr(errInfo, uuidSingle);
+					throw new MdekException(new MdekError(MdekErrorType.SINGLE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
+				}
+			}
+		}
+	}
+
+	private IngridDocument setUpErrorInfoObj(IngridDocument errInfo, String objUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument oDoc = beanToDocMapper.mapT01Object(daoObjectNode.loadByUuid(objUuid).getT01ObjectWork(),
+					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> oList = (List<IngridDocument>) errInfo.get(MdekKeys.OBJ_ENTITIES);
+		if (oList == null) {
+			oList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
+		}
+		oList.add(oDoc);
+		
+		return errInfo;
+	}
+	private IngridDocument setUpErrorInfoAddr(IngridDocument errInfo, String addrUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument aDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(addrUuid).getT02AddressWork(),
+					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> aList = (List<IngridDocument>) errInfo.get(MdekKeys.ADR_ENTITIES);
+		if (aList == null) {
+			aList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.ADR_ENTITIES, aList);
+		}
+		aList.add(aDoc);
+		
+		return errInfo;
+	}
 }
