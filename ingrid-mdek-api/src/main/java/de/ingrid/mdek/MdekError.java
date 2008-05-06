@@ -74,16 +74,12 @@ public class MdekError implements Serializable {
 		/** user has no permission for executing the operation */
 		USER_HAS_NO_PERMISSION("1001"),
 		
-		/** try to remove a group that has still users attached */
-// IT'S POSSIBLE TO DELETE GROUP WITH USERS !
-//		GROUP_HAS_USERS("1021"), 
-		/** try to remove a group that has still permissions (address, object) attached */
-// IT'S POSSIBLE TO DELETE GROUP WITH PERMISSIONS !
-//		GROUP_HAS_PERMISSIONS("1022"),
+		/** try to remove a group that has still users attached. errorInfo: list of attached users ! */
+		GROUP_HAS_USERS("1021"), 
 		/** a user write permission (in group) on an object has been removed although the user is still working on the object ! */
-		USER_OBJECT_PERMISSION_MISSING("1021"),
+		USER_OBJECT_PERMISSION_MISSING("1022"),
 		/** a user write permission (in group) on an address has been removed although the user is still working on the address ! */
-		USER_ADDRESS_PERMISSION_MISSING("1022"),
+		USER_ADDRESS_PERMISSION_MISSING("1023"),
 
 		/** An object has multiple permissions set (in a group). errorInfo: single object (in list) */
 		MULTIPLE_PERMISSIONS_ON_OBJECT("1051"),

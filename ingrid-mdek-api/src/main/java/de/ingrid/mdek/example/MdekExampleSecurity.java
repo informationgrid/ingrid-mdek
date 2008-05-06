@@ -587,7 +587,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- DELETE group -> ERROR: User still working on OBJECT -----");
-		supertool.deleteGroup(newGroupId);
+		supertool.deleteGroup(newGroupId, true);
 
 		System.out.println("\n----- validate group: still write permissions ! -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
@@ -613,7 +613,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n----- DELETE group -> ERROR: User still working on ADDRESS -----");
-		supertool.deleteGroup(newGroupId);
+		supertool.deleteGroup(newGroupId, true);
 
 		System.out.println("\n----- validate group: still write permissions ! -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
@@ -632,8 +632,11 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- verify no wrong permissions in group -> get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
 
-		System.out.println("\n----- delete group -> returns remaining users of deleted group -----");
-		supertool.deleteGroup(newGroupId);
+		System.out.println("\n----- delete group, NO FORCE DELETE WHEN HAVING USERS -> ERROR, group has users -----");
+		supertool.deleteGroup(newGroupId, false);
+
+		System.out.println("\n----- delete group, WITH FORCE DELETE WHEN HAVING USERS -> returns 'groupless' users of deleted group -----");
+		supertool.deleteGroup(newGroupId, true);
 
 		System.out.println("\n----- delete users -----");
 		supertool.deleteUser(newMetaAdminId);

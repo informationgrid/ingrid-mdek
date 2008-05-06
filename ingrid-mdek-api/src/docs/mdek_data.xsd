@@ -39,8 +39,12 @@
 	<!-- Additional Error Info when Mdek Exception is thrown concerning Security -->
 	<xs:complexType name="EXCEPTION_SECURITY_INFO_MAP">
 		<xs:sequence>
-			<!-- The User affected by the exception -->
-			<xs:element ref="mod-user"/>
+			<xs:choice>
+				<!-- e.g. users in group when group deleted and no forceDeleteGroupWhenUsers ! -->
+				<xs:element name="idc-users" type="USER_LIST"/>
+				<!-- e.g. editing user who needs write permission, then entities below contain edited entity -->
+				<xs:element ref="mod-user"/>
+			</xs:choice>
 			<xs:choice>
 				<!-- The Object(s) affected by the exception. NOTICE: When multiple then order is important (parent/child) -->
 				<xs:element name="objEntities" type="OBJECT_LIST"/>
@@ -270,6 +274,8 @@
 			<xs:element ref="uuid"/>
 			<!-- get/save group -->
 			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
+			<!-- delete group, even when group has users -->
+			<xs:element name="requestinfo_forceDeleteGroupWhenUsers" type="xs:boolean"/>
 			<!-- get/save user -->
 			<xs:element name="USER_MAP" type="USER_MAP"/>
 		</xs:choice>

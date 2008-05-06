@@ -14,6 +14,9 @@ public class MdekKeysSecurity extends MdekKeys {
 	/** Specifies the id of a idc group<br>
 	 *  Value: Long */
 	public final static String IDC_GROUP_ID = "idc-group-id";
+    /** delete group also when users exist ? if false and user exist causes error<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_FORCE_DELETE_GROUP_WHEN_USERS = "requestinfo_forceDeleteGroupWhenUsers";
 
 
 	// USER(S)

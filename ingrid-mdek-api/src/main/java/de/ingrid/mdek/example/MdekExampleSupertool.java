@@ -1198,7 +1198,8 @@ public class MdekExampleSupertool {
 		return result;
 	}	
 
-	public IngridDocument deleteGroup(Long idcGroupId) {
+	public IngridDocument deleteGroup(Long idcGroupId,
+			boolean forceDeleteGroupWhenUsers) {
 		if (idcGroupId == null) {
 			return null;
 		}
@@ -1209,16 +1210,17 @@ public class MdekExampleSupertool {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE deleteGroup ######");
+		String forceDeleteInfo = (forceDeleteGroupWhenUsers) ? "WITH " : "NO ";
+		System.out.println("\n###### INVOKE deleteGroup " + forceDeleteInfo + " FORCE DELETE WHEN USERS ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.deleteGroup(plugId, idcGroupId, myUserUuid);
+		response = mdekCallerSecurity.deleteGroup(plugId, idcGroupId, forceDeleteGroupWhenUsers, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			debugUsersDoc(result);
+			debugIdcUsersDoc(result);
 		} else {
 			handleError(response);
 		}
@@ -1703,7 +1705,7 @@ public class MdekExampleSupertool {
 		}
 	}
 	
-	private void debugUsersDoc(IngridDocument u) {
+	private void debugIdcUsersDoc(IngridDocument u) {
 		List<IngridDocument> docList = (List<IngridDocument>) u.get(MdekKeysSecurity.IDC_USERS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("Users: " + docList.size() + " Entries");
@@ -2044,8 +2046,8 @@ public class MdekExampleSupertool {
 		List<MdekError> errors = mdekCaller.getErrorsFromResponse(response);
 		doFullOutput = false;
 		for (MdekError err : errors) {
+			IngridDocument info = err.getErrorInfo();
 			if (err.getErrorType().equals(MdekErrorType.ENTITY_REFERENCED_BY_OBJ)) {
-				IngridDocument info = err.getErrorInfo();
 				// referenced object
 				debugObjectDoc(info);
 				// objects referencing
@@ -2055,6 +2057,34 @@ public class MdekExampleSupertool {
 						debugObjectDoc(oDoc);
 					}
 				}
+			} else if (err.getErrorType().equals(MdekErrorType.GROUP_HAS_USERS)) {
+				debugIdcUsersDoc(info);
+			} else if (err.getErrorType().equals(MdekErrorType.USER_OBJECT_PERMISSION_MISSING)) {
+				System.out.println("    Editing User: " + info.get(MdekKeys.MOD_USER));
+				System.out.println("    Edited Object: " + info.get(MdekKeys.OBJ_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.USER_ADDRESS_PERMISSION_MISSING)) {
+				System.out.println("    Editing User: " + info.get(MdekKeys.MOD_USER));
+				System.out.println("    Edited Address: " + info.get(MdekKeys.ADR_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT)) {
+				System.out.println("    Object with multiple Permissions: " + info.get(MdekKeys.OBJ_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS)) {
+				System.out.println("    Address with multiple Permissions: " + info.get(MdekKeys.ADR_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION)) {
+				List<IngridDocument> objs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
+				System.out.println("    Parent Object with TREE Permission: " + objs.get(0));
+				System.out.println("    Sub Object with TREE Permission: " + objs.get(1));
+			} else if (err.getErrorType().equals(MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION)) {
+				List<IngridDocument> addrs = (List<IngridDocument>) info.get(MdekKeys.ADR_ENTITIES);
+				System.out.println("    Parent Address with TREE Permission: " + addrs.get(0));
+				System.out.println("    Sub Address with TREE Permission: " + addrs.get(1));
+			} else if (err.getErrorType().equals(MdekErrorType.SINGLE_BELOW_TREE_OBJECT_PERMISSION)) {
+				List<IngridDocument> objs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
+				System.out.println("    Parent Object with TREE Permission: " + objs.get(0));
+				System.out.println("    Sub Object with SINGLE Permission: " + objs.get(1));
+			} else if (err.getErrorType().equals(MdekErrorType.SINGLE_BELOW_TREE_ADDRESS_PERMISSION)) {
+				List<IngridDocument> addrs = (List<IngridDocument>) info.get(MdekKeys.ADR_ENTITIES);
+				System.out.println("    Parent Address with TREE Permission: " + addrs.get(0));
+				System.out.println("    Sub Address with SINGLE Permission: " + addrs.get(1));
 			}
 		}
 		doFullOutput = true;

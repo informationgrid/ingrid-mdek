@@ -78,14 +78,19 @@ public interface IMdekCallerSecurity {
 	 * Deletes an existing group.
 	 * @param plugId which mdek server (iplug)
 	 * @param groupId The group id.
+	 * @param forceDeleteGroupWhenUsers only relevant when group has users<br>
+	 * 		true=delete group, remove group data from group users<br>
+	 * 		false=error if group has users, error contains the users
 	 * @param userId calling user
 	 * @return response containing result: map containing former group users (having no permissions now)  
-	 * @throws MdekException if the group not exists (MdekErrorType.ENTITY_NOT_FOUND). 
+	 * @throws MdekException if the group not exists (MdekErrorType.ENTITY_NOT_FOUND).
+	 * @throws MdekException if group has users and no forceDeleteGroupWhenUsers (MdekErrorType.GROUP_HAS_USERS).
 	 * @throws MdekException if group user still editing object (MdekErrorType.USER_OBJECT_PERMISSION_MISSING). 
 	 * @throws MdekException if group user still editing address (MdekErrorType.USER_ADDRESS_PERMISSION_MISSING). 
 	 */
 	IngridDocument deleteGroup(String plugId,
 			Long idcGroupId,
+			boolean forceDeleteGroupWhenUsers,
 			String userId);
 	
 	

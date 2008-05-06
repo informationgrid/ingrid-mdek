@@ -220,7 +220,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// check for nested permissions
 			checkPermissionsOfGroup(grp);
 			// check for users editing entities with removed permissions
-			checkUsersOfGroup(grp);
+			checkEditingUsersOfGroup(grp);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoIdcGroup.commitTransaction();
@@ -258,24 +258,24 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			daoIdcGroup.beginTransaction();
 
+			Boolean forceDeleteGroupWhenUsers = (Boolean) docIn.get(MdekKeysSecurity.REQUESTINFO_FORCE_DELETE_GROUP_WHEN_USERS);
 			Long grpId = (Long) docIn.get(MdekKeysSecurity.IDC_GROUP_ID);
 			IdcGroup group = daoIdcGroup.getById(grpId);
+			
+			// first checks
 			if (group == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
-// GROUP CAN BE DELETED WITH USERS AND PERMISSIONS ! further checks, see below !
-/*
-			// check for attached permissions
-			if (grp.getPermissionAddrs().size() > 0 || grp.getPermissionObjs().size() > 0) {
-				throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_PERMISSIONS));
+			List<IdcUser> groupUsers = daoIdcUser.getIdcUsersByGroupId(group.getId());
+			if (!forceDeleteGroupWhenUsers) {
+				if (groupUsers.size() > 0) {
+					// attach error info
+					IngridDocument errInfo = beanToDocMapperSecurity.mapIdcUserList(groupUsers, new IngridDocument(), false);;
+					throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_USERS, errInfo));
+				}
 			}
-			// check for attached users
-			List<IdcUser> connectedUsers = daoIdcUser.getIdcUsersByGroupId(grp.getId());
-			if (connectedUsers.size() > 0) {
-				throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_USERS));
-			}
-*/
-			// first remove ALL permissions AND MAKE PERSISTENT, so oncoming checks work (checks read from database) !
+
+			// remove ALL permissions AND MAKE PERSISTENT, so oncoming checks work (checks read from database) !
 			IngridDocument noPermissionsDoc = new IngridDocument();
 			docToBeanMapperSecurity.updateIdcUserPermissions(noPermissionsDoc, group);
 			docToBeanMapperSecurity.updatePermissionAddrs(noPermissionsDoc, group);
@@ -283,13 +283,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcGroup.makePersistent(group);
 
 			// check for users editing entities and still needing permissions, throws exception if so !
-			checkUsersOfGroup(group);
+			checkEditingUsersOfGroup(group);
 			
 			// ok, we update ex group users (remove from group, ...) and return them
-			List<IdcUser> users = daoIdcUser.getIdcUsersByGroupId(group.getId());
-			clearGroupOnUsers(users, userId);
+			clearGroupOnUsers(groupUsers, userId);
 			IngridDocument result = new IngridDocument();
-			beanToDocMapperSecurity.mapIdcUserList(users, result, true);
+			beanToDocMapperSecurity.mapIdcUserList(groupUsers, result, true);
 
 			// all ok, now we delete and COMMIT !
 			daoIdcGroup.makeTransient(group);
@@ -807,7 +806,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * for the entity (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkUsersOfGroup(IdcGroup grp) {
+	private void checkEditingUsersOfGroup(IdcGroup grp) {
 		checkMissingUserPermissionsOnObjects(grp);
 		checkMissingUserPermissionsOnAddresses(grp);
 	}
