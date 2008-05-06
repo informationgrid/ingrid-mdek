@@ -75,25 +75,27 @@ public class MdekError implements Serializable {
 		USER_HAS_NO_PERMISSION("1001"),
 		
 		/** try to remove a group that has still users attached */
-		GROUP_HAS_USERS("1021"), 
+// IT'S POSSIBLE TO DELETE GROUP WITH USERS !
+//		GROUP_HAS_USERS("1021"), 
 		/** try to remove a group that has still permissions (address, object) attached */
-		GROUP_HAS_PERMISSIONS("1022"),
-		/** a user write permission on an object has been removed although the user is still working on the object ! */
-		USER_OBJECT_PERMISSION_MISSING("1023"),
-		/** a user write permission on an address has been removed although the user is still working on the address ! */
-		USER_ADDRESS_PERMISSION_MISSING("1024"),
+// IT'S POSSIBLE TO DELETE GROUP WITH PERMISSIONS !
+//		GROUP_HAS_PERMISSIONS("1022"),
+		/** a user write permission (in group) on an object has been removed although the user is still working on the object ! */
+		USER_OBJECT_PERMISSION_MISSING("1021"),
+		/** a user write permission (in group) on an address has been removed although the user is still working on the address ! */
+		USER_ADDRESS_PERMISSION_MISSING("1022"),
 
-		/** An object has multiple permissions set (in a group). errorInfo: object (in list) */
+		/** An object has multiple permissions set (in a group). errorInfo: single object (in list) */
 		MULTIPLE_PERMISSIONS_ON_OBJECT("1051"),
-		/** "write-tree" object permissions are nested (in a group). errorInfo: order of objects determines parent/child ! */
+		/** "write-tree" object permissions are nested (in a group). errorInfo: two objects, order determines parent/child ! */
 		TREE_BELOW_TREE_OBJECT_PERMISSION("1052"),
-		/** "write" object permission beneath "write-tree" permission (in a group). errorInfo: order of objects determines parent/child ! */
+		/** "write" object permission beneath "write-tree" permission (in a group). errorInfo: two objects, order determines parent/child ! */
 		SINGLE_BELOW_TREE_OBJECT_PERMISSION("1053"),
-		/** An address has multiple permissions set (in a group). errorInfo: address (in list) */
+		/** An address has multiple permissions set (in a group). errorInfo: single address (in list) */
 		MULTIPLE_PERMISSIONS_ON_ADDRESS("1061"),
-		/** "write-tree" address permissions are nested (in a group). errorInfo: order of address determines parent/child ! */
+		/** "write-tree" address permissions are nested (in a group). errorInfo: two addresses, order determines parent/child ! */
 		TREE_BELOW_TREE_ADDRESS_PERMISSION("1062"),
-		/** "write" address permission beneath "write-tree" permission (in a group). errorInfo: order of address determines parent/child ! */
+		/** "write" address permission beneath "write-tree" permission (in a group). errorInfo: two addresses, order determines parent/child ! */
 		SINGLE_BELOW_TREE_ADDRESS_PERMISSION("1063")
 		;
 

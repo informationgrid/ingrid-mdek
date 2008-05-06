@@ -143,7 +143,11 @@ public class DocToBeanMapperSecurity implements IMapper {
 		return ref;
 	}
 
-	private void updatePermissionObjs(IngridDocument gDocIn, IdcGroup gIn) {
+	/**
+	 * Transfer OBJECT permissions from given doc to given group bean.
+	 * NOTICE: also deletes removed permissions in bean/database.
+	 */
+	public void updatePermissionObjs(IngridDocument gDocIn, IdcGroup gIn) {
 		List<IngridDocument> refDocs = (List) gDocIn.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		if (refDocs == null) {
 			refDocs = new ArrayList<IngridDocument>(0);
@@ -179,7 +183,11 @@ public class DocToBeanMapperSecurity implements IMapper {
 		}
 	}
 
-	private void updatePermissionAddrs(IngridDocument gDocIn, IdcGroup gIn) {
+	/**
+	 * Transfer ADDRESS permissions from given doc to given group bean.
+	 * NOTICE: also deletes removed permissions in bean/database.
+	 */
+	public void updatePermissionAddrs(IngridDocument gDocIn, IdcGroup gIn) {
 		List<IngridDocument> refDocs = (List) gDocIn.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		if (refDocs == null) {
 			refDocs = new ArrayList<IngridDocument>(0);
@@ -215,7 +223,11 @@ public class DocToBeanMapperSecurity implements IMapper {
 		}
 	}
 
-	private void updateIdcUserPermissions(IngridDocument uDocIn, IdcGroup gIn) {
+	/**
+	 * Transfer USER permissions from given doc to given group bean.
+	 * NOTICE: also deletes removed permissions in bean/database.
+	 */
+	public void updateIdcUserPermissions(IngridDocument uDocIn, IdcGroup gIn) {
 		List<IngridDocument> refDocs = (List) uDocIn.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		if (refDocs == null) {
 			refDocs = new ArrayList<IngridDocument>(0);

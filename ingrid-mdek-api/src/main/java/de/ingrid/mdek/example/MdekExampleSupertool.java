@@ -1218,6 +1218,7 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
+			debugUsersDoc(result);
 		} else {
 			handleError(response);
 		}
@@ -1696,6 +1697,16 @@ public class MdekExampleSupertool {
 		List<IngridDocument> docList = (List<IngridDocument>) p.get(MdekKeysSecurity.IDC_PERMISSIONS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("Permissions: " + docList.size() + " Entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("    " + doc);								
+			}			
+		}
+	}
+	
+	private void debugUsersDoc(IngridDocument u) {
+		List<IngridDocument> docList = (List<IngridDocument>) u.get(MdekKeysSecurity.IDC_USERS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("Users: " + docList.size() + " Entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("    " + doc);								
 			}			

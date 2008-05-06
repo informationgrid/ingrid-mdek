@@ -571,7 +571,7 @@ class MdekExampleSecurityThread extends Thread {
 		// ===================================
 		
 		System.out.println("\n\n------------------------------------------------");
-		System.out.println("----- GROUP: Remove Permission of User CURRENTLY WORKING ON OBJECT ! -----");
+		System.out.println("----- GROUP: User CURRENTLY WORKING ON OBJECT -> Remove Permission fails / Delete Group fails ! -----");
 		System.out.println("------------------------------------------------");
 
 		System.out.println("\n----- write object -> USER HAS WORKING COPY !");
@@ -586,6 +586,9 @@ class MdekExampleSecurityThread extends Thread {
 		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
 		supertool.storeGroup(newGroupDoc, true);
 
+		System.out.println("\n----- DELETE group -> ERROR: User still working on OBJECT -----");
+		supertool.deleteGroup(newGroupId);
+
 		System.out.println("\n----- validate group: still write permissions ! -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
 		
@@ -594,7 +597,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 
 		System.out.println("\n\n------------------------------------------------");
-		System.out.println("----- GROUP: Remove Permission of User CURRENTLY WORKING ON ADDRESS ! -----");
+		System.out.println("----- GROUP: User CURRENTLY WORKING ON ADDRESS -> Remove Permission fails / Delete Group fails ! -----");
 		System.out.println("------------------------------------------------");
 
 		System.out.println("\n----- write address -> USER HAS WORKING COPY !");
@@ -609,6 +612,9 @@ class MdekExampleSecurityThread extends Thread {
 		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
 		supertool.storeGroup(newGroupDoc, true);
 
+		System.out.println("\n----- DELETE group -> ERROR: User still working on ADDRESS -----");
+		supertool.deleteGroup(newGroupId);
+
 		System.out.println("\n----- validate group: still write permissions ! -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
 		
@@ -622,20 +628,16 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- CLEAN UP -----");
 		System.out.println("----------------------------");
 		
-		System.out.println("\n----- remove users -----");
-		supertool.deleteUser(newMetaAdminId);
-		supertool.deleteUser(newMetaAuthorId);
-
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- verify no wrong permissions in group -> get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
 
-		System.out.println("\n----- remove permissions from group -----");
-		clearPermissionsOfGroupDoc(newGroupDoc);
-		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
-
-		System.out.println("\n----- remove group -----");
+		System.out.println("\n----- delete group -> returns remaining users of deleted group -----");
 		supertool.deleteGroup(newGroupId);
+
+		System.out.println("\n----- delete users -----");
+		supertool.deleteUser(newMetaAdminId);
+		supertool.deleteUser(newMetaAuthorId);
 
 		// ===================================
 

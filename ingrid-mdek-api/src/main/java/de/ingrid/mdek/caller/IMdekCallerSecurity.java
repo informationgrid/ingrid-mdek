@@ -37,6 +37,13 @@ public interface IMdekCallerSecurity {
 	 * 		or just store without refetching (false)
 	 * @return response containing result: detailed map representation of created
 	 * 		group when refetching otherwise map containing basic data (generated id)  
+	 * @throws MdekException group already exists (MdekErrorType.ENTITY_ALREADY_EXISTS). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.SINGLE_BELOW_TREE_OBJECT_PERMISSION). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.SINGLE_BELOW_TREE_ADDRESS_PERMISSION). 
 	 */
 	IngridDocument createGroup(String plugId,
 			IngridDocument groupDoc,
@@ -51,6 +58,14 @@ public interface IMdekCallerSecurity {
 	 * 		or just store without refetching (false)
 	 * @return response containing result: detailed map representation of
 	 * 		group when refetching otherwise map containing basic data (id)  
+	 * @throws MdekException wrong permissions set (MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.SINGLE_BELOW_TREE_OBJECT_PERMISSION). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION). 
+	 * @throws MdekException wrong permissions set (MdekErrorType.SINGLE_BELOW_TREE_ADDRESS_PERMISSION). 
+	 * @throws MdekException if needed permission removed: group user still editing object (MdekErrorType.USER_OBJECT_PERMISSION_MISSING). 
+	 * @throws MdekException if needed permission removed: group user still editing address (MdekErrorType.USER_ADDRESS_PERMISSION_MISSING). 
 	 */
 	IngridDocument storeGroup(String plugId,
 			IngridDocument groupDoc,
@@ -62,10 +77,10 @@ public interface IMdekCallerSecurity {
 	 * 
 	 * @param plugId which mdek server (iplug)
 	 * @param groupId The group id.
-	 * @return response containing result: success and error  
+	 * @return response containing result: map containing former group users (having no permissions now)  
 	 * @throws MdekException if the group not exists (MdekErrorType.ENTITY_NOT_FOUND). 
-	 * @throws MdekException if the group has permissions attached (MdekErrorType.GROUP_HAS_PERMISSIONS). 
-	 * @throws MdekException if the group has users attached (MdekErrorType.GROUP_HAS_USERS). 
+	 * @throws MdekException if group user still editing object (MdekErrorType.USER_OBJECT_PERMISSION_MISSING). 
+	 * @throws MdekException if group user still editing address (MdekErrorType.USER_ADDRESS_PERMISSION_MISSING). 
 	 */
 	IngridDocument deleteGroup(String plugId,
 			Long idcGroupId,

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
@@ -114,6 +115,37 @@ public class BeanToDocMapperSecurity implements IMapper {
 		}
 
 		return userDoc;
+	}
+
+	/**
+	 * Map given user beans to document. With or without CatAdmins ...
+	 * @param inRefs list of user beans
+	 * @param inDoc document to map to
+	 * @param filterCatAdmin true=user with role CatalogAdmin aren't added, false=all users are added !
+	 * @return doc with mapped users
+	 */
+	public IngridDocument mapIdcUserList(List<IdcUser> inRefs, IngridDocument inDoc, boolean filterCatAdmin) {
+		if (inRefs == null) {
+			inRefs = new ArrayList<IdcUser>(0); 
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(inRefs.size());
+		for (IdcUser inRef : inRefs) {
+			if (filterCatAdmin) {
+				// skip Catalog Administrator
+				if (IdcRole.CATALOG_ADMINISTRATOR.getDbValue().equals(inRef.getIdcRole())) {
+					continue;
+				}
+			}
+
+			IngridDocument refDoc = new IngridDocument();
+			mapIdcUser(inRef, refDoc, MappingQuantity.DETAIL_ENTITY);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeysSecurity.IDC_USERS, refList);
+		
+		return inDoc;
 	}
 
 	public IngridDocument mapPermissionAddr(PermissionAddr inRef, IngridDocument inDoc,

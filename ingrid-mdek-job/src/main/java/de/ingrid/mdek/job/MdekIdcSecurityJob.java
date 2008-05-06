@@ -249,7 +249,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		}
 	}
 	
-	public void deleteGroup(IngridDocument docIn) {
+	public IngridDocument deleteGroup(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
 		boolean removeRunningJob = true;
 		try {
@@ -260,12 +260,31 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			Long grpId = (Long) docIn.get(MdekKeysSecurity.IDC_GROUP_ID);
 			IdcGroup group = daoIdcGroup.getById(grpId);
-			
-			// perform checks, throws exception if not ok !
-			checkDeleteGroup(group);
+			if (group == null) {
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+			}
 
+			// first remove ALL permissions AND MAKE PERSISTENT, so oncoming checks work (checks read from database) !
+			IngridDocument noPermissionsDoc = new IngridDocument();
+			docToBeanMapperSecurity.updateIdcUserPermissions(noPermissionsDoc, group);
+			docToBeanMapperSecurity.updatePermissionAddrs(noPermissionsDoc, group);
+			docToBeanMapperSecurity.updatePermissionObjs(noPermissionsDoc, group);
+			daoIdcGroup.makePersistent(group);
+
+			// check for users editing entities and still needing permissions, throws exception if so !
+			checkUsersOfGroup(group);
+			
+			// ok, we update ex group users (remove from group, ...) and return them
+			List<IdcUser> users = daoIdcUser.getIdcUsersByGroupId(group.getId());
+			clearGroupOnUsers(users, userId);
+			IngridDocument result = new IngridDocument();
+			beanToDocMapperSecurity.mapIdcUserList(users, result, true);
+
+			// all ok, now we delete and COMMIT !
 			daoIdcGroup.makeTransient(group);
 			daoIdcGroup.commitTransaction();
+			
+			return result;
 
 		} catch (RuntimeException e) {
 			daoIdcGroup.rollbackTransaction();
@@ -571,24 +590,6 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		}
 	}
 
-	private void checkDeleteGroup(IdcGroup grp) {
-		if (grp == null) {
-			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
-		}
-		// check for attached permissions
-		if (grp.getPermissionAddrs().size() > 0 || grp.getPermissionObjs().size() > 0) {
-			throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_PERMISSIONS));
-		}
-		// check for attached users
-		List<IdcUser> connectedUsers = daoIdcUser.getIdcUsersByGroupId(grp.getId());
-		if (connectedUsers.size() > 0) {
-			throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_USERS));
-		}
-
-		// check for users editing entities
-		checkUsersOfGroup(grp);
-	}
-
 	/**
 	 * Validate whether the assigned permissions of the given group are ok or whether there are
 	 * conflicts (e.g. "write" underneath "write-tree"). THROWS EXCEPTION IF A CONFLICT OCCURS
@@ -622,7 +623,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// check whether "double" permissions !
 			if (uuidsSingle.contains(oUuid) || uuidsTree.contains(oUuid)) {
-				IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), oUuid);
+				IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), oUuid);
 				throw new MdekException(new MdekError(MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT, errInfo));
 			}
 
@@ -646,12 +647,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				List<String> path2 = daoObjectNode.getObjectPath(uuid2);
 				// order of uuids determines parent/child !
 				if (path1.contains(uuid2)) {
-					IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), uuid2);
-					errInfo = setUpErrorInfoObj(errInfo, uuid1);
+					IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), uuid2);
+					errInfo = setupErrorInfoObj(errInfo, uuid1);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
 				} else if  (path2.contains(uuid1)) {
-					IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), uuid1);
-					errInfo = setUpErrorInfoObj(errInfo, uuid2);
+					IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), uuid1);
+					errInfo = setupErrorInfoObj(errInfo, uuid2);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
 					
 				}
@@ -666,8 +667,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				String uuidTree = uuidsTree.get(j);
 				// order of uuids determines parent/child !
 				if (pathSingle.contains(uuidTree)) {
-					IngridDocument errInfo = setUpErrorInfoObj(new IngridDocument(), uuidTree);
-					errInfo = setUpErrorInfoObj(errInfo, uuidSingle);
+					IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), uuidTree);
+					errInfo = setupErrorInfoObj(errInfo, uuidSingle);
 					throw new MdekException(new MdekError(MdekErrorType.SINGLE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
 				}
 			}
@@ -696,7 +697,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// check whether "double" permissions !
 			if (uuidsSingle.contains(aUuid) || uuidsTree.contains(aUuid)) {
-				IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), aUuid);
+				IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), aUuid);
 				throw new MdekException(new MdekError(MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS, errInfo));
 			}
 
@@ -720,12 +721,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				List<String> path2 = daoAddressNode.getAddressPath(uuid2);
 				// order of uuids determines parent/child !
 				if (path1.contains(uuid2)) {
-					IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), uuid2);
-					errInfo = setUpErrorInfoAddr(errInfo, uuid1);
+					IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), uuid2);
+					errInfo = setupErrorInfoAddr(errInfo, uuid1);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
 				} else if  (path2.contains(uuid1)) {
-					IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), uuid1);
-					errInfo = setUpErrorInfoAddr(errInfo, uuid2);
+					IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), uuid1);
+					errInfo = setupErrorInfoAddr(errInfo, uuid2);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
 					
 				}
@@ -740,15 +741,15 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				String uuidTree = uuidsTree.get(j);
 				// order of uuids determines parent/child !
 				if (pathSingle.contains(uuidTree)) {
-					IngridDocument errInfo = setUpErrorInfoAddr(new IngridDocument(), uuidTree);
-					errInfo = setUpErrorInfoAddr(errInfo, uuidSingle);
+					IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), uuidTree);
+					errInfo = setupErrorInfoAddr(errInfo, uuidSingle);
 					throw new MdekException(new MdekError(MdekErrorType.SINGLE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
 				}
 			}
 		}
 	}
 
-	private IngridDocument setUpErrorInfoObj(IngridDocument errInfo, String objUuid) {
+	private IngridDocument setupErrorInfoObj(IngridDocument errInfo, String objUuid) {
 		if (errInfo == null) {
 			errInfo = new IngridDocument();			
 		}
@@ -763,7 +764,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		
 		return errInfo;
 	}
-	private IngridDocument setUpErrorInfoAddr(IngridDocument errInfo, String addrUuid) {
+	private IngridDocument setupErrorInfoAddr(IngridDocument errInfo, String addrUuid) {
 		if (errInfo == null) {
 			errInfo = new IngridDocument();			
 		}
@@ -779,7 +780,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		return errInfo;
 	}
 
-	private IngridDocument setUpErrorInfoUser(IngridDocument errInfo, String userUuid) {
+	private IngridDocument setupErrorInfoUser(IngridDocument errInfo, String userUuid) {
 		if (errInfo == null) {
 			errInfo = new IngridDocument();			
 		}
@@ -813,8 +814,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String objUuid = (String) objUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid)) {
-				IngridDocument errInfo = setUpErrorInfoUser(new IngridDocument(), userUuid);
-				errInfo = setUpErrorInfoObj(errInfo, objUuid);
+				IngridDocument errInfo = setupErrorInfoUser(new IngridDocument(), userUuid);
+				errInfo = setupErrorInfoObj(errInfo, objUuid);
 				throw new MdekException(new MdekError(MdekErrorType.USER_OBJECT_PERMISSION_MISSING, errInfo));
 			}
 		}
@@ -833,10 +834,24 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String addrUuid = (String) addrUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid)) {
-				IngridDocument errInfo = setUpErrorInfoUser(new IngridDocument(), userUuid);
-				errInfo = setUpErrorInfoAddr(errInfo, addrUuid);
+				IngridDocument errInfo = setupErrorInfoUser(new IngridDocument(), userUuid);
+				errInfo = setupErrorInfoAddr(errInfo, addrUuid);
 				throw new MdekException(new MdekError(MdekErrorType.USER_ADDRESS_PERMISSION_MISSING, errInfo));
 			}
+		}
+	}
+
+	/**
+	 * Clear all group data on given users. NOTICE: already persists users !
+	 */
+	private void clearGroupOnUsers(List<IdcUser> users, String modUuid) {
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
+		for (IdcUser user : users) {
+			user.setIdcGroupId(null);
+			user.setIdcGroup(null);
+			user.setModTime(currentTime);
+			user.setModUuid(modUuid);
+			daoIdcUser.makePersistent(user);
 		}
 	}
 }
