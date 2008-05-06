@@ -263,7 +263,18 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			if (group == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
-
+// GROUP CAN BE DELETED WITH USERS AND PERMISSIONS ! further checks, see below !
+/*
+			// check for attached permissions
+			if (grp.getPermissionAddrs().size() > 0 || grp.getPermissionObjs().size() > 0) {
+				throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_PERMISSIONS));
+			}
+			// check for attached users
+			List<IdcUser> connectedUsers = daoIdcUser.getIdcUsersByGroupId(grp.getId());
+			if (connectedUsers.size() > 0) {
+				throw new MdekException(new MdekError(MdekErrorType.GROUP_HAS_USERS));
+			}
+*/
 			// first remove ALL permissions AND MAKE PERSISTENT, so oncoming checks work (checks read from database) !
 			IngridDocument noPermissionsDoc = new IngridDocument();
 			docToBeanMapperSecurity.updateIdcUserPermissions(noPermissionsDoc, group);

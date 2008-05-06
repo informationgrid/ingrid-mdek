@@ -35,6 +35,7 @@ public interface IMdekCallerSecurity {
 	 * @param groupDoc map representation of new group
 	 * @param refetchAfterStore immediately refetch group after store (true)
 	 * 		or just store without refetching (false)
+	 * @param userId calling user
 	 * @return response containing result: detailed map representation of created
 	 * 		group when refetching otherwise map containing basic data (generated id)  
 	 * @throws MdekException group already exists (MdekErrorType.ENTITY_ALREADY_EXISTS). 
@@ -56,6 +57,7 @@ public interface IMdekCallerSecurity {
 	 * @param groupDoc map representation of group, CONTAINS ALSO ID OF GROUP !
 	 * @param refetchAfterStore immediately refetch group after store (true)
 	 * 		or just store without refetching (false)
+	 * @param userId calling user
 	 * @return response containing result: detailed map representation of
 	 * 		group when refetching otherwise map containing basic data (id)  
 	 * @throws MdekException wrong permissions set (MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT). 
@@ -73,10 +75,10 @@ public interface IMdekCallerSecurity {
 			String userId);
 
 	/**
-	 * Deletes an existing group. NOTICE: Passed groupDoc must contain ID of user ! Throws exceptions if the group still has Users or Permissions attached.
-	 * 
+	 * Deletes an existing group.
 	 * @param plugId which mdek server (iplug)
 	 * @param groupId The group id.
+	 * @param userId calling user
 	 * @return response containing result: map containing former group users (having no permissions now)  
 	 * @throws MdekException if the group not exists (MdekErrorType.ENTITY_NOT_FOUND). 
 	 * @throws MdekException if group user still editing object (MdekErrorType.USER_OBJECT_PERMISSION_MISSING). 
