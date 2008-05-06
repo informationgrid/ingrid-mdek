@@ -458,14 +458,12 @@ public class MdekPermissionHandler {
 	 * Check "CreateRoot" Permission of given user and return "yes"/"no" !
 	 */
 	private boolean hasCreateRootPermission(String userAddrUuid) {
-		// check catalog Admin
-		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
+		// NO CHECK ON CATALOG ADMIN ANYMORE !
+		// CreateRoot now bound to group (because group gets "write-tree" permissions on created root entities !)
+//		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
 
-		// check user
-		if (!hasPermission) {
-			hasPermission = permService.hasUserPermission(userAddrUuid, 
-				PermissionFactory.getPermissionTemplateCreateRoot());			
-		}
+		boolean hasPermission = permService.hasUserPermission(userAddrUuid, 
+			PermissionFactory.getPermissionTemplateCreateRoot());			
 
 		return hasPermission;
 	}
