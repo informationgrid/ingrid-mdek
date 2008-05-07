@@ -90,7 +90,7 @@ public class IdcGroupDaoHibernate
 		return qString;
 	}
 
-	public List<Map> getGroupUsersWithObjectsInGivenState(String groupName,
+	public List<Map> getGroupUsersWithObjectsNotInGivenState(String groupName,
 			WorkState objWorkState) {
 		Session session = getSession();
 
@@ -101,7 +101,7 @@ public class IdcGroupDaoHibernate
 			"from ObjectNode oNode " +
 			"inner join oNode.t01ObjectWork o " +
 			"where " +
-			"o.workState = '" + objWorkState.getDbValue() + "' " +
+			"o.workState != '" + objWorkState.getDbValue() + "' " +
 			"and o.modUuid in (" +
 				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
 				"where grp.name='" + groupName + "'" +
@@ -112,7 +112,7 @@ public class IdcGroupDaoHibernate
 		return maps;
 	}
 
-	public List<Map> getGroupUsersWithAddressesInGivenState(String groupName,
+	public List<Map> getGroupUsersWithAddressesNotInGivenState(String groupName,
 			WorkState addrWorkState) {
 		Session session = getSession();
 
@@ -123,7 +123,7 @@ public class IdcGroupDaoHibernate
 			"from AddressNode aNode " +
 			"inner join aNode.t02AddressWork a " +
 			"where " +
-			"a.workState = '" + addrWorkState.getDbValue() + "' " +
+			"a.workState != '" + addrWorkState.getDbValue() + "' " +
 			"and a.modUuid in (" +
 				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
 				"where grp.name='" + groupName + "'" +

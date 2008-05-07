@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;

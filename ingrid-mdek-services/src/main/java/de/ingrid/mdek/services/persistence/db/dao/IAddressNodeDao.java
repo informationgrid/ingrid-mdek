@@ -1,14 +1,11 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.hibernate.Session;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -136,4 +133,6 @@ public interface IAddressNodeDao
 	 */
 	long queryAddressesExtendedTotalNum(IngridDocument searchParams);
 
+	/** Get ALL Addresses (also published ones) where given user is responsible user. */
+	List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid);
 }

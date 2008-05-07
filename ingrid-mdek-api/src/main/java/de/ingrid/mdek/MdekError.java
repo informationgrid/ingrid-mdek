@@ -69,30 +69,39 @@ public class MdekError implements Serializable {
 		/** List data in record has no key AND no value !  Has to have one of both ! */
 		LIST_NO_KEY_NO_VALUE("102"),
 		
-		/** try to store a user that has not the catalog admin role without a valid parent*/
-		USER_HAS_NO_VALID_PARENT("1000"),
-		/** user has no permission for executing the operation */
-		USER_HAS_NO_PERMISSION("1001"),
+		/** the user who called mdek backend could not be loaded via its passed AddrUuid ! */
+		CALLING_USER_NOT_FOUND("1000"),
+		/** e.g. parent is null and user is NOT catalog admin */
+		USER_HAS_NO_VALID_PARENT("1010"),
+		/** user has no PERMISSION for executing the operation on an entity (write, create root etc.) */
+		USER_HAS_NO_PERMISSION_ON_ENTITY("1011"),
+		/** user role doesn't allow the operation (e.g. create new MD_ADMIN as MD_ADMIN ...) */
+		USER_HAS_WRONG_ROLE("1012"),
+		/** e.g. parent of user to store/create not valid compared to calling user (not subuser of calling user) */
+		USER_HIERARCHY_WRONG("1013"),
+		/** e.g. user to delete has subusers ! */
+		USER_HAS_SUBUSERS("1014"),
+		/** e.g. user to delete is catalog admin ! */
+		USER_IS_CATALOG_ADMIN("1015"),
 		
 		/** try to remove a group that has still users attached. errorInfo: list of attached users ! */
-		GROUP_HAS_USERS("1021"), 
+		GROUP_HAS_USERS("2021"), 
 		/** a user write permission (in group) on an object has been removed although the user is still working on the object ! */
-		USER_OBJECT_PERMISSION_MISSING("1022"),
+		USER_OBJECT_PERMISSION_MISSING("2022"),
 		/** a user write permission (in group) on an address has been removed although the user is still working on the address ! */
-		USER_ADDRESS_PERMISSION_MISSING("1023"),
-
+		USER_ADDRESS_PERMISSION_MISSING("2023"),
 		/** An object has multiple permissions set (in a group). errorInfo: single object (in list) */
-		MULTIPLE_PERMISSIONS_ON_OBJECT("1051"),
+		MULTIPLE_PERMISSIONS_ON_OBJECT("2051"),
 		/** "write-tree" object permissions are nested (in a group). errorInfo: two objects, order determines parent/child ! */
-		TREE_BELOW_TREE_OBJECT_PERMISSION("1052"),
+		TREE_BELOW_TREE_OBJECT_PERMISSION("2052"),
 		/** "write" object permission beneath "write-tree" permission (in a group). errorInfo: two objects, order determines parent/child ! */
-		SINGLE_BELOW_TREE_OBJECT_PERMISSION("1053"),
+		SINGLE_BELOW_TREE_OBJECT_PERMISSION("2053"),
 		/** An address has multiple permissions set (in a group). errorInfo: single address (in list) */
-		MULTIPLE_PERMISSIONS_ON_ADDRESS("1061"),
+		MULTIPLE_PERMISSIONS_ON_ADDRESS("2061"),
 		/** "write-tree" address permissions are nested (in a group). errorInfo: two addresses, order determines parent/child ! */
-		TREE_BELOW_TREE_ADDRESS_PERMISSION("1062"),
+		TREE_BELOW_TREE_ADDRESS_PERMISSION("2062"),
 		/** "write" address permission beneath "write-tree" permission (in a group). errorInfo: two addresses, order determines parent/child ! */
-		SINGLE_BELOW_TREE_ADDRESS_PERMISSION("1063")
+		SINGLE_BELOW_TREE_ADDRESS_PERMISSION("2063")
 		;
 
 		MdekErrorType(String errorCode) {

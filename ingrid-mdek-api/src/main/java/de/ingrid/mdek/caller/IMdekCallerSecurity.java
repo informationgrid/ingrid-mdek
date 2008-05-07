@@ -150,6 +150,8 @@ public interface IMdekCallerSecurity {
 	 * 		user when refetching otherwise map containing basic data (generated id) 
 	 * @throws MdekException if the user already exists ((MdekErrorType.ENTITY_ALREADY_EXISTS)). 
 	 * @throws MdekException if the user has no parent id set AND is has NOT the catalog admin role ((MdekErrorType.USER_HAS_NO_VALID_PARENT)). 
+	 * @throws MdekException if calling user role not "above" role of new user (MdekErrorType.USER_HAS_WRONG_ROLE). 
+	 * @throws MdekException if calling user not parent of new user (MdekErrorType.USER_HIERARCHY_WRONG). 
 	 */
 	IngridDocument createUser(String plugId,
 			IngridDocument userDoc,
@@ -166,6 +168,8 @@ public interface IMdekCallerSecurity {
 	 * 		user when refetching otherwise map containing basic data (id)  
 	 * @throws MdekException if the user not exists (MdekErrorType.ENTITY_NOT_FOUND). 
 	 * @throws MdekException if the user has no parent id set AND is has NOT the catalog admin role ((MdekErrorType.USER_HAS_NO_VALID_PARENT)). 
+	 * @throws MdekException if updated role differs from former role OR calling user role not "above" role of user to update (MdekErrorType.USER_HAS_WRONG_ROLE). 
+	 * @throws MdekException if updated parent differs from former parent OR calling user not parent of user to update (MdekErrorType.USER_HIERARCHY_WRONG). 
 	 */
 	IngridDocument storeUser(String plugId,
 			IngridDocument userDoc,
@@ -173,11 +177,16 @@ public interface IMdekCallerSecurity {
 			String userId);
 
 	/**
-	 * Deletes an existing user. NOTICE: Passed userDoc must contain ID of user ! 
+	 * Deletes an existing user.<br>
+	 * NOTICE: users parent user is set in all entities where user is responsible user !
 	 * @param plugId which mdek server (iplug)
 	 * @param idcUserId user id.
 	 * @return response containing result: success and error  
 	 * @throws MdekException if the user not exists (MdekErrorType.ENTITY_NOT_FOUND). 
+	 * @throws MdekException if user to delete is catalog admin (MdekErrorType.USER_IS_CATALOG_ADMIN). 
+	 * @throws MdekException if user to delete has subusers (MdekErrorType.USER_HAS_SUBUSERS). 
+	 * @throws MdekException if calling user role not "above" role of user to delete (MdekErrorType.USER_HAS_WRONG_ROLE). 
+	 * @throws MdekException if calling user not parent of user to delete (MdekErrorType.USER_HIERARCHY_WRONG). 
 	 */
 	IngridDocument deleteUser(String plugId,
 			Long idcUserId,

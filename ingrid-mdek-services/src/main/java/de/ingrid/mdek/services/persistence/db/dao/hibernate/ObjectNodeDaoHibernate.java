@@ -15,6 +15,7 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.utils.IngridDocument;
 
@@ -423,4 +424,17 @@ public class ObjectNodeDaoHibernate
 		return qString;
 	}
 
+	public List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid) {
+		List<T01Object> retList = new ArrayList<T01Object>();
+
+		Session session = getSession();
+
+		retList = session.createQuery("select distinct o " +
+			"from T01Object o " +
+			"where o.responsibleUuid = ?")
+			.setString(0, responsibleUserUuid)
+			.list();
+
+		return retList;
+	}
 }

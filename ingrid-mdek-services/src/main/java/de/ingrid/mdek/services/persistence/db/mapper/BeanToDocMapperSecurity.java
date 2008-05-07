@@ -62,6 +62,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 		
 		if (howMuch == MappingQuantity.DETAIL_ENTITY) 
 		{
+			// visible in client ?
 			groupDoc.put(MdekKeysSecurity.DATE_OF_CREATION, group.getCreateTime());
 			groupDoc.put(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION, group.getModTime());
 

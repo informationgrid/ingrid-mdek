@@ -32,10 +32,10 @@ public interface IIdcGroupDao extends IGenericDao<IdcGroup> {
 	/** Get the users of the given group who currently have objects in given work state.  
 	 * Returns a list of maps. Map contains objUuid and the userUuid who currently owns 
 	 * (modifies) the object. */
-	List<Map> getGroupUsersWithObjectsInGivenState(String groupName, WorkState objWorkState);
+	List<Map> getGroupUsersWithObjectsNotInGivenState(String groupName, WorkState objWorkState);
 
 	/** Get the users of the given group who currently have addresses in given work state.  
 	 * Returns a list of maps. Map contains addrUuid and the userUuid who currently owns 
 	 * (modifies) the object. */
-	List<Map> getGroupUsersWithAddressesInGivenState(String groupName, WorkState addrWorkState);
+	List<Map> getGroupUsersWithAddressesNotInGivenState(String groupName, WorkState addrWorkState);
 }

@@ -152,6 +152,12 @@ class MdekExampleSecurityThread extends Thread {
 
 		IngridDocument doc;
 
+		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		IngridDocument catAdminDoc = supertool.getCatalogAdmin();
+		Long catalogAdminId = (Long) catAdminDoc.get(MdekKeysSecurity.IDC_USER_ID);
+		String catalogAdminUuid = catAdminDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+		supertool.setCallingUser(catalogAdminUuid);
+
 // ====================
 // test single stuff
 // -----------------------------------
@@ -194,7 +200,7 @@ class MdekExampleSecurityThread extends Thread {
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- VALIDATE GROUP OBJECT PERMISSIONS -----");
+		System.out.println("----- VALIDATE GROUP OBJECT PERMISSION STRUCTURE -----");
 
 		System.out.println("\n----- double permission on OBJECT -> ERROR -----");
 		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
@@ -220,7 +226,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- VALIDATE GROUP ADDRESS PERMISSIONS -----");
+		System.out.println("----- VALIDATE GROUP ADDRESS PERMISSION STRUCTURE -----");
 
 		System.out.println("\n----- double permission on ADDRESS -> ERROR -----");
 		clearPermissionsOfGroupDoc(newGroupDoc);
@@ -255,42 +261,303 @@ class MdekExampleSecurityThread extends Thread {
 		// ===================================
 
 		System.out.println("\n----------------------------");
-		System.out.println("----- TEST USER STUFF -----");
+		System.out.println("----- TEST USER STUFF (ROLES, HIERARCHY) -----");
 		System.out.println("----------------------------");
 
-		System.out.println("\n----- get catalog admin -----");
-		IngridDocument catalogAdminDoc = supertool.getCatalogAdmin();
-		Long catalogAdminId = (Long) catalogAdminDoc.get(MdekKeysSecurity.IDC_USER_ID);
-		String catalogAdminUuid = catalogAdminDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
-		
-		System.out.println("\n----- create new user METADATA_ADMINISTRATOR -----");
-		IngridDocument newMetaAdminDoc = new IngridDocument();
-		newMetaAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
-		newMetaAdminDoc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
-		newMetaAdminDoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
-		newMetaAdminDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
-		newMetaAdminDoc = supertool.createUser(newMetaAdminDoc, true);
-		Long newMetaAdminId = (Long) newMetaAdminDoc.get(MdekKeysSecurity.IDC_USER_ID);
-		String newMetaAdminUuid = newMetaAdminDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+		System.out.println("\n----------------------------");
+		System.out.println("----- CREATE USERS -----");
+		System.out.println("----------------------------");
 
-		System.out.println("\n----- create new user METADATA_AUTHOR -----");
-		IngridDocument newMetaAuthorDoc = new IngridDocument();
-		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "386645BC-B449-11D2-9A86-080000507261");
-		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
-		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
-		newMetaAuthorDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdminId);
-		newMetaAuthorDoc = supertool.createUser(newMetaAuthorDoc, true);
-		Long newMetaAuthorId = (Long) newMetaAuthorDoc.get(MdekKeysSecurity.IDC_USER_ID);
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- CREATE USER AS CATALOG_ADMIN -> ALL ALLOWED, EXCEPT CREATE NEW CATALOG ADMIN ! -----");
+
+		System.out.println("\n----- create new 2ND CAT_ADMIN -> ERROR -----");
+		String addrUuidNotUsedForUser = "ADEED0B6-545F-11D3-AE6F-00104B57C66D";
+		IngridDocument secondCatAdminDoc = new IngridDocument();
+		secondCatAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		secondCatAdminDoc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		secondCatAdminDoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue());
+		secondCatAdminDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, null);
+		supertool.createUser(secondCatAdminDoc, true);
+
+		System.out.println("\n----- create new user 'MD_ADMINISTRATOR 1' -> ALLOWED -----");
+		IngridDocument newMetaAdmin1Doc = new IngridDocument();
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+		newMetaAdmin1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		newMetaAdmin1Doc = supertool.createUser(newMetaAdmin1Doc, true);
+		Long newMetaAdmin1Id = (Long) newMetaAdmin1Doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String newMetaAdmin1Uuid = newMetaAdmin1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+
+		System.out.println("\n----- create new user 'MD_AUTHOR 1' -> ALLOWED -----");
+		IngridDocument newMetaAuthor1Doc = new IngridDocument();
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "386645BC-B449-11D2-9A86-080000507261");
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
+		newMetaAuthor1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin1Id);
+		newMetaAuthor1Doc = supertool.createUser(newMetaAuthor1Doc, true);
+		Long newMetaAuthor1Id = (Long) newMetaAuthor1Doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String newMetaAuthor1Uuid = newMetaAuthor1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+
+		System.out.println("\n----- create 2ND new user 'MD_ADMINISTRATOR 2' -> ALLOWED -----");
+		IngridDocument newMetaAdmin2Doc = new IngridDocument();
+		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE4-FE15-11D2-AF34-0060084A4596");
+		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+		newMetaAdmin2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		newMetaAdmin2Doc = supertool.createUser(newMetaAdmin2Doc, true);
+		Long newMetaAdmin2Id = (Long) newMetaAdmin2Doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String newMetaAdmin2Uuid = newMetaAdmin2Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
 		System.out.println("\n----- get sub users -----");
 		supertool.getSubUsers(catalogAdminId);
-		supertool.getSubUsers(newMetaAdminId);
+		supertool.getSubUsers(newMetaAdmin1Id);
 
-		System.out.println("\n----- change addr uuid of user and store -----");
-		newMetaAuthorDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
-		newMetaAuthorDoc = supertool.storeUser(newMetaAuthorDoc, true);		
-		String newMetaAuthorUuid = newMetaAuthorDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- CREATE USER AS 'MD_ADMIN 1' -> ONLY 'MD_AUTHOR' underneath 'MD_ADMIN 1' ALLOWED ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO 'MD_ADMIN 1' 111111 -----");
+		supertool.setCallingUser(newMetaAdmin1Uuid);
+
+		System.out.println("\n----- create new 2ND CAT_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
+		secondCatAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		supertool.createUser(secondCatAdminDoc, true);
+
+		System.out.println("\n----- create new user MD_ADMINISTRATOR -> ERROR: USER_HAS_WRONG_ROLE -----");
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		supertool.createUser(newMetaAdmin1Doc, true);
 		
+		System.out.println("\n----- create new user 'MD_AUTHOR 2' UNDER 'MD_ADMINISTRATOR 2' = not subuser !!! -> ERROR: USER_HIERARCHY_WRONG (calling user not parent) -----");
+		IngridDocument newMetaAuthor2Doc = new IngridDocument();
+		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "0C2EA4F9-18DE-11D3-AF47-0060084A4596");
+		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
+		newMetaAuthor2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin2Id);
+		supertool.createUser(newMetaAuthor2Doc, true);
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO 'MD_ADMIN 2' 2222222 -----");
+		supertool.setCallingUser(newMetaAdmin2Uuid);
+
+		System.out.println("\n----- create new user 'MD_AUTHOR 2' UNDER 'MD_ADMINISTRATOR 2' = subuser !!! -> ALLOWED (calling user is parent 'MD_ADMINISTRATOR 2') -----");
+		newMetaAuthor2Doc = supertool.createUser(newMetaAuthor2Doc, true);
+		Long newMetaAuthor2Id = (Long) newMetaAuthor2Doc.get(MdekKeysSecurity.IDC_USER_ID);
+
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- CREATE USER AS MD_AUTHOR -> ERROR ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO MD_AUTHOR -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
+
+		System.out.println("\n----- create new 2ND CAT_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
+		secondCatAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		supertool.createUser(secondCatAdminDoc, true);
+
+		System.out.println("\n----- create new user MD_ADMINISTRATOR -> ERROR: USER_HAS_WRONG_ROLE -----");
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		supertool.createUser(newMetaAdmin1Doc, true);
+		
+		System.out.println("\n----- create new user MD_AUTHOR -> ERROR: USER_HAS_WRONG_ROLE -----");
+		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		supertool.createUser(newMetaAuthor2Doc, true);
+
+
+		System.out.println("\n----------------------------");
+		System.out.println("----- UPDATE USERS -----");
+		System.out.println("----------------------------");
+
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- UPDATE USER AS CATALOG_ADMIN -> ALL ALLOWED -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO CATALOG_ADMIN -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n----- store CAT_ADMIN -> ALLOWED -----");
+		catAdminDoc = supertool.storeUser(catAdminDoc, true);		
+
+		System.out.println("\n----- store MD_ADMIN -> ALLOWED -----");
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newMetaAdmin1Uuid);
+		newMetaAdmin1Doc = supertool.storeUser(newMetaAdmin1Doc, true);
+
+		System.out.println("\n----- store MD_AUTHOR (change addr uuid of user and store) -> ALLOWED -----");
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
+		newMetaAuthor1Doc = supertool.storeUser(newMetaAuthor1Doc, true);		
+		newMetaAuthor1Uuid = newMetaAuthor1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- UPDATE USER AS 'MD_ADMIN 1' -> ONLY 'MD_AUTHOR' underneath 'MD_ADMIN 1' ALLOWED ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO 'MD_ADMIN 1' 111111 -----");
+		supertool.setCallingUser(newMetaAdmin1Uuid);
+
+		System.out.println("\n----- store CAT_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
+		supertool.storeUser(catAdminDoc, true);		
+
+		System.out.println("\n----- store MD_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
+		supertool.storeUser(newMetaAdmin1Doc, true);		
+
+		System.out.println("\n----- store 'MD_AUTHOR 2' = not subuser -> ERROR: USER_HIERARCHY_WRONG (calling user not parent) -----");
+		supertool.storeUser(newMetaAuthor2Doc, true);
+		
+		System.out.println("\n----- store 'MD_AUTHOR 1' = subuser !!! -> ALLOWED (calling user is parent 'MD_ADMINISTRATOR 1') -----");
+		newMetaAuthor1Doc = supertool.storeUser(newMetaAuthor1Doc, true);		
+
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- UPDATE USER AS MD_AUTHOR -> ERROR -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO MD_AUTHOR -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
+
+		System.out.println("\n----- store CAT_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
+		catAdminDoc = supertool.storeUser(catAdminDoc, true);		
+
+		System.out.println("\n----- store MD_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
+		newMetaAdmin1Doc = supertool.storeUser(newMetaAdmin1Doc, true);		
+
+		System.out.println("\n----- store MD_AUTHOR -> ERROR: USER_HAS_WRONG_ROLE -----");
+		newMetaAuthor1Doc = supertool.storeUser(newMetaAuthor1Doc, true);		
+
+		System.out.println("\n----------------------------");
+		System.out.println("----- DELETE USERS -----");
+		System.out.println("----------------------------");
+
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- DELETE USER AS MD_AUTHOR -> ERROR -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO MD_AUTHOR -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
+
+		System.out.println("\n----- delete MD_AUTHOR -> ERROR: USER_HAS_WRONG_ROLE -----");
+		supertool.deleteUser(newMetaAuthor2Id);		
+
+		System.out.println("\n----- delete MD_ADMIN -> ERROR: USER_HAS_SUBUSERS -----");
+		supertool.deleteUser(newMetaAdmin2Id);		
+
+		System.out.println("\n----- delete CAT_ADMIN -> ERROR: USER_IS_CATALOG_ADMIN -----");
+		supertool.deleteUser(catalogAdminId);		
+
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- DELETE USER AS 'MD_ADMIN 2' -> ONLY 'MD_AUTHOR' underneath 'MD_ADMIN 2' ALLOWED ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO 'MD_ADMIN 2' 22222 -----");
+		supertool.setCallingUser(newMetaAdmin2Uuid);
+
+		System.out.println("\n----- delete 'MD_AUTHOR 1' = not subuser -> ERROR: USER_HIERARCHY_WRONG (calling user not parent) -----");
+		supertool.deleteUser(newMetaAuthor1Id);		
+		
+		System.out.println("\n----- delete 'MD_AUTHOR 2' = subuser !!! -> ALLOWED (calling user is parent 'MD_ADMINISTRATOR 2') -----");
+		supertool.deleteUser(newMetaAuthor2Id);		
+
+		System.out.println("\n----- delete MD_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
+		supertool.deleteUser(newMetaAdmin2Id);		
+
+		System.out.println("\n----- delete CAT_ADMIN -> ERROR: USER_IS_CATALOG_ADMIN -----");
+		supertool.deleteUser(catalogAdminId);		
+
+		System.out.println("\n---------------------------------------------------");
+		System.out.println("----- DELETE USER AS CAT_ADMIN -> ALL ALLOWED (except CAT_ADMIN !) -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO CAT_ADMIN -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n----- delete CAT_ADMIN -> ERROR: USER_IS_CATALOG_ADMIN -----");
+		supertool.deleteUser(catalogAdminId);
+
+
+		System.out.println("\n\n----------------------------");
+		System.out.println("----- TEST RESPONSIBLE USER UPDATE IN ENTITY ON CHANGE OF ADDRESS IN USER");
+		System.out.println("----- !!! is also updated IN PUBLISHED Entities !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		System.out.println("----------------------------");
+		
+		System.out.println("\n----------------------------");
+		System.out.println("----- set 'MD_ADMIN 2' as responsible user in OBJECT ! -----");
+
+		System.out.println("\n----- fetch object -----");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- set Responsible User and store object -> working copy with 'MD_ADMIN 2' as ResponsibleUser -----");
+		System.out.println("----- !!! ResponsibleUser = " + newMetaAdmin2Uuid);
+		IngridDocument respUserDoc = new IngridDocument();
+		respUserDoc.put(MdekKeys.UUID, newMetaAdmin2Uuid);
+		doc.put(MdekKeys.RESPONSIBLE_USER, respUserDoc);
+		supertool.storeObject(doc, false);
+
+		System.out.println("\n----------------------------");
+		System.out.println("----- set 'MD_ADMIN 2' as responsible user in ADDRESS ! -----");
+
+		System.out.println("\n----- fetch address -----");
+		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- set Responsible User and store address -> working copy with 'MD_ADMIN 2' as ResponsibleUser -----");
+		System.out.println("----- !!! ResponsibleUser = " + newMetaAdmin2Uuid);
+		respUserDoc = new IngridDocument();
+		respUserDoc.put(MdekKeys.UUID, newMetaAdmin2Uuid);
+		doc.put(MdekKeys.RESPONSIBLE_USER, respUserDoc);
+		supertool.storeAddress(doc, false);
+
+		System.out.println("\n----------------------------");
+		System.out.println("----- change Address of 'MD_ADMIN 2' (= ResponsibleUser) -> Address of ResponsibleUser in Object/Address adapted -----");
+		System.out.println("----- !!! NEW ResponsibleUser = " + addrUuidNotUsedForUser);
+		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		newMetaAdmin2Doc = supertool.storeUser(newMetaAdmin2Doc, true);
+
+		System.out.println("\n----------------------------");
+		System.out.println("----- verify CHANGED ResponsibleUser in Object -----");
+		System.out.println("----- fetch object -----");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		String respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		System.out.println("----- !!! NEW Object ResponsibleUser = " + respUuid);
+		if (!respUuid.equals(addrUuidNotUsedForUser)) {
+			throw new RuntimeException("ERROR: Object ResponsibleUser NOT ADAPTED on User Address change");
+		}
+
+		System.out.println("\n----- verify CHANGED ResponsibleUser in ADDRESS -----");
+		System.out.println("----- fetch address -----");
+		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		System.out.println("----- !!! NEW Address ResponsibleUser = " + respUuid);
+		if (!respUuid.equals(addrUuidNotUsedForUser)) {
+			throw new RuntimeException("ERROR: Address ResponsibleUser NOT ADAPTED on User Address change");
+		}
+
+		System.out.println("\n\n----------------------------");
+		System.out.println("----- TEST RESPONSIBLE USER UPDATE IN ENTITY ON DELETE OF USER (set to Parent of User)");
+		System.out.println("----- !!! is also updated IN PUBLISHED Entities !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		System.out.println("----------------------------");
+		
+		System.out.println("\n----------------------------");
+		System.out.println("----- delete 'MD_ADMIN 2' (= ResponsibleUser) ->  Address of ResponsibleUser in Object/Address adapted to PARENT USER !!! -----");
+		System.out.println("----- !!! NEW ResponsibleUser = " + catalogAdminUuid + " (= CAT_ADMIN)");
+
+		System.out.println("\n----- delete 'MD_ADMIN 2' -> ALLOWED (calling user is CAT_ADMIN) -----");
+		supertool.deleteUser(newMetaAdmin2Id);		
+
+		System.out.println("\n----------------------------");
+		System.out.println("----- verify CHANGED ResponsibleUser in Object -----");
+		System.out.println("----- fetch object -----");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		System.out.println("----- !!! NEW Object ResponsibleUser = " + respUuid);
+		if (!respUuid.equals(catalogAdminUuid)) {
+			throw new RuntimeException("ERROR: Object ResponsibleUser NOT ADAPTED on User DELETE");
+		}
+
+		System.out.println("\n----- verify CHANGED ResponsibleUser in ADDRESS -----");
+		System.out.println("----- fetch address -----");
+		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		System.out.println("----- !!! NEW Address ResponsibleUser = " + respUuid);
+		if (!respUuid.equals(catalogAdminUuid)) {
+			throw new RuntimeException("ERROR: Address ResponsibleUser NOT ADAPTED on User DELETE");
+		}
+
+		System.out.println("\n----------------------------");
+		System.out.println("----- CLEAN UP: delete working copies of entities");
+
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(addrUuid, true);
+
+
 		// ===================================
 		
 		System.out.println("\n----------------------------");
@@ -313,7 +580,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
-		supertool.setCallingUser(newMetaAuthorUuid);
+		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		System.out.println("\n----- delete address FULL -> NOT ALLOWED -----");
 		supertool.deleteAddress(addrUuid, true);
@@ -627,7 +894,11 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----------------------------");
 		System.out.println("----- CLEAN UP -----");
 		System.out.println("----------------------------");
-		
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- verify no wrong permissions in group -> get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
@@ -638,9 +909,9 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- delete group, WITH FORCE DELETE WHEN HAVING USERS -> returns 'groupless' users of deleted group -----");
 		supertool.deleteGroup(newGroupId, true);
 
-		System.out.println("\n----- delete users -----");
-		supertool.deleteUser(newMetaAdminId);
-		supertool.deleteUser(newMetaAuthorId);
+		System.out.println("\n----- delete users from \"low to high\" -----");
+		supertool.deleteUser(newMetaAuthor1Id);
+		supertool.deleteUser(newMetaAdmin1Id);
 
 		// ===================================
 

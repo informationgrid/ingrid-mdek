@@ -1,0 +1,108 @@
+package de.ingrid.mdek.job.tools;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.ingrid.mdek.EnumUtil;
+import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
+import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
+import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+
+
+/**
+ * Handles IdcUser stuff.
+ */
+public class MdekIdcUserHandler {
+
+	private static MdekIdcUserHandler myInstance;
+
+	protected IIdcUserDao daoIdcUser;
+
+	/** Get The Singleton */
+	public static synchronized MdekIdcUserHandler getInstance(DaoFactory daoFactory) {
+		if (myInstance == null) {
+	        myInstance = new MdekIdcUserHandler(daoFactory);
+	      }
+		return myInstance;
+	}
+
+	private MdekIdcUserHandler(DaoFactory daoFactory) {
+		daoIdcUser = daoFactory.getIdcUserDao();
+	}
+
+	/**
+	 * Get the Calling IdcUser by its addrUuid (passed in request). 
+	 * @param currentUserUuid addrUuid of calling user passed in request doc.
+	 * @return
+	 * @throws MdekException idc user not found (MdekErrorType.CALLING_USER_NOT_FOUND). 
+	 */
+	public IdcUser getCurrentUser(String currentUserUuid) {
+		IdcUser currentUser = daoIdcUser.getIdcUserByAddrUuid(currentUserUuid);
+		if (currentUser == null) {
+			throw new MdekException(new MdekError(MdekErrorType.CALLING_USER_NOT_FOUND));
+		}
+
+		return currentUser;
+	}
+
+	/**
+	 * Get the IdcUser by its ID. 
+	 * @throws MdekException idc user not found (MdekErrorType.ENTITY_NOT_FOUND). 
+	 */
+	public IdcUser getUserById(Long idcUserId) {
+		IdcUser user = daoIdcUser.getById(idcUserId);
+		if (user == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+		}
+
+		return user;
+	}
+
+	/**
+	 * Returns whether role1 is above role2, e.g. Cat-Admin above MD-Admin = true.
+	 */
+	public boolean isRole1AboveRole2(Integer role1, Integer role2) {
+		IdcRole r1 = EnumUtil.mapDatabaseToEnumConst(IdcRole.class, role1);
+		if (r1 == null) {
+			return false;
+		}
+		IdcRole r2 = EnumUtil.mapDatabaseToEnumConst(IdcRole.class, role2);
+
+		return r1.isAbove(r2);
+	}
+
+	/**
+	 * Returns whether userId1 is parent or equals userId2.
+	 * @throws MdekException idc user not found (MdekErrorType.ENTITY_NOT_FOUND). 
+	 */
+	public boolean isUser1AboveOrEqualUser2(Long userId1, Long userId2) {
+		if (userId1 == null || userId2 == null) {
+			return false;
+		}
+		if (!getUserPath(userId2).contains(userId1)) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+	/**
+	 * Returns a list of user ids starting at catalog admin and leading to passed user id.
+	 * @throws MdekException idc user not found (MdekErrorType.ENTITY_NOT_FOUND). 
+	 */
+	public List<Long> getUserPath(Long userId) {
+		ArrayList<Long> idList = new ArrayList<Long>();
+		while(userId != null) {
+			IdcUser u = getUserById(userId);
+			idList.add(0, userId);
+			userId = u.getParentId();
+		}
+
+		return idList;
+	}
+}

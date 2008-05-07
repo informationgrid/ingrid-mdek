@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -109,4 +110,6 @@ public interface IObjectNodeDao
 	 */
 	long queryObjectsExtendedTotalNum(IngridDocument searchParams);
 
+	/** Get ALL Objects (also published ones) where given user is responsible user. */
+	List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid);
 }

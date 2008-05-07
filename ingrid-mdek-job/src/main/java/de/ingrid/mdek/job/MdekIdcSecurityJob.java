@@ -12,6 +12,8 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
+import de.ingrid.mdek.job.tools.MdekIdcUserHandler;
 import de.ingrid.mdek.job.tools.MdekPermissionHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -30,6 +32,7 @@ import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
@@ -44,6 +47,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	/** service encapsulating security functionality */
 	private IPermissionService permService;
 	private MdekPermissionHandler permHandler;
+	private MdekIdcUserHandler userHandler;
 
 	private IIdcGroupDao daoIdcGroup;
 	private IIdcUserDao daoIdcUser;
@@ -63,6 +67,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		
 		this.permService = permissionService;
 		permHandler = MdekPermissionHandler.getInstance(permissionService);
+		userHandler = MdekIdcUserHandler.getInstance(daoFactory);
 		
 		dao = daoFactory.getDao(IEntity.class);
 
@@ -156,7 +161,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			IdcGroup newGrp = docToBeanMapperSecurity.mapIdcGroup(gDocIn, new IdcGroup(), MappingQuantity.DETAIL_ENTITY);
 
 			// perform checks, throws exception if not ok !
-			checkPermissionsOfGroup(newGrp);
+			checkPermissionStructureOfGroup(newGrp);
 
 			 // save it, generates id
 			daoIdcGroup.makePersistent(newGrp);
@@ -218,9 +223,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// perform checks, throws exception if not ok !
 
 			// check for nested permissions
-			checkPermissionsOfGroup(grp);
+			checkPermissionStructureOfGroup(grp);
 			// check for users editing entities with removed permissions
-			checkEditingUsersOfGroup(grp);
+			checkMissingPermissionOfGroup(grp);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoIdcGroup.commitTransaction();
@@ -283,7 +288,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcGroup.makePersistent(group);
 
 			// check for users editing entities and still needing permissions, throws exception if so !
-			checkEditingUsersOfGroup(group);
+			checkMissingPermissionOfGroup(group);
 			
 			// ok, we update ex group users (remove from group, ...) and return them
 			clearGroupOnUsers(groupUsers, userId);
@@ -419,9 +424,11 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			daoIdcUser.beginTransaction();
-			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
-			String addrUuid = uDocIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+			String currentTime = MdekUtils.dateToTimestamp(new Date());
+			String newUserAddrUuid = uDocIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+			Integer newUserRole = (Integer) uDocIn.get(MdekKeysSecurity.IDC_ROLE);
+			Long newUserParentId = (Long) uDocIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
 			Boolean refetchAfterStore = (Boolean) uDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer !
@@ -430,13 +437,24 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			beanToDocMapper.mapModUser(userId, uDocIn, MappingQuantity.INITIAL_ENTITY);
 			
 			// exception if user already exists
-			if (daoIdcUser.getIdcUserByAddrUuid(addrUuid) != null) {
+			if (daoIdcUser.getIdcUserByAddrUuid(newUserAddrUuid) != null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS));
 			}
+
+			IdcUser callingUser = userHandler.getCurrentUser(userId);
+
+			// check role of calling user above role of new user ?
+			if (!userHandler.isRole1AboveRole2(callingUser.getIdcRole(), newUserRole)) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HAS_WRONG_ROLE));
+			}
+
+			// check calling user is parent of new user ?
+			if (!userHandler.isUser1AboveOrEqualUser2(callingUser.getId(), newUserParentId)) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HIERARCHY_WRONG));
+			}				
 			
 			IdcUser newUser = docToBeanMapperSecurity.mapIdcUser(uDocIn, new IdcUser());
-			 // save it, generates id
-			// TODO: check whether first store with BASIC DATA to genrate id for detailed mapping
+			 // save it, generates id. NOT NECESSARY TO CREATE ID BEFORE DETAIL MAPPING, because no associations ! 
 			daoIdcUser.makePersistent(newUser);
 			
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -448,7 +466,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			if (refetchAfterStore) {
 				daoIdcUser.beginTransaction();
-				result = getUserDetails(addrUuid);
+				result = getUserDetails(newUserAddrUuid);
 				daoIdcUser.commitTransaction();
 			}
 			
@@ -474,34 +492,75 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			daoIdcUser.beginTransaction();
-			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
-			Long usrId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);
+			String currentTime = MdekUtils.dateToTimestamp(new Date());
+			Long inUserId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);
+			Integer inUserRole = (Integer) uDocIn.get(MdekKeysSecurity.IDC_ROLE);
+			Long inUserParentId = (Long) uDocIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
 			Boolean refetchAfterStore = (Boolean) uDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer !
 			uDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			beanToDocMapper.mapModUser(userId, uDocIn, MappingQuantity.INITIAL_ENTITY);
 			
-			// exception if group not existing
-			IdcUser user = daoIdcUser.getById(usrId);
-			if (user == null) {
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+			// get user to update. exception if user not existing
+			IdcUser userToUpdate = userHandler.getUserById(inUserId);
+			boolean userToUpdateIsCatalogAdmin = 
+				IdcRole.CATALOG_ADMINISTRATOR.getDbValue().equals(userToUpdate.getIdcRole());
+			String oldAddrUuid = userToUpdate.getAddrUuid();
+
+			// check role of updated user changed ? NOT POSSIBLE !
+			if (!userToUpdate.getIdcRole().equals(inUserRole)) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HAS_WRONG_ROLE));
 			}
-			
-			docToBeanMapperSecurity.mapIdcUser(uDocIn, user);
-			daoIdcUser.makePersistent(user);
+
+			// check parent of updated user changed ? NOT POSSIBLE !
+			long oldParentId = (userToUpdate.getParentId() == null) ? 0 : userToUpdate.getParentId(); 
+			long newParentId = (inUserParentId == null) ? 0 : inUserParentId; 
+			if (oldParentId != newParentId) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HIERARCHY_WRONG));
+			}
+
+			// get calling user. exception if user not existing
+			IdcUser callingUser = userHandler.getCurrentUser(userId);
+			boolean callingUserIsCatalogAdmin =
+				IdcRole.CATALOG_ADMINISTRATOR.getDbValue().equals(callingUser.getIdcRole());
+
+			// CATALOG ADMINISTRATOR CAN CHANGE GROUP AND ADDRESS OF HIMSELF !!!!!
+			// all other user can't do this, is done by their parents !
+			boolean catalogAdminUpdatesHimself = callingUserIsCatalogAdmin && userToUpdateIsCatalogAdmin;
+			if (!catalogAdminUpdatesHimself) {
+				// check role of calling user above role of user to update ?
+				if (!userHandler.isRole1AboveRole2(callingUser.getIdcRole(), userToUpdate.getIdcRole())) {
+					throw new MdekException(new MdekError(MdekErrorType.USER_HAS_WRONG_ROLE));
+				}
+				// check calling user is parent of user to update ?
+				if (!userHandler.isUser1AboveOrEqualUser2(callingUser.getId(), userToUpdate.getParentId())) {
+					throw new MdekException(new MdekError(MdekErrorType.USER_HIERARCHY_WRONG));
+				}
+			}
+
+			// update user !
+			docToBeanMapperSecurity.mapIdcUser(uDocIn, userToUpdate);
+			daoIdcUser.makePersistent(userToUpdate);
+
+			// address uuid changed ?
+			// then update all entities, where old uuid is responsible user with new address uuid.
+			String newAddrUuid = userToUpdate.getAddrUuid();
+			if (!newAddrUuid.equals(oldAddrUuid)) {
+				updateResponsibleUserInEntities(oldAddrUuid, newAddrUuid);					
+			}
 			
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoIdcUser.commitTransaction();
 
 			// return basic data
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeysSecurity.IDC_USER_ID, user.getId());
+			result.put(MdekKeysSecurity.IDC_USER_ID, userToUpdate.getId());
 
 			if (refetchAfterStore) {
 				daoIdcUser.beginTransaction();
-				result = getUserDetails(user.getAddrUuid());
+				result = getUserDetails(userToUpdate.getAddrUuid());
 				daoIdcUser.commitTransaction();
 			}
 			
@@ -527,14 +586,39 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
 
 			daoIdcUser.beginTransaction();
-			Long usrId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);
+			Long inUserId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);
 			
-			// exception if group not existing
-			IdcUser user = daoIdcUser.getById(usrId);
-			if (user == null) {
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
+			// exception if user not existing
+			IdcUser userToDelete = userHandler.getUserById(inUserId);
+			boolean userToDeleteIsCatalogAdmin = 
+				IdcRole.CATALOG_ADMINISTRATOR.getDbValue().equals(userToDelete.getIdcRole());
+
+			IdcUser callingUser = userHandler.getCurrentUser(userId);
+
+			// user is catalog admin ?
+			if (userToDeleteIsCatalogAdmin) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_IS_CATALOG_ADMIN));
 			}
-			daoIdcUser.makeTransient(user);
+			// user has subusers ?
+			if (userToDelete.getIdcUsers().size() > 0) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HAS_SUBUSERS));
+			}
+			// check role of calling user above role of user to delete ?
+			if (!userHandler.isRole1AboveRole2(callingUser.getIdcRole(), userToDelete.getIdcRole())) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HAS_WRONG_ROLE));
+			}				
+			// check calling user is parent of user to delete ?
+			if (!userHandler.isUser1AboveOrEqualUser2(callingUser.getId(), userToDelete.getParentId())) {
+				throw new MdekException(new MdekError(MdekErrorType.USER_HIERARCHY_WRONG));
+			}
+
+			// ok, we update all entities, where user to delete is responsible user with parent user.
+			String oldResponsibleUuid = userToDelete.getAddrUuid();
+			String newResponsibleUuid = userHandler.getUserById(userToDelete.getParentId()).getAddrUuid();
+			updateResponsibleUserInEntities(oldResponsibleUuid, newResponsibleUuid);
+
+			// finally delete the user !
+			daoIdcUser.makeTransient(userToDelete);
 			daoIdcUser.commitTransaction();
 
 		} catch (RuntimeException e) {
@@ -606,9 +690,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * WITH DETAILED DATA ABOUT CONFLICT.
 	 * @param grp group to validate
 	 */
-	private void checkPermissionsOfGroup(IdcGroup grp) {
-		checkObjectPermissionsOfGroup(grp);
-		checkAddressPermissionsOfGroup(grp);
+	private void checkPermissionStructureOfGroup(IdcGroup grp) {
+		checkObjectPermissionStructureOfGroup(grp);
+		checkAddressPermissionStructureOfGroup(grp);
 	}
 
 	/**
@@ -617,7 +701,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * WITH DETAILED DATA ABOUT CONFLICT.
 	 * @param grp group to validate
 	 */
-	private void checkObjectPermissionsOfGroup(IdcGroup grp) {
+	private void checkObjectPermissionStructureOfGroup(IdcGroup grp) {
 		Set<PermissionObj> pos = grp.getPermissionObjs();
 
 		// permission templates for checking
@@ -691,7 +775,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * WITH DETAILED DATA ABOUT CONFLICT.
 	 * @param grp group to validate
 	 */
-	private void checkAddressPermissionsOfGroup(IdcGroup grp) {
+	private void checkAddressPermissionStructureOfGroup(IdcGroup grp) {
 		Set<PermissionAddr> pas = grp.getPermissionAddrs();
 
 		// permission templates for checking
@@ -806,19 +890,19 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	 * for the entity (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkEditingUsersOfGroup(IdcGroup grp) {
-		checkMissingUserPermissionsOnObjects(grp);
-		checkMissingUserPermissionsOnAddresses(grp);
+	private void checkMissingPermissionOfGroup(IdcGroup grp) {
+		checkMissingObjectPermissionOfGroup(grp);
+		checkMissingAddressPermissionOfGroup(grp);
 	}
 
 	/**
-	 * Check whether there are group users with OBJECTS they work on and without write permissions
+	 * Check whether there are group users with OBJECTS they work on and WITHOUT write permissions
 	 * for these OBJECTS (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkMissingUserPermissionsOnObjects(IdcGroup grp) {
+	private void checkMissingObjectPermissionOfGroup(IdcGroup grp) {
 		List<Map> objUserMaps = 
-			daoIdcGroup.getGroupUsersWithObjectsInGivenState(grp.getName(), WorkState.IN_BEARBEITUNG);
+			daoIdcGroup.getGroupUsersWithObjectsNotInGivenState(grp.getName(), WorkState.VEROEFFENTLICHT);
 		for (Map objUserMap : objUserMaps) {
 			String userUuid = (String) objUserMap.get(daoIdcGroup.KEY_USER_UUID);
 			String objUuid = (String) objUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
@@ -832,13 +916,13 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Check whether there are group users with ADDRESSES they work on and without write permissions
+	 * Check whether there are group users with ADDRESSES they work on and WITHOUT write permissions
 	 * for these ADDRESSES (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkMissingUserPermissionsOnAddresses(IdcGroup grp) {
+	private void checkMissingAddressPermissionOfGroup(IdcGroup grp) {
 		List<Map> addrUserMaps = 
-			daoIdcGroup.getGroupUsersWithAddressesInGivenState(grp.getName(), WorkState.IN_BEARBEITUNG);
+			daoIdcGroup.getGroupUsersWithAddressesNotInGivenState(grp.getName(), WorkState.VEROEFFENTLICHT);
 		for (Map addrUserMap : addrUserMaps) {
 			String userUuid = (String) addrUserMap.get(daoIdcGroup.KEY_USER_UUID);
 			String addrUuid = (String) addrUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
@@ -862,6 +946,41 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			user.setModTime(currentTime);
 			user.setModUuid(modUuid);
 			daoIdcUser.makePersistent(user);
+		}
+	}
+
+	/**
+	 * Update all entities (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
+	 * NOTICE: already persists entities !
+	 */
+	private void updateResponsibleUserInEntities(String oldResponsibleUuid, String newResponsibleUuid) {
+		updateResponsibleUserInObjects(oldResponsibleUuid, newResponsibleUuid);
+		updateResponsibleUserInAddresses(oldResponsibleUuid, newResponsibleUuid);
+	}
+
+	/**
+	 * Update all objects (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
+	 * NOTICE: already persists objects !
+	 */
+	private void updateResponsibleUserInObjects(String oldResponsibleUuid, String newResponsibleUuid) {
+		List<T01Object> os = 
+			daoObjectNode.getAllObjectsOfResponsibleUser(oldResponsibleUuid);
+		for (T01Object o : os) {
+			o.setResponsibleUuid(newResponsibleUuid);
+			dao.makePersistent(o);
+		}
+	}
+
+	/**
+	 * Update all addresses (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
+	 * NOTICE: already persists addresses !
+	 */
+	private void updateResponsibleUserInAddresses(String oldResponsibleUuid, String newResponsibleUuid) {
+		List<T02Address> as = 
+			daoAddressNode.getAllAddressesOfResponsibleUser(oldResponsibleUuid);
+		for (T02Address a : as) {
+			a.setResponsibleUuid(newResponsibleUuid);
+			dao.makePersistent(a);
 		}
 	}
 }

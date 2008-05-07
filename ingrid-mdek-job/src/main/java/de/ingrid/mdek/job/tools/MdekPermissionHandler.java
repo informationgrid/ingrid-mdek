@@ -302,7 +302,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkWritePermissionForObject(String objUuid, String userAddrUuid) {
 		if (!hasWritePermissionForObject(objUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
 
@@ -312,7 +312,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkTreePermissionForObject(String objUuid, String userAddrUuid) {
 		if (!hasTreePermissionForObject(objUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
 
@@ -322,7 +322,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
 		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
 
@@ -332,7 +332,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkTreePermissionForAddress(String addrUuid, String userAddrUuid) {
 		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
 
@@ -341,7 +341,7 @@ public class MdekPermissionHandler {
 	 */
 	private void checkCreateRootPermission(String userAddrUuid) {
 		if (!hasCreateRootPermission(userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION));
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
 

@@ -1,6 +1,7 @@
 package de.ingrid.mdek;
 
 
+
 /**
  * Class encapsulating utility methods for security.
  * 
@@ -23,6 +24,24 @@ public class MdekUtilsSecurity {
 		}
 		public String toString() {
 			return description;
+		}
+		/**
+		 * Is this Role "above" given role ? e.g.<br>
+		 * CATALOG_ADMINISTRATOR.isAbove(METADATA_ADMINISTRATOR) -> true<br>
+		 * CATALOG_ADMINISTRATOR.isAbove(METADATA_AUTHOR) -> true<br>
+		 * METADATA_ADMINISTRATOR.isAbove(METADATA_AUTHOR) -> true<br>
+		 * METADATA_ADMINISTRATOR.isAbove(CATALOG_ADMINISTRATOR) -> false<br>
+		 * METADATA_ADMINISTRATOR.isAbove(METADATA_ADMINISTRATOR) -> false<br>
+		 * METADATA_AUTHOR.isAbove(METADATA_AUTHOR) -> false<br>
+		 */
+		public boolean isAbove(IdcRole inRole) {
+			if (inRole == null) {
+				return false;
+			}
+			if (this.getDbValue() < inRole.getDbValue()) {
+				return true;
+			}
+			return false;
 		}
 		Integer dbValue;
 		String description;

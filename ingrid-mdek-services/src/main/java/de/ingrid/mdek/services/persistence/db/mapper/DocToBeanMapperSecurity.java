@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -64,6 +64,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 	public IdcGroup mapIdcGroup(IngridDocument docIn, IdcGroup grpIn, MappingQuantity howMuch) {
 
 		grpIn.setName(docIn.getString(MdekKeysSecurity.NAME));
+
 		String creationDate = docIn.getString(MdekKeysSecurity.DATE_OF_CREATION);
 		if (creationDate != null) {
 			grpIn.setCreateTime(creationDate);				
@@ -92,10 +93,11 @@ public class DocToBeanMapperSecurity implements IMapper {
 		userIn.setIdcGroupId((Long)docIn.get(MdekKeysSecurity.IDC_GROUP_ID));
 		userIn.setIdcRole((Integer)docIn.get(MdekKeysSecurity.IDC_ROLE));
 		Long parentId = (Long)docIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
-		if (parentId == null && userIn.getIdcRole().intValue() != MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue()) {
+		if (parentId == null && !IdcRole.CATALOG_ADMINISTRATOR.getDbValue().equals(userIn.getIdcRole())) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_VALID_PARENT));
 		}
 		userIn.setParentId(parentId);
+
 		String creationDate = docIn.getString(MdekKeysSecurity.DATE_OF_CREATION);
 		if (creationDate != null) {
 			userIn.setCreateTime(creationDate);				

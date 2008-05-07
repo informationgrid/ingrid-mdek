@@ -18,6 +18,7 @@ import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.utils.IngridDocument;
 
@@ -509,5 +510,19 @@ public class AddressNodeDaoHibernate
 			"and fidx.idxValue like '%" + searchTerm + "%'";
 		
 		return qString;
+	}
+
+	public List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid) {
+		List<T02Address> retList = new ArrayList<T02Address>();
+
+		Session session = getSession();
+
+		retList = session.createQuery("select distinct a " +
+			"from T02Address a " +
+			"where a.responsibleUuid = ?")
+			.setString(0, responsibleUserUuid)
+			.list();
+
+		return retList;
 	}
 }
