@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
@@ -379,10 +380,22 @@ class MdekExampleSecurityThread extends Thread {
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newMetaAdmin1Uuid);
 		newMetaAdmin1Doc = supertool.storeUser(newMetaAdmin1Doc, true);
 
+		System.out.println("\n----- store MD_ADMIN WITH CHANGED ROLE -> ERROR: USER_HAS_WRONG_ROLE (Change of Role NOT ALLOWED) -----");
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, IdcRole.METADATA_AUTHOR.getDbValue());
+		supertool.storeUser(newMetaAdmin1Doc, false);
+		// reset doc
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+
 		System.out.println("\n----- store MD_AUTHOR (change addr uuid of user and store) -> ALLOWED -----");
 		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
 		newMetaAuthor1Doc = supertool.storeUser(newMetaAuthor1Doc, true);		
 		newMetaAuthor1Uuid = newMetaAuthor1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+
+		System.out.println("\n----- store MD_AUTHOR WITH NEW PARENT -> ERROR: USER_HIERARCHY_WRONG (change of parent NOT ALLOWED) -----");
+		newMetaAuthor1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin2Id);
+		supertool.storeUser(newMetaAuthor1Doc, false);
+		// reset doc
+		newMetaAuthor1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin1Id);
 
 		System.out.println("\n---------------------------------------------------");
 		System.out.println("----- UPDATE USER AS 'MD_ADMIN 1' -> ONLY 'MD_AUTHOR' underneath 'MD_ADMIN 1' ALLOWED ! -----");
