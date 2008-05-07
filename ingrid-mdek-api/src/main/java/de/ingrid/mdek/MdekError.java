@@ -53,6 +53,8 @@ public class MdekError implements Serializable {
 		FREE_ADDRESS_WITH_SUBTREE("42"),
 		/** for all type of address type conflicts, e.g. when child type doesn't fit to parent ... */
 		ADDRESS_TYPE_CONFLICT("43"),
+		/** e.g. when address to delete is an address of an IdcUser */
+		ADDRESS_IS_IDCUSER_ADDRESS("45"),
 
 		/** e.g. when object is deleted and and is referenced by other objects<br>
 		 * contains detailed error info about referenced and referencing entities:<br>

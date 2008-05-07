@@ -20,6 +20,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
@@ -44,6 +45,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private IT02AddressDao daoT02Address;
 	private IGenericDao<IEntity> daoT012ObjAdr;
 	private IT01ObjectDao daoT01Object;
+	private IIdcUserDao daoIdcUser;
 
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory,
@@ -57,6 +59,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 		daoT01Object = daoFactory.getT01ObjectDao();
+		daoIdcUser = daoFactory.getIdcUserDao();
 	}
 
 	public IngridDocument getTopAddresses(IngridDocument params) {
@@ -702,6 +705,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		AddressNode aNode = daoAddressNode.loadByUuid(uuid);
 		if (aNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// check whether address is address of idcuser !
+		if (daoIdcUser.getIdcUserByAddrUuid(uuid) != null) {
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS));			
 		}
 
 		checkAddressSubTreeReferences(aNode, forceDeleteReferences);

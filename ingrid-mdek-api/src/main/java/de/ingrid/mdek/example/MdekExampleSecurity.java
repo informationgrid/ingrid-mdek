@@ -258,7 +258,6 @@ class MdekExampleSecurityThread extends Thread {
 		clearPermissionsOfGroupDoc(newGroupDoc);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
-		
 		// ===================================
 
 		System.out.println("\n----------------------------");
@@ -362,6 +361,7 @@ class MdekExampleSecurityThread extends Thread {
 		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
 		supertool.createUser(newMetaAuthor2Doc, true);
 
+		// ===================================
 
 		System.out.println("\n----------------------------");
 		System.out.println("----- UPDATE USERS -----");
@@ -428,7 +428,9 @@ class MdekExampleSecurityThread extends Thread {
 		newMetaAdmin1Doc = supertool.storeUser(newMetaAdmin1Doc, true);		
 
 		System.out.println("\n----- store MD_AUTHOR -> ERROR: USER_HAS_WRONG_ROLE -----");
-		newMetaAuthor1Doc = supertool.storeUser(newMetaAuthor1Doc, true);		
+		supertool.storeUser(newMetaAuthor1Doc, true);		
+
+		// ===================================
 
 		System.out.println("\n----------------------------");
 		System.out.println("----- DELETE USERS -----");
@@ -476,6 +478,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- delete CAT_ADMIN -> ERROR: USER_IS_CATALOG_ADMIN -----");
 		supertool.deleteUser(catalogAdminId);
 
+		// ===================================
 
 		System.out.println("\n\n----------------------------");
 		System.out.println("----- TEST RESPONSIBLE USER UPDATE IN ENTITY ON CHANGE OF ADDRESS IN USER");
@@ -533,6 +536,8 @@ class MdekExampleSecurityThread extends Thread {
 			throw new RuntimeException("ERROR: Address ResponsibleUser NOT ADAPTED on User Address change");
 		}
 
+		// ===================================
+		
 		System.out.println("\n\n----------------------------");
 		System.out.println("----- TEST RESPONSIBLE USER UPDATE IN ENTITY ON DELETE OF USER (set to Parent of User)");
 		System.out.println("----- !!! is also updated IN PUBLISHED Entities !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -664,6 +669,8 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- publish object -> ALLOWED (WRITE_SINGLE) -----");
 		supertool.publishObject(doc, false, false);
 
+		// ===================================
+		
 		System.out.println("\n\n------------------------------------------------");
 		System.out.println("----- ADDRESS/OBJECT: \"CREATE_ROOT\" PERMISSION -----");
 		System.out.println("------------------------------------------------");
@@ -753,6 +760,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- verify deletion of permissions on deleted entities -> get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
 
+		// ===================================
 		
 		System.out.println("\n\n--------------------------------------------------------");
 		System.out.println("----- ADDRESS/OBJECT: \"CREATE\" SUBNODE PERMISSION -----");
@@ -847,6 +855,31 @@ class MdekExampleSecurityThread extends Thread {
 		if (copiedObjUuid != null) {
 			supertool.deleteObjectWorkingCopy(copiedObjUuid, true);			
 		}
+
+		// ===================================
+		
+		System.out.println("\n------------------------------------------------");
+		System.out.println("----- CHECK Delete of Address which is Address of IdcUser ! -> Not Allowed");
+		System.out.println("------------------------------------------------");
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n----- create new user MD_AUTHOR with Address to delete -----");
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newParentAddrUuid);
+		doc = supertool.createUser(newMetaAuthor1Doc, true);
+		Long tmpUserId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+
+		System.out.println("\n----- delete Address of User -> ERROR: ADDRESS_IS_IDCUSER_ADDRESS -----");
+		supertool.deleteAddress(newParentAddrUuid, true);
+
+		System.out.println("\n----- delete user  -----");
+		supertool.deleteUser(tmpUserId);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		// ===================================
 		
