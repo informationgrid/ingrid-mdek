@@ -33,12 +33,13 @@ public class MdekCatalogHandler {
 
 	/** Get catalog. NOTICE: transaction must be active when called the first time ! */
 	public T03Catalogue getCatalog() {
-		if (catalog == null) {
+		// NEVER CACHE !!!!!! can be changed (name etc.) !!!
+//		if (catalog == null) {
 			catalog = (T03Catalogue) daoT03Catalogue.findFirst();
 			if (catalog == null) {
 				throw new MdekException(new MdekError(MdekErrorType.CATALOG_NOT_FOUND));
 			}			
-		}
+//		}
 
 		return catalog;
 	}
