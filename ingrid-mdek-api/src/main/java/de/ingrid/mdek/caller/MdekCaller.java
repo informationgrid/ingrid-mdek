@@ -256,14 +256,12 @@ public class MdekCaller implements IMdekCaller {
 		return jobRepo;
 	}
 
-	private IngridDocument registerJob(String jobId, String jobXml) {
+	private IngridDocument registerJob(String plugId, String jobId, String jobXml) {
 		IngridDocument registerDocument = new IngridDocument();
 		registerDocument.put(IJobRepository.JOB_ID, jobId);
 		registerDocument.put(IJobRepository.JOB_DESCRIPTION, jobXml);
 		registerDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
-		// TODO: pass plugId
-		String plugId = "mdek-iplug-idctest";
 		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
 
 		IngridDocument response = jobRepo.execute(registerDocument);
@@ -272,13 +270,11 @@ public class MdekCaller implements IMdekCaller {
 		return response;
 	}
 
-	private IngridDocument deregisterJob(String jobId) {
+	private IngridDocument deregisterJob(String plugId, String jobId) {
 		IngridDocument deregisterDocument = new IngridDocument();
 		deregisterDocument.put(IJobRepository.JOB_ID, jobId);
 		deregisterDocument.put(IJobRepository.JOB_PERSIST, false);
 
-		// TODO: pass plugId
-		String plugId = "mdek-iplug-idctest";
 		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
 
 		IngridDocument response = jobRepo.execute(deregisterDocument);
