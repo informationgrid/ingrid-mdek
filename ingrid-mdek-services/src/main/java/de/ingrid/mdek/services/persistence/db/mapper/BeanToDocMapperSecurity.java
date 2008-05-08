@@ -161,7 +161,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
 			beanToDocMapper.mapT02Address(inRef.getAddressNode().getT02AddressWork(), inDoc, MappingQuantity.BASIC_ENTITY);
 			
-			// also child data node could be shown in "permission tree"
+			// also child data, node could be shown in "permission tree"
 	    	boolean hasChild = (inRef.getAddressNode().getAddressNodeChildren().size() > 0) ? true : false;
 	    	inDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
 		}
@@ -180,7 +180,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
 			beanToDocMapper.mapT01Object(inRef.getObjectNode().getT01ObjectWork(), inDoc, MappingQuantity.BASIC_ENTITY);
 			
-			// also child data node could be shown in "permission tree"
+			// also child data, node could be shown in "permission tree"
 	    	boolean hasChild = (inRef.getObjectNode().getObjectNodeChildren().size() > 0) ? true : false;
 	    	inDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
 		}
@@ -221,6 +221,11 @@ public class BeanToDocMapperSecurity implements IMapper {
 
 		inDoc.put(MdekKeysSecurity.IDC_PERMISSIONS, refList);
 		
+		return inDoc;
+	}
+
+	public IngridDocument mapHasAccess(boolean hasAccess, IngridDocument inDoc) {
+		inDoc.put(MdekKeysSecurity.IDC_PERMISSION_HAS_ACCESS, hasAccess);
 		return inDoc;
 	}
 

@@ -115,6 +115,9 @@
 			<xs:element name="technical-domain-dataset" type="TECHNICAL_DOMAIN_DATASET_MAP"/>
 			<xs:element name="technical-domain-document" type="TECHNICAL_DOMAIN_DOCUMENT_MAP"/>
 			<xs:element name="parent-info" type="OBJ_PARENT_INFO_MAP"/>
+
+			<!-- indicates write access of calling user, added where necessary -->
+			<xs:element ref="idc-permission-has-access"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -156,6 +159,9 @@
 			
 			<xs:element name="ADR_RELATIONS_MAP" type="ADR_RELATIONS_MAP"/>
 			<xs:element name="parent-info" type="ADDR_PARENT_INFO_MAP"/>
+
+			<!-- indicates write access of calling user, added where necessary -->
+			<xs:element ref="idc-permission-has-access"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -176,7 +182,8 @@
 	<xs:element name="organisation" type="xs:string"/>
 	<xs:element name="name" type="xs:string"/>
 	<xs:element name="given-name" type="xs:string"/>
-
+	<xs:element name="idc-permission-has-access" type="xs:boolean"/>
+	
 	<xs:simpleType name="TIMESTAMP">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>

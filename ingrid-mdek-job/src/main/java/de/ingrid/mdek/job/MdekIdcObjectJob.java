@@ -23,6 +23,7 @@ import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
+import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -44,6 +45,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private IT01ObjectDao daoT01Object;
 	private IGenericDao<IEntity> daoObjectReference;
 
+	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
+
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {
@@ -55,11 +58,15 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
+
+		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 	}
 
 	public IngridDocument getTopObjects(IngridDocument params) {
 		try {
 			daoObjectNode.beginTransaction();
+
+			String userUuid = getCurrentUserUuid(params);
 
 			// fetch top Objects
 			List<ObjectNode> oNs = daoObjectNode.getTopObjects();
@@ -69,6 +76,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+				
+				// add info whether calling user has write access
+				boolean hasAccess = permissionHandler.hasWritePermissionForObject(oN.getObjUuid(), userUuid);
+				beanToDocMapperSecurity.mapHasAccess(hasAccess, objDoc);
+
 				resultList.add(objDoc);
 			}
 			IngridDocument result = new IngridDocument();
@@ -88,7 +100,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		try {
 			daoObjectNode.beginTransaction();
 
+			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
+
 			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
@@ -96,6 +110,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+
+				// add info whether calling user has write access
+				boolean hasAccess = permissionHandler.hasWritePermissionForObject(oN.getObjUuid(), userUuid);
+				beanToDocMapperSecurity.mapHasAccess(hasAccess, objDoc);
+
 				resultList.add(objDoc);
 			}
 
@@ -136,11 +155,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		try {
 			daoObjectNode.beginTransaction();
 
+			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getObjDetails(uuid);
+			IngridDocument result = getObjDetails(uuid, userUuid);
 			
 			daoObjectNode.commitTransaction();
 			return result;
@@ -152,9 +172,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument getObjDetails(String uuid) {
+	private IngridDocument getObjDetails(String objUuid, String userUuid) {
 		// first get all "internal" object data (referenced addresses ...)
-		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		ObjectNode oNode = daoObjectNode.getObjDetails(objUuid);
 		if (oNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -167,17 +187,21 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 	
 		// then get "external" data (objects referencing the given object ...)
-		List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(uuid);
-		beanToDocMapper.mapObjectReferencesFrom(fromLists, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(objUuid);
+		beanToDocMapper.mapObjectReferencesFrom(fromLists, objUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 
 		// get parent data
-		ObjectNode pNode = daoObjectNode.getParent(uuid);
+		ObjectNode pNode = daoObjectNode.getParent(objUuid);
 		if (pNode != null) {
 			beanToDocMapper.mapObjectParentData(pNode.getT01ObjectWork(), resultDoc);
 		}
 
 		// then map detailed mod user data !
 		beanToDocMapper.mapModUser(o.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+
+		// add info whether calling user has write access
+		boolean hasAccess = permissionHandler.hasWritePermissionForObject(objUuid, userUuid);
+		beanToDocMapperSecurity.mapHasAccess(hasAccess, resultDoc);
 
 		return resultDoc;
 	}
@@ -305,7 +329,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			if (refetchAfterStore) {
 				daoObjectNode.beginTransaction();
-				result = getObjDetails(uuid);
+				result = getObjDetails(uuid, userId);
 				daoObjectNode.commitTransaction();
 				
 				if (log.isDebugEnabled()) {
@@ -431,7 +455,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			if (refetchAfterStore) {
 				daoObjectNode.beginTransaction();
-				result = getObjDetails(uuid);
+				result = getObjDetails(uuid, userId);
 				daoObjectNode.commitTransaction();
 
 				if (log.isDebugEnabled()) {

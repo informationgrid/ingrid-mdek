@@ -24,6 +24,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
+import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -47,6 +48,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private IT01ObjectDao daoT01Object;
 	private IIdcUserDao daoIdcUser;
 
+	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
+
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {
@@ -60,12 +63,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoIdcUser = daoFactory.getIdcUserDao();
+
+		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 	}
 
 	public IngridDocument getTopAddresses(IngridDocument params) {
 		try {
 			daoAddressNode.beginTransaction();
 
+			String userUuid = getCurrentUserUuid(params);
 			Boolean onlyFreeAddressesIn = (Boolean) params.get(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES);
 			boolean onlyFreeAddresses = (onlyFreeAddressesIn == null) ? false : onlyFreeAddressesIn;
 
@@ -77,6 +83,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				IngridDocument adrDoc = new IngridDocument();
 				beanToDocMapper.mapAddressNode(aN, adrDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT02Address(aN.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
+
+				// add info whether calling user has write access
+				boolean hasAccess = permissionHandler.hasWritePermissionForAddress(aN.getAddrUuid(), userUuid);
+				beanToDocMapperSecurity.mapHasAccess(hasAccess, adrDoc);
+
 				resultList.add(adrDoc);
 			}
 			IngridDocument result = new IngridDocument();
@@ -96,6 +107,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		try {
 			daoAddressNode.beginTransaction();
 
+			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 			List<AddressNode> aNodes = daoAddressNode.getSubAddresses(uuid, true);
 
@@ -104,6 +116,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				IngridDocument adrDoc = new IngridDocument();
 				beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
+
+				// add info whether calling user has write access
+				boolean hasAccess = permissionHandler.hasWritePermissionForAddress(aNode.getAddrUuid(), userUuid);
+				beanToDocMapperSecurity.mapHasAccess(hasAccess, adrDoc);
+
 				resultList.add(adrDoc);
 			}
 
@@ -144,11 +161,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		try {
 			daoAddressNode.beginTransaction();
 
+			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getAddrDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getAddrDetails(uuid);
+			IngridDocument result = getAddrDetails(uuid, userUuid);
 			
 			daoAddressNode.commitTransaction();
 			return result;
@@ -160,9 +178,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument getAddrDetails(String uuid) {
+	private IngridDocument getAddrDetails(String addrUuid, String userUuid) {
 		// first get all "internal" address data
-		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+		AddressNode aNode = daoAddressNode.getAddrDetails(addrUuid);
 		if (aNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -175,21 +193,25 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// then get "external" data (objects referencing the given address ...)
-		List<ObjectNode>[] fromLists = daoAddressNode.getObjectReferencesFrom(uuid);
-		beanToDocMapper.mapObjectReferencesFrom(fromLists, uuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		List<ObjectNode>[] fromLists = daoAddressNode.getObjectReferencesFrom(addrUuid);
+		beanToDocMapper.mapObjectReferencesFrom(fromLists, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 
 		// get parent data
-		AddressNode pNode = daoAddressNode.getParent(uuid);
+		AddressNode pNode = daoAddressNode.getParent(addrUuid);
 		if (pNode != null) {
 			beanToDocMapper.mapAddressParentData(pNode.getT02AddressWork(), resultDoc);
 		}
 
 		// supply path info
-		List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(uuid, false);
+		List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(addrUuid, false);
 		resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
 
 		// then map detailed mod user data !
 		beanToDocMapper.mapModUser(a.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+
+		// add info whether calling user has write access
+		boolean hasAccess = permissionHandler.hasWritePermissionForAddress(addrUuid, userUuid);
+		beanToDocMapperSecurity.mapHasAccess(hasAccess, resultDoc);
 
 		return resultDoc;
 	}
@@ -315,7 +337,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			if (refetchAfterStore) {
 				daoAddressNode.beginTransaction();
-				result = getAddrDetails(uuid);
+				result = getAddrDetails(uuid, userId);
 				daoAddressNode.commitTransaction();
 
 				if (log.isDebugEnabled()) {
@@ -429,7 +451,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			if (refetchAfterStore) {
 				daoAddressNode.beginTransaction();
-				result = getAddrDetails(uuid);
+				result = getAddrDetails(uuid, userId);
 				daoAddressNode.commitTransaction();
 
 				if (log.isDebugEnabled()) {
