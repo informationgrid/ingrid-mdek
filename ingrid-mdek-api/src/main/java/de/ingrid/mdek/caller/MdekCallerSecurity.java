@@ -171,4 +171,20 @@ public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCalle
 		List jobMethods = mdekCaller.setUpJobMethod("getCatalogAdmin", jobParams);
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument getUsersWithWritePermissionForObject(String plugId, String objectUuid, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, objectUuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getUsersWithWritePermissionForObject", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getUsersWithWritePermissionForAddress(String plugId, String addressUuid, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, addressUuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getUsersWithWritePermissionForAddress", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+	}
 }

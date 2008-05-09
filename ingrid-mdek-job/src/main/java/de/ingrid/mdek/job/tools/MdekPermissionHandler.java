@@ -7,7 +7,12 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
+import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.security.EntityPermission;
 import de.ingrid.mdek.services.security.IPermissionService;
@@ -22,19 +27,23 @@ public class MdekPermissionHandler {
 	private static final Logger LOG = Logger.getLogger(MdekPermissionHandler.class);
 	
 	private IPermissionService permService;
+	protected IIdcUserDao daoIdcUser;
 
 	private static MdekPermissionHandler myInstance;
 
 	/** Get The Singleton */
-	public static synchronized MdekPermissionHandler getInstance(IPermissionService permissionService) {
+	public static synchronized MdekPermissionHandler getInstance(IPermissionService permissionService,
+			DaoFactory daoFactory) {
 		if (myInstance == null) {
-	        myInstance = new MdekPermissionHandler(permissionService);
+	        myInstance = new MdekPermissionHandler(permissionService, daoFactory);
 	      }
 		return myInstance;
 	}
 
-	private MdekPermissionHandler(IPermissionService permissionService) {
-		this.permService = permissionService; 
+	private MdekPermissionHandler(IPermissionService permissionService, DaoFactory daoFactory) {
+		this.permService = permissionService;
+		
+		daoIdcUser = daoFactory.getIdcUserDao();
 	}
 
 	/**
@@ -466,5 +475,79 @@ public class MdekPermissionHandler {
 			PermissionFactory.getPermissionTemplateCreateRoot());			
 
 		return hasPermission;
+	}
+
+	/** Get all users who have write access for the given object. Pass list of ALL groups !
+	 * We check every group for write access via first user in group !!!
+	 * @param objUuid the object
+	 * @param allGroups list of ALL groups.
+	 * @return
+	 */
+	public List<IdcUser> getUsersWithWritePermissionForObject(String objUuid, List<IdcGroup> allGroups) {
+		return getUsersWithWritePermissionForEntity(objUuid, allGroups, IdcEntityType.OBJECT);
+	}
+
+	/** Get all users who have write access for the given address. Pass list of ALL groups !
+	 * We check every group for write access via first user in group !!!
+	 * @param addrUuid the address
+	 * @param allGroups list of ALL groups.
+	 * @return
+	 */
+	public List<IdcUser> getUsersWithWritePermissionForAddress(String addrUuid, List<IdcGroup> allGroups) {
+		return getUsersWithWritePermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS);
+	}
+
+	private List<IdcUser> getUsersWithWritePermissionForEntity(String entityUuid,
+			List<IdcGroup> allGroups,
+			IdcEntityType entityType) {
+
+		List<IdcUser> retUsers = new ArrayList<IdcUser>();
+
+		// get catAdmin to check whether a user is the catAdmin !
+		IdcUser catAdmin = permService.getCatalogAdmin();
+		String catAdminUuid = catAdmin.getAddrUuid();
+
+		// check every group for write access (via first user in group) and add all users of group if so !
+		for (IdcGroup group : allGroups) {
+			List<IdcUser> gUsers = daoIdcUser.getIdcUsersByGroupId(group.getId());
+			boolean addGroupUsers = false;
+			
+			// as soon as a user (who is NOT catAdmin) has write access, we add all users of group !
+			for (IdcUser gUser : gUsers) {
+				// skip cat admin, has ALL PERMISSIONS !!!
+				if (gUser.getAddrUuid().equals(catAdminUuid)) {
+					continue;
+				}
+				if (entityType == IdcEntityType.OBJECT) {
+					if (hasWritePermissionForObject(entityUuid, gUser.getAddrUuid())) {
+						addGroupUsers = true;
+						break;
+					}
+				} else if (entityType == IdcEntityType.ADDRESS) {
+					if (hasWritePermissionForAddress(entityUuid, gUser.getAddrUuid())) {
+						addGroupUsers = true;
+						break;
+					}
+				}
+			}
+			
+			if (addGroupUsers) {
+				retUsers.addAll(gUsers);
+			}
+		}
+
+		// if catAdmin not added yet, add him !
+		boolean addCatAdmin = true;
+		for (IdcUser retUser : retUsers) {
+			if (retUser.getAddrUuid().equals(catAdminUuid)) {
+				addCatAdmin = false;
+				break;
+			}
+		}
+		if (addCatAdmin) {
+			retUsers.add(catAdmin);
+		}
+		
+		return retUsers;
 	}
 }

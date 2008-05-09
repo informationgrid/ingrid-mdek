@@ -275,6 +275,60 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument getUsersWithWritePermissionForObject(String objUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getUsersWithWritePermissionForObject ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUsersWithWritePermissionForObject(plugId, objUuid, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				debugUserDoc((IngridDocument)o);
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getUsersWithWritePermissionForAddress(String addrUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getUsersWithWritePermissionForAddress ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUsersWithWritePermissionForAddress(plugId, addrUuid, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				debugUserDoc((IngridDocument)o);
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	public IngridDocument getObjectPermissions(String objUuid) {
 		long startTime;
 		long endTime;

@@ -16,117 +16,76 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 public interface IPermissionService {
 
 	/**
-	 * Checks an object defined by uuid for a "direct" EntityPermission permission for a
-	 * user represented by addrUuid.
-	 * 
-	 * @param objUuid
-	 * @param ep
+	 * Checks whether the user has a "direct" permission on an object.
+	 * NO CHECK OF INHERITED PERMISSIONS !!!
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasPermissionForObject(String objUuid, EntityPermission ep);
+	boolean hasPermissionForObject(String userUuid, EntityPermission ep);
 
 	/**
-	 * Checks an object defined by uuid for a "direct" or "inherited" EntityPermission
-	 * permission for a user represented by addrUuid. The permission can also be 
-	 * inherited by one of it's parent.
-	 * 
-	 * @param objUuid
-	 * @param ep
+	 * Checks whether the user has a "direct" permission on an address.
+	 * NO CHECK OF INHERITED PERMISSIONS !!!
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasInheritedPermissionForObject(String objUuid, EntityPermission ep);
+	boolean hasPermissionForAddress(String userUuid, EntityPermission ep);
 
 	/**
-	 * Checks an address defined by uuid for a "direct" EntityPermission permission for a
-	 * user represented by addrUuid.
-	 * 
-	 * @param addrUuid
-	 * @param ep
+	 * Checks whether the user has a "direct" or "inherited" permission on an object.
+	 * ALSO CHECKS INHERITED PERMISSIONS !!!
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasPermissionForAddress(String addrUuid, EntityPermission ep);
+	boolean hasInheritedPermissionForObject(String userUuid, EntityPermission ep);
 
 	/**
-	 * Checks an address defined by uuid for a "direct" or "inherited" EntityPermission
-	 * permission for a user represented by addrUuid. The permission can also be 
-	 * inherited by one of it's parent.
-	 * 
-	 * @param addrUuid
-	 * @param ep
+	 * Checks whether the user has a "direct" or "inherited" permission on an address.
+	 * ALSO CHECKS INHERITED PERMISSIONS !!!
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasInheritedPermissionForAddress(String addrUuid, EntityPermission ep);
+	boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep);
 
 	/**
-	 * Checks user defined by addrUuid for a Permission permission.
-	 * 
-	 * @param addrUuid
-	 * @param permission
+	 * Checks whether a user has the given UserPermission.
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasUserPermission(String addrUuid, Permission p);
+	boolean hasUserPermission(String userUuid, Permission p);
 
 	/**
-	 * Grants a specific EntityPermission on object defined by uuid for user
-	 * represented by addrUuid.
-	 * 
-	 * @param addrUuid
-	 * @param ep
+	 * Grants a specific object EntityPermission for user (better group)
 	 */
-	void grantObjectPermission(String addrUuid, EntityPermission ep);
+	void grantObjectPermission(String userUuid, EntityPermission ep);
 
 	/**
-	 * Grants a specific EntityPermission on address defined by uuid for user
-	 * represented by addrUuid.
-	 * 
-	 * @param addrUuid
-	 * @param ep
+	 * Grants a specific address EntityPermission for user (better group)
 	 */
-	void grantAddressPermission(String addrUuid, EntityPermission ep);
+	void grantAddressPermission(String userUuid, EntityPermission ep);
 
 	/**
-	 * Grants a specific Permission for user represented by addrUuid.
-	 * 
-	 * @param addrUuid
-	 * @param p
+	 * Grants a specific User Permission for user (better group)
 	 */
-	void grantUserPermission(String addrUuid, Permission p);
+	void grantUserPermission(String userUuid, Permission p);
 
 	/**
-	 * Revokes a specific EntityPermission on object defined by uuid for user
-	 * represented by addrUuid.
-	 * 
-	 * @param addrUuid
-	 * @param ep
+	 * Revokes a specific object EntityPermission for user (better group)
 	 */
-	void revokeObjectPermission(String addrUuid, EntityPermission p);
+	void revokeObjectPermission(String userUuid, EntityPermission p);
 
 	/**
-	 * Revokes a specific EntityPermission on address defined by uuid for user
-	 * represented by addrUuid.
-	 * 
-	 * @param addrUuid
-	 * @param ep
+	 * Revokes a specific address EntityPermission for user (better group)
 	 */
-	void revokeAddressPermission(String addrUuid, EntityPermission ep);
+	void revokeAddressPermission(String userUuid, EntityPermission ep);
 
 	/**
-	 * Revokes a specific Permission for user represented by addrUuid.
-	 * 
-	 * @param addrUuid
-	 * @param p
+	 * Revokes a specific user Permission for user (better group)
 	 */
-	void revokeUserPermission(String addrUuid, Permission p);
+	void revokeUserPermission(String userUuid, Permission p);
 
 	/**
 	 * Delete all existing permissions for the given object (called when object is deleted ...).
-	 * @param objUuid
 	 */
 	void deleteObjectPermissions(String objUuid);
 
 	/**
 	 * Delete all existing permissions for the given address (called when address is deleted ...).
-	 * @param addrUuid
 	 */
 	void deleteAddressPermissions(String addrUuid);
 
@@ -139,18 +98,12 @@ public interface IPermissionService {
 
 	/**
 	 * Maps a permission to its identification used by client !
-	 * @param p
-	 * @return
 	 */
 	String getPermIdClientByPermission(Permission p);
 	
 	/**
 	 * Compares two Permission objects, return true if they are equal, false if
 	 * they are not equal.
-	 * 
-	 * @param p1
-	 * @param p2
-	 * @return
 	 */
 	boolean isEqualPermissions(Permission p1, Permission p2);
 

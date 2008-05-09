@@ -56,7 +56,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
-		permissionHandler = MdekPermissionHandler.getInstance(permissionService);
+		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();

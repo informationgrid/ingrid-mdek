@@ -66,7 +66,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcSecurityJob.class), daoFactory);
 		
 		this.permService = permissionService;
-		permHandler = MdekPermissionHandler.getInstance(permissionService);
+		permHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		userHandler = MdekIdcUserHandler.getInstance(daoFactory);
 		
 		dao = daoFactory.getDao(IEntity.class);
@@ -668,6 +668,68 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			for (IdcUser subUser : subUsers) {
 				IngridDocument uDoc = new IngridDocument();
 				beanToDocMapperSecurity.mapIdcUser(subUser, uDoc, MappingQuantity.TREE_ENTITY);
+				resultList.add(uDoc);
+			}
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeysSecurity.IDC_USERS, resultList);
+
+			daoIdcUser.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoIdcUser.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getUsersWithWritePermissionForObject(IngridDocument params) {
+		try {
+			daoIdcUser.beginTransaction();
+
+			String objUuid = (String) params.get(MdekKeys.UUID);
+
+			// get all groups: search users via groups !
+			List<IdcGroup> allGroups = daoIdcGroup.getGroups();
+			// and search users with write access on object
+			List<IdcUser> users = permHandler.getUsersWithWritePermissionForObject(objUuid, allGroups);
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
+			for (IdcUser user : users) {
+				IngridDocument uDoc = new IngridDocument();
+				beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);
+				resultList.add(uDoc);
+			}
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeysSecurity.IDC_USERS, resultList);
+
+			daoIdcUser.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoIdcUser.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getUsersWithWritePermissionForAddress(IngridDocument params) {
+		try {
+			daoIdcUser.beginTransaction();
+
+			String addrUuid = (String) params.get(MdekKeys.UUID);
+
+			// get all groups: search users via groups !
+			List<IdcGroup> allGroups = daoIdcGroup.getGroups();
+			// and search users with write access on address
+			List<IdcUser> users = permHandler.getUsersWithWritePermissionForAddress(addrUuid, allGroups);
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
+			for (IdcUser user : users) {
+				IngridDocument uDoc = new IngridDocument();
+				beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);
 				resultList.add(uDoc);
 			}
 

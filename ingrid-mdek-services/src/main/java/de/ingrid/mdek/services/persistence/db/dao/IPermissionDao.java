@@ -15,25 +15,25 @@ public interface IPermissionDao extends IGenericDao<Permission> {
 	/**
 	 * Get "directly" set permissions of given user on given object entity (via group of user).
 	 * NO INHERITED PERMISSIONS.
-	 * @param userAddrUuid address uuid of user
+	 * @param userUuid address uuid of user
 	 * @param objUuid uuid of object entity to check
 	 * @return list of permissions set for object (in group of user).
 	 */
-	public List<Permission> getObjectPermissions(String userAddrUuid, String objUuid);
+	public List<Permission> getObjectPermissions(String userUuid, String objUuid);
 
 	/**
 	 * Get "directly" set permissions of given user on given address entity (via group of user).
 	 * NO INHERITED PERMISSIONS.
-	 * @param userAddrUuid address uuid of user
+	 * @param userUuid address uuid of user
 	 * @param addrUuid uuid of address entity to check
 	 * @return list of permissions set for address (in group of user).
 	 */
-	public List<Permission> getAddressPermissions(String userAddrUuid, String addrUuid);
+	public List<Permission> getAddressPermissions(String userUuid, String addrUuid);
 
 	/**
 	 * Get user permissions of given user.
-	 * @param userAddrUuid address uuid of user
+	 * @param userUuid address uuid of user
 	 * @return list of permissions set for user (in group of user).
 	 */
-	public List<Permission> getUserPermissions(String userAddrUuid);
+	public List<Permission> getUserPermissions(String userUuid);
 }

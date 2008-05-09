@@ -42,17 +42,10 @@ public class DefaultPermissionService implements IPermissionService {
 		this.daoFactory = daoFactory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#hasPermissionForAddress(java.lang.String,
-	 *      java.lang.String,
-	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
-	 */
-	public boolean hasPermissionForAddress(String addrUuid, EntityPermission ep) {
+	public boolean hasPermissionForAddress(String userUuid, EntityPermission ep) {
 		IPermissionDao daoPermissionDao = daoFactory.getPermissionDao();
 		List<Permission> l;
-		l = daoPermissionDao.getAddressPermissions(addrUuid, ep.getUuid());
+		l = daoPermissionDao.getAddressPermissions(userUuid, ep.getUuid());
 		for (Permission p : l) {
 			if (isEqualPermissions(p, ep.getPermission())) {
 				return true;
@@ -61,18 +54,12 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#hasInheritedPermissionForAddress(java.lang.String,
-	 *      de.ingrid.mdek.services.security.EntityPermission)
-	 */
-	public boolean hasInheritedPermissionForAddress(String addrUuid, EntityPermission ep) {
+	public boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep) {
 		EntityPermission localPermission = new EntityPermission(ep.permission, ep.getUuid());
 		IAddressNodeDao addressNodeDao = daoFactory.getAddressNodeDao();
 		AddressNode addressNode;
 		do {
-			if (hasPermissionForAddress(addrUuid, localPermission)) {
+			if (hasPermissionForAddress(userUuid, localPermission)) {
 				return true;
 			}
 			addressNode = addressNodeDao.loadByUuid(localPermission.getUuid());
@@ -84,17 +71,10 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#hasPermissionForObject(java.lang.String,
-	 *      java.lang.String,
-	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
-	 */
-	public boolean hasPermissionForObject(String addrUuid, EntityPermission ep) {
+	public boolean hasPermissionForObject(String userUuid, EntityPermission ep) {
 		IPermissionDao daoPermissionDao = daoFactory.getPermissionDao();
 		List<Permission> l;
-		l = daoPermissionDao.getObjectPermissions(addrUuid, ep.getUuid());
+		l = daoPermissionDao.getObjectPermissions(userUuid, ep.getUuid());
 		for (Permission p : l) {
 			if (isEqualPermissions(p, ep.getPermission())) {
 				return true;
@@ -103,18 +83,12 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#hasInheritedPermissionForObject(java.lang.String,
-	 *      de.ingrid.mdek.services.security.EntityPermission)
-	 */
-	public boolean hasInheritedPermissionForObject(String addrUuid, EntityPermission ep) {
+	public boolean hasInheritedPermissionForObject(String userUuid, EntityPermission ep) {
 		EntityPermission localPermission = new EntityPermission(ep.getPermission(), ep.getUuid());
 		IObjectNodeDao objectNodeDao = daoFactory.getObjectNodeDao();
 		ObjectNode objectNode;
 		do {
-			if (hasPermissionForObject(addrUuid, localPermission)) {
+			if (hasPermissionForObject(userUuid, localPermission)) {
 				return true;
 			}
 			objectNode = objectNodeDao.loadByUuid(localPermission.getUuid());
@@ -126,15 +100,9 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#hasUserPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
-	 */
-	public boolean hasUserPermission(String addrUuid, Permission pIn) {
+	public boolean hasUserPermission(String userUuid, Permission pIn) {
 		IPermissionDao daoPermissionDao = daoFactory.getPermissionDao();
-		List<Permission> l = daoPermissionDao.getUserPermissions(addrUuid);
+		List<Permission> l = daoPermissionDao.getUserPermissions(userUuid);
 		for (Permission p : l) {
 			if (isEqualPermissions(p, pIn)) {
 				return true;
@@ -143,14 +111,8 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#grantAddressPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.security.EntityPermission)
-	 */
-	public void grantAddressPermission(String addrUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(addrUuid);
+	public void grantAddressPermission(String userUuid, EntityPermission ep) {
+		IdcUser idcUser = getUserByAddrUuid(userUuid);
 		Permission permission = findUniquePermissionByExample(ep.getPermission());
 
 		PermissionAddr pa = new PermissionAddr();
@@ -162,14 +124,8 @@ public class DefaultPermissionService implements IPermissionService {
 		permissionAddrDao.makePersistent(pa);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#grantObjectPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.security.EntityPermission)
-	 */
-	public void grantObjectPermission(String addrUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(addrUuid);
+	public void grantObjectPermission(String userUuid, EntityPermission ep) {
+		IdcUser idcUser = getUserByAddrUuid(userUuid);
 		Permission permission = findUniquePermissionByExample(ep.getPermission());
 
 		PermissionObj po = new PermissionObj();
@@ -181,14 +137,8 @@ public class DefaultPermissionService implements IPermissionService {
 		permissionObjDao.makePersistent(po);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#grantUserPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
-	 */
-	public void grantUserPermission(String addrUuid, Permission p) {
-		IdcUser idcUser = getUserByAddrUuid(addrUuid);
+	public void grantUserPermission(String userUuid, Permission p) {
+		IdcUser idcUser = getUserByAddrUuid(userUuid);
 		Permission permission = findUniquePermissionByExample(p);
 
 		IdcUserPermission iup = new IdcUserPermission();
@@ -199,14 +149,8 @@ public class DefaultPermissionService implements IPermissionService {
 		idcUserPermissionDao.makePersistent(iup);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#revokeAddressPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.security.EntityPermission)
-	 */
-	public void revokeAddressPermission(String addrUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(addrUuid);
+	public void revokeAddressPermission(String userUuid, EntityPermission ep) {
+		IdcUser idcUser = getUserByAddrUuid(userUuid);
 		Permission permission = findUniquePermissionByExample(ep.getPermission());
 
 		PermissionAddr pa = new PermissionAddr();
@@ -222,14 +166,8 @@ public class DefaultPermissionService implements IPermissionService {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#revokeObjectPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.security.EntityPermission)
-	 */
-	public void revokeObjectPermission(String addrUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(addrUuid);
+	public void revokeObjectPermission(String userUuid, EntityPermission ep) {
+		IdcUser idcUser = getUserByAddrUuid(userUuid);
 		Permission permission = findUniquePermissionByExample(ep.getPermission());
 
 		PermissionObj po = new PermissionObj();
@@ -245,14 +183,8 @@ public class DefaultPermissionService implements IPermissionService {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.ingrid.mdek.services.security.IPermissionService#revokeUserPermission(java.lang.String,
-	 *      de.ingrid.mdek.services.persistence.db.model.Permission)
-	 */
-	public void revokeUserPermission(String addrUuid, Permission p) {
-		IdcUser idcUser = getUserByAddrUuid(addrUuid);
+	public void revokeUserPermission(String userUuid, Permission p) {
+		IdcUser idcUser = getUserByAddrUuid(userUuid);
 		Permission permission = findUniquePermissionByExample(p);
 
 		IdcUserPermission iup = new IdcUserPermission();
@@ -319,20 +251,6 @@ public class DefaultPermissionService implements IPermissionService {
 		return pIdClient;
 	}
 
-	/**
-	 * Loads a Permission Entry from Database dependent from passed selection
-	 * criteria (example).
-	 * NOTICE: Throws Exception if multiple permissions found.
-	 * @param exampleInstance selection data
-	 * @return
-	 */
-	private Permission findUniquePermissionByExample(Permission exampleInstance) {
-		IPermissionDao permissionDao = daoFactory.getPermissionDao();
-		Permission permission = permissionDao.findUniqueByExample(exampleInstance);
-		
-		return permission;
-	}
-
 	public boolean isEqualPermissions(Permission p1, Permission p2) {
 		if (p1 == null || p2 == null) {
 			return false;
@@ -353,6 +271,20 @@ public class DefaultPermissionService implements IPermissionService {
 	public boolean isCatalogAdmin(String userAddrUuid) {
 		IdcUser catAdmin = getCatalogAdmin();
 		return catAdmin.getAddrUuid().equals(userAddrUuid);
+	}
+
+	/**
+	 * Loads a Permission Entry from Database dependent from passed selection
+	 * criteria (example).
+	 * NOTICE: Throws Exception if multiple permissions found.
+	 * @param exampleInstance selection data
+	 * @return
+	 */
+	private Permission findUniquePermissionByExample(Permission exampleInstance) {
+		IPermissionDao permissionDao = daoFactory.getPermissionDao();
+		Permission permission = permissionDao.findUniqueByExample(exampleInstance);
+		
+		return permission;
 	}
 
 	/**
