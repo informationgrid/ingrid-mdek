@@ -40,10 +40,10 @@
 	<xs:complexType name="EXCEPTION_SECURITY_INFO_MAP">
 		<xs:sequence>
 			<xs:choice>
-				<!-- e.g. users in group when group deleted and no forceDeleteGroupWhenUsers ! -->
-				<xs:element name="idc-users" type="USER_LIST"/>
-				<!-- e.g. editing user who needs write permission, then entities below contain edited entity -->
-				<xs:element ref="mod-user"/>
+				<!-- IDCUsers ! e.g. IdcUsers in group when group deleted and no forceDeleteGroupWhenUsers ... -->
+				<xs:element name="idc-users" type="IDC_USER_LIST"/>
+				<!-- e.g. mod-user or responsible-user who has no permission anymore -->
+				<xs:element name="user-addresses" type="ADDRESS_LIST"/>
 			</xs:choice>
 			<xs:choice>
 				<!-- The Object(s) affected by the exception. NOTICE: When multiple then order is important (parent/child) -->
@@ -284,7 +284,7 @@
 			<!-- delete group, even when group has users -->
 			<xs:element name="requestinfo_forceDeleteGroupWhenUsers" type="xs:boolean"/>
 			<!-- get/save user -->
-			<xs:element name="USER_MAP" type="USER_MAP"/>
+			<xs:element name="IDC_USER_MAP" type="IDC_USER_MAP"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">
@@ -337,11 +337,11 @@
 			<!-- get group -->
 			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
 			<!-- get user -->
-			<xs:element name="USER_MAP" type="USER_MAP"/>
+			<xs:element name="IDC_USER_MAP" type="IDC_USER_MAP"/>
 			<!-- get groups -->
 			<xs:element name="groups" type="GROUP_LIST"/>
 			<!-- get users -->
-			<xs:element name="idc-users" type="USER_LIST"/>
+			<xs:element name="idc-users" type="IDC_USER_LIST"/>
 			<!-- get permissions on object/address -->
 			<xs:element name="idc-permissions" type="PERMISSION_LIST"/>
 		</xs:choice>
@@ -401,12 +401,12 @@
 			<xs:element name="idc-permission" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>	
-	<xs:complexType name="USER_LIST">
+	<xs:complexType name="IDC_USER_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="USER_MAP" type="USER_MAP"/>
+			<xs:element name="IDC_USER_MAP" type="IDC_USER_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="USER_MAP">
+	<xs:complexType name="IDC_USER_MAP">
 		<xs:all>
 			<xs:element name="idc-user-id" type="xs:long"/>
 			<xs:element name="idc-user-addr-uuid" type="xs:string"/>

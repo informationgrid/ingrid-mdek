@@ -86,23 +86,38 @@ public class MdekError implements Serializable {
 		/** e.g. user to delete is catalog admin ! */
 		USER_IS_CATALOG_ADMIN("1015"),
 		
-		/** try to remove a group that has still users attached. errorInfo: list of attached users ! */
+		/** try to remove a group that has still users attached. errorInfo: list of attached users !
+		 * ALSO DELIVERS IDC USERS OF GROUP */
 		GROUP_HAS_USERS("2021"), 
-		/** a user write permission (in group) on an object has been removed although the user is still working on the object ! */
-		USER_OBJECT_PERMISSION_MISSING("2022"),
-		/** a user write permission (in group) on an address has been removed although the user is still working on the address ! */
-		USER_ADDRESS_PERMISSION_MISSING("2023"),
-		/** An object has multiple permissions set (in a group). errorInfo: single object (in list) */
+		/** a user write permission (in group) on an object has been removed although the user is still working on the object!
+		 * ALSO DELIVERS USER-ADDRESS AND OBJECT */
+		USER_EDITING_OBJECT_PERMISSION_MISSING("2022"),
+		/** a user write permission (in group) on an object has been removed although the user is responsible for the object!
+		 * ALSO DELIVERS USER-ADDRESS AND OBJECT */
+		USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING("2023"),
+		/** a user write permission (in group) on an address has been removed although the user is still working on the address !
+		 * ALSO DELIVERS USER-ADDRESS AND ADDRESS */
+		USER_EDITING_ADDRESS_PERMISSION_MISSING("2024"),
+		/** a user write permission (in group) on an address has been removed although the user is responsible for the address!
+		 * ALSO DELIVERS USER-ADDRESS AND ADDRESS */
+		USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING("2025"),
+		/** An object has multiple permissions set (in a group). errorInfo: single object (in list)
+		 * ALSO DELIVERS DATA OF OBJECT */
 		MULTIPLE_PERMISSIONS_ON_OBJECT("2051"),
-		/** "write-tree" object permissions are nested (in a group). errorInfo: two objects, order determines parent/child ! */
+		/** "write-tree" object permissions are nested (in a group). errorInfo: two objects, order determines parent/child !
+		 * ALSO DELIVERS DATA OF PARENT AND SUB OBJECT */
 		TREE_BELOW_TREE_OBJECT_PERMISSION("2052"),
-		/** "write" object permission beneath "write-tree" permission (in a group). errorInfo: two objects, order determines parent/child ! */
+		/** "write" object permission beneath "write-tree" permission (in a group). errorInfo: two objects, order determines parent/child !
+		 * ALSO DELIVERS DATA OF PARENT AND SUB OBJECT */
 		SINGLE_BELOW_TREE_OBJECT_PERMISSION("2053"),
-		/** An address has multiple permissions set (in a group). errorInfo: single address (in list) */
+		/** An address has multiple permissions set (in a group). errorInfo: single address (in list)
+		 * ALSO DELIVERS DATA OF ADDRESS */
 		MULTIPLE_PERMISSIONS_ON_ADDRESS("2061"),
-		/** "write-tree" address permissions are nested (in a group). errorInfo: two addresses, order determines parent/child ! */
+		/** "write-tree" address permissions are nested (in a group). errorInfo: two addresses, order determines parent/child !
+		 * ALSO DELIVERS DATA OF PARENT AND SUB ADDRESS */
 		TREE_BELOW_TREE_ADDRESS_PERMISSION("2062"),
-		/** "write" address permission beneath "write-tree" permission (in a group). errorInfo: two addresses, order determines parent/child ! */
+		/** "write" address permission beneath "write-tree" permission (in a group). errorInfo: two addresses, order determines parent/child !
+		 * ALSO DELIVERS DATA OF PARENT AND SUB ADDRESS */
 		SINGLE_BELOW_TREE_ADDRESS_PERMISSION("2063")
 		;
 

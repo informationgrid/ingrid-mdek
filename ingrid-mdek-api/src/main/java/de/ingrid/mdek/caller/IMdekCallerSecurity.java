@@ -66,8 +66,10 @@ public interface IMdekCallerSecurity {
 	 * @throws MdekException wrong permissions set (MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS). 
 	 * @throws MdekException wrong permissions set (MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION). 
 	 * @throws MdekException wrong permissions set (MdekErrorType.SINGLE_BELOW_TREE_ADDRESS_PERMISSION). 
-	 * @throws MdekException if needed permission removed: group user still editing object (MdekErrorType.USER_OBJECT_PERMISSION_MISSING). 
-	 * @throws MdekException if needed permission removed: group user still editing address (MdekErrorType.USER_ADDRESS_PERMISSION_MISSING). 
+	 * @throws MdekException if needed permission removed: group user still editing object (MdekErrorType.USER_EDITING_OBJECT_PERMISSION_MISSING). 
+	 * @throws MdekException if needed permission removed: group user responsible for object (MdekErrorType.USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING). 
+	 * @throws MdekException if needed permission removed: group user still editing address (MdekErrorType.USER_EDITING_ADDRESS_PERMISSION_MISSING). 
+	 * @throws MdekException if needed permission removed: group user responsible for address (MdekErrorType.USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING). 
 	 */
 	IngridDocument storeGroup(String plugId,
 			IngridDocument groupDoc,
@@ -85,8 +87,10 @@ public interface IMdekCallerSecurity {
 	 * @return response containing result: map containing former group users (having no permissions now)  
 	 * @throws MdekException if the group not exists (MdekErrorType.ENTITY_NOT_FOUND).
 	 * @throws MdekException if group has users and no forceDeleteGroupWhenUsers (MdekErrorType.GROUP_HAS_USERS).
-	 * @throws MdekException if group user still editing object (MdekErrorType.USER_OBJECT_PERMISSION_MISSING). 
-	 * @throws MdekException if group user still editing address (MdekErrorType.USER_ADDRESS_PERMISSION_MISSING). 
+	 * @throws MdekException if group user still editing object (MdekErrorType.USER_EDITING_OBJECT_PERMISSION_MISSING). 
+	 * @throws MdekException if needed permission removed: group user responsible for object (MdekErrorType.USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING). 
+	 * @throws MdekException if group user still editing address (MdekErrorType.USER_EDITING_ADDRESS_PERMISSION_MISSING). 
+	 * @throws MdekException if needed permission removed: group user responsible for address (MdekErrorType.USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING). 
 	 */
 	IngridDocument deleteGroup(String plugId,
 			Long idcGroupId,

@@ -76,6 +76,11 @@ public class MdekExampleSupertool {
 	{
 		this.myUserUuid = callingUserUuid;
 	}
+	public String getCallingUserUuid()
+	{
+		return myUserUuid;
+	}
+
 	public void setFullOutput(boolean doFullOutput)
 	{
 		this.doFullOutput = doFullOutput;
@@ -763,7 +768,7 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		String refetchObjectInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE storeObject " + refetchObjectInfo + "######");
+		System.out.println("\n###### INVOKE storeObject " + refetchObjectInfo + " ######");
 
 		// store
 		System.out.println("STORE");
@@ -2059,12 +2064,18 @@ public class MdekExampleSupertool {
 				}
 			} else if (err.getErrorType().equals(MdekErrorType.GROUP_HAS_USERS)) {
 				debugIdcUsersDoc(info);
-			} else if (err.getErrorType().equals(MdekErrorType.USER_OBJECT_PERMISSION_MISSING)) {
-				System.out.println("    Editing User: " + info.get(MdekKeys.MOD_USER));
+			} else if (err.getErrorType().equals(MdekErrorType.USER_EDITING_OBJECT_PERMISSION_MISSING)) {
+				System.out.println("    Editing User: " + info.get(MdekKeysSecurity.USER_ADDRESSES));
 				System.out.println("    Edited Object: " + info.get(MdekKeys.OBJ_ENTITIES));
-			} else if (err.getErrorType().equals(MdekErrorType.USER_ADDRESS_PERMISSION_MISSING)) {
-				System.out.println("    Editing User: " + info.get(MdekKeys.MOD_USER));
+			} else if (err.getErrorType().equals(MdekErrorType.USER_EDITING_ADDRESS_PERMISSION_MISSING)) {
+				System.out.println("    Editing User: " + info.get(MdekKeysSecurity.USER_ADDRESSES));
 				System.out.println("    Edited Address: " + info.get(MdekKeys.ADR_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING)) {
+				System.out.println("    Responsible User: " + info.get(MdekKeysSecurity.USER_ADDRESSES));
+				System.out.println("    for Object: " + info.get(MdekKeys.OBJ_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING)) {
+				System.out.println("    Responsible User: " + info.get(MdekKeysSecurity.USER_ADDRESSES));
+				System.out.println("    for Address: " + info.get(MdekKeys.ADR_ENTITIES));
 			} else if (err.getErrorType().equals(MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT)) {
 				System.out.println("    Object with multiple Permissions: " + info.get(MdekKeys.OBJ_ENTITIES));
 			} else if (err.getErrorType().equals(MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS)) {

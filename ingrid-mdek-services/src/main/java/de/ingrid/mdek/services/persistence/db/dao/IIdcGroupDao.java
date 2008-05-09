@@ -38,4 +38,16 @@ public interface IIdcGroupDao extends IGenericDao<IdcGroup> {
 	 * Returns a list of maps. Map contains addrUuid and the userUuid who currently owns 
 	 * (modifies) the object. */
 	List<Map> getGroupUsersWithAddressesNotInGivenState(String groupName, WorkState addrWorkState);
+
+	/** Get the users of the given group who currently are responsible for objects.
+	 * CHECKS ONLY WORK VERSION OF OBJECTS !!!
+	 * Returns a list of maps. Map contains entityUuid and the userUuid who currently is
+	 * responsible for the entity. */
+	List<Map> getGroupUsersResponsibleForObjects(String groupName);
+
+	/** Get the users of the given group who currently are responsible for addresses.
+	 * CHECKS ONLY WORK VERSION OF ADDRESSES !!!
+	 * Returns a list of maps. Map contains entityUuid and the userUuid who currently is
+	 * responsible for the entity. */
+	List<Map> getGroupUsersResponsibleForAddresses(String groupName);
 }

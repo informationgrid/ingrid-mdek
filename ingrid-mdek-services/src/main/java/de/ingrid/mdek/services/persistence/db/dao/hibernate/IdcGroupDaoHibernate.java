@@ -133,4 +133,44 @@ public class IdcGroupDaoHibernate
 
 		return maps;
 	}
+
+	public List<Map> getGroupUsersResponsibleForObjects(String groupName) {
+		Session session = getSession();
+
+		String q = "select distinct new Map(" +
+				"o.objUuid as " + KEY_ENTITY_UUID + 
+				", o.responsibleUuid as " + KEY_USER_UUID + 
+			") " +
+			"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork o " +
+			"where " +
+			"o.responsibleUuid in (" +
+				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
+				"where grp.name='" + groupName + "'" +
+			")";
+
+		List<Map> maps = session.createQuery(q).list();
+
+		return maps;
+	}
+
+	public List<Map> getGroupUsersResponsibleForAddresses(String groupName) {
+		Session session = getSession();
+
+		String q = "select distinct new Map(" +
+				"a.adrUuid as " + KEY_ENTITY_UUID + 
+				", a.responsibleUuid as " + KEY_USER_UUID + 
+			") " +
+			"from AddressNode aNode " +
+			"inner join aNode.t02AddressWork a " +
+			"where " +
+			"a.responsibleUuid in (" +
+				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
+				"where grp.name='" + groupName + "'" +
+			")";
+
+		List<Map> maps = session.createQuery(q).list();
+
+		return maps;
+	}
 }

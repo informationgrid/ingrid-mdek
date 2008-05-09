@@ -22,8 +22,10 @@ public class MdekKeysSecurity extends MdekKeys {
 	// USER(S)
     // -------
 
-    /** Value: List of IngridDocs (User Maps) */
+    /** Value: List of IngridDocs (IdcUser Maps) */
     public final static String IDC_USERS = "idc-users";
+    /** Value: List of IngridDocs (Address Maps) */
+    public final static String USER_ADDRESSES = "user-addresses";
     /** Specifies role<br>
 	 *  Value: Integer */
 	public final static String IDC_ROLE = "idc-role";

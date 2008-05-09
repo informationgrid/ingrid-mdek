@@ -493,9 +493,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- set Responsible User and store object -> working copy with 'MD_ADMIN 2' as ResponsibleUser -----");
 		System.out.println("----- !!! ResponsibleUser = " + newMetaAdmin2Uuid);
-		IngridDocument respUserDoc = new IngridDocument();
-		respUserDoc.put(MdekKeys.UUID, newMetaAdmin2Uuid);
-		doc.put(MdekKeys.RESPONSIBLE_USER, respUserDoc);
+		setResponsibleUuidInDoc(newMetaAdmin2Uuid, doc);
 		supertool.storeObject(doc, false);
 
 		System.out.println("\n----------------------------");
@@ -506,9 +504,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- set Responsible User and store address -> working copy with 'MD_ADMIN 2' as ResponsibleUser -----");
 		System.out.println("----- !!! ResponsibleUser = " + newMetaAdmin2Uuid);
-		respUserDoc = new IngridDocument();
-		respUserDoc.put(MdekKeys.UUID, newMetaAdmin2Uuid);
-		doc.put(MdekKeys.RESPONSIBLE_USER, respUserDoc);
+		setResponsibleUuidInDoc(newMetaAdmin2Uuid, doc);
 		supertool.storeAddress(doc, false);
 
 		System.out.println("\n----------------------------");
@@ -521,7 +517,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- verify CHANGED ResponsibleUser in Object -----");
 		System.out.println("----- fetch object -----");
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
-		String respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		String respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Object ResponsibleUser = " + respUuid);
 		if (!respUuid.equals(addrUuidNotUsedForUser)) {
 			throw new RuntimeException("ERROR: Object ResponsibleUser NOT ADAPTED on User Address change");
@@ -530,7 +526,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- verify CHANGED ResponsibleUser in ADDRESS -----");
 		System.out.println("----- fetch address -----");
 		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
-		respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Address ResponsibleUser = " + respUuid);
 		if (!respUuid.equals(addrUuidNotUsedForUser)) {
 			throw new RuntimeException("ERROR: Address ResponsibleUser NOT ADAPTED on User Address change");
@@ -554,7 +550,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- verify CHANGED ResponsibleUser in Object -----");
 		System.out.println("----- fetch object -----");
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
-		respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Object ResponsibleUser = " + respUuid);
 		if (!respUuid.equals(catalogAdminUuid)) {
 			throw new RuntimeException("ERROR: Object ResponsibleUser NOT ADAPTED on User DELETE");
@@ -563,7 +559,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- verify CHANGED ResponsibleUser in ADDRESS -----");
 		System.out.println("----- fetch address -----");
 		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
-		respUuid = ((IngridDocument)doc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
+		respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Address ResponsibleUser = " + respUuid);
 		if (!respUuid.equals(catalogAdminUuid)) {
 			throw new RuntimeException("ERROR: Address ResponsibleUser NOT ADAPTED on User DELETE");
@@ -893,17 +889,19 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- write object -> USER HAS WORKING COPY !");
 		System.out.println("-- first fetch object");
+		supertool.setFullOutput(false);
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		supertool.setFullOutput(true);
 		supertool.storeObject(doc, false);
 
 		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- REMOVE permission and store group -> ERROR: User still working on object -----");
+		System.out.println("\n----- REMOVE permission and store group -> ERROR: USER_EDITING_OBJECT_PERMISSION_MISSING -----");
 		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
 		supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- DELETE group -> ERROR: User still working on OBJECT -----");
+		System.out.println("\n----- DELETE group -> ERROR: USER_EDITING_OBJECT_PERMISSION_MISSING -----");
 		supertool.deleteGroup(newGroupId, true);
 
 		System.out.println("\n----- validate group: still write permissions ! -----");
@@ -914,22 +912,54 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 
 		System.out.println("\n\n------------------------------------------------");
+		System.out.println("----- GROUP: User RESPONSIBLE FOR OBJECT -> Remove Permission fails / Delete Group fails ! -----");
+		System.out.println("------------------------------------------------");
+
+		System.out.println("\n----- publish user as responsible in object -> user NOT editing and is responsible");
+		System.out.println("-- first fetch object");
+		supertool.setFullOutput(false);
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		supertool.setFullOutput(true);
+		String origResponsibleUuid = getResponsibleUuidFromDoc(doc);
+		setResponsibleUuidInDoc(supertool.getCallingUserUuid(), doc);
+		supertool.publishObject(doc, false, false);
+
+		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
+		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- REMOVE permission and store group -> ERROR: USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING -----");
+		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- DELETE group -> ERROR: USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING -----");
+		supertool.deleteGroup(newGroupId, true);
+
+		System.out.println("\n----- validate group: still write permissions ! -----");
+		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
+		
+		System.out.println("\n----- clean up: set responsible user back to former one -----");
+		setResponsibleUuidInDoc(origResponsibleUuid, doc);
+		supertool.publishObject(doc, false, false);
+
+		System.out.println("\n\n------------------------------------------------");
 		System.out.println("----- GROUP: User CURRENTLY WORKING ON ADDRESS -> Remove Permission fails / Delete Group fails ! -----");
 		System.out.println("------------------------------------------------");
 
 		System.out.println("\n----- write address -> USER HAS WORKING COPY !");
 		System.out.println("-- first fetch address");
+		supertool.setFullOutput(false);
 		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		supertool.setFullOutput(true);
 		supertool.storeAddress(doc, false);
 
 		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- REMOVE permission and store group -> ERROR: User still working on address -----");
+		System.out.println("\n----- REMOVE permission and store group -> ERROR: USER_EDITING_ADDRESS_PERMISSION_MISSING -----");
 		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
 		supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- DELETE group -> ERROR: User still working on ADDRESS -----");
+		System.out.println("\n----- DELETE group -> ERROR: USER_EDITING_ADDRESS_PERMISSION_MISSING -----");
 		supertool.deleteGroup(newGroupId, true);
 
 		System.out.println("\n----- validate group: still write permissions ! -----");
@@ -938,6 +968,36 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- delete address WORKING COPY -> ALLOWED (still write permission in Group !) -----");
 		System.out.println("----- WOULD THROW \"NO_PERM\" EXCEPTION if full delete ! -----");
 		supertool.deleteAddressWorkingCopy(addrUuid, true);
+
+		System.out.println("\n\n------------------------------------------------");
+		System.out.println("----- GROUP: User RESPONSIBLE FOR ADDRESS -> Remove Permission fails / Delete Group fails ! -----");
+		System.out.println("------------------------------------------------");
+
+		System.out.println("\n----- publish user as responsible in address -> user NOT editing and is responsible");
+		System.out.println("-- first fetch address");
+		supertool.setFullOutput(false);
+		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		supertool.setFullOutput(true);
+		origResponsibleUuid = getResponsibleUuidFromDoc(doc);
+		setResponsibleUuidInDoc(supertool.getCallingUserUuid(), doc);
+		supertool.publishAddress(doc, false);
+
+		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
+		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- REMOVE permission and store group -> ERROR: USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING -----");
+		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
+		supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n----- DELETE group -> ERROR: USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING -----");
+		supertool.deleteGroup(newGroupId, true);
+
+		System.out.println("\n----- validate group: still write permissions ! -----");
+		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
+		
+		System.out.println("\n----- clean up: set responsible user back to former one -----");
+		setResponsibleUuidInDoc(origResponsibleUuid, doc);
+		supertool.publishAddress(doc, false);
 
 		// ===================================
 		
@@ -953,7 +1013,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- verify no wrong permissions in group -> get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
 
-		System.out.println("\n----- delete group, NO FORCE DELETE WHEN HAVING USERS -> ERROR, group has users -----");
+		System.out.println("\n----- delete group, NO FORCE DELETE WHEN HAVING USERS -> ERROR: GROUP_HAS_USERS -----");
 		supertool.deleteGroup(newGroupId, false);
 
 		System.out.println("\n----- delete group, WITH FORCE DELETE WHEN HAVING USERS -> returns 'groupless' users of deleted group -----");
@@ -1021,5 +1081,14 @@ class MdekExampleSecurityThread extends Thread {
 		IngridDocument newPerm = new IngridDocument();
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
 		perms.add(newPerm);
+	}
+	
+	private void setResponsibleUuidInDoc(String userUuid, IngridDocument entityDoc) {
+		IngridDocument respUserDoc = new IngridDocument();
+		respUserDoc.put(MdekKeys.UUID, userUuid);
+		entityDoc.put(MdekKeys.RESPONSIBLE_USER, respUserDoc);
+	}
+	private String getResponsibleUuidFromDoc(IngridDocument entityDoc) {
+		return ((IngridDocument)entityDoc.get(MdekKeys.RESPONSIBLE_USER)).getString(MdekKeys.UUID);
 	}
 }

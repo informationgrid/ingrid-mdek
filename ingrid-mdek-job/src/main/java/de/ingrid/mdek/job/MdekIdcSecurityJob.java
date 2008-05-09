@@ -224,7 +224,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// check for nested permissions
 			checkPermissionStructureOfGroup(grp);
-			// check for users editing entities with removed permissions
+			// check for users editing entities or responsibles with removed permissions
 			checkMissingPermissionOfGroup(grp);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -287,7 +287,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			docToBeanMapperSecurity.updatePermissionObjs(noPermissionsDoc, group);
 			daoIdcGroup.makePersistent(group);
 
-			// check for users editing entities and still needing permissions, throws exception if so !
+			// check for users editing entities or responsibles with removed permissions
 			checkMissingPermissionOfGroup(group);
 			
 			// ok, we update ex group users (remove from group, ...) and return them
@@ -843,64 +843,27 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument setupErrorInfoObj(IngridDocument errInfo, String objUuid) {
-		if (errInfo == null) {
-			errInfo = new IngridDocument();			
-		}
-		IngridDocument oDoc = beanToDocMapper.mapT01Object(daoObjectNode.loadByUuid(objUuid).getT01ObjectWork(),
-					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-		List<IngridDocument> oList = (List<IngridDocument>) errInfo.get(MdekKeys.OBJ_ENTITIES);
-		if (oList == null) {
-			oList = new ArrayList<IngridDocument>();
-			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
-		}
-		oList.add(oDoc);
-		
-		return errInfo;
-	}
-	private IngridDocument setupErrorInfoAddr(IngridDocument errInfo, String addrUuid) {
-		if (errInfo == null) {
-			errInfo = new IngridDocument();			
-		}
-		IngridDocument aDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(addrUuid).getT02AddressWork(),
-					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-		List<IngridDocument> aList = (List<IngridDocument>) errInfo.get(MdekKeys.ADR_ENTITIES);
-		if (aList == null) {
-			aList = new ArrayList<IngridDocument>();
-			errInfo.put(MdekKeys.ADR_ENTITIES, aList);
-		}
-		aList.add(aDoc);
-		
-		return errInfo;
-	}
-
-	private IngridDocument setupErrorInfoUser(IngridDocument errInfo, String userUuid) {
-		if (errInfo == null) {
-			errInfo = new IngridDocument();			
-		}
-		IngridDocument aDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(userUuid).getT02AddressWork(),
-					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-		errInfo.put(MdekKeys.MOD_USER, aDoc);
-		
-		return errInfo;
-	}
-
 	/**
-	 * Check whether there are group users with entities they work on and without write permissions
-	 * for the entity (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * Check whether there are group users who need write permissions but don't have them anymore
+	 * (because of removed permissions), e.g. user editing entities or responsibles.
+	 * THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
 	private void checkMissingPermissionOfGroup(IdcGroup grp) {
-		checkMissingObjectPermissionOfGroup(grp);
-		checkMissingAddressPermissionOfGroup(grp);
+		checkMissingObjectPermissionOfGroupUsersEditing(grp);
+		checkMissingObjectPermissionOfGroupUsersResponsible(grp);
+
+		checkMissingAddressPermissionOfGroupUsersEditing(grp);
+		checkMissingAddressPermissionOfGroupUsersResponsible(grp);
 	}
 
 	/**
-	 * Check whether there are group users with OBJECTS they work on and WITHOUT write permissions
-	 * for these OBJECTS (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * Check whether there are group users editing OBJECTS but don't have write permission anymore
+	 * (because of removed permission).
+	 * THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkMissingObjectPermissionOfGroup(IdcGroup grp) {
+	private void checkMissingObjectPermissionOfGroupUsersEditing(IdcGroup grp) {
 		List<Map> objUserMaps = 
 			daoIdcGroup.getGroupUsersWithObjectsNotInGivenState(grp.getName(), WorkState.VEROEFFENTLICHT);
 		for (Map objUserMap : objUserMaps) {
@@ -908,19 +871,41 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String objUuid = (String) objUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid)) {
-				IngridDocument errInfo = setupErrorInfoUser(new IngridDocument(), userUuid);
+				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
 				errInfo = setupErrorInfoObj(errInfo, objUuid);
-				throw new MdekException(new MdekError(MdekErrorType.USER_OBJECT_PERMISSION_MISSING, errInfo));
+				throw new MdekException(new MdekError(MdekErrorType.USER_EDITING_OBJECT_PERMISSION_MISSING, errInfo));
 			}
 		}
 	}
 
 	/**
-	 * Check whether there are group users with ADDRESSES they work on and WITHOUT write permissions
-	 * for these ADDRESSES (because of removed permissions). THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * Check whether there are group users responsible for OBJECTS but don't have write permission anymore
+	 * (because of removed permission).
+	 * THROWS EXCEPTION IF NO PERMISSION ANYMORE.
 	 * @param grp group to validate
 	 */
-	private void checkMissingAddressPermissionOfGroup(IdcGroup grp) {
+	private void checkMissingObjectPermissionOfGroupUsersResponsible(IdcGroup grp) {
+		List<Map> objUserMaps = 
+			daoIdcGroup.getGroupUsersResponsibleForObjects(grp.getName());
+		for (Map objUserMap : objUserMaps) {
+			String userUuid = (String) objUserMap.get(daoIdcGroup.KEY_USER_UUID);
+			String objUuid = (String) objUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
+			
+			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid)) {
+				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
+				errInfo = setupErrorInfoObj(errInfo, objUuid);
+				throw new MdekException(new MdekError(MdekErrorType.USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING, errInfo));
+			}
+		}
+	}
+
+	/**
+	 * Check whether there are group users editing ADDRESSES but don't have write permission anymore
+	 * (because of removed permission).
+	 * THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * @param grp group to validate
+	 */
+	private void checkMissingAddressPermissionOfGroupUsersEditing(IdcGroup grp) {
 		List<Map> addrUserMaps = 
 			daoIdcGroup.getGroupUsersWithAddressesNotInGivenState(grp.getName(), WorkState.VEROEFFENTLICHT);
 		for (Map addrUserMap : addrUserMaps) {
@@ -928,9 +913,30 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String addrUuid = (String) addrUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid)) {
-				IngridDocument errInfo = setupErrorInfoUser(new IngridDocument(), userUuid);
+				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
 				errInfo = setupErrorInfoAddr(errInfo, addrUuid);
-				throw new MdekException(new MdekError(MdekErrorType.USER_ADDRESS_PERMISSION_MISSING, errInfo));
+				throw new MdekException(new MdekError(MdekErrorType.USER_EDITING_ADDRESS_PERMISSION_MISSING, errInfo));
+			}
+		}
+	}
+
+	/**
+	 * Check whether there are group users responsible for ADDRESSES but don't have write permission anymore
+	 * (because of removed permission).
+	 * THROWS EXCEPTION IF NO PERMISSION ANYMORE.
+	 * @param grp group to validate
+	 */
+	private void checkMissingAddressPermissionOfGroupUsersResponsible(IdcGroup grp) {
+		List<Map> addrUserMaps = 
+			daoIdcGroup.getGroupUsersResponsibleForAddresses(grp.getName());
+		for (Map addrUserMap : addrUserMaps) {
+			String userUuid = (String) addrUserMap.get(daoIdcGroup.KEY_USER_UUID);
+			String addrUuid = (String) addrUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
+			
+			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid)) {
+				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
+				errInfo = setupErrorInfoAddr(errInfo, addrUuid);
+				throw new MdekException(new MdekError(MdekErrorType.USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING, errInfo));
 			}
 		}
 	}
@@ -982,5 +988,52 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			a.setResponsibleUuid(newResponsibleUuid);
 			dao.makePersistent(a);
 		}
+	}
+
+	private IngridDocument setupErrorInfoObj(IngridDocument errInfo, String objUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument oDoc = beanToDocMapper.mapT01Object(daoObjectNode.loadByUuid(objUuid).getT01ObjectWork(),
+					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> oList = (List<IngridDocument>) errInfo.get(MdekKeys.OBJ_ENTITIES);
+		if (oList == null) {
+			oList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
+		}
+		oList.add(oDoc);
+		
+		return errInfo;
+	}
+	private IngridDocument setupErrorInfoAddr(IngridDocument errInfo, String addrUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument aDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(addrUuid).getT02AddressWork(),
+					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> aList = (List<IngridDocument>) errInfo.get(MdekKeys.ADR_ENTITIES);
+		if (aList == null) {
+			aList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.ADR_ENTITIES, aList);
+		}
+		aList.add(aDoc);
+		
+		return errInfo;
+	}
+
+	private IngridDocument setupErrorInfoUserAddress(IngridDocument errInfo, String userUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument uDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(userUuid).getT02AddressWork(),
+					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> uList = (List<IngridDocument>) errInfo.get(MdekKeysSecurity.USER_ADDRESSES);
+		if (uList == null) {
+			uList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeysSecurity.USER_ADDRESSES, uList);
+		}
+		uList.add(uDoc);
+
+		return errInfo;
 	}
 }
