@@ -269,6 +269,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
+			// set current user as responsible user if not set !
+			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
+			if (respUserUuid == null) {
+				beanToDocMapper.mapResponsibleUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);				
+			}
 
 			// check permissions !
 			permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);
@@ -393,6 +398,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
+			// set current user as responsible user if not set !
+			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
+			if (respUserUuid == null) {
+				beanToDocMapper.mapResponsibleUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);				
+			}
 
 			if (isNewObject) {
 				// create new uuid

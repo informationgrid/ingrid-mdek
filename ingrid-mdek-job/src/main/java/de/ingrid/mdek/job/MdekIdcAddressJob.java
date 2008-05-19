@@ -271,6 +271,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
+			// set current user as responsible user if not set !
+			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
+			if (respUserUuid == null) {
+				beanToDocMapper.mapResponsibleUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);				
+			}
 
 			// check permissions !
 			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
@@ -382,6 +387,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			aDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
+			// set current user as responsible user if not set !
+			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
+			if (respUserUuid == null) {
+				beanToDocMapper.mapResponsibleUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);				
+			}
 
 			// check permissions !
 			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);
