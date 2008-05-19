@@ -146,6 +146,7 @@ public class BeanToDocMapper implements IMapper {
 
 		// supply initial data when entity is created
 		if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 			// map associations
 			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc, howMuch);
 
