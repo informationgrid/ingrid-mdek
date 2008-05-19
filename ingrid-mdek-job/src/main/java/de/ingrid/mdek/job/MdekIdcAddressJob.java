@@ -28,6 +28,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
@@ -84,9 +85,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				beanToDocMapper.mapAddressNode(aN, adrDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT02Address(aN.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
 
-				// add info whether calling user has write access
-				boolean hasAccess = permissionHandler.hasWritePermissionForAddress(aN.getAddrUuid(), userUuid);
-				beanToDocMapperSecurity.mapHasAccess(hasAccess, adrDoc);
+				// add permissions the user has on given address !
+				List<Permission> perms = permissionHandler.getPermissionsForAddress(aN.getAddrUuid(), userUuid);
+				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);
 
 				resultList.add(adrDoc);
 			}
@@ -117,9 +118,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
 
-				// add info whether calling user has write access
-				boolean hasAccess = permissionHandler.hasWritePermissionForAddress(aNode.getAddrUuid(), userUuid);
-				beanToDocMapperSecurity.mapHasAccess(hasAccess, adrDoc);
+				// add permissions the user has on given address !
+				List<Permission> perms = permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userUuid);
+				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);
 
 				resultList.add(adrDoc);
 			}
@@ -209,9 +210,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// then map detailed mod user data !
 		beanToDocMapper.mapModUser(a.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
 
-		// add info whether calling user has write access
-		boolean hasAccess = permissionHandler.hasWritePermissionForAddress(addrUuid, userUuid);
-		beanToDocMapperSecurity.mapHasAccess(hasAccess, resultDoc);
+		// add permissions the user has on given address !
+		List<Permission> perms = permissionHandler.getPermissionsForAddress(addrUuid, userUuid);
+		beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 		return resultDoc;
 	}

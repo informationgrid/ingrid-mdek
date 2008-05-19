@@ -28,6 +28,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
@@ -77,9 +78,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
 				
-				// add info whether calling user has write access
-				boolean hasAccess = permissionHandler.hasWritePermissionForObject(oN.getObjUuid(), userUuid);
-				beanToDocMapperSecurity.mapHasAccess(hasAccess, objDoc);
+				// add permissions the user has on given object !
+				List<Permission> perms = permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid);
+				beanToDocMapperSecurity.mapPermissionList(perms, objDoc);
 
 				resultList.add(objDoc);
 			}
@@ -111,9 +112,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
 				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
 
-				// add info whether calling user has write access
-				boolean hasAccess = permissionHandler.hasWritePermissionForObject(oN.getObjUuid(), userUuid);
-				beanToDocMapperSecurity.mapHasAccess(hasAccess, objDoc);
+				// add permissions the user has on given object !
+				List<Permission> perms = permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid);
+				beanToDocMapperSecurity.mapPermissionList(perms, objDoc);
 
 				resultList.add(objDoc);
 			}
@@ -199,9 +200,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// then map detailed mod user data !
 		beanToDocMapper.mapModUser(o.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
 
-		// add info whether calling user has write access
-		boolean hasAccess = permissionHandler.hasWritePermissionForObject(objUuid, userUuid);
-		beanToDocMapperSecurity.mapHasAccess(hasAccess, resultDoc);
+		// add permissions the user has on given object !
+		List<Permission> perms = permissionHandler.getPermissionsForObject(objUuid, userUuid);
+		beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 		return resultDoc;
 	}

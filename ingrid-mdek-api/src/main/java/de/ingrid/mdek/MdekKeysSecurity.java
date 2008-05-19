@@ -53,8 +53,4 @@ public class MdekKeysSecurity extends MdekKeys {
     /** Specifies a permission via client side permission id, e.g. "writeTree" (defined in Enumeration, see "Utils")<br>
 	 *  Value: String */
 	public final static String IDC_PERMISSION = "idc-permission";
-
-    /** Flag indicating write access to an entity (true) or not (false). Added to entity maps where needed!<br>
-     *  Value: Boolean */
-    public final static String IDC_PERMISSION_HAS_ACCESS = "idc-permission-has-access";
 }

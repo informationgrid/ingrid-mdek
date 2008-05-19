@@ -9,6 +9,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -1762,6 +1763,13 @@ public class MdekExampleSupertool {
 				System.out.println("    " + doc);								
 			}			
 		}
+	}
+	
+	public void debugPermissionsDocBoolean(IngridDocument p) {
+		List<IngridDocument> docList = (List<IngridDocument>) p.get(MdekKeysSecurity.IDC_PERMISSIONS);
+		System.out.println("HAS_WRITE_ACCESS: " + MdekUtilsSecurity.hasWritePermission(docList));
+		System.out.println("HAS_WRITE_TREE_ACCESS: " + MdekUtilsSecurity.hasWriteTreePermission(docList));
+		System.out.println("HAS_WRITE_SINGLE_ACCESS: " + MdekUtilsSecurity.hasWriteSinglePermission(docList));
 	}
 	
 	private void debugIdcUsersDoc(IngridDocument u) {

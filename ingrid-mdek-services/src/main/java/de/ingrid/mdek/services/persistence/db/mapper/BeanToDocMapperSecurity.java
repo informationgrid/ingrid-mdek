@@ -224,11 +224,6 @@ public class BeanToDocMapperSecurity implements IMapper {
 		return inDoc;
 	}
 
-	public IngridDocument mapHasAccess(boolean hasAccess, IngridDocument inDoc) {
-		inDoc.put(MdekKeysSecurity.IDC_PERMISSION_HAS_ACCESS, hasAccess);
-		return inDoc;
-	}
-
 	private IngridDocument mapPermissionAddrs(Set<PermissionAddr> inRefs, IngridDocument inDoc,
 			MappingQuantity howMuch) {
 		if (inRefs == null) {

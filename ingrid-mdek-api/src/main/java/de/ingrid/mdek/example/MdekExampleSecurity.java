@@ -620,7 +620,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setFullOutput(false);
 		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
 		supertool.setFullOutput(true);
-		System.out.println("HAS_ACCESS: " + doc.get(MdekKeysSecurity.IDC_PERMISSION_HAS_ACCESS));
+		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeAddress(doc, false);
 
 		System.out.println("\n----- publish address -> NOT ALLOWED -----");
@@ -632,7 +632,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setFullOutput(false);
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 		supertool.setFullOutput(true);
-		System.out.println("HAS_ACCESS: " + doc.get(MdekKeysSecurity.IDC_PERMISSION_HAS_ACCESS));
+		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeObject(doc, false);
 
 		System.out.println("\n----- publish object -> NOT ALLOWED -----");
@@ -663,7 +663,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setFullOutput(false);
 		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
 		supertool.setFullOutput(true);
-		System.out.println("HAS_ACCESS: " + doc.get(MdekKeysSecurity.IDC_PERMISSION_HAS_ACCESS));
+		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeAddress(doc, false);
 
 		System.out.println("\n----- delete address WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
@@ -679,7 +679,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setFullOutput(false);
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 		supertool.setFullOutput(true);
-		System.out.println("HAS_ACCESS: " + doc.get(MdekKeysSecurity.IDC_PERMISSION_HAS_ACCESS));
+		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeObject(doc, false);
 
 		System.out.println("\n----- delete object WORKING COPY -> ALLOWED (WRITE_SINGLE) -----");
