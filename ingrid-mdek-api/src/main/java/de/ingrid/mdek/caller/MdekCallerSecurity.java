@@ -172,18 +172,22 @@ public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCalle
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getUsersWithWritePermissionForObject(String plugId, String objectUuid, String userId) {
+	public IngridDocument getUsersWithWritePermissionForObject(String plugId, String objectUuid, String userId,
+			boolean getDetailedPermissions) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, objectUuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
 		List jobMethods = mdekCaller.setUpJobMethod("getUsersWithWritePermissionForObject", jobParams);
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getUsersWithWritePermissionForAddress(String plugId, String addressUuid, String userId) {
+	public IngridDocument getUsersWithWritePermissionForAddress(String plugId, String addressUuid, String userId,
+			boolean getDetailedPermissions) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, addressUuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
 		List jobMethods = mdekCaller.setUpJobMethod("getUsersWithWritePermissionForAddress", jobParams);
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}

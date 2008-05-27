@@ -276,16 +276,17 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getUsersWithWritePermissionForObject(String objUuid) {
+	public IngridDocument getUsersWithWritePermissionForObject(String objUuid, boolean getDetailedPermissions) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getUsersWithWritePermissionForObject ######");
+		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
+		System.out.println("\n###### INVOKE getUsersWithWritePermissionForObject " + infoDetailedPermissions + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getUsersWithWritePermissionForObject(plugId, objUuid, myUserUuid);
+		response = mdekCallerSecurity.getUsersWithWritePermissionForObject(plugId, objUuid, myUserUuid, getDetailedPermissions);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -303,16 +304,17 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getUsersWithWritePermissionForAddress(String addrUuid) {
+	public IngridDocument getUsersWithWritePermissionForAddress(String addrUuid, boolean getDetailedPermissions) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getUsersWithWritePermissionForAddress ######");
+		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
+		System.out.println("\n###### INVOKE getUsersWithWritePermissionForAddress " + infoDetailedPermissions + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getUsersWithWritePermissionForAddress(plugId, addrUuid, myUserUuid);
+		response = mdekCallerSecurity.getUsersWithWritePermissionForAddress(plugId, addrUuid, myUserUuid, getDetailedPermissions);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -346,7 +348,7 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			debugPermissionsDoc(result);
+			debugPermissionsDoc(result, "");
 		} else {
 			handleError(response);
 		}
@@ -370,7 +372,7 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			debugPermissionsDoc(result);
+			debugPermissionsDoc(result, "");
 		} else {
 			handleError(response);
 		}
@@ -394,7 +396,7 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			debugPermissionsDoc(result);
+			debugPermissionsDoc(result, "");
 		} else {
 			handleError(response);
 		}
@@ -1713,6 +1715,8 @@ public class MdekExampleSupertool {
 		}
 
 		System.out.println("  " + u);
+
+		debugPermissionsDoc(u, "  ");
 	}
 	
 	private void debugGroupDoc(IngridDocument g) {
@@ -1755,12 +1759,12 @@ public class MdekExampleSupertool {
 		}
 	}
 
-	private void debugPermissionsDoc(IngridDocument p) {
+	private void debugPermissionsDoc(IngridDocument p, String indent) {
 		List<IngridDocument> docList = (List<IngridDocument>) p.get(MdekKeysSecurity.IDC_PERMISSIONS);
 		if (docList != null && docList.size() > 0) {
-			System.out.println("Permissions: " + docList.size() + " Entries");
+			System.out.println(indent + "Permissions: " + docList.size() + " Entries");
 			for (IngridDocument doc : docList) {
-				System.out.println("    " + doc);								
+				System.out.println(indent + "  " + doc);								
 			}			
 		}
 	}

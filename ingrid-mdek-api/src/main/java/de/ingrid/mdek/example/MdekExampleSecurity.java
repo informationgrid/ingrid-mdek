@@ -695,10 +695,12 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- ADDRESS/OBJECT: Get All Users with Write Permission");
 
 		System.out.println("\n----- users with write permission for object: " + objUuid);
-		supertool.getUsersWithWritePermissionForObject(objUuid);
+		supertool.getUsersWithWritePermissionForObject(objUuid, false);
+		supertool.getUsersWithWritePermissionForObject(objUuid, true);
 
 		System.out.println("\n----- users with write permission for address: " + addrUuid);
-		supertool.getUsersWithWritePermissionForAddress(addrUuid);
+		supertool.getUsersWithWritePermissionForAddress(addrUuid, false);
+		supertool.getUsersWithWritePermissionForAddress(addrUuid, true);
 
 // ===================================
 		

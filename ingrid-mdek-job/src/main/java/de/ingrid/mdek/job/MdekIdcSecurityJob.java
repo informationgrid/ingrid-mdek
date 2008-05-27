@@ -689,6 +689,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 
 			String objUuid = (String) params.get(MdekKeys.UUID);
+			Boolean getDetailedPermissions = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS);
 
 			// get all groups: search users via groups !
 			List<IdcGroup> allGroups = daoIdcGroup.getGroups();
@@ -699,6 +700,14 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			for (IdcUser user : users) {
 				IngridDocument uDoc = new IngridDocument();
 				beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);
+				
+				if (getDetailedPermissions) {
+					List<Permission> perms = permHandler.getPermissionsForObject(objUuid, user.getAddrUuid());
+					List<Permission> permsUser = permHandler.getUserPermissions(user.getAddrUuid());
+					perms.addAll(permsUser);
+					beanToDocMapperSecurity.mapPermissionList(perms, uDoc);					
+				}
+
 				resultList.add(uDoc);
 			}
 
@@ -720,6 +729,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 
 			String addrUuid = (String) params.get(MdekKeys.UUID);
+			Boolean getDetailedPermissions = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS);
 
 			// get all groups: search users via groups !
 			List<IdcGroup> allGroups = daoIdcGroup.getGroups();
@@ -730,6 +740,14 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			for (IdcUser user : users) {
 				IngridDocument uDoc = new IngridDocument();
 				beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);
+
+				if (getDetailedPermissions) {
+					List<Permission> perms = permHandler.getPermissionsForAddress(addrUuid, user.getAddrUuid());
+					List<Permission> permsUser = permHandler.getUserPermissions(user.getAddrUuid());
+					perms.addAll(permsUser);
+					beanToDocMapperSecurity.mapPermissionList(perms, uDoc);					
+				}
+
 				resultList.add(uDoc);
 			}
 

@@ -284,6 +284,8 @@
 			<xs:element name="requestinfo_forceDeleteGroupWhenUsers" type="xs:boolean"/>
 			<!-- get/save user -->
 			<xs:element name="IDC_USER_MAP" type="IDC_USER_MAP"/>
+			<!-- e.g. get detailed permissions of users having write access on entity, then user holds permission list-->
+			<xs:element name="requestinfo_getDetailedPermissions" type="xs:boolean"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">
@@ -417,6 +419,8 @@
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="mod-user"/>
 			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
+			<!-- e.g. detailed permissions of user on entity -->
+			<xs:element name="idc-permissions" type="PERMISSION_LIST"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="PERMISSION_LIST">

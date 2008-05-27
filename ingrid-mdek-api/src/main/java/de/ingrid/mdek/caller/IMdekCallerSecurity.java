@@ -223,20 +223,26 @@ public interface IMdekCallerSecurity {
 	 * @param plugId which mdek server (iplug)
 	 * @param objectUuid object to get "write users" for
 	 * @param userId calling user
+	 * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
+	 * false=only users are returned without detailed permissions)
 	 * @return response containing result: map containing basic representations of users
 	 */
 	IngridDocument getUsersWithWritePermissionForObject(String plugId,
 			String objectUuid,
-			String userId);
+			String userId,
+			boolean getDetailedPermissions);
 
 	/**
 	 * Get all users who have write permission for the given address.
 	 * @param plugId which mdek server (iplug)
 	 * @param addressUuid address to get "write users" for
 	 * @param userId calling user
+	 * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
+	 * false=only users are returned without detailed permissions)
 	 * @return response containing result: map containing basic representations of users
 	 */
 	IngridDocument getUsersWithWritePermissionForAddress(String plugId,
 			String addressUuid,
-			String userId);
+			String userId,
+			boolean getDetailedPermissions);
 }

@@ -22,6 +22,10 @@ public class MdekKeysSecurity extends MdekKeys {
 	// USER(S)
     // -------
 
+    /** fetch detailed permissions of the users requested (write-tree, qa, ...) ?<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_GET_DETAILED_PERMISSIONS = "requestinfo_getDetailedPermissions";
+
     /** Value: List of IngridDocs (IdcUser Maps) */
     public final static String IDC_USERS = "idc-users";
     /** Value: List of IngridDocs (Address Maps) */
