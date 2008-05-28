@@ -84,10 +84,25 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		try {
 			daoIdcGroup.beginTransaction();
 
+			Boolean includeCatAdminGroup = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_INCLUDE_CATADMIN_GROUP);
+
 			List<IdcGroup> groups = daoIdcGroup.getGroups();
+			
+			// fetch group id of catAdmin for comparison
+			Long catAdminGroupId = null;
+			if (!includeCatAdminGroup) {
+				catAdminGroupId = permService.getCatalogAdmin().getIdcGroupId();
+			}
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(groups.size());
 			for (IdcGroup group : groups) {
+				// skip group of catAdmin ?
+				if (!includeCatAdminGroup) {
+					if (group.getId().equals(catAdminGroupId)) {
+						continue;
+					}
+				}
+
 				IngridDocument groupDoc = new IngridDocument();
 				beanToDocMapperSecurity.mapIdcGroup(group, groupDoc, MappingQuantity.BASIC_ENTITY);
 				resultList.add(groupDoc);

@@ -172,16 +172,17 @@ public class MdekExampleSupertool {
 		return result;
 	}
 	
-	public IngridDocument getGroups() {
+	public IngridDocument getGroups(boolean includeCatAdminGroup) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getGroups ######");
+		String infoCatAdminGroup = (includeCatAdminGroup) ? "WITH CatAdmin group" : "WITHOUT CatAdmin group";
+		System.out.println("\n###### INVOKE getGroups " + infoCatAdminGroup + " ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getGroups(plugId, myUserUuid);
+		response = mdekCallerSecurity.getGroups(plugId, myUserUuid, includeCatAdminGroup);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

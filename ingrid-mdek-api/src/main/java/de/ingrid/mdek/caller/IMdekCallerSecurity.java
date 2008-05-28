@@ -13,10 +13,13 @@ public interface IMdekCallerSecurity {
 	 * Get all groups.
 	 * @param plugId which mdek server (iplug)
 	 * @param userId calling user
+	 * @param includeCatAdminGroup true=group of catalog administrator is included<br>
+	 * false=skip group of catalog administrator, all other groups are returned
 	 * @return response containing result: map containing groups
 	 */
 	IngridDocument getGroups(String plugId,
-			String userId);
+			String userId,
+			boolean includeCatAdminGroup);
 
 	/**
 	 * Get a group.
@@ -224,7 +227,7 @@ public interface IMdekCallerSecurity {
 	 * @param objectUuid object to get "write users" for
 	 * @param userId calling user
 	 * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
-	 * false=only users are returned without detailed permissions)
+	 * false=only users are returned without detailed permissions
 	 * @return response containing result: map containing basic representations of users
 	 */
 	IngridDocument getUsersWithWritePermissionForObject(String plugId,
@@ -238,7 +241,7 @@ public interface IMdekCallerSecurity {
 	 * @param addressUuid address to get "write users" for
 	 * @param userId calling user
 	 * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
-	 * false=only users are returned without detailed permissions)
+	 * false=only users are returned without detailed permissions
 	 * @return response containing result: map containing basic representations of users
 	 */
 	IngridDocument getUsersWithWritePermissionForAddress(String plugId,

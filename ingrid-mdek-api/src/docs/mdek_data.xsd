@@ -282,6 +282,8 @@
 			<xs:element name="GROUP_MAP" type="GROUP_MAP"/>
 			<!-- delete group, even when group has users -->
 			<xs:element name="requestinfo_forceDeleteGroupWhenUsers" type="xs:boolean"/>
+			<!-- also include group of Catalog Admin, e.g. when fetching all groups-->
+			<xs:element name="requestinfo_includeCatAdminGroup" type="xs:boolean"/>
 			<!-- get/save user -->
 			<xs:element name="IDC_USER_MAP" type="IDC_USER_MAP"/>
 			<!-- e.g. get detailed permissions of users having write access on entity, then user holds permission list-->

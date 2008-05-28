@@ -9,6 +9,10 @@ public class MdekKeysSecurity extends MdekKeys {
 	// GROUP(S)
     // --------
 
+    /** also include group of Catalog Admin, e.g. when fetching all groups<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_INCLUDE_CATADMIN_GROUP = "requestinfo_includeCatAdminGroup";
+
     /** Value: List of IngridDocs (Group Maps) */
     public final static String GROUPS = "groups";
 	/** Specifies the id of a idc group<br>

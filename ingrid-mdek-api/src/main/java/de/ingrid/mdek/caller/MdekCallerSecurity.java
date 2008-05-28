@@ -56,9 +56,11 @@ public class MdekCallerSecurity extends MdekCallerAbstract implements IMdekCalle
 	}
 
 	public IngridDocument getGroups(String plugId,
-			String userId) {
+			String userId,
+			boolean includeCatAdminGroup) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
+		jobParams.put(MdekKeysSecurity.REQUESTINFO_INCLUDE_CATADMIN_GROUP, includeCatAdminGroup);
 		List jobMethods = mdekCaller.setUpJobMethod("getGroups", jobParams);
 		return mdekCaller.callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}

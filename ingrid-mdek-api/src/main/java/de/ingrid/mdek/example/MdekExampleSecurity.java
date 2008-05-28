@@ -182,7 +182,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n----- get all groups -----");
-		supertool.getGroups();
+		supertool.getGroups(true);
+		supertool.getGroups(false);
 
 		System.out.println("\n----- create new group -----");
 		String nameNewGrp = "neue TEST-Gruppe";
