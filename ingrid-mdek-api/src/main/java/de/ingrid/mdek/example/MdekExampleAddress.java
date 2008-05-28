@@ -129,6 +129,8 @@ class MdekExampleAddressThread extends Thread {
 		// FREE ADDRESS
 		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
 
+		IngridDocument aMap;
+
 		boolean alwaysTrue = true;
 
 		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
@@ -141,8 +143,19 @@ class MdekExampleAddressThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-		// add functionality !
+		// check address manipulation -> "create user" stored in comment
 
+		supertool.setFullOutput(true);
+		
+		System.out.println("\n----- address details -----");
+		aMap = supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- change and store existing address -> working copy ! -----");
+		storeAddressWithManipulation(aMap);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteAddressWorkingCopy(personUuid, true);
+		
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
@@ -210,7 +223,7 @@ class MdekExampleAddressThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n----- address details -----");
-		IngridDocument aMap = supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
+		aMap = supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -569,7 +582,9 @@ class MdekExampleAddressThread extends Thread {
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.COMMENT, "TEST COMMENT");
 		testDoc.put(MdekKeys.CREATE_TIME, MdekUtils.dateToTimestamp(new Date()));
-		testDoc.put(MdekKeys.CREATE_UUID, "TEST CREATE_UUID");
+		IngridDocument createUserDoc = new IngridDocument();
+		createUserDoc.put(MdekKeys.UUID, supertool.getCallingUserUuid());
+		testDoc.put(MdekKeys.CREATE_USER, createUserDoc);
 		docList.add(testDoc);
 		aDocIn.put(MdekKeys.COMMENT_LIST, docList);
 

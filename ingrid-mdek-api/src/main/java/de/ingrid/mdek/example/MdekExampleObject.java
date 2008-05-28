@@ -2,6 +2,7 @@ package de.ingrid.mdek.example;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -373,6 +374,26 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- object details -----");
 		oMap = supertool.fetchObject("38664938-B449-11D2-9A86-080000507261", Quantity.DETAIL_ENTITY);
 
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// -----------------------------------
+
+		// check object manipulation -> "create user" stored in comment
+
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- object details -----");
+		oMap = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- change and store existing object -> working copy ! -----");
+		storeObjectWithManipulation(oMap);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objUuid, false);
+		
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
@@ -1118,8 +1139,11 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.COMMENT_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.COMMENT, "TEST " + MdekKeys.COMMENT);
-		testDoc.put(MdekKeys.CREATE_TIME, "12345678901234567");
+		testDoc.put(MdekKeys.COMMENT, "TEST COMMENT");
+		testDoc.put(MdekKeys.CREATE_TIME, MdekUtils.dateToTimestamp(new Date()));
+		IngridDocument createUserDoc = new IngridDocument();
+		createUserDoc.put(MdekKeys.UUID, supertool.getCallingUserUuid());
+		testDoc.put(MdekKeys.CREATE_USER, createUserDoc);
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.COMMENT_LIST, docList);
 

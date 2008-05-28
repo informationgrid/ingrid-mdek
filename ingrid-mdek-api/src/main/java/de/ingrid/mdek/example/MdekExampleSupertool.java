@@ -2015,8 +2015,9 @@ public class MdekExampleSupertool {
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object comments: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
-			}			
+				System.out.println("   " + doc);
+				System.out.println("    created by user: " + doc.get(MdekKeys.CREATE_USER));
+			}
 		}
 		myDoc = (IngridDocument) o.get(MdekKeys.PARENT_INFO);
 		if (myDoc != null) {
@@ -2084,8 +2085,9 @@ public class MdekExampleSupertool {
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Address comments: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);								
-			}			
+				System.out.println("   " + doc);
+				System.out.println("    created by user: " + doc.get(MdekKeys.CREATE_USER));
+			}
 		}
 		myDoc = (IngridDocument) a.get(MdekKeys.PARENT_INFO);
 		if (myDoc != null) {

@@ -338,20 +338,17 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	public String extractModUserUuid(IngridDocument inDoc) {
-		String userUuid = null;
-		
-		IngridDocument userDoc = (IngridDocument) inDoc.get(MdekKeys.MOD_USER);
-		if (userDoc != null) {
-			userUuid = userDoc.getString(MdekKeys.UUID);
-		}
-		
-		return userUuid;
+		return extractUserUuid(inDoc, MdekKeys.MOD_USER);
 	}
 
 	public String extractResponsibleUserUuid(IngridDocument inDoc) {
+		return extractUserUuid(inDoc, MdekKeys.RESPONSIBLE_USER);
+	}
+
+	private String extractUserUuid(IngridDocument inDoc, String userKeyInMap) {
 		String userUuid = null;
 		
-		IngridDocument userDoc = (IngridDocument) inDoc.get(MdekKeys.RESPONSIBLE_USER);
+		IngridDocument userDoc = (IngridDocument) inDoc.get(userKeyInMap);
 		if (userDoc != null) {
 			userUuid = userDoc.getString(MdekKeys.UUID);
 		}
@@ -631,7 +628,8 @@ public class DocToBeanMapper implements IMapper {
 					createTime = now;
 				}
 				ref.setCreateTime(createTime);
-				// TODO: add mapping of create_UUID
+				ref.setCreateUuid(extractUserUuid(refDoc, MdekKeys.CREATE_USER));
+
 				refs.add(ref);
 			}
 		}
@@ -660,7 +658,8 @@ public class DocToBeanMapper implements IMapper {
 					createTime = now;
 				}
 				ref.setCreateTime(createTime);
-				// TODO: add mapping of CREATE_UUID
+				ref.setCreateUuid(extractUserUuid(refDoc, MdekKeys.CREATE_USER));
+
 				refs.add(ref);
 			}
 		}

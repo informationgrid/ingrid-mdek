@@ -650,8 +650,8 @@ public class MdekKeys {
     public final static String COMMENT_LIST = "comment_list";
     /** Value: String */
     public final static String COMMENT = "comment";
-    /** Value: String */
-    public final static String CREATE_UUID = "create-uuid";
+    /** Value: IngridDocument (Address Map) */
+    public final static String CREATE_USER = "create-user";
     /** Value: String */
     public final static String CREATE_TIME = "create-time";
     

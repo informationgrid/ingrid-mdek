@@ -382,7 +382,11 @@ public class BeanToDocMapper implements IMapper {
 			IngridDocument refDoc = new IngridDocument();
 			refDoc.put(MdekKeys.COMMENT, ref.getComment());
 			refDoc.put(MdekKeys.CREATE_TIME, ref.getCreateTime());
-			// TODO: add mapping of CREATE_UUID
+
+			// map "create user"
+			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY);
+			refDoc.put(MdekKeys.CREATE_USER, userDoc);
+
 			docList.add(refDoc);					
 		}
 		objectDoc.put(MdekKeys.COMMENT_LIST, docList);
@@ -398,7 +402,11 @@ public class BeanToDocMapper implements IMapper {
 			IngridDocument refDoc = new IngridDocument();
 			refDoc.put(MdekKeys.COMMENT, ref.getComment());
 			refDoc.put(MdekKeys.CREATE_TIME, ref.getCreateTime());
-			// TODO: add mapping of create_UUID
+
+			// map "create user"
+			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY);
+			refDoc.put(MdekKeys.CREATE_USER, userDoc);
+
 			docList.add(refDoc);					
 		}
 		addressDoc.put(MdekKeys.COMMENT_LIST, docList);

@@ -802,8 +802,8 @@
 	<xs:complexType name="COMMENT_MAP">
 		<xs:sequence>
 			<xs:element name="comment" type="xs:string"/>
-			<xs:element name="create_uuid" type="xs:string"/>
-			<xs:element name="create_time" type="xs:string"/>
+			<xs:element name="create-user"  type="ADDRESS_MAP"/>
+			<xs:element name="create-time" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_PARENT_INFO_MAP">
