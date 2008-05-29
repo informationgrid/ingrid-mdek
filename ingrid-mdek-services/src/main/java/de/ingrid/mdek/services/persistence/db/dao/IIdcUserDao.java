@@ -12,33 +12,18 @@ import de.ingrid.mdek.services.persistence.db.model.IdcUser;
  */
 public interface IIdcUserDao extends IGenericDao<IdcUser> {
 
-	/**
-	 * Get a IdcUser by it's addrUuid. The addrUuid is unique for all IdcUsers in this catalog.
-	 * 
-	 * @param addrUuid
-	 * @return
-	 */
+	/** Get a IdcUser by it's addrUuid. The addrUuid is unique for all IdcUsers in this catalog. */
 	IdcUser getIdcUserByAddrUuid(String addrUuid);
 
-	/**
-	 * Get the catalog administrator for this catalog.
-	 * 
-	 * @return
-	 */
+	/** Get the catalog administrator for this catalog. */
 	IdcUser getCatalogAdmin();
 	
-	/**
-	 * Returns all users belonging to a group.
-	 * 
-	 * @param groupId
-	 * @return
-	 */
+	/** Returns all users belonging to a group defined by groupId. */
 	List<IdcUser> getIdcUsersByGroupId(Long groupId);
 
-	/**
-	 * Returns all subusers of user with given userId.
-	 * @param parentIdcUserId
-	 * @return
-	 */
+	/** Returns all users belonging to a group defined by groupName. */
+	List<IdcUser> getIdcUsersByGroupName(String groupName);
+
+	/** Returns all subusers of user with given userId. */
 	List<IdcUser> getSubUsers(Long parentIdcUserId);
 }

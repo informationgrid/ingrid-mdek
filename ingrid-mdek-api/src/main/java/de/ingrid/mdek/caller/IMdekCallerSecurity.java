@@ -22,14 +22,25 @@ public interface IMdekCallerSecurity {
 			boolean includeCatAdminGroup);
 
 	/**
-	 * Get a group.
+	 * Get details of group (NOT including users, use separate method to extract users of group ...)
 	 * @param plugId which mdek server (iplug)
-	 * @param name name of group
+	 * @param groupName name of group
 	 * @param userId calling user
 	 * @return response containing result: map representation of group with permissions
 	 */
 	IngridDocument getGroupDetails(String plugId,
-			String name,
+			String groupName,
+			String userId);
+
+	/**
+	 * Get users of group.
+	 * @param plugId which mdek server (iplug)
+	 * @param groupName name of group
+	 * @param userId calling user
+	 * @return response containing result: map representation of users in group
+	 */
+	IngridDocument getUsersOfGroup(String plugId,
+			String groupName,
 			String userId);
 
 	/**

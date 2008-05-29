@@ -22,9 +22,6 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 		super(factory, IdcUser.class);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao#getCatalogAdmin()
-	 */
 	public IdcUser getCatalogAdmin() {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
@@ -32,9 +29,6 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				.uniqueResult();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao#getIdcUserByAddrUuid(java.lang.String)
-	 */
 	public IdcUser getIdcUserByAddrUuid(String addrUuid) {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
@@ -42,11 +36,19 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				.uniqueResult();
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<IdcUser> getIdcUsersByGroupId(Long groupId) {
 		Session session = getSession();
 		return (List<IdcUser>)session.createQuery("from IdcUser u " +
 		"where u.idcGroupId = ?").setLong(0, groupId).list();
+	}
+
+	public List<IdcUser> getIdcUsersByGroupName(String groupName) {
+		Session session = getSession();
+		String query = "select distinct idcUser from IdcUser idcUser " +
+		"inner join fetch idcUser.idcGroup idcGroup " +
+		"where idcGroup.name = ?";
+
+		return (List<IdcUser>)session.createQuery(query).setString(0, groupName).list();
 	}
 
 	public List<IdcUser> getSubUsers(Long parentIdcUserId) {

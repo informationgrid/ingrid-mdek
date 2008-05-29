@@ -150,6 +150,34 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		return resultDoc;
 	}
 
+	public IngridDocument getUsersOfGroup(IngridDocument params) {
+		try {
+			daoIdcUser.beginTransaction();
+
+			String name = params.getString(MdekKeys.NAME);
+			
+			List<IdcUser> users = daoIdcUser.getIdcUsersByGroupName(name);
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
+			for (IdcUser user : users) {
+				IngridDocument uDoc = new IngridDocument();
+				beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);				
+				resultList.add(uDoc);
+			}
+
+			IngridDocument resultDoc = new IngridDocument();
+			resultDoc.put(MdekKeysSecurity.IDC_USERS, resultList);
+			
+			daoIdcUser.commitTransaction();
+			return resultDoc;
+			
+		} catch (RuntimeException e) {
+			daoIdcUser.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument createGroup(IngridDocument gDocIn) {
 		String userId = getCurrentUserUuid(gDocIn);
 		boolean removeRunningJob = true;

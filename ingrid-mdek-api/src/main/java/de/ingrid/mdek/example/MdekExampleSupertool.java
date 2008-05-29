@@ -209,7 +209,7 @@ public class MdekExampleSupertool {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getGroupDetails ######");
+		System.out.println("\n###### INVOKE getGroupDetails of group '" + grpName + "' ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerSecurity.getGroupDetails(plugId, grpName, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -219,6 +219,33 @@ public class MdekExampleSupertool {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugGroupDoc(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getUsersOfGroup(String grpName) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getUsersOfGroup of group '" + grpName + "' ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUsersOfGroup(plugId, grpName, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				debugUserDoc((IngridDocument)o);
+			}
 		} else {
 			handleError(response);
 		}
