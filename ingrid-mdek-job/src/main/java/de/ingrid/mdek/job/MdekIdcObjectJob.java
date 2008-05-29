@@ -624,11 +624,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/** Move Object with its subtree to new parent. */
 	public IngridDocument moveObject(IngridDocument params) {
-		String userId = getCurrentUserUuid(params);
+		String userUuid = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
 
 			Boolean forcePubCondition = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
@@ -640,10 +640,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// PERFORM CHECKS
 
 			// check permissions !
-			permissionHandler.checkPermissionsForMoveObject(fromUuid, toUuid, userId);
+			permissionHandler.checkPermissionsForMoveObject(fromUuid, toUuid, userUuid);
 
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
-			checkObjectNodesForMove(fromNode, toUuid, forcePubCondition, userId);
+			checkObjectNodesForMove(fromNode, toUuid, forcePubCondition, userUuid);
 
 			// CHECKS OK, proceed
 
@@ -652,15 +652,19 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.makePersistent(fromNode);
 
 			// change date and mod_uuid of all moved nodes !
-			IngridDocument result = processMovedNodes(fromNode, userId);
+			IngridDocument resultDoc = processMovedNodes(fromNode, userUuid);
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForObject(fromUuid, userId);
+				permissionHandler.grantTreePermissionForObject(fromUuid, userUuid);
 			}
 
+			// add permissions to result
+			List<Permission> perms = permissionHandler.getPermissionsForObject(fromUuid, userUuid);
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
+
 			daoObjectNode.commitTransaction();
-			return result;		
+			return resultDoc;		
 
 		} catch (RuntimeException e) {
 			daoObjectNode.rollbackTransaction();
@@ -669,7 +673,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userUuid);				
 			}
 		}
 	}
@@ -809,11 +813,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/** Copy Object to new parent (with or without its subtree). Returns basic data of copied top object. */
 	public IngridDocument copyObject(IngridDocument params) {
-		String userId = getCurrentUserUuid(params);
+		String userUuid = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
 
@@ -823,7 +827,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
 
 			// check permissions !
-			permissionHandler.checkPermissionsForCopyObject(fromUuid, toUuid, userId);
+			permissionHandler.checkPermissionsForCopyObject(fromUuid, toUuid, userUuid);
 
 			// perform checks
 			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
@@ -841,7 +845,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
 			// copy fromNode
-			IngridDocument copyResult = createObjectNodeCopy(fromNode, toNode, copySubtree, userId);
+			IngridDocument copyResult = createObjectNodeCopy(fromNode, toNode, copySubtree, userUuid);
 			ObjectNode fromNodeCopy = (ObjectNode) copyResult.get(MdekKeys.OBJ_ENTITIES);
 			Integer numCopiedObjects = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
 			if (log.isDebugEnabled()) {
@@ -858,8 +862,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userId);
+				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userUuid);
 			}
+
+			// add permissions to result
+			List<Permission> perms = permissionHandler.getPermissionsForObject(fromNodeCopy.getObjUuid(), userUuid);
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 			daoObjectNode.commitTransaction();
 			return resultDoc;		
@@ -871,7 +879,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userUuid);				
 			}
 		}
 	}

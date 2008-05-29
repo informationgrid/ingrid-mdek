@@ -488,11 +488,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/** Copy Address to new parent (with or without its subtree). Returns basic data of copied top address. */
 	public IngridDocument copyAddress(IngridDocument params) {
-		String userId = getCurrentUserUuid(params);
+		String userUuid = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
 
 			daoAddressNode.beginTransaction();
 
@@ -503,11 +503,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 
 			// check permissions !
-			permissionHandler.checkPermissionsForCopyAddress(fromUuid, toUuid, userId);
+			permissionHandler.checkPermissionsForCopyAddress(fromUuid, toUuid, userUuid);
 
 			// copy fromNode
 			IngridDocument copyResult = createAddressNodeCopy(fromUuid, toUuid,
-					copySubtree, targetIsFreeAddress, userId);
+					copySubtree, targetIsFreeAddress, userUuid);
 			AddressNode fromNodeCopy = (AddressNode) copyResult.get(MdekKeys.ADR_ENTITIES);
 			Integer numCopiedAddresses = (Integer) copyResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
 			if (log.isDebugEnabled()) {
@@ -527,8 +527,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userId);
+				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userUuid);
 			}
+
+			// add permissions to result
+			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromNodeCopy.getAddrUuid(), userUuid);
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 			daoAddressNode.commitTransaction();
 			return resultDoc;		
@@ -540,18 +544,18 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userUuid);				
 			}
 		}
 	}
 
 	/** Move Address with its subtree to new parent. */
 	public IngridDocument moveAddress(IngridDocument params) {
-		String userId = getCurrentUserUuid(params);
+		String userUuid = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
 
 			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
@@ -563,7 +567,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// PERFORM CHECKS
 
 			// check permissions !
-			permissionHandler.checkPermissionsForMoveAddress(fromUuid, toUuid, userId);
+			permissionHandler.checkPermissionsForMoveAddress(fromUuid, toUuid, userUuid);
 
 			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid);
 			checkAddressNodesForMove(fromNode, toUuid, targetIsFreeAddress);
@@ -575,15 +579,19 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.makePersistent(fromNode);
 
 			// change date and mod_uuid of all moved nodes !
-			IngridDocument result = processMovedNodes(fromNode, targetIsFreeAddress, userId);
+			IngridDocument resultDoc = processMovedNodes(fromNode, targetIsFreeAddress, userUuid);
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForAddress(fromUuid, userId);
+				permissionHandler.grantTreePermissionForAddress(fromUuid, userUuid);
 			}
 
+			// add permissions to result
+			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromUuid, userUuid);
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
+
 			daoAddressNode.commitTransaction();
-			return result;		
+			return resultDoc;		
 
 		} catch (RuntimeException e) {
 			daoAddressNode.rollbackTransaction();
@@ -592,7 +600,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userUuid);				
 			}
 		}
 	}
