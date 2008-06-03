@@ -253,11 +253,9 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- extend initial address and store -----");
 
 		// extend initial address with own data !
-		System.out.println("- add NAME, GIVEN_NAME, TITLE_OR_FUNCTION, CLASS");
+		System.out.println("- add NAME, GIVEN_NAME, CLASS");
 		newAdrDoc.put(MdekKeys.NAME, "testNAME");
 		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
-		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
-		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
 
 		// new parent
@@ -546,19 +544,22 @@ class MdekExampleAddressThread extends Thread {
 		// manipulate former loaded address !
 		System.out.println("MANIPULATE ADDRESS");
 
-		System.out.println("- change test ORGANISATION, GIVEN_NAME");
+		System.out.println("- change test ORGANISATION, GIVEN_NAME,NAME_FORM_KEY, TITLE_OR_FUNCTION_KEY");
 		String origORGANISATION = aDocIn.getString(MdekKeys.ORGANISATION);
 		String origGIVEN_NAME = aDocIn.getString(MdekKeys.GIVEN_NAME);
 		aDocIn.put(MdekKeys.ORGANISATION, "TEST/" + origORGANISATION);
 		aDocIn.put(MdekKeys.GIVEN_NAME, "TEST/" + origGIVEN_NAME);
+		// check storing of value to key !
+		aDocIn.put(MdekKeys.NAME_FORM_KEY, 2);
+		aDocIn.put(MdekKeys.TITLE_OR_FUNCTION_KEY, 3);
 
 		// add entry to COMMUNICATION
 		System.out.println("- add test COMMUNICATION");
 		List<IngridDocument> docList = (List<IngridDocument>) aDocIn.get(MdekKeys.COMMUNICATION);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM, "TEST COMMUNIC_MEDIUM");
-		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, new Integer(-1));
+		// check COMMUNICATION_MEDIUM_KEY -> COMMUNICATION_MEDIUM is stored via syslist
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, 2);
 		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "TEST COMMUNICATION_VALUE");
 		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
 		docList.add(testDoc);

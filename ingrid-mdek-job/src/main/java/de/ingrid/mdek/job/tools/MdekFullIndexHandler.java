@@ -9,6 +9,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
+import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -57,7 +58,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 
 	private static final Logger LOG = Logger.getLogger(MdekFullIndexHandler.class);
 	
-	protected MdekCatalogHandler catalogHandler;
+	protected MdekCatalogService catalogService;
 
 	private IGenericDao<IEntity> daoFullIndexAddr;
 	private IGenericDao<IEntity> daoFullIndexObj;
@@ -74,7 +75,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	}
 
 	private MdekFullIndexHandler(DaoFactory daoFactory) {
-		catalogHandler = MdekCatalogHandler.getInstance(daoFactory);
+		catalogService = MdekCatalogService.getInstance(daoFactory);
 
 		daoFullIndexAddr = daoFactory.getDao(FullIndexAddr.class);
 		daoFullIndexObj = daoFactory.getDao(FullIndexObj.class);
@@ -531,7 +532,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		} else if (MdekSysList.FREE_ENTRY.getDbValue().equals(sysListEntryId)) {
 			retValue = freeValue;
 		} else {
-			String catalogLanguage = catalogHandler.getCatalogLanguage();
+			String catalogLanguage = catalogService.getCatalogLanguage();
 			// TODO: cache syslists in Ehcache
 			SysList listEntry = daoSysList.getSysListEntry(sysList.getDbValue(), sysListEntryId, catalogLanguage);
 			if (listEntry != null) {

@@ -7,10 +7,11 @@ import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.job.tools.MdekCatalogHandler;
 import de.ingrid.mdek.job.tools.MdekErrorHandler;
+import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
@@ -23,9 +24,9 @@ import de.ingrid.utils.IngridDocument;
 public abstract class MdekIdcJob extends MdekJob {
 
 	protected MdekErrorHandler errorHandler;
-	protected MdekCatalogHandler catalogHandler;
+	protected MdekCatalogService catalogService;
 
-	protected ISysListDao daoSysList;
+	protected IGenericDao<IEntity> genericDao;
 
 	protected BeanToDocMapper beanToDocMapper;
 	protected DocToBeanMapper docToBeanMapper;
@@ -34,9 +35,9 @@ public abstract class MdekIdcJob extends MdekJob {
 		super(log);
 
 		errorHandler = MdekErrorHandler.getInstance();
-		catalogHandler = MdekCatalogHandler.getInstance(daoFactory);
+		catalogService = MdekCatalogService.getInstance(daoFactory);
 
-		daoSysList = daoFactory.getSysListDao();
+		genericDao = daoFactory.getDao(IEntity.class);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
@@ -65,14 +66,14 @@ public abstract class MdekIdcJob extends MdekJob {
 
 	public IngridDocument getSysLists(IngridDocument params) {
 		try {
-			daoSysList.beginTransaction();
+			genericDao.beginTransaction();
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
 			String language = params.getString(MdekKeys.LANGUAGE);
 
 			IngridDocument result = new IngridDocument();
 			
 			for (int lstId : lstIds) {
-				List<SysList> list = daoSysList.getSysList(lstId, language);
+				List<SysList> list = catalogService.getSysList(lstId, language);
 				
 				IngridDocument listDoc = new IngridDocument();
 				beanToDocMapper.mapSysList(list, lstId, listDoc);
@@ -80,11 +81,11 @@ public abstract class MdekIdcJob extends MdekJob {
 				result.put(MdekKeys.SYS_LIST_KEY_PREFIX + lstId,  listDoc);
 			}
 
-			daoSysList.commitTransaction();
+			genericDao.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
-			daoSysList.rollbackTransaction();
+			genericDao.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
@@ -92,19 +93,19 @@ public abstract class MdekIdcJob extends MdekJob {
 	
 	public IngridDocument getCatalog(IngridDocument params) {
 		try {
-			daoSysList.beginTransaction();
+			genericDao.beginTransaction();
 
 			// fetch catalog via handler
-			T03Catalogue catalog = catalogHandler.getCatalog();
+			T03Catalogue catalog = catalogService.getCatalog();
 
 			IngridDocument result = new IngridDocument();
 			beanToDocMapper.mapT03Catalog(catalog, result);
 
-			daoSysList.commitTransaction();
+			genericDao.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
-			daoSysList.rollbackTransaction();
+			genericDao.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}

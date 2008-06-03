@@ -23,6 +23,9 @@ public class MdekUtils {
 
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1),
+		OBJ_ADR_TYPE(505),
+		OBJ_ADR_TYPE_SPECIAL(2010),
+		OBJ_REFERENCE(2000),
 		OBJ_GEO_REFERENCESYSTEM(100),
 		OBJ_GEO_KEYC(3535),
 		OBJ_GEO_SYMC(3555),
@@ -38,7 +41,8 @@ public class MdekUtils {
 		SPATIAL_REF_VALUE(1100),
 		AVAIL_FORMAT(1320),
 		ADDRESS_VALUE(4300),
-		ADDRESS_TITLE(4305);
+		ADDRESS_TITLE(4305),
+		COMM_TYPE(4430);
 
 		MdekSysList(Integer dbValue) {
 			this.dbValue = dbValue;

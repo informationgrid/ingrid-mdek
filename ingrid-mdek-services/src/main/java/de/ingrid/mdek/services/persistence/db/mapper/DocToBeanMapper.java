@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.services.catalog.MdekKeyValueService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -114,6 +115,8 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjServOpConnpoint;
 	private IGenericDao<IEntity> daoT011ObjServOpPara;
 
+	private MdekKeyValueService keyValueService;
+
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
 		if (myInstance == null) {
@@ -163,6 +166,8 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServOpDepends = daoFactory.getDao(T011ObjServOpDepends.class);
 		daoT011ObjServOpConnpoint = daoFactory.getDao(T011ObjServOpConnpoint.class);
 		daoT011ObjServOpPara = daoFactory.getDao(T011ObjServOpPara.class);
+
+		keyValueService = MdekKeyValueService.getInstance(daoFactory);
 	}
 
 	/**
@@ -334,6 +339,8 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setMarkDeleted(aDocIn.getString(MdekKeys.MARK_DELETED));
 		}
 
+		keyValueService.processKeyValue(aIn);
+
 		return aIn;
 	}
 
@@ -375,6 +382,7 @@ public class DocToBeanMapper implements IMapper {
 		oRef.setSpecialName((String) oToDoc.get(MdekKeys.RELATION_TYPE_NAME));
 		oRef.setSpecialRef((Integer) oToDoc.get(MdekKeys.RELATION_TYPE_REF));
 		oRef.setDescr((String) oToDoc.get(MdekKeys.RELATION_DESCRIPTION));
+		keyValueService.processKeyValue(oRef);
 
 		return oRef;
 	}
@@ -445,6 +453,8 @@ public class DocToBeanMapper implements IMapper {
 				oA.setModTime(currentTime);				
 			}
 		}
+
+		keyValueService.processKeyValue(oA);
 
 		return oA;
 	}
@@ -523,6 +533,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 		spRefValue.setSpatialRefSns(spRefSns);			
 		spRefValue.setSpatialRefSnsId(spRefSnsId);
+		keyValueService.processKeyValue(spRefValue);
 
 		return spRefValue;
 	}
@@ -699,6 +710,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setCommValue(refDoc.getString(MdekKeys.COMMUNICATION_VALUE));
 		ref.setDescr(refDoc.getString(MdekKeys.COMMUNICATION_DESCRIPTION));
 		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}
@@ -724,6 +736,7 @@ public class DocToBeanMapper implements IMapper {
 		urlRef.setContent((String) urlDoc.get(MdekKeys.LINKAGE_NAME));
 		urlRef.setUrlType((Integer) urlDoc.get(MdekKeys.LINKAGE_URL_TYPE));		
 		urlRef.setLine(line);
+		keyValueService.processKeyValue(urlRef);
 
 		return urlRef;
 	}
@@ -795,6 +808,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setImpartValue(refDoc.getString(MdekKeys.EXPORT_VALUE));
 		ref.setImpartKey((Integer)refDoc.get(MdekKeys.EXPORT_KEY));
 		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}
@@ -887,6 +901,7 @@ public class DocToBeanMapper implements IMapper {
 				ref.setKeyDate(refDoc.getString(MdekKeys.KEY_DATE));
 				ref.setEdition(refDoc.getString(MdekKeys.EDITION));
 				ref.setLine(line);
+				keyValueService.processKeyValue(ref);
 				refs.add(ref);
 				line++;
 			}
@@ -944,6 +959,7 @@ public class DocToBeanMapper implements IMapper {
 				ref.setSymbolDate(refDoc.getString(MdekKeys.SYMBOL_DATE));
 				ref.setEdition(refDoc.getString(MdekKeys.SYMBOL_EDITION));
 				ref.setLine(line);
+				keyValueService.processKeyValue(ref);
 				refs.add(ref);
 				line++;
 			}
@@ -1060,6 +1076,7 @@ public class DocToBeanMapper implements IMapper {
 			ref.setTypeValue(refDoc.getString(MdekKeys.TYPE_OF_DOCUMENT));
 			ref.setTypeKey((Integer)refDoc.get(MdekKeys.TYPE_OF_DOCUMENT_KEY));
 			ref.setVolume(refDoc.getString(MdekKeys.VOLUME));
+			keyValueService.processKeyValue(ref);
 			refs.add(ref);
 		}
 		
@@ -1074,6 +1091,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setLegistValue(refDoc.getString(MdekKeys.LEGISLATION_VALUE));
 		ref.setLegistKey((Integer)refDoc.get(MdekKeys.LEGISLATION_KEY));
 		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}
@@ -1112,6 +1130,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setSpecification((String) refDoc.get(MdekKeys.FORMAT_SPECIFICATION));
 		ref.setFileDecompressionTechnique((String) refDoc.get(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE));
 		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}
@@ -1576,6 +1595,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setEnvironment(refDoc.getString(MdekKeys.SYSTEM_ENVIRONMENT));
 		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
 		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}
@@ -1655,6 +1675,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setDescr(refDoc.getString(MdekKeys.SERVICE_OPERATION_DESCRIPTION));
 		ref.setInvocationName(refDoc.getString(MdekKeys.INVOCATION_NAME));
 		ref.setLine(line);
+		keyValueService.processKeyValueT011ObjServOperation(ref, oFrom);
 
 		return ref;
 	}

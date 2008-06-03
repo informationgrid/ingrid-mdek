@@ -229,7 +229,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
 			// take over spatial reference from catalog
-			T03Catalogue catalog = catalogHandler.getCatalog();
+			T03Catalogue catalog = catalogService.getCatalog();
 			IngridDocument catalogDoc = new IngridDocument();
 			beanToDocMapper.mapT03Catalog(catalog, catalogDoc);
 

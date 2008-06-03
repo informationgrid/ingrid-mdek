@@ -925,8 +925,8 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.EXPORTS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.EXPORT_VALUE, "TEST DATA_FORMAT_NAME");
-		testDoc.put(MdekKeys.EXPORT_KEY, new Integer(-1));
+		// check EXPORT_KEY -> EXPORT_VALUE is stored via syslist
+		testDoc.put(MdekKeys.EXPORT_KEY, 1);
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.EXPORTS, docList);
 
@@ -934,8 +934,8 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.LEGISLATIONS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.LEGISLATION_VALUE, "TEST NEW T015Legist entry");
-		testDoc.put(MdekKeys.LEGISLATION_KEY, new Integer(-1));
+		// check LEGISLATION_KEY -> LEGISLATION_VALUE is stored via syslist
+		testDoc.put(MdekKeys.LEGISLATION_KEY, 11);
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.LEGISLATIONS, docList);
 
@@ -961,7 +961,8 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.FORMAT_NAME, "TEST DATA_FORMAT_NAME");
+		// check FORMAT_NAME_KEY -> FORMAT_NAME is stored via syslist
+		testDoc.put(MdekKeys.FORMAT_NAME_KEY, 10);
 		testDoc.put(MdekKeys.FORMAT_VERSION, "TEST DATA_FORMAT_VERSION");
 		testDoc.put(MdekKeys.FORMAT_SPECIFICATION, "TEST DATA_FORMAT_SPECIFICATION");
 		testDoc.put(MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE, "TEST DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE");
@@ -997,8 +998,8 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.SUBJECT_CAT, "TEST " + MdekKeys.SUBJECT_CAT);
-		testDoc.put(MdekKeys.SUBJECT_CAT_KEY, new Integer(-1));
+		// check SUBJECT_CAT_KEY -> SUBJECT_CAT is stored via syslist
+		testDoc.put(MdekKeys.SUBJECT_CAT_KEY, 1);
 		testDoc.put(MdekKeys.KEY_DATE, "TEST " + MdekKeys.KEY_DATE);
 		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
 		docList.add(testDoc);
@@ -1016,8 +1017,8 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SYMBOL_CATALOG_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.SYMBOL_CAT, "TEST " + MdekKeys.SYMBOL_CAT);
-		testDoc.put(MdekKeys.SYMBOL_CAT_KEY, new Integer(-1));
+		// check SYMBOL_CAT_KEY -> SYMBOL_CAT is stored via syslist
+		testDoc.put(MdekKeys.SYMBOL_CAT_KEY, 1);
 		testDoc.put(MdekKeys.SYMBOL_DATE, "TEST " + MdekKeys.SYMBOL_DATE);
 		testDoc.put(MdekKeys.SYMBOL_EDITION, "TEST " + MdekKeys.SYMBOL_EDITION);
 		docList.add(testDoc);
@@ -1056,16 +1057,16 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.PUBLISHING_PLACE, "TEST " + MdekKeys.PUBLISHING_PLACE);
 		technicalDomain.put(MdekKeys.YEAR, "TEST " + MdekKeys.YEAR);
 		technicalDomain.put(MdekKeys.PAGES, "TEST " + MdekKeys.PAGES);
-		technicalDomain.put(MdekKeys.TYPE_OF_DOCUMENT, "TEST " + MdekKeys.TYPE_OF_DOCUMENT);
-		technicalDomain.put(MdekKeys.TYPE_OF_DOCUMENT_KEY, new Integer(-1));
+		// check TYPE_OF_DOCUMENT_KEY -> TYPE_OF_DOCUMENT is stored via syslist
+		technicalDomain.put(MdekKeys.TYPE_OF_DOCUMENT_KEY, 4);
 		technicalDomain.put(MdekKeys.VOLUME, "TEST " + MdekKeys.VOLUME);
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT, technicalDomain);
 		
 		// add TECHNICAL DOMAIN SERVICE
 		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
 		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
-		technicalDomain.put(MdekKeys.SERVICE_TYPE, "TEST SERVICE_TYPE");
-		technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, new Integer(-1));
+		// check SERVICE_TYPE_KEY -> SERVICE_TYPE is stored via syslist
+		technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, 2);
 		technicalDomain.put(MdekKeys.SYSTEM_HISTORY, "TEST SYSTEM_HISTORY");
 		technicalDomain.put(MdekKeys.SYSTEM_ENVIRONMENT, "TEST SYSTEM_ENVIRONMENT");
 		technicalDomain.put(MdekKeys.DATABASE_OF_SYSTEM, "TEST DATABASE_OF_SYSTEM");
@@ -1081,8 +1082,9 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_OPERATION_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME, "TEST SERVICE_OPERATION_NAME");
-		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME_KEY, new Integer(-1));
+		// check SERVICE_OPERATION_NAME_KEY -> SERVICE_OPERATION_NAME is stored via syslist
+		// NOTICE: "interacts" with SERVICE_TYPE_KEY
+		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME_KEY, 4);
 		testDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, "TEST SERVICE_OPERATION_DESCRIPTION");
 		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
 		docList.add(testDoc);
@@ -1163,16 +1165,26 @@ class MdekExampleObjectThread extends Thread {
 				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADR_REFERENCES_TO);
 				docList.add(aRemoved);
 				System.out.println("ADD REMOVED ADDRESS AGAIN: " + aRemoved);
+				// check special type -> RELATION_TYPE_NAME is stored via syslist
+				System.out.println("CHANGE RELATION TYPE OF REMOVED ADDRESS");
+				aRemoved.put(MdekKeys.RELATION_TYPE_ID, 3360);			
+				aRemoved.put(MdekKeys.RELATION_TYPE_REF, 2010);			
 			}
 			if (oRemoved != null) {
 				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.OBJ_REFERENCES_TO);
 				docList.add(oRemoved);
 				System.out.println("ADD REMOVED OBJECT QUERVERWEIS AGAIN: " + oRemoved);
+				// check type -> RELATION_TYPE_NAME is stored via syslist
+				System.out.println("CHANGE RELATION_TYPE_REF OF OBJECT QUERVERWEIS");
+				oRemoved.put(MdekKeys.RELATION_TYPE_REF, 3570);			
 			}
 			if (locRemoved != null) {
 				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.LOCATIONS);
 				docList.add(locRemoved);
 				System.out.println("ADD REMOVED LOCATION AGAIN: " + locRemoved);
+				// check LOCATION_NAME_KEY -> LOCATION_NAME is stored via syslist
+				System.out.println("CHANGE LOCATION_NAME_KEY OF LOCATION");
+				locRemoved.put(MdekKeys.LOCATION_NAME_KEY, 5);			
 			}
 			if (termRemoved != null) {
 				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.SUBJECT_TERMS);
@@ -1184,6 +1196,12 @@ class MdekExampleObjectThread extends Thread {
 			if (urlRemoved != null) {
 				docList.add(urlRemoved);
 				System.out.println("ADD REMOVED URL AGAIN: " + urlRemoved);
+				// check LINKAGE_DATATYPE_KEY -> LINKAGE_DATATYPE is stored via syslist
+				System.out.println("CHANGE LINKAGE_DATATYPE_KEY OF URL");
+				urlRemoved.put(MdekKeys.LINKAGE_DATATYPE_KEY, 1);			
+				// check LINKAGE_REFERENCE_ID -> LINKAGE_REFERENCE is stored via syslist
+				System.out.println("CHANGE LINKAGE_REFERENCE_ID OF URL");
+				urlRemoved.put(MdekKeys.LINKAGE_REFERENCE_ID, 3100);			
 			}
 			// add new URL
 			IngridDocument newUrl = new IngridDocument();
