@@ -30,8 +30,11 @@ public class MdekError implements Serializable {
 		UUID_NOT_FOUND("10"),
 		FROM_UUID_NOT_FOUND("11"),
 		TO_UUID_NOT_FOUND("12"),
+
 		/** No catalog data found (e.g. entity catalog association is missing) */
 		CATALOG_NOT_FOUND("13"),
+		/** e.g. when storing catalog and required data is missing */
+		CATALOG_DATA_MISSING("14"),
 
 		/** e.g. publish of child not allowed when parent not published */
 		PARENT_NOT_PUBLISHED("20"),

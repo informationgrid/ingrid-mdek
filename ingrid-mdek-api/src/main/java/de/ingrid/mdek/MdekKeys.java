@@ -660,6 +660,10 @@ public class MdekKeys {
     /** Value: String */
     public final static String CATALOG_NAME = "catalog-name";
     /** Value: String */
+    public final static String PARTNER_NAME = "partner-name";
+    /** Value: String */
+    public final static String PROVIDER_NAME = "provider-name";
+    /** Value: String */
     public final static String COUNTRY = "country";
     /** Value: String */
     public final static String WORKFLOW_CONTROL = "workflow-control";

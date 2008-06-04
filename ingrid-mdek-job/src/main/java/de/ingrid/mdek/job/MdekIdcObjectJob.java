@@ -16,6 +16,7 @@ import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.job.tools.MdekPermissionHandler;
+import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -39,6 +40,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcObjectJob extends MdekIdcJob {
 
+	private MdekCatalogService catalogService;
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 
@@ -53,6 +55,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			IPermissionService permissionService) {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
+		catalogService = MdekCatalogService.getInstance(daoFactory);
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 

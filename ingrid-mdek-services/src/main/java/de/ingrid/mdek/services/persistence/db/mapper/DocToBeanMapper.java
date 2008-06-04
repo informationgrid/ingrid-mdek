@@ -7,9 +7,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.catalog.MdekKeyValueService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -61,6 +64,7 @@ import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
+import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -168,6 +172,28 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServOpPara = daoFactory.getDao(T011ObjServOpPara.class);
 
 		keyValueService = MdekKeyValueService.getInstance(daoFactory);
+	}
+
+
+	public T03Catalogue mapT03Catalog(IngridDocument inDoc, T03Catalogue cat) {
+		cat.setCatUuid(inDoc.getString(MdekKeys.UUID));
+		cat.setCatName(inDoc.getString(MdekKeys.CATALOG_NAME));
+		cat.setPartnerName(inDoc.getString(MdekKeys.PARTNER_NAME));
+		cat.setProviderName(inDoc.getString(MdekKeys.PROVIDER_NAME));
+		cat.setCountryCode(inDoc.getString(MdekKeys.COUNTRY));
+		cat.setLanguageCode(inDoc.getString(MdekKeys.LANGUAGE));
+		cat.setWorkflowControl(inDoc.getString(MdekKeys.WORKFLOW_CONTROL));
+		cat.setExpiryDuration((Integer) inDoc.get(MdekKeys.EXPIRY_DURATION));
+		String creationDate = (String) inDoc.get(MdekKeys.DATE_OF_CREATION);
+		if (creationDate != null) {
+			cat.setCreateTime(creationDate);				
+		}
+		cat.setModTime((String) inDoc.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+		cat.setModUuid(extractModUserUuid(inDoc));
+
+		updateSpatialRefValueOfCatalogue(inDoc, cat);
+
+		return cat;
 	}
 
 	/**
@@ -542,63 +568,27 @@ public class DocToBeanMapper implements IMapper {
 		if (locList == null) {
 			locList = new ArrayList<IngridDocument>(0);
 		}
+
 		Set<SpatialReference> spatialRefs = oIn.getSpatialReferences();
 		ArrayList<SpatialReference> spatialRefs_unprocessed = new ArrayList<SpatialReference>(spatialRefs);
+
 		int line = 1;
 		for (IngridDocument loc : locList) {
-			String locNameValue = (String) loc.get(MdekKeys.LOCATION_NAME);
-			String locNameValue_notNull = (locNameValue == null) ? "" : locNameValue;
-			Integer locNameKey = (Integer) loc.get(MdekKeys.LOCATION_NAME_KEY);
-			Integer locNameKey_notNull = (locNameKey == null) ? new Integer(-1) : locNameKey;
-			String locType = (String) loc.get(MdekKeys.LOCATION_TYPE);
-			String locSnsId = (String) loc.get(MdekKeys.LOCATION_SNS_ID);
-			String locSnsId_notNull = (locSnsId == null) ? "" : locSnsId;
-			String locCode = (String) loc.get(MdekKeys.LOCATION_CODE);
-			String locCode_notNull = (locCode == null) ? "" : locCode;
 			boolean found = false;
 			for (SpatialReference spRef : spatialRefs) {
 				SpatialRefValue spRefValue = spRef.getSpatialRefValue();
 				if (spRefValue != null) {
-					SpatialRefSns spRefSns = spRefValue.getSpatialRefSns();
-
-					String refNameValue_notNull = (spRefValue.getNameValue() == null) ? "" : spRefValue.getNameValue();
-					Integer refNameKey_notNull = (spRefValue.getNameKey() == null) ? new Integer(-1) : spRefValue.getNameKey();
-					String refType = spRefValue.getType();
-					String refSnsId_notNull = (spRefSns == null) ? "" : spRefSns.getSnsId();
-					String refCode_notNull = (spRefValue.getNativekey() == null) ? "" : spRefValue.getNativekey();
-					if (locNameValue_notNull.equals(refNameValue_notNull) &&
-						locNameKey_notNull.intValue() == refNameKey_notNull.intValue() &&
-						locType.equals(refType) &&
-						locSnsId_notNull.equals(refSnsId_notNull) &&
-						locCode_notNull.equals(refCode_notNull))
-					{
-						mapSpatialRefValue(spRefSns, loc, spRefValue);
+					found = updateSpatialRefValueViaDoc(loc, spRefValue);
+					if (found) {
 						// update line
 						spRef.setLine(line);
 						spatialRefs_unprocessed.remove(spRef);
-						found = true;
 						break;
-					}					
+					}
 				}
 			}
 			if (!found) {
-				// add new one
-				
-				// first load/create SpatialRefSns
-				SpatialRefSns spRefSns = null;
-				if (locSnsId != null) {
-					spRefSns = daoSpatialRefSns.loadOrCreate(locSnsId);
-				}
-
-				// then load/create SpatialRefValue
-				// NOTICE: Freie Raumbezuege (SpatialRefValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
-				// Selbst wenn der identische Freie Raumbezug vorhanden ist. Beim Loeschen des Objektes wird nur die Referenz geloescht
-				// (cascade nicht moeglich, da hier auch Thesaurusbegriffe drin stehen, die erhalten bleiben sollen ! bei denen wird
-				// der vorhandene Thesaurus Begriff genommen, wenn schon da; dies ist bei Freien nicht moeglich, da die ja Objektspezifisch
-				// geaendertw erden koennen). -> Aufraeum Job noetig ! 
-				// TODO: Aufraeum Job noetig, der Freie Raumbezug Leichen (in SpatialRefValue) beseitigt !!!
-				SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, locCode, oIn.getId());
-				mapSpatialRefValue(spRefSns, loc, spRefValue);
+				SpatialRefValue spRefValue = loadOrCreateSpatialRefValueViaDoc(loc, oIn.getId());
 
 				// then create SpatialReference
 				SpatialReference spRef = new SpatialReference();
@@ -615,7 +605,100 @@ public class DocToBeanMapper implements IMapper {
 		}		
 	}
 
-	
+	/** Update SpatialRefValue of catalog. NOTICE: CATALOG SPATIAL REF IS ALWAYS FROM GEOTHESAURUS !!! */
+	private void updateSpatialRefValueOfCatalogue(IngridDocument cDocIn, T03Catalogue cIn) {
+		IngridDocument locDoc = (IngridDocument) cDocIn.get(MdekKeys.CATALOG_LOCATION);
+
+		String locSnsId = locDoc.getString(MdekKeys.LOCATION_SNS_ID);
+		if (locSnsId == null) {
+			throw new MdekException(new MdekError(MdekErrorType.CATALOG_DATA_MISSING));
+		}
+
+		SpatialRefValue spRefValue = cIn.getSpatialRefValue();
+
+		boolean updated = false;
+		if (spRefValue != null) {
+			updated = updateSpatialRefValueViaDoc(locDoc, spRefValue);
+		}
+		if (!updated) {
+			spRefValue = loadOrCreateSpatialRefValueViaDoc(locDoc, null);
+
+			cIn.setSpatialRefId(spRefValue.getId());
+			cIn.setSpatialRefValue(spRefValue);
+		}
+	}
+
+	/** Checks whether passed location doc represents passed SpatialRefValue and updates
+	 * data in entity if so.
+	 * @param locationDoc data describing SpatialRefValue
+	 * @param spRefValue SpatialRefValue entity
+	 * @return true=spRefValue entity was updated<br>
+	 * false=spRefValue entity is different from locationDoc and was NOT updated
+	 */
+	private boolean updateSpatialRefValueViaDoc(IngridDocument locationDoc, SpatialRefValue spRefValue) {
+		String locNameValue = (String) locationDoc.get(MdekKeys.LOCATION_NAME);
+		String locNameValue_notNull = (locNameValue == null) ? "" : locNameValue;
+		Integer locNameKey = (Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY);
+		Integer locNameKey_notNull = (locNameKey == null) ? new Integer(-1) : locNameKey;
+		String locType = (String) locationDoc.get(MdekKeys.LOCATION_TYPE);
+		String locSnsId = (String) locationDoc.get(MdekKeys.LOCATION_SNS_ID);
+		String locSnsId_notNull = (locSnsId == null) ? "" : locSnsId;
+		String locCode = (String) locationDoc.get(MdekKeys.LOCATION_CODE);
+		String locCode_notNull = (locCode == null) ? "" : locCode;
+
+		SpatialRefSns spRefSns = spRefValue.getSpatialRefSns();
+
+		String refNameValue_notNull = (spRefValue.getNameValue() == null) ? "" : spRefValue.getNameValue();
+		Integer refNameKey_notNull = (spRefValue.getNameKey() == null) ? new Integer(-1) : spRefValue.getNameKey();
+		String refType = spRefValue.getType();
+		String refSnsId_notNull = (spRefSns == null) ? "" : spRefSns.getSnsId();
+		String refCode_notNull = (spRefValue.getNativekey() == null) ? "" : spRefValue.getNativekey();
+
+		boolean updated = false;
+		if (locNameValue_notNull.equals(refNameValue_notNull) &&
+			locNameKey_notNull.intValue() == refNameKey_notNull.intValue() &&
+			locType.equals(refType) &&
+			locSnsId_notNull.equals(refSnsId_notNull) &&
+			locCode_notNull.equals(refCode_notNull))
+		{
+			mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
+			updated = true;
+		}					
+		
+		return updated;
+	}
+
+	/** Get the SpatialRefValue entity according to the passed location document.
+	 * @param locationDoc data describing SpatialRefValue
+	 * @param objectId SpatialRef is connected to this object, PASS NULL IF CONNECTION DOESN'T MATTER
+	 * @return persistent SpatialRefValue (with Id)
+	 */
+	private SpatialRefValue loadOrCreateSpatialRefValueViaDoc(IngridDocument locationDoc, Long objectId) {
+		// first load/create SpatialRefSns
+		String locSnsId = (String) locationDoc.get(MdekKeys.LOCATION_SNS_ID);
+		SpatialRefSns spRefSns = null;
+		if (locSnsId != null) {
+			spRefSns = daoSpatialRefSns.loadOrCreate(locSnsId);
+		}
+
+		String locNameValue = (String) locationDoc.get(MdekKeys.LOCATION_NAME);
+		Integer locNameKey = (Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY);
+		String locType = (String) locationDoc.get(MdekKeys.LOCATION_TYPE);
+		String locCode = (String) locationDoc.get(MdekKeys.LOCATION_CODE);
+
+		// then load/create SpatialRefValue
+		// NOTICE: Freie Raumbezuege (SpatialRefValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
+		// Selbst wenn der identische Freie Raumbezug vorhanden ist. Beim Loeschen des Objektes wird nur die Referenz (SpatialReference)
+		// geloescht (cascade nicht moeglich, da hier auch Thesaurusbegriffe drin stehen, die erhalten bleiben sollen ! bei denen wird
+		// der vorhandene Thesaurus Begriff genommen, wenn schon da; dies ist bei Freien nicht moeglich, da die ja Objektspezifisch
+		// geaendert werden koennen). -> Aufraeum Job noetig ! 
+		// TODO: Aufraeum Job noetig, der Freie Raumbezug Leichen (in SpatialRefValue) beseitigt !!!
+		SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, locCode, objectId);
+		mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
+		
+		return spRefValue;
+	}
+
 	private void updateObjectComments(IngridDocument oDocIn, T01Object oIn) {
 		Set<ObjectComment> refs = oIn.getObjectComments();
 		ArrayList<ObjectComment> refs_unprocessed = new ArrayList<ObjectComment>(refs);

@@ -27,4 +27,17 @@ public interface IMdekCallerCatalog {
 	 * @return response containing result: map representation of the catalog object
 	 */
 	IngridDocument fetchCatalog(String plugId, String userId);
+
+	/**
+	 * Change catalog data.
+	 * @param plugId which mdek server (iplug)
+	 * @param catalogDoc map representation of catalog.
+	 * @param refetchAfterStore immediately refetch catalog after store (true)
+	 * 		or just store without refetching (false)
+	 * @return response containing result: full map representation of updated catalog when refetching,
+	 * 		otherwise map containing basic data of stored catalog  
+	 */
+	IngridDocument storeCatalog(String plugId, IngridDocument catalogDoc,
+			boolean refetchAfterStore,
+			String userId);
 }

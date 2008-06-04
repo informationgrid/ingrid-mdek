@@ -598,6 +598,27 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----------------------------");
 
 		System.out.println("\n------------------------------------------------");
+		System.out.println("----- CATALOG: \"WRITE\" PERMISSION (only cat admin) -----");
+		System.out.println("------------------------------------------------");
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n----- store catalog -> ALLOWED -----");
+		System.out.println("-- first fetch catalog");
+		doc = supertool.getCatalog();
+		doc = supertool.storeCatalog(doc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
+
+		System.out.println("\n----- store catalog -> NOT ALLOWED -----");
+		supertool.storeCatalog(doc, false);
+
+
+		System.out.println("\n------------------------------------------------");
 		System.out.println("----- ADDRESS/OBJECT: \"DELETE/WRITE\" PERMISSION -----");
 		System.out.println("------------------------------------------------");
 

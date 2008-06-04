@@ -820,6 +820,8 @@
 		<xs:sequence>
 			<xs:element ref="uuid"/>
 			<xs:element name="catalog-name" type="xs:string"/>
+			<xs:element name="partner-name" type="xs:string"/>
+			<xs:element name="provider-name" type="xs:string"/>
 			<xs:element name="country" type="xs:string"/>
 			<xs:element name="language" type="xs:string"/>
 			<xs:element name="workflow-control" type="xs:string"/>

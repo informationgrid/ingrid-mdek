@@ -20,7 +20,7 @@ public interface ISpatialRefValueDao
 	 * @param nameKey
 	 * @param spRefSns according bean (or null)
 	 * @param nativekey
-	 * @param objectId connected to this object
+	 * @param objectId connected to this object, PASS NULL IF CONNECTION DOESN'T MATTER
 	 * @return persisted SpatialRefValue (with Id)
 	 */
 	SpatialRefValue loadOrCreate(String type, String nameValue, Integer nameKey, SpatialRefSns spRefSns, String nativekey, Long objectId);

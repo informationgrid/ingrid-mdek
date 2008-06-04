@@ -38,10 +38,11 @@ public class SpatialRefValueDaoHibernate
 	 * @param nameKey
 	 * @param spatialRefSnsId id of record in SpatialRefSns
 	 * @param nativekey
-	 * @param objectId connected to this object
+	 * @param objectId connected to this object, PASS NULL IF CONNECTION DOESN'T MATTER
 	 * @return SpatialRefValue or null
 	 */
-	private SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey, Long spatialRefSnsId, String nativekey, Long objId) {
+	private SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey, Long spatialRefSnsId, String nativekey,
+			Long objId) {
 		if (LOG.isDebugEnabled()) {
 //			LOG.debug("type: " + type + ", name: " + name + ", SpatialRefSns_ID: " + spatialRefSnsId + ", nativeKey: " + nativekey);			
 		}
@@ -65,7 +66,7 @@ public class SpatialRefValueDaoHibernate
 	/** Load Freien SpatialRefValue according to given values. Returns null if not found. 
 	 * @param nameValue set if freier eintrag (then key is -1)
 	 * @param nameKey set if from syslist, then value is null !
-	 * @param objId
+	 * @param objectId connected to this object, HAS TO BE PASSED TO GUARANTEE LOADING OF CORRECT ENTITY !
 	 * @return
 	 */
 	private SpatialRefValue loadFreiRefValue(String nameValue, Integer nameKey, Long objId) {

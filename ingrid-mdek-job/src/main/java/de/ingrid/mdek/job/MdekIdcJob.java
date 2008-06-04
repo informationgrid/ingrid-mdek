@@ -1,21 +1,16 @@
 package de.ingrid.mdek.job;
 
 import java.util.Enumeration;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.tools.MdekErrorHandler;
-import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
-import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -24,7 +19,6 @@ import de.ingrid.utils.IngridDocument;
 public abstract class MdekIdcJob extends MdekJob {
 
 	protected MdekErrorHandler errorHandler;
-	protected MdekCatalogService catalogService;
 
 	protected IGenericDao<IEntity> genericDao;
 
@@ -35,7 +29,6 @@ public abstract class MdekIdcJob extends MdekJob {
 		super(log);
 
 		errorHandler = MdekErrorHandler.getInstance();
-		catalogService = MdekCatalogService.getInstance(daoFactory);
 
 		genericDao = daoFactory.getDao(IEntity.class);
 
@@ -59,53 +52,6 @@ public abstract class MdekIdcJob extends MdekJob {
 			return resultDoc;
 
 		} catch (RuntimeException e) {
-			RuntimeException handledExc = errorHandler.handleException(e);
-		    throw handledExc;
-		}
-	}
-
-	public IngridDocument getSysLists(IngridDocument params) {
-		try {
-			genericDao.beginTransaction();
-			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
-			String language = params.getString(MdekKeys.LANGUAGE);
-
-			IngridDocument result = new IngridDocument();
-			
-			for (int lstId : lstIds) {
-				List<SysList> list = catalogService.getSysList(lstId, language);
-				
-				IngridDocument listDoc = new IngridDocument();
-				beanToDocMapper.mapSysList(list, lstId, listDoc);
-				
-				result.put(MdekKeys.SYS_LIST_KEY_PREFIX + lstId,  listDoc);
-			}
-
-			genericDao.commitTransaction();
-			return result;
-
-		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
-		    throw handledExc;
-		}
-	}
-	
-	public IngridDocument getCatalog(IngridDocument params) {
-		try {
-			genericDao.beginTransaction();
-
-			// fetch catalog via handler
-			T03Catalogue catalog = catalogService.getCatalog();
-
-			IngridDocument result = new IngridDocument();
-			beanToDocMapper.mapT03Catalog(catalog, result);
-
-			genericDao.commitTransaction();
-			return result;
-
-		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}

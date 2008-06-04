@@ -22,8 +22,7 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 	private IMdekCaller mdekCaller;
 
 	// Jobs
-	// TODO: better create separate job for handling catalog stuff (at the moment we use object job !)
-	private static String MDEK_IDC_CATALOG_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
+	private static String MDEK_IDC_CATALOG_JOB_ID = "de.ingrid.mdek.job.MdekIdcCatalogJob";
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -60,6 +59,15 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getCatalog", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument storeCatalog(String plugId, IngridDocument catalogDoc,
+			boolean refetchAfterStore,
+			String userId) {
+		catalogDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		catalogDoc.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("storeCatalog", catalogDoc);
 		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 

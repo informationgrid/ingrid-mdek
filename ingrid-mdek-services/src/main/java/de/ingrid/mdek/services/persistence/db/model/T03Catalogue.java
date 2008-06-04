@@ -11,6 +11,8 @@ public class T03Catalogue implements IEntity {
 	private int version;
 	private String catUuid;
 	private String catName;
+	private String partnerName;
+	private String providerName;
 	private String countryCode;
 	private String languageCode;
 	private Long spatialRefId;
@@ -54,6 +56,22 @@ public class T03Catalogue implements IEntity {
 
 	public void setCatName(String catName) {
 		this.catName = catName;
+	}
+
+	public String getPartnerName() {
+		return partnerName;
+	}
+
+	public void setPartnerName(String partnerName) {
+		this.partnerName = partnerName;
+	}
+
+	public String getProviderName() {
+		return providerName;
+	}
+
+	public void setProviderName(String providerName) {
+		this.providerName = providerName;
 	}
 
 	public String getCountryCode() {

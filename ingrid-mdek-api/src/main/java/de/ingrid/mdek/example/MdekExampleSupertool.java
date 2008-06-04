@@ -140,11 +140,47 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			System.out.println(result);
+			debugCatalogDoc(result);
 		} else {
 			handleError(response);
 		}
 		
+		return result;
+	}
+
+	public IngridDocument storeCatalog(IngridDocument catDocIn,
+			boolean refetchCatalog) {
+		// check whether we have an address
+		if (catDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchInfo = (refetchCatalog) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeCatalog " + refetchInfo + " ######");
+
+		// store
+		System.out.println("STORE");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.storeCatalog(plugId, catDocIn, refetchCatalog, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugCatalogDoc(result);
+			
+		} else {
+			handleError(response);
+		}
+
 		return result;
 	}
 
@@ -1726,6 +1762,30 @@ public class MdekExampleSupertool {
 		return user;
 	}
 
+	private void debugCatalogDoc(IngridDocument c) {
+		System.out.println("Catalog: " + c.get(MdekKeysSecurity.CATALOG_NAME) 
+			+ ", partner: " + c.get(MdekKeys.PARTNER_NAME)
+			+ ", provider: " + c.get(MdekKeys.PROVIDER_NAME)
+			+ ", country: " + c.get(MdekKeys.COUNTRY)
+			+ ", language: " + c.get(MdekKeys.LANGUAGE)
+		);
+		System.out.println("         "
+			+ ", workflow: " + c.get(MdekKeys.WORKFLOW_CONTROL)
+			+ ", expiry: " + c.get(MdekKeys.EXPIRY_DURATION)
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)c.get(MdekKeys.DATE_OF_CREATION))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)c.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", modUser: " + extractModUserData((IngridDocument)c.get(MdekKeys.MOD_USER))
+		);
+
+		if (!doFullOutput) {
+			return;
+		}
+
+		System.out.println("  " + c);
+
+		System.out.println("  Location: " + c.get(MdekKeys.CATALOG_LOCATION));
+	}
+	
 	private void debugUserDoc(IngridDocument u) {
 		System.out.println("User: " + u.get(MdekKeysSecurity.IDC_USER_ID) 
 			+ ", " + u.get(MdekKeysSecurity.IDC_USER_ADDR_UUID)

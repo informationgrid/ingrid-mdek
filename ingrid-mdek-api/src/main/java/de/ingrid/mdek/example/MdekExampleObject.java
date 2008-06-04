@@ -115,7 +115,7 @@ class MdekExampleObjectThread extends Thread {
 	public void run() {
 		isRunning = true;
 
-		supertool.setFullOutput(false);
+		supertool.setFullOutput(true);
 
 		long exampleStartTime = System.currentTimeMillis();
 
@@ -401,22 +401,6 @@ class MdekExampleObjectThread extends Thread {
 
 // ====================
 */
-		// -----------------------------------
-		// catalog
-
-		System.out.println("\n----- CATALOG data -----");
-		IngridDocument catDoc = supertool.getCatalog();
-		String catLang = catDoc.getString(MdekKeys.LANGUAGE);
-		System.out.println("catalog language=" + catLang);
-
-		// -----------------------------------
-		// ui: initial lists
-
-		System.out.println("\n----- SysList Values NO language -----");
-		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, null);
-		System.out.println("\n----- SysList Values language: " + catLang + " -----");
-		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLang);
-
 		// -----------------------------------
 		// tree: top objects
 
