@@ -153,7 +153,7 @@ public class AddressNodeDaoHibernate
 		return aN;
 	}
 
-	public List<ObjectNode>[] getObjectReferencesFrom(String addressUuid) {
+	public List<ObjectNode>[] getAllObjectReferencesFrom(String addressUuid) {
 		Session session = getSession();
 
 		// first select all references from working copies (node ids)
@@ -213,6 +213,25 @@ public class AddressNodeDaoHibernate
 		};
 
 		return retObjects;
+	}
+
+	public List<ObjectNode> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
+		Session session = getSession();
+		
+		String sql = "select distinct oNode from ObjectNode oNode " +
+			"left join oNode.t01ObjectWork oWork " +
+			"left join oWork.t012ObjAdrs objAdr " +
+			"where objAdr.adrUuid = ?";
+		
+		if (referenceTypeId != null) {
+			sql += " and objAdr.type = " + referenceTypeId;
+		}
+
+		List<ObjectNode> objs = session.createQuery(sql)
+				.setString(0, addressUuid)
+				.list();
+		
+		return objs;
 	}
 
 	public AddressNode getParent(String uuid) {

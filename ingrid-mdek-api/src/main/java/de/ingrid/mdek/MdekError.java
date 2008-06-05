@@ -58,8 +58,11 @@ public class MdekError implements Serializable {
 		ADDRESS_TYPE_CONFLICT("43"),
 		/** e.g. when address to delete is an address of an IdcUser */
 		ADDRESS_IS_IDCUSER_ADDRESS("45"),
+		/** e.g. when address to delete is an "auskunft" address.
+		 * ALSO DELIVERS ALL OBJECTS WHERE ADDRESS IS AUSKUNFT */
+		ADDRESS_IS_AUSKUNFT("46"),
 
-		/** e.g. when object is deleted and and is referenced by other objects<br>
+		/** e.g. when object is deleted and is referenced by other objects<br>
 		 * contains detailed error info about referenced and referencing entities:<br>
 		 * <b>errorInfo-Map</b> = referenced entity (object or address)<br>
 		 * <b>errorInfo-Map.OBJ_ENTITIES</b> = List of object maps (referencing objects)

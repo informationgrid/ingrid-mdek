@@ -2208,16 +2208,35 @@ public class MdekExampleSupertool {
 		doFullOutput = false;
 		for (MdekError err : errors) {
 			IngridDocument info = err.getErrorInfo();
+
 			if (err.getErrorType().equals(MdekErrorType.ENTITY_REFERENCED_BY_OBJ)) {
-				// referenced object
-				debugObjectDoc(info);
+				// referenced entity (object or address)
+				if (info.get(MdekKeys.TITLE) != null) {
+					System.out.println("    referenced Object:");
+					debugObjectDoc(info);
+				} else {
+					System.out.println("    referenced Address:");
+					debugAddressDoc(info);
+				}
 				// objects referencing
 				List<IngridDocument> oDocs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
 				if (oDocs != null) {
+					System.out.println("    Referencing objects: " + oDocs.size() + " objects!");
 					for (IngridDocument oDoc : oDocs) {
 						debugObjectDoc(oDoc);
 					}
 				}
+
+			} else if (err.getErrorType().equals(MdekErrorType.ADDRESS_IS_AUSKUNFT)) {
+				// objects referencing address as auskunft
+				List<IngridDocument> oDocs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
+				if (oDocs != null) {
+					System.out.println("    Referencing objects: " + oDocs.size() + " objects!");
+					for (IngridDocument oDoc : oDocs) {
+						debugObjectDoc(oDoc);
+					}
+				}
+
 			} else if (err.getErrorType().equals(MdekErrorType.GROUP_HAS_USERS)) {
 				debugIdcUsersDoc(info);
 			} else if (err.getErrorType().equals(MdekErrorType.USER_EDITING_OBJECT_PERMISSION_MISSING)) {

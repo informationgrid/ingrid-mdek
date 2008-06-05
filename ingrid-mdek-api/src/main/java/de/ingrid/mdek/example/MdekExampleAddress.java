@@ -406,6 +406,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subaddresses -----");
 		supertool.fetchSubAddresses(newParentUuid);
 
+		// -----------------------------------
 		System.out.println("\n----- test deletion of references / WARNINGS -----");
 
 		System.out.println("\n----- create new TOP ADDRESS -----");
@@ -428,26 +429,41 @@ class MdekExampleAddressThread extends Thread {
 		// uuid created !
 		String toAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
 		
-		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS -----");
+		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS as AUSKUNFT-----");
 		IngridDocument fromObjDoc = new IngridDocument();
 		fromObjDoc = supertool.getInitialObject(fromObjDoc);
 		fromObjDoc.put(MdekKeys.TITLE, "TEST OBJECT -> referenziert");
 		ArrayList<IngridDocument> adrRefsList = new ArrayList<IngridDocument>(1);
-		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, -1); // needed !
+		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID); // AUSKUNFT
 		adrRefsList.add(toAddrDoc);
 		fromObjDoc.put(MdekKeys.ADR_REFERENCES_TO, adrRefsList);
 		fromObjDoc = supertool.storeObject(fromObjDoc, true);
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITHOUT refs -> Error -----");
+		System.out.println("\n----- delete TOP ADDRESS (WORKING COPY) WITHOUT refs -> Error ADDRESS_IS_AUSKUNFT -----");
 		supertool.deleteAddressWorkingCopy(topAddrUuid, false);
-		System.out.println("\n----- delete ADDRESS (FULL) WITHOUT refs -> Error -----");
+
+		System.out.println("\n----- change OBJECT REFERENCE to NOT AUSKUNFT -----");
+		adrRefsList = (ArrayList<IngridDocument>) fromObjDoc.get(MdekKeys.ADR_REFERENCES_TO);
+		adrRefsList.get(0).put(MdekKeys.RELATION_TYPE_ID, -1); // free reference
+		fromObjDoc = supertool.storeObject(fromObjDoc, true);
+		
+		System.out.println("\n----- delete TOP ADDRESS (WORKING COPY) WITHOUT refs -> Error ENTITY_REFERENCED_BY_OBJ -----");
+		supertool.deleteAddressWorkingCopy(topAddrUuid, false);
+		System.out.println("\n----- delete TOP ADDRESS (FULL) WITHOUT refs -> Error ENTITY_REFERENCED_BY_OBJ -----");
 		supertool.deleteAddress(topAddrUuid, false);
-		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITH refs -> OK -----");
+		
+		System.out.println("\n----- delete ADDRESS (WORKING COPY) WITH refs -> OK (full delete) -----");
 		supertool.deleteAddressWorkingCopy(topAddrUuid, true);
-		System.out.println("\n----- delete OBJECT (WORKING COPY) without refs -> OK -----");
+		System.out.println("\n----- delete OBJECT (WORKING COPY) without refs -> OK (full delete) -----");
 		supertool.deleteObject(fromObjUuid, false);
+
+		// -----------------------------------
+		System.out.println("\n----- test delete of IDC AUSKUNFT address -----");
+
+		System.out.println("\n----- delete ADDRESS referenced as AUSKUNFT -> Error ADDRESS_IS_AUSKUNFT (for 486 objects !) -----");
+		supertool.deleteAddress("BF1156BA-F74D-11D4-8868-0060084A6015", false);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");

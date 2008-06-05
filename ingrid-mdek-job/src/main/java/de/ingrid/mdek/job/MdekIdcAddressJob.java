@@ -194,7 +194,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// then get "external" data (objects referencing the given address ...)
-		List<ObjectNode>[] fromLists = daoAddressNode.getObjectReferencesFrom(addrUuid);
+		List<ObjectNode>[] fromLists = daoAddressNode.getAllObjectReferencesFrom(addrUuid);
 		beanToDocMapper.mapObjectReferencesFrom(fromLists, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 
 		// get parent data
@@ -634,6 +634,51 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	/** Checks whether subtree of address has working copies. */
+	private IngridDocument checkAddressSubTreeWorkingCopies(String rootUuid) {
+		// load "root"
+		AddressNode rootNode = daoAddressNode.loadByUuid(rootUuid);
+		if (rootNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// traverse iteratively via stack
+		Stack<AddressNode> stack = new Stack<AddressNode>();
+		stack.push(rootNode);
+
+		boolean hasWorkingCopy = false;
+		String uuidOfWorkingCopy = null;
+		int numberOfCheckedAddr = 0;
+		while (!hasWorkingCopy && !stack.isEmpty()) {
+			AddressNode node = stack.pop();
+			
+			// check
+			numberOfCheckedAddr++;
+			if (!node.getAddrId().equals(node.getAddrIdPublished())) {
+				hasWorkingCopy = true;
+				uuidOfWorkingCopy = node.getAddrUuid();
+			}
+
+			if (!hasWorkingCopy) {
+				List<AddressNode> subNodes =
+					daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
+				for (AddressNode subNode : subNodes) {
+					stack.push(subNode);
+				}					
+			}
+		}
+		if (log.isDebugEnabled()) {
+			log.debug("Number of checked addresses: " + numberOfCheckedAddr);
+		}
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_HAS_WORKING_COPY, hasWorkingCopy);
+		result.put(MdekKeys.RESULTINFO_UUID_OF_FOUND_ENTITY, uuidOfWorkingCopy);
+		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCheckedAddr);
+
+		return result;		
+	}
+
 	/**
 	 * DELETE ONLY WORKING COPY.
 	 * Notice: If no published version exists the address is deleted completely, meaning non existent afterwards
@@ -753,7 +798,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS));			
 		}
 
-		checkAddressSubTreeReferences(aNode, forceDeleteReferences);
+		// check whether topnode/subnodes are referenced
+		checkAddressTreeReferences(aNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade !
 		daoAddressNode.makeTransient(aNode);
@@ -986,6 +1032,175 @@ public class MdekIdcAddressJob extends MdekIdcJob {
     	return (node.getAddressNodeChildren().size() > 0) ? true : false;
 	}
 
+	/**
+	 * Checks whether address tree contains nodes referenced by other objects.
+	 * @param topNode top node of tree to check (included in check !)
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkAddressTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
+		// traverse iteratively via stack
+		Stack<AddressNode> stack = new Stack<AddressNode>();
+		stack.push(topNode);
+
+		while (!stack.isEmpty()) {
+			AddressNode node = stack.pop();
+			
+			// check whether address is "auskunft" address. AUSKUNFT CANNOT BE DELETED
+			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
+			checkAddressIsAuskunft(node);
+
+			// check
+			checkAddressNodeReferences(node, forceDeleteReferences);
+
+			List<AddressNode> subNodes =
+				daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
+			for (AddressNode subNode : subNodes) {
+				stack.push(subNode);
+			}					
+		}
+	}
+
+	/**
+	 * Checks whether address node is referenced by other objects.
+	 * @param aNode address to check
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkAddressNodeReferences(AddressNode aNode, boolean forceDeleteReferences) {
+		// handle references to address
+		String aUuid = aNode.getAddrUuid();
+		T012ObjAdr exampleRef = new T012ObjAdr();
+		exampleRef.setAdrUuid(aUuid);
+		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
+		
+		// throw exception with detailed errors when address referenced without reference deletion !
+		if (!forceDeleteReferences) {
+			int numRefs = addrRefs.size();
+			if (numRefs > 0) {
+				// existing references -> throw exception with according error info !
+
+				// add info about referenced address
+				IngridDocument errInfo =
+					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+
+				// add info about objects referencing !
+				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
+				for (IEntity ent : addrRefs) {
+					T012ObjAdr ref = (T012ObjAdr) ent;
+					// fetch object referencing the address
+					T01Object o = daoT01Object.getById(ref.getObjId());
+					IngridDocument objInfo =
+						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+					objList.add(objInfo);
+				}
+				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
+
+				// and throw exception encapsulating errors
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
+			}
+		}
+		
+		// delete references (querverweise)
+		for (IEntity addrRef : addrRefs) {
+			daoT012ObjAdr.makeTransient(addrRef);
+		}
+	}
+
+	/** Checks whether given address is "auskunft" address in any object.
+	 * ONLY CHECKS WORKING VERSIONS OF OBJECTS !
+	 * Throws exception if address is auskunft ! */
+	private void checkAddressIsAuskunft(AddressNode addrNode) {
+		List<ObjectNode> oNs =
+			daoAddressNode.getObjectReferencesByTypeId(addrNode.getAddrUuid(), MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		if (oNs.size() > 0) {
+			// throw exception
+			// supply info about referencing objects in exception
+			IngridDocument errInfo = new IngridDocument();			
+			List<IngridDocument> oList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
+
+			for (ObjectNode oN : oNs) {
+				IngridDocument oDoc = beanToDocMapper.mapT01Object(oN.getT01ObjectWork(),
+							new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+				oList.add(oDoc);
+			}
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_AUSKUNFT, errInfo));
+		}
+	}
+
+	/**
+	 * Check whether types parent/child fit together. Throws exception if not 
+	 * @param parentType pass null if no parent (top node). 
+	 * @param childType type of child
+	 * @param finalIsFreeAddress finally child should be free address (under the free address node) ?
+	 * @param isFinalState <br>
+	 * 		true=both types are already in final state<br>
+	 * 		false=types are in state before copy or move operation (pre check)
+	 */
+	private void checkAddressTypes(AddressType parentType, AddressType childType,
+			boolean finalIsFreeAddress,
+			boolean isFinalState) {
+		if (childType == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+		}
+
+		if (finalIsFreeAddress) {
+			// FREE ADDRESS !
+
+			if (parentType != null) {
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
+			}
+			if (isFinalState) {
+				if (childType != AddressType.FREI) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
+			} else {
+				// check before copy or move operation
+				if (childType != AddressType.PERSON &&
+					childType != AddressType.FREI) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
+			}
+		} else {
+			// NO FREE ADDRESS !
+
+			if (parentType == AddressType.FREI) {
+				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
+			}
+			if (isFinalState) {
+				// final state frei not possible. FREI is copied/moved !
+				if (childType == AddressType.FREI) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
+			}
+
+			if (parentType == null) {
+				// TOP ADDRESS
+
+				// only institutions at top
+				if (childType != AddressType.INSTITUTION) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
+				}
+			} else {
+				// NO TOP ADDRESS
+
+				if (parentType == AddressType.EINHEIT) {
+					// only einheit and person below einheit
+					if (childType == AddressType.INSTITUTION) {
+						throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+					}
+
+				} else if (parentType == AddressType.PERSON) {
+					// nothing below person
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
+			}
+		}
+	}
+
 	/** Check whether passed node is valid for storing !
 	 * (e.g. check free address conditions ...). Throws MdekException if not valid.
 	 */
@@ -1059,53 +1274,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		// check address type conflicts !
 		checkAddressTypes(parentType, nodeType, isFreeAddress, true);
-	}
-
-	/**
-	 * Checks whether address node is referenced by other objects.
-	 * @param aNode address to check
-	 * @param forceDeleteReferences<br>
-	 * 		true=delete all references found, no exception<br>
-	 * 		false=don't delete references, throw exception
-	 */
-	private void checkAddressNodeReferences(AddressNode aNode, boolean forceDeleteReferences) {
-		// handle references to address
-		String aUuid = aNode.getAddrUuid();
-		T012ObjAdr exampleRef = new T012ObjAdr();
-		exampleRef.setAdrUuid(aUuid);
-		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
-		
-		// throw exception with detailed errors when address referenced without reference deletion !
-		if (!forceDeleteReferences) {
-			int numRefs = addrRefs.size();
-			if (numRefs > 0) {
-				// existing references -> throw exception with according error info !
-
-				// add info about referenced address
-				IngridDocument errInfo =
-					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-
-				// add info about objects referencing !
-				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
-				for (IEntity ent : addrRefs) {
-					T012ObjAdr ref = (T012ObjAdr) ent;
-					// fetch object referencing the address
-					T01Object o = daoT01Object.getById(ref.getObjId());
-					IngridDocument objInfo =
-						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-					objList.add(objInfo);
-				}
-				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
-
-				// and throw exception encapsulating errors
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
-			}
-		}
-		
-		// delete references (querverweise)
-		for (IEntity addrRef : addrRefs) {
-			daoT012ObjAdr.makeTransient(addrRef);
-		}
 	}
 
 	/** Check whether passed nodes are valid for copy operation
@@ -1198,147 +1366,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		// check address type conflicts !
 		checkAddressTypes(toTypeWork, fromTypeWork, moveToFreeAddress, false);
-	}
-
-	/** Checks whether subtree of address has working copies. */
-	private IngridDocument checkAddressSubTreeWorkingCopies(String rootUuid) {
-		// load "root"
-		AddressNode rootNode = daoAddressNode.loadByUuid(rootUuid);
-		if (rootNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-		}
-
-		// traverse iteratively via stack
-		Stack<AddressNode> stack = new Stack<AddressNode>();
-		stack.push(rootNode);
-
-		boolean hasWorkingCopy = false;
-		String uuidOfWorkingCopy = null;
-		int numberOfCheckedAddr = 0;
-		while (!hasWorkingCopy && !stack.isEmpty()) {
-			AddressNode node = stack.pop();
-			
-			// check
-			numberOfCheckedAddr++;
-			if (!node.getAddrId().equals(node.getAddrIdPublished())) {
-				hasWorkingCopy = true;
-				uuidOfWorkingCopy = node.getAddrUuid();
-			}
-
-			if (!hasWorkingCopy) {
-				List<AddressNode> subNodes =
-					daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
-				for (AddressNode subNode : subNodes) {
-					stack.push(subNode);
-				}					
-			}
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("Number of checked addresses: " + numberOfCheckedAddr);
-		}
-
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.RESULTINFO_HAS_WORKING_COPY, hasWorkingCopy);
-		result.put(MdekKeys.RESULTINFO_UUID_OF_FOUND_ENTITY, uuidOfWorkingCopy);
-		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfCheckedAddr);
-
-		return result;		
-	}
-
-	/**
-	 * Checks whether address tree contains nodes referenced by other objects.
-	 * @param topNode top node of tree to check (included in check !)
-	 * @param forceDeleteReferences<br>
-	 * 		true=delete all references found, no exception<br>
-	 * 		false=don't delete references, throw exception
-	 */
-	private void checkAddressSubTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
-		// traverse iteratively via stack
-		Stack<AddressNode> stack = new Stack<AddressNode>();
-		stack.push(topNode);
-
-		while (!stack.isEmpty()) {
-			AddressNode node = stack.pop();
-			
-			// check
-			checkAddressNodeReferences(node, forceDeleteReferences);
-
-			List<AddressNode> subNodes =
-				daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
-			for (AddressNode subNode : subNodes) {
-				stack.push(subNode);
-			}					
-		}
-	}
-
-	/**
-	 * Check whether types parent/child fit together. Throws exception if not 
-	 * @param parentType pass null if no parent (top node). 
-	 * @param childType type of child
-	 * @param finalIsFreeAddress finally child should be free address (under the free address node) ?
-	 * @param isFinalState <br>
-	 * 		true=both types are already in final state<br>
-	 * 		false=types are in state before copy or move operation (pre check)
-	 */
-	private void checkAddressTypes(AddressType parentType, AddressType childType,
-			boolean finalIsFreeAddress,
-			boolean isFinalState) {
-		if (childType == null) {
-			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
-		}
-
-		if (finalIsFreeAddress) {
-			// FREE ADDRESS !
-
-			if (parentType != null) {
-				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
-			}
-			if (isFinalState) {
-				if (childType != AddressType.FREI) {
-					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
-				}
-			} else {
-				// check before copy or move operation
-				if (childType != AddressType.PERSON &&
-					childType != AddressType.FREI) {
-					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
-				}
-			}
-		} else {
-			// NO FREE ADDRESS !
-
-			if (parentType == AddressType.FREI) {
-				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
-			}
-			if (isFinalState) {
-				// final state frei not possible. FREI is copied/moved !
-				if (childType == AddressType.FREI) {
-					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
-				}
-			}
-
-			if (parentType == null) {
-				// TOP ADDRESS
-
-				// only institutions at top
-				if (childType != AddressType.INSTITUTION) {
-					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
-				}
-			} else {
-				// NO TOP ADDRESS
-
-				if (parentType == AddressType.EINHEIT) {
-					// only einheit and person below einheit
-					if (childType == AddressType.INSTITUTION) {
-						throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
-					}
-
-				} else if (parentType == AddressType.PERSON) {
-					// nothing below person
-					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
-				}
-			}
-		}
 	}
 
 	/**

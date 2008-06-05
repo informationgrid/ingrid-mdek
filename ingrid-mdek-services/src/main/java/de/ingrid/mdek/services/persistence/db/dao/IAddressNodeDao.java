@@ -56,7 +56,7 @@ public interface IAddressNodeDao
 	/** Load parent of address with given uuid. Returns null if top node.  */
 	AddressNode getParent(String uuid);
 
-	/** Fetch Objects referencing the address with the passed uuid.
+	/** Get all Objects (CHECK WORKING AND PUBLISHED VERSIONS) referencing the address with the passed uuid.
 	 * @param addressUuid
 	 * @return 2 List of objects:<br>
 	 * - index 0: list of objects referencing the given uuid in their working version
@@ -64,7 +64,14 @@ public interface IAddressNodeDao
 	 * - index 1: list of objects referencing the given uuid ONLY in their published
 	 * 		version (and NOT in their work version -> ref deleted in work version)
 	 */
-	List<ObjectNode>[] getObjectReferencesFrom(String addressUuid);
+	List<ObjectNode>[] getAllObjectReferencesFrom(String addressUuid);
+
+	/** Get objects (CHECK ONLY WORKING VERSION) referencing the address with the passed uuid.
+	 * @param addressUuid the address being referenced
+	 * @param referenceTypeId type of reference=entry id in syslist; PASS NULL, IF ALL TYPES !
+	 * @return list of object nodes referencing the address in the given way (type)
+	 */
+	List<ObjectNode> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId);
 
 	/** Get total number of addresses matching the given search parameters.
 	 * @param searchParams search parameters (Key:Value pairs in map)

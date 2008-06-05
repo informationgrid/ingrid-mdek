@@ -21,6 +21,8 @@ public class MdekUtils {
 	public final static String OBJ_SERV_TYPE_WMS = "WMS";
 	public final static String OBJ_SERV_TYPE_WFS = "WFS";
 
+	public final static Integer OBJ_ADR_TYPE_AUSKUNFT_ID = 7;
+
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1),
 		OBJ_ADR_TYPE(505),
