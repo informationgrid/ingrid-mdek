@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
@@ -21,15 +22,18 @@ import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
+import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
@@ -45,6 +49,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private MdekPermissionHandler permissionHandler;
 
 	private IObjectNodeDao daoObjectNode;
+	private IAddressNodeDao daoAddressNode;
 	private IT01ObjectDao daoT01Object;
 	private IGenericDao<IEntity> daoObjectReference;
 
@@ -60,6 +65,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
+		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 
@@ -211,6 +217,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getInitialObject(IngridDocument oDocIn) {
+		String userUuid = getCurrentUserUuid(oDocIn);
 		try {
 			daoObjectNode.beginTransaction();
 			
@@ -230,12 +237,30 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				// take over initial data from parent
 				beanToDocMapper.mapT01Object(oParent, oDocIn, MappingQuantity.INITIAL_ENTITY);
 			}
+			
+			// "auskunft" address set ? set calling user as "Auskunft" if nothing set
+			List<IngridDocument> oAs = (List<IngridDocument>) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
+			if (oAs == null) {
+				oAs = new ArrayList<IngridDocument>();
+				oDocIn.put(MdekKeys.ADR_REFERENCES_TO, oAs);
+			}
+			if (oAs.size() == 0) {
+				// simulate entities and map them one by one.
+				// We can't map via "mapT012ObjAdrs" cause entities have to be bound to database to fetch address node ...
+				T012ObjAdr oA = new T012ObjAdr();
+				oA.setType(MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+				oA.setSpecialRef(MdekSysList.OBJ_ADR_TYPE.getDbValue());
+				IngridDocument oADoc = new IngridDocument();
+				beanToDocMapper.mapT012ObjAdr(oA, oADoc);
+				AddressNode addrNode = daoAddressNode.loadByUuid(userUuid);
+				beanToDocMapper.mapT02Address(addrNode.getT02AddressWork(), oADoc, MappingQuantity.TABLE_ENTITY);
+				oAs.add(oADoc);					
+			}
 
 			// take over spatial reference from catalog
 			T03Catalogue catalog = catalogService.getCatalog();
 			IngridDocument catalogDoc = new IngridDocument();
 			beanToDocMapper.mapT03Catalog(catalog, catalogDoc);
-
 			IngridDocument catDocLoc = (IngridDocument) catalogDoc.get(MdekKeys.CATALOG_LOCATION);
 			if (catDocLoc != null) {
 				ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(1);

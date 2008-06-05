@@ -455,8 +455,13 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("STORE TEST new object");
 		System.out.println("=========================");
 
-		System.out.println("\n----- first load initial data (e.g. from parent " + objUuid + ") -----");
+		System.out.println("\n----- check load initial data for TOP OBJECT -----");
+		// set no parent
 		IngridDocument newObjDoc = new IngridDocument();
+		supertool.getInitialObject(newObjDoc);
+
+		System.out.println("\n----- check load initial data from parent " + objUuid + " -----");
+		newObjDoc = new IngridDocument();
 		// supply parent uuid !
 		newObjDoc.put(MdekKeys.PARENT_UUID, objUuid);
 		newObjDoc = supertool.getInitialObject(newObjDoc);

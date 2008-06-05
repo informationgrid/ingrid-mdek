@@ -149,6 +149,7 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 			// map associations
 			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc, howMuch);
+			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc, howMuch);
 
 			return objectDoc;
 		}
@@ -196,7 +197,7 @@ public class BeanToDocMapper implements IMapper {
 
 			// map associations		
 			mapObjectReferences(o.getObjectReferences(), objectDoc);
-			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc);
+			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc, howMuch);
 			mapSpatialReferences(o.getSpatialReferences(), objectDoc);
 			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc, howMuch);
 			mapT017UrlRefs(o.getT017UrlRefs(), objectDoc);
@@ -512,7 +513,7 @@ public class BeanToDocMapper implements IMapper {
 	 * Transfer relation data of passed bean to passed doc.
 	 * @return doc containing additional data.
 	 */
-	private IngridDocument mapT012ObjAdr(T012ObjAdr oA, IngridDocument adressDoc) {
+	public IngridDocument mapT012ObjAdr(T012ObjAdr oA, IngridDocument adressDoc) {
 		if (oA == null) {
 			return adressDoc;
 		}
@@ -525,12 +526,21 @@ public class BeanToDocMapper implements IMapper {
 		return adressDoc;
 	}
 
-	private IngridDocument mapT012ObjAdrs(Set<T012ObjAdr> oAs, IngridDocument objectDoc) {
+	private IngridDocument mapT012ObjAdrs(Set<T012ObjAdr> oAs, IngridDocument objectDoc,
+			MappingQuantity howMuch) {
 		if (oAs == null) {
 			return objectDoc;
 		}
 		ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
 		for (T012ObjAdr oA : oAs) {
+			
+			if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+				// only take over "Auskunft" addresses !
+				if (!MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(oA.getType())) {
+					continue;
+				}
+			}
+
 			IngridDocument aDoc = new IngridDocument();
 			mapT012ObjAdr(oA, aDoc);
 			AddressNode aNode = oA.getAddressNode();
