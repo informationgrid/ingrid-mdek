@@ -40,6 +40,8 @@ public class MdekError implements Serializable {
 		PARENT_NOT_PUBLISHED("20"),
 		/** e.g. move with unpublished node not allowed  */
 		ENTITY_NOT_PUBLISHED("21"),
+		/** e.g. publish object without auskunft address set */
+		AUSKUNFT_ADDRESS_NOT_SET("25"),
 
 		/** e.g. move of tree node to subnode not allowed */
 		TARGET_IS_SUBNODE_OF_SOURCE("30"),

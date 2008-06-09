@@ -239,22 +239,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 			
 			// "auskunft" address set ? set calling user as "Auskunft" if nothing set
-			List<IngridDocument> oAs = (List<IngridDocument>) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
-			if (oAs == null) {
-				oAs = new ArrayList<IngridDocument>();
-				oDocIn.put(MdekKeys.ADR_REFERENCES_TO, oAs);
-			}
-			if (oAs.size() == 0) {
-				// simulate entities and map them one by one.
-				// We can't map via "mapT012ObjAdrs" cause entities have to be bound to database to fetch address node ...
-				T012ObjAdr oA = new T012ObjAdr();
-				oA.setType(MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
-				oA.setSpecialRef(MdekSysList.OBJ_ADR_TYPE.getDbValue());
-				IngridDocument oADoc = new IngridDocument();
-				beanToDocMapper.mapT012ObjAdr(oA, oADoc);
+			if (!hasAuskunftAddress(oDocIn)) {
 				AddressNode addrNode = daoAddressNode.loadByUuid(userUuid);
-				beanToDocMapper.mapT02Address(addrNode.getT02AddressWork(), oADoc, MappingQuantity.TABLE_ENTITY);
-				oAs.add(oADoc);					
+				addAuskunftAddress(oDocIn, addrNode);
 			}
 
 			// take over spatial reference from catalog
@@ -413,6 +400,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkPermissionsForPublishObject(uuid, parentUuid, userId);
 
+			// "auskunft" address set
+			if (!hasAuskunftAddress(oDocIn)) {
+				throw new MdekException(new MdekError(MdekErrorType.AUSKUNFT_ADDRESS_NOT_SET));
+			}
 			// all parents published ?
 			checkObjectPathForPublish(parentUuid, uuid);
 			// publication condition of parent fits to object ?
@@ -1347,6 +1338,45 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 		
 		return true;
+	}
+
+	/** Checks whether given object document has an "Auskunft" address set. */
+	private boolean hasAuskunftAddress(IngridDocument oDoc) {
+		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
+		if (oAs == null) {
+			oAs = new ArrayList<IngridDocument>();
+		}
+
+		for (IngridDocument oA : oAs) {
+			boolean typeOk = MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(oA.get(MdekKeys.RELATION_TYPE_ID));
+			boolean listOk = MdekSysList.OBJ_ADR_TYPE.getDbValue().equals(oA.get(MdekKeys.RELATION_TYPE_REF));
+			if (typeOk && listOk) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/** Add Auskunft address to given object document.
+	 * @param oDoc map representation of object
+	 * @param addrNode add this address as auskunft. Also basic address data is mapped.
+	 */
+	private void addAuskunftAddress(IngridDocument oDoc, AddressNode addrNode) {
+		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
+		if (oAs == null) {
+			oAs = new ArrayList<IngridDocument>();
+			oDoc.put(MdekKeys.ADR_REFERENCES_TO, oAs);
+		}
+
+		// simulate entities and map them one by one.
+		// We can't map via "mapT012ObjAdrs" cause then entities have to be bound to database to fetch address node ...
+		T012ObjAdr oA = new T012ObjAdr();
+		oA.setType(MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		oA.setSpecialRef(MdekSysList.OBJ_ADR_TYPE.getDbValue());
+		IngridDocument oADoc = beanToDocMapper.mapT012ObjAdr(oA, new IngridDocument());
+		beanToDocMapper.mapT02Address(addrNode.getT02AddressWork(), oADoc, MappingQuantity.TABLE_ENTITY);
+		oAs.add(oADoc);					
 	}
 
 	/** Create Working Copy in given node, meaning the published object is copied and set "In Bearbeitung".<br>

@@ -465,6 +465,7 @@ class MdekExampleObjectThread extends Thread {
 		// supply parent uuid !
 		newObjDoc.put(MdekKeys.PARENT_UUID, objUuid);
 		newObjDoc = supertool.getInitialObject(newObjDoc);
+		Object initialAddressList = newObjDoc.get(MdekKeys.ADR_REFERENCES_TO);
 
 		System.out.println("\n----- extend initial object (with address, object references, spatial refs, free term ...) and store -----");
 		// extend initial object with own data !
@@ -479,10 +480,18 @@ class MdekExampleObjectThread extends Thread {
 		newTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
 		System.out.println("ADD NEW SUBJECT TERM: " + newTerm);
 		terms.add(newTerm);
-		IngridDocument oMapNew = storeObjectWithManipulation(newObjDoc);
+		newObjDoc = storeObjectWithManipulation(newObjDoc);
 		// uuid created !
-		String newObjUuid = (String) oMapNew.get(MdekKeys.UUID);
+		String newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
+		System.out.println("\n----- check publish WITHOUT Auskunft Address ! -> Error AUSKUNFT_ADDRESS_NOT_SET -----");
+		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, null);
+		supertool.publishObject(newObjDoc, false,false);
+
+		System.out.println("\n----- set Auskunft address and store (no publish, due to possible tests afterwards) -----");
+		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, initialAddressList);
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+		
 		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
 		supertool.fetchSubObjects(objUuid);
 
@@ -645,9 +654,12 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- publish NEW TOP OBJECT immediately -----");
+		System.out.println("----- first get initial top object -----");
 		IngridDocument newTopDoc = new IngridDocument();
+		newTopDoc = supertool.getInitialObject(newTopDoc);
 		newTopDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT DIREKT PUBLISH");
 		newTopDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		System.out.println("----- then publish -----");
 		oMap = supertool.publishObject(newTopDoc, true, false);
 		// uuid created !
 		String newTopUuid = (String)oMap.get(MdekKeys.UUID);
@@ -663,11 +675,14 @@ class MdekExampleObjectThread extends Thread {
 		String pub1Uuid = (String)oMap.get(MdekKeys.UUID);
 
 		System.out.println("\n----- publish NEW SUB OBJECT immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
+		System.out.println("----- first get initial top object -----");
 		IngridDocument newPubDoc = new IngridDocument();
+		newPubDoc = supertool.getInitialObject(newPubDoc);
 		newPubDoc.put(MdekKeys.TITLE, "TEST NEUES SUB OBJEKT DIREKT PUBLISH");
 		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
 		// sub object of unpublished parent !!!
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
+		System.out.println("----- then publish -----");
 		supertool.publishObject(newPubDoc, true, false);
 
 		System.out.println("\n----- refetch FULL PARENT and change title, IS UNPUBLISHED !!! -----");
