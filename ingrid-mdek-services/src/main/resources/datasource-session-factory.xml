@@ -122,9 +122,9 @@
       </property>
       <property name="collectionCacheStrategies">
          <props>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup.idcUserPermissions">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup.permissionAddrs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup.permissionObjs">read-write</prop>
-            <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup.idcUserPermissions">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser.idcUsers">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoKeycs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoScales">read-write</prop>
