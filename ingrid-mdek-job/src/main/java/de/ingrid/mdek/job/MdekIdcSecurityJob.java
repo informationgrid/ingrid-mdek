@@ -537,6 +537,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
+			String newAddrUuid = uDocIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 			Long inUserId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);
 			Integer inUserRole = (Integer) uDocIn.get(MdekKeysSecurity.IDC_ROLE);
 			Long inUserParentId = (Long) uDocIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
@@ -551,6 +552,14 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			boolean userToUpdateIsCatalogAdmin = 
 				IdcRole.CATALOG_ADMINISTRATOR.getDbValue().equals(userToUpdate.getIdcRole());
 			String oldAddrUuid = userToUpdate.getAddrUuid();
+			boolean userAddressChanged = !oldAddrUuid.equals(newAddrUuid);
+
+			// check if new address is already idcuser address !
+			if (userAddressChanged) {
+				if (daoIdcUser.getIdcUserByAddrUuid(newAddrUuid) != null) {
+					throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS));			
+				}
+			}
 
 			// check role of updated user changed ? NOT POSSIBLE !
 			if (!userToUpdate.getIdcRole().equals(inUserRole)) {
@@ -589,8 +598,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// address uuid changed ?
 			// then update all entities, where old uuid is responsible user with new address uuid.
-			String newAddrUuid = userToUpdate.getAddrUuid();
-			if (!newAddrUuid.equals(oldAddrUuid)) {
+			if (userAddressChanged) {
 				updateResponsibleUserInEntities(oldAddrUuid, newAddrUuid);					
 			}
 			

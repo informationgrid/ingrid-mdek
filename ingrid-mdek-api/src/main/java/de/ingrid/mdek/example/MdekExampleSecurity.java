@@ -317,6 +317,15 @@ class MdekExampleSecurityThread extends Thread {
 		Long newMetaAdmin2Id = (Long) newMetaAdmin2Doc.get(MdekKeysSecurity.IDC_USER_ID);
 		String newMetaAdmin2Uuid = newMetaAdmin2Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
+		System.out.println("\n----- create new user WITH SAME ADDRESS -> ERROR: ENTITY_ALREADY_EXISTS -----");
+		doc = new IngridDocument();
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE4-FE15-11D2-AF34-0060084A4596");
+		doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		supertool.createUser(newMetaAdmin2Doc, true);
+
+
 		System.out.println("\n----- get sub users -----");
 		supertool.getSubUsers(catalogAdminId);
 		supertool.getSubUsers(newMetaAdmin1Id);
@@ -393,7 +402,11 @@ class MdekExampleSecurityThread extends Thread {
 		// reset doc
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 
-		System.out.println("\n----- store MD_AUTHOR (change addr uuid of user and store) -> ALLOWED -----");
+		System.out.println("\n----- store MD_AUTHOR WITH CHANGED ADDRESS OF OTHER USER -> ERROR: ENTITY_ALREADY_EXISTS -----");
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
+		supertool.storeUser(newMetaAuthor1Doc, true);		
+
+		System.out.println("\n----- store MD_AUTHOR (change addr_uuid to no user address) -> ALLOWED -----");
 		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
 		newMetaAuthor1Doc = supertool.storeUser(newMetaAuthor1Doc, true);		
 		newMetaAuthor1Uuid = newMetaAuthor1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
