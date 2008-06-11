@@ -366,6 +366,7 @@ public class BeanToDocMapper implements IMapper {
 
 		AddressNode aN = daoAddressNode.loadByUuid(userAddrUuid);
 		if (aN == null) {
+			LOG.warn("User AddressUuid not found ! userAddrUuid='" + userAddrUuid + "'. We throw UUID_NOT_FOUND Exception.");
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 		// map basic data ! WE DON'T NEED MORE !
