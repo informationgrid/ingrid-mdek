@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
@@ -17,6 +18,7 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.security.EntityPermission;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
+import de.ingrid.utils.IngridDocument;
 
 
 /**
@@ -44,6 +46,54 @@ public class MdekPermissionHandler {
 		this.permService = permissionService;
 		
 		daoIdcUser = daoFactory.getIdcUserDao();
+	}
+
+	/**
+	 * Get permissions of user for an INITIAL object (not created yet !).
+	 * NOTICE: Checks whether user has permissions to perform the STORE operation AND THROWS EXCEPTION IF NOT !
+	 * @param initialObjDoc initial object data
+	 * @param userUuid users address uuid
+	 * @return list of permissions on initial object
+	 */
+	public List<Permission> getPermissionsForInitialObject(IngridDocument initialObjDoc, String userUuid) {
+
+		// initial object uuid should always be null -> object not created yet !
+		String objUuid = initialObjDoc.getString(MdekKeys.UUID);
+		if (objUuid != null) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
+		}
+		String parentUuid = initialObjDoc.getString(MdekKeys.PARENT_UUID);
+		checkPermissionsForStoreObject(objUuid, parentUuid, userUuid);
+
+		// user can store new object -> full access, we return "write-tree" permission
+		List<Permission> perms = new ArrayList<Permission>();
+		perms.add(PermissionFactory.getPermissionTemplateTree());
+		
+		return perms;
+	}
+
+	/**
+	 * Get permissions of user for an INITIAL address (not created yet !).
+	 * NOTICE: Checks whether user has permissions to perform the STORE operation AND THROWS EXCEPTION IF NOT !
+	 * @param initialAddrDoc initial address data
+	 * @param userUuid users address uuid
+	 * @return list of permissions on initial address
+	 */
+	public List<Permission> getPermissionsForInitialAddress(IngridDocument initialAddrDoc, String userUuid) {
+
+		// initial address uuid should always be null -> address not created yet !
+		String addrUuid = initialAddrDoc.getString(MdekKeys.UUID);
+		if (addrUuid != null) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
+		}
+		String parentUuid = initialAddrDoc.getString(MdekKeys.PARENT_UUID);
+		checkPermissionsForStoreAddress(addrUuid, parentUuid, userUuid);
+
+		// user can store new address -> full access, we return "write-tree" permission
+		List<Permission> perms = new ArrayList<Permission>();
+		perms.add(PermissionFactory.getPermissionTemplateTree());
+		
+		return perms;
 	}
 
 	/**

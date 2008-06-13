@@ -1893,6 +1893,8 @@ public class MdekExampleSupertool {
 
 		System.out.println("  " + o);
 
+		debugPermissionsDoc(o, "  ");
+
 		IngridDocument myDoc;
 		List<IngridDocument> docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_TO);
 		if (docList != null && docList.size() > 0) {
@@ -2135,6 +2137,8 @@ public class MdekExampleSupertool {
 		}
 
 		System.out.println("  " + a);
+
+		debugPermissionsDoc(a, "  ");
 
 		IngridDocument myDoc;
 		List<IngridDocument> docList;

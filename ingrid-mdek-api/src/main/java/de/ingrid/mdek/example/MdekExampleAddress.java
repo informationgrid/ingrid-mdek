@@ -244,9 +244,15 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("STORE TEST new address");
 		System.out.println("=========================");
 
-		System.out.println("\n----- first load initial data (from " + personUuid + ") -----");
-		// initial data from person address (to test take over of SUBJECT_TERMS)
+		System.out.println("\n----- check load initial data for TOP ADDRESS -----");
+		// set no parent
 		IngridDocument newAdrDoc = new IngridDocument();
+		supertool.getInitialAddress(newAdrDoc);
+
+		System.out.println("\n----- check load initial data (from " + personUuid + ") -----");
+		// initial data from person address (to test take over of SUBJECT_TERMS)
+		newAdrDoc = new IngridDocument();
+		// supply parent uuid !
 		newAdrDoc.put(MdekKeys.PARENT_UUID, personUuid);
 		newAdrDoc = supertool.getInitialAddress(newAdrDoc);
 

@@ -218,6 +218,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getInitialAddress(IngridDocument aDocIn) {
+		String userUuid = getCurrentUserUuid(aDocIn);
 		try {
 			daoAddressNode.beginTransaction();
 			
@@ -241,6 +242,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(parentUuid, true);
 				aDocIn.put(MdekKeys.PATH_ORGANISATIONS, pathList);
 			}
+
+			// add permissions the user has on initial object !
+			List<Permission> perms = permissionHandler.getPermissionsForInitialAddress(aDocIn, userUuid);
+			beanToDocMapperSecurity.mapPermissionList(perms, aDocIn);
 
 			daoAddressNode.commitTransaction();
 			return aDocIn;

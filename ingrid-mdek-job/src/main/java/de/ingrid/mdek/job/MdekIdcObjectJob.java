@@ -255,6 +255,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				oDocIn.put(MdekKeys.LOCATIONS, locList);
 			}
 
+			// add permissions the user has on initial object !
+			List<Permission> perms = permissionHandler.getPermissionsForInitialObject(oDocIn, userUuid);
+			beanToDocMapperSecurity.mapPermissionList(perms, oDocIn);
+
 			daoObjectNode.commitTransaction();
 			return oDocIn;
 
