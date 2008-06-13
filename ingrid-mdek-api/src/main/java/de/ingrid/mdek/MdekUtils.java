@@ -232,6 +232,11 @@ public class MdekUtils {
 	public static String processStringParameter(String param) {
 		if (param != null) {
 			param = param.trim();
+
+			// replace special characters inside string
+			param = param.replaceAll ("\\n", " ");
+			param = param.replaceAll ("\\t", " ");
+
 			if (param.length() == 0) {
 				param = null;
 			}

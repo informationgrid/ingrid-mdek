@@ -145,25 +145,25 @@ class MdekExampleQueryThread extends Thread {
 		boolean alwaysTrue = true;
 
 		String hqlQueryAddr1 =
-			"select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term " +
-			"from AddressNode as aNode " +
-			"inner join aNode.t02AddressWork addr " +
-			"inner join addr.searchtermAdrs termAdrs " +
+			"select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term\n\n\n" +
+			"from AddressNode as aNode\n" +
+			"inner join aNode.t02AddressWork addr\n\t\t\t" +
+			"inner join addr.searchtermAdrs termAdrs\n\n" +
 			"inner join termAdrs.searchtermValue termVal " +
 			"inner join termVal.searchtermSns termSns " +
-			"where " +
+			"where\n\n" +
 			"termSns.snsId = '" + termSnsId + "' " +
 			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 
 		String hqlQueryAddr2 = "from AddressNode";
 
-		String hqlQueryObj1 = "select distinct oNode, obj.objName, termVal.term " +
-			"from ObjectNode oNode " +
-			"inner join oNode.t01ObjectWork obj " +
+		String hqlQueryObj1 = "select distinct oNode, obj.objName, termVal.term\n\n\n" +
+			"from ObjectNode oNode\n" +
+			"inner join oNode.t01ObjectWork obj\n\t\t\t" +
 			"inner join obj.searchtermObjs termObjs " +
-			"inner join termObjs.searchtermValue termVal " +
+			"inner join termObjs.searchtermValue termVal\n\n" +
 			"inner join termVal.searchtermSns termSns " +
-			"where " +
+			"where\n\n" +
 			"termSns.snsId = '" + termSnsId + "' " +
 			"order by obj.objClass, obj.objName";
 
