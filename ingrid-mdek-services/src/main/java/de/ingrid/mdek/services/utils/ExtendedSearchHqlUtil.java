@@ -241,8 +241,8 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 				// results containing
 				if (timeContains) {
 					whereString.append(" or (" +
-							"(obj.timeFrom IS NULL or obj.timeFrom <= '").append(timeAt).append("') " +
-							"and (obj.timeTo IS NULL or obj.timeTo >= '").append(timeAt).append("'))");
+							"(obj.timeFrom IS NULL or obj.timeFrom < '").append(timeAt).append("') " +
+							"and (obj.timeTo IS NULL or obj.timeTo > '").append(timeAt).append("'))");
 				}
 			}
 
