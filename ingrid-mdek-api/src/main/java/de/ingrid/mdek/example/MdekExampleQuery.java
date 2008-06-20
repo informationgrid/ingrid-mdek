@@ -184,6 +184,10 @@ class MdekExampleQueryThread extends Thread {
 
 		searchParams = new IngridDocument();
 
+		// additional search for title
+//		searchParams.put(MdekKeys.QUERY_TERM, "wwwtest 3");
+//		searchParams.put(MdekKeys.RELATION, new Integer(0));
+
 		// "AM"
 		// no intersect/contains -> 1 result (results-start AND end = TIME_AT)
 //		searchParams.put(MdekKeys.TIME_AT, "20001222000000000");
@@ -217,9 +221,9 @@ class MdekExampleQueryThread extends Thread {
 		searchParams.put(MdekKeys.TIME_TO, "20021231000000000");
 		// with intersect -> 40 results
 		// (additional: results-start < TIME_FROM AND results-end >= TIME_FROM AND < TIME_TO || results-start > TIME_FROM AND <= TIME_TO AND results-end > TIME_TO)
-//		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+		searchParams.put(MdekKeys.TIME_INTERSECT, true);
 		// with contains -> 514 results (additional: results-start <= TIME_FROM, results-end >= TIME_TO)
-//		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+		searchParams.put(MdekKeys.TIME_CONTAINS, true);
 		// with intersect AND contains -> 550 results = 514 + 40 - 4 (contained in both) -> OK (see above)
 
 		hits = supertool.queryObjectsExtended(searchParams, 0, 20);
