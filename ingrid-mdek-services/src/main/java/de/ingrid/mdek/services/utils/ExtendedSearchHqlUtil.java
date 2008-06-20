@@ -162,47 +162,91 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		if (timeContains == null) {
 			timeContains = false;
 		}
-		
-		if (timeFrom != null && timeTo != null) {
+
+		if (timeFrom != null || timeTo != null || timeAt != null) {
 			if (whereString.length() > 0) {
-				whereString.append(" and");
+				whereString.append(" and ");
 			}
-			whereString.append(" obj.timeType = 'von' and ((obj.timeFrom >= '").append(timeFrom).append("' and obj.timeTo <= '").append(timeTo).append("')");
-			if (timeContains) {
-				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeTo).append("')");
+
+			// exclude records with no time reference
+			whereString.append(" (obj.timeFrom IS NOT NULL or obj.timeTo IS NOT NULL) and (");
+
+			// VON (- BIS)
+			if (timeFrom != null && timeTo != null) {
+				// results inside
+				whereString.append("(" +
+						"obj.timeFrom IS NOT NULL and obj.timeFrom >= '").append(timeFrom).append("' " +
+						"and obj.timeTo IS NOT NULL and obj.timeTo <= '").append(timeTo).append("')");
+				// results intersecting
+				if (timeIntersect) {
+					whereString.append(" or (" +
+						"(obj.timeFrom IS NULL or obj.timeFrom < '").append(timeFrom).append("') " +
+						"and obj.timeTo IS NOT NULL and obj.timeTo >= '").append(timeFrom).append("' " +
+						// timeTo should NOT be included to avoid "contains"
+						"and obj.timeTo < '").append(timeTo).append("')");
+					whereString.append(" or (" +
+						// timeFrom should NOT be included to avoid "contains"
+						"obj.timeFrom IS NOT NULL and obj.timeFrom > '").append(timeFrom).append("' " +
+						"and obj.timeFrom <= '").append(timeTo).append("' and " +
+						"(obj.timeTo IS NULL or obj.timeTo > '").append(timeTo).append("'))");
+				}
+				// results containing
+				if (timeContains) {
+					whereString.append(" or (" +
+							"(obj.timeFrom IS NULL or obj.timeFrom <= '").append(timeFrom).append("') " +
+							"and (obj.timeTo IS NULL or obj.timeTo >= '").append(timeTo).append("'))");
+				}
+
+			// SEIT
+			} else if (timeFrom != null && timeTo == null) {
+				// results inside
+				whereString.append("(obj.timeFrom IS NOT NULL and obj.timeFrom >= '").append(timeFrom).append("')");
+				// results intersecting
+				if (timeIntersect) {
+					whereString.append(" or (" +
+							"(obj.timeFrom IS NULL or obj.timeFrom < '").append(timeFrom).append("') " +
+							// timeTo should NOT be NULL, to avoid "contains"
+							"and (obj.timeTo IS NOT NULL and obj.timeTo >= '").append(timeFrom).append("'))");
+				}
+				// results containing
+				if (timeContains) {
+					whereString.append(" or (obj.timeTo IS NULL and obj.timeFrom < '").append(timeFrom).append("')");
+				}
+
+			// BIS
+			} else if (timeFrom == null && timeTo != null) {
+				// results inside
+				whereString.append("(obj.timeTo IS NOT NULL and obj.timeTo <= '").append(timeTo).append("')");
+				// results intersecting
+				if (timeIntersect) {
+					whereString.append(" or (" +
+							// timeFrom should NOT be NULL, to avoid "contains"
+							"(obj.timeFrom IS NOT NULL and obj.timeFrom <= '").append(timeTo).append("') " +
+							"and (obj.timeTo IS NULL or obj.timeTo > '").append(timeTo).append("'))");
+				}
+				if (timeContains) {
+					whereString.append(" or (obj.timeFrom IS NULL and obj.timeTo > '").append(timeTo).append("')");
+				}
+
+			// AM
+			} else if (timeAt != null) {
+				// results inside
+				whereString.append("(obj.timeFrom IS NOT NULL and obj.timeFrom = '").append(timeAt).append("' " +
+						"and obj.timeTo IS NOT NULL and obj.timeTo = '").append(timeAt).append("')");
+				// results intersecting
+				if (timeIntersect) {
+					whereString.append(" or (obj.timeFrom IS NOT NULL and obj.timeFrom = '").append(timeAt).append("')");
+					whereString.append(" or (obj.timeTo IS NOT NULL and obj.timeTo = '").append(timeAt).append("')");
+				}
+				// results containing
+				if (timeContains) {
+					whereString.append(" or (" +
+							"(obj.timeFrom IS NULL or obj.timeFrom <= '").append(timeAt).append("') " +
+							"and (obj.timeTo IS NULL or obj.timeTo >= '").append(timeAt).append("'))");
+				}
 			}
-			if (timeIntersect) {
-				whereString.append(" or (obj.timeFrom >= '").append(timeFrom)
-					.append("' and obj.timeFrom <= '").append(timeTo)
-					.append("' and obj.timeTo >= '").append(timeTo).append("')");
-				whereString.append(" or (obj.timeFrom <= '").append(timeFrom)
-					.append("' and obj.timeTo >= '").append(timeFrom)
-					.append("' and obj.timeTo <= '").append(timeTo).append("')");
-			}
-			whereString.append(")");
-		} else if (timeFrom != null && timeTo == null) {
-			if (whereString.length() > 0) {
-				whereString.append(" and");
-			}
-			whereString.append(" obj.timeType = 'seit' and ((obj.timeFrom >= '").append(timeFrom).append("')");
-			if (timeIntersect) {
-				whereString.append(" or (obj.timeFrom <= '").append(timeFrom).append("' and obj.timeTo >= '").append(timeFrom).append("')");
-			}
-			whereString.append(")");
-		} else if (timeFrom == null && timeTo != null) {
-			if (whereString.length() > 0) {
-				whereString.append(" and");
-			}
-			whereString.append(" obj.timeType = 'von' and ((obj.timeTo <= '").append(timeTo).append("' and (obj.timeFrom is null or obj.timeFrom = ''))");
-			if (timeIntersect) {
-				whereString.append(" or (obj.timeTo >= '").append(timeTo).append("' and obj.timeFrom <= '").append(timeTo).append("')");
-			}
-			whereString.append(")");
-		} else if (timeAt != null) {
-			if (whereString.length() > 0) {
-				whereString.append(" and");
-			}
-			whereString.append(" obj.timeFrom = '").append(timeAt).append("' and obj.timeType = 'am'");
+
+			whereString.append(") ");
 		}
 		
 		if (whereString.length() == 0) {

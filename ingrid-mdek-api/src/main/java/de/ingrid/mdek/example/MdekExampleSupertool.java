@@ -1887,11 +1887,11 @@ public class MdekExampleSupertool {
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
 		);
 
+		System.out.println("  " + o);
+
 		if (!doFullOutput) {
 			return;
 		}
-
-		System.out.println("  " + o);
 
 		debugPermissionsDoc(o, "  ");
 

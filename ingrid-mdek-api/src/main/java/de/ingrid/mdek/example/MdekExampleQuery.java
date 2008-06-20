@@ -179,20 +179,57 @@ class MdekExampleQueryThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-		searchParams = new IngridDocument();
-		// Harz
-		searchParams.put(MdekKeys.CUSTOM_LOCATION, 1);
-		searchParams.put(MdekKeys.RELATION, new Integer(0));
-//		searchParams.put(MdekKeys.TIME_AT, "19960101000000000");
-//		searchParams.put(MdekKeys.TIME_FROM, "19940101000000000");
-//		searchParams.put(MdekKeys.TIME_TO, "19970101000000000");
-		
-		searchParams.put(MdekKeys.TIME_FROM, "20010101000000000");
-		searchParams.put(MdekKeys.TIME_TO, "20061231000000000");
-		searchParams.put(MdekKeys.TIME_INTERSECT, true);
-		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+		// Erweiterte Suche: Zeit
+		// ----------------------
 
-		supertool.queryObjectsExtended(searchParams, 0, 20);
+		searchParams = new IngridDocument();
+
+		// "AM"
+		// no intersect/contains -> 1 result (results-start AND end = TIME_AT)
+//		searchParams.put(MdekKeys.TIME_AT, "20001222000000000");
+		// with intersect -> 5 results (additional: results-start OR end = TIME_AT)
+//		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+		// with contains -> 542 results (additional: results-start <= TIME_AT, results-end >= TIME_AT)
+//		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+		// with intersect AND contains -> 542 results (same as contains)
+
+		// "SEIT"
+		// no intersect/contains -> 13 results (results-start >= TIME_FROM)
+//		searchParams.put(MdekKeys.TIME_FROM, "20001222000000000");
+		// with intersect -> 44 results (additional: results-start < TIME_FROM, results-end NOT NULL AND >= TIME_FROM)
+//		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+		// with contains -> 519 results (additional: results-start < TIME_FROM, results-end is NULL)
+//		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+		// with intersect AND contains -> 550 results = 519 + 44 - 13 (contained in both) -> OK (see above)
+
+		// "BIS"
+		// no intersect/contains -> 975 results (results-end <= TIME_TO)
+//		searchParams.put(MdekKeys.TIME_TO, "20001222000000000");
+		// with intersect -> 1516 results (additional: results-start NOT NULL AND <= TIME_TO, results-end > TIME_TO)
+//		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+		// with contains -> 975 results (additional: results-start is NULL, results-end > TIME_TO)
+//		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+		// with intersect AND contains -> 1516 results = 975 + 1516 - 975 (contained in both) -> OK (see above)
+
+		// "VON" (- BIS)
+		// no intersect/contains -> 4 results (results-start >= TIME_FROM, results-end <= TIME_TO)
+		searchParams.put(MdekKeys.TIME_FROM, "20001222000000000");
+		searchParams.put(MdekKeys.TIME_TO, "20021231000000000");
+		// with intersect -> 40 results
+		// (additional: results-start < TIME_FROM AND results-end >= TIME_FROM AND < TIME_TO || results-start > TIME_FROM AND <= TIME_TO AND results-end > TIME_TO)
+//		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+		// with contains -> 514 results (additional: results-start <= TIME_FROM, results-end >= TIME_TO)
+//		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+		// with intersect AND contains -> 550 results = 514 + 40 - 4 (contained in both) -> OK (see above)
+
+		hits = supertool.queryObjectsExtended(searchParams, 0, 20);
+		if (hits.size() > 0) {
+			System.out.println("\nHits: Detailed data");
+		}
+		for (IngridDocument hit : hits) {
+			supertool.setFullOutput(false);
+			doc = supertool.fetchObject(hit.getString(MdekKeys.UUID), Quantity.DETAIL_ENTITY);
+		}
 
 		if (alwaysTrue) {
 			isRunning = false;
