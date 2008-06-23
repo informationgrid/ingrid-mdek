@@ -190,11 +190,11 @@ class MdekExampleQueryThread extends Thread {
 
 		// "AM"
 		// no intersect/contains -> 1 result (results-start AND end = TIME_AT)
-		searchParams.put(MdekKeys.TIME_AT, "20001222000000000");
+//		searchParams.put(MdekKeys.TIME_AT, "20001222000000000");
 		// with intersect -> 5 results (additional: results-start OR end = TIME_AT)
-		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+//		searchParams.put(MdekKeys.TIME_INTERSECT, true);
 		// with contains -> 538 results (additional: results-start < TIME_AT, results-end > TIME_AT)
-		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+//		searchParams.put(MdekKeys.TIME_CONTAINS, true);
 		// with intersect AND contains -> 542 results = 538 + 5 - 1 (contained in both) -> OK (see above)
 
 		// "SEIT"
@@ -217,14 +217,14 @@ class MdekExampleQueryThread extends Thread {
 
 		// "VON" (- BIS)
 		// no intersect/contains -> 4 results (results-start >= TIME_FROM, results-end <= TIME_TO)
-//		searchParams.put(MdekKeys.TIME_FROM, "20001222000000000");
-//		searchParams.put(MdekKeys.TIME_TO, "20021231000000000");
-		// with intersect -> 40 results
-		// (additional: results-start < TIME_FROM AND results-end >= TIME_FROM AND < TIME_TO || results-start > TIME_FROM AND <= TIME_TO AND results-end > TIME_TO)
-//		searchParams.put(MdekKeys.TIME_INTERSECT, true);
-		// with contains -> 514 results (additional: results-start <= TIME_FROM, results-end >= TIME_TO)
-//		searchParams.put(MdekKeys.TIME_CONTAINS, true);
-		// with intersect AND contains -> 550 results = 514 + 40 - 4 (contained in both) -> OK (see above)
+		searchParams.put(MdekKeys.TIME_FROM, "20001222000000000");
+		searchParams.put(MdekKeys.TIME_TO, "20021231000000000");
+		// with intersect -> 44 results
+		// (additional: results-start < TIME_FROM AND results-end >= TIME_FROM AND <= TIME_TO || results-start >= TIME_FROM AND <= TIME_TO AND results-end > TIME_TO)
+		searchParams.put(MdekKeys.TIME_INTERSECT, true);
+		// with contains -> 510 results (additional: results-start < TIME_FROM, results-end > TIME_TO)
+		searchParams.put(MdekKeys.TIME_CONTAINS, true);
+		// with intersect AND contains -> 550 results = 510 + 44 - 4 (contained in both) -> OK (see above)
 
 		hits = supertool.queryObjectsExtended(searchParams, 0, 20);
 		if (hits.size() > 0) {

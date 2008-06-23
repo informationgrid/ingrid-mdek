@@ -183,18 +183,18 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 						"(obj.timeFrom IS NULL or obj.timeFrom < '").append(timeFrom).append("') " +
 						"and obj.timeTo IS NOT NULL and obj.timeTo >= '").append(timeFrom).append("' " +
 						// timeTo should NOT be included to avoid "contains"
-						"and obj.timeTo < '").append(timeTo).append("')");
+						"and obj.timeTo <= '").append(timeTo).append("')");
 					whereString.append(" or (" +
 						// timeFrom should NOT be included to avoid "contains"
-						"obj.timeFrom IS NOT NULL and obj.timeFrom > '").append(timeFrom).append("' " +
+						"obj.timeFrom IS NOT NULL and obj.timeFrom >= '").append(timeFrom).append("' " +
 						"and obj.timeFrom <= '").append(timeTo).append("' and " +
 						"(obj.timeTo IS NULL or obj.timeTo > '").append(timeTo).append("'))");
 				}
 				// results containing
 				if (timeContains) {
 					whereString.append(" or (" +
-							"(obj.timeFrom IS NULL or obj.timeFrom <= '").append(timeFrom).append("') " +
-							"and (obj.timeTo IS NULL or obj.timeTo >= '").append(timeTo).append("'))");
+							"(obj.timeFrom IS NULL or obj.timeFrom < '").append(timeFrom).append("') " +
+							"and (obj.timeTo IS NULL or obj.timeTo > '").append(timeTo).append("'))");
 				}
 
 			// SEIT
