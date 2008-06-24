@@ -150,6 +150,11 @@ class MdekExampleCatalogThread extends Thread {
 */
 // ===================================
 
+		System.out.println("\n----- backend version -----");
+		supertool.getVersion();
+
+		// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("CATALOG");
 		System.out.println("=========================");

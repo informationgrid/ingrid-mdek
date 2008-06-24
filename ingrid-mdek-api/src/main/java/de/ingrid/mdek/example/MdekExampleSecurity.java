@@ -751,17 +751,17 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create top address -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for top address -----");
+		System.out.println("----- first get initial data for top address -> NOT ALLOWED -----");
 		IngridDocument newAdrDoc = new IngridDocument();
 		newAdrDoc.put(MdekKeys.PARENT_UUID, null);
-		newAdrDoc = supertool.getInitialAddress(newAdrDoc);
-		// extend initial address with own data !
+		supertool.getInitialAddress(newAdrDoc);
+		// extend doc with own data !
 		newAdrDoc.put(MdekKeys.NAME, "testNAME");
 		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
-		System.out.println("\n----- then store -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
 		supertool.storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
@@ -773,13 +773,13 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create top object -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for top object -----");
+		System.out.println("----- first get initial data for top object -> NOT ALLOWED -----");
 		IngridDocument newObjDoc = new IngridDocument();
 		newObjDoc.put(MdekKeys.PARENT_UUID, null);
-		newObjDoc = supertool.getInitialObject(newObjDoc);
-		// extend initial address with own data !
+		supertool.getInitialObject(newObjDoc);
+		// extend doc with own data !
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		System.out.println("\n----- then store -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
 		supertool.storeObject(newObjDoc, false);
 
 		System.out.println("\n-------------------------------------");
@@ -842,18 +842,18 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- create sub address -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for sub address -----");
+		System.out.println("----- first get initial data for sub address -> NOT ALLOWED -----");
 		String newParentAddrUuid = topAddrUuid;
 		newAdrDoc = new IngridDocument();
 		newAdrDoc.put(MdekKeys.PARENT_UUID, newParentAddrUuid);
-		newAdrDoc = supertool.getInitialAddress(newAdrDoc);
-		// extend initial address with own data !
+		supertool.getInitialAddress(newAdrDoc);
+		// extend doc with own data !
 		newAdrDoc.put(MdekKeys.NAME, "testNAME");
 		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
-		System.out.println("\n----- then store -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
 		supertool.storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
@@ -865,14 +865,14 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create sub object -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for sub object -----");
+		System.out.println("----- first get initial data for sub object -> NOT ALLOWED -----");
 		String newParentObjUuid = topObjUuid;
 		newObjDoc = new IngridDocument();
 		newObjDoc.put(MdekKeys.PARENT_UUID, newParentObjUuid);
-		newObjDoc = supertool.getInitialObject(newObjDoc);
-		// extend initial address with own data !
+		supertool.getInitialObject(newObjDoc);
+		// extend doc with own data !
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		System.out.println("\n----- then store -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
 		supertool.storeObject(newObjDoc, false);
 
 		System.out.println("\n-------------------------------------");

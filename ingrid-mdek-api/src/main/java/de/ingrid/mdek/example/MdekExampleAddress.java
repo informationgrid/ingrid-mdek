@@ -204,10 +204,6 @@ class MdekExampleAddressThread extends Thread {
 // ====================
 */
 		// ===================================
-		System.out.println("\n----- backend version -----");
-		supertool.getVersion();
-
-		// -----------------------------------
 		System.out.println("\n----- top addresses -----");
 		supertool.fetchTopAddresses(true);
 		supertool.fetchTopAddresses(false);
