@@ -58,6 +58,8 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
+import de.ingrid.mdek.services.persistence.db.model.T08Attr;
+import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -223,6 +225,8 @@ public class BeanToDocMapper implements IMapper {
 
 			// object comments
 			mapObjectComments(o.getObjectComments(), objectDoc);
+			// additional fields
+			mapT08Attrs(o.getT08Attrs(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -392,6 +396,27 @@ public class BeanToDocMapper implements IMapper {
 			docList.add(refDoc);					
 		}
 		objectDoc.put(MdekKeys.COMMENT_LIST, docList);
+		return objectDoc;
+	}
+
+	public IngridDocument mapT08Attrs(Set<T08Attr> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
+		for (T08Attr ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			refDoc.put(MdekKeys.FIELD_IDENTIFIER, ref.getAttrTypeId());
+			refDoc.put(MdekKeys.FIELD_VALUE, ref.getData());
+			
+			T08AttrType attrType = ref.getT08AttrType();
+			if (attrType != null) {
+				refDoc.put(MdekKeys.FIELD_NAME, attrType.getName());
+			}
+
+			docList.add(refDoc);					
+		}
+		objectDoc.put(MdekKeys.ADDITIONAL_FIELDS, docList);
 		return objectDoc;
 	}
 

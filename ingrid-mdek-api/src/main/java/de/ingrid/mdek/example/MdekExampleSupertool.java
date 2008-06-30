@@ -2108,6 +2108,14 @@ public class MdekExampleSupertool {
 				System.out.println("    created by user: " + doc.get(MdekKeys.CREATE_USER));
 			}
 		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Additional Fields: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
+
 		myDoc = (IngridDocument) o.get(MdekKeys.PARENT_INFO);
 		if (myDoc != null) {
 			System.out.println("  parent info:");

@@ -67,6 +67,9 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T03Catalogue.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T08Attr.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrList.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrType.hbm.xml</value>
          </list>
       </property>
 <!--

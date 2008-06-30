@@ -65,6 +65,7 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
+import de.ingrid.mdek.services.persistence.db.model.T08Attr;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -77,11 +78,14 @@ public class DocToBeanMapper implements IMapper {
 	private static final Logger LOG = Logger.getLogger(DocToBeanMapper.class);
 
 	private static DocToBeanMapper myInstance;
-	
+
 	private ISpatialRefSnsDao daoSpatialRefSns;
 	private ISpatialRefValueDao daoSpatialRefValue;
 	private ISearchtermSnsDao daoSearchtermSns;
 	private ISearchtermValueDao daoSearchtermValue;
+
+	/** Generic dao for class unspecific operations !!! */
+	private IGenericDao<IEntity> dao;
 
 	private IGenericDao<IEntity> daoSpatialReference;
 	private IGenericDao<IEntity> daoSearchtermObj;
@@ -134,6 +138,8 @@ public class DocToBeanMapper implements IMapper {
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
+
+		dao = daoFactory.getDao(IEntity.class);
 
 		daoSpatialReference = daoFactory.getDao(SpatialReference.class);
 		daoSearchtermObj = daoFactory.getDao(SearchtermObj.class);
@@ -1895,5 +1901,42 @@ public class DocToBeanMapper implements IMapper {
 		ref.setLine(line);
 
 		return ref;
+	}
+
+	public void updateT08Attrs(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> attrDocs = (List) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (attrDocs == null) {
+			attrDocs = new ArrayList<IngridDocument>(0);
+		}
+
+		Set<T08Attr> attrs = oIn.getT08Attrs();
+		ArrayList<T08Attr> attrs_unprocessed = new ArrayList<T08Attr>(attrs);
+
+		for (IngridDocument attrDoc : attrDocs) {
+			boolean found = false;
+			Long attrDoc_typeId = (Long) attrDoc.get(MdekKeys.FIELD_IDENTIFIER);
+			String attrDoc_data = attrDoc.getString(MdekKeys.FIELD_VALUE);
+			for (T08Attr attr : attrs) {
+				if (attr.getAttrTypeId().equals(attrDoc_typeId)) {
+					found = true;
+					attr.setData(attrDoc_data);
+					attrs_unprocessed.remove(attr);
+					break;
+				}
+			}
+			if (!found) {
+				T08Attr attr = new T08Attr();
+				attr.setObjId(oIn.getId());
+				attr.setAttrTypeId(attrDoc_typeId);			
+				attr.setData(attrDoc_data);
+				attrs.add(attr);
+			}
+		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (T08Attr attr : attrs_unprocessed) {
+			attrs.remove(attr);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(attr);
+		}		
 	}
 }

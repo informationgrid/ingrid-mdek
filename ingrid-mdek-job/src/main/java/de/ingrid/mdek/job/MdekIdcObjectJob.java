@@ -322,10 +322,19 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				} else {
 					oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 				}
-				T01Object oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-				 // save it to generate id needed for mapping
-				daoT01Object.makePersistent(oWork);
 				
+				// create BASIC working object
+				T01Object oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+				// save it to generate id needed for mapping of associations
+				daoT01Object.makePersistent(oWork);
+
+				// also set t08_attrs ONCE -> NEVER MAPPED VIA OBJECT MAPPING !
+				if (oPub != null) {
+					docToBeanMapper.updateT08Attrs(
+							beanToDocMapper.mapT08Attrs(oPub.getT08Attrs(), new IngridDocument()),
+							oWork);					
+				}
+
 				// update node
 				oNode.setObjId(oWork.getId());
 				oNode.setT01ObjectWork(oWork);

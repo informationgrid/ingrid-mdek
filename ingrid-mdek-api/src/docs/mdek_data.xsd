@@ -118,6 +118,8 @@
 
 			<!-- holds permissions of user on entity -->
 			<xs:element name="idc-permissions" type="PERMISSION_LIST"/>
+			
+			<xs:element name="additional-fields" type="ADDITIONAL_FIELD_LIST"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -430,6 +432,18 @@
 			<xs:element name="PERMISSION_MAP" type="PERMISSION_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="ADDITIONAL_FIELD_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ADDITIONAL_FIELD_MAP" type="ADDITIONAL_FIELD_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ADDITIONAL_FIELD_MAP">
+		<xs:sequence>
+			<xs:element name="field-identifier" type="xs:long"/>
+			<xs:element name="field-value" type="xs:string"/>
+			<xs:element name="field-name" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>	
 	<xs:complexType name="RESULT_RUNNING_JOBS_MAP">
 		<xs:all>
 			<xs:element name="runningjob-description" type="xs:string"/>

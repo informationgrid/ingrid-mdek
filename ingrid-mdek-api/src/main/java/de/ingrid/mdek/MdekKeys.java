@@ -203,7 +203,8 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String RUNNINGJOB_CANCELED_BY_USER = "runningjob-canceled-by-user";
 
-    
+    // Generic
+    // -------
     /** Value: Long */
     public final static String ID = "id";
     /** the uuid of the entity (object or address)<br>
@@ -654,7 +655,16 @@ public class MdekKeys {
     public final static String CREATE_USER = "create-user";
     /** Value: String */
     public final static String CREATE_TIME = "create-time";
-    
+
+    // ADDITIONAL FIELDS
+    /** Value: List of IngridDocs */
+    public final static String ADDITIONAL_FIELDS = "additional-fields";
+    /** Value: Long  */
+    public final static String FIELD_IDENTIFIER = "field-identifier";
+    /** Value: String  */
+    public final static String FIELD_VALUE = "field-value";
+    /** Value: String  */
+    public final static String FIELD_NAME = "field-name";
     
     // CATALOG DATA
     /** Value: String */

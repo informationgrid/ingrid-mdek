@@ -239,6 +239,55 @@ class MdekExampleQueryThread extends Thread {
 			isRunning = false;
 			return;
 		}
+
+// -----------------------------------
+
+		// T08_Attrs
+		// ---------
+
+		String hqlQueryObj = "select distinct oNode.objUuid, obj.objName, attrType.name, attr.data, attr.attrTypeId " +
+			"from ObjectNode oNode " +
+			"join oNode.t01ObjectWork obj " +
+			"join obj.t08Attrs attr " +
+			"join attr.t08AttrType attrType " +
+			"where " +
+			"attrType.name like '%daten%' " +
+			"and attr.data like '%daten%' " +
+			"order by obj.objName, attrType.name";
+
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- search objects by hql query -----");
+		supertool.queryHQL(hqlQueryObj, 0, 10);
+
+		System.out.println("\n----- search objects by hql to csv -----");
+		supertool.queryHQLToCsv(hqlQueryObj);
+
+		System.out.println("\n----- fetch object details -----");
+		uuid = "7F15DD44-6C51-11D8-AF71-00300531999B";
+//		uuid = "DA5ADBC1-846A-470F-A4C2-AF28CD77F2EC";
+		IngridDocument oMap = supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		
+		System.out.println("\n----- TEST: take over T08 attribs from published to working version ! -----");
+
+		System.out.println("\n----- store unchanged object and refetch -> t08_attrs taken over to working version ! -----");
+		supertool.storeObject(oMap, true);
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(uuid, false);
+
+		System.out.println("\n----- TEST: keep T08 attribs in published version when publishing ! -----");
+
+		System.out.println("\n----- fetch object details -----");
+		doc = supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- remove t08 attribs (in doc) and publish -> no change of T08 attribs -----");
+		doc.remove(MdekKeys.ADDITIONAL_FIELDS);
+		supertool.publishObject(doc, true, false);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 */
 // ===================================
 
