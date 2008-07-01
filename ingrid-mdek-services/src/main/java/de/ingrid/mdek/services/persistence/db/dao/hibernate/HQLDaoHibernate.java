@@ -125,27 +125,28 @@ public class HQLDaoHibernate
 				.list();
 		}
 
-		// our csv writer !
 		StringWriter sw = new StringWriter();
-		ExcelCSVPrinter ecsvp = null;
-		for (Object hit : hits) {
+		try {
+			// our csv writer !
+			ExcelCSVPrinter ecsvp = null;
+			for (Object hit : hits) {
+				if (ecsvp == null) {
+					// START !!!
+					ecsvp = new ExcelCSVPrinter(sw);
 
-			if (ecsvp == null) {
-				// START !!!
-				ecsvp = new ExcelCSVPrinter(sw);
+					List<String> titles = extractCsvTitles(qString.substring(0, fromStartIndex), hit);
+					ecsvp.writeln(titles.toArray(new String[titles.size()]));
+				}
 
-				List<String> titles = extractCsvTitles(qString.substring(0, fromStartIndex), hit);
-				ecsvp.println(titles.toArray(new String[titles.size()]));
+				List<String> csvValues = extractCsvValues(hit);
+				ecsvp.writeln(csvValues.toArray(new String[csvValues.size()]));
 			}
 
-			List<String> csvValues = extractCsvValues(hit);
-			ecsvp.println(csvValues.toArray(new String[csvValues.size()]));
-		}
-
-		try {
 			ecsvp.close();			
+			
 		} catch (Exception ex) {
-			LOG.error("Problems closing ExcelCSVPrinter !", ex);
+			LOG.error("Problems writing csv file !", ex);
+			throw new MdekException(new MdekError(MdekErrorType.CSV_WRITER_PROBLEMS));
 		}
 
 		IngridDocument result = new IngridDocument();

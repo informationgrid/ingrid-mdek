@@ -73,6 +73,8 @@ public class MdekError implements Serializable {
 
 		/** entered HQL not valid for "Datenbanksuche" */
 		HQL_NOT_VALID("61"),
+		/** problems writing csv files */
+		CSV_WRITER_PROBLEMS("62"),
 
 		/** List key has to be -1 if "freier Eintrag", never NULL ! */
 		LIST_KEY_NULL_NOT_ALLOWED("101"),
