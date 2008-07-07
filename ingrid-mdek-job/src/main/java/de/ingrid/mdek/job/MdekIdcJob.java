@@ -42,7 +42,7 @@ public abstract class MdekIdcJob extends MdekJob {
 			IngridDocument resultDoc = new IngridDocument();
 
 			// extract version properties from version.properties
-			ResourceBundle resourceBundle = ResourceBundle.getBundle("version");   
+			ResourceBundle resourceBundle = ResourceBundle.getBundle("mdek-job-version");   
 			Enumeration<String> keys = resourceBundle.getKeys();
 			while (keys.hasMoreElements()) {
 				String key = keys.nextElement();

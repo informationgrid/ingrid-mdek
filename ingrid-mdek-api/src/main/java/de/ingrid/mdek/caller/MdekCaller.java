@@ -121,7 +121,7 @@ public class MdekCaller implements IMdekCaller {
 
 		// then version of api (in client)
 		// NOTICE: has to have different property names !
-		ResourceBundle resourceBundle = ResourceBundle.getBundle("version");   
+		ResourceBundle resourceBundle = ResourceBundle.getBundle("mdek-api-version");   
 		Enumeration<String> keys = resourceBundle.getKeys();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();

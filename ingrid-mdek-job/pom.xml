@@ -75,7 +75,7 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<includes>
-					<include>version.properties</include>
+					<include>mdek-job-version.properties</include>
 				</includes>
 			</resource>
 		</resources>

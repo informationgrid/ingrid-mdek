@@ -57,7 +57,7 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<includes>
-					<include>version.properties</include>
+					<include>mdek-api-version.properties</include>
 					<include>ehcache.xml</include>
 <!-- Enable for temporary debugging in mdek-api classes, disable for release ! -->
 					<!--include>log4j.properties</include-->
