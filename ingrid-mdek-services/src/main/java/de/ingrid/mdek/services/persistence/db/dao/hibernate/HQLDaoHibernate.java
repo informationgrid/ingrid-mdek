@@ -142,7 +142,9 @@ public class HQLDaoHibernate
 				ecsvp.writeln(csvValues.toArray(new String[csvValues.size()]));
 			}
 
-			ecsvp.close();			
+			if (ecsvp != null) {
+				ecsvp.close();
+			}
 			
 		} catch (Exception ex) {
 			LOG.error("Problems writing csv file !", ex);
