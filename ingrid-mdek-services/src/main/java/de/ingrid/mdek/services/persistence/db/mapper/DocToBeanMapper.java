@@ -236,11 +236,17 @@ public class DocToBeanMapper implements IMapper {
 		oIn.setObjClass((Integer) oDocIn.get(MdekKeys.CLASS));
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
 		oIn.setWorkState((String) oDocIn.get(MdekKeys.WORK_STATE));
+		oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+
+		// stuff only set if NEW object !
 		String creationDate = (String) oDocIn.get(MdekKeys.DATE_OF_CREATION);
 		if (creationDate != null) {
 			oIn.setCreateTime(creationDate);				
 		}
-		oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+		Long catId = (Long) oDocIn.get(MdekKeys.CATALOGUE_IDENTIFIER);
+		if (catId != null) {
+			oIn.setCatId(catId);				
+		}
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 				howMuch == MappingQuantity.COPY_ENTITY)
@@ -309,7 +315,6 @@ public class DocToBeanMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
 			oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
-			oIn.setCatId((Long) oDocIn.get(MdekKeys.CATALOGUE_IDENTIFIER));
 			oIn.setDatasetCharacterSet((Integer) oDocIn.get(MdekKeys.DATASET_CHARACTER_SET));
 			oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));
 			oIn.setMetadataStandardName((String) oDocIn.get(MdekKeys.METADATA_STANDARD_NAME));

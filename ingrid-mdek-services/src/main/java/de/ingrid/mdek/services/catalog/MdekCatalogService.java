@@ -48,6 +48,11 @@ public class MdekCatalogService {
 		return catalog;
 	}
 
+	/** Get ID of catalog (id not uuid!). NOTICE: transaction must be active when called the first time ! */
+	public Long getCatalogId() {
+		return getCatalog().getId();
+	}
+
 	/** Get language of catalog. NOTICE: transaction must be active when called the first time ! */
 	public String getCatalogLanguage() {
 		return getCatalog().getLanguageCode();

@@ -1885,6 +1885,7 @@ public class MdekExampleSupertool {
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 			+ ", modUser: " + extractModUserData((IngridDocument)o.get(MdekKeys.MOD_USER))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
+			+ ", cat_id: " + o.get(MdekKeys.CATALOGUE_IDENTIFIER)
 		);
 
 		System.out.println("  " + o);

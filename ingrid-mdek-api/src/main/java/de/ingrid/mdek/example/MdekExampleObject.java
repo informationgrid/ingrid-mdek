@@ -135,6 +135,8 @@ class MdekExampleObjectThread extends Thread {
 //		String objUuid = "15C69C29-FE15-11D2-AF34-0060084A4596";
 		
 		IngridDocument oMap;
+		IngridDocument newObjDoc;
+		String newObjUuid;
 
 		//System.out.println("\n###### INVOKE testMdekEntity ######");
 		//mdekCaller.testMdekEntity(threadNumber);
@@ -399,6 +401,62 @@ class MdekExampleObjectThread extends Thread {
 			return;
 		}
 
+// -----------------------------------
+
+		// check storing of cat_id when creating new object !
+
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- STORE new top object -> working copy ! -----");
+		System.out.println("\n----- initial data for TOP OBJECT -----");
+		newObjDoc = new IngridDocument();
+		newObjDoc = supertool.getInitialObject(newObjDoc);
+		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT STORE");
+		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+
+		System.out.println("\n----- STORE new top object -> working copy ! -----");
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- then publish -----");
+		newObjDoc = supertool.publishObject(newObjDoc, true, false);
+
+		System.out.println("\n----- delete NEW TOP OBJECT (FULL) -----");
+		supertool.deleteObject(newObjUuid, true);
+
+		
+		System.out.println("\n----- publish NEW TOP OBJECT immediately -----");
+		System.out.println("----- first get initial top object -----");
+		newObjDoc = new IngridDocument();
+		newObjDoc = supertool.getInitialObject(newObjDoc);
+		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT DIREKT PUBLISH");
+		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+
+		System.out.println("----- then publish -----");
+		newObjDoc = supertool.publishObject(newObjDoc, true, false);
+		// uuid created !
+		newObjUuid = (String)newObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- delete NEW TOP OBJECT (FULL) -----");
+		supertool.deleteObject(newObjUuid, true);
+
+		
+		System.out.println("\n----- copy object (without subnodes) -> returns only TREE Data of object -----");
+		oMap = supertool.copyObject("3866463B-B449-11D2-9A86-080000507261", null, false);
+		// uuid created !
+		newObjUuid = (String)oMap.get(MdekKeys.UUID);
+
+		System.out.println("\n----- object details -----");
+		supertool.fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- delete NEW TOP OBJECT (FULL) -----");
+		supertool.deleteObject(newObjUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
 // ====================
 */
 		// -----------------------------------
@@ -457,7 +515,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n----- check load initial data for TOP OBJECT -----");
 		// set no parent
-		IngridDocument newObjDoc = new IngridDocument();
+		newObjDoc = new IngridDocument();
 		supertool.getInitialObject(newObjDoc);
 
 		System.out.println("\n----- check load initial data from parent " + objUuid + " -----");
@@ -482,7 +540,7 @@ class MdekExampleObjectThread extends Thread {
 		terms.add(newTerm);
 		newObjDoc = storeObjectWithManipulation(newObjDoc);
 		// uuid created !
-		String newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
+		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- check publish WITHOUT Auskunft Address ! -> Error AUSKUNFT_ADDRESS_NOT_SET -----");
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, null);

@@ -302,6 +302,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
+				// NOTICE: don't add further data, is done below when checking working copy !
 			}
 			
 			// load node
@@ -312,15 +313,17 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			
 			// get/create working copy
 			if (!hasWorkingCopy(oNode)) {
-				// no working copy yet, create new object with BASIC data
+				// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
 
-				// set some missing data which may not be passed from client.
-				// set from published version if existent
+				// set some missing data which is NOT passed from client.
+				// set from published version if existent.
 				T01Object oPub = oNode.getT01ObjectPublished();
 				if (oPub != null) {
 					oDocIn.put(MdekKeys.DATE_OF_CREATION, oPub.getCreateTime());				
+					oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, oPub.getCatId());
 				} else {
 					oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+					oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, catalogService.getCatalogId());
 				}
 				
 				// create BASIC working object
@@ -328,7 +331,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				// save it to generate id needed for mapping of associations
 				daoT01Object.makePersistent(oWork);
 
-				// also set t08_attrs ONCE -> NEVER MAPPED VIA OBJECT MAPPING !
+				// also SAVE t08_attrs from published in work version (copy) -> NOT MAPPED VIA 
+				// docToBeanMapper (at the moment NOT part of UI) !
+				// we do this, so querying t08_attribs in edited objects (working version) works (otherwise
+				// could only be queried in published version) !
+				// NOTICE: when publishing the work version, its t08_attribs aren't mapped (the OLD published
+				// object is loaded containing the original t08_attrs) !
 				if (oPub != null) {
 					docToBeanMapper.updateT08Attrs(
 							beanToDocMapper.mapT08Attrs(oPub.getT08Attrs(), new IngridDocument()),
@@ -454,7 +462,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			if (oPub == null) {
 				// set some missing data which may not be passed from client.
 				oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
-				
+				oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, catalogService.getCatalogId());
+
 				// create new object with BASIC data
 				oPub = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
 				 // save it to generate id needed for mapping
