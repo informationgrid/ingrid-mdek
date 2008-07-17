@@ -77,7 +77,7 @@ public class SpatialRefValueDaoHibernate
 			"where spRefVal.type = '" + SpatialReferenceType.FREI.getDbValue() + "' " +
 			"and spRef.objId = " + objId;
 
-		// null keys not allowed ! all freie eintraege have -1 as key !
+		// null keys not allowed ! all freie eintraege have a key !
 		if (nameKey == null) {
 			throw new MdekException(new MdekError(MdekErrorType.LIST_KEY_NULL_NOT_ALLOWED));
 		}

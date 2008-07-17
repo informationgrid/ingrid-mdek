@@ -162,7 +162,7 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.CLASS, o.getObjClass());
 		objectDoc.put(MdekKeys.TITLE, o.getObjName());
 		objectDoc.put(MdekKeys.WORK_STATE, o.getWorkState());
-		// also cat_ID, just to track in test suite !
+		// needed when copying objects ! we always map to track in test suite !
 		objectDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, o.getCatId());
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
