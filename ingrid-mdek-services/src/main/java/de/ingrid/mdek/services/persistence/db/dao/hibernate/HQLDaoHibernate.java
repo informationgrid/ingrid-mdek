@@ -173,8 +173,9 @@ public class HQLDaoHibernate
 		// check DML statements !
 		// ----------
 		String hqlUPPERCASE = hqlQuery.toUpperCase();
+		// add blank at end to avoid conflict with e.g. markDeleted column
 		String[] notAllowed_UPPERCASE = new String[] {
-			"DELETE", "UPDATE", "INSERT"
+			"DELETE ", "UPDATE ", "INSERT "
 		};
 		for (String noGo : notAllowed_UPPERCASE) {
 			if (hqlUPPERCASE.indexOf(noGo) != -1) {

@@ -179,6 +179,15 @@ class MdekExampleQueryThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		System.out.println("\n----- search objects via full text (searchterm is syslist entry !) -----");
+		supertool.queryObjectsFullText("Dessau (District)", 0, 20);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+// -----------------------------------
+
 		// Erweiterte Suche: Zeit
 		// ----------------------
 
@@ -242,8 +251,47 @@ class MdekExampleQueryThread extends Thread {
 
 // -----------------------------------
 
-		// T08_Attrs
-		// ---------
+		// T08_Attrs test 1 (SH catalog)
+		// ----------------
+
+		String hqlQueryObj = "select distinct OBJNODE.objUuid, OBJ.objUuid, OBJ.objName, OBJ.objClass, " +
+			"T08T_1.name, T08_1.data " +
+			", T08T_2.name, T08_2.data " +
+			"from " +
+			"ObjectNode OBJNODE " +
+			"join OBJNODE.t01ObjectWork OBJ " +
+			"left join OBJ.t08Attrs T08_1 " +
+			"left join OBJ.t08Attrs T08_2 " +
+			"left join T08_1.t08AttrType T08T_1 " +
+			"left join T08_2.t08AttrType T08T_2 " +
+			"where " +
+			"upper(T08T_1.name) like 'DATEN NUTZUNG/PFLEGE' " +
+			"and upper(T08_1.data) like 'NUTZUNG' " +
+			"and upper(T08T_2.name) like 'PERSONENKREIS%ZIELGRUPPE' " +
+			"and upper(T08_2.data) like 'LANUINTERN' " +
+			"and OBJ.markDeleted != 'Y' " +
+			"order by OBJ.objName";
+
+		// ist das resultat obiger query
+		uuid = "672E78C5-B399-11D8-92B8-0030052557A8";
+
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- search objects by hql query -----");
+		supertool.queryHQL(hqlQueryObj, 0, 10);
+
+		System.out.println("\n----- fetch object details -----");
+		IngridDocument oMap = supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// -----------------------------------
+
+		// T08_Attrs test 2 (SH catalog)
+		// ----------------
 
 		String hqlQueryObj = "select distinct oNode.objUuid, obj.objName, attrType.name, attr.data, attr.attrTypeId " +
 			"from ObjectNode oNode " +
