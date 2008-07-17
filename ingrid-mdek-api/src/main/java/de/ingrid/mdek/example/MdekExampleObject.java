@@ -153,6 +153,18 @@ class MdekExampleObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		// Fehler beim Laden Objekt
+		System.out.println("\n----- object details -----");
+//		oMap = supertool.fetchObject("38664938-B449-11D2-9A86-080000507261", Quantity.DETAIL_ENTITY);
+		oMap = supertool.fetchObject("909581C0-9540-4480-A2A3-F93D43ACC20C", Quantity.DETAIL_ENTITY);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// -----------------------------------
+
 		// track server job !
 		// ------------------
 		boolean timeout = false;
@@ -364,17 +376,6 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n----- verify from object, no working version and references to object again ! -----");
 		supertool.fetchObject(objFrom, Quantity.DETAIL_ENTITY);
-
-		if (alwaysTrue) {
-			isRunning = false;
-			return;
-		}
-
-// -----------------------------------
-
-		// Fehler beim Laden Objekt
-		System.out.println("\n----- object details -----");
-		oMap = supertool.fetchObject("38664938-B449-11D2-9A86-080000507261", Quantity.DETAIL_ENTITY);
 
 		if (alwaysTrue) {
 			isRunning = false;
