@@ -153,10 +153,14 @@ class MdekExampleObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-		// Fehler beim Laden Objekt
+		// Test / Fehler beim Laden Objekt ?
+		
+		supertool.setFullOutput(true);
+
 		System.out.println("\n----- object details -----");
 //		oMap = supertool.fetchObject("38664938-B449-11D2-9A86-080000507261", Quantity.DETAIL_ENTITY);
-		oMap = supertool.fetchObject("909581C0-9540-4480-A2A3-F93D43ACC20C", Quantity.DETAIL_ENTITY);
+//		oMap = supertool.fetchObject("909581C0-9540-4480-A2A3-F93D43ACC20C", Quantity.DETAIL_ENTITY);
+		oMap = supertool.fetchObject("087855F8-9A52-11D6-BE8E-00D0B783B9AA", Quantity.DETAIL_ENTITY);
 
 		if (alwaysTrue) {
 			isRunning = false;

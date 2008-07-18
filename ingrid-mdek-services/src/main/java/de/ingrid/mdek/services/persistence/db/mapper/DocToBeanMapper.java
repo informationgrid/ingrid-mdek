@@ -701,8 +701,9 @@ public class DocToBeanMapper implements IMapper {
 		// NOTICE: Freie Raumbezuege (SpatialRefValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
 		// Selbst wenn der identische Freie Raumbezug vorhanden ist. Beim Loeschen des Objektes wird nur die Referenz (SpatialReference)
 		// geloescht (cascade nicht moeglich, da hier auch Thesaurusbegriffe drin stehen, die erhalten bleiben sollen ! bei denen wird
-		// der vorhandene Thesaurus Begriff genommen, wenn schon da; dies ist bei Freien nicht moeglich, da die ja Objektspezifisch
-		// geaendert werden koennen). -> Aufraeum Job noetig ! 
+		// der vorhandene Thesaurus Begriff genommen, wenn schon da; dies ist bei Freien nicht moeglich, da die ja objektspezifisch
+		// geaendert werden koennen -> vom Frontend kommen immer die akt. Freien, die Prüfung ob Freier schon da erfolgt dann über fast
+		// alle Attribute, bis auf BBox Koordinaten, wenn gefunden, werden also die BBox Koords aktualisiert). -> Aufraeum Job noetig !
 		// TODO: Aufraeum Job noetig, der Freie Raumbezug Leichen (in SpatialRefValue) beseitigt !!!
 		SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, locCode, objectId);
 		mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
