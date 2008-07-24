@@ -29,6 +29,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
@@ -237,11 +238,11 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 
 	public IngridDocument storeGroup(IngridDocument gDocIn) {
-		String userId = getCurrentUserUuid(gDocIn);
+		String userUuid = getCurrentUserUuid(gDocIn);
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
 
@@ -251,13 +252,18 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// set common data to transfer !
 			gDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			beanToDocMapper.mapModUser(userId, gDocIn, MappingQuantity.INITIAL_ENTITY);
+			beanToDocMapper.mapModUser(userUuid, gDocIn, MappingQuantity.INITIAL_ENTITY);
 			
 			// exception if group not existing
 			IdcGroup grp = daoIdcGroup.getGroupDetails(grpId);
 			if (grp == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
+
+			// perform checks, concerning removed data !
+
+			// check removed object/address/user permissions
+			checkRemovedPermissions(grp, gDocIn, userUuid);
 			
 			// transfer new data AND MAKE PERSISTENT, so oncoming checks have newest data !
 			docToBeanMapperSecurity.mapIdcGroup(gDocIn, grp, MappingQuantity.DETAIL_ENTITY);
@@ -292,7 +298,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userUuid);				
 			}
 		}
 	}
@@ -816,6 +822,69 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	}
 
 	/**
+	 * Validate whether the removed permissions of the given group are ok or whether the user
+	 * is not allowed to remove the object/address/user permission. This is the case if
+	 * the user doesn't have write permissions on a removed object/address or doesn't have
+	 * the removed user permission himself (e.g. create root)
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkRemovedPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		checkRemovedObjectPermissions(oldGrp, newGrpDoc, userUuid);
+		checkRemovedAddressPermissions(oldGrp, newGrpDoc, userUuid);
+		checkRemovedUserPermissions(oldGrp, newGrpDoc, userUuid);
+	}
+
+	/**
+	 * Validate whether the removed object permissions of the given group are ok or whether
+	 * the user is not allowed to remove the object permission. This is the case if the 
+	 * user doesn't have write permission on a removed object.
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkRemovedObjectPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		List<PermissionObj> removedPerms = 
+			permHandler.getRemovedObjectPermissionsOfGroup(oldGrp, newGrpDoc);
+		for (PermissionObj removedPerm : removedPerms) {
+			permHandler.checkWritePermissionForObject(removedPerm.getUuid(), userUuid);
+		}
+	}
+
+	/**
+	 * Validate whether the removed address permissions of the given group are ok or whether
+	 * the user is not allowed to remove the address permission. This is the case if the 
+	 * user doesn't have write permission on a removed address.
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkRemovedAddressPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		List<PermissionAddr> removedPerms = 
+			permHandler.getRemovedAddressPermissionsOfGroup(oldGrp, newGrpDoc);
+		for (PermissionAddr removedPerm : removedPerms) {
+			permHandler.checkWritePermissionForAddress(removedPerm.getUuid(), userUuid);
+		}
+	}
+
+	/**
+	 * Validate whether the removed user permissions of the given group are ok or whether
+	 * the user is not allowed to remove the user permission. This is the case if the 
+	 * user doesn't have the user permission himself (e.g. create root).
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkRemovedUserPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		List<IdcUserPermission> removedPerms = 
+			permHandler.getRemovedUserPermissionsOfGroup(oldGrp, newGrpDoc);
+		for (IdcUserPermission removedPerm : removedPerms) {
+			permHandler.checkUserHasUserPermission(userUuid, removedPerm.getPermission());			
+		}
+	}
+
+	/**
 	 * Validate whether the assigned permissions of the given group are ok or whether there are
 	 * conflicts (e.g. "write" underneath "write-tree"). THROWS EXCEPTION IF A CONFLICT OCCURS
 	 * WITH DETAILED DATA ABOUT CONFLICT.
@@ -853,9 +922,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			}
 
 			// separate uuids by permission type
-			if (permService.isEqualPermissions(p, pTemplateSingle)) {
+			if (permService.isEqualPermission(p, pTemplateSingle)) {
 				uuidsSingle.add(oUuid);
-			} else if (permService.isEqualPermissions(p, pTemplateTree)) {
+			} else if (permService.isEqualPermission(p, pTemplateTree)) {
 				uuidsTree.add(oUuid);
 			}
 		}
@@ -927,9 +996,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			}
 
 			// separate uuids by permission type
-			if (permService.isEqualPermissions(p, pTemplateSingle)) {
+			if (permService.isEqualPermission(p, pTemplateSingle)) {
 				uuidsSingle.add(aUuid);
-			} else if (permService.isEqualPermissions(p, pTemplateTree)) {
+			} else if (permService.isEqualPermission(p, pTemplateTree)) {
 				uuidsTree.add(aUuid);
 			}
 		}

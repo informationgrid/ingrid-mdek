@@ -87,14 +87,16 @@ public class MdekError implements Serializable {
 		USER_HAS_NO_VALID_PARENT("1010"),
 		/** user has no PERMISSION for executing the operation on an entity (write, create root etc.) */
 		USER_HAS_NO_PERMISSION_ON_ENTITY("1011"),
+		/** user cannot remove a user permission from group because he does not have the user permission himself */
+		USER_HAS_NO_USER_PERMISSION("1012"),
 		/** user role doesn't allow the operation (e.g. create new MD_ADMIN as MD_ADMIN ...) */
-		USER_HAS_WRONG_ROLE("1012"),
+		USER_HAS_WRONG_ROLE("1013"),
 		/** e.g. parent of user to store/create not valid compared to calling user (not subuser of calling user) */
-		USER_HIERARCHY_WRONG("1013"),
+		USER_HIERARCHY_WRONG("1014"),
 		/** e.g. user to delete has subusers ! */
-		USER_HAS_SUBUSERS("1014"),
+		USER_HAS_SUBUSERS("1015"),
 		/** e.g. user to delete is catalog admin ! */
-		USER_IS_CATALOG_ADMIN("1015"),
+		USER_IS_CATALOG_ADMIN("1016"),
 		
 		/** try to remove a group that has still users attached. errorInfo: list of attached users !
 		 * ALSO DELIVERS IDC USERS OF GROUP */

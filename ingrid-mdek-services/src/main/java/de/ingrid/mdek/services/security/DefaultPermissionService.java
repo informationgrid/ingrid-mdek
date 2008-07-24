@@ -47,7 +47,7 @@ public class DefaultPermissionService implements IPermissionService {
 		List<Permission> l;
 		l = daoPermissionDao.getAddressPermissions(userUuid, ep.getUuid());
 		for (Permission p : l) {
-			if (isEqualPermissions(p, ep.getPermission())) {
+			if (isEqualPermission(p, ep.getPermission())) {
 				return true;
 			}
 		}
@@ -76,7 +76,7 @@ public class DefaultPermissionService implements IPermissionService {
 		List<Permission> l;
 		l = daoPermissionDao.getObjectPermissions(userUuid, ep.getUuid());
 		for (Permission p : l) {
-			if (isEqualPermissions(p, ep.getPermission())) {
+			if (isEqualPermission(p, ep.getPermission())) {
 				return true;
 			}
 		}
@@ -104,7 +104,7 @@ public class DefaultPermissionService implements IPermissionService {
 		IPermissionDao daoPermissionDao = daoFactory.getPermissionDao();
 		List<Permission> l = daoPermissionDao.getUserPermissions(userUuid);
 		for (Permission p : l) {
-			if (isEqualPermissions(p, pIn)) {
+			if (isEqualPermission(p, pIn)) {
 				return true;
 			}
 		}
@@ -238,29 +238,29 @@ public class DefaultPermissionService implements IPermissionService {
 
 	public String getPermIdClientByPermission(Permission p) {
 		String pIdClient = null;
-		if (isEqualPermissions(p, PermissionFactory.getPermissionTemplateSingle())) {
+		if (isEqualPermission(p, PermissionFactory.getPermissionTemplateSingle())) {
 			pIdClient = IdcPermission.WRITE_SINGLE.getDbValue();
-		} else if (isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 			pIdClient = IdcPermission.WRITE_TREE.getDbValue();
-		} else if (isEqualPermissions(p, PermissionFactory.getPermissionTemplateCreateRoot())) {
+		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateCreateRoot())) {
 			pIdClient = IdcPermission.CREATE_ROOT.getDbValue();
-		} else if (isEqualPermissions(p, PermissionFactory.getPermissionTemplateQA())) {
+		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateQA())) {
 			pIdClient = IdcPermission.QUALITY_ASSURANCE.getDbValue();
 		}
 	
 		return pIdClient;
 	}
 
-	public boolean isEqualPermissions(Permission p1, Permission p2) {
+	/** returns false if a passed permission is null. don't pass empty permissions */
+	public boolean isEqualPermission(Permission p1, Permission p2) {
 		if (p1 == null || p2 == null) {
 			return false;
 		}
 		if (p1.getAction().equals(p2.getAction()) && p1.getClassName().equals(p2.getClassName())
 				&& p1.getName().equals(p2.getName())) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	public IdcUser getCatalogAdmin() {

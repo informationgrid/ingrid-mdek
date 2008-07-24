@@ -2,6 +2,7 @@ package de.ingrid.mdek.job.tools;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -12,9 +13,13 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
+import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
+import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
+import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 import de.ingrid.mdek.services.security.EntityPermission;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
@@ -31,6 +36,8 @@ public class MdekPermissionHandler {
 	private IPermissionService permService;
 	protected IIdcUserDao daoIdcUser;
 
+	protected DocToBeanMapperSecurity docToBeanMapperSecurity;
+
 	private static MdekPermissionHandler myInstance;
 
 	/** Get The Singleton */
@@ -46,6 +53,8 @@ public class MdekPermissionHandler {
 		this.permService = permissionService;
 		
 		daoIdcUser = daoFactory.getIdcUserDao();
+
+		docToBeanMapperSecurity = DocToBeanMapperSecurity.getInstance(daoFactory, permissionService);
 	}
 
 	/**
@@ -155,6 +164,115 @@ public class MdekPermissionHandler {
 		return perms;
 	}
 
+	public List<PermissionObj> getRemovedObjectPermissionsOfGroup(IdcGroup oldGrp, IngridDocument newGrpDoc) {
+		List<PermissionObj> removedPerms = new ArrayList<PermissionObj>();
+		
+		Set<PermissionObj> oldPerms = oldGrp.getPermissionObjs();
+		
+		IdcGroup newGrp = new IdcGroup();
+		docToBeanMapperSecurity.updatePermissionObjs(newGrpDoc, newGrp);
+		Set<PermissionObj> newPerms = newGrp.getPermissionObjs();
+		
+		for (PermissionObj oldPerm : oldPerms) {
+			boolean removed = true;
+			for (PermissionObj newPerm : newPerms) {
+				if (isEqualPermissionObj(oldPerm, newPerm)) {
+					removed = false;
+					break;
+				}
+			}
+			if (removed) {
+				removedPerms.add(oldPerm);
+			}
+		}
+		
+		return removedPerms;
+	}
+
+	public List<PermissionAddr> getRemovedAddressPermissionsOfGroup(IdcGroup oldGrp, IngridDocument newGrpDoc) {
+		List<PermissionAddr> removedPerms = new ArrayList<PermissionAddr>();
+		
+		Set<PermissionAddr> oldPerms = oldGrp.getPermissionAddrs();
+		
+		IdcGroup newGrp = new IdcGroup();
+		docToBeanMapperSecurity.updatePermissionAddrs(newGrpDoc, newGrp);
+		Set<PermissionAddr> newPerms = newGrp.getPermissionAddrs();
+		
+		for (PermissionAddr oldPerm : oldPerms) {
+			boolean removed = true;
+			for (PermissionAddr newPerm : newPerms) {
+				if (isEqualPermissionAddr(oldPerm, newPerm)) {
+					removed = false;
+					break;
+				}
+			}
+			if (removed) {
+				removedPerms.add(oldPerm);
+			}
+		}
+		
+		return removedPerms;
+	}
+
+	public List<IdcUserPermission> getRemovedUserPermissionsOfGroup(IdcGroup oldGrp, IngridDocument newGrpDoc) {
+		List<IdcUserPermission> removedPerms = new ArrayList<IdcUserPermission>();
+		
+		Set<IdcUserPermission> oldPerms = oldGrp.getIdcUserPermissions();
+		
+		IdcGroup newGrp = new IdcGroup();
+		docToBeanMapperSecurity.updateIdcUserPermissions(newGrpDoc, newGrp);
+		Set<IdcUserPermission> newPerms = newGrp.getIdcUserPermissions();
+		
+		for (IdcUserPermission oldPerm : oldPerms) {
+			boolean removed = true;
+			for (IdcUserPermission newPerm : newPerms) {
+				if (isEqualIdcUserPermission(oldPerm, newPerm)) {
+					removed = false;
+					break;
+				}
+			}
+			if (removed) {
+				removedPerms.add(oldPerm);
+			}
+		}
+		
+		return removedPerms;
+	}
+
+	/** returns false if a passed permission is null. don't pass empty permissions. ignores group. */
+	private boolean isEqualPermissionObj(PermissionObj perm1, PermissionObj perm2) {
+		if (perm1 == null || perm2 == null) {
+			return false;
+		}
+		if (perm1.getUuid().equals(perm2.getUuid()) &&
+			perm1.getPermissionId().equals(perm2.getPermissionId())) {
+			return true;				
+		}
+		return false;
+	}
+
+	/** returns false if a passed permission is null. don't pass empty permissions. ignores group. */
+	private boolean isEqualPermissionAddr(PermissionAddr perm1, PermissionAddr perm2) {
+		if (perm1 == null || perm2 == null) {
+			return false;
+		}
+		if (perm1.getUuid().equals(perm2.getUuid()) &&
+			perm1.getPermissionId().equals(perm2.getPermissionId())) {
+			return true;				
+		}
+		return false;
+	}
+
+	/** returns false if a passed permission is null. don't pass empty permissions. ignores group. */
+	private boolean isEqualIdcUserPermission(IdcUserPermission perm1, IdcUserPermission perm2) {
+		if (perm1 == null || perm2 == null) {
+			return false;
+		}
+		if (perm1.getPermissionId().equals(perm2.getPermissionId())) {
+			return true;				
+		}		
+		return false;
+	}
 
 	/**
 	 * Get "user permissions" of given user.
@@ -379,7 +497,7 @@ public class MdekPermissionHandler {
 	 * Checks whether user has WRITE_TREE permission on given object AND THROWS EXCEPTION IF NOT !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
-	public void checkTreePermissionForObject(String objUuid, String userAddrUuid) {
+	private void checkTreePermissionForObject(String objUuid, String userAddrUuid) {
 		if (!hasTreePermissionForObject(objUuid, userAddrUuid)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
@@ -399,9 +517,16 @@ public class MdekPermissionHandler {
 	 * Checks whether user has WRITE_TREE permission on given address AND THROW EXCEPTION IF NOT !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
-	public void checkTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+	private void checkTreePermissionForAddress(String addrUuid, String userAddrUuid) {
 		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
+		}		
+	}
+
+	/** Checks whether user has the given user permission AND THROW EXCEPTION IF NOT ! */
+	public void checkUserHasUserPermission(String userAddrUuid, Permission userPerm) {
+		if (!permService.hasUserPermission(userAddrUuid, userPerm)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_USER_PERMISSION));
 		}		
 	}
 
@@ -463,9 +588,9 @@ public class MdekPermissionHandler {
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
 		
 		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateSingle())) {
+			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSingle())) {
 				return true;
-			} else if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+			} else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
 			}
 		}
@@ -481,7 +606,7 @@ public class MdekPermissionHandler {
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
 		
 		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
 			}
 		}
@@ -497,9 +622,9 @@ public class MdekPermissionHandler {
 		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
 		
 		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateSingle())) {
+			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSingle())) {
 				return true;
-			} else if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+			} else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
 			}
 		}
@@ -515,7 +640,7 @@ public class MdekPermissionHandler {
 		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
 		
 		for (Permission p : perms) {
-			if (permService.isEqualPermissions(p, PermissionFactory.getPermissionTemplateTree())) {
+			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
 			}
 		}

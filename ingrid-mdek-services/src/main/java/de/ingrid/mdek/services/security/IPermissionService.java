@@ -105,7 +105,7 @@ public interface IPermissionService {
 	 * Compares two Permission objects, return true if they are equal, false if
 	 * they are not equal.
 	 */
-	boolean isEqualPermissions(Permission p1, Permission p2);
+	boolean isEqualPermission(Permission p1, Permission p2);
 
 	/**
 	 * Get the catalog administrator.

@@ -164,7 +164,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 			for (PermissionObj ref : refs) {
 				String refUuid = ref.getUuid();
 				Permission refPerm = ref.getPermission();
-				boolean samePermission = permService.isEqualPermissions(inPerm, refPerm);
+				boolean samePermission = permService.isEqualPermission(inPerm, refPerm);
 				if (inUuid.equals(refUuid) && samePermission) {
 					refs_unprocessed.remove(ref);
 					found = true;
@@ -204,7 +204,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 			for (PermissionAddr ref : refs) {
 				String refUuid = ref.getUuid();
 				Permission refPerm = ref.getPermission();
-				boolean samePermission = permService.isEqualPermissions(inPerm, refPerm);
+				boolean samePermission = permService.isEqualPermission(inPerm, refPerm);
 				if (inUuid.equals(refUuid) && samePermission) {
 					refs_unprocessed.remove(ref);
 					found = true;
@@ -242,7 +242,7 @@ public class DocToBeanMapperSecurity implements IMapper {
 			boolean found = false;
 			for (IdcUserPermission ref : refs) {
 				Permission refPerm = ref.getPermission();
-				boolean samePermission = permService.isEqualPermissions(inPerm, refPerm);
+				boolean samePermission = permService.isEqualPermission(inPerm, refPerm);
 				if (samePermission) {
 					refs_unprocessed.remove(ref);
 					found = true;
