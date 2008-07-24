@@ -290,6 +290,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				// create new uuid
 				uuid = UuidGenerator.getInstance().generateUuid();
 				aDocIn.put(MdekKeys.UUID, uuid);
+				// NOTICE: don't add further data, is done below when checking working copy !
 			}
 			
 			// load node
@@ -867,11 +868,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * @param newParentUuid under this node
 	 * @param copySubtree including subtree or not
 	 * @param copyToFreeAddress copy is "free address"
-	 * @param userId current user id needed to update running jobs
+	 * @param userUuid current user id needed to update running jobs
 	 * @return doc containing additional info (copy of source node, number copied nodes ...)
 	 */
 	private IngridDocument createAddressNodeCopy(String sourceUuid, String newParentUuid,
-			boolean copySubtree, boolean copyToFreeAddress, String userId)
+			boolean copySubtree, boolean copyToFreeAddress, String userUuid)
 	{
 		// PERFORM CHECKS
 		
@@ -892,7 +893,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		int totalNumToCopy = 1;
 		if (copySubtree) {
 			totalNumToCopy = daoAddressNode.countSubAddresses(sourceNode.getAddrUuid());
-			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
+			updateRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
 		}
 
 		// check whether we copy to subnode
@@ -926,7 +927,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// copy source work version !
 			String newUuid = UuidGenerator.getInstance().generateUuid();
-			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid);
+			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid, userUuid);
 
 			// Process copy
 			
@@ -953,7 +954,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			numberOfCopiedAddr++;
 			// update our job information ! may be polled from client !
 			// NOTICE: also checks whether job was canceled !
-			updateRunningJob(userId, createRunningJobDescription(
+			updateRunningJob(userUuid, createRunningJobDescription(
 				JOB_DESCR_COPY, numberOfCopiedAddr, totalNumToCopy, false));
 
 			if (nodeCopy == null) {
@@ -1000,7 +1001,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	/**
 	 * Creates a copy of the given T02Address with the given NEW uuid. Already Persisted !
 	 */
-	private T02Address createT02AddressCopy(T02Address sourceAddr, String newUuid) {
+	private T02Address createT02AddressCopy(T02Address sourceAddr, String newUuid, String userUuid) {
 		// create new address with new uuid and save it (to generate id !)
 		T02Address targetAddr = new T02Address();
 		targetAddr.setAdrUuid(newUuid);
@@ -1012,8 +1013,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		IngridDocument sourceAddrDoc =
 			beanToDocMapper.mapT02Address(sourceAddr, new IngridDocument(), MappingQuantity.COPY_ENTITY);
 		
-		// update new data in doc !
+		// update changed data in doc from source for target !
 		sourceAddrDoc.put(MdekKeys.UUID, newUuid);
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
+		sourceAddrDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
+		sourceAddrDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		beanToDocMapper.mapModUser(userUuid, sourceAddrDoc, MappingQuantity.INITIAL_ENTITY);
+		beanToDocMapper.mapResponsibleUser(userUuid, sourceAddrDoc, MappingQuantity.INITIAL_ENTITY);				
 
 		// and transfer data from doc to new bean
 		docToBeanMapper.mapT02Address(sourceAddrDoc, targetAddr, MappingQuantity.COPY_ENTITY);

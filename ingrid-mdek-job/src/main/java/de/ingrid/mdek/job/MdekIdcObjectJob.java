@@ -1217,17 +1217,17 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	 * @param sourceNode copy this node
 	 * @param newParentNode under this node
 	 * @param copySubtree including subtree or not
-	 * @param userId current user id needed to update running jobs
+	 * @param userUuid current user id needed to update running jobs
 	 * @return doc containing additional info (copy of source node, number copied objects ...)
 	 */
 	private IngridDocument createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode,
-			boolean copySubtree, String userId)
+			boolean copySubtree, String userUuid)
 	{
 		// refine running jobs info
 		int totalNumToCopy = 1;
 		if (copySubtree) {
 			totalNumToCopy = daoObjectNode.countSubObjects(sourceNode.getObjUuid());
-			updateRunningJob(userId, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
+			updateRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
 		}
 
 		// check whether we copy to subnode
@@ -1261,7 +1261,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// copy source work version !
 			String newUuid = UuidGenerator.getInstance().generateUuid();
-			T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid);
+			T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid, userUuid);
 			// set in Bearbeitung !
 			targetObjWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
 
@@ -1282,7 +1282,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			numberOfCopiedObj++;
 			// update our job information ! may be polled from client !
 			// NOTICE: also checks whether job was canceled !
-			updateRunningJob(userId, createRunningJobDescription(
+			updateRunningJob(userUuid, createRunningJobDescription(
 				JOB_DESCR_COPY, numberOfCopiedObj, totalNumToCopy, false));
 
 			if (rootNodeCopy == null) {
@@ -1329,7 +1329,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	/**
 	 * Creates a copy of the given T01Object with the given NEW uuid. Already Persisted !
 	 */
-	private T01Object createT01ObjectCopy(T01Object sourceObj, String newUuid) {
+	private T01Object createT01ObjectCopy(T01Object sourceObj, String newUuid, String userUuid) {
 		// create new object with new uuid and save it (to generate id !)
 		T01Object targetObj = new T01Object();
 		targetObj.setObjUuid(newUuid);
@@ -1341,8 +1341,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		IngridDocument sourceObjDoc =
 			beanToDocMapper.mapT01Object(sourceObj, new IngridDocument(), MappingQuantity.COPY_ENTITY);
 		
-		// update new data in doc !
+		// update changed data in doc from source for target !
 		sourceObjDoc.put(MdekKeys.UUID, newUuid);
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
+		sourceObjDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
+		sourceObjDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		beanToDocMapper.mapModUser(userUuid, sourceObjDoc, MappingQuantity.INITIAL_ENTITY);
+		beanToDocMapper.mapResponsibleUser(userUuid, sourceObjDoc, MappingQuantity.INITIAL_ENTITY);				
 
 		// and transfer data from doc to new bean
 		docToBeanMapper.mapT01Object(sourceObjDoc, targetObj, MappingQuantity.COPY_ENTITY);
