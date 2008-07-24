@@ -339,7 +339,7 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapModUser(String userAddrUuid, IngridDocument inDoc,
 			MappingQuantity howMuch) {
 		IngridDocument userDoc = new IngridDocument();
-		mapUserAddress(userAddrUuid, userDoc, howMuch);
+		mapUserAddress(userAddrUuid, userDoc, howMuch, true);
 
 		inDoc.put(MdekKeys.MOD_USER, userDoc);
 
@@ -351,7 +351,7 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapResponsibleUser(String userAddrUuid, IngridDocument inDoc,
 			MappingQuantity howMuch) {
 		IngridDocument userDoc = new IngridDocument();
-		mapUserAddress(userAddrUuid, userDoc, howMuch);
+		mapUserAddress(userAddrUuid, userDoc, howMuch, true);
 
 		inDoc.put(MdekKeys.RESPONSIBLE_USER, userDoc);
 
@@ -359,7 +359,8 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 	private IngridDocument mapUserAddress(String userAddrUuid, IngridDocument inDoc,
-			MappingQuantity howMuch) {
+			MappingQuantity howMuch,
+			boolean throwException) {
 		if (userAddrUuid == null) {
 			return inDoc;
 		}
@@ -372,10 +373,13 @@ public class BeanToDocMapper implements IMapper {
 		AddressNode aN = daoAddressNode.loadByUuid(userAddrUuid);
 		if (aN == null) {
 			LOG.warn("User AddressUuid not found ! userAddrUuid='" + userAddrUuid + "'. We throw UUID_NOT_FOUND Exception.");
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+			if (throwException) {
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));				
+			}
+		} else {
+			// map basic data ! WE DON'T NEED MORE !
+			mapT02Address(aN.getT02AddressWork(), inDoc, MappingQuantity.BASIC_ENTITY);			
 		}
-		// map basic data ! WE DON'T NEED MORE !
-		mapT02Address(aN.getT02AddressWork(), inDoc, MappingQuantity.BASIC_ENTITY);
 		
 		return inDoc;
 	}
@@ -391,7 +395,8 @@ public class BeanToDocMapper implements IMapper {
 			refDoc.put(MdekKeys.CREATE_TIME, ref.getCreateTime());
 
 			// map "create user"
-			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY);
+			// we don't throw Exception if user doesn't exist, may be the case, because isn't replaced when importing
+			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY, false);
 			refDoc.put(MdekKeys.CREATE_USER, userDoc);
 
 			docList.add(refDoc);					
@@ -432,7 +437,8 @@ public class BeanToDocMapper implements IMapper {
 			refDoc.put(MdekKeys.CREATE_TIME, ref.getCreateTime());
 
 			// map "create user"
-			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY);
+			// we don't throw Exception if user doesn't exist, may be the case, because isn't replaced when importing
+			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY, false);
 			refDoc.put(MdekKeys.CREATE_USER, userDoc);
 
 			docList.add(refDoc);					
