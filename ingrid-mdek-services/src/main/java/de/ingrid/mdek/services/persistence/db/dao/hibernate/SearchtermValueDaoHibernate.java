@@ -1,5 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -154,7 +156,16 @@ public class SearchtermValueDaoHibernate
 			q.setLong(nextPos++, searchtermSnsId);			
 		}
 
-		return (SearchtermValue) q.uniqueResult();
+		// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
+		// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
+		// of these names equals true, due to configuration of MySQL !
+		SearchtermValue searchtermVal = null;
+		List<SearchtermValue> searchtermVals = q.list();
+		if (searchtermVals.size() > 0) {
+			searchtermVal = searchtermVals.get(0);
+		}
+
+		return searchtermVal;
 	}
 
 	public SearchtermValue loadOrCreate(String type, String term, SearchtermSns termSns,
