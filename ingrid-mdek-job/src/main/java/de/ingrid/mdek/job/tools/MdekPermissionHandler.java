@@ -239,6 +239,81 @@ public class MdekPermissionHandler {
 		return removedPerms;
 	}
 
+	public List<PermissionObj> getAddedObjectPermissionsOfGroup(IdcGroup oldGrp, IngridDocument newGrpDoc) {
+		List<PermissionObj> addedPerms = new ArrayList<PermissionObj>();
+		
+		Set<PermissionObj> oldPerms = oldGrp.getPermissionObjs();
+		
+		IdcGroup newGrp = new IdcGroup();
+		docToBeanMapperSecurity.updatePermissionObjs(newGrpDoc, newGrp);
+		Set<PermissionObj> newPerms = newGrp.getPermissionObjs();
+		
+		for (PermissionObj newPerm : newPerms) {
+			boolean added = true;
+			for (PermissionObj oldPerm : oldPerms) {
+				if (isEqualPermissionObj(oldPerm, newPerm)) {
+					added = false;
+					break;
+				}
+			}
+			if (added) {
+				addedPerms.add(newPerm);
+			}
+		}
+		
+		return addedPerms;
+	}
+
+	public List<PermissionAddr> getAddedAddressPermissionsOfGroup(IdcGroup oldGrp, IngridDocument newGrpDoc) {
+		List<PermissionAddr> addedPerms = new ArrayList<PermissionAddr>();
+		
+		Set<PermissionAddr> oldPerms = oldGrp.getPermissionAddrs();
+		
+		IdcGroup newGrp = new IdcGroup();
+		docToBeanMapperSecurity.updatePermissionAddrs(newGrpDoc, newGrp);
+		Set<PermissionAddr> newPerms = newGrp.getPermissionAddrs();
+		
+		for (PermissionAddr newPerm : newPerms) {
+			boolean added = true;
+			for (PermissionAddr oldPerm : oldPerms) {
+				if (isEqualPermissionAddr(oldPerm, newPerm)) {
+					added = false;
+					break;
+				}
+			}
+			if (added) {
+				addedPerms.add(newPerm);
+			}
+		}
+		
+		return addedPerms;
+	}
+
+	public List<IdcUserPermission> getAddedUserPermissionsOfGroup(IdcGroup oldGrp, IngridDocument newGrpDoc) {
+		List<IdcUserPermission> addedPerms = new ArrayList<IdcUserPermission>();
+		
+		Set<IdcUserPermission> oldPerms = oldGrp.getIdcUserPermissions();
+		
+		IdcGroup newGrp = new IdcGroup();
+		docToBeanMapperSecurity.updateIdcUserPermissions(newGrpDoc, newGrp);
+		Set<IdcUserPermission> newPerms = newGrp.getIdcUserPermissions();
+		
+		for (IdcUserPermission newPerm : newPerms) {
+			boolean added = true;
+			for (IdcUserPermission oldPerm : oldPerms) {
+				if (isEqualIdcUserPermission(oldPerm, newPerm)) {
+					added = false;
+					break;
+				}
+			}
+			if (added) {
+				addedPerms.add(newPerm);
+			}
+		}
+		
+		return addedPerms;
+	}
+
 	/** returns false if a passed permission is null. don't pass empty permissions. ignores group. */
 	private boolean isEqualPermissionObj(PermissionObj perm1, PermissionObj perm2) {
 		if (perm1 == null || perm2 == null) {

@@ -135,6 +135,12 @@ public class MdekError implements Serializable {
 		NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION("2072"),
 		/** user cannot remove user permission when not having same user permission */
 		NO_RIGHT_TO_REMOVE_USER_PERMISSION("2073"),
+		/** user cannot add address permission when not having write access on address */
+		NO_RIGHT_TO_ADD_OBJECT_PERMISSION("2074"),
+		/** user cannot add object permission when not having write access on object */
+		NO_RIGHT_TO_ADD_ADDRESS_PERMISSION("2075"),
+		/** user cannot add user permission when not having same user permission */
+		NO_RIGHT_TO_ADD_USER_PERMISSION("2076"),
 		;
 
 		MdekErrorType(String errorCode) {

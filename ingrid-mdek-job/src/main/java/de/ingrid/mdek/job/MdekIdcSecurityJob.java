@@ -262,8 +262,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// perform checks, concerning removed data !
 
-			// check removed object/address/user permissions
+			// check removed/added object/address/user permissions
 			checkRemovedPermissions(grp, gDocIn, userUuid);
+			checkAddedPermissions(grp, gDocIn, userUuid);
 			
 			// transfer new data AND MAKE PERSISTENT, so oncoming checks have newest data !
 			docToBeanMapperSecurity.mapIdcGroup(gDocIn, grp, MappingQuantity.DETAIL_ENTITY);
@@ -890,6 +891,79 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		for (IdcUserPermission removedPerm : removedPerms) {
 			if (!permHandler.hasUserPermission(removedPerm.getPermission(), userUuid)) {
 				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_REMOVE_USER_PERMISSION));
+			}
+		}
+	}
+
+	/**
+	 * Validate whether the added permissions of the given group are ok or whether the user
+	 * is not allowed to add an object/address/user permission. This is the case if
+	 * the user doesn't have write permissions on an added object/address or doesn't have
+	 * the removed user permission himself (e.g. create root)
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkAddedPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		checkAddedObjectPermissions(oldGrp, newGrpDoc, userUuid);
+		checkAddedAddressPermissions(oldGrp, newGrpDoc, userUuid);
+		checkAddedUserPermissions(oldGrp, newGrpDoc, userUuid);
+	}
+
+	/**
+	 * Validate whether the added object permissions of the given group are ok or whether
+	 * the user is not allowed to add an object permission. This is the case if the 
+	 * user doesn't have write permission on an added object.
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkAddedObjectPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		List<PermissionObj> addedPerms = 
+			permHandler.getAddedObjectPermissionsOfGroup(oldGrp, newGrpDoc);
+		for (PermissionObj addedPerm : addedPerms) {
+			String objUuid = addedPerm.getUuid();
+			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid)) {
+				IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), objUuid);
+				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_ADD_OBJECT_PERMISSION, errInfo));
+			}
+		}
+	}
+
+	/**
+	 * Validate whether the added address permissions of the given group are ok or whether
+	 * the user is not allowed to add an address permission. This is the case if the 
+	 * user doesn't have write permission on an added address.
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkAddedAddressPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		List<PermissionAddr> addedPerms = 
+			permHandler.getAddedAddressPermissionsOfGroup(oldGrp, newGrpDoc);
+		for (PermissionAddr addedPerm : addedPerms) {
+			String addrUuid = addedPerm.getUuid();
+			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid)) {
+				IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), addrUuid);
+				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_ADD_ADDRESS_PERMISSION, errInfo));
+			}
+		}
+	}
+
+	/**
+	 * Validate whether the added user permissions of the given group are ok or whether
+	 * the user is not allowed to add a user permission. This is the case if the 
+	 * user doesn't have the user permission himself (e.g. create root).
+	 * @param oldGrp group before applying changes
+	 * @param newGrpDoc new group which should be stored
+	 * @param userUuid the user storing the group
+	 */
+	private void checkAddedUserPermissions(IdcGroup oldGrp, IngridDocument newGrpDoc, String userUuid) {
+		List<IdcUserPermission> addedPerms = 
+			permHandler.getAddedUserPermissionsOfGroup(oldGrp, newGrpDoc);
+		for (IdcUserPermission addedPerm : addedPerms) {
+			if (!permHandler.hasUserPermission(addedPerm.getPermission(), userUuid)) {
+				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_ADD_USER_PERMISSION));
 			}
 		}
 	}

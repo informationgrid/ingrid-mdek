@@ -2288,6 +2288,10 @@ public class MdekExampleSupertool {
 				System.out.println("    No right to remove object: " + info.get(MdekKeys.OBJ_ENTITIES));
 			} else if (err.getErrorType().equals(MdekErrorType.NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION)) {
 				System.out.println("    No right to remove address: " + info.get(MdekKeys.ADR_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.NO_RIGHT_TO_ADD_OBJECT_PERMISSION)) {
+				System.out.println("    No right to add object: " + info.get(MdekKeys.OBJ_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.NO_RIGHT_TO_ADD_ADDRESS_PERMISSION)) {
+				System.out.println("    No right to add address: " + info.get(MdekKeys.ADR_ENTITIES));
 			}
 		}
 		doFullOutput = true;
