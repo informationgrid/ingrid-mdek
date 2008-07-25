@@ -822,10 +822,18 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.publishObject(doc, false, false);
 
 		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n-------------------------------------");
 		System.out.println("----- add address/object WRITE_SINGLE permissions to group -----");
 		addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with WRITE_SINGLE permissions) -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		System.out.println("\n----- verify permissions for object -----");
 		supertool.getObjectPermissions(objUuid);
@@ -932,9 +940,17 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.copyObject(objUuid, null, false);
 
 		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n-------------------------------------");
 		System.out.println("----- add user permission CREATE_ROOT to group -----");
 		addUserPermissionToGroupDoc(newGroupDoc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with CREATE_ROOT permissions) -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		System.out.println("\n----- verify user permission -----");
 		supertool.getUserPermissions();
@@ -1025,10 +1041,18 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.moveObject(objUuid, newParentObjUuid, false);
 
 		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n-------------------------------------");
 		System.out.println("----- add user permission WRITE_TREE on target parent -----");
 		addObjPermissionToGroupDoc(newGroupDoc, newParentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		addAddrPermissionToGroupDoc(newGroupDoc, newParentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with WRITE_TREE permissions) -----");
+		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		System.out.println("\n----- verify permissions for object -----");
 		supertool.getObjectPermissions(newParentObjUuid);
