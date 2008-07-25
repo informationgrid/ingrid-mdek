@@ -87,16 +87,14 @@ public class MdekError implements Serializable {
 		USER_HAS_NO_VALID_PARENT("1010"),
 		/** user has no PERMISSION for executing the operation on an entity (write, create root etc.) */
 		USER_HAS_NO_PERMISSION_ON_ENTITY("1011"),
-		/** user cannot remove a user permission from group because he does not have the user permission himself */
-		USER_HAS_NO_USER_PERMISSION("1012"),
 		/** user role doesn't allow the operation (e.g. create new MD_ADMIN as MD_ADMIN ...) */
-		USER_HAS_WRONG_ROLE("1013"),
+		USER_HAS_WRONG_ROLE("1012"),
 		/** e.g. parent of user to store/create not valid compared to calling user (not subuser of calling user) */
-		USER_HIERARCHY_WRONG("1014"),
+		USER_HIERARCHY_WRONG("1013"),
 		/** e.g. user to delete has subusers ! */
-		USER_HAS_SUBUSERS("1015"),
+		USER_HAS_SUBUSERS("1014"),
 		/** e.g. user to delete is catalog admin ! */
-		USER_IS_CATALOG_ADMIN("1016"),
+		USER_IS_CATALOG_ADMIN("1015"),
 		
 		/** try to remove a group that has still users attached. errorInfo: list of attached users !
 		 * ALSO DELIVERS IDC USERS OF GROUP */
@@ -130,7 +128,13 @@ public class MdekError implements Serializable {
 		TREE_BELOW_TREE_ADDRESS_PERMISSION("2062"),
 		/** "write" address permission beneath "write-tree" permission (in a group). errorInfo: two addresses, order determines parent/child !
 		 * ALSO DELIVERS DATA OF PARENT AND SUB ADDRESS */
-		SINGLE_BELOW_TREE_ADDRESS_PERMISSION("2063")
+		SINGLE_BELOW_TREE_ADDRESS_PERMISSION("2063"),
+		/** user cannot remove address permission when not having write access on address */
+		NO_RIGHT_TO_REMOVE_OBJECT_PERMISSION("2071"),
+		/** user cannot remove object permission when not having write access on object */
+		NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION("2072"),
+		/** user cannot remove user permission when not having same user permission */
+		NO_RIGHT_TO_REMOVE_USER_PERMISSION("2073"),
 		;
 
 		MdekErrorType(String errorCode) {

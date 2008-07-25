@@ -823,7 +823,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/**
 	 * Validate whether the removed permissions of the given group are ok or whether the user
-	 * is not allowed to remove the object/address/user permission. This is the case if
+	 * is not allowed to remove an object/address/user permission. This is the case if
 	 * the user doesn't have write permissions on a removed object/address or doesn't have
 	 * the removed user permission himself (e.g. create root)
 	 * @param oldGrp group before applying changes
@@ -838,7 +838,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/**
 	 * Validate whether the removed object permissions of the given group are ok or whether
-	 * the user is not allowed to remove the object permission. This is the case if the 
+	 * the user is not allowed to remove an object permission. This is the case if the 
 	 * user doesn't have write permission on a removed object.
 	 * @param oldGrp group before applying changes
 	 * @param newGrpDoc new group which should be stored
@@ -848,13 +848,17 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		List<PermissionObj> removedPerms = 
 			permHandler.getRemovedObjectPermissionsOfGroup(oldGrp, newGrpDoc);
 		for (PermissionObj removedPerm : removedPerms) {
-			permHandler.checkWritePermissionForObject(removedPerm.getUuid(), userUuid);
+			String objUuid = removedPerm.getUuid();
+			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid)) {
+				IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), objUuid);
+				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_REMOVE_OBJECT_PERMISSION, errInfo));
+			}
 		}
 	}
 
 	/**
 	 * Validate whether the removed address permissions of the given group are ok or whether
-	 * the user is not allowed to remove the address permission. This is the case if the 
+	 * the user is not allowed to remove an address permission. This is the case if the 
 	 * user doesn't have write permission on a removed address.
 	 * @param oldGrp group before applying changes
 	 * @param newGrpDoc new group which should be stored
@@ -864,13 +868,17 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		List<PermissionAddr> removedPerms = 
 			permHandler.getRemovedAddressPermissionsOfGroup(oldGrp, newGrpDoc);
 		for (PermissionAddr removedPerm : removedPerms) {
-			permHandler.checkWritePermissionForAddress(removedPerm.getUuid(), userUuid);
+			String addrUuid = removedPerm.getUuid();
+			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid)) {
+				IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), addrUuid);
+				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION, errInfo));
+			}
 		}
 	}
 
 	/**
 	 * Validate whether the removed user permissions of the given group are ok or whether
-	 * the user is not allowed to remove the user permission. This is the case if the 
+	 * the user is not allowed to remove an user permission. This is the case if the 
 	 * user doesn't have the user permission himself (e.g. create root).
 	 * @param oldGrp group before applying changes
 	 * @param newGrpDoc new group which should be stored
@@ -880,7 +888,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		List<IdcUserPermission> removedPerms = 
 			permHandler.getRemovedUserPermissionsOfGroup(oldGrp, newGrpDoc);
 		for (IdcUserPermission removedPerm : removedPerms) {
-			permHandler.checkUserHasUserPermission(userUuid, removedPerm.getPermission());			
+			if (!permHandler.hasUserPermission(removedPerm.getPermission(), userUuid)) {
+				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_REMOVE_USER_PERMISSION));
+			}
 		}
 	}
 

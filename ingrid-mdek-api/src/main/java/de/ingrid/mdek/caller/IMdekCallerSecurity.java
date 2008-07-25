@@ -84,6 +84,9 @@ public interface IMdekCallerSecurity {
 	 * @throws MdekException if needed permission removed: group user responsible for object (MdekErrorType.USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING). 
 	 * @throws MdekException if needed permission removed: group user still editing address (MdekErrorType.USER_EDITING_ADDRESS_PERMISSION_MISSING). 
 	 * @throws MdekException if needed permission removed: group user responsible for address (MdekErrorType.USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING). 
+	 * @throws MdekException if no right to remove object permission (MdekErrorType.NO_RIGHT_TO_REMOVE_OBJECT_PERMISSION). 
+	 * @throws MdekException if no right to remove address permission (MdekErrorType.NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION). 
+	 * @throws MdekException if no right to remove user permission (MdekErrorType.NO_RIGHT_TO_REMOVE_USER_PERMISSION). 
 	 */
 	IngridDocument storeGroup(String plugId,
 			IngridDocument groupDoc,

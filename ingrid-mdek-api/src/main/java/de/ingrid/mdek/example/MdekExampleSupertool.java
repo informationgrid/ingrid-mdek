@@ -2284,6 +2284,10 @@ public class MdekExampleSupertool {
 				List<IngridDocument> addrs = (List<IngridDocument>) info.get(MdekKeys.ADR_ENTITIES);
 				System.out.println("    Parent Address with TREE Permission: " + addrs.get(0));
 				System.out.println("    Sub Address with SINGLE Permission: " + addrs.get(1));
+			} else if (err.getErrorType().equals(MdekErrorType.NO_RIGHT_TO_REMOVE_OBJECT_PERMISSION)) {
+				System.out.println("    No right to remove object: " + info.get(MdekKeys.OBJ_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION)) {
+				System.out.println("    No right to remove address: " + info.get(MdekKeys.ADR_ENTITIES));
 			}
 		}
 		doFullOutput = true;

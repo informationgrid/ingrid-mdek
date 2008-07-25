@@ -523,13 +523,6 @@ public class MdekPermissionHandler {
 		}		
 	}
 
-	/** Checks whether user has the given user permission AND THROW EXCEPTION IF NOT ! */
-	public void checkUserHasUserPermission(String userAddrUuid, Permission userPerm) {
-		if (!permService.hasUserPermission(userAddrUuid, userPerm)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_USER_PERMISSION));
-		}		
-	}
-
 	/**
 	 * Checks whether user has "CreateRoot" permission AND THROW EXCEPTION IF NOT !
 	 */
@@ -646,6 +639,11 @@ public class MdekPermissionHandler {
 		}
 		
 		return false;
+	}
+
+	/** Check whether user has given user permission and return "yes"/"no" ! */
+	public boolean hasUserPermission(Permission userPermission, String userAddrUuid) {
+		return permService.hasUserPermission(userAddrUuid, userPermission);			
 	}
 
 	/**
