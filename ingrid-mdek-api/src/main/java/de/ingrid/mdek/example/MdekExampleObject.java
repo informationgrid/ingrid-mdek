@@ -625,7 +625,7 @@ class MdekExampleObjectThread extends Thread {
 		supertool.moveObject(newObjUuid, newParentUuid, true);
 		System.out.println("\n----- publish NEW TOP OBJECT -----");
 		supertool.publishObject(newTopObjDoc, true, true);
-		System.out.println("\n----- set new object to INTERNET and publish (pub=work=INTERNET) -----");
+		System.out.println("\n----- set new object (the one to move) to INTERNET and publish (pub=work=INTERNET) -----");
 		newObjDoc = supertool.fetchObject(newObjUuid, Quantity.DETAIL_ENTITY);
 		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
 		newObjDoc = supertool.publishObject(newObjDoc, true, false);
@@ -645,8 +645,19 @@ class MdekExampleObjectThread extends Thread {
 		newObjDoc = supertool.storeObject(newObjDoc, true);
 		System.out.println("\n\n----- publish again -> SUCCESS (pub=work=INTRANET) ALTHOUGH subNodes are INTERNET, but these are NOT published yet !!! -----");
 		supertool.publishObject(newObjDoc, true, false);
-		System.out.println("\n----- check new address subtree -> has working copies ! (move worked !) -----");
+		System.out.println("\n----- check new object subtree (was also moved) -> has working copies (were copied above) -----");
 		supertool.checkObjectSubTree(newObjUuid);
+		System.out.println("\n----- fetch subobjects of new object (was moved) -----");
+		System.out.println("----- NO CHANGE OF MODIFICATION TIME AND USER IN MOVED SUBTREE, see http://jira.media-style.com/browse/INGRIDII-266 -----");
+		System.out.println("----- OK, not to see here, because subobjects were created by same user :-), but tested in mdek app ! -----");
+		doc = supertool.fetchSubObjects(newObjUuid);
+		List l = (List) doc.get(MdekKeys.OBJ_ENTITIES);
+		if (l.size() > 0) {
+			System.out.println("\n----- fetch first subobject details -----");
+			String uuid = ((IngridDocument)l.get(0)).getString(MdekKeys.UUID);
+			supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		}
+
 		System.out.println("\n----- verify old parent subaddresses (cut) -----");
 		supertool.fetchSubObjects(oldParentUuid);
 		System.out.println("\n----- verify new parent subaddresses (added) -----");

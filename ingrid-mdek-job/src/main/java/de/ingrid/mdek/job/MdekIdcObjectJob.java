@@ -720,8 +720,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Process the moved tree, meaning set modification date and user in every node (in
-	 * published and working version !).
+	 * Process the moved tree, meaning set modification date and user in node (in
+	 * published and working version !). but not in subnodes, see http://jira.media-style.com/browse/INGRIDII-266
 	 * @param rootNode root node of moved tree
 	 * @param modUuid user uuid to set as modification user
 	 * @return doc containing additional info (number processed nodes ...)
@@ -762,11 +762,14 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 			numberOfProcessedObj++;
 
+			// never process subnodes, see http://jira.media-style.com/browse/INGRIDII-266
+/*
 			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(objNode.getObjUuid(), true);
 			for (ObjectNode subNode : subNodes) {
 				// add to stack, will be processed
 				stack.push(subNode);
 			}
+*/
 		}
 		
 		IngridDocument result = new IngridDocument();

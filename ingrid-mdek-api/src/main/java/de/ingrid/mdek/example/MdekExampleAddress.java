@@ -355,8 +355,19 @@ class MdekExampleAddressThread extends Thread {
 		supertool.publishAddress(newTopAddrDoc, true);
 		System.out.println("\n\n----- move new address again -> SUCCESS (new parent published) -----");
 		supertool.moveAddress(newAddrUuid, newParentUuid, false);
-		System.out.println("\n----- check new address subtree -> has working copies ! (move worked !) -----");
+		System.out.println("\n----- check new address subtree (was also moved) -> has working copies (were copied above) -----");
 		supertool.checkAddressSubTree(newAddrUuid);
+		System.out.println("\n----- fetch subaddresses of new address (was moved) -----");
+		System.out.println("----- NO CHANGE OF MODIFICATION TIME AND USER IN MOVED SUBTREE, see http://jira.media-style.com/browse/INGRIDII-266 -----");
+		System.out.println("----- OK, not to see here, because subaddresses were created by same user :-), but tested in mdek app ! -----");
+		doc = supertool.fetchSubAddresses(newAddrUuid);
+		List l = (List) doc.get(MdekKeys.ADR_ENTITIES);
+		if (l.size() > 0) {
+			System.out.println("\n----- fetch first subaddress details -----");
+			String uuid = ((IngridDocument)l.get(0)).getString(MdekKeys.UUID);
+			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		}
+
 		System.out.println("\n----- verify old parent subaddresses (cut) -----");
 		supertool.fetchSubAddresses(oldParentUuid);
 		System.out.println("\n----- verify new parent subaddresses (added) -----");
