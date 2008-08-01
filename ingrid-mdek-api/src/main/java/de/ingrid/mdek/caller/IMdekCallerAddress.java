@@ -39,13 +39,30 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
-	 * Fetch single address with given uuid.
+	 * Fetch single address with given uuid. Pass parameters for paging mechanism of object references.
 	 * @param plugId which mdek server (iplug)
-	 * @param uuid address uuid
+	 * @param addrUuid address uuid
 	 * @param howMuch how much data to fetch from address
+	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
+	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
+	 * @param userId
 	 * @return response containing result: map representation of address containing requested data
 	 */
-	IngridDocument fetchAddress(String plugId, String uuid, Quantity howMuch,
+	IngridDocument fetchAddress(String plugId, String addrUuid, Quantity howMuch,
+			int objRefsStartIndex, int objRefsMaxNum,
+			String userId);
+
+	/**
+	 * Fetch objects referencing the given address. Pass parameters for paging mechanism.
+	 * @param plugId which mdek server (iplug)
+	 * @param addrUuid address uuid
+	 * @param objRefsStartIndex object to start with (first object is 0)
+	 * @param objRefsMaxNum maximum number of objects to fetch starting at index
+	 * @param userId
+	 * @return response containing result: map representation of objects referencing address
+	 */
+	IngridDocument fetchAddressObjectReferences(String plugId, String addrUuid, 
+			int objRefsStartIndex, int objRefsMaxNum,
 			String userId);
 
 	/**
@@ -55,11 +72,14 @@ public interface IMdekCallerAddress {
 	 * 		If no id/uuid is set address will be created else updated.
 	 * @param refetchAfterStore immediately refetch address after store (true)
 	 * 		or just store without refetching (false)
+	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
+	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
+	 * @param userId
 	 * @return response containing result: map representation of created/updated address when refetching,
 	 * 		otherwise map containing uuid of stored address (was generated when new address)  
 	 */
 	IngridDocument storeAddress(String plugId, IngridDocument adr,
-			boolean refetchAfterStore,
+			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
 			String userId);
 
 	/**
@@ -68,11 +88,15 @@ public interface IMdekCallerAddress {
 	 * @param addrDoc map representation of address.
 	 * 		If no id/uuid is set address will be created else updated.
 	 * @param refetchAfterStore true=fetch and return address after store, false=no fetch, just store
+	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
+	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
+	 * @param userId
 	 * @return response containing result: map representation of created/updated address when refetching,
 	 * 		otherwise map containing uuid of stored address (was generated when new address)  
 	 */
 	IngridDocument publishAddress(String plugId, IngridDocument addrDoc,
-			boolean refetchAfterStore, String userId);
+			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
+			String userId);
 
 	/**
 	 * Get initial data for a new address. Pass data needed to determine initial data (e.g. uuid of parent).

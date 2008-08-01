@@ -505,8 +505,8 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		int INDEX_REFS_WORK = 0;
-		int INDEX_REFS_PUBLISHED = 1;
+		int INDEX_REFS_PUBLISHED = 0;
+		int INDEX_REFS_WORK = 1;
 
 		List<IngridDocument> docLists[] = new ArrayList[oNodesFrom.length];
 		for (int i=0; i < oNodesFrom.length; i++) {

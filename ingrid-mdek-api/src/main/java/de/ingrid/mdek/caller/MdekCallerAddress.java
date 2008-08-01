@@ -55,10 +55,13 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return myInstance;
 	}
 
-	public IngridDocument fetchAddress(String plugId, String uuid, Quantity howMuch,
+	public IngridDocument fetchAddress(String plugId, String addrUuid, Quantity howMuch,
+			int objRefsStartIndex, int objRefsMaxNum,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, uuid);
+		jobParams.put(MdekKeys.UUID, addrUuid);
+		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
+		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		if (howMuch == Quantity.DETAIL_ENTITY) {
 			List jobMethods = mdekCaller.setUpJobMethod("getAddrDetails", jobParams);
@@ -68,19 +71,35 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return new IngridDocument();
 	}
 
-	public IngridDocument storeAddress(String plugId, IngridDocument adrDoc,
-			boolean refetchAfterStore,
+	public IngridDocument fetchAddressObjectReferences(String plugId, String addrUuid, 
+			int objRefsStartIndex, int objRefsMaxNum,
 			String userId) {
-		adrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
-		adrDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("storeAddress", adrDoc);
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, addrUuid);
+		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
+		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getAddressObjectReferences", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument storeAddress(String plugId, IngridDocument addrDoc,
+			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
+			String userId) {
+		addrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
+		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
+		addrDoc.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("storeAddress", addrDoc);
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument publishAddress(String plugId, IngridDocument addrDoc,
-			boolean refetchAfterStore,
+			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
 			String userId) {
 		addrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
+		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
 		addrDoc.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("publishAddress", addrDoc);
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);

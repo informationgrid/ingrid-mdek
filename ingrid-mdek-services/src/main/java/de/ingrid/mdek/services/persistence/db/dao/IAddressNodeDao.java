@@ -56,15 +56,22 @@ public interface IAddressNodeDao
 	/** Load parent of address with given uuid. Returns null if top node.  */
 	AddressNode getParent(String uuid);
 
-	/** Get all Objects (CHECK WORKING AND PUBLISHED VERSIONS) referencing the address with the passed uuid.
-	 * @param addressUuid
+	/** Get Objects (CHECK WORKING AND PUBLISHED VERSIONS) referencing the address with the passed uuid.
+	 * @param addressUuid address which is referenced by objects
+	 * @param startIndex objects referencing the address, start with this object (first object is index 0).<br>
+	 * 	<i>NOTICE: Objects are processed in following order: FIRST the objects referencing the address ONLY 
+	 * 	in their published version, then the ones referencing in their working version. So return list with 
+	 * 	index 0 is filled first !!!</i>
+	 * @param maxNum objects referencing the address, maximum number to fetch
 	 * @return 2 List of objects:<br>
-	 * - index 0: list of objects referencing the given uuid in their working version
-	 * 		(which might equal the published version)<br>
-	 * - index 1: list of objects referencing the given uuid ONLY in their published
-	 * 		version (and NOT in their work version -> ref deleted in work version)
+	 * - index 0: list of objects referencing the given uuid ONLY in their published
+	 * 		version (and NOT in their work version -> ref deleted in work version). This
+	 * 		list has highest priority and will be "filled" before list below.<br>
+	 * - index 1: list of objects referencing the given uuid in their working version
+	 * 		(which might equal the published version). This list will only be "filled" if
+	 * 		still objects needed after list above is filled.<br>
 	 */
-	List<ObjectNode>[] getAllObjectReferencesFrom(String addressUuid);
+	List<ObjectNode>[] getObjectReferencesFrom(String addressUuid, int startIndex, int maxNum);
 
 	/** Get objects (CHECK ONLY WORKING VERSION) referencing the address with the passed uuid.
 	 * @param addressUuid the address being referenced

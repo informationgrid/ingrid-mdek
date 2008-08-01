@@ -164,10 +164,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
+			int objRefsStartIndex = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
+			int objRefsMaxNum = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
+
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getAddrDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getAddrDetails(uuid, userUuid);
+			IngridDocument result = getAddrDetails(uuid, userUuid, objRefsStartIndex, objRefsMaxNum);
 			
 			daoAddressNode.commitTransaction();
 			return result;
@@ -179,7 +182,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	private IngridDocument getAddrDetails(String addrUuid, String userUuid) {
+	private IngridDocument getAddrDetails(String addrUuid, String userUuid,
+			int objRefsStartIndex, int objRefsMaxNum) {
 		// first get all "internal" address data
 		AddressNode aNode = daoAddressNode.getAddrDetails(addrUuid);
 		if (aNode == null) {
@@ -194,7 +198,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// then get "external" data (objects referencing the given address ...)
-		List<ObjectNode>[] fromLists = daoAddressNode.getAllObjectReferencesFrom(addrUuid);
+		List<ObjectNode>[] fromLists =
+			daoAddressNode.getObjectReferencesFrom(addrUuid, objRefsStartIndex, objRefsMaxNum);
 		beanToDocMapper.mapObjectReferencesFrom(fromLists, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 
 		// get parent data
@@ -215,6 +220,37 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 		return resultDoc;
+	}
+
+	public IngridDocument getAddressObjectReferences(IngridDocument params) {
+		try {
+			daoAddressNode.beginTransaction();
+
+//			String userUuid = getCurrentUserUuid(params);
+			String addrUuid = (String) params.get(MdekKeys.UUID);
+			int objRefsStartIndex = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
+			int objRefsMaxNum = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
+
+			if (log.isDebugEnabled()) {
+				log.debug("Invoke getAddressObjectReferences (uuid='"+addrUuid+"').");
+			}
+
+			// get objects referencing the given address
+			List<ObjectNode>[] fromLists =
+				daoAddressNode.getObjectReferencesFrom(addrUuid, objRefsStartIndex, objRefsMaxNum);
+
+			IngridDocument resultDoc = new IngridDocument();
+			beanToDocMapper.mapObjectReferencesFrom(fromLists, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+
+			daoAddressNode.commitTransaction();
+
+			return resultDoc;
+			
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}
 
 	public IngridDocument getInitialAddress(IngridDocument aDocIn) {
@@ -272,6 +308,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// parentUuid only passed if new address !?
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			int objRefsStartIndex = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
+			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
 			// set common data to transfer to working copy !
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
@@ -349,7 +387,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			if (refetchAfterStore) {
 				daoAddressNode.beginTransaction();
-				result = getAddrDetails(uuid, userId);
+				result = getAddrDetails(uuid, userId, objRefsStartIndex, objRefsMaxNum);
 				daoAddressNode.commitTransaction();
 
 				if (log.isDebugEnabled()) {
@@ -388,6 +426,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// parentUuid only passed if new address !
 			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			int objRefsStartIndex = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
+			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
 			// set common data to transfer
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
@@ -468,7 +508,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			if (refetchAfterStore) {
 				daoAddressNode.beginTransaction();
-				result = getAddrDetails(uuid, userId);
+				result = getAddrDetails(uuid, userId, objRefsStartIndex, objRefsMaxNum);
 				daoAddressNode.commitTransaction();
 
 				if (log.isDebugEnabled()) {

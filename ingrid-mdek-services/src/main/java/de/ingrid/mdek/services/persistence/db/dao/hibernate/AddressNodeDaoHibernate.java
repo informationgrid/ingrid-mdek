@@ -153,27 +153,29 @@ public class AddressNodeDaoHibernate
 		return aN;
 	}
 
-	public List<ObjectNode>[] getAllObjectReferencesFrom(String addressUuid) {
+	public List<ObjectNode>[] getObjectReferencesFrom(String addressUuid, int startIndex, int maxNum) {
 		Session session = getSession();
 
-		// first select all references from working copies (node ids)
+		// select ALL references from published ones, has highest "prio"
+		List<Long> nodeIdsPub = session.createQuery(
+				"select distinct oNode.id from ObjectNode oNode " +
+				"left join oNode.t01ObjectPublished oPub " +
+				"left join oPub.t012ObjAdrs objAdr " +
+				"where objAdr.adrUuid = ? " +
+				"order by oPub.objName")
+				.setString(0, addressUuid)
+				.list();
+
+		// select ALL references from working copies (node ids)
 		// NOTICE: working copy == published one if not "in Bearbeitung" !
 		List<Long> nodeIdsWork = session.createQuery(
 				"select distinct oNode.id from ObjectNode oNode " +
 				"left join oNode.t01ObjectWork oWork " +
 				"left join oWork.t012ObjAdrs objAdr " +
-				"where objAdr.adrUuid = ?")
+				"where objAdr.adrUuid = ? " +
+				"order by oWork.objName")
 				.setString(0, addressUuid)
-				.list();
-
-		// then select all references from published ones
-		List<Long> nodeIdsPub = session.createQuery(
-				"select distinct oNode.id from ObjectNode oNode " +
-				"left join oNode.t01ObjectPublished oPub " +
-				"left join oPub.t012ObjAdrs objAdr " +
-				"where objAdr.adrUuid = ?")
-				.setString(0, addressUuid)
-				.list();
+				.list();			
 
 		// then remove all published references also contained in working references.
 		// we get the ones only in published version, meaning they were deleted in the
@@ -184,32 +186,72 @@ public class AddressNodeDaoHibernate
 				nodeIdsPubOnly.add(idPub);
 			}
 		}
-		
-		// fetch all "nodes with work references"
-		List<ObjectNode> nodesWork = new ArrayList<ObjectNode>();
-		if (nodeIdsWork.size() > 0) {
-			nodesWork = session.createQuery(
-					"select distinct oNode from ObjectNode oNode " +
-					"left join fetch oNode.t01ObjectWork oWork " +
-					"where oNode.id in (:idList)")
-					.setParameterList("idList", nodeIdsWork)
-					.list();			
+
+		// determine published only references to show
+		int clearedNodesPubOnly = 0;
+		if (nodeIdsPubOnly.size() < startIndex+1) {
+			clearedNodesPubOnly = nodeIdsPubOnly.size();
+			nodeIdsPubOnly.clear();
+		} else {
+			nodeIdsPubOnly = nodeIdsPubOnly.subList(startIndex, nodeIdsPubOnly.size());			
+		}
+		if (nodeIdsPubOnly.size() > maxNum) {
+			nodeIdsPubOnly = nodeIdsPubOnly.subList(0, maxNum);
 		}
 
-		// fetch all "nodes with only publish references"
+		// determine working references to show
+		if (nodeIdsPubOnly.size() < maxNum) {
+			if (nodeIdsWork.size() > 0) {
+				// determine which work nodes to fetch
+				int firstResult = 0;
+				int maxResults = maxNum;
+				if (nodeIdsPubOnly.size() > 0) {
+					maxResults = maxNum - nodeIdsPubOnly.size();
+				} else {
+					firstResult = startIndex - clearedNodesPubOnly;
+				}
+				if (nodeIdsWork.size() < firstResult+1) {
+					nodeIdsWork.clear();
+				} else {
+					nodeIdsWork = nodeIdsWork.subList(firstResult, nodeIdsWork.size());			
+				}
+				if (nodeIdsWork.size() > maxResults) {
+					nodeIdsWork = nodeIdsWork.subList(0, maxResults);
+				}
+			}
+		} else {
+			// enough nodes to show from nodeIdsPubOnly list
+			nodeIdsWork.clear();			
+		}
+
+		// fetch all needed "nodes with only publish references"
 		List<ObjectNode> nodesPubOnly = new ArrayList<ObjectNode>();
 		if (nodeIdsPubOnly.size() > 0) {
 			nodesPubOnly = session.createQuery(
 					"select distinct oNode from ObjectNode oNode " +
 					"left join fetch oNode.t01ObjectPublished oPub " +
-					"where oNode.id in (:idList)")
+					"where oNode.id in (:idList) " +
+					"order by oPub.objName")
 					.setParameterList("idList", nodeIdsPubOnly)
 					.list();			
 		}
-		
+
+		// fetch all needed "nodes with work references"
+		List<ObjectNode> nodesWork = new ArrayList<ObjectNode>();
+		if (nodeIdsWork.size() > 0) {
+			nodesWork = session.createQuery(
+					"select distinct oNode from ObjectNode oNode " +
+					"left join fetch oNode.t01ObjectWork oWork " +
+					"where oNode.id in (:idList) " +
+					"order by oWork.objName")
+					.setParameterList("idList", nodeIdsWork)
+					.list();			
+		}
+
+
 		List<ObjectNode>[] retObjects = new List[] {
-			nodesWork,
-			nodesPubOnly
+			nodesPubOnly,
+			nodesWork
 		};
 
 		return retObjects;

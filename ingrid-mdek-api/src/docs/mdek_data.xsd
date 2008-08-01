@@ -11,6 +11,9 @@
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
 			<xs:element name="language" type="xs:string"/>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
+			<!-- how much objects referencing an address to fetch and where to start (needed for paging of object references in address) -->
+			<xs:element name="objReferencesFrom_startIndex" type="xs:integer"/>
+			<xs:element name="objReferencesFrom_maxNum" type="xs:integer"/>
 			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="REQUEST_SEARCH_MAP" type="REQUEST_SEARCH_MAP"/>

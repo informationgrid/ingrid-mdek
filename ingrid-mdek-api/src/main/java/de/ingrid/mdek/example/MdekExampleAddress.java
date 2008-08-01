@@ -200,6 +200,85 @@ class MdekExampleAddressThread extends Thread {
 			isRunning = false;
 			return;
 		}
+*/
+// -----------------------------------
+
+		// AOR Paging, see http://jira.101tec.com/browse/INGRID-1503
+		// ------------------
+		String addrReferenced = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+		String objReferencing = "C5FEA80D-6AB2-11D3-BB32-1C7607C10000";
+
+		System.out.println("\n----- initial load of referenced address -> all obj references from working version -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- load object referencing address -----");
+		IngridDocument oMap = supertool.fetchObject(objReferencing, Quantity.DETAIL_ENTITY);
+		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.ADR_REFERENCES_TO);
+		// find address to remove
+		IngridDocument docToRemove = null;
+		for (IngridDocument myDoc : docList) {
+			if (addrReferenced.equals(myDoc.get(MdekKeys.UUID))) {
+				docToRemove = myDoc;
+				break;
+			}
+		}
+
+		System.out.println("\n----- remove reference to address / store working version -----");
+		if (docToRemove != null) {
+			docList.remove(docToRemove);
+		}
+		supertool.storeObject(oMap, true);
+
+		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 1 -> only 1 reference from published included ! -----");
+		aMap = supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 1);
+		System.out.println("\n----- load referencing objects separately -----");
+		supertool.fetchAddressObjectReferences(addrReferenced, 0, 1);
+		System.out.println("\n----- store address with refetch (same paging params when refetching) -----");
+		supertool.storeAddress(aMap, true, 0, 1);
+		System.out.println("\n----- publish address with refetch (same paging params when refetching) -----");
+		supertool.publishAddress(aMap, true, 0, 1);
+		System.out.println("\n----- load details of referenced address, fetch all objRefs -> all obj references there, 1 reference from published, all from working included -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 2 -> 1 reference from published, 1 from working included ! -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 2);
+		System.out.println("\n----- load referencing objects separately -----");
+		supertool.fetchAddressObjectReferences(addrReferenced, 0, 2);
+
+		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 10 -> 1 reference from published, all from working included ! -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 10);
+		System.out.println("\n----- load referencing objects separately -----");
+		supertool.fetchAddressObjectReferences(addrReferenced, 0, 10);
+
+		System.out.println("\n----- load referenced address WITH PAGING, start at 10, fetch 10 -> NO REFERENCES INCLUDED -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 10, 10);
+		System.out.println("\n----- load referencing objects separately -----");
+		supertool.fetchAddressObjectReferences(addrReferenced, 10, 10);
+
+		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 0 -> NO REFERENCES INCLUDED -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 0);
+		System.out.println("\n----- load referencing objects separately -----");
+		supertool.fetchAddressObjectReferences(addrReferenced, 0, 0);
+
+		System.out.println("\n----- load referenced address WITH PAGING, start at 1, fetch 2 -> 0 reference from published, first 2 from working included ! -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 1, 2);
+		System.out.println("\n----- load referencing objects separately -----");
+		supertool.fetchAddressObjectReferences(addrReferenced, 1, 2);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objReferencing, true);
+		supertool.deleteAddressWorkingCopy(addrReferenced, true);
+
+		System.out.println("\n----- verify object, no working version and references to address again ! -----");
+		supertool.fetchObject(objReferencing, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- verify address, only object references from \"working version\" (equals published ones) -----");
+		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY);
+/*
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 
 // ====================
 */
