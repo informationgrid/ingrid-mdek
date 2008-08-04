@@ -157,15 +157,19 @@ public class MdekKeys {
     public final static String OBJ_ENTITIES = "objEntities";
     /** Value: List of IngridDocs */
     public final static String ADR_ENTITIES = "adrEntities";
-    /** When fetching list of object references, start with this object (first object is index 0)
+    /** When fetching object references via paging, start with this object (first object is index 0)<br>
      * Value: Integer */
     public final static String OBJ_REFERENCES_FROM_START_INDEX = "objReferencesFrom_startIndex";
-    /** When fetching list of object references, max number of objects to fetch
+    /** When fetching object references via paging, max number of objects to fetch<br>
      * Value: Integer */
     public final static String OBJ_REFERENCES_FROM_MAX_NUM = "objReferencesFrom_maxNum";
-    /** Value: List of IngridDocs */
+    /** When fetching object references via paging, total number of objects referencing address<br> 
+     * Value: Integer */
+    public final static String OBJ_REFERENCES_FROM_TOTAL_NUM = "objReferencesFrom_totalNum";
+    /** Object references from working version<br>
+     * Value: List of IngridDocs */
     public final static String OBJ_REFERENCES_FROM = "objReferencesFrom";
-    /** References only from published version (deleted in work version !)
+    /** Object references only from published version (deleted in work version !)<br>
      * Value: List of IngridDocs */
     public final static String OBJ_REFERENCES_FROM_PUBLISHED_ONLY = "objReferencesFromPublishedOnly";
     /** Value: List of IngridDocs */

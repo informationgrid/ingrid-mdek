@@ -230,8 +230,8 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode>[] retObjects = new List[] {
-			nodesWork,
-			nodesPubOnly
+			nodesPubOnly,
+			nodesWork
 		};
 
 		return retObjects;

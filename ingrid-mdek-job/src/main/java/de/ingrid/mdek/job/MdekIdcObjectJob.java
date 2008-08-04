@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -198,7 +199,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	
 		// then get "external" data (objects referencing the given object ...)
 		List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(objUuid);
-		beanToDocMapper.mapObjectReferencesFrom(fromLists, objUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		beanToDocMapper.mapObjectReferencesFrom(fromLists, null, null,
+				IdcEntityType.OBJECT, objUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 
 		// get parent data
 		ObjectNode pNode = daoObjectNode.getParent(objUuid);

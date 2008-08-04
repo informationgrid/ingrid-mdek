@@ -1,5 +1,6 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
+import java.util.HashMap;
 import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -63,7 +64,9 @@ public interface IAddressNodeDao
 	 * 	in their published version, then the ones referencing in their working version. So return list with 
 	 * 	index 0 is filled first !!!</i>
 	 * @param maxNum objects referencing the address, maximum number to fetch
-	 * @return 2 List of objects:<br>
+	 * @return HashMap containing info about referencing objects in following keys:<br>
+	 * <i>OBJ_REFERENCES_FROM_TOTAL_NUM</i>: total number of objects referencing the address<br>
+	 * <i>OBJ_REFERENCES_FROM</i>: 2 List of ObjectNodes passed inside an array:<br>
 	 * - index 0: list of objects referencing the given uuid ONLY in their published
 	 * 		version (and NOT in their work version -> ref deleted in work version). This
 	 * 		list has highest priority and will be "filled" before list below.<br>
@@ -71,7 +74,7 @@ public interface IAddressNodeDao
 	 * 		(which might equal the published version). This list will only be "filled" if
 	 * 		still objects needed after list above is filled.<br>
 	 */
-	List<ObjectNode>[] getObjectReferencesFrom(String addressUuid, int startIndex, int maxNum);
+	HashMap getObjectReferencesFrom(String addressUuid, int startIndex, int maxNum);
 
 	/** Get objects (CHECK ONLY WORKING VERSION) referencing the address with the passed uuid.
 	 * @param addressUuid the address being referenced

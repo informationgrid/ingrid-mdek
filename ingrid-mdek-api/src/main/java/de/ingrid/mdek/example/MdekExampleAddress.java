@@ -205,6 +205,11 @@ class MdekExampleAddressThread extends Thread {
 
 		// AOR Paging, see http://jira.101tec.com/browse/INGRID-1503
 		// ------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("Test Object References to Address (AOR) paging ");
+		System.out.println("=========================");
+
 		String addrReferenced = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 		String objReferencing = "C5FEA80D-6AB2-11D3-BB32-1C7607C10000";
 

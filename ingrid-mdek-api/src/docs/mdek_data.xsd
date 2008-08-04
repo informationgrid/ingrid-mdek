@@ -651,6 +651,8 @@
 			<xs:element ref="relation-type-name"/>
 			<xs:element ref="relation-type-ref"/>
 			<xs:element name="relation-date-of-last-modification" type="TIMESTAMP"/>
+			<xs:element name="objReferencesFrom_startIndex" type="xs:integer"/>
+			<xs:element name="objReferencesFrom_totalNum" type="xs:integer"/>
 			<xs:element name="objReferencesFrom" type="OBJECT_LIST"/>
 			<xs:element name="objReferencesFromPublishedOnly" type="OBJECT_LIST"/>
 		</xs:sequence>

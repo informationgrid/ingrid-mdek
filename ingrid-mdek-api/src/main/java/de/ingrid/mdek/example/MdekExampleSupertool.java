@@ -2210,6 +2210,14 @@ public class MdekExampleSupertool {
 				System.out.println("    " + doc);								
 			}			
 		}
+
+		// objects referencing the address !
+		Integer objsFromStartIndex = (Integer) a.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
+		if (objsFromStartIndex != null) {
+			Integer objsFromTotalNum = (Integer) a.get(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM);
+			System.out.println("  Objects FROM (Querverweise): PAGING RESULT ! startIndex=" + objsFromStartIndex +
+					", totalNum=" + objsFromTotalNum);
+		}
 		docList = (List<IngridDocument>) a.get(MdekKeys.OBJ_REFERENCES_FROM);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");

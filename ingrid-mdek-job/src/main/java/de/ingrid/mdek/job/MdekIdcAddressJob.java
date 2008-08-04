@@ -2,6 +2,7 @@ package de.ingrid.mdek.job;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -11,6 +12,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
@@ -198,9 +200,14 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// then get "external" data (objects referencing the given address ...)
-		List<ObjectNode>[] fromLists =
+		HashMap fromObjectsData = 
 			daoAddressNode.getObjectReferencesFrom(addrUuid, objRefsStartIndex, objRefsMaxNum);
-		beanToDocMapper.mapObjectReferencesFrom(fromLists, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+		// we use keys from mdek mapping for data transfer ! 
+		List<ObjectNode>[] fromLists = (List<ObjectNode>[]) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM);
+		int objRefsTotalNum = (Integer) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM);
+
+		beanToDocMapper.mapObjectReferencesFrom(fromLists, objRefsStartIndex, objRefsTotalNum,
+				IdcEntityType.ADDRESS, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 
 		// get parent data
 		AddressNode pNode = daoAddressNode.getParent(addrUuid);
@@ -236,11 +243,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			// get objects referencing the given address
-			List<ObjectNode>[] fromLists =
+			HashMap fromObjectsData = 
 				daoAddressNode.getObjectReferencesFrom(addrUuid, objRefsStartIndex, objRefsMaxNum);
+			List<ObjectNode>[] fromLists = (List<ObjectNode>[]) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM);
+			Integer objRefsTotalNum = (Integer) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM);
 
+			// map the data to our result doc 
 			IngridDocument resultDoc = new IngridDocument();
-			beanToDocMapper.mapObjectReferencesFrom(fromLists, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+			beanToDocMapper.mapObjectReferencesFrom(fromLists, objRefsStartIndex, objRefsTotalNum,
+					IdcEntityType.ADDRESS, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
 
 			daoAddressNode.commitTransaction();
 

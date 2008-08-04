@@ -10,6 +10,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
@@ -487,22 +488,28 @@ public class BeanToDocMapper implements IMapper {
 
 	/**
 	 * Transfer From-objectReferences (passed beans) to passed doc.
-	 * @param oNodesFrom "from-object references" in an array of lists !
-	 * - index 0: list of objects referencing the given uuid in their working version
+	 * @param oNodesFrom "from-object references" in an array of lists !<br>
+	 * - index 0: list of objects referencing the given uuid ONLY in their published
+	 * 		version (and NOT in their work version -> ref deleted in work version)<br>
+	 * - index 1: list of objects referencing the given uuid in their working version
 	 * 		(which might equal the published version)<br>
-	 * - index 1: list of objects referencing the given uuid ONLY in their published
-	 * 		version (and NOT in their work version -> ref deleted in work version)
-	 * @param uuidObjectTo uuid of to object
-	 * @param objectDoc doc where data is added
+	 * @param oNodesFrom_startIndex index of first object (when paging) -> pass null if no paging
+	 * @param oNodesFrom_totalNum total num of objects (when paging) -> pass null if no paging
+	 * @param toEntityType type of to entity (object or address) 
+	 * @param toEntityUuid uuid of to entity
+	 * @param toEntityDoc doc of to entity where data is added.
 	 * @param howMuch how much data should be added
-	 * @return doc containing additional data.
+	 * @return toEntityDoc containing additional data.
 	 */
 	public IngridDocument mapObjectReferencesFrom(List<ObjectNode> oNodesFrom[],
-			String uuidObjectTo,
-			IngridDocument objectDoc,
+			Integer oNodesFrom_startIndex,
+			Integer oNodesFrom_totalNum,
+			IdcEntityType toEntityType,
+			String toEntityUuid,
+			IngridDocument toEntityDoc,
 			MappingQuantity howMuch) {
 		if (oNodesFrom == null) {
-			return objectDoc;
+			return toEntityDoc;
 		}
 
 		int INDEX_REFS_PUBLISHED = 0;
@@ -523,23 +530,31 @@ public class BeanToDocMapper implements IMapper {
 					oFrom = oN.getT01ObjectWork();
 				}
 				mapT01Object(oFrom, oFromDoc, howMuch);
-				// also map relation info
-				Set<ObjectReference> oRefs = oFrom.getObjectReferences();
-				for (ObjectReference oRef : oRefs) {
-					if (uuidObjectTo.equals(oRef.getObjToUuid())) {
-						mapObjectReference(oRef, oFromDoc);
-						break;
-					}
+				// also map relation info if object object relation
+				if (toEntityType == IdcEntityType.OBJECT) {
+					Set<ObjectReference> oRefs = oFrom.getObjectReferences();
+					for (ObjectReference oRef : oRefs) {
+						if (toEntityUuid.equals(oRef.getObjToUuid())) {
+							mapObjectReference(oRef, oFromDoc);
+							break;
+						}
+					}					
 				}
 				docList.add(oFromDoc);
 			}
 			docLists[i] = docList;
 		}
 
-		objectDoc.put(MdekKeys.OBJ_REFERENCES_FROM, docLists[INDEX_REFS_WORK]);
-		objectDoc.put(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY, docLists[INDEX_REFS_PUBLISHED]);
+		toEntityDoc.put(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY, docLists[INDEX_REFS_PUBLISHED]);
+		toEntityDoc.put(MdekKeys.OBJ_REFERENCES_FROM, docLists[INDEX_REFS_WORK]);
 
-		return objectDoc;
+		// also return index of first object and total num (needed when paging)
+		if (toEntityType == IdcEntityType.ADDRESS) {
+			toEntityDoc.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, oNodesFrom_startIndex);
+			toEntityDoc.put(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM, oNodesFrom_totalNum);
+		}
+
+		return toEntityDoc;
 	}
 
 	/**

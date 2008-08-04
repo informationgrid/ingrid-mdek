@@ -51,10 +51,10 @@ public interface IObjectNodeDao
 	/** Fetch Objects referencing the object with the passed uuid.
 	 * @param uuid 
 	 * @return 2 List of objects:<br>
-	 * - index 0: list of objects referencing the given uuid in their working version
-	 * 		(which might equal the published version)<br>
-	 * - index 1: list of objects referencing the given uuid ONLY in their published
+	 * - index 0: list of objects referencing the given uuid ONLY in their published
 	 * 		version (and NOT in their work version -> ref deleted in work version)
+	 * - index 1: list of objects referencing the given uuid in their working version
+	 * 		(which might equal the published version)<br>
 	 */
 	List<ObjectNode>[] getObjectReferencesFrom(String uuid);
 

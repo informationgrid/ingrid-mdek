@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -153,8 +154,10 @@ public class AddressNodeDaoHibernate
 		return aN;
 	}
 
-	public List<ObjectNode>[] getObjectReferencesFrom(String addressUuid, int startIndex, int maxNum) {
+	public HashMap getObjectReferencesFrom(String addressUuid, int startIndex, int maxNum) {
 		Session session = getSession();
+
+		HashMap retMap = new HashMap();
 
 		// select ALL references from published ones, has highest "prio"
 		List<Long> nodeIdsPub = session.createQuery(
@@ -186,6 +189,10 @@ public class AddressNodeDaoHibernate
 				nodeIdsPubOnly.add(idPub);
 			}
 		}
+		
+		// determine total num of object references
+		int totalNum = nodeIdsPubOnly.size() + nodeIdsWork.size();
+		retMap.put(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM, totalNum);
 
 		// determine published only references to show
 		int clearedNodesPubOnly = 0;
@@ -254,7 +261,9 @@ public class AddressNodeDaoHibernate
 			nodesWork
 		};
 
-		return retObjects;
+		retMap.put(MdekKeys.OBJ_REFERENCES_FROM, retObjects);
+
+		return retMap;
 	}
 
 	public List<ObjectNode> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
