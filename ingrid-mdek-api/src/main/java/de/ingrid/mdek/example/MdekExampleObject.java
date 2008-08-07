@@ -471,6 +471,32 @@ class MdekExampleObjectThread extends Thread {
 			return;
 		}
 
+// -----------------------------------
+
+		// INSPIRE Tests ! IDC version has to be >= 1.0.3 !!!
+		// ==============
+	
+		// tests here with BW catalog data !
+		objUuid = "AA5C9A08-81EB-49A0-8183-0FF919695C5E";
+
+		// check object manipulation
+
+		supertool.setFullOutput(true);
+		
+		System.out.println("\n----- object details -----");
+		oMap = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- change and store existing object -> working copy ! -----");
+		storeObjectWithManipulation(oMap);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objUuid, false);
+		
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
 // ====================
 */
 		// -----------------------------------
@@ -1236,6 +1262,16 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.COMMENT_LIST, docList);
 
+		// add entry to OBJECT CONFORMITY
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.CONFORMITY_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, "TEST CONFORMITY_SPECIFICATION");
+		// check CONFORMITY_DEGREE_KEY -> CONFORMITY_DEGREE_VALUE is stored via syslist
+		testDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, 1);
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.CONFORMITY_LIST, docList);
+
 		// store
 		System.out.println("STORE");
 		result = supertool.storeObject(oDocIn, false);
@@ -1372,6 +1408,13 @@ class MdekExampleObjectThread extends Thread {
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.COMMENT_LIST, docList);				
+			}
+
+			// OBJECT CONFORMITY wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.CONFORMITY_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.CONFORMITY_LIST, docList);				
 			}
 
 			// store

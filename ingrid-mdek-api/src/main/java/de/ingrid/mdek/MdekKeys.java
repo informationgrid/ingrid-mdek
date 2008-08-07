@@ -753,9 +753,16 @@ public class MdekKeys {
     public final static String RELATION_DATE_OF_LAST_MODIFICATION = "relation-date-of-last-modification";
 
 
+    // INSPIRE
+    // -------
 
-
-
-
+    /** Value: List of IngridDocs */
+    public final static String CONFORMITY_LIST = "conformity_list";
+    /** Value: String */
+    public final static String CONFORMITY_SPECIFICATION = "conformity-specification";
+    /** Value: Integer */
+    public final static String CONFORMITY_DEGREE_KEY = "conformity-degree-key";
+    /** Value: String */
+    public final static String CONFORMITY_DEGREE_VALUE = "conformity-degree-value";
 
 }

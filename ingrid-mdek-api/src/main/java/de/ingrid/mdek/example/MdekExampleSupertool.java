@@ -2166,6 +2166,13 @@ public class MdekExampleSupertool {
 				System.out.println("   " + doc);								
 			}			
 		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.CONFORMITY_LIST);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Object conformity (INSPIRE): " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);
+			}
+		}
 
 		myDoc = (IngridDocument) o.get(MdekKeys.PARENT_INFO);
 		if (myDoc != null) {

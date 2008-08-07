@@ -24,6 +24,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
+import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
@@ -311,6 +312,7 @@ public class DocToBeanMapper implements IMapper {
 
 			// comments
 			updateObjectComments(oDocIn, oIn);		
+			updateObjectConformitys(oDocIn, oIn);		
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -1944,5 +1946,38 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			dao.makeTransient(attr);
 		}		
+	}
+
+	private ObjectConformity mapObjectConformity(T01Object oFrom,
+			IngridDocument refDoc,
+			ObjectConformity ref) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setSpecification(refDoc.getString(MdekKeys.CONFORMITY_SPECIFICATION));
+		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
+		ref.setDegreeKey((Integer)refDoc.get(MdekKeys.CONFORMITY_DEGREE_KEY));
+		keyValueService.processKeyValue(ref);
+
+		return ref;
+	}
+	private void updateObjectConformitys(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.CONFORMITY_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<ObjectConformity> refs = oIn.getObjectConformitys();
+		ArrayList<ObjectConformity> refs_unprocessed = new ArrayList<ObjectConformity>(refs);
+		// remove all !
+		for (ObjectConformity ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity());
+			refs.add(ref);
+		}
 	}
 }

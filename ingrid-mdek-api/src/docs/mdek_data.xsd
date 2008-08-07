@@ -123,6 +123,10 @@
 			<xs:element name="idc-permissions" type="PERMISSION_LIST"/>
 			
 			<xs:element name="additional-fields" type="ADDITIONAL_FIELD_LIST"/>
+
+			<!-- INSPIRE -->
+			<xs:element name="conformity_list" type="CONFORMITY_LIST"/>
+			
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -823,6 +827,18 @@
 			<xs:element name="comment" type="xs:string"/>
 			<xs:element name="create-user"  type="ADDRESS_MAP"/>
 			<xs:element name="create-time" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CONFORMITY_LIST">
+		<xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="CONFORMITY_MAP" type="CONFORMITY_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CONFORMITY_MAP">
+		<xs:sequence>
+			<xs:element name="conformity-specification" type="xs:string"/>
+			<xs:element name="conformity-degree-key" type="xs:integer"/>
+			<xs:element name="conformity-degree-value" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_PARENT_INFO_MAP">

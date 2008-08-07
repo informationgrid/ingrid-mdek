@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="ObjectConformity" table="object_conformity">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objId" type="long" column="obj_id"/>
+      <property name="specification" type="string" column="specification"/>
+      <property name="degreeKey" type="integer" column="degree_key"/>
+      <property name="degreeValue" type="string" column="degree_value"/>
+
+   </class>
+
+</hibernate-mapping>

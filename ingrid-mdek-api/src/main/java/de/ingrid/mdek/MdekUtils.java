@@ -44,7 +44,8 @@ public class MdekUtils {
 		AVAIL_FORMAT(1320),
 		ADDRESS_VALUE(4300),
 		ADDRESS_TITLE(4305),
-		COMM_TYPE(4430);
+		COMM_TYPE(4430),
+		OBJ_CONFORMITY(6000);
 
 		MdekSysList(Integer dbValue) {
 			this.dbValue = dbValue;

@@ -55,6 +55,11 @@
          <key column="obj_id"/>
          <one-to-many class="ObjectComment" not-found="ignore"/>
       </set>
+      <set name="objectConformitys" table="object_conformity" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="ObjectConformity" not-found="ignore"/>
+      </set>
       <set name="objectReferences" order-by="line" table="object_reference" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_from_id"/>

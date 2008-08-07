@@ -53,6 +53,7 @@ public class T01Object implements IEntity {
 	private String responsibleUuid;
 
 	private Set objectComments = new HashSet();
+	private Set objectConformitys = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set searchtermObjs = new HashSet();
 	private Set spatialReferences = new HashSet();
@@ -436,6 +437,14 @@ public class T01Object implements IEntity {
 
 	public void setObjectComments(Set objectComments) {
 		this.objectComments = objectComments;
+	}
+
+	public Set getObjectConformitys() {
+		return objectConformitys;
+	}
+
+	public void setObjectConformitys(Set objectConformitys) {
+		this.objectConformitys = objectConformitys;
 	}
 
 	public Set getObjectReferences() {

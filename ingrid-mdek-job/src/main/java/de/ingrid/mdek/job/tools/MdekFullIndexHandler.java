@@ -20,6 +20,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
+import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
@@ -49,6 +50,8 @@ import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
+import de.ingrid.mdek.services.persistence.db.model.T08Attr;
+import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 
 
 /**
@@ -441,7 +444,23 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullDataWithSysList(data, MdekSysList.URL_REF_DATATYPE,
 					oUrlRef.getDatatypeKey(), oUrlRef.getDatatypeValue());				
 		}
-		// TODO: add T08Attr.data when mapped with Hibernate !!!
+		// T08Attr
+		Set<T08Attr> objAttrs = o.getT08Attrs();
+		for (T08Attr objAttr : objAttrs) {
+			extendFullData(data, objAttr.getData());
+			// also write label !
+			T08AttrType attrType = objAttr.getT08AttrType();
+			if (attrType != null) {
+				extendFullData(data, attrType.getName());
+			}
+		}
+		// ObjectConformity
+		Set<ObjectConformity> objConforms = o.getObjectConformitys();
+		for (ObjectConformity objConform : objConforms) {
+			extendFullData(data, objConform.getSpecification());
+			extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY,
+					objConform.getDegreeKey(), objConform.getDegreeValue());				
+		}
 
 		// T01Object
 		extendFullData(data, o.getObjUuid());
@@ -495,13 +514,15 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		return data.toString();
 	}	
 	
-	/** Append a value to full data. also adds separator
+	/** Append a value to full data. also adds pre-separator
 	 * @param fullData full data where value is appended
-	 * @param dataToAppend the value to append
+	 * @param dataToAppend the value to append. ONLY APPENDED IF NOT NULL !
 	 */
 	private void extendFullData(StringBuffer fullData, String dataToAppend) {
-		fullData.append(IDX_SEPARATOR);
-		fullData.append(dataToAppend);
+		if (dataToAppend != null) {
+			fullData.append(IDX_SEPARATOR);
+			fullData.append(dataToAppend);			
+		}
 	}
 
 	/** Append SysList or free entry value to full data.
@@ -527,9 +548,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	private String getSysListOrFreeValue(MdekSysList sysList, Integer sysListEntryId, String freeValue) {
 		String retValue = null;
 
-		if (sysListEntryId == null || freeValue == null) {
+		if (sysListEntryId == null) {
 			return retValue;
-		} else if (MdekSysList.FREE_ENTRY.getDbValue().equals(sysListEntryId)) {
+		}
+		if (MdekSysList.FREE_ENTRY.getDbValue().equals(sysListEntryId)) {
 			retValue = freeValue;
 		} else {
 			String catalogLanguage = catalogService.getCatalogLanguage();

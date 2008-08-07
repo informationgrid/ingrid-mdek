@@ -17,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
+import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
@@ -230,6 +231,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectComments(o.getObjectComments(), objectDoc);
 			// additional fields
 			mapT08Attrs(o.getT08Attrs(), objectDoc);
+			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -1442,5 +1444,33 @@ public class BeanToDocMapper implements IMapper {
 		listDoc.put(MdekKeys.LST_ENTRY_LIST, entryList);
 
 		return listDoc;
+	}
+
+	private IngridDocument mapObjectConformitys(Set<ObjectConformity> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (ObjectConformity ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapObjectConformity(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.CONFORMITY_LIST, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapObjectConformity(ObjectConformity ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, ref.getSpecification());
+		refDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, ref.getDegreeKey());
+		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
+
+		return refDoc;
 	}
 }
