@@ -958,6 +958,7 @@ public class DocToBeanMapper implements IMapper {
 			ref.setReferencesystemKey((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
+			ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
 			
 			// save the object and get ID from database (cascading insert do not work??)
 			daoT011ObjGeo.makePersistent(ref);

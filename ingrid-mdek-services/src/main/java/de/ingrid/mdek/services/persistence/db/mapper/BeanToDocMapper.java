@@ -798,6 +798,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.REFERENCESYSTEM_ID, ref.getReferencesystemKey());
 		refDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, ref.getPosAccuracyVertical());
 		refDoc.put(MdekKeys.KEYC_INCL_W_DATASET, ref.getKeycInclWDataset());
+		refDoc.put(MdekKeys.DATASOURCE_UUID, ref.getDatasourceUuid());
 
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAP, refDoc);
 		

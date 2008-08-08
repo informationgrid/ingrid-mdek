@@ -21,6 +21,7 @@ public class T011ObjGeo implements IEntity {
 	private Integer vectorTopologyLevel;
 	private Double posAccuracyVertical;
 	private Integer keycInclWDataset;
+	private String datasourceUuid;
 
 	private Set t011ObjGeoKeycs = new HashSet();
 	private Set t011ObjGeoScales = new HashSet();
@@ -141,6 +142,14 @@ public class T011ObjGeo implements IEntity {
 
 	public void setKeycInclWDataset(Integer keycInclWDataset) {
 		this.keycInclWDataset = keycInclWDataset;
+	}
+
+	public String getDatasourceUuid() {
+		return datasourceUuid;
+	}
+
+	public void setDatasourceUuid(String datasourceUuid) {
+		this.datasourceUuid = datasourceUuid;
 	}
 
 

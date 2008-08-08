@@ -395,6 +395,8 @@ public class MdekKeys {
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
     /** Value: Integer  */
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
+    /** Value: String  */
+    public final static String DATASOURCE_UUID = "datasource-uuid";
     
     // TECHNICAL DOMAIN MAP - KEY CATALOG
     /** Value: List of IngridDocs  */

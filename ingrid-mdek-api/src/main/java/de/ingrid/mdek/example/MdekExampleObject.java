@@ -477,7 +477,10 @@ class MdekExampleObjectThread extends Thread {
 		// ==============
 	
 		// tests here with BW catalog data !
-		objUuid = "AA5C9A08-81EB-49A0-8183-0FF919695C5E";
+		// technical domain DATASET
+//		objUuid = "AA5C9A08-81EB-49A0-8183-0FF919695C5E";
+		// technical domain MAP
+		objUuid = "F1AA9C98-9A46-11D2-9A5E-006008649C7A";
 
 		// check object manipulation
 
@@ -491,7 +494,10 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, false);
-		
+
+		System.out.println("\n----- original object details again -----");
+		oMap = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
