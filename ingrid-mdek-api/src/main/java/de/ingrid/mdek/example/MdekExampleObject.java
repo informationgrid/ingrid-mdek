@@ -481,8 +481,10 @@ class MdekExampleObjectThread extends Thread {
 		// technical domain DATASET (2.1)
 //		objUuid = "AA5C9A08-81EB-49A0-8183-0FF919695C5E";
 
-		// technical domain MAP -> datasource_uuid in t011_obj_geo (2.2)
-//		objUuid = "F1AA9C98-9A46-11D2-9A5E-006008649C7A";
+		// technical domain MAP
+		// - 2.2: new field t011_obj_geo.datasource_uuid
+		// - 2.4: t011_obj_geo.special_base not null and has default value 'Unbekannt' (if not set)
+		objUuid = "F1AA9C98-9A46-11D2-9A5E-006008649C7A";
 
 		// object_access data (2.3)
 		// - migration nur beschraenkung:
@@ -493,7 +495,7 @@ class MdekExampleObjectThread extends Thread {
 		// objUuid = "104BFC6B-4BA8-46C2-B6C3-EB16AB3A8452"; // 1006
 		// objUuid = "1C44EA80-6832-4F68-A120-E912F90372D1"; // 1388
 		// - migration beides:
-		objUuid = "D3424511-F995-11D3-BB92-0010A4FE557C"; // 1050
+//		objUuid = "D3424511-F995-11D3-BB92-0010A4FE557C"; // 1050
 		// objUuid = "57F97284-5E8B-4ABD-807F-BBD35BC9AAF0"; // 1007
 		// objUuid = "A8BBBD5F-1AF3-459A-87DF-7D3DFCA84136"; // 869
 
