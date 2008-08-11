@@ -7,6 +7,7 @@ public class ObjectConformity implements IEntity {
 	private Long id;
 	private int version;
 	private Long objId;
+	private Integer line;
 	private String specification;
 	private Integer degreeKey;
 	private String degreeValue;
@@ -36,6 +37,14 @@ public class ObjectConformity implements IEntity {
 
 	public void setObjId(Long objId) {
 		this.objId = objId;
+	}
+
+	public Integer getLine() {
+		return line;
+	}
+
+	public void setLine(Integer line) {
+		this.line = line;
 	}
 
 	public String getSpecification() {

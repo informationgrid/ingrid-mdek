@@ -7,6 +7,7 @@ public class ObjectAccess implements IEntity {
 	private Long id;
 	private int version;
 	private Long objId;
+	private Integer line;
 	private Integer restrictionKey;
 	private String restrictionValue;
 	private String termsOfUse;
@@ -36,6 +37,14 @@ public class ObjectAccess implements IEntity {
 
 	public void setObjId(Long objId) {
 		this.objId = objId;
+	}
+
+	public Integer getLine() {
+		return line;
+	}
+
+	public void setLine(Integer line) {
+		this.line = line;
 	}
 
 	public Integer getRestrictionKey() {

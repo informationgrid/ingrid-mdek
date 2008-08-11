@@ -1951,12 +1951,14 @@ public class DocToBeanMapper implements IMapper {
 
 	private ObjectConformity mapObjectConformity(T01Object oFrom,
 			IngridDocument refDoc,
-			ObjectConformity ref) 
+			ObjectConformity ref, 
+			int line)
 	{
 		ref.setObjId(oFrom.getId());
 		ref.setSpecification(refDoc.getString(MdekKeys.CONFORMITY_SPECIFICATION));
 		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
 		ref.setDegreeKey((Integer)refDoc.get(MdekKeys.CONFORMITY_DEGREE_KEY));
+		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 
 		return ref;
@@ -1975,22 +1977,25 @@ public class DocToBeanMapper implements IMapper {
 			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
+		int line = 1;
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
-			ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity());
+			ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity(), line);
 			refs.add(ref);
+			line++;
 		}
 	}
 
-
 	private ObjectAccess mapObjectAccess(T01Object oFrom,
 			IngridDocument refDoc,
-			ObjectAccess ref) 
+			ObjectAccess ref, 
+			int line)
 	{
 		ref.setObjId(oFrom.getId());
 		ref.setRestrictionKey((Integer)refDoc.get(MdekKeys.ACCESS_RESTRICTION_KEY));
 		ref.setRestrictionValue(refDoc.getString(MdekKeys.ACCESS_RESTRICTION_VALUE));
 		ref.setTermsOfUse(refDoc.getString(MdekKeys.ACCESS_TERMS_OF_USE));
+		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 
 		return ref;
@@ -2009,10 +2014,12 @@ public class DocToBeanMapper implements IMapper {
 			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
+		int line = 1;
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
-			ObjectAccess ref = mapObjectAccess(oIn, refDoc, new ObjectAccess());
+			ObjectAccess ref = mapObjectAccess(oIn, refDoc, new ObjectAccess(), line);
 			refs.add(ref);
+			line++;
 		}
 	}
 }

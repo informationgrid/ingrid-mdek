@@ -48,7 +48,7 @@
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
 
-      <set name="objectAccesss" table="object_access" inverse="true"
+      <set name="objectAccesss" order-by="line" table="object_access" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="ObjectAccess" not-found="ignore"/>
@@ -58,7 +58,8 @@
          <key column="obj_id"/>
          <one-to-many class="ObjectComment" not-found="ignore"/>
       </set>
-      <set name="objectConformitys" table="object_conformity" inverse="true"
+      <set name="objectConformitys" order-by="line" table="object_conformity"
+           inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="ObjectConformity" not-found="ignore"/>
