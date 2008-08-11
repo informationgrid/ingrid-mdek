@@ -16,7 +16,6 @@ public class T01Object implements IEntity {
 	private String objDescr;
 	private Long catId;
 	private String infoNote;
-	private String availAccessNote;
 	private String locDescr;
 	private String timeFrom;
 	private String timeTo;
@@ -39,7 +38,6 @@ public class T01Object implements IEntity {
 	private Double verticalExtentMaximum;
 	private Integer verticalExtentUnit;
 	private Integer verticalExtentVdatum;
-	private String fees;
 	private String orderingInstructions;
 	private String isCatalogData;
 	private String lastexportTime;
@@ -52,6 +50,7 @@ public class T01Object implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 
+	private Set objectAccesss = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
 	private Set objectReferences = new HashSet();
@@ -148,14 +147,6 @@ public class T01Object implements IEntity {
 
 	public void setInfoNote(String infoNote) {
 		this.infoNote = infoNote;
-	}
-
-	public String getAvailAccessNote() {
-		return availAccessNote;
-	}
-
-	public void setAvailAccessNote(String availAccessNote) {
-		this.availAccessNote = availAccessNote;
 	}
 
 	public String getLocDescr() {
@@ -334,14 +325,6 @@ public class T01Object implements IEntity {
 		this.verticalExtentVdatum = verticalExtentVdatum;
 	}
 
-	public String getFees() {
-		return fees;
-	}
-
-	public void setFees(String fees) {
-		this.fees = fees;
-	}
-
 	public String getOrderingInstructions() {
 		return orderingInstructions;
 	}
@@ -430,6 +413,14 @@ public class T01Object implements IEntity {
 		this.responsibleUuid = responsibleUuid;
 	}
 
+
+	public Set getObjectAccesss() {
+		return objectAccesss;
+	}
+
+	public void setObjectAccesss(Set objectAccesss) {
+		this.objectAccesss = objectAccesss;
+	}
 
 	public Set getObjectComments() {
 		return objectComments;

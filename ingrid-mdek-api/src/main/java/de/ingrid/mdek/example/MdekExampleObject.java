@@ -477,10 +477,25 @@ class MdekExampleObjectThread extends Thread {
 		// ==============
 	
 		// tests here with BW catalog data !
-		// technical domain DATASET
+
+		// technical domain DATASET (2.1)
 //		objUuid = "AA5C9A08-81EB-49A0-8183-0FF919695C5E";
-		// technical domain MAP
-		objUuid = "F1AA9C98-9A46-11D2-9A5E-006008649C7A";
+
+		// technical domain MAP -> datasource_uuid in t011_obj_geo (2.2)
+//		objUuid = "F1AA9C98-9A46-11D2-9A5E-006008649C7A";
+
+		// object_access data (2.3)
+		// - migration nur beschraenkung:
+		// objUuid = "0F65578A-0C8C-4FF0-B81C-E8CA98FBC6D3"; // 946
+		// objUuid = "1B8961C4-B1FD-4F1D-88C2-4AFCC147256F"; // 1387
+		// objUuid = "1B721B27-D603-4CF4-99A8-125DE448E268"; // 867
+		// - migration nur fee:
+		// objUuid = "104BFC6B-4BA8-46C2-B6C3-EB16AB3A8452"; // 1006
+		// objUuid = "1C44EA80-6832-4F68-A120-E912F90372D1"; // 1388
+		// - migration beides:
+		objUuid = "D3424511-F995-11D3-BB92-0010A4FE557C"; // 1050
+		// objUuid = "57F97284-5E8B-4ABD-807F-BBD35BC9AAF0"; // 1007
+		// objUuid = "A8BBBD5F-1AF3-459A-87DF-7D3DFCA84136"; // 869
 
 		// check object manipulation
 
@@ -1112,6 +1127,7 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.REFERENCESYSTEM_ID, new Integer(7));
 		technicalDomain.put(MdekKeys.POS_ACCURACY_VERTICAL, new Double(1.5));
 		technicalDomain.put(MdekKeys.KEYC_INCL_W_DATASET, new Integer(8));
+		technicalDomain.put(MdekKeys.DATASOURCE_UUID, "TEST_DATASOURCE_UUID:" + oDocIn.get(MdekKeys.UUID));
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_MAP, technicalDomain);
 		// add TECHNICAL DOMAIN MAP - key catalog
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
@@ -1278,6 +1294,16 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.CONFORMITY_LIST, docList);
 
+		// add entry to OBJECT ACCESS
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ACCESS_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ACCESS_TERMS_OF_USE, "TEST ACCESS_TERMS_OF_USE");
+		// check ACCESS_RESTRICTION_KEY -> ACCESS_RESTRICTION_VALUE is stored via syslist
+		testDoc.put(MdekKeys.ACCESS_RESTRICTION_KEY, 1);
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.ACCESS_LIST, docList);
+
 		// store
 		System.out.println("STORE");
 		result = supertool.storeObject(oDocIn, false);
@@ -1421,6 +1447,13 @@ class MdekExampleObjectThread extends Thread {
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.CONFORMITY_LIST, docList);				
+			}
+
+			// OBJECT ACCESS wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ACCESS_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.ACCESS_LIST, docList);
 			}
 
 			// store

@@ -16,6 +16,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -197,8 +198,6 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
 
 			objectDoc.put(MdekKeys.ORDERING_INSTRUCTIONS, o.getOrderingInstructions());
-			objectDoc.put(MdekKeys.USE_CONSTRAINTS, o.getAvailAccessNote());
-			objectDoc.put(MdekKeys.FEES, o.getFees());
 			objectDoc.put(MdekKeys.IS_CATALOG_DATA, o.getIsCatalogData());
 
 			// map associations		
@@ -232,6 +231,7 @@ public class BeanToDocMapper implements IMapper {
 			// additional fields
 			mapT08Attrs(o.getT08Attrs(), objectDoc);
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
+			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -1471,6 +1471,34 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, ref.getSpecification());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, ref.getDegreeKey());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
+
+		return refDoc;
+	}
+
+	private IngridDocument mapObjectAccesses(Set<ObjectAccess> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (ObjectAccess ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapObjectAccess(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.ACCESS_LIST, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapObjectAccess(ObjectAccess ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.ACCESS_RESTRICTION_KEY, ref.getRestrictionKey());
+		refDoc.put(MdekKeys.ACCESS_RESTRICTION_VALUE, ref.getRestrictionValue());
+		refDoc.put(MdekKeys.ACCESS_TERMS_OF_USE, ref.getTermsOfUse());
 
 		return refDoc;
 	}

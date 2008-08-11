@@ -14,7 +14,6 @@
       <property name="objDescr" type="string" column="obj_descr"/>
       <property name="catId" type="long" column="cat_id"/>
       <property name="infoNote" type="string" column="info_note"/>
-      <property name="availAccessNote" type="string" column="avail_access_note"/>
       <property name="locDescr" type="string" column="loc_descr"/>
       <property name="timeFrom" type="string" column="time_from"/>
       <property name="timeTo" type="string" column="time_to"/>
@@ -37,7 +36,6 @@
       <property name="verticalExtentMaximum" type="double" column="vertical_extent_maximum"/>
       <property name="verticalExtentUnit" type="integer" column="vertical_extent_unit"/>
       <property name="verticalExtentVdatum" type="integer" column="vertical_extent_vdatum"/>
-      <property name="fees" type="string" column="fees"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
       <property name="isCatalogData" type="string" column="is_catalog_data"/>
       <property name="lastexportTime" type="string" column="lastexport_time"/>
@@ -50,6 +48,11 @@
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
 
+      <set name="objectAccesss" table="object_access" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="ObjectAccess" not-found="ignore"/>
+      </set>
       <set name="objectComments" table="object_comment" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>

@@ -81,8 +81,6 @@
 			<xs:element name="dataset-usage" type="xs:string"/>
 			
 			<xs:element name="ordering-instructions" type="xs:string"/>
-			<xs:element name="use-constraints" type="xs:string"/>
-			<xs:element name="fees" type="xs:string"/>
 			<xs:element name="is-catalog-data" type="xs:string"/>
 			
 			<xs:element name="original-control-identifier" type="xs:string"/>
@@ -126,6 +124,7 @@
 
 			<!-- INSPIRE -->
 			<xs:element name="conformity_list" type="CONFORMITY_LIST"/>
+			<xs:element name="access_list" type="ACCESS_LIST"/>
 			
 		</xs:all>
 	</xs:complexType>
@@ -840,6 +839,18 @@
 			<xs:element name="conformity-specification" type="xs:string"/>
 			<xs:element name="conformity-degree-key" type="xs:integer"/>
 			<xs:element name="conformity-degree-value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ACCESS_LIST">
+		<xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="ACCESS_MAP" type="ACCESS_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ACCESS_MAP">
+		<xs:sequence>
+			<xs:element name="access-restriction-key" type="xs:integer"/>
+			<xs:element name="access-restriction-value" type="xs:string"/>
+			<xs:element name="access-terms-of-use" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_PARENT_INFO_MAP">

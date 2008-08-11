@@ -6,6 +6,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
@@ -77,6 +78,8 @@ public class MdekKeyValueService {
 			processKeyValueT012ObjAdr((T012ObjAdr) bean);
 		} else if (ObjectConformity.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectConformity((ObjectConformity) bean);
+		} else if (ObjectAccess.class.isAssignableFrom(clazz)) {
+			processKeyValueObjectAccess((ObjectAccess) bean);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}
@@ -320,6 +323,19 @@ public class MdekKeyValueService {
 			bean.setDegreeValue(keyNameMap.get(entryKey));
 		}
 		
+		return bean;
+	}
+
+	private IEntity processKeyValueObjectAccess(ObjectAccess bean) {
+		Integer entryKey = bean.getRestrictionKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_ACCESS.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setRestrictionValue(keyNameMap.get(entryKey));
+		}
+
 		return bean;
 	}
 }

@@ -346,10 +346,6 @@ public class MdekKeys {
     /** Value: String */
     public final static String ORDERING_INSTRUCTIONS = "ordering-instructions";
     /** Value: String */
-    public final static String USE_CONSTRAINTS = "use-constraints";
-    /** Value: String */
-    public final static String FEES = "fees";
-    /** Value: String */
     public final static String IS_CATALOG_DATA = "is-catalog-data";
 
     // DATA REFERENCE
@@ -766,5 +762,14 @@ public class MdekKeys {
     public final static String CONFORMITY_DEGREE_KEY = "conformity-degree-key";
     /** Value: String */
     public final static String CONFORMITY_DEGREE_VALUE = "conformity-degree-value";
+
+    /** Value: List of IngridDocs */
+    public final static String ACCESS_LIST = "access_list";
+    /** Value: Integer */
+    public final static String ACCESS_RESTRICTION_KEY = "access-restriction-key";
+    /** Value: String */
+    public final static String ACCESS_RESTRICTION_VALUE = "access-restriction-value";
+    /** Value: String */
+    public final static String ACCESS_TERMS_OF_USE = "access-terms-of-use";
 
 }

@@ -19,6 +19,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -461,6 +462,13 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY,
 					objConform.getDegreeKey(), objConform.getDegreeValue());				
 		}
+		// ObjectAccess
+		Set<ObjectAccess> objAccesses = o.getObjectAccesss();
+		for (ObjectAccess objAccess : objAccesses) {
+			extendFullDataWithSysList(data, MdekSysList.OBJ_ACCESS,
+					objAccess.getRestrictionKey(), objAccess.getRestrictionValue());				
+			extendFullData(data, objAccess.getTermsOfUse());
+		}
 
 		// T01Object
 		extendFullData(data, o.getObjUuid());
@@ -468,14 +476,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		extendFullData(data, o.getOrgObjId());
 		extendFullData(data, o.getObjDescr());
 		extendFullData(data, o.getInfoNote());
-		extendFullData(data, o.getAvailAccessNote());
 		extendFullData(data, o.getLocDescr());
 		extendFullData(data, o.getTimeDescr());
 		extendFullData(data, o.getDatasetAlternateName());
 		extendFullData(data, o.getDatasetUsage());
 		extendFullData(data, o.getMetadataStandardName());
 		extendFullData(data, o.getMetadataStandardVersion());
-		extendFullData(data, o.getFees());
 		extendFullData(data, o.getOrderingInstructions());
 
 		return data.toString();

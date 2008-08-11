@@ -21,6 +21,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/IdcGroup.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/IdcUser.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/IdcUserPermission.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
@@ -80,6 +81,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUserPermission">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectAccess">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectComment">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectConformity">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectNode">read-write</prop>

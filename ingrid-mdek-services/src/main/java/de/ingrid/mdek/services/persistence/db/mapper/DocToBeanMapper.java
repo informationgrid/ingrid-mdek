@@ -23,6 +23,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -277,8 +278,6 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setDatasetUsage((String) oDocIn.get(MdekKeys.DATASET_USAGE));
 
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
-			oIn.setAvailAccessNote((String) oDocIn.get(MdekKeys.USE_CONSTRAINTS));
-			oIn.setFees((String) oDocIn.get(MdekKeys.FEES));
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
 
 			oIn.setModUuid(extractModUserUuid(oDocIn));
@@ -311,8 +310,9 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjData(oDocIn, oIn);
 
 			// comments
-			updateObjectComments(oDocIn, oIn);		
-			updateObjectConformitys(oDocIn, oIn);		
+			updateObjectComments(oDocIn, oIn);
+			updateObjectConformitys(oDocIn, oIn);
+			updateObjectAccesses(oDocIn, oIn);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -1978,6 +1978,40 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
 			ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity());
+			refs.add(ref);
+		}
+	}
+
+
+	private ObjectAccess mapObjectAccess(T01Object oFrom,
+			IngridDocument refDoc,
+			ObjectAccess ref) 
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setRestrictionKey((Integer)refDoc.get(MdekKeys.ACCESS_RESTRICTION_KEY));
+		ref.setRestrictionValue(refDoc.getString(MdekKeys.ACCESS_RESTRICTION_VALUE));
+		ref.setTermsOfUse(refDoc.getString(MdekKeys.ACCESS_TERMS_OF_USE));
+		keyValueService.processKeyValue(ref);
+
+		return ref;
+	}
+	private void updateObjectAccesses(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.ACCESS_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<ObjectAccess> refs = oIn.getObjectAccesss();
+		ArrayList<ObjectAccess> refs_unprocessed = new ArrayList<ObjectAccess>(refs);
+		// remove all !
+		for (ObjectAccess ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			ObjectAccess ref = mapObjectAccess(oIn, refDoc, new ObjectAccess());
 			refs.add(ref);
 		}
 	}
