@@ -90,16 +90,24 @@ public class MdekKeyValueService {
 	public IEntity processKeyValueT011ObjServOperation(T011ObjServOperation servOp, T011ObjServ serv) {
 		Integer servOpKey = servOp.getNameKey();
 		if (servOpKey != null && servOpKey > -1) {
-			String servTypeValue = serv.getTypeValue();
-			if (servTypeValue != null) {
+			Integer servTypeKey = serv.getTypeKey();
+			if (servTypeKey != null) {
 				Map<Integer, String> keyNameMap = null;
-				if (servTypeValue.equals(MdekUtils.OBJ_SERV_TYPE_WMS)) {
+				if (servTypeKey.equals(MdekUtils.OBJ_SERV_TYPE_WMS)) {
 					keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.OBJ_SERV_OPERATION_WMS.getDbValue(),
 						catalogService.getCatalogLanguage());
-				} else if (servTypeValue.equals(MdekUtils.OBJ_SERV_TYPE_WFS)) {
+				} else if (servTypeKey.equals(MdekUtils.OBJ_SERV_TYPE_WFS)) {
 					keyNameMap = catalogService.getSysListKeyNameMap(
 							MdekSysList.OBJ_SERV_OPERATION_WFS.getDbValue(),
+							catalogService.getCatalogLanguage());
+				} else if (servTypeKey.equals(MdekUtils.OBJ_SERV_TYPE_CSW)) {
+					keyNameMap = catalogService.getSysListKeyNameMap(
+							MdekSysList.OBJ_SERV_OPERATION_CSW.getDbValue(),
+							catalogService.getCatalogLanguage());
+				} else if (servTypeKey.equals(MdekUtils.OBJ_SERV_TYPE_WCTS)) {
+					keyNameMap = catalogService.getSysListKeyNameMap(
+							MdekSysList.OBJ_SERV_OPERATION_WCTS.getDbValue(),
 							catalogService.getCatalogLanguage());
 				}
 

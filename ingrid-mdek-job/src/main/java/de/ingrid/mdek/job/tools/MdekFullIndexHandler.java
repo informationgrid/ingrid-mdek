@@ -380,16 +380,23 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oServ.getEnvironment());
 			extendFullData(data, oServ.getBase());
 			extendFullData(data, oServ.getDescription());
+			Integer oServTypeKey = oServ.getTypeKey();
 			String oServTypeName = getSysListOrFreeValue(MdekSysList.OBJ_SERV_TYPE,
-					oServ.getTypeKey(), oServ.getTypeValue());
+					oServTypeKey, oServ.getTypeValue());
 			extendFullData(data, oServTypeName);
 			Set<T011ObjServOperation> oServOps = oServ.getT011ObjServOperations();
 			for (T011ObjServOperation oServOp : oServOps) {
-				if (MdekUtils.OBJ_SERV_TYPE_WMS.equals(oServTypeName)) {
+				if (MdekUtils.OBJ_SERV_TYPE_WMS.equals(oServTypeKey)) {
 					extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_OPERATION_WMS,
 							oServOp.getNameKey(), oServOp.getNameValue());				
-				} else if (MdekUtils.OBJ_SERV_TYPE_WFS.equals(oServTypeName)) {
+				} else if (MdekUtils.OBJ_SERV_TYPE_WFS.equals(oServTypeKey)) {
 					extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_OPERATION_WFS,
+							oServOp.getNameKey(), oServOp.getNameValue());				
+				} else if (MdekUtils.OBJ_SERV_TYPE_CSW.equals(oServTypeKey)) {
+					extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_OPERATION_CSW,
+							oServOp.getNameKey(), oServOp.getNameValue());				
+				} else if (MdekUtils.OBJ_SERV_TYPE_WCTS.equals(oServTypeKey)) {
+					extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_OPERATION_WCTS,
 							oServOp.getNameKey(), oServOp.getNameValue());				
 				} else {
 					extendFullData(data, oServOp.getNameValue());					

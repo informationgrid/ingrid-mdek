@@ -18,8 +18,10 @@ public class MdekUtils {
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 	private final static SimpleDateFormat displayDateTimeFormatter = new SimpleDateFormat("dd.MM.yyyy/HH:mm");
 
-	public final static String OBJ_SERV_TYPE_WMS = "WMS";
-	public final static String OBJ_SERV_TYPE_WFS = "WFS";
+	public final static Integer OBJ_SERV_TYPE_CSW = 1;
+	public final static Integer OBJ_SERV_TYPE_WMS = 2;
+	public final static Integer OBJ_SERV_TYPE_WFS = 3;
+	public final static Integer OBJ_SERV_TYPE_WCTS = 4;
 
 	public final static Integer OBJ_ADR_TYPE_AUSKUNFT_ID = 7;
 
@@ -33,8 +35,10 @@ public class MdekUtils {
 		OBJ_GEO_SYMC(3555),
 		OBJ_LITERATURE_TYPE(3385),
 		OBJ_SERV_TYPE(5100),
+		OBJ_SERV_OPERATION_CSW(5105),
 		OBJ_SERV_OPERATION_WMS(5110),
 		OBJ_SERV_OPERATION_WFS(5120),
+		OBJ_SERV_OPERATION_WCTS(5130),
 		INFO_IMPART(1370),
 		LEGIST(1350),
 		URL_REF_SPECIAL(2000),
