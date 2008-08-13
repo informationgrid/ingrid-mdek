@@ -18,6 +18,7 @@ public class SpatialRefValue implements IEntity {
 	private Double y1;
 	private Double x2;
 	private Double y2;
+	private String topicType;
 
 	private SpatialRefSns spatialRefSns;
 
@@ -109,6 +110,14 @@ public class SpatialRefValue implements IEntity {
 
 	public void setY2(Double y2) {
 		this.y2 = y2;
+	}
+
+	public String getTopicType() {
+		return topicType;
+	}
+
+	public void setTopicType(String topicType) {
+		this.topicType = topicType;
 	}
 
 

@@ -302,6 +302,8 @@ public class MdekKeys {
     public final static String EAST_BOUNDING_COORDINATE = "east-bounding-coordinate";
     /** Value: Double */
     public final static String NORTH_BOUNDING_COORDINATE = "north-bounding-coordinate";
+    /** Value: String */
+    public final static String SNS_TOPIC_TYPE = "sns-topic-type";
 
     
     // SEARCHTERMS

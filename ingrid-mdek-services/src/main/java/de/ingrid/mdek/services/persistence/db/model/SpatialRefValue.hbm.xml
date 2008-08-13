@@ -16,6 +16,7 @@
       <property name="y1" type="double" column="y1"/>
       <property name="x2" type="double" column="x2"/>
       <property name="y2" type="double" column="y2"/>
+      <property name="topicType" type="string" column="topic_type"/>
 
       <many-to-one name="spatialRefSns" class="SpatialRefSns" column="spatial_ref_sns_id"
                    update="false"

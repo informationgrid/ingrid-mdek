@@ -565,7 +565,8 @@ public class DocToBeanMapper implements IMapper {
 		spRefValue.setY1((Double) locDoc.get(MdekKeys.SOUTH_BOUNDING_COORDINATE));
 		spRefValue.setX2((Double) locDoc.get(MdekKeys.EAST_BOUNDING_COORDINATE));
 		spRefValue.setY2((Double) locDoc.get(MdekKeys.NORTH_BOUNDING_COORDINATE));
-
+		spRefValue.setTopicType((String) locDoc.get(MdekKeys.SNS_TOPIC_TYPE));
+		
 		Long spRefSnsId = null;
 		if (spRefSns != null) {
 			spRefSnsId = spRefSns.getId();			

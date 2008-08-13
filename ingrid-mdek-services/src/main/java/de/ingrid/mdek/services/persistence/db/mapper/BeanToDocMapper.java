@@ -653,6 +653,7 @@ public class BeanToDocMapper implements IMapper {
 		locDoc.put(MdekKeys.SOUTH_BOUNDING_COORDINATE, spatRefValue.getY1());
 		locDoc.put(MdekKeys.EAST_BOUNDING_COORDINATE, spatRefValue.getX2());
 		locDoc.put(MdekKeys.NORTH_BOUNDING_COORDINATE, spatRefValue.getY2());
+		locDoc.put(MdekKeys.SNS_TOPIC_TYPE, spatRefValue.getTopicType());
 
 		return locDoc;
 	}

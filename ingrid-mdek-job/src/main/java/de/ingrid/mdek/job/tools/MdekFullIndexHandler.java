@@ -294,6 +294,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 				extendFullDataWithSysList(data, MdekSysList.SPATIAL_REF_VALUE,
 						spatRefValue.getNameKey(), spatRefValue.getNameValue());
 				extendFullData(data, spatRefValue.getSpatialRefSns().getSnsId());
+				extendFullData(data, spatRefValue.getTopicType());
 			}
 		}
 		// T0110AvailFormat
