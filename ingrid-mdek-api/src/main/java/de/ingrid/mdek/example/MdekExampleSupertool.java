@@ -2102,6 +2102,7 @@ public class MdekExampleSupertool {
 			System.out.println("  technical domain DOCUMENT:");
 			System.out.println("    " + myDoc);								
 		}
+
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
 		if (myDoc != null) {
 			System.out.println("  technical domain SERVICE:");
@@ -2110,6 +2111,13 @@ public class MdekExampleSupertool {
 			if (strList != null && strList.size() > 0) {
 				System.out.println("    SERVICE - versions: " + strList.size() + " entries");
 				System.out.println("     " + strList);
+			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SERVICE_TYPE2_LIST);
+			if (docList != null && docList.size() > 0) {
+				System.out.println("    SERVICE - types: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("      " + doc);								
+				}
 			}
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SERVICE_OPERATION_LIST);
 			if (docList != null && docList.size() > 0) {

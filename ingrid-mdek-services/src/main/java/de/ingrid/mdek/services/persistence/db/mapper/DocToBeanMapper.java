@@ -57,6 +57,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
@@ -1679,6 +1680,7 @@ public class DocToBeanMapper implements IMapper {
 			// map 1:N relations
 			updateT011ObjServVersions(domainDoc, ref);
 			updateT011ObjServOperations(domainDoc, ref);
+			updateT011ObjServTypes(domainDoc, ref);
 
 			refs.add(ref);
 		}
@@ -1909,6 +1911,41 @@ public class DocToBeanMapper implements IMapper {
 		ref.setOptional((Integer) refDoc.get(MdekKeys.OPTIONALITY));
 		ref.setRepeatability((Integer) refDoc.get(MdekKeys.REPEATABILITY));
 		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateT011ObjServTypes(IngridDocument oDocIn, T011ObjServ oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.SERVICE_TYPE2_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T011ObjServType> refs = oIn.getT011ObjServTypes();
+		ArrayList<T011ObjServType> refs_unprocessed = new ArrayList<T011ObjServType>(refs);
+		// remove all !
+		for (T011ObjServType ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T011ObjServType ref = mapT011ObjServType(oIn, refDoc, new T011ObjServType(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServType mapT011ObjServType(T011ObjServ oFrom,
+			IngridDocument refDoc,
+			T011ObjServType ref, 
+			int line)
+	{
+		ref.setObjServId(oFrom.getId());
+		ref.setServTypeKey((Integer)refDoc.get(MdekKeys.SERVICE_TYPE2_KEY));
+		ref.setServTypeValue(refDoc.getString(MdekKeys.SERVICE_TYPE2_VALUE));
+		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}

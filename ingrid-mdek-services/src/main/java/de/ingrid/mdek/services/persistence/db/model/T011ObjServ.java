@@ -18,6 +18,7 @@ public class T011ObjServ implements IEntity {
 	private String description;
 
 	private Set t011ObjServOperations = new HashSet();
+	private Set t011ObjServTypes = new HashSet();
 	private Set t011ObjServVersions = new HashSet();
 
 	public T011ObjServ() {}
@@ -101,6 +102,14 @@ public class T011ObjServ implements IEntity {
 
 	public void setT011ObjServOperations(Set t011ObjServOperations) {
 		this.t011ObjServOperations = t011ObjServOperations;
+	}
+
+	public Set getT011ObjServTypes() {
+		return t011ObjServTypes;
+	}
+
+	public void setT011ObjServTypes(Set t011ObjServTypes) {
+		this.t011ObjServTypes = t011ObjServTypes;
 	}
 
 	public Set getT011ObjServVersions() {

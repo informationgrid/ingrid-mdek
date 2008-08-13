@@ -51,6 +51,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
@@ -1242,6 +1243,8 @@ public class BeanToDocMapper implements IMapper {
 		mapT011ObjServVersions(ref.getT011ObjServVersions(), domainDoc);
 		// add service operations
 		mapT011ObjServOperations(ref.getT011ObjServOperations(), domainDoc);
+		// add service types
+		mapT011ObjServTypes(ref.getT011ObjServTypes(), domainDoc);
 
 		return objectDoc;
 	}
@@ -1368,6 +1371,32 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.DESCRIPTION, ref.getDescr());
 		refDoc.put(MdekKeys.OPTIONALITY, ref.getOptional());
 		refDoc.put(MdekKeys.REPEATABILITY, ref.getRepeatability());
+
+		return refDoc;
+	}
+	private IngridDocument mapT011ObjServTypes(Set<T011ObjServType> refs, IngridDocument inDoc) {
+		if (refs == null || refs.size() == 0) {
+			return inDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjServType ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT011ObjServType(ref, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeys.SERVICE_TYPE2_LIST, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapT011ObjServType(T011ObjServType ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.SERVICE_TYPE2_KEY, ref.getServTypeKey());
+		refDoc.put(MdekKeys.SERVICE_TYPE2_VALUE, ref.getServTypeValue());
 
 		return refDoc;
 	}

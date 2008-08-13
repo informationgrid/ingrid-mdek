@@ -742,6 +742,7 @@
 			<xs:element name="description-of-tech-domain" type="xs:string"/>
 			<xs:element name="service-version-list" type="STRING_LIST"/>
 			<xs:element name="service-operation-list" type="TECHNICAL_DOMAIN_SERVICE_OP_LIST"/>
+			<xs:element name="service-type2-list" type="TECHNICAL_DOMAIN_SERVICE_TYPE2_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_LIST">
@@ -759,6 +760,17 @@
 			<xs:element name="depends-on-list" type="STRING_LIST"/>
 			<xs:element name="connect-point-list" type="STRING_LIST"/>
 			<xs:element name="parameter-list" type="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_LIST"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_TYPE2_LIST">
+		<xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="TECHNICAL_DOMAIN_SERVICE_TYPE2_MAP" type="TECHNICAL_DOMAIN_SERVICE_TYPE2_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_TYPE2_MAP">
+		<xs:sequence>
+			<xs:element name="service-type2-key" type="xs:integer"/>
+			<xs:element name="service-type2-value" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_LIST">

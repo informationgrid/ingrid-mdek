@@ -16,6 +16,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
@@ -80,6 +81,8 @@ public class MdekKeyValueService {
 			processKeyValueObjectConformity((ObjectConformity) bean);
 		} else if (ObjectAccess.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectAccess((ObjectAccess) bean);
+		} else if (T011ObjServType.class.isAssignableFrom(clazz)) {
+			processKeyValueT011ObjServType((T011ObjServType) bean);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}
@@ -342,6 +345,19 @@ public class MdekKeyValueService {
 				catalogService.getCatalogLanguage());
 
 			bean.setRestrictionValue(keyNameMap.get(entryKey));
+		}
+
+		return bean;
+	}
+
+	private IEntity processKeyValueT011ObjServType(T011ObjServType bean) {
+		Integer entryKey = bean.getServTypeKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_SERV_TYPE2.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setServTypeValue(keyNameMap.get(entryKey));
 		}
 
 		return bean;

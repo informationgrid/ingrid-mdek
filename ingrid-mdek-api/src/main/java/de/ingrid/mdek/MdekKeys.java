@@ -533,7 +533,14 @@ public class MdekKeys {
     public final static String OPTIONALITY = "optionality";
     /** Value: Integer */
     public final static String REPEATABILITY = "repeatability";
-
+    // TECHNICAL DOMAIN SERVICE - TYPES ("subtypes")
+    /** Value: List of IngridDocs  */
+    public final static String SERVICE_TYPE2_LIST = "service-type2-list";
+    /** Value: Integer */
+    public final static String SERVICE_TYPE2_KEY = "service-type2-key";
+    /** Value: String */
+    public final static String SERVICE_TYPE2_VALUE = "service-type2-value";
+    
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */
     public final static String TECHNICAL_DOMAIN_PROJECT = "technical-domain-project";

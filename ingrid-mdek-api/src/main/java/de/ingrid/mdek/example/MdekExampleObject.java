@@ -484,7 +484,7 @@ class MdekExampleObjectThread extends Thread {
 		// technical domain MAP
 		// - 2.2: new field t011_obj_geo.datasource_uuid
 		// - 2.4: t011_obj_geo.special_base not null and has default value 'Unbekannt' (if not set)
-		objUuid = "F1AA9C98-9A46-11D2-9A5E-006008649C7A";
+		//objUuid = "F1AA9C98-9A46-11D2-9A5E-006008649C7A";
 
 		// object_access data (2.3)
 		// - migration nur beschraenkung:
@@ -498,6 +498,9 @@ class MdekExampleObjectThread extends Thread {
 //		objUuid = "D3424511-F995-11D3-BB92-0010A4FE557C"; // 1050
 		// objUuid = "57F97284-5E8B-4ABD-807F-BBD35BC9AAF0"; // 1007
 		// objUuid = "A8BBBD5F-1AF3-459A-87DF-7D3DFCA84136"; // 869
+
+		// technical domain SERVICE (2.5, 2.6)
+		objUuid = "E7D2FE39-DAEE-11D3-BACC-00104B168367";
 
 		// check object manipulation
 
@@ -1215,6 +1218,14 @@ class MdekExampleObjectThread extends Thread {
 		strList.add("TEST SERVICE_VERSION1");
 		strList.add("TEST SERVICE_VERSION2");
 		technicalDomain.put(MdekKeys.SERVICE_VERSION_LIST, strList);
+		// add TECHNICAL DOMAIN SERVICE - types
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_TYPE2_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.SERVICE_TYPE2_KEY, new Integer(110));
+		testDoc.put(MdekKeys.SERVICE_TYPE2_VALUE, "ERROR, should be overwritten with true value !");
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.SERVICE_TYPE2_LIST, docList);
 		// add TECHNICAL DOMAIN SERVICE - operations
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_OPERATION_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
