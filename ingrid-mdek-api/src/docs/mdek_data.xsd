@@ -534,6 +534,7 @@
 			<xs:element name="east-bounding-coordinate" type="xs:double"/>
 			<xs:element name="north-bounding-coordinate" type="xs:double"/>
 			<xs:element name="south-bounding-coordinate" type="xs:double"/>
+			<xs:element name="sns-topic-type" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SUBJECT_TERM_LIST">
