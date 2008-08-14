@@ -1226,6 +1226,15 @@ class MdekExampleObjectThread extends Thread {
 		testDoc.put(MdekKeys.SERVICE_TYPE2_VALUE, "ERROR, should be overwritten with true value !");
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.SERVICE_TYPE2_LIST, docList);
+		// add TECHNICAL DOMAIN SERVICE - publication scale
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.PUBLICATION_SCALE_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.SCALE, new Integer(123));
+		testDoc.put(MdekKeys.RESOLUTION_GROUND, new Double(1.123));
+		testDoc.put(MdekKeys.RESOLUTION_SCAN, new Double(1.456));
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.PUBLICATION_SCALE_LIST, docList);
 		// add TECHNICAL DOMAIN SERVICE - operations
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_OPERATION_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;

@@ -59,6 +59,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPara.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPlatform.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOperation.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServScale.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServType.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServVersion.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjTopicCat.hbm.xml</value>
@@ -116,6 +117,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServScale">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServType">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat">read-write</prop>

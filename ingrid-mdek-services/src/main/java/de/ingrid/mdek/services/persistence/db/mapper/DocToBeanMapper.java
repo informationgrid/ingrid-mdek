@@ -57,6 +57,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServScale;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
@@ -1681,6 +1682,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjServVersions(domainDoc, ref);
 			updateT011ObjServOperations(domainDoc, ref);
 			updateT011ObjServTypes(domainDoc, ref);
+			updateT011ObjServScales(domainDoc, ref);
 
 			refs.add(ref);
 		}
@@ -1946,6 +1948,41 @@ public class DocToBeanMapper implements IMapper {
 		ref.setServTypeValue(refDoc.getString(MdekKeys.SERVICE_TYPE2_VALUE));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
+
+		return ref;
+	}
+	private void updateT011ObjServScales(IngridDocument oDocIn, T011ObjServ oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.PUBLICATION_SCALE_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T011ObjServScale> refs = oIn.getT011ObjServScales();
+		ArrayList<T011ObjServScale> refs_unprocessed = new ArrayList<T011ObjServScale>(refs);
+		// remove all !
+		for (T011ObjServScale ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T011ObjServScale ref = mapT011ObjServScale(oIn, refDoc, new T011ObjServScale(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServScale mapT011ObjServScale(T011ObjServ oFrom,
+			IngridDocument refDoc,
+			T011ObjServScale ref, 
+			int line)
+	{
+		ref.setObjServId(oFrom.getId());
+		ref.setScale((Integer)refDoc.get(MdekKeys.SCALE));
+		ref.setResolutionGround((Double)refDoc.get(MdekKeys.RESOLUTION_GROUND));
+		ref.setResolutionScan((Double)refDoc.get(MdekKeys.RESOLUTION_SCAN));
+		ref.setLine(line);
 
 		return ref;
 	}

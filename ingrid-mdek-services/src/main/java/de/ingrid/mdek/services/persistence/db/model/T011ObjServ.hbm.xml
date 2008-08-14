@@ -21,6 +21,12 @@
          <key column="obj_serv_id"/>
          <one-to-many class="T011ObjServOperation" not-found="ignore"/>
       </set>
+      <set name="t011ObjServScales" order-by="line" table="t011_obj_serv_scale"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_serv_id"/>
+         <one-to-many class="T011ObjServScale" not-found="ignore"/>
+      </set>
       <set name="t011ObjServTypes" order-by="line" table="t011_obj_serv_type"
            inverse="true"
            cascade="all-delete-orphan">

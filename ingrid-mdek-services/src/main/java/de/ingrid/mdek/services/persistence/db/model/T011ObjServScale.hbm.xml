@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="T011ObjServScale" table="t011_obj_serv_scale">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objServId" type="long" column="obj_serv_id"/>
+      <property name="line" type="integer" column="line"/>
+      <property name="scale" type="integer" column="scale"/>
+      <property name="resolutionGround" type="double" column="resolution_ground"/>
+      <property name="resolutionScan" type="double" column="resolution_scan"/>
+
+   </class>
+
+</hibernate-mapping>

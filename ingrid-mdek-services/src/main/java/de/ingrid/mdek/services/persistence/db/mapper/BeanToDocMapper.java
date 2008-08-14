@@ -51,6 +51,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServScale;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
@@ -1245,6 +1246,8 @@ public class BeanToDocMapper implements IMapper {
 		mapT011ObjServOperations(ref.getT011ObjServOperations(), domainDoc);
 		// add service types
 		mapT011ObjServTypes(ref.getT011ObjServTypes(), domainDoc);
+		// add publication scales
+		mapT011ObjServScales(ref.getT011ObjServScales(), domainDoc);
 
 		return objectDoc;
 	}
@@ -1400,6 +1403,34 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
+	private IngridDocument mapT011ObjServScales(Set<T011ObjServScale> refs, IngridDocument inDoc) {
+		if (refs == null || refs.size() == 0) {
+			return inDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjServScale ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT011ObjServScale(ref, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeys.PUBLICATION_SCALE_LIST, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapT011ObjServScale(T011ObjServScale ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.SCALE, ref.getScale());
+		refDoc.put(MdekKeys.RESOLUTION_GROUND, ref.getResolutionGround());
+		refDoc.put(MdekKeys.RESOLUTION_SCAN, ref.getResolutionScan());
+
+		return refDoc;
+	}
+
 
 	public IngridDocument mapObjectParentData(T01Object parentObject, IngridDocument resultDoc) {
 		if (parentObject == null) {

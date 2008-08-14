@@ -676,7 +676,7 @@
 			<xs:element name="keyc-incl-w-dataset" type="xs:integer"/>
 			<xs:element name="datasource-uuid" type="xs:string"/>
 			<xs:element name="key-catalog-list" type="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_LIST"/>
-			<xs:element name="publication-scale-list" type="TECHNICAL_DOMAIN_MAP_PUBLICATION_SCALE_LIST"/>
+			<xs:element name="publication-scale-list" type="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_LIST"/>
 			<xs:element name="symbol-catalog-list" type="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_LIST"/>
 			<xs:element name="feature-type-list" type="STRING_LIST"/>
 			<xs:element name="geo-vector-list" type="TECHNICAL_DOMAIN_MAP_GEO_VECTOR_LIST"/>
@@ -707,12 +707,12 @@
 			<xs:element name="edition" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_MAP_PUBLICATION_SCALE_LIST">
+	<xs:complexType name="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="TECHNICAL_DOMAIN_MAP_PUBLICATION_SCALE_MAP" type="TECHNICAL_DOMAIN_MAP_PUBLICATION_SCALE_MAP"/>
+			<xs:element name="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_MAP" type="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_MAP_PUBLICATION_SCALE_MAP">
+	<xs:complexType name="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_MAP">
 		<xs:sequence>
 			<xs:element name="scale" type="xs:integer"/>
 			<xs:element name="resolution-ground" type="xs:double"/>
@@ -743,6 +743,7 @@
 			<xs:element name="service-version-list" type="STRING_LIST"/>
 			<xs:element name="service-operation-list" type="TECHNICAL_DOMAIN_SERVICE_OP_LIST"/>
 			<xs:element name="service-type2-list" type="TECHNICAL_DOMAIN_SERVICE_TYPE2_LIST"/>
+			<xs:element name="publication-scale-list" type="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_LIST">

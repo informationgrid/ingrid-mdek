@@ -408,7 +408,7 @@ public class MdekKeys {
     /** Value: String  */
     public final static String EDITION = "edition";
 
-    // TECHNICAL DOMAIN MAP - PUBLICATION SCALE
+    // TECHNICAL DOMAIN MAP AND SERVICE(!) - PUBLICATION SCALE
     /** Value: List of IngridDocs  */
     public final static String PUBLICATION_SCALE_LIST = "publication-scale-list";
     /** Value: Integer  */
