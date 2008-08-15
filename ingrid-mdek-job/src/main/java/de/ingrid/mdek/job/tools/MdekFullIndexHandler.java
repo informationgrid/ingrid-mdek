@@ -197,6 +197,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		Set<T021Communication> comms = a.getT021Communications();
 		for (T021Communication comm : comms) {
 			extendFullData(data, comm.getCommValue());
+			extendFullData(data, comm.getDescr());
 		}
 		// T02Address
 		extendFullData(data, a.getAdrUuid());
