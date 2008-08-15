@@ -63,6 +63,8 @@ public class MdekError implements Serializable {
 		/** e.g. when address to delete is an "auskunft" address.
 		 * ALSO DELIVERS ALL OBJECTS WHERE ADDRESS IS AUSKUNFT */
 		ADDRESS_IS_AUSKUNFT("46"),
+		/** when address is published without email */
+		ADDRESS_HAS_NO_EMAIL("47"),
 
 		/** e.g. when object is deleted and is referenced by other objects<br>
 		 * contains detailed error info about referenced and referencing entities:<br>

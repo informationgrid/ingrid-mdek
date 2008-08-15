@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import de.ingrid.mdek.EnumUtil;
@@ -33,6 +34,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.utils.IngridDocument;
@@ -1293,6 +1295,19 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	{
 		if (node == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// check whether address has an email address !
+		boolean hasEmail = false;
+		Set<T021Communication> comms = node.getT02AddressPublished().getT021Communications();
+		for (T021Communication comm : comms) {
+			if (MdekUtils.COMM_TYPE_EMAIL.equals(comm.getCommtypeKey())) {
+				hasEmail = true;
+				break;
+			}
+		}
+		if (!hasEmail) {
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_HAS_NO_EMAIL));			
 		}
 
 		AddressType nodeType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,

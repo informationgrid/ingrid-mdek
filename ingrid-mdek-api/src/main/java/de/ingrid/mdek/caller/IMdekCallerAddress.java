@@ -1,6 +1,7 @@
 package de.ingrid.mdek.caller;
 
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -93,6 +94,11 @@ public interface IMdekCallerAddress {
 	 * @param userId
 	 * @return response containing result: map representation of created/updated address when refetching,
 	 * 		otherwise map containing uuid of stored address (was generated when new address)  
+	 * @throws MdekException group already exists (MdekErrorType.ADDRESS_HAS_NO_EMAIL).
+	 * @throws MdekException group already exists (MdekErrorType.FREE_ADDRESS_WITH_PARENT).
+	 * @throws MdekException group already exists (MdekErrorType.FREE_ADDRESS_WITH_SUBTREE).
+	 * @throws MdekException group already exists (MdekErrorType.PARENT_NOT_PUBLISHED).
+	 * @throws MdekException group already exists (MdekErrorType.ADDRESS_TYPE_CONFLICT).
 	 */
 	IngridDocument publishAddress(String plugId, IngridDocument addrDoc,
 			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,

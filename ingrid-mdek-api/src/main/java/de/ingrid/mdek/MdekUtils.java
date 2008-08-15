@@ -25,6 +25,8 @@ public class MdekUtils {
 
 	public final static Integer OBJ_ADR_TYPE_AUSKUNFT_ID = 7;
 
+	public final static Integer COMM_TYPE_EMAIL = 3;
+
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1),
 		OBJ_ADR_TYPE(505),

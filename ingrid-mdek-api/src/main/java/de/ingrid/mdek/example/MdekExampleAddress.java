@@ -343,6 +343,15 @@ class MdekExampleAddressThread extends Thread {
 		newAdrDoc.put(MdekKeys.NAME, "testNAME");
 		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+		// email has to exist !
+		docList = (List<IngridDocument>) newAdrDoc.get(MdekKeys.COMMUNICATION);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newAdrDoc.put(MdekKeys.COMMUNICATION, docList);
 
 		// new parent
 		System.out.println("- store under parent: " + parentUuid);
@@ -427,6 +436,16 @@ class MdekExampleAddressThread extends Thread {
 		newTopAddrDoc = supertool.getInitialAddress(newTopAddrDoc);
 		newTopAddrDoc.put(MdekKeys.ORGANISATION, "TEST TOP ADDRESS");
 		newTopAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
+		// email has to exist !
+		docList = (List<IngridDocument>) newTopAddrDoc.get(MdekKeys.COMMUNICATION);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newTopAddrDoc.put(MdekKeys.COMMUNICATION, docList);
+
 		newTopAddrDoc = supertool.storeAddress(newTopAddrDoc, true);
 		// uuid created !
 		String newTopAddrUuid = (String) newTopAddrDoc.get(MdekKeys.UUID);
@@ -567,10 +586,20 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("PUBLISH TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n----- publish NEW TOP ADDRESS immediately -----");
+		System.out.println("\n----- publish NEW TOP ADDRESS immediately -> ERROR ADDRESS_HAS_NO_EMAIL -----");
 		IngridDocument newTopDoc = new IngridDocument();
 		newTopDoc.put(MdekKeys.ORGANISATION, "TEST NEW TOP ADDRESS DIRECT PUBLISH");
 		newTopDoc.put(MdekKeys.CLASS, AddressType.INSTITUTION.getDbValue());
+		aMap = supertool.publishAddress(newTopDoc, true);
+
+		System.out.println("\n----- add email and publish -> SUCCESS -----");
+		docList = new ArrayList<IngridDocument>();
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newTopDoc.put(MdekKeys.COMMUNICATION, docList);
 		aMap = supertool.publishAddress(newTopDoc, true);
 		// uuid created !
 		String newTopUuid = (String)aMap.get(MdekKeys.UUID);
@@ -594,6 +623,14 @@ class MdekExampleAddressThread extends Thread {
 		newPubDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newPubDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newPubDoc.put(MdekKeys.CLASS, AddressType.PERSON.getDbValue());
+		// email has to exist !
+		docList = new ArrayList<IngridDocument>();
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newPubDoc.put(MdekKeys.COMMUNICATION, docList);
 		// sub address of unpublished parent !!!
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
 		supertool.publishAddress(newPubDoc, true);
