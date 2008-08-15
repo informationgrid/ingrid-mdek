@@ -344,7 +344,9 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapModUser(String userAddrUuid, IngridDocument inDoc,
 			MappingQuantity howMuch) {
 		IngridDocument userDoc = new IngridDocument();
-		mapUserAddress(userAddrUuid, userDoc, howMuch, true);
+		// we don't throw Exception if user doesn't exist, caused problems, because mod-user
+		// isn't checked (and should not ?) when address is deleted 
+		mapUserAddress(userAddrUuid, userDoc, howMuch, false);
 
 		inDoc.put(MdekKeys.MOD_USER, userDoc);
 
@@ -401,7 +403,8 @@ public class BeanToDocMapper implements IMapper {
 
 			// map "create user"
 			// we don't throw Exception if user doesn't exist, may be the case, because isn't replaced when importing
-			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY, false);
+			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY,
+					false);
 			refDoc.put(MdekKeys.CREATE_USER, userDoc);
 
 			docList.add(refDoc);					
@@ -443,7 +446,8 @@ public class BeanToDocMapper implements IMapper {
 
 			// map "create user"
 			// we don't throw Exception if user doesn't exist, may be the case, because isn't replaced when importing
-			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY, false);
+			IngridDocument userDoc = mapUserAddress(ref.getCreateUuid(), new IngridDocument(), MappingQuantity.DETAIL_ENTITY,
+					false);
 			refDoc.put(MdekKeys.CREATE_USER, userDoc);
 
 			docList.add(refDoc);					
