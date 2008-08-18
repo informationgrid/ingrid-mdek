@@ -65,6 +65,21 @@ public class MdekUtils {
 		Integer dbValue;
 	}
 
+	public enum SysGuiBehaviour implements IMdekEnum {
+		DEFAULT(-1),
+		REMOVED(0),
+		MANDATORY(1);
+
+		SysGuiBehaviour(Integer dbValue) {
+			this.dbValue = dbValue;
+		}
+		/** returns syslist ID */
+		public Integer getDbValue() {
+			return dbValue;
+		}
+		Integer dbValue;
+	}
+
 	/** Type of entities */
 	public enum IdcEntityType {
 		OBJECT,

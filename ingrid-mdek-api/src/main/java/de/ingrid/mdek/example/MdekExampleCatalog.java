@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.utils.IngridDocument;
@@ -188,6 +190,31 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- SysList Values language: " + catLang + " -----");
 		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLang);
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("SYSGUIS");
+		System.out.println("=========================");
+
+		System.out.println("\n----- get ALL SYSGUI Elements -----");
+		supertool.getSysGuis(null);
+
+		System.out.println("\n----- store specific SYSGUI Element and refetch -----");
+		IngridDocument[] sysGuis = new IngridDocument[2];
+		sysGuis[0] = new IngridDocument();
+		sysGuis[0].put(MdekKeys.SYS_GUI_ID, "TEST GUI_ID 1");
+		sysGuis[0].put(MdekKeys.SYS_GUI_BEHAVIOUR, MdekUtils.SysGuiBehaviour.MANDATORY.getDbValue());
+		sysGuis[1] = new IngridDocument();
+		sysGuis[1].put(MdekKeys.SYS_GUI_ID,  "TEST GUI_ID 2");
+		sysGuis[1].put(MdekKeys.SYS_GUI_BEHAVIOUR, MdekUtils.SysGuiBehaviour.REMOVED.getDbValue());
+		supertool.storeSysGuis(Arrays.asList(sysGuis), true);
+
+		System.out.println("\n----- get SPECIFIC SYSGUI Element -----");
+		supertool.getSysGuis(new String[] { "TEST GUI_ID 2" });
+
+		System.out.println("\n----- get ALL SYSGUI Elements -----");
+		supertool.getSysGuis(null);
+
 
 // ===================================
 

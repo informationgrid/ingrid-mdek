@@ -381,6 +381,16 @@ public class MdekPermissionHandler {
 
 	/**
 	 * Checks whether user has permissions to perform the STORE operation AND THROW EXCEPTION IF NOT !
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForStoreSysGui(String userUuid) {
+		if (!permService.isCatalogAdmin(userUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
+		}
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the STORE operation AND THROW EXCEPTION IF NOT !
 	 * @param objUuid uuid of object to store
 	 * @param parentUuid uuid of parent of object, MAY ONLY BE PASSED IF NEW OBJECT
 	 * @param userUuid users address uuid

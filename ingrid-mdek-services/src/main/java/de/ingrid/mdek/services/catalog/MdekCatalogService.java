@@ -10,7 +10,9 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
+import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 
@@ -21,6 +23,7 @@ public class MdekCatalogService {
 
 	private IGenericDao<IEntity> daoT03Catalogue;
 	private ISysListDao daoSysList;
+	private ISysGuiDao daoSysGui;
 
 	private static MdekCatalogService myInstance;
 
@@ -35,6 +38,7 @@ public class MdekCatalogService {
 	private MdekCatalogService(DaoFactory daoFactory) {
 		daoT03Catalogue = daoFactory.getDao(T03Catalogue.class);
 		daoSysList = daoFactory.getSysListDao();
+		daoSysGui = daoFactory.getSysGuiDao();
 	}
 
 	/** Get catalog. NOTICE: transaction must be active when called the first time ! */
@@ -75,5 +79,12 @@ public class MdekCatalogService {
 		}
 		
 		return map;
+	}
+
+	/** Get sysgui elements with given ids AS LIST OF BEANS. */
+	public List<SysGui> getSysGuis(String[] guiIds) {
+		List<SysGui> list = daoSysGui.getSysGuis(guiIds);
+		
+		return list;
 	}
 }

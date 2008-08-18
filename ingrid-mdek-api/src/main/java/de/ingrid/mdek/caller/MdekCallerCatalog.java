@@ -80,4 +80,23 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		List jobMethods = mdekCaller.setUpJobMethod("getSysLists", jobParams);
 		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument getSysGuis(String plugId, String[] guiIds, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.SYS_GUI_IDS, guiIds);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getSysGuis", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument storeSysGuis(String plugId, List<IngridDocument> sysGuis,
+			boolean refetchAfterStore,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.SYS_GUI_LIST, sysGuis);
+		jobParams.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("storeSysGuis", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
 }

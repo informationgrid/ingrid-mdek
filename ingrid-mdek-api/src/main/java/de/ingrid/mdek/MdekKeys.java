@@ -150,6 +150,18 @@ public class MdekKeys {
     /** Value: String ("Y"/"N")*/
     public final static String IS_DEFAULT = "is-default";
 
+    // SYS GUI
+    // ---------
+    /** Value: String[] -> all ids of sysgui elements to fetch */
+    public final static String SYS_GUI_IDS = "sys-gui-ids";
+    /** Value: List of IngridDocs */
+    public final static String SYS_GUI_LIST = "sys-gui-list";
+    /** Value: String */
+    public final static String SYS_GUI_ID = "sys-gui-id";
+    /** Value: Integer */
+    public final static String SYS_GUI_BEHAVIOUR = "sys-gui-behaviour";
+
+
     // Top Result Lists
     // ----------------
 

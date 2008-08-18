@@ -163,9 +163,6 @@ public class MdekExampleSupertool {
 
 		String refetchInfo = (refetchCatalog) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE storeCatalog " + refetchInfo + " ######");
-
-		// store
-		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.storeCatalog(plugId, catDocIn, refetchCatalog, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -177,6 +174,74 @@ public class MdekExampleSupertool {
 			System.out.println("SUCCESS: ");
 			debugCatalogDoc(result);
 			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	/** Pass null if all gui elements requested */
+	public IngridDocument getSysGuis(String[] guiIds) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getSysGuis ######");
+		System.out.println("requested guiIds: " + guiIds);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getSysGuis(plugId, guiIds, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			Set entries = result.entrySet();
+			System.out.println("SUCCESS: " + entries.size() + " gui elements");
+			for (Object entry : entries) {
+				System.out.println("  " + entry);
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument storeSysGuis(List<IngridDocument> sysGuis,
+			boolean refetch) {
+		// check whether we have data
+		if (sysGuis == null || sysGuis.size() == 0) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE storeSysGuis " + refetchInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.storeSysGuis(plugId, sysGuis, refetch, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			if (refetch) {
+				Set entries = result.entrySet();
+				System.out.println("SUCCESS: " + entries.size() + " gui elements");
+				for (Object entry : entries) {
+					System.out.println("  " + entry);
+				}
+			} else {
+				System.out.println("SUCCESS: ");				
+			}
 		} else {
 			handleError(response);
 		}

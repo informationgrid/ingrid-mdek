@@ -28,6 +28,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
@@ -1510,6 +1511,31 @@ public class BeanToDocMapper implements IMapper {
 		listDoc.put(MdekKeys.LST_ENTRY_LIST, entryList);
 
 		return listDoc;
+	}
+
+	/**
+	 * Transfer SysGuis to passed doc.
+	 * @param list fetched SysGui beans
+	 * @param resultDoc doc where data should be added
+	 * @return resultDoc containing additional data
+	 */
+	public IngridDocument mapSysGuis(List<SysGui> list,
+			IngridDocument resultDoc) {
+		if (list == null) {
+			return resultDoc;
+		}
+
+		for (SysGui guiElem : list) {
+			String guiId = guiElem.getGuiId();
+
+			IngridDocument guiElemDoc = new IngridDocument();
+			guiElemDoc.put(MdekKeys.SYS_GUI_ID, guiId);
+			guiElemDoc.put(MdekKeys.SYS_GUI_BEHAVIOUR, guiElem.getBehaviour());
+
+			resultDoc.put(guiId, guiElemDoc);
+		}
+
+		return resultDoc;
 	}
 
 	private IngridDocument mapObjectConformitys(Set<ObjectConformity> refs, IngridDocument objectDoc) {
