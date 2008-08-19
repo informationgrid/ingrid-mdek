@@ -43,9 +43,9 @@ public class SpatialRefValueDaoHibernate
 	 */
 	private SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey, Long spatialRefSnsId, String nativekey,
 			Long objId) {
-		if (LOG.isDebugEnabled()) {
-//			LOG.debug("type: " + type + ", name: " + name + ", SpatialRefSns_ID: " + spatialRefSnsId + ", nativeKey: " + nativekey);			
-		}
+//		if (LOG.isDebugEnabled()) {
+//			LOG.debug("type: " + type + ", nameKey: " + nameKey + ", nameValue: " + nameValue + ", SpatialRefSns_ID: " + spatialRefSnsId + ", nativeKey: " + nativekey);			
+//		}
 
 		SpatialReferenceType spRefType = EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, type);
 
@@ -81,19 +81,16 @@ public class SpatialRefValueDaoHibernate
 		if (nameKey == null) {
 			throw new MdekException(new MdekError(MdekErrorType.LIST_KEY_NULL_NOT_ALLOWED));
 		}
-		// if freier Eintrag and no name -> Exception
+		qString = qString + " and spRefVal.nameKey = " + nameKey;
+
+		// if freier Eintrag
 		if (nameKey.equals(-1)) {
+			// and no name -> Exception
 			if (nameValue == null || nameValue.trim().length() == 0) {
 				throw new MdekException(new MdekError(MdekErrorType.LIST_NO_KEY_NO_VALUE));
 			}
-		}
-
-		qString = qString + " and spRefVal.nameKey = " + nameKey;
-
-		if (nameValue != null) {
+			// select also via name value !
 			qString = qString + " and spRefVal.nameValue = '" + nameValue + "'";
-		} else {
-			qString = qString + " and spRefVal.nameValue is null";
 		}
 
 		Query q = session.createQuery(qString);
@@ -120,33 +117,13 @@ public class SpatialRefValueDaoHibernate
 			"left join fetch spRefVal.spatialRefSns " +
 			"where spRefVal.type = '" + SpatialReferenceType.GEO_THESAURUS.getDbValue() + "' ";
 
-		if (nameValue != null) {
-			qString += "and spRefVal.nameValue = ? ";
-		} else {
-			qString += "and spRefVal.nameValue is null ";			
+		// null topic ids not allowed ! all sns spatial references have a topic id
+		if (spatialRefSnsId == null) {
+			throw new MdekException(new MdekError(MdekErrorType.SNS_SPATIAL_REFERENCE_WITHOUT_TOPIC_ID));
 		}
-		if (spatialRefSnsId != null) {
-			qString += "and spRefVal.spatialRefSnsId = ? ";
-		} else {
-			qString += "and spRefVal.spatialRefSnsId is null ";			
-		}
-		if (nativekey != null) {
-			qString += "and spRefVal.nativekey = ? ";
-		} else {
-			qString += "and spRefVal.nativekey is null ";			
-		}
-	
+		qString += "and spRefVal.spatialRefSnsId = " + spatialRefSnsId;
+
 		Query q = session.createQuery(qString);
-		int nextPos = 0;
-		if (nameValue != null) {
-			q.setString(nextPos++, nameValue);
-		}
-		if (spatialRefSnsId != null) {
-			q.setLong(nextPos++, spatialRefSnsId);			
-		}
-		if (nativekey != null) {
-			q.setString(nextPos++, nativekey);			
-		}
 
 		return (SpatialRefValue) q.uniqueResult();
 	}

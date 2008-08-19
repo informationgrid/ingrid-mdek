@@ -82,6 +82,8 @@ public class MdekError implements Serializable {
 		LIST_KEY_NULL_NOT_ALLOWED("101"),
 		/** List data in record has no key AND no value !  Has to have one of both ! */
 		LIST_NO_KEY_NO_VALUE("102"),
+		/** geothesaurus spatial references have to have sns topic id ! */
+		SNS_SPATIAL_REFERENCE_WITHOUT_TOPIC_ID("103"),
 		
 		/** the user who called mdek backend could not be loaded via its passed AddrUuid ! */
 		CALLING_USER_NOT_FOUND("1000"),
