@@ -8,7 +8,7 @@
 			<xs:element name="parent-uuid" type="UUID"/>
 			<xs:element name="from-uuid" type="UUID"/>
 			<xs:element name="to-uuid" type="UUID"/>
-			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
+			<xs:element name="sys-list-ids" type="STRING_ARRAY"/>
 			<!-- request specific sysguis -->
 			<xs:element name="sys-gui-ids" type="STRING_ARRAY"/>
 			<!-- WRITE sysguis -->
@@ -472,7 +472,7 @@
 	</xs:complexType>
 	<xs:complexType name="SYS_LIST_MAP">
 		<xs:sequence>
-			<xs:element name="lst-id" type="xs:integer"/>
+			<xs:element name="lst-id" type="xs:string"/>
 			<xs:element name="lst-entry-list" type="SYS_LIST_ENTRY_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -483,7 +483,7 @@
 	</xs:complexType>
 	<xs:complexType name="SYS_LIST_ENTRY_MAP">
 		<xs:sequence>
-			<xs:element name="entry-id" type="xs:integer"/>
+			<xs:element name="entry-id" type="xs:string"/>
 			<xs:element name="entry-name" type="xs:string"/>
 			<xs:element name="is-default" type="xs:string"/>
 		</xs:sequence>

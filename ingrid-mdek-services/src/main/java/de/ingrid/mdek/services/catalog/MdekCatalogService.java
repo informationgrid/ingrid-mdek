@@ -63,7 +63,7 @@ public class MdekCatalogService {
 	}
 
 	/** Get syslist entries of syslist with given id and language AS LIST OF ENTRY BEANS. */
-	public List<SysList> getSysList(int listId, String language) {
+	public List<SysList> getSysList(String listId, String language) {
 		List<SysList> list = daoSysList.getSysList(listId, language);
 		
 		return list;
@@ -71,8 +71,8 @@ public class MdekCatalogService {
 
 	/** Get syslist entries of syslist with given id and language IN MAP.<br>
 	 * entry_key is Key to Map and delivers entry_name. */
-	public Map<Integer, String> getSysListKeyNameMap(int listId, String language) {
-		Map map = new HashMap<Integer, String>();
+	public Map<String, String> getSysListKeyNameMap(String listId, String language) {
+		Map<String, String> map = new HashMap<String, String>();
 		List<SysList> entries = getSysList(listId, language);
 		for (SysList entry : entries) {
 			map.put(entry.getEntryId(), entry.getName());

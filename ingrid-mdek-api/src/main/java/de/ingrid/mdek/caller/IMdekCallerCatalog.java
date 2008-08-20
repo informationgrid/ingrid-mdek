@@ -20,7 +20,7 @@ public interface IMdekCallerCatalog {
 	 * @param userId calling user
 	 * @return response containing result: map with list entries
 	 */
-	IngridDocument getSysLists(String plugId, Integer[] listIds, String language,
+	IngridDocument getSysLists(String plugId, String[] listIds, String language,
 			String userId);
 
 	/**

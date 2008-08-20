@@ -95,7 +95,7 @@ public class MdekKeyValueService {
 		if (servOpKey != null && servOpKey > -1) {
 			Integer servTypeKey = serv.getTypeKey();
 			if (servTypeKey != null) {
-				Map<Integer, String> keyNameMap = null;
+				Map<String, String> keyNameMap = null;
 				if (servTypeKey.equals(MdekUtils.OBJ_SERV_TYPE_WMS)) {
 					keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.OBJ_SERV_OPERATION_WMS.getDbValue(),
@@ -115,7 +115,7 @@ public class MdekKeyValueService {
 				}
 
 				if (keyNameMap != null) {
-					servOp.setNameValue(keyNameMap.get(servOpKey));
+					servOp.setNameValue(keyNameMap.get(servOpKey.toString()));
 				}
 			}
 		}
@@ -126,11 +126,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT011ObjServ(T011ObjServ bean) {
 		Integer entryKey = bean.getTypeKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_SERV_TYPE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setTypeValue(keyNameMap.get(entryKey));
+			bean.setTypeValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -139,11 +139,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT011ObjGeoSymc(T011ObjGeoSymc bean) {
 		Integer entryKey = bean.getSymbolCatKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_GEO_SYMC.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setSymbolCatValue(keyNameMap.get(entryKey));
+			bean.setSymbolCatValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -152,11 +152,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT011ObjGeoKeyc(T011ObjGeoKeyc bean) {
 		Integer entryKey = bean.getKeycKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_GEO_KEYC.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setKeycValue(keyNameMap.get(entryKey));
+			bean.setKeycValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -165,20 +165,20 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT017UrlRef(T017UrlRef bean) {
 		Integer entryKey = bean.getDatatypeKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.URL_REF_DATATYPE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setDatatypeValue(keyNameMap.get(entryKey));
+			bean.setDatatypeValue(keyNameMap.get(entryKey.toString()));
 		}
 
 		entryKey = bean.getSpecialRef();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.URL_REF_SPECIAL.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setSpecialName(keyNameMap.get(entryKey));
+			bean.setSpecialName(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -187,11 +187,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT015Legist(T015Legist bean) {
 		Integer entryKey = bean.getLegistKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.LEGIST.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setLegistValue(keyNameMap.get(entryKey));
+			bean.setLegistValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -200,11 +200,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT014InfoImpart(T014InfoImpart bean) {
 		Integer entryKey = bean.getImpartKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.INFO_IMPART.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setImpartValue(keyNameMap.get(entryKey));
+			bean.setImpartValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -213,11 +213,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT0110AvailFormat(T0110AvailFormat bean) {
 		Integer entryKey = bean.getFormatKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.AVAIL_FORMAT.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setFormatValue(keyNameMap.get(entryKey));
+			bean.setFormatValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -226,11 +226,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT011ObjLiterature(T011ObjLiterature bean) {
 		Integer entryKey = bean.getTypeKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_LITERATURE_TYPE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setTypeValue(keyNameMap.get(entryKey));
+			bean.setTypeValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -239,11 +239,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT021Communication(T021Communication bean) {
 		Integer entryKey = bean.getCommtypeKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.COMM_TYPE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setCommtypeValue(keyNameMap.get(entryKey));
+			bean.setCommtypeValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -252,11 +252,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueSpatialRefValue(SpatialRefValue bean) {
 		Integer entryKey = bean.getNameKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.SPATIAL_REF_VALUE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setNameValue(keyNameMap.get(entryKey));
+			bean.setNameValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -265,20 +265,20 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT02Address(T02Address bean) {
 		Integer entryKey = bean.getAddressKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.ADDRESS_VALUE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setAddressValue(keyNameMap.get(entryKey));
+			bean.setAddressValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		entryKey = bean.getTitleKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.ADDRESS_TITLE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setTitleValue(keyNameMap.get(entryKey));
+			bean.setTitleValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -287,11 +287,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueObjectReference(ObjectReference bean) {
 		Integer entryKey = bean.getSpecialRef();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_REFERENCE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setSpecialName(keyNameMap.get(entryKey));
+			bean.setSpecialName(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -304,20 +304,20 @@ public class MdekKeyValueService {
 		if (sysListKey != null && sysListKey > -1 &&
 				entryKey != null && entryKey > -1)
 		{
-			Map<Integer, String> keyNameMap = null;
-			if (sysListKey.equals(MdekSysList.OBJ_ADR_TYPE.getDbValue())) {
+			Map<String, String> keyNameMap = null;
+			if (sysListKey.toString().equals(MdekSysList.OBJ_ADR_TYPE.getDbValue())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.OBJ_ADR_TYPE.getDbValue(),
 						catalogService.getCatalogLanguage());
 				
-			} else if (sysListKey.equals(MdekSysList.OBJ_ADR_TYPE_SPECIAL.getDbValue())) {
+			} else if (sysListKey.toString().equals(MdekSysList.OBJ_ADR_TYPE_SPECIAL.getDbValue())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.OBJ_ADR_TYPE_SPECIAL.getDbValue(),
 						catalogService.getCatalogLanguage());				
 			}
 
 			if (keyNameMap != null) {
-				bean.setSpecialName(keyNameMap.get(entryKey));
+				bean.setSpecialName(keyNameMap.get(entryKey.toString()));
 			}
 		}
 		
@@ -327,11 +327,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueObjectConformity(ObjectConformity bean) {
 		Integer entryKey = bean.getDegreeKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_CONFORMITY.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setDegreeValue(keyNameMap.get(entryKey));
+			bean.setDegreeValue(keyNameMap.get(entryKey.toString()));
 		}
 		
 		return bean;
@@ -340,11 +340,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueObjectAccess(ObjectAccess bean) {
 		Integer entryKey = bean.getRestrictionKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_ACCESS.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setRestrictionValue(keyNameMap.get(entryKey));
+			bean.setRestrictionValue(keyNameMap.get(entryKey.toString()));
 		}
 
 		return bean;
@@ -353,11 +353,11 @@ public class MdekKeyValueService {
 	private IEntity processKeyValueT011ObjServType(T011ObjServType bean) {
 		Integer entryKey = bean.getServTypeKey();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.OBJ_SERV_TYPE2.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setServTypeValue(keyNameMap.get(entryKey));
+			bean.setServTypeValue(keyNameMap.get(entryKey.toString()));
 		}
 
 		return bean;

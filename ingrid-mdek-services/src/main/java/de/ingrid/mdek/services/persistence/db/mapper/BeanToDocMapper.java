@@ -1492,7 +1492,7 @@ public class BeanToDocMapper implements IMapper {
 	 * @return doc containing additional data.
 	 */
 	public IngridDocument mapSysList(List<SysList> list,
-			int listId,
+			String listId,
 			IngridDocument listDoc) {
 		if (list == null) {
 			return listDoc;

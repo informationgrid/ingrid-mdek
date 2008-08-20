@@ -1381,7 +1381,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		for (IngridDocument oA : oAs) {
 			boolean typeOk = MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(oA.get(MdekKeys.RELATION_TYPE_ID));
-			boolean listOk = MdekSysList.OBJ_ADR_TYPE.getDbValue().equals(oA.get(MdekKeys.RELATION_TYPE_REF));
+			boolean listOk = new Integer(MdekSysList.OBJ_ADR_TYPE.getDbValue()).equals(oA.get(MdekKeys.RELATION_TYPE_REF));
 			if (typeOk && listOk) {
 				return true;
 			}
@@ -1405,7 +1405,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// We can't map via "mapT012ObjAdrs" cause then entities have to be bound to database to fetch address node ...
 		T012ObjAdr oA = new T012ObjAdr();
 		oA.setType(MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
-		oA.setSpecialRef(MdekSysList.OBJ_ADR_TYPE.getDbValue());
+		oA.setSpecialRef(new Integer(MdekSysList.OBJ_ADR_TYPE.getDbValue()));
 		IngridDocument oADoc = beanToDocMapper.mapT012ObjAdr(oA, new IngridDocument());
 		beanToDocMapper.mapT02Address(addrNode.getT02AddressWork(), oADoc, MappingQuantity.TABLE_ENTITY);
 		oAs.add(oADoc);					

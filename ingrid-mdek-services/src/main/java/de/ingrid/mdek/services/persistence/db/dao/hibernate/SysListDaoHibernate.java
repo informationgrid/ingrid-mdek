@@ -24,7 +24,7 @@ public class SysListDaoHibernate
         super(factory, SysList.class);
     }
 
-	public List<SysList> getSysList(int lstId, String language) {
+	public List<SysList> getSysList(String lstId, String language) {
 		Session session = getSession();
 
 		String qString = "from SysList " +
@@ -36,7 +36,7 @@ public class SysListDaoHibernate
 		qString += "order by line";
 
 		Query q = session.createQuery(qString);
-		q.setInteger(0, lstId);
+		q.setString(0, lstId);
 		if (language != null) {
 			q.setString(1, language);			
 		}
@@ -44,7 +44,7 @@ public class SysListDaoHibernate
 		return q.list();
 	}
 
-	public SysList getSysListEntry(int lstId, int entryId, String language) {
+	public SysList getSysListEntry(String lstId, String entryId, String language) {
 		Session session = getSession();
 		
 		String qString = "from SysList " +
@@ -53,8 +53,8 @@ public class SysListDaoHibernate
 			"and langId = ?";
 
 		Query q = session.createQuery(qString);
-		q.setInteger(0, lstId);
-		q.setInteger(1, entryId);
+		q.setString(0, lstId);
+		q.setString(1, entryId);
 		q.setString(2, language);
 
 		return (SysList) q.uniqueResult();
