@@ -28,13 +28,12 @@ public class SysListDaoHibernate
 		Session session = getSession();
 
 		String qString = "from SysList " +
-			"where lstId = ? " +
-			// skip 0 entries -> invalid entries for select boxes !
-			"and entryId != 0 ";
+			"where lstId = ? ";
 
 		if (language != null) {
 			qString += "and langId = ? ";
 		}
+		qString += "order by line";
 
 		Query q = session.createQuery(qString);
 		q.setInteger(0, lstId);

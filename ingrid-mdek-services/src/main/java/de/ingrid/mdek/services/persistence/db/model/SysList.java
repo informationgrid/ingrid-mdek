@@ -13,6 +13,7 @@ public class SysList implements IEntity {
 	private String description;
 	private Integer maintainable;
 	private String isDefault;
+	private Integer line;
 
 
 	public SysList() {}
@@ -87,6 +88,14 @@ public class SysList implements IEntity {
 
 	public void setIsDefault(String isDefault) {
 		this.isDefault = isDefault;
+	}
+
+	public Integer getLine() {
+		return line;
+	}
+
+	public void setLine(Integer line) {
+		this.line = line;
 	}
 
 
