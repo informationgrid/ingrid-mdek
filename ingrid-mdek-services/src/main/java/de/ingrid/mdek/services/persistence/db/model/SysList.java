@@ -6,8 +6,8 @@ public class SysList implements IEntity {
 
 	private Long id;
 	private int version;
-	private String lstId;
-	private String entryId;
+	private Integer lstId;
+	private Integer entryId;
 	private String langId;
 	private String name;
 	private String description;
@@ -34,19 +34,19 @@ public class SysList implements IEntity {
 		this.version = version;
 	}
 
-	public String getLstId() {
+	public Integer getLstId() {
 		return lstId;
 	}
 
-	public void setLstId(String lstId) {
+	public void setLstId(Integer lstId) {
 		this.lstId = lstId;
 	}
 
-	public String getEntryId() {
+	public Integer getEntryId() {
 		return entryId;
 	}
 
-	public void setEntryId(String entryId) {
+	public void setEntryId(Integer entryId) {
 		this.entryId = entryId;
 	}
 

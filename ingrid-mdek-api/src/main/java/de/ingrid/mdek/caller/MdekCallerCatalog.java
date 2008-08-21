@@ -71,7 +71,7 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getSysLists(String plugId, String[] listIds, String language,
+	public IngridDocument getSysLists(String plugId, Integer[] listIds, String language,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.SYS_LIST_IDS, listIds);

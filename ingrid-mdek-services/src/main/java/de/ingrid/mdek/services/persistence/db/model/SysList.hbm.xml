@@ -7,8 +7,8 @@
          <generator class="hilo"/>
       </id>
       <version name="version" type="integer" column="version"/>
-      <property name="lstId" type="string" column="lst_id"/>
-      <property name="entryId" type="string" column="entry_id"/>
+      <property name="lstId" type="integer" column="lst_id"/>
+      <property name="entryId" type="integer" column="entry_id"/>
       <property name="langId" type="string" column="lang_id"/>
       <property name="name" type="string" column="name"/>
       <property name="description" type="string" column="description"/>

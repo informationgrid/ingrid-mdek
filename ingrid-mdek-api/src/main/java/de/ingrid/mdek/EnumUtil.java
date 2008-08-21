@@ -15,8 +15,7 @@ public class EnumUtil {
 	 * @param enumType
 	 *            Enumeration Type Class, e.g. WorkState.class
 	 * @param dbValue
-	 * 		the database value, also works with null dbValue
-	 *      NOTICE: The type of the database value has to be the same as the one in the enumeration !!! 
+	 *            the database value, also works with null dbValue
 	 * @return an Enumeration Constant, e.g. WorkState.V or null, if no mapping
 	 *         Enumeration Constant can be found
 	 */

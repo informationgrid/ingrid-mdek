@@ -533,7 +533,7 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getSysLists(String[] listIds, String language) {
+	public IngridDocument getSysLists(Integer[] listIds, String language) {
 		long startTime;
 		long endTime;
 		long neededTime;

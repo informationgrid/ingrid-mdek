@@ -117,12 +117,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument getSysLists(IngridDocument params) {
 		try {
 			genericDao.beginTransaction();
-			String[] lstIds = (String[]) params.get(MdekKeys.SYS_LIST_IDS);
+			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
 			String language = params.getString(MdekKeys.LANGUAGE);
 
 			IngridDocument result = new IngridDocument();
 			
-			for (String lstId : lstIds) {
+			for (int lstId : lstIds) {
 				List<SysList> list = catalogService.getSysList(lstId, language);
 				
 				IngridDocument listDoc = new IngridDocument();

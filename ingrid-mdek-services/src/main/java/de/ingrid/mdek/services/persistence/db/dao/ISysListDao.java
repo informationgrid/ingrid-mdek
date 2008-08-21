@@ -16,7 +16,7 @@ public interface ISysListDao
 	extends IGenericDao<SysList> {
 
 	/** returns all entries of the given list ordered by entry id */
-	List<SysList> getSysList(String lstId, String language);
+	List<SysList> getSysList(int lstId, String language);
 	
 	/**
 	 * Get a specific entry. DON'T PASS NULL VALUES !
@@ -25,5 +25,5 @@ public interface ISysListDao
 	 * @param language language of list/entry -> NOT NULL 
 	 * @return the list entry or null if not found !
 	 */
-	SysList getSysListEntry(String lstId, String entryId, String language);
+	SysList getSysListEntry(int lstId, int entryId, String language);
 }

@@ -186,10 +186,10 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- SysList Values NO language -----");
-		supertool.getSysLists(new String[] { "100", "1100", "1350", "3555"}, null);
+		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, null);
 
 		System.out.println("\n----- SysList Values language: " + catLang + " -----");
-		supertool.getSysLists(new String[] { "100", "1100", "1350", "3555"}, catLang);
+		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLang);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");

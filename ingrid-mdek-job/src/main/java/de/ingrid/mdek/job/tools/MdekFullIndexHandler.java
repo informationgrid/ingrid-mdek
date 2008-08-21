@@ -547,16 +547,11 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	 * @param freeValue the free value from bean
 	 */
 	private void extendFullDataWithSysList(StringBuffer fullData,
-			MdekSysList sysList, String sysListEntryId, String freeValue) {
+			MdekSysList sysList, Integer sysListEntryId, String freeValue) {
 		String value = getSysListOrFreeValue(sysList, sysListEntryId, freeValue);
 		if (value != null) {
 			extendFullData(fullData, value);			
 		}
-	}
-	private void extendFullDataWithSysList(StringBuffer fullData,
-			MdekSysList sysList, Integer sysListEntryId, String freeValue) {
-		String sSysListEntryId = (sysListEntryId == null) ? null : sysListEntryId.toString();
-		extendFullDataWithSysList(fullData, sysList, sSysListEntryId, freeValue);
 	}
 
 	/** Analyzes given data and returns entry value or free value
@@ -565,7 +560,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 	 * @param freeValue the free value from bean
 	 * @return value (may be null if entry not found or free value is null ...)
 	 */
-	private String getSysListOrFreeValue(MdekSysList sysList, String sysListEntryId, String freeValue) {
+	private String getSysListOrFreeValue(MdekSysList sysList, Integer sysListEntryId, String freeValue) {
 		String retValue = null;
 
 		if (sysListEntryId == null) {
@@ -583,9 +578,5 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		}
 		
 		return retValue;
-	}
-	private String getSysListOrFreeValue(MdekSysList sysList, Integer sysListEntryId, String freeValue) {
-		String sSysListEntryId = (sysListEntryId == null) ? null : sysListEntryId.toString();
-		return getSysListOrFreeValue(sysList, sSysListEntryId, freeValue);
 	}
 }

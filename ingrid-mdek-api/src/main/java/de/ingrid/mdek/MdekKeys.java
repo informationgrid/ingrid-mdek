@@ -135,15 +135,15 @@ public class MdekKeys {
     // SYS LISTS
     // ---------
 
-    /** Value: String[] -> all ids of syslists to fetch */
+    /** Value: Integer[] -> all ids of syslists to fetch */
     public final static String SYS_LIST_IDS = "sys-list-ids";
     /** Prefix for all sys-lists in result, e.g. sys-list-1100 */
     public final static String SYS_LIST_KEY_PREFIX = "sys-list-";
-    /** Value: String */
+    /** Value: Integer */
     public final static String LST_ID = "lst-id";
     /** Value: List of IngridDocs */
     public final static String LST_ENTRY_LIST = "lst-entry-list";
-    /** Value: String */
+    /** Value: Integer */
     public final static String ENTRY_ID = "entry-id";
     /** Value: String */
     public final static String ENTRY_NAME = "entry-name";

@@ -18,51 +18,51 @@ public class MdekUtils {
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 	private final static SimpleDateFormat displayDateTimeFormatter = new SimpleDateFormat("dd.MM.yyyy/HH:mm");
 
-	// NOTICE: EntityIds are stored as String in syslist, BUT AS INTEGER in referencing beans !
-	// Be careful when comparing values !
 	public final static Integer OBJ_SERV_TYPE_CSW = 1;
 	public final static Integer OBJ_SERV_TYPE_WMS = 2;
 	public final static Integer OBJ_SERV_TYPE_WFS = 3;
 	public final static Integer OBJ_SERV_TYPE_WCTS = 4;
+
 	public final static Integer OBJ_ADR_TYPE_AUSKUNFT_ID = 7;
+
 	public final static Integer COMM_TYPE_EMAIL = 3;
 
 	public enum MdekSysList implements IMdekEnum {
-		FREE_ENTRY("-1"),
-		OBJ_ADR_TYPE("505"),
-		OBJ_ADR_TYPE_SPECIAL("2010"),
-		OBJ_REFERENCE("2000"),
-		OBJ_GEO_REFERENCESYSTEM("100"),
-		OBJ_GEO_KEYC("3535"),
-		OBJ_GEO_SYMC("3555"),
-		OBJ_LITERATURE_TYPE("3385"),
-		OBJ_SERV_TYPE("5100"),
-		OBJ_SERV_OPERATION_CSW("5105"),
-		OBJ_SERV_OPERATION_WMS("5110"),
-		OBJ_SERV_OPERATION_WFS("5120"),
-		OBJ_SERV_OPERATION_WCTS("5130"),
-		OBJ_SERV_TYPE2("5200"),
-		INFO_IMPART("1370"),
-		LEGIST("1350"),
-		URL_REF_SPECIAL("2000"),
-		URL_REF_DATATYPE("2240"),
-		MEDIA_OPTION_MEDIUM("520"),
-		SPATIAL_REF_VALUE("1100"),
-		AVAIL_FORMAT("1320"),
-		ADDRESS_VALUE("4300"),
-		ADDRESS_TITLE("4305"),
-		COMM_TYPE("4430"),
-		OBJ_CONFORMITY("6000"),
-		OBJ_ACCESS("6010");
+		FREE_ENTRY(-1),
+		OBJ_ADR_TYPE(505),
+		OBJ_ADR_TYPE_SPECIAL(2010),
+		OBJ_REFERENCE(2000),
+		OBJ_GEO_REFERENCESYSTEM(100),
+		OBJ_GEO_KEYC(3535),
+		OBJ_GEO_SYMC(3555),
+		OBJ_LITERATURE_TYPE(3385),
+		OBJ_SERV_TYPE(5100),
+		OBJ_SERV_OPERATION_CSW(5105),
+		OBJ_SERV_OPERATION_WMS(5110),
+		OBJ_SERV_OPERATION_WFS(5120),
+		OBJ_SERV_OPERATION_WCTS(5130),
+		OBJ_SERV_TYPE2(5200),
+		INFO_IMPART(1370),
+		LEGIST(1350),
+		URL_REF_SPECIAL(2000),
+		URL_REF_DATATYPE(2240),
+		MEDIA_OPTION_MEDIUM(520),
+		SPATIAL_REF_VALUE(1100),
+		AVAIL_FORMAT(1320),
+		ADDRESS_VALUE(4300),
+		ADDRESS_TITLE(4305),
+		COMM_TYPE(4430),
+		OBJ_CONFORMITY(6000),
+		OBJ_ACCESS(6010);
 
-		MdekSysList(String dbValue) {
+		MdekSysList(Integer dbValue) {
 			this.dbValue = dbValue;
 		}
 		/** returns syslist ID */
-		public String getDbValue() {
+		public Integer getDbValue() {
 			return dbValue;
 		}
-		String dbValue;
+		Integer dbValue;
 	}
 
 	public enum SysGuiBehaviour implements IMdekEnum {
