@@ -1736,11 +1736,10 @@ public class MdekExampleSupertool {
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
-		List<IngridDocument> hits = null;
 		if (result != null) {
 			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
 			IdcEntityType type = IdcEntityType.OBJECT;
-			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			List<IngridDocument> hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			if (hits == null) {
 				hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 				type = IdcEntityType.ADDRESS;				
@@ -1791,6 +1790,42 @@ public class MdekExampleSupertool {
 						System.out.println(csvResult);					
 					}
 //				}
+
+			} else {
+				handleError(response);
+			}			
+		} catch (Throwable t) {
+			System.out.println("\nCatched Throwable in Example:");
+			printThrowable(t);
+		}
+	}
+
+	public void queryHQLToMap(String qString, Integer maxNumHits) {
+		try {
+			long startTime;
+			long endTime;
+			long neededTime;
+			IngridDocument response;
+			IngridDocument result;
+
+			System.out.println("\n###### INVOKE queryHQLToMap ######");
+			System.out.println("- query:" + qString);
+			System.out.println("- maxNumHits:" + maxNumHits);
+			startTime = System.currentTimeMillis();
+			response = mdekCallerQuery.queryHQLToMap(plugId, qString, maxNumHits, myUserUuid);
+			endTime = System.currentTimeMillis();
+			neededTime = endTime - startTime;
+			System.out.println("EXECUTION TIME: " + neededTime + " ms");
+			result = mdekCaller.getResultFromResponse(response);
+			if (result != null) {
+				List<IngridDocument> hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+				if (hits == null) {
+					hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+				}
+				System.out.println("SUCCESS: " + hits.size() + " Entities");
+				for (IngridDocument hit : hits) {
+					System.out.println("  " + hit);
+				}
 
 			} else {
 				handleError(response);

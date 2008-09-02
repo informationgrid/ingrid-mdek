@@ -1,8 +1,5 @@
 package de.ingrid.mdek.caller;
 
-import java.util.List;
-
-import de.ingrid.mdek.MdekKeys;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -89,6 +86,18 @@ public interface IMdekCallerQuery {
 	 * @return
 	 */
 	IngridDocument queryHQLToCsv(String plugId, String hqlQuery,
+			String userId);
+
+	/**
+	 * Execute HQL Query fetching object/address data and return data IN A MAP !
+	 * @param plugId which mdek server (iplug)
+	 * @param hqlQuery hql query ! NO UPDATE !
+	 * @param maxNumHits maximum number of hits to query, pass null if all hits !
+	 * @param userId
+	 * @return IngridDocument containing results as List of IngridDocuments. In these docs
+	 * 		the select attributes are keys to the values (all Strings).
+	 */
+	IngridDocument queryHQLToMap(String plugId, String hqlQuery, Integer maxNumHits,
 			String userId);
 
 	/**

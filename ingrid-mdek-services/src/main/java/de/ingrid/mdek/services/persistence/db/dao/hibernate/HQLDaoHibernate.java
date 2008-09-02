@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -153,6 +154,47 @@ public class HQLDaoHibernate
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.CSV_RESULT, sw.toString());
+		result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, new Integer(hits.size()).longValue());
+
+		return result;
+	}
+	
+	public IngridDocument queryHQLToMap(String hqlQuery, Integer maxNumHits) {
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
+		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
+		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
+		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
+
+		List hits = new ArrayList();
+		if (qString != null) {
+			Session session = getSession();
+			
+			Query q = session.createQuery(qString);
+			if (maxNumHits != null) {
+				q.setMaxResults(maxNumHits);				
+			}
+			hits = q.list();
+		}
+
+		List<IngridDocument> resultDocs = new ArrayList<IngridDocument>();
+		if (hits.size() > 0) {
+			List<String> titles = extractCsvTitles(qString.substring(0, fromStartIndex), hits.get(0));
+			for (Object hit : hits) {
+				List<String> values = extractCsvValues(hit);
+				IngridDocument resultDoc = new IngridDocument();
+				for (int i=0; i < titles.size(); i++) {
+					resultDoc.put(titles.get(i), values.get(i));
+				}
+				resultDocs.add(resultDoc);
+			}
+		}
+
+		IngridDocument result = new IngridDocument();
+		if (entityType == IdcEntityType.OBJECT) {
+			result.put(MdekKeys.OBJ_ENTITIES, resultDocs);
+		} else {
+			result.put(MdekKeys.ADR_ENTITIES, resultDocs);
+		}
 		result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, new Integer(hits.size()).longValue());
 
 		return result;

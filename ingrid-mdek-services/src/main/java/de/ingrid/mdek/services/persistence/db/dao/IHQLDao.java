@@ -34,4 +34,12 @@ public interface IHQLDao
 	 * @return IngridDocument containing csv records
 	 */
 	IngridDocument queryHQLToCsv(String hqlQuery);
+
+	/**
+	 * Query entities with the passed hql query and return entity data IN A MAP.
+	 * @param maxNumHits maximum number of hits to query, pass null if all hits !
+	 * @return IngridDocument containing results as List of IngridDocuments. In these docs
+	 * 		the select attributes are keys to the values (all Strings).
+	 */
+	IngridDocument queryHQLToMap(String hqlQuery, Integer maxNumHits);
 }

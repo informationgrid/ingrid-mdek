@@ -337,6 +337,29 @@ class MdekExampleQueryThread extends Thread {
 			return;
 		}
 */
+// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println(" HQL QUERY TO MAP");
+		System.out.println("=========================");
+
+		System.out.println("\n----- search objects by hql to MAP -----");
+		String hqlQuery = "select obj.id, obj.expiryTime " +
+			"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork obj";
+		supertool.queryHQLToMap(hqlQuery, 10);
+
+		System.out.println("\n----- search addresses by hql to MAP -----");
+		hqlQuery = "select addr.id, addr.expiryTime " +
+			"from AddressNode as aNode " +
+			"inner join aNode.t02AddressWork addr";
+		supertool.queryHQLToMap(hqlQuery, 10);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
 // ===================================
 
 		System.out.println("\n\n=========================");

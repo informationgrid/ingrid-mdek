@@ -262,11 +262,31 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 
 			daoHQL.beginTransaction();
 
-			IngridDocument csvDoc = daoHQL.queryHQLToCsv(hqlQuery);
+			IngridDocument result = daoHQL.queryHQLToCsv(hqlQuery);
 
 			daoHQL.commitTransaction();
 
-			return csvDoc;
+			return result;
+
+		} catch (RuntimeException e) {
+			daoHQL.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument queryHQLToMap(IngridDocument params) {
+		try {
+			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
+			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+
+			daoHQL.beginTransaction();
+
+			IngridDocument result = daoHQL.queryHQLToMap(hqlQuery, numHits);
+
+			daoHQL.commitTransaction();
+
+			return result;
 
 		} catch (RuntimeException e) {
 			daoHQL.rollbackTransaction();
