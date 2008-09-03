@@ -167,7 +167,9 @@
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
                    insert="false"/>
       <many-to-one name="objectMetadata" class="ObjectMetadata" column="obj_metadata_id"
-                   update="false" insert="false" unique="true"
+                   update="false"
+                   insert="false"
+                   unique="true"
                    cascade="all"/>
       <set name="t08Attrs" table="t08_attr" inverse="true" cascade="all-delete-orphan">
          <key column="obj_id"/>
