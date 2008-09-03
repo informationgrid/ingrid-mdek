@@ -877,6 +877,7 @@
 	<xs:complexType name="CONFORMITY_MAP">
 		<xs:sequence>
 			<xs:element name="conformity-specification" type="xs:string"/>
+			<xs:element name="conformity-publication-date" type="xs:string"/>
 			<xs:element name="conformity-degree-key" type="xs:integer"/>
 			<xs:element name="conformity-degree-value" type="xs:string"/>
 		</xs:sequence>

@@ -478,8 +478,8 @@ class MdekExampleObjectThread extends Thread {
 	
 		// tests here with BW catalog data !
 
-		// technical domain DATASET (2.1)
-//		objUuid = "AA5C9A08-81EB-49A0-8183-0FF919695C5E";
+		// technical domain DATASET (2.1) -> NI catalog !
+		objUuid = "7AC6048A-7018-11D3-A599-C70A0FEBD4FC";
 
 		// technical domain MAP
 		// - 2.2: new field t011_obj_geo.datasource_uuid
@@ -500,7 +500,7 @@ class MdekExampleObjectThread extends Thread {
 		// objUuid = "A8BBBD5F-1AF3-459A-87DF-7D3DFCA84136"; // 869
 
 		// technical domain SERVICE (2.5, 2.6)
-		objUuid = "E7D2FE39-DAEE-11D3-BACC-00104B168367";
+//		objUuid = "E7D2FE39-DAEE-11D3-BACC-00104B168367";
 
 		// check object manipulation
 
@@ -1311,6 +1311,7 @@ class MdekExampleObjectThread extends Thread {
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, "TEST CONFORMITY_SPECIFICATION");
+		testDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, MdekUtils.dateToTimestamp(new Date()));
 		// check CONFORMITY_DEGREE_KEY -> CONFORMITY_DEGREE_VALUE is stored via syslist
 		testDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, 1);
 		docList.add(testDoc);

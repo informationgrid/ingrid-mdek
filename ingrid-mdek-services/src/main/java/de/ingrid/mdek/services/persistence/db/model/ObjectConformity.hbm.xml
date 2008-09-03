@@ -12,6 +12,7 @@
       <property name="specification" type="string" column="specification"/>
       <property name="degreeKey" type="integer" column="degree_key"/>
       <property name="degreeValue" type="string" column="degree_value"/>
+      <property name="publicationDate" type="string" column="publication_date"/>
 
    </class>
 

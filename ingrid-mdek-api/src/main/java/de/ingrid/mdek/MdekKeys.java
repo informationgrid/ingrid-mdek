@@ -777,6 +777,8 @@ public class MdekKeys {
     public final static String CONFORMITY_LIST = "conformity_list";
     /** Value: String */
     public final static String CONFORMITY_SPECIFICATION = "conformity-specification";
+    /** Value: String */
+    public final static String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
     /** Value: Integer */
     public final static String CONFORMITY_DEGREE_KEY = "conformity-degree-key";
     /** Value: String */

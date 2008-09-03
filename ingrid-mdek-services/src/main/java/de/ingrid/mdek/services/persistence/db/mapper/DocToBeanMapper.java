@@ -2077,6 +2077,7 @@ public class DocToBeanMapper implements IMapper {
 	{
 		ref.setObjId(oFrom.getId());
 		ref.setSpecification(refDoc.getString(MdekKeys.CONFORMITY_SPECIFICATION));
+		ref.setPublicationDate(refDoc.getString(MdekKeys.CONFORMITY_PUBLICATION_DATE));
 		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
 		ref.setDegreeKey((Integer)refDoc.get(MdekKeys.CONFORMITY_DEGREE_KEY));
 		ref.setLine(line);

@@ -11,6 +11,7 @@ public class ObjectConformity implements IEntity {
 	private String specification;
 	private Integer degreeKey;
 	private String degreeValue;
+	private String publicationDate;
 
 
 	public ObjectConformity() {}
@@ -69,6 +70,14 @@ public class ObjectConformity implements IEntity {
 
 	public void setDegreeValue(String degreeValue) {
 		this.degreeValue = degreeValue;
+	}
+
+	public String getPublicationDate() {
+		return publicationDate;
+	}
+
+	public void setPublicationDate(String publicationDate) {
+		this.publicationDate = publicationDate;
 	}
 
 
