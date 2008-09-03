@@ -38,12 +38,9 @@
       <property name="verticalExtentVdatum" type="integer" column="vertical_extent_vdatum"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
       <property name="isCatalogData" type="string" column="is_catalog_data"/>
-      <property name="lastexportTime" type="string" column="lastexport_time"/>
-      <property name="expiryTime" type="string" column="expiry_time"/>
       <property name="workState" type="string" column="work_state"/>
-      <property name="workVersion" type="integer" column="work_version"/>
-      <property name="markDeleted" type="string" column="mark_deleted"/>
       <property name="createTime" type="string" column="create_time"/>
+      <property name="objMetadataId" type="long" column="obj_metadata_id"/>
       <property name="modTime" type="string" column="mod_time"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
@@ -169,6 +166,9 @@
       </set>
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
                    insert="false"/>
+      <many-to-one name="objectMetadata" class="ObjectMetadata" column="obj_metadata_id"
+                   update="false" insert="false" unique="true"
+                   cascade="all"/>
       <set name="t08Attrs" table="t08_attr" inverse="true" cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T08Attr" not-found="ignore"/>

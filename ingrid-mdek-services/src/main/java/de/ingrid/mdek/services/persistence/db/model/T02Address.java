@@ -27,19 +27,17 @@ public class T02Address implements IEntity {
 	private String countryCode;
 	private String job;
 	private String descr;
-	private String lastexportTime;
-	private String expiryTime;
 	private String workState;
-	private Integer workVersion;
-	private String markDeleted;
 	private String createTime;
 	private String modTime;
+	private Long addrMetadataId;
 	private String modUuid;
 	private String responsibleUuid;
 
 	private Set addressComments = new HashSet();
 	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
+	private AddressMetadata addressMetadata;
 
 	public T02Address() {}
 
@@ -203,44 +201,12 @@ public class T02Address implements IEntity {
 		this.descr = descr;
 	}
 
-	public String getLastexportTime() {
-		return lastexportTime;
-	}
-
-	public void setLastexportTime(String lastexportTime) {
-		this.lastexportTime = lastexportTime;
-	}
-
-	public String getExpiryTime() {
-		return expiryTime;
-	}
-
-	public void setExpiryTime(String expiryTime) {
-		this.expiryTime = expiryTime;
-	}
-
 	public String getWorkState() {
 		return workState;
 	}
 
 	public void setWorkState(String workState) {
 		this.workState = workState;
-	}
-
-	public Integer getWorkVersion() {
-		return workVersion;
-	}
-
-	public void setWorkVersion(Integer workVersion) {
-		this.workVersion = workVersion;
-	}
-
-	public String getMarkDeleted() {
-		return markDeleted;
-	}
-
-	public void setMarkDeleted(String markDeleted) {
-		this.markDeleted = markDeleted;
 	}
 
 	public String getCreateTime() {
@@ -257,6 +223,14 @@ public class T02Address implements IEntity {
 
 	public void setModTime(String modTime) {
 		this.modTime = modTime;
+	}
+
+	public Long getAddrMetadataId() {
+		return addrMetadataId;
+	}
+
+	public void setAddrMetadataId(Long addrMetadataId) {
+		this.addrMetadataId = addrMetadataId;
 	}
 
 	public String getModUuid() {
@@ -298,6 +272,14 @@ public class T02Address implements IEntity {
 
 	public void setT021Communications(Set t021Communications) {
 		this.t021Communications = t021Communications;
+	}
+
+	public AddressMetadata getAddressMetadata() {
+		return addressMetadata;
+	}
+
+	public void setAddressMetadata(AddressMetadata addressMetadata) {
+		this.addressMetadata = addressMetadata;
 	}
 
 }

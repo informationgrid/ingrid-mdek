@@ -25,13 +25,10 @@
       <property name="countryCode" type="string" column="country_code"/>
       <property name="job" type="string" column="job"/>
       <property name="descr" type="string" column="descr"/>
-      <property name="lastexportTime" type="string" column="lastexport_time"/>
-      <property name="expiryTime" type="string" column="expiry_time"/>
       <property name="workState" type="string" column="work_state"/>
-      <property name="workVersion" type="integer" column="work_version"/>
-      <property name="markDeleted" type="string" column="mark_deleted"/>
       <property name="createTime" type="string" column="create_time"/>
       <property name="modTime" type="string" column="mod_time"/>
+      <property name="addrMetadataId" type="long" column="addr_metadata_id"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
 
@@ -51,6 +48,9 @@
          <key column="adr_id"/>
          <one-to-many class="T021Communication" not-found="ignore"/>
       </set>
+      <many-to-one name="addressMetadata" class="AddressMetadata" column="addr_metadata_id"
+                   update="false" insert="false" unique="true"
+                   cascade="all"/>
    </class>
 
 </hibernate-mapping>

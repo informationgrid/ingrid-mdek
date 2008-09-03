@@ -663,10 +663,8 @@ public class MdekKeys {
     public final static String METADATA_STANDARD_VERSION = "metadata-standard-version";
     /** Value: String */
     public final static String LASTEXPORT_TIME = "lastexport-time";
-    /** Value: String */
-    public final static String EXPIRY_TIME = "expiry-time";
     /** Value: Integer */
-    public final static String WORK_VERSION = "work-version";
+    public final static String EXPIRY_STATE = "expiry-state";
     /** Value: String */
     public final static String MARK_DELETED = "mark-deleted";
     /** Value: IngridDocument (Address Map) */

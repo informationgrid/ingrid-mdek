@@ -95,8 +95,7 @@
 			<xs:element name="metadata-standard-name" type="xs:string"/>
 			<xs:element name="metadata-standard-version" type="xs:string"/>
 			<xs:element name="lastexport-time" type="TIMESTAMP"/>
-			<xs:element name="expiry-time" type="TIMESTAMP"/>
-			<xs:element name="work-version" type="xs:integer"/>
+			<xs:element name="expiry-state" type="xs:integer"/>
 			<xs:element name="mark-deleted" type="xs:string"/>
 			<xs:element ref="mod-user"/>
 			<xs:element ref="responsible-user"/>
@@ -160,8 +159,7 @@
 			<xs:element name="original-address-identifier" type="xs:string"/>
 
 			<xs:element name="lastexport-time" type="TIMESTAMP"/>
-			<xs:element name="expiry-time" type="TIMESTAMP"/>
-			<xs:element name="work-version" type="xs:integer"/>
+			<xs:element name="expiry-state" type="xs:integer"/>
 			<xs:element name="mark-deleted" type="xs:string"/>
 			<xs:element ref="mod-user"/>
 			<xs:element ref="responsible-user"/>

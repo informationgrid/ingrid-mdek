@@ -27,6 +27,9 @@ public class MdekUtils {
 
 	public final static Integer COMM_TYPE_EMAIL = 3;
 
+	public final static String YES = "Y";
+	public final static String NO = "N";
+
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1),
 		OBJ_ADR_TYPE(505),
@@ -76,6 +79,33 @@ public class MdekUtils {
 		/** returns syslist ID */
 		public Integer getDbValue() {
 			return dbValue;
+		}
+		Integer dbValue;
+	}
+
+	public enum ExpiryState implements IMdekEnum {
+		INITIAL(0),
+		TO_BE_EXPIRED(10),
+		EXPIRED(20);
+
+		ExpiryState(Integer dbValue) {
+			this.dbValue = dbValue;
+		}
+		/** returns syslist ID */
+		public Integer getDbValue() {
+			return dbValue;
+		}
+		/**
+		 * Is this expiry state "more urgent" than the passed state ? e.g.<br>
+		 * EXPIRED.isHigher(TO_BE_EXPIRED) -> true<br>
+		 * EXPIRED.isHigher(INITIAL) -> true<br>
+		 * EXPIRED.isHigher(EXPIRED) -> false<br>
+		 */
+		public boolean isHigher(ExpiryState inState) {
+			if (this.getDbValue() > inState.getDbValue()) {
+				return true;
+			}
+			return false;
 		}
 		Integer dbValue;
 	}

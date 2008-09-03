@@ -15,10 +15,12 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
+import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
@@ -235,6 +237,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT08Attrs(o.getT08Attrs(), objectDoc);
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
+			mapObjectMetadata(o.getObjectMetadata(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -247,10 +250,6 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.METADATA_CHARACTER_SET, o.getMetadataCharacterSet());
 			objectDoc.put(MdekKeys.METADATA_STANDARD_NAME, o.getMetadataStandardName());
 			objectDoc.put(MdekKeys.METADATA_STANDARD_VERSION, o.getMetadataStandardVersion());
-			objectDoc.put(MdekKeys.LASTEXPORT_TIME, o.getLastexportTime());
-			objectDoc.put(MdekKeys.EXPIRY_TIME, o.getExpiryTime());
-			objectDoc.put(MdekKeys.WORK_VERSION, o.getWorkVersion());
-			objectDoc.put(MdekKeys.MARK_DELETED, o.getMarkDeleted());
 		}
 
 		return objectDoc;
@@ -323,6 +322,7 @@ public class BeanToDocMapper implements IMapper {
 			// map associations
 			mapSearchtermAdrs(a.getSearchtermAdrs(), addressDoc, howMuch);
 			mapAddressComments(a.getAddressComments(), addressDoc);
+			mapAddressMetadata(a.getAddressMetadata(), addressDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(a.getModUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
@@ -331,10 +331,6 @@ public class BeanToDocMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
 			addressDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, a.getOrgAdrId());
-			addressDoc.put(MdekKeys.LASTEXPORT_TIME, a.getLastexportTime());
-			addressDoc.put(MdekKeys.EXPIRY_TIME, a.getExpiryTime());
-			addressDoc.put(MdekKeys.WORK_VERSION, a.getWorkVersion());
-			addressDoc.put(MdekKeys.MARK_DELETED, a.getMarkDeleted());
 		}
 
 		return addressDoc;
@@ -455,6 +451,18 @@ public class BeanToDocMapper implements IMapper {
 		}
 		addressDoc.put(MdekKeys.COMMENT_LIST, docList);
 		return addressDoc;
+	}
+
+	private IngridDocument mapAddressMetadata(AddressMetadata ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
+		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
+		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
+
+		return refDoc;
 	}
 
 	/**
@@ -1590,6 +1598,18 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.ACCESS_RESTRICTION_KEY, ref.getRestrictionKey());
 		refDoc.put(MdekKeys.ACCESS_RESTRICTION_VALUE, ref.getRestrictionValue());
 		refDoc.put(MdekKeys.ACCESS_TERMS_OF_USE, ref.getTermsOfUse());
+
+		return refDoc;
+	}
+
+	private IngridDocument mapObjectMetadata(ObjectMetadata ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
+		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
+		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
 
 		return refDoc;
 	}

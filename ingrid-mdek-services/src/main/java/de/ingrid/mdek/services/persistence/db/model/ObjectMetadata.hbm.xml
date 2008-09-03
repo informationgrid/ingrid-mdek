@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="ObjectMetadata" table="object_metadata">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="expiryState" type="integer" column="expiry_state"/>
+      <property name="lastexportTime" type="string" column="lastexport_time"/>
+      <property name="markDeleted" type="string" column="mark_deleted"/>
+
+   </class>
+
+</hibernate-mapping>

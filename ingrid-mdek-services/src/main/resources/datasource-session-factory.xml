@@ -15,6 +15,7 @@
       <property name="mappingResources">
          <list>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/AddressMetadata.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/FullIndexAddr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/FullIndexObj.hbm.xml</value>
@@ -24,6 +25,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
@@ -80,6 +82,7 @@
 <!--
       <property name="entityCacheStrategies">
          <props>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.AddressMetadata">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.AddressNode">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser">read-write</prop>
@@ -87,6 +90,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectAccess">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectComment">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectConformity">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectMetadata">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectNode">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectReference">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.Permission">read-write</prop>

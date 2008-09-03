@@ -22,10 +22,12 @@ import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
+import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
@@ -340,6 +342,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectComments(oDocIn, oIn);
 			updateObjectConformitys(oDocIn, oIn);
 			updateObjectAccesses(oDocIn, oIn);
+			updateObjectMetadata(oDocIn, oIn);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -348,10 +351,6 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));
 			oIn.setMetadataStandardName((String) oDocIn.get(MdekKeys.METADATA_STANDARD_NAME));
 			oIn.setMetadataStandardVersion((String) oDocIn.get(MdekKeys.METADATA_STANDARD_VERSION));
-			oIn.setLastexportTime((String) oDocIn.get(MdekKeys.LASTEXPORT_TIME));
-			oIn.setExpiryTime((String) oDocIn.get(MdekKeys.EXPIRY_TIME));
-			oIn.setWorkVersion((Integer) oDocIn.get(MdekKeys.WORK_VERSION));
-			oIn.setMarkDeleted((String) oDocIn.get(MdekKeys.MARK_DELETED));
 		}
 
 		return oIn;
@@ -395,14 +394,11 @@ public class DocToBeanMapper implements IMapper {
 			updateT021Communications(aDocIn, aIn);
 			updateSearchtermAdrs(aDocIn, aIn);
 			updateAddressComments(aDocIn, aIn);
+			updateAddressMetadata(aDocIn, aIn);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
 			aIn.setOrgAdrId(aDocIn.getString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER));
-			aIn.setLastexportTime(aDocIn.getString(MdekKeys.LASTEXPORT_TIME));
-			aIn.setExpiryTime(aDocIn.getString(MdekKeys.EXPIRY_TIME));
-			aIn.setWorkVersion((Integer) aDocIn.get(MdekKeys.WORK_VERSION));
-			aIn.setMarkDeleted(aDocIn.getString(MdekKeys.MARK_DELETED));
 		}
 
 		keyValueService.processKeyValue(aIn);
@@ -798,6 +794,31 @@ public class DocToBeanMapper implements IMapper {
 
 				refs.add(ref);
 			}
+		}
+	}
+
+	private void updateAddressMetadata(IngridDocument aDocIn, T02Address aIn) {
+		AddressMetadata ref = aIn.getAddressMetadata();
+		if (ref == null) {
+			// initialize new Metadata (NOT DONE BY HIBERBNATE WITH DEFAULT VALUES FROM DATABASE WHEN PERSISTED :( )
+			ref = new AddressMetadata();
+			ref.setMarkDeleted(MdekUtils.NO);
+			ref.setExpiryState(MdekUtils.ExpiryState.INITIAL.getDbValue());
+			// save the address to get ID from database (not handled by hibernate ?)
+			dao.makePersistent(ref);			
+			aIn.setAddrMetadataId(ref.getId());
+			aIn.setAddressMetadata(ref);
+		}
+
+		// update only if set (so NEW address keeps initial values) !
+		if (aDocIn.getString(MdekKeys.LASTEXPORT_TIME) != null) {
+			ref.setLastexportTime(aDocIn.getString(MdekKeys.LASTEXPORT_TIME));			
+		}
+		if (aDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
+			ref.setExpiryState((Integer) aDocIn.get(MdekKeys.EXPIRY_STATE));
+		}
+		if (aDocIn.getString(MdekKeys.MARK_DELETED) != null) {
+			ref.setMarkDeleted(aDocIn.getString(MdekKeys.MARK_DELETED));
 		}
 	}
 
@@ -2120,6 +2141,31 @@ public class DocToBeanMapper implements IMapper {
 			ObjectAccess ref = mapObjectAccess(oIn, refDoc, new ObjectAccess(), line);
 			refs.add(ref);
 			line++;
+		}
+	}
+
+	private void updateObjectMetadata(IngridDocument oDocIn, T01Object oIn) {
+		ObjectMetadata ref = oIn.getObjectMetadata();
+		if (ref == null) {
+			// initialize new Metadata (NOT DONE BY HIBERBNATE WITH DEFAULT VALUES FROM DATABASE WHEN PERSISTED :( )
+			ref = new ObjectMetadata();
+			ref.setMarkDeleted(MdekUtils.NO);
+			ref.setExpiryState(MdekUtils.ExpiryState.INITIAL.getDbValue());
+			// save the object to get ID from database (not handled by hibernate ?)
+			dao.makePersistent(ref);			
+			oIn.setObjMetadataId(ref.getId());
+			oIn.setObjectMetadata(ref);
+		}
+
+		// update only if set (so NEW object keeps initial values) !
+		if (oDocIn.getString(MdekKeys.LASTEXPORT_TIME) != null) {
+			ref.setLastexportTime(oDocIn.getString(MdekKeys.LASTEXPORT_TIME));			
+		}
+		if (oDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
+			ref.setExpiryState((Integer) oDocIn.get(MdekKeys.EXPIRY_STATE));
+		}
+		if (oDocIn.getString(MdekKeys.MARK_DELETED) != null) {
+			ref.setMarkDeleted(oDocIn.getString(MdekKeys.MARK_DELETED));
 		}
 	}
 }

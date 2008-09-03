@@ -40,12 +40,9 @@ public class T01Object implements IEntity {
 	private Integer verticalExtentVdatum;
 	private String orderingInstructions;
 	private String isCatalogData;
-	private String lastexportTime;
-	private String expiryTime;
 	private String workState;
-	private Integer workVersion;
-	private String markDeleted;
 	private String createTime;
+	private Long objMetadataId;
 	private String modTime;
 	private String modUuid;
 	private String responsibleUuid;
@@ -73,6 +70,7 @@ public class T01Object implements IEntity {
 	private Set t015Legists = new HashSet();
 	private Set t017UrlRefs = new HashSet();
 	private T03Catalogue t03Catalogue;
+	private ObjectMetadata objectMetadata;
 	private Set t08Attrs = new HashSet();
 
 	public T01Object() {}
@@ -341,22 +339,6 @@ public class T01Object implements IEntity {
 		this.isCatalogData = isCatalogData;
 	}
 
-	public String getLastexportTime() {
-		return lastexportTime;
-	}
-
-	public void setLastexportTime(String lastexportTime) {
-		this.lastexportTime = lastexportTime;
-	}
-
-	public String getExpiryTime() {
-		return expiryTime;
-	}
-
-	public void setExpiryTime(String expiryTime) {
-		this.expiryTime = expiryTime;
-	}
-
 	public String getWorkState() {
 		return workState;
 	}
@@ -365,28 +347,20 @@ public class T01Object implements IEntity {
 		this.workState = workState;
 	}
 
-	public Integer getWorkVersion() {
-		return workVersion;
-	}
-
-	public void setWorkVersion(Integer workVersion) {
-		this.workVersion = workVersion;
-	}
-
-	public String getMarkDeleted() {
-		return markDeleted;
-	}
-
-	public void setMarkDeleted(String markDeleted) {
-		this.markDeleted = markDeleted;
-	}
-
 	public String getCreateTime() {
 		return createTime;
 	}
 
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
+	}
+
+	public Long getObjMetadataId() {
+		return objMetadataId;
+	}
+
+	public void setObjMetadataId(Long objMetadataId) {
+		this.objMetadataId = objMetadataId;
 	}
 
 	public String getModTime() {
@@ -596,6 +570,14 @@ public class T01Object implements IEntity {
 
 	public void setT03Catalogue(T03Catalogue t03Catalogue) {
 		this.t03Catalogue = t03Catalogue;
+	}
+
+	public ObjectMetadata getObjectMetadata() {
+		return objectMetadata;
+	}
+
+	public void setObjectMetadata(ObjectMetadata objectMetadata) {
+		this.objectMetadata = objectMetadata;
 	}
 
 	public Set getT08Attrs() {
