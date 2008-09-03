@@ -227,6 +227,14 @@ class MdekExampleQSThread extends Thread {
 		doc = supertool.publishObject(newDoc, true, true);
 		newUuid = doc.getString(MdekKeys.UUID);
 
+		System.out.println("\n----- copy new object -> copy with INDIVIDUAL METADATA -----");
+		doc = supertool.copyObject(newUuid, null, false);
+		String copyUuid = doc.getString(MdekKeys.UUID);
+		doc = supertool.fetchObject(copyUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- DELETE new copy object -----");
+		supertool.deleteObject(copyUuid, true);
+
 		System.out.println("\n----- DELETE new object -----");
 		supertool.deleteObject(newUuid, true);
 
@@ -291,6 +299,14 @@ class MdekExampleQSThread extends Thread {
 		newDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
 		doc = supertool.publishAddress(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n----- copy new address -> copy with INDIVIDUAL METADATA -----");
+		doc = supertool.copyAddress(newUuid, parentAddressUuid, false, false);
+		copyUuid = doc.getString(MdekKeys.UUID);
+		doc = supertool.fetchAddress(copyUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n----- DELETE new copy address -----");
+		supertool.deleteAddress(copyUuid, true);
 
 		System.out.println("\n----- DELETE new address -----");
 		supertool.deleteAddress(newUuid, true);
