@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -395,6 +396,78 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
+	}
+
+	public IngridDocument updateObjectPart(IngridDocument oPartDocIn) {
+		String userId = getCurrentUserUuid(oPartDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			String uuid = (String) oPartDocIn.get(MdekKeys.UUID);
+			IdcEntityVersion whichEntityVersion = (IdcEntityVersion) oPartDocIn.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
+
+			daoObjectNode.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkWritePermissionForObject(uuid, userId);
+
+			// load node
+			ObjectNode oNode = daoObjectNode.loadByUuid(uuid);
+			if (oNode == null) {
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+			}
+
+			// fetch versions to update
+			Long oWorkId = null;
+			if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+				oWorkId = oNode.getObjId();
+			}
+			Long oPubId = null;
+			if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+				oPubId = oNode.getObjIdPublished();
+			}
+
+			// return null result if no update
+			IngridDocument result = null;
+			
+			// update work version if requested
+			if (oWorkId != null) {
+				result = updateObjectPart(oNode.getT01ObjectWork(), oPartDocIn);
+			}
+			
+			// update pub version if necessary
+			if (oPubId != null && !oPubId.equals(oWorkId)) {
+				result = updateObjectPart(oNode.getT01ObjectPublished(), oPartDocIn);
+			}
+
+			daoObjectNode.commitTransaction();
+
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	private IngridDocument updateObjectPart(T01Object o, IngridDocument oPartDocIn) {
+		if (oPartDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
+			o.getObjectMetadata().setExpiryState((Integer) oPartDocIn.get(MdekKeys.EXPIRY_STATE));
+		}
+		daoT01Object.makePersistent(o);
+
+		// not null indicates update executed
+		return new IngridDocument();
 	}
 
 	public IngridDocument publishObject(IngridDocument oDocIn) {

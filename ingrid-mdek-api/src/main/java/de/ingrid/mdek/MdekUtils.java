@@ -83,6 +83,19 @@ public class MdekUtils {
 		Integer dbValue;
 	}
 
+	/** Type of entities */
+	public enum IdcEntityType {
+		OBJECT,
+		ADDRESS;
+	}
+
+	/** Different versions of IDC entities */
+	public enum IdcEntityVersion {
+		WORKING_VERSION,
+		PUBLISHED_VERSION,
+		ALL_VERSIONS;
+	}
+
 	public enum ExpiryState implements IMdekEnum {
 		INITIAL(0),
 		TO_BE_EXPIRED(10),
@@ -108,12 +121,6 @@ public class MdekUtils {
 			return false;
 		}
 		Integer dbValue;
-	}
-
-	/** Type of entities */
-	public enum IdcEntityType {
-		OBJECT,
-		ADDRESS;
 	}
 
 	/** WorkState of entities */

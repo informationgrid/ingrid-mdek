@@ -35,6 +35,9 @@ public class MdekKeys {
     /** if entity is deleted also delete references ? if false and references exist causes error<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_FORCE_DELETE_REFERENCES = "requestinfo_forceDeleteReferences";
+    /** Which version of entity should be processed (working or published version ...)<br>
+     *  Value: MdekUtils.IdcEntityVersion Enumeration */
+    public final static String REQUESTINFO_WHICH_ENTITY_VERSION = "requestinfo_whichEntityVersion";
 
     /** Value: String */
     public final static String LANGUAGE = "language";

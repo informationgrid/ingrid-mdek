@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
@@ -189,12 +190,21 @@ class MdekExampleQSThread extends Thread {
 		doc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.TO_BE_EXPIRED.getDbValue());
 		doc.put(MdekKeys.LASTEXPORT_TIME, MdekUtils.dateToTimestamp(new Date()));
 		doc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
-		doc = supertool.storeObject(doc, true);
+		supertool.storeObject(doc, true);
+
+		System.out.println("\n----- update object part EXPIRY STATE in working copy (exists!) -----");
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, objUuid);
+		doc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.EXPIRED.getDbValue());
+		supertool.updateObjectPart(doc, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- verify update  -----");
+		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, false);
 
-		System.out.println("\n----- original object details again -----");
+		System.out.println("\n----- verify original object details again -----");
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 		
 		// -----------------------------------
@@ -253,6 +263,15 @@ class MdekExampleQSThread extends Thread {
 		doc.put(MdekKeys.LASTEXPORT_TIME, MdekUtils.dateToTimestamp(new Date()));
 		doc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
 		doc = supertool.storeAddress(doc, true);
+
+		System.out.println("\n----- update address part EXPIRY STATE in working copy (exists!) -----");
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, personAddressUuid);
+		doc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.EXPIRED.getDbValue());
+		supertool.updateAddressPart(doc, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- verify update  -----");
+		supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(personAddressUuid, false);

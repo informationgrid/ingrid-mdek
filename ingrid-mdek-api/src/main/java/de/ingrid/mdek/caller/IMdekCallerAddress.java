@@ -1,5 +1,6 @@
 package de.ingrid.mdek.caller;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
@@ -82,6 +83,21 @@ public interface IMdekCallerAddress {
 	IngridDocument storeAddress(String plugId, IngridDocument adr,
 			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
 			String userId);
+
+	/**
+	 * Update partial data of address ! NOTICE: No working version (copy) is created !!! If address is in state
+	 * published and "working version" is updated, this IS ALSO THE PUBLISHED VERSION !!! Further no
+	 * Modification User or date is set !!!  
+	 * @param plugId which mdek server (iplug)
+	 * @param addrPart map representation of address part to update (new partial data to set, same structure as full address).
+	 * 		Has to contain UUID !
+	 * @param whichEntityVersion which address version should be updated.
+	 * 		NOTICE: In published state working version == published version and it is the same address instance, 
+	 * 		so update affects both !!!
+	 * @return response containing result: result is null if update failed otherwise an empty IngridDoc
+	 */
+	IngridDocument updateAddressPart(String plugId, IngridDocument addrPart,
+			IdcEntityVersion whichEntityVersion, String userId);
 
 	/**
 	 * Create or store address INTO PUBLISHED VERSION ! PERFORMS CHECKS ON DATA !

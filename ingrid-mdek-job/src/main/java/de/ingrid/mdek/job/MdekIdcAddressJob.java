@@ -14,6 +14,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
@@ -422,6 +423,78 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
+	}
+
+	public IngridDocument updateAddressPart(IngridDocument aPartDocIn) {
+		String userId = getCurrentUserUuid(aPartDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			String uuid = (String) aPartDocIn.get(MdekKeys.UUID);
+			IdcEntityVersion whichEntityVersion = (IdcEntityVersion) aPartDocIn.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
+
+			daoAddressNode.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkWritePermissionForAddress(uuid, userId);
+
+			// load node
+			AddressNode aNode = daoAddressNode.loadByUuid(uuid);
+			if (aNode == null) {
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+			}
+
+			// fetch versions to update
+			Long aWorkId = null;
+			if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+				aWorkId = aNode.getAddrId();
+			}
+			Long aPubId = null;
+			if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+				aPubId = aNode.getAddrIdPublished();
+			}
+
+			// return null result if no update
+			IngridDocument result = null;
+			
+			// update work version if requested
+			if (aWorkId != null) {
+				result = updateAddressPart(aNode.getT02AddressWork(), aPartDocIn);
+			}
+			
+			// update pub version if necessary
+			if (aPubId != null && !aPubId.equals(aWorkId)) {
+				result = updateAddressPart(aNode.getT02AddressPublished(), aPartDocIn);
+			}
+
+			daoAddressNode.commitTransaction();
+
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	private IngridDocument updateAddressPart(T02Address a, IngridDocument aPartDocIn) {
+		if (aPartDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
+			a.getAddressMetadata().setExpiryState((Integer) aPartDocIn.get(MdekKeys.EXPIRY_STATE));
+		}
+		daoT02Address.makePersistent(a);
+
+		// not null indicates update executed
+		return new IngridDocument();
 	}
 
 	public IngridDocument publishAddress(IngridDocument aDocIn) {

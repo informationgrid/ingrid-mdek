@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -91,6 +92,14 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
 		addrDoc.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("storeAddress", addrDoc);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument updateAddressPart(String plugId, IngridDocument addrPartDoc,
+			IdcEntityVersion whichEntityVersion, String userId) {
+		addrPartDoc.put(MdekKeys.USER_ID, userId);
+		addrPartDoc.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, whichEntityVersion);
+		List jobMethods = mdekCaller.setUpJobMethod("updateAddressPart", addrPartDoc);
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 

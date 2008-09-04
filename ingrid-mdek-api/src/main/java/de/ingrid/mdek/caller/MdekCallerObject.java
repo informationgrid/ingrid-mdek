@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -74,6 +75,14 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		objDoc.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("storeObject", objDoc);
+		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument updateObjectPart(String plugId, IngridDocument objPartDoc,
+			IdcEntityVersion whichEntityVersion, String userId) {
+		objPartDoc.put(MdekKeys.USER_ID, userId);
+		objPartDoc.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, whichEntityVersion);
+		List jobMethods = mdekCaller.setUpJobMethod("updateObjectPart", objPartDoc);
 		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 

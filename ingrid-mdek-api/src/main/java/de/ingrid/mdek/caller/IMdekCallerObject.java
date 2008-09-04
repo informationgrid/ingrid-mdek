@@ -1,5 +1,6 @@
 package de.ingrid.mdek.caller;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -32,6 +33,21 @@ public interface IMdekCallerObject {
 	IngridDocument storeObject(String plugId, IngridDocument obj,
 			boolean refetchAfterStore,
 			String userId);
+
+	/**
+	 * Update partial data of Object ! NOTICE: No working version (copy) is created !!! If object is in state
+	 * published and "working version" is updated, this IS ALSO THE PUBLISHED VERSION !!! Further no
+	 * Modification User or date is set !!!  
+	 * @param plugId which mdek server (iplug)
+	 * @param objPart map representation of object part to update (new partial data to set, same structure as full object).
+	 * 		Has to contain UUID !
+	 * @param whichEntityVersion which object version should be updated.
+	 * 		NOTICE: In published state working version == published version and it is the same object instance, 
+	 * 		so update affects both !!!
+	 * @return response containing result: result is null if update failed otherwise an empty IngridDoc
+	 */
+	IngridDocument updateObjectPart(String plugId, IngridDocument objPart,
+			IdcEntityVersion whichEntityVersion, String userId);
 
 	/**
 	 * Create or store object INTO PUBLISHED VERSION ! PERFORMS CHECKS ON DATA !
