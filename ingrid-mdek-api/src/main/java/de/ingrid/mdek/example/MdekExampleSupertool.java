@@ -1854,45 +1854,42 @@ public class MdekExampleSupertool {
 				handleError(response);
 			}			
 		} catch (Throwable t) {
-			System.out.println("\nCatched Throwable in Example:");
+			System.out.println("\nCatched Throwable in Example queryHQLToCsv:");
 			printThrowable(t);
 		}
 	}
 
-	public void queryHQLToMap(String qString, Integer maxNumHits) {
-		try {
-			long startTime;
-			long endTime;
-			long neededTime;
-			IngridDocument response;
-			IngridDocument result;
+	public IngridDocument queryHQLToMap(String qString, Integer maxNumHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
 
-			System.out.println("\n###### INVOKE queryHQLToMap ######");
-			System.out.println("- query:" + qString);
-			System.out.println("- maxNumHits:" + maxNumHits);
-			startTime = System.currentTimeMillis();
-			response = mdekCallerQuery.queryHQLToMap(plugId, qString, maxNumHits, myUserUuid);
-			endTime = System.currentTimeMillis();
-			neededTime = endTime - startTime;
-			System.out.println("EXECUTION TIME: " + neededTime + " ms");
-			result = mdekCaller.getResultFromResponse(response);
-			if (result != null) {
-				List<IngridDocument> hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
-				if (hits == null) {
-					hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
-				}
-				System.out.println("SUCCESS: " + hits.size() + " Entities");
-				for (IngridDocument hit : hits) {
-					System.out.println("  " + hit);
-				}
+		System.out.println("\n###### INVOKE queryHQLToMap ######");
+		System.out.println("- query:" + qString);
+		System.out.println("- maxNumHits:" + maxNumHits);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerQuery.queryHQLToMap(plugId, qString, maxNumHits, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List<IngridDocument> hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			if (hits == null) {
+				hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+			}
+			System.out.println("SUCCESS: " + hits.size() + " Entities");
+			for (IngridDocument hit : hits) {
+				System.out.println("  " + hit);
+			}
 
-			} else {
-				handleError(response);
-			}			
-		} catch (Throwable t) {
-			System.out.println("\nCatched Throwable in Example:");
-			printThrowable(t);
+		} else {
+			handleError(response);
 		}
+
+		return result;
 	}
 
 	public void trackRunningJob(int sleepTimeMillis, boolean doCancel) {
