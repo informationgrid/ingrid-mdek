@@ -139,8 +139,8 @@ public class HQLDaoHibernate
 					ecsvp.writeln(titles.toArray(new String[titles.size()]));
 				}
 
-				List<String> csvValues = extractCsvValues(hit);
-				ecsvp.writeln(csvValues.toArray(new String[csvValues.size()]));
+				List<Object> csvValues = extractCsvValues(hit);
+				ecsvp.writeln(csvValues.toArray(new Object[csvValues.size()]));
 			}
 
 			if (ecsvp != null) {
@@ -180,7 +180,7 @@ public class HQLDaoHibernate
 		if (hits.size() > 0) {
 			List<String> titles = extractCsvTitles(qString.substring(0, fromStartIndex), hits.get(0));
 			for (Object hit : hits) {
-				List<String> values = extractCsvValues(hit);
+				List<Object> values = extractCsvValues(hit);
 				IngridDocument resultDoc = new IngridDocument();
 				for (int i=0; i < titles.size(); i++) {
 					resultDoc.put(titles.get(i), values.get(i));
@@ -376,8 +376,8 @@ public class HQLDaoHibernate
 		return skip;
 	}
 
-	private List<String> extractCsvValues(Object hit) {
-		ArrayList<String> values = new ArrayList<String>();
+	private List<Object> extractCsvValues(Object hit) {
+		ArrayList<Object> values = new ArrayList<Object>();
 		
 		if (hit instanceof Object[]) {
 			Object[] objs = (Object[]) hit;
@@ -392,28 +392,28 @@ public class HQLDaoHibernate
 		return values;
 	}
 
-	private void appendCsvValues(Object resultObject, ArrayList<String> values) {
+	private void appendCsvValues(Object resultObject, ArrayList<Object> values) {
 		if (resultObject instanceof IEntity) {
 			values.addAll(extractCsvValuesFromEntity((IEntity) resultObject));
 			
 		} else {
-			values.add("" + resultObject);
+			values.add(resultObject);
 		}
 	}
 
-	private ArrayList<String> extractCsvValuesFromEntity(IEntity mdekEntity) {
-		ArrayList<String> values = new ArrayList<String>();
+	private ArrayList<Object> extractCsvValuesFromEntity(IEntity mdekEntity) {
+		ArrayList<Object> values = new ArrayList<Object>();
 
 		PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(mdekEntity.getClass());
 		for (PropertyDescriptor prop : props) {
 			// skip collections !
 			if (!skipProperty(prop)) {
-				String val;
+				Object val;
 				try {
-					val = "" + prop.getReadMethod().invoke(mdekEntity);
+					val = prop.getReadMethod().invoke(mdekEntity);
 				} catch (Exception ex) {
 					LOG.error("Problems getting IEntity value via reflection !", ex);
-					val = "!!! Error !!!";
+					val = "!!! Error extracting value via reflection !!!";
 				}
 				values.add(val);
 			}

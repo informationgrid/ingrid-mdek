@@ -95,7 +95,7 @@ public interface IMdekCallerQuery {
 	 * @param maxNumHits maximum number of hits to query, pass null if all hits !
 	 * @param userId
 	 * @return IngridDocument containing results as List of IngridDocuments. In these docs
-	 * 		the select attributes are keys to the values (all Strings).
+	 * 		the select attributes are keys to the values.
 	 */
 	IngridDocument queryHQLToMap(String plugId, String hqlQuery, Integer maxNumHits,
 			String userId);

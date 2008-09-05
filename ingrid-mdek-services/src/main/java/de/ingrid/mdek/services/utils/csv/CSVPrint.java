@@ -149,7 +149,7 @@ public interface CSVPrint {
 	 *
 	 * @since ostermillerutils 1.02.26
 	 */
-	public void writeln(String[] values) throws IOException;
+	public void writeln(Object[] values) throws IOException;
 
 	/**
 	 * Print several lines of comma separated values.
@@ -226,7 +226,7 @@ public interface CSVPrint {
 	 *
 	 * @since ostermillerutils 1.02.26
 	 */
-	public void write(String value) throws IOException;
+	public void write(Object value) throws IOException;
 
 	/**
 	 * Flush any data written out to underlying streams.
@@ -257,7 +257,7 @@ public interface CSVPrint {
 	 *
 	 * @since ostermillerutils 1.02.26
 	 */
-	public void print(String[] values);
+	public void print(Object[] values);
 
 	/**
 	 * Print multiple delimited values values.
@@ -269,7 +269,7 @@ public interface CSVPrint {
 	 *
 	 * @since ostermillerutils 1.02.26
 	 */
-	public void write(String[] values) throws IOException;
+	public void write(Object[] values) throws IOException;
 
 	/**
 	 * Set whether values printers should always be quoted, or

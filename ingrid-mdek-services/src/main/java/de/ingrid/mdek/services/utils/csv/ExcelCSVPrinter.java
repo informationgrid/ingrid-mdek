@@ -454,7 +454,7 @@ public class ExcelCSVPrinter implements CSVPrint {
 	 *
 	 * @since ostermillerutils 1.02.26
 	 */
-	public void writeln(String[] values) throws IOException {
+	public void writeln(Object[] values) throws IOException {
 		try {
 			print(values);
 			writeln();
@@ -477,7 +477,7 @@ public class ExcelCSVPrinter implements CSVPrint {
 	 *
 	 * @since ostermillerutils 1.00.00
 	 */
-	public void print(String[] values){
+	public void print(Object[] values){
 		try {
 			write(values);
 		} catch (IOException iox){
@@ -495,7 +495,7 @@ public class ExcelCSVPrinter implements CSVPrint {
 	 *
 	 * @since ostermillerutils 1.02.26
 	 */
-	public void write(String[] values) throws IOException {
+	public void write(Object[] values) throws IOException {
 		try {
 			for (int i=0; i<values.length; i++){
 				write(values[i]);
@@ -611,9 +611,14 @@ public class ExcelCSVPrinter implements CSVPrint {
 	 *
 	 * @since ostermillerutils 1.02.26
 	 */
-	public void write(String value) throws IOException {
+	public void write(Object inValue) throws IOException {
 		try {
-			if (value == null) value = "";
+			String value;
+			if (inValue == null) {
+				value = "";				
+			} else {
+				value = inValue.toString();
+			}
 			boolean quote = false;
 			if (alwaysQuote){
 				quote = true;

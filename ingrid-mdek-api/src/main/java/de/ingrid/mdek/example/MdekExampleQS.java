@@ -252,7 +252,10 @@ class MdekExampleQSThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n\n----- search expired=INITIAL objects and extract various data by hql to MAP -----");
-		String hqlQuery = "select obj.id, obj.objUuid, oMeta.id, oMeta.expiryState, addr.id, addr.adrUuid, comm.adrId, comm.commValue " +
+		String hqlQuery = "select obj.id, obj.objUuid, " +
+			"oMeta.id, oMeta.expiryState, oMeta.lastexportTime, " +
+			"addr.id, addr.adrUuid, " +
+			"comm.adrId, comm.commValue " +
 		"from ObjectNode oNode " +
 			"inner join oNode.t01ObjectPublished obj " +
 			"inner join obj.objectMetadata oMeta, " +
@@ -268,9 +271,8 @@ class MdekExampleQSThread extends Thread {
 		List<IngridDocument> hits = (List<IngridDocument>) doc.get(MdekKeys.OBJ_ENTITIES);
 		for (IngridDocument hit : hits) {
 			// get enum const from database value.
-			// NOTICE: all query return values are strings ! we have to pass correct database type to Enumeration mapping (here Integer) ! 
 			ExpiryState stateEnumConst =
-				EnumUtil.mapDatabaseToEnumConst(ExpiryState.class, new Integer(hit.getString("oMeta.expiryState")));
+				EnumUtil.mapDatabaseToEnumConst(ExpiryState.class, hit.get("oMeta.expiryState"));
 			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
 		}
 
