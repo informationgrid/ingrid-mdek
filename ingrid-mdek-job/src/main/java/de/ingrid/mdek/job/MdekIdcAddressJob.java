@@ -19,6 +19,7 @@ import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.job.tools.MdekPermissionHandler;
+import de.ingrid.mdek.job.tools.MdekWorkflowHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -47,6 +48,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
+	private MdekWorkflowHandler workflowHandler;
 
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
@@ -63,6 +65,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
+		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
@@ -326,8 +329,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
 			// set common data to transfer to working copy !
+			workflowHandler.processWorkStateOnStore(aDocIn);
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			aDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
 			// set current user as responsible user if not set !
 			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
@@ -516,9 +519,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
 			// set common data to transfer
+			workflowHandler.processWorkStateOnPublish(aDocIn);
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			aDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
 			// set current user as responsible user if not set !
 			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
@@ -1056,9 +1059,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid, userUuid);
 
 			// Process copy
-			
-			// in bearbeitung !
-			targetAddrWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
+			workflowHandler.processWorkStateOnCopy(targetAddrWork);
 
 			// handle copies from/to "free address"
 			processMovedOrCopiedAddress(targetAddrWork, copyToFreeAddress);

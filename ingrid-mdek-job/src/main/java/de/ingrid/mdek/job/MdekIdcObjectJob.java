@@ -15,10 +15,10 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
-import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.job.tools.MdekPermissionHandler;
+import de.ingrid.mdek.job.tools.MdekWorkflowHandler;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -49,6 +49,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private MdekCatalogService catalogService;
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
+	private MdekWorkflowHandler workflowHandler;
 
 	private IObjectNodeDao daoObjectNode;
 	private IAddressNodeDao daoAddressNode;
@@ -65,6 +66,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		catalogService = MdekCatalogService.getInstance(daoFactory);
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
+		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
@@ -289,8 +291,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
+			workflowHandler.processWorkStateOnStore(oDocIn);
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			oDocIn.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
 			// set current user as responsible user if not set !
 			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
@@ -511,8 +513,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// CHECKS OK, proceed
 
 			// set common data to transfer
+			workflowHandler.processWorkStateOnPublish(oDocIn);
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			oDocIn.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
 			// set current user as responsible user if not set !
 			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
@@ -1340,8 +1342,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// copy source work version !
 			String newUuid = UuidGenerator.getInstance().generateUuid();
 			T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid, userUuid);
-			// set in Bearbeitung !
-			targetObjWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
+			
+			// Process copy
+			workflowHandler.processWorkStateOnCopy(targetObjWork);
 
 			// create new Node and set data !
 			// we also set Beans in object node, so we can access them afterwards.

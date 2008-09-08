@@ -4,17 +4,22 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
+import de.ingrid.utils.IngridDocument;
 
 
 /**
@@ -130,5 +135,35 @@ public class MdekWorkflowHandler {
 	/** Check "QA" Permission of given user and return "yes"/"no" ! */
 	private boolean hasQAPermission(String userAddrUuid) {
 		return permService.hasUserPermission(userAddrUuid, PermissionFactory.getPermissionTemplateQA());			
+	}
+
+	/** Process the work state in the given client side representation of an entity which should be stored. */
+	public void processWorkStateOnStore(IngridDocument entityDoc) {
+		WorkState givenState = EnumUtil.mapDatabaseToEnumConst(WorkState.class, 
+				entityDoc.getString(MdekKeys.WORK_STATE));
+
+		// keep QA state unchanged
+		if (givenState == WorkState.QS_RUECKUEBERWIESEN ||
+			givenState == WorkState.QS_UEBERWIESEN) {
+			return;
+		}
+
+		entityDoc.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
+	}
+
+	/** Process the work state in the given client side representation of an entity which should be published. */
+	public void processWorkStateOnPublish(IngridDocument entityDoc) {
+		entityDoc.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
+	}
+
+	/** Process the work state in the given bean (Object/Address) which is the result of a copy operation. */
+	public void processWorkStateOnCopy(IEntity entity) {
+		Class clazz = entity.getClass();
+
+		if (T01Object.class.isAssignableFrom(clazz)) {
+			((T01Object)entity).setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
+		} else if (T02Address.class.isAssignableFrom(clazz)) {
+			((T02Address)entity).setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
+		}
 	}
 }
