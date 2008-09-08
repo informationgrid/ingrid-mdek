@@ -47,6 +47,7 @@ public class AddressNodeDaoHibernate
 		Session session = getSession();
 
 		AddressNode aN = (AddressNode) session.createQuery("from AddressNode aNode " +
+			"left join fetch aNode.t02AddressWork " +
 			"where aNode.addrUuid = ?")
 			.setString(0, uuid)
 			.uniqueResult();

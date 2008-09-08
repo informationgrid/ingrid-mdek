@@ -43,6 +43,7 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		ObjectNode oN = (ObjectNode) session.createQuery("from ObjectNode oNode " +
+			"left join fetch oNode.t01ObjectWork " +
 			"where oNode.objUuid = ?")
 			.setString(0, uuid)
 			.uniqueResult();

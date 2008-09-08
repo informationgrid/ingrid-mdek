@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -60,6 +61,11 @@ public class MdekCatalogService {
 	/** Get language of catalog. NOTICE: transaction must be active when called the first time ! */
 	public String getCatalogLanguage() {
 		return getCatalog().getLanguageCode();
+	}
+
+	/** Is workflow control (QA) activated ? */
+	public boolean isWorkflowActivated() {
+		return MdekUtils.YES.equals(getCatalog().getWorkflowControl());
 	}
 
 	/** Get syslist entries of syslist with given id and language AS LIST OF ENTRY BEANS. */

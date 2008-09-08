@@ -411,7 +411,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.beginTransaction();
 
 			// check permissions !
-			permissionHandler.checkWritePermissionForObject(uuid, userId);
+			permissionHandler.checkWritePermissionForObject(uuid, userId, true);
 
 			// load node
 			ObjectNode oNode = daoObjectNode.loadByUuid(uuid);

@@ -27,13 +27,17 @@ import de.ingrid.utils.IngridDocument;
 
 
 /**
- * Handles permission checks.
+ * Handles permission checks concerning EDITING OF ENTITY (WRITE_SINGLE, WRITE_TREE).
+ * Utilizes MdekWorkflowHandler for handling all workflow specific stuff (QUALITY_ASSURANCE). 
  */
 public class MdekPermissionHandler {
 
 	private static final Logger LOG = Logger.getLogger(MdekPermissionHandler.class);
 	
 	private IPermissionService permService;
+
+	private MdekWorkflowHandler workflowHandler;
+
 	protected IIdcUserDao daoIdcUser;
 
 	protected DocToBeanMapperSecurity docToBeanMapperSecurity;
@@ -51,7 +55,9 @@ public class MdekPermissionHandler {
 
 	private MdekPermissionHandler(IPermissionService permissionService, DaoFactory daoFactory) {
 		this.permService = permissionService;
-		
+
+		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
+
 		daoIdcUser = daoFactory.getIdcUserDao();
 
 		docToBeanMapperSecurity = DocToBeanMapperSecurity.getInstance(daoFactory, permissionService);
@@ -113,6 +119,12 @@ public class MdekPermissionHandler {
 	 */
 	public List<Permission> getPermissionsForObject(String objUuid, String userAddrUuid) {
 		List<Permission> perms = new ArrayList<Permission>();
+		
+		// check workflow permission before entity write permission
+		if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
+			return perms;
+		}
+
 		if (permService.isCatalogAdmin(userAddrUuid)) {
 			// full access, we return "write-tree" permission
 			perms.add(PermissionFactory.getPermissionTemplateTree());
@@ -130,7 +142,7 @@ public class MdekPermissionHandler {
 				perms.add(PermissionFactory.getPermissionTemplateTree());
 			}
 		}
-		
+
 		return perms;
 	}
 
@@ -142,6 +154,12 @@ public class MdekPermissionHandler {
 	 */
 	public List<Permission> getPermissionsForAddress(String addrUuid, String userAddrUuid) {
 		List<Permission> perms = new ArrayList<Permission>();
+
+		// check workflow permission before entity write permission
+		if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
+			return perms;
+		}
+
 		if (permService.isCatalogAdmin(userAddrUuid)) {
 			// full access, we return "write-tree" permission
 			perms.add(PermissionFactory.getPermissionTemplateTree());
@@ -370,20 +388,10 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Checks whether user has permissions to perform the STORE operation AND THROW EXCEPTION IF NOT !
+	 * Checks whether user is catalog admin AND THROW EXCEPTION IF NOT !
 	 * @param userUuid users address uuid
 	 */
-	public void checkPermissionsForStoreCatalog(String userUuid) {
-		if (!permService.isCatalogAdmin(userUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
-		}
-	}
-
-	/**
-	 * Checks whether user has permissions to perform the STORE operation AND THROW EXCEPTION IF NOT !
-	 * @param userUuid users address uuid
-	 */
-	public void checkPermissionsForStoreSysGui(String userUuid) {
+	public void checkIsCatalogAdmin(String userUuid) {
 		if (!permService.isCatalogAdmin(userUuid)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}
@@ -406,11 +414,11 @@ public class MdekPermissionHandler {
 				checkCreateRootPermission(userUuid);					
 			} else {
 				// has permission to create sub node on parent ?					
-				checkTreePermissionForObject(parentUuid, userUuid);					
+				checkTreePermissionForObject(parentUuid, userUuid, false);					
 			}
 		} else {
 			// has write permission ?					
-			checkWritePermissionForObject(objUuid, userUuid);					
+			checkWritePermissionForObject(objUuid, userUuid, true);					
 		}
 	}
 
@@ -431,11 +439,11 @@ public class MdekPermissionHandler {
 				checkCreateRootPermission(userUuid);					
 			} else {
 				// has permission to create sub node on parent ?					
-				checkTreePermissionForAddress(parentUuid, userUuid);					
+				checkTreePermissionForAddress(parentUuid, userUuid, false);					
 			}
 		} else {
 			// has write permission ?					
-			checkWritePermissionForAddress(addrUuid, userUuid);					
+			checkWritePermissionForAddress(addrUuid, userUuid, true);					
 		}
 	}
 
@@ -472,7 +480,7 @@ public class MdekPermissionHandler {
 			checkCreateRootPermission(userUuid);
 		} else {
 			// has permission to create sub node on parent ?					
-			checkTreePermissionForObject(toUuid, userUuid);					
+			checkTreePermissionForObject(toUuid, userUuid, false);					
 		}
 	}
 
@@ -488,7 +496,7 @@ public class MdekPermissionHandler {
 			checkCreateRootPermission(userUuid);
 		} else {
 			// has permission to create sub node on parent ?					
-			checkTreePermissionForAddress(toUuid, userUuid);					
+			checkTreePermissionForAddress(toUuid, userUuid, false);					
 		}
 	}
 
@@ -500,7 +508,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkPermissionsForMoveObject(String fromUuid, String toUuid, String userUuid) {
 		// has permission to remove from source (delete subnode) ?
-		checkTreePermissionForObject(fromUuid, userUuid);
+		checkTreePermissionForObject(fromUuid, userUuid, true);
 		
 		// check permissions on target via copy check (are the same)
 		checkPermissionsForCopyObject(fromUuid, toUuid, userUuid);
@@ -520,7 +528,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkPermissionsForMoveAddress(String fromUuid, String toUuid, String userUuid) {
 		// has permission to remove from source (delete subnode) ?
-		checkTreePermissionForAddress(fromUuid, userUuid);
+		checkTreePermissionForAddress(fromUuid, userUuid, true);
 		
 		// check permissions on target via copy check (are the same)
 		checkPermissionsForCopyAddress(fromUuid, toUuid, userUuid);
@@ -538,7 +546,7 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForDeleteWorkingCopyObject(String uuid, String userUuid) {
-		checkWritePermissionForObject(uuid, userUuid);
+		checkWritePermissionForObject(uuid, userUuid, true);
 	}
 
 	/**
@@ -547,7 +555,7 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForDeleteWorkingCopyAddress(String uuid, String userUuid) {
-		checkWritePermissionForAddress(uuid, userUuid);
+		checkWritePermissionForAddress(uuid, userUuid, true);
 	}
 
 	/**
@@ -556,7 +564,7 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForDeleteObject(String uuid, String userUuid) {
-		checkTreePermissionForObject(uuid, userUuid);
+		checkTreePermissionForObject(uuid, userUuid, true);
 	}
 
 	/**
@@ -565,15 +573,19 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForDeleteAddress(String uuid, String userUuid) {
-		checkTreePermissionForAddress(uuid, userUuid);
+		checkTreePermissionForAddress(uuid, userUuid, true);
 	}
 
 	/**
 	 * Checks whether user has write permission on given object AND THROW EXCEPTION IF NOT !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param objUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
 	 */
-	public void checkWritePermissionForObject(String objUuid, String userAddrUuid) {
-		if (!hasWritePermissionForObject(objUuid, userAddrUuid)) {
+	public void checkWritePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+		if (!hasWritePermissionForObject(objUuid, userAddrUuid, checkWorkflow)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
@@ -581,9 +593,13 @@ public class MdekPermissionHandler {
 	/**
 	 * Checks whether user has WRITE_TREE permission on given object AND THROWS EXCEPTION IF NOT !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param objUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
 	 */
-	private void checkTreePermissionForObject(String objUuid, String userAddrUuid) {
-		if (!hasTreePermissionForObject(objUuid, userAddrUuid)) {
+	private void checkTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+		if (!hasTreePermissionForObject(objUuid, userAddrUuid, checkWorkflow)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
@@ -591,9 +607,13 @@ public class MdekPermissionHandler {
 	/**
 	 * Checks whether user has write permission on given address AND THROW EXCEPTION IF NOT !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param addrUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
 	 */
-	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid) {
-		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid)) {
+	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
@@ -601,9 +621,13 @@ public class MdekPermissionHandler {
 	/**
 	 * Checks whether user has WRITE_TREE permission on given address AND THROW EXCEPTION IF NOT !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param addrUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
 	 */
-	private void checkTreePermissionForAddress(String addrUuid, String userAddrUuid) {
-		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid)) {
+	private void checkTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
@@ -661,10 +685,21 @@ public class MdekPermissionHandler {
 	/**
 	 * Check Write Permission of given user on given object and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param objUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * @return
 	 */
-	public boolean hasWritePermissionForObject(String objUuid, String userAddrUuid) {
+	public boolean hasWritePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+		// check workflow permission before entity write permission
+		if (checkWorkflow) {
+			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
+				return false;
+			}			
+		}
+
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
-		
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSingle())) {
 				return true;
@@ -679,10 +714,21 @@ public class MdekPermissionHandler {
 	/**
 	 * Check WRITE_TREE Permission of given user on given object and return "yes"/"no"
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param objUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * @return
 	 */
-	private boolean hasTreePermissionForObject(String objUuid, String userAddrUuid) {
+	private boolean hasTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+		// check workflow permission before entity write permission
+		if (checkWorkflow) {
+			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
+				return false;
+			}			
+		}
+
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
-		
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
@@ -695,10 +741,21 @@ public class MdekPermissionHandler {
 	/**
 	 * Check Write Permission of given user on given address and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param addrUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * @return
 	 */
-	public boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid) {
-		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
-		
+	public boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+		// check workflow permission before entity write permission
+		if (checkWorkflow) {
+			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
+				return false;
+			}			
+		}
+
+		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);		
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSingle())) {
 				return true;
@@ -713,10 +770,21 @@ public class MdekPermissionHandler {
 	/**
 	 * Check WRITE_TREE Permission of given user on given address and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * @param addrUuid
+	 * @param userAddrUuid
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * @return
 	 */
-	private boolean hasTreePermissionForAddress(String addrUuid, String userAddrUuid) {
-		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);
-		
+	private boolean hasTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+		// check workflow permission before entity write permission
+		if (checkWorkflow) {
+			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
+				return false;
+			}			
+		}
+
+		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);		
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
@@ -731,18 +799,9 @@ public class MdekPermissionHandler {
 		return permService.hasUserPermission(userAddrUuid, userPermission);			
 	}
 
-	/**
-	 * Check "CreateRoot" Permission of given user and return "yes"/"no" !
-	 */
+	/** Check "CreateRoot" Permission of given user and return "yes"/"no" ! */
 	private boolean hasCreateRootPermission(String userAddrUuid) {
-		// NO CHECK ON CATALOG ADMIN ANYMORE !
-		// CreateRoot now bound to group (because group gets "write-tree" permissions on created root entities !)
-//		boolean hasPermission = permService.isCatalogAdmin(userAddrUuid);
-
-		boolean hasPermission = permService.hasUserPermission(userAddrUuid, 
-			PermissionFactory.getPermissionTemplateCreateRoot());			
-
-		return hasPermission;
+		return hasUserPermission(PermissionFactory.getPermissionTemplateCreateRoot(), userAddrUuid);
 	}
 
 	/** Get all users who have write access for the given object. Pass list of ALL groups !
@@ -787,12 +846,12 @@ public class MdekPermissionHandler {
 					continue;
 				}
 				if (entityType == IdcEntityType.OBJECT) {
-					if (hasWritePermissionForObject(entityUuid, gUser.getAddrUuid())) {
+					if (hasWritePermissionForObject(entityUuid, gUser.getAddrUuid(), true)) {
 						addGroupUsers = true;
 						break;
 					}
 				} else if (entityType == IdcEntityType.ADDRESS) {
-					if (hasWritePermissionForAddress(entityUuid, gUser.getAddrUuid())) {
+					if (hasWritePermissionForAddress(entityUuid, gUser.getAddrUuid(), true)) {
 						addGroupUsers = true;
 						break;
 					}

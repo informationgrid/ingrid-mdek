@@ -438,7 +438,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.beginTransaction();
 
 			// check permissions !
-			permissionHandler.checkWritePermissionForAddress(uuid, userId);
+			permissionHandler.checkWritePermissionForAddress(uuid, userId, true);
 
 			// load node
 			AddressNode aNode = daoAddressNode.loadByUuid(uuid);

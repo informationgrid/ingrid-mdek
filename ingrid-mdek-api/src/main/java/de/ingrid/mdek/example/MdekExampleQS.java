@@ -1,8 +1,6 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +11,8 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQS {
@@ -161,29 +157,24 @@ class MdekExampleQSThread extends Thread {
 		String catalogAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		supertool.setCallingUser(catalogAdminUuid);
 
+		System.out.println("\n\n----- ENABLE WORKFLOW in catalog -----");
+		IngridDocument catDoc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+		System.out.println("\n\n----- backend version -----");
+		supertool.getVersion();
+
+
 // ====================
 // test single stuff
 // -----------------------------------
 /*
+		// Test new METADATA TABLE
+		// -----------------------
 
-		if (alwaysTrue) {
-			isRunning = false;
-			return;
-		}
-*/
-// ===================================
+		// ============== OBJECTS =====================
 
-		System.out.println("\n----- backend version -----");
-		supertool.getVersion();
-
-		supertool.setFullOutput(true);
-
-		System.out.println("\n\n=========================");
-		System.out.println("QS OBJECT");
-		System.out.println("=========================");
-		// check object manipulation
-		
-		// -----------------------------------
 		System.out.println("\n\n----- Test METADATA EXISTING OBJECT -----");
 		System.out.println("\n----- object details -----");
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
@@ -250,39 +241,9 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- DELETE new object -----");
 		supertool.deleteObject(newUuid, true);
 
-		// -----------------------------------
-		System.out.println("\n\n----- search expired=INITIAL objects and extract various data by hql to MAP -----");
-		String hqlQuery = "select obj.id, obj.objUuid, " +
-			"oMeta.id, oMeta.expiryState, oMeta.lastexportTime, " +
-			"addr.id, addr.adrUuid, " +
-			"comm.adrId, comm.commValue " +
-		"from ObjectNode oNode " +
-			"inner join oNode.t01ObjectPublished obj " +
-			"inner join obj.objectMetadata oMeta, " +
-			"AddressNode as aNode " +
-			"inner join aNode.t02AddressPublished addr " +
-			"inner join addr.t021Communications comm " +
-		"where " +
-			"oMeta.expiryState = " + ExpiryState.INITIAL.getDbValue() +
-			" and obj.responsibleUuid = aNode.addrUuid " +
-			" and comm.commtypeKey = " + MdekUtils.COMM_TYPE_EMAIL;
-		doc = supertool.queryHQLToMap(hqlQuery, 10);
-		
-		List<IngridDocument> hits = (List<IngridDocument>) doc.get(MdekKeys.OBJ_ENTITIES);
-		for (IngridDocument hit : hits) {
-			// get enum const from database value.
-			ExpiryState stateEnumConst =
-				EnumUtil.mapDatabaseToEnumConst(ExpiryState.class, hit.get("oMeta.expiryState"));
-			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
-		}
 
-		// -----------------------------------
-		System.out.println("\n\n=========================");
-		System.out.println("QS ADDRESS");
-		System.out.println("=========================");
-		// check address manipulation
-		
-		// -----------------------------------
+		// ============== ADDRESSES =====================
+
 		System.out.println("\n\n----- Test METADATA EXISTING ADDRESS -----");
 		System.out.println("\n----- address details -----");
 		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
@@ -308,7 +269,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- original address details again -----");
 		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
 		
-		// -----------------------------------
+		// ===================================
 		System.out.println("\n\n----- Test METADATA NEW ADDRESS -----");
 		System.out.println("\n----- load initial data from parent " + parentAddressUuid + " -----");
 		newDoc = new IngridDocument();
@@ -358,6 +319,78 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- DELETE new address -----");
 		supertool.deleteAddress(newUuid, true);
+
+		// -----------------------------------
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+// ===================================
+
+		supertool.setFullOutput(true);
+
+		System.out.println("\n\n=========================");
+		System.out.println("QS OBJECT");
+		System.out.println("=========================");
+		
+		// -----------------------------------
+		System.out.println("\n\n----- search expired=INITIAL objects and extract various data by hql to MAP -----");
+		String hqlQuery = "select obj.id, obj.objUuid, " +
+			"oMeta.id, oMeta.expiryState, oMeta.lastexportTime, " +
+			"addr.id, addr.adrUuid, " +
+			"comm.adrId, comm.commValue " +
+		"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectPublished obj " +
+			"inner join obj.objectMetadata oMeta, " +
+			"AddressNode as aNode " +
+			"inner join aNode.t02AddressPublished addr " +
+			"inner join addr.t021Communications comm " +
+		"where " +
+			"oMeta.expiryState = " + ExpiryState.INITIAL.getDbValue() +
+			" and obj.responsibleUuid = aNode.addrUuid " +
+			" and comm.commtypeKey = " + MdekUtils.COMM_TYPE_EMAIL;
+		doc = supertool.queryHQLToMap(hqlQuery, 10);
+		
+		List<IngridDocument> hits = (List<IngridDocument>) doc.get(MdekKeys.OBJ_ENTITIES);
+		for (IngridDocument hit : hits) {
+			// get enum const from database value.
+			ExpiryState stateEnumConst =
+				EnumUtil.mapDatabaseToEnumConst(ExpiryState.class, hit.get("oMeta.expiryState"));
+			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
+		}
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("QS ADDRESS");
+		System.out.println("=========================");
+
+		// -----------------------------------
+		System.out.println("\n\n----- search expired=INITIAL addresses and extract various data by hql to MAP -----");
+		hqlQuery = "select a.id, a.adrUuid, " +
+			"aMeta.id, aMeta.expiryState, aMeta.lastexportTime, " +
+			"aResp.id, aResp.adrUuid, " +
+			"comm.adrId, comm.commValue " +
+		"from AddressNode aNode " +
+			"inner join aNode.t02AddressPublished a " +
+			"inner join a.addressMetadata aMeta, " +
+			"AddressNode as aRespNode " +
+			"inner join aRespNode.t02AddressPublished aResp " +
+			"inner join aResp.t021Communications comm " +
+		"where " +
+			"aMeta.expiryState = " + ExpiryState.INITIAL.getDbValue() +
+			" and a.responsibleUuid = aRespNode.addrUuid " +
+			" and comm.commtypeKey = " + MdekUtils.COMM_TYPE_EMAIL;
+		doc = supertool.queryHQLToMap(hqlQuery, 10);
+		
+		hits = (List<IngridDocument>) doc.get(MdekKeys.ADR_ENTITIES);
+		for (IngridDocument hit : hits) {
+			// get enum const from database value.
+			ExpiryState stateEnumConst =
+				EnumUtil.mapDatabaseToEnumConst(ExpiryState.class, hit.get("aMeta.expiryState"));
+			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
+		}
 
 // ===================================
 

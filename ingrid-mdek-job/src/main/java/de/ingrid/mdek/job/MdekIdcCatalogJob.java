@@ -78,7 +78,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			beanToDocMapper.mapModUser(userId, cDocIn, MappingQuantity.INITIAL_ENTITY);
 
 			// check permissions !
-			permissionHandler.checkPermissionsForStoreCatalog(userId);
+			permissionHandler.checkIsCatalogAdmin(userId);
 
 			// exception if catalog not existing
 			T03Catalogue catalog = catalogService.getCatalog();
@@ -185,7 +185,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 
 			// check permissions !
-			permissionHandler.checkPermissionsForStoreSysGui(userId);
+			permissionHandler.checkIsCatalogAdmin(userId);
 
 			// get according sysGuis
 			// transfer new data AND MAKE PERSISTENT !
