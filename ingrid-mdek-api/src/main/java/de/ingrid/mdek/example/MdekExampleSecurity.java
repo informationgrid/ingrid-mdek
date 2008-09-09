@@ -153,15 +153,30 @@ class MdekExampleSecurityThread extends Thread {
 		boolean alwaysTrue = true;
 		IngridDocument doc;
 
-		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		IngridDocument catAdminDoc = supertool.getCatalogAdmin();
 		Long catalogAdminId = (Long) catAdminDoc.get(MdekKeysSecurity.IDC_USER_ID);
 		String catalogAdminUuid = catAdminDoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		supertool.setCallingUser(catalogAdminUuid);
 
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- ENABLE/DISABLE WORKFLOW in catalog -----");
+		IngridDocument catDoc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+
 // ====================
 // test single stuff
 // -----------------------------------
+/*
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+// ====================
 
 		System.out.println("\n\n------------------------------------------------");
 		System.out.println("----- GROUP: Remove Object/Address/User-Permissions -> only allowed if user has according permission himself ! -----");
@@ -209,7 +224,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("--- Add Permissions to group -> ALL ALLOWED AS CATADMIN -----");
 		System.out.println("----- add user permission CREATE_ROOT to group 1 -----");
 		System.out.println("----- add address/object WRITE_SINGLE permissions to group 1 -----");
-		addUserPermissionToGroupDoc(newGroup1Doc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
+		supertool.addUserPermissionToGroupDoc(newGroup1Doc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
 		addObjPermissionToGroupDoc(newGroup1Doc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		addAddrPermissionToGroupDoc(newGroup1Doc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		newGroup1Doc = supertool.storeGroup(newGroup1Doc, true);
@@ -223,7 +238,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- add user permission CREATE_ROOT to group 1 -----");
 		System.out.println("----- add address/object WRITE_SINGLE permissions to group 1 -----");
-		addUserPermissionToGroupDoc(newGroup1Doc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
+		supertool.addUserPermissionToGroupDoc(newGroup1Doc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
 		addObjPermissionToGroupDoc(newGroup1Doc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		addAddrPermissionToGroupDoc(newGroup1Doc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		newGroup1Doc = supertool.storeGroup(newGroup1Doc, true);
@@ -262,9 +277,9 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.storeGroup(newGroup1Doc, true);
 		permList.remove(permList.size()-1);
 
-		System.out.println("\n----- ADD USER permission and store group -> NOT ALLOWED ! -----");
+		System.out.println("\n----- ADD USER permission QUALITY_ASSURANCE and store group -> NOT ALLOWED IF OWN GROUP NOT QA (may be allowed here if granted ...) -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
-		addUserPermissionToGroupDoc(newGroup1Doc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
+		supertool.addUserPermissionToGroupDoc(newGroup1Doc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
 		supertool.storeGroup(newGroup1Doc, true);
 		permList.remove(permList.size()-1);
 
@@ -275,7 +290,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- ADD OBJECT, ADDRESS, USER permission to GROUP2 -> ALLOWED ! -----");
 		addObjPermissionToGroupDoc(newGroup2Doc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		addAddrPermissionToGroupDoc(newGroup2Doc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
-		addUserPermissionToGroupDoc(newGroup2Doc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
+		supertool.addUserPermissionToGroupDoc(newGroup2Doc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
 		newGroup2Doc = supertool.storeGroup(newGroup2Doc, true);
 
 		System.out.println("\n----- REMOVE ALL permissions from GROUP2 -> ALLOWED ! -----");
@@ -306,17 +321,9 @@ class MdekExampleSecurityThread extends Thread {
 			isRunning = false;
 			return;
 		}
-
-// -----------------------------------
-
-		if (alwaysTrue) {
-			isRunning = false;
-			return;
-		}
 */
-// ====================
 
-		// ===================================
+// ===================================
 
 		System.out.println("\n----------------------------");
 		System.out.println("----- TEST GROUP STUFF -----");
@@ -945,7 +952,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- add user permission CREATE_ROOT to group -----");
-		addUserPermissionToGroupDoc(newGroupDoc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
+		supertool.addUserPermissionToGroupDoc(newGroupDoc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
 		System.out.println("\n-------------------------------------");
@@ -1312,17 +1319,6 @@ class MdekExampleSecurityThread extends Thread {
 		perms.add(newPerm);
 	}
 
-	private void addUserPermissionToGroupDoc(IngridDocument groupDoc, IdcPermission idcPerm) {
-		List<IngridDocument> perms = (List<IngridDocument>) groupDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
-		if (perms == null) {
-			perms = new ArrayList<IngridDocument>();
-			groupDoc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, perms);
-		}
-		IngridDocument newPerm = new IngridDocument();
-		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
-		perms.add(newPerm);
-	}
-	
 	private void setResponsibleUuidInDoc(String userUuid, IngridDocument entityDoc) {
 		IngridDocument respUserDoc = new IngridDocument();
 		respUserDoc.put(MdekKeys.UUID, userUuid);

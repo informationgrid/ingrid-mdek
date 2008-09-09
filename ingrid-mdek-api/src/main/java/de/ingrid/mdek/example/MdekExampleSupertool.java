@@ -1,5 +1,6 @@
 package de.ingrid.mdek.example;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
@@ -1181,8 +1183,15 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	/** ALWAYS ADDS QA user-permission to group to avoid conflicts when workflow is enabled !!! */
 	public IngridDocument storeGroup(IngridDocument docIn,
 			boolean refetch) {
+		return storeGroup(docIn, refetch, true);
+	}
+
+	public IngridDocument storeGroup(IngridDocument docIn,
+			boolean refetch,
+			boolean alwaysAddQA) {
 		if (docIn == null) {
 			return null;
 		}
@@ -1195,6 +1204,12 @@ public class MdekExampleSupertool {
 
 		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE storeGroup " + refetchInfo + " ######");
+
+		System.out.println("  ADD QA: " + alwaysAddQA);
+		if (alwaysAddQA) {
+			addUserPermissionToGroupDoc(docIn, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
+		}
+		
 		startTime = System.currentTimeMillis();
 		response = mdekCallerSecurity.storeGroup(plugId, docIn, refetch, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -2618,6 +2633,28 @@ public class MdekExampleSupertool {
 		if (cause != null) {
 			System.out.println("   Cause:");
 			printThrowable(cause);			
+		}
+	}
+
+	public void addUserPermissionToGroupDoc(IngridDocument groupDoc, IdcPermission idcPerm) {
+		List<IngridDocument> perms = (List<IngridDocument>) groupDoc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
+		if (perms == null) {
+			perms = new ArrayList<IngridDocument>();
+			groupDoc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, perms);
+		}
+		// check whether permission already present !
+		boolean addPerm = true;
+		for (IngridDocument perm : perms) {
+			if (idcPerm.getDbValue().equals(perm.getString(MdekKeysSecurity.IDC_PERMISSION))) {
+				addPerm = false;
+				break;
+			}
+		}
+		
+		if (addPerm) {
+			IngridDocument newPerm = new IngridDocument();
+			newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
+			perms.add(newPerm);			
 		}
 	}
 }

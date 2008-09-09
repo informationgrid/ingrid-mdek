@@ -153,18 +153,21 @@ class MdekExampleQSThread extends Thread {
 		String personAddressUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 
 
-		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		doc = supertool.getCatalogAdmin();
 		Long catalogAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
 		String catalogAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		supertool.setCallingUser(catalogAdminUuid);
 
-		System.out.println("\n\n----- ENABLE WORKFLOW in catalog -----");
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- ENABLE WORKFLOW in catalog -----");
 		IngridDocument catDoc = supertool.getCatalog();
 		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
 		catDoc = supertool.storeCatalog(catDoc, true);
 
-		System.out.println("\n\n----- backend version -----");
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- backend version -----");
 		supertool.getVersion();
 
 
