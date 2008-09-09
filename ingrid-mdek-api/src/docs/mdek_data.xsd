@@ -99,7 +99,11 @@
 			<xs:element name="mark-deleted" type="xs:string"/>
 			<xs:element ref="mod-user"/>
 			<xs:element ref="responsible-user"/>
-
+			<xs:element name="assigner-uuid" type="xs:string"/>
+			<xs:element name="assign-time" type="TIMESTAMP"/>
+			<xs:element name="reassigner-uuid" type="xs:string"/>
+			<xs:element name="reassign-time" type="TIMESTAMP"/>
+			
 			<xs:element name="linkages" type="LINKAGE_LIST"/>
 			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
 			<xs:element name="exports" type="EXPORT_LIST"/>
@@ -163,7 +167,11 @@
 			<xs:element name="mark-deleted" type="xs:string"/>
 			<xs:element ref="mod-user"/>
 			<xs:element ref="responsible-user"/>
-
+			<xs:element name="assigner-uuid" type="xs:string"/>
+			<xs:element name="assign-time" type="TIMESTAMP"/>
+			<xs:element name="reassigner-uuid" type="xs:string"/>
+			<xs:element name="reassign-time" type="TIMESTAMP"/>
+			
 			<xs:element name="communication" type="COMMUNICATION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
 			<xs:element name="comment_list" type="COMMENT_LIST"/>

@@ -34,6 +34,21 @@ public interface IMdekCallerObject {
 			boolean refetchAfterStore,
 			String userId);
 
+
+	/**
+	 * Assign object to QA ! 
+	 * @param plugId which mdek server (iplug)
+	 * @param obj map representation of object.
+	 * 		If no id/uuid is set object will be created else updated.
+	 * @param refetchAfterStore immediately refetch Object after store (true)
+	 * 		or just store without refetching (false)
+	 * @return response containing result: map representation of created/updated object when refetching,
+	 * 		otherwise map containing uuid of stored object (was generated when new object)  
+	 */
+	IngridDocument assignObjectToQA(String plugId, IngridDocument obj,
+			boolean refetchAfterStore,
+			String userId);
+
 	/**
 	 * Update partial data of Object ! NOTICE: No working version (copy) is created !!! If object is in state
 	 * published and "working version" is updated, this IS ALSO THE PUBLISHED VERSION !!! Further no

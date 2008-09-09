@@ -99,6 +99,8 @@ public class MdekError implements Serializable {
 		USER_HAS_SUBUSERS("1014"),
 		/** e.g. user to delete is catalog admin ! */
 		USER_IS_CATALOG_ADMIN("1015"),
+		/** user has no PERMISSION concerning WORKFLOW for executing the operation on an entity (e.g. publish only as QA etc.) */
+		USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY("1020"),
 		
 		/** try to remove a group that has still users attached. errorInfo: list of attached users !
 		 * ALSO DELIVERS IDC USERS OF GROUP */

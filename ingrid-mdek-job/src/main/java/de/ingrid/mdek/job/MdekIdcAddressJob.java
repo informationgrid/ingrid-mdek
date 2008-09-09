@@ -15,7 +15,6 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.job.tools.MdekPermissionHandler;
@@ -318,82 +317,142 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			daoAddressNode.beginTransaction();
-			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
-			String uuid = (String) aDocIn.get(MdekKeys.UUID);
-			boolean isNewAddress = (uuid == null) ? true : false;
-			// parentUuid only passed if new address !?
-			String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 			int objRefsStartIndex = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
 			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
-			// set common data to transfer to working copy !
-			workflowHandler.processWorkStateOnStore(aDocIn);
-			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
-			// set current user as responsible user if not set !
-			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
-			if (respUserUuid == null) {
-				beanToDocMapper.mapResponsibleUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);				
-			}
+			// set specific data to transfer to working copy and store !
+			workflowHandler.processDocOnStore(aDocIn);
+			String uuid = storeAddress(aDocIn, userId);
 
-			// check permissions !
-			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
+			daoAddressNode.commitTransaction();
 
-			if (isNewAddress) {
-				// create new uuid
-				uuid = UuidGenerator.getInstance().generateUuid();
-				aDocIn.put(MdekKeys.UUID, uuid);
-				// NOTICE: don't add further data, is done below when checking working copy !
-			}
-			
-			// load node
-			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
-			if (aNode == null) {
-				aNode = docToBeanMapper.mapAddressNode(aDocIn, new AddressNode());			
-			}
-			
-			// get/create working copy
-			// if no working copy then new address -> address and addressNode have to be created
-			if (!hasWorkingCopy(aNode)) {
-				// no working copy yet, create new address/node with BASIC data
+			// return uuid (may be new generated uuid if new address)
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
 
-				// set some missing data which may not be passed from client.
-				// set from published version if existent
-				T02Address aPub = aNode.getT02AddressPublished();
-				if (aPub != null) {
-					aDocIn.put(MdekKeys.DATE_OF_CREATION, aPub.getCreateTime());				
-				} else {
-					aDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+			if (refetchAfterStore) {
+				daoAddressNode.beginTransaction();
+				result = getAddrDetails(uuid, userId, objRefsStartIndex, objRefsMaxNum);
+				daoAddressNode.commitTransaction();
+
+				if (log.isDebugEnabled()) {
+					if (!MdekIdcEntityComparer.compareAddressMaps(aDocIn, result, null)) {
+						log.debug("Differences in Documents after store/refetch detected!");
+					}
 				}
-				T02Address aWork = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
-				 // save it to generate id needed for mapping
-				daoT02Address.makePersistent(aWork);
-				
-				// create/update node
-				aNode.setAddrId(aWork.getId());
-				aNode.setT02AddressWork(aWork);
-				daoAddressNode.makePersistent(aNode);
 			}
+			
+			return result;
 
-			// transfer detailed new data
-			T02Address aWork = aNode.getT02AddressWork();
-			docToBeanMapper.mapT02Address(aDocIn, aWork, MappingQuantity.DETAIL_ENTITY);
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
 
-			// PERFORM CHECKS BEFORE STORING/COMMITTING !!!
-			checkAddressNodeForStore(aNode);
+	/** Returns uuid of object */
+	private String storeAddress(IngridDocument aDocIn, String userId) {
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
-			// store when ok
+		String uuid = (String) aDocIn.get(MdekKeys.UUID);
+		boolean isNewAddress = (uuid == null) ? true : false;
+		// parentUuid only passed if new address !?
+		String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
+
+		// set common data to transfer to working copy !
+		aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
+		// set current user as responsible user if not set !
+		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
+		if (respUserUuid == null) {
+			beanToDocMapper.mapResponsibleUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);				
+		}
+
+		// check permissions !
+		permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
+
+		if (isNewAddress) {
+			// create new uuid
+			uuid = UuidGenerator.getInstance().generateUuid();
+			aDocIn.put(MdekKeys.UUID, uuid);
+			// NOTICE: don't add further data, is done below when checking working copy !
+		}
+		
+		// load node
+		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+		if (aNode == null) {
+			aNode = docToBeanMapper.mapAddressNode(aDocIn, new AddressNode());			
+		}
+		
+		// get/create working copy
+		// if no working copy then new address -> address and addressNode have to be created
+		if (!hasWorkingCopy(aNode)) {
+			// no working copy yet, create new address/node with BASIC data
+
+			// set some missing data which may not be passed from client.
+			// set from published version if existent
+			T02Address aPub = aNode.getT02AddressPublished();
+			if (aPub != null) {
+				aDocIn.put(MdekKeys.DATE_OF_CREATION, aPub.getCreateTime());				
+			} else {
+				aDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+			}
+			T02Address aWork = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
+			 // save it to generate id needed for mapping
 			daoT02Address.makePersistent(aWork);
+			
+			// create/update node
+			aNode.setAddrId(aWork.getId());
+			aNode.setT02AddressWork(aWork);
+			daoAddressNode.makePersistent(aNode);
+		}
 
-			// UPDATE FULL INDEX !!!
-			fullIndexHandler.updateAddressIndex(aNode);
+		// transfer detailed new data
+		T02Address aWork = aNode.getT02AddressWork();
+		docToBeanMapper.mapT02Address(aDocIn, aWork, MappingQuantity.DETAIL_ENTITY);
 
-			// grant write tree permission if not set yet (e.g. new root node)
-			if (isNewAddress) {
-				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
-			}
+		// PERFORM CHECKS BEFORE STORING/COMMITTING !!!
+		checkAddressNodeForStore(aNode);
+
+		// store when ok
+		daoT02Address.makePersistent(aWork);
+
+		// UPDATE FULL INDEX !!!
+		fullIndexHandler.updateAddressIndex(aNode);
+
+		// grant write tree permission if not set yet (e.g. new root node)
+		if (isNewAddress) {
+			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
+		}
+		
+		return uuid;
+	}
+
+	public IngridDocument assignAddressToQA(IngridDocument aDocIn) {
+		String userId = getCurrentUserUuid(aDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			daoAddressNode.beginTransaction();
+
+			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			int objRefsStartIndex = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
+			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
+
+			// set specific data to transfer to working copy and store !
+			workflowHandler.processDocOnAssignToQA(aDocIn, userId);
+			String uuid = storeAddress(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -519,7 +578,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
 			// set common data to transfer
-			workflowHandler.processWorkStateOnPublish(aDocIn);
+			workflowHandler.processDocOnPublish(aDocIn);
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 			aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
@@ -1059,7 +1118,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid, userUuid);
 
 			// Process copy
-			workflowHandler.processWorkStateOnCopy(targetAddrWork);
+			workflowHandler.processEntityOnCopy(targetAddrWork);
 
 			// handle copies from/to "free address"
 			processMovedOrCopiedAddress(targetAddrWork, copyToFreeAddress);

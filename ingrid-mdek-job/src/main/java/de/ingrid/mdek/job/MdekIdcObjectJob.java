@@ -282,90 +282,148 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
-			String currentTime = MdekUtils.dateToTimestamp(new Date());
 
-			String uuid = (String) oDocIn.get(MdekKeys.UUID);
-			boolean isNewObject = (uuid == null) ? true : false;
-			// parentUuid only passed if new object !?
-			String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			
+			// set specific data to transfer to working copy and store !
+			workflowHandler.processDocOnStore(oDocIn);
+			String uuid = storeObject(oDocIn, userId);
+
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
+			daoObjectNode.commitTransaction();
+
+			// return uuid (may be new generated uuid if new object)
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
+
+			if (refetchAfterStore) {
+				daoObjectNode.beginTransaction();
+				result = getObjDetails(uuid, userId);
+				daoObjectNode.commitTransaction();
+				
+				if (log.isDebugEnabled()) {
+					if (!MdekIdcEntityComparer.compareObjectMaps(oDocIn, result, null)) {
+						log.debug("Differences in Documents after store/refetch detected!");
+					}
+				}
+			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	/** Returns uuid of object */
+	private String storeObject(IngridDocument oDocIn, String userId) {
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
+
+		String uuid = (String) oDocIn.get(MdekKeys.UUID);
+		boolean isNewObject = (uuid == null) ? true : false;
+		// parentUuid only passed if new object !?
+		String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+
+		// set common data to transfer to working copy !
+		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
+		// set current user as responsible user if not set !
+		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
+		if (respUserUuid == null) {
+			beanToDocMapper.mapResponsibleUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);				
+		}
+
+		// check permissions !
+		permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);
+
+		if (isNewObject) {
+			// create new uuid
+			uuid = UuidGenerator.getInstance().generateUuid();
+			oDocIn.put(MdekKeys.UUID, uuid);
+			// NOTICE: don't add further data, is done below when checking working copy !
+		}
+		
+		// load node
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode == null) {
+			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
+		}
+		
+		// get/create working copy
+		if (!hasWorkingCopy(oNode)) {
+			// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
+
+			// set some missing data which is NOT passed from client.
+			// set from published version if existent.
+			T01Object oPub = oNode.getT01ObjectPublished();
+			if (oPub != null) {
+				oDocIn.put(MdekKeys.DATE_OF_CREATION, oPub.getCreateTime());				
+				oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, oPub.getCatId());
+			} else {
+				oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+				oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, catalogService.getCatalogId());
+			}
+			
+			// create BASIC working object
+			T01Object oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
+			// save it to generate id needed for mapping of associations
+			daoT01Object.makePersistent(oWork);
+
+			// also SAVE t08_attrs from published in work version (copy) -> NOT MAPPED VIA 
+			// docToBeanMapper (at the moment NOT part of UI) !
+			// we do this, so querying t08_attribs in edited objects (working version) works (otherwise
+			// could only be queried in published version) !
+			// NOTICE: when publishing the work version, its t08_attribs aren't mapped (the OLD published
+			// object is loaded containing the original t08_attrs) !
+			if (oPub != null) {
+				docToBeanMapper.updateT08Attrs(
+						beanToDocMapper.mapT08Attrs(oPub.getT08Attrs(), new IngridDocument()),
+						oWork);					
+			}
+
+			// update node
+			oNode.setObjId(oWork.getId());
+			oNode.setT01ObjectWork(oWork);
+			daoObjectNode.makePersistent(oNode);
+		}
+
+		// transfer new data and store.
+		T01Object oWork = oNode.getT01ObjectWork();
+		docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
+		daoT01Object.makePersistent(oWork);
+
+		// UPDATE FULL INDEX !!!
+		fullIndexHandler.updateObjectIndex(oNode);
+
+		// grant write tree permission if not set yet (e.g. new root node)
+		if (isNewObject) {
+			permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId);
+		}
+
+		return uuid;
+	}
+
+	public IngridDocument assignObjectToQA(IngridDocument oDocIn) {
+		String userId = getCurrentUserUuid(oDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			daoObjectNode.beginTransaction();
+
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer to working copy !
-			workflowHandler.processWorkStateOnStore(oDocIn);
-			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
-			// set current user as responsible user if not set !
-			String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
-			if (respUserUuid == null) {
-				beanToDocMapper.mapResponsibleUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);				
-			}
-
-			// check permissions !
-			permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);
-
-			if (isNewObject) {
-				// create new uuid
-				uuid = UuidGenerator.getInstance().generateUuid();
-				oDocIn.put(MdekKeys.UUID, uuid);
-				// NOTICE: don't add further data, is done below when checking working copy !
-			}
-			
-			// load node
-			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
-			if (oNode == null) {
-				oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
-			}
-			
-			// get/create working copy
-			if (!hasWorkingCopy(oNode)) {
-				// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
-
-				// set some missing data which is NOT passed from client.
-				// set from published version if existent.
-				T01Object oPub = oNode.getT01ObjectPublished();
-				if (oPub != null) {
-					oDocIn.put(MdekKeys.DATE_OF_CREATION, oPub.getCreateTime());				
-					oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, oPub.getCatId());
-				} else {
-					oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
-					oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, catalogService.getCatalogId());
-				}
-				
-				// create BASIC working object
-				T01Object oWork = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-				// save it to generate id needed for mapping of associations
-				daoT01Object.makePersistent(oWork);
-
-				// also SAVE t08_attrs from published in work version (copy) -> NOT MAPPED VIA 
-				// docToBeanMapper (at the moment NOT part of UI) !
-				// we do this, so querying t08_attribs in edited objects (working version) works (otherwise
-				// could only be queried in published version) !
-				// NOTICE: when publishing the work version, its t08_attribs aren't mapped (the OLD published
-				// object is loaded containing the original t08_attrs) !
-				if (oPub != null) {
-					docToBeanMapper.updateT08Attrs(
-							beanToDocMapper.mapT08Attrs(oPub.getT08Attrs(), new IngridDocument()),
-							oWork);					
-				}
-
-				// update node
-				oNode.setObjId(oWork.getId());
-				oNode.setT01ObjectWork(oWork);
-				daoObjectNode.makePersistent(oNode);
-			}
-
-			// transfer new data and store.
-			T01Object oWork = oNode.getT01ObjectWork();
-			docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
-			daoT01Object.makePersistent(oWork);
-
-			// UPDATE FULL INDEX !!!
-			fullIndexHandler.updateObjectIndex(oNode);
-
-			// grant write tree permission if not set yet (e.g. new root node)
-			if (isNewObject) {
-				permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId);
-			}
+			workflowHandler.processDocOnAssignToQA(oDocIn, userId);
+			String uuid = storeObject(oDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
@@ -513,7 +571,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// CHECKS OK, proceed
 
 			// set common data to transfer
-			workflowHandler.processWorkStateOnPublish(oDocIn);
+			workflowHandler.processDocOnPublish(oDocIn);
 			oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
 			// set current user as responsible user if not set !
@@ -1344,7 +1402,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid, userUuid);
 			
 			// Process copy
-			workflowHandler.processWorkStateOnCopy(targetObjWork);
+			workflowHandler.processEntityOnCopy(targetObjWork);
 
 			// create new Node and set data !
 			// we also set Beans in object node, so we can access them afterwards.

@@ -12,6 +12,10 @@ public class ObjectMetadata implements IEntity {
 	private Integer expiryState;
 	private String lastexportTime;
 	private String markDeleted;
+	private String assignerUuid;
+	private String assignTime;
+	private String reassignerUuid;
+	private String reassignTime;
 
 
 	public ObjectMetadata() {}
@@ -54,6 +58,38 @@ public class ObjectMetadata implements IEntity {
 
 	public void setMarkDeleted(String markDeleted) {
 		this.markDeleted = markDeleted;
+	}
+
+	public String getAssignerUuid() {
+		return assignerUuid;
+	}
+
+	public void setAssignerUuid(String assignerUuid) {
+		this.assignerUuid = assignerUuid;
+	}
+
+	public String getAssignTime() {
+		return assignTime;
+	}
+
+	public void setAssignTime(String assignTime) {
+		this.assignTime = assignTime;
+	}
+
+	public String getReassignerUuid() {
+		return reassignerUuid;
+	}
+
+	public void setReassignerUuid(String reassignerUuid) {
+		this.reassignerUuid = reassignerUuid;
+	}
+
+	public String getReassignTime() {
+		return reassignTime;
+	}
+
+	public void setReassignTime(String reassignTime) {
+		this.reassignTime = reassignTime;
 	}
 
 

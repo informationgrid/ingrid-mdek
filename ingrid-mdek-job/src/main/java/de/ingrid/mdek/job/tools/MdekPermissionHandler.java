@@ -436,14 +436,14 @@ public class MdekPermissionHandler {
 			// has create permission ?
 			if (isNewRootNode) {
 				// has permission to create new root node ?
-				checkCreateRootPermission(userUuid);					
+				checkCreateRootPermission(userUuid);
 			} else {
-				// has permission to create sub node on parent ?					
-				checkTreePermissionForAddress(parentUuid, userUuid, false);					
+				// has permission to create sub node on parent ?
+				checkTreePermissionForAddress(parentUuid, userUuid, false);
 			}
 		} else {
-			// has write permission ?					
-			checkWritePermissionForAddress(addrUuid, userUuid, true);					
+			// has write permission ?
+			checkWritePermissionForAddress(addrUuid, userUuid, true);
 		}
 	}
 
@@ -454,6 +454,9 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForPublishObject(String objUuid, String parentUuid, String userUuid) {
+		// if workflow enabled: only QAs can publish
+		workflowHandler.checkQAPermission(userUuid);
+
 		checkPermissionsForStoreObject(objUuid, parentUuid, userUuid);
 	}
 
@@ -464,6 +467,9 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForPublishAddress(String addrUuid, String parentUuid, String userUuid) {
+		// if workflow enabled: only QAs can publish
+		workflowHandler.checkQAPermission(userUuid);
+
 		checkPermissionsForStoreAddress(addrUuid, parentUuid, userUuid);
 	}
 

@@ -95,6 +95,17 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument assignAddressToQA(String plugId, IngridDocument addrDoc,
+			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
+			String userId) {
+		addrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
+		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
+		addrDoc.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("assignAddressToQA", addrDoc);
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument updateAddressPart(String plugId, IngridDocument addrPartDoc,
 			IdcEntityVersion whichEntityVersion, String userId) {
 		addrPartDoc.put(MdekKeys.USER_ID, userId);

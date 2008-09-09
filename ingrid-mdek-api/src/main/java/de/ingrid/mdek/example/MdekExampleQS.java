@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQS {
@@ -329,14 +331,14 @@ class MdekExampleQSThread extends Thread {
 */
 // ===================================
 
-		supertool.setFullOutput(true);
+		supertool.setFullOutput(false);
 
 		System.out.println("\n\n=========================");
 		System.out.println("QS OBJECT");
 		System.out.println("=========================");
 		
-		// -----------------------------------
-		System.out.println("\n\n----- search expired=INITIAL objects and extract various data by hql to MAP -----");
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- search expired=INITIAL objects and extract various data by hql to MAP -----");
 		String hqlQuery = "select obj.id, obj.objUuid, " +
 			"oMeta.id, oMeta.expiryState, oMeta.lastexportTime, " +
 			"addr.id, addr.adrUuid, " +
@@ -361,13 +363,49 @@ class MdekExampleQSThread extends Thread {
 			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
 		}
 
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- ASSIGN EXISTING OBJECT TO QA -----");
+
+		System.out.println("\n----- object details -----");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
+		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- assign to QA -> working copy ! -----");
+		doc = supertool.assignObjectToQA(doc, true);
+		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
+		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- ASSIGN NEW OBJECT TO QA -----");
+
+		System.out.println("\n----- load initial data from parent " + objUuid + " -----");
+		newDoc = new IngridDocument();
+		newDoc.put(MdekKeys.PARENT_UUID, objUuid);
+		newDoc = supertool.getInitialObject(newDoc);
+
+		System.out.println("\n----- extend new object and assign to QA -> working copy ! -----");
+		// extend initial object with own data !
+		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		doc = supertool.assignObjectToQA(newDoc, true);
+		String newUuid = doc.getString(MdekKeys.UUID);
+		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
+		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(newUuid, true);
+
+
 		// -----------------------------------
 		System.out.println("\n\n=========================");
 		System.out.println("QS ADDRESS");
 		System.out.println("=========================");
 
-		// -----------------------------------
-		System.out.println("\n\n----- search expired=INITIAL addresses and extract various data by hql to MAP -----");
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- search expired=INITIAL addresses and extract various data by hql to MAP -----");
 		hqlQuery = "select a.id, a.adrUuid, " +
 			"aMeta.id, aMeta.expiryState, aMeta.lastexportTime, " +
 			"aResp.id, aResp.adrUuid, " +
@@ -391,6 +429,63 @@ class MdekExampleQSThread extends Thread {
 				EnumUtil.mapDatabaseToEnumConst(ExpiryState.class, hit.get("aMeta.expiryState"));
 			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
 		}
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- ASSIGN EXISTING ADDRESS TO QA -----");
+
+		System.out.println("\n----- address details -----");
+		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
+		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- assign to QA -> working copy ! -----");
+		doc = supertool.assignAddressToQA(doc, true);
+		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
+		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteAddressWorkingCopy(personAddressUuid, true);
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- ASSIGN NEW ADDRESS TO QA -----");
+
+		System.out.println("\n----- load initial data from parent " + parentAddressUuid + " -----");
+		newDoc = new IngridDocument();
+		newDoc.put(MdekKeys.PARENT_UUID, parentAddressUuid);
+		newDoc = supertool.getInitialAddress(newDoc);
+
+		System.out.println("\n----- extend new address and assign to QA -> working copy ! -----");
+		newDoc.put(MdekKeys.NAME, "testNAME");
+		newDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+		// email has to exist !
+		docList = (List<IngridDocument>) newDoc.get(MdekKeys.COMMUNICATION);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newDoc.put(MdekKeys.COMMUNICATION, docList);
+		doc = supertool.assignAddressToQA(newDoc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
+		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteAddressWorkingCopy(newUuid, true);
+
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("CLEAN UP");
+		System.out.println("=========================");
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- DISABLE WORKFLOW in catalog -----");
+		catDoc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.NO);
+		catDoc = supertool.storeCatalog(catDoc, true);
 
 // ===================================
 

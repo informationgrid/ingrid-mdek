@@ -64,7 +64,7 @@ public class MdekCatalogService {
 	}
 
 	/** Is workflow control (QA) activated ? */
-	public boolean isWorkflowActivated() {
+	public boolean isWorkflowEnabled() {
 		return MdekUtils.YES.equals(getCatalog().getWorkflowControl());
 	}
 

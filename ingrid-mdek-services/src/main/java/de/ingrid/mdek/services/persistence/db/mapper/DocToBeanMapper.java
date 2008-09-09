@@ -810,16 +810,29 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setAddressMetadata(ref);
 		}
 
-		// update only if set (so NEW address keeps initial values) !
-		if (aDocIn.getString(MdekKeys.LASTEXPORT_TIME) != null) {
+		// update only if set (so address keeps former values) !
+		if (aDocIn.containsKey(MdekKeys.LASTEXPORT_TIME)) {
 			ref.setLastexportTime(aDocIn.getString(MdekKeys.LASTEXPORT_TIME));			
 		}
-		if (aDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
+		if (aDocIn.containsKey(MdekKeys.EXPIRY_STATE)) {
 			ref.setExpiryState((Integer) aDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
-		if (aDocIn.getString(MdekKeys.MARK_DELETED) != null) {
+		if (aDocIn.containsKey(MdekKeys.MARK_DELETED)) {
 			ref.setMarkDeleted(aDocIn.getString(MdekKeys.MARK_DELETED));
 		}
+		if (aDocIn.containsKey(MdekKeys.ASSIGNER_UUID)) {
+			ref.setAssignerUuid(aDocIn.getString(MdekKeys.ASSIGNER_UUID));
+		}
+		if (aDocIn.containsKey(MdekKeys.ASSIGN_TIME)) {
+			ref.setAssignTime(aDocIn.getString(MdekKeys.ASSIGN_TIME));
+		}
+		if (aDocIn.containsKey(MdekKeys.REASSIGNER_UUID)) {
+			ref.setReassignerUuid(aDocIn.getString(MdekKeys.REASSIGNER_UUID));
+		}
+		if (aDocIn.containsKey(MdekKeys.REASSIGN_TIME)) {
+			ref.setReassignTime(aDocIn.getString(MdekKeys.REASSIGN_TIME));
+		}
+
 	}
 
 	private void updateT021Communications(IngridDocument aDocIn, T02Address aIn) {
@@ -2158,15 +2171,27 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setObjectMetadata(ref);
 		}
 
-		// update only if set (so NEW object keeps initial values) !
-		if (oDocIn.getString(MdekKeys.LASTEXPORT_TIME) != null) {
+		// update only if set (so address keeps former values) !
+		if (oDocIn.containsKey(MdekKeys.LASTEXPORT_TIME)) {
 			ref.setLastexportTime(oDocIn.getString(MdekKeys.LASTEXPORT_TIME));			
 		}
-		if (oDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
+		if (oDocIn.containsKey(MdekKeys.EXPIRY_STATE)) {
 			ref.setExpiryState((Integer) oDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
-		if (oDocIn.getString(MdekKeys.MARK_DELETED) != null) {
+		if (oDocIn.containsKey(MdekKeys.MARK_DELETED)) {
 			ref.setMarkDeleted(oDocIn.getString(MdekKeys.MARK_DELETED));
+		}
+		if (oDocIn.containsKey(MdekKeys.ASSIGNER_UUID)) {
+			ref.setAssignerUuid(oDocIn.getString(MdekKeys.ASSIGNER_UUID));
+		}
+		if (oDocIn.containsKey(MdekKeys.ASSIGN_TIME)) {
+			ref.setAssignTime(oDocIn.getString(MdekKeys.ASSIGN_TIME));
+		}
+		if (oDocIn.containsKey(MdekKeys.REASSIGNER_UUID)) {
+			ref.setReassignerUuid(oDocIn.getString(MdekKeys.REASSIGNER_UUID));
+		}
+		if (oDocIn.containsKey(MdekKeys.REASSIGN_TIME)) {
+			ref.setReassignTime(oDocIn.getString(MdekKeys.REASSIGN_TIME));
 		}
 	}
 }

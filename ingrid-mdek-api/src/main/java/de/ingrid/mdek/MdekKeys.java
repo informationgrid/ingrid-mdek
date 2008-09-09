@@ -674,6 +674,14 @@ public class MdekKeys {
     public final static String MOD_USER = "mod-user";
     /** Value: IngridDocument (Address Map) */
     public final static String RESPONSIBLE_USER = "responsible-user";
+    /** Value: String */
+    public final static String ASSIGNER_UUID = "assigner-uuid";
+    /** Value: String */
+    public final static String ASSIGN_TIME = "assign-time";
+    /** Value: String */
+    public final static String REASSIGNER_UUID = "reassigner-uuid";
+    /** Value: String */
+    public final static String REASSIGN_TIME = "reassign-time";
 
 
     // COMMENTS

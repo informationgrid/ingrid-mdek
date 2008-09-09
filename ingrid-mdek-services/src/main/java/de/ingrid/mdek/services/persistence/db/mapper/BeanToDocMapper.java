@@ -461,6 +461,10 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
+		refDoc.put(MdekKeys.ASSIGNER_UUID, ref.getAssignerUuid());
+		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());
+		refDoc.put(MdekKeys.REASSIGNER_UUID, ref.getReassignerUuid());
+		refDoc.put(MdekKeys.REASSIGN_TIME, ref.getReassignTime());
 
 		return refDoc;
 	}
@@ -1611,6 +1615,10 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
+		refDoc.put(MdekKeys.ASSIGNER_UUID, ref.getAssignerUuid());
+		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());
+		refDoc.put(MdekKeys.REASSIGNER_UUID, ref.getReassignerUuid());
+		refDoc.put(MdekKeys.REASSIGN_TIME, ref.getReassignTime());
 
 		return refDoc;
 	}

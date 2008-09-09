@@ -992,9 +992,6 @@ public class MdekExampleSupertool {
 
 		String refetchObjectInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE storeObject " + refetchObjectInfo + " ######");
-
-		// store
-		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.storeObject(plugId, oDocIn, refetchObject, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -1042,6 +1039,39 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument assignObjectToQA(IngridDocument oDocIn,
+			boolean refetchObject) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchObjectInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE assignObjectToQA " + refetchObjectInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.assignObjectToQA(plugId, oDocIn, refetchObject, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugObjectDoc(result);
+			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
 	/** Don't "page" object references to address instead fetch first 50 ones ! */
 	public IngridDocument storeAddress(IngridDocument aDocIn,
 			boolean refetchAddress) {
@@ -1064,9 +1094,6 @@ public class MdekExampleSupertool {
 		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
 		System.out.println("\n###### INVOKE storeAddress " + refetchAddressInfo + " / fetch objRefs: start=" + objRefsStartIndex +
 			", maxNum=" + objRefsMaxNum +" ######");
-
-		// store
-		System.out.println("STORE");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.storeAddress(plugId, aDocIn, refetchAddress, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -1107,6 +1134,46 @@ public class MdekExampleSupertool {
 
 		if (result != null) {
 			System.out.println("SUCCESS");
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	/** Don't "page" object references to address instead fetch first 50 ones ! */
+	public IngridDocument assignAddressToQA(IngridDocument aDocIn,
+			boolean refetchAddress) {
+		return assignAddressToQA(aDocIn, refetchAddress, 0, 50);
+	}
+
+	public IngridDocument assignAddressToQA(IngridDocument aDocIn,
+			boolean refetchAddress, int objRefsStartIndex, int objRefsMaxNum) {
+		// check whether we have an address
+		if (aDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE assignAddressToQA " + refetchAddressInfo + " / fetch objRefs: start=" + objRefsStartIndex +
+			", maxNum=" + objRefsMaxNum +" ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.assignAddressToQA(plugId, aDocIn, refetchAddress, objRefsStartIndex, objRefsMaxNum, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugAddressDoc(result);
+			
 		} else {
 			handleError(response);
 		}

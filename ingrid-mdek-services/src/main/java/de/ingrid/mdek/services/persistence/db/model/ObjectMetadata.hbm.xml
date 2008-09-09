@@ -10,6 +10,10 @@
       <property name="expiryState" type="integer" column="expiry_state"/>
       <property name="lastexportTime" type="string" column="lastexport_time"/>
       <property name="markDeleted" type="string" column="mark_deleted"/>
+      <property name="assignerUuid" type="string" column="assigner_uuid"/>
+      <property name="assignTime" type="string" column="assign_time"/>
+      <property name="reassignerUuid" type="string" column="reassigner_uuid"/>
+      <property name="reassignTime" type="string" column="reassign_time"/>
 
    </class>
 

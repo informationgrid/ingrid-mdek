@@ -1,10 +1,13 @@
 package de.ingrid.mdek.job.tools;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
@@ -23,7 +26,7 @@ import de.ingrid.utils.IngridDocument;
 
 
 /**
- * Handles permission checks.
+ * Handles permission checks concerning Workflow (e.g. is user allowed to edit entity in special work state).
  */
 public class MdekWorkflowHandler {
 
@@ -61,7 +64,7 @@ public class MdekWorkflowHandler {
 	 */
 	public boolean hasWorkflowPermissionForObject(String objUuid, String userAddrUuid) {
 		// ok if workflow disabled 
-		if (!catalogService.isWorkflowActivated()) {
+		if (!catalogService.isWorkflowEnabled()) {
 			return true;
 		}
 		
@@ -93,7 +96,7 @@ public class MdekWorkflowHandler {
 	 */
 	public boolean hasWorkflowPermissionForAddress(String addrUuid, String userAddrUuid) {
 		// ok if workflow disabled 
-		if (!catalogService.isWorkflowActivated()) {
+		if (!catalogService.isWorkflowEnabled()) {
 			return true;
 		}
 		
@@ -118,17 +121,15 @@ public class MdekWorkflowHandler {
 		return true;
 	}
 
-	/** Checks whether user has permission editing given object concerning workflow AND THROW EXCEPTION IF NOT ! */
-	public void checkWorkflowPermissionForObject(String objUuid, String userAddrUuid) {
-		if (!hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
-		}		
-	}
+	/** Checks whether user has "QA" permission (ONLY if workflow enabled) AND THROW EXCEPTION IF NOT ! */
+	public void checkQAPermission(String userAddrUuid) {
+		// if workflow disabled we don't care ! 
+		if (!catalogService.isWorkflowEnabled()) {
+			return;
+		}
 
-	/** Checks whether user has permission editing given address concerning workflow AND THROW EXCEPTION IF NOT ! */
-	public void checkWorkflowPermissionForAddress(String addrUuid, String userAddrUuid) {
-		if (!hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
+		if (!hasQAPermission(userAddrUuid)) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY));
 		}		
 	}
 
@@ -137,8 +138,8 @@ public class MdekWorkflowHandler {
 		return permService.hasUserPermission(userAddrUuid, PermissionFactory.getPermissionTemplateQA());			
 	}
 
-	/** Process the work state in the given client side representation of an entity which should be stored. */
-	public void processWorkStateOnStore(IngridDocument entityDoc) {
+	/** Process the given client side representation of an entity according to the operation. */
+	public void processDocOnStore(IngridDocument entityDoc) {
 		WorkState givenState = EnumUtil.mapDatabaseToEnumConst(WorkState.class, 
 				entityDoc.getString(MdekKeys.WORK_STATE));
 
@@ -151,13 +152,27 @@ public class MdekWorkflowHandler {
 		entityDoc.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
 	}
 
-	/** Process the work state in the given client side representation of an entity which should be published. */
-	public void processWorkStateOnPublish(IngridDocument entityDoc) {
+	/** Process the given client side representation of an entity according to the operation. */
+	public void processDocOnAssignToQA(IngridDocument entityDoc, String userAddrUuid) {
+		entityDoc.put(MdekKeys.WORK_STATE, WorkState.QS_UEBERWIESEN.getDbValue());
+		entityDoc.put(MdekKeys.ASSIGNER_UUID, userAddrUuid);
+		entityDoc.put(MdekKeys.ASSIGN_TIME, MdekUtils.dateToTimestamp(new Date()));
+	}
+
+	/** Process the given client side representation of an entity according to the operation. */
+	public void processDocOnReassignToAuthor(IngridDocument entityDoc, String userAddrUuid) {
+		entityDoc.put(MdekKeys.WORK_STATE, WorkState.QS_RUECKUEBERWIESEN.getDbValue());
+		entityDoc.put(MdekKeys.REASSIGNER_UUID, userAddrUuid);
+		entityDoc.put(MdekKeys.REASSIGN_TIME, MdekUtils.dateToTimestamp(new Date()));
+	}
+
+	/** Process the given client side representation of an entity according to the operation. */
+	public void processDocOnPublish(IngridDocument entityDoc) {
 		entityDoc.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 	}
 
-	/** Process the work state in the given bean (Object/Address) which is the result of a copy operation. */
-	public void processWorkStateOnCopy(IEntity entity) {
+	/** Process the given bean (Object/Address) which is the result of a copy operation. */
+	public void processEntityOnCopy(IEntity entity) {
 		Class clazz = entity.getClass();
 
 		if (T01Object.class.isAssignableFrom(clazz)) {

@@ -22,7 +22,8 @@
 
       <many-to-one name="spatialRefValue" class="SpatialRefValue" column="spatial_ref_id"
                    update="false"
-                   insert="false"/>
+                   insert="false"
+                   unique="true"/>
    </class>
 
 </hibernate-mapping>
