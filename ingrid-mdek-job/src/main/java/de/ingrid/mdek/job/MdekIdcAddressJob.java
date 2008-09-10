@@ -171,13 +171,16 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
+			IdcEntityVersion whichEntityVersion =
+				(IdcEntityVersion) params.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
 			int objRefsStartIndex = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
 			int objRefsMaxNum = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getAddrDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getAddrDetails(uuid, userUuid, objRefsStartIndex, objRefsMaxNum);
+			IngridDocument result = getAddrDetails(uuid, whichEntityVersion, userUuid,
+					objRefsStartIndex, objRefsMaxNum);
 			
 			daoAddressNode.commitTransaction();
 			return result;
@@ -191,14 +194,25 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private IngridDocument getAddrDetails(String addrUuid, String userUuid,
 			int objRefsStartIndex, int objRefsMaxNum) {
+		return getAddrDetails(addrUuid, IdcEntityVersion.WORKING_VERSION, userUuid,
+				objRefsStartIndex, objRefsMaxNum);
+	}
+
+	private IngridDocument getAddrDetails(String addrUuid, IdcEntityVersion whichEntityVersion,
+			String userUuid, int objRefsStartIndex, int objRefsMaxNum) {
 		// first get all "internal" address data
-		AddressNode aNode = daoAddressNode.getAddrDetails(addrUuid);
+		AddressNode aNode = daoAddressNode.getAddrDetails(addrUuid, whichEntityVersion);
 		if (aNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		IngridDocument resultDoc = new IngridDocument();
-		T02Address a = aNode.getT02AddressWork();
+		T02Address a;
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			a = aNode.getT02AddressPublished();
+		} else {
+			a = aNode.getT02AddressWork();
+		}
 		beanToDocMapper.mapT02Address(a, resultDoc, MappingQuantity.DETAIL_ENTITY);
 		
 		// also map AddressNode for published info

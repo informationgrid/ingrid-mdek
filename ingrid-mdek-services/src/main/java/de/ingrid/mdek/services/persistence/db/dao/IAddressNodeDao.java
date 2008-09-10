@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.HashMap;
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -51,8 +52,11 @@ public interface IAddressNodeDao
 	/** Checks whether the given uuid is ANYWHERE below the given parent uuid. */
 	boolean isSubNode(String uuidToCheck, String uuidParent);
 
-	/** Fetches address with given uuid containing all detailed address data. */
+	/** Fetches WORKING VERSION of address with given uuid containing all detailed address data. */
 	AddressNode getAddrDetails(String uuid);
+
+	/** Fetches requested version of address with given uuid containing all detailed address data. */
+	AddressNode getAddrDetails(String uuid, IdcEntityVersion whichEntityVersion);
 
 	/** Load parent of address with given uuid. Returns null if top node.  */
 	AddressNode getParent(String uuid);

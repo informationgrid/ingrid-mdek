@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
@@ -312,6 +313,12 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n----- change and store existing address -> working copy ! -----");
 		storeAddressWithManipulation(aMap);
+
+		System.out.println("\n----- COMPARE ADDRESS WORKING/PUBLISHED VERSION -----");
+		System.out.println("\nWORKING VERSION:");
+		supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		System.out.println("\nPUBLISHED VERSION:");
+		supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(personUuid, true);

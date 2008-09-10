@@ -171,10 +171,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
+			IdcEntityVersion whichEntityVersion =
+				(IdcEntityVersion) params.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
+
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getObjDetails(uuid, userUuid);
+			IngridDocument result = getObjDetails(uuid, whichEntityVersion, userUuid);
 			
 			daoObjectNode.commitTransaction();
 			return result;
@@ -187,14 +190,24 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	private IngridDocument getObjDetails(String objUuid, String userUuid) {
+		return getObjDetails(objUuid, IdcEntityVersion.WORKING_VERSION, userUuid);
+	}
+			
+	private IngridDocument getObjDetails(String objUuid, IdcEntityVersion whichEntityVersion, 
+			String userUuid) {
 		// first get all "internal" object data (referenced addresses ...)
-		ObjectNode oNode = daoObjectNode.getObjDetails(objUuid);
+		ObjectNode oNode = daoObjectNode.getObjDetails(objUuid, whichEntityVersion);
 		if (oNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
 		IngridDocument resultDoc = new IngridDocument();
-		T01Object o = oNode.getT01ObjectWork();
+		T01Object o;
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			o = oNode.getT01ObjectPublished();
+		} else {
+			o = oNode.getT01ObjectWork();
+		}
 		beanToDocMapper.mapT01Object(o, resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// also map ObjectNode for published info
@@ -466,7 +479,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
 			String uuid = (String) oPartDocIn.get(MdekKeys.UUID);
-			IdcEntityVersion whichEntityVersion = (IdcEntityVersion) oPartDocIn.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
+			IdcEntityVersion whichEntityVersion = 
+				(IdcEntityVersion) oPartDocIn.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
 
 			daoObjectNode.beginTransaction();
 

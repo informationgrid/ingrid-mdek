@@ -14,6 +14,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
@@ -139,16 +140,24 @@ public class AddressNodeDaoHibernate
 	}
 	
 	public AddressNode getAddrDetails(String uuid) {
+		return getAddrDetails(uuid, IdcEntityVersion.WORKING_VERSION);
+	}
+
+	public AddressNode getAddrDetails(String uuid, IdcEntityVersion whichEntityVersion) {
 		Session session = getSession();
 
+		String q = "from AddressNode aNode ";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			q += "left join fetch aNode.t02AddressPublished a ";			
+		} else {
+			q += "left join fetch aNode.t02AddressWork a ";			
+		}
+		q += "left join fetch a.t021Communications aComm " +
+		// TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
+			"where aNode.addrUuid = ?";
+ 
 		// fetch all at once (one select with outer joins)
-		AddressNode aN = (AddressNode) session.createQuery("from AddressNode aNode " +
-			"left join fetch aNode.t02AddressWork aWork " +
-			"left join fetch aWork.t021Communications aComm " +
-
-// TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
-
-			"where aNode.addrUuid = ?")
+		AddressNode aN = (AddressNode) session.createQuery(q)
 			.setString(0, uuid)
 			.uniqueResult();
 

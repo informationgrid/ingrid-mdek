@@ -57,10 +57,12 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 	}
 
 	public IngridDocument fetchAddress(String plugId, String addrUuid, Quantity howMuch,
+			IdcEntityVersion whichEntityVersion,
 			int objRefsStartIndex, int objRefsMaxNum,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, addrUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, whichEntityVersion);
 		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
 		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);

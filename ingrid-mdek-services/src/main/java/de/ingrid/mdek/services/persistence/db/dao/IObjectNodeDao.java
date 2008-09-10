@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
@@ -42,8 +43,11 @@ public interface IObjectNodeDao
 	/** Checks whether the given uuid is ANYWHERE below the given parent uuid. */
 	boolean isSubNode(String uuidToCheck, String uuidParent);
 
-	/** Fetches object with given uuid containing all detailed object data. */
+	/** Fetches WORKING VERSION of object with given uuid containing all detailed object data. */
 	ObjectNode getObjDetails(String uuid);
+
+	/** Fetches requested version of object with given uuid containing all detailed object data. */
+	ObjectNode getObjDetails(String uuid, IdcEntityVersion whichEntityVersion);
 
 	/** Load parent of object with given uuid. Returns null if top node.  */
 	ObjectNode getParent(String uuid);

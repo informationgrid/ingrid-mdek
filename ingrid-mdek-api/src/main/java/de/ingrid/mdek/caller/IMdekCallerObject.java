@@ -15,10 +15,12 @@ public interface IMdekCallerObject {
 	 * @param plugId which mdek server (iplug)
 	 * @param uuid object uuid
 	 * @param howMuch how much data to fetch from object
+	 * @param whichEntityVersion which object version should be fetched.
+	 * 		NOTICE: In published state working version == published version and it is the same object instance !
 	 * @return response containing result: map representation of object containing requested data
 	 */
 	IngridDocument fetchObject(String plugId, String uuid, Quantity howMuch,
-			String userId);
+			IdcEntityVersion whichEntityVersion, String userId);
 
 	/**
 	 * Create or store object INTO WORKING COPY !

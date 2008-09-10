@@ -11,6 +11,7 @@ import org.hibernate.SessionFactory;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
@@ -141,33 +142,44 @@ public class ObjectNodeDaoHibernate
 	}
 
 	public ObjectNode getObjDetails(String uuid) {
+		return getObjDetails(uuid, IdcEntityVersion.WORKING_VERSION);
+	}
+
+	public ObjectNode getObjDetails(String uuid, IdcEntityVersion whichEntityVersion) {
 		Session session = getSession();
 
-		// enable address filter ?
-//		session.enableFilter("t012ObjAdrFilter").setParameter("type", 1);
-
-		// fetch all at once (one select with outer joins)
-		ObjectNode oN = (ObjectNode) session.createQuery("from ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork oWork " +
+		String q = "from ObjectNode oNode ";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			q += "left join fetch oNode.t01ObjectPublished o ";			
+		} else {
+			q += "left join fetch oNode.t01ObjectWork o ";			
+		}
+		q += 
 		// referenced objects (to) 
-			"left join fetch oWork.objectReferences oRef " +
+			"left join fetch o.objectReferences oRef " +
 			"left join fetch oRef.objectNode oRefNode " +
 			"left join fetch oRefNode.t01ObjectWork oRefObj " +
 
 // TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
 
 		// referenced addresses
-//			"left join fetch oWork.t012ObjAdrs objAdr " +
+//			"left join fetch o.t012ObjAdrs objAdr " +
 //			"left join fetch objAdr.addressNode aNode " +
 //			"left join fetch aNode.t02AddressWork aWork " +
 //			"left join fetch aWork.t021Communications aComm " +
 		// spatial references 
-//			"left join fetch oWork.spatialReferences spatRef " +
+//			"left join fetch o.spatialReferences spatRef " +
 //			"left join fetch spatRef.spatialRefValue spatialRefVal " +
 //			"left join fetch spatialRefVal.spatialRefSns " +
 		// url refs 
-//			"left join fetch oWork.t017UrlRefs urlRef " +
-			"where oNode.objUuid = ?")
+//			"left join fetch o.t017UrlRefs urlRef " +
+			"where oNode.objUuid = ?";
+
+		// enable address filter ?
+//		session.enableFilter("t012ObjAdrFilter").setParameter("type", 1);
+		
+		// fetch all at once (one select with outer joins)
+		ObjectNode oN = (ObjectNode) session.createQuery(q)
 			.setString(0, uuid)
 			.uniqueResult();
 

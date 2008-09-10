@@ -847,7 +847,13 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	/** Fetches WORKING VERSION of object ! */
 	public IngridDocument fetchObject(String uuid, Quantity howMuch) {
+		return fetchObject(uuid, howMuch, IdcEntityVersion.WORKING_VERSION);
+		
+	}
+
+	public IngridDocument fetchObject(String uuid, Quantity howMuch, IdcEntityVersion whichVersion) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -855,8 +861,9 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
+		System.out.println("  fetch entity version:" + whichVersion);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.fetchObject(plugId, uuid, howMuch, myUserUuid);
+		response = mdekCallerObject.fetchObject(plugId, uuid, howMuch, whichVersion, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -871,12 +878,24 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	/** Don't "page" object references to address instead fetch first 50 ones ! */
+	/** Fetches WORKING VERSION of address ! Don't "page" object references to address instead fetch first 50 ones ! */
 	public IngridDocument fetchAddress(String uuid, Quantity howMuch) {
-		return fetchAddress(uuid, howMuch, 0, 50);
+		return fetchAddress(uuid, howMuch, IdcEntityVersion.WORKING_VERSION, 0, 50);
 	}
 
+	/** Fetches requested version of address ! Don't "page" object references to address instead fetch first 50 ones ! */
+	public IngridDocument fetchAddress(String uuid, Quantity howMuch, IdcEntityVersion whichVersion) {
+		return fetchAddress(uuid, howMuch, whichVersion, 0, 50);
+	}
+
+	/** Fetches WORKING VERSION of address ! */
 	public IngridDocument fetchAddress(String uuid, Quantity howMuch,
+			int objRefsStartIndex, int objRefsMaxNum) {
+		return fetchAddress(uuid, howMuch, IdcEntityVersion.WORKING_VERSION,
+				objRefsStartIndex, objRefsMaxNum);
+	}
+
+	public IngridDocument fetchAddress(String uuid, Quantity howMuch, IdcEntityVersion whichVersion,
 			int objRefsStartIndex, int objRefsMaxNum) {
 		long startTime;
 		long endTime;
@@ -886,8 +905,9 @@ public class MdekExampleSupertool {
 
 		System.out.println("\n###### INVOKE fetchAddress (Details) / fetch objRefs: start=" + objRefsStartIndex +
 				", maxNum=" + objRefsMaxNum +" ######");
+		System.out.println("  fetch entity version:" + whichVersion);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.fetchAddress(plugId, uuid, howMuch, 
+		response = mdekCallerAddress.fetchAddress(plugId, uuid, howMuch, whichVersion,
 				objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;

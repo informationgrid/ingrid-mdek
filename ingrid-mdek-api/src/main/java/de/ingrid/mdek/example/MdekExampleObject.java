@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
@@ -566,6 +567,12 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n----- change and store existing object -> working copy ! -----");
 		storeObjectWithManipulation(oMap);
+		
+		System.out.println("\n----- COMPARE OBJECT WORKING/PUBLISHED VERSION -----");
+		System.out.println("\nWORKING VERSION:");
+		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		System.out.println("\nPUBLISHED VERSION:");
+		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, false);
