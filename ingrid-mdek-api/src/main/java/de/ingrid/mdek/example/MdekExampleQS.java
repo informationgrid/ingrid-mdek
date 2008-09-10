@@ -374,10 +374,13 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
-		System.out.println("\n----- assign to QA -> working copy ! -----");
+		System.out.println("\n----- assign to QA -> working copy with status Q ! -----");
 		doc = supertool.assignObjectToQA(doc, true);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- store again -> still status Q ! -----");
+		doc = supertool.storeObject(doc, true);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
@@ -441,10 +444,13 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
-		System.out.println("\n----- assign to QA -> working copy ! -----");
+		System.out.println("\n----- assign to QA -> working copy with status Q ! -----");
 		doc = supertool.assignAddressToQA(doc, true);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+		System.out.println("\n----- store again -> still status Q ! -----");
+		doc = supertool.storeAddress(doc, true);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(personAddressUuid, true);
