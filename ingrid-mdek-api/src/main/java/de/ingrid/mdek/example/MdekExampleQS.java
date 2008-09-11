@@ -11,7 +11,10 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
+import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
@@ -334,14 +337,64 @@ class MdekExampleQSThread extends Thread {
 */
 // ===================================
 
-		supertool.setFullOutput(false);
+		System.out.println("\n\n=========================");
+		System.out.println("QS Set up User/Group structure for testing");
+		System.out.println("=========================");
+
+		System.out.println("\n\n=============================================");
+		System.out.println("\n----- create new GROUP_QA -----");
+		IngridDocument grpQADoc = new IngridDocument();
+		grpQADoc.put(MdekKeys.NAME, "TEST Gruppe1 QA");
+		grpQADoc = supertool.createGroup(grpQADoc, true);
+		Long grpQAId = (Long) grpQADoc.get(MdekKeysSecurity.IDC_GROUP_ID);
+
+		System.out.println("\n--- Add Permissions to GROUP_QA -----");
+		supertool.addUserPermissionToGroupDoc(grpQADoc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
+		supertool.addObjPermissionToGroupDoc(grpQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.addAddrPermissionToGroupDoc(grpQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		grpQADoc = supertool.storeGroup(grpQADoc, true, false);
+
+		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_QA' -----");
+		IngridDocument usrGrpQADoc = new IngridDocument();
+		usrGrpQADoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "38664584-B449-11D2-9A86-080000507261");
+		usrGrpQADoc.put(MdekKeysSecurity.IDC_GROUP_ID, grpQAId);
+		usrGrpQADoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+		usrGrpQADoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		usrGrpQADoc = supertool.createUser(usrGrpQADoc, true);
+		Long usrGrpQAId = (Long) usrGrpQADoc.get(MdekKeysSecurity.IDC_USER_ID);
+		String usrGrpQAUuid = usrGrpQADoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+
+		System.out.println("\n\n=============================================");
+		System.out.println("\n----- create new GROUP_NO_QA -----");
+		IngridDocument grpNoQADoc = new IngridDocument();
+		grpNoQADoc.put(MdekKeys.NAME, "TEST Gruppe2 NO QA");
+		grpNoQADoc = supertool.createGroup(grpNoQADoc, true);
+		Long grpNoQAId = (Long) grpNoQADoc.get(MdekKeysSecurity.IDC_GROUP_ID);
+
+		System.out.println("\n--- Add Permissions to GROUP_NO_QA -----");
+		supertool.addObjPermissionToGroupDoc(grpNoQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		grpNoQADoc = supertool.storeGroup(grpNoQADoc, true, false);
+
+		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_NO_QA' -----");
+		IngridDocument usrGrpNoQADoc = new IngridDocument();
+		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "10646604-D21F-11D2-BB32-006097FE70B1");
+		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_GROUP_ID, grpNoQAId);
+		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+		usrGrpNoQADoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		usrGrpNoQADoc = supertool.createUser(usrGrpNoQADoc, true);
+		Long usrGrpNoQAId = (Long) usrGrpNoQADoc.get(MdekKeysSecurity.IDC_USER_ID);
+		String usrGrpNoQAUuid = usrGrpNoQADoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+
 
 		System.out.println("\n\n=========================");
 		System.out.println("QS OBJECT");
 		System.out.println("=========================");
-		
-		System.out.println("\n\n---------------------------------------------");
-		System.out.println("----- search expired=INITIAL objects and extract various data by hql to MAP -----");
+
+		supertool.setFullOutput(false);
+
+		System.out.println("\n\n=============================================");
+		System.out.println("----- search expired=INITIAL objects and extract data by hql to MAP -----");
 		String hqlQuery = "select obj.id, obj.objUuid, " +
 			"oMeta.id, oMeta.expiryState, oMeta.lastexportTime, " +
 			"addr.id, addr.adrUuid, " +
@@ -366,7 +419,67 @@ class MdekExampleQSThread extends Thread {
 			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
 		}
 
-		System.out.println("\n\n---------------------------------------------");
+		System.out.println("\n\n=============================================");
+		System.out.println("----- search all objects \"in Bearbeitung\" where User is QA by hql to MAP -----");
+
+		System.out.println("\n----- create working copy \"in Bearbeitung\" -----");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		supertool.storeObject(doc, true);
+		
+		// IF CATADMIN -> ALL OBJECTS !!!
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN IS QA FOR ALL OBJECTS ! -----");
+		hqlQuery = "select distinct oNode.id, oNode.objUuid, o.id, o.objUuid, o.workState " +
+		"from " +
+			"ObjectNode oNode, " +
+			"T01Object o " +
+		"where " +
+			"oNode.objId = o.id" +
+			" and o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "'";
+		doc = supertool.queryHQLToMap(hqlQuery, 10);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("\n----- USER WITH QA -> ENTITIES ! -----");
+
+		hqlQuery = "select distinct oNode.id, oNode.objUuid, o.id, o.objUuid, o.workState " +
+		"from " +
+			"ObjectNode oNode, " +
+			"T01Object o, " +
+			"IdcUser usr, " +
+			"IdcGroup grp, " +
+			"IdcUserPermission pUsr, " +
+			"Permission p1, " +
+			"PermissionObj pObj, " +
+			"Permission p2 " +
+		"where " +
+			// user -> grp -> QA
+			"usr.idcGroupId = grp.id" +
+			" and grp.id = pUsr.idcGroupId " +
+			" and pUsr.permissionId = p1.id " +
+			" and p1.action = '" + IdcPermission.QUALITY_ASSURANCE.getDbValue() + "'" +
+			// grp -> object-> write permission
+			" and grp.id = pObj.idcGroupId " +
+			" and pObj.permissionId = p2.id " +
+			" and (p2.action = '" + IdcPermission.WRITE_SINGLE.getDbValue() + "' or " +
+			"  p2.action = '" + IdcPermission.WRITE_TREE.getDbValue() + "') " +
+			// object-> work state
+			" and pObj.uuid = oNode.objUuid " +
+			" and oNode.objId = o.id" +
+			" and o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "'";
+		
+		doc = supertool.queryHQLToMap(hqlQuery + " and usr.addrUuid = '" + usrGrpQAUuid + "'", 10);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("\n----- USER NO_QA -> NO ENTITIES ! -----");
+
+		doc = supertool.queryHQLToMap(hqlQuery + " and usr.addrUuid = '" + usrGrpNoQAUuid + "'", 10);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+
+		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN EXISTING OBJECT TO QA -----");
 
 		System.out.println("\n----- object details -----");
@@ -385,7 +498,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 
-		System.out.println("\n\n---------------------------------------------");
+		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN NEW OBJECT TO QA -----");
 
 		System.out.println("\n----- load initial data from parent " + objUuid + " -----");
@@ -411,7 +524,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n\n---------------------------------------------");
-		System.out.println("----- search expired=INITIAL addresses and extract various data by hql to MAP -----");
+		System.out.println("----- search expired=INITIAL addresses and extract data by hql to MAP -----");
 		hqlQuery = "select a.id, a.adrUuid, " +
 			"aMeta.id, aMeta.expiryState, aMeta.lastexportTime, " +
 			"aResp.id, aResp.adrUuid, " +
@@ -489,6 +602,18 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n\n=========================");
 		System.out.println("CLEAN UP");
 		System.out.println("=========================");
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n----- delete groups, WITH FORCE DELETE WHEN HAVING USERS -> returns 'groupless' users of deleted group -----");
+		supertool.deleteGroup(grpQAId, true);
+		supertool.deleteGroup(grpNoQAId, true);
+
+		System.out.println("\n----- delete users -----");
+		supertool.deleteUser(usrGrpQAId);
+		supertool.deleteUser(usrGrpNoQAId);
 
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("----- DISABLE WORKFLOW in catalog -----");

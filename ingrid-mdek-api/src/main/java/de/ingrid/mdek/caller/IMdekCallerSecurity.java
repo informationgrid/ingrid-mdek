@@ -129,8 +129,8 @@ public interface IMdekCallerSecurity {
 			String userId);
 	
 	/**
-	 * Get permissions of calling user on given address ("writeTree", "write" ...)
-	 * Evaluates permissions in tree and returns found permissions (also inherited "writeTree").  
+	 * Get permissions of calling user on given address ("write-tree", "write" ...)
+	 * Evaluates permissions in tree and returns found permissions (also inherited "write-tree").  
 	 * @param plugId which mdek server (iplug)
 	 * @param addrUuid uuid of Address Entity to check
 	 * @param userAddrUuid calling user
@@ -141,8 +141,8 @@ public interface IMdekCallerSecurity {
 			String userAddrUuid);
 
 	/**
-	 * Get permissions of calling user on given object ("writeTree", "write" ...)
-	 * Evaluates permissions in tree and returns found permissions (also inherited "writeTree").  
+	 * Get permissions of calling user on given object ("write-tree", "write" ...)
+	 * Evaluates permissions in tree and returns found permissions (also inherited "write-tree").  
 	 * @param plugId which mdek server (iplug)
 	 * @param objUuid uuid of Object Entity to check
 	 * @param userAddrUuid calling user
@@ -153,7 +153,7 @@ public interface IMdekCallerSecurity {
 			String userAddrUuid);
 
 	/**
-	 * Get permissions of calling user ("createRoot", "QA", ...).
+	 * Get permissions of calling user ("create-root", "qa", ...).
 	 * @param plugId which mdek server (iplug)
 	 * @param userAddrUuid calling user
 	 * @return response containing result: map representation of permissions

@@ -2677,4 +2677,28 @@ public class MdekExampleSupertool {
 			perms.add(newPerm);			
 		}
 	}
+
+	public void addObjPermissionToGroupDoc(IngridDocument groupDoc, String objUuid, IdcPermission idcPerm) {
+		List<IngridDocument> perms = (List<IngridDocument>) groupDoc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
+		if (perms == null) {
+			perms = new ArrayList<IngridDocument>();
+			groupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, perms);
+		}
+		IngridDocument newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, objUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
+		perms.add(newPerm);
+	}
+
+	public void addAddrPermissionToGroupDoc(IngridDocument groupDoc, String addrUuid, IdcPermission idcPerm) {
+		List<IngridDocument> perms = (List<IngridDocument>) groupDoc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
+		if (perms == null) {
+			perms = new ArrayList<IngridDocument>();
+			groupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, perms);
+		}
+		IngridDocument newPerm = new IngridDocument();
+		newPerm.put(MdekKeys.UUID, addrUuid);
+		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
+		perms.add(newPerm);
+	}
 }
