@@ -350,8 +350,8 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n--- Add Permissions to GROUP_QA -----");
 		supertool.addUserPermissionToGroupDoc(grpQADoc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
-		supertool.addObjPermissionToGroupDoc(grpQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
-		supertool.addAddrPermissionToGroupDoc(grpQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.addObjPermissionToGroupDoc(grpQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addAddrPermissionToGroupDoc(grpQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		grpQADoc = supertool.storeGroup(grpQADoc, true, false);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_QA' -----");
@@ -372,8 +372,8 @@ class MdekExampleQSThread extends Thread {
 		Long grpNoQAId = (Long) grpNoQADoc.get(MdekKeysSecurity.IDC_GROUP_ID);
 
 		System.out.println("\n--- Add Permissions to GROUP_NO_QA -----");
-		supertool.addObjPermissionToGroupDoc(grpNoQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
-		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.addObjPermissionToGroupDoc(grpNoQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		grpNoQADoc = supertool.storeGroup(grpNoQADoc, true, false);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_NO_QA' -----");
@@ -495,8 +495,50 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- store again -> still status Q ! -----");
 		doc = supertool.storeObject(doc, true);
 
-		System.out.println("\n----- discard changes -> back to published version -----");
+		System.out.println("\n\n=============================================");
+		System.out.println("----- CHECK PERMISSIONS ON Q-OBJECT -----");
+		
+		supertool.setFullOutput(true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as catalog admin -> all permissions -----");
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as QA user -> all permissions -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as NON QA user with write tree -> only subtree permission -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> only subtree permission -----");
+		supertool.getObjectPermissions(objUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+		supertool.setFullOutput(false);
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN NEW OBJECT TO QA -----");

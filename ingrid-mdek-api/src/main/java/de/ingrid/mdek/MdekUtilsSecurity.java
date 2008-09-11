@@ -53,8 +53,14 @@ public class MdekUtilsSecurity {
 
 	/** Client side representation of Permissions !!! */
 	public enum IdcPermission implements IMdekEnum {
+		// Entity Permissions
 		WRITE_SINGLE("write", "Einzelberechtigung"),
 		WRITE_TREE("write-tree", "Teilbaumberechtigung"),
+		// NOT PERSISTABLE !!! used to tell frontend no write permission on entity, but on subtree ! 
+		// (e.g. user not QA but has write-tree permission on entity in state Q)  
+		DUMMY_WRITE_SUBTREE("write-subtree", "Unterbaumberechtigung"),
+
+		// User Permissions (bound to group)
 		CREATE_ROOT("create-root", "Root anlegen"),
 		QUALITY_ASSURANCE("qa", "Qualitätssicherung");
 

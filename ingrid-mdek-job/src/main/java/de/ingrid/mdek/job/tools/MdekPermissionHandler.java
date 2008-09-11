@@ -124,7 +124,15 @@ public class MdekPermissionHandler {
 		
 		// check workflow permission before entity write permission
 		if (checkWorkflow) {
+			// if no write permission due to workflow, check if at least permission to write/create subnodes !
 			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
+				// check write tree independent from workflow
+				if (permService.hasInheritedPermissionForObject(userAddrUuid, 
+						PermissionFactory.getTreeObjectPermissionTemplate(objUuid))) {
+					// we have permission for subtree, return dummy permission informing frontend
+					perms.add(PermissionFactory.getDummyPermissionSubTree());
+				}
+
 				return perms;
 			}			
 		}
@@ -163,7 +171,15 @@ public class MdekPermissionHandler {
 
 		// check workflow permission before entity write permission
 		if (checkWorkflow) {
+			// if no write permission due to workflow, check if at least permission to write/create subnodes !
 			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
+				// check write tree independent from workflow
+				if (permService.hasInheritedPermissionForAddress(userAddrUuid, 
+						PermissionFactory.getTreeAddressPermissionTemplate(addrUuid))) {
+					// we have permission for subtree, return dummy permission informing frontend
+					perms.add(PermissionFactory.getDummyPermissionSubTree());
+				}
+
 				return perms;
 			}			
 		}

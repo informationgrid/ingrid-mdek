@@ -64,4 +64,12 @@ public class PermissionFactory {
 		p.setAction("write-tree");
 		return p;
 	}
+
+	public static Permission getDummyPermissionSubTree() {
+		Permission p = new Permission();
+		p.setClassName("Dummy Permission for frontend");
+		p.setName("entity");
+		p.setAction("write-subtree");
+		return p;
+	}
 }
