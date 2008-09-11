@@ -220,6 +220,8 @@
 			<xs:element name="requestinfo_forceDeleteReferences" type="xs:boolean"/>
 			<!-- Working version or Published version or both, see MdekUtils.IdcEntityVersion Enumeration -->
 			<xs:element name="requestinfo_whichEntityVersion" type="xs:integer"/>
+			<!-- e.g. when fetching permissions for entity include check of workflow state (true) or not (false). e.g. in state "Q" no write if not "QA"  -->
+			<xs:element name="requestinfo_checkWorkflow" type="xs:boolean"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_SEARCH_MAP">

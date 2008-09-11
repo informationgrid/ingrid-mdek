@@ -38,6 +38,10 @@ public class MdekKeys {
     /** Which version of entity should be processed (working or published version ...)<br>
      *  Value: MdekUtils.IdcEntityVersion Enumeration */
     public final static String REQUESTINFO_WHICH_ENTITY_VERSION = "requestinfo_whichEntityVersion";
+    /** when fetching permissions for entity include check of workflow state (true) or not (false). 
+     * e.g. in state "Q" no write if not "QA"<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_CHECK_WORKFLOW = "requestinfo_checkWorkflow";
 
     /** Value: String */
     public final static String LANGUAGE = "language";

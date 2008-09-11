@@ -93,7 +93,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				beanToDocMapper.mapT02Address(aN.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
 
 				// add permissions the user has on given address !
-				List<Permission> perms = permissionHandler.getPermissionsForAddress(aN.getAddrUuid(), userUuid);
+				List<Permission> perms = permissionHandler.getPermissionsForAddress(aN.getAddrUuid(), userUuid, true);
 				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);
 
 				resultList.add(adrDoc);
@@ -126,7 +126,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
 
 				// add permissions the user has on given address !
-				List<Permission> perms = permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userUuid);
+				List<Permission> perms = permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userUuid, true);
 				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);
 
 				resultList.add(adrDoc);
@@ -242,7 +242,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		beanToDocMapper.mapModUser(a.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// add permissions the user has on given address !
-		List<Permission> perms = permissionHandler.getPermissionsForAddress(addrUuid, userUuid);
+		List<Permission> perms = permissionHandler.getPermissionsForAddress(addrUuid, userUuid, true);
 		beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 		return resultDoc;
@@ -739,7 +739,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			// add permissions to result
-			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromNodeCopy.getAddrUuid(), userUuid);
+			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromNodeCopy.getAddrUuid(), userUuid, true);
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 			daoAddressNode.commitTransaction();
@@ -795,7 +795,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			// add permissions to result
-			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromUuid, userUuid);
+			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromUuid, userUuid, true);
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 			daoAddressNode.commitTransaction();

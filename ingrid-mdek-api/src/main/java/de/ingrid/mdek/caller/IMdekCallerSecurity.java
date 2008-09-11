@@ -134,11 +134,15 @@ public interface IMdekCallerSecurity {
 	 * @param plugId which mdek server (iplug)
 	 * @param addrUuid uuid of Address Entity to check
 	 * @param userAddrUuid calling user
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+	 * 		entity is in state "Q" and user is NOT QA !
 	 * @return response containing result: map representation of permissions
 	 */
 	IngridDocument getAddressPermissions(String plugId,
 			String addrUuid,
-			String userAddrUuid);
+			String userAddrUuid,
+			boolean checkWorkflow);
 
 	/**
 	 * Get permissions of calling user on given object ("write-tree", "write" ...)
@@ -146,11 +150,15 @@ public interface IMdekCallerSecurity {
 	 * @param plugId which mdek server (iplug)
 	 * @param objUuid uuid of Object Entity to check
 	 * @param userAddrUuid calling user
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+	 * 		entity is in state "Q" and user is NOT QA !
 	 * @return response containing result: map representation of permissions
 	 */
 	IngridDocument getObjectPermissions(String plugId,
 			String objUuid,
-			String userAddrUuid);
+			String userAddrUuid,
+			boolean checkWorkflow);
 
 	/**
 	 * Get permissions of calling user ("create-root", "qa", ...).
@@ -240,6 +248,9 @@ public interface IMdekCallerSecurity {
 	 * @param plugId which mdek server (iplug)
 	 * @param objectUuid object to get "write users" for
 	 * @param userId calling user
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+	 * 		entity is in state "Q" and user is NOT QA !
 	 * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
 	 * false=only users are returned without detailed permissions
 	 * @return response containing result: map containing basic representations of users
@@ -247,6 +258,7 @@ public interface IMdekCallerSecurity {
 	IngridDocument getUsersWithWritePermissionForObject(String plugId,
 			String objectUuid,
 			String userId,
+			boolean checkWorkflow,
 			boolean getDetailedPermissions);
 
 	/**
@@ -254,6 +266,9 @@ public interface IMdekCallerSecurity {
 	 * @param plugId which mdek server (iplug)
 	 * @param addressUuid address to get "write users" for
 	 * @param userId calling user
+	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+	 * 		entity is in state "Q" and user is NOT QA !
 	 * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
 	 * false=only users are returned without detailed permissions
 	 * @return response containing result: map containing basic representations of users
@@ -261,5 +276,6 @@ public interface IMdekCallerSecurity {
 	IngridDocument getUsersWithWritePermissionForAddress(String plugId,
 			String addressUuid,
 			String userId,
+			boolean checkWorkflow,
 			boolean getDetailedPermissions);
 }

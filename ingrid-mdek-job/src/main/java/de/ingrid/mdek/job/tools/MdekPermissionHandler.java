@@ -115,14 +115,18 @@ public class MdekPermissionHandler {
 	 * Get "all" permissions of user for given object (ALSO INHERITED PERMISSIONS).
 	 * @param objUuid uuid of Object Entity to check
 	 * @param userAddrUuid users address uuid
+	 * @param checkWorkflow false=workflow state is ignored<br>
+	 * 	true=also take workflow into account (IF ENABLED), e.g. return no write permission if entity is in state "Q" and user is NOT QA !
 	 * @return list of found permissions, may be inherited or directly set on object
 	 */
-	public List<Permission> getPermissionsForObject(String objUuid, String userAddrUuid) {
+	public List<Permission> getPermissionsForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
 		List<Permission> perms = new ArrayList<Permission>();
 		
 		// check workflow permission before entity write permission
-		if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
-			return perms;
+		if (checkWorkflow) {
+			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
+				return perms;
+			}			
 		}
 
 		if (permService.isCatalogAdmin(userAddrUuid)) {
@@ -150,14 +154,18 @@ public class MdekPermissionHandler {
 	 * Get "all" permissions of user for given address (ALSO INHERITED PERMISSIONS).
 	 * @param addrUuid uuid of Address Entity to check
 	 * @param userAddrUuid users address uuid
+	 * @param checkWorkflow false=workflow state is ignored<br>
+	 * 	true=also take workflow into account (IF ENABLED), e.g. return no write permission if entity is in state "Q" and user is NOT QA !
 	 * @return list of found permissions, may be inherited or directly set on address
 	 */
-	public List<Permission> getPermissionsForAddress(String addrUuid, String userAddrUuid) {
+	public List<Permission> getPermissionsForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
 		List<Permission> perms = new ArrayList<Permission>();
 
 		// check workflow permission before entity write permission
-		if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
-			return perms;
+		if (checkWorkflow) {
+			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
+				return perms;
+			}			
 		}
 
 		if (permService.isCatalogAdmin(userAddrUuid)) {
@@ -588,7 +596,7 @@ public class MdekPermissionHandler {
 	 * @param objUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 */
 	public void checkWritePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
 		if (!hasWritePermissionForObject(objUuid, userAddrUuid, checkWorkflow)) {
@@ -602,7 +610,7 @@ public class MdekPermissionHandler {
 	 * @param objUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 */
 	private void checkTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
 		if (!hasTreePermissionForObject(objUuid, userAddrUuid, checkWorkflow)) {
@@ -616,7 +624,7 @@ public class MdekPermissionHandler {
 	 * @param addrUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 */
 	public void checkWritePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
 		if (!hasWritePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow)) {
@@ -630,7 +638,7 @@ public class MdekPermissionHandler {
 	 * @param addrUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 */
 	private void checkTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
 		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow)) {
@@ -694,18 +702,11 @@ public class MdekPermissionHandler {
 	 * @param objUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
 	 * @return
 	 */
 	public boolean hasWritePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
-		// check workflow permission before entity write permission
-		if (checkWorkflow) {
-			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
-				return false;
-			}			
-		}
-
-		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
+		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSingle())) {
 				return true;
@@ -723,18 +724,11 @@ public class MdekPermissionHandler {
 	 * @param objUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
 	 * @return
 	 */
 	private boolean hasTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
-		// check workflow permission before entity write permission
-		if (checkWorkflow) {
-			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
-				return false;
-			}			
-		}
-
-		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid);
+		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
@@ -750,18 +744,11 @@ public class MdekPermissionHandler {
 	 * @param addrUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
 	 * @return
 	 */
 	public boolean hasWritePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
-		// check workflow permission before entity write permission
-		if (checkWorkflow) {
-			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
-				return false;
-			}			
-		}
-
-		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);		
+		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid, checkWorkflow);		
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSingle())) {
 				return true;
@@ -779,18 +766,11 @@ public class MdekPermissionHandler {
 	 * @param addrUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
-	 * 		true=also take workflow into account, e.g. return false if entity is in state "Q" and user is NOT QA !
+	 * 		true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
 	 * @return
 	 */
 	private boolean hasTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
-		// check workflow permission before entity write permission
-		if (checkWorkflow) {
-			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
-				return false;
-			}			
-		}
-
-		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid);		
+		List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid, checkWorkflow);		
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
@@ -814,25 +794,30 @@ public class MdekPermissionHandler {
 	 * We check every group for write access via first user in group !!!
 	 * @param objUuid the object
 	 * @param allGroups list of ALL groups.
+	 * @param checkWorkflow false=workflow state is ignored, only check of write permissions on entity<br>
+	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 * @return
 	 */
-	public List<IdcUser> getUsersWithWritePermissionForObject(String objUuid, List<IdcGroup> allGroups) {
-		return getUsersWithWritePermissionForEntity(objUuid, allGroups, IdcEntityType.OBJECT);
+	public List<IdcUser> getUsersWithWritePermissionForObject(String objUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+		return getUsersWithWritePermissionForEntity(objUuid, allGroups, IdcEntityType.OBJECT, checkWorkflow);
 	}
 
 	/** Get all users who have write access for the given address. Pass list of ALL groups !
 	 * We check every group for write access via first user in group !!!
 	 * @param addrUuid the address
 	 * @param allGroups list of ALL groups.
+	 * @param checkWorkflow false=workflow state is ignored, only check of write permissions on entity<br>
+	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 * @return
 	 */
-	public List<IdcUser> getUsersWithWritePermissionForAddress(String addrUuid, List<IdcGroup> allGroups) {
-		return getUsersWithWritePermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS);
+	public List<IdcUser> getUsersWithWritePermissionForAddress(String addrUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+		return getUsersWithWritePermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS, checkWorkflow);
 	}
 
 	private List<IdcUser> getUsersWithWritePermissionForEntity(String entityUuid,
 			List<IdcGroup> allGroups,
-			IdcEntityType entityType) {
+			IdcEntityType entityType,
+			boolean checkWorkflow) {
 
 		List<IdcUser> retUsers = new ArrayList<IdcUser>();
 
@@ -852,12 +837,12 @@ public class MdekPermissionHandler {
 					continue;
 				}
 				if (entityType == IdcEntityType.OBJECT) {
-					if (hasWritePermissionForObject(entityUuid, gUser.getAddrUuid(), true)) {
+					if (hasWritePermissionForObject(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
 						addGroupUsers = true;
 						break;
 					}
 				} else if (entityType == IdcEntityType.ADDRESS) {
-					if (hasWritePermissionForAddress(entityUuid, gUser.getAddrUuid(), true)) {
+					if (hasWritePermissionForAddress(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
 						addGroupUsers = true;
 						break;
 					}

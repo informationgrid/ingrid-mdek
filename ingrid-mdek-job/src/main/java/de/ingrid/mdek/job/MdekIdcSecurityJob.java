@@ -369,8 +369,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			String addrUuid = params.getString(MdekKeys.UUID);
 			String userAddrUuid = getCurrentUserUuid(params);
+			Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
 
-			List<Permission> perms = permHandler.getPermissionsForAddress(addrUuid, userAddrUuid);
+			List<Permission> perms = permHandler.getPermissionsForAddress(addrUuid, userAddrUuid, checkWorkflow);
 
 			IngridDocument resultDoc = new IngridDocument();
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
@@ -391,8 +392,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			String objUuid = params.getString(MdekKeys.UUID);
 			String userAddrUuid = getCurrentUserUuid(params);
+			Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
 
-			List<Permission> perms = permHandler.getPermissionsForObject(objUuid, userAddrUuid);
+			List<Permission> perms = permHandler.getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
 
 			IngridDocument resultDoc = new IngridDocument();
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
@@ -747,12 +749,13 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 
 			String objUuid = (String) params.get(MdekKeys.UUID);
+			Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
 			Boolean getDetailedPermissions = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS);
 
 			// get all groups: search users via groups !
 			List<IdcGroup> allGroups = daoIdcGroup.getGroups();
 			// and search users with write access on object
-			List<IdcUser> users = permHandler.getUsersWithWritePermissionForObject(objUuid, allGroups);
+			List<IdcUser> users = permHandler.getUsersWithWritePermissionForObject(objUuid, allGroups, checkWorkflow);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
 			for (IdcUser user : users) {
@@ -760,7 +763,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);
 				
 				if (getDetailedPermissions) {
-					List<Permission> perms = permHandler.getPermissionsForObject(objUuid, user.getAddrUuid());
+					List<Permission> perms = permHandler.getPermissionsForObject(objUuid, user.getAddrUuid(), checkWorkflow);
 					List<Permission> permsUser = permHandler.getUserPermissions(user.getAddrUuid());
 					perms.addAll(permsUser);
 					beanToDocMapperSecurity.mapPermissionList(perms, uDoc);					
@@ -787,12 +790,13 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 
 			String addrUuid = (String) params.get(MdekKeys.UUID);
+			Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
 			Boolean getDetailedPermissions = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS);
 
 			// get all groups: search users via groups !
 			List<IdcGroup> allGroups = daoIdcGroup.getGroups();
 			// and search users with write access on address
-			List<IdcUser> users = permHandler.getUsersWithWritePermissionForAddress(addrUuid, allGroups);
+			List<IdcUser> users = permHandler.getUsersWithWritePermissionForAddress(addrUuid, allGroups, checkWorkflow);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
 			for (IdcUser user : users) {
@@ -800,7 +804,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);
 
 				if (getDetailedPermissions) {
-					List<Permission> perms = permHandler.getPermissionsForAddress(addrUuid, user.getAddrUuid());
+					List<Permission> perms = permHandler.getPermissionsForAddress(addrUuid, user.getAddrUuid(), checkWorkflow);
 					List<Permission> permsUser = permHandler.getUserPermissions(user.getAddrUuid());
 					perms.addAll(permsUser);
 					beanToDocMapperSecurity.mapPermissionList(perms, uDoc);					

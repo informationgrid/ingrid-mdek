@@ -408,7 +408,9 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getUsersWithWritePermissionForObject(String objUuid, boolean getDetailedPermissions) {
+	public IngridDocument getUsersWithWritePermissionForObject(String objUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -417,8 +419,11 @@ public class MdekExampleSupertool {
 
 		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
 		System.out.println("\n###### INVOKE getUsersWithWritePermissionForObject " + infoDetailedPermissions + " ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getUsersWithWritePermissionForObject(plugId, objUuid, myUserUuid, getDetailedPermissions);
+		response = mdekCallerSecurity.getUsersWithWritePermissionForObject(plugId, objUuid, myUserUuid,
+				checkWorkflow,
+				getDetailedPermissions);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -436,7 +441,9 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getUsersWithWritePermissionForAddress(String addrUuid, boolean getDetailedPermissions) {
+	public IngridDocument getUsersWithWritePermissionForAddress(String addrUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -445,8 +452,11 @@ public class MdekExampleSupertool {
 
 		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
 		System.out.println("\n###### INVOKE getUsersWithWritePermissionForAddress " + infoDetailedPermissions + " ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getUsersWithWritePermissionForAddress(plugId, addrUuid, myUserUuid, getDetailedPermissions);
+		response = mdekCallerSecurity.getUsersWithWritePermissionForAddress(plugId, addrUuid, myUserUuid,
+				checkWorkflow,
+				getDetailedPermissions);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -464,7 +474,7 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getObjectPermissions(String objUuid) {
+	public IngridDocument getObjectPermissions(String objUuid, boolean checkWorkflow) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -472,8 +482,9 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getObjectPermissions ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getObjectPermissions(plugId, objUuid, myUserUuid);
+		response = mdekCallerSecurity.getObjectPermissions(plugId, objUuid, myUserUuid, checkWorkflow);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -488,7 +499,7 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getAddressPermissions(String addrUuid) {
+	public IngridDocument getAddressPermissions(String addrUuid, boolean checkWorkflow) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -496,8 +507,9 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getAddressPermissions ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getAddressPermissions(plugId, addrUuid, myUserUuid);
+		response = mdekCallerSecurity.getAddressPermissions(plugId, addrUuid, myUserUuid, checkWorkflow);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

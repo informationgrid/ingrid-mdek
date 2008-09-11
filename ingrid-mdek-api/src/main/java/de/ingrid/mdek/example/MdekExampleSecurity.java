@@ -1,7 +1,6 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
-import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
@@ -843,10 +841,10 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		System.out.println("\n----- verify permissions for object -----");
-		supertool.getObjectPermissions(objUuid);
+		supertool.getObjectPermissions(objUuid, true);
 
 		System.out.println("\n----- verify permissions for address -----");
-		supertool.getAddressPermissions(addrUuid);
+		supertool.getAddressPermissions(addrUuid, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- delete address FULL -> NOT ALLOWED (no WRITE_TREE) -----");
@@ -893,12 +891,12 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- ADDRESS/OBJECT: Get All Users with Write Permission");
 
 		System.out.println("\n----- users with write permission for object: " + objUuid);
-		supertool.getUsersWithWritePermissionForObject(objUuid, false);
-		supertool.getUsersWithWritePermissionForObject(objUuid, true);
+		supertool.getUsersWithWritePermissionForObject(objUuid, true, false);
+		supertool.getUsersWithWritePermissionForObject(objUuid, true, true);
 
 		System.out.println("\n----- users with write permission for address: " + addrUuid);
-		supertool.getUsersWithWritePermissionForAddress(addrUuid, false);
-		supertool.getUsersWithWritePermissionForAddress(addrUuid, true);
+		supertool.getUsersWithWritePermissionForAddress(addrUuid, true, false);
+		supertool.getUsersWithWritePermissionForAddress(addrUuid, true, true);
 
 // ===================================
 		
@@ -1062,10 +1060,10 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		System.out.println("\n----- verify permissions for object -----");
-		supertool.getObjectPermissions(newParentObjUuid);
+		supertool.getObjectPermissions(newParentObjUuid, true);
 
 		System.out.println("\n----- verify permissions for address -----");
-		supertool.getAddressPermissions(newParentAddrUuid);
+		supertool.getAddressPermissions(newParentAddrUuid, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create sub address -> ALLOWED -----");
