@@ -30,6 +30,13 @@ public class MdekUtils {
 	public final static String YES = "Y";
 	public final static String NO = "N";
 
+	/** Type of user operation */
+	public enum UserOperation {
+		NEW,
+		EDITED,
+		DELETED;
+	}
+
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1),
 		OBJ_ADR_TYPE(505),

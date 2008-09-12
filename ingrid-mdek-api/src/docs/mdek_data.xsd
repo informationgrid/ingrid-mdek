@@ -100,6 +100,7 @@
 			<xs:element ref="mod-user"/>
 			<xs:element ref="responsible-user"/>
 			<xs:element name="assigner-uuid" type="xs:string"/>
+			<xs:element name="assigner-user"  type="ADDRESS_MAP"/>
 			<xs:element name="assign-time" type="TIMESTAMP"/>
 			<xs:element name="reassigner-uuid" type="xs:string"/>
 			<xs:element name="reassign-time" type="TIMESTAMP"/>
@@ -218,9 +219,11 @@
 			<xs:element name="requestinfo_onlyFreeAddresses" type="xs:boolean"/>
 			<xs:element name="requestinfo_targetIsFreeAddress" type="xs:boolean"/>
 			<xs:element name="requestinfo_forceDeleteReferences" type="xs:boolean"/>
-			<!-- Working version or Published version or both, see MdekUtils.IdcEntityVersion Enumeration -->
+			<!-- e.g. update working- or published-version or both, pass MdekUtils.IdcEntityVersion Enumeration const -->
 			<xs:element name="requestinfo_whichEntityVersion" type="xs:integer"/>
-			<!-- e.g. when fetching permissions for entity include check of workflow state (true) or not (false). e.g. in state "Q" no write if not "QA"  -->
+			<!-- e.g. fetch entity in this work state, pass MdekUtils.WorkState Enumeration const -->
+			<xs:element name="requestinfo_whichWorkState" type="xs:integer"/>
+			<!-- e.g. when fetching permissions for entity include check of workflow state (true) or not (false). e.g. in state "Q" no write if not "QA" -->
 			<xs:element name="requestinfo_checkWorkflow" type="xs:boolean"/>
 		</xs:all>
 	</xs:complexType>	
@@ -330,6 +333,8 @@
 			<xs:element name="resultinfo_hasWorkingCopy" type="xs:boolean"/>
 			<xs:element name="resultinfo_numberOfProcessedEntities" type="xs:integer"/>
 			<xs:element name="resultinfo_uuidOfFoundEntity" type="UUID"/>
+			<!-- e.g. type of operation the user performed on an entity, = MdekUtils.UserOperation Enumeration const -->
+			<xs:element name="resultinfo_userOperation" type="xs:integer"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SEARCH_MAP">

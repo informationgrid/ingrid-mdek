@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.List;
 
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
@@ -24,7 +25,7 @@ public interface IObjectNodeDao
 	/** Get root objects. */
 	List<ObjectNode> getTopObjects();
 
-	/** Fetches sub object nodes of parent with given uuid.
+	/** Fetches sub nodes (only next level) of parent with given uuid.
 	 * @param parentUuid uuid of parent
 	 * @param fetchObjectLevel also fetch T01Object level encapsulated by ObjectNode ?
 	 * @return
@@ -116,4 +117,16 @@ public interface IObjectNodeDao
 
 	/** Get ALL Objects (also published ones) where given user is responsible user. */
 	List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid);
+
+	/**
+	 * Get ALL Objects where given user is QA and WORKING VERSION is in given work state.
+	 * We return nodes, so we can evaluate whether published version exists ! 
+	 * @param userUuid QA user
+	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  
+	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param maxNum maximum number of objects to query, pass null if all objects !
+	 * @return list of objects
+	 */
+	List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin,
+			WorkState whichWorkState, Integer maxNum);
 }

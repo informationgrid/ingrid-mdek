@@ -1,17 +1,22 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
@@ -95,6 +100,48 @@ public class ObjectNodeDaoHibernate
 				.list();
 		
 		return childUuids;
+	}
+
+	/** Fetch whole subtree (ALL levels) of given object.
+	 * @param rootNode top node of tree
+	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param includeRootNode true=include the passed root node (state not checked)<br>
+	 * 		false=do not include root node (state not checked)<br>
+	 * @return list of all subnodes in tree
+	 */
+	private List<ObjectNode> getTreeObjects(ObjectNode rootNode, WorkState whichWorkState, boolean includeRootNode) {
+		List<ObjectNode> treeNodes = new ArrayList<ObjectNode>();
+
+		if (includeRootNode) {
+			treeNodes.add(rootNode);
+		}
+
+		// traverse iteratively via stack
+		Stack<ObjectNode> stack = new Stack<ObjectNode>();
+		stack.push(rootNode);
+		while (!stack.isEmpty()) {
+			ObjectNode treeNode = stack.pop();
+
+			// add next level of subnodes to stack (ALL subobjects, independent from state, so we won't lose tree branch ...)
+			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), true);
+			for (ObjectNode sN : subNodes) {
+				stack.push(sN);
+			}
+			
+			// remove subnodes in wrong state
+			if (whichWorkState != null) {
+				Iterator<ObjectNode> it = subNodes.iterator();
+				while(it.hasNext()) {
+					if (!whichWorkState.getDbValue().equals(it.next().getT01ObjectWork().getWorkState())) {
+						it.remove();
+					}
+				}
+			}
+			
+			treeNodes.addAll(subNodes);
+		}
+
+		return treeNodes;
 	}
 
 	public int countSubObjects(String parentUuid) {
@@ -449,5 +496,102 @@ public class ObjectNodeDaoHibernate
 			.list();
 
 		return retList;
+	}
+
+	public List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin,
+			WorkState whichWorkState, Integer maxNum) {
+		List<ObjectNode> retList = new ArrayList<ObjectNode>();
+
+		if (isCatAdmin) {
+			return getAllObjects(whichWorkState, maxNum);
+		}
+
+		Session session = getSession();
+
+		// select all objects in group (write permission) ! NOTICE: this doesn't include sub objects of "write-tree" objects !
+		String qString = "select distinct oNode, p2.action as perm " +
+		"from " +
+			"ObjectNode oNode, " +
+			"T01Object o, " +
+			"IdcUser usr, " +
+			"IdcGroup grp, " +
+			"IdcUserPermission pUsr, " +
+			"Permission p1, " +
+			"PermissionObj pObj, " +
+			"Permission p2 " +
+		"where " +
+			// user -> grp -> QA
+			"usr.addrUuid = '" + userUuid + "'" +
+			" and usr.idcGroupId = grp.id" +
+			" and grp.id = pUsr.idcGroupId " +
+			" and pUsr.permissionId = p1.id " +
+			" and p1.action = '" + IdcPermission.QUALITY_ASSURANCE.getDbValue() + "'" +
+			// grp -> object-> write permission
+			" and grp.id = pObj.idcGroupId " +
+			" and pObj.permissionId = p2.id " +
+			" and (p2.action = '" + IdcPermission.WRITE_SINGLE.getDbValue() + "' or " +
+			"  p2.action = '" + IdcPermission.WRITE_TREE.getDbValue() + "') " +
+			// object-> work state
+			" and pObj.uuid = oNode.objUuid " +
+			// working version
+			" and oNode.objId = o.id";
+
+		Query q = session.createQuery(qString);
+		if (maxNum != null) {
+			q.setMaxResults(maxNum);				
+		}
+
+		// parse group objects and add full object tree when write-tree
+		List<Object[]> groupObjs = q.list();
+		for (Object[] groupObj : groupObjs) {
+			ObjectNode oNode = (ObjectNode) groupObj[0];
+			T01Object o = oNode.getT01ObjectWork();
+			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupObj[1]);
+
+			boolean workStateOk = true;
+			if (whichWorkState != null && !whichWorkState.getDbValue().equals(o.getWorkState())) {
+				workStateOk = false;
+			}
+
+			if (p == IdcPermission.WRITE_SINGLE && workStateOk) {
+				retList.add(oNode);
+			} else if (p == IdcPermission.WRITE_TREE) {
+				retList.addAll(getTreeObjects(oNode, whichWorkState, workStateOk));
+			}
+
+			if (maxNum != null) {
+				if (retList.size() >= maxNum) {
+					retList = retList.subList(0, maxNum);
+					break;
+				}
+			}
+		}
+
+		return retList;
+	}
+
+	/**
+	 * Get ALL Objects where WORKING VERSION is in given work state. We return nodes, so we can evaluate
+	 * whether published version exists !
+	 * @param whichWorkState only return objects in this work state, pass null if workstate should be ignored
+	 * @param maxNum maximum number of objects to query, pass null if all objects !
+	 * @return list of objects
+	 */
+	private List<ObjectNode> getAllObjects(WorkState whichWorkState, Integer maxNum) {
+		Session session = getSession();
+
+		String qString = "from ObjectNode oNode " +
+			"left join fetch oNode.t01ObjectWork o";
+
+		if (whichWorkState != null) {
+			qString += " where o.workState = '" + whichWorkState.getDbValue() + "'";			
+		}
+
+		Query q = session.createQuery(qString);
+		if (maxNum != null) {
+			q.setMaxResults(maxNum);				
+		}
+
+		return q.list();
 	}
 }

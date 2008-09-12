@@ -36,8 +36,11 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_FORCE_DELETE_REFERENCES = "requestinfo_forceDeleteReferences";
     /** Which version of entity should be processed (working or published version ...)<br>
-     *  Value: MdekUtils.IdcEntityVersion Enumeration */
+     *  Value: MdekUtils.IdcEntityVersion Enumeration const */
     public final static String REQUESTINFO_WHICH_ENTITY_VERSION = "requestinfo_whichEntityVersion";
+    /** Which work state should entities to process have<br>
+     *  Value: MdekUtils.WorkState Enumeration const */
+    public final static String REQUESTINFO_WHICH_WORK_STATE = "requestinfo_whichWorkState";
     /** when fetching permissions for entity include check of workflow state (true) or not (false). 
      * e.g. in state "Q" no write if not "QA"<br>
      *  Value: Boolean */
@@ -216,7 +219,10 @@ public class MdekKeys {
     /** uuid of the entity which was found (e.g. when looking for working copy in subtree) 
      *  Value: String */
     public final static String RESULTINFO_UUID_OF_FOUND_ENTITY = "resultinfo_uuidOfFoundEntity";
-    
+    /** Type of operation the user performed on an entity<br>
+     *  Value: MdekUtils.UserOperation Enumeration const */
+    public final static String RESULTINFO_USER_OPERATION = "resultinfo_userOperation";
+
     // INFO ABOUT RUNNING JOBS
     // -----------------------
     /** Plain text description of job which is still running on server<br>
@@ -680,6 +686,8 @@ public class MdekKeys {
     public final static String RESPONSIBLE_USER = "responsible-user";
     /** Value: String */
     public final static String ASSIGNER_UUID = "assigner-uuid";
+    /** Value: IngridDocument (Address Map) */
+    public final static String ASSIGNER_USER = "assigner-user";
     /** Value: String */
     public final static String ASSIGN_TIME = "assign-time";
     /** Value: String */

@@ -15,6 +15,7 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.job.tools.MdekPermissionHandler;
@@ -279,6 +280,41 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.commitTransaction();
 			return oDocIn;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getQAObjects(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		try {
+			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
+			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+
+			daoObjectNode.beginTransaction();
+
+			boolean isCatAdmin = permissionHandler.isCatalogAdmin(userUuid);
+			List<ObjectNode> oNs = daoObjectNode.getQAObjects(userUuid, isCatAdmin, whichWorkState, numHits);
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
+			for (ObjectNode oN : oNs) {
+				T01Object o = oN.getT01ObjectWork();
+				IngridDocument objDoc = new IngridDocument();
+				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
+				beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				beanToDocMapper.mapUserOperation(oN, objDoc);
+
+				resultList.add(objDoc);
+			}
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.OBJ_ENTITIES, resultList);
+
+			daoObjectNode.commitTransaction();
+			return result;
 
 		} catch (RuntimeException e) {
 			daoObjectNode.rollbackTransaction();

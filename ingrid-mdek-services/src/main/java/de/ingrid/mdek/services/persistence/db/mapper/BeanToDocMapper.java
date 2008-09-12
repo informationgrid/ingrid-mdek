@@ -11,6 +11,8 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.UserOperation;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
@@ -93,6 +95,28 @@ public class BeanToDocMapper implements IMapper {
 
 	private BeanToDocMapper(DaoFactory daoFactory) {
 		daoAddressNode = daoFactory.getAddressNodeDao();
+	}
+
+	public IngridDocument mapUserOperation(ObjectNode oN, IngridDocument objectDoc) {
+		if (oN == null) {
+			return objectDoc;
+		}
+
+		T01Object o = oN.getT01ObjectWork();
+
+		if (oN.getObjIdPublished() == null) {
+			objectDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.NEW);
+
+		} else if (WorkState.IN_BEARBEITUNG.getDbValue().equals(o.getWorkState())) {
+			objectDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.EDITED);
+		}
+
+		// highest priority
+		if (MdekUtils.YES.equals(o.getObjectMetadata().getMarkDeleted())) {
+			objectDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.DELETED);
+		}
+
+		return objectDoc;
 	}
 
 	/**
@@ -237,7 +261,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT08Attrs(o.getT08Attrs(), objectDoc);
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
-			mapObjectMetadata(o.getObjectMetadata(), objectDoc);
+			mapObjectMetadata(o.getObjectMetadata(), objectDoc, MappingQuantity.INITIAL_ENTITY);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -1607,7 +1631,8 @@ public class BeanToDocMapper implements IMapper {
 		return refDoc;
 	}
 
-	private IngridDocument mapObjectMetadata(ObjectMetadata ref, IngridDocument refDoc) {
+	public IngridDocument mapObjectMetadata(ObjectMetadata ref, IngridDocument refDoc,
+			MappingQuantity howMuch) {
 		if (ref == null) {
 			return refDoc;
 		}
@@ -1619,6 +1644,12 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());
 		refDoc.put(MdekKeys.REASSIGNER_UUID, ref.getReassignerUuid());
 		refDoc.put(MdekKeys.REASSIGN_TIME, ref.getReassignTime());
+
+		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+			IngridDocument userDoc = new IngridDocument();
+			mapUserAddress(ref.getAssignerUuid(), userDoc, howMuch, false);
+			refDoc.put(MdekKeys.ASSIGNER_USER, userDoc);
+		}
 
 		return refDoc;
 	}

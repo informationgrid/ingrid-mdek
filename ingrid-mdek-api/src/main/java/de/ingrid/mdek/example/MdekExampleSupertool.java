@@ -686,6 +686,35 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument getQAObjects(WorkState whichWorkState, Integer maxNum) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getQAObjects ######");
+		System.out.println("  in work state: " + whichWorkState);
+		System.out.println("  maxNum: " + maxNum);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.getQAObjects(plugId, whichWorkState, maxNum, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);				
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	public IngridDocument createGroup(IngridDocument docIn,
 			boolean refetch) {
 		if (docIn == null) {

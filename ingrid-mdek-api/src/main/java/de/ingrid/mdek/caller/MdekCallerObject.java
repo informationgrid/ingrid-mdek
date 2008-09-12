@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -199,6 +200,17 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		IngridDocument jobParams = newBasicObject;
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getInitialObject", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getQAObjects(String plugId, WorkState whichWorkState, Integer maxNum,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_WHICH_WORK_STATE, whichWorkState);
+		jobParams.put(MdekKeys.SEARCH_NUM_HITS, maxNum);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getQAObjects", jobParams);
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}

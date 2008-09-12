@@ -137,7 +137,7 @@ public class MdekPermissionHandler {
 			}			
 		}
 
-		if (permService.isCatalogAdmin(userAddrUuid)) {
+		if (isCatalogAdmin(userAddrUuid)) {
 			// full access, we return "write-tree" permission
 			perms.add(PermissionFactory.getPermissionTemplateTree());
 
@@ -184,7 +184,7 @@ public class MdekPermissionHandler {
 			}			
 		}
 
-		if (permService.isCatalogAdmin(userAddrUuid)) {
+		if (isCatalogAdmin(userAddrUuid)) {
 			// full access, we return "write-tree" permission
 			perms.add(PermissionFactory.getPermissionTemplateTree());
 
@@ -416,9 +416,14 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkIsCatalogAdmin(String userUuid) {
-		if (!permService.isCatalogAdmin(userUuid)) {
+		if (!isCatalogAdmin(userUuid)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}
+	}
+
+	/** Is the passed User the catalog administrator ? */
+	public boolean isCatalogAdmin(String userUuid) {
+		return permService.isCatalogAdmin(userUuid);
 	}
 
 	/**

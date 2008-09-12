@@ -1,6 +1,7 @@
 package de.ingrid.mdek.caller;
 
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -180,5 +181,15 @@ public interface IMdekCallerObject {
 	 * @return extended newObject, e.g. containing terms of parent etc.
 	 */
 	IngridDocument getInitialObject(String plugId, IngridDocument newBasicObject,
+			String userId);
+
+	/**
+	 * Get ALL Objects where given user is QA and objects WORKING VERSION is in given work state.
+	 * @param plugId which mdek server (iplug)
+	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param maxNum maximum number of objects to query, pass null if all objects !
+	 * @return response containing result: map representation of object (only partial data)
+	 */
+	IngridDocument getQAObjects(String plugId, WorkState whichWorkState, Integer maxNum,
 			String userId);
 }
