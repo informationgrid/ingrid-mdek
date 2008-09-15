@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.List;
 
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -124,9 +125,10 @@ public interface IObjectNodeDao
 	 * @param userUuid QA user
 	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all objects
 	 * @param maxNum maximum number of objects to query, pass null if all objects !
 	 * @return list of objects
 	 */
 	List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin,
-			WorkState whichWorkState, Integer maxNum);
+			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum);
 }

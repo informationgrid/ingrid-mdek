@@ -83,7 +83,6 @@ public class MdekUtils {
 		SysGuiBehaviour(Integer dbValue) {
 			this.dbValue = dbValue;
 		}
-		/** returns syslist ID */
 		public Integer getDbValue() {
 			return dbValue;
 		}
@@ -103,6 +102,15 @@ public class MdekUtils {
 		ALL_VERSIONS;
 	}
 
+	/** e.g. Which entities to fetch ? */
+	public enum IdcEntitySelectionType {
+		/** all expired entities (determined by job) */
+		EXPIRY_STATE_EXPIRED,
+		/** all entities where spatial relations were updated e.g. due to catalog management */
+		SPATIAL_RELATIONS_UPDATED
+		;
+	}
+
 	public enum ExpiryState implements IMdekEnum {
 		INITIAL(0),
 		TO_BE_EXPIRED(10),
@@ -111,7 +119,6 @@ public class MdekUtils {
 		ExpiryState(Integer dbValue) {
 			this.dbValue = dbValue;
 		}
-		/** returns syslist ID */
 		public Integer getDbValue() {
 			return dbValue;
 		}

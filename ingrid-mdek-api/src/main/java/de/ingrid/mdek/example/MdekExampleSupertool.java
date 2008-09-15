@@ -16,6 +16,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.PublishType;
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekCaller;
@@ -686,7 +687,12 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getQAObjects(WorkState whichWorkState, Integer maxNum) {
+	/**
+	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all objects
+	 * @param maxNum maximum number of objects to query, pass null if all objects !
+	 */
+	public IngridDocument getQAObjects(WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -695,9 +701,10 @@ public class MdekExampleSupertool {
 
 		System.out.println("\n###### INVOKE getQAObjects ######");
 		System.out.println("  in work state: " + whichWorkState);
+		System.out.println("  selection type: " + selectionType);
 		System.out.println("  maxNum: " + maxNum);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getQAObjects(plugId, whichWorkState, maxNum, myUserUuid);
+		response = mdekCallerObject.getQAObjects(plugId, whichWorkState, selectionType, maxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

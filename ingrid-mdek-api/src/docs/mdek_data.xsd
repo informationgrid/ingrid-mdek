@@ -223,6 +223,8 @@
 			<xs:element name="requestinfo_whichEntityVersion" type="xs:integer"/>
 			<!-- e.g. fetch entity in this work state, pass MdekUtils.WorkState Enumeration const -->
 			<xs:element name="requestinfo_whichWorkState" type="xs:integer"/>
+			<!-- Which entities to fetch (e.g. expired ones ...), pass MdekUtils.IdcEntitySelectionType Enumeration const -->
+			<xs:element name="requestinfo_entitySelectionType" type="xs:integer"/>
 			<!-- e.g. when fetching permissions for entity include check of workflow state (true) or not (false). e.g. in state "Q" no write if not "QA" -->
 			<xs:element name="requestinfo_checkWorkflow" type="xs:boolean"/>
 		</xs:all>

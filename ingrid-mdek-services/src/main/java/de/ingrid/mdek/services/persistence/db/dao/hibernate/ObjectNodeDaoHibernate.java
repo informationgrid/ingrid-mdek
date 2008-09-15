@@ -14,6 +14,8 @@ import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.ExpiryState;
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -105,11 +107,13 @@ public class ObjectNodeDaoHibernate
 	/** Fetch whole subtree (ALL levels) of given object.
 	 * @param rootNode top node of tree
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
 	 * @param includeRootNode true=include the passed root node (state not checked)<br>
 	 * 		false=do not include root node (state not checked)<br>
 	 * @return list of all subnodes in tree
 	 */
-	private List<ObjectNode> getTreeObjects(ObjectNode rootNode, WorkState whichWorkState, boolean includeRootNode) {
+	private List<ObjectNode> getTreeObjects(ObjectNode rootNode,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType, boolean includeRootNode) {
 		List<ObjectNode> treeNodes = new ArrayList<ObjectNode>();
 
 		if (includeRootNode) {
@@ -129,10 +133,10 @@ public class ObjectNodeDaoHibernate
 			}
 			
 			// remove subnodes in wrong state
-			if (whichWorkState != null) {
+			if (whichWorkState != null || selectionType != null) {
 				Iterator<ObjectNode> it = subNodes.iterator();
 				while(it.hasNext()) {
-					if (!whichWorkState.getDbValue().equals(it.next().getT01ObjectWork().getWorkState())) {
+					if (!checkObject(it.next().getT01ObjectWork(), whichWorkState, selectionType)) {
 						it.remove();
 					}
 				}
@@ -499,11 +503,11 @@ public class ObjectNodeDaoHibernate
 	}
 
 	public List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin,
-			WorkState whichWorkState, Integer maxNum) {
+			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
 		List<ObjectNode> retList = new ArrayList<ObjectNode>();
 
 		if (isCatAdmin) {
-			return getAllObjects(whichWorkState, maxNum);
+			return getObjects(whichWorkState, selectionType, maxNum);
 		}
 
 		Session session = getSession();
@@ -548,15 +552,13 @@ public class ObjectNodeDaoHibernate
 			T01Object o = oNode.getT01ObjectWork();
 			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupObj[1]);
 
-			boolean workStateOk = true;
-			if (whichWorkState != null && !whichWorkState.getDbValue().equals(o.getWorkState())) {
-				workStateOk = false;
-			}
+			// first check whether object in group matches selection criteria
+			boolean includeCurrentObj = checkObject(o, whichWorkState, selectionType);
 
-			if (p == IdcPermission.WRITE_SINGLE && workStateOk) {
+			if (p == IdcPermission.WRITE_SINGLE && includeCurrentObj) {
 				retList.add(oNode);
 			} else if (p == IdcPermission.WRITE_TREE) {
-				retList.addAll(getTreeObjects(oNode, whichWorkState, workStateOk));
+				retList.addAll(getTreeObjects(oNode, whichWorkState, selectionType, includeCurrentObj));
 			}
 
 			if (maxNum != null) {
@@ -571,20 +573,78 @@ public class ObjectNodeDaoHibernate
 	}
 
 	/**
+	 * Check whether passed object matches passed "selection criteria".
+	 * @param o object to test
+	 * @param whichWorkState object is in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
+	 * @return true=object matches, include it<br>
+	 * 		false=object doesn't match, exclude it
+	 */
+	private boolean checkObject(T01Object o, WorkState whichWorkState, IdcEntitySelectionType selectionType) {
+		// first check work state
+		if (whichWorkState != null && !whichWorkState.getDbValue().equals(o.getWorkState())) {
+			return false;
+		}
+
+		// then additional selection criteria
+		if (selectionType != null) {
+			if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+				if (!MdekUtils.ExpiryState.EXPIRED.getDbValue().equals(o.getObjectMetadata().getExpiryState())) {
+					return false;
+				}
+
+			} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+				// TODO: Add when implementing catalog management sns update !
+				return false;
+
+			} else {
+				// QASelectionType not handled ? return false, object doesn't match is default !
+				return false;
+			}
+		}
+
+		// object matches selection criteria
+		return true;
+	}
+
+	/**
 	 * Get ALL Objects where WORKING VERSION is in given work state. We return nodes, so we can evaluate
 	 * whether published version exists !
 	 * @param whichWorkState only return objects in this work state, pass null if workstate should be ignored
+	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
 	 * @param maxNum maximum number of objects to query, pass null if all objects !
 	 * @return list of objects
 	 */
-	private List<ObjectNode> getAllObjects(WorkState whichWorkState, Integer maxNum) {
+	private List<ObjectNode> getObjects(WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
+		List<ObjectNode> retList = new ArrayList<ObjectNode>(); 
+
 		Session session = getSession();
 
 		String qString = "from ObjectNode oNode " +
 			"left join fetch oNode.t01ObjectWork o";
+		
+		if (whichWorkState != null || selectionType != null) {
+			qString += " where ";
 
-		if (whichWorkState != null) {
-			qString += " where o.workState = '" + whichWorkState.getDbValue() + "'";			
+			boolean addAnd = false;
+			if (whichWorkState != null) {
+				qString += "o.workState = '" + whichWorkState.getDbValue() + "'";
+				addAnd = true;
+			}
+			if (selectionType != null) {
+				if (addAnd) {
+					qString += " and ";
+				}
+				if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+					qString += "o.objectMetadata.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+				} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+					// TODO: Add when implementing catalog management sns update !
+					return retList;
+				} else {
+					// QASelectionType not handled ? return nothing !
+					return retList;
+				}
+			}
 		}
 
 		Query q = session.createQuery(qString);

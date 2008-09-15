@@ -15,6 +15,7 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
@@ -292,12 +293,14 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		String userUuid = getCurrentUserUuid(params);
 		try {
 			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
+			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
 			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
 
 			boolean isCatAdmin = permissionHandler.isCatalogAdmin(userUuid);
-			List<ObjectNode> oNs = daoObjectNode.getQAObjects(userUuid, isCatAdmin, whichWorkState, numHits);
+			List<ObjectNode> oNs =
+				daoObjectNode.getQAObjects(userUuid, isCatAdmin, whichWorkState, selectionType, numHits);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {
