@@ -103,12 +103,14 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		T01Object o = oN.getT01ObjectWork();
+		
+		// first check bearbeitung, will be overwritten if special state (NEW, DELETED)
+		if (!WorkState.VEROEFFENTLICHT.getDbValue().equals(o.getWorkState())) {
+			objectDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.EDITED);
+		}
 
 		if (oN.getObjIdPublished() == null) {
 			objectDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.NEW);
-
-		} else if (WorkState.IN_BEARBEITUNG.getDbValue().equals(o.getWorkState())) {
-			objectDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.EDITED);
 		}
 
 		// highest priority
@@ -196,6 +198,7 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.WORK_STATE, o.getWorkState());
 		// needed when copying objects ! we always map to track in test suite !
 		objectDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, o.getCatId());
+		objectDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY) 
@@ -203,7 +206,6 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.DATASET_ALTERNATE_NAME, o.getDatasetAlternateName());
 			objectDoc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			objectDoc.put(MdekKeys.DATE_OF_CREATION, o.getCreateTime());
-			objectDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
 
 			objectDoc.put(MdekKeys.VERTICAL_EXTENT_MINIMUM, o.getVerticalExtentMinimum());
 			objectDoc.put(MdekKeys.VERTICAL_EXTENT_MAXIMUM, o.getVerticalExtentMaximum());
