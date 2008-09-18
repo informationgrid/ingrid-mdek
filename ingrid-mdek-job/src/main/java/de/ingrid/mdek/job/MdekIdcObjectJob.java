@@ -119,7 +119,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 
-			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid, true);
+			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid, IdcEntityVersion.WORKING_VERSION, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {
@@ -1025,7 +1025,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			if (!hasWorkingCopy) {
 				List<ObjectNode> subNodes =
-					daoObjectNode.getSubObjects(node.getObjUuid(), false);
+					daoObjectNode.getSubObjects(node.getObjUuid(), null, false);
 				for (ObjectNode subNode : subNodes) {
 					stack.push(subNode);
 				}					
@@ -1232,29 +1232,29 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	/** Checks whether a tree fits to a new publication condition.
 	 * !!! ALSO ADAPTS Publication Conditions IF REQUESTED !!!<br>
 	 * NOTICE: ONLY PUBLISHED versions of subnodes are checked and adapted !!!
-	 * @param topUuid uuid of top node of tree
+	 * @param rootUuid uuid of top node of tree
 	 * @param pubTypeTopDB new publication type
 	 * @param forcePubCondition force change of nodes (modification time, publicationType, ...)
-	 * @param skipTopNode check/change top node, e.g. when moving (true) or not, e.g. when publishing (false)
+	 * @param skipRootNode check/change top node, e.g. when moving (true) or not, e.g. when publishing (false)
 	 * @param modTime modification time to store in modified nodes
 	 * @param modUuid user uuid to set as modification user
 	 */
-	private void checkObjectPublicationConditionSubTree(String topUuid,
+	private void checkObjectPublicationConditionSubTree(String rootUuid,
 			Integer pubTypeTopDB,
 			Boolean forcePubCondition,
-			boolean skipTopNode,
+			boolean skipRootNode,
 			String modTime,
 			String modUuid) {
 
 		// no check if new object ! No children !
-		if (topUuid == null) {
+		if (rootUuid == null) {
 			return;
 		}
 
 		// get current pub type. Should be set !!! (mandatory when publishing)
 		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);		
-		ObjectNode topNode = daoObjectNode.loadByUuid(topUuid, IdcEntityVersion.WORKING_VERSION);
-		String topName = topNode.getT01ObjectWork().getObjName();
+		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, IdcEntityVersion.WORKING_VERSION);
+		String topName = rootNode.getT01ObjectWork().getObjName();
 
 		// should we adapt all subnodes ?
 		if (!Boolean.TRUE.equals(forcePubCondition)) {
@@ -1263,16 +1263,16 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		// traverse iteratively via stack
 		Stack<ObjectNode> stack = new Stack<ObjectNode>();
-		stack.push(topNode);
+		stack.push(rootNode);
 		while (!stack.isEmpty()) {
 			ObjectNode treeNode = stack.pop();
 			
 			// skip top node ?
 			boolean processNode = true;
-			boolean isTopNode = false;
-			if (treeNode.equals(topNode)) {
-				isTopNode = true;
-				if (skipTopNode) {
+			boolean isRootNode = false;
+			if (treeNode.equals(rootNode)) {
+				isRootNode = true;
+				if (skipRootNode) {
 					processNode = false;
 				}
 			}
@@ -1301,7 +1301,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					objPub.setModUuid(modUuid);
 					
 					// add comment to SUB OBJECT, document the automatic change of the publish condition
-					if (!isTopNode) {
+					if (!isRootNode) {
 						Set<ObjectComment> commentSet = objPub.getObjectComments();
 						ObjectComment newComment = new ObjectComment();
 						newComment.setObjId(objPub.getId());
@@ -1318,7 +1318,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 			
 			// add next level of subnodes to stack
-			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(treeNode.getObjUuid(), true);
+			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(treeNode.getObjUuid(),
+					IdcEntityVersion.PUBLISHED_VERSION, false);
 			for (ObjectNode sN : subNodes) {
 				stack.push(sN);
 			}					
@@ -1393,7 +1394,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			checkObjectNodeReferences(node, forceDeleteReferences);
 
 			List<ObjectNode> subNodes =
-				daoObjectNode.getSubObjects(node.getObjUuid(), false);
+				daoObjectNode.getSubObjects(node.getObjUuid(), IdcEntityVersion.WORKING_VERSION, false);
 			for (ObjectNode subNode : subNodes) {
 				stack.push(subNode);
 			}					
@@ -1493,7 +1494,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {
-				List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid(), true);
+				List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid(),
+						IdcEntityVersion.WORKING_VERSION, false);
 				for (ObjectNode sourceSubNode : sourceSubNodes) {
 					if (isCopyToOwnSubnode) {
 						if (uuidsCopiedNodes.contains(sourceSubNode.getObjUuid())) {

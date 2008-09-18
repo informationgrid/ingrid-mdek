@@ -117,7 +117,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
-			List<AddressNode> aNodes = daoAddressNode.getSubAddresses(uuid, true);
+			List<AddressNode> aNodes = daoAddressNode.getSubAddresses(uuid, IdcEntityVersion.WORKING_VERSION, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNodes.size());
 			for (AddressNode aNode : aNodes) {
@@ -869,7 +869,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			if (!hasWorkingCopy) {
 				List<AddressNode> subNodes =
-					daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
+					daoAddressNode.getSubAddresses(node.getAddrUuid(), null, false);
 				for (AddressNode subNode : subNodes) {
 					stack.push(subNode);
 				}					
@@ -1172,7 +1172,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {
-				List<AddressNode> sourceSubNodes = daoAddressNode.getSubAddresses(sourceNode.getAddrUuid(), true);
+				List<AddressNode> sourceSubNodes = daoAddressNode.getSubAddresses(sourceNode.getAddrUuid(),
+						IdcEntityVersion.WORKING_VERSION, false);
 				for (AddressNode sourceSubNode : sourceSubNodes) {
 					if (isCopyToOwnSubnode) {
 						if (uuidsCopiedNodes.contains(sourceSubNode.getAddrUuid())) {
@@ -1266,7 +1267,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			checkAddressNodeReferences(node, forceDeleteReferences);
 
 			List<AddressNode> subNodes =
-				daoAddressNode.getSubAddresses(node.getAddrUuid(), false);
+				daoAddressNode.getSubAddresses(node.getAddrUuid(), IdcEntityVersion.WORKING_VERSION, false);
 			for (AddressNode subNode : subNodes) {
 				stack.push(subNode);
 			}					

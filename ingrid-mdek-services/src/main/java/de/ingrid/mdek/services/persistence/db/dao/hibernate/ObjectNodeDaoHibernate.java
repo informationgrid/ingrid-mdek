@@ -80,16 +80,24 @@ public class ObjectNodeDaoHibernate
 		return oNodes;
 	}
 
-	public List<ObjectNode> getSubObjects(String parentUuid, boolean fetchObjectLevel) {
+	public List<ObjectNode> getSubObjects(String parentUuid,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
 		String q = "select distinct oNode from ObjectNode oNode ";
-		if (fetchObjectLevel) {
-			q += "left join fetch oNode.t01ObjectWork o " +
-				 "left join fetch oNode.objectNodeChildren oChildren ";
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch oNode.t01ObjectWork o ";			
+		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch oNode.t01ObjectPublished o ";			
+		}
+		if (fetchSubNodesChildren) {
+			q += "left join fetch oNode.objectNodeChildren oChildren ";
 		}
 		q += "where oNode.fkObjUuid = ? ";
-		if (fetchObjectLevel) {
+		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
 			q += "order by o.objName"; 
 		}
 		
@@ -118,10 +126,12 @@ public class ObjectNodeDaoHibernate
 	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
 	 * @param includeRootNode true=include the passed root node (state not checked)<br>
 	 * 		false=do not include root node (state not checked)<br>
+	 * @param maxNum maximum number of nodes to fetch, pass null if whole tree branch
 	 * @return list of all subnodes in tree
 	 */
 	private List<ObjectNode> getTreeObjects(ObjectNode rootNode,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, boolean includeRootNode) {
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			boolean includeRootNode, Integer maxNum) {
 		List<ObjectNode> treeNodes = new ArrayList<ObjectNode>();
 
 		if (includeRootNode) {
@@ -135,7 +145,7 @@ public class ObjectNodeDaoHibernate
 			ObjectNode treeNode = stack.pop();
 
 			// add next level of subnodes to stack (ALL subobjects, independent from state, so we won't lose tree branch ...)
-			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), true);
+			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, false);
 			for (ObjectNode sN : subNodes) {
 				stack.push(sN);
 			}
@@ -151,6 +161,13 @@ public class ObjectNodeDaoHibernate
 			}
 			
 			treeNodes.addAll(subNodes);
+
+			if (maxNum != null) {
+				if (treeNodes.size() >= maxNum) {
+					treeNodes = treeNodes.subList(0, maxNum);
+					break;
+				}
+			}
 		}
 
 		return treeNodes;
@@ -549,9 +566,6 @@ public class ObjectNodeDaoHibernate
 			" and oNode.objId = o.id";
 
 		Query q = session.createQuery(qString);
-		if (maxNum != null) {
-			q.setMaxResults(maxNum);				
-		}
 
 		// parse group objects and add full object tree when write-tree
 		List<Object[]> groupObjs = q.list();
@@ -566,7 +580,14 @@ public class ObjectNodeDaoHibernate
 			if (p == IdcPermission.WRITE_SINGLE && includeCurrentObj) {
 				retList.add(oNode);
 			} else if (p == IdcPermission.WRITE_TREE) {
-				retList.addAll(getTreeObjects(oNode, whichWorkState, selectionType, includeCurrentObj));
+				// how many nodes missing ?
+				Integer nodesMissing = null;
+				if (maxNum != null) {
+					nodesMissing = maxNum - retList.size();
+				}
+				if (nodesMissing == null || nodesMissing > 0) {
+					retList.addAll(getTreeObjects(oNode, whichWorkState, selectionType, includeCurrentObj, nodesMissing));					
+				}
 			}
 
 			if (maxNum != null) {

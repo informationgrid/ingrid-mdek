@@ -30,12 +30,17 @@ public interface IAddressNodeDao
 	 */
 	List<AddressNode> getTopAddresses(boolean onlyFreeAddresses);
 
-	/** Fetches sub address nodes of parent with given uuid.
+	/**
+	 * Fetches sub nodes (next level) of parent with given uuid. 
+	 * Also prefetch concrete address instance in nodes if requested.
 	 * @param parentUuid uuid of parent
-	 * @param fetchAddressLevel also fetch T02Address level encapsulated by AddressNode ?
+	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
 	 * @return
 	 */
-	List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel);
+	List<AddressNode> getSubAddresses(String parentUuid, 
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren);
 
 	/** Get sub uuids of parent with given uuid (only next level) */
 	List<String> getSubAddressUuids(String parentUuid);

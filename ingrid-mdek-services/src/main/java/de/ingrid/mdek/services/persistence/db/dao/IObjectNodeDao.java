@@ -30,12 +30,17 @@ public interface IObjectNodeDao
 	/** Get root objects. */
 	List<ObjectNode> getTopObjects();
 
-	/** Fetches sub nodes (only next level) of parent with given uuid.
+	/**
+	 * Fetches sub nodes (next level) of parent with given uuid. 
+	 * Also prefetch concrete object instance in nodes if requested.
 	 * @param parentUuid uuid of parent
-	 * @param fetchObjectLevel also fetch T01Object level encapsulated by ObjectNode ?
+	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
 	 * @return
 	 */
-	List<ObjectNode> getSubObjects(String parentUuid, boolean fetchObjectLevel);
+	List<ObjectNode> getSubObjects(String parentUuid,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren);
 
 	/** Get sub uuids of parent with given uuid (only next level) */
 	List<String> getSubObjectUuids(String parentUuid);

@@ -82,15 +82,23 @@ public class AddressNodeDaoHibernate
 		return aNodes;
 	}
 
-	public List<AddressNode> getSubAddresses(String parentUuid, boolean fetchAddressLevel) {
+	public List<AddressNode> getSubAddresses(String parentUuid,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 		String q = "select distinct aNode from AddressNode aNode ";
-		if (fetchAddressLevel) {
-			q += "left join fetch aNode.t02AddressWork a " +
-				 "left join fetch aNode.addressNodeChildren aChildren ";
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch aNode.t02AddressWork a ";			
+		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch aNode.t02AddressPublished a ";			
+		}
+		if (fetchSubNodesChildren) {
+			q += "left join fetch aNode.addressNodeChildren aChildren ";
 		}
 		q += "where aNode.fkAddrUuid = ? ";
-		if (fetchAddressLevel) {
+		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
 			q += "order by a.adrType desc, a.institution, a.lastname, a.firstname"; 
 		}
 		
