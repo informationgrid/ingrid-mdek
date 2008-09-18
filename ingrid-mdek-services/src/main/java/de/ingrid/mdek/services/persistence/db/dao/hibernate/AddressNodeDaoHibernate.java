@@ -40,19 +40,27 @@ public class AddressNodeDaoHibernate
         super(factory, AddressNode.class);
     }
 
-	public AddressNode loadByUuid(String uuid) {
+	public AddressNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		if (uuid == null) {
 			return null;
 		}
 
 		Session session = getSession();
 
-		AddressNode aN = (AddressNode) session.createQuery("from AddressNode aNode " +
-			"left join fetch aNode.t02AddressWork " +
-			"where aNode.addrUuid = ?")
+		String qString = "from AddressNode aNode ";
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			qString += "left join fetch aNode.t02AddressWork ";			
+		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			qString += "left join fetch aNode.t02AddressPublished ";			
+		}
+		qString += "where aNode.addrUuid = ?";
+
+		AddressNode aN = (AddressNode) session.createQuery(qString)
 			.setString(0, uuid)
 			.uniqueResult();
-		
+
 		return aN;
 	}
 
@@ -297,9 +305,9 @@ public class AddressNodeDaoHibernate
 
 	public AddressNode getParent(String uuid) {
 		AddressNode parentNode = null;
-		AddressNode aN = loadByUuid(uuid);
+		AddressNode aN = loadByUuid(uuid, null);
 		if (aN != null && aN.getFkAddrUuid() != null) {
-			parentNode = loadByUuid(aN.getFkAddrUuid());
+			parentNode = loadByUuid(aN.getFkAddrUuid(), null);
 		}
 		
 		return parentNode;
@@ -308,7 +316,7 @@ public class AddressNodeDaoHibernate
 	public List<String> getAddressPath(String uuid) {
 		ArrayList<String> uuidList = new ArrayList<String>();
 		while(uuid != null) {
-			AddressNode aN = loadByUuid(uuid);
+			AddressNode aN = loadByUuid(uuid, null);
 			if (aN == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -324,7 +332,7 @@ public class AddressNodeDaoHibernate
 		ArrayList<IngridDocument> pathList = new ArrayList<IngridDocument>();
 		String uuid = inUuid;
 		while(uuid != null) {
-			AddressNode aN = loadByUuid(uuid);
+			AddressNode aN = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
 			if (aN == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -333,8 +341,9 @@ public class AddressNodeDaoHibernate
 				addToPath = false;
 			}
 			if (addToPath) {
-				String orga = aN.getT02AddressWork().getInstitution();
-				Integer type = aN.getT02AddressWork().getAdrType();
+				T02Address a = aN.getT02AddressWork();
+				String orga = a.getInstitution();
+				Integer type = a.getAdrType();
 				IngridDocument pathDoc = new IngridDocument();
 				pathDoc.put(MdekKeys.ORGANISATION, orga);
 				pathDoc.put(MdekKeys.CLASS, type);

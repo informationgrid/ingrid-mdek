@@ -11,11 +11,11 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
@@ -244,7 +244,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// take over data from parent (if set)
 			String parentUuid = oDocIn.getString(MdekKeys.PARENT_UUID);
 			if (parentUuid != null) {
-				ObjectNode pNode = daoObjectNode.loadByUuid(parentUuid);
+				ObjectNode pNode = daoObjectNode.loadByUuid(parentUuid, IdcEntityVersion.WORKING_VERSION);
 				if (pNode == null) {
 					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
@@ -260,7 +260,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			
 			// "auskunft" address set ? set calling user as "Auskunft" if nothing set
 			if (!hasAuskunftAddress(oDocIn)) {
-				AddressNode addrNode = daoAddressNode.loadByUuid(userUuid);
+				AddressNode addrNode = daoAddressNode.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION);
 				addAuskunftAddress(oDocIn, addrNode);
 			}
 
@@ -527,7 +527,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			permissionHandler.checkWritePermissionForObject(uuid, userId, true);
 
 			// load node
-			ObjectNode oNode = daoObjectNode.loadByUuid(uuid);
+			ObjectNode oNode = daoObjectNode.loadByUuid(uuid, whichEntityVersion);
 			if (oNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -832,7 +832,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);
 
 		// NOTICE: this one also contains Parent Association !
-		ObjectNode oNode = daoObjectNode.loadByUuid(uuid);
+		ObjectNode oNode = daoObjectNode.loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
 		if (oNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -871,7 +871,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkPermissionsForMoveObject(fromUuid, toUuid, userUuid);
 
-			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid, null);
 			checkObjectNodesForMove(fromNode, toUuid, forcePubCondition, userUuid);
 
 			// CHECKS OK, proceed
@@ -1001,7 +1001,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	/** Checks whether subtree of object has working copies. */
 	private IngridDocument checkObjectSubTreeWorkingCopies(String rootUuid) {
 		// load "root"
-		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid);
+		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, null);
 		if (rootNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -1062,7 +1062,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			permissionHandler.checkPermissionsForCopyObject(fromUuid, toUuid, userUuid);
 
 			// perform checks
-			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid);
+			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid, IdcEntityVersion.WORKING_VERSION);
 			if (fromNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
 			}
@@ -1070,7 +1070,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			ObjectNode toNode = null;
 			// NOTICE: copy to top when toUuid is null
 			if (toUuid != null) {
-				toNode = daoObjectNode.loadByUuid(toUuid);
+				toNode = daoObjectNode.loadByUuid(toUuid, null);
 				if (toNode == null) {
 					throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 				}
@@ -1131,7 +1131,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// NOTICE: top node when toUuid = null
 		if (toUuid != null) {
 			// load toNode
-			ObjectNode toNode = daoObjectNode.loadByUuid(toUuid);
+			ObjectNode toNode = daoObjectNode.loadByUuid(toUuid, IdcEntityVersion.PUBLISHED_VERSION);
 			if (toNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}		
@@ -1181,7 +1181,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			if (pathUuid.equals(endOfPath) && !includeEndOfPath) {
 				continue;
 			}
-			ObjectNode pathNode = daoObjectNode.loadByUuid(pathUuid);
+			ObjectNode pathNode = daoObjectNode.loadByUuid(pathUuid, null);
 			if (pathNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -1202,19 +1202,20 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		PublishType pubTypeChild = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeChildDB);
 
-		// Load Parent from child
+		// Load Parent of child
 		// NOTICE: childUuid can be null if uuid not generated yet (new object)
 		if (parentUuid == null) {
 			// if childUuid is null then we have a new top object !
 			if (childUuid != null) {
-				parentUuid = daoObjectNode.loadByUuid(childUuid).getFkObjUuid();				
+				parentUuid = daoObjectNode.loadByUuid(childUuid, null).getFkObjUuid();				
 			}
 		}
 		// return if top node
 		if (parentUuid == null) {
 			return;
 		}
-		T01Object parentObjPub = daoObjectNode.loadByUuid(parentUuid).getT01ObjectPublished();
+		T01Object parentObjPub =
+			daoObjectNode.loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION).getT01ObjectPublished();
 		if (parentObjPub == null) {
 			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 		}
@@ -1252,7 +1253,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		// get current pub type. Should be set !!! (mandatory when publishing)
 		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);		
-		ObjectNode topNode = daoObjectNode.loadByUuid(topUuid);
+		ObjectNode topNode = daoObjectNode.loadByUuid(topUuid, IdcEntityVersion.WORKING_VERSION);
 		String topName = topNode.getT01ObjectWork().getObjName();
 
 		// should we adapt all subnodes ?

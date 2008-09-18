@@ -20,8 +20,12 @@ import de.ingrid.utils.IngridDocument;
 public interface IObjectNodeDao
 	extends IGenericDao<ObjectNode> {
 	
-	/** Load object with given uuid. Returns null if not found.	 */
-	ObjectNode loadByUuid(String uuid);
+	/** Load object NODE with given uuid. Also prefetch concrete object instance in node if requested.
+	 * @param uuid object uuid
+	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @return node or null if not found
+	 */
+	ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion);
 
 	/** Get root objects. */
 	List<ObjectNode> getTopObjects();

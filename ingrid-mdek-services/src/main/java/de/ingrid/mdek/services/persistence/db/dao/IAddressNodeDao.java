@@ -18,8 +18,12 @@ import de.ingrid.utils.IngridDocument;
 public interface IAddressNodeDao
 	extends IGenericDao<AddressNode> {
 	
-	/** Load address with given uuid. Returns null if not found.	 */
-	AddressNode loadByUuid(String uuid);
+	/** Load address NODE with given uuid. Also prefetch concrete address instance in node if requested.
+	 * @param uuid address uuid
+	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @return node or null if not found
+	 */
+	AddressNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion);
 
 	/** Get root addresses.
 	 * @param onlyFreeAddresses true= only free top addresses, false=only NOT free top addresses

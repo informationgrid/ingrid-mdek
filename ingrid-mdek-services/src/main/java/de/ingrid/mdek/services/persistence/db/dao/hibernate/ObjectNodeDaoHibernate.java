@@ -43,19 +43,27 @@ public class ObjectNodeDaoHibernate
         super(factory, ObjectNode.class);
     }
 
-	public ObjectNode loadByUuid(String uuid) {
+	public ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		if (uuid == null) {
 			return null;
 		}
 
 		Session session = getSession();
 
-		ObjectNode oN = (ObjectNode) session.createQuery("from ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork " +
-			"where oNode.objUuid = ?")
+		String qString = "from ObjectNode oNode ";
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			qString += "left join fetch oNode.t01ObjectWork ";			
+		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			qString += "left join fetch oNode.t01ObjectPublished ";			
+		}
+		qString += "where oNode.objUuid = ?";
+
+		ObjectNode oN = (ObjectNode) session.createQuery(qString)
 			.setString(0, uuid)
 			.uniqueResult();
-		
+
 		return oN;
 	}
 
@@ -184,9 +192,9 @@ public class ObjectNodeDaoHibernate
 	
 	public ObjectNode getParent(String uuid) {
 		ObjectNode parentNode = null;
-		ObjectNode oN = loadByUuid(uuid);
+		ObjectNode oN = loadByUuid(uuid, null);
 		if (oN != null && oN.getFkObjUuid() != null) {
-			parentNode = loadByUuid(oN.getFkObjUuid());
+			parentNode = loadByUuid(oN.getFkObjUuid(), null);
 		}
 		
 		return parentNode;
@@ -304,7 +312,7 @@ public class ObjectNodeDaoHibernate
 	public List<String> getObjectPath(String uuid) {
 		ArrayList<String> uuidList = new ArrayList<String>();
 		while(uuid != null) {
-			ObjectNode oN = loadByUuid(uuid);
+			ObjectNode oN = loadByUuid(uuid, null);
 			if (oN == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}

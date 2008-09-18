@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.UserOperation;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
@@ -400,7 +401,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		AddressNode aN = daoAddressNode.loadByUuid(userAddrUuid);
+		AddressNode aN = daoAddressNode.loadByUuid(userAddrUuid, IdcEntityVersion.WORKING_VERSION);
 		if (aN == null) {
 			LOG.warn("User AddressUuid not found ! userAddrUuid='" + userAddrUuid + "'. We throw UUID_NOT_FOUND Exception.");
 			if (throwException) {

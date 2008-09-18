@@ -62,7 +62,7 @@ public class DefaultPermissionService implements IPermissionService {
 			if (hasPermissionForAddress(userUuid, localPermission)) {
 				return true;
 			}
-			addressNode = addressNodeDao.loadByUuid(localPermission.getUuid());
+			addressNode = addressNodeDao.loadByUuid(localPermission.getUuid(), null);
 			if (addressNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -91,7 +91,7 @@ public class DefaultPermissionService implements IPermissionService {
 			if (hasPermissionForObject(userUuid, localPermission)) {
 				return true;
 			}
-			objectNode = objectNodeDao.loadByUuid(localPermission.getUuid());
+			objectNode = objectNodeDao.loadByUuid(localPermission.getUuid(), null);
 			if (objectNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}

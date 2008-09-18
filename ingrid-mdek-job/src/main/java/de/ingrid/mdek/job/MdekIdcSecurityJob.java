@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.job.tools.MdekIdcUserHandler;
@@ -454,7 +455,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 		}
 		
-		AddressNode addressNode = daoAddressNode.loadByUuid(addrUuid);
+		AddressNode addressNode = daoAddressNode.loadByUuid(addrUuid, IdcEntityVersion.WORKING_VERSION);
 		T02Address address = null;
 		if (addressNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
@@ -1282,7 +1283,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		if (errInfo == null) {
 			errInfo = new IngridDocument();			
 		}
-		IngridDocument oDoc = beanToDocMapper.mapT01Object(daoObjectNode.loadByUuid(objUuid).getT01ObjectWork(),
+		IngridDocument oDoc = 
+			beanToDocMapper.mapT01Object(
+					daoObjectNode.loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION).getT01ObjectWork(),
 					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
 		List<IngridDocument> oList = (List<IngridDocument>) errInfo.get(MdekKeys.OBJ_ENTITIES);
 		if (oList == null) {
@@ -1297,8 +1300,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		if (errInfo == null) {
 			errInfo = new IngridDocument();			
 		}
-		IngridDocument aDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(addrUuid).getT02AddressWork(),
-					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		IngridDocument aDoc = beanToDocMapper.mapT02Address(
+				daoAddressNode.loadByUuid(addrUuid, IdcEntityVersion.WORKING_VERSION).getT02AddressWork(),
+				new IngridDocument(), MappingQuantity.BASIC_ENTITY);
 		List<IngridDocument> aList = (List<IngridDocument>) errInfo.get(MdekKeys.ADR_ENTITIES);
 		if (aList == null) {
 			aList = new ArrayList<IngridDocument>();
@@ -1313,8 +1317,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		if (errInfo == null) {
 			errInfo = new IngridDocument();			
 		}
-		IngridDocument uDoc = beanToDocMapper.mapT02Address(daoAddressNode.loadByUuid(userUuid).getT02AddressWork(),
-					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		IngridDocument uDoc = beanToDocMapper.mapT02Address(
+				daoAddressNode.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION).getT02AddressWork(),
+				new IngridDocument(), MappingQuantity.BASIC_ENTITY);
 		List<IngridDocument> uList = (List<IngridDocument>) errInfo.get(MdekKeysSecurity.USER_ADDRESSES);
 		if (uList == null) {
 			uList = new ArrayList<IngridDocument>();

@@ -291,7 +291,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// take over data from parent (if set)
 			String parentUuid = aDocIn.getString(MdekKeys.PARENT_UUID);
 			if (parentUuid != null) {
-				AddressNode pNode = daoAddressNode.loadByUuid(parentUuid);
+				AddressNode pNode = daoAddressNode.loadByUuid(parentUuid, IdcEntityVersion.WORKING_VERSION);
 				if (pNode == null) {
 					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
@@ -517,7 +517,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			permissionHandler.checkWritePermissionForAddress(uuid, userId, true);
 
 			// load node
-			AddressNode aNode = daoAddressNode.loadByUuid(uuid);
+			AddressNode aNode = daoAddressNode.loadByUuid(uuid, whichEntityVersion);
 			if (aNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -777,7 +777,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkPermissionsForMoveAddress(fromUuid, toUuid, userUuid);
 
-			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid);
+			AddressNode fromNode = daoAddressNode.loadByUuid(fromUuid, IdcEntityVersion.WORKING_VERSION);
 			checkAddressNodesForMove(fromNode, toUuid, targetIsFreeAddress);
 
 			// CHECKS OK, proceed
@@ -845,7 +845,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	/** Checks whether subtree of address has working copies. */
 	private IngridDocument checkAddressSubTreeWorkingCopies(String rootUuid) {
 		// load "root"
-		AddressNode rootNode = daoAddressNode.loadByUuid(rootUuid);
+		AddressNode rootNode = daoAddressNode.loadByUuid(rootUuid, null);
 		if (rootNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -996,7 +996,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
 
 		// NOTICE: this one also contains Parent Association !
-		AddressNode aNode = daoAddressNode.loadByUuid(uuid);
+		AddressNode aNode = daoAddressNode.loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
 		if (aNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -1082,13 +1082,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// NOTICE: copy to top when newParentUuid is null
 		AddressNode newParentNode = null;
 		if (newParentUuid != null) {
-			newParentNode = daoAddressNode.loadByUuid(newParentUuid);
+			newParentNode = daoAddressNode.loadByUuid(newParentUuid, IdcEntityVersion.WORKING_VERSION);
 			if (newParentNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}
 		}
 		// further checks
-		AddressNode sourceNode = daoAddressNode.loadByUuid(sourceUuid);
+		AddressNode sourceNode = daoAddressNode.loadByUuid(sourceUuid, IdcEntityVersion.WORKING_VERSION);
 		checkAddressNodesForCopy(sourceNode, newParentNode, copySubtree, copyToFreeAddress);
 
 		// refine running jobs info
@@ -1481,7 +1481,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			List<String> pathUuids = daoAddressNode.getAddressPath(parentUuid);
 			
 			for (String pathUuid : pathUuids) {
-				AddressNode pathNode = daoAddressNode.loadByUuid(pathUuid);
+				AddressNode pathNode = daoAddressNode.loadByUuid(pathUuid, null);
 				if (pathNode == null) {
 					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
@@ -1490,7 +1490,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				}
 			}
 
-			parentNode = daoAddressNode.loadByUuid(parentUuid);
+			parentNode = daoAddressNode.loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
 			parentType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
 					parentNode.getT02AddressPublished().getAdrType());
 
@@ -1558,7 +1558,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			// load toNode
-			AddressNode toNode = daoAddressNode.loadByUuid(toUuid);
+			AddressNode toNode = daoAddressNode.loadByUuid(toUuid, IdcEntityVersion.ALL_VERSIONS);
 			if (toNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}		
