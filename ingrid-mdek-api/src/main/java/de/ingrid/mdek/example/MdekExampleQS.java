@@ -145,7 +145,18 @@ class MdekExampleQSThread extends Thread {
 		// NI catalog
 
 		// OBJECTS
+		String topObjUuid = "3866463B-B449-11D2-9A86-080000507261";
+		// underneath upper top node
+		// 3866463B-B449-11D2-9A86-080000507261
+		//  38664688-B449-11D2-9A86-080000507261
+		//   15C69C20-FE15-11D2-AF34-0060084A4596
+		//    2C997C68-2247-11D3-AF51-0060084A4596
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
+		// all further top nodes (5 top nodes at all)
+		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
+		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
+		String topObjUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
+		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
 
 		// ADDRESSES
 		// TOP ADDRESS
@@ -350,7 +361,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n--- Add Permissions to GROUP_QA -----");
 		supertool.addUserPermissionToGroupDoc(grpQADoc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
-		supertool.addObjPermissionToGroupDoc(grpQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addObjPermissionToGroupDoc(grpQADoc, topObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.addAddrPermissionToGroupDoc(grpQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		grpQADoc = supertool.storeGroup(grpQADoc, true, false);
 
@@ -372,7 +383,7 @@ class MdekExampleQSThread extends Thread {
 		Long grpNoQAId = (Long) grpNoQADoc.get(MdekKeysSecurity.IDC_GROUP_ID);
 
 		System.out.println("\n--- Add Permissions to GROUP_NO_QA -----");
-		supertool.addObjPermissionToGroupDoc(grpNoQADoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addObjPermissionToGroupDoc(grpNoQADoc, topObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		grpNoQADoc = supertool.storeGroup(grpNoQADoc, true, false);
 
@@ -515,7 +526,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.getQAObjects(null, null, 10);
 		supertool.getQAObjects(null, null, 3);
 		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, null, 10);
-		supertool.getQAObjects(null, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, 10);
+		supertool.getQAObjects(null, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, 50);
 		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, 10);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, 10);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, 10);

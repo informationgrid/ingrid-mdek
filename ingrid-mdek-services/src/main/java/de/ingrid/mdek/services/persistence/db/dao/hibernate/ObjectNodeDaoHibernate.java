@@ -1,7 +1,6 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -134,9 +133,14 @@ public class ObjectNodeDaoHibernate
 			boolean includeRootNode, Integer maxNum) {
 		List<ObjectNode> treeNodes = new ArrayList<ObjectNode>();
 
+		boolean doSelection = whichWorkState != null || selectionType != null;
+
 		if (includeRootNode) {
 			treeNodes.add(rootNode);
 		}
+
+//		long startTime = System.currentTimeMillis();
+//		long numNodes = 0;
 
 		// traverse iteratively via stack
 		Stack<ObjectNode> stack = new Stack<ObjectNode>();
@@ -144,23 +148,27 @@ public class ObjectNodeDaoHibernate
 		while (!stack.isEmpty()) {
 			ObjectNode treeNode = stack.pop();
 
-			// add next level of subnodes to stack (ALL subobjects, independent from state, so we won't lose tree branch ...)
-			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, false);
+			// add next level of subnodes to stack (ALL NON LEAFS, independent from state, so we won't lose tree branch ...)
+			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, true);
 			for (ObjectNode sN : subNodes) {
-				stack.push(sN);
+				if (sN.getObjectNodeChildren().size() > 0) {
+					stack.push(sN);					
+				}
+//				numNodes++;
 			}
-			
-			// remove subnodes in wrong state
-			if (whichWorkState != null || selectionType != null) {
-				Iterator<ObjectNode> it = subNodes.iterator();
-				while(it.hasNext()) {
-					if (!checkObject(it.next().getT01ObjectWork(), whichWorkState, selectionType)) {
-						it.remove();
+
+//			System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
+
+			// add subnodes matching selection
+			if (doSelection) {
+				for (ObjectNode oN : subNodes) {
+					if (checkObject(oN.getT01ObjectWork(), whichWorkState, selectionType)) {
+						treeNodes.add(oN);
 					}
 				}
+			} else {
+				treeNodes.addAll(subNodes);
 			}
-			
-			treeNodes.addAll(subNodes);
 
 			if (maxNum != null) {
 				if (treeNodes.size() >= maxNum) {
@@ -169,7 +177,15 @@ public class ObjectNodeDaoHibernate
 				}
 			}
 		}
-
+/*
+		long endTime = System.currentTimeMillis();
+		long neededTime = endTime - startTime;
+		System.out.println("\n----------");
+		System.out.println("getTreeObjects NUM NODES requested: " + maxNum);
+		System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
+		System.out.println("getTreeObjects NUM NODES delivered: " + treeNodes.size());
+		System.out.println("getTreeObjects EXECUTION TIME: " + neededTime + " ms");
+*/
 		return treeNodes;
 	}
 
@@ -567,27 +583,34 @@ public class ObjectNodeDaoHibernate
 
 		Query q = session.createQuery(qString);
 
-		// parse group objects and add full object tree when write-tree
+		// parse group objects and separate write single and write tree
 		List<Object[]> groupObjs = q.list();
+		List<ObjectNode> groupObjsWriteTree = new ArrayList<ObjectNode>();
 		for (Object[] groupObj : groupObjs) {
 			ObjectNode oNode = (ObjectNode) groupObj[0];
 			T01Object o = oNode.getT01ObjectWork();
 			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupObj[1]);
 
-			// first check whether object in group matches selection criteria
-			boolean includeCurrentObj = checkObject(o, whichWorkState, selectionType);
-
-			if (p == IdcPermission.WRITE_SINGLE && includeCurrentObj) {
-				retList.add(oNode);
+			// check "write single objects" and include if matching selection
+			if (p == IdcPermission.WRITE_SINGLE) {
+				if (checkObject(o, whichWorkState, selectionType)) {
+					retList.add(oNode);					
+				}
 			} else if (p == IdcPermission.WRITE_TREE) {
-				// how many nodes missing ?
-				Integer nodesMissing = null;
-				if (maxNum != null) {
-					nodesMissing = maxNum - retList.size();
-				}
-				if (nodesMissing == null || nodesMissing > 0) {
-					retList.addAll(getTreeObjects(oNode, whichWorkState, selectionType, includeCurrentObj, nodesMissing));					
-				}
+				groupObjsWriteTree.add(oNode);
+			}
+		}
+
+		// process tree branches of "write-tree objects"
+		Integer numNodesMissing = null;
+		for (ObjectNode oN : groupObjsWriteTree) {
+			if (maxNum != null) {
+				numNodesMissing = maxNum - retList.size();
+			}
+			if (numNodesMissing == null || numNodesMissing > 0) {
+				T01Object o = oN.getT01ObjectWork();
+				boolean includeCurrentObj = checkObject(o, whichWorkState, selectionType);
+				retList.addAll(getTreeObjects(oN, whichWorkState, selectionType, includeCurrentObj, numNodesMissing));					
 			}
 
 			if (maxNum != null) {
