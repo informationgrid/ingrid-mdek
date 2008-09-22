@@ -7,6 +7,7 @@ public class AddressComment implements IEntity {
 	private Long id;
 	private int version;
 	private Long addrId;
+	private Integer line;
 	private String comment;
 	private String createUuid;
 	private String createTime;
@@ -36,6 +37,14 @@ public class AddressComment implements IEntity {
 
 	public void setAddrId(Long addrId) {
 		this.addrId = addrId;
+	}
+
+	public Integer getLine() {
+		return line;
+	}
+
+	public void setLine(Integer line) {
+		this.line = line;
 	}
 
 	public String getComment() {

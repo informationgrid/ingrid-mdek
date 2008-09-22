@@ -751,6 +751,7 @@ public class DocToBeanMapper implements IMapper {
 		if (refDocs != null) {
 			// and add all new ones !
 			String now = MdekUtils.dateToTimestamp(new Date());
+			int line = 1;
 			for (IngridDocument refDoc : refDocs) {
 				ObjectComment ref = new ObjectComment();
 				ref.setObjId(oIn.getId());
@@ -761,8 +762,10 @@ public class DocToBeanMapper implements IMapper {
 				}
 				ref.setCreateTime(createTime);
 				ref.setCreateUuid(extractUserUuid(refDoc, MdekKeys.CREATE_USER));
+				ref.setLine(line);
 
 				refs.add(ref);
+				line++;
 			}
 		}
 	}
@@ -781,6 +784,7 @@ public class DocToBeanMapper implements IMapper {
 		if (refDocs != null) {
 			// and add all new ones !
 			String now = MdekUtils.dateToTimestamp(new Date());
+			int line = 1;
 			for (IngridDocument refDoc : refDocs) {
 				AddressComment ref = new AddressComment();
 				ref.setAddrId(aIn.getId());
@@ -791,8 +795,10 @@ public class DocToBeanMapper implements IMapper {
 				}
 				ref.setCreateTime(createTime);
 				ref.setCreateUuid(extractUserUuid(refDoc, MdekKeys.CREATE_USER));
+				ref.setLine(line);
 
 				refs.add(ref);
+				line++;
 			}
 		}
 	}

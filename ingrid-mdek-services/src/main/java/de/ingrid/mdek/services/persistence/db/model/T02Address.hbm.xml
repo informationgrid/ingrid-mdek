@@ -32,7 +32,7 @@
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
 
-      <set name="addressComments" table="address_comment" inverse="true"
+      <set name="addressComments" order-by="line" table="address_comment" inverse="true"
            cascade="all-delete-orphan">
          <key column="addr_id"/>
          <one-to-many class="AddressComment" not-found="ignore"/>
