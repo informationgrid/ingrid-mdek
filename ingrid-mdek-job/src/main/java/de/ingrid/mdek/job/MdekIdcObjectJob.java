@@ -307,8 +307,16 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				T01Object o = oN.getT01ObjectWork();
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
-				beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
-				beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				// map detailed assigner user if requested
+				MappingQuantity mappingQ = MappingQuantity.BASIC_ENTITY;
+				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+					mappingQ = MappingQuantity.DETAIL_ENTITY;
+				}
+				beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, mappingQ);
+				// map detailed mod user if requested
+				if (whichWorkState != WorkState.QS_UEBERWIESEN) {
+					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				}
 				beanToDocMapper.mapUserOperation(oN, objDoc);
 
 				resultList.add(objDoc);

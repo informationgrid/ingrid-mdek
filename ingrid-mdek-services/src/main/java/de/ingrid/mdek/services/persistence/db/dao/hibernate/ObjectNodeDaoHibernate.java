@@ -82,6 +82,13 @@ public class ObjectNodeDaoHibernate
 	public List<ObjectNode> getSubObjects(String parentUuid,
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren) {
+		return getSubObjects(parentUuid, whichEntityVersion, fetchSubNodesChildren, false);
+	}
+
+	private List<ObjectNode> getSubObjects(String parentUuid,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren,
+			boolean fetchMetadata) {
 		Session session = getSession();
 
 		String q = "select distinct oNode from ObjectNode oNode ";
@@ -93,7 +100,10 @@ public class ObjectNodeDaoHibernate
 			q += "left join fetch oNode.t01ObjectPublished o ";			
 		}
 		if (fetchSubNodesChildren) {
-			q += "left join fetch oNode.objectNodeChildren oChildren ";
+			q += "left join fetch oNode.objectNodeChildren ";
+		}
+		if (fetchMetadata) {
+			q += "left join fetch o.objectMetadata ";
 		}
 		q += "where oNode.fkObjUuid = ? ";
 		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
@@ -107,7 +117,8 @@ public class ObjectNodeDaoHibernate
 		return oNodes;
 	}
 
-	public List<String> getSubObjectUuids(String parentUuid) {
+	/** Get sub uuids of parent with given uuid (only next level) */
+	private List<String> getSubObjectUuids(String parentUuid) {
 		Session session = getSession();
 
 		List<String> childUuids = session.createQuery("select oNd.objUuid " +
@@ -117,76 +128,6 @@ public class ObjectNodeDaoHibernate
 				.list();
 		
 		return childUuids;
-	}
-
-	/** Fetch whole subtree (ALL levels) of given object.
-	 * @param rootNode top node of tree
-	 * @param whichWorkState only return objects in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param includeRootNode true=include the passed root node (state not checked)<br>
-	 * 		false=do not include root node (state not checked)<br>
-	 * @param maxNum maximum number of nodes to fetch, pass null if whole tree branch
-	 * @return list of all subnodes in tree
-	 */
-	private List<ObjectNode> getTreeObjects(ObjectNode rootNode,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
-			boolean includeRootNode, Integer maxNum) {
-		List<ObjectNode> treeNodes = new ArrayList<ObjectNode>();
-
-		boolean doSelection = whichWorkState != null || selectionType != null;
-
-		if (includeRootNode) {
-			treeNodes.add(rootNode);
-		}
-
-//		long startTime = System.currentTimeMillis();
-//		long numNodes = 0;
-
-		// traverse iteratively via stack
-		Stack<ObjectNode> stack = new Stack<ObjectNode>();
-		stack.push(rootNode);
-		while (!stack.isEmpty()) {
-			ObjectNode treeNode = stack.pop();
-
-			// add next level of subnodes to stack (ALL NON LEAFS, independent from state, so we won't lose tree branch ...)
-			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, true);
-			for (ObjectNode sN : subNodes) {
-				if (sN.getObjectNodeChildren().size() > 0) {
-					stack.push(sN);					
-				}
-//				numNodes++;
-			}
-
-//			System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
-
-			// add subnodes matching selection
-			if (doSelection) {
-				for (ObjectNode oN : subNodes) {
-					if (checkObject(oN.getT01ObjectWork(), whichWorkState, selectionType)) {
-						treeNodes.add(oN);
-					}
-				}
-			} else {
-				treeNodes.addAll(subNodes);
-			}
-
-			if (maxNum != null) {
-				if (treeNodes.size() >= maxNum) {
-					treeNodes = treeNodes.subList(0, maxNum);
-					break;
-				}
-			}
-		}
-/*
-		long endTime = System.currentTimeMillis();
-		long neededTime = endTime - startTime;
-		System.out.println("\n----------");
-		System.out.println("getTreeObjects NUM NODES requested: " + maxNum);
-		System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
-		System.out.println("getTreeObjects NUM NODES delivered: " + treeNodes.size());
-		System.out.println("getTreeObjects EXECUTION TIME: " + neededTime + " ms");
-*/
-		return treeNodes;
 	}
 
 	public int countSubObjects(String parentUuid) {
@@ -553,11 +494,14 @@ public class ObjectNodeDaoHibernate
 
 		Session session = getSession();
 
-		// select all objects in group (write permission) ! NOTICE: this doesn't include sub objects of "write-tree" objects !
+		// select all objects in group (write permission) !
+		// NOTICE: this doesn't include sub objects of "write-tree" objects !
+		// Always fetch object and metadata, e.g. needed when mapping user operation (deleted) 
 		String qString = "select distinct oNode, p2.action as perm " +
 		"from " +
-			"ObjectNode oNode, " +
-			"T01Object o, " +
+			"ObjectNode oNode " +
+			"left join fetch oNode.t01ObjectWork o " +
+			"left join fetch o.objectMetadata, " +
 			"IdcUser usr, " +
 			"IdcGroup grp, " +
 			"IdcUserPermission pUsr, " +
@@ -576,20 +520,18 @@ public class ObjectNodeDaoHibernate
 			" and pObj.permissionId = p2.id " +
 			" and (p2.action = '" + IdcPermission.WRITE_SINGLE.getDbValue() + "' or " +
 			"  p2.action = '" + IdcPermission.WRITE_TREE.getDbValue() + "') " +
-			// object-> work state
-			" and pObj.uuid = oNode.objUuid " +
-			// working version
-			" and oNode.objId = o.id";
+			// object
+			" and pObj.uuid = oNode.objUuid";
 
 		Query q = session.createQuery(qString);
 
 		// parse group objects and separate write single and write tree
-		List<Object[]> groupObjs = q.list();
+		List<Object[]> groupObjPerms = q.list();
 		List<ObjectNode> groupObjsWriteTree = new ArrayList<ObjectNode>();
-		for (Object[] groupObj : groupObjs) {
-			ObjectNode oNode = (ObjectNode) groupObj[0];
+		for (Object[] groupObjPerm : groupObjPerms) {
+			ObjectNode oNode = (ObjectNode) groupObjPerm[0];
 			T01Object o = oNode.getT01ObjectWork();
-			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupObj[1]);
+			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupObjPerm[1]);
 
 			// check "write single objects" and include if matching selection
 			if (p == IdcPermission.WRITE_SINGLE) {
@@ -672,8 +614,10 @@ public class ObjectNodeDaoHibernate
 
 		Session session = getSession();
 
+		// always fetch object and metadata, e.g. needed when mapping user operation (mark deleted ?) 
 		String qString = "from ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork o";
+			"left join fetch oNode.t01ObjectWork o " +
+			"left join fetch o.objectMetadata oMeta ";
 		
 		if (whichWorkState != null || selectionType != null) {
 			qString += " where ";
@@ -688,7 +632,7 @@ public class ObjectNodeDaoHibernate
 					qString += " and ";
 				}
 				if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
-					qString += "o.objectMetadata.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+					qString += "oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
 				} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
 					// TODO: Add when implementing catalog management sns update !
 					return retList;
@@ -705,5 +649,75 @@ public class ObjectNodeDaoHibernate
 		}
 
 		return q.list();
+	}
+
+	/** Fetch whole subtree (ALL levels) of given object.
+	 * @param rootNode top node of tree
+	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
+	 * @param includeRootNode true=include the passed root node (state not checked)<br>
+	 * 		false=do not include root node (state not checked)<br>
+	 * @param maxNum maximum number of nodes to fetch, pass null if whole tree branch
+	 * @return list of all subnodes in tree
+	 */
+	private List<ObjectNode> getTreeObjects(ObjectNode rootNode,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			boolean includeRootNode, Integer maxNum) {
+		List<ObjectNode> treeNodes = new ArrayList<ObjectNode>();
+
+		boolean doSelection = whichWorkState != null || selectionType != null;
+
+		if (includeRootNode) {
+			treeNodes.add(rootNode);
+		}
+
+//		long startTime = System.currentTimeMillis();
+//		long numNodes = 0;
+
+		// traverse iteratively via stack
+		Stack<ObjectNode> stack = new Stack<ObjectNode>();
+		stack.push(rootNode);
+		while (!stack.isEmpty()) {
+			ObjectNode treeNode = stack.pop();
+
+			// add next level of subnodes to stack (ALL NON LEAFS, independent from state, so we won't lose tree branch ...)
+			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, true, true);
+			for (ObjectNode sN : subNodes) {
+				if (sN.getObjectNodeChildren().size() > 0) {
+					stack.push(sN);					
+				}
+//				numNodes++;
+			}
+
+//			System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
+
+			// add subnodes matching selection
+			if (doSelection) {
+				for (ObjectNode oN : subNodes) {
+					if (checkObject(oN.getT01ObjectWork(), whichWorkState, selectionType)) {
+						treeNodes.add(oN);
+					}
+				}
+			} else {
+				treeNodes.addAll(subNodes);
+			}
+
+			if (maxNum != null) {
+				if (treeNodes.size() >= maxNum) {
+					treeNodes = treeNodes.subList(0, maxNum);
+					break;
+				}
+			}
+		}
+/*
+		long endTime = System.currentTimeMillis();
+		long neededTime = endTime - startTime;
+		System.out.println("\n----------");
+		System.out.println("getTreeObjects NUM NODES requested: " + maxNum);
+		System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
+		System.out.println("getTreeObjects NUM NODES delivered: " + treeNodes.size());
+		System.out.println("getTreeObjects EXECUTION TIME: " + neededTime + " ms");
+*/
+		return treeNodes;
 	}
 }
