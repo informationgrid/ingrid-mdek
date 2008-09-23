@@ -634,8 +634,6 @@ public class ObjectNodeDaoHibernate
 	 * @return number of objects found
 	 */
 	private long getNumObjects(WorkState whichWorkState, IdcEntitySelectionType selectionType) {
-		List<ObjectNode> retList = new ArrayList<ObjectNode>(); 
-
 		Session session = getSession();
 
 		// always fetch object and metadata, e.g. needed when mapping user operation (mark deleted ?) 

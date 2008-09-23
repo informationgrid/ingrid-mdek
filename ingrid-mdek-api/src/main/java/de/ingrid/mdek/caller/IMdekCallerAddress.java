@@ -1,6 +1,8 @@
 package de.ingrid.mdek.caller;
 
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
@@ -237,4 +239,16 @@ public interface IMdekCallerAddress {
 	IngridDocument searchAddresses(String plugId, IngridDocument searchParams,
 			int startHit, int numHits,
 			String userId);
+
+	/**
+	 * Get ALL Addresses where given user is QA and addresses WORKING VERSION is in given work state.
+	 * @param plugId which mdek server (iplug)
+	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
+	 * @param maxNum maximum number of addresses to query, pass null if all addresses !
+	 * @return response containing result: map representation of addresses (only partial data)
+	 */
+	IngridDocument getQAAddresses(String plugId,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			Integer maxNum, String userId);
 }

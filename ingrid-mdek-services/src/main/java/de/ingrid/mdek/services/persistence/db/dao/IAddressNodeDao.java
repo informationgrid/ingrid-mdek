@@ -3,11 +3,14 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.HashMap;
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -165,4 +168,18 @@ public interface IAddressNodeDao
 
 	/** Get ALL Addresses (also published ones) where given user is responsible user. */
 	List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid);
+
+	/**
+	 * Get ALL Addresses where given user is QA and WORKING VERSION is in given work state.
+	 * We return nodes, so we can evaluate whether published version exists ! 
+	 * @param userUuid QA user
+	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  
+	 * @param permHandler permission handler needed for checking various permissions
+	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
+	 * @param maxNum maximum number of addresses to query, pass null if all addresses !
+	 * @return list of addresses
+	 */
+	List<AddressNode> getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum);
 }

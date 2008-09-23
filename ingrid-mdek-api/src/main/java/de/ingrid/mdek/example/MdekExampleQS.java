@@ -362,7 +362,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n--- Add Permissions to GROUP_QA -----");
 		supertool.addUserPermissionToGroupDoc(grpQADoc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
 		supertool.addObjPermissionToGroupDoc(grpQADoc, topObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
-		supertool.addAddrPermissionToGroupDoc(grpQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addAddrPermissionToGroupDoc(grpQADoc, topAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		grpQADoc = supertool.storeGroup(grpQADoc, true, false);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_QA' -----");
@@ -384,7 +384,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n--- Add Permissions to GROUP_NO_QA -----");
 		supertool.addObjPermissionToGroupDoc(grpNoQADoc, topObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
-		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, personAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, topAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		grpNoQADoc = supertool.storeGroup(grpNoQADoc, true, false);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_NO_QA' -----");
@@ -624,8 +624,49 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- store again -> still status Q ! -----");
 		doc = supertool.storeAddress(doc, true);
 
+		System.out.println("\n\n=============================================");
+		System.out.println("----- CHECK PERMISSIONS ON Q-ADDRESS -----");
+		
+		supertool.setFullOutput(true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as catalog admin -> all permissions -----");
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddressUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddressUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as QA user -> all permissions -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddressUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddressUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as NON QA user with write tree -> only subtree permission -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddressUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> only subtree permission -----");
+		supertool.getAddressPermissions(personAddressUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(personAddressUuid, true);
+
+		supertool.setFullOutput(false);
 
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("----- ASSIGN NEW ADDRESS TO QA -----");
@@ -652,6 +693,66 @@ class MdekExampleQSThread extends Thread {
 		newUuid = doc.getString(MdekKeys.UUID);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
+
+
+		System.out.println("\n\n=============================================");
+		System.out.println("----- get all addresses where User is QA -> fetch different address states -----");
+
+		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" -----");
+		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
+		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
+		supertool.storeAddress(doc, true);
+		
+		// IF CATADMIN -> ALL OBJECTS !!!
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN IS QA FOR ALL ADDRESSES -> getQAAddresses delivers ALL ENTITIES -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+		
+		supertool.getQAAddresses(null, null, maxNum);
+		supertool.getQAAddresses(null, null, 3);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, maxNum);
+		supertool.getQAAddresses(null, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- USER WITH QA -> getQAAddresses delivers ALL ENTITIES OF GROUP -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getQAAddresses(null, null, maxNum);
+		supertool.getQAAddresses(null, null, 2);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, maxNum);
+		supertool.getQAAddresses(null, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- USER NO_QA -> getQAAddresses delivers NO ENTITIES -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		supertool.getQAAddresses(null, null, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, maxNum);
+		supertool.getQAAddresses(null, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.EXPIRY_STATE_EXPIRED, maxNum);
+
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteAddressWorkingCopy(personAddressUuid, true);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(newUuid, true);

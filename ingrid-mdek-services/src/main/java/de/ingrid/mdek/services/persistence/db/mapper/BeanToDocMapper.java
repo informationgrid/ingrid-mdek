@@ -122,6 +122,30 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	public IngridDocument mapUserOperation(AddressNode aN, IngridDocument addressDoc) {
+		if (aN == null) {
+			return addressDoc;
+		}
+
+		T02Address a = aN.getT02AddressWork();
+		
+		// first check bearbeitung, will be overwritten if special state (NEW, DELETED)
+		if (!WorkState.VEROEFFENTLICHT.getDbValue().equals(a.getWorkState())) {
+			addressDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.EDITED);
+		}
+
+		if (aN.getAddrIdPublished() == null) {
+			addressDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.NEW);
+		}
+
+		// highest priority
+		if (MdekUtils.YES.equals(a.getAddressMetadata().getMarkDeleted())) {
+			addressDoc.put(MdekKeys.RESULTINFO_USER_OPERATION, UserOperation.DELETED);
+		}
+
+		return addressDoc;
+	}
+
 	/**
 	 * Transfer structural info ("hasChild") to passed doc.
 	 * @return doc containing additional data.
@@ -349,7 +373,7 @@ public class BeanToDocMapper implements IMapper {
 			// map associations
 			mapSearchtermAdrs(a.getSearchtermAdrs(), addressDoc, howMuch);
 			mapAddressComments(a.getAddressComments(), addressDoc);
-			mapAddressMetadata(a.getAddressMetadata(), addressDoc);
+			mapAddressMetadata(a.getAddressMetadata(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(a.getModUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
@@ -480,7 +504,8 @@ public class BeanToDocMapper implements IMapper {
 		return addressDoc;
 	}
 
-	private IngridDocument mapAddressMetadata(AddressMetadata ref, IngridDocument refDoc) {
+	public IngridDocument mapAddressMetadata(AddressMetadata ref, IngridDocument refDoc,
+			MappingQuantity howMuch) {
 		if (ref == null) {
 			return refDoc;
 		}
@@ -492,6 +517,12 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());
 		refDoc.put(MdekKeys.REASSIGNER_UUID, ref.getReassignerUuid());
 		refDoc.put(MdekKeys.REASSIGN_TIME, ref.getReassignTime());
+
+		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
+			IngridDocument userDoc = new IngridDocument();
+			mapUserAddress(ref.getAssignerUuid(), userDoc, howMuch, false);
+			refDoc.put(MdekKeys.ASSIGNER_USER, userDoc);
+		}
 
 		return refDoc;
 	}

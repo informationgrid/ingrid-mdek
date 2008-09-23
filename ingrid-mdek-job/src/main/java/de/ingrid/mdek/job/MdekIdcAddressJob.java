@@ -13,8 +13,10 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.log.ILogService;
@@ -315,6 +317,52 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.commitTransaction();
 			return aDocIn;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getQAAddresses(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		try {
+			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
+			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+
+			daoAddressNode.beginTransaction();
+
+			boolean isCatAdmin = permissionHandler.isCatalogAdmin(userUuid);
+			List<AddressNode> aNs =
+				daoAddressNode.getQAAddresses(userUuid, isCatAdmin, permissionHandler,
+						whichWorkState, selectionType, numHits);
+
+			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNs.size());
+			for (AddressNode aN : aNs) {
+				T02Address a = aN.getT02AddressWork();
+				IngridDocument addrDoc = new IngridDocument();
+				beanToDocMapper.mapT02Address(a, addrDoc, MappingQuantity.BASIC_ENTITY);
+				// map detailed assigner user if requested
+				MappingQuantity mappingQ = MappingQuantity.BASIC_ENTITY;
+				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+					mappingQ = MappingQuantity.DETAIL_ENTITY;
+				}
+				beanToDocMapper.mapAddressMetadata(a.getAddressMetadata(), addrDoc, mappingQ);
+				// map detailed mod user if requested
+				if (whichWorkState != WorkState.QS_UEBERWIESEN) {
+					beanToDocMapper.mapModUser(a.getModUuid(), addrDoc, MappingQuantity.DETAIL_ENTITY);
+				}
+				beanToDocMapper.mapUserOperation(aN, addrDoc);
+
+				resultList.add(addrDoc);
+			}
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.ADR_ENTITIES, resultList);
+
+			daoAddressNode.commitTransaction();
+			return result;
 
 		} catch (RuntimeException e) {
 			daoAddressNode.rollbackTransaction();
