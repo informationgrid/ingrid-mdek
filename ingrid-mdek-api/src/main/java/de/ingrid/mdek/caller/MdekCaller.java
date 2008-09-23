@@ -148,7 +148,7 @@ public class MdekCaller implements IMdekCaller {
 */
 
 	public List setUpJobMethod(String methodName, IngridDocument methodParams) {
-		debugDocument("PARAMETERS:", methodParams);
+		debugDocument("JobMethod: " + methodName + ", PARAMETERS:", methodParams);
 
 		ArrayList<Pair> methodList = new ArrayList<Pair>();
 		methodList.add(new Pair(methodName, methodParams));
@@ -164,7 +164,7 @@ public class MdekCaller implements IMdekCaller {
 		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
-		debugDocument("RESPONSE:", response);
+		debugDocument("Job: " + jobId + ", RESPONSE:", response);
 		
 		return response;
 	}
