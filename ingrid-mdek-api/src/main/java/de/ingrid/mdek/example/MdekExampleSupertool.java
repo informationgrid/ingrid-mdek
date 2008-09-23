@@ -2245,6 +2245,8 @@ public class MdekExampleSupertool {
 			for (IngridDocument doc : docList) {
 				System.out.println(indent + "  " + doc);								
 			}			
+		} else {
+			System.out.println(indent + "No Permissions");			
 		}
 	}
 	

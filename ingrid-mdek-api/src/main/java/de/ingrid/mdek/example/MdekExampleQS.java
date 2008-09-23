@@ -154,17 +154,20 @@ class MdekExampleQSThread extends Thread {
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
 		// all further top nodes (5 top nodes at all)
 		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
-		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
-		String topObjUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
-		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
+//		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
+//		String topObjUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
+//		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
 
 		// ADDRESSES
 		// TOP ADDRESS
-		String topAddressUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
+		String topAddrUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
 		// PARENT ADDRESS (sub address of topUuid)
-		String parentAddressUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
+		String parentAddrUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
 		// PERSON ADDRESS (sub address of parentUuid)
-		String personAddressUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+		String personAddrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+		// further non free top addresses (110 top nodes at all)
+		String topAddrUuid2 = "386644BF-B449-11D2-9A86-080000507261";
+//		String topAddrUuid3 = "4E9DD4F5-BC14-11D2-A63A-444553540000";
 
 
 		System.out.println("\n\n---------------------------------------------");
@@ -362,7 +365,9 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n--- Add Permissions to GROUP_QA -----");
 		supertool.addUserPermissionToGroupDoc(grpQADoc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
 		supertool.addObjPermissionToGroupDoc(grpQADoc, topObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
-		supertool.addAddrPermissionToGroupDoc(grpQADoc, topAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addObjPermissionToGroupDoc(grpQADoc, topObjUuid2, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.addAddrPermissionToGroupDoc(grpQADoc, topAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addAddrPermissionToGroupDoc(grpQADoc, topAddrUuid2, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		grpQADoc = supertool.storeGroup(grpQADoc, true, false);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_QA' -----");
@@ -384,7 +389,9 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n--- Add Permissions to GROUP_NO_QA -----");
 		supertool.addObjPermissionToGroupDoc(grpNoQADoc, topObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
-		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, topAddressUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addObjPermissionToGroupDoc(grpNoQADoc, topObjUuid2, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, topAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		supertool.addAddrPermissionToGroupDoc(grpNoQADoc, topAddrUuid2, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		grpNoQADoc = supertool.storeGroup(grpNoQADoc, true, false);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_NO_QA' -----");
@@ -612,7 +619,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- ASSIGN EXISTING ADDRESS TO QA -----");
 
 		System.out.println("\n----- address details -----");
-		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
@@ -633,9 +640,9 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- permissions as catalog admin -> all permissions -----");
 
 		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
-		supertool.getAddressPermissions(personAddressUuid, false);
+		supertool.getAddressPermissions(personAddrUuid, false);
 		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
-		supertool.getAddressPermissions(personAddressUuid, true);
+		supertool.getAddressPermissions(personAddrUuid, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- permissions as QA user -> all permissions -----");
@@ -644,9 +651,9 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpQAUuid);
 
 		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
-		supertool.getAddressPermissions(personAddressUuid, false);
+		supertool.getAddressPermissions(personAddrUuid, false);
 		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
-		supertool.getAddressPermissions(personAddressUuid, true);
+		supertool.getAddressPermissions(personAddrUuid, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- permissions as NON QA user with write tree -> only subtree permission -----");
@@ -655,25 +662,25 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpNoQAUuid);
 
 		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
-		supertool.getAddressPermissions(personAddressUuid, false);
+		supertool.getAddressPermissions(personAddrUuid, false);
 		System.out.println("\n----- permissions WITH workflow -> only subtree permission -----");
-		supertool.getAddressPermissions(personAddressUuid, true);
+		supertool.getAddressPermissions(personAddrUuid, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
-		supertool.deleteAddressWorkingCopy(personAddressUuid, true);
+		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
 
 		supertool.setFullOutput(false);
 
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("----- ASSIGN NEW ADDRESS TO QA -----");
 
-		System.out.println("\n----- load initial data from parent " + parentAddressUuid + " -----");
+		System.out.println("\n----- load initial data from parent " + parentAddrUuid + " -----");
 		newDoc = new IngridDocument();
-		newDoc.put(MdekKeys.PARENT_UUID, parentAddressUuid);
+		newDoc.put(MdekKeys.PARENT_UUID, parentAddrUuid);
 		newDoc = supertool.getInitialAddress(newDoc);
 
 		System.out.println("\n----- extend new address and assign to QA -> working copy ! -----");
@@ -699,7 +706,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- get all addresses where User is QA -> fetch different address states -----");
 
 		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" -----");
-		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeAddress(doc, true);
 		
@@ -752,7 +759,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("\n----- discard changes -> back to published version -----");
-		supertool.deleteAddressWorkingCopy(personAddressUuid, true);
+		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(newUuid, true);
