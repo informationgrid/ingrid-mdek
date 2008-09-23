@@ -1,4 +1,4 @@
-package de.ingrid.mdek.job.tools;
+package de.ingrid.mdek.services.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -804,6 +804,11 @@ public class MdekPermissionHandler {
 	/** Check whether user has given user permission and return "yes"/"no" ! */
 	public boolean hasUserPermission(Permission userPermission, String userAddrUuid) {
 		return permService.hasUserPermission(userAddrUuid, userPermission);			
+	}
+
+	/** Check "QA" Permission of given user and return "yes"/"no" ! */
+	public boolean hasQAPermission(String userAddrUuid) {
+		return hasUserPermission(PermissionFactory.getPermissionTemplateQA(), userAddrUuid);
 	}
 
 	/** Check "CreateRoot" Permission of given user and return "yes"/"no" ! */

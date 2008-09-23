@@ -17,8 +17,6 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
-import de.ingrid.mdek.job.tools.MdekPermissionHandler;
-import de.ingrid.mdek.job.tools.MdekWorkflowHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -38,6 +36,8 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**

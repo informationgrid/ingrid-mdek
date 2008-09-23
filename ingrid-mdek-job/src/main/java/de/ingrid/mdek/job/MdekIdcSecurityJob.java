@@ -15,7 +15,6 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.job.tools.MdekIdcUserHandler;
-import de.ingrid.mdek.job.tools.MdekPermissionHandler;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -38,6 +37,7 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**

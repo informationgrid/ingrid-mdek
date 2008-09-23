@@ -24,6 +24,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -484,13 +485,50 @@ public class ObjectNodeDaoHibernate
 		return retList;
 	}
 
-	public List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin,
+	public List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		List<ObjectNode> retList = new ArrayList<ObjectNode>();
-
 		if (isCatAdmin) {
 			return getObjects(whichWorkState, selectionType, maxNum);
 		}
+		
+		// check whether QA user
+		if (!permHandler.hasQAPermission(userUuid)) {
+			return new ArrayList<ObjectNode>(0);
+		}
+
+		// determine best way to find QA objects
+		// "traverse tree branches of group" <-> "select objects matching criteria and test on write permission"
+		boolean getQAObjectsViaGroup = true;
+		boolean doSelection = whichWorkState != null || selectionType != null;
+		if (doSelection) {
+			long numObjsMatchingSelection = getNumObjects(whichWorkState, selectionType);
+			if (numObjsMatchingSelection <= maxNum) {
+				getQAObjectsViaGroup = false;
+				
+				maxNum = new Long(numObjsMatchingSelection).intValue();
+			}
+		}
+
+		if (getQAObjectsViaGroup) {
+			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, maxNum);			
+		} else {
+			return getQAObjectsViaPreSelection(userUuid, permHandler, 
+					whichWorkState, selectionType, maxNum);
+		}
+	}
+
+	/**
+	 * Traverse all objects in QA-group of user (includes all tree branches) and
+	 * return objects matching selection criteria.
+	 * @param userUuid
+	 * @param whichWorkState object is in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
+	 * @param maxNum maximum number of objects to query, pass null if all objects !
+	 * @return list of objects
+	 */
+	private List<ObjectNode> getQAObjectsViaGroup(String userUuid,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
+		List<ObjectNode> retList = new ArrayList<ObjectNode>();
 
 		Session session = getSession();
 
@@ -567,38 +605,71 @@ public class ObjectNodeDaoHibernate
 	}
 
 	/**
-	 * Check whether passed object matches passed "selection criteria".
-	 * @param o object to test
+	 * First select all objects matching criteria. Then return objects where user has write permission.
+	 * @param userUuid
+	 * @param permHandler permission handler needed for checking write permissions
 	 * @param whichWorkState object is in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @return true=object matches, include it<br>
-	 * 		false=object doesn't match, exclude it
+	 * @param maxNum maximum number of objects to preselect, pass null if all objects !
+	 * @return list of objects
 	 */
-	private boolean checkObject(T01Object o, WorkState whichWorkState, IdcEntitySelectionType selectionType) {
-		// first check work state
-		if (whichWorkState != null && !whichWorkState.getDbValue().equals(o.getWorkState())) {
-			return false;
-		}
+	private List<ObjectNode> getQAObjectsViaPreSelection(String userUuid, MdekPermissionHandler permHandler,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
+		List<ObjectNode> retList = new ArrayList<ObjectNode>();
 
-		// then additional selection criteria
-		if (selectionType != null) {
-			if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
-				if (!MdekUtils.ExpiryState.EXPIRED.getDbValue().equals(o.getObjectMetadata().getExpiryState())) {
-					return false;
-				}
-
-			} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
-				// TODO: Add when implementing catalog management sns update !
-				return false;
-
-			} else {
-				// QASelectionType not handled ? return false, object doesn't match is default !
-				return false;
+		List<ObjectNode> oNs = getObjects(whichWorkState, selectionType, maxNum);
+		for (ObjectNode oN : oNs) {
+			if (permHandler.hasWritePermissionForObject(oN.getObjUuid(), userUuid, false)) {
+				retList.add(oN);
 			}
 		}
 
-		// object matches selection criteria
-		return true;
+		return retList;
+	}
+
+	/**
+	 * Find number of objects matching the selection criteria !
+	 * @param whichWorkState only return objects in this work state, pass null if workstate should be ignored
+	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
+	 * @return number of objects found
+	 */
+	private long getNumObjects(WorkState whichWorkState, IdcEntitySelectionType selectionType) {
+		List<ObjectNode> retList = new ArrayList<ObjectNode>(); 
+
+		Session session = getSession();
+
+		// always fetch object and metadata, e.g. needed when mapping user operation (mark deleted ?) 
+		String qString = "select count(oNode) " +
+			"from ObjectNode oNode ";
+		
+		if (whichWorkState != null || selectionType != null) {
+			qString += " where ";
+
+			boolean addAnd = false;
+			if (whichWorkState != null) {
+				qString += "oNode.t01ObjectWork.workState = '" + whichWorkState.getDbValue() + "'";
+				addAnd = true;
+			}
+			if (selectionType != null) {
+				if (addAnd) {
+					qString += " and ";
+				}
+				if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+					qString += "oNode.t01ObjectWork.objectMetadata.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+				} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+					// TODO: Add when implementing catalog management sns update !
+					return 0;
+				} else {
+					// QASelectionType not handled ? return nothing !
+					return 0;
+				}
+			}
+		}
+
+		Long totalNum = (Long) session.createQuery(qString)
+			.uniqueResult();
+
+		return totalNum;
 	}
 
 	/**
@@ -649,6 +720,41 @@ public class ObjectNodeDaoHibernate
 		}
 
 		return q.list();
+	}
+
+	/**
+	 * Check whether passed object matches passed "selection criteria".
+	 * @param o object to test
+	 * @param whichWorkState object is in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
+	 * @return true=object matches, include it<br>
+	 * 		false=object doesn't match, exclude it
+	 */
+	private boolean checkObject(T01Object o, WorkState whichWorkState, IdcEntitySelectionType selectionType) {
+		// first check work state
+		if (whichWorkState != null && !whichWorkState.getDbValue().equals(o.getWorkState())) {
+			return false;
+		}
+
+		// then additional selection criteria
+		if (selectionType != null) {
+			if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+				if (!MdekUtils.ExpiryState.EXPIRED.getDbValue().equals(o.getObjectMetadata().getExpiryState())) {
+					return false;
+				}
+
+			} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+				// TODO: Add when implementing catalog management sns update !
+				return false;
+
+			} else {
+				// QASelectionType not handled ? return false, object doesn't match is default !
+				return false;
+			}
+		}
+
+		// object matches selection criteria
+		return true;
 	}
 
 	/** Fetch whole subtree (ALL levels) of given object.

@@ -19,8 +19,6 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
-import de.ingrid.mdek.job.tools.MdekPermissionHandler;
-import de.ingrid.mdek.job.tools.MdekWorkflowHandler;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -41,6 +39,8 @@ import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -300,7 +300,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			boolean isCatAdmin = permissionHandler.isCatalogAdmin(userUuid);
 			List<ObjectNode> oNs =
-				daoObjectNode.getQAObjects(userUuid, isCatAdmin, whichWorkState, selectionType, numHits);
+				daoObjectNode.getQAObjects(userUuid, isCatAdmin, permissionHandler,
+						whichWorkState, selectionType, numHits);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {

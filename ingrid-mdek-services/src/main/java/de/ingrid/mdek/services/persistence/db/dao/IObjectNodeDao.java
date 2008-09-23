@@ -2,12 +2,13 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -130,11 +131,12 @@ public interface IObjectNodeDao
 	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param userUuid QA user
 	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  
+	 * @param permHandler permission handler needed for checking various permissions
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects
 	 * @param maxNum maximum number of objects to query, pass null if all objects !
 	 * @return list of objects
 	 */
-	List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin,
+	List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum);
 }
