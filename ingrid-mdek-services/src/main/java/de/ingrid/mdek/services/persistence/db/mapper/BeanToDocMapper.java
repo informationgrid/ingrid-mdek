@@ -439,7 +439,7 @@ public class BeanToDocMapper implements IMapper {
 		return inDoc;
 	}
 
-	private IngridDocument mapObjectComments(Set<ObjectComment> refs, IngridDocument objectDoc) {
+	public IngridDocument mapObjectComments(Set<ObjectComment> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
 		}
@@ -482,7 +482,7 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	private IngridDocument mapAddressComments(Set<AddressComment> refs, IngridDocument addressDoc) {
+	public IngridDocument mapAddressComments(Set<AddressComment> refs, IngridDocument addressDoc) {
 		if (refs == null) {
 			return addressDoc;
 		}

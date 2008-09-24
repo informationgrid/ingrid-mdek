@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2858,5 +2859,18 @@ public class MdekExampleSupertool {
 		newPerm.put(MdekKeys.UUID, addrUuid);
 		newPerm.put(MdekKeysSecurity.IDC_PERMISSION, idcPerm.getDbValue());
 		perms.add(newPerm);
+	}
+
+	public void addComment(IngridDocument entityDoc, String comment) {
+		List<IngridDocument> docList = (List<IngridDocument>) entityDoc.get(MdekKeys.COMMENT_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument tmpDoc = new IngridDocument();
+		tmpDoc.put(MdekKeys.COMMENT, comment);
+		tmpDoc.put(MdekKeys.CREATE_TIME, MdekUtils.dateToTimestamp(new Date()));
+		IngridDocument createUserDoc = new IngridDocument();
+		createUserDoc.put(MdekKeys.UUID, getCallingUserUuid());
+		tmpDoc.put(MdekKeys.CREATE_USER, createUserDoc);
+		docList.add(tmpDoc);
+		entityDoc.put(MdekKeys.COMMENT_LIST, docList);
 	}
 }

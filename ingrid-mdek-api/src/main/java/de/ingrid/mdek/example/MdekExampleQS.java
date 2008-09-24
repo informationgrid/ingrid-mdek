@@ -450,14 +450,15 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
-		System.out.println("\n----- store again -> still status Q ! -----");
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- add comment and store again -> still status Q with comment in working copy ! -----");
+		supertool.addComment(doc, "TEST COMMENT QA");
 		doc = supertool.storeObject(doc, true);
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- CHECK PERMISSIONS ON Q-OBJECT -----");
 		
-		supertool.setFullOutput(true);
-
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- permissions as catalog admin -> all permissions -----");
 
@@ -545,16 +546,29 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- permissions WITH workflow -> all permissions !!! -----");
 		supertool.getObjectPermissions(objUuid, true);
 
-		supertool.setFullOutput(false);
+		System.out.println("\n----- add comment and store again -> still status R with comment in working copy ! -----");
+		supertool.addComment(doc, "TEST COMMENT AUTHOR");
+		doc = supertool.storeObject(doc, true);
+
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- discard changes -> back to published version -----");
+		System.out.println("----- discard changes -> back to published version  -> TOOK OVER COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
-		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		
+		System.out.println("\n----- store WITHOUT comments again -> working version WITHOUT comments -----");
+		doc.put(MdekKeys.COMMENT_LIST, null);
+		doc = supertool.storeObject(doc, true);
+
+		System.out.println("----- discard changes -> back to published version  -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+
+		supertool.setFullOutput(false);
 
 
 		System.out.println("\n\n=============================================");
@@ -687,14 +701,15 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
-		System.out.println("\n----- store again -> still status Q ! -----");
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- add comment and store again -> still status Q with comment in working copy ! -----");
+		supertool.addComment(doc, "TEST COMMENT QA");
 		doc = supertool.storeAddress(doc, true);
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- CHECK PERMISSIONS ON Q-ADDRESS -----");
 		
-		supertool.setFullOutput(true);
-
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- permissions as catalog admin -> all permissions -----");
 
@@ -782,18 +797,31 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- permissions WITH workflow -> all permissions !!! -----");
 		supertool.getAddressPermissions(personAddrUuid, true);
 
-		supertool.setFullOutput(false);
-		
+		System.out.println("\n----- add comment and store again -> still status R with comment in working copy ! -----");
+		supertool.addComment(doc, "TEST COMMENT AUTHOR");
+		doc = supertool.storeAddress(doc, true);
+
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
-		System.out.println("\n----- discard changes -> back to published version -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- discard changes -> back to published version  -> TOOK OVER COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
-		supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
 
+		System.out.println("\n----- store WITHOUT comments again -> working version WITHOUT comments -----");
+		doc.put(MdekKeys.COMMENT_LIST, null);
+		doc = supertool.storeAddress(doc, true);
 
-		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- discard changes -> back to published version -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
+		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
+		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+
+		supertool.setFullOutput(false);
+
+		
+		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN NEW ADDRESS TO QA -----");
 
 		System.out.println("\n----- load initial data from parent " + parentAddrUuid + " -----");

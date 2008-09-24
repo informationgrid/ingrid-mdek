@@ -1017,29 +1017,31 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// if we have NO published version -> delete complete node !
 			IngridDocument result = new IngridDocument();
 			if (idPublished == null) {
-				performFullDelete = true;
+				result = deleteAddress(uuid, forceDeleteReferences, userId);
+
 			} else {
 				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);			
 
 				// perform delete of working copy only if really different version
 				if (!idPublished.equals(idWorkingCopy)) {
-					// remove already fetched working copy from node 
+					// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
 					T02Address aWorkingCopy = aNode.getT02AddressWork();
-					// and delete it
+					IngridDocument commentsDoc = beanToDocMapper.mapAddressComments(aWorkingCopy.getAddressComments(), new IngridDocument());
 					daoT02Address.makeTransient(aWorkingCopy);
-					
+
+					// take over comments to published version
+					T02Address aPublished = aNode.getT02AddressPublished();
+					docToBeanMapper.updateAddressComments(commentsDoc, aPublished);
+					daoT02Address.makePersistent(aPublished);
+
 					// and set published one as working copy
 					aNode.setAddrId(idPublished);
-					aNode.setT02AddressWork(aNode.getT02AddressPublished());
+					aNode.setT02AddressWork(aPublished);
 					daoAddressNode.makePersistent(aNode);
 					
 					// UPDATE FULL INDEX !!!
 					fullIndexHandler.updateAddressIndex(aNode);
 				}
-			}
-
-			if (performFullDelete) {
-				result = deleteAddress(uuid, forceDeleteReferences, userId);
 			}
 
 			daoAddressNode.commitTransaction();

@@ -809,32 +809,31 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// if we have NO published version -> delete complete node !
 			IngridDocument result = new IngridDocument();
 			if (idPublished == null) {
-				performFullDelete = true;
+				result = deleteObject(uuid, forceDeleteReferences, userId);
+
 			} else {
 				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);			
 
 				// perform delete of working copy only if really different version
 				if (!idPublished.equals(idWorkingCopy)) {
-					// remove already fetched working copy from node 
+					// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
 					T01Object oWorkingCopy = oNode.getT01ObjectWork();
-//					oNode.setObjId(null);
-//					oNode.setT01ObjectWork(null);
-					// and delete it
+					IngridDocument commentsDoc = beanToDocMapper.mapObjectComments(oWorkingCopy.getObjectComments(), new IngridDocument());
 					daoT01Object.makeTransient(oWorkingCopy);
-					
-					// and set published one as working copy
+
+					// take over comments to published version
+					T01Object oPublished = oNode.getT01ObjectPublished();
+					docToBeanMapper.updateObjectComments(commentsDoc, oPublished);
+					daoT01Object.makePersistent(oPublished);
+
+					//  and set published one as working copy
 					oNode.setObjId(idPublished);
-					oNode.setT01ObjectWork(oNode.getT01ObjectPublished());
+					oNode.setT01ObjectWork(oPublished);
 					daoObjectNode.makePersistent(oNode);
 					
 					// UPDATE FULL INDEX !!!
 					fullIndexHandler.updateObjectIndex(oNode);
-					
 				}
-			}
-
-			if (performFullDelete) {
-				result = deleteObject(uuid, forceDeleteReferences, userId);
 			}
 
 			daoObjectNode.commitTransaction();

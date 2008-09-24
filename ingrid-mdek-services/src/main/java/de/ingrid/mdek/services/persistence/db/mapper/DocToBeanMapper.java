@@ -737,7 +737,7 @@ public class DocToBeanMapper implements IMapper {
 		return spRefValue;
 	}
 
-	private void updateObjectComments(IngridDocument oDocIn, T01Object oIn) {
+	public void updateObjectComments(IngridDocument oDocIn, T01Object oIn) {
 		Set<ObjectComment> refs = oIn.getObjectComments();
 		ArrayList<ObjectComment> refs_unprocessed = new ArrayList<ObjectComment>(refs);
 		// remove all !
@@ -770,7 +770,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 	
-	private void updateAddressComments(IngridDocument aDocIn, T02Address aIn) {
+	public void updateAddressComments(IngridDocument aDocIn, T02Address aIn) {
 		Set<AddressComment> refs = aIn.getAddressComments();
 		ArrayList<AddressComment> refs_unprocessed = new ArrayList<AddressComment>(refs);
 		// remove all !
