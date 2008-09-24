@@ -485,8 +485,67 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
 		supertool.getObjectPermissions(objUuid, false);
-		System.out.println("\n----- permissions WITH workflow -> only subtree permission -----");
+		System.out.println("\n----- permissions WITH workflow -> only subtree permission !!! -----");
 		supertool.getObjectPermissions(objUuid, true);
+
+		supertool.setFullOutput(false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n\n=============================================");
+		System.out.println("----- REASSIGN QA OBJECT TO Author -----");
+
+		System.out.println("\n----- object details -----");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("  REASSIGNER_UUID: " + doc.get(MdekKeys.REASSIGNER_UUID));
+		System.out.println("  REASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.REASSIGN_TIME)));
+
+		System.out.println("\n----- reassign to Author -> working copy with status R ! -----");
+		doc = supertool.reassignObjectToAuthor(doc, true);
+		System.out.println("  REASSIGNER_UUID: " + doc.get(MdekKeys.REASSIGNER_UUID));
+		System.out.println("  REASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.REASSIGN_TIME)));
+
+		System.out.println("\n----- store again -> still status R ! -----");
+		doc = supertool.storeObject(doc, true);
+
+		System.out.println("\n\n=============================================");
+		System.out.println("----- CHECK PERMISSIONS ON R-OBJECT -----");
+		
+		supertool.setFullOutput(true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as catalog admin -> all permissions -----");
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as QA user -> all permissions -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as NON QA user with write tree -> all permissions -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getObjectPermissions(objUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions !!! -----");
+		supertool.getObjectPermissions(objUuid, true);
+
+		supertool.setFullOutput(false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
@@ -495,8 +554,8 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
-		supertool.setFullOutput(false);
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN NEW OBJECT (subobject of object in group!) TO QA -----");
@@ -663,17 +722,76 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
 		supertool.getAddressPermissions(personAddrUuid, false);
-		System.out.println("\n----- permissions WITH workflow -> only subtree permission -----");
+		System.out.println("\n----- permissions WITH workflow -> only subtree permission !!! -----");
 		supertool.getAddressPermissions(personAddrUuid, true);
 
+		supertool.setFullOutput(false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- REASSIGN QA ADDRESS TO AUTHOR -----");
+
+		System.out.println("\n----- address details -----");
+		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("  REASSIGNER_UUID: " + doc.get(MdekKeys.REASSIGNER_UUID));
+		System.out.println("  REASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.REASSIGN_TIME)));
+
+		System.out.println("\n----- reassign to Author -> working copy with status R ! -----");
+		doc = supertool.reassignAddressToAuthor(doc, true);
+		System.out.println("  REASSIGNER_UUID: " + doc.get(MdekKeys.REASSIGNER_UUID));
+		System.out.println("  REASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.REASSIGN_TIME)));
+
+		System.out.println("\n----- store again -> still status R ! -----");
+		doc = supertool.storeAddress(doc, true);
+
+		System.out.println("\n\n=============================================");
+		System.out.println("----- CHECK PERMISSIONS ON R-ADDRESS -----");
+		
+		supertool.setFullOutput(true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as catalog admin -> all permissions -----");
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddrUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddrUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as QA user -> all permissions -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddrUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddrUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- permissions as NON QA user with write tree -> all permissions -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n----- permissions WITHOUT workflow -> all permissions -----");
+		supertool.getAddressPermissions(personAddrUuid, false);
+		System.out.println("\n----- permissions WITH workflow -> all permissions !!! -----");
+		supertool.getAddressPermissions(personAddrUuid, true);
+
+		supertool.setFullOutput(false);
+		
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
+		supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
 
-		supertool.setFullOutput(false);
 
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("----- ASSIGN NEW ADDRESS TO QA -----");

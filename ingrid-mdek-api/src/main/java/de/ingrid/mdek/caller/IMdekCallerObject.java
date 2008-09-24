@@ -1,7 +1,7 @@
 package de.ingrid.mdek.caller;
 
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.utils.IngridDocument;
@@ -38,7 +38,6 @@ public interface IMdekCallerObject {
 			boolean refetchAfterStore,
 			String userId);
 
-
 	/**
 	 * Assign object to QA ! 
 	 * @param plugId which mdek server (iplug)
@@ -50,6 +49,19 @@ public interface IMdekCallerObject {
 	 * 		otherwise map containing uuid of stored object (was generated when new object)  
 	 */
 	IngridDocument assignObjectToQA(String plugId, IngridDocument obj,
+			boolean refetchAfterStore,
+			String userId);
+
+	/**
+	 * Assign object from QA back to author ! 
+	 * @param plugId which mdek server (iplug)
+	 * @param obj map representation of object.
+	 * @param refetchAfterStore immediately refetch Object after store (true)
+	 * 		or just store without refetching (false)
+	 * @return response containing result: map representation of updated object when refetching,
+	 * 		otherwise map containing uuid of updated object  
+	 */
+	IngridDocument reassignObjectToAuthor(String plugId, IngridDocument obj,
 			boolean refetchAfterStore,
 			String userId);
 

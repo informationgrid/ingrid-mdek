@@ -13,10 +13,10 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.PublishType;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekCaller;
@@ -1177,6 +1177,39 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument reassignObjectToAuthor(IngridDocument oDocIn,
+			boolean refetchObject) {
+		// check whether we have an object
+		if (oDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchObjectInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE reassignObjectToAuthor " + refetchObjectInfo + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.reassignObjectToAuthor(plugId, oDocIn, refetchObject, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugObjectDoc(result);
+			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
 	/** Don't "page" object references to address instead fetch first 50 ones ! */
 	public IngridDocument storeAddress(IngridDocument aDocIn,
 			boolean refetchAddress) {
@@ -1270,6 +1303,46 @@ public class MdekExampleSupertool {
 			", maxNum=" + objRefsMaxNum +" ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.assignAddressToQA(plugId, aDocIn, refetchAddress, objRefsStartIndex, objRefsMaxNum, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			debugAddressDoc(result);
+			
+		} else {
+			handleError(response);
+		}
+
+		return result;
+	}
+
+	/** Don't "page" object references to address instead fetch first 50 ones ! */
+	public IngridDocument reassignAddressToAuthor(IngridDocument aDocIn,
+			boolean refetchAddress) {
+		return reassignAddressToAuthor(aDocIn, refetchAddress, 0, 50);
+	}
+
+	public IngridDocument reassignAddressToAuthor(IngridDocument aDocIn,
+			boolean refetchAddress, int objRefsStartIndex, int objRefsMaxNum) {
+		// check whether we have an address
+		if (aDocIn == null) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
+		System.out.println("\n###### INVOKE reassignAddressToAuthor " + refetchAddressInfo + " / fetch objRefs: start=" + objRefsStartIndex +
+			", maxNum=" + objRefsMaxNum +" ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.reassignAddressToAuthor(plugId, aDocIn, refetchAddress, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

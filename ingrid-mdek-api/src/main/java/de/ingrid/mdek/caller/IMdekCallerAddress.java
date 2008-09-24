@@ -107,6 +107,22 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
+	 * Assign address from QA back to author ! 
+	 * @param plugId which mdek server (iplug)
+	 * @param adr map representation of address.
+	 * @param refetchAfterStore immediately refetch address after store (true)
+	 * 		or just store without refetching (false)
+	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
+	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
+	 * @param userId
+	 * @return response containing result: map representation of updated address when refetching,
+	 * 		otherwise map containing uuid of updated address  
+	 */
+	IngridDocument reassignAddressToAuthor(String plugId, IngridDocument adr,
+			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
+			String userId);
+
+	/**
 	 * Update partial data of address ! NOTICE: No working version (copy) is created !!! If address is in state
 	 * published and "working version" is updated, this IS ALSO THE PUBLISHED VERSION !!! Further no
 	 * Modification User or date is set !!!  

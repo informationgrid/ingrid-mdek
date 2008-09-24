@@ -519,6 +519,54 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument reassignObjectToAuthor(IngridDocument oDocIn) {
+		String userId = getCurrentUserUuid(oDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			daoObjectNode.beginTransaction();
+
+			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+
+			// set common data to transfer to working copy !
+			workflowHandler.processDocOnReassignToAuthor(oDocIn, userId);
+			String uuid = storeObject(oDocIn, userId);
+
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
+			daoObjectNode.commitTransaction();
+
+			// return uuid (may be new generated uuid if new object)
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
+
+			if (refetchAfterStore) {
+				daoObjectNode.beginTransaction();
+				result = getObjDetails(uuid, userId);
+				daoObjectNode.commitTransaction();
+				
+				if (log.isDebugEnabled()) {
+					if (!MdekIdcEntityComparer.compareObjectMaps(oDocIn, result, null)) {
+						log.debug("Differences in Documents after store/refetch detected!");
+					}
+				}
+			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
 	public IngridDocument updateObjectPart(IngridDocument oPartDocIn) {
 		String userId = getCurrentUserUuid(oPartDocIn);
 		boolean removeRunningJob = true;

@@ -549,6 +549,56 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument reassignAddressToAuthor(IngridDocument aDocIn) {
+		String userId = getCurrentUserUuid(aDocIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+
+			daoAddressNode.beginTransaction();
+
+			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			int objRefsStartIndex = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
+			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
+
+			// set specific data to transfer to working copy and store !
+			workflowHandler.processDocOnReassignToAuthor(aDocIn, userId);
+			String uuid = storeAddress(aDocIn, userId);
+
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
+			daoAddressNode.commitTransaction();
+
+			// return uuid (may be new generated uuid if new address)
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.UUID, uuid);
+
+			if (refetchAfterStore) {
+				daoAddressNode.beginTransaction();
+				result = getAddrDetails(uuid, userId, objRefsStartIndex, objRefsMaxNum);
+				daoAddressNode.commitTransaction();
+
+				if (log.isDebugEnabled()) {
+					if (!MdekIdcEntityComparer.compareAddressMaps(aDocIn, result, null)) {
+						log.debug("Differences in Documents after store/refetch detected!");
+					}
+				}
+			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
 	public IngridDocument updateAddressPart(IngridDocument aPartDocIn) {
 		String userId = getCurrentUserUuid(aPartDocIn);
 		boolean removeRunningJob = true;
