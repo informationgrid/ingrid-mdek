@@ -112,14 +112,17 @@ public interface IMdekCallerObject {
 			String userId);
 
 	/**
-	 * FULL DELETE: working copy and published version are removed INCLUDING subobjects !
-	 * Object non existent afterwards !
+	 * FULL DELETE: different behavior when workflow enabled<br>
+	 * - QA: full delete of object (working copy and published version) INCLUDING all subobjects !
+	 * Object non existent afterwards !<br>
+	 * - NON QA: object is just marked deleted and assigned to QA<br>
+	 * If workflow disabled every user acts like a QA (when having write access)
 	 * @param plugId which mdek server (iplug)
 	 * @param uuid object uuid
 	 * @param forceDeleteReferences how to handle references to this object ?<br>
 	 * 		true=all references to this object are also deleted
 	 * 		false=error if references to this object exist
-	 * @return response containing result: map containing info about success
+	 * @return response containing result: map containing info whether object was fully deleted !
 	 */
 	IngridDocument deleteObject(String plugId, String uuid,
 			boolean forceDeleteReferences,

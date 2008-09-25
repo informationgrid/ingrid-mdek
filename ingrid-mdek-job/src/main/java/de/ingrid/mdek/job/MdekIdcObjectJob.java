@@ -478,13 +478,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
-			daoObjectNode.beginTransaction();
-
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
-			// set common data to transfer to working copy !
-			workflowHandler.processDocOnAssignToQA(oDocIn, userId);
-			String uuid = storeObject(oDocIn, userId);
+			daoObjectNode.beginTransaction();
+
+			String uuid = assignObjectToQA(oDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
@@ -517,6 +515,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
+	}
+
+	/** Returns uuid of object */
+	private String assignObjectToQA(IngridDocument oDocIn, String userId) {
+		// set specific data to transfer to working copy !
+		workflowHandler.processDocOnAssignToQA(oDocIn, userId);
+		return storeObject(oDocIn, userId);
 	}
 
 	public IngridDocument reassignObjectToAuthor(IngridDocument oDocIn) {
@@ -852,8 +857,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	/**
-	 * FULL DELETE: working copy and published version are removed INCLUDING subobjects !
-	 * Object is non existent afterwards !
+	 * FULL DELETE: different behavior when workflow enabled<br>
+	 * - QA: full delete of object (working copy and published version) INCLUDING all subobjects !
+	 * Object is non existent afterwards !<br>
+	 * - NON QA: object is just marked deleted and assigned to QA<br>
+	 * If workflow disabled every user acts like a QA (when having write access)
 	 */
 	public IngridDocument deleteObject(IngridDocument params) {
 		String userId = getCurrentUserUuid(params);
@@ -866,7 +874,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
-			IngridDocument result = deleteObject(uuid, forceDeleteReferences, userId);
+			IngridDocument result;
+			// NOTICE: Always returns true if workflow disabled !
+			if (permissionHandler.hasQAPermission(userId)) {
+				result = deleteObject(uuid, forceDeleteReferences, userId);
+			} else {
+				result = markDeletedObject(uuid, forceDeleteReferences, userId);
+			}
 
 			daoObjectNode.commitTransaction();
 			return result;
@@ -883,6 +897,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
+	/** FULL DELETE ! MAKE TRANSIENT ! */
 	private IngridDocument deleteObject(String uuid, boolean forceDeleteReferences, String userUuid) {
 		// first check User Permissions
 		permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);
@@ -903,6 +918,42 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+
+		return result;
+	}
+
+	/** FULL DELETE IF NOT PUBLISHED !!!<br> 
+	 * If published version exists -> Mark as deleted and assign to QA (already persisted)<br>
+	 * if NO published version -> perform full delete !
+	 */
+	private IngridDocument markDeletedObject(String uuid, boolean forceDeleteReferences, String userUuid) {
+		// first check User Permissions
+		permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);
+
+		// NOTICE: we just load NODE to determine whether published !
+		ObjectNode oNode = daoObjectNode.loadByUuid(uuid, null);
+		if (oNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// FULL DELETE IF NOT PUBLISHED !
+		if (oNode.getObjIdPublished() == null) {
+			return deleteObject(uuid, forceDeleteReferences, userUuid);
+		}
+
+		// IS PUBLISHED -> mark deleted
+		// now load details (prefetch data) for faster mapping (less selects !) 
+		oNode = daoObjectNode.getObjDetails(uuid);
+
+		// assign to QA via regular process to guarantee creation of working copy !
+		// we generate doc via mapper and set MARK_DELETED !
+		IngridDocument objDoc =
+			beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), new IngridDocument(), MappingQuantity.COPY_ENTITY);
+		objDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
+		assignObjectToQA(objDoc, userUuid);
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
 
 		return result;
 	}
@@ -1385,6 +1436,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	/**
 	 * Checks whether object node is referenced by other objects.
 	 * All references to node are taken into account, no matter whether from a working or a published version !
+	 * Throws Exception if forceDeleteReferences=false !
 	 * @param oNode object to check
 	 * @param forceDeleteReferences<br>
 	 * 		true=delete all references found, no exception<br>
@@ -1433,6 +1485,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	/**
 	 * Checks whether object tree contains nodes referenced by other objects.
 	 * All references to a node are taken into account, no matter whether from a working or a published version !
+	 * Throws Exception if forceDeleteReferences=false !
 	 * @param topNode top node of tree to check (included in check !)
 	 * @param forceDeleteReferences<br>
 	 * 		true=delete all references found, no exception<br>

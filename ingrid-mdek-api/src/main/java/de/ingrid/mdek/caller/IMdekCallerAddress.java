@@ -183,14 +183,17 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
-	 * FULL DELETE: working copy and published version are removed INCLUDING subaddresses !
-	 * Address non existent afterwards !
+	 * FULL DELETE: different behavior when workflow enabled<br>
+	 * - QA: full delete of address (working copy and published version) INCLUDING all subaddresses !
+	 * Address non existent afterwards !<br>
+	 * - NON QA: address is just marked deleted and assigned to QA<br>
+	 * If workflow disabled every user acts like a QA (when having write access)
 	 * @param plugId which mdek server (iplug)
 	 * @param uuid address uuid
 	 * @param forceDeleteReferences how to handle references to this address ?<br>
 	 * 		true=all references to this address are also deleted
 	 * 		false=error if references to this address exist
-	 * @return response containing result: map containing info about success
+	 * @return response containing result: map containing info whether address was fully deleted !
 	 */
 	IngridDocument deleteAddress(String plugId, String uuid,
 			boolean forceDeleteReferences,

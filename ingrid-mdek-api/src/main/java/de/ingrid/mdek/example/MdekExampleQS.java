@@ -1,7 +1,6 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -356,7 +356,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n\n=============================================");
-		System.out.println("\n----- create new GROUP_QA -----");
+		System.out.println("----- create new GROUP_QA -----");
 		IngridDocument grpQADoc = new IngridDocument();
 		grpQADoc.put(MdekKeys.NAME, "TEST Gruppe1 QA");
 		grpQADoc = supertool.createGroup(grpQADoc, true);
@@ -381,7 +381,7 @@ class MdekExampleQSThread extends Thread {
 		String usrGrpQAUuid = usrGrpQADoc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
 		System.out.println("\n\n=============================================");
-		System.out.println("\n----- create new GROUP_NO_QA -----");
+		System.out.println("----- create new GROUP_NO_QA -----");
 		IngridDocument grpNoQADoc = new IngridDocument();
 		grpNoQADoc.put(MdekKeys.NAME, "TEST Gruppe2 NO QA");
 		grpNoQADoc = supertool.createGroup(grpNoQADoc, true);
@@ -452,9 +452,11 @@ class MdekExampleQSThread extends Thread {
 
 		supertool.setFullOutput(true);
 
-		System.out.println("\n----- add comment and store again -> still status Q with comment in working copy ! -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- add comment and store again -> still status Q with comment in working copy ! -----");
 		supertool.addComment(doc, "TEST COMMENT QA");
 		doc = supertool.storeObject(doc, true);
+
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- CHECK PERMISSIONS ON Q-OBJECT -----");
@@ -495,6 +497,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
+
 		System.out.println("\n\n=============================================");
 		System.out.println("----- REASSIGN QA OBJECT TO Author -----");
 
@@ -510,6 +513,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- store again -> still status R ! -----");
 		doc = supertool.storeObject(doc, true);
+
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- CHECK PERMISSIONS ON R-OBJECT -----");
@@ -546,10 +550,14 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- permissions WITH workflow -> all permissions !!! -----");
 		supertool.getObjectPermissions(objUuid, true);
 
-		System.out.println("\n----- add comment and store again -> still status R with comment in working copy ! -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- add comment as AUTHOR and store again -> still status R with comment in working copy ! -----");
 		supertool.addComment(doc, "TEST COMMENT AUTHOR");
 		doc = supertool.storeObject(doc, true);
 
+
+		System.out.println("\n\n=============================================");
+		System.out.println("----- TEST TAKE OVER OF COMMENTS -----");
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
@@ -564,7 +572,7 @@ class MdekExampleQSThread extends Thread {
 		doc.put(MdekKeys.COMMENT_LIST, null);
 		doc = supertool.storeObject(doc, true);
 
-		System.out.println("----- discard changes -> back to published version  -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
+		System.out.println("\n----- discard changes -> back to published version  -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 
@@ -574,14 +582,8 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN NEW OBJECT (subobject of object in group!) TO QA -----");
 
-		System.out.println("\n----- load initial data from parent " + objUuid + " -----");
-		newDoc = new IngridDocument();
-		newDoc.put(MdekKeys.PARENT_UUID, objUuid);
-		newDoc = supertool.getInitialObject(newDoc);
-
-		System.out.println("\n----- extend new object and assign to QA -> working copy ! -----");
-		// extend initial object with own data !
-		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		System.out.println("\n----- create new object and assign to QA -> working copy ! -----");
+		newDoc = supertool.newObjectDoc(objUuid);
 		doc = supertool.assignObjectToQA(newDoc, true);
 		String newUuid = doc.getString(MdekKeys.UUID);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
@@ -589,7 +591,7 @@ class MdekExampleQSThread extends Thread {
 
 		
 		System.out.println("\n\n=============================================");
-		System.out.println("----- get all objects where User is QA -> fetch different object states -----");
+		System.out.println("----- GET OBJECTS WHERE USER IS QA -> fetch different object states -----");
 
 		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" -----");
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
@@ -653,7 +655,83 @@ class MdekExampleQSThread extends Thread {
 		supertool.deleteObjectWorkingCopy(newUuid, true);
 
 
-		// -----------------------------------
+		System.out.println("\n\n=============================================");
+		System.out.println("----- DELETE / PUBLISH OBJECT -----");
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- CREATE NEW OBJECT (subobject of object in group!) and store -> ONLY working copy ! -----");
+		newDoc = supertool.newObjectDoc(objUuid);
+		doc = supertool.storeObject(newDoc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE -> possible as non QA user because NOT PUBLISHED ! -----");
+		supertool.deleteObject(newUuid, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- CREATE NEW OBJECT AGAIN and store -> ONLY working copy ! -----");
+		newDoc = supertool.newObjectDoc(objUuid);
+		doc = supertool.storeObject(newDoc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- try to publish -> ERROR: not QA -----");
+		supertool.publishObject(doc, true, true);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- assign to QA (still not published) and try to delete -> ERROR: not QA -----");
+		doc = supertool.assignObjectToQA(doc, true);
+		supertool.deleteObjectWorkingCopy(newUuid, false);
+		supertool.deleteObject(newUuid, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- publish -> OK as QA user ! -----");
+		doc = supertool.publishObject(doc, true, true);
+		
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		supertool.deleteObject(newUuid, true);
+		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- Reassign object back to Author -----");
+		doc = supertool.reassignObjectToAuthor(doc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- discard changes -> OK, back to published version (not marked deleted anymore) ! -----");
+		supertool.deleteObjectWorkingCopy(newUuid, false);
+		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE published object as QA -> FULL DELETE -----");
+		supertool.deleteObject(newUuid, true);
+
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("QS ADDRESS");
 		System.out.println("=========================");
@@ -703,9 +781,11 @@ class MdekExampleQSThread extends Thread {
 
 		supertool.setFullOutput(true);
 
-		System.out.println("\n----- add comment and store again -> still status Q with comment in working copy ! -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- add comment and store again -> still status Q with comment in working copy ! -----");
 		supertool.addComment(doc, "TEST COMMENT QA");
 		doc = supertool.storeAddress(doc, true);
+
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- CHECK PERMISSIONS ON Q-ADDRESS -----");
@@ -746,7 +826,8 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
-		System.out.println("\n\n---------------------------------------------");
+
+		System.out.println("\n\n=============================================");
 		System.out.println("----- REASSIGN QA ADDRESS TO AUTHOR -----");
 
 		System.out.println("\n----- address details -----");
@@ -761,6 +842,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- store again -> still status R ! -----");
 		doc = supertool.storeAddress(doc, true);
+
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- CHECK PERMISSIONS ON R-ADDRESS -----");
@@ -797,9 +879,14 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- permissions WITH workflow -> all permissions !!! -----");
 		supertool.getAddressPermissions(personAddrUuid, true);
 
-		System.out.println("\n----- add comment and store again -> still status R with comment in working copy ! -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- add comment as AUTHOR and store again -> still status R with comment in working copy ! -----");
 		supertool.addComment(doc, "TEST COMMENT AUTHOR");
 		doc = supertool.storeAddress(doc, true);
+
+		
+		System.out.println("\n\n=============================================");
+		System.out.println("----- TEST TAKE OVER OF COMMENTS -----");
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
@@ -814,7 +901,7 @@ class MdekExampleQSThread extends Thread {
 		doc.put(MdekKeys.COMMENT_LIST, null);
 		doc = supertool.storeAddress(doc, true);
 
-		System.out.println("----- discard changes -> back to published version -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
+		System.out.println("\n----- discard changes -> back to published version -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
 		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
 
@@ -824,24 +911,8 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN NEW ADDRESS TO QA -----");
 
-		System.out.println("\n----- load initial data from parent " + parentAddrUuid + " -----");
-		newDoc = new IngridDocument();
-		newDoc.put(MdekKeys.PARENT_UUID, parentAddrUuid);
-		newDoc = supertool.getInitialAddress(newDoc);
-
-		System.out.println("\n----- extend new address and assign to QA -> working copy ! -----");
-		newDoc.put(MdekKeys.NAME, "testNAME");
-		newDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
-		newDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
-		// email has to exist !
-		docList = (List<IngridDocument>) newDoc.get(MdekKeys.COMMUNICATION);
-		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		IngridDocument testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
-		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
-		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
-		docList.add(testDoc);
-		newDoc.put(MdekKeys.COMMUNICATION, docList);
+		System.out.println("\n----- create new address and assign to QA -> working copy ! -----");
+		newDoc = supertool.newAddressDoc(parentAddrUuid, AddressType.EINHEIT);
 		doc = supertool.assignAddressToQA(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
@@ -849,7 +920,7 @@ class MdekExampleQSThread extends Thread {
 
 
 		System.out.println("\n\n=============================================");
-		System.out.println("----- get all addresses where User is QA -> fetch different address states -----");
+		System.out.println("----- GET ADDRESSES WHERE USER IS QA -> fetch different address states -----");
 
 		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" -----");
 		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
@@ -911,7 +982,83 @@ class MdekExampleQSThread extends Thread {
 		supertool.deleteAddressWorkingCopy(newUuid, true);
 
 
-		// -----------------------------------
+		System.out.println("\n\n=============================================");
+		System.out.println("----- DELETE / PUBLISH ADDRESS -----");
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- CREATE NEW ADDRESS and store -> ONLY working copy ! -----");
+		newDoc = supertool.newAddressDoc(parentAddrUuid, AddressType.EINHEIT);
+		doc = supertool.storeAddress(newDoc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE -> possible as non QA user because NOT PUBLISHED ! -----");
+		supertool.deleteAddress(newUuid, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- CREATE NEW ADDRESS AGAIN and store -> ONLY working copy ! -----");
+		newDoc = supertool.newAddressDoc(parentAddrUuid, AddressType.EINHEIT);
+		doc = supertool.storeAddress(newDoc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- try to publish -> ERROR: not QA -----");
+		supertool.publishAddress(doc, true);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- assign to QA (still not published) and try to delete -> ERROR: not QA -----");
+		doc = supertool.assignAddressToQA(doc, true);
+		supertool.deleteAddressWorkingCopy(newUuid, false);
+		supertool.deleteAddress(newUuid, false);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- publish -> OK as QA user ! -----");
+		doc = supertool.publishAddress(doc, true);
+		
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		supertool.deleteAddress(newUuid, true);
+		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- Reassign address back to Author -----");
+		doc = supertool.reassignAddressToAuthor(doc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- discard changes -> OK, back to published version (not marked deleted anymore) ! -----");
+		supertool.deleteAddressWorkingCopy(newUuid, false);
+		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE published address as QA -> FULL DELETE -----");
+		supertool.deleteAddress(newUuid, true);
+
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("CLEAN UP");
 		System.out.println("=========================");

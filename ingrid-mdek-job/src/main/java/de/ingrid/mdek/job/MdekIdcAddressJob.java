@@ -506,15 +506,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
 
-			daoAddressNode.beginTransaction();
-
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 			int objRefsStartIndex = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
 			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
-			// set specific data to transfer to working copy and store !
-			workflowHandler.processDocOnAssignToQA(aDocIn, userId);
-			String uuid = storeAddress(aDocIn, userId);
+			daoAddressNode.beginTransaction();
+
+			String uuid = assignAddressToQA(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -547,6 +545,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
+	}
+
+	/** Returns uuid of address */
+	private String assignAddressToQA(IngridDocument aDocIn, String userId) {
+		// set specific data to transfer to working copy and store !
+		workflowHandler.processDocOnAssignToQA(aDocIn, userId);
+		return storeAddress(aDocIn, userId);
 	}
 
 	public IngridDocument reassignAddressToAuthor(IngridDocument aDocIn) {
@@ -1060,8 +1065,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	/**
-	 * FULL DELETE: working copy and published version are removed INCLUDING subaddresses !
-	 * Address is non existent afterwards !
+	 * FULL DELETE: different behavior when workflow enabled<br>
+	 * - QA: full delete of address (working copy and published version) INCLUDING all subaddresses !
+	 * Address is non existent afterwards !<br>
+	 * - NON QA: address is just marked deleted and assigned to QA<br>
+	 * If workflow disabled every user acts like a QA (when having write access)
 	 */
 	public IngridDocument deleteAddress(IngridDocument params) {
 		String userId = getCurrentUserUuid(params);
@@ -1074,7 +1082,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
-			IngridDocument result = deleteAddress(uuid, forceDeleteReferences, userId);
+			IngridDocument result;
+			// NOTICE: Always returns true if workflow disabled !
+			if (permissionHandler.hasQAPermission(userId)) {
+				result = deleteAddress(uuid, forceDeleteReferences, userId);
+			} else {
+				result = markDeletedAddress(uuid, forceDeleteReferences, userId);
+			}
 
 			daoAddressNode.commitTransaction();
 			return result;
@@ -1091,6 +1105,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	/** FULL DELETE ! MAKE TRANSIENT ! */
 	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences, String userUuid) {
 		// first check User Permissions
 		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
@@ -1117,6 +1132,42 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+
+		return result;
+	}
+
+	/** FULL DELETE IF NOT PUBLISHED !!!<br> 
+	 * If published version exists -> Mark as deleted and assign to QA (already persisted)<br>
+	 * if NO published version -> perform full delete !
+	 */
+	private IngridDocument markDeletedAddress(String uuid, boolean forceDeleteReferences, String userUuid) {
+		// first check User Permissions
+		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
+
+		// NOTICE: we just load NODE to determine whether published !
+		AddressNode aNode = daoAddressNode.loadByUuid(uuid, null);
+		if (aNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// FULL DELETE IF NOT PUBLISHED !
+		if (aNode.getAddrIdPublished() == null) {
+			return deleteAddress(uuid, forceDeleteReferences, userUuid);
+		}
+
+		// IS PUBLISHED -> mark deleted
+		// now load details (prefetch data) for faster mapping (less selects !) 
+		aNode = daoAddressNode.getAddrDetails(uuid);
+
+		// assign to QA via regular process to guarantee creation of working copy !
+		// we generate doc via mapper and set MARK_DELETED !
+		IngridDocument addrDoc =
+			beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.COPY_ENTITY);
+		addrDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
+		assignAddressToQA(addrDoc, userUuid);
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
 
 		return result;
 	}
@@ -1346,6 +1397,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/**
 	 * Checks whether address tree contains nodes referenced by other objects.
+	 * Throws Exception if forceDeleteReferences=false !
 	 * @param topNode top node of tree to check (included in check !)
 	 * @param forceDeleteReferences<br>
 	 * 		true=delete all references found, no exception<br>
@@ -1376,6 +1428,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/**
 	 * Checks whether address node is referenced by other objects.
+	 * Throws Exception if forceDeleteReferences=false !
 	 * @param aNode address to check
 	 * @param forceDeleteReferences<br>
 	 * 		true=delete all references found, no exception<br>

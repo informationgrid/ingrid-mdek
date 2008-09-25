@@ -1632,6 +1632,7 @@ public class MdekExampleSupertool {
 
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -1659,6 +1660,7 @@ public class MdekExampleSupertool {
 
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -1686,6 +1688,7 @@ public class MdekExampleSupertool {
 
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.deleteObject(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -1713,6 +1716,7 @@ public class MdekExampleSupertool {
 
 		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
 		System.out.println("\n###### INVOKE deleteAddress " + deleteRefsInfo + " ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.deleteAddress(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -2345,6 +2349,7 @@ public class MdekExampleSupertool {
 		System.out.println("Object: " + o.get(MdekKeys.ID) 
 			+ ", " + o.get(MdekKeys.UUID)
 			+ ", " + o.get(MdekKeys.TITLE)
+			+ ", marked deleted: " + o.get(MdekKeys.MARK_DELETED)
 		);
 		System.out.println("        "
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
@@ -2623,6 +2628,7 @@ public class MdekExampleSupertool {
 	private void debugAddressDoc(IngridDocument a) {
 		System.out.println("Address: " + a.get(MdekKeys.ID) 
 			+ ", " + a.get(MdekKeys.UUID)
+			+ ", marked deleted: " + a.get(MdekKeys.MARK_DELETED)
 			+ ", organisation: " + a.get(MdekKeys.ORGANISATION)
 			+ ", name: " + a.get(MdekKeys.TITLE_OR_FUNCTION)
 			+ " " + a.get(MdekKeys.TITLE_OR_FUNCTION_KEY)			
@@ -2872,5 +2878,38 @@ public class MdekExampleSupertool {
 		tmpDoc.put(MdekKeys.CREATE_USER, createUserDoc);
 		docList.add(tmpDoc);
 		entityDoc.put(MdekKeys.COMMENT_LIST, docList);
+	}
+	
+	/** Creates default new Object Document including required default data */
+	public IngridDocument newObjectDoc(String parentObjUuid) {
+		IngridDocument newDoc = new IngridDocument();
+		newDoc.put(MdekKeys.PARENT_UUID, parentObjUuid);
+		newDoc = getInitialObject(newDoc);
+		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
+		
+		return newDoc;
+	}
+
+	/** Creates default new Address Document including required default data */
+	public IngridDocument newAddressDoc(String parentAddrUuid, AddressType whichType) {
+		IngridDocument newDoc = new IngridDocument();
+		newDoc.put(MdekKeys.PARENT_UUID, parentAddrUuid);
+		newDoc = getInitialAddress(newDoc);
+
+		newDoc.put(MdekKeys.NAME, "testNAME");
+		newDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newDoc.put(MdekKeys.ORGANISATION, "testORGANISATION");
+		newDoc.put(MdekKeys.CLASS, whichType.getDbValue());
+		// email has to exist !
+		List<IngridDocument> docList = (List<IngridDocument>) newDoc.get(MdekKeys.COMMUNICATION);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newDoc.put(MdekKeys.COMMUNICATION, docList);
+		
+		return newDoc;
 	}
 }

@@ -58,14 +58,19 @@ public class MdekWorkflowHandler {
 		daoAddressNode = daoFactory.getAddressNodeDao();
 	}
 
+	/** Is Workflow enabled ? */
+	private boolean isWorkflowEnabled() {
+		return catalogService.isWorkflowEnabled();
+	}
+
 	/**
 	 * Checks whether user has permission to access the given object concerning its workflow state.
 	 * e.g. when object is in state "Q" user has to have "QA" permission !<br>
-	 * NOTICE: ALWAYS RETURNS TRUE IF WORKFLOW NOT ENABLED !
+	 * NOTICE: ALWAYS RETURNS TRUE IF WORKFLOW DISABLED !
 	 */
 	public boolean hasWorkflowPermissionForObject(String objUuid, String userAddrUuid) {
 		// ok if workflow disabled 
-		if (!catalogService.isWorkflowEnabled()) {
+		if (!isWorkflowEnabled()) {
 			return true;
 		}
 		
@@ -93,11 +98,11 @@ public class MdekWorkflowHandler {
 	/**
 	 * Checks whether user has permission to access the given address concerning its workflow state.
 	 * e.g. when object is in state "Q" user has to have "QA" permission !<br>
-	 * NOTICE: ALWAYS RETURNS TRUE IF WORKFLOW NOT ENABLED !
+	 * NOTICE: ALWAYS RETURNS TRUE IF WORKFLOW DISABLED !
 	 */
 	public boolean hasWorkflowPermissionForAddress(String addrUuid, String userAddrUuid) {
 		// ok if workflow disabled 
-		if (!catalogService.isWorkflowEnabled()) {
+		if (!isWorkflowEnabled()) {
 			return true;
 		}
 		
@@ -125,7 +130,7 @@ public class MdekWorkflowHandler {
 	/** Checks whether user has "QA" permission (ONLY if workflow enabled) AND THROW EXCEPTION IF NOT ! */
 	public void checkQAPermission(String userAddrUuid) {
 		// if workflow disabled we don't care ! 
-		if (!catalogService.isWorkflowEnabled()) {
+		if (!isWorkflowEnabled()) {
 			return;
 		}
 
@@ -134,8 +139,15 @@ public class MdekWorkflowHandler {
 		}		
 	}
 
-	/** Check "QA" Permission of given user and return "yes"/"no" ! */
-	private boolean hasQAPermission(String userAddrUuid) {
+	/** Check "QA" Permission of given user (ONLY if workflow enabled) and return "yes"/"no" !
+	 * NOTICE: ALWAYS RETURNS TRUE IF WORKFLOW DISABLED !
+	 */
+	public boolean hasQAPermission(String userAddrUuid) {
+		// ok if workflow disabled 
+		if (!isWorkflowEnabled()) {
+			return true;
+		}
+
 		return permService.hasUserPermission(userAddrUuid, PermissionFactory.getPermissionTemplateQA());			
 	}
 

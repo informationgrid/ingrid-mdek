@@ -806,9 +806,11 @@ public class MdekPermissionHandler {
 		return permService.hasUserPermission(userAddrUuid, userPermission);			
 	}
 
-	/** Check "QA" Permission of given user and return "yes"/"no" ! */
+	/** Check "QA" Permission of given user (ONLY if workflow enabled) and return "yes"/"no" !
+	 * NOTICE: ALWAYS RETURNS TRUE IF WORKFLOW DISABLED !
+	 */
 	public boolean hasQAPermission(String userAddrUuid) {
-		return hasUserPermission(PermissionFactory.getPermissionTemplateQA(), userAddrUuid);
+		return workflowHandler.hasQAPermission(userAddrUuid);
 	}
 
 	/** Check "CreateRoot" Permission of given user and return "yes"/"no" ! */
