@@ -343,6 +343,7 @@ public class BeanToDocMapper implements IMapper {
 		addressDoc.put(MdekKeys.TITLE_OR_FUNCTION, a.getTitleValue());
 		addressDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, a.getTitleKey());
 		addressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
+		addressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
 
 		if (howMuch == MappingQuantity.TABLE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
@@ -363,8 +364,6 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			addressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
-			addressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
-
 			addressDoc.put(MdekKeys.FUNCTION, a.getJob());			
 			addressDoc.put(MdekKeys.NAME_FORM, a.getAddressValue());
 			addressDoc.put(MdekKeys.NAME_FORM_KEY, a.getAddressKey());

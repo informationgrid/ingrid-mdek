@@ -177,21 +177,24 @@ public class MdekWorkflowHandler {
 		entityDoc.put(MdekKeys.WORK_STATE, WorkState.QS_RUECKUEBERWIESEN.getDbValue());
 		entityDoc.put(MdekKeys.REASSIGNER_UUID, userAddrUuid);
 		entityDoc.put(MdekKeys.REASSIGN_TIME, MdekUtils.dateToTimestamp(new Date()));
+		
+		// cancel "mark deleted" (may be set)
+		entityDoc.put(MdekKeys.MARK_DELETED, MdekUtils.NO);
 	}
 
 	/** Process the given client side representation of an entity according to the operation. */
 	public void processDocOnPublish(IngridDocument entityDoc) {
 		entityDoc.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
+
+		// cancel "mark deleted" (may be set)
+		entityDoc.put(MdekKeys.MARK_DELETED, MdekUtils.NO);
 	}
 
-	/** Process the given bean (Object/Address) which is the result of a copy operation. */
-	public void processEntityOnCopy(IEntity entity) {
-		Class clazz = entity.getClass();
+	/** Process the given client side representation of an entity according to the operation. */
+	public void processDocOnCopy(IngridDocument entityDoc) {
+		// copied object/address is always in work state IN_BEARBEITUNG and NEVER marked deleted
 
-		if (T01Object.class.isAssignableFrom(clazz)) {
-			((T01Object)entity).setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
-		} else if (T02Address.class.isAssignableFrom(clazz)) {
-			((T02Address)entity).setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
-		}
+		entityDoc.put(MdekKeys.WORK_STATE, WorkState.IN_BEARBEITUNG.getDbValue());
+		entityDoc.put(MdekKeys.MARK_DELETED, MdekUtils.NO);
 	}
 }

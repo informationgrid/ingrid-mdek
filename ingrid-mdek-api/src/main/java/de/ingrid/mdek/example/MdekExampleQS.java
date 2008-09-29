@@ -659,75 +659,106 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- DELETE / PUBLISH OBJECT -----");
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		System.out.println("----- DELETE NEW OBJECT POSSIBLE AS NON QA -----");
+		
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
 		supertool.setCallingUser(usrGrpNoQAUuid);
-
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- CREATE NEW OBJECT (subobject of object in group!) and store -> ONLY working copy ! -----");
+		System.out.println("\n----- CREATE NEW OBJECT (subobject of object in group!) and store -> ONLY working copy ! -----");
 		newDoc = supertool.newObjectDoc(objUuid);
 		doc = supertool.storeObject(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
-
-		System.out.println("\n---------------------------------------------");
-		System.out.println("----- DELETE -> possible as non QA user because NOT PUBLISHED ! -----");
+		System.out.println("\n----- DELETE -> possible as non QA user because NOT PUBLISHED ! -----");
 		supertool.deleteObject(newUuid, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- CREATE NEW OBJECT AGAIN and store -> ONLY working copy ! -----");
+		System.out.println("----- PUBLISH OF NEW OBJECT NOT POSSIBLE AS NON QA -----");
+		
+		System.out.println("\n----- CREATE NEW OBJECT AGAIN and store -> ONLY working copy ! -----");
 		newDoc = supertool.newObjectDoc(objUuid);
 		doc = supertool.storeObject(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
-
-		System.out.println("\n---------------------------------------------");
-		System.out.println("----- try to publish -> ERROR: not QA -----");
+		System.out.println("\n----- try to publish -> ERROR: not QA -----");
 		supertool.publishObject(doc, true, true);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- assign to QA (still not published) and try to delete -> ERROR: not QA -----");
+		System.out.println("----- QA ASSIGNED OBJECT CANNOT BE DELETED as NON QA -----");
+
+		System.out.println("\n----- assign to QA (still not published) and try to delete -> ERROR: not QA (Permission error) -----");
 		doc = supertool.assignObjectToQA(doc, true);
 		supertool.deleteObjectWorkingCopy(newUuid, false);
 		supertool.deleteObject(newUuid, false);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
-		supertool.setCallingUser(usrGrpQAUuid);
-		
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- publish -> OK as QA user ! -----");
+		System.out.println("----- PUBLISH QA ASSIGNED OBJECT as QA -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);		
+		System.out.println("\n----- publish -> OK as QA user ! -----");
 		doc = supertool.publishObject(doc, true, true);
 		
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
-		supertool.setCallingUser(usrGrpNoQAUuid);
-
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		System.out.println("----- DELETE PUBLISHED OBJECT as NON QA -> mark deleted and assigned to QA -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+		System.out.println("\n----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteObject(newUuid, true);
 		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
-		supertool.setCallingUser(usrGrpQAUuid);
-
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- Reassign object back to Author -----");
+		System.out.println("----- REASSIGN MARK DELETED OBJECT BACK TO AUTHOR as QA -> MARK DELETED REMOVED ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+		System.out.println("\n----- Reassign object back to Author -> MARK DELETED REMOVED ! -----");
 		doc = supertool.reassignObjectToAuthor(doc, true);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
-		supertool.setCallingUser(usrGrpNoQAUuid);
-
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- discard changes -> OK, back to published version (not marked deleted anymore) ! -----");
+		System.out.println("----- DISCARD REASSIGNED OBJECT as NON QA -> published version ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+		System.out.println("\n----- discard changes -> OK, back to published version ! -----");
 		supertool.deleteObjectWorkingCopy(newUuid, false);
 		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE published object as non QA and publish it as QA -> mark deleted gone -----");
+
+		System.out.println("\n----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		supertool.deleteObject(newUuid, true);
+		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
+		System.out.println("\n----- publish as QA -> all changes published, NOT MARKED DELETED ! -----");
+		doc = supertool.publishObject(doc, true, true);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- DELETE published object as QA -> FULL DELETE -----");
+		System.out.println("----- DELETE published object as non QA and COPY it as QA -> mark deleted gone in result -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+		System.out.println("\n----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		supertool.deleteObject(newUuid, true);
+		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+		System.out.println("\n----- COPY as QA -> new object, NOT MARKED DELETED ! -----");
+		doc = supertool.copyObject(newUuid, objUuid, false);
+		String copiedUuid = doc.getString(MdekKeys.UUID);
+		supertool.fetchObject(copiedUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("----- DELETE copy of new object as QA -> FULL DELETE -----");
+		supertool.deleteObject(copiedUuid, true);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MOVE assigned object as QA -> STILL mark deleted -----");
+
+		System.out.println("\n----- MOVE as QA -> STILL MARKED DELETED ! -----");
+		doc = supertool.moveObject(newUuid, objUuid, true);
+		supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE new object as QA -> FULL DELETE -----");
 		supertool.deleteObject(newUuid, true);
 
 // -----------------------------------
@@ -986,75 +1017,106 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- DELETE / PUBLISH ADDRESS -----");
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		System.out.println("----- DELETE NEW ADDRESS POSSIBLE AS NON QA -----");
+		
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
 		supertool.setCallingUser(usrGrpNoQAUuid);
-
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- CREATE NEW ADDRESS and store -> ONLY working copy ! -----");
+		System.out.println("\n----- CREATE NEW ADDRESS and store -> ONLY working copy ! -----");
 		newDoc = supertool.newAddressDoc(parentAddrUuid, AddressType.EINHEIT);
 		doc = supertool.storeAddress(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
-
-		System.out.println("\n---------------------------------------------");
-		System.out.println("----- DELETE -> possible as non QA user because NOT PUBLISHED ! -----");
+		System.out.println("\n----- DELETE -> possible as non QA user because NOT PUBLISHED ! -----");
 		supertool.deleteAddress(newUuid, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- CREATE NEW ADDRESS AGAIN and store -> ONLY working copy ! -----");
+		System.out.println("----- PUBLISH OF NEW ADDRESS NOT POSSIBLE AS NON QA -----");
+		
+		System.out.println("\n----- CREATE NEW ADDRESS AGAIN and store -> ONLY working copy ! -----");
 		newDoc = supertool.newAddressDoc(parentAddrUuid, AddressType.EINHEIT);
 		doc = supertool.storeAddress(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
-
-		System.out.println("\n---------------------------------------------");
-		System.out.println("----- try to publish -> ERROR: not QA -----");
+		System.out.println("\n----- try to publish -> ERROR: not QA -----");
 		supertool.publishAddress(doc, true);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- assign to QA (still not published) and try to delete -> ERROR: not QA -----");
+		System.out.println("----- QA ASSIGNED ADDRESS CANNOT BE DELETED as NON QA -----");
+
+		System.out.println("\n----- assign to QA (still not published) and try to delete -> ERROR: not QA (Permission error) -----");
 		doc = supertool.assignAddressToQA(doc, true);
 		supertool.deleteAddressWorkingCopy(newUuid, false);
 		supertool.deleteAddress(newUuid, false);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
-		supertool.setCallingUser(usrGrpQAUuid);
-		
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- publish -> OK as QA user ! -----");
+		System.out.println("----- PUBLISH QA ASSIGNED ADDRESS as QA -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+		System.out.println("\n----- publish -> OK as QA user ! -----");
 		doc = supertool.publishAddress(doc, true);
 		
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
-		supertool.setCallingUser(usrGrpNoQAUuid);
-
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		System.out.println("----- DELETE PUBLISHED ADDRESS as NON QA -> mark deleted and assigned to QA -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+		System.out.println("\n----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteAddress(newUuid, true);
 		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
-		supertool.setCallingUser(usrGrpQAUuid);
-
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- Reassign address back to Author -----");
+		System.out.println("----- REASSIGN MARK DELETED ADDRESS BACK TO AUTHOR as QA -> MARK DELETED REMOVED ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+		System.out.println("\n----- Reassign address back to Author -> MARK DELETED REMOVED ! -----");
 		doc = supertool.reassignAddressToAuthor(doc, true);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
-		supertool.setCallingUser(usrGrpNoQAUuid);
-
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- discard changes -> OK, back to published version (not marked deleted anymore) ! -----");
+		System.out.println("----- DISCARD REASSIGNED ADDRESS as NON QA -> published version ! -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+		System.out.println("\n----- discard changes -> OK, back to published version ! -----");
 		supertool.deleteAddressWorkingCopy(newUuid, false);
 		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE published address as non QA and publish it as QA -> mark deleted gone -----");
+
+		System.out.println("\n----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		supertool.deleteAddress(newUuid, true);
+		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
+		System.out.println("\n----- publish as QA -> all changes published, NOT MARKED DELETED ! -----");
+		doc = supertool.publishAddress(doc, true);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- DELETE published address as QA -> FULL DELETE -----");
+		System.out.println("----- DELETE published address as non QA and COPY it as QA -> mark deleted gone in result -----");
+
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
+		supertool.setCallingUser(usrGrpNoQAUuid);
+		System.out.println("\n----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
+		supertool.deleteAddress(newUuid, true);
+		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+		System.out.println("\n----- COPY as QA -> new address, NOT MARKED DELETED ! -----");
+		doc = supertool.copyAddress(newUuid, parentAddrUuid, false, false);
+		copiedUuid = doc.getString(MdekKeys.UUID);
+		supertool.fetchAddress(copiedUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("----- DELETE copy of new object as QA -> FULL DELETE -----");
+		supertool.deleteAddress(copiedUuid, true);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MOVE assigned address as QA -> STILL mark deleted -----");
+
+		System.out.println("\n----- MOVE as QA -> STILL MARKED DELETED ! -----");
+		doc = supertool.moveAddress(newUuid, parentAddrUuid, false);
+		supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE new address as QA -> FULL DELETE -----");
 		supertool.deleteAddress(newUuid, true);
 
 // -----------------------------------

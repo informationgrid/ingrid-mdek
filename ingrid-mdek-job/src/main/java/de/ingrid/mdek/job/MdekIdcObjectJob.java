@@ -1565,9 +1565,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String newUuid = UuidGenerator.getInstance().generateUuid();
 			T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid, userUuid);
 			
-			// Process copy
-			workflowHandler.processEntityOnCopy(targetObjWork);
-
 			// create new Node and set data !
 			// we also set Beans in object node, so we can access them afterwards.
 			Long targetObjWorkId = targetObjWork.getId();
@@ -1642,19 +1639,20 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// then copy content via mappers
 		
 		// map source bean to doc
-		IngridDocument sourceObjDoc =
+		IngridDocument targetObjDoc =
 			beanToDocMapper.mapT01Object(sourceObj, new IngridDocument(), MappingQuantity.COPY_ENTITY);
 		
 		// update changed data in doc from source for target !
-		sourceObjDoc.put(MdekKeys.UUID, newUuid);
+		targetObjDoc.put(MdekKeys.UUID, newUuid);
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
-		sourceObjDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
-		sourceObjDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		beanToDocMapper.mapModUser(userUuid, sourceObjDoc, MappingQuantity.INITIAL_ENTITY);
-		beanToDocMapper.mapResponsibleUser(userUuid, sourceObjDoc, MappingQuantity.INITIAL_ENTITY);				
+		targetObjDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
+		targetObjDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		beanToDocMapper.mapModUser(userUuid, targetObjDoc, MappingQuantity.INITIAL_ENTITY);
+		beanToDocMapper.mapResponsibleUser(userUuid, targetObjDoc, MappingQuantity.INITIAL_ENTITY);				
+		workflowHandler.processDocOnCopy(targetObjDoc);
 
 		// and transfer data from doc to new bean
-		docToBeanMapper.mapT01Object(sourceObjDoc, targetObj, MappingQuantity.COPY_ENTITY);
+		docToBeanMapper.mapT01Object(targetObjDoc, targetObj, MappingQuantity.COPY_ENTITY);
 
 		daoT01Object.makePersistent(targetObj);
 

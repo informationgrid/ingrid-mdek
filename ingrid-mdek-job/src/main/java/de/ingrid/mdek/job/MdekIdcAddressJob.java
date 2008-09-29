@@ -1282,9 +1282,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String newUuid = UuidGenerator.getInstance().generateUuid();
 			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid, userUuid);
 
-			// Process copy
-			workflowHandler.processEntityOnCopy(targetAddrWork);
-
 			// handle copies from/to "free address"
 			processMovedOrCopiedAddress(targetAddrWork, copyToFreeAddress);
 
@@ -1362,19 +1359,20 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// then copy content via mappers
 		
 		// map source bean to doc
-		IngridDocument sourceAddrDoc =
+		IngridDocument targetAddrDoc =
 			beanToDocMapper.mapT02Address(sourceAddr, new IngridDocument(), MappingQuantity.COPY_ENTITY);
 		
 		// update changed data in doc from source for target !
-		sourceAddrDoc.put(MdekKeys.UUID, newUuid);
+		targetAddrDoc.put(MdekKeys.UUID, newUuid);
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
-		sourceAddrDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
-		sourceAddrDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		beanToDocMapper.mapModUser(userUuid, sourceAddrDoc, MappingQuantity.INITIAL_ENTITY);
-		beanToDocMapper.mapResponsibleUser(userUuid, sourceAddrDoc, MappingQuantity.INITIAL_ENTITY);				
+		targetAddrDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
+		targetAddrDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		beanToDocMapper.mapModUser(userUuid, targetAddrDoc, MappingQuantity.INITIAL_ENTITY);
+		beanToDocMapper.mapResponsibleUser(userUuid, targetAddrDoc, MappingQuantity.INITIAL_ENTITY);				
+		workflowHandler.processDocOnCopy(targetAddrDoc);
 
 		// and transfer data from doc to new bean
-		docToBeanMapper.mapT02Address(sourceAddrDoc, targetAddr, MappingQuantity.COPY_ENTITY);
+		docToBeanMapper.mapT02Address(targetAddrDoc, targetAddr, MappingQuantity.COPY_ENTITY);
 
 		daoT02Address.makePersistent(targetAddr);
 
