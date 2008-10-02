@@ -104,10 +104,12 @@ public class MdekUtils {
 
 	/** e.g. Which entities to fetch ? */
 	public enum IdcEntitySelectionType {
-		/** all expired entities (determined by job) */
-		EXPIRY_STATE_EXPIRED,
-		/** all entities where spatial relations were updated e.g. due to catalog management */
-		SPATIAL_RELATIONS_UPDATED
+		/** QA: all expired entities (determined by job) */
+		QA_EXPIRY_STATE_EXPIRED,
+		/** QA: all entities where spatial relations were updated e.g. due to catalog management */
+		QA_SPATIAL_RELATIONS_UPDATED,
+		/** Statistics: analysis how many entities per class and work state */
+		STATISTICS_CLASSES_AND_STATES,
 		;
 	}
 
@@ -228,7 +230,30 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Type of addresses */
+	/** Type of object (object class) */
+	public enum ObjectType implements IMdekEnum {
+		ORGANISATION(0, "Organisationseinheit/Fachaufgabe"),
+		GEO_INFORMATION(1, "Geo-Information/Karte"),
+		DOKUMENT(2, "Dokument/Bericht/Literatur"),
+		DIENST(3, "Dienst/Anwendung/Informationssystem"),
+		VORHABEN(4, "Vorhaben/Projekt/Programm"),
+		DATENSAMMLUNG(5, "Datensammlung/Datenbank");
+
+		ObjectType(Integer dbValue, String description) {
+			this.dbValue = dbValue;
+			this.description = description;
+		}
+		public Integer getDbValue() {
+			return dbValue;
+		}
+		public String toString() {
+			return description;
+		}
+		Integer dbValue;
+		String description;
+	}
+
+	/** Type of addresses (address class) */
 	public enum AddressType implements IMdekEnum {
 		INSTITUTION(0, "Institution"),
 		EINHEIT(1, "Einheit"),

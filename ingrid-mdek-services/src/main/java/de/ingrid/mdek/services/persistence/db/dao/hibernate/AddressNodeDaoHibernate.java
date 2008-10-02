@@ -808,9 +808,9 @@ public class AddressNodeDaoHibernate
 				if (addAnd) {
 					qString += " and ";
 				}
-				if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
 					qString += "aNode.t02AddressWork.addressMetadata.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
 					// TODO: Add when implementing catalog management sns update !
 					return 0;
 				} else {
@@ -856,9 +856,9 @@ public class AddressNodeDaoHibernate
 				if (addAnd) {
 					qString += " and ";
 				}
-				if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
 					qString += "aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
 					// TODO: Add when implementing catalog management sns update !
 					return retList;
 				} else {
@@ -892,12 +892,12 @@ public class AddressNodeDaoHibernate
 
 		// then additional selection criteria
 		if (selectionType != null) {
-			if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+			if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
 				if (!MdekUtils.ExpiryState.EXPIRED.getDbValue().equals(a.getAddressMetadata().getExpiryState())) {
 					return false;
 				}
 
-			} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+			} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
 				// TODO: Add when implementing catalog management sns update !
 				return false;
 

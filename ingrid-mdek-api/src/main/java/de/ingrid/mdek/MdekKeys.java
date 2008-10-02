@@ -116,7 +116,6 @@ public class MdekKeys {
     /** address: extended search: subject: search range ('all text fields'(0), 'institutions, person, description, keywords'(1))<br>
      * Value: Integer */
 	public static final String SEARCH_RANGE = "search-range";
-    
 
     // RESULT
     /** total number of hits<br>
@@ -125,6 +124,13 @@ public class MdekKeys {
     /** Value: String (csv lines, first line contains "titles") */
     public final static String CSV_RESULT = "csv-result";
 
+
+    // STATISTICS
+    // ----------
+    // RESULT
+    /** e.g. total number of entities of specific class counted<br>
+     * Value: Long */
+    public final static String TOTAL_NUM = "total-num";
 
     // VERSIONING (read from properties file)
     // ----------

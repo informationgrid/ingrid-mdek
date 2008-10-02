@@ -11,11 +11,13 @@ import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
@@ -652,9 +654,9 @@ public class ObjectNodeDaoHibernate
 				if (addAnd) {
 					qString += " and ";
 				}
-				if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
 					qString += "oNode.t01ObjectWork.objectMetadata.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
 					// TODO: Add when implementing catalog management sns update !
 					return 0;
 				} else {
@@ -700,9 +702,9 @@ public class ObjectNodeDaoHibernate
 				if (addAnd) {
 					qString += " and ";
 				}
-				if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
 					qString += "oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
 					// TODO: Add when implementing catalog management sns update !
 					return retList;
 				} else {
@@ -736,12 +738,12 @@ public class ObjectNodeDaoHibernate
 
 		// then additional selection criteria
 		if (selectionType != null) {
-			if (selectionType == IdcEntitySelectionType.EXPIRY_STATE_EXPIRED) {
+			if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
 				if (!MdekUtils.ExpiryState.EXPIRED.getDbValue().equals(o.getObjectMetadata().getExpiryState())) {
 					return false;
 				}
 
-			} else if (selectionType == IdcEntitySelectionType.SPATIAL_RELATIONS_UPDATED) {
+			} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
 				// TODO: Add when implementing catalog management sns update !
 				return false;
 
@@ -823,5 +825,59 @@ public class ObjectNodeDaoHibernate
 		System.out.println("getTreeObjects EXECUTION TIME: " + neededTime + " ms");
 */
 		return treeNodes;
+	}
+
+	public IngridDocument getObjectStatistics(String parentUuid, IdcEntitySelectionType selectionType) {
+		IngridDocument result = new IngridDocument();
+		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
+			result = getObjectStatistics_classesAndStates(parentUuid);
+		}
+		
+		return result;
+	}
+	
+	private IngridDocument getObjectStatistics_classesAndStates(String parentUuid) {
+		IngridDocument result = new IngridDocument();
+		
+		Session session = getSession();
+
+		// prepare query
+		// node token in path !
+		String parentUuidToken = "|" +  parentUuid + "|";
+		String qString = "select count(distinct oNode) " +
+			"from " +
+				"ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork obj " +
+			"where " +
+				// NOTICE: tree path in node doesn't contain node itself
+				"(oNode.treePath like '%" + parentUuidToken + "%' " +
+					"OR oNode.objUuid = '" + parentUuid + "')";
+
+		// fetch number of objects of specific class and work state
+		Object[] objClasses = EnumUtil.getDbValues(ObjectType.class);
+		Object[] workStates = EnumUtil.getDbValues(WorkState.class);
+		Long totalNum;
+		for (Object objClass : objClasses) {
+			IngridDocument classMap = new IngridDocument();
+
+			// get total number of entities of given class underneath parent
+			String qStringClass = qString +	" AND obj.objClass = " + objClass;
+			totalNum = (Long) session.createQuery(qStringClass).uniqueResult();
+			
+			classMap.put(MdekKeys.TOTAL_NUM, totalNum);
+			
+			// add number of different work states
+			for (Object workState : workStates) {
+				// get total number of entities of given class underneath parent
+				String qStringState = qStringClass + " AND obj.workState = '" + workState + "'";
+				totalNum = (Long) session.createQuery(qStringState).uniqueResult();
+
+				classMap.put(workState, totalNum);
+			}
+
+			result.put(objClass, classMap);
+		}
+
+		return result;
 	}
 }

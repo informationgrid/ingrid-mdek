@@ -335,6 +335,27 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument getObjectStatistics(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		try {
+			String parentUuid = (String) params.get(MdekKeys.UUID);
+			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+
+			daoObjectNode.beginTransaction();
+
+			IngridDocument result =
+				daoObjectNode.getObjectStatistics(parentUuid, selectionType);
+
+			daoObjectNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument storeObject(IngridDocument oDocIn) {
 		String userId = getCurrentUserUuid(oDocIn);
 		boolean removeRunningJob = true;

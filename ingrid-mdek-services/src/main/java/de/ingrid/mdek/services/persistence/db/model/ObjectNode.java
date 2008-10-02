@@ -13,6 +13,7 @@ public class ObjectNode implements IEntity {
 	private Long objId;
 	private Long objIdPublished;
 	private String fkObjUuid;
+	private String treePath;
 
 	private Set fullIndexObjs = new HashSet();
 	private T01Object t01ObjectWork;
@@ -67,6 +68,14 @@ public class ObjectNode implements IEntity {
 
 	public void setFkObjUuid(String fkObjUuid) {
 		this.fkObjUuid = fkObjUuid;
+	}
+
+	public String getTreePath() {
+		return treePath;
+	}
+
+	public void setTreePath(String treePath) {
+		this.treePath = treePath;
 	}
 
 

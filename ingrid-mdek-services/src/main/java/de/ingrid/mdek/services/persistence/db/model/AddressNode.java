@@ -13,6 +13,7 @@ public class AddressNode implements IEntity {
 	private Long addrId;
 	private Long addrIdPublished;
 	private String fkAddrUuid;
+	private String treePath;
 
 	private T02Address t02AddressWork;
 	private T02Address t02AddressPublished;
@@ -68,6 +69,14 @@ public class AddressNode implements IEntity {
 
 	public void setFkAddrUuid(String fkAddrUuid) {
 		this.fkAddrUuid = fkAddrUuid;
+	}
+
+	public String getTreePath() {
+		return treePath;
+	}
+
+	public void setTreePath(String treePath) {
+		this.treePath = treePath;
 	}
 
 

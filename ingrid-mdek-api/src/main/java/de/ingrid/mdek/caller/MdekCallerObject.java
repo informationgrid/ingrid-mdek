@@ -225,4 +225,15 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument getObjectStatistics(String plugId, String parentUuid,
+			IdcEntitySelectionType selectionType, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, parentUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE, selectionType);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getObjectStatistics", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+	}
 }

@@ -210,4 +210,15 @@ public interface IMdekCallerObject {
 	IngridDocument getQAObjects(String plugId,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType,
 			Integer maxNum, String userId);
+
+	/**
+	 * Get statistics info about the tree branch of the given object.
+	 * @param plugId which mdek server (iplug)
+	 * @param parentUuid root of tree branch to get statistics from
+	 * @param selectionType what kind of statistics
+	 * @return response containing result: map containing statistics
+	 */
+	IngridDocument getObjectStatistics(String plugId, String parentUuid,
+			IdcEntitySelectionType selectionType, String userId);
+
 }

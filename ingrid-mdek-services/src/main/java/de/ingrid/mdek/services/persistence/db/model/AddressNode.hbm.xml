@@ -11,6 +11,7 @@
       <property name="addrId" type="long" column="addr_id"/>
       <property name="addrIdPublished" type="long" column="addr_id_published"/>
       <property name="fkAddrUuid" type="string" column="fk_addr_uuid"/>
+      <property name="treePath" type="string" column="tree_path"/>
 
       <many-to-one name="t02AddressWork" class="T02Address" column="addr_id" update="false"
                    insert="false"

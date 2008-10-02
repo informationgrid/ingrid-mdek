@@ -11,6 +11,7 @@
       <property name="objId" type="long" column="obj_id"/>
       <property name="objIdPublished" type="long" column="obj_id_published"/>
       <property name="fkObjUuid" type="string" column="fk_obj_uuid"/>
+      <property name="treePath" type="string" column="tree_path"/>
 
       <set name="fullIndexObjs" table="full_index_obj" inverse="true"
            cascade="all-delete-orphan">

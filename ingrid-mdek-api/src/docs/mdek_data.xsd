@@ -41,6 +41,7 @@
 			<xs:element name="RESULT_SEARCH_MAP" type="RESULT_SEARCH_MAP"/>
 			<xs:element name="RESULT_VERSION_MAP" type="RESULT_VERSION_MAP"/>
 			<xs:element name="RESULT_SECURITY_MAP" type="RESULT_SECURITY_MAP"/>
+			<xs:element name="RESULT_STATISTICS_MAP" type="RESULT_STATISTICS_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -395,6 +396,26 @@
 			<xs:element name="idc-object-permissions" type="ENTITY_PERMISSION_LIST"/>
 			<xs:element name="idc-user-permissions" type="PERMISSION_LIST"/>
 		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="RESULT_STATISTICS_MAP">
+		<xs:sequence minOccurs="1" maxOccurs="6">
+			<!-- e.g. use as key 0 ("Organisationseinheit") or 2 ("Dokument") and get map with statistics of that entity class (total num and num workstates) -->
+			<xs:element name="KEY_IS_ENTITYCLASS_DB_VALUE" type="STATISTICS_ENTITYCLASS_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="STATISTICS_ENTITYCLASS_MAP">
+		<xs:sequence minOccurs="1" maxOccurs="1">
+			<!-- total number of entities of  specific class -->
+			<xs:element name="total-num" type="xs:long"/>
+			<!-- number of entities of  specific class in different workstates -->
+			<xs:element name="STATISTICS_WORKSTATE_MAP" type="STATISTICS_WORKSTATE_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="STATISTICS_WORKSTATE_MAP">
+		<xs:sequence minOccurs="1" maxOccurs="4">
+			<!-- e.g. use as key "B" ("in Bearbeitung") or "V" ("veroeffentlicht") and get number of entities in that work state (long) -->
+			<xs:element name="KEY_IS_WORKSTATE_DB_VALUE" type="xs:long"/>
+		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ENTITY_PERMISSION_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
