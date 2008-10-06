@@ -182,4 +182,12 @@ public interface IAddressNodeDao
 	 */
 	List<AddressNode> getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum);
+
+	/**
+	 * Get statistics about address branch.
+	 * @param parentUuid top address of tree branch
+	 * @param selectionType what kind of statistic analysis
+	 * @return doc containing statistic info according to protocol
+	 */
+	IngridDocument getAddressStatistics(String parentUuid, IdcEntitySelectionType selectionType);
 }

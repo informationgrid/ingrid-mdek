@@ -151,6 +151,7 @@ class MdekExampleQSThread extends Thread {
 		//  38664688-B449-11D2-9A86-080000507261
 		//   15C69C20-FE15-11D2-AF34-0060084A4596
 		//    2C997C68-2247-11D3-AF51-0060084A4596
+		//     C1AA9CA6-772D-11D3-AF92-0060084A4596 // leaf
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
 		// all further top nodes (5 top nodes at all)
 		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";

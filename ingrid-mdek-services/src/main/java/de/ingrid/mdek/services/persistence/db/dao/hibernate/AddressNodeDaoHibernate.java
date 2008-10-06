@@ -980,4 +980,58 @@ public class AddressNodeDaoHibernate
 */
 		return treeNodes;
 	}
+
+	public IngridDocument getAddressStatistics(String parentUuid, IdcEntitySelectionType selectionType) {
+		IngridDocument result = new IngridDocument();
+		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
+			result = getAddressStatistics_classesAndStates(parentUuid);
+		}
+		
+		return result;
+	}
+	
+	private IngridDocument getAddressStatistics_classesAndStates(String parentUuid) {
+		IngridDocument result = new IngridDocument();
+		
+		Session session = getSession();
+
+		// prepare query
+		// node token in path !
+		String parentUuidToken = "|" +  parentUuid + "|";
+		String qString = "select count(distinct aNode) " +
+			"from " +
+				"AddressNode aNode " +
+				"inner join aNode.t02AddressWork addr " +
+			"where " +
+				// NOTICE: tree path in node doesn't contain node itself
+				"(aNode.treePath like '%" + parentUuidToken + "%' " +
+					"OR aNode.addrUuid = '" + parentUuid + "')";
+
+		// fetch number of addresses of specific class and work state
+		Object[] addrClasses = EnumUtil.getDbValues(AddressType.class);
+		Object[] workStates = EnumUtil.getDbValues(WorkState.class);
+		Long totalNum;
+		for (Object addrClass : addrClasses) {
+			IngridDocument classMap = new IngridDocument();
+
+			// get total number of entities of given class underneath parent
+			String qStringClass = qString +	" AND addr.adrType = " + addrClass;
+			totalNum = (Long) session.createQuery(qStringClass).uniqueResult();
+			
+			classMap.put(MdekKeys.TOTAL_NUM, totalNum);
+			
+			// add number of different work states
+			for (Object workState : workStates) {
+				// get total number of entities of given work state
+				String qStringState = qStringClass + " AND addr.workState = '" + workState + "'";
+				totalNum = (Long) session.createQuery(qStringState).uniqueResult();
+
+				classMap.put(workState, totalNum);
+			}
+
+			result.put(addrClass, classMap);
+		}
+
+		return result;
+	}
 }

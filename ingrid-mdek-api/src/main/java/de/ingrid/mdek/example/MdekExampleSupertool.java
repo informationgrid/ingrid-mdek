@@ -2179,6 +2179,30 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument getAddressStatistics(String uuidIn, IdcEntitySelectionType whichType) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getAddressStatistics: " + whichType + " ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.getAddressStatistics(plugId, uuidIn, whichType, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	public void trackRunningJob(int sleepTimeMillis, boolean doCancel) {
 		IngridDocument response;
 		IngridDocument result;

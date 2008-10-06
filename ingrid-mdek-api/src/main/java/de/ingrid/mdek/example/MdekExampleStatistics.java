@@ -141,12 +141,24 @@ class MdekExampleStatisticsThread extends Thread {
 		//  38664688-B449-11D2-9A86-080000507261
 		//   15C69C20-FE15-11D2-AF34-0060084A4596
 		//    2C997C68-2247-11D3-AF51-0060084A4596
+		//     C1AA9CA6-772D-11D3-AF92-0060084A4596 // leaf
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
 		// all further top nodes (5 top nodes at all)
 		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
 //		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
 //		String topObjUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
 //		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
+
+		// ADDRESSES
+		// TOP ADDRESS
+		String topAddrUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
+		// PARENT ADDRESS (sub address of topUuid)
+		String parentAddrUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
+		// PERSON ADDRESS (sub address of parentUuid)
+		String personAddrUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+		// further non free top addresses (110 top nodes at all)
+		String topAddrUuid2 = "386644BF-B449-11D2-9A86-080000507261";
+//		String topAddrUuid3 = "4E9DD4F5-BC14-11D2-A63A-444553540000";
 
 		System.out.println("\n\n----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		doc = supertool.getCatalogAdmin();
@@ -175,8 +187,20 @@ class MdekExampleStatisticsThread extends Thread {
 		System.out.println("OBJECT STATISTICS");
 		System.out.println("=========================");
 
+//		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+//		supertool.fetchSubObjects(objUuid);
+		
 		System.out.println("\n----- CLASSES AND WORK STATES -----");
-		IngridDocument catDoc = supertool.getObjectStatistics(topObjUuid, 
+		doc = supertool.getObjectStatistics(topObjUuid, 
+				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES);
+
+
+		System.out.println("\n\n=========================");
+		System.out.println("ADDRESS STATISTICS");
+		System.out.println("=========================");
+
+		System.out.println("\n----- CLASSES AND WORK STATES -----");
+		doc = supertool.getAddressStatistics(personAddrUuid, 
 				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES);
 
 // ===================================

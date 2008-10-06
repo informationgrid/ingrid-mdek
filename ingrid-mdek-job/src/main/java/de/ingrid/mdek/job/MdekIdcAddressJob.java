@@ -371,6 +371,27 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument getAddressStatistics(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		try {
+			String parentUuid = (String) params.get(MdekKeys.UUID);
+			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+
+			daoAddressNode.beginTransaction();
+
+			IngridDocument result =
+				daoAddressNode.getAddressStatistics(parentUuid, selectionType);
+
+			daoAddressNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument storeAddress(IngridDocument aDocIn) {
 		String userId = getCurrentUserUuid(aDocIn);
 		boolean removeRunningJob = true;

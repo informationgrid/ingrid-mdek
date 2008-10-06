@@ -264,4 +264,15 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument getAddressStatistics(String plugId, String parentUuid,
+			IdcEntitySelectionType selectionType, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, parentUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE, selectionType);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getAddressStatistics", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+	}
 }

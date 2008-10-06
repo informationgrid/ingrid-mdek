@@ -868,7 +868,7 @@ public class ObjectNodeDaoHibernate
 			
 			// add number of different work states
 			for (Object workState : workStates) {
-				// get total number of entities of given class underneath parent
+				// get total number of entities of given work state
 				String qStringState = qStringClass + " AND obj.workState = '" + workState + "'";
 				totalNum = (Long) session.createQuery(qStringState).uniqueResult();
 
