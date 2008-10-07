@@ -405,7 +405,7 @@
 			<!-- STATISTICS_CLASSES_AND_STATES  -->
 			<!-- e.g. use as key 0 ("Organisationseinheit") or 2 ("Dokument") and get map with statistics of that entity class (total num and num workstates) -->
 			<xs:element name="KEY_IS_ENTITYCLASS_DB_VALUE" type="STATISTICS_ENTITYCLASS_MAP"/>
-			<!-- STATISTICS_SEARCHTERMS_FREE -->
+			<!-- STATISTICS_SEARCHTERMS_FREE / STATISTICS_SEARCHTERMS_THESAURUS -->
 			<!-- ordered by num occurences of searchterms descending -->
 			<xs:element name="statistics-searchterm-list" type="STATISTICS_SEARCHTERM_LIST"/>
 			<xs:element name="total-num" type="xs:long"/>

@@ -990,8 +990,9 @@ public class AddressNodeDaoHibernate
 		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
 			result = getAddressStatistics_classesAndStates(parentUuid, onlyFreeAddresses);
 
-		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
-			result = getAddressStatistics_searchtermsFree(parentUuid, onlyFreeAddresses, startHit, numHits);
+		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE ||
+				selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+			result = getAddressStatistics_searchterms(parentUuid, onlyFreeAddresses, startHit, numHits, selectionType);
 		}
 		
 		return result;
@@ -1059,8 +1060,9 @@ public class AddressNodeDaoHibernate
 		return result;
 	}
 
-	private IngridDocument getAddressStatistics_searchtermsFree(String parentUuid,
-			boolean onlyFreeAddresses, int startHit, int numHits) {
+	private IngridDocument getAddressStatistics_searchterms(String parentUuid,
+			boolean onlyFreeAddresses, int startHit, int numHits,
+			IdcEntitySelectionType selectionType) {
 
 		IngridDocument result = new IngridDocument();
 		
@@ -1073,8 +1075,12 @@ public class AddressNodeDaoHibernate
 				"inner join aNode.t02AddressWork addr " +
 				"inner join addr.searchtermAdrs searchtAddr " +
 				"inner join searchtAddr.searchtermValue searchtVal " +
-			"where " +
-				"searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";
+			"where ";
+		if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
+			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
+		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+			qStringFromWhere += " searchtVal.type = '" + SearchtermType.THESAURUS.getDbValue() + "' ";			
+		}
 
 		if (parentUuid != null) {
 			// node token in path !

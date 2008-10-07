@@ -836,8 +836,9 @@ public class ObjectNodeDaoHibernate
 		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
 			result = getObjectStatistics_classesAndStates(parentUuid);
 
-		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
-			result = getObjectStatistics_searchtermsFree(parentUuid, startHit, numHits);
+		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE ||
+				selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+			result = getObjectStatistics_searchterms(parentUuid, startHit, numHits, selectionType);
 		}
 		
 		return result;
@@ -891,8 +892,9 @@ public class ObjectNodeDaoHibernate
 		return result;
 	}
 
-	private IngridDocument getObjectStatistics_searchtermsFree(String parentUuid,
-			int startHit, int numHits) {
+	private IngridDocument getObjectStatistics_searchterms(String parentUuid,
+			int startHit, int numHits,
+			IdcEntitySelectionType selectionType) {
 
 		IngridDocument result = new IngridDocument();
 		
@@ -905,8 +907,12 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectWork obj " +
 				"inner join obj.searchtermObjs searchtObj " +
 				"inner join searchtObj.searchtermValue searchtVal " +
-			"where " +
-				"searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";
+			"where ";
+		if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
+			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
+		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+			qStringFromWhere += " searchtVal.type = '" + SearchtermType.THESAURUS.getDbValue() + "' ";			
+		}
 
 		if (parentUuid != null) {
 			// node token in path !
