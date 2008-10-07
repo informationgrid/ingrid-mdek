@@ -18,6 +18,7 @@ import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.ObjectType;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
@@ -827,10 +828,16 @@ public class ObjectNodeDaoHibernate
 		return treeNodes;
 	}
 
-	public IngridDocument getObjectStatistics(String parentUuid, IdcEntitySelectionType selectionType) {
+	public IngridDocument getObjectStatistics(String parentUuid,
+			IdcEntitySelectionType selectionType,
+			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
+
 		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
 			result = getObjectStatistics_classesAndStates(parentUuid);
+
+		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
+			result = getObjectStatistics_searchtermsFree(parentUuid, startHit, numHits);
 		}
 		
 		return result;
@@ -842,16 +849,19 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		// prepare query
-		// node token in path !
-		String parentUuidToken = "|" +  parentUuid + "|";
 		String qString = "select count(distinct oNode) " +
 			"from " +
 				"ObjectNode oNode " +
 				"inner join oNode.t01ObjectWork obj " +
-			"where " +
-				// NOTICE: tree path in node doesn't contain node itself
-				"(oNode.treePath like '%" + parentUuidToken + "%' " +
-					"OR oNode.objUuid = '" + parentUuid + "')";
+			"where ";
+		if (parentUuid != null) {
+			// node token in path !
+			String parentUuidToken = "|" +  parentUuid + "|";
+			// NOTICE: tree path in node doesn't contain node itself
+			qString += "(oNode.treePath like '%" + parentUuidToken + "%' " +
+				"OR oNode.objUuid = '" + parentUuid + "') " +
+				"AND ";
+		}
 
 		// fetch number of objects of specific class and work state
 		Object[] objClasses = EnumUtil.getDbValues(ObjectType.class);
@@ -861,7 +871,7 @@ public class ObjectNodeDaoHibernate
 			IngridDocument classMap = new IngridDocument();
 
 			// get total number of entities of given class underneath parent
-			String qStringClass = qString +	" AND obj.objClass = " + objClass;
+			String qStringClass = qString +	" obj.objClass = " + objClass;
 			totalNum = (Long) session.createQuery(qStringClass).uniqueResult();
 			
 			classMap.put(MdekKeys.TOTAL_NUM, totalNum);
@@ -877,6 +887,77 @@ public class ObjectNodeDaoHibernate
 
 			result.put(objClass, classMap);
 		}
+
+		return result;
+	}
+
+	private IngridDocument getObjectStatistics_searchtermsFree(String parentUuid,
+			int startHit, int numHits) {
+
+		IngridDocument result = new IngridDocument();
+		
+		Session session = getSession();
+
+		// basics for queries to execute
+
+		String qStringFromWhere = "from " +
+				"ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork obj " +
+				"inner join obj.searchtermObjs searchtObj " +
+				"inner join searchtObj.searchtermValue searchtVal " +
+			"where " +
+				"searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";
+
+		// node token in path !
+		String parentUuidToken = "|" +  parentUuid + "|";
+		// NOTICE: tree path in node doesn't contain node itself
+		String qStringWhereParent = " AND (oNode.treePath like '%" + parentUuidToken + "%' " +
+		"OR oNode.objUuid = '" + parentUuid + "') ";
+
+		// first count number of assigned free search terms
+		String qString = "select count(searchtVal.term) " +
+			qStringFromWhere;
+		if (parentUuid != null) {
+			qString += qStringWhereParent;
+		}
+		Long totalNumSearchtermsAssigned = (Long) session.createQuery(qString).uniqueResult();
+
+		// then count number of distinct free search terms for paging
+		qString = "select count(distinct searchtVal.term) " +
+			qStringFromWhere;
+		if (parentUuid != null) {
+			qString += qStringWhereParent;
+		}
+		Long totalNumSearchtermsPaging = (Long) session.createQuery(qString).uniqueResult();
+
+		// then count every searchterm
+		qString = "select searchtVal.term, count(searchtVal.term) " +
+			qStringFromWhere;
+		if (parentUuid != null) {
+			qString += qStringWhereParent;
+		}		
+		qString += " group by searchtVal.term " +
+			"order by count(searchtVal.term) desc, searchtVal.term";
+
+		List hits = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		ArrayList<IngridDocument> termDocs = new ArrayList<IngridDocument>();
+		for (Object hit : hits) {
+			Object[] objs = (Object[]) hit;
+
+			IngridDocument termDoc = new IngridDocument();
+			termDoc.put(MdekKeys.TERM_NAME, objs[0]);
+			termDoc.put(MdekKeys.TOTAL_NUM, objs[1]);
+			
+			termDocs.add(termDoc);
+		}
+
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumSearchtermsPaging);
+		result.put(MdekKeys.TOTAL_NUM, totalNumSearchtermsAssigned);
+		result.put(MdekKeys.STATISTICS_SEARCHTERM_LIST, termDocs);
 
 		return result;
 	}

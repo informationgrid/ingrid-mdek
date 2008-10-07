@@ -48,6 +48,13 @@ public class MdekKeys {
      * e.g. in state "Q" no write if not "QA"<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_CHECK_WORKFLOW = "requestinfo_checkWorkflow";
+    /** PAGING: hit to start with (first hit == 0)<br>
+     * Value: Integer */
+    public final static String REQUESTINFO_START_HIT = "requestinfo_startHit";
+    /** PAGING: number of hits requested starting at start hit<br>
+     * Value: Integer */
+    public final static String REQUESTINFO_NUM_HITS = "requestinfo_numHits";
+
 
     /** Value: String */
     public final static String LANGUAGE = "language";
@@ -128,9 +135,14 @@ public class MdekKeys {
     // STATISTICS
     // ----------
     // RESULT
-    /** e.g. total number of entities of specific class counted<br>
+    /** e.g. total number of entities of specific class counted or assigned search terms (Gesamtsumme)<br>
      * Value: Long */
     public final static String TOTAL_NUM = "total-num";
+    /** total number of entries for paging<br>
+     * Value: Long */
+    public final static String TOTAL_NUM_PAGING = "total-num-paging";
+    /** Value: List of IngridDocs */
+    public final static String STATISTICS_SEARCHTERM_LIST = "statistics-searchterm-list";
 
     // VERSIONING (read from properties file)
     // ----------

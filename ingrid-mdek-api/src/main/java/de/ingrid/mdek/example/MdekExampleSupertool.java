@@ -2155,7 +2155,9 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getObjectStatistics(String uuidIn, IdcEntitySelectionType whichType) {
+	public IngridDocument getObjectStatistics(String uuidIn,
+			IdcEntitySelectionType whichType,
+			int startHit, int numHits) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -2163,8 +2165,11 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getObjectStatistics: " + whichType + " ######");
+		System.out.println("- top node of branch:" + uuidIn);
+		System.out.println("- paging from:" + startHit);
+		System.out.println("- paging num:" + numHits);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getObjectStatistics(plugId, uuidIn, whichType, myUserUuid);
+		response = mdekCallerObject.getObjectStatistics(plugId, uuidIn, whichType, startHit, numHits, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -2179,7 +2184,8 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
-	public IngridDocument getAddressStatistics(String uuidIn, IdcEntitySelectionType whichType) {
+	public IngridDocument getAddressStatistics(String uuidIn, boolean onlyFreeAddresses,
+			IdcEntitySelectionType whichType) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -2187,8 +2193,11 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getAddressStatistics: " + whichType + " ######");
+		System.out.println("- top node of branch:" + uuidIn);
+		System.out.println("- only free addresses:" + onlyFreeAddresses);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getAddressStatistics(plugId, uuidIn, whichType, myUserUuid);
+		response = mdekCallerAddress.getAddressStatistics(plugId, uuidIn, onlyFreeAddresses,
+				whichType, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

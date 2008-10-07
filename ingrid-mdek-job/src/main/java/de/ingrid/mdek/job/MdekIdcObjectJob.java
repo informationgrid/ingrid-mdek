@@ -340,11 +340,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		try {
 			String parentUuid = (String) params.get(MdekKeys.UUID);
 			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
+			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
 
 			IngridDocument result =
-				daoObjectNode.getObjectStatistics(parentUuid, selectionType);
+				daoObjectNode.getObjectStatistics(parentUuid, selectionType, startHit, numHits);
 
 			daoObjectNode.commitTransaction();
 			return result;

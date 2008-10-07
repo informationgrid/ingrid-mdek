@@ -228,6 +228,9 @@
 			<xs:element name="requestinfo_entitySelectionType" type="xs:integer"/>
 			<!-- e.g. when fetching permissions for entity include check of workflow state (true) or not (false). e.g. in state "Q" no write if not "QA" -->
 			<xs:element name="requestinfo_checkWorkflow" type="xs:boolean"/>
+			<!-- generic paging parameters ! added for STATISTICS. Notice: we also have separate paging params for search and Object-Address references :( -->
+			<xs:element name="requestinfo_startHit" type="xs:integer"/>
+			<xs:element name="requestinfo_numHits" type="xs:integer"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_SEARCH_MAP">
@@ -398,10 +401,16 @@
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="RESULT_STATISTICS_MAP">
-		<xs:sequence minOccurs="1" maxOccurs="6">
+		<xs:choice>
+			<!-- STATISTICS_CLASSES_AND_STATES  -->
 			<!-- e.g. use as key 0 ("Organisationseinheit") or 2 ("Dokument") and get map with statistics of that entity class (total num and num workstates) -->
 			<xs:element name="KEY_IS_ENTITYCLASS_DB_VALUE" type="STATISTICS_ENTITYCLASS_MAP"/>
-		</xs:sequence>
+			<!-- STATISTICS_SEARCHTERMS_FREE -->
+			<!-- ordered by num occurences of searchterms descending -->
+			<xs:element name="statistics-searchterm-list" type="STATISTICS_SEARCHTERM_LIST"/>
+			<xs:element name="total-num" type="xs:long"/>
+			<xs:element name="total-num-paging" type="xs:long"/>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="STATISTICS_ENTITYCLASS_MAP">
 		<xs:sequence minOccurs="1" maxOccurs="1">
@@ -415,6 +424,17 @@
 		<xs:sequence minOccurs="1" maxOccurs="4">
 			<!-- e.g. use as key "B" ("in Bearbeitung") or "V" ("veroeffentlicht") and get number of entities in that work state (long) -->
 			<xs:element name="KEY_IS_WORKSTATE_DB_VALUE" type="xs:long"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="STATISTICS_SEARCHTERM_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="STATISTICS_SEARCHTERM_MAP" type="STATISTICS_SEARCHTERM_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="STATISTICS_SEARCHTERM_MAP">
+		<xs:sequence>
+			<xs:element name="term-name" type="xs:string"/>
+			<xs:element name="total-num" type="xs:long"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ENTITY_PERMISSION_LIST">

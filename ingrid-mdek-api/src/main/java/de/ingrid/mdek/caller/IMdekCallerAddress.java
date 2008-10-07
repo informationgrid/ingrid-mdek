@@ -274,10 +274,14 @@ public interface IMdekCallerAddress {
 	/**
 	 * Get statistics info about the tree branch of the given address.
 	 * @param plugId which mdek server (iplug)
-	 * @param parentUuid root of tree branch to get statistics from
+	 * @param parentUuid root of tree branch to get statistics from, pass null if whole catalog
+	 * @param onlyFreeAddresses only evaluated if passed parent is null -> 
+	 * 		true=only free addresses, false=all addresses (whole catalog)
 	 * @param selectionType what kind of statistics
-	 * @return response containing result: map containing statistics
+	 * @return response containing result: map containing statistics according to protocol
 	 */
-	IngridDocument getAddressStatistics(String plugId, String parentUuid,
-			IdcEntitySelectionType selectionType, String userId);
+	IngridDocument getAddressStatistics(String plugId,
+			String parentUuid, boolean onlyFreeAddresses,
+			IdcEntitySelectionType selectionType,
+			String userId);
 }

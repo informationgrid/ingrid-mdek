@@ -143,6 +143,7 @@ class MdekExampleStatisticsThread extends Thread {
 		//    2C997C68-2247-11D3-AF51-0060084A4596
 		//     C1AA9CA6-772D-11D3-AF92-0060084A4596 // leaf
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
+		String objLeafUuid = "C1AA9CA6-772D-11D3-AF92-0060084A4596";
 		// all further top nodes (5 top nodes at all)
 		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
 //		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
@@ -190,9 +191,44 @@ class MdekExampleStatisticsThread extends Thread {
 //		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
 //		supertool.fetchSubObjects(objUuid);
 		
-		System.out.println("\n----- CLASSES AND WORK STATES -----");
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- CLASSES AND WORK STATES -----");
+
+		System.out.println("\n----- whole catalog -----");
+		doc = supertool.getObjectStatistics(null, 
+				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				-1, -1);
+		System.out.println("\n----- tree branch -----");
 		doc = supertool.getObjectStatistics(topObjUuid, 
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES);
+				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				-1, -1);
+		System.out.println("\n----- leaf -----");
+		doc = supertool.getObjectStatistics(objLeafUuid, 
+				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				-1, -1);
+
+		
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- SEARCHTERMS FREE -----");
+
+		// plain sql for evaluating results !
+		// SELECT *  FROM `searchterm_obj` so, searchterm_value sv WHERE so.searchterm_id=sv.id and `obj_id` = 5012
+
+		System.out.println("\n----- whole catalog -----");
+		doc = supertool.getObjectStatistics(null, 
+				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				0, 10);
+		doc = supertool.getObjectStatistics(null, 
+				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				10, 10);
+		System.out.println("\n----- tree branch -----");
+		doc = supertool.getObjectStatistics(topObjUuid, 
+				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				0, 10);
+		System.out.println("\n----- leaf -----");
+		doc = supertool.getObjectStatistics(objLeafUuid, 
+				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				0, 10);
 
 
 		System.out.println("\n\n=========================");
@@ -200,8 +236,19 @@ class MdekExampleStatisticsThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- CLASSES AND WORK STATES -----");
-		doc = supertool.getAddressStatistics(personAddrUuid, 
+		System.out.println("\n----- whole catalog -----");
+		doc = supertool.getAddressStatistics(null, false,
 				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES);
+		System.out.println("\n----- all free addresses -----");
+		doc = supertool.getAddressStatistics(null, true,
+				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES);
+		System.out.println("\n----- tree branch -----");
+		doc = supertool.getAddressStatistics(topAddrUuid, false, 
+				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES);
+		System.out.println("\n----- leaf -----");
+		doc = supertool.getAddressStatistics(personAddrUuid, false, 
+				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES);
+
 
 // ===================================
 

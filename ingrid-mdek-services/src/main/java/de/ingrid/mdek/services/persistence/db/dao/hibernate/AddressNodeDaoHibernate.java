@@ -981,41 +981,58 @@ public class AddressNodeDaoHibernate
 		return treeNodes;
 	}
 
-	public IngridDocument getAddressStatistics(String parentUuid, IdcEntitySelectionType selectionType) {
+	public IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,
+			IdcEntitySelectionType selectionType) {
 		IngridDocument result = new IngridDocument();
 		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
-			result = getAddressStatistics_classesAndStates(parentUuid);
+			result = getAddressStatistics_classesAndStates(parentUuid, onlyFreeAddresses);
 		}
 		
 		return result;
 	}
 	
-	private IngridDocument getAddressStatistics_classesAndStates(String parentUuid) {
+	private IngridDocument getAddressStatistics_classesAndStates(String parentUuid, boolean onlyFreeAddresses) {
 		IngridDocument result = new IngridDocument();
 		
 		Session session = getSession();
 
 		// prepare query
-		// node token in path !
-		String parentUuidToken = "|" +  parentUuid + "|";
 		String qString = "select count(distinct aNode) " +
 			"from " +
 				"AddressNode aNode " +
 				"inner join aNode.t02AddressWork addr " +
-			"where " +
-				// NOTICE: tree path in node doesn't contain node itself
-				"(aNode.treePath like '%" + parentUuidToken + "%' " +
-					"OR aNode.addrUuid = '" + parentUuid + "')";
+			"where ";
+
+		// which classes to evaluate
+		Object[] addrClasses;
+		if (parentUuid != null) {
+			// all classes in tree branch
+			addrClasses = EnumUtil.getDbValues(AddressType.class);
+
+			// node token in path !
+			String parentUuidToken = "|" +  parentUuid + "|";
+			// NOTICE: tree path in node doesn't contain node itself
+     			qString += "(aNode.treePath like '%" + parentUuidToken + "%' " +
+				"OR aNode.addrUuid = '" + parentUuid + "') " +
+				"AND ";
+		} else {
+			if (onlyFreeAddresses) {
+				// only free addresses
+				addrClasses = new Object[] { AddressType.FREI.getDbValue() };
+			} else {
+				// whole catalog -> all classes
+				addrClasses = EnumUtil.getDbValues(AddressType.class);
+			}
+		}
 
 		// fetch number of addresses of specific class and work state
-		Object[] addrClasses = EnumUtil.getDbValues(AddressType.class);
 		Object[] workStates = EnumUtil.getDbValues(WorkState.class);
 		Long totalNum;
 		for (Object addrClass : addrClasses) {
 			IngridDocument classMap = new IngridDocument();
 
 			// get total number of entities of given class underneath parent
-			String qStringClass = qString +	" AND addr.adrType = " + addrClass;
+			String qStringClass = qString +	" addr.adrType = " + addrClass;
 			totalNum = (Long) session.createQuery(qStringClass).uniqueResult();
 			
 			classMap.put(MdekKeys.TOTAL_NUM, totalNum);

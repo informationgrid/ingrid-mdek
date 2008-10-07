@@ -144,7 +144,13 @@ public interface IObjectNodeDao
 	 * Get statistics about object branch.
 	 * @param parentUuid top object of tree branch
 	 * @param selectionType what kind of statistic analysis
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
 	 * @return doc containing statistic info according to protocol
 	 */
-	IngridDocument getObjectStatistics(String parentUuid, IdcEntitySelectionType selectionType);
+	IngridDocument getObjectStatistics(String parentUuid, 
+			IdcEntitySelectionType selectionType,
+			int startHit, int numHits);
 }

@@ -110,6 +110,8 @@ public class MdekUtils {
 		QA_SPATIAL_RELATIONS_UPDATED,
 		/** Statistics: analysis how many entities per class and work state */
 		STATISTICS_CLASSES_AND_STATES,
+		/** Statistics: analysis free search terms */
+		STATISTICS_SEARCHTERMS_FREE,
 		;
 	}
 

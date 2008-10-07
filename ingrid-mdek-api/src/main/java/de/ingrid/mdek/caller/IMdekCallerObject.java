@@ -214,11 +214,16 @@ public interface IMdekCallerObject {
 	/**
 	 * Get statistics info about the tree branch of the given object.
 	 * @param plugId which mdek server (iplug)
-	 * @param parentUuid root of tree branch to get statistics from
+	 * @param parentUuid root of tree branch to get statistics from, pass null if whole catalog
 	 * @param selectionType what kind of statistics
-	 * @return response containing result: map containing statistics
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
+	 * @return response containing result: map containing statistics according to protocol
 	 */
 	IngridDocument getObjectStatistics(String plugId, String parentUuid,
-			IdcEntitySelectionType selectionType, String userId);
-
+			IdcEntitySelectionType selectionType,
+			int startHit, int numHits,
+			String userId);
 }

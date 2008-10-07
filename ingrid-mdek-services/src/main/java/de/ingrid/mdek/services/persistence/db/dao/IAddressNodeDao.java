@@ -185,9 +185,12 @@ public interface IAddressNodeDao
 
 	/**
 	 * Get statistics about address branch.
-	 * @param parentUuid top address of tree branch
+	 * @param parentUuid root of tree branch to get statistics from, pass null if whole catalog
+	 * @param onlyFreeAddresses only evaluated if passed parent is null -> 
+	 * 		true=only free addresses, false=all addresses (whole catalog)
 	 * @param selectionType what kind of statistic analysis
 	 * @return doc containing statistic info according to protocol
 	 */
-	IngridDocument getAddressStatistics(String parentUuid, IdcEntitySelectionType selectionType);
+	IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,
+			IdcEntitySelectionType selectionType);
 }

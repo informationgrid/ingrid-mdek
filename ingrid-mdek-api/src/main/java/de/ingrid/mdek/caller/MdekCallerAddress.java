@@ -164,10 +164,10 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument fetchTopAddresses(String plugId, String userId, boolean nurFreieAdressen) {
+	public IngridDocument fetchTopAddresses(String plugId, String userId, boolean onlyFreeAddresses) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES, nurFreieAdressen);
+		jobParams.put(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES, onlyFreeAddresses);
 		List jobMethods = mdekCaller.setUpJobMethod("getTopAddresses", jobParams);
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
@@ -265,10 +265,12 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getAddressStatistics(String plugId, String parentUuid,
+	public IngridDocument getAddressStatistics(String plugId,
+			String parentUuid, boolean onlyFreeAddresses,
 			IdcEntitySelectionType selectionType, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, parentUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES, onlyFreeAddresses);
 		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE, selectionType);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getAddressStatistics", jobParams);
