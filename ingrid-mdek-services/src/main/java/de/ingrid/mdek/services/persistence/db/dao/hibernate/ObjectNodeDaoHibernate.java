@@ -908,34 +908,27 @@ public class ObjectNodeDaoHibernate
 			"where " +
 				"searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";
 
-		// node token in path !
-		String parentUuidToken = "|" +  parentUuid + "|";
-		// NOTICE: tree path in node doesn't contain node itself
-		String qStringWhereParent = " AND (oNode.treePath like '%" + parentUuidToken + "%' " +
-		"OR oNode.objUuid = '" + parentUuid + "') ";
+		if (parentUuid != null) {
+			// node token in path !
+			String parentUuidToken = "|" +  parentUuid + "|";
+			// NOTICE: tree path in node doesn't contain node itself
+			qStringFromWhere += " AND (oNode.treePath like '%" + parentUuidToken + "%' " +
+				"OR oNode.objUuid = '" + parentUuid + "') ";
+		}
 
 		// first count number of assigned free search terms
 		String qString = "select count(searchtVal.term) " +
 			qStringFromWhere;
-		if (parentUuid != null) {
-			qString += qStringWhereParent;
-		}
 		Long totalNumSearchtermsAssigned = (Long) session.createQuery(qString).uniqueResult();
 
 		// then count number of distinct free search terms for paging
 		qString = "select count(distinct searchtVal.term) " +
 			qStringFromWhere;
-		if (parentUuid != null) {
-			qString += qStringWhereParent;
-		}
 		Long totalNumSearchtermsPaging = (Long) session.createQuery(qString).uniqueResult();
 
 		// then count every searchterm
 		qString = "select searchtVal.term, count(searchtVal.term) " +
 			qStringFromWhere;
-		if (parentUuid != null) {
-			qString += qStringWhereParent;
-		}		
 		qString += " group by searchtVal.term " +
 			"order by count(searchtVal.term) desc, searchtVal.term";
 

@@ -2185,7 +2185,8 @@ public class MdekExampleSupertool {
 	}
 
 	public IngridDocument getAddressStatistics(String uuidIn, boolean onlyFreeAddresses,
-			IdcEntitySelectionType whichType) {
+			IdcEntitySelectionType whichType,
+			int startHit, int numHits) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -2195,9 +2196,11 @@ public class MdekExampleSupertool {
 		System.out.println("\n###### INVOKE getAddressStatistics: " + whichType + " ######");
 		System.out.println("- top node of branch:" + uuidIn);
 		System.out.println("- only free addresses:" + onlyFreeAddresses);
+		System.out.println("- paging from:" + startHit);
+		System.out.println("- paging num:" + numHits);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.getAddressStatistics(plugId, uuidIn, onlyFreeAddresses,
-				whichType, myUserUuid);
+				whichType, startHit, numHits, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

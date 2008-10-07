@@ -377,11 +377,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String parentUuid = (String) params.get(MdekKeys.UUID);
 			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
 			Boolean onlyFreeAddresses = (Boolean) params.get(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES);
+			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
+			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoAddressNode.beginTransaction();
 
 			IngridDocument result =
-				daoAddressNode.getAddressStatistics(parentUuid, onlyFreeAddresses, selectionType);
+				daoAddressNode.getAddressStatistics(parentUuid, onlyFreeAddresses, selectionType, startHit, numHits);
 
 			daoAddressNode.commitTransaction();
 			return result;

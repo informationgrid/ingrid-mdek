@@ -278,10 +278,15 @@ public interface IMdekCallerAddress {
 	 * @param onlyFreeAddresses only evaluated if passed parent is null -> 
 	 * 		true=only free addresses, false=all addresses (whole catalog)
 	 * @param selectionType what kind of statistics
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
 	 * @return response containing result: map containing statistics according to protocol
 	 */
 	IngridDocument getAddressStatistics(String plugId,
 			String parentUuid, boolean onlyFreeAddresses,
 			IdcEntitySelectionType selectionType,
+			int startHit, int numHits,
 			String userId);
 }

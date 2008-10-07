@@ -267,11 +267,15 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 
 	public IngridDocument getAddressStatistics(String plugId,
 			String parentUuid, boolean onlyFreeAddresses,
-			IdcEntitySelectionType selectionType, String userId) {
+			IdcEntitySelectionType selectionType,
+			int startHit, int numHits,
+			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, parentUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES, onlyFreeAddresses);
 		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE, selectionType);
+		jobParams.put(MdekKeys.REQUESTINFO_START_HIT, startHit);
+		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, numHits);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getAddressStatistics", jobParams);
 

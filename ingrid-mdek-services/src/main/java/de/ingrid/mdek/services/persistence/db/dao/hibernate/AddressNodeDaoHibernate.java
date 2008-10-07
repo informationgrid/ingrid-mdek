@@ -19,6 +19,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
@@ -982,16 +983,22 @@ public class AddressNodeDaoHibernate
 	}
 
 	public IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,
-			IdcEntitySelectionType selectionType) {
+			IdcEntitySelectionType selectionType,
+			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
+
 		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
 			result = getAddressStatistics_classesAndStates(parentUuid, onlyFreeAddresses);
+
+		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
+			result = getAddressStatistics_searchtermsFree(parentUuid, onlyFreeAddresses, startHit, numHits);
 		}
 		
 		return result;
 	}
 	
-	private IngridDocument getAddressStatistics_classesAndStates(String parentUuid, boolean onlyFreeAddresses) {
+	private IngridDocument getAddressStatistics_classesAndStates(String parentUuid,
+			boolean onlyFreeAddresses) {
 		IngridDocument result = new IngridDocument();
 		
 		Session session = getSession();
@@ -1048,6 +1055,72 @@ public class AddressNodeDaoHibernate
 
 			result.put(addrClass, classMap);
 		}
+
+		return result;
+	}
+
+	private IngridDocument getAddressStatistics_searchtermsFree(String parentUuid,
+			boolean onlyFreeAddresses, int startHit, int numHits) {
+
+		IngridDocument result = new IngridDocument();
+		
+		Session session = getSession();
+
+		// basics for queries to execute
+
+		String qStringFromWhere = "from " +
+				"AddressNode aNode " +
+				"inner join aNode.t02AddressWork addr " +
+				"inner join addr.searchtermAdrs searchtAddr " +
+				"inner join searchtAddr.searchtermValue searchtVal " +
+			"where " +
+				"searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";
+
+		if (parentUuid != null) {
+			// node token in path !
+			String parentUuidToken = "|" +  parentUuid + "|";
+			// NOTICE: tree path in node doesn't contain node itself
+			qStringFromWhere += " AND (aNode.treePath like '%" + parentUuidToken + "%' " +
+				"OR aNode.addrUuid = '" + parentUuid + "') ";
+		} else if (onlyFreeAddresses) {
+			qStringFromWhere += " AND addr.adrType = " + AddressType.FREI.getDbValue() + " ";
+		}
+
+		// first count number of assigned free search terms
+		String qString = "select count(searchtVal.term) " +
+			qStringFromWhere;
+		Long totalNumSearchtermsAssigned = (Long) session.createQuery(qString).uniqueResult();
+
+		// then count number of distinct free search terms for paging
+		qString = "select count(distinct searchtVal.term) " +
+			qStringFromWhere;
+		Long totalNumSearchtermsPaging = (Long) session.createQuery(qString).uniqueResult();
+
+		// then count every searchterm
+		qString = "select searchtVal.term, count(searchtVal.term) " +
+			qStringFromWhere;
+		qString += " group by searchtVal.term " +
+			"order by count(searchtVal.term) desc, searchtVal.term";
+
+		List hits = session.createQuery(qString)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		ArrayList<IngridDocument> termDocs = new ArrayList<IngridDocument>();
+		for (Object hit : hits) {
+			Object[] objs = (Object[]) hit;
+
+			IngridDocument termDoc = new IngridDocument();
+			termDoc.put(MdekKeys.TERM_NAME, objs[0]);
+			termDoc.put(MdekKeys.TOTAL_NUM, objs[1]);
+			
+			termDocs.add(termDoc);
+		}
+
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumSearchtermsPaging);
+		result.put(MdekKeys.TOTAL_NUM, totalNumSearchtermsAssigned);
+		result.put(MdekKeys.STATISTICS_SEARCHTERM_LIST, termDocs);
 
 		return result;
 	}

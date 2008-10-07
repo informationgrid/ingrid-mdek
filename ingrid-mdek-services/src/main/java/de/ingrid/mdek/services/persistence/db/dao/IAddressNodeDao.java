@@ -189,8 +189,13 @@ public interface IAddressNodeDao
 	 * @param onlyFreeAddresses only evaluated if passed parent is null -> 
 	 * 		true=only free addresses, false=all addresses (whole catalog)
 	 * @param selectionType what kind of statistic analysis
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * 		NOTICE: paging ignored when STATISTICS_CLASSES_AND_STATES 
 	 * @return doc containing statistic info according to protocol
 	 */
 	IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,
-			IdcEntitySelectionType selectionType);
+			IdcEntitySelectionType selectionType,
+			int startHit, int numHits);
 }
