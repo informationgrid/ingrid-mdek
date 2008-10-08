@@ -46,7 +46,7 @@ public interface IObjectNodeDao
 	/** Get total number of subobjects in subtree (all levels) */
 	int countSubObjects(String parentUuid);
 
-	/** Get Path (list of uuids) of object in tree starting at root. */
+	/** Get Path (list of uuids) of object in tree starting at root. Path INCLUDES passed uuid. */
 	List<String> getObjectPath(String uuid);
 
 	/** Checks whether the given uuid is ANYWHERE below the given parent uuid. */

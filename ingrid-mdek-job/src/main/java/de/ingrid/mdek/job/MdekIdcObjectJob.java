@@ -40,6 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -52,6 +53,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
+	private MdekTreePathHandler pathHandler;
 
 	private IObjectNodeDao daoObjectNode;
 	private IAddressNodeDao daoAddressNode;
@@ -69,6 +71,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
+		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
@@ -437,7 +440,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// load node
 		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 		if (oNode == null) {
-			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
+			// create new node, also take care of correct tree path in node
+			oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());
+			pathHandler.setTreePath(oNode, parentUuid);
 		}
 		
 		// get/create working copy
@@ -1006,12 +1011,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// CHECKS OK, proceed
 
-			// set new parent, may be null, then top node !
-			fromNode.setFkObjUuid(toUuid);		
-			daoObjectNode.makePersistent(fromNode);
-
-			// change date and mod_uuid of all moved nodes !
-			IngridDocument resultDoc = processMovedNodes(fromNode, userUuid);
+			// process all moved nodes including top node (e.g. change tree path or date and mod_uuid) !
+			IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, userUuid);
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
@@ -1038,15 +1039,25 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Process the moved tree, meaning set modification date and user in node (in
-	 * published and working version !). but not in subnodes, see http://jira.media-style.com/browse/INGRIDII-266
-	 * @param rootNode root node of moved tree
+	 * Process the moved tree, meaning set new tree path or modification date and user in node (in
+	 * published and working version !).
+	 * NOTICE: date and user isn't set in subnodes, see http://jira.media-style.com/browse/INGRIDII-266
+	 * @param rootNode root node of moved tree branch
+	 * @param newParentUuid node uuid of new parent
 	 * @param modUuid user uuid to set as modification user
 	 * @return doc containing additional info (number processed nodes ...)
 	 */
-	private IngridDocument processMovedNodes(ObjectNode rootNode, String modUuid)
+	private IngridDocument processMovedNodes(ObjectNode rootNode, String newParentUuid, String modUuid)
 	{
 		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+
+		// process root node
+
+		// set new parent, may be null, then top node !
+		rootNode.setFkObjUuid(newParentUuid);
+		// remember former tree path and set new tree path.
+		String oldRootPath = rootNode.getTreePath();
+		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
 
 		// copy iteratively via stack to avoid recursive stack overflow
 		Stack<ObjectNode> stack = new Stack<ObjectNode>();
@@ -1056,38 +1067,46 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		while (!stack.isEmpty()) {
 			ObjectNode objNode = stack.pop();
 			
-			// set modification time and user (in both versions when present)
-			T01Object objWork = objNode.getT01ObjectWork();
-			T01Object objPub = objNode.getT01ObjectPublished();
+			// set modification time and user only in top node, not in subnodes !
+			// see http://jira.media-style.com/browse/INGRIDII-266
+			if (objNode == rootNode) {
+				// set modification time and user (in both versions when present)
+				T01Object objWork = objNode.getT01ObjectWork();
+				T01Object objPub = objNode.getT01ObjectPublished();
 
-			// check whether we have a different published version !
-			boolean hasDifferentPublishedVersion = false;
-			if (objPub != null && objWork.getId() != objPub.getId()) {
-				hasDifferentPublishedVersion = true;
+				// check whether we have a different published version !
+				boolean hasDifferentPublishedVersion = false;
+				if (objPub != null && objWork.getId() != objPub.getId()) {
+					hasDifferentPublishedVersion = true;
+				}
+
+				// change mod time and uuid
+				objWork.setModTime(currentTime);
+				objWork.setModUuid(modUuid);
+				if (hasDifferentPublishedVersion) {
+					objPub.setModTime(currentTime);
+					objPub.setModUuid(modUuid);				
+				}
+
+				daoT01Object.makePersistent(objWork);
+				if (hasDifferentPublishedVersion) {
+					daoT01Object.makePersistent(objPub);
+				}				
+			} else {
+				// update tree path in subnodes
+				pathHandler.updateTreePathAfterMove(objNode, oldRootPath, newRootPath);
 			}
 
-			// change mod time and uuid
-			objWork.setModTime(currentTime);
-			objWork.setModUuid(modUuid);
-			if (hasDifferentPublishedVersion) {
-				objPub.setModTime(currentTime);
-				objPub.setModUuid(modUuid);				
-			}
+			daoObjectNode.makePersistent(objNode);
 
-			daoT01Object.makePersistent(objWork);
-			if (hasDifferentPublishedVersion) {
-				daoT01Object.makePersistent(objPub);
-			}
 			numberOfProcessedObj++;
 
-			// never process subnodes, see http://jira.media-style.com/browse/INGRIDII-266
-/*
-			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(objNode.getObjUuid(), true);
+			// add sub nodes !
+			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(objNode.getObjUuid(), null, true);
 			for (ObjectNode subNode : subNodes) {
 				// add to stack, will be processed
 				stack.push(subNode);
 			}
-*/
 		}
 		
 		IngridDocument result = new IngridDocument();
@@ -1601,25 +1620,28 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			targetNode.setObjId(targetObjWorkId);
 			targetNode.setT01ObjectWork(targetObjWork);
 			targetNode.setFkObjUuid(newParentUuid);
+			// also care for tree path !
+			pathHandler.setTreePath(targetNode, newParentNode);
 			daoObjectNode.makePersistent(targetNode);
-			numberOfCopiedObj++;
-			// update our job information ! may be polled from client !
-			// NOTICE: also checks whether job was canceled !
-			updateRunningJob(userUuid, createRunningJobDescription(
-				JOB_DESCR_COPY, numberOfCopiedObj, totalNumToCopy, false));
 
-			if (rootNodeCopy == null) {
-				rootNodeCopy = targetNode;
-			}
-
-			if (isCopyToOwnSubnode) {
-				uuidsCopiedNodes.add(newUuid);
-			}
-			
 			// add child bean to parent bean, so we can determine child info when mapping (without reloading)
 			if (newParentNode != null) {
 				newParentNode.getObjectNodeChildren().add(targetNode);
 			}
+
+			if (rootNodeCopy == null) {
+				rootNodeCopy = targetNode;
+			}
+			if (isCopyToOwnSubnode) {
+				uuidsCopiedNodes.add(newUuid);
+			}
+
+			numberOfCopiedObj++;
+
+			// update our job information ! may be polled from client !
+			// NOTICE: also checks whether job was canceled !
+			updateRunningJob(userUuid, createRunningJobDescription(
+				JOB_DESCR_COPY, numberOfCopiedObj, totalNumToCopy, false));
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {

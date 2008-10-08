@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.MdekClient;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.caller.IMdekCaller;
@@ -171,6 +172,46 @@ class MdekExampleStatisticsThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+
+		// TEST TREE PATH on New Node, Move and Copy (database check via phpMyAdmin)
+		// -----------------------------------------
+		
+		System.out.println("\n----- new top object -----");
+		doc = supertool.newObjectDoc(null);
+		doc = supertool.storeObject(doc, true);
+		String newUuid = doc.getString(MdekKeys.UUID);
+		supertool.deleteObject(newUuid, true);
+		System.out.println("\n----- new branch object -----");
+		doc = supertool.newObjectDoc(objUuid);
+		doc = supertool.storeObject(doc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		
+		System.out.println("\n----- copy parent of new object to top (sub to top) -----");
+		doc = supertool.copyObject(objUuid, null, true);
+		String copiedUuid = doc.getString(MdekKeys.UUID);
+		supertool.fetchSubObjects(copiedUuid);
+		System.out.println("\n----- copy copied top to branch (top to sub) -----");
+		doc = supertool.copyObject(copiedUuid, topObjUuid, true);
+		String copiedUuid2 = doc.getString(MdekKeys.UUID);
+		supertool.fetchSubObjects(copiedUuid2);
+		System.out.println("\n----- clean up -----");
+		supertool.deleteObject(copiedUuid, true);
+		supertool.deleteObject(copiedUuid2, true);
+		System.out.println("\n----- copy parent of new object to branch (sub to sub) -----");
+		doc = supertool.copyObject(objUuid, topObjUuid, true);
+		copiedUuid = doc.getString(MdekKeys.UUID);
+		supertool.fetchSubObjects(copiedUuid);
+
+		System.out.println("\n----- move copied object to top (sub to top) -----");
+		doc = supertool.moveObject(copiedUuid, null, true);
+		System.out.println("\n----- move back to branch (top to sub) -----");
+		doc = supertool.moveObject(copiedUuid, topObjUuid, true);
+		System.out.println("\n----- move to leaf (sub to sub) -----");
+		doc = supertool.moveObject(copiedUuid, objLeafUuid, true);
+
+		System.out.println("\n----- clean up -----");
+		supertool.deleteObject(newUuid, true);
+		supertool.deleteObject(copiedUuid, true);
 
 		if (alwaysTrue) {
 			isRunning = false;
