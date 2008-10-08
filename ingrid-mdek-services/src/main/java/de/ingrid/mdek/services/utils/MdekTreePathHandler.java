@@ -8,6 +8,7 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 
 
@@ -39,7 +40,7 @@ public class MdekTreePathHandler {
 	}
 
 	/** Set tree path in node according to passed parent uuid. Returns new path. */
-	public String setTreePath(ObjectNode oNode, String newParentUuid) {
+	public String setTreePath(ObjectNode node, String newParentUuid) {
 		ObjectNode newParentNode = null;
 		if (newParentUuid != null) {
 			newParentNode = daoObjectNode.loadByUuid(newParentUuid, null);
@@ -48,11 +49,24 @@ public class MdekTreePathHandler {
 			}
 		}
 
-		return setTreePath(oNode, newParentNode);
+		return setTreePath(node, newParentNode);
+	}
+
+	/** Set tree path in node according to passed parent uuid. Returns new path. */
+	public String setTreePath(AddressNode node, String newParentUuid) {
+		AddressNode newParentNode = null;
+		if (newParentUuid != null) {
+			newParentNode = daoAddressNode.loadByUuid(newParentUuid, null);
+			if (newParentNode == null) {
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+			}
+		}
+
+		return setTreePath(node, newParentNode);
 	}
 
 	/** Set tree path in node according to passed parent node. Returns new path. */
-	public String setTreePath(ObjectNode oNode, ObjectNode newParentNode) {
+	public String setTreePath(ObjectNode node, ObjectNode newParentNode) {
 		// NOTICE: node itself isn't part of its path ! top nodes have "" path !
 		String path = "";
 		if (newParentNode != null) {
@@ -61,22 +75,52 @@ public class MdekTreePathHandler {
 			path = addNodeToPath(parentPath, newParentNode.getObjUuid());
 		}
 		
-		oNode.setTreePath(path);
+		node.setTreePath(path);
+		return path;
+	}
+
+	/** Set tree path in node according to passed parent node. Returns new path. */
+	public String setTreePath(AddressNode node, AddressNode newParentNode) {
+		// NOTICE: node itself isn't part of its path ! top nodes have "" path !
+		String path = "";
+		if (newParentNode != null) {
+			String parentPath = newParentNode.getTreePath();
+			// parent path does NOT include parent node, add it
+			path = addNodeToPath(parentPath, newParentNode.getAddrUuid());
+		}
+		
+		node.setTreePath(path);
 		return path;
 	}
 
 	/** Updates the path of the given node after move operation. Pass the path to the old root and the path to the new root. */
-	public String updateTreePathAfterMove(ObjectNode oNode, String rootPathBeforeMove, String rootPathAfterMove) {
+	public String updateTreePathAfterMove(ObjectNode node, String rootPathBeforeMove, String rootPathAfterMove) {
 		String path = "";
 		if (rootPathBeforeMove.length() == 0) {
-			// if old path is empty we have a former root object, add new root path at front
-			path = rootPathAfterMove + oNode.getTreePath();
+			// if old path is empty we have a former top node, add new root path at front
+			path = rootPathAfterMove + node.getTreePath();
 		} else {
 			// else replace old root path with new root path
-			path = oNode.getTreePath().replace(rootPathBeforeMove, rootPathAfterMove);
+			path = node.getTreePath().replace(rootPathBeforeMove, rootPathAfterMove);
 		}
 
-		oNode.setTreePath(path);
+		node.setTreePath(path);
+
+		return path;
+	}
+
+	/** Updates the path of the given node after move operation. Pass the path to the old root and the path to the new root. */
+	public String updateTreePathAfterMove(AddressNode node, String rootPathBeforeMove, String rootPathAfterMove) {
+		String path = "";
+		if (rootPathBeforeMove.length() == 0) {
+			// if old path is empty we have a former top node, add new root path at front
+			path = rootPathAfterMove + node.getTreePath();
+		} else {
+			// else replace old root path with new root path
+			path = node.getTreePath().replace(rootPathBeforeMove, rootPathAfterMove);
+		}
+
+		node.setTreePath(path);
 
 		return path;
 	}

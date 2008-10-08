@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.MdekClient;
-import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.caller.IMdekCaller;
@@ -176,6 +175,9 @@ class MdekExampleStatisticsThread extends Thread {
 		// TEST TREE PATH on New Node, Move and Copy (database check via phpMyAdmin)
 		// -----------------------------------------
 		
+		System.out.println("\n\n=========================");
+		System.out.println("OBJECTS");
+		
 		System.out.println("\n----- new top object -----");
 		doc = supertool.newObjectDoc(null);
 		doc = supertool.storeObject(doc, true);
@@ -212,6 +214,49 @@ class MdekExampleStatisticsThread extends Thread {
 		System.out.println("\n----- clean up -----");
 		supertool.deleteObject(newUuid, true);
 		supertool.deleteObject(copiedUuid, true);
+
+		System.out.println("\n\n=========================");
+		System.out.println("ADDRESSES");
+		
+		System.out.println("\n----- new top address -----");
+		doc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		doc = supertool.storeAddress(doc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		supertool.deleteAddress(newUuid, true);
+		System.out.println("\n----- new branch address -----");
+		doc = supertool.newAddressDoc(topAddrUuid, AddressType.INSTITUTION);
+		doc = supertool.storeAddress(doc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		System.out.println("\n----- new sub branch address -----");
+		doc = supertool.newAddressDoc(newUuid, AddressType.INSTITUTION);
+		supertool.storeAddress(doc, true);
+		
+		System.out.println("\n----- copy parent of new address to top (sub to top) -----");
+		doc = supertool.copyAddress(newUuid, null, true, false);
+		copiedUuid = doc.getString(MdekKeys.UUID);
+		supertool.fetchSubAddresses(copiedUuid);
+		System.out.println("\n----- copy copied top to branch (top to sub) -----");
+		doc = supertool.copyAddress(copiedUuid, topAddrUuid, true, false);
+		copiedUuid2 = doc.getString(MdekKeys.UUID);
+		supertool.fetchSubAddresses(copiedUuid2);
+		System.out.println("\n----- clean up -----");
+		supertool.deleteAddress(copiedUuid, true);
+		supertool.deleteAddress(copiedUuid2, true);
+		System.out.println("\n----- copy parent of new address to branch (sub to sub) -----");
+		doc = supertool.copyAddress(newUuid, topAddrUuid2, true, false);
+		copiedUuid = doc.getString(MdekKeys.UUID);
+		supertool.fetchSubAddresses(copiedUuid);
+
+		System.out.println("\n----- move copied address to top (sub to top) -----");
+		doc = supertool.moveAddress(copiedUuid, null, false);
+		System.out.println("\n----- move back to branch (top to sub) -----");
+		doc = supertool.moveAddress(copiedUuid, topAddrUuid2, false);
+		System.out.println("\n----- move to other branch (sub to sub) -----");
+		doc = supertool.moveAddress(copiedUuid, topAddrUuid, false);
+
+		System.out.println("\n----- clean up -----");
+		supertool.deleteAddress(newUuid, true);
+		supertool.deleteAddress(copiedUuid, true);
 
 		if (alwaysTrue) {
 			isRunning = false;

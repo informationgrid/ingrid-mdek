@@ -143,6 +143,9 @@ public class AddressNodeDaoHibernate
 	public int countSubAddresses(String parentUuid) {
 		int totalNum = 0;
 
+		// TODO: COULD BE OPTIMIZED VIA NEW TREE PATH IN ALL NODES ! just count nodes where tree path contains parent !
+		// we keep it as it is, optimization via tree path is a chapter for its own ! ...
+
 		Stack<String> uuidStack = new Stack<String>();
 		uuidStack.push(parentUuid);
 

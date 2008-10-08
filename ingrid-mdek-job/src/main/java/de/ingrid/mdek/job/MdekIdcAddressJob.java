@@ -39,6 +39,7 @@ import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -50,6 +51,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
+	private MdekTreePathHandler pathHandler;
 
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
@@ -67,6 +69,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
+		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
@@ -476,7 +479,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// load node
 		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
 		if (aNode == null) {
+			// create new node, also take care of correct tree path in node
 			aNode = docToBeanMapper.mapAddressNode(aDocIn, new AddressNode());			
+			pathHandler.setTreePath(aNode, parentUuid);
 		}
 		
 		// get/create working copy
@@ -909,12 +914,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// CHECKS OK, proceed
 
-			// set new parent, may be null, then top node !
-			fromNode.setFkAddrUuid(toUuid);		
-			daoAddressNode.makePersistent(fromNode);
-
-			// change date and mod_uuid of all moved nodes !
-			IngridDocument resultDoc = processMovedNodes(fromNode, targetIsFreeAddress, userUuid);
+			// process all moved nodes including top node (e.g. change tree path or date and mod_uuid) !
+			IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, targetIsFreeAddress, userUuid);
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
@@ -1322,12 +1323,14 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			targetNode.setAddrId(targetAddrWorkId);
 			targetNode.setT02AddressWork(targetAddrWork);
 			targetNode.setFkAddrUuid(newParentUuid);
+			// also care for tree path !
+			pathHandler.setTreePath(targetNode, newParentNode);
 			daoAddressNode.makePersistent(targetNode);
-			numberOfCopiedAddr++;
-			// update our job information ! may be polled from client !
-			// NOTICE: also checks whether job was canceled !
-			updateRunningJob(userUuid, createRunningJobDescription(
-				JOB_DESCR_COPY, numberOfCopiedAddr, totalNumToCopy, false));
+
+			// add child bean to parent bean, so we can determine child info when mapping (without reloading)
+			if (newParentNode != null) {
+				newParentNode.getAddressNodeChildren().add(targetNode);
+			}
 
 			if (nodeCopy == null) {
 				nodeCopy = targetNode;
@@ -1337,10 +1340,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				uuidsCopiedNodes.add(newUuid);
 			}
 			
-			// add child bean to parent bean, so we can determine child info when mapping (without reloading)
-			if (newParentNode != null) {
-				newParentNode.getAddressNodeChildren().add(targetNode);
-			}
+			numberOfCopiedAddr++;
+
+			// update our job information ! may be polled from client !
+			// NOTICE: also checks whether job was canceled !
+			updateRunningJob(userUuid, createRunningJobDescription(
+				JOB_DESCR_COPY, numberOfCopiedAddr, totalNumToCopy, false));
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {
@@ -1769,17 +1774,27 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Process the moved tree, meaning set modification date and user in node (in
-	 * published and working version !). but not in subnodes, see http://jira.media-style.com/browse/INGRIDII-266
-	 * @param rootNode root node of moved tree
+	 * Process the moved tree, meaning set new tree path or modification date and user in node (in
+	 * published and working version !).
+	 * NOTICE: date and user isn't set in subnodes, see http://jira.media-style.com/browse/INGRIDII-266
+	 * @param rootNode root node of moved tree branch
+	 * @param newParentUuid node uuid of new parent
 	 * @param modUuid user uuid to set as modification user
 	 * @return doc containing additional info (number processed nodes ...)
 	 */
 	private IngridDocument processMovedNodes(AddressNode rootNode,
-			boolean isNowFreeAddress,
+			String newParentUuid, boolean isNowFreeAddress,
 			String modUuid)
 	{
 		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+
+		// process root node
+
+		// set new parent, may be null, then top node !
+		rootNode.setFkAddrUuid(newParentUuid);
+		// remember former tree path and set new tree path.
+		String oldRootPath = rootNode.getTreePath();
+		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
 
 		// process iteratively via stack to avoid recursive stack overflow
 		Stack<AddressNode> stack = new Stack<AddressNode>();
@@ -1789,45 +1804,53 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		int numberOfProcessedNodes = 0;
 		while (!stack.isEmpty()) {
 			AddressNode node = stack.pop();
-			
-			// set modification time and user (in both versions when present)
-			T02Address addrWork = node.getT02AddressWork();
-			T02Address addrPub = node.getT02AddressPublished();
-			
-			// check whether we have a different published version !
-			boolean hasDifferentPublishedVersion = false;
-			if (addrPub != null && addrWork.getId() != addrPub.getId()) {
-				hasDifferentPublishedVersion = true;
+
+			// set modification time and user only in top node, not in subnodes !
+			// see http://jira.media-style.com/browse/INGRIDII-266
+			if (node == rootNode) {
+				// set modification time and user (in both versions when present)
+				T02Address addrWork = node.getT02AddressWork();
+				T02Address addrPub = node.getT02AddressPublished();
+				
+				// check whether we have a different published version !
+				boolean hasDifferentPublishedVersion = false;
+				if (addrPub != null && addrWork.getId() != addrPub.getId()) {
+					hasDifferentPublishedVersion = true;
+				}
+
+				// change mod time and uuid
+				addrWork.setModTime(currentTime);
+				addrWork.setModUuid(modUuid);
+				if (hasDifferentPublishedVersion) {
+					addrPub.setModTime(currentTime);
+					addrPub.setModUuid(modUuid);				
+				}
+
+				// handle move from/to "free address"
+				processMovedOrCopiedAddress(addrWork, isNowFreeAddress);
+				if (hasDifferentPublishedVersion) {
+					processMovedOrCopiedAddress(addrPub, isNowFreeAddress);
+				}
+
+				daoT02Address.makePersistent(addrWork);
+				if (hasDifferentPublishedVersion) {
+					daoT02Address.makePersistent(addrPub);
+				}
+			} else {
+				// update tree path in subnodes
+				pathHandler.updateTreePathAfterMove(node, oldRootPath, newRootPath);
 			}
 
-			// change mod time and uuid
-			addrWork.setModTime(currentTime);
-			addrWork.setModUuid(modUuid);
-			if (hasDifferentPublishedVersion) {
-				addrPub.setModTime(currentTime);
-				addrPub.setModUuid(modUuid);				
-			}
+			daoAddressNode.makePersistent(node);
 
-			// handle move from/to "free address"
-			processMovedOrCopiedAddress(addrWork, isNowFreeAddress);
-			if (hasDifferentPublishedVersion) {
-				processMovedOrCopiedAddress(addrPub, isNowFreeAddress);
-			}
-
-			daoT02Address.makePersistent(addrWork);
-			if (hasDifferentPublishedVersion) {
-				daoT02Address.makePersistent(addrPub);
-			}
 			numberOfProcessedNodes++;
 
-			// never process subnodes, see http://jira.media-style.com/browse/INGRIDII-266
-/*
-			List<AddressNode> subNodes = daoAddressNode.getSubAddresses(node.getAddrUuid(), true);
+			// add sub nodes !
+			List<AddressNode> subNodes = daoAddressNode.getSubAddresses(node.getAddrUuid(), null, true);
 			for (AddressNode subNode : subNodes) {
 				// add to stack, will be processed
 				stack.push(subNode);
 			}
-*/
 		}
 		
 		IngridDocument result = new IngridDocument();
