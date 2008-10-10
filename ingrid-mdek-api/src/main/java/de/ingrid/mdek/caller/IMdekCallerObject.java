@@ -204,12 +204,14 @@ public interface IMdekCallerObject {
 	 * @param plugId which mdek server (iplug)
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects
-	 * @param maxNum maximum number of objects to query, pass null if all objects !
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
 	 * @return response containing result: map representation of object (only partial data)
 	 */
 	IngridDocument getQAObjects(String plugId,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType,
-			Integer maxNum, String userId);
+			int startHit, int numHits,
+			String userId);
 
 	/**
 	 * Get statistics info about the tree branch of the given object.

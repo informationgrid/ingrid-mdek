@@ -28,6 +28,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -491,61 +492,48 @@ public class ObjectNodeDaoHibernate
 		return retList;
 	}
 
-	public List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		if (isCatAdmin) {
-			return getObjects(whichWorkState, selectionType, maxNum);
-		}
+	public IngridDocument getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			int startHit, int numHits) {
+
+		// default result
+		IngridDocument defaultResult = new IngridDocument();
+		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, new Long(0));
+		defaultResult.put(MdekKeys.OBJ_ENTITIES, new ArrayList<ObjectNode>());
 		
 		// check whether QA user
 		if (!permHandler.hasQAPermission(userUuid)) {
-			return new ArrayList<ObjectNode>(0);
+			return defaultResult;
 		}
 
-		// determine best way to find QA objects
-		// "traverse tree branches of group" <-> "select objects matching criteria and test on write permission"
-		boolean getQAObjectsViaGroup = true;
-		boolean doSelection = whichWorkState != null || selectionType != null;
-		if (doSelection) {
-			long numObjsMatchingSelection = getNumObjects(whichWorkState, selectionType);
-			if (numObjsMatchingSelection <= maxNum) {
-				getQAObjectsViaGroup = false;
-				
-				maxNum = new Long(numObjsMatchingSelection).intValue();
-			}
-		}
-
-		if (getQAObjectsViaGroup) {
-			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, maxNum);			
+		if (isCatAdmin) {
+			return getObjects(null, null, whichWorkState, selectionType, startHit, numHits);
 		} else {
-			return getQAObjectsViaPreSelection(userUuid, permHandler, 
-					whichWorkState, selectionType, maxNum);
+			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, startHit, numHits);			
 		}
 	}
 
 	/**
-	 * Traverse all objects in QA-group of user (includes all tree branches) and
-	 * return objects matching selection criteria.
-	 * @param userUuid
-	 * @param whichWorkState object is in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param maxNum maximum number of objects to query, pass null if all objects !
-	 * @return list of objects
+	 * Get ALL Objects where given user is QA and objects match passed selection criteria.
+	 * The QA objects are determined via assigned objects in QA group of user.
+	 * All sub-objects of "write-tree" objects are included !
+	 * We return nodes, so we can evaluate whether published version exists ! 
+	 * @param userUuid QA user
+	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all objects
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return doc encapsulating total number for paging and list of nodes
 	 */
-	private List<ObjectNode> getQAObjectsViaGroup(String userUuid,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		List<ObjectNode> retList = new ArrayList<ObjectNode>();
-
+	private IngridDocument getQAObjectsViaGroup(String userUuid,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			int startHit, int numHits) {
 		Session session = getSession();
 
-		// select all objects in group (write permission) !
+		// select all objects in QA group (write permission) !
 		// NOTICE: this doesn't include sub objects of "write-tree" objects !
-		// Always fetch object and metadata, e.g. needed when mapping user operation (deleted) 
-		String qString = "select distinct oNode, p2.action as perm " +
+		String qString = "select distinct pObj.uuid, p2.action as perm " +
 		"from " +
-			"ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork o " +
-			"left join fetch o.objectMetadata, " +
 			"IdcUser usr, " +
 			"IdcGroup grp, " +
 			"IdcUserPermission pUsr, " +
@@ -561,274 +549,168 @@ public class ObjectNodeDaoHibernate
 			" and p1.action = '" + IdcPermission.QUALITY_ASSURANCE.getDbValue() + "'" +
 			// grp -> object-> write permission
 			" and grp.id = pObj.idcGroupId " +
-			" and pObj.permissionId = p2.id " +
-			" and (p2.action = '" + IdcPermission.WRITE_SINGLE.getDbValue() + "' or " +
-			"  p2.action = '" + IdcPermission.WRITE_TREE.getDbValue() + "') " +
-			// object
-			" and pObj.uuid = oNode.objUuid";
+			" and pObj.permissionId = p2.id";
 
-		Query q = session.createQuery(qString);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Selecting objects in QA group: " + qString);
+		}
+		List<Object[]> groupObjsAndPerms = session.createQuery(qString).list();
 
-		// parse group objects and separate write single and write tree
-		List<Object[]> groupObjPerms = q.list();
-		List<ObjectNode> groupObjsWriteTree = new ArrayList<ObjectNode>();
-		for (Object[] groupObjPerm : groupObjPerms) {
-			ObjectNode oNode = (ObjectNode) groupObjPerm[0];
-			T01Object o = oNode.getT01ObjectWork();
-			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupObjPerm[1]);
+		// parse group objects and separate "write single" and "write tree"
+		List<String> objUuidsWriteSingle = new ArrayList<String>();
+		List<String> objUuidsWriteTree = new ArrayList<String>();
+		for (Object[] groupObjAndPerm : groupObjsAndPerms) {
+			String oUuid = (String) groupObjAndPerm[0];
+			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupObjAndPerm[1]);
 
-			// check "write single objects" and include if matching selection
 			if (p == IdcPermission.WRITE_SINGLE) {
-				if (checkObject(o, whichWorkState, selectionType)) {
-					retList.add(oNode);					
-				}
+				objUuidsWriteSingle.add(oUuid);
 			} else if (p == IdcPermission.WRITE_TREE) {
-				groupObjsWriteTree.add(oNode);
+				objUuidsWriteTree.add(oUuid);
 			}
 		}
 
-		// process tree branches of "write-tree objects"
-		Integer numNodesMissing = null;
-		for (ObjectNode oN : groupObjsWriteTree) {
-			if (maxNum != null) {
-				numNodesMissing = maxNum - retList.size();
-			}
-			if (numNodesMissing == null || numNodesMissing > 0) {
-				T01Object o = oN.getT01ObjectWork();
-				boolean includeCurrentObj = checkObject(o, whichWorkState, selectionType);
-				retList.addAll(getTreeObjects(oN, whichWorkState, selectionType, includeCurrentObj, numNodesMissing));					
-			}
-
-			if (maxNum != null) {
-				if (retList.size() >= maxNum) {
-					retList = retList.subList(0, maxNum);
-					break;
-				}
-			}
-		}
-
-		return retList;
+		return getObjects(objUuidsWriteSingle,
+				objUuidsWriteTree,
+				whichWorkState, selectionType,
+				startHit, numHits);
 	}
 
 	/**
-	 * First select all objects matching criteria. Then return objects where user has write permission.
-	 * @param userUuid
-	 * @param permHandler permission handler needed for checking write permissions
-	 * @param whichWorkState object is in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param maxNum maximum number of objects to preselect, pass null if all objects !
-	 * @return list of objects
-	 */
-	private List<ObjectNode> getQAObjectsViaPreSelection(String userUuid, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		List<ObjectNode> retList = new ArrayList<ObjectNode>();
-
-		List<ObjectNode> oNs = getObjects(whichWorkState, selectionType, maxNum);
-		for (ObjectNode oN : oNs) {
-			if (permHandler.hasWritePermissionForObject(oN.getObjUuid(), userUuid, false)) {
-				retList.add(oN);
-			}
-		}
-
-		return retList;
-	}
-
-	/**
-	 * Find number of objects matching the selection criteria !
+	 * Get ALL Objects matching passed selection criteria.
+	 * We return nodes, so we can evaluate whether published version exists !
+	 * @param objUuidsWriteSingle list of object uuids where user has single write permission, pass null if all objects
+	 * @param objUuidsWriteTree list of object uuids where user has tree write permission, pass null if all objects
 	 * @param whichWorkState only return objects in this work state, pass null if workstate should be ignored
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @return number of objects found
+	 * @param selectionType further selection criteria (see Enum), pass null if no further criteria
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return doc encapsulating total number for paging and list of nodes
 	 */
-	private long getNumObjects(WorkState whichWorkState, IdcEntitySelectionType selectionType) {
-		Session session = getSession();
-
-		// always fetch object and metadata, e.g. needed when mapping user operation (mark deleted ?) 
-		String qString = "select count(oNode) " +
-			"from ObjectNode oNode ";
-		
-		if (whichWorkState != null || selectionType != null) {
-			qString += " where ";
-
-			boolean addAnd = false;
-			if (whichWorkState != null) {
-				qString += "oNode.t01ObjectWork.workState = '" + whichWorkState.getDbValue() + "'";
-				addAnd = true;
-			}
-			if (selectionType != null) {
-				if (addAnd) {
-					qString += " and ";
-				}
-				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
-					qString += "oNode.t01ObjectWork.objectMetadata.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
-					// TODO: Add when implementing catalog management sns update !
-					return 0;
-				} else {
-					// QASelectionType not handled ? return nothing !
-					return 0;
-				}
-			}
-		}
-
-		Long totalNum = (Long) session.createQuery(qString)
-			.uniqueResult();
-
-		return totalNum;
-	}
-
-	/**
-	 * Get ALL Objects where WORKING VERSION is in given work state. We return nodes, so we can evaluate
-	 * whether published version exists !
-	 * @param whichWorkState only return objects in this work state, pass null if workstate should be ignored
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param maxNum maximum number of objects to query, pass null if all objects !
-	 * @return list of objects
-	 */
-	private List<ObjectNode> getObjects(WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		List<ObjectNode> retList = new ArrayList<ObjectNode>(); 
-
-		Session session = getSession();
-
-		// always fetch object and metadata, e.g. needed when mapping user operation (mark deleted ?) 
-		String qString = "from ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork o " +
-			"left join fetch o.objectMetadata oMeta ";
-		
-		if (whichWorkState != null || selectionType != null) {
-			qString += " where ";
-
-			boolean addAnd = false;
-			if (whichWorkState != null) {
-				qString += "o.workState = '" + whichWorkState.getDbValue() + "'";
-				addAnd = true;
-			}
-			if (selectionType != null) {
-				if (addAnd) {
-					qString += " and ";
-				}
-				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
-					qString += "oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
-					// TODO: Add when implementing catalog management sns update !
-					return retList;
-				} else {
-					// QASelectionType not handled ? return nothing !
-					return retList;
-				}
-			}
-		}
-
-		Query q = session.createQuery(qString);
-		if (maxNum != null) {
-			q.setMaxResults(maxNum);				
-		}
-
-		return q.list();
-	}
-
-	/**
-	 * Check whether passed object matches passed "selection criteria".
-	 * @param o object to test
-	 * @param whichWorkState object is in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @return true=object matches, include it<br>
-	 * 		false=object doesn't match, exclude it
-	 */
-	private boolean checkObject(T01Object o, WorkState whichWorkState, IdcEntitySelectionType selectionType) {
-		// first check work state
-		if (whichWorkState != null && !whichWorkState.getDbValue().equals(o.getWorkState())) {
-			return false;
-		}
-
-		// then additional selection criteria
-		if (selectionType != null) {
-			if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
-				if (!MdekUtils.ExpiryState.EXPIRED.getDbValue().equals(o.getObjectMetadata().getExpiryState())) {
-					return false;
-				}
-
-			} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
-				// TODO: Add when implementing catalog management sns update !
-				return false;
-
-			} else {
-				// QASelectionType not handled ? return false, object doesn't match is default !
-				return false;
-			}
-		}
-
-		// object matches selection criteria
-		return true;
-	}
-
-	/** Fetch whole subtree (ALL levels) of given object.
-	 * @param rootNode top node of tree
-	 * @param whichWorkState only return objects in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param includeRootNode true=include the passed root node (state not checked)<br>
-	 * 		false=do not include root node (state not checked)<br>
-	 * @param maxNum maximum number of nodes to fetch, pass null if whole tree branch
-	 * @return list of all subnodes in tree
-	 */
-	private List<ObjectNode> getTreeObjects(ObjectNode rootNode,
+	private IngridDocument getObjects(List<String> objUuidsWriteSingle,
+			List<String> objUuidsWriteTree,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType,
-			boolean includeRootNode, Integer maxNum) {
-		List<ObjectNode> treeNodes = new ArrayList<ObjectNode>();
+			int startHit, int numHits) {
+		IngridDocument result = new IngridDocument();
 
-		boolean doSelection = whichWorkState != null || selectionType != null;
-
-		if (includeRootNode) {
-			treeNodes.add(rootNode);
+		// first check content of lists and set to null if no content (to be used as flag)
+		if (objUuidsWriteSingle != null && objUuidsWriteSingle.size() == 0) {
+			objUuidsWriteSingle = null;
 		}
+		if (objUuidsWriteTree != null && objUuidsWriteTree.size() == 0) {
+			objUuidsWriteTree = null;
+		}
+		
+		Session session = getSession();
 
-//		long startTime = System.currentTimeMillis();
-//		long numNodes = 0;
+		// prepare queries
 
-		// traverse iteratively via stack
-		Stack<ObjectNode> stack = new Stack<ObjectNode>();
-		stack.push(rootNode);
-		while (!stack.isEmpty()) {
-			ObjectNode treeNode = stack.pop();
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(oNode) " +
+			"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork o " +
+			"inner join o.objectMetadata oMeta ";
 
-			// add next level of subnodes to stack (ALL NON LEAFS, independent from state, so we won't lose tree branch ...)
-			List<ObjectNode> subNodes = getSubObjects(treeNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, true, true);
-			for (ObjectNode sN : subNodes) {
-				if (sN.getObjectNodeChildren().size() > 0) {
-					stack.push(sN);					
-				}
-//				numNodes++;
+		// with fetch: always fetch object and metadata, e.g. needed when mapping user operation (mark deleted) 
+		String qStringSelect = "from ObjectNode oNode " +
+			"inner join fetch oNode.t01ObjectWork o " +
+			"inner join fetch o.objectMetadata oMeta ";
+
+		// selection criteria
+		if (whichWorkState != null || selectionType != null ||
+				objUuidsWriteSingle != null || objUuidsWriteTree != null) {
+			String qStringCriteria = " where ";
+
+			boolean addAnd = false;
+
+			if (whichWorkState != null) {
+				qStringCriteria += "o.workState = '" + whichWorkState.getDbValue() + "'";
+				addAnd = true;
 			}
 
-//			System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
-
-			// add subnodes matching selection
-			if (doSelection) {
-				for (ObjectNode oN : subNodes) {
-					if (checkObject(oN.getT01ObjectWork(), whichWorkState, selectionType)) {
-						treeNodes.add(oN);
+			if (selectionType != null) {
+				if (addAnd) {
+					qStringCriteria += " and ";
+				}
+				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
+					qStringCriteria += "oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
+					// TODO: Add when implementing catalog management sns update !
+					return result;
+				} else {
+					// QASelectionType not handled ? return nothing !
+					return result;
+				}
+				addAnd = true;
+			}
+			
+			if (objUuidsWriteSingle != null || objUuidsWriteTree != null) {
+				if (addAnd) {
+					qStringCriteria += " and ( ";
+				}
+				if (objUuidsWriteSingle != null) {
+					// add all write tree nodes to single nodes
+					// -> top nodes of branch have to be selected in same way as write single objects
+					if (objUuidsWriteTree != null) {
+						objUuidsWriteSingle.addAll(objUuidsWriteTree);
+					}
+					qStringCriteria += " oNode.objUuid in (:singleUuidList) ";					
+				}
+				if (objUuidsWriteTree != null) {
+					if (objUuidsWriteSingle != null) {
+						qStringCriteria += " or ( ";
+					}
+					boolean start = true;
+					for (String oUuid : objUuidsWriteTree) {
+						if (!start) {
+							qStringCriteria += " or ";							
+						}
+						qStringCriteria += 
+							" oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(oUuid) + "%' ";
+						start = false;
+					}
+					if (objUuidsWriteSingle != null) {
+						qStringCriteria += " ) ";
 					}
 				}
-			} else {
-				treeNodes.addAll(subNodes);
-			}
-
-			if (maxNum != null) {
-				if (treeNodes.size() >= maxNum) {
-					treeNodes = treeNodes.subList(0, maxNum);
-					break;
+				
+				if (addAnd) {
+					qStringCriteria += " ) ";
 				}
+				addAnd = true;
 			}
+			
+			qStringCount += qStringCriteria;
+			qStringSelect += qStringCriteria;
 		}
-/*
-		long endTime = System.currentTimeMillis();
-		long neededTime = endTime - startTime;
-		System.out.println("\n----------");
-		System.out.println("getTreeObjects NUM NODES requested: " + maxNum);
-		System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
-		System.out.println("getTreeObjects NUM NODES delivered: " + treeNodes.size());
-		System.out.println("getTreeObjects EXECUTION TIME: " + neededTime + " ms");
-*/
-		return treeNodes;
+
+		// set query parameters 
+		Query qCount = session.createQuery(qStringCount);
+		Query qSelect = session.createQuery(qStringSelect);
+		if (objUuidsWriteSingle != null) {
+			qCount.setParameterList("singleUuidList", objUuidsWriteSingle);
+			qSelect.setParameterList("singleUuidList", objUuidsWriteSingle);
+		}
+
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting QA objects: " + qStringCount);
+		}
+		Long totalNum = (Long) qCount.uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching QA objects: " + qStringSelect);
+		}
+		List<ObjectNode> oNodes = qSelect.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// and return results
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
+		
+		return result;
 	}
 
 	public IngridDocument getObjectStatistics(String parentUuid,
@@ -859,10 +741,8 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectWork obj " +
 			"where ";
 		if (parentUuid != null) {
-			// node token in path !
-			String parentUuidToken = "|" +  parentUuid + "|";
 			// NOTICE: tree path in node doesn't contain node itself
-			qString += "(oNode.treePath like '%" + parentUuidToken + "%' " +
+			qString += "(oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' " +
 				"OR oNode.objUuid = '" + parentUuid + "') " +
 				"AND ";
 		}
@@ -918,10 +798,8 @@ public class ObjectNodeDaoHibernate
 		}
 
 		if (parentUuid != null) {
-			// node token in path !
-			String parentUuidToken = "|" +  parentUuid + "|";
 			// NOTICE: tree path in node doesn't contain node itself
-			qStringFromWhere += " AND (oNode.treePath like '%" + parentUuidToken + "%' " +
+			qStringFromWhere += " AND (oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' " +
 				"OR oNode.objUuid = '" + parentUuid + "') ";
 		}
 

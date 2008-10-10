@@ -127,18 +127,20 @@ public interface IObjectNodeDao
 	List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid);
 
 	/**
-	 * Get ALL Objects where given user is QA and WORKING VERSION is in given work state.
+	 * Get ALL Objects where given user is QA and objects match passed selection criteria.
 	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param userUuid QA user
 	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  
-	 * @param permHandler permission handler needed for checking various permissions
+	 * @param permHandler permission handler needed for checking QA permissions
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects
-	 * @param maxNum maximum number of objects to query, pass null if all objects !
-	 * @return list of objects
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return doc encapsulating total number for paging and list of nodes
 	 */
-	List<ObjectNode> getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum);
+	IngridDocument getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			int startHit, int numHits);
 
 	/**
 	 * Get statistics about object branch.

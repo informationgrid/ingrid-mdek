@@ -297,36 +297,45 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		try {
 			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
 			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
-			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
+			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
 
 			boolean isCatAdmin = permissionHandler.isCatalogAdmin(userUuid);
-			List<ObjectNode> oNs =
-				daoObjectNode.getQAObjects(userUuid, isCatAdmin, permissionHandler,
-						whichWorkState, selectionType, numHits);
 
-			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
+			IngridDocument result =
+				daoObjectNode.getQAObjects(userUuid, isCatAdmin, permissionHandler,
+						whichWorkState, selectionType, startHit, numHits);
+
+			List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
+			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
+
+			// map found objects to docs
+			ArrayList<IngridDocument> oNDocs = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {
 				T01Object o = oN.getT01ObjectWork();
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
-				// map detailed assigner user if requested
-				MappingQuantity mappingQ = MappingQuantity.BASIC_ENTITY;
+				// map detailed meta data if requested
 				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
-					mappingQ = MappingQuantity.DETAIL_ENTITY;
+					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				} else {
+					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.BASIC_ENTITY);					
 				}
-				beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, mappingQ);
 				// map detailed mod user if requested
 				if (whichWorkState != WorkState.QS_UEBERWIESEN) {
 					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				}
 				beanToDocMapper.mapUserOperation(oN, objDoc);
 
-				resultList.add(objDoc);
+				oNDocs.add(objDoc);
 			}
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.OBJ_ENTITIES, resultList);
+
+			// set up result
+			result = new IngridDocument();
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
+			result.put(MdekKeys.OBJ_ENTITIES, oNDocs);
 
 			daoObjectNode.commitTransaction();
 			return result;

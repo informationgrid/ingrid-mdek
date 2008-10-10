@@ -29,6 +29,8 @@
 		<xs:all>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
+			<!-- added here, returned when paging, e.g. when fetching QA entities. Also part of specific description of results, e.g. in RESULT_STATISTICS_MAP -->
+			<xs:element name="total-num-paging" type="xs:long"/>
 			<xs:element name="objEntities" type="OBJECT_LIST"/>
 			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
 			<xs:element name="path" type="UUID_LIST"/>

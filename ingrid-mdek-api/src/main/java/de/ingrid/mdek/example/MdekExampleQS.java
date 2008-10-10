@@ -594,8 +594,8 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n\n=============================================");
 		System.out.println("----- GET OBJECTS WHERE USER IS QA -> fetch different object states -----");
 
-		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" OF WRITE_SINGLE object -----");
+		doc = supertool.fetchObject(topObjUuid2, Quantity.DETAIL_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeObject(doc, true);
 		
@@ -608,13 +608,13 @@ class MdekExampleQSThread extends Thread {
 		
 		int maxNum = 50;
 
-		supertool.getQAObjects(null, null, maxNum);
-		supertool.getQAObjects(null, null, 3);
-		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, null, maxNum);
-		supertool.getQAObjects(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, maxNum);
-		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAObjects(null, null, 0, maxNum);
+		supertool.getQAObjects(null, null, 2, 8);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, null, 0, maxNum);
+		supertool.getQAObjects(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- USER WITH QA -> getQAObjects delivers ALL ENTITIES OF GROUP -----");
@@ -622,13 +622,13 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 
-		supertool.getQAObjects(null, null, maxNum);
-		supertool.getQAObjects(null, null, 2);
-		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, null, maxNum);
-		supertool.getQAObjects(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, maxNum);
-		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAObjects(null, null, 0, maxNum);
+		supertool.getQAObjects(null, null, 2, 8);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, null, 0, maxNum);
+		supertool.getQAObjects(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- USER NO_QA -> getQAObjects delivers NO ENTITIES -----");
@@ -636,12 +636,12 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
 		supertool.setCallingUser(usrGrpNoQAUuid);
 
-		supertool.getQAObjects(null, null, maxNum);
-		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, null, maxNum);
-		supertool.getQAObjects(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, maxNum);
-		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAObjects(null, null, 0, maxNum);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, null, 0, maxNum);
+		supertool.getQAObjects(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 
 
 		System.out.println("\n-------------------------------------");
@@ -651,6 +651,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n---------------------------------------------");
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(topObjUuid2, true);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(newUuid, true);

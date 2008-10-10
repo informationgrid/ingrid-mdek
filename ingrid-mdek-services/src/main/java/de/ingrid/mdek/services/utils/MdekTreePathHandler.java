@@ -19,7 +19,7 @@ public class MdekTreePathHandler {
 
 	private static final Logger LOG = Logger.getLogger(MdekTreePathHandler.class);
 
-	String NODE_SEPARATOR = "|";  
+	static private String NODE_SEPARATOR = "|";  
 
 	private IObjectNodeDao daoObjectNode;
 	private IAddressNodeDao daoAddressNode;
@@ -127,6 +127,11 @@ public class MdekTreePathHandler {
 
 	/** Adds the given nodeUuid at the end of the given path and returns new path. */
 	public String addNodeToPath(String path, String nodeUuid) {
-		return path + NODE_SEPARATOR + nodeUuid + NODE_SEPARATOR;
+		return path + translateToTreePathUuid(nodeUuid);
+	}
+
+	/** Adds the given nodeUuid at the end of the given path and returns new path. */
+	static public String translateToTreePathUuid(String nodeUuid) {
+		return NODE_SEPARATOR + nodeUuid + NODE_SEPARATOR;
 	}
 }
