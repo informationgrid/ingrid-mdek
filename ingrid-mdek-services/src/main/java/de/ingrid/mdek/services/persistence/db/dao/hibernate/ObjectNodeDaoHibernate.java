@@ -684,6 +684,24 @@ public class ObjectNodeDaoHibernate
 			qStringSelect += qStringCriteria;
 		}
 
+		// order by
+		String qOrderBy = "";
+		if (selectionType != null) {
+			qOrderBy = " order by o.modTime asc";
+		} else if (whichWorkState != null) {
+			if (whichWorkState == WorkState.IN_BEARBEITUNG ||
+					whichWorkState == WorkState.VEROEFFENTLICHT) {
+				qOrderBy = " order by o.modTime asc";
+			} else if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+				qOrderBy = " order by oMeta.assignTime asc";				
+			} else if (whichWorkState == WorkState.QS_RUECKUEBERWIESEN) {
+				qOrderBy = " order by oMeta.reassignTime asc";				
+			}
+		} else {
+			qOrderBy = " order by o.modTime asc";			
+		}
+		qStringSelect += qOrderBy;
+		
 		// set query parameters 
 		Query qCount = session.createQuery(qStringCount);
 		Query qSelect = session.createQuery(qStringSelect);

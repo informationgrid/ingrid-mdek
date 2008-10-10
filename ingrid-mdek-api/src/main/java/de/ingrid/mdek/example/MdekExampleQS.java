@@ -614,6 +614,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.getQAObjects(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_RUECKUEBERWIESEN, null, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		
 		System.out.println("\n---------------------------------------------");
@@ -973,6 +974,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.getQAAddresses(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAAddresses(WorkState.QS_RUECKUEBERWIESEN, null, 0, maxNum);
 		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		
 		System.out.println("\n---------------------------------------------");

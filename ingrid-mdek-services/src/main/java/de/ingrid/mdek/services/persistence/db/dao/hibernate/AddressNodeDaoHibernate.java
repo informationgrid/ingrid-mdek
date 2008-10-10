@@ -839,6 +839,24 @@ public class AddressNodeDaoHibernate
 			qStringSelect += qStringCriteria;
 		}
 
+		// order by
+		String qOrderBy = "";
+		if (selectionType != null) {
+			qOrderBy = " order by a.modTime asc";
+		} else if (whichWorkState != null) {
+			if (whichWorkState == WorkState.IN_BEARBEITUNG ||
+					whichWorkState == WorkState.VEROEFFENTLICHT) {
+				qOrderBy = " order by a.modTime asc";
+			} else if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+				qOrderBy = " order by aMeta.assignTime asc";				
+			} else if (whichWorkState == WorkState.QS_RUECKUEBERWIESEN) {
+				qOrderBy = " order by aMeta.reassignTime asc";				
+			}
+		} else {
+			qOrderBy = " order by a.modTime asc";			
+		}
+		qStringSelect += qOrderBy;
+		
 		// set query parameters 
 		Query qCount = session.createQuery(qStringCount);
 		Query qSelect = session.createQuery(qStringSelect);
