@@ -30,6 +30,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -645,61 +646,49 @@ public class AddressNodeDaoHibernate
 		return retList;
 	}
 
-	public List<AddressNode> getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		if (isCatAdmin) {
-			return getAddresses(whichWorkState, selectionType, maxNum);
-		}
-		
+	public IngridDocument getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			int startHit, int numHits) {
+
+		// default result
+		IngridDocument defaultResult = new IngridDocument();
+		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, new Long(0));
+		defaultResult.put(MdekKeys.ADR_ENTITIES, new ArrayList<AddressNode>());
+
 		// check whether QA user
 		if (!permHandler.hasQAPermission(userUuid)) {
-			return new ArrayList<AddressNode>(0);
+			return defaultResult;
 		}
 
-		// determine best way to find QA addresses
-		// "traverse tree branches of group" <-> "select addresses matching criteria and test on write permission"
-		boolean getQAAddressesViaGroup = true;
-		boolean doSelection = whichWorkState != null || selectionType != null;
-		if (doSelection) {
-			long numAddrsMatchingSelection = getNumAddresses(whichWorkState, selectionType);
-			if (numAddrsMatchingSelection <= maxNum) {
-				getQAAddressesViaGroup = false;
-				
-				maxNum = new Long(numAddrsMatchingSelection).intValue();
-			}
-		}
-
-		if (getQAAddressesViaGroup) {
-			return getQAAddressesViaGroup(userUuid, whichWorkState, selectionType, maxNum);			
+		if (isCatAdmin) {
+			return getAddresses(null, null, whichWorkState, selectionType, startHit, numHits);
 		} else {
-			return getQAAddressesViaPreSelection(userUuid, permHandler, 
-					whichWorkState, selectionType, maxNum);
+			return getQAAddressesViaGroup(userUuid, whichWorkState, selectionType, startHit, numHits);			
 		}
 	}
 
 	/**
-	 * Traverse all addresses in QA-group of user (includes all tree branches) and
-	 * return addresses matching selection criteria.
-	 * @param userUuid
-	 * @param whichWorkState addresses is in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param maxNum maximum number of addresses to query, pass null if all addresses !
-	 * @return list of addresses
+	 * Get ALL Addresses where given user is QA and addresses WORKING VERSION match passed selection criteria.
+	 * The QA addresses are determined via assigned addresses in QA group of user.
+	 * All sub-addresses of "write-tree" addresses are included !
+	 * We return nodes, so we can evaluate whether published version exists ! 
+	 * @param userUuid QA user
+	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return doc encapsulating total number for paging and list of nodes
 	 */
-	private List<AddressNode> getQAAddressesViaGroup(String userUuid,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		List<AddressNode> retList = new ArrayList<AddressNode>();
+	private IngridDocument getQAAddressesViaGroup(String userUuid,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			int startHit, int numHits) {
 
 		Session session = getSession();
 
-		// select all addresses in group (write permission) !
+		// select all addresses in QA group (write permission) !
 		// NOTICE: this doesn't include sub addresses of "write-tree" addresses !
-		// Always fetch address and metadata, e.g. needed when mapping user operation (deleted) 
-		String qString = "select distinct aNode, p2.action as perm " +
+		String qString = "select distinct pAddr.uuid, p2.action as perm " +
 		"from " +
-			"AddressNode aNode " +
-			"left join fetch aNode.t02AddressWork a " +
-			"left join fetch a.addressMetadata, " +
 			"IdcUser usr, " +
 			"IdcGroup grp, " +
 			"IdcUserPermission pUsr, " +
@@ -713,276 +702,170 @@ public class AddressNodeDaoHibernate
 			" and grp.id = pUsr.idcGroupId " +
 			" and pUsr.permissionId = p1.id " +
 			" and p1.action = '" + IdcPermission.QUALITY_ASSURANCE.getDbValue() + "'" +
-			// grp -> object-> write permission
+			// grp -> address -> permission
 			" and grp.id = pAddr.idcGroupId " +
-			" and pAddr.permissionId = p2.id " +
-			" and (p2.action = '" + IdcPermission.WRITE_SINGLE.getDbValue() + "' or " +
-			"  p2.action = '" + IdcPermission.WRITE_TREE.getDbValue() + "') " +
-			// object
-			" and pAddr.uuid = aNode.addrUuid";
+			" and pAddr.permissionId = p2.id";
 
-		Query q = session.createQuery(qString);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Selecting addresses in QA group: " + qString);
+		}
+		List<Object[]> groupAddrsAndPerms = session.createQuery(qString).list();
 
-		// parse group addresses and separate write single and write tree
-		List<Object[]> groupAddrPerms = q.list();
-		List<AddressNode> groupAddrsWriteTree = new ArrayList<AddressNode>();
-		for (Object[] groupAddrPerm : groupAddrPerms) {
-			AddressNode aNode = (AddressNode) groupAddrPerm[0];
-			T02Address a = aNode.getT02AddressWork();
-			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupAddrPerm[1]);
+		// parse group addresses and separate "write single" and "write tree"
+		List<String> addrUuidsWriteSingle= new ArrayList<String>();
+		List<String> addrUuidsWriteTree = new ArrayList<String>();
+		for (Object[] groupAddrAndPerm : groupAddrsAndPerms) {
+			String aUuid = (String) groupAddrAndPerm[0];
+			IdcPermission p = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, groupAddrAndPerm[1]);
 
-			// check "write single addresses" and include if matching selection
 			if (p == IdcPermission.WRITE_SINGLE) {
-				if (checkAddress(a, whichWorkState, selectionType)) {
-					retList.add(aNode);					
-				}
+				addrUuidsWriteSingle.add(aUuid);
 			} else if (p == IdcPermission.WRITE_TREE) {
-				groupAddrsWriteTree.add(aNode);
+				addrUuidsWriteTree.add(aUuid);
 			}
 		}
 
-		// process tree branches of "write-tree addresses"
-		Integer numNodesMissing = null;
-		for (AddressNode aN : groupAddrsWriteTree) {
-			if (maxNum != null) {
-				numNodesMissing = maxNum - retList.size();
-			}
-			if (numNodesMissing == null || numNodesMissing > 0) {
-				T02Address a = aN.getT02AddressWork();
-				boolean includeCurrentAddr = checkAddress(a, whichWorkState, selectionType);
-				retList.addAll(getTreeAddresses(aN, whichWorkState, selectionType, includeCurrentAddr, numNodesMissing));					
-			}
-
-			if (maxNum != null) {
-				if (retList.size() >= maxNum) {
-					retList = retList.subList(0, maxNum);
-					break;
-				}
-			}
-		}
-
-		return retList;
+		return getAddresses(addrUuidsWriteSingle,
+				addrUuidsWriteTree,
+				whichWorkState, selectionType,
+				startHit, numHits);
 	}
 
 	/**
-	 * First select all addresses matching criteria. Then return addresses where user has write permission.
-	 * @param userUuid
-	 * @param permHandler permission handler needed for checking write permissions
-	 * @param whichWorkState address is in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param maxNum maximum number of addresses to preselect, pass null if all addresses !
-	 * @return list of addresses
-	 */
-	private List<AddressNode> getQAAddressesViaPreSelection(String userUuid, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		List<AddressNode> retList = new ArrayList<AddressNode>();
-
-		List<AddressNode> aNs = getAddresses(whichWorkState, selectionType, maxNum);
-		for (AddressNode aN : aNs) {
-			if (permHandler.hasWritePermissionForAddress(aN.getAddrUuid(), userUuid, false)) {
-				retList.add(aN);
-			}
-		}
-
-		return retList;
-	}
-
-	/**
-	 * Find number of addresses matching the selection criteria !
+	 * Get ALL Addresses matching passed selection criteria.
+	 * We return nodes, so we can evaluate whether published version exists !
+	 * @param addrUuidsWriteSingle list of address uuids where user has single write permission, pass null if all addresses
+	 * @param addrUuidsWriteTree list of address uuids where user has tree write permission, pass null if all addresses
 	 * @param whichWorkState only return addresses in this work state, pass null if workstate should be ignored
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @return number of addresses found
+	 * @param selectionType further selection criteria (see Enum), pass null if no further criteria
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return doc encapsulating total number for paging and list of nodes
 	 */
-	private long getNumAddresses(WorkState whichWorkState, IdcEntitySelectionType selectionType) {
-		Session session = getSession();
-
-		// always fetch address and metadata, e.g. needed when mapping user operation (mark deleted ?) 
-		String qString = "select count(aNode) " +
-			"from AddressNode aNode ";
-		
-		if (whichWorkState != null || selectionType != null) {
-			qString += " where ";
-
-			boolean addAnd = false;
-			if (whichWorkState != null) {
-				qString += "aNode.t02AddressWork.workState = '" + whichWorkState.getDbValue() + "'";
-				addAnd = true;
-			}
-			if (selectionType != null) {
-				if (addAnd) {
-					qString += " and ";
-				}
-				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
-					qString += "aNode.t02AddressWork.addressMetadata.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
-					// TODO: Add when implementing catalog management sns update !
-					return 0;
-				} else {
-					// QASelectionType not handled ? return nothing !
-					return 0;
-				}
-			}
-		}
-
-		Long totalNum = (Long) session.createQuery(qString)
-			.uniqueResult();
-
-		return totalNum;
-	}
-
-	/**
-	 * Get ALL Addresses where WORKING VERSION is in given work state. We return nodes, so we can evaluate
-	 * whether published version exists !
-	 * @param whichWorkState only return addresses in this work state, pass null if workstate should be ignored
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param maxNum maximum number of addresses to query, pass null if all addresses !
-	 * @return list of addresses
-	 */
-	private List<AddressNode> getAddresses(WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
-		List<AddressNode> retList = new ArrayList<AddressNode>(); 
-
-		Session session = getSession();
-
-		// always fetch address and metadata, e.g. needed when mapping user operation (mark deleted ?) 
-		String qString = "from AddressNode aNode " +
-			"left join fetch aNode.t02AddressWork a " +
-			"left join fetch a.addressMetadata aMeta ";
-		
-		if (whichWorkState != null || selectionType != null) {
-			qString += " where ";
-
-			boolean addAnd = false;
-			if (whichWorkState != null) {
-				qString += "a.workState = '" + whichWorkState.getDbValue() + "'";
-				addAnd = true;
-			}
-			if (selectionType != null) {
-				if (addAnd) {
-					qString += " and ";
-				}
-				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
-					qString += "aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
-					// TODO: Add when implementing catalog management sns update !
-					return retList;
-				} else {
-					// QASelectionType not handled ? return nothing !
-					return retList;
-				}
-			}
-		}
-
-		Query q = session.createQuery(qString);
-		if (maxNum != null) {
-			q.setMaxResults(maxNum);				
-		}
-
-		return q.list();
-	}
-
-	/**
-	 * Check whether passed address matches passed "selection criteria".
-	 * @param a address to test
-	 * @param whichWorkState address is in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @return true=address matches, include it<br>
-	 * 		false=address doesn't match, exclude it
-	 */
-	private boolean checkAddress(T02Address a, WorkState whichWorkState, IdcEntitySelectionType selectionType) {
-		// first check work state
-		if (whichWorkState != null && !whichWorkState.getDbValue().equals(a.getWorkState())) {
-			return false;
-		}
-
-		// then additional selection criteria
-		if (selectionType != null) {
-			if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
-				if (!MdekUtils.ExpiryState.EXPIRED.getDbValue().equals(a.getAddressMetadata().getExpiryState())) {
-					return false;
-				}
-
-			} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
-				// TODO: Add when implementing catalog management sns update !
-				return false;
-
-			} else {
-				// QASelectionType not handled ? return false, address doesn't match is default !
-				return false;
-			}
-		}
-
-		// address matches selection criteria
-		return true;
-	}
-
-	/** Fetch whole subtree (ALL levels) of given address.
-	 * @param rootNode top node of tree
-	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if no criteria
-	 * @param includeRootNode true=include the passed root node (state not checked)<br>
-	 * 		false=do not include root node (state not checked)<br>
-	 * @param maxNum maximum number of nodes to fetch, pass null if whole tree branch
-	 * @return list of all subnodes in tree
-	 */
-	private List<AddressNode> getTreeAddresses(AddressNode rootNode,
+	private IngridDocument getAddresses(List<String> addrUuidsWriteSingle,
+			List<String> addrUuidsWriteTree,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType,
-			boolean includeRootNode, Integer maxNum) {
-		List<AddressNode> treeNodes = new ArrayList<AddressNode>();
+			int startHit, int numHits) {
+		IngridDocument result = new IngridDocument();
 
-		boolean doSelection = whichWorkState != null || selectionType != null;
-
-		if (includeRootNode) {
-			treeNodes.add(rootNode);
+		// first check content of lists and set to null if no content (to be used as flag)
+		if (addrUuidsWriteSingle != null && addrUuidsWriteSingle.size() == 0) {
+			addrUuidsWriteSingle = null;
 		}
+		if (addrUuidsWriteTree != null && addrUuidsWriteTree.size() == 0) {
+			addrUuidsWriteTree = null;
+		}
+		
+		Session session = getSession();
 
-//		long startTime = System.currentTimeMillis();
-//		long numNodes = 0;
+		// prepare queries
 
-		// traverse iteratively via stack
-		Stack<AddressNode> stack = new Stack<AddressNode>();
-		stack.push(rootNode);
-		while (!stack.isEmpty()) {
-			AddressNode treeNode = stack.pop();
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(aNode) " +
+			"from AddressNode aNode " +
+			"inner join aNode.t02AddressWork a " +
+			"inner join a.addressMetadata aMeta ";
 
-			// add next level of subnodes to stack (ALL NON LEAFS, independent from state, so we won't lose tree branch ...)
-			List<AddressNode> subNodes = getSubAddresses(treeNode.getAddrUuid(), IdcEntityVersion.WORKING_VERSION, true, true);
-			for (AddressNode sN : subNodes) {
-				if (sN.getAddressNodeChildren().size() > 0) {
-					stack.push(sN);					
-				}
-//				numNodes++;
+		// with fetch: always fetch address and metadata, e.g. needed when mapping user operation (mark deleted) 
+		String qStringSelect = "from AddressNode aNode " +
+			"inner join fetch aNode.t02AddressWork a " +
+			"inner join fetch a.addressMetadata aMeta ";
+
+		// selection criteria
+		if (whichWorkState != null || selectionType != null ||
+				addrUuidsWriteSingle != null || addrUuidsWriteTree != null) {
+			String qStringCriteria = " where ";
+
+			boolean addAnd = false;
+
+			if (whichWorkState != null) {
+				qStringCriteria += "a.workState = '" + whichWorkState.getDbValue() + "'";
+				addAnd = true;
 			}
 
-//			System.out.println("getTreeObjects NUM NODES processed: " + numNodes);
-
-			// add subnodes matching selection
-			if (doSelection) {
-				for (AddressNode aN : subNodes) {
-					if (checkAddress(aN.getT02AddressWork(), whichWorkState, selectionType)) {
-						treeNodes.add(aN);
+			if (selectionType != null) {
+				if (addAnd) {
+					qStringCriteria += " and ";
+				}
+				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
+					qStringCriteria += "aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
+					// TODO: Add when implementing catalog management sns update !
+					return result;
+				} else {
+					// QASelectionType not handled ? return nothing !
+					return result;
+				}
+				addAnd = true;
+			}
+			
+			if (addrUuidsWriteSingle != null || addrUuidsWriteTree != null) {
+				if (addAnd) {
+					qStringCriteria += " and ( ";
+				}
+				if (addrUuidsWriteSingle != null) {
+					// add all write tree nodes to single nodes
+					// -> top nodes of branch have to be selected in same way as write single addresses
+					if (addrUuidsWriteTree != null) {
+						addrUuidsWriteSingle.addAll(addrUuidsWriteTree);
+					}
+					qStringCriteria += " aNode.addrUuid in (:singleUuidList) ";
+				}
+				if (addrUuidsWriteTree != null) {
+					if (addrUuidsWriteSingle != null) {
+						qStringCriteria += " or ( ";
+					}
+					boolean start = true;
+					for (String aUuid : addrUuidsWriteTree) {
+						if (!start) {
+							qStringCriteria += " or ";							
+						}
+						qStringCriteria += 
+							" aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(aUuid) + "%' ";
+						start = false;
+					}
+					if (addrUuidsWriteSingle != null) {
+						qStringCriteria += " ) ";
 					}
 				}
-			} else {
-				treeNodes.addAll(subNodes);
-			}
-
-			if (maxNum != null) {
-				if (treeNodes.size() >= maxNum) {
-					treeNodes = treeNodes.subList(0, maxNum);
-					break;
+				
+				if (addAnd) {
+					qStringCriteria += " ) ";
 				}
+				addAnd = true;
 			}
+			
+			qStringCount += qStringCriteria;
+			qStringSelect += qStringCriteria;
 		}
-/*
-		long endTime = System.currentTimeMillis();
-		long neededTime = endTime - startTime;
-		System.out.println("\n----------");
-		System.out.println("getTreeAddresses NUM NODES requested: " + maxNum);
-		System.out.println("getTreeAddresses NUM NODES processed: " + numNodes);
-		System.out.println("getTreeAddresses NUM NODES delivered: " + treeNodes.size());
-		System.out.println("getTreeAddresses EXECUTION TIME: " + neededTime + " ms");
-*/
-		return treeNodes;
+
+		// set query parameters 
+		Query qCount = session.createQuery(qStringCount);
+		Query qSelect = session.createQuery(qStringSelect);
+		if (addrUuidsWriteSingle != null) {
+			qCount.setParameterList("singleUuidList", addrUuidsWriteSingle);
+			qSelect.setParameterList("singleUuidList", addrUuidsWriteSingle);
+		}
+
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting QA addresses: " + qStringCount);
+		}
+		Long totalNum = (Long) qCount.uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching QA addresses: " + qStringSelect);
+		}
+		List<AddressNode> aNodes = qSelect.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// and return results
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.ADR_ENTITIES, aNodes);
+		
+		return result;
 	}
 
 	public IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,

@@ -200,7 +200,7 @@ public interface IMdekCallerObject {
 			String userId);
 
 	/**
-	 * Get ALL Objects where given user is QA and objects WORKING VERSION is in given work state.
+	 * Get ALL Objects where given user is QA and objects WORKING VERSION matches given selection criteria.
 	 * @param plugId which mdek server (iplug)
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects

@@ -514,7 +514,7 @@ public class ObjectNodeDaoHibernate
 	}
 
 	/**
-	 * Get ALL Objects where given user is QA and objects match passed selection criteria.
+	 * Get ALL Objects where given user is QA and objects WORKING VERSION match passed selection criteria.
 	 * The QA objects are determined via assigned objects in QA group of user.
 	 * All sub-objects of "write-tree" objects are included !
 	 * We return nodes, so we can evaluate whether published version exists ! 
@@ -547,7 +547,7 @@ public class ObjectNodeDaoHibernate
 			" and grp.id = pUsr.idcGroupId " +
 			" and pUsr.permissionId = p1.id " +
 			" and p1.action = '" + IdcPermission.QUALITY_ASSURANCE.getDbValue() + "'" +
-			// grp -> object-> write permission
+			// grp -> object -> permission
 			" and grp.id = pObj.idcGroupId " +
 			" and pObj.permissionId = p2.id";
 

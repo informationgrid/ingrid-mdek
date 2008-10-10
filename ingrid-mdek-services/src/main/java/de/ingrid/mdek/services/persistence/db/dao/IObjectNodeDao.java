@@ -127,7 +127,7 @@ public interface IObjectNodeDao
 	List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid);
 
 	/**
-	 * Get ALL Objects where given user is QA and objects match passed selection criteria.
+	 * Get ALL Objects where given user is QA and objects WORKING VERSION match passed selection criteria.
 	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param userUuid QA user
 	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  

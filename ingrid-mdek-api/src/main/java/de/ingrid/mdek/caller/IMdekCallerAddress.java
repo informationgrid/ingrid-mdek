@@ -260,16 +260,18 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
-	 * Get ALL Addresses where given user is QA and addresses WORKING VERSION is in given work state.
+	 * Get ALL Addresses where given user is QA and addresses WORKING VERSION matches given selection criteria.
 	 * @param plugId which mdek server (iplug)
 	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
-	 * @param maxNum maximum number of addresses to query, pass null if all addresses !
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
 	 * @return response containing result: map representation of addresses (only partial data)
 	 */
 	IngridDocument getQAAddresses(String plugId,
 			WorkState whichWorkState, IdcEntitySelectionType selectionType,
-			Integer maxNum, String userId);
+			int startHit, int numHits,
+			String userId);
 
 	/**
 	 * Get statistics info about the tree branch of the given address.

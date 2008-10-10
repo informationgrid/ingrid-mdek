@@ -731,9 +731,12 @@ public class MdekExampleSupertool {
 	/**
 	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
-	 * @param maxNum maximum number of addresses to query, pass null if all addresses !
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
 	 */
-	public IngridDocument getQAAddresses(WorkState whichWorkState, IdcEntitySelectionType selectionType, Integer maxNum) {
+	public IngridDocument getQAAddresses(WorkState whichWorkState,
+			IdcEntitySelectionType selectionType,
+			int startHit, int numHits) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -741,18 +744,20 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getQAAddresses ######");
-		System.out.println("  in work state: " + whichWorkState);
-		System.out.println("  selection type: " + selectionType);
-		System.out.println("  maxNum: " + maxNum);
+		System.out.println("- work state: " + whichWorkState);
+		System.out.println("- selection type: " + selectionType);
+		System.out.println("- paging from:" + startHit);
+		System.out.println("- paging num:" + numHits);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getQAAddresses(plugId, whichWorkState, selectionType, maxNum, myUserUuid);
+		response = mdekCallerAddress.getQAAddresses(plugId, whichWorkState, selectionType,
+				startHit, numHits, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities");
+			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
 			for (Object o : l) {
 				System.out.println(o);				
 			}

@@ -955,8 +955,8 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n\n=============================================");
 		System.out.println("----- GET ADDRESSES WHERE USER IS QA -> fetch different address states -----");
 
-		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" -----");
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		System.out.println("\n----- create working copy \"in Bearbeitung\" and \"EXPIRED\" OF WRITE_SINGLE address -----");
+		doc = supertool.fetchAddress(topAddrUuid2, Quantity.DETAIL_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeAddress(doc, true);
 		
@@ -967,13 +967,13 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 		
-		supertool.getQAAddresses(null, null, maxNum);
-		supertool.getQAAddresses(null, null, 3);
-		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, maxNum);
-		supertool.getQAAddresses(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, maxNum);
-		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(null, null, 0, maxNum);
+		supertool.getQAAddresses(null, null, 2, 8);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, 0, maxNum);
+		supertool.getQAAddresses(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 		
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- USER WITH QA -> getQAAddresses delivers ALL ENTITIES OF GROUP -----");
@@ -981,13 +981,13 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 
-		supertool.getQAAddresses(null, null, maxNum);
-		supertool.getQAAddresses(null, null, 2);
-		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, maxNum);
-		supertool.getQAAddresses(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, maxNum);
-		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(null, null, 0, maxNum);
+		supertool.getQAAddresses(null, null, 2, 8);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, 0, maxNum);
+		supertool.getQAAddresses(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- USER NO_QA -> getQAAddresses delivers NO ENTITIES -----");
@@ -995,12 +995,12 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NON QA user -----");
 		supertool.setCallingUser(usrGrpNoQAUuid);
 
-		supertool.getQAAddresses(null, null, maxNum);
-		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, maxNum);
-		supertool.getQAAddresses(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
-		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, maxNum);
-		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, maxNum);
+		supertool.getQAAddresses(null, null, 0, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, null, 0, maxNum);
+		supertool.getQAAddresses(null, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAAddresses(WorkState.IN_BEARBEITUNG, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, null, 0, maxNum);
+		supertool.getQAAddresses(WorkState.QS_UEBERWIESEN, IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED, 0, maxNum);
 
 
 		System.out.println("\n-------------------------------------");
@@ -1010,6 +1010,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n---------------------------------------------");
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
+		supertool.deleteAddressWorkingCopy(topAddrUuid2, true);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(newUuid, true);

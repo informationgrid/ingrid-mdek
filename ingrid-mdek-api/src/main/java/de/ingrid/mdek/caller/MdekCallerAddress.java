@@ -253,12 +253,15 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getQAAddresses(String plugId, WorkState whichWorkState, IdcEntitySelectionType selectionType, 
-			Integer maxNum, String userId) {
+	public IngridDocument getQAAddresses(String plugId,
+			WorkState whichWorkState, IdcEntitySelectionType selectionType, 
+			int startHit, int numHits,
+			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_WHICH_WORK_STATE, whichWorkState);
 		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE, selectionType);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, maxNum);
+		jobParams.put(MdekKeys.REQUESTINFO_START_HIT, startHit);
+		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, numHits);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = mdekCaller.setUpJobMethod("getQAAddresses", jobParams);
 
