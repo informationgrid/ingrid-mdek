@@ -105,7 +105,7 @@ public interface IMdekCallerObject {
 	 * @param forceDeleteReferences only relevant if deletion of working copy causes FULL DELETION (no published version !)<br>
 	 * 		true=all references to this object are also deleted
 	 * 		false=error if references to this object exist
-	 * @return response containing result: map containing info whether object was fully deleted
+	 * @return response containing result: map containing info whether address was fully deleted, marked deleted ...
 	 */
 	IngridDocument deleteObjectWorkingCopy(String plugId, String uuid,
 			boolean forceDeleteReferences,
@@ -122,7 +122,7 @@ public interface IMdekCallerObject {
 	 * @param forceDeleteReferences how to handle references to this object ?<br>
 	 * 		true=all references to this object are also deleted
 	 * 		false=error if references to this object exist
-	 * @return response containing result: map containing info whether object was fully deleted !
+	 * @return response containing result: map containing info whether address was fully deleted, marked deleted ...
 	 */
 	IngridDocument deleteObject(String plugId, String uuid,
 			boolean forceDeleteReferences,

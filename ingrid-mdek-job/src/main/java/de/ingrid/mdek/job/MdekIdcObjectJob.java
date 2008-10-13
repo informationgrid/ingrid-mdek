@@ -844,7 +844,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
 
-			boolean performFullDelete = false;
 			Long idPublished = oNode.getObjIdPublished();
 			Long idWorkingCopy = oNode.getObjId();
 
@@ -855,6 +854,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			} else {
 				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);			
+				result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
 
 				// perform delete of working copy only if really different version
 				if (!idPublished.equals(idWorkingCopy)) {
@@ -955,6 +955,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
 
 		return result;
 	}
@@ -991,6 +992,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, true);			
 
 		return result;
 	}

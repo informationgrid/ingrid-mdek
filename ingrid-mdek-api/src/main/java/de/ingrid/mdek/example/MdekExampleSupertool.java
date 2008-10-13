@@ -1651,8 +1651,9 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
+			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
+			System.out.println("was marked deleted: " + result.get(MdekKeys.RESULTINFO_WAS_MARKED_DELETED));
+
 		} else {
 			handleError(response);
 		}
@@ -1679,8 +1680,8 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
+			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
+			System.out.println("was marked deleted: " + result.get(MdekKeys.RESULTINFO_WAS_MARKED_DELETED));
 		} else {
 			handleError(response);
 		}
@@ -1707,8 +1708,8 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
+			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
+			System.out.println("was marked deleted: " + result.get(MdekKeys.RESULTINFO_WAS_MARKED_DELETED));
 		} else {
 			handleError(response);
 		}
@@ -1735,8 +1736,8 @@ public class MdekExampleSupertool {
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
-			Boolean fullyDeleted = (Boolean) result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED);
-			System.out.println("was fully deleted: " + fullyDeleted);
+			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
+			System.out.println("was marked deleted: " + result.get(MdekKeys.RESULTINFO_WAS_MARKED_DELETED));
 		} else {
 			handleError(response);
 		}

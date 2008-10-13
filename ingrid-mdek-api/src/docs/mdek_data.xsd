@@ -338,6 +338,7 @@
 	<xs:complexType name="RESULT_ADDITIONAL_INFO_MAP">
 		<xs:all>
 			<xs:element name="resultinfo_wasFullyDeleted" type="xs:boolean"/>
+			<xs:element name="resultinfo_wasMarkedDeleted" type="xs:boolean"/>
 			<xs:element name="resultinfo_hasWorkingCopy" type="xs:boolean"/>
 			<xs:element name="resultinfo_numberOfProcessedEntities" type="xs:integer"/>
 			<xs:element name="resultinfo_uuidOfFoundEntity" type="UUID"/>

@@ -1049,7 +1049,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
 
-			boolean performFullDelete = false;
 			Long idPublished = aNode.getAddrIdPublished();
 			Long idWorkingCopy = aNode.getAddrId();
 
@@ -1059,7 +1058,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				result = deleteAddress(uuid, forceDeleteReferences, userId);
 
 			} else {
-				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);			
+				// delete working copy only 
+				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
+				result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
 
 				// perform delete of working copy only if really different version
 				if (!idPublished.equals(idWorkingCopy)) {
@@ -1166,6 +1167,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
 
 		return result;
 	}
@@ -1202,6 +1204,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, true);
 
 		return result;
 	}

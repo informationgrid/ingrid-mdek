@@ -231,6 +231,9 @@ public class MdekKeys {
     /** indicates whether a deleted entity was fully deleted (e.g. delete working copy without published version) 
      *  Value: Boolean */
     public final static String RESULTINFO_WAS_FULLY_DELETED = "resultinfo_wasFullyDeleted";
+    /** indicates whether an entity was marked deleted (when workflow activated) 
+     *  Value: Boolean */
+    public final static String RESULTINFO_WAS_MARKED_DELETED = "resultinfo_wasMarkedDeleted";
     /** indicates whether a tree has subnodes with working copies, e.g. to determin whether move is allowed 
      *  Value: Boolean */
     public final static String RESULTINFO_HAS_WORKING_COPY = "resultinfo_hasWorkingCopy";
