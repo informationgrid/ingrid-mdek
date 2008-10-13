@@ -349,6 +349,30 @@ class MdekExampleQSThread extends Thread {
 			isRunning = false;
 			return;
 		}
+
+// -----------------------------------
+
+		// various HQL
+		// -----------
+
+		// -----------------------------------
+		// TEST left outer join WITHOUT mapped association ! NOT POSSIBLE ! :(
+		String hqlQueryTest = "select oNode.objUuid, obj.objName, aNode.addrUuid " +
+			"from ObjectNode oNode " +
+				"join oNode.t01ObjectWork obj " +
+				"left join AddressNode aNode " +
+			"where " +
+				"oNode.objUuid = '2C997C68-2247-11D3-AF51-0060084A4596' " +
+				"and obj.modUuid = aNode.addrUuid ";
+
+		supertool.setFullOutput(true);
+		// throws: org.hibernate.hql.ast.QuerySyntaxException: Path expected for join!
+		doc = supertool.queryHQLToMap(hqlQueryTest, 10);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 */
 // ===================================
 
