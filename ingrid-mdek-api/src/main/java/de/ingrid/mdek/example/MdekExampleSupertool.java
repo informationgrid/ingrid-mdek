@@ -873,10 +873,14 @@ public class MdekExampleSupertool {
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
-			for (Object o : l) {
-				doFullOutput = false;
-				debugAddressDoc((IngridDocument)o);
-				doFullOutput = true;
+			if (!doFullOutput) {
+				System.out.println("  " + l);				
+			} else {
+				for (Object o : l) {
+					doFullOutput = false;
+					debugAddressDoc((IngridDocument)o);
+					doFullOutput = true;
+				}				
 			}
 		} else {
 			handleError(response);

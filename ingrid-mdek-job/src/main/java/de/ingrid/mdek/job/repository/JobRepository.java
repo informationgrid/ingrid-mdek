@@ -63,6 +63,11 @@ public class JobRepository implements IJobRepository {
 
 	@SuppressWarnings("unchecked")
 	public IngridDocument invoke(IngridDocument document) {
+		long startTime = 0;
+		if (LOG.isDebugEnabled()) {
+			startTime = System.currentTimeMillis();				
+		}
+
 		IngridDocument ret = new IngridDocument();
 		String methodName = "";
 		String jobId = (String) document.get(JOB_ID);
@@ -81,8 +86,8 @@ public class JobRepository implements IJobRepository {
 				for (Pair pair : methods) {
 					methodName = pair.getKey();
 					Object value = pair.getValue();
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("try to invoke method [" + methodName
+					if (LOG.isInfoEnabled()) {
+						LOG.info("try to invoke method [" + methodName
 								+ "] for jobid [" + jobId + "]");
 					}
 					Method method = getMethodToInvoke(registeredJob, methodName);
@@ -120,6 +125,10 @@ public class JobRepository implements IJobRepository {
 			}
 
 			ret.putBoolean(JOB_INVOKE_SUCCESS, false);
+		}
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("EXECUTION TIME: " + (System.currentTimeMillis() - startTime) + " ms");
 		}
 
 		return ret;

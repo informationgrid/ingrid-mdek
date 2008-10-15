@@ -98,6 +98,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionObj">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SearchtermObj">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SearchtermValue">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialRefSns">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialRefValue">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialReference">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat">read-write</prop>

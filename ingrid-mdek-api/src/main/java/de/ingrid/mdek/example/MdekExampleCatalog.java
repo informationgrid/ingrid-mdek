@@ -144,6 +144,17 @@ class MdekExampleCatalogThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		// Test EH Cache on catalog, user ...
+		// -----------------------
+
+		supertool.setFullOutput(false);
+
+		for (int i = 1; i <= 5; i++) {
+			supertool.getCatalog();
+		}
+		for (int i = 1; i <= 5; i++) {
+			supertool.getCatalogAdmin();
+		}
 
 		if (alwaysTrue) {
 			isRunning = false;

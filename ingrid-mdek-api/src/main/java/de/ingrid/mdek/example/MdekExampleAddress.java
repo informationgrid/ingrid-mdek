@@ -144,6 +144,37 @@ class MdekExampleAddressThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		// Test EH Cache !
+		// ---------------
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- ENABLE WORKFLOW in catalog -----");
+		IngridDocument catDoc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+		supertool.setFullOutput(false);
+
+		for (int i = 1; i <= 5; i++) {
+			supertool.fetchTopAddresses(true);
+		}
+		for (int i = 1; i <= 5; i++) {
+			supertool.fetchTopAddresses(false);
+		}
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- DISABLE WORKFLOW in catalog -----");
+		catDoc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.NO);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// -----------------------------------
+
 		// check address manipulation -> "create user" stored in comment
 
 		supertool.setFullOutput(true);

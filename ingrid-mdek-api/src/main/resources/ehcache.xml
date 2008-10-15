@@ -360,7 +360,7 @@
 
     <!--
     Cache for mdek Job Repositiories.
-    This cache contains a maximum in memory of 100 job repos, and will expire
+    This cache contains a maximum in memory of 1000 job repos, and will expire
     an element if it lives for more than 30 minutes (1800 sec)
     -->
     <cache name="mdekJobRepoCache"
