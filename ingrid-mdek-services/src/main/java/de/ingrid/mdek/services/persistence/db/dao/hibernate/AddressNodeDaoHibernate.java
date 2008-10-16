@@ -1010,7 +1010,10 @@ public class AddressNodeDaoHibernate
 		qString = "select searchtVal.term, count(searchtVal.term) " +
 			qStringFromWhere;
 		qString += " group by searchtVal.term " +
-			"order by count(searchtVal.term) desc, searchtVal.term";
+			// NOTICE: in order clause: use of alias for count causes HQL error !
+			// use of same count expression in order causes error on mySql 4 !
+			// use of integer for which select attribute works ! 
+			"order by 2 desc, searchtVal.term";
 
 		List hits = session.createQuery(qString)
 			.setFirstResult(startHit)
