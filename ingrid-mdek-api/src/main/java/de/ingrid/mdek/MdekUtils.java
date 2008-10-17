@@ -27,6 +27,9 @@ public class MdekUtils {
 
 	public final static Integer COMM_TYPE_EMAIL = 3;
 
+	public final static String OBJ_CONFORMITY_SPECIFICATION_INSPIRE = "INSPIRE-Richtlinie";
+	public final static Integer OBJ_CONFORMITY_NOT_EVALUATED = 3;
+
 	public final static String YES = "Y";
 	public final static String NO = "N";
 

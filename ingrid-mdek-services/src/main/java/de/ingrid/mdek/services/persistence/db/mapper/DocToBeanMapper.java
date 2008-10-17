@@ -7,11 +7,13 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.catalog.MdekKeyValueService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -186,8 +188,18 @@ public class DocToBeanMapper implements IMapper {
 
 		keyValueService = MdekKeyValueService.getInstance(daoFactory);
 	}
-
-
+	
+	private List<IngridDocument> createObjectConformityList(String specification, int degreeKey) {
+		List<IngridDocument> cDocList = new ArrayList<IngridDocument>();
+		IngridDocument cDoc = new IngridDocument();
+		cDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, specification);
+		cDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, degreeKey);
+		cDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, MdekUtils.dateToTimestamp(new Date()));
+		cDocList.add(cDoc);
+		
+		return cDocList;
+	}
+	
 	public T03Catalogue mapT03Catalog(IngridDocument inDoc, T03Catalogue cat) {
 		cat.setCatUuid(inDoc.getString(MdekKeys.UUID));
 		cat.setCatName(inDoc.getString(MdekKeys.CATALOG_NAME));
@@ -2106,9 +2118,25 @@ public class DocToBeanMapper implements IMapper {
 	}
 	private void updateObjectConformitys(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.CONFORMITY_LIST);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
+		// NOTICE: objects conformities are only editable in special object types (classes) and have default
+		// values in other types. We guarantee default values, when necessary ! object-classes can be switched
+		// so conformity might be wrong, remaining from former class !
+		ObjectType oType = EnumUtil.mapDatabaseToEnumConst(ObjectType.class, oIn.getObjClass());
+		if (oType == ObjectType.GEO_INFORMATION || oType == ObjectType.DIENST) {
+			// set default if not set, else keep set values. DISPLAYED in frontend.
+			if (refDocs == null) {
+				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);
+			}			
+		} else {
+			// check whether correct default is set ! if not, set it. NOT displayed in frontend !
+			if (refDocs == null ||
+					refDocs.size() != 1 ||
+					!MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_SPECIFICATION)) ||
+					!MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_DEGREE_KEY))) {
+				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);				
+			}
 		}
+
 		Set<ObjectConformity> refs = oIn.getObjectConformitys();
 		ArrayList<ObjectConformity> refs_unprocessed = new ArrayList<ObjectConformity>(refs);
 		// remove all !
