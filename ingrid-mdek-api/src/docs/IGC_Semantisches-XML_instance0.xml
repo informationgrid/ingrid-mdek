@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<udk xmlns="udk:udk"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="udk:udk file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/IGC_Semantisches-XML.xsd">
+    <catalogue>
+        <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
+        <creator-identifier>creator-identifier0</creator-identifier>
+        <modificator-identifier>modificator-identifier0</modificator-identifier>
+        <catalogue-name>catalogue-name0</catalogue-name>
+        <country cc="DE">
+        </country>
+        <state>state0</state>
+        <date-of-last-modification>date-of-last-modification0</date-of-last-modification>
+        <date-of-creation>date-of-creation0</date-of-creation>
+    </catalogue>
+    <data-source server-id="server-id1">
+        <general>
+            <object-identifier>object-identifier0</object-identifier>
+            <catalogue-identifier>catalogue-identifier1</catalogue-identifier>
+            <creator-identifier>creator-identifier1</creator-identifier>
+            <modificator-identifier>modificator-identifier1</modificator-identifier>
+            <object-class class-id="0">
+            </object-class>
+            <title>title0</title>
+            <abstract>abstract0</abstract>
+            <language-of-resource lang-code="GER">
+            </language-of-resource>
+            <language-of-record lang-code="GER">
+            </language-of-record>
+            <date-of-last-modification>date-of-last-modification1</date-of-last-modification>
+            <date-of-creation>date-of-creation1</date-of-creation>
+            <original-control-identifier>original-control-identifier0</original-control-identifier>
+            <no-of-parents>no-of-parents0</no-of-parents>
+            <general-additional-values>
+                <field-name>field-name0</field-name>
+                <field-value>field-value0</field-value>
+            </general-additional-values>
+            <metadata metadata-standard-name="ISO-19115" metadata-standard-version="1.0">
+                <metadata-character-set domain-id="domain-id1">
+                </metadata-character-set>
+            </metadata>
+            <dataset-alternate-name>dataset-alternate-name0</dataset-alternate-name>
+            <dataset-character-set domain-id="domain-id3">
+            </dataset-character-set>
+        </general>
+        <technical-domain>
+<!--            <dataset>
+                <description-of-tech-domain>description-of-tech-domain0</description-of-tech-domain>
+                    <parameter>parameter0</parameter>
+                    <supplemantary-information>supplemantary-information0</supplemantary-information>
+                <method>method0</method>
+            </dataset>-->
+<!--            <service>
+                <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
+                <system-history>system-history0</system-history>
+                <database-of-system>database-of-system0</database-of-system>
+                <service-type>service-type0</service-type>
+                <system-environment>system-environment0</system-environment>
+                <service-version>service-version0</service-version>
+                <service-operation name="name1">
+                    <service-operation-description>service-operation-description0</service-operation-description>
+                </service-operation>
+            </service>-->
+            <document>
+                <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
+                <publisher>publisher0</publisher>
+                <publishing-place>publishing-place0</publishing-place>
+                <year>year0</year>
+                <isbn>isbn0</isbn>
+                <source>source0</source>
+                <type-of-document>type-of-document0</type-of-document>
+                <editor>editor0</editor>
+                <author>author0</author>
+                <additional-bibliographic-info>additional-bibliographic-info0</additional-bibliographic-info>
+                <location>location0</location>
+                <pages>pages0</pages>
+                <volume>volume0</volume>
+                <published-in>published-in0</published-in>
+            </document>
+<!--            <map>
+                <data>data0</data>
+                <resolution>resolution0</resolution>
+                <co-ordinate-system>co-ordinate-system0</co-ordinate-system>
+                <publication-scale scale="scale1" resolution-ground="resolution-ground1" resolution-scan="resolution-scan1"/>
+                <key-catalogue subject-cat="subject-cat1" key-date="key-date1" edition="edition1"/>
+                <degree-of-record>degree-of-record0</degree-of-record>
+                <method-of-production>method-of-production0</method-of-production>
+                <technical-base>technical-base0</technical-base>
+                <symbol-catalogue symbol-cat="symbol-cat1" symbol-date="symbol-date1" edition="edition3"/>
+                <dataset-topic-category domain-id="domain-id5">
+                </dataset-topic-category>
+                <hierarchy-level domain-id="domain-id7">
+                </hierarchy-level>
+                <spatial-representation-type domain-id="domain-id9">
+                </spatial-representation-type>
+                <vector-format>
+                    <vector-topology-level domain-id="domain-id11">
+                    </vector-topology-level>
+                    <geo-vector geometric-object-count="geometric-object-count1">
+                        <geometric-object-type domain-id="domain-id13">
+                        </geometric-object-type>
+                    </geo-vector>
+                </vector-format>
+                <reference-system-id domain-id="domain-id15">
+                </reference-system-id>
+                <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
+                <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
+                <feature-type>feature-type0</feature-type>
+            </map>-->
+<!--            <project>
+                <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
+                <member-description>member-description0</member-description>
+                <leader-description>leader-description0</leader-description>
+            </project>-->
+<!--            <additional-class-attribute-values>
+                <object-class class-id="0">
+                </object-class>
+                    <field-name>field-name1</field-name>
+                    <field-value>field-value1</field-value>
+            </additional-class-attribute-values>-->
+        </technical-domain>
+        <additional-information data-language="data-language1" metadata-language="metadata-language1">
+            <export-to>export-to0</export-to>
+            <legislation>legislation0</legislation>
+            <dataset-intensions>dataset-intensions0</dataset-intensions>
+            <access-constraints>access-constraints0</access-constraints>
+            <use-constraints>use-constraints0</use-constraints>
+            <medium-option>
+                <medium-name domain-id="domain-id17">
+                </medium-name>
+                <medium-note>medium-note0</medium-note>
+                <transfer-size>transfer-size0</transfer-size>
+            </medium-option>
+            <data-format name="name3" version="version1" specification="specification1" file-decompression-technique="file-decompression-technique1"/>
+            <publication-condition>publication-condition0</publication-condition>
+            <dataset-usage>dataset-usage0</dataset-usage>
+            <fees>fees0</fees>
+            <ordering-instructions>ordering-instructions0</ordering-instructions>
+        </additional-information>
+        <spatial-domain>
+            <description-of-spatial-domain>description-of-spatial-domain0</description-of-spatial-domain>
+            <vertical-extent minimum="minimum1" maximum="maximum1">
+                <vertical-extent-unit domain-id="domain-id19">
+                </vertical-extent-unit>
+                <vertical-extent-vdatum domain-id="domain-id21">
+                </vertical-extent-vdatum>
+            </vertical-extent>
+            <geo-location>
+                <bounding-coordinates>
+                    <west-bounding-coordinate>west-bounding-coordinate0</west-bounding-coordinate>
+                    <east-bounding-coordinate>east-bounding-coordinate0</east-bounding-coordinate>
+                    <north-bounding-coordinate>north-bounding-coordinate0</north-bounding-coordinate>
+                    <south-bounding-coordinate>south-bounding-coordinate0</south-bounding-coordinate>
+                </bounding-coordinates>
+<!--                    <place>
+                        <location-code>location-code0</location-code>
+                        <country cc="DE">
+                        </country>
+                        <state>state1</state>
+                        <district>district0</district>
+                        <county>county0</county>
+                        <municipal>municipal0</municipal>
+                        <sub-municipal>sub-municipal0</sub-municipal>
+                    </place>-->
+                    <region>region0</region>
+            </geo-location>
+        </spatial-domain>
+        <temporal-domain>
+            <description-of-temporal-domain>description-of-temporal-domain0</description-of-temporal-domain>
+            <beginning-date>beginning-date0</beginning-date>
+            <ending-date>ending-date0</ending-date>
+            <time-step>time-step0</time-step>
+            <time-scale>time-scale0</time-scale>
+            <time-period domain-id="domain-id23">
+            </time-period>
+            <time-status domain-id="domain-id25">
+            </time-status>
+            <time-type>time-type0</time-type>
+            <dataset-reference reference-date="reference-date1">
+                <dataset-reference-type domain-id="domain-id27">
+                </dataset-reference-type>
+            </dataset-reference>
+        </temporal-domain>
+        <subject-terms>
+            <controlled-term desc-id="0" uba-id="0">
+            </controlled-term>
+            <classification envclass-id="AB">
+            </classification>
+            <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
+        </subject-terms>
+        <available-linkage>
+            <linkage-name>linkage-name0</linkage-name>
+            <linkage-url>linkage-url0</linkage-url>
+            <linkage-url-type>linkage-url-type0</linkage-url-type>
+            <linkage-reference linkage-reference-id="0">
+            </linkage-reference>
+            <linkage-description>linkage-description0</linkage-description>
+            <linkage-datatype>linkage-datatype0</linkage-datatype>
+            <linkage-volume>linkage-volume0</linkage-volume>
+            <linkage-icon-url>linkage-icon-url0</linkage-icon-url>
+            <linkage-icon-text>linkage-icon-text0</linkage-icon-text>
+        </available-linkage>
+        <related-address>
+            <type-of-relation type-id="0">
+            </type-of-relation>
+            <address-identifier>address-identifier0</address-identifier>
+            <type-of-address type-id="0">
+            </type-of-address>
+            <organisation>organisation0</organisation>
+            <name>name0</name>
+            <name-form>name-form0</name-form>
+            <title-or-function>title-or-function0</title-or-function>
+            <given-name>given-name0</given-name>
+            <postal-code-of-country>postal-code-of-country0</postal-code-of-country>
+            <postal-code>postal-code0</postal-code>
+            <street>street0</street>
+            <city>city0</city>
+            <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
+            <post-box>post-box0</post-box>
+            <communication>
+                <communication-medium>communication-medium0</communication-medium>
+                <communication-value>communication-value0</communication-value>
+                <communication-description>communication-description0</communication-description>
+            </communication>
+        </related-address>
+        <parent-data-source>
+            <object-identifier>object-identifier1</object-identifier>
+            <object-class class-id="0">
+            </object-class>
+            <title>title1</title>
+        </parent-data-source>
+        <child-data-source>
+            <object-identifier>object-identifier2</object-identifier>
+            <object-class class-id="0">
+            </object-class>
+            <title>title2</title>
+        </child-data-source>
+        <link-data-source>
+            <object-identifier>object-identifier3</object-identifier>
+            <object-class class-id="0">
+            </object-class>
+            <title>title3</title>
+        </link-data-source>
+    </data-source>
+    <address server-id="server-id3">
+        <address-identifier>address-identifier1</address-identifier>
+        <catalogue-identifier>catalogue-identifier2</catalogue-identifier>
+        <creator-identifier>creator-identifier2</creator-identifier>
+        <modificator-identifier>modificator-identifier2</modificator-identifier>
+        <type-of-address type-id="0">
+        </type-of-address>
+        <organisation>organisation1</organisation>
+        <name>name1</name>
+        <name-form>name-form1</name-form>
+        <title-or-function>title-or-function1</title-or-function>
+        <given-name>given-name1</given-name>
+        <postal-code-of-country>postal-code-of-country1</postal-code-of-country>
+        <postal-code>postal-code1</postal-code>
+        <street>street1</street>
+        <city>city1</city>
+        <post-box-postal-code>post-box-postal-code1</post-box-postal-code>
+        <post-box>post-box1</post-box>
+        <communication>
+            <communication-medium>communication-medium1</communication-medium>
+            <communication-value>communication-value1</communication-value>
+            <communication-description>communication-description1</communication-description>
+        </communication>
+        <original-address-identifier>original-address-identifier0</original-address-identifier>
+        <no-of-parents>no-of-parents1</no-of-parents>
+        <language lang-code="GER">
+        </language>
+        <function>function0</function>
+        <address-description>address-description0</address-description>
+        <subject-terms>
+            <controlled-term desc-id="0" uba-id="0">
+            </controlled-term>
+            <classification envclass-id="AB">
+            </classification>
+            <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
+        </subject-terms>
+        <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
+        <date-of-creation>date-of-creation2</date-of-creation>
+        <parent-address>
+            <address-identifier>address-identifier2</address-identifier>
+            <type-of-address type-id="0">
+            </type-of-address>
+            <organisation>organisation2</organisation>
+            <name-form>name-form2</name-form>
+            <title-or-function>title-or-function2</title-or-function>
+            <given-name>given-name2</given-name>
+            <name>name2</name>
+        </parent-address>
+        <child-address>
+            <address-identifier>address-identifier3</address-identifier>
+            <type-of-address type-id="0">
+            </type-of-address>
+            <organisation>organisation3</organisation>
+            <name-form>name-form3</name-form>
+            <title-or-function>title-or-function3</title-or-function>
+            <given-name>given-name3</given-name>
+            <name>name3</name>
+        </child-address>
+    </address>
+    <data-source-relation>
+<!--            <parent-object-control-identifier>parent-object-control-identifier0</parent-object-control-identifier>-->
+            <parent-object-original-identifier>parent-object-original-identifier0</parent-object-original-identifier>
+            <child-object-control-identifier>child-object-control-identifier0</child-object-control-identifier>
+<!--            <child-object-original-identifier>child-object-original-identifier0</child-object-original-identifier>-->
+        <parent-child>parent-child0</parent-child>
+        <relation-type relation-type-id="0">
+        </relation-type>
+        <relation-description>relation-description0</relation-description>
+    </data-source-relation>
+    <data-source-address-relation>
+<!--            <object-identifier>object-identifier4</object-identifier>-->
+            <original-control-identifier>original-control-identifier1</original-control-identifier>
+<!--            <address-identifier>address-identifier4</address-identifier>-->
+            <original-address-identifier>original-address-identifier1</original-address-identifier>
+        <address-relation-type relation-type-id="0">
+        </address-relation-type>
+    </data-source-address-relation>
+    <address-relation>
+            <parent-address-control-identifier>parent-address-control-identifier0</parent-address-control-identifier>
+<!--            <parent-address-original-identifier>parent-address-original-identifier0</parent-address-original-identifier>-->
+            <child-address-control-identifier>child-address-control-identifier0</child-address-control-identifier>
+<!--            <child-address-original-identifier>child-address-original-identifier0</child-address-original-identifier>-->
+    </address-relation>
+    <data-model-extension>
+        <additional-class-definition>
+            <object-class class-id="0">
+            </object-class>
+            <technical-domain-field-definition>
+                <field-identifier>field-identifier0</field-identifier>
+                <field-name>field-name2</field-name>
+                <field-type>field-type0</field-type>
+            </technical-domain-field-definition>
+        </additional-class-definition>
+        <general-additional-field-definition>
+            <field-identifier>field-identifier1</field-identifier>
+            <field-name>field-name3</field-name>
+            <field-type>field-type1</field-type>
+        </general-additional-field-definition>
+    </data-model-extension>
+</udk>
