@@ -17,39 +17,53 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="udk:catalogue-identifier"/>
-        <xs:element ref="udk:creator-identifier"/>
-        <xs:element ref="udk:modificator-identifier"/>
-        <xs:element minOccurs="0" ref="udk:catalogue-name"/>
+        <xs:element ref="udk:catalogue-name"/>
+        <xs:element minOccurs="0" ref="udk:partner-name"/>
+        <xs:element minOccurs="0" ref="udk:provider-name"/>
         <xs:element minOccurs="0" ref="udk:country"/>
-        <xs:element minOccurs="0" ref="udk:state"/>
-        <xs:element minOccurs="0" ref="udk:date-of-last-modification"/>
+        <xs:element minOccurs="0" ref="udk:language"/>
+        <xs:element minOccurs="0" ref="udk:geo-location"/>
+        <xs:element minOccurs="0" ref="udk:workflow-control"/>
+        <xs:element minOccurs="0" ref="udk:expiry-duration"/>
         <xs:element minOccurs="0" ref="udk:date-of-creation"/>
+        <xs:element minOccurs="0" ref="udk:modificator-identifier"/>
+        <xs:element minOccurs="0" ref="udk:date-of-last-modification"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Katalog
-    Tabelle.Feld   : t01_object.cat_id
+    Fachlicher Name: Katalog Uuid
+    Tabelle.Feld   : T03_catalogue.cat_uuid
   -->
   <xs:element name="catalogue-identifier" type="xs:string"/>
   <!--
     Fachlicher Name: Erstellt von
-    Tabelle.Feld   : T01_object.create_id
+    Tabelle.Feld   : object_comment.create_uuid
   -->
   <xs:element name="creator-identifier" type="xs:string"/>
   <!--
     Fachlicher Name: Zuletzt geaendert von
-    Tabelle.Feld   : T01_object.mod_id
+    Tabelle.Feld   : T03_catalogue.mod_uuid
   -->
   <xs:element name="modificator-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name: ??
-    Tabelle.Feld   : T03_catalogue.catalogue
+    Fachlicher Name: Katalog Name
+    Tabelle.Feld   : T03_catalogue.cat_name 
   -->
   <xs:element name="catalogue-name" type="xs:string"/>
   <!--
-    Fachlicher Name: ??
-    Tabelle.Feld   : T03_catalogue.country
+    Fachlicher Name: Partner Name
+    Tabelle.Feld   : T03_catalogue.partner_name
+  -->
+  <xs:element name="partner-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Anbieter Name
+    Tabelle.Feld   : T03_catalogue.provider_name
+  -->
+  <xs:element name="provider-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Land
+    Tabelle.Feld   : T03_catalogue.country_code
   -->
   <xs:element name="country">
     <xs:complexType mixed="true">
@@ -61,6 +75,20 @@
     Tabelle.Feld   : T03_catalogue.state
   -->
   <xs:element name="state" type="xs:string"/>
+  <!--
+    Fachlicher Name: Workflow Kontrolle
+    Tabelle.Feld   : T03_catalogue.workflow_control
+  -->
+  <xs:element name="workflow-control">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="udk:attlist.udk.enabled"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Ablaufdauer
+    Tabelle.Feld   : T03_catalogue.expiry_duration
+  -->
+  <xs:element name="expiry-duration" type="xs:string"/>
   <!--
     Fachlicher Name: Zuletzt geaendert am
     Tabelle.Feld   : T01_object.mod_time
@@ -97,29 +125,33 @@
       <xs:sequence>
         <xs:element ref="udk:object-identifier"/>
         <xs:element ref="udk:catalogue-identifier"/>
-        <xs:element ref="udk:creator-identifier"/>
         <xs:element ref="udk:modificator-identifier"/>
+        <xs:element ref="udk:responsible-identifier"/>
         <xs:element ref="udk:object-class"/>
         <xs:element ref="udk:title"/>
         <xs:element minOccurs="0" ref="udk:abstract"/>
-        <xs:element minOccurs="0" ref="udk:language-of-resource"/>
-        <xs:element minOccurs="0" ref="udk:language-of-record"/>
         <xs:element minOccurs="0" ref="udk:date-of-last-modification"/>
         <xs:element minOccurs="0" ref="udk:date-of-creation"/>
         <xs:element minOccurs="0" ref="udk:original-control-identifier"/>
-        <xs:element minOccurs="0" ref="udk:no-of-parents"/>
         <xs:element minOccurs="0" ref="udk:general-additional-values"/>
         <xs:element ref="udk:metadata"/>
         <xs:element minOccurs="0" ref="udk:dataset-alternate-name"/>
         <xs:element minOccurs="0" ref="udk:dataset-character-set"/>
+        <xs:element ref="udk:topic-categories"/>
+        <xs:element minOccurs="0" ref="udk:env-information"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   : T01_object.obj_id
+    Fachlicher Name: Objekt Uuid
+    Tabelle.Feld   : T01_object.obj_uuid
   -->
   <xs:element name="object-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Verantwortlicher
+    Tabelle.Feld   : T01_object.responsible_uuid
+  -->
+  <xs:element name="responsible-identifier" type="xs:string"/>
   <!--
     Fachlicher Name:
     Tabelle.Feld   : T01_object.obj_class
@@ -140,40 +172,18 @@
   -->
   <xs:element name="abstract" type="xs:string"/>
   <!--
-    Fachlicher Name: ??
-    Tabelle.Feld   : immer: "german" / ignoriert bei Eing.
-  -->
-  <xs:element name="language-of-resource">
-    <xs:complexType mixed="true">
-      <xs:attributeGroup ref="udk:attlist.udk.language-of-resource"/>
-    </xs:complexType>
-  </xs:element>
-  <!--
-    Fachlicher Name: ??
-    Tabelle.Feld   : immer: "german" / ignoriert bei Eing.
-  -->
-  <xs:element name="language-of-record">
-    <xs:complexType mixed="true">
-      <xs:attributeGroup ref="udk:attlist.udk.language-of-record"/>
-    </xs:complexType>
-  </xs:element>
-  <!--
     Fachlicher Name: Original ID
-    Tabelle.Feld   : T01_object.orig_id
+    Tabelle.Feld   : T01_object.org_obj_id
   -->
   <xs:element name="original-control-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name: Anzahl der Eltern-Objekte
-    Tabelle.Feld   : berechnet
-  -->
-  <xs:element name="no-of-parents" type="xs:string"/>
-  <!--
-    Fachlicher Name: generische Attribute fuer Zusatzklassen (z.Zt. nicht genutzt)
+    Fachlicher Name: generische Attribute fuer Zusatzfelder
     Tabelle.Feld   :
   -->
   <xs:element name="general-additional-values">
     <xs:complexType>
       <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <!-- -TODO: field-name als ID ? oder numerische ID nehmen, damit unterschiedliche Felder mit gleichem Namen moeglich ? --> 
         <xs:element ref="udk:field-name"/>
         <xs:element ref="udk:field-value"/>
       </xs:sequence>
@@ -200,11 +210,11 @@
   </xs:element>
   <!--
     Fachlicher Name: Name des Metadatenstandards
-    Tabelle.Feld   : statisch
+    Tabelle.Feld   : statisch T01_object.metadata_standard_name
   -->
   <!--
     Fachlicher Name: Version des Metadatenstandards
-    Tabelle.Feld   : statisch
+    Tabelle.Feld   : statisch T01_object.metadata_standard_version
   -->
   <xs:attributeGroup name="attlist.udk.metadata">
     <xs:attribute name="metadata-standard-name" default="ISO-19115"/>
@@ -212,7 +222,7 @@
   </xs:attributeGroup>
   <!--
     Fachlicher Name: Zeichensatz des Metadatensatzes
-    Tabelle.Feld   :
+    Tabelle.Feld   : T01_object.metadata_character_set
   -->
   <xs:element name="metadata-character-set">
     <xs:complexType mixed="true">
@@ -235,7 +245,7 @@
   <!-- keine fachliche Beschreibung vorhanden -->
   <!--
     Fachlicher Name: Zeichensatz des Datensatzes
-    Tabelle.Feld   :
+    Tabelle.Feld   : T01_object.dataset_character_set
   -->
   <xs:element name="dataset-character-set">
     <xs:complexType mixed="true">
@@ -248,6 +258,81 @@
   -->
   <xs:attributeGroup name="attlist.udk.dataset-character-set">
     <xs:attribute name="domain-id" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Themenkategorien eines Objektes
+    Tabelle.Feld   : t011_obj_topic_cat
+  -->
+  <xs:element name="topic-categories">
+    <xs:complexType>
+      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="udk:topic-category"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Themenkategorie eines Objektes
+    Tabelle.Feld   : t011_obj_topic_cat.topic_category
+  -->
+  <xs:element name="topic-category" type="xs:string"/>
+  <!--
+    Fachlicher Name: Katalog Umweltthemen Infos (Katalogseite)
+    Tabellen   : T01_object, T0114_env_topic, T0114_env_category
+  -->
+  <xs:element name="env-information">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="udk:env-topics"/>
+        <xs:element ref="udk:env-categories"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="udk:attlist.udk.env-information"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Umweltthemen eines Objektes (Katalogseite)
+    Tabelle   :  T0114_env_topic
+  -->
+  <xs:element name="env-topics">
+    <xs:complexType>
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="udk:env-topic-key"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Bezeichnung des Umweltthemas (Katalogseite)
+    Tabelle.Feld   : T0114_env_topic.topic_key
+  -->
+  <xs:element name="env-topic-key" type="xs:string"/>
+  <!--
+    Fachlicher Name: Umweltkategorien eines Objektes (Katalogseite)
+    Tabelle   :  t0114_env_category
+  -->
+  <xs:element name="env-categories">
+    <xs:complexType>
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="udk:env-category-key"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Bezeichnung der Umweltkategorie (Katalogseite)
+    Tabelle.Feld   : t0114_env_category.cat_key
+  -->
+  <xs:element name="env-category-key" type="xs:string"/>
+  <!--
+    Fachlicher Name: Als Katalogseite in Umweltthemen anzeigen
+    Tabelle.Feld   : T01_object.is_catalog_data
+  -->
+  <xs:attributeGroup name="attlist.udk.env-information">
+    <xs:attribute name="is-catalog" default="N">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="Y"/>
+          <xs:enumeration value="N"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="technical-domain">
     <xs:complexType>
@@ -721,44 +806,41 @@
   <xs:element name="additional-information">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:export-to"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:legislation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:export-to-key"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:legislation-key"/>
         <xs:element minOccurs="0" ref="udk:dataset-intensions"/>
-        <xs:element minOccurs="0" ref="udk:access-constraints"/>
         <xs:element minOccurs="0" ref="udk:use-constraints"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-format"/>
         <xs:element minOccurs="0" ref="udk:publication-condition"/>
         <xs:element minOccurs="0" ref="udk:dataset-usage"/>
-        <xs:element minOccurs="0" ref="udk:fees"/>
         <xs:element minOccurs="0" ref="udk:ordering-instructions"/>
       </xs:sequence>
       <xs:attributeGroup ref="udk:attlist.udk.additional-information"/>
     </xs:complexType>
   </xs:element>
-  <!-- Neu in T01_object: Attribute zu additional-information -->
   <!--
     Fachlicher Name: Sprache des Datensatzes
-    Tabelle.Feld   : T01_object.data_language
+    Tabelle.Feld   : T01_object.data_language_code
   -->
   <!--
     Fachlicher Name: Sprache des Metadatensatzes
-    Tabelle.Feld   : T01_object.metadata_language
+    Tabelle.Feld   : T01_object.metadata_language_code
   -->
   <xs:attributeGroup name="attlist.udk.additional-information">
     <xs:attribute name="data-language" use="required"/>
     <xs:attribute name="metadata-language" use="required"/>
   </xs:attributeGroup>
   <!--
-    Fachlicher Name: Kriterium f� SGML-Export
-    Tabelle.Feld   : T014_info_impart.name
+    Fachlicher Name: Kriterium fuer Export
+    Tabelle.Feld   : T014_info_impart.impart_key
   -->
-  <xs:element name="export-to" type="xs:string"/>
+  <xs:element name="export-to-key" type="xs:string"/>
   <!--
     Fachlicher Name: Rechtliche Grundlage
-    Tabelle.Feld   : T015_legist.name
+    Tabelle.Feld   : T015_legist.legist_key
   -->
-  <xs:element name="legislation" type="xs:string"/>
+  <xs:element name="legislation-key" type="xs:string"/>
   <!-- hiess legislation-note -->
   <!--
     Fachlicher Name: Herstellungszweck, Erl㴴erung zu den rechtlichen Grundlagen
@@ -766,15 +848,14 @@
   -->
   <xs:element name="dataset-intensions" type="xs:string"/>
   <!--
-    Fachlicher Name: immer leer / ignoriert bei Eing.
-    Tabelle.Feld   :
-  -->
-  <xs:element name="access-constraints" type="xs:string"/>
-  <!--
     Fachlicher Name: Nutzungsanmerkung, Anmerkung zur Nutzung der Daten und zu Restriktionen
     Tabelle.Feld   : T01_object.avail_access_note
   -->
   <xs:element name="use-constraints" type="xs:string"/>
+  <!--
+    Fachlicher Name: 
+    Tabelle.Feld   : t0112_media_option
+  -->
   <xs:element name="medium-option">
     <xs:complexType>
       <xs:sequence>
@@ -784,28 +865,26 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!--
+    Fachlicher Name: Medium, auf dem die Daten verf�sind
+    Tabelle.Feld   : t0112_media_option.medium_name
+  -->
   <xs:element name="medium-name">
     <xs:complexType mixed="true">
       <xs:attributeGroup ref="udk:attlist.udk.medium-name"/>
     </xs:complexType>
   </xs:element>
-  <!--
-    Fachlicher Name: Medium, auf dem die Daten verf�sind
-    Tabelle.Feld   : T0112_media_otion.name
-  -->
   <xs:attributeGroup name="attlist.udk.medium-name">
     <xs:attribute name="domain-id" use="required"/>
   </xs:attributeGroup>
-  <!-- Neu in T0112_medium_note (aus T0112_storage_medium): als Verf�eit -->
   <!--
     Fachlicher Name: Kennzeichnung von Name und Speicherort der Daten
-    Tabelle.Feld   : T0112_medium_note.medium_note
+    Tabelle.Feld   : t0112_media_option.medium_note
   -->
   <xs:element name="medium-note" type="xs:string"/>
-  <!-- Neu in T0112_medium_note (aus T01_object): als Verf�eit -->
   <!--
     Fachlicher Name: Datenvolumen
-    Tabelle.Feld   : T0112_medium_note.transfer_size
+    Tabelle.Feld   : t0112_media_option.transfer_size
   -->
   <xs:element name="transfer-size" type="xs:string"/>
   <!--
@@ -820,30 +899,26 @@
   -->
   <xs:element name="dataset-usage" type="xs:string"/>
   <!--
-    Fachlicher Name: Kosten
-    Tabelle.Feld   : T01_object.fees
-  -->
-  <xs:element name="fees" type="xs:string"/>
-  <!--
     Fachlicher Name: Bestellinformation
     Tabelle.Feld   : T01_object.ordering_instructions
   -->
   <xs:element name="ordering-instructions" type="xs:string"/>
-  <!-- neues Element von udk:additional-information -->
+  <!--
+    Fachlicher Name: Datenformat
+    Tabelle.Feld   : T0110_avail_format
+  -->
   <xs:element name="data-format">
     <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.data-format"/>
     </xs:complexType>
   </xs:element>
-  <!-- verschoben und umbenannt von udk:additional-information/available-data-format -->
-  <!--  Neu in T110_avail_format: -->
   <!--
     Fachlicher Name: Datenformat: Name
-    Tabelle.Feld   : T0110_avail_format.name
+    Tabelle.Feld   : T0110_avail_format.format_key
   -->
   <!--
     Fachlicher Name: Datenformat: Version
-    Tabelle.Feld   : T0110_avail_format.version
+    Tabelle.Feld   : T0110_avail_format.ver
   -->
   <!--
     Fachlicher Name: Datenformat: Bildpunkttiefe
@@ -851,10 +926,10 @@
   -->
   <!--
     Fachlicher Name: Datenformat: Kompressionstechnik
-    Tabelle.Feld   : T0110_avail_format.file_dekompression_technique
+    Tabelle.Feld   : T0110_avail_format.file_decompression_technique
   -->
   <xs:attributeGroup name="attlist.udk.data-format">
-    <xs:attribute name="name" use="required"/>
+    <xs:attribute name="name-key" use="required"/>
     <xs:attribute name="version" use="required"/>
     <xs:attribute name="specification" use="required"/>
     <xs:attribute name="file-decompression-technique"/>
@@ -869,11 +944,8 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Erl㴴erung
-    Zus㳺liche Beschreibung zum Raumbezug
-    T01_object.loc_descr
-      Fachlicher Name:
-      Tabelle.Feld   :
+    Fachlicher Name: Zus㳺liche Beschreibung zum Raumbezug
+    Tabelle.Feld   : T01_object.loc_descr
   -->
   <xs:element name="description-of-spatial-domain" type="xs:string"/>
   <!-- Neu in T01_object: als Raumbezug, Elememnte von spatial-domain -->
@@ -1312,7 +1384,6 @@
         <xs:element minOccurs="0" ref="udk:post-box"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:communication"/>
         <xs:element minOccurs="0" ref="udk:original-address-identifier"/>
-        <xs:element minOccurs="0" ref="udk:no-of-parents"/>
         <xs:element minOccurs="0" ref="udk:language"/>
         <xs:element minOccurs="0" ref="udk:function"/>
         <xs:element minOccurs="0" ref="udk:address-description"/>
@@ -1403,8 +1474,8 @@
   -->
   <xs:element name="post-box" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Sprache
+    Tabelle.Feld   : T03_catalogue.language_code
   -->
   <xs:element name="language">
     <xs:complexType mixed="true">
@@ -1670,9 +1741,6 @@
           <xs:enumeration value="3"/>
           <xs:enumeration value="4"/>
           <xs:enumeration value="5"/>
-          <xs:enumeration value="6"/>
-          <xs:enumeration value="7"/>
-          <xs:enumeration value="8"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -1785,72 +1853,29 @@
     Tabelle.Feld   :
   -->
   <xs:attributeGroup name="attlist.udk.language">
-    <xs:attribute name="lang-code" default="GER">
+    <xs:attribute name="lang-code" default="de">
       <xs:simpleType>
         <xs:restriction base="xs:token">
-          <xs:enumeration value="DAN"/>
-          <xs:enumeration value="DUT"/>
-          <xs:enumeration value="ENG"/>
-          <xs:enumeration value="FRE"/>
-          <xs:enumeration value="GER"/>
-          <xs:enumeration value="GRE"/>
-          <xs:enumeration value="ICE"/>
-          <xs:enumeration value="IRI"/>
-          <xs:enumeration value="NOR"/>
-          <xs:enumeration value="POR"/>
-          <xs:enumeration value="SPA"/>
-          <xs:enumeration value="SVE"/>
-          <xs:enumeration value="ITA"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:attributeGroup name="attlist.udk.language-of-resource">
-    <xs:attribute name="lang-code" default="GER">
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="DAN"/>
-          <xs:enumeration value="DUT"/>
-          <xs:enumeration value="ENG"/>
-          <xs:enumeration value="FRE"/>
-          <xs:enumeration value="GER"/>
-          <xs:enumeration value="GRE"/>
-          <xs:enumeration value="ICE"/>
-          <xs:enumeration value="IRI"/>
-          <xs:enumeration value="NOR"/>
-          <xs:enumeration value="POR"/>
-          <xs:enumeration value="SPA"/>
-          <xs:enumeration value="SVE"/>
-          <xs:enumeration value="ITA"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:attributeGroup name="attlist.udk.language-of-record">
-    <xs:attribute name="lang-code" default="GER">
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value=":DAN"/>
-          <xs:enumeration value="DUT"/>
-          <xs:enumeration value="ENG"/>
-          <xs:enumeration value="FRE"/>
-          <xs:enumeration value="GER"/>
-          <xs:enumeration value="GRE"/>
-          <xs:enumeration value="ICE"/>
-          <xs:enumeration value="IRI"/>
-          <xs:enumeration value="NOR"/>
-          <xs:enumeration value="POR"/>
-          <xs:enumeration value="SPA"/>
-          <xs:enumeration value="SVE"/>
-          <xs:enumeration value="ITA"/>
+          <xs:enumeration value="at"/>
+          <xs:enumeration value="be"/>
+          <xs:enumeration value="dk"/>
+          <xs:enumeration value="fi"/>
+          <xs:enumeration value="fr"/>
+          <xs:enumeration value="de"/>
+          <xs:enumeration value="gr"/>
+          <xs:enumeration value="gl"/>
+          <xs:enumeration value="is"/>
+          <xs:enumeration value="ie"/>
+          <xs:enumeration value="it"/>
+          <xs:enumeration value="li"/>
+          <xs:enumeration value="lu"/>
+          <xs:enumeration value="nl"/>
+          <xs:enumeration value="no"/>
+          <xs:enumeration value="pt"/>
+          <xs:enumeration value="es"/>
+          <xs:enumeration value="se"/>
+          <xs:enumeration value="ch"/>
+          <xs:enumeration value="gb"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -1889,6 +1914,20 @@
           <xs:enumeration value="3360"/>
           <xs:enumeration value="3400"/>
           <xs:enumeration value="3410"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <!--
+    Fachlicher Name:
+    Tabelle.Feld   :
+  -->
+  <xs:attributeGroup name="attlist.udk.enabled">
+    <xs:attribute name="enabled" default="N">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="Y"/>
+          <xs:enumeration value="N"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
