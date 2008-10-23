@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="udk:udk" xmlns:udk="udk:udk">
+  <!-- Version des Austauschformats -->
+  <xs:attributeGroup name="attlist.udk">
+    <xs:attribute name="exchange-format" default="1.0"/>
+  </xs:attributeGroup>
   <xs:element name="udk">
     <xs:complexType>
       <xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -11,6 +15,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:address-relation"/>
         <xs:element minOccurs="0" ref="udk:data-model-extension"/>
       </xs:sequence>
+      <xs:attributeGroup ref="udk:attlist.udk"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="catalogue">
@@ -211,8 +216,6 @@
   <!--
     Fachlicher Name: Name des Metadatenstandards
     Tabelle.Feld   : statisch T01_object.metadata_standard_name
-  -->
-  <!--
     Fachlicher Name: Version des Metadatenstandards
     Tabelle.Feld   : statisch T01_object.metadata_standard_version
   -->
@@ -236,13 +239,11 @@
   <xs:attributeGroup name="attlist.udk.metadata-character-set">
     <xs:attribute name="domain-id" use="required"/>
   </xs:attributeGroup>
-  <!-- keine fachliche Beschreibung vorhanden -->
   <!--
     Fachlicher Name: Kurzbeschreibung
     Tabelle.Feld   : T01_object.dataset_alternate_name
   -->
   <xs:element name="dataset-alternate-name" type="xs:string"/>
-  <!-- keine fachliche Beschreibung vorhanden -->
   <!--
     Fachlicher Name: Zeichensatz des Datensatzes
     Tabelle.Feld   : T01_object.dataset_character_set
@@ -334,6 +335,9 @@
       </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Objektklassen
+  -->
   <xs:element name="technical-domain">
     <xs:complexType>
       <xs:choice minOccurs="0">
@@ -346,14 +350,15 @@
       </xs:choice>
     </xs:complexType>
   </xs:element>
+  <!--
+    Fachlicher Name: Datensammlung /Datenbank
+    Tabelle   : t011_obj_data*
+  -->
   <xs:element name="dataset">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="udk:description-of-tech-domain"/>
-        <xs:sequence minOccurs="0" maxOccurs="unbounded">
-          <xs:element minOccurs="0" ref="udk:parameter"/>
-          <xs:element minOccurs="0" ref="udk:supplemantary-information"/>
-        </xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:dataset-parameter"/>
         <xs:element minOccurs="0" ref="udk:method"/>
       </xs:sequence>
     </xs:complexType>
@@ -364,13 +369,25 @@
   -->
   <xs:element name="description-of-tech-domain" type="xs:string"/>
   <!--
+    Fachlicher Name: Inhalte / Ergaenzende Angaben der Datensammlung/Datenbank
+    Tabelle   : T011_obj_data_para
+  -->
+  <xs:element name="dataset-parameter">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="udk:parameter"/>
+        <xs:element minOccurs="0" ref="udk:supplemantary-information"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
     Fachlicher Name: Inhalte der Datensammlung/Datenbank
     Tabelle.Feld   : T011_obj_data_para.parameter
   -->
   <xs:element name="parameter" type="xs:string"/>
   <!--
-    Fachlicher Name: Ergaenzende Angaben
-    Tabelle.Feld   : T011_obj_dat_para.unit
+    Fachlicher Name: Ergaenzende Angaben (Hinweis: Einheit der Parameter)
+    Tabelle.Feld   : T011_obj_data_para.unit
   -->
   <xs:element name="supplemantary-information" type="xs:string"/>
   <!--
@@ -378,13 +395,19 @@
     Tabelle.Feld   : T011_obj_data.base
   -->
   <xs:element name="method" type="xs:string"/>
+  <!--
+    Fachlicher Name: Dienst / Anwendung / Informationssystem
+    Tabelle   : t011_obj_serv*
+  -->
   <xs:element name="service">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" ref="udk:description-of-tech-domain"/>
+        <xs:element ref="udk:description-of-tech-domain"/>
+        <xs:element maxOccurs="unbounded" ref="udk:service-type-key"/>
+        <xs:element maxOccurs="unbounded" ref="udk:service-classification-key"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:publication-scale"/>
         <xs:element minOccurs="0" ref="udk:system-history"/>
         <xs:element minOccurs="0" ref="udk:database-of-system"/>
-        <xs:element minOccurs="0" ref="udk:service-type"/>
         <xs:element minOccurs="0" ref="udk:system-environment"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:service-version"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:service-operation"/>
@@ -402,46 +425,106 @@
   -->
   <xs:element name="database-of-system" type="xs:string"/>
   <!--
-    Fachlicher Name: Servicetyp
-    Tabelle.Feld   : T011_obj_serv.type
+    Fachlicher Name: Service-Klassifikation
+    Tabelle.Feld   : T011_obj_serv.type_key
   -->
-  <xs:element name="service-type" type="xs:string"/>
+  <xs:element name="service-classification-key" type="xs:string"/>
   <!--
     Fachlicher Name: Systemumgebung
     Tabelle.Feld   : T011_obj_serv.environment
   -->
   <xs:element name="system-environment" type="xs:string"/>
   <!--
+    Fachlicher Name: Service-Typ (INSPIRE Classification of spatial data services)
+    Tabelle.Feld   : T011_obj_serv_type.serv_type_key
+  -->
+  <xs:element name="service-type-key" type="xs:string"/>
+  <!--
     Fachlicher Name: Version des Service
     Tabelle.Feld   : T011_obj_serv_version.version
   -->
   <xs:element name="service-version" type="xs:string"/>
+  <!--
+    Fachlicher Name: Operation
+    Tabelle   : T011_obj_serv_op*
+  -->
   <xs:element name="service-operation">
     <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="udk:udk.service-operation-description">
-          <xs:attributeGroup ref="udk:attlist.udk.service-operation"/>
-        </xs:extension>
-      </xs:complexContent>
+      <xs:sequence>
+        <xs:element ref="udk:description-of-operation"/>
+        <xs:element maxOccurs="unbounded" ref="udk:platform"/>
+        <xs:element maxOccurs="unbounded" ref="udk:connection-point"/>
+        <xs:element minOccurs="0" ref="udk:invocation-name"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:parameter-of-operation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:depends-on"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="udk:attlist.udk.service-operation"/>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Operationname
-    Tabelle.Feld   : T011_obj_serv.name
+    Fachlicher Name: Operation-Namensschluessel / -Name
+    Tabelle.Feld   : T011_obj_serv_operation.name_key
+    Tabelle.Feld   : T011_obj_serv_operation.name_value
   -->
   <xs:attributeGroup name="attlist.udk.service-operation">
-    <xs:attribute name="name" use="required"/>
+    <xs:attribute name="name-key" use="required"/>
+    <xs:attribute name="name-value"/>
   </xs:attributeGroup>
   <!--
     Fachlicher Name: Operationbeschreibung
-    Tabelle.Feld   : T011_obj_serv.descr
+    Tabelle.Feld   : T011_obj_serv_operation.descr
   -->
-  <xs:complexType name="udk.service-operation-description">
-    <xs:sequence>
-      <xs:element ref="udk:service-operation-description"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="service-operation-description" type="xs:string"/>
+  <xs:element name="description-of-operation" type="xs:string"/>
+  <!--
+    Fachlicher Name: Aufruf
+    Tabelle.Feld   : T011_obj_serv_operation.invocation_name
+  -->
+  <xs:element name="invocation-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Platform
+    Tabelle.Feld   : T011_obj_serv_op_platform.platform
+  -->
+  <xs:element name="platform" type="xs:string"/>
+  <!--
+    Fachlicher Name: Parameter der Operation
+    Tabelle   : T011_obj_serv_op_para
+  -->
+  <xs:element name="parameter-of-operation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="udk:description-of-parameter"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="udk:attlist.udk.parameter-of-operation"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Beschreibung des Parameters
+    Tabelle.Feld   : T011_obj_serv_op_para.descr
+  -->
+  <xs:element name="description-of-parameter" type="xs:string"/>
+  <!--
+    Fachlicher Name: Attribute des Parameters
+    Tabelle.Feld   : T011_obj_serv_op_para.name
+    Tabelle.Feld   : T011_obj_serv_op_para.optional
+    Tabelle.Feld   : T011_obj_serv_op_para.repeatability
+    Tabelle.Feld   : T011_obj_serv_op_para.direction
+  -->
+  <xs:attributeGroup name="attlist.udk.parameter-of-operation">
+    <xs:attribute name="name" use="required"/>
+    <xs:attribute name="optional" use="required"/>
+    <xs:attribute name="repeatability" use="required"/>
+    <xs:attribute name="direction"/>
+  </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Abhängigkeiten
+    Tabelle.Feld   : T011_obj_serv_op_depends.depends_on
+  -->
+  <xs:element name="depends-on" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zugriffsadresse
+    Tabelle.Feld   : t011_obj_serv_op_connpoint.connect_point
+  -->
+  <xs:element name="connection-point" type="xs:string"/>
   <xs:element name="document">
     <xs:complexType>
       <xs:sequence>
@@ -574,18 +657,16 @@
       <xs:attributeGroup ref="udk:attlist.udk.publication-scale"/>
     </xs:complexType>
   </xs:element>
-  <!-- Neu in T011_obj_geo_scale, Attribute von publication-scale -->
   <!--
     Fachlicher Name: Erstellungsma޳tab: Ma޳tab, Erfassungs- bzw. Erstellungsma޳tab
     Tabelle.Feld   : T011_obj_geo_scale.scale
-  -->
-  <!--
+    Tabelle.Feld   : T011_obj_serv_scale.scale
     Fachlicher Name: Erstellungsma޳tab: Bodenaufl�g
     Tabelle.Feld   : T011_obj_geo_scale.resolution_ground
-  -->
-  <!--
+    Tabelle.Feld   : T011_obj_serv_scale.resolution_ground
     Fachlicher Name: Erstellungsma޳tab: Scanaufl�g
     Tabelle.Feld   : T011_obj_geo_scale.resolution_scan
+    Tabelle.Feld   : T011_obj_serv_scale.resolution_scan
   -->
   <xs:attributeGroup name="attlist.udk.publication-scale">
     <xs:attribute name="scale" use="required"/>
@@ -597,16 +678,11 @@
       <xs:attributeGroup ref="udk:attlist.udk.key-catalogue"/>
     </xs:complexType>
   </xs:element>
-  <!-- Neu in T011_obj_geo_keyc: -->
   <!--
     Fachlicher Name: Schl�atalog: Titel
     Tabelle.Feld   : T011_obj_geo_keyc.subject_cat
-  -->
-  <!--
     Fachlicher Name: Schl�atalog: Datum
     Tabelle.Feld   : T011_obj_geo_keyc.key_date
-  -->
-  <!--
     Fachlicher Name: Schl�atalog: Version
     Tabelle.Feld   : T011_obj_geo_keyc.edition
   -->
@@ -635,16 +711,11 @@
       <xs:attributeGroup ref="udk:attlist.udk.symbol-catalogue"/>
     </xs:complexType>
   </xs:element>
-  <!-- Neu in T011_obj_geo_symc: -->
   <!--
     Fachlicher Name: Symbolkatalog:Titel
     Tabelle.Feld   : T011_obj_geo_symc.symbol_cat
-  -->
-  <!--
     Fachlicher Name: Symbolkatalog: Datum
     Tabelle.Feld   : T011_obj_geo_symc.symbol_date
-  -->
-  <!--
     Fachlicher Name: Symbollkatalog: Version
     Tabelle.Feld   : T011_obj_geo_symc.edition
   -->
@@ -756,7 +827,6 @@
     Tabelle.Feld   : T011_obj_geo.pos_accuracy_vertical
   -->
   <xs:element name="pos-accuracy-vertical" type="xs:string"/>
-  <!-- keine fachliche Beschreibung vorhanden -->
   <!--
     Fachlicher Name: Flag, das anzeigt ob Informationen zum Schl�atalog im Datensatz vorhanden sind
     Tabelle.Feld   : t01_obj_geo.keyc_incl_w_dataset
@@ -809,6 +879,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:export-to-key"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:legislation-key"/>
         <xs:element minOccurs="0" ref="udk:dataset-intensions"/>
+        <xs:element maxOccurs="unbounded" ref="udk:access-constraint"/>
         <xs:element minOccurs="0" ref="udk:use-constraints"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-format"/>
@@ -822,8 +893,6 @@
   <!--
     Fachlicher Name: Sprache des Datensatzes
     Tabelle.Feld   : T01_object.data_language_code
-  -->
-  <!--
     Fachlicher Name: Sprache des Metadatensatzes
     Tabelle.Feld   : T01_object.metadata_language_code
   -->
@@ -841,12 +910,33 @@
     Tabelle.Feld   : T015_legist.legist_key
   -->
   <xs:element name="legislation-key" type="xs:string"/>
-  <!-- hiess legislation-note -->
   <!--
     Fachlicher Name: Herstellungszweck, Erl㴴erung zu den rechtlichen Grundlagen
     Tabelle.Feld   : T01_object.info_note
   -->
   <xs:element name="dataset-intensions" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objekt Zugangs- und Nutzungsbeschraenkung
+    Tabelle.Feld   : object_access
+  -->
+  <xs:element name="access-constraint">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="udk:restriction-key"/>
+        <xs:element ref="udk:terms-of-use"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zugangsbeschränkungen (gemaess INSPIRE-Richtlinie)
+    Tabelle.Feld   : object_access.restriction_key
+  -->
+  <xs:element name="restriction-key" type="xs:string"/>
+  <!--
+    Fachlicher Name: Nutzungsbedingungen
+    Tabelle.Feld   : object_access.terms_of_use
+  -->
+  <xs:element name="terms-of-use" type="xs:string"/>
   <!--
     Fachlicher Name: Nutzungsanmerkung, Anmerkung zur Nutzung der Daten und zu Restriktionen
     Tabelle.Feld   : T01_object.avail_access_note
@@ -892,7 +982,6 @@
     Tabelle.Feld   : T01_object.publish_id
   -->
   <xs:element name="publication-condition" type="xs:string"/>
-  <!-- Neu in T01_object: als Zusatzinfo -->
   <!--
     Fachlicher Name: Eignung/Nutzung
     Tabelle.Feld   : T01_object.dataset_usage
@@ -915,16 +1004,10 @@
   <!--
     Fachlicher Name: Datenformat: Name
     Tabelle.Feld   : T0110_avail_format.format_key
-  -->
-  <!--
     Fachlicher Name: Datenformat: Version
     Tabelle.Feld   : T0110_avail_format.ver
-  -->
-  <!--
     Fachlicher Name: Datenformat: Bildpunkttiefe
     Tabelle.Feld   : T0110_avail_format.specification
-  -->
-  <!--
     Fachlicher Name: Datenformat: Kompressionstechnik
     Tabelle.Feld   : T0110_avail_format.file_decompression_technique
   -->
@@ -961,8 +1044,6 @@
   <!--
     Fachlicher Name: H� Minumum
     Tabelle.Feld   : T01_object.vertical_extent_minimum
-  -->
-  <!--
     Fachlicher Name: H� Maximum
     Tabelle.Feld   : T01_object.vertical_extent_maximum
   -->

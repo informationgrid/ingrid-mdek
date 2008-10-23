@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <udk xmlns="udk:udk"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="udk:udk file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/IGC_Semantisches-XML.xsd">
+ xsi:schemaLocation="udk:udk file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/IGC_Semantisches-XML.xsd" exchange-format="1.0">
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
@@ -76,19 +76,30 @@
         <technical-domain>
 <!--            <dataset>
                 <description-of-tech-domain>description-of-tech-domain0</description-of-tech-domain>
+                <dataset-parameter>
                     <parameter>parameter0</parameter>
                     <supplemantary-information>supplemantary-information0</supplemantary-information>
+                </dataset-parameter>
                 <method>method0</method>
             </dataset>-->
 <!--            <service>
                 <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
+                <service-type-key>service-type-key0</service-type-key>
+                <service-classification-key>service-classification-key0</service-classification-key>
+                <publication-scale scale="scale1" resolution-ground="resolution-ground1" resolution-scan="resolution-scan1"/>
                 <system-history>system-history0</system-history>
                 <database-of-system>database-of-system0</database-of-system>
-                <service-type>service-type0</service-type>
                 <system-environment>system-environment0</system-environment>
                 <service-version>service-version0</service-version>
-                <service-operation name="name1">
-                    <service-operation-description>service-operation-description0</service-operation-description>
+                <service-operation name-key="name-key1" name-value="name-value1">
+                    <description-of-operation>description-of-operation0</description-of-operation>
+                    <platform>platform0</platform>
+                    <connection-point>connection-point0</connection-point>
+                    <invocation-name>invocation-name0</invocation-name>
+                    <parameter-of-operation name="name1" optional="optional1" repeatability="repeatability1" direction="direction1">
+                        <description-of-parameter>description-of-parameter0</description-of-parameter>
+                    </parameter-of-operation>
+                    <depends-on>depends-on0</depends-on>
                 </service-operation>
             </service>-->
 <!--            <document>
@@ -107,11 +118,11 @@
                 <volume>volume0</volume>
                 <published-in>published-in0</published-in>
             </document>-->
-            <map>
+<!--            <map>
                 <data>data0</data>
                 <resolution>resolution0</resolution>
                 <co-ordinate-system>co-ordinate-system0</co-ordinate-system>
-                <publication-scale scale="scale1" resolution-ground="resolution-ground1" resolution-scan="resolution-scan1"/>
+                <publication-scale scale="scale3" resolution-ground="resolution-ground3" resolution-scan="resolution-scan3"/>
                 <key-catalogue subject-cat="subject-cat1" key-date="key-date1" edition="edition1"/>
                 <degree-of-record>degree-of-record0</degree-of-record>
                 <method-of-production>method-of-production0</method-of-production>
@@ -136,23 +147,27 @@
                 <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
                 <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
                 <feature-type>feature-type0</feature-type>
-            </map>
+            </map>-->
 <!--            <project>
                 <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
                 <member-description>member-description0</member-description>
                 <leader-description>leader-description0</leader-description>
             </project>-->
-<!--            <additional-class-attribute-values>
+            <additional-class-attribute-values>
                 <object-class class-id="0">
                 </object-class>
                     <field-name>field-name1</field-name>
                     <field-value>field-value1</field-value>
-            </additional-class-attribute-values>-->
+            </additional-class-attribute-values>
         </technical-domain>
         <additional-information data-language="data-language1" metadata-language="metadata-language1">
             <export-to-key>export-to-key0</export-to-key>
             <legislation-key>legislation-key0</legislation-key>
             <dataset-intensions>dataset-intensions0</dataset-intensions>
+            <access-constraint>
+                <restriction-key>restriction-key0</restriction-key>
+                <terms-of-use>terms-of-use0</terms-of-use>
+            </access-constraint>
             <use-constraints>use-constraints0</use-constraints>
             <medium-option>
                 <medium-name domain-id="domain-id17">
@@ -160,7 +175,7 @@
                 <medium-note>medium-note0</medium-note>
                 <transfer-size>transfer-size0</transfer-size>
             </medium-option>
-            <data-format name-key="name-key1" version="version1" specification="specification1" file-decompression-technique="file-decompression-technique1"/>
+            <data-format name-key="name-key3" version="version1" specification="specification1" file-decompression-technique="file-decompression-technique1"/>
             <publication-condition>publication-condition0</publication-condition>
             <dataset-usage>dataset-usage0</dataset-usage>
             <ordering-instructions>ordering-instructions0</ordering-instructions>
@@ -331,8 +346,8 @@
     <data-source-relation>
             <parent-object-control-identifier>parent-object-control-identifier0</parent-object-control-identifier>
 <!--            <parent-object-original-identifier>parent-object-original-identifier0</parent-object-original-identifier>-->
-            <child-object-control-identifier>child-object-control-identifier0</child-object-control-identifier>
-<!--            <child-object-original-identifier>child-object-original-identifier0</child-object-original-identifier>-->
+<!--            <child-object-control-identifier>child-object-control-identifier0</child-object-control-identifier>-->
+            <child-object-original-identifier>child-object-original-identifier0</child-object-original-identifier>
         <parent-child>parent-child0</parent-child>
         <relation-type relation-type-id="0">
         </relation-type>
