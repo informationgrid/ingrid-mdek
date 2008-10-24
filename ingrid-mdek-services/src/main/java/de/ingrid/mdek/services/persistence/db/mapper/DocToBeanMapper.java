@@ -1030,16 +1030,17 @@ public class DocToBeanMapper implements IMapper {
 			ref.setSpecialBase(refDoc.getString(MdekKeys.TECHNICAL_BASE));
 			ref.setDataBase(refDoc.getString(MdekKeys.DATA));
 			ref.setMethod(refDoc.getString(MdekKeys.METHOD_OF_PRODUCTION));
-			ref.setReferencesystemValue(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
 			ref.setRecExact((Double)refDoc.get(MdekKeys.RESOLUTION));
 			ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
 			ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
 			ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
-			ref.setReferencesystemKey((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
 			ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
-			
+			ref.setReferencesystemKey((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
+			ref.setReferencesystemValue(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
+			keyValueService.processKeyValue(ref);
+
 			// save the object and get ID from database (cascading insert do not work??)
 			daoT011ObjGeo.makePersistent(ref);
 			
@@ -1053,7 +1054,6 @@ public class DocToBeanMapper implements IMapper {
 			
 			refs.add(ref);
 		}
-		
 	}
 	
 	private void updateT011ObjGeoKeycs(IngridDocument docIn, T011ObjGeo in) {
