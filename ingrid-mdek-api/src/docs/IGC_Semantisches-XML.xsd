@@ -71,7 +71,7 @@
     Tabelle.Feld   : T03_catalogue.country_code
   -->
   <xs:element name="country">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.country"/>
     </xs:complexType>
   </xs:element>
@@ -85,7 +85,7 @@
     Tabelle.Feld   : T03_catalogue.workflow_control
   -->
   <xs:element name="workflow-control">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.enabled"/>
     </xs:complexType>
   </xs:element>
@@ -162,7 +162,7 @@
     Tabelle.Feld   : T01_object.obj_class
   -->
   <xs:element name="object-class">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.object-class"/>
     </xs:complexType>
   </xs:element>
@@ -182,12 +182,23 @@
   -->
   <xs:element name="original-control-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name: generische Attribute fuer Zusatzfelder
-    Tabelle.Feld   :
+    Fachlicher Name: Zusatzfelder
+    Tabelle   : t08_attr*
   -->
   <xs:element name="general-additional-values">
     <xs:complexType>
-      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:general-additional-value"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: generische Attribute fuer Zusatzfeld
+    Tabelle   : t08_attr_type, t08_attr
+  -->
+  <xs:element name="general-additional-value">
+    <xs:complexType>
+      <xs:sequence>
         <!-- -TODO: field-name als ID ? oder numerische ID nehmen, damit unterschiedliche Felder mit gleichem Namen moeglich ? --> 
         <xs:element ref="udk:field-name"/>
         <xs:element ref="udk:field-value"/>
@@ -196,12 +207,12 @@
   </xs:element>
   <!--
     Fachlicher Name: Attributname
-    Tabelle.Feld   :
+    Tabelle.Feld   : t08_attr_type.name
   -->
   <xs:element name="field-name" type="xs:string"/>
   <!--
     Fachlicher Name: Attributwert
-    Tabelle.Feld   :
+    Tabelle.Feld   : t08_attr.data
   -->
   <xs:element name="field-value" type="xs:string"/>
   <!-- Neu in T01_object, Elemente von general -->
@@ -228,7 +239,7 @@
     Tabelle.Feld   : T01_object.metadata_character_set
   -->
   <xs:element name="metadata-character-set">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.metadata-character-set"/>
     </xs:complexType>
   </xs:element>
@@ -249,7 +260,7 @@
     Tabelle.Feld   : T01_object.dataset_character_set
   -->
   <xs:element name="dataset-character-set">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.dataset-character-set"/>
     </xs:complexType>
   </xs:element>
@@ -266,16 +277,27 @@
   -->
   <xs:element name="topic-categories">
     <xs:complexType>
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
-        <xs:element ref="udk:topic-category"/>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="udk:topic-category"/>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Themenkategorie eines Objektes
+    Tabelle.Feld   : t011_obj_topic_cat
+  -->
+  <xs:element name="topic-category">
+    <xs:complexType>
+      <xs:attributeGroup ref="udk:attlist.udk.topic-category"/>
     </xs:complexType>
   </xs:element>
   <!--
     Fachlicher Name: Themenkategorie eines Objektes
     Tabelle.Feld   : t011_obj_topic_cat.topic_category
   -->
-  <xs:element name="topic-category" type="xs:string"/>
+  <xs:attributeGroup name="attlist.udk.topic-category">
+    <xs:attribute name="key" use="required"/>
+  </xs:attributeGroup>
   <!--
     Fachlicher Name: Katalog Umweltthemen Infos (Katalogseite)
     Tabellen   : T01_object, T0114_env_topic, T0114_env_category
@@ -283,44 +305,44 @@
   <xs:element name="env-information">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="udk:env-topics"/>
-        <xs:element ref="udk:env-categories"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:env-topic"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:env-category"/>
       </xs:sequence>
       <xs:attributeGroup ref="udk:attlist.udk.env-information"/>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Umweltthemen eines Objektes (Katalogseite)
-    Tabelle   :  T0114_env_topic
+    Fachlicher Name: Umweltthema (Katalogseite)
+    Tabelle.Feld   : T0114_env_topic
   -->
-  <xs:element name="env-topics">
+  <xs:element name="env-topic">
     <xs:complexType>
-      <xs:sequence minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="udk:env-topic-key"/>
-      </xs:sequence>
+      <xs:attributeGroup ref="udk:attlist.udk.env-topic"/>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Bezeichnung des Umweltthemas (Katalogseite)
+    Fachlicher Name: Umweltthema Schlüssel (Katalogseite)
     Tabelle.Feld   : T0114_env_topic.topic_key
   -->
-  <xs:element name="env-topic-key" type="xs:string"/>
+  <xs:attributeGroup name="attlist.udk.env-topic">
+    <xs:attribute name="key" use="required"/>
+  </xs:attributeGroup>
   <!--
-    Fachlicher Name: Umweltkategorien eines Objektes (Katalogseite)
-    Tabelle   :  t0114_env_category
+    Fachlicher Name: Umweltkategorie (Katalogseite)
+    Tabelle.Feld   : t0114_env_category
   -->
-  <xs:element name="env-categories">
+  <xs:element name="env-category">
     <xs:complexType>
-      <xs:sequence minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="udk:env-category-key"/>
-      </xs:sequence>
+      <xs:attributeGroup ref="udk:attlist.udk.env-category"/>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Bezeichnung der Umweltkategorie (Katalogseite)
+    Fachlicher Name: Umweltkategorie Schlüssel (Katalogseite)
     Tabelle.Feld   : t0114_env_category.cat_key
   -->
-  <xs:element name="env-category-key" type="xs:string"/>
+  <xs:attributeGroup name="attlist.udk.env-category">
+    <xs:attribute name="key" use="required"/>
+  </xs:attributeGroup>
   <!--
     Fachlicher Name: Als Katalogseite in Umweltthemen anzeigen
     Tabelle.Feld   : T01_object.is_catalog_data
@@ -593,8 +615,7 @@
   -->
   <xs:attributeGroup name="attlist.udk.type-of-document">
     <xs:attribute name="key" use="required"/>
-  </xs:attributeGroup>
-  
+  </xs:attributeGroup>  
   <!--
     Fachlicher Name: Herausgeber
     Tabelle.Feld   : t011_obj_literature.publisher
@@ -779,7 +800,7 @@
     Tabelle.Feld   : T011_obj_geo.hierachy_level
   -->
   <xs:element name="hierarchy-level">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.hierarchy-level"/>
     </xs:complexType>
   </xs:element>
@@ -791,7 +812,7 @@
     Tabelle.Feld   : T011_obj_geo_spatial_rep.type
   -->
   <xs:element name="spatial-representation-type">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.spatial-representation-type"/>
     </xs:complexType>
   </xs:element>
@@ -816,7 +837,7 @@
     Tabelle.Feld   : T011_obj_geo.vector_topology_level
   -->
   <xs:element name="vector-topology-level">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.vector-topology-level"/>
     </xs:complexType>
   </xs:element>
@@ -847,7 +868,7 @@
     Tabelle.Feld   : T011_obj_geo_vector.geometric_object_type
   -->
   <xs:element name="geometric-object-type">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.geometric-object-type"/>
     </xs:complexType>
   </xs:element>
@@ -990,7 +1011,7 @@
     Tabelle.Feld   : t0112_media_option.medium_name
   -->
   <xs:element name="medium-name">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.medium-name"/>
     </xs:complexType>
   </xs:element>
@@ -1086,7 +1107,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="vertical-extent-unit">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.vertical-extent-unit"/>
     </xs:complexType>
   </xs:element>
@@ -1102,7 +1123,7 @@
     Tabelle.Feld   : T01_object.vertical_extent_vdatum
   -->
   <xs:element name="vertical-extent-vdatum">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.vertical-extent-vdatum"/>
     </xs:complexType>
   </xs:element>
@@ -1246,7 +1267,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="time-period">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.time-period"/>
     </xs:complexType>
   </xs:element>
@@ -1262,7 +1283,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="time-status">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.time-status"/>
     </xs:complexType>
   </xs:element>
@@ -1306,7 +1327,7 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="dataset-reference-type">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.dataset-reference-type"/>
     </xs:complexType>
   </xs:element>
@@ -1331,7 +1352,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="controlled-term">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.controlled-term"/>
     </xs:complexType>
   </xs:element>
@@ -1340,7 +1361,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="classification">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.classification"/>
     </xs:complexType>
   </xs:element>
@@ -1388,7 +1409,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="linkage-reference">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.linkage-reference"/>
     </xs:complexType>
   </xs:element>
@@ -1443,7 +1464,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="type-of-relation">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.type-of-relation"/>
     </xs:complexType>
   </xs:element>
@@ -1525,7 +1546,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="type-of-address">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.type-of-address"/>
     </xs:complexType>
   </xs:element>
@@ -1589,7 +1610,7 @@
     Tabelle.Feld   : T03_catalogue.language_code
   -->
   <xs:element name="language">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.language"/>
     </xs:complexType>
   </xs:element>
@@ -1700,7 +1721,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="relation-type">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.relation-type"/>
     </xs:complexType>
   </xs:element>
@@ -1752,7 +1773,7 @@
     Tabelle.Feld   :
   -->
   <xs:element name="address-relation-type">
-    <xs:complexType mixed="true">
+    <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.address-relation-type"/>
     </xs:complexType>
   </xs:element>
