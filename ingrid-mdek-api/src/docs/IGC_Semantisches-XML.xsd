@@ -468,7 +468,7 @@
   -->
   <xs:attributeGroup name="attlist.udk.service-operation">
     <xs:attribute name="name-key" use="required"/>
-    <xs:attribute name="name-value"/>
+    <xs:attribute name="name"/>
   </xs:attributeGroup>
   <!--
     Fachlicher Name: Operationbeschreibung
@@ -525,6 +525,10 @@
     Tabelle.Feld   : t011_obj_serv_op_connpoint.connect_point
   -->
   <xs:element name="connection-point" type="xs:string"/>
+  <!--
+    Fachlicher Name: Gutachten / Bericht / Literatur
+    Tabelle   : t011_obj_literature
+  -->
   <xs:element name="document">
     <xs:complexType>
       <xs:sequence>
@@ -547,47 +551,63 @@
   </xs:element>
   <!--
     Fachlicher Name: Verlag
-    Tabelle.Feld   : T011_obj_literatur.publisher
+    Tabelle.Feld   : t011_obj_literature.publishing
   -->
   <xs:element name="publisher" type="xs:string"/>
   <!--
     Fachlicher Name: Erscheinungsort
-    Tabelle.Feld   : T011_obj_literatur.publish_loc
+    Tabelle.Feld   : t011_obj_literature.publish_loc
   -->
   <xs:element name="publishing-place" type="xs:string"/>
   <!--
     Fachlicher Name: Erscheinungsjahr
-    Tabelle.Feld   : T011_obj_literatur.publish_year
+    Tabelle.Feld   : t011_obj_literature.publish_year
   -->
   <xs:element name="year" type="xs:string"/>
   <!--
     Fachlicher Name: ISBN-Nr.
-    Tabelle.Feld   : T011_obj_literatur.isbn
+    Tabelle.Feld   : t011_obj_literature.isbn
   -->
   <xs:element name="isbn" type="xs:string"/>
   <!--
     Fachlicher Name: Basisdaten
-    Tabelle.Feld   : T011_obj_literatur.base
+    Tabelle.Feld   : t011_obj_literature.base
   -->
   <xs:element name="source" type="xs:string"/>
   <!--
     Fachlicher Name: Dokumententyp
-    Tabelle.Feld   : T011_obj_literatur.typ
+    Tabelle.Feld   : t011_obj_literature.type_value
   -->
-  <xs:element name="type-of-document" type="xs:string"/>
+  <xs:element name="type-of-document">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attributeGroup ref="udk:attlist.udk.type-of-document"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Dokumententyp
+    Tabelle.Feld   : t011_obj_literature.type_key
+  -->
+  <xs:attributeGroup name="attlist.udk.type-of-document">
+    <xs:attribute name="key" use="required"/>
+  </xs:attributeGroup>
+  
   <!--
     Fachlicher Name: Herausgeber
-    Tabelle.Feld   : T011_obj_literatur.
+    Tabelle.Feld   : t011_obj_literature.publisher
   -->
   <xs:element name="editor" type="xs:string"/>
   <!--
     Fachlicher Name: Autor/Verfasser
-    Tabelle.Feld   : T011_obj_literatur.autor
+    Tabelle.Feld   : t011_obj_literature.author
   -->
   <xs:element name="author" type="xs:string"/>
   <!--
     Fachlicher Name: Weitere bibliographische Angaben
-    Tabelle.Feld   : T011_obj_literatur.doc_info
+    Tabelle.Feld   : t011_obj_literature.doc_info
   -->
   <xs:element name="additional-bibliographic-info" type="xs:string"/>
   <!--
@@ -597,36 +617,39 @@
   <xs:element name="location" type="xs:string"/>
   <!--
     Fachlicher Name: Seiten
-    Tabelle.Feld   : T011_obj_literatur.sides
+    Tabelle.Feld   : t011_obj_literature.sides
   -->
   <xs:element name="pages" type="xs:string"/>
   <!--
     Fachlicher Name: Band, Heft
-    Tabelle.Feld   : T011_obj_literatur.volume
+    Tabelle.Feld   : t011_obj_literature.volume
   -->
   <xs:element name="volume" type="xs:string"/>
   <!--
     Fachlicher Name: Erschienen in
-    Tabelle.Feld   : T011_obj_literatur.publish_in
+    Tabelle.Feld   : t011_obj_literature.publish_in
   -->
   <xs:element name="published-in" type="xs:string"/>
+  <!--
+    Fachlicher Name: Geo-Information /Karte
+    Tabelle   : t011_obj_geo*
+  -->
   <xs:element name="map">
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="0" ref="udk:description-of-tech-domain"/>
         <xs:element minOccurs="0" ref="udk:data"/>
         <xs:element minOccurs="0" ref="udk:resolution"/>
-        <xs:element minOccurs="0" ref="udk:co-ordinate-system"/>
+        <xs:element minOccurs="0" ref="udk:coordinate-system"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:publication-scale"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:key-catalogue"/>
         <xs:element minOccurs="0" ref="udk:degree-of-record"/>
         <xs:element minOccurs="0" ref="udk:method-of-production"/>
         <xs:element minOccurs="0" ref="udk:technical-base"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:symbol-catalogue"/>
-        <xs:element maxOccurs="unbounded" ref="udk:dataset-topic-category"/>
         <xs:element ref="udk:hierarchy-level"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:spatial-representation-type"/>
         <xs:element minOccurs="0" ref="udk:vector-format"/>
-        <xs:element minOccurs="0" ref="udk:reference-system-id"/>
         <xs:element minOccurs="0" ref="udk:pos-accuracy-vertical"/>
         <xs:element minOccurs="0" ref="udk:keyc-incl-w-dataset"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:feature-type"/>
@@ -645,12 +668,27 @@
   <xs:element name="resolution" type="xs:string"/>
   <!--
     Fachlicher Name: Raum-Bezugssystem, Koordinatensystem der Geoinformation / Karte
-    Tabelle.Feld   : T011_obj_geo.coord
+    Tabelle.Feld   : T011_obj_geo.referencesystem_value
   -->
-  <xs:element name="co-ordinate-system" type="xs:string"/>
+  <xs:element name="coordinate-system">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attributeGroup ref="udk:attlist.udk.coordinate-system"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: DomainID für Raumbezugssystem
+    Tabelle.Feld   : T011_obj_geo.referencesystem_key
+  -->
+  <xs:attributeGroup name="attlist.udk.coordinate-system">
+    <xs:attribute name="domain-id" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Skalierungsmaßstab
+    Tabelle   : t011_obj_geo_scale / T011_obj_serv_scale
   -->
   <xs:element name="publication-scale">
     <xs:complexType>
@@ -673,21 +711,27 @@
     <xs:attribute name="resolution-ground"/>
     <xs:attribute name="resolution-scan"/>
   </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Schlüsselkatalog
+    Tabelle   : t011_obj_geo_keyc
+  -->
   <xs:element name="key-catalogue">
     <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.key-catalogue"/>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Schl�atalog: Titel
-    Tabelle.Feld   : T011_obj_geo_keyc.subject_cat
-    Fachlicher Name: Schl�atalog: Datum
+    Fachlicher Name: Schlüsselkatalog: Titel
+    Tabelle.Feld   : T011_obj_geo_keyc.keyc_value
+    Tabelle.Feld   : T011_obj_geo_keyc.keyc_key
+    Fachlicher Name: Schlüsselkatalog: Datum
     Tabelle.Feld   : T011_obj_geo_keyc.key_date
-    Fachlicher Name: Schl�atalog: Version
+    Fachlicher Name: Schlüsselkatalog: Version
     Tabelle.Feld   : T011_obj_geo_keyc.edition
   -->
   <xs:attributeGroup name="attlist.udk.key-catalogue">
     <xs:attribute name="subject-cat"/>
+    <xs:attribute name="subject-cat-key"/>
     <xs:attribute name="key-date"/>
     <xs:attribute name="edition"/>
   </xs:attributeGroup>
@@ -706,6 +750,10 @@
     Tabelle.Feld   : T011_obj_geo.special_base
   -->
   <xs:element name="technical-base" type="xs:string"/>
+  <!--
+    Fachlicher Name: Symbolkatalog
+    Tabelle   : t011_obj_geo_symc
+  -->
   <xs:element name="symbol-catalogue">
     <xs:complexType>
       <xs:attributeGroup ref="udk:attlist.udk.symbol-catalogue"/>
@@ -713,7 +761,8 @@
   </xs:element>
   <!--
     Fachlicher Name: Symbolkatalog:Titel
-    Tabelle.Feld   : T011_obj_geo_symc.symbol_cat
+    Tabelle.Feld   : T011_obj_geo_symc.symbol_cat_value
+    Tabelle.Feld   : T011_obj_geo_symc.symbol_cat_key
     Fachlicher Name: Symbolkatalog: Datum
     Tabelle.Feld   : T011_obj_geo_symc.symbol_date
     Fachlicher Name: Symbollkatalog: Version
@@ -721,59 +770,39 @@
   -->
   <xs:attributeGroup name="attlist.udk.symbol-catalogue">
     <xs:attribute name="symbol-cat"/>
+    <xs:attribute name="symbol-cat-key"/>
     <xs:attribute name="symbol-date"/>
     <xs:attribute name="edition"/>
   </xs:attributeGroup>
-  <!-- Neu in T011_obj_geo_topic_cat (ausT011_obj_geo), Element von map -->
-  <xs:element name="dataset-topic-category">
-    <xs:complexType mixed="true">
-      <xs:attributeGroup ref="udk:attlist.udk.dataset-topic-category"/>
-    </xs:complexType>
-  </xs:element>
   <!--
-    Fachlicher Name: Themenkategorie
-    Tabelle.Feld   : T011_obj_geo_topic_cat.dataset_topic_category
+    Fachlicher Name: Datensatz/Datenserie
+    Tabelle.Feld   : T011_obj_geo.hierachy_level
   -->
-  <xs:attributeGroup name="attlist.udk.dataset-topic-category">
-    <xs:attribute name="domain-id" use="required"/>
-  </xs:attributeGroup>
   <xs:element name="hierarchy-level">
     <xs:complexType mixed="true">
       <xs:attributeGroup ref="udk:attlist.udk.hierarchy-level"/>
     </xs:complexType>
   </xs:element>
-  <!--
-    Fachlicher Name: Datensatz/Datenserie
-    Tabelle.Feld   : T011_obj_geo.hierachy_level
-  -->
   <xs:attributeGroup name="attlist.udk.hierarchy-level">
     <xs:attribute name="domain-id" use="required"/>
   </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Digitale Repräsentation (ISO19115 Codeliste B.5.26 "MD_SpatialRepresentationTypeCode")
+    Tabelle.Feld   : T011_obj_geo_spatial_rep.type
+  -->
   <xs:element name="spatial-representation-type">
     <xs:complexType mixed="true">
       <xs:attributeGroup ref="udk:attlist.udk.spatial-representation-type"/>
     </xs:complexType>
   </xs:element>
-  <!--
-    Fachlicher Name: Digitale Repr㲥ntation
-    Tabelle.Feld   : T011_obj_geo_spatial_rep.type
-  -->
   <xs:attributeGroup name="attlist.udk.spatial-representation-type">
     <xs:attribute name="domain-id" use="required"/>
   </xs:attributeGroup>
-  <xs:element name="reference-system-id">
-    <xs:complexType mixed="true">
-      <xs:attributeGroup ref="udk:attlist.udk.reference-system-id"/>
-    </xs:complexType>
-  </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   : T011_obj_geo.referencesystem_id
+    Fachlicher Name: Vektorinfo
+    Tabelle.Feld   : T011_obj_geo.vector_topology_level
+    Tabelle   : T011_obj_geo_vektor
   -->
-  <xs:attributeGroup name="attlist.udk.reference-system-id">
-    <xs:attribute name="domain-id" use="required"/>
-  </xs:attributeGroup>
-  <!-- keine fachliche Beschreibung vorhanden -->
   <xs:element name="vector-format">
     <xs:complexType>
       <xs:sequence>
@@ -782,19 +811,22 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <!-- Neu in T011_obj_geo und T011_obj_geo_vektor: Neues Element in map -->
+  <!--
+    Fachlicher Name: Vektorformat: Topologieinformation
+    Tabelle.Feld   : T011_obj_geo.vector_topology_level
+  -->
   <xs:element name="vector-topology-level">
     <xs:complexType mixed="true">
       <xs:attributeGroup ref="udk:attlist.udk.vector-topology-level"/>
     </xs:complexType>
   </xs:element>
-  <!--
-    Fachlicher Name: Vektorformat: Topologieinformation
-    Tabelle.Feld   : T011_obj_geo.vector_topology_level
-  -->
   <xs:attributeGroup name="attlist.udk.vector-topology-level">
     <xs:attribute name="domain-id" use="required"/>
   </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Vektorformat
+    Tabelle.Feld   : T011_obj_geo_vector
+  -->
   <xs:element name="geo-vector">
     <xs:complexType>
       <xs:sequence>
@@ -810,15 +842,15 @@
   <xs:attributeGroup name="attlist.udk.geo-vector">
     <xs:attribute name="geometric-object-count"/>
   </xs:attributeGroup>
+  <!--
+    Fachlicher Name: Vektorformat: Geometrietyp
+    Tabelle.Feld   : T011_obj_geo_vector.geometric_object_type
+  -->
   <xs:element name="geometric-object-type">
     <xs:complexType mixed="true">
       <xs:attributeGroup ref="udk:attlist.udk.geometric-object-type"/>
     </xs:complexType>
   </xs:element>
-  <!--
-    Fachlicher Name: Vektorformat: Geometrietyp
-    Tabelle.Feld   : T011_obj_geo_vector.geometric_object_type
-  -->
   <xs:attributeGroup name="attlist.udk.geometric-object-type">
     <xs:attribute name="domain-id" use="required"/>
   </xs:attributeGroup>
@@ -832,17 +864,15 @@
     Tabelle.Feld   : t01_obj_geo.keyc_incl_w_dataset
   -->
   <xs:element name="keyc-incl-w-dataset" type="xs:string"/>
-  <!-- Neu in T011_obj_geo, Element von map -->
-  <!--
-    Neu in T071_state:
-    <!ELEMENT udk:loc-town-no (#PCDATA)>  keine fachliche Beschreibung vorhanden, wird nicht abgebildet
-  -->
-  <!-- Neu in T011_obj_geo_supplinfo, Element von map -->
   <!--
     Fachlicher Name: Sachdaten / Attributinformationen, Angaben zu den Attributen
     Tabelle.Feld   : T011_obj_geo_supplinfo.feature_type
   -->
   <xs:element name="feature-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Vorhaben / Projekt / Programm
+    Tabelle   : t011_obj_project
+  -->
   <xs:element name="project">
     <xs:complexType>
       <xs:sequence>
