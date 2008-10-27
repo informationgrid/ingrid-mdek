@@ -747,7 +747,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// load node
 			ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
 			if (oNode == null) {
-				oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());			
+				// create new node, also take care of correct tree path in node
+				oNode = docToBeanMapper.mapObjectNode(oDocIn, new ObjectNode());
+				pathHandler.setTreePath(oNode, parentUuid);
 			}
 			
 			// get/create published version
@@ -759,7 +761,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 				// create new object with BASIC data
 				oPub = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
-				 // save it to generate id needed for mapping
+				// save it to generate id needed for mapping of associations
 				daoT01Object.makePersistent(oPub);
 			}
 

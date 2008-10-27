@@ -755,7 +755,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// load node
 			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
 			if (aNode == null) {
+				// create new node, also take care of correct tree path in node
 				aNode = docToBeanMapper.mapAddressNode(aDocIn, new AddressNode());			
+				pathHandler.setTreePath(aNode, parentUuid);
 			}
 			
 			// get/create published version
@@ -766,7 +768,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				
 				// create new address with BASIC data
 				aPub = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
-				 // save it to generate id needed for mapping
+				// save it to generate id needed for mapping of associations
 				daoT02Address.makePersistent(aPub);
 			}
 

@@ -171,19 +171,29 @@ class MdekExampleStatisticsThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-
 		// TEST TREE PATH on New Node, Move and Copy (database check via phpMyAdmin)
 		// -----------------------------------------
 		
 		System.out.println("\n\n=========================");
 		System.out.println("OBJECTS");
 		
-		System.out.println("\n----- new top object -----");
+		System.out.println("\n----- new top object publish directly -----");
 		doc = supertool.newObjectDoc(null);
-		doc = supertool.storeObject(doc, true);
+		doc = supertool.publishObject(doc, true, true);
 		String newUuid = doc.getString(MdekKeys.UUID);
 		supertool.deleteObject(newUuid, true);
-		System.out.println("\n----- new branch object -----");
+		System.out.println("\n----- new top object store working version -----");
+		doc = supertool.newObjectDoc(null);
+		doc = supertool.storeObject(doc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		supertool.deleteObject(newUuid, true);
+
+		System.out.println("\n----- new branch object publish directly -----");
+		doc = supertool.newObjectDoc(objUuid);
+		doc = supertool.publishObject(doc, true, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		supertool.deleteObject(newUuid, true);
+		System.out.println("\n----- new branch object store working version -----");
 		doc = supertool.newObjectDoc(objUuid);
 		doc = supertool.storeObject(doc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
@@ -218,16 +228,27 @@ class MdekExampleStatisticsThread extends Thread {
 		System.out.println("\n\n=========================");
 		System.out.println("ADDRESSES");
 		
-		System.out.println("\n----- new top address -----");
+		System.out.println("\n----- new top address publish directly -----");
+		doc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		doc = supertool.publishAddress(doc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		supertool.deleteAddress(newUuid, true);
+		System.out.println("\n----- new top address store working version -----");
 		doc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		doc = supertool.storeAddress(doc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
 		supertool.deleteAddress(newUuid, true);
-		System.out.println("\n----- new branch address -----");
+
+		System.out.println("\n----- new branch address publish directly -----");
+		doc = supertool.newAddressDoc(topAddrUuid, AddressType.INSTITUTION);
+		doc = supertool.publishAddress(doc, true);
+		newUuid = doc.getString(MdekKeys.UUID);
+		supertool.deleteAddress(newUuid, true);
+		System.out.println("\n----- new branch address store working version -----");
 		doc = supertool.newAddressDoc(topAddrUuid, AddressType.INSTITUTION);
 		doc = supertool.storeAddress(doc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
-		System.out.println("\n----- new sub branch address -----");
+		System.out.println("\n----- new sub branch address store working version -----");
 		doc = supertool.newAddressDoc(newUuid, AddressType.INSTITUTION);
 		supertool.storeAddress(doc, true);
 		
