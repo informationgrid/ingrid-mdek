@@ -193,7 +193,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: generische Attribute fuer Zusatzfeld
+    Fachlicher Name: Zusatzfeld (generische Attribute)
     Tabelle   : t08_attr_type, t08_attr
   -->
   <xs:element name="general-additional-value">
@@ -368,7 +368,6 @@
         <xs:element ref="udk:document"/>
         <xs:element ref="udk:map"/>
         <xs:element ref="udk:project"/>
-        <xs:element ref="udk:additional-class-attribute-values"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -913,17 +912,6 @@
     Tabelle.Feld   : T011_obj_project.leader
   -->
   <xs:element name="leader-description" type="xs:string"/>
-  <xs:element name="additional-class-attribute-values">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="udk:object-class"/>
-        <xs:sequence minOccurs="0" maxOccurs="unbounded">
-          <xs:element ref="udk:field-name"/>
-          <xs:element ref="udk:field-value"/>
-        </xs:sequence>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="additional-information">
     <xs:complexType>
       <xs:sequence>

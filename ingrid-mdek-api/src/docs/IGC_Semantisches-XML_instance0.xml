@@ -109,7 +109,7 @@
                 <volume>volume0</volume>
                 <published-in>published-in0</published-in>
             </document>-->
-<!--            <map>
+            <map>
                 <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
                 <data>data0</data>
                 <resolution>resolution0</resolution>
@@ -131,17 +131,12 @@
                 <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
                 <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
                 <feature-type>feature-type0</feature-type>
-            </map>-->
-            <project>
+            </map>
+<!--            <project>
                 <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
                 <member-description>member-description0</member-description>
                 <leader-description>leader-description0</leader-description>
-            </project>
-<!--            <additional-class-attribute-values>
-                <object-class class-id="0"/>
-                    <field-name>field-name1</field-name>
-                    <field-value>field-value1</field-value>
-            </additional-class-attribute-values>-->
+            </project>-->
         </technical-domain>
         <additional-information data-language="data-language1" metadata-language="metadata-language1">
             <export-to-key>export-to-key0</export-to-key>
@@ -175,7 +170,7 @@
                     <north-bounding-coordinate>north-bounding-coordinate1</north-bounding-coordinate>
                     <south-bounding-coordinate>south-bounding-coordinate1</south-bounding-coordinate>
                 </bounding-coordinates>
-                    <place>
+<!--                    <place>
                         <location-code>location-code1</location-code>
                         <country cc="DE"/>
                         <state>state1</state>
@@ -183,8 +178,8 @@
                         <county>county1</county>
                         <municipal>municipal1</municipal>
                         <sub-municipal>sub-municipal1</sub-municipal>
-                    </place>
-<!--                    <region>region1</region>-->
+                    </place>-->
+                    <region>region1</region>
             </geo-location>
         </spatial-domain>
         <temporal-domain>
@@ -315,8 +310,8 @@
         <relation-description>relation-description0</relation-description>
     </data-source-relation>
     <data-source-address-relation>
-<!--            <object-identifier>object-identifier4</object-identifier>-->
-            <original-control-identifier>original-control-identifier1</original-control-identifier>
+            <object-identifier>object-identifier4</object-identifier>
+<!--            <original-control-identifier>original-control-identifier1</original-control-identifier>-->
 <!--            <address-identifier>address-identifier4</address-identifier>-->
             <original-address-identifier>original-address-identifier1</original-address-identifier>
         <address-relation-type relation-type-id="0"/>
@@ -332,13 +327,13 @@
             <object-class class-id="0"/>
             <technical-domain-field-definition>
                 <field-identifier>field-identifier0</field-identifier>
-                <field-name>field-name2</field-name>
+                <field-name>field-name1</field-name>
                 <field-type>field-type0</field-type>
             </technical-domain-field-definition>
         </additional-class-definition>
         <general-additional-field-definition>
             <field-identifier>field-identifier1</field-identifier>
-            <field-name>field-name3</field-name>
+            <field-name>field-name2</field-name>
             <field-type>field-type1</field-type>
         </general-additional-field-definition>
     </data-model-extension>
