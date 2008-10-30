@@ -226,8 +226,12 @@
 			<xs:element name="requestinfo_whichEntityVersion" type="xs:integer"/>
 			<!-- e.g. fetch entity in this work state, pass MdekUtils.WorkState Enumeration const -->
 			<xs:element name="requestinfo_whichWorkState" type="xs:integer"/>
-			<!-- Which entities to fetch (e.g. expired ones ...), pass MdekUtils.IdcEntitySelectionType Enumeration const -->
+			<!-- Which entities to fetch (e.g. expired ones ...), pass MdekUtils.Idc*SelectionType Enumeration const -->
 			<xs:element name="requestinfo_entitySelectionType" type="xs:integer"/>
+			<!-- How to order fetched entities ? pass MdekUtils.IdcEntityOrderBy Enumeration const -->
+			<xs:element name="requestinfo_entityOrderBy" type="xs:integer"/>
+			<!-- Order ascending = true ! else descending -->
+			<xs:element name="requestinfo_entityOrderAsc" type="xs:boolean"/>
 			<!-- e.g. when fetching permissions for entity include check of workflow state (true) or not (false). e.g. in state "Q" no write if not "QA" -->
 			<xs:element name="requestinfo_checkWorkflow" type="xs:boolean"/>
 			<!-- generic paging parameters ! added for STATISTICS. Notice: we also have separate paging params for search and Object-Address references :( -->

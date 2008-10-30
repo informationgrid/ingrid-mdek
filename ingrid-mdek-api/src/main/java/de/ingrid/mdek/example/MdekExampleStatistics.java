@@ -7,7 +7,7 @@ import java.util.Map;
 
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.utils.IngridDocument;
@@ -303,15 +303,15 @@ class MdekExampleStatisticsThread extends Thread {
 
 		System.out.println("\n----- whole catalog -----");
 		doc = supertool.getObjectStatistics(null, 
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				IdcStatisticsSelectionType.CLASSES_AND_STATES,
 				-1, -1);
 		System.out.println("\n----- tree branch -----");
 		doc = supertool.getObjectStatistics(topObjUuid, 
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				IdcStatisticsSelectionType.CLASSES_AND_STATES,
 				-1, -1);
 		System.out.println("\n----- leaf -----");
 		doc = supertool.getObjectStatistics(objLeafUuid, 
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				IdcStatisticsSelectionType.CLASSES_AND_STATES,
 				-1, -1);
 
 
@@ -323,18 +323,18 @@ class MdekExampleStatisticsThread extends Thread {
 
 		System.out.println("\n----- whole catalog -----");
 		doc = supertool.getObjectStatistics(null, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				0, 10);
 		doc = supertool.getObjectStatistics(null, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				10, 10);
 		System.out.println("\n----- tree branch -----");
 		doc = supertool.getObjectStatistics(topObjUuid, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				0, 10);
 		System.out.println("\n----- leaf -----");
 		doc = supertool.getObjectStatistics(objLeafUuid, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				0, 10);
 
 		System.out.println("\n\n-------------------------------------");
@@ -342,18 +342,18 @@ class MdekExampleStatisticsThread extends Thread {
 
 		System.out.println("\n----- whole catalog -----");
 		doc = supertool.getObjectStatistics(null, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				0, 10);
 		doc = supertool.getObjectStatistics(null, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				10, 10);
 		System.out.println("\n----- tree branch -----");
 		doc = supertool.getObjectStatistics(topObjUuid, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				0, 10);
 		System.out.println("\n----- leaf -----");
 		doc = supertool.getObjectStatistics(objLeafUuid, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				0, 10);
 
 
@@ -364,19 +364,19 @@ class MdekExampleStatisticsThread extends Thread {
 		System.out.println("\n----- CLASSES AND WORK STATES -----");
 		System.out.println("\n----- whole catalog -----");
 		doc = supertool.getAddressStatistics(null, false,
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				IdcStatisticsSelectionType.CLASSES_AND_STATES,
 				-1, -1);
 		System.out.println("\n----- all free addresses -----");
 		doc = supertool.getAddressStatistics(null, true,
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				IdcStatisticsSelectionType.CLASSES_AND_STATES,
 				-1, -1);
 		System.out.println("\n----- tree branch -----");
 		doc = supertool.getAddressStatistics(topAddrUuid, false, 
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				IdcStatisticsSelectionType.CLASSES_AND_STATES,
 				-1, -1);
 		System.out.println("\n----- leaf -----");
 		doc = supertool.getAddressStatistics(personAddrUuid, false, 
-				IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES,
+				IdcStatisticsSelectionType.CLASSES_AND_STATES,
 				-1, -1);
 
 
@@ -388,22 +388,22 @@ class MdekExampleStatisticsThread extends Thread {
 
 		System.out.println("\n----- whole catalog -----");
 		doc = supertool.getAddressStatistics(null, false,
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				0, 10);
 		doc = supertool.getAddressStatistics(null, false,
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				10, 10);
 		System.out.println("\n----- all free addresses -----");
 		doc = supertool.getAddressStatistics(null, true,
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				0, 10);
 		System.out.println("\n----- tree branch -----");
 		doc = supertool.getAddressStatistics(topAddrUuid, false, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				0, 10);
 		System.out.println("\n----- leaf -----");
 		doc = supertool.getAddressStatistics(personAddrUuid, false, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE,
+				IdcStatisticsSelectionType.SEARCHTERMS_FREE,
 				0, 10);
 
 		System.out.println("\n\n-------------------------------------");
@@ -411,22 +411,22 @@ class MdekExampleStatisticsThread extends Thread {
 
 		System.out.println("\n----- whole catalog -----");
 		doc = supertool.getAddressStatistics(null, false,
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				0, 10);
 		doc = supertool.getAddressStatistics(null, false,
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				10, 10);
 		System.out.println("\n----- all free addresses -----");
 		doc = supertool.getAddressStatistics(null, true,
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				0, 10);
 		System.out.println("\n----- tree branch -----");
 		doc = supertool.getAddressStatistics(topAddrUuid, false, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				0, 10);
 		System.out.println("\n----- leaf -----");
 		doc = supertool.getAddressStatistics(personAddrUuid, false, 
-				IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS,
+				IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS,
 				0, 10);
 
 // ===================================

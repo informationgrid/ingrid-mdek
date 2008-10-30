@@ -183,8 +183,10 @@ public class MdekWorkflowHandler {
 	public void processDocOnPublish(IngridDocument entityDoc) {
 		entityDoc.put(MdekKeys.WORK_STATE, WorkState.VEROEFFENTLICHT.getDbValue());
 
-		// cancel "mark deleted" (may be set)
+		// cancel "mark deleted", is undone with this publish operation
 		entityDoc.put(MdekKeys.MARK_DELETED, MdekUtils.NO);
+		// cancel "expired", object is updated with this publish operation
+		entityDoc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.INITIAL.getDbValue());
 	}
 
 	/** Process the given client side representation of an entity according to the operation. */

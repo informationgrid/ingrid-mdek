@@ -11,9 +11,12 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -37,6 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
@@ -298,11 +302,75 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument getWorkObjects(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		try {
+			IdcWorkEntitiesSelectionType selectionType =
+				(IdcWorkEntitiesSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcEntityOrderBy orderBy = (IdcEntityOrderBy) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_BY);
+			Boolean orderAsc = (Boolean) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_ASC);
+			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
+			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
+
+			daoObjectNode.beginTransaction();
+
+			IngridDocument result =	daoObjectNode.getWorkObjects(userUuid,
+					selectionType, orderBy, orderAsc,
+					startHit, numHits);
+
+			List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
+			List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
+			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
+
+			// map found objects and related user addresses to docs
+			ArrayList<IngridDocument> oNDocs = new ArrayList<IngridDocument>(oNs.size());
+			for (int i=0; i < oNs.size(); i++) {
+				ObjectNode oN = oNs.get(i);
+				T01Object o = oN.getT01ObjectWork();
+				T02Address aUser = aNs.get(i).getT02AddressWork();
+
+				IngridDocument objDoc = new IngridDocument();
+				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
+
+				// map details according to selection !
+				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
+					beanToDocMapper.mapResponsibleUser(aUser, objDoc);
+					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				}
+				if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
+					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+					beanToDocMapper.mapUserOperation(oN, objDoc);
+				}
+				if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+					// assigner user !
+					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
+					beanToDocMapper.mapUserOperation(oN, objDoc);
+				}
+
+				oNDocs.add(objDoc);
+			}
+
+			// set up result
+			result = new IngridDocument();
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
+			result.put(MdekKeys.OBJ_ENTITIES, oNDocs);
+
+			daoObjectNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoObjectNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument getQAObjects(IngridDocument params) {
 		String userUuid = getCurrentUserUuid(params);
 		try {
 			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
-			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcQAEntitiesSelectionType selectionType =
+				(IdcQAEntitiesSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
 			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
@@ -323,14 +391,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				T01Object o = oN.getT01ObjectWork();
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
-				// map detailed meta data if requested
+				// map details according to selection !
 				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				} else {
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.BASIC_ENTITY);					
-				}
-				// map detailed mod user if requested
-				if (whichWorkState != WorkState.QS_UEBERWIESEN) {
 					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				}
 				beanToDocMapper.mapUserOperation(oN, objDoc);
@@ -357,7 +422,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		String userUuid = getCurrentUserUuid(params);
 		try {
 			String parentUuid = (String) params.get(MdekKeys.UUID);
-			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcStatisticsSelectionType selectionType =
+				(IdcStatisticsSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
 			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 

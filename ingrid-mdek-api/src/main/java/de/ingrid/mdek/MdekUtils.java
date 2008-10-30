@@ -105,19 +105,46 @@ public class MdekUtils {
 		ALL_VERSIONS;
 	}
 
-	/** e.g. Which entities to fetch ? */
-	public enum IdcEntitySelectionType {
-		/** QA: all expired entities (determined by job) */
-		QA_EXPIRY_STATE_EXPIRED,
-		/** QA: all entities where spatial relations were updated e.g. due to catalog management */
-		QA_SPATIAL_RELATIONS_UPDATED,
-		/** Statistics: analysis how many entities per class and work state */
-		STATISTICS_CLASSES_AND_STATES,
-		/** Statistics: analysis of free search terms */
-		STATISTICS_SEARCHTERMS_FREE,
-		/** Statistics: analysis of thesaurus search terms */
-		STATISTICS_SEARCHTERMS_THESAURUS,
-		;
+	/** WORK/RESPONSIBLE PAGE: "modified" Entities. Which entities to fetch ? */
+	public enum IdcWorkEntitiesSelectionType {
+		/** all expired entities where user is RESPONSIBLE */
+		EXPIRED,
+		/** all modified entities where user is RESPONSIBLE or MOD-User */
+		MODIFIED,
+		/** all entities in QA workflow where user is RESPONSIBLE or MOD-User or Assigner */
+		IN_QA_WORKFLOW,
+	}
+
+	/** QA PAGE:: Entities where user is QA. Which entities to fetch ? */
+	public enum IdcQAEntitiesSelectionType {
+		/** all expired entities where user is QA */
+		EXPIRED,
+		/** all entities where user is QA and spatial relations were updated */
+		SPATIAL_RELATIONS_UPDATED,
+	}
+
+	/** STATISTICS PAGE: What kind of statistics ? */
+	public enum IdcStatisticsSelectionType {
+		/** analysis how many entities per class and work state */
+		CLASSES_AND_STATES,
+		/** analysis of free search terms */
+		SEARCHTERMS_FREE,
+		/** analysis of thesaurus search terms */
+		SEARCHTERMS_THESAURUS;
+	}
+
+	/** e.g. How to order fetched entities ? asc or desc is set with separate flag. */
+	public enum IdcEntityOrderBy {
+		/** order by class of entity */
+		CLASS,
+		/** order by "name", e.g. title or lastname ... */
+		NAME,
+		/** order by date, e.g. mod-time or assign-time ... */
+		DATE,
+		/** order by user, e.g. mod-user or responsible-user ... */
+		USER,
+		/** order by state, e.g. WorkState or ExpiryState ... */
+		STATE,
 	}
 
 	public enum ExpiryState implements IMdekEnum {

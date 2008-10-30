@@ -17,8 +17,10 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -647,7 +649,7 @@ public class AddressNodeDaoHibernate
 	}
 
 	public IngridDocument getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {
 
 		// default result
@@ -680,7 +682,7 @@ public class AddressNodeDaoHibernate
 	 * @return doc encapsulating total number for paging and list of nodes
 	 */
 	private IngridDocument getQAAddressesViaGroup(String userUuid,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {
 
 		Session session = getSession();
@@ -744,7 +746,7 @@ public class AddressNodeDaoHibernate
 	 */
 	private IngridDocument getAddresses(List<String> addrUuidsWriteSingle,
 			List<String> addrUuidsWriteTree,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
 
@@ -787,9 +789,9 @@ public class AddressNodeDaoHibernate
 				if (addAnd) {
 					qStringCriteria += " and ";
 				}
-				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
+				if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 					qStringCriteria += "aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
+				} else if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_RELATIONS_UPDATED) {
 					// TODO: Add when implementing catalog management sns update !
 					return result;
 				} else {
@@ -887,15 +889,15 @@ public class AddressNodeDaoHibernate
 	}
 
 	public IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,
-			IdcEntitySelectionType selectionType,
+			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
 
-		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
+		if (selectionType == IdcStatisticsSelectionType.CLASSES_AND_STATES) {
 			result = getAddressStatistics_classesAndStates(parentUuid, onlyFreeAddresses);
 
-		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE ||
-				selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE ||
+				selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			result = getAddressStatistics_searchterms(parentUuid, onlyFreeAddresses, startHit, numHits, selectionType);
 		}
 		
@@ -966,7 +968,7 @@ public class AddressNodeDaoHibernate
 
 	private IngridDocument getAddressStatistics_searchterms(String parentUuid,
 			boolean onlyFreeAddresses, int startHit, int numHits,
-			IdcEntitySelectionType selectionType) {
+			IdcStatisticsSelectionType selectionType) {
 
 		IngridDocument result = new IngridDocument();
 		
@@ -980,9 +982,9 @@ public class AddressNodeDaoHibernate
 				"inner join addr.searchtermAdrs searchtAddr " +
 				"inner join searchtAddr.searchtermValue searchtVal " +
 			"where ";
-		if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
+		if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE) {
 			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
-		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			qStringFromWhere += " searchtVal.type = '" + SearchtermType.THESAURUS.getDbValue() + "' ";			
 		}
 

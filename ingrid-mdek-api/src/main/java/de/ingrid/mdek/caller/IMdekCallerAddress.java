@@ -1,7 +1,8 @@
 package de.ingrid.mdek.caller;
 
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.job.MdekException;
@@ -269,7 +270,7 @@ public interface IMdekCallerAddress {
 	 * @return response containing result: map representation of addresses (only partial data)
 	 */
 	IngridDocument getQAAddresses(String plugId,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits,
 			String userId);
 
@@ -288,7 +289,7 @@ public interface IMdekCallerAddress {
 	 */
 	IngridDocument getAddressStatistics(String plugId,
 			String parentUuid, boolean onlyFreeAddresses,
-			IdcEntitySelectionType selectionType,
+			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits,
 			String userId);
 }

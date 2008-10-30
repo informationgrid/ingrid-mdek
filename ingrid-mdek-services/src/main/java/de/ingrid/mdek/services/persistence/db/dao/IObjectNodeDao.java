@@ -2,8 +2,11 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -127,7 +130,22 @@ public interface IObjectNodeDao
 	List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid);
 
 	/**
-	 * Get ALL Objects where given user is QA and objects WORKING VERSION match passed selection criteria.
+	 * WORK/RESPONSIBLE PAGE: Get ALL Objects where objects WORKING VERSION matches given selection criteria. 
+	 * We return nodes, so we can evaluate whether published version exists ! 
+	 * @param selectionType selection criteria (see Enum)
+	 * @param orderBy how to order (see Enum)
+	 * @param orderAsc true=order ascending, false=order descending
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return doc encapsulating total number for paging and list of nodes
+	 */
+	IngridDocument getWorkObjects(String userUuid, 
+			IdcWorkEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits);
+
+	/**
+	 * QA PAGE: Get ALL Objects where given user is QA and objects WORKING VERSION matches given selection criteria.
 	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param userUuid QA user
 	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  
@@ -139,11 +157,11 @@ public interface IObjectNodeDao
 	 * @return doc encapsulating total number for paging and list of nodes
 	 */
 	IngridDocument getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits);
 
 	/**
-	 * Get statistics about object branch.
+	 * STATISTICS PAGE: Get statistics info about the tree branch of the given object.
 	 * @param parentUuid top object of tree branch
 	 * @param selectionType what kind of statistic analysis
 	 * @param startHit paging: hit to start with (first hit is 0)
@@ -153,6 +171,6 @@ public interface IObjectNodeDao
 	 * @return doc containing statistic info according to protocol
 	 */
 	IngridDocument getObjectStatistics(String parentUuid, 
-			IdcEntitySelectionType selectionType,
+			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits);
 }

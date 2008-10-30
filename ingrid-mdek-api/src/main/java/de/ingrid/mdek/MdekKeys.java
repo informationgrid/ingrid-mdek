@@ -42,8 +42,14 @@ public class MdekKeys {
      *  Value: MdekUtils.WorkState Enumeration const */
     public final static String REQUESTINFO_WHICH_WORK_STATE = "requestinfo_whichWorkState";
     /** Which entities to fetch (e.g. expired ones ...) ?<br>
-     *  Value: MdekUtils.IdcEntitySelectionType Enumeration const */
+     *  Value: MdekUtils.Idc*SelectionType Enumeration const */
     public final static String REQUESTINFO_ENTITY_SELECTION_TYPE = "requestinfo_entitySelectionType";
+    /** How to order fetched entities ?<br>
+     *  Value: MdekUtils.IdcEntityOrderType Enumeration const */
+    public final static String REQUESTINFO_ENTITY_ORDER_BY = "requestinfo_entityOrderBy";
+    /** Order ascending = true ! else descending<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_ENTITY_ORDER_ASC = "requestinfo_entityOrderAsc";
     /** when fetching permissions for entity include check of workflow state (true) or not (false). 
      * e.g. in state "Q" no write if not "QA"<br>
      *  Value: Boolean */

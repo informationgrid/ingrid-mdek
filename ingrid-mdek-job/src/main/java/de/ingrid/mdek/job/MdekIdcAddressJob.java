@@ -13,9 +13,10 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
@@ -332,7 +333,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		String userUuid = getCurrentUserUuid(params);
 		try {
 			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
-			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcQAEntitiesSelectionType selectionType = (IdcQAEntitiesSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
 			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
@@ -387,7 +388,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		String userUuid = getCurrentUserUuid(params);
 		try {
 			String parentUuid = (String) params.get(MdekKeys.UUID);
-			IdcEntitySelectionType selectionType = (IdcEntitySelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcStatisticsSelectionType selectionType = (IdcStatisticsSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
 			Boolean onlyFreeAddresses = (Boolean) params.get(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES);
 			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);

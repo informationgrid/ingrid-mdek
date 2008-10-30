@@ -3,8 +3,9 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.HashMap;
 import java.util.List;
 
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -182,7 +183,7 @@ public interface IAddressNodeDao
 	 * @return doc encapsulating total number for paging and list of nodes
 	 */
 	IngridDocument getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits);
 
 	/**
@@ -198,6 +199,6 @@ public interface IAddressNodeDao
 	 * @return doc containing statistic info according to protocol
 	 */
 	IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,
-			IdcEntitySelectionType selectionType,
+			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits);
 }

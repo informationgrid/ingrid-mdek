@@ -14,9 +14,12 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -681,86 +684,6 @@ public class MdekExampleSupertool {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugAddressDoc(result);
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	/**
-	 * @param whichWorkState only return objects in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if all objects
-	 * @param startHit paging: hit to start with (first hit is 0)
-	 * @param numHits paging: number of hits requested, beginning from startHit
-	 */
-	public IngridDocument getQAObjects(WorkState whichWorkState,
-			IdcEntitySelectionType selectionType,
-			int startHit, int numHits) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE getQAObjects ######");
-		System.out.println("- work state: " + whichWorkState);
-		System.out.println("- selection type: " + selectionType);
-		System.out.println("- paging from:" + startHit);
-		System.out.println("- paging num:" + numHits);
-		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getQAObjects(plugId, whichWorkState, selectionType, 
-				startHit, numHits, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
-			for (Object o : l) {
-				System.out.println(o);				
-			}
-		} else {
-			handleError(response);
-		}
-		
-		return result;
-	}
-
-	/**
-	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
-	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
-	 * @param startHit paging: hit to start with (first hit is 0)
-	 * @param numHits paging: number of hits requested, beginning from startHit
-	 */
-	public IngridDocument getQAAddresses(WorkState whichWorkState,
-			IdcEntitySelectionType selectionType,
-			int startHit, int numHits) {
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE getQAAddresses ######");
-		System.out.println("- work state: " + whichWorkState);
-		System.out.println("- selection type: " + selectionType);
-		System.out.println("- paging from:" + startHit);
-		System.out.println("- paging num:" + numHits);
-		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getQAAddresses(plugId, whichWorkState, selectionType,
-				startHit, numHits, myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
-		if (result != null) {
-			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
-			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
-			for (Object o : l) {
-				System.out.println(o);				
-			}
 		} else {
 			handleError(response);
 		}
@@ -2170,8 +2093,126 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument getWorkObjects(IdcWorkEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getWorkObjects ######");
+		System.out.println("- selection type: " + selectionType);
+		System.out.println("- order by: " + orderBy + ", ASC: " + orderAsc);
+		System.out.println("- paging from:" + startHit);
+		System.out.println("- paging num:" + numHits);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.getWorkObjects(plugId,
+				selectionType, orderBy, orderAsc, 
+				startHit, numHits, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
+			boolean tmpOutput = this.doFullOutput;
+			setFullOutput(false);
+			for (IngridDocument oDoc : l) {
+				debugObjectDoc(oDoc);
+			}
+			setFullOutput(tmpOutput);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	/**
+	 * @param whichWorkState only return objects in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all objects
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 */
+	public IngridDocument getQAObjects(WorkState whichWorkState,
+			IdcQAEntitiesSelectionType selectionType,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getQAObjects ######");
+		System.out.println("- work state: " + whichWorkState);
+		System.out.println("- selection type: " + selectionType);
+		System.out.println("- paging from:" + startHit);
+		System.out.println("- paging num:" + numHits);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerObject.getQAObjects(plugId, whichWorkState, selectionType, 
+				startHit, numHits, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
+			for (Object o : l) {
+				System.out.println(o);				
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	/**
+	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
+	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 */
+	public IngridDocument getQAAddresses(WorkState whichWorkState,
+			IdcQAEntitiesSelectionType selectionType,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getQAAddresses ######");
+		System.out.println("- work state: " + whichWorkState);
+		System.out.println("- selection type: " + selectionType);
+		System.out.println("- paging from:" + startHit);
+		System.out.println("- paging num:" + numHits);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.getQAAddresses(plugId, whichWorkState, selectionType,
+				startHit, numHits, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
+			for (Object o : l) {
+				System.out.println(o);				
+			}
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	public IngridDocument getObjectStatistics(String uuidIn,
-			IdcEntitySelectionType whichType,
+			IdcStatisticsSelectionType whichType,
 			int startHit, int numHits) {
 		long startTime;
 		long endTime;
@@ -2200,7 +2241,7 @@ public class MdekExampleSupertool {
 	}
 
 	public IngridDocument getAddressStatistics(String uuidIn, boolean onlyFreeAddresses,
-			IdcEntitySelectionType whichType,
+			IdcStatisticsSelectionType whichType,
 			int startHit, int numHits) {
 		long startTime;
 		long endTime;
@@ -2287,7 +2328,7 @@ public class MdekExampleSupertool {
 		}
 	}
 
-	public String extractModUserData(IngridDocument inDoc) {
+	public String extractUserData(IngridDocument inDoc) {
 		if (inDoc == null) {
 			return null; 
 		}
@@ -2318,7 +2359,7 @@ public class MdekExampleSupertool {
 			+ ", expiry: " + c.get(MdekKeys.EXPIRY_DURATION)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)c.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)c.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUser: " + extractModUserData((IngridDocument)c.get(MdekKeys.MOD_USER))
+			+ ", modUser: " + extractUserData((IngridDocument)c.get(MdekKeys.MOD_USER))
 		);
 
 		if (!doFullOutput) {
@@ -2339,7 +2380,7 @@ public class MdekExampleSupertool {
 			+ ", organisation: " + u.get(MdekKeys.ORGANISATION)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)u.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)u.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUuid: " + extractModUserData((IngridDocument)u.get(MdekKeys.MOD_USER))
+			+ ", modUuid: " + extractUserData((IngridDocument)u.get(MdekKeys.MOD_USER))
 		);
 
 		if (!doFullOutput) {
@@ -2356,7 +2397,7 @@ public class MdekExampleSupertool {
 			+ ", " + g.get(MdekKeys.NAME)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUuid: " + extractModUserData((IngridDocument)g.get(MdekKeys.MOD_USER))
+			+ ", modUuid: " + extractUserData((IngridDocument)g.get(MdekKeys.MOD_USER))
 		);
 
 		if (!doFullOutput) {
@@ -2423,16 +2464,18 @@ public class MdekExampleSupertool {
 	private void debugObjectDoc(IngridDocument o) {
 		System.out.println("Object: " + o.get(MdekKeys.ID) 
 			+ ", " + o.get(MdekKeys.UUID)
+			+ ", class: " + o.get(MdekKeys.CLASS)
 			+ ", " + o.get(MdekKeys.TITLE)
 			+ ", marked deleted: " + o.get(MdekKeys.MARK_DELETED)
 		);
 		System.out.println("        "
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
-			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
+			+ ", modUser: " + extractUserData((IngridDocument)o.get(MdekKeys.MOD_USER))
+			+ ", respUser: " + extractUserData((IngridDocument)o.get(MdekKeys.RESPONSIBLE_USER))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUser: " + extractModUserData((IngridDocument)o.get(MdekKeys.MOD_USER))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
-			+ ", cat_id: " + o.get(MdekKeys.CATALOGUE_IDENTIFIER)
+			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
+//			+ ", cat_id: " + o.get(MdekKeys.CATALOGUE_IDENTIFIER)
 		);
 
 		System.out.println("  " + o);
@@ -2714,7 +2757,7 @@ public class MdekExampleSupertool {
 		System.out.println("         "
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, a.get(MdekKeys.WORK_STATE))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", modUser: " + extractModUserData((IngridDocument)a.get(MdekKeys.MOD_USER))
+			+ ", modUser: " + extractUserData((IngridDocument)a.get(MdekKeys.MOD_USER))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
 		);
 
@@ -2953,6 +2996,15 @@ public class MdekExampleSupertool {
 		tmpDoc.put(MdekKeys.CREATE_USER, createUserDoc);
 		docList.add(tmpDoc);
 		entityDoc.put(MdekKeys.COMMENT_LIST, docList);
+	}
+	
+	public void setResponsibleUser(IngridDocument entityDoc, String userUuid) {
+		IngridDocument userDoc = (IngridDocument) entityDoc.get(MdekKeys.RESPONSIBLE_USER);
+		if (userDoc == null) {
+			userDoc = new IngridDocument();
+			entityDoc.put(MdekKeys.RESPONSIBLE_USER, userDoc);
+		}
+		userDoc.put(MdekKeys.UUID, userUuid);
 	}
 	
 	/** Creates default new Object Document including required default data */

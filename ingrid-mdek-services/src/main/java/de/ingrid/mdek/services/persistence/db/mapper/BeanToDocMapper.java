@@ -392,11 +392,9 @@ public class BeanToDocMapper implements IMapper {
 	 * Quantity determines how much (only uuid or address data). */
 	public IngridDocument mapModUser(String userAddrUuid, IngridDocument inDoc,
 			MappingQuantity howMuch) {
-		IngridDocument userDoc = new IngridDocument();
-		// we don't throw Exception if user doesn't exist, caused problems, because mod-user
+		// we don't throw Exception if mod user doesn't exist, caused problems, because mod-user
 		// isn't checked (and should not ?) when address is deleted 
-		mapUserAddress(userAddrUuid, userDoc, howMuch, false);
-
+		IngridDocument userDoc = mapUserAddress(userAddrUuid, new IngridDocument(), howMuch, false);
 		inDoc.put(MdekKeys.MOD_USER, userDoc);
 
 		return inDoc;
@@ -406,9 +404,16 @@ public class BeanToDocMapper implements IMapper {
 	 * Quantity determines how much (only uuid or address data). */
 	public IngridDocument mapResponsibleUser(String userAddrUuid, IngridDocument inDoc,
 			MappingQuantity howMuch) {
-		IngridDocument userDoc = new IngridDocument();
-		mapUserAddress(userAddrUuid, userDoc, howMuch, true);
+		// we throw Exception if responsible user doesn't exist ! 
+		IngridDocument userDoc = mapUserAddress(userAddrUuid, new IngridDocument(), howMuch, true);
+		inDoc.put(MdekKeys.RESPONSIBLE_USER, userDoc);
 
+		return inDoc;
+	}
+
+	/** Set passed address as responsible user in passed doc. Map full address data */
+	public IngridDocument mapResponsibleUser(T02Address aUser, IngridDocument inDoc) {
+		IngridDocument userDoc = mapT02Address(aUser, new IngridDocument(), MappingQuantity.BASIC_ENTITY);			
 		inDoc.put(MdekKeys.RESPONSIBLE_USER, userDoc);
 
 		return inDoc;

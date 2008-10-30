@@ -15,8 +15,11 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
-import de.ingrid.mdek.MdekUtils.IdcEntitySelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -24,6 +27,7 @@ import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
@@ -492,8 +496,105 @@ public class ObjectNodeDaoHibernate
 		return retList;
 	}
 
+	public IngridDocument getWorkObjects(String userUuid,
+			IdcWorkEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+
+		// default result
+		IngridDocument defaultResult = new IngridDocument();
+		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, new Long(0));
+		defaultResult.put(MdekKeys.OBJ_ENTITIES, new ArrayList<ObjectNode>());
+		
+		if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
+			return getWorkObjectsExpired(userUuid, orderBy, orderAsc, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
+			
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+			
+		}
+
+		return defaultResult;
+	}
+
+	private IngridDocument getWorkObjectsExpired(String userUuid,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"o.responsibleUuid = '"+ userUuid +"' " +
+			"and oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(oNode) " +
+			"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork o " +
+				"inner join o.objectMetadata oMeta " + qCriteria;
+
+		// query string for fetching results ! also fetch detailed responsible user ! 
+		String qStringSelect = "from " +
+			"ObjectNode oNode " +
+				"inner join fetch oNode.t01ObjectWork o " +
+				"inner join fetch o.objectMetadata oMeta, " +
+			"AddressNode as aNode " +
+				"inner join fetch aNode.t02AddressWork a " + 
+			qCriteria + " and o.responsibleUuid = aNode.addrUuid";
+
+		// order by: default is date
+		String qOrderBy = " order by o.modTime ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by o.objClass ";
+		} else  if (orderBy == IdcEntityOrderBy.NAME) {
+			qOrderBy = " order by o.objName ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy = " order by a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
+		qStringSelect += qOrderBy;
+		
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK objects: " + qStringCount);
+		}
+		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities (object and responsible user address)
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
+		}
+		List<Object[]> objsAndAddress = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// extract objects and addresses (responsible user) from query result list
+		List<ObjectNode> oNodes = new ArrayList<ObjectNode>();
+		List<AddressNode> aNodes = new ArrayList<AddressNode>();
+		for (Object[] objAndAddr : (List<Object[]>) objsAndAddress) {
+			oNodes.add((ObjectNode) objAndAddr[0]);
+			aNodes.add((AddressNode) objAndAddr[1]);
+		}
+
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
+		result.put(MdekKeys.ADR_ENTITIES, aNodes);
+		
+		return result;
+	}
+
 	public IngridDocument getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {
 
 		// default result
@@ -507,14 +608,14 @@ public class ObjectNodeDaoHibernate
 		}
 
 		if (isCatAdmin) {
-			return getObjects(null, null, whichWorkState, selectionType, startHit, numHits);
+			return getQAObjects(null, null, whichWorkState, selectionType, startHit, numHits);
 		} else {
 			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, startHit, numHits);			
 		}
 	}
 
 	/**
-	 * Get ALL Objects where given user is QA and objects WORKING VERSION match passed selection criteria.
+	 * QA PAGE: Get ALL Objects where given user is QA and objects WORKING VERSION match passed selection criteria.
 	 * The QA objects are determined via assigned objects in QA group of user.
 	 * All sub-objects of "write-tree" objects are included !
 	 * We return nodes, so we can evaluate whether published version exists ! 
@@ -526,7 +627,7 @@ public class ObjectNodeDaoHibernate
 	 * @return doc encapsulating total number for paging and list of nodes
 	 */
 	private IngridDocument getQAObjectsViaGroup(String userUuid,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {
 		Session session = getSession();
 
@@ -570,14 +671,14 @@ public class ObjectNodeDaoHibernate
 			}
 		}
 
-		return getObjects(objUuidsWriteSingle,
+		return getQAObjects(objUuidsWriteSingle,
 				objUuidsWriteTree,
 				whichWorkState, selectionType,
 				startHit, numHits);
 	}
 
 	/**
-	 * Get ALL Objects matching passed selection criteria.
+	 * QA PAGE: Get ALL Objects where user has write permission matching passed selection criteria
 	 * We return nodes, so we can evaluate whether published version exists !
 	 * @param objUuidsWriteSingle list of object uuids where user has single write permission, pass null if all objects
 	 * @param objUuidsWriteTree list of object uuids where user has tree write permission, pass null if all objects
@@ -587,9 +688,9 @@ public class ObjectNodeDaoHibernate
 	 * @param numHits paging: number of hits requested, beginning from startHit
 	 * @return doc encapsulating total number for paging and list of nodes
 	 */
-	private IngridDocument getObjects(List<String> objUuidsWriteSingle,
+	private IngridDocument getQAObjects(List<String> objUuidsWriteSingle,
 			List<String> objUuidsWriteTree,
-			WorkState whichWorkState, IdcEntitySelectionType selectionType,
+			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
 
@@ -632,9 +733,9 @@ public class ObjectNodeDaoHibernate
 				if (addAnd) {
 					qStringCriteria += " and ";
 				}
-				if (selectionType == IdcEntitySelectionType.QA_EXPIRY_STATE_EXPIRED) {
+				if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 					qStringCriteria += "oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcEntitySelectionType.QA_SPATIAL_RELATIONS_UPDATED) {
+				} else if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_RELATIONS_UPDATED) {
 					// TODO: Add when implementing catalog management sns update !
 					return result;
 				} else {
@@ -732,15 +833,15 @@ public class ObjectNodeDaoHibernate
 	}
 
 	public IngridDocument getObjectStatistics(String parentUuid,
-			IdcEntitySelectionType selectionType,
+			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
 
-		if (selectionType == IdcEntitySelectionType.STATISTICS_CLASSES_AND_STATES) {
+		if (selectionType == IdcStatisticsSelectionType.CLASSES_AND_STATES) {
 			result = getObjectStatistics_classesAndStates(parentUuid);
 
-		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE ||
-				selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE ||
+				selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			result = getObjectStatistics_searchterms(parentUuid, startHit, numHits, selectionType);
 		}
 		
@@ -795,7 +896,7 @@ public class ObjectNodeDaoHibernate
 
 	private IngridDocument getObjectStatistics_searchterms(String parentUuid,
 			int startHit, int numHits,
-			IdcEntitySelectionType selectionType) {
+			IdcStatisticsSelectionType selectionType) {
 
 		IngridDocument result = new IngridDocument();
 		
@@ -809,9 +910,9 @@ public class ObjectNodeDaoHibernate
 				"inner join obj.searchtermObjs searchtObj " +
 				"inner join searchtObj.searchtermValue searchtVal " +
 			"where ";
-		if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_FREE) {
+		if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE) {
 			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
-		} else if (selectionType == IdcEntitySelectionType.STATISTICS_SEARCHTERMS_THESAURUS) {
+		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			qStringFromWhere += " searchtVal.type = '" + SearchtermType.THESAURUS.getDbValue() + "' ";			
 		}
 
