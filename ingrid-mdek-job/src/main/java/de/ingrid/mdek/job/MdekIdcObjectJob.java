@@ -40,7 +40,6 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
@@ -319,7 +318,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					startHit, numHits);
 
 			List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
-			List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 
 			// map found objects and related user addresses to docs
@@ -334,12 +332,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				// map details according to selection !
 				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED ||
 					selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
-					// query already returns mod user when ordered by user ! 
-					if (aNs != null) {
-						T02Address aUser = aNs.get(i).getT02AddressWork();
-						beanToDocMapper.mapModUser(aUser, objDoc);						
-					} else {
-						beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+					// map mod user
+					AddressNode modAddressNode = o.getAddressNodeMod();
+					if (modAddressNode != null) {
+						beanToDocMapper.mapModUser(modAddressNode.getT02AddressWork(), objDoc);						
 					}
 				}
 				if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED ||

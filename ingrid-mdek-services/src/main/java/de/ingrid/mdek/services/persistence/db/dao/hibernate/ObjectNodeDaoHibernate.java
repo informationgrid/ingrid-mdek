@@ -27,7 +27,6 @@ import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
-import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
@@ -538,16 +537,9 @@ public class ObjectNodeDaoHibernate
 		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectWork o " +
-				"inner join fetch o.objectMetadata oMeta ";
-		//  also fetch mod user for ordering when necessary !
-		if (orderBy == IdcEntityOrderBy.USER) {
-			qStringSelect += ", AddressNode as aNode " +
-				"inner join fetch aNode.t02AddressWork a " + 
-			qCriteria + " and o.modUuid = aNode.addrUuid";
-		} else {
-			qStringSelect += qCriteria;
-			
-		}
+				"inner join fetch o.objectMetadata oMeta " +
+				"left join fetch o.addressNodeMod aNode " +
+				"left join fetch aNode.t02AddressWork a " + qCriteria;
 
 		// order by: default is date
 		String qOrderBy = " order by o.modTime ";
@@ -582,29 +574,15 @@ public class ObjectNodeDaoHibernate
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
 		}
-		List qResultList = session.createQuery(qStringSelect)
+		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
 	
-		// extract objects from query result list. NOTICE: result contains user when order by user !
-		List<ObjectNode> oNodes = new ArrayList<ObjectNode>();
-		List<AddressNode> aNodes = null;
-		if (orderBy != IdcEntityOrderBy.USER) {
-			oNodes = (List<ObjectNode>) qResultList;
-		} else {
-			aNodes = new ArrayList<AddressNode>();
-			for (Object[] objAndAddr : (List<Object[]>) qResultList) {
-				oNodes.add((ObjectNode) objAndAddr[0]);
-				aNodes.add((AddressNode) objAndAddr[1]);
-			}
-		}
-
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-		result.put(MdekKeys.ADR_ENTITIES, aNodes);
 		
 		return result;
 	}

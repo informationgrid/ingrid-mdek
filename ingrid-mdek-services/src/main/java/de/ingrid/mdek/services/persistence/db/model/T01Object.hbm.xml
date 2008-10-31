@@ -166,6 +166,14 @@
       </set>
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
                    insert="false"/>
+      <many-to-one name="addressNodeResponsible" class="AddressNode" column="responsible_uuid"
+                   property-ref="addrUuid"
+                   update="false"
+                   insert="false"/>
+      <many-to-one name="addressNodeMod" class="AddressNode" column="mod_uuid"
+                   property-ref="addrUuid"
+                   update="false"
+                   insert="false"/>
       <many-to-one name="objectMetadata" class="ObjectMetadata" column="obj_metadata_id"
                    update="false"
                    insert="false"

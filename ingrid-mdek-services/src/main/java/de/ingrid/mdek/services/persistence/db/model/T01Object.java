@@ -70,6 +70,8 @@ public class T01Object implements IEntity {
 	private Set t015Legists = new HashSet();
 	private Set t017UrlRefs = new HashSet();
 	private T03Catalogue t03Catalogue;
+	private AddressNode addressNodeResponsible;
+	private AddressNode addressNodeMod;
 	private ObjectMetadata objectMetadata;
 	private Set t08Attrs = new HashSet();
 
@@ -570,6 +572,22 @@ public class T01Object implements IEntity {
 
 	public void setT03Catalogue(T03Catalogue t03Catalogue) {
 		this.t03Catalogue = t03Catalogue;
+	}
+
+	public AddressNode getAddressNodeResponsible() {
+		return addressNodeResponsible;
+	}
+
+	public void setAddressNodeResponsible(AddressNode addressNodeResponsible) {
+		this.addressNodeResponsible = addressNodeResponsible;
+	}
+
+	public AddressNode getAddressNodeMod() {
+		return addressNodeMod;
+	}
+
+	public void setAddressNodeMod(AddressNode addressNodeMod) {
+		this.addressNodeMod = addressNodeMod;
 	}
 
 	public ObjectMetadata getObjectMetadata() {
