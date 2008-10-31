@@ -329,6 +329,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
 
+				// DEBUGGING for tests !
+				if (log.isDebugEnabled()) {
+					// map some user uuids for debugging on client side !
+					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.INITIAL_ENTITY);
+					beanToDocMapper.mapResponsibleUser(o.getResponsibleUuid(), objDoc, MappingQuantity.INITIAL_ENTITY);
+				}
+
 				// map details according to selection !
 				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED ||
 					selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
@@ -343,7 +350,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					beanToDocMapper.mapUserOperation(oN, objDoc);
 				}
 				if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
-					// assigner user !
+					// map assigner user !
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				}
 

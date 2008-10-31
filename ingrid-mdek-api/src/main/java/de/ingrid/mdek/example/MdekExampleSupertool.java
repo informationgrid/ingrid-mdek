@@ -84,6 +84,7 @@ public class MdekExampleSupertool {
 	public void setCallingUser(String callingUserUuid)
 	{
 		this.myUserUuid = callingUserUuid;
+		System.out.println("\n###### NEW CALLING USER = " + callingUserUuid + " ######");		
 	}
 	public String getCallingUserUuid()
 	{
@@ -2472,6 +2473,7 @@ public class MdekExampleSupertool {
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
 			+ ", modUser: " + extractUserData((IngridDocument)o.get(MdekKeys.MOD_USER))
 			+ ", respUser: " + extractUserData((IngridDocument)o.get(MdekKeys.RESPONSIBLE_USER))
+			+ ", assignerUser: " + extractUserData((IngridDocument)o.get(MdekKeys.ASSIGNER_USER))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
 			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))

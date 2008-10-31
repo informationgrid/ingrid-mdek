@@ -17,6 +17,7 @@ public class ObjectMetadata implements IEntity {
 	private String reassignerUuid;
 	private String reassignTime;
 
+	private AddressNode addressNodeAssigner;
 
 	public ObjectMetadata() {}
 
@@ -92,5 +93,13 @@ public class ObjectMetadata implements IEntity {
 		this.reassignTime = reassignTime;
 	}
 
+
+	public AddressNode getAddressNodeAssigner() {
+		return addressNodeAssigner;
+	}
+
+	public void setAddressNodeAssigner(AddressNode addressNodeAssigner) {
+		this.addressNodeAssigner = addressNodeAssigner;
+	}
 
 }

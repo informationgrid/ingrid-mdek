@@ -427,6 +427,17 @@ public class BeanToDocMapper implements IMapper {
 		return inDoc;
 	}
 
+	/** Set passed user as assigner user (to QA) in passed doc.
+	 * Quantity determines how much (only uuid or address data). */
+	public IngridDocument mapAssignerUser(String userAddrUuid, IngridDocument inDoc,
+			MappingQuantity howMuch) {
+		// we throw Exception if responsible user doesn't exist ! 
+		IngridDocument userDoc = mapUserAddress(userAddrUuid, new IngridDocument(), howMuch, false);
+		inDoc.put(MdekKeys.ASSIGNER_USER, userDoc);
+
+		return inDoc;
+	}
+
 	private IngridDocument mapUserAddress(String userAddrUuid, IngridDocument inDoc,
 			MappingQuantity howMuch,
 			boolean throwException) {
@@ -532,11 +543,8 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.REASSIGNER_UUID, ref.getReassignerUuid());
 		refDoc.put(MdekKeys.REASSIGN_TIME, ref.getReassignTime());
 
-		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
-			IngridDocument userDoc = new IngridDocument();
-			mapUserAddress(ref.getAssignerUuid(), userDoc, howMuch, false);
-			refDoc.put(MdekKeys.ASSIGNER_USER, userDoc);
-		}
+		// also detailed assigner user if requested !
+		mapAssignerUser(ref.getAssignerUuid(), refDoc, howMuch);
 
 		return refDoc;
 	}
@@ -1705,11 +1713,8 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.REASSIGNER_UUID, ref.getReassignerUuid());
 		refDoc.put(MdekKeys.REASSIGN_TIME, ref.getReassignTime());
 
-		if (howMuch == MappingQuantity.DETAIL_ENTITY) {
-			IngridDocument userDoc = new IngridDocument();
-			mapUserAddress(ref.getAssignerUuid(), userDoc, howMuch, false);
-			refDoc.put(MdekKeys.ASSIGNER_USER, userDoc);
-		}
+		// also detailed assigner user if requested !
+		mapAssignerUser(ref.getAssignerUuid(), refDoc, howMuch);
 
 		return refDoc;
 	}

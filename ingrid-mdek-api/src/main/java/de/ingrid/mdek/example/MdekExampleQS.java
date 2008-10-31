@@ -500,12 +500,13 @@ class MdekExampleQSThread extends Thread {
 		supertool.setResponsibleUser(doc, usrGrpQAUuid);
 		supertool.storeObject(doc, true);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
-		supertool.setCallingUser(catalogAdminUuid);
-
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- WORK/RESPONSIBLE PAGE: EXPIRED OBJECTS (1. Table) -----");
+		System.out.println("---------------------------------------------");
+		
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- CATADMIN: GET \"modified\" OBJECTS -> EXPIRED -----");
+		System.out.println("----- CATADMIN: get EXPIRED Objects -----");
+		supertool.setCallingUser(catalogAdminUuid);
 
 		int maxNum = 50;
 
@@ -519,16 +520,74 @@ class MdekExampleQSThread extends Thread {
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.DATE, true, 0, maxNum);
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.DATE, false, 0, maxNum);
 
-		System.out.println("\n-------------------------------------");
-		System.out.println("----- !!! SWITCH \"CALLING USER\" TO MD_ADMIN -----");
-		supertool.setCallingUser(usrGrpQAUuid);
-
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- MDADMIN: GET \"modified\" OBJECTS -> EXPIRED -----");
+		System.out.println("----- MDADMIN: get EXPIRED Objects -----");
+		supertool.setCallingUser(usrGrpQAUuid);
 
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
+		System.out.println("----- WORK/RESPONSIBLE PAGE: MODIFIED OBJECTS (2. Table) -----");
+		System.out.println("---------------------------------------------");
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get MODIFIED Objects -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, true, 1, 1);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.NAME, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.NAME, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.USER, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.USER, false, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get MODIFIED Objects -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- WORK/RESPONSIBLE PAGE: IN_QA_WORKFLOW OBJECTS (3. Table) -----");
+		System.out.println("---------------------------------------------");
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- Set up test data -----");
+
+		System.out.println("\n----- assign to QA -> working copy with status Q ! -----");
+		doc = supertool.fetchObject(topObjUuid, Quantity.DETAIL_ENTITY);
+		supertool.assignObjectToQA(doc, true);
+
+		System.out.println("\n----- assign to QA and reassign -> working copy with status R ! -----");
+		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.assignObjectToQA(doc, true);
+		supertool.reassignObjectToAuthor(doc, true);
+
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get IN_QA_WORKFLOW Objects -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 1, 1);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.NAME, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.NAME, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.USER, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.USER, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.STATE, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.STATE, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.DATE, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.DATE, false, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get IN_QA_WORKFLOW Objects -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+
+		System.out.println("\n\n---------------------------------------------");
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(topObjUuid, true);
 		supertool.deleteObjectWorkingCopy(topObjUuid2, true);
@@ -539,6 +598,10 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n\n=============================================");
 		System.out.println("----- ASSIGN EXISTING OBJECT TO QA -----");
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n----- object details -----");
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);

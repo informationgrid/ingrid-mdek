@@ -508,9 +508,9 @@ public class ObjectNodeDaoHibernate
 		if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
 			return getWorkObjectsExpired(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
-			
+			return getWorkObjectsModified(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
-			
+			return getWorkObjectsInQAWorkflow(userUuid, orderBy, orderAsc, startHit, numHits);
 		}
 
 		return defaultResult;
@@ -557,6 +557,147 @@ public class ObjectNodeDaoHibernate
 			qOrderBy += ", a.lastname ";
 			qOrderBy += orderAsc ? " asc " : " desc ";
 			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
+		qStringSelect += qOrderBy;
+		
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK objects: " + qStringCount);
+		}
+		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities (object and responsible user address)
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
+		}
+		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
+		
+		return result;
+	}
+
+	private IngridDocument getWorkObjectsModified(String userUuid,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' " +
+			"and (o.modUuid = '" + userUuid + "' or o.responsibleUuid = '" + userUuid + "') ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(oNode) " +
+			"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork o " + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from ObjectNode oNode " +
+				"inner join fetch oNode.t01ObjectWork o " +
+				"left join fetch o.addressNodeMod aNode " +
+				"left join fetch aNode.t02AddressWork a " + qCriteria;
+
+		// order by: default is name
+		String qOrderBy = " order by o.objName ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by o.objClass ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.objName ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.objName ";
+		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
+		qStringSelect += qOrderBy;
+		
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK objects: " + qStringCount);
+		}
+		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities (object and responsible user address)
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
+		}
+		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
+		
+		return result;
+	}
+
+	private IngridDocument getWorkObjectsInQAWorkflow(String userUuid,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"(o.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
+				"o.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
+			"and (oMeta.assignerUuid = '" + userUuid + "' or o.responsibleUuid = '" + userUuid + "') ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(oNode) " +
+			"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork o " +
+				"inner join o.objectMetadata oMeta " + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from ObjectNode oNode " +
+				"inner join fetch oNode.t01ObjectWork o " +
+				"inner join fetch o.objectMetadata oMeta " +
+				"left join fetch oMeta.addressNodeAssigner aNode " +
+				"left join fetch aNode.t02AddressWork a " + qCriteria;
+
+		// order by: default is date
+		String qOrderBy = " order by o.modTime ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by o.objClass ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.NAME) {
+			qOrderBy = " order by o.objName ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.STATE) {
+			qOrderBy = " order by o.workState ";
 			qOrderBy += orderAsc ? " asc " : " desc ";
 			qOrderBy += ", o.modTime ";
 		}
