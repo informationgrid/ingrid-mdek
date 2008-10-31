@@ -327,24 +327,28 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			for (int i=0; i < oNs.size(); i++) {
 				ObjectNode oN = oNs.get(i);
 				T01Object o = oN.getT01ObjectWork();
-				T02Address aUser = aNs.get(i).getT02AddressWork();
 
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
 
 				// map details according to selection !
-				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
-					beanToDocMapper.mapResponsibleUser(aUser, objDoc);
-					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED ||
+					selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
+					// query already returns mod user when ordered by user ! 
+					if (aNs != null) {
+						T02Address aUser = aNs.get(i).getT02AddressWork();
+						beanToDocMapper.mapModUser(aUser, objDoc);						
+					} else {
+						beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+					}
 				}
-				if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
-					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED ||
+					selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
 					beanToDocMapper.mapUserOperation(oN, objDoc);
 				}
 				if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
 					// assigner user !
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
-					beanToDocMapper.mapUserOperation(oN, objDoc);
 				}
 
 				oNDocs.add(objDoc);

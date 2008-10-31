@@ -400,6 +400,14 @@ public class BeanToDocMapper implements IMapper {
 		return inDoc;
 	}
 
+	/** Set passed address as mod user in passed doc. Map full address data */
+	public IngridDocument mapModUser(T02Address aUser, IngridDocument inDoc) {
+		IngridDocument userDoc = mapT02Address(aUser, new IngridDocument(), MappingQuantity.BASIC_ENTITY);			
+		inDoc.put(MdekKeys.MOD_USER, userDoc);
+
+		return inDoc;
+	}
+
 	/** Set passed user as responsible user in passed doc.
 	 * Quantity determines how much (only uuid or address data). */
 	public IngridDocument mapResponsibleUser(String userAddrUuid, IngridDocument inDoc,

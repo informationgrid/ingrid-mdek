@@ -535,27 +535,38 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectWork o " +
 				"inner join o.objectMetadata oMeta " + qCriteria;
 
-		// query string for fetching results ! also fetch detailed responsible user ! 
-		String qStringSelect = "from " +
-			"ObjectNode oNode " +
+		// query string for fetching results ! 
+		String qStringSelect = "from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectWork o " +
-				"inner join fetch o.objectMetadata oMeta, " +
-			"AddressNode as aNode " +
+				"inner join fetch o.objectMetadata oMeta ";
+		//  also fetch mod user for ordering when necessary !
+		if (orderBy == IdcEntityOrderBy.USER) {
+			qStringSelect += ", AddressNode as aNode " +
 				"inner join fetch aNode.t02AddressWork a " + 
-			qCriteria + " and o.responsibleUuid = aNode.addrUuid";
+			qCriteria + " and o.modUuid = aNode.addrUuid";
+		} else {
+			qStringSelect += qCriteria;
+			
+		}
 
 		// order by: default is date
 		String qOrderBy = " order by o.modTime ";
 		if (orderBy == IdcEntityOrderBy.CLASS) {
 			qOrderBy = " order by o.objClass ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
 		} else  if (orderBy == IdcEntityOrderBy.NAME) {
 			qOrderBy = " order by o.objName ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
 		} else  if (orderBy == IdcEntityOrderBy.USER) {
 			qOrderBy = " order by a.institution ";
 			qOrderBy += orderAsc ? " asc " : " desc ";
-			qOrderBy = " order by a.lastname ";
+			qOrderBy += ", a.lastname ";
 			qOrderBy += orderAsc ? " asc " : " desc ";
 			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
 		}
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
@@ -571,17 +582,22 @@ public class ObjectNodeDaoHibernate
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
 		}
-		List<Object[]> objsAndAddress = session.createQuery(qStringSelect)
+		List qResultList = session.createQuery(qStringSelect)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
 	
-		// extract objects and addresses (responsible user) from query result list
+		// extract objects from query result list. NOTICE: result contains user when order by user !
 		List<ObjectNode> oNodes = new ArrayList<ObjectNode>();
-		List<AddressNode> aNodes = new ArrayList<AddressNode>();
-		for (Object[] objAndAddr : (List<Object[]>) objsAndAddress) {
-			oNodes.add((ObjectNode) objAndAddr[0]);
-			aNodes.add((AddressNode) objAndAddr[1]);
+		List<AddressNode> aNodes = null;
+		if (orderBy != IdcEntityOrderBy.USER) {
+			oNodes = (List<ObjectNode>) qResultList;
+		} else {
+			aNodes = new ArrayList<AddressNode>();
+			for (Object[] objAndAddr : (List<Object[]>) qResultList) {
+				oNodes.add((ObjectNode) objAndAddr[0]);
+				aNodes.add((AddressNode) objAndAddr[1]);
+			}
 		}
 
 		// return results
