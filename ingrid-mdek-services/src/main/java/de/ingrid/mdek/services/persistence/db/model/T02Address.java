@@ -38,6 +38,8 @@ public class T02Address implements IEntity {
 	private Set searchtermAdrs = new HashSet();
 	private Set t021Communications = new HashSet();
 	private AddressMetadata addressMetadata;
+	private AddressNode addressNodeResponsible;
+	private AddressNode addressNodeMod;
 
 	public T02Address() {}
 
@@ -280,6 +282,22 @@ public class T02Address implements IEntity {
 
 	public void setAddressMetadata(AddressMetadata addressMetadata) {
 		this.addressMetadata = addressMetadata;
+	}
+
+	public AddressNode getAddressNodeResponsible() {
+		return addressNodeResponsible;
+	}
+
+	public void setAddressNodeResponsible(AddressNode addressNodeResponsible) {
+		this.addressNodeResponsible = addressNodeResponsible;
+	}
+
+	public AddressNode getAddressNodeMod() {
+		return addressNodeMod;
+	}
+
+	public void setAddressNodeMod(AddressNode addressNodeMod) {
+		this.addressNodeMod = addressNodeMod;
 	}
 
 }

@@ -227,6 +227,14 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, o.getCatId());
 		objectDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
 
+		if (howMuch == MappingQuantity.TREE_ENTITY ||
+			howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY) 
+		{
+			// mark deleted also needed in "tree view"
+			mapObjectMetadata(o.getObjectMetadata(), objectDoc, MappingQuantity.INITIAL_ENTITY);			
+		}
+
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY) 
 		{
@@ -290,7 +298,6 @@ public class BeanToDocMapper implements IMapper {
 			mapT08Attrs(o.getT08Attrs(), objectDoc);
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
-			mapObjectMetadata(o.getObjectMetadata(), objectDoc, MappingQuantity.INITIAL_ENTITY);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -347,6 +354,14 @@ public class BeanToDocMapper implements IMapper {
 		addressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
 		addressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
 
+		if (howMuch == MappingQuantity.TREE_ENTITY ||
+			howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_ENTITY)
+		{
+			// mark deleted also needed in "tree view"
+			mapAddressMetadata(a.getAddressMetadata(), addressDoc, MappingQuantity.INITIAL_ENTITY);
+		}
+
 		if (howMuch == MappingQuantity.TABLE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY)
@@ -374,7 +389,6 @@ public class BeanToDocMapper implements IMapper {
 			// map associations
 			mapSearchtermAdrs(a.getSearchtermAdrs(), addressDoc, howMuch);
 			mapAddressComments(a.getAddressComments(), addressDoc);
-			mapAddressMetadata(a.getAddressMetadata(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(a.getModUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);

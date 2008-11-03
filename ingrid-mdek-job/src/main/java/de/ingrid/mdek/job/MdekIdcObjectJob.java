@@ -97,7 +97,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			for (ObjectNode oN : oNs) {
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
-				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
 				
 				// add permissions the user has on given object !
 				List<Permission> perms = permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid, true);
@@ -131,7 +131,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			for (ObjectNode oN : oNs) {
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
-				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.BASIC_ENTITY);
+				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
 
 				// add permissions the user has on given object !
 				List<Permission> perms = permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid, true);

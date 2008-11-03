@@ -5,9 +5,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
 
@@ -250,6 +252,23 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
 		List jobMethods = mdekCaller.setUpJobMethod("searchAddresses", jobParams);
+
+		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getWorkAddresses(String plugId,
+			IdcWorkEntitiesSelectionType selectionType, 
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE, selectionType);
+		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_ORDER_BY, orderBy);
+		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_ORDER_ASC, orderAsc);
+		jobParams.put(MdekKeys.REQUESTINFO_START_HIT, startHit);
+		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("getWorkAddresses", jobParams);
 
 		return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}

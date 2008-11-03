@@ -203,14 +203,14 @@ public interface IMdekCallerObject {
 			String userId);
 
 	/**
-	 * WORK/RESPONSIBLE PAGE: Get ALL Objects where objects WORKING VERSION matches given selection criteria. 
+	 * WORK/RESPONSIBLE PAGE: Get ALL Objects where WORKING VERSION matches given selection criteria. 
 	 * @param plugId which mdek server (iplug)
 	 * @param selectionType selection criteria (see Enum)
 	 * @param orderBy how to order (see Enum)
 	 * @param orderAsc true=order ascending, false=order descending
 	 * @param startHit paging: hit to start with (first hit is 0)
 	 * @param numHits paging: number of hits requested, beginning from startHit
-	 * @return response containing result: map representation of object (only partial data)
+	 * @return response containing result: map representation of objects (only partial data)
 	 */
 	IngridDocument getWorkObjects(String plugId,
 			IdcWorkEntitiesSelectionType selectionType,
@@ -225,7 +225,7 @@ public interface IMdekCallerObject {
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects
 	 * @param startHit paging: hit to start with (first hit is 0)
 	 * @param numHits paging: number of hits requested, beginning from startHit
-	 * @return response containing result: map representation of object (only partial data)
+	 * @return response containing result: map representation of objects (only partial data)
 	 */
 	IngridDocument getQAObjects(String plugId,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,

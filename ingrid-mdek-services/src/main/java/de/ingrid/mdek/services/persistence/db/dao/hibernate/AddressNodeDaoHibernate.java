@@ -17,6 +17,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
@@ -648,6 +649,253 @@ public class AddressNodeDaoHibernate
 		return retList;
 	}
 
+	public IngridDocument getWorkAddresses(String userUuid,
+			IdcWorkEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+
+		// default result
+		IngridDocument defaultResult = new IngridDocument();
+		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, new Long(0));
+		defaultResult.put(MdekKeys.ADR_ENTITIES, new ArrayList<AddressNode>());
+		
+		if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
+			return getWorkAddressesExpired(userUuid, orderBy, orderAsc, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
+			return getWorkAddressesModified(userUuid, orderBy, orderAsc, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+			return getWorkAddressesInQAWorkflow(userUuid, orderBy, orderAsc, startHit, numHits);
+		}
+
+		return defaultResult;
+	}
+
+	private IngridDocument getWorkAddressesExpired(String userUuid,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"a.responsibleUuid = '"+ userUuid +"' " +
+			"and aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(aNode) " +
+			"from AddressNode aNode " +
+				"inner join aNode.t02AddressWork a " +
+				"inner join a.addressMetadata aMeta " + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from AddressNode aNode " +
+				"inner join fetch aNode.t02AddressWork a " +
+				"inner join fetch a.addressMetadata aMeta " +
+				"left join fetch a.addressNodeMod aNodeMod " +
+				"left join fetch aNodeMod.t02AddressWork aMod " + qCriteria;
+
+		// order by: default is date
+		String qOrderBy = " order by a.modTime ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by a.adrType ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.NAME) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by aMod.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aMod.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aMod.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
+		qStringSelect += qOrderBy;
+		
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK addresses: " + qStringCount);
+		}
+		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK addresses: " + qStringSelect);
+		}
+		List<AddressNode> aNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.ADR_ENTITIES, aNodes);
+		
+		return result;
+	}
+
+	private IngridDocument getWorkAddressesModified(String userUuid,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' " +
+			"and (a.modUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(aNode) " +
+			"from AddressNode aNode " +
+				"inner join aNode.t02AddressWork a " + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from AddressNode aNode " +
+				"inner join fetch aNode.t02AddressWork a " +
+				"left join fetch a.addressNodeMod aNodeUser " +
+				"left join fetch aNodeUser.t02AddressWork aUser " + qCriteria;
+
+		// order by: default is name
+		String qOrderName = " a.institution ";
+		qOrderName += orderAsc ? " asc " : " desc ";
+		qOrderName += ", a.lastname ";
+		qOrderName += orderAsc ? " asc " : " desc ";
+		qOrderName += ", a.firstname ";
+
+		String qOrderBy = " order by " + qOrderName;
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by a.adrType ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", " + qOrderName;
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by aUser.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aUser.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aUser.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", " + qOrderName;
+		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
+		qStringSelect += qOrderBy;
+		
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK addresses: " + qStringCount);
+		}
+		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK addresses: " + qStringSelect);
+		}
+		List<AddressNode> aNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.ADR_ENTITIES, aNodes);
+		
+		return result;
+	}
+
+	private IngridDocument getWorkAddressesInQAWorkflow(String userUuid,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"(a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
+				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
+			"and (aMeta.assignerUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(aNode) " +
+			"from AddressNode aNode " +
+				"inner join aNode.t02AddressWork a " +
+				"inner join a.addressMetadata aMeta " + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from AddressNode aNode " +
+				"inner join fetch aNode.t02AddressWork a " +
+				"inner join fetch a.addressMetadata aMeta " +
+				"left join fetch aMeta.addressNodeAssigner aNodeUser " +
+				"left join fetch aNodeUser.t02AddressWork aUser " + qCriteria;
+
+		// order by: default is date
+		String qOrderBy = " order by a.modTime ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by a.adrType ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.NAME) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by aUser.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aUser.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aUser.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.STATE) {
+			qOrderBy = " order by a.workState ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
+		qStringSelect += qOrderBy;
+		
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK addresses: " + qStringCount);
+		}
+		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK addresses: " + qStringSelect);
+		}
+		List<AddressNode> aNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.ADR_ENTITIES, aNodes);
+		
+		return result;
+	}
+
 	public IngridDocument getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {
@@ -663,14 +911,14 @@ public class AddressNodeDaoHibernate
 		}
 
 		if (isCatAdmin) {
-			return getAddresses(null, null, whichWorkState, selectionType, startHit, numHits);
+			return getQAAddresses(null, null, whichWorkState, selectionType, startHit, numHits);
 		} else {
 			return getQAAddressesViaGroup(userUuid, whichWorkState, selectionType, startHit, numHits);			
 		}
 	}
 
 	/**
-	 * Get ALL Addresses where given user is QA and addresses WORKING VERSION match passed selection criteria.
+	 * QA PAGE: Get ALL Addresses where given user is QA and addresses WORKING VERSION match passed selection criteria.
 	 * The QA addresses are determined via assigned addresses in QA group of user.
 	 * All sub-addresses of "write-tree" addresses are included !
 	 * We return nodes, so we can evaluate whether published version exists ! 
@@ -727,14 +975,14 @@ public class AddressNodeDaoHibernate
 			}
 		}
 
-		return getAddresses(addrUuidsWriteSingle,
+		return getQAAddresses(addrUuidsWriteSingle,
 				addrUuidsWriteTree,
 				whichWorkState, selectionType,
 				startHit, numHits);
 	}
 
 	/**
-	 * Get ALL Addresses matching passed selection criteria.
+	 * QA PAGE: Get ALL Addresses where user has write permission matching passed selection criteria
 	 * We return nodes, so we can evaluate whether published version exists !
 	 * @param addrUuidsWriteSingle list of address uuids where user has single write permission, pass null if all addresses
 	 * @param addrUuidsWriteTree list of address uuids where user has tree write permission, pass null if all addresses
@@ -744,7 +992,7 @@ public class AddressNodeDaoHibernate
 	 * @param numHits paging: number of hits requested, beginning from startHit
 	 * @return doc encapsulating total number for paging and list of nodes
 	 */
-	private IngridDocument getAddresses(List<String> addrUuidsWriteSingle,
+	private IngridDocument getQAAddresses(List<String> addrUuidsWriteSingle,
 			List<String> addrUuidsWriteTree,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
 			int startHit, int numHits) {

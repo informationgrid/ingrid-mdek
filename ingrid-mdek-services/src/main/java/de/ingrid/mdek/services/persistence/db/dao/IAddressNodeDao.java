@@ -3,9 +3,11 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.HashMap;
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -171,7 +173,22 @@ public interface IAddressNodeDao
 	List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid);
 
 	/**
-	 * Get ALL Addresses where given user is QA and addresses WORKING VERSION match passed selection criteria.
+	 * WORK/RESPONSIBLE PAGE: Get ALL Addresses where WORKING VERSION matches given selection criteria. 
+	 * We return nodes, so we can evaluate whether published version exists ! 
+	 * @param selectionType selection criteria (see Enum)
+	 * @param orderBy how to order (see Enum)
+	 * @param orderAsc true=order ascending, false=order descending
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return doc encapsulating total number for paging and list of nodes
+	 */
+	IngridDocument getWorkAddresses(String userUuid, 
+			IdcWorkEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits);
+
+	/**
+	 * QA PAGE: Get ALL Addresses where given user is QA and addresses WORKING VERSION matches given selection criteria.
 	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param userUuid QA user
 	 * @param isCatAdmin true = the user is the catadmin, has to be determined outside of this dao  
@@ -187,7 +204,7 @@ public interface IAddressNodeDao
 			int startHit, int numHits);
 
 	/**
-	 * Get statistics about address branch.
+	 * STATISTICS PAGE: Get statistics info about the tree branch of the given address.
 	 * @param parentUuid root of tree branch to get statistics from, pass null if whole catalog
 	 * @param onlyFreeAddresses only evaluated if passed parent is null -> 
 	 * 		true=only free addresses, false=all addresses (whole catalog)

@@ -53,6 +53,14 @@
                    insert="false"
                    unique="true"
                    cascade="all"/>
+      <many-to-one name="addressNodeResponsible" class="AddressNode" column="responsible_uuid"
+                   property-ref="addrUuid"
+                   update="false"
+                   insert="false"/>
+      <many-to-one name="addressNodeMod" class="AddressNode" column="mod_uuid"
+                   property-ref="addrUuid"
+                   update="false"
+                   insert="false"/>
    </class>
 
 </hibernate-mapping>

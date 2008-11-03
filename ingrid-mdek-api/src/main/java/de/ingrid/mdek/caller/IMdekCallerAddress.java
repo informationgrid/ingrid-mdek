@@ -1,8 +1,10 @@
 package de.ingrid.mdek.caller;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
 import de.ingrid.mdek.job.MdekException;
@@ -261,7 +263,23 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
-	 * Get ALL Addresses where given user is QA and addresses WORKING VERSION matches given selection criteria.
+	 * WORK/RESPONSIBLE PAGE: Get ALL Addresses where WORKING VERSION matches given selection criteria. 
+	 * @param plugId which mdek server (iplug)
+	 * @param selectionType selection criteria (see Enum)
+	 * @param orderBy how to order (see Enum)
+	 * @param orderAsc true=order ascending, false=order descending
+	 * @param startHit paging: hit to start with (first hit is 0)
+	 * @param numHits paging: number of hits requested, beginning from startHit
+	 * @return response containing result: map representation of addresses (only partial data)
+	 */
+	IngridDocument getWorkAddresses(String plugId,
+			IdcWorkEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits,
+			String userId);
+
+	/**
+	 * QA PAGE: Get ALL Addresses where given user is QA and addresses WORKING VERSION matches given selection criteria.
 	 * @param plugId which mdek server (iplug)
 	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
@@ -275,7 +293,7 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
-	 * Get statistics info about the tree branch of the given address.
+	 * STATISTICS PAGE: Get statistics info about the tree branch of the given address.
 	 * @param plugId which mdek server (iplug)
 	 * @param parentUuid root of tree branch to get statistics from, pass null if whole catalog
 	 * @param onlyFreeAddresses only evaluated if passed parent is null -> 

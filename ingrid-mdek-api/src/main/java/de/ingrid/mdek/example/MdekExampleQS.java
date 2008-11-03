@@ -962,8 +962,142 @@ class MdekExampleQSThread extends Thread {
 			System.out.println("  expiryState: " + stateEnumConst + " email: " + hit.get("comm.commValue"));
 		}
 
+// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("QA WORK/RESPONSIBLE PAGE: fetch \"Work\" Addresses");
+		System.out.println("=========================");
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- Set up test data -----");
+
+		System.out.println("\n----- store working copy \"EXPIRED\" address -> Mod: CATADMIN, Responsible: CATADMIN -----");
+		doc = supertool.fetchAddress(topAddrUuid, Quantity.DETAIL_ENTITY);
+		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
+		supertool.storeAddress(doc, true);
+
+		System.out.println("\n----- store working copy \"EXPIRED\" address -> Mod: CATADMIN, Responsible: CATADMIN -----");
+		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
+		supertool.storeAddress(doc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO MD_ADMIN -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		System.out.println("\n----- store working copy \"EXPIRED\" address  -> Mod: MDADMIN, Responsible: CATADMIN -----");
+		doc = supertool.fetchAddress(topAddrUuid2, Quantity.DETAIL_ENTITY);
+		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
+		supertool.storeAddress(doc, true);
+
+		System.out.println("\n----- store working copy \"EXPIRED\" address  -> Mod: MDADMIN, Responsible: MDADMIN -----");
+		doc = supertool.fetchAddress(parentAddrUuid, Quantity.DETAIL_ENTITY);
+		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
+		supertool.setResponsibleUser(doc, usrGrpQAUuid);
+		supertool.storeAddress(doc, true);
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- WORK/RESPONSIBLE PAGE: EXPIRED ADDRESSES (1. Table) -----");
+		System.out.println("---------------------------------------------");
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get EXPIRED Addresses -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		maxNum = 50;
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, true, 1, 1);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.NAME, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.NAME, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.USER, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.USER, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.DATE, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.DATE, false, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get EXPIRED Addresses -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- WORK/RESPONSIBLE PAGE: MODIFIED ADDRESSES (2. Table) -----");
+		System.out.println("---------------------------------------------");
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get MODIFIED Addresses -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, true, 1, 1);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.NAME, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.NAME, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.USER, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.USER, false, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get MODIFIED Addresses -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.MODIFIED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- WORK/RESPONSIBLE PAGE: IN_QA_WORKFLOW ADDRESSES (3. Table) -----");
+		System.out.println("---------------------------------------------");
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- Set up test data -----");
+
+		System.out.println("\n----- assign to QA -> working copy with status Q ! -----");
+		doc = supertool.fetchAddress(topAddrUuid, Quantity.DETAIL_ENTITY);
+		supertool.assignAddressToQA(doc, true);
+
+		System.out.println("\n----- assign to QA and reassign -> working copy with status R ! -----");
+		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.assignAddressToQA(doc, true);
+		supertool.reassignAddressToAuthor(doc, true);
+
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get IN_QA_WORKFLOW Addresses -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 1, 1);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.NAME, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.NAME, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.USER, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.USER, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.STATE, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.STATE, false, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.DATE, true, 0, maxNum);
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.DATE, false, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get IN_QA_WORKFLOW Addresses -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteAddressWorkingCopy(topAddrUuid, true);
+		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
+		supertool.deleteAddressWorkingCopy(topAddrUuid2, true);
+		supertool.deleteAddressWorkingCopy(parentAddrUuid, true);
+
+// -----------------------------------
+
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("----- ASSIGN EXISTING ADDRESS TO QA -----");
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n----- address details -----");
 		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
@@ -1123,7 +1257,7 @@ class MdekExampleQSThread extends Thread {
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeAddress(doc, true);
 		
-		// IF CATADMIN -> ALL OBJECTS !!!
+		// IF CATADMIN -> ALL ADDRESSES !!!
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- CATADMIN IS QA FOR ALL ADDRESSES -> getQAAddresses delivers ALL ENTITIES -----");
 		System.out.println("\n-------------------------------------");
@@ -1272,7 +1406,7 @@ class MdekExampleQSThread extends Thread {
 		doc = supertool.copyAddress(newUuid, parentAddrUuid, false, false);
 		copiedUuid = doc.getString(MdekKeys.UUID);
 		supertool.fetchAddress(copiedUuid, Quantity.DETAIL_ENTITY);
-		System.out.println("----- DELETE copy of new object as QA -> FULL DELETE -----");
+		System.out.println("----- DELETE copy of new address as QA -> FULL DELETE -----");
 		supertool.deleteAddress(copiedUuid, true);
 
 		System.out.println("\n---------------------------------------------");

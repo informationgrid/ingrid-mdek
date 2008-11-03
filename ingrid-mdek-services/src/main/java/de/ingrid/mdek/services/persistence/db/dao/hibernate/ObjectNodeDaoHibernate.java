@@ -570,7 +570,7 @@ public class ObjectNodeDaoHibernate
 		}
 		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
 
-		// then fetch requested entities (object and responsible user address)
+		// then fetch requested entities
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
 		}
@@ -635,7 +635,7 @@ public class ObjectNodeDaoHibernate
 		}
 		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
 
-		// then fetch requested entities (object and responsible user address)
+		// then fetch requested entities
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
 		}
@@ -711,7 +711,7 @@ public class ObjectNodeDaoHibernate
 		}
 		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
 
-		// then fetch requested entities (object and responsible user address)
+		// then fetch requested entities
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
 		}

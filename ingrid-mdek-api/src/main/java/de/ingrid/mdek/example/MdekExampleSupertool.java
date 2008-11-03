@@ -2132,6 +2132,44 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument getWorkAddresses(IdcWorkEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getWorkAddresses ######");
+		System.out.println("- selection type: " + selectionType);
+		System.out.println("- order by: " + orderBy + ", ASC: " + orderAsc);
+		System.out.println("- paging from:" + startHit);
+		System.out.println("- paging num:" + numHits);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.getWorkAddresses(plugId,
+				selectionType, orderBy, orderAsc, 
+				startHit, numHits, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
+			boolean tmpOutput = this.doFullOutput;
+			setFullOutput(false);
+			for (IngridDocument oDoc : l) {
+				debugAddressDoc(oDoc);
+			}
+			setFullOutput(tmpOutput);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	/**
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects
@@ -2465,7 +2503,7 @@ public class MdekExampleSupertool {
 	private void debugObjectDoc(IngridDocument o) {
 		System.out.println("Object: " + o.get(MdekKeys.ID) 
 			+ ", " + o.get(MdekKeys.UUID)
-			+ ", class: " + o.get(MdekKeys.CLASS)
+			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(AddressType.class, o.get(MdekKeys.CLASS))
 			+ ", " + o.get(MdekKeys.TITLE)
 			+ ", marked deleted: " + o.get(MdekKeys.MARK_DELETED)
 		);
@@ -2758,8 +2796,10 @@ public class MdekExampleSupertool {
 		);
 		System.out.println("         "
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, a.get(MdekKeys.WORK_STATE))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 			+ ", modUser: " + extractUserData((IngridDocument)a.get(MdekKeys.MOD_USER))
+			+ ", respUser: " + extractUserData((IngridDocument)a.get(MdekKeys.RESPONSIBLE_USER))
+			+ ", assignerUser: " + extractUserData((IngridDocument)a.get(MdekKeys.ASSIGNER_USER))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
 		);
 

@@ -13,10 +13,12 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
@@ -96,7 +98,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			for (AddressNode aN : aNs) {
 				IngridDocument adrDoc = new IngridDocument();
 				beanToDocMapper.mapAddressNode(aN, adrDoc, MappingQuantity.TREE_ENTITY);
-				beanToDocMapper.mapT02Address(aN.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
+				beanToDocMapper.mapT02Address(aN.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
 
 				// add permissions the user has on given address !
 				List<Permission> perms = permissionHandler.getPermissionsForAddress(aN.getAddrUuid(), userUuid, true);
@@ -129,7 +131,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			for (AddressNode aNode : aNodes) {
 				IngridDocument adrDoc = new IngridDocument();
 				beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
-				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.BASIC_ENTITY);
+				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
 
 				// add permissions the user has on given address !
 				List<Permission> perms = permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userUuid, true);
@@ -329,6 +331,77 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument getWorkAddresses(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		try {
+			IdcWorkEntitiesSelectionType selectionType =
+				(IdcWorkEntitiesSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcEntityOrderBy orderBy = (IdcEntityOrderBy) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_BY);
+			Boolean orderAsc = (Boolean) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_ASC);
+			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
+			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
+
+			daoAddressNode.beginTransaction();
+
+			IngridDocument result =	daoAddressNode.getWorkAddresses(userUuid,
+					selectionType, orderBy, orderAsc,
+					startHit, numHits);
+
+			List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
+			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
+
+			// map found addresses and related user addresses to docs
+			ArrayList<IngridDocument> aNDocs = new ArrayList<IngridDocument>(aNs.size());
+			for (int i=0; i < aNs.size(); i++) {
+				AddressNode aN = aNs.get(i);
+				T02Address a = aN.getT02AddressWork();
+
+				IngridDocument addrDoc = new IngridDocument();
+				beanToDocMapper.mapT02Address(a, addrDoc, MappingQuantity.BASIC_ENTITY);
+
+				// DEBUGGING for tests !
+				if (log.isDebugEnabled()) {
+					// map some user uuids for debugging on client side !
+					beanToDocMapper.mapModUser(a.getModUuid(), addrDoc, MappingQuantity.INITIAL_ENTITY);
+					beanToDocMapper.mapResponsibleUser(a.getResponsibleUuid(), addrDoc, MappingQuantity.INITIAL_ENTITY);
+				}
+
+				// map details according to selection !
+				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED ||
+					selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
+					// map mod user
+					AddressNode modAddressNode = a.getAddressNodeMod();
+					if (modAddressNode != null) {
+						beanToDocMapper.mapModUser(modAddressNode.getT02AddressWork(), addrDoc);						
+					}
+				}
+				if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED ||
+					selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+					beanToDocMapper.mapUserOperation(aN, addrDoc);
+				}
+				if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+					// map assigner user !
+					beanToDocMapper.mapAddressMetadata(a.getAddressMetadata(), addrDoc, MappingQuantity.DETAIL_ENTITY);
+				}
+
+				aNDocs.add(addrDoc);
+			}
+
+			// set up result
+			result = new IngridDocument();
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
+			result.put(MdekKeys.ADR_ENTITIES, aNDocs);
+
+			daoAddressNode.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			daoAddressNode.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument getQAAddresses(IngridDocument params) {
 		String userUuid = getCurrentUserUuid(params);
 		try {
@@ -354,14 +427,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				T02Address a = aN.getT02AddressWork();
 				IngridDocument addrDoc = new IngridDocument();
 				beanToDocMapper.mapT02Address(a, addrDoc, MappingQuantity.BASIC_ENTITY);
-				// map detailed meta data if requested
+				// map details according to selection !
 				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
 					beanToDocMapper.mapAddressMetadata(a.getAddressMetadata(), addrDoc, MappingQuantity.DETAIL_ENTITY);
 				} else {
 					beanToDocMapper.mapAddressMetadata(a.getAddressMetadata(), addrDoc, MappingQuantity.BASIC_ENTITY);					
-				}
-				// map detailed mod user if requested
-				if (whichWorkState != WorkState.QS_UEBERWIESEN) {
 					beanToDocMapper.mapModUser(a.getModUuid(), addrDoc, MappingQuantity.DETAIL_ENTITY);
 				}
 				beanToDocMapper.mapUserOperation(aN, addrDoc);
