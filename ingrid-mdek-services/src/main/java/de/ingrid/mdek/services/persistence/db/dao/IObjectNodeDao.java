@@ -46,6 +46,18 @@ public interface IObjectNodeDao
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren);
 
+	/**
+	 * Fetches ALL sub nodes (whole branch) of parent with given uuid. 
+	 * Also prefetch concrete object instance in nodes if requested.
+	 * @param parentUuid uuid of parent
+	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
+	 * @return
+	 */
+	List<ObjectNode> getAllSubObjects(String parentUuid,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren);
+
 	/** Get total number of subobjects in subtree (all levels) */
 	int countSubObjects(String parentUuid);
 

@@ -1156,56 +1156,46 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// remember former tree path and set new tree path.
 		String oldRootPath = rootNode.getTreePath();
 		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
+		daoObjectNode.makePersistent(rootNode);
 
-		// copy iteratively via stack to avoid recursive stack overflow
-		Stack<ObjectNode> stack = new Stack<ObjectNode>();
-		stack.push(rootNode);
+		// set modification time and user only in top node, not in subnodes !
+		// see http://jira.media-style.com/browse/INGRIDII-266
 
-		int numberOfProcessedObj = 0;
-		while (!stack.isEmpty()) {
-			ObjectNode objNode = stack.pop();
-			
-			// set modification time and user only in top node, not in subnodes !
-			// see http://jira.media-style.com/browse/INGRIDII-266
-			if (objNode == rootNode) {
-				// set modification time and user (in both versions when present)
-				T01Object objWork = objNode.getT01ObjectWork();
-				T01Object objPub = objNode.getT01ObjectPublished();
+		// set modification time and user (in both versions when present)
+		T01Object objWork = rootNode.getT01ObjectWork();
+		T01Object objPub = rootNode.getT01ObjectPublished();
 
-				// check whether we have a different published version !
-				boolean hasDifferentPublishedVersion = false;
-				if (objPub != null && objWork.getId() != objPub.getId()) {
-					hasDifferentPublishedVersion = true;
-				}
-
-				// change mod time and uuid
-				objWork.setModTime(currentTime);
-				objWork.setModUuid(modUuid);
-				if (hasDifferentPublishedVersion) {
-					objPub.setModTime(currentTime);
-					objPub.setModUuid(modUuid);				
-				}
-
-				daoT01Object.makePersistent(objWork);
-				if (hasDifferentPublishedVersion) {
-					daoT01Object.makePersistent(objPub);
-				}				
-			} else {
-				// update tree path in subnodes
-				pathHandler.updateTreePathAfterMove(objNode, oldRootPath, newRootPath);
-			}
-
-			daoObjectNode.makePersistent(objNode);
-
-			numberOfProcessedObj++;
-
-			// add sub nodes !
-			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(objNode.getObjUuid(), null, true);
-			for (ObjectNode subNode : subNodes) {
-				// add to stack, will be processed
-				stack.push(subNode);
-			}
+		// check whether we have a different published version !
+		boolean hasDifferentPublishedVersion = false;
+		if (objPub != null && objWork.getId() != objPub.getId()) {
+			hasDifferentPublishedVersion = true;
 		}
+
+		// change mod time and uuid
+		objWork.setModTime(currentTime);
+		objWork.setModUuid(modUuid);
+
+		if (hasDifferentPublishedVersion) {
+			objPub.setModTime(currentTime);
+			objPub.setModUuid(modUuid);				
+		}
+
+		daoT01Object.makePersistent(objWork);
+		if (hasDifferentPublishedVersion) {
+			daoT01Object.makePersistent(objPub);
+		}				
+
+		// process all subnodes
+
+		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(rootNode.getObjUuid(), null, false);
+		for (ObjectNode subNode : subNodes) {
+			// update tree path
+			pathHandler.updateTreePathAfterMove(subNode, oldRootPath, newRootPath);
+			daoObjectNode.makePersistent(subNode);
+		}
+
+		// total number: root + subobjects
+		int numberOfProcessedObj = subNodes.size() + 1;
 		
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfProcessedObj);
@@ -1247,35 +1237,21 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	/** Checks whether subtree of object has working copies. */
 	private IngridDocument checkObjectSubTreeWorkingCopies(String rootUuid) {
-		// load "root"
-		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, null);
-		if (rootNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-		}
+		// process all subnodes
 
-		// traverse iteratively via stack
-		Stack<ObjectNode> stack = new Stack<ObjectNode>();
-		stack.push(rootNode);
+		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(rootUuid, null, false);
 
 		boolean hasWorkingCopy = false;
 		String uuidOfWorkingCopy = null;
 		int numberOfCheckedObj = 0;
-		while (!hasWorkingCopy && !stack.isEmpty()) {
-			ObjectNode node = stack.pop();
-			
-			// check
-			numberOfCheckedObj++;
-			if (!node.getObjId().equals(node.getObjIdPublished())) {
-				hasWorkingCopy = true;
-				uuidOfWorkingCopy = node.getObjUuid();
-			}
 
-			if (!hasWorkingCopy) {
-				List<ObjectNode> subNodes =
-					daoObjectNode.getSubObjects(node.getObjUuid(), null, false);
-				for (ObjectNode subNode : subNodes) {
-					stack.push(subNode);
-				}					
+		for (ObjectNode subNode : subNodes) {
+			numberOfCheckedObj++;
+
+			if (!subNode.getObjId().equals(subNode.getObjIdPublished())) {
+				hasWorkingCopy = true;
+				uuidOfWorkingCopy = subNode.getObjUuid();
+				break;
 			}
 		}
 		if (log.isDebugEnabled()) {
@@ -1500,79 +1476,60 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		// get current pub type. Should be set !!! (mandatory when publishing)
 		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);		
-		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, IdcEntityVersion.WORKING_VERSION);
+		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, IdcEntityVersion.ALL_VERSIONS);
 		String topName = rootNode.getT01ObjectWork().getObjName();
 
-		// should we adapt all subnodes ?
+		// avoid null !
 		if (!Boolean.TRUE.equals(forcePubCondition)) {
 			forcePubCondition = false;			
 		}
+		
+		// process all subnodes
 
-		// traverse iteratively via stack
-		Stack<ObjectNode> stack = new Stack<ObjectNode>();
-		stack.push(rootNode);
-		int i = 0;
-		while (!stack.isEmpty()) {
-			ObjectNode treeNode = stack.pop();
+		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(
+				rootUuid, IdcEntityVersion.PUBLISHED_VERSION, false);
+		
+		// also process top node if requested !
+		if (!skipRootNode) {
+			subNodes.add(0, rootNode);			
+		}
+		for (ObjectNode subNode : subNodes) {
+			// check whether publication condition of node is "critical"
+			T01Object objPub = subNode.getT01ObjectPublished();
+			if (objPub == null) {
+				// not published yet ! skip this one
+				continue;
+			}
+			PublishType objPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, objPub.getPublishId());				
+			boolean objIsCritical = !pubTypeNew.includes(objPubType);
 
-			System.out.println("process " + (++i) + ". node: " + treeNode.getObjUuid());
+			if (objIsCritical) {
+				// throw "warning" for user when not adapting sub tree !
+				if (!forcePubCondition) {
+					throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION));					
+				}
 
-			// skip top node ?
-			boolean processNode = true;
-			boolean isRootNode = false;
-			if (treeNode.equals(rootNode)) {
-				isRootNode = true;
-				if (skipRootNode) {
-					processNode = false;
+				// nodes should be adapted -> in PublishedVersion !
+				objPub.setPublishId(pubTypeNew.getDbValue());
+				// set time and user
+				objPub.setModTime(modTime);
+				objPub.setModUuid(modUuid);
+
+				// add comment to SUB OBJECT, document the automatic change of the publish condition
+				if (!subNode.equals(rootNode)) {
+					Set<ObjectComment> commentSet = objPub.getObjectComments();
+					ObjectComment newComment = new ObjectComment();
+					newComment.setObjId(objPub.getId());
+					newComment.setComment("Hinweis: Durch Änderung des Wertes des Feldes 'Veröffentlichung' im " +
+						"übergeordneten Objekt '" + topName +
+						"' ist der Wert dieses Feldes für dieses Objekt auf '" + pubTypeNew.toString() +
+						"' gesetzt worden.");
+					newComment.setCreateTime(objPub.getModTime());
+					newComment.setCreateUuid(objPub.getModUuid());
+					commentSet.add(newComment);
+					daoT01Object.makePersistent(objPub);						
 				}
 			}
-			
-			if (processNode) {
-
-				// check whether publication condition of node is "critical"
-				T01Object objPub = treeNode.getT01ObjectPublished();
-				if (objPub == null) {
-					// not published yet ! skip this one
-					continue;
-				}
-				PublishType objPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, objPub.getPublishId());				
-				boolean objIsCritical = !pubTypeNew.includes(objPubType);
-
-				if (objIsCritical) {
-					// throw "warning" for user when not adapting sub tree !
-					if (!forcePubCondition) {
-						throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION));					
-					}
-
-					// nodes should be adapted -> in PublishedVersion !
-					objPub.setPublishId(pubTypeNew.getDbValue());
-					// set time and user
-					objPub.setModTime(modTime);
-					objPub.setModUuid(modUuid);
-					
-					// add comment to SUB OBJECT, document the automatic change of the publish condition
-					if (!isRootNode) {
-						Set<ObjectComment> commentSet = objPub.getObjectComments();
-						ObjectComment newComment = new ObjectComment();
-						newComment.setObjId(objPub.getId());
-						newComment.setComment("Hinweis: Durch Änderung des Wertes des Feldes 'Veröffentlichung' im " +
-							"übergeordneten Objekt '" + topName +
-							"' ist der Wert dieses Feldes für dieses Objekt auf '" + pubTypeNew.toString() +
-							"' gesetzt worden.");
-						newComment.setCreateTime(objPub.getModTime());
-						newComment.setCreateUuid(objPub.getModUuid());
-						commentSet.add(newComment);
-						daoT01Object.makePersistent(objPub);						
-					}
-				}
-			}
-			
-			// add next level of subnodes to stack
-			List<ObjectNode> subNodes = daoObjectNode.getSubObjects(treeNode.getObjUuid(),
-					IdcEntityVersion.PUBLISHED_VERSION, false);
-			for (ObjectNode sN : subNodes) {
-				stack.push(sN);
-			}					
 		}
 	}
 
@@ -1635,21 +1592,14 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	 * 		false=don't delete references, throw exception
 	 */
 	private void checkObjectSubTreeReferences(ObjectNode topNode, boolean forceDeleteReferences) {
-		// traverse iteratively via stack
-		Stack<ObjectNode> stack = new Stack<ObjectNode>();
-		stack.push(topNode);
+		// process all subnodes
 
-		while (!stack.isEmpty()) {
-			ObjectNode node = stack.pop();
-			
+		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(
+				topNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, false);
+		
+		for (ObjectNode subNode : subNodes) {
 			// check
-			checkObjectNodeReferences(node, forceDeleteReferences);
-
-			List<ObjectNode> subNodes =
-				daoObjectNode.getSubObjects(node.getObjUuid(), IdcEntityVersion.WORKING_VERSION, false);
-			for (ObjectNode subNode : subNodes) {
-				stack.push(subNode);
-			}					
+			checkObjectNodeReferences(subNode, forceDeleteReferences);			
 		}
 	}
 
@@ -1671,7 +1621,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// refine running jobs info
 		int totalNumToCopy = 1;
 		if (copySubtree) {
-			totalNumToCopy = daoObjectNode.countSubObjects(sourceNode.getObjUuid());
+			// total num to copy: root + sub objects
+			totalNumToCopy = 1 + daoObjectNode.countSubObjects(sourceNode.getObjUuid()) + 1;
 			updateRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
 		}
 

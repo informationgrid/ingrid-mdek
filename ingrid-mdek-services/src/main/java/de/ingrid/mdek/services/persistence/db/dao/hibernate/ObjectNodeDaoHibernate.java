@@ -2,7 +2,6 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -90,13 +89,6 @@ public class ObjectNodeDaoHibernate
 	public List<ObjectNode> getSubObjects(String parentUuid,
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren) {
-		return getSubObjects(parentUuid, whichEntityVersion, fetchSubNodesChildren, false);
-	}
-
-	private List<ObjectNode> getSubObjects(String parentUuid,
-			IdcEntityVersion whichEntityVersion,
-			boolean fetchSubNodesChildren,
-			boolean fetchMetadata) {
 		Session session = getSession();
 
 		String q = "select distinct oNode from ObjectNode oNode ";
@@ -110,9 +102,6 @@ public class ObjectNodeDaoHibernate
 		if (fetchSubNodesChildren) {
 			q += "left join fetch oNode.objectNodeChildren ";
 		}
-		if (fetchMetadata) {
-			q += "left join fetch o.objectMetadata ";
-		}
 		q += "where oNode.fkObjUuid = ? ";
 		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
 			q += "order by o.objName"; 
@@ -125,40 +114,43 @@ public class ObjectNodeDaoHibernate
 		return oNodes;
 	}
 
-	/** Get sub uuids of parent with given uuid (only next level) */
-	private List<String> getSubObjectUuids(String parentUuid) {
+	public List<ObjectNode> getAllSubObjects(String parentUuid,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
-		List<String> childUuids = session.createQuery("select oNd.objUuid " +
-				"from ObjectNode oNd " +
-				"where oNd.fkObjUuid = ?")
-				.setString(0, parentUuid)
-				.list();
+		String q = "select distinct oNode from ObjectNode oNode ";
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch oNode.t01ObjectWork o ";			
+		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch oNode.t01ObjectPublished o ";			
+		}
+		if (fetchSubNodesChildren) {
+			q += "left join fetch oNode.objectNodeChildren ";
+		}
+		q += "where oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' ";
+		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+			q += "order by o.objName"; 
+		}
 		
-		return childUuids;
+		List<ObjectNode> oNodes = session.createQuery(q)
+				.list();
+
+		return oNodes;
 	}
 
 	public int countSubObjects(String parentUuid) {
-		int totalNum = 0;
-
-		// TODO: COULD BE OPTIMIZED VIA NEW TREE PATH IN ALL NODES ! just count nodes where tree path contains parent !
-		// we keep it as it is, optimization via tree path is a chapter for its own ! ...
-
-		Stack<String> uuidStack = new Stack<String>();
-		uuidStack.push(parentUuid);
-
-		while (!uuidStack.isEmpty()) {
-			String uuid = uuidStack.pop();
-			if (!uuid.equals(parentUuid)) {
-				totalNum++;
-			}
-			List<String> subUuids = getSubObjectUuids(uuid);
-			for (String subUuid : subUuids) {
-				uuidStack.push(subUuid);
-			}
-		}
+		Session session = getSession();
 		
-		return totalNum;
+		String q = "select count(oNode) " +
+			"from ObjectNode oNode " +
+			"where oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%'";
+		
+		Long totalNum = (Long) session.createQuery(q).uniqueResult();
+		
+		return totalNum.intValue();
 	}
 
 	public boolean isSubNode(String uuidToCheck, String uuidParent) {
