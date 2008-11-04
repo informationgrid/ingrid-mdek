@@ -324,7 +324,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			ArrayList<IngridDocument> oNDocs = new ArrayList<IngridDocument>(oNs.size());
 			for (int i=0; i < oNs.size(); i++) {
 				ObjectNode oN = oNs.get(i);
-				T01Object o = oN.getT01ObjectWork();
+				T01Object o;
+				// EXPIRED queries PUBLISHED version !
+				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
+					o = oN.getT01ObjectPublished();
+				} else {
+					o = oN.getT01ObjectWork();
+				}
 
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
@@ -1505,9 +1511,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// traverse iteratively via stack
 		Stack<ObjectNode> stack = new Stack<ObjectNode>();
 		stack.push(rootNode);
+		int i = 0;
 		while (!stack.isEmpty()) {
 			ObjectNode treeNode = stack.pop();
-			
+
+			System.out.println("process " + (++i) + ". node: " + treeNode.getObjUuid());
+
 			// skip top node ?
 			boolean processNode = true;
 			boolean isRootNode = false;

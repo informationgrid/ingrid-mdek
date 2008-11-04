@@ -173,7 +173,7 @@ public interface IAddressNodeDao
 	List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid);
 
 	/**
-	 * WORK/RESPONSIBLE PAGE: Get ALL Addresses where WORKING VERSION matches given selection criteria. 
+	 * WORK/RESPONSIBLE PAGE: Get ALL Addresses matching given selection criteria. 
 	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param selectionType selection criteria (see Enum)
 	 * @param orderBy how to order (see Enum)

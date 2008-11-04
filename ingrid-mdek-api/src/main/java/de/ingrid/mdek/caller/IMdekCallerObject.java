@@ -203,7 +203,7 @@ public interface IMdekCallerObject {
 			String userId);
 
 	/**
-	 * WORK/RESPONSIBLE PAGE: Get ALL Objects where WORKING VERSION matches given selection criteria. 
+	 * WORK/RESPONSIBLE PAGE: Get ALL Objects matching given selection criteria. 
 	 * @param plugId which mdek server (iplug)
 	 * @param selectionType selection criteria (see Enum)
 	 * @param orderBy how to order (see Enum)

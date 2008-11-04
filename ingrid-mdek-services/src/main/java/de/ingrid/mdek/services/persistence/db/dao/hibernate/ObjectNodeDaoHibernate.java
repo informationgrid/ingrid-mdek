@@ -516,6 +516,7 @@ public class ObjectNodeDaoHibernate
 		return defaultResult;
 	}
 
+	/** NOTICE: queries PUBLISHED version ! */
 	private IngridDocument getWorkObjectsExpired(String userUuid,
 			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
@@ -531,12 +532,12 @@ public class ObjectNodeDaoHibernate
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(oNode) " +
 			"from ObjectNode oNode " +
-				"inner join oNode.t01ObjectWork o " +
+				"inner join oNode.t01ObjectPublished o " +
 				"inner join o.objectMetadata oMeta " + qCriteria;
 
 		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
-				"inner join fetch oNode.t01ObjectWork o " +
+				"inner join fetch oNode.t01ObjectPublished o " +
 				"inner join fetch o.objectMetadata oMeta " +
 				"left join fetch o.addressNodeMod aNode " +
 				"left join fetch aNode.t02AddressWork a " + qCriteria;

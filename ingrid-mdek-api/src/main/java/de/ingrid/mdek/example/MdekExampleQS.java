@@ -14,6 +14,7 @@ import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -478,7 +479,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- store working copy \"EXPIRED\" object -> Mod: CATADMIN, Responsible: CATADMIN -----");
 		doc = supertool.fetchObject(topObjUuid, Quantity.DETAIL_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
-		supertool.storeObject(doc, true);
+		supertool.updateObjectPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" object -> Mod: CATADMIN, Responsible: CATADMIN -----");
 		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
@@ -505,7 +506,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("---------------------------------------------");
 		
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- CATADMIN: get EXPIRED Objects -----");
+		System.out.println("----- CATADMIN: get EXPIRED Objects (queries PUBLISHED version !) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
 		int maxNum = 50;
@@ -521,7 +522,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.DATE, false, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- MDADMIN: get EXPIRED Objects -----");
+		System.out.println("----- MDADMIN: get EXPIRED Objects (queries PUBLISHED version !) -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
@@ -588,7 +589,12 @@ class MdekExampleQSThread extends Thread {
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
 
 		System.out.println("\n\n---------------------------------------------");
-		System.out.println("\n----- discard changes -> back to published version -----");
+		System.out.println("\n----- discard changes -> back to original version -----");
+
+		doc = supertool.fetchObject(topObjUuid, Quantity.DETAIL_ENTITY);
+		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.INITIAL.getDbValue());
+		supertool.updateObjectPart(doc, IdcEntityVersion.ALL_VERSIONS);
+
 		supertool.deleteObjectWorkingCopy(topObjUuid, true);
 		supertool.deleteObjectWorkingCopy(topObjUuid2, true);
 		supertool.deleteObjectWorkingCopy(objUuid, true);
@@ -974,7 +980,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- store working copy \"EXPIRED\" address -> Mod: CATADMIN, Responsible: CATADMIN -----");
 		doc = supertool.fetchAddress(topAddrUuid, Quantity.DETAIL_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
-		supertool.storeAddress(doc, true);
+		supertool.updateAddressPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" address -> Mod: CATADMIN, Responsible: CATADMIN -----");
 		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
@@ -1001,7 +1007,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("---------------------------------------------");
 		
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- CATADMIN: get EXPIRED Addresses -----");
+		System.out.println("----- CATADMIN: get EXPIRED Addresses (queries PUBLISHED version !) -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
 		maxNum = 50;
@@ -1017,7 +1023,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.DATE, false, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
-		System.out.println("----- MDADMIN: get EXPIRED Addresses -----");
+		System.out.println("----- MDADMIN: get EXPIRED Addresses (queries PUBLISHED version !) -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 
 		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
@@ -1084,7 +1090,12 @@ class MdekExampleQSThread extends Thread {
 		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
 
 		System.out.println("\n\n---------------------------------------------");
-		System.out.println("\n----- discard changes -> back to published version -----");
+		System.out.println("\n----- discard changes -> back to original version -----");
+
+		doc = supertool.fetchAddress(topAddrUuid, Quantity.DETAIL_ENTITY);
+		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.INITIAL.getDbValue());
+		supertool.updateAddressPart(doc, IdcEntityVersion.ALL_VERSIONS);
+
 		supertool.deleteAddressWorkingCopy(topAddrUuid, true);
 		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
 		supertool.deleteAddressWorkingCopy(topAddrUuid2, true);

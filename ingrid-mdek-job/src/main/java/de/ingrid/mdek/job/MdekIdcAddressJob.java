@@ -354,7 +354,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			ArrayList<IngridDocument> aNDocs = new ArrayList<IngridDocument>(aNs.size());
 			for (int i=0; i < aNs.size(); i++) {
 				AddressNode aN = aNs.get(i);
-				T02Address a = aN.getT02AddressWork();
+				T02Address a;
+				// EXPIRED queries PUBLISHED version !
+				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
+					a = aN.getT02AddressPublished();
+				} else {
+					a = aN.getT02AddressWork();					
+				}
 
 				IngridDocument addrDoc = new IngridDocument();
 				beanToDocMapper.mapT02Address(a, addrDoc, MappingQuantity.BASIC_ENTITY);

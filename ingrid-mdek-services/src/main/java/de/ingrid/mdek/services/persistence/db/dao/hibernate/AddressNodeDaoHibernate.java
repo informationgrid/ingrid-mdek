@@ -670,6 +670,7 @@ public class AddressNodeDaoHibernate
 		return defaultResult;
 	}
 
+	/** NOTICE: queries PUBLISHED version ! */
 	private IngridDocument getWorkAddressesExpired(String userUuid,
 			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
@@ -685,12 +686,12 @@ public class AddressNodeDaoHibernate
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(aNode) " +
 			"from AddressNode aNode " +
-				"inner join aNode.t02AddressWork a " +
+				"inner join aNode.t02AddressPublished a " +
 				"inner join a.addressMetadata aMeta " + qCriteria;
 
 		// query string for fetching results ! 
 		String qStringSelect = "from AddressNode aNode " +
-				"inner join fetch aNode.t02AddressWork a " +
+				"inner join fetch aNode.t02AddressPublished a " +
 				"inner join fetch a.addressMetadata aMeta " +
 				"left join fetch a.addressNodeMod aNodeMod " +
 				"left join fetch aNodeMod.t02AddressWork aMod " + qCriteria;

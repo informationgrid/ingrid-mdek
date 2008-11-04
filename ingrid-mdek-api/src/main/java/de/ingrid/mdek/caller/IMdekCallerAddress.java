@@ -263,7 +263,7 @@ public interface IMdekCallerAddress {
 			String userId);
 
 	/**
-	 * WORK/RESPONSIBLE PAGE: Get ALL Addresses where WORKING VERSION matches given selection criteria. 
+	 * WORK/RESPONSIBLE PAGE: Get ALL Addresses matching given selection criteria. 
 	 * @param plugId which mdek server (iplug)
 	 * @param selectionType selection criteria (see Enum)
 	 * @param orderBy how to order (see Enum)
