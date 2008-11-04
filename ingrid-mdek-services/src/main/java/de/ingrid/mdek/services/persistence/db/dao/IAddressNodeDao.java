@@ -48,8 +48,17 @@ public interface IAddressNodeDao
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren);
 
-	/** Get sub uuids of parent with given uuid (only next level) */
-	List<String> getSubAddressUuids(String parentUuid);
+	/**
+	 * Fetches ALL sub nodes (whole branch) of parent with given uuid. 
+	 * Also prefetch concrete address instance in nodes if requested.
+	 * @param parentUuid uuid of parent
+	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
+	 * @return
+	 */
+	List<AddressNode> getAllSubAddresses(String parentUuid, 
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren);
 
 	/** Get total number of subaddresses in subtree (all levels) */
 	int countSubAddresses(String parentUuid);

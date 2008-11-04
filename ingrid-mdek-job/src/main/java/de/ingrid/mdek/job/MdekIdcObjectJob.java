@@ -1032,7 +1032,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		checkObjectSubTreeReferences(oNode, forceDeleteReferences);
+		checkObjectTreeReferences(oNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade !
 		daoObjectNode.makeTransient(oNode);
@@ -1218,7 +1218,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
-			IngridDocument checkResult = checkObjectSubTreeWorkingCopies(rootUuid);
+			IngridDocument checkResult = checkObjectTreeWorkingCopies(rootUuid);
 
 			daoObjectNode.commitTransaction();
 			return checkResult;		
@@ -1235,11 +1235,18 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
-	/** Checks whether subtree of object has working copies. */
-	private IngridDocument checkObjectSubTreeWorkingCopies(String rootUuid) {
-		// process all subnodes
+	/** Checks whether object branch has working copies (passed root is also checked !). */
+	private IngridDocument checkObjectTreeWorkingCopies(String rootUuid) {
+		// load "root"
+		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, null);
+		if (rootNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// process all subnodes including root
 
 		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(rootUuid, null, false);
+		subNodes.add(0, rootNode);
 
 		boolean hasWorkingCopy = false;
 		String uuidOfWorkingCopy = null;
@@ -1583,7 +1590,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Checks whether object tree contains nodes referenced by other objects.
+	 * Checks whether object branch contains nodes referenced by other objects (passed top is also checked !). 
 	 * All references to a node are taken into account, no matter whether from a working or a published version !
 	 * Throws Exception if forceDeleteReferences=false !
 	 * @param topNode top node of tree to check (included in check !)
@@ -1591,12 +1598,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkObjectSubTreeReferences(ObjectNode topNode, boolean forceDeleteReferences) {
-		// process all subnodes
+	private void checkObjectTreeReferences(ObjectNode topNode, boolean forceDeleteReferences) {
+		// process all subnodes including top node
 
 		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(
 				topNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, false);
-		
+		subNodes.add(0, topNode);
+
 		for (ObjectNode subNode : subNodes) {
 			// check
 			checkObjectNodeReferences(subNode, forceDeleteReferences);			

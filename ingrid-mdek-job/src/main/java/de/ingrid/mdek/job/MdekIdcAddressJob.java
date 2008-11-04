@@ -1041,7 +1041,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 
-			IngridDocument checkResult = checkAddressSubTreeWorkingCopies(rootUuid);
+			IngridDocument checkResult = checkAddressTreeWorkingCopies(rootUuid);
 
 			daoAddressNode.commitTransaction();
 			return checkResult;		
@@ -1058,37 +1058,30 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	/** Checks whether subtree of address has working copies. */
-	private IngridDocument checkAddressSubTreeWorkingCopies(String rootUuid) {
+	/** Checks whether address branch has working copies (passed root is also checked !). */
+	private IngridDocument checkAddressTreeWorkingCopies(String rootUuid) {
 		// load "root"
 		AddressNode rootNode = daoAddressNode.loadByUuid(rootUuid, null);
 		if (rootNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		// traverse iteratively via stack
-		Stack<AddressNode> stack = new Stack<AddressNode>();
-		stack.push(rootNode);
+		// process all subnodes including root
+
+		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(rootUuid, null, false);
+		subNodes.add(0, rootNode);
 
 		boolean hasWorkingCopy = false;
 		String uuidOfWorkingCopy = null;
 		int numberOfCheckedAddr = 0;
-		while (!hasWorkingCopy && !stack.isEmpty()) {
-			AddressNode node = stack.pop();
-			
-			// check
-			numberOfCheckedAddr++;
-			if (!node.getAddrId().equals(node.getAddrIdPublished())) {
-				hasWorkingCopy = true;
-				uuidOfWorkingCopy = node.getAddrUuid();
-			}
 
-			if (!hasWorkingCopy) {
-				List<AddressNode> subNodes =
-					daoAddressNode.getSubAddresses(node.getAddrUuid(), null, false);
-				for (AddressNode subNode : subNodes) {
-					stack.push(subNode);
-				}					
+		for (AddressNode subNode : subNodes) {
+			numberOfCheckedAddr++;
+
+			if (!subNode.getAddrId().equals(subNode.getAddrIdPublished())) {
+				hasWorkingCopy = true;
+				uuidOfWorkingCopy = subNode.getAddrUuid();
+				break;
 			}
 		}
 		if (log.isDebugEnabled()) {
@@ -1361,7 +1354,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// refine running jobs info
 		int totalNumToCopy = 1;
 		if (copySubtree) {
-			totalNumToCopy = daoAddressNode.countSubAddresses(sourceNode.getAddrUuid());
+			// total num to copy: root + sub addresses
+			totalNumToCopy = 1 + daoAddressNode.countSubAddresses(sourceNode.getAddrUuid());
 			updateRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
 		}
 
@@ -1514,7 +1508,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	/**
-	 * Checks whether address tree contains nodes referenced by other objects.
+	 * Checks whether address branch contains nodes referenced by other objects (passed top is also checked !).
 	 * Throws Exception if forceDeleteReferences=false !
 	 * @param topNode top node of tree to check (included in check !)
 	 * @param forceDeleteReferences<br>
@@ -1522,25 +1516,19 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * 		false=don't delete references, throw exception
 	 */
 	private void checkAddressTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
-		// traverse iteratively via stack
-		Stack<AddressNode> stack = new Stack<AddressNode>();
-		stack.push(topNode);
+		// process all subnodes including top node
 
-		while (!stack.isEmpty()) {
-			AddressNode node = stack.pop();
-			
+		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(
+				topNode.getAddrUuid(), IdcEntityVersion.WORKING_VERSION, false);
+		subNodes.add(0, topNode);
+
+		for (AddressNode subNode : subNodes) {
 			// check whether address is "auskunft" address. AUSKUNFT CANNOT BE DELETED
 			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
-			checkAddressIsAuskunft(node);
+			checkAddressIsAuskunft(subNode);
 
 			// check
-			checkAddressNodeReferences(node, forceDeleteReferences);
-
-			List<AddressNode> subNodes =
-				daoAddressNode.getSubAddresses(node.getAddrUuid(), IdcEntityVersion.WORKING_VERSION, false);
-			for (AddressNode subNode : subNodes) {
-				stack.push(subNode);
-			}					
+			checkAddressNodeReferences(subNode, forceDeleteReferences);
 		}
 	}
 
@@ -1886,63 +1874,51 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		// remember former tree path and set new tree path.
 		String oldRootPath = rootNode.getTreePath();
 		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
+		daoAddressNode.makePersistent(rootNode);
 
-		// process iteratively via stack to avoid recursive stack overflow
-		Stack<AddressNode> stack = new Stack<AddressNode>();
-		stack.push(rootNode);
+		// set modification time and user only in top node, not in subnodes !
+		// see http://jira.media-style.com/browse/INGRIDII-266
 
-		// NOTICE: when free address node there should be NO children ! (check was performed before!)
-		int numberOfProcessedNodes = 0;
-		while (!stack.isEmpty()) {
-			AddressNode node = stack.pop();
-
-			// set modification time and user only in top node, not in subnodes !
-			// see http://jira.media-style.com/browse/INGRIDII-266
-			if (node == rootNode) {
-				// set modification time and user (in both versions when present)
-				T02Address addrWork = node.getT02AddressWork();
-				T02Address addrPub = node.getT02AddressPublished();
-				
-				// check whether we have a different published version !
-				boolean hasDifferentPublishedVersion = false;
-				if (addrPub != null && addrWork.getId() != addrPub.getId()) {
-					hasDifferentPublishedVersion = true;
-				}
-
-				// change mod time and uuid
-				addrWork.setModTime(currentTime);
-				addrWork.setModUuid(modUuid);
-				if (hasDifferentPublishedVersion) {
-					addrPub.setModTime(currentTime);
-					addrPub.setModUuid(modUuid);				
-				}
-
-				// handle move from/to "free address"
-				processMovedOrCopiedAddress(addrWork, isNowFreeAddress);
-				if (hasDifferentPublishedVersion) {
-					processMovedOrCopiedAddress(addrPub, isNowFreeAddress);
-				}
-
-				daoT02Address.makePersistent(addrWork);
-				if (hasDifferentPublishedVersion) {
-					daoT02Address.makePersistent(addrPub);
-				}
-			} else {
-				// update tree path in subnodes
-				pathHandler.updateTreePathAfterMove(node, oldRootPath, newRootPath);
-			}
-
-			daoAddressNode.makePersistent(node);
-
-			numberOfProcessedNodes++;
-
-			// add sub nodes !
-			List<AddressNode> subNodes = daoAddressNode.getSubAddresses(node.getAddrUuid(), null, true);
-			for (AddressNode subNode : subNodes) {
-				// add to stack, will be processed
-				stack.push(subNode);
-			}
+		// set modification time and user (in both versions when present)
+		T02Address addrWork = rootNode.getT02AddressWork();
+		T02Address addrPub = rootNode.getT02AddressPublished();
+		
+		// check whether we have a different published version !
+		boolean hasDifferentPublishedVersion = false;
+		if (addrPub != null && addrWork.getId() != addrPub.getId()) {
+			hasDifferentPublishedVersion = true;
 		}
+
+		// change mod time and uuid
+		addrWork.setModTime(currentTime);
+		addrWork.setModUuid(modUuid);
+		if (hasDifferentPublishedVersion) {
+			addrPub.setModTime(currentTime);
+			addrPub.setModUuid(modUuid);				
+		}
+
+		// handle move from/to "free address"
+		processMovedOrCopiedAddress(addrWork, isNowFreeAddress);
+		if (hasDifferentPublishedVersion) {
+			processMovedOrCopiedAddress(addrPub, isNowFreeAddress);
+		}
+
+		daoT02Address.makePersistent(addrWork);
+		if (hasDifferentPublishedVersion) {
+			daoT02Address.makePersistent(addrPub);
+		}
+
+		// process all subnodes
+
+		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(rootNode.getAddrUuid(), null, false);
+		for (AddressNode subNode : subNodes) {
+			// update tree path in subnodes
+			pathHandler.updateTreePathAfterMove(subNode, oldRootPath, newRootPath);
+			daoAddressNode.makePersistent(subNode);
+		}
+
+		// total number: root + subaddresses
+		int numberOfProcessedNodes = subNodes.size() + 1;
 		
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfProcessedNodes);

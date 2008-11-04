@@ -3,7 +3,6 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -97,13 +96,6 @@ public class AddressNodeDaoHibernate
 	public List<AddressNode> getSubAddresses(String parentUuid,
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren) {
-		return getSubAddresses(parentUuid, whichEntityVersion, fetchSubNodesChildren, false);
-	}
-
-	private List<AddressNode> getSubAddresses(String parentUuid,
-			IdcEntityVersion whichEntityVersion,
-			boolean fetchSubNodesChildren,
-			boolean fetchMetadata) {
 		Session session = getSession();
 
 		String q = "select distinct aNode from AddressNode aNode ";
@@ -117,9 +109,6 @@ public class AddressNodeDaoHibernate
 		if (fetchSubNodesChildren) {
 			q += "left join fetch aNode.addressNodeChildren aChildren ";
 		}
-		if (fetchMetadata) {
-			q += "left join fetch a.addressMetadata ";
-		}
 		q += "where aNode.fkAddrUuid = ? ";
 		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
 			q += "order by a.adrType desc, a.institution, a.lastname, a.firstname"; 
@@ -132,39 +121,43 @@ public class AddressNodeDaoHibernate
 		return aNodes;
 	}
 
-	public List<String> getSubAddressUuids(String parentUuid) {
+	public List<AddressNode> getAllSubAddresses(String parentUuid,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
-		List<String> childUuids = session.createQuery("select aNode.addrUuid " +
-				"from AddressNode aNode " +
-				"where aNode.fkAddrUuid = ?")
-				.setString(0, parentUuid)
-				.list();
+		String q = "select distinct aNode from AddressNode aNode ";
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch aNode.t02AddressWork a ";			
+		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			q += "left join fetch aNode.t02AddressPublished a ";			
+		}
+		if (fetchSubNodesChildren) {
+			q += "left join fetch aNode.addressNodeChildren aChildren ";
+		}
+		q += "where aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' ";
+		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+			q += "order by a.adrType desc, a.institution, a.lastname, a.firstname"; 
+		}
 		
-		return childUuids;
+		List<AddressNode> aNodes = session.createQuery(q)
+				.list();
+
+		return aNodes;
 	}
 
 	public int countSubAddresses(String parentUuid) {
-		int totalNum = 0;
-
-		// TODO: COULD BE OPTIMIZED VIA NEW TREE PATH IN ALL NODES ! just count nodes where tree path contains parent !
-		// we keep it as it is, optimization via tree path is a chapter for its own ! ...
-
-		Stack<String> uuidStack = new Stack<String>();
-		uuidStack.push(parentUuid);
-
-		while (!uuidStack.isEmpty()) {
-			String uuid = uuidStack.pop();
-			if (!uuid.equals(parentUuid)) {
-				totalNum++;
-			}
-			List<String> subUuids = getSubAddressUuids(uuid);
-			for (String subUuid : subUuids) {
-				uuidStack.push(subUuid);
-			}
-		}
+		Session session = getSession();
 		
-		return totalNum;
+		String q = "select count(aNode) " +
+			"from AddressNode aNode " +
+			"where aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%'";
+		
+		Long totalNum = (Long) session.createQuery(q).uniqueResult();
+		
+		return totalNum.intValue();
 	}
 
 	public boolean isSubNode(String uuidToCheck, String uuidParent) {
