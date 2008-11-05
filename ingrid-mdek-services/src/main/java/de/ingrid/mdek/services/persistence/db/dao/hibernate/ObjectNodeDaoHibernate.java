@@ -14,12 +14,14 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
+import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -122,10 +124,10 @@ public class ObjectNodeDaoHibernate
 		String q = "select distinct oNode from ObjectNode oNode ";
 		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch oNode.t01ObjectWork o ";			
+			q += "left join fetch oNode.t01ObjectWork o ";
 		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch oNode.t01ObjectPublished o ";			
+			q += "left join fetch oNode.t01ObjectPublished o ";
 		}
 		if (fetchSubNodesChildren) {
 			q += "left join fetch oNode.objectNodeChildren ";
@@ -133,6 +135,26 @@ public class ObjectNodeDaoHibernate
 		q += "where oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' ";
 		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
 			q += "order by o.objName"; 
+		}
+		
+		List<ObjectNode> oNodes = session.createQuery(q)
+				.list();
+
+		return oNodes;
+	}
+
+	public List<ObjectNode> getSelectedSubObjects(String parentUuid,
+			IdcChildrenSelectionType whichChildren,
+			PublishType parentPubType) {
+		Session session = getSession();
+
+		String q = "select distinct oNode from ObjectNode oNode ";
+		if (whichChildren == IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC) {
+			q += "left join fetch oNode.t01ObjectPublished o ";
+		}
+		q += "where oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' ";
+		if (whichChildren == IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC) {
+			q += "and o.publishId < " + parentPubType.getDbValue();
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)

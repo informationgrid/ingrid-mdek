@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
@@ -1491,26 +1492,26 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			forcePubCondition = false;			
 		}
 		
-		// process all subnodes
+		// process subnodes where publication condition doesn't match
 
-		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(
-				rootUuid, IdcEntityVersion.PUBLISHED_VERSION, false);
+		List<ObjectNode> subNodes = daoObjectNode.getSelectedSubObjects(
+				rootUuid,
+				IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC, pubTypeNew);
 		
 		// also process top node if requested !
 		if (!skipRootNode) {
 			subNodes.add(0, rootNode);			
 		}
 		for (ObjectNode subNode : subNodes) {
-			// check whether publication condition of node is "critical"
+			// check "again" whether publication condition of node is "critical"
 			T01Object objPub = subNode.getT01ObjectPublished();
 			if (objPub == null) {
 				// not published yet ! skip this one
 				continue;
 			}
-			PublishType objPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, objPub.getPublishId());				
-			boolean objIsCritical = !pubTypeNew.includes(objPubType);
 
-			if (objIsCritical) {
+			PublishType objPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, objPub.getPublishId());				
+			if (!pubTypeNew.includes(objPubType)) {
 				// throw "warning" for user when not adapting sub tree !
 				if (!forcePubCondition) {
 					throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION));					

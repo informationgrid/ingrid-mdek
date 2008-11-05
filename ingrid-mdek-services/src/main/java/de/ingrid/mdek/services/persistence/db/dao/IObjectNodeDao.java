@@ -2,11 +2,13 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -49,7 +51,7 @@ public interface IObjectNodeDao
 	/**
 	 * Fetches ALL sub nodes (whole branch) of parent with given uuid. 
 	 * Also prefetch concrete object instance in nodes if requested.
-	 * @param parentUuid uuid of parent
+	 * @param parentUuid uuid of branch root node
 	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
 	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
 	 * @return
@@ -57,6 +59,19 @@ public interface IObjectNodeDao
 	List<ObjectNode> getAllSubObjects(String parentUuid,
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren);
+
+	/**
+	 * Fetches selected sub nodes in branch MATCHING special selection criteria !!!
+	 * The according entity instances (work/publish version) are prefetched, according to selection criteria.
+	 * @param parentUuid uuid of branch root node
+	 * @param whichChildren selection criteria children have to match 
+	 * @param parentPubType publication condition of branch root node, needed 
+	 * 		when selecting children where pub condition does not match !
+	 * @return
+	 */
+	List<ObjectNode> getSelectedSubObjects(String parentUuid,
+			IdcChildrenSelectionType whichChildren,
+			PublishType parentPubType);
 
 	/** Get total number of subobjects in subtree (all levels) */
 	int countSubObjects(String parentUuid);

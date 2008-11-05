@@ -133,6 +133,12 @@ public class MdekUtils {
 		SEARCHTERMS_THESAURUS;
 	}
 
+	/** Which sub entities to select ? */
+	public enum IdcChildrenSelectionType {
+		/** select only children where publish id doesn't fit to publish id of "root" node ! */
+		PUBLICATION_CONDITION_PROBLEMATIC,
+	}
+
 	/** e.g. How to order fetched entities ? asc or desc is set with separate flag. */
 	public enum IdcEntityOrderBy {
 		/** order by class of entity */
