@@ -1072,12 +1072,12 @@ public class ObjectNodeDaoHibernate
 				"OR oNode.objUuid = '" + parentUuid + "') ";
 		}
 
-		// first count number of assigned free search terms
+		// first count number of assigned search terms
 		String qString = "select count(searchtVal.term) " +
 			qStringFromWhere;
 		Long totalNumSearchtermsAssigned = (Long) session.createQuery(qString).uniqueResult();
 
-		// then count number of distinct free search terms for paging
+		// then count number of distinct search terms for paging
 		qString = "select count(distinct searchtVal.term) " +
 			qStringFromWhere;
 		Long totalNumSearchtermsPaging = (Long) session.createQuery(qString).uniqueResult();

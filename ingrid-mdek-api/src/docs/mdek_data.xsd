@@ -418,8 +418,9 @@
 			<!-- STATISTICS_SEARCHTERMS_FREE / STATISTICS_SEARCHTERMS_THESAURUS -->
 			<!-- ordered by num occurences of searchterms descending -->
 			<xs:element name="statistics-searchterm-list" type="STATISTICS_SEARCHTERM_LIST"/>
-			<!-- number of entities in list -->
+			<!-- number of assigned search terms in tree branch (same searchterm may occur multiple times) -->
 			<xs:element name="total-num" type="xs:long"/>
+			<!-- number of distinct search terms for paging -->
 			<xs:element name="total-num-paging" type="xs:long"/>
 		</xs:choice>
 	</xs:complexType>
