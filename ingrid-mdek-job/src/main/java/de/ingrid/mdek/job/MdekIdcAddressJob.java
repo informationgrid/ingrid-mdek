@@ -1284,7 +1284,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public IngridDocument searchAddresses(IngridDocument params) {
 		try {
 			Integer inStartHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-			Integer inNumHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer inNumHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 			IngridDocument inSearchParams = (IngridDocument) params.get(MdekKeys.SEARCH_PARAMS);
 
 			daoAddressNode.beginTransaction();
@@ -1307,9 +1307,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.ADR_ENTITIES, resultList);
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 
 			return result;
 

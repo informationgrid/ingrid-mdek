@@ -12,6 +12,11 @@ public class MdekException extends RuntimeException {
 
     private MdekException() {}
 
+	/** Throws UNSPECIFIED ERROR ! Just used for testing ! */
+    public MdekException(String description) {
+    	super(description);
+    }
+
 	/** Constructs an exception containing the passed error. */
     public MdekException(MdekError error) {
     	this.errors.add(error);

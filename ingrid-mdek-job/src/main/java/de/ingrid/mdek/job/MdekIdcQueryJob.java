@@ -36,7 +36,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	public IngridDocument queryAddressesFullText(IngridDocument params) {
 		try {
 			Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 			IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_PARAMS);
 			String searchTerm = searchParams.getString(MdekKeys.SEARCH_TERM);
 
@@ -60,9 +60,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoAddressNode.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.ADR_ENTITIES, resultList);
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 
 			return result;
 
@@ -76,7 +76,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	public IngridDocument queryAddressesThesaurusTerm(IngridDocument params) {
 		try {
 			Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 			IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_PARAMS);
 			String termSnsId = searchParams.getString(MdekKeys.TERM_SNS_ID);
 
@@ -100,9 +100,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoAddressNode.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.ADR_ENTITIES, resultList);
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 
 			return result;
 
@@ -116,7 +116,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	public IngridDocument queryObjectsFullText(IngridDocument params) {
 		try {
 			Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 			IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_PARAMS);
 			String searchTerm = searchParams.getString(MdekKeys.SEARCH_TERM);
 
@@ -140,9 +140,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoObjectNode.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.OBJ_ENTITIES, resultList);
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 
 			return result;
 
@@ -156,7 +156,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	public IngridDocument queryObjectsThesaurusTerm(IngridDocument params) {
 		try {
 			Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 			IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_PARAMS);
 			String termSnsId = searchParams.getString(MdekKeys.TERM_SNS_ID);
 
@@ -180,9 +180,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoObjectNode.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.OBJ_ENTITIES, resultList);
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 
 			return result;
 
@@ -196,7 +196,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	public IngridDocument queryHQL(IngridDocument params) {
 		try {
 			Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
 
 			daoHQL.beginTransaction();
@@ -239,13 +239,13 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoHQL.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			if (entityType == IdcEntityType.OBJECT) {
 				result.put(MdekKeys.OBJ_ENTITIES, resultList);
 			} else {
 				result.put(MdekKeys.ADR_ENTITIES, resultList);
 			}
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 
 			return result;
 
@@ -278,7 +278,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	public IngridDocument queryHQLToMap(IngridDocument params) {
 		try {
 			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
-			Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 
 			daoHQL.beginTransaction();
 
@@ -297,7 +297,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 
 	public IngridDocument queryObjectsExtended(IngridDocument params) {
 		Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-		Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+		Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 		IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_EXT_PARAMS);
 		
 		// execute the query
@@ -322,9 +322,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoObjectNode.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.OBJ_ENTITIES, resultList);
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 			
 			return result;
 			
@@ -337,7 +337,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 
 	public IngridDocument queryAddressesExtended(IngridDocument params) {
 		Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
-		Integer numHits = (Integer) params.get(MdekKeys.SEARCH_NUM_HITS);
+		Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 		IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_EXT_PARAMS);
 		
 		// execute the query
@@ -362,9 +362,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoObjectNode.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, totalNumHits);
+			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.ADR_ENTITIES, resultList);
-			result.put(MdekKeys.SEARCH_NUM_HITS, resultList.size());
+			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
 			
 			return result;
 			

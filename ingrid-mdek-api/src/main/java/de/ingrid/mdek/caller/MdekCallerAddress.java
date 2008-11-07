@@ -249,7 +249,7 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
 		List jobMethods = mdekCaller.setUpJobMethod("searchAddresses", jobParams);
 

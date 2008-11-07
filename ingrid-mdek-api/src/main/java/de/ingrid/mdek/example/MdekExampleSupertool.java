@@ -36,6 +36,7 @@ import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -1755,7 +1756,7 @@ public class MdekExampleSupertool {
 
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			System.out.println("SUCCESS: " + l.size() + " Entities out of " + totalNumHits);
 			doFullOutput = false;
 			for (IngridDocument a : l) {
@@ -1790,7 +1791,7 @@ public class MdekExampleSupertool {
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
 			doFullOutput = false;
 			for (IngridDocument hit : hits) {
@@ -1825,7 +1826,7 @@ public class MdekExampleSupertool {
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
 			doFullOutput = false;
 			for (IngridDocument hit : hits) {
@@ -1860,7 +1861,7 @@ public class MdekExampleSupertool {
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
 			doFullOutput = false;
 			for (IngridDocument hit : hits) {
@@ -1895,7 +1896,7 @@ public class MdekExampleSupertool {
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
 			doFullOutput = false;
 			for (IngridDocument hit : hits) {
@@ -1930,7 +1931,7 @@ public class MdekExampleSupertool {
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
 			doFullOutput = false;
 			for (IngridDocument hit : hits) {
@@ -1965,7 +1966,7 @@ public class MdekExampleSupertool {
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			System.out.println("SUCCESS: " + hits.size() + " Entities out of " + totalNumHits);
 			doFullOutput = false;
 			for (IngridDocument hit : hits) {
@@ -1998,7 +1999,7 @@ public class MdekExampleSupertool {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			IdcEntityType type = IdcEntityType.OBJECT;
 			List<IngridDocument> hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			if (hits == null) {
@@ -2037,7 +2038,7 @@ public class MdekExampleSupertool {
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
 			result = mdekCaller.getResultFromResponse(response);
 			if (result != null) {
-				Long totalNumHits = (Long) result.get(MdekKeys.SEARCH_TOTAL_NUM_HITS);
+				Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM);
 				System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
 				String csvResult = result.getString(MdekKeys.CSV_RESULT);			
 //				if (doFullOutput) {
@@ -2082,7 +2083,12 @@ public class MdekExampleSupertool {
 			if (hits == null) {
 				hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 			}
-			System.out.println("SUCCESS: " + hits.size() + " Entities");
+			Long numHits = (Long) result.get(MdekKeys.TOTAL_NUM);
+			if (numHits != hits.size()) {
+				throw new MdekException(
+					"Returned listsize of entities (" +	hits.size() + ") != returned numHits (" + numHits + "");
+			}
+			System.out.println("SUCCESS: " + numHits + " Entities");
 			for (IngridDocument hit : hits) {
 				System.out.println("  " + hit);
 			}

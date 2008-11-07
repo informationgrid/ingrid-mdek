@@ -61,7 +61,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 
 		IngridDocument searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.SEARCH_TERM, searchTerm);
@@ -78,7 +78,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 
 		IngridDocument searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
@@ -95,7 +95,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 
 		IngridDocument searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.SEARCH_TERM, searchTerm);
@@ -112,7 +112,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 
 		IngridDocument searchParams = new IngridDocument();
 		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
@@ -129,7 +129,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
 		
 		List jobMethods = mdekCaller.setUpJobMethod("queryHQL", jobParams);
@@ -152,7 +152,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, maxNumHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(maxNumHits));
 		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
 		
 		List jobMethods = mdekCaller.setUpJobMethod("queryHQLToMap", jobParams);
@@ -165,7 +165,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 		jobParams.put(MdekKeys.SEARCH_EXT_PARAMS, searchParams);
 
 		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsExtended", jobParams);
@@ -178,7 +178,7 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.SEARCH_START_HIT, startHit);
-		jobParams.put(MdekKeys.SEARCH_NUM_HITS, numHits);
+		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 		jobParams.put(MdekKeys.SEARCH_EXT_PARAMS, searchParams);
 		
 		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesExtended", jobParams);

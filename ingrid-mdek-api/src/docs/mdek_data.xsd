@@ -31,6 +31,8 @@
 			<xs:element name="ADDRESS_MAP" type="ADDRESS_MAP"/>
 			<!-- added here, returned when paging, e.g. when fetching QA entities. Also part of specific description of results, e.g. in RESULT_STATISTICS_MAP -->
 			<xs:element name="total-num-paging" type="xs:long"/>
+			<!-- number of entities in list -->
+			<xs:element name="total-num" type="xs:long"/>
 			<xs:element name="objEntities" type="OBJECT_LIST"/>
 			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
 			<xs:element name="path" type="UUID_LIST"/>
@@ -242,7 +244,8 @@
 	<xs:complexType name="REQUEST_SEARCH_MAP">
 		<xs:all>
 			<xs:element name="search-start-hit" type="xs:integer"/>
-			<xs:element name="search-num-hits" type="xs:integer"/>
+			<!-- number of hits requested starting at start hit -->
+			<xs:element name="total-num" type="xs:long"/>
 			<xs:element name="search-params" type="SEARCH_PARAMS_MAP"/>
 			<xs:element name="search-ext-params" type="SEARCH_EXT_PARAMS_MAP"/>
 			<!-- query: HQL query -->
@@ -352,12 +355,12 @@
 	</xs:complexType>
 	<xs:complexType name="RESULT_SEARCH_MAP">
 		<xs:all>
-			<!-- number of entities in array -->
-			<xs:element name="search-num-hits" type="xs:integer"/>
+			<!-- number of entities in list -->
+			<xs:element name="total-num" type="xs:long"/>
 			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
 			<xs:element name="objEntities" type="OBJECT_LIST"/>
-			<!-- total number of entities -->
-			<xs:element name="search-total-num-hits" type="xs:long"/>
+			<!-- total number of entities for paging -->
+			<xs:element name="total-num-paging" type="xs:long"/>
 			<!-- csv result as string containing csv lines -->
 			<xs:element name="csv-result" type="xs:string"/>
 		</xs:all>
@@ -415,6 +418,7 @@
 			<!-- STATISTICS_SEARCHTERMS_FREE / STATISTICS_SEARCHTERMS_THESAURUS -->
 			<!-- ordered by num occurences of searchterms descending -->
 			<xs:element name="statistics-searchterm-list" type="STATISTICS_SEARCHTERM_LIST"/>
+			<!-- number of entities in list -->
 			<xs:element name="total-num" type="xs:long"/>
 			<xs:element name="total-num-paging" type="xs:long"/>
 		</xs:choice>

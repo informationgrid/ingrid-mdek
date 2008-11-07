@@ -65,15 +65,21 @@ public class MdekKeys {
     /** Value: String */
     public final static String LANGUAGE = "language";
 
+    /** e.g. SEARCH: number of hits requested starting at start hit<br> 
+     * STATISTICS: total number of entities of specific class counted or assigned search terms (Gesamtsumme)<br>
+     * Value: Long */
+    public final static String TOTAL_NUM = "total-num";
+    /** total number of entries for paging<br>
+     * Value: Long */
+    public final static String TOTAL_NUM_PAGING = "total-num-paging";
+
+
     // SEARCH / QUERY (Recherche)
     // --------------------------
     // REQUEST
     /** hit to start with (first hit == 0)<br>
      * Value: Integer */
     public final static String SEARCH_START_HIT = "search-start-hit";
-    /** number of hits requested starting at start hit<br>
-     * Value: Integer */
-    public final static String SEARCH_NUM_HITS = "search-num-hits";
     /** Value: IngridDocument encapsulating all search parameters in REQUEST */
     public final static String SEARCH_PARAMS = "search-params";
     /** Value: IngridDocument encapsulating all search parameters for extended search in REQUEST */
@@ -131,9 +137,6 @@ public class MdekKeys {
 	public static final String SEARCH_RANGE = "search-range";
 
     // RESULT
-    /** total number of hits<br>
-     * Value: Long */
-    public final static String SEARCH_TOTAL_NUM_HITS = "search-total-num-hits";
     /** Value: String (csv lines, first line contains "titles") */
     public final static String CSV_RESULT = "csv-result";
 
@@ -141,12 +144,6 @@ public class MdekKeys {
     // STATISTICS
     // ----------
     // RESULT
-    /** e.g. total number of entities of specific class counted or assigned search terms (Gesamtsumme)<br>
-     * Value: Long */
-    public final static String TOTAL_NUM = "total-num";
-    /** total number of entries for paging<br>
-     * Value: Long */
-    public final static String TOTAL_NUM_PAGING = "total-num-paging";
     /** Value: List of IngridDocs */
     public final static String STATISTICS_SEARCHTERM_LIST = "statistics-searchterm-list";
 

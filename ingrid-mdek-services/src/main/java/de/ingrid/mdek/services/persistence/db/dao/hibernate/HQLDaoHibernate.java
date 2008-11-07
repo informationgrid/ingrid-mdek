@@ -154,7 +154,7 @@ public class HQLDaoHibernate
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.CSV_RESULT, sw.toString());
-		result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, new Integer(hits.size()).longValue());
+		result.put(MdekKeys.TOTAL_NUM, new Long(hits.size()));
 
 		return result;
 	}
@@ -195,7 +195,7 @@ public class HQLDaoHibernate
 		} else {
 			result.put(MdekKeys.ADR_ENTITIES, resultDocs);
 		}
-		result.put(MdekKeys.SEARCH_TOTAL_NUM_HITS, new Integer(hits.size()).longValue());
+		result.put(MdekKeys.TOTAL_NUM, new Long(hits.size()));
 
 		return result;
 	}
