@@ -2125,6 +2125,10 @@ public class MdekExampleSupertool {
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
+			if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+				System.out.println("  - total num QA:  assigned=" + result.get(MdekKeys.TOTAL_NUM_QA_ASSIGNED) + ", " +
+				" reassigned=" + result.get(MdekKeys.TOTAL_NUM_QA_REASSIGNED));
+			}
 			boolean tmpOutput = this.doFullOutput;
 			setFullOutput(false);
 			for (IngridDocument oDoc : l) {
@@ -2163,6 +2167,10 @@ public class MdekExampleSupertool {
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
+			if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+				System.out.println("  - total num QA:  assigned=" + result.get(MdekKeys.TOTAL_NUM_QA_ASSIGNED) + ", " +
+				" reassigned=" + result.get(MdekKeys.TOTAL_NUM_QA_REASSIGNED));
+			}
 			boolean tmpOutput = this.doFullOutput;
 			setFullOutput(false);
 			for (IngridDocument oDoc : l) {

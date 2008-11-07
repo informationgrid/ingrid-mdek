@@ -320,6 +320,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
+			Long totalNumAssigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_ASSIGNED);
+			Long totalNumReassigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_REASSIGNED);
 
 			// map found objects and related user addresses to docs
 			ArrayList<IngridDocument> oNDocs = new ArrayList<IngridDocument>(oNs.size());
@@ -367,6 +369,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// set up result
 			result = new IngridDocument();
 			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
+			result.put(MdekKeys.TOTAL_NUM_QA_ASSIGNED, totalNumAssigned);
+			result.put(MdekKeys.TOTAL_NUM_QA_REASSIGNED, totalNumReassigned);
 			result.put(MdekKeys.OBJ_ENTITIES, oNDocs);
 
 			daoObjectNode.commitTransaction();

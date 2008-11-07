@@ -349,6 +349,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
+			Long totalNumAssigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_ASSIGNED);
+			Long totalNumReassigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_REASSIGNED);
 
 			// map found addresses and related user addresses to docs
 			ArrayList<IngridDocument> aNDocs = new ArrayList<IngridDocument>(aNs.size());
@@ -396,6 +398,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// set up result
 			result = new IngridDocument();
 			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
+			result.put(MdekKeys.TOTAL_NUM_QA_ASSIGNED, totalNumAssigned);
+			result.put(MdekKeys.TOTAL_NUM_QA_REASSIGNED, totalNumReassigned);
 			result.put(MdekKeys.ADR_ENTITIES, aNDocs);
 
 			daoAddressNode.commitTransaction();

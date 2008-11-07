@@ -818,16 +818,20 @@ public class AddressNodeDaoHibernate
 		// prepare queries
 
 		// selection criteria
+		String qCriteriaUser = "and (aMeta.assignerUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
 		String qCriteria = " where " +
 			"(a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
-				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
-			"and (aMeta.assignerUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
+				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " + qCriteriaUser;
+		String qCriteriaAssigned = " where " +
+			"a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
+		String qCriteriaReassigned = " where " +
+			"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(aNode) " +
 			"from AddressNode aNode " +
 				"inner join aNode.t02AddressWork a " +
-				"inner join a.addressMetadata aMeta " + qCriteria;
+				"inner join a.addressMetadata aMeta ";
 
 		// query string for fetching results ! 
 		String qStringSelect = "from AddressNode aNode " +
@@ -867,11 +871,15 @@ public class AddressNodeDaoHibernate
 
 		qStringSelect += qOrderBy;
 		
-		// first count total number
+		// first count total numbers
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("HQL Counting WORK addresses: " + qStringCount);
+			LOG.debug("HQL Counting WORK addresses \"QA\": " + qStringCount + qCriteria);
+			LOG.debug("HQL Counting WORK addresses \"QA ASSIGNED\": " + qStringCount + qCriteriaAssigned);
+			LOG.debug("HQL Counting WORK addresses \"QA REASSIGNED\": " + qStringCount + qCriteriaReassigned);
 		}
-		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+		Long totalNumPaging = (Long) session.createQuery(qStringCount + qCriteria).uniqueResult();
+		Long totalNumAssigned = (Long) session.createQuery(qStringCount + qCriteriaAssigned).uniqueResult();
+		Long totalNumReassigned = (Long) session.createQuery(qStringCount + qCriteriaReassigned).uniqueResult();
 
 		// then fetch requested entities
 		if (LOG.isDebugEnabled()) {
@@ -884,7 +892,9 @@ public class AddressNodeDaoHibernate
 	
 		// return results
 		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
+		result.put(MdekKeys.TOTAL_NUM_QA_ASSIGNED, totalNumAssigned);
+		result.put(MdekKeys.TOTAL_NUM_QA_REASSIGNED, totalNumReassigned);
 		result.put(MdekKeys.ADR_ENTITIES, aNodes);
 		
 		return result;

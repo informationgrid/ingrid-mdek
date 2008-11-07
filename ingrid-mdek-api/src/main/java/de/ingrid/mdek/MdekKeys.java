@@ -72,6 +72,12 @@ public class MdekKeys {
     /** total number of entries for paging<br>
      * Value: Long */
     public final static String TOTAL_NUM_PAGING = "total-num-paging";
+    /** total number of entities assigned to QA<br>
+     * Value: Long */
+    public final static String TOTAL_NUM_QA_ASSIGNED = "total-num-qa-assigned";
+    /** total number of entities reassigned from QA<br>
+     * Value: Long */
+    public final static String TOTAL_NUM_QA_REASSIGNED = "total-num-qa-reassigned";
 
 
     // SEARCH / QUERY (Recherche)
