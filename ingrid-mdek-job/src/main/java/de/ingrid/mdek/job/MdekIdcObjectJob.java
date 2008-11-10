@@ -389,6 +389,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
 			IdcQAEntitiesSelectionType selectionType =
 				(IdcQAEntitiesSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcEntityOrderBy orderBy = (IdcEntityOrderBy) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_BY);
+			Boolean orderAsc = (Boolean) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_ASC);
 			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
@@ -398,7 +400,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			IngridDocument result =
 				daoObjectNode.getQAObjects(userUuid, isCatAdmin, permissionHandler,
-						whichWorkState, selectionType, startHit, numHits);
+						whichWorkState, selectionType,
+						orderBy, orderAsc,
+						startHit, numHits);
 
 			List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
@@ -409,14 +413,18 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				T01Object o = oN.getT01ObjectWork();
 				IngridDocument objDoc = new IngridDocument();
 				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
-				// map details according to selection !
+				// map details according to selection (according to displayed data on QA page !)
 				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+					// map assigner user !
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				} else {
+					// map mod user !
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.BASIC_ENTITY);					
 					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				}
-				beanToDocMapper.mapUserOperation(oN, objDoc);
+				if (selectionType != IdcQAEntitiesSelectionType.EXPIRED) {
+					beanToDocMapper.mapUserOperation(oN, objDoc);
+				}
 
 				oNDocs.add(objDoc);
 			}

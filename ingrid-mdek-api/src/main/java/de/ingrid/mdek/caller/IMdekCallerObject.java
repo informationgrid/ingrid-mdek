@@ -223,12 +223,15 @@ public interface IMdekCallerObject {
 	 * @param plugId which mdek server (iplug)
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects
+	 * @param orderBy how to order (see Enum)
+	 * @param orderAsc true=order ascending, false=order descending
 	 * @param startHit paging: hit to start with (first hit is 0)
 	 * @param numHits paging: number of hits requested, beginning from startHit
 	 * @return response containing result: map representation of objects (only partial data)
 	 */
 	IngridDocument getQAObjects(String plugId,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits,
 			String userId);
 

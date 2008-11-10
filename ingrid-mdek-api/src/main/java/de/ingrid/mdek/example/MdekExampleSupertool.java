@@ -20,6 +20,7 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -2192,6 +2193,7 @@ public class MdekExampleSupertool {
 	 */
 	public IngridDocument getQAObjects(WorkState whichWorkState,
 			IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 		long startTime;
 		long endTime;
@@ -2202,21 +2204,27 @@ public class MdekExampleSupertool {
 		System.out.println("\n###### INVOKE getQAObjects ######");
 		System.out.println("- work state: " + whichWorkState);
 		System.out.println("- selection type: " + selectionType);
+		System.out.println("- order by: " + orderBy + ", ASC: " + orderAsc);
 		System.out.println("- paging from:" + startHit);
 		System.out.println("- paging num:" + numHits);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerObject.getQAObjects(plugId, whichWorkState, selectionType, 
+		response = mdekCallerObject.getQAObjects(plugId, 
+				whichWorkState, selectionType, 
+				orderBy, orderAsc, 
 				startHit, numHits, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
-			for (Object o : l) {
-				System.out.println(o);				
+			boolean tmpOutput = this.doFullOutput;
+			setFullOutput(false);
+			for (IngridDocument oDoc : l) {
+				debugObjectDoc(oDoc);
 			}
+			setFullOutput(tmpOutput);
 		} else {
 			handleError(response);
 		}
@@ -2517,7 +2525,7 @@ public class MdekExampleSupertool {
 	private void debugObjectDoc(IngridDocument o) {
 		System.out.println("Object: " + o.get(MdekKeys.ID) 
 			+ ", " + o.get(MdekKeys.UUID)
-			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(AddressType.class, o.get(MdekKeys.CLASS))
+			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(ObjectType.class, o.get(MdekKeys.CLASS))
 			+ ", " + o.get(MdekKeys.TITLE)
 			+ ", marked deleted: " + o.get(MdekKeys.MARK_DELETED)
 		);

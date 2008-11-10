@@ -236,11 +236,14 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 
 	public IngridDocument getQAObjects(String plugId,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType, 
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_WHICH_WORK_STATE, whichWorkState);
 		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE, selectionType);
+		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_ORDER_BY, orderBy);
+		jobParams.put(MdekKeys.REQUESTINFO_ENTITY_ORDER_ASC, orderAsc);
 		jobParams.put(MdekKeys.REQUESTINFO_START_HIT, startHit);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, numHits);
 		jobParams.put(MdekKeys.USER_ID, userId);

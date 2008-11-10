@@ -107,7 +107,7 @@ public class MdekUtils {
 
 	/** WORK/RESPONSIBLE PAGE: "modified" Entities. Which entities to fetch ? */
 	public enum IdcWorkEntitiesSelectionType {
-		/** all expired entities where user is RESPONSIBLE */
+		/** all expired PUBLISHED !!! entities where user is RESPONSIBLE. QUERIES PUBLISHED VERSION !!! */
 		EXPIRED,
 		/** all modified entities where user is RESPONSIBLE or MOD-User */
 		MODIFIED,
@@ -117,7 +117,7 @@ public class MdekUtils {
 
 	/** QA PAGE:: Entities where user is QA. Which entities to fetch ? */
 	public enum IdcQAEntitiesSelectionType {
-		/** all expired entities where user is QA */
+		/** all expired PUBLISHED !!! entities where user is QA. QUERIES PUBLISHED VERSION !!! */
 		EXPIRED,
 		/** all entities where user is QA and spatial relations were updated */
 		SPATIAL_RELATIONS_UPDATED,

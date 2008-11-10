@@ -530,7 +530,7 @@ public class ObjectNodeDaoHibernate
 		return defaultResult;
 	}
 
-	/** NOTICE: queries PUBLISHED version ! */
+	/** NOTICE: queries PUBLISHED version because mod-date of published one is displayed ! */
 	private IngridDocument getWorkObjectsExpired(String userUuid,
 			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
@@ -755,6 +755,7 @@ public class ObjectNodeDaoHibernate
 
 	public IngridDocument getQAObjects(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 
 		// default result
@@ -768,9 +769,9 @@ public class ObjectNodeDaoHibernate
 		}
 
 		if (isCatAdmin) {
-			return getQAObjects(null, null, whichWorkState, selectionType, startHit, numHits);
+			return getQAObjects(null, null, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);
 		} else {
-			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, startHit, numHits);			
+			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);			
 		}
 	}
 
@@ -788,6 +789,7 @@ public class ObjectNodeDaoHibernate
 	 */
 	private IngridDocument getQAObjectsViaGroup(String userUuid,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 		Session session = getSession();
 
@@ -834,6 +836,7 @@ public class ObjectNodeDaoHibernate
 		return getQAObjects(objUuidsWriteSingle,
 				objUuidsWriteTree,
 				whichWorkState, selectionType,
+				orderBy, orderAsc,
 				startHit, numHits);
 	}
 
@@ -851,6 +854,7 @@ public class ObjectNodeDaoHibernate
 	private IngridDocument getQAObjects(List<String> objUuidsWriteSingle,
 			List<String> objUuidsWriteTree,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
 
@@ -868,14 +872,31 @@ public class ObjectNodeDaoHibernate
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(oNode) " +
-			"from ObjectNode oNode " +
-			"inner join oNode.t01ObjectWork o " +
-			"inner join o.objectMetadata oMeta ";
+			"from ObjectNode oNode ";
+		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
+			// queries PUBLISHED version because mod-date of published one is displayed !
+			qStringCount += "inner join oNode.t01ObjectPublished o ";
+		} else {
+			qStringCount += "inner join oNode.t01ObjectWork o ";			
+		}
+		qStringCount += "inner join o.objectMetadata oMeta ";
+
 
 		// with fetch: always fetch object and metadata, e.g. needed when mapping user operation (mark deleted) 
-		String qStringSelect = "from ObjectNode oNode " +
-			"inner join fetch oNode.t01ObjectWork o " +
-			"inner join fetch o.objectMetadata oMeta ";
+		String qStringSelect = "from ObjectNode oNode ";
+		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
+			// queries PUBLISHED version because mod-date of published one is displayed !
+			qStringSelect += "inner join fetch oNode.t01ObjectPublished o ";
+		} else {
+			qStringSelect += "inner join fetch oNode.t01ObjectWork o ";			
+		}
+		qStringSelect += "inner join fetch o.objectMetadata oMeta ";
+		if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+			qStringSelect += "inner join fetch oMeta.addressNodeAssigner aNode ";
+		} else {
+			qStringSelect += "inner join fetch o.addressNodeMod aNode ";
+		}
+		qStringSelect += "inner join fetch aNode.t02AddressWork a ";
 
 		// selection criteria
 		if (whichWorkState != null || selectionType != null ||
@@ -909,18 +930,23 @@ public class ObjectNodeDaoHibernate
 				if (addAnd) {
 					qStringCriteria += " and ( ";
 				}
-				if (objUuidsWriteSingle != null) {
-					// add all write tree nodes to single nodes
-					// -> top nodes of branch have to be selected in same way as write single objects
-					if (objUuidsWriteTree != null) {
-						objUuidsWriteSingle.addAll(objUuidsWriteTree);
-					}
-					qStringCriteria += " oNode.objUuid in (:singleUuidList) ";					
+
+				// WRITE SINGLE 
+				// add all write tree nodes to single nodes
+				// -> top nodes of branch have to be selected in same way as write single objects
+				if (objUuidsWriteSingle == null) {
+					objUuidsWriteSingle = new ArrayList<String>();
 				}
 				if (objUuidsWriteTree != null) {
-					if (objUuidsWriteSingle != null) {
-						qStringCriteria += " or ( ";
-					}
+					objUuidsWriteSingle.addAll(objUuidsWriteTree);
+				}
+
+				qStringCriteria += " oNode.objUuid in (:singleUuidList) ";
+
+				// WRITE TREE 
+				if (objUuidsWriteTree != null) {
+					qStringCriteria += " or ( ";
+
 					boolean start = true;
 					for (String oUuid : objUuidsWriteTree) {
 						if (!start) {
@@ -930,9 +956,7 @@ public class ObjectNodeDaoHibernate
 							" oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(oUuid) + "%' ";
 						start = false;
 					}
-					if (objUuidsWriteSingle != null) {
-						qStringCriteria += " ) ";
-					}
+					qStringCriteria += " ) ";
 				}
 				
 				if (addAnd) {
@@ -945,24 +969,29 @@ public class ObjectNodeDaoHibernate
 			qStringSelect += qStringCriteria;
 		}
 
-		// order by
-		String qOrderBy = "";
-		if (selectionType != null) {
-			qOrderBy = " order by o.modTime asc";
-		} else if (whichWorkState != null) {
-			if (whichWorkState == WorkState.IN_BEARBEITUNG ||
-					whichWorkState == WorkState.VEROEFFENTLICHT) {
-				qOrderBy = " order by o.modTime asc";
-			} else if (whichWorkState == WorkState.QS_UEBERWIESEN) {
-				qOrderBy = " order by oMeta.assignTime asc";				
-			} else if (whichWorkState == WorkState.QS_RUECKUEBERWIESEN) {
-				qOrderBy = " order by oMeta.reassignTime asc";				
-			}
-		} else {
-			qOrderBy = " order by o.modTime asc";			
+		// order by: default is date
+		String qOrderBy = " order by o.modTime ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by o.objClass ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.NAME) {
+			qOrderBy = " order by o.objName ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";				
+			qOrderBy += ", o.modTime ";
 		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
 		qStringSelect += qOrderBy;
-		
+
 		// set query parameters 
 		Query qCount = session.createQuery(qStringCount);
 		Query qSelect = session.createQuery(qStringSelect);
