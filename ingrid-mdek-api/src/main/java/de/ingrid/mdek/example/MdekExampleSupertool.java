@@ -2240,6 +2240,7 @@ public class MdekExampleSupertool {
 	 */
 	public IngridDocument getQAAddresses(WorkState whichWorkState,
 			IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 		long startTime;
 		long endTime;
@@ -2250,21 +2251,27 @@ public class MdekExampleSupertool {
 		System.out.println("\n###### INVOKE getQAAddresses ######");
 		System.out.println("- work state: " + whichWorkState);
 		System.out.println("- selection type: " + selectionType);
+		System.out.println("- order by: " + orderBy + ", ASC: " + orderAsc);
 		System.out.println("- paging from:" + startHit);
 		System.out.println("- paging num:" + numHits);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.getQAAddresses(plugId, whichWorkState, selectionType,
+		response = mdekCallerAddress.getQAAddresses(plugId,
+				whichWorkState, selectionType,
+				orderBy, orderAsc, 
 				startHit, numHits, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCaller.getResultFromResponse(response);
 		if (result != null) {
-			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
-			for (Object o : l) {
-				System.out.println(o);				
+			boolean tmpOutput = this.doFullOutput;
+			setFullOutput(false);
+			for (IngridDocument oDoc : l) {
+				debugAddressDoc(oDoc);
 			}
+			setFullOutput(tmpOutput);
 		} else {
 			handleError(response);
 		}

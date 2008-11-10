@@ -204,12 +204,15 @@ public interface IAddressNodeDao
 	 * @param permHandler permission handler needed for checking QA permissions
 	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
+	 * @param orderBy how to order (see Enum)
+	 * @param orderAsc true=order ascending, false=order descending
 	 * @param startHit paging: hit to start with (first hit is 0)
 	 * @param numHits paging: number of hits requested, beginning from startHit
 	 * @return doc encapsulating total number for paging and list of nodes
 	 */
 	IngridDocument getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits);
 
 	/**

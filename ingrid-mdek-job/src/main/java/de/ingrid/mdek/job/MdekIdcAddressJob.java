@@ -417,6 +417,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		try {
 			WorkState whichWorkState = (WorkState) params.get(MdekKeys.REQUESTINFO_WHICH_WORK_STATE);
 			IdcQAEntitiesSelectionType selectionType = (IdcQAEntitiesSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
+			IdcEntityOrderBy orderBy = (IdcEntityOrderBy) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_BY);
+			Boolean orderAsc = (Boolean) params.get(MdekKeys.REQUESTINFO_ENTITY_ORDER_ASC);
 			Integer startHit = (Integer) params.get(MdekKeys.REQUESTINFO_START_HIT);
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
@@ -426,7 +428,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			IngridDocument result =
 				daoAddressNode.getQAAddresses(userUuid, isCatAdmin, permissionHandler,
-						whichWorkState, selectionType, startHit, numHits);
+						whichWorkState, selectionType,
+						orderBy, orderAsc,
+						startHit, numHits);
 
 			List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
@@ -437,14 +441,18 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				T02Address a = aN.getT02AddressWork();
 				IngridDocument addrDoc = new IngridDocument();
 				beanToDocMapper.mapT02Address(a, addrDoc, MappingQuantity.BASIC_ENTITY);
-				// map details according to selection !
+				// map details according to selection (according to displayed data on QA page !)
 				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+					// map assigner user !
 					beanToDocMapper.mapAddressMetadata(a.getAddressMetadata(), addrDoc, MappingQuantity.DETAIL_ENTITY);
 				} else {
+					// map mod user !
 					beanToDocMapper.mapAddressMetadata(a.getAddressMetadata(), addrDoc, MappingQuantity.BASIC_ENTITY);					
 					beanToDocMapper.mapModUser(a.getModUuid(), addrDoc, MappingQuantity.DETAIL_ENTITY);
 				}
-				beanToDocMapper.mapUserOperation(aN, addrDoc);
+				if (selectionType != IdcQAEntitiesSelectionType.EXPIRED) {
+					beanToDocMapper.mapUserOperation(aN, addrDoc);
+				}
 
 				aNDocs.add(addrDoc);
 			}

@@ -663,7 +663,7 @@ public class AddressNodeDaoHibernate
 		return defaultResult;
 	}
 
-	/** NOTICE: queries PUBLISHED version ! */
+	/** NOTICE: queries PUBLISHED version because mod-date of published one is displayed ! */
 	private IngridDocument getWorkAddressesExpired(String userUuid,
 			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
@@ -902,6 +902,7 @@ public class AddressNodeDaoHibernate
 
 	public IngridDocument getQAAddresses(String userUuid, boolean isCatAdmin, MdekPermissionHandler permHandler,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 
 		// default result
@@ -915,9 +916,9 @@ public class AddressNodeDaoHibernate
 		}
 
 		if (isCatAdmin) {
-			return getQAAddresses(null, null, whichWorkState, selectionType, startHit, numHits);
+			return getQAAddresses(null, null, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);
 		} else {
-			return getQAAddressesViaGroup(userUuid, whichWorkState, selectionType, startHit, numHits);			
+			return getQAAddressesViaGroup(userUuid, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);			
 		}
 	}
 
@@ -935,6 +936,7 @@ public class AddressNodeDaoHibernate
 	 */
 	private IngridDocument getQAAddressesViaGroup(String userUuid,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 
 		Session session = getSession();
@@ -982,6 +984,7 @@ public class AddressNodeDaoHibernate
 		return getQAAddresses(addrUuidsWriteSingle,
 				addrUuidsWriteTree,
 				whichWorkState, selectionType,
+				orderBy, orderAsc,
 				startHit, numHits);
 	}
 
@@ -999,6 +1002,7 @@ public class AddressNodeDaoHibernate
 	private IngridDocument getQAAddresses(List<String> addrUuidsWriteSingle,
 			List<String> addrUuidsWriteTree,
 			WorkState whichWorkState, IdcQAEntitiesSelectionType selectionType,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
 			int startHit, int numHits) {
 		IngridDocument result = new IngridDocument();
 
@@ -1016,14 +1020,30 @@ public class AddressNodeDaoHibernate
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(aNode) " +
-			"from AddressNode aNode " +
-			"inner join aNode.t02AddressWork a " +
-			"inner join a.addressMetadata aMeta ";
+			"from AddressNode aNode ";
+		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
+			// queries PUBLISHED version because mod-date of published one is displayed !
+			qStringCount += "inner join aNode.t02AddressPublished a ";
+		} else {
+			qStringCount += "inner join aNode.t02AddressWork a ";			
+		}
+		qStringCount += "inner join a.addressMetadata aMeta ";
 
 		// with fetch: always fetch address and metadata, e.g. needed when mapping user operation (mark deleted) 
-		String qStringSelect = "from AddressNode aNode " +
-			"inner join fetch aNode.t02AddressWork a " +
-			"inner join fetch a.addressMetadata aMeta ";
+		String qStringSelect = "from AddressNode aNode ";
+		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
+			// queries PUBLISHED version because mod-date of published one is displayed !
+			qStringSelect += "inner join fetch aNode.t02AddressPublished a ";
+		} else {
+			qStringSelect += "inner join fetch aNode.t02AddressWork a ";			
+		}
+		qStringSelect += "inner join fetch a.addressMetadata aMeta ";
+		if (whichWorkState == WorkState.QS_UEBERWIESEN) {
+			qStringSelect += "inner join fetch aMeta.addressNodeAssigner aNodeUser ";
+		} else {
+			qStringSelect += "inner join fetch a.addressNodeMod aNodeUser ";
+		}
+		qStringSelect += "inner join fetch aNodeUser.t02AddressWork aUser ";
 
 		// selection criteria
 		if (whichWorkState != null || selectionType != null ||
@@ -1057,18 +1077,23 @@ public class AddressNodeDaoHibernate
 				if (addAnd) {
 					qStringCriteria += " and ( ";
 				}
-				if (addrUuidsWriteSingle != null) {
-					// add all write tree nodes to single nodes
-					// -> top nodes of branch have to be selected in same way as write single addresses
-					if (addrUuidsWriteTree != null) {
-						addrUuidsWriteSingle.addAll(addrUuidsWriteTree);
-					}
-					qStringCriteria += " aNode.addrUuid in (:singleUuidList) ";
+
+				// WRITE SINGLE 
+				// add all write tree nodes to single nodes
+				// -> top nodes of branch have to be selected in same way as write single objects
+				if (addrUuidsWriteSingle == null) {
+					addrUuidsWriteSingle = new ArrayList<String>();
 				}
 				if (addrUuidsWriteTree != null) {
-					if (addrUuidsWriteSingle != null) {
-						qStringCriteria += " or ( ";
-					}
+					addrUuidsWriteSingle.addAll(addrUuidsWriteTree);
+				}
+
+				qStringCriteria += " aNode.addrUuid in (:singleUuidList) ";
+
+				// WRITE TREE 
+				if (addrUuidsWriteTree != null) {
+					qStringCriteria += " or ( ";
+
 					boolean start = true;
 					for (String aUuid : addrUuidsWriteTree) {
 						if (!start) {
@@ -1078,9 +1103,7 @@ public class AddressNodeDaoHibernate
 							" aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(aUuid) + "%' ";
 						start = false;
 					}
-					if (addrUuidsWriteSingle != null) {
-						qStringCriteria += " ) ";
-					}
+					qStringCriteria += " ) ";
 				}
 				
 				if (addAnd) {
@@ -1093,22 +1116,31 @@ public class AddressNodeDaoHibernate
 			qStringSelect += qStringCriteria;
 		}
 
-		// order by
-		String qOrderBy = "";
-		if (selectionType != null) {
-			qOrderBy = " order by a.modTime asc";
-		} else if (whichWorkState != null) {
-			if (whichWorkState == WorkState.IN_BEARBEITUNG ||
-					whichWorkState == WorkState.VEROEFFENTLICHT) {
-				qOrderBy = " order by a.modTime asc";
-			} else if (whichWorkState == WorkState.QS_UEBERWIESEN) {
-				qOrderBy = " order by aMeta.assignTime asc";				
-			} else if (whichWorkState == WorkState.QS_RUECKUEBERWIESEN) {
-				qOrderBy = " order by aMeta.reassignTime asc";				
-			}
-		} else {
-			qOrderBy = " order by a.modTime asc";			
+		// order by: default is date
+		String qOrderBy = " order by a.modTime ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by a.adrType ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.NAME) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by aUser.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aUser.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", aUser.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.modTime ";
 		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
 		qStringSelect += qOrderBy;
 		
 		// set query parameters 
