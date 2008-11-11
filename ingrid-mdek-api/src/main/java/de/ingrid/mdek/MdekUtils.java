@@ -105,19 +105,24 @@ public class MdekUtils {
 		ALL_VERSIONS;
 	}
 
-	/** WORK/RESPONSIBLE PAGE: "modified" Entities. Which entities to fetch ? */
+	/**
+	 * Entities where user has write permission. Which entities to fetch ? Handles selection for the following pages !<br> 
+	 * - WORK/RESPONSIBLE PAGE: "modified" Entities.<br> 
+	 * - PORTAL QUICKLIST: quicklist to show in portal IGE entry page ! */
 	public enum IdcWorkEntitiesSelectionType {
-		/** all expired PUBLISHED !!! entities where user is RESPONSIBLE. QUERIES PUBLISHED VERSION !!! */
+		/** WORK/RESPONSIBLE PAGE Table 1 -> all expired entities where user is RESPONSIBLE. QUERIES PUBLISHED VERSION !!! */
 		EXPIRED,
-		/** all modified entities where user is RESPONSIBLE or MOD-User */
+		/** WORK/RESPONSIBLE PAGE Table 2 -> all modified entities where user is RESPONSIBLE or MOD-User */
 		MODIFIED,
-		/** all entities in QA workflow where user is RESPONSIBLE or MOD-User or Assigner */
+		/** WORK/RESPONSIBLE PAGE Table 3 -> all entities in QA workflow where user is RESPONSIBLE or MOD-User or Assigner */
 		IN_QA_WORKFLOW,
+		/** PORTAL QUICKLIST -> MODIFIED or REASSIGNED entities where user is MOD-User or Assigner */
+		PORTAL_QUICKLIST,
 	}
 
 	/** QA PAGE:: Entities where user is QA. Which entities to fetch ? */
 	public enum IdcQAEntitiesSelectionType {
-		/** all expired PUBLISHED !!! entities where user is QA. QUERIES PUBLISHED VERSION !!! */
+		/** all expired entities where user is QA. QUERIES PUBLISHED VERSION !!! */
 		EXPIRED,
 		/** all entities where user is QA and spatial relations were updated */
 		SPATIAL_RELATIONS_UPDATED,

@@ -658,6 +658,8 @@ public class AddressNodeDaoHibernate
 			return getWorkAddressesModified(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
 			return getWorkAddressesInQAWorkflow(userUuid, orderBy, orderAsc, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			return getWorkAddressesPortalQuicklist(userUuid, startHit, numHits);
 		}
 
 		return defaultResult;
@@ -895,6 +897,56 @@ public class AddressNodeDaoHibernate
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.TOTAL_NUM_QA_ASSIGNED, totalNumAssigned);
 		result.put(MdekKeys.TOTAL_NUM_QA_REASSIGNED, totalNumReassigned);
+		result.put(MdekKeys.ADR_ENTITIES, aNodes);
+		
+		return result;
+	}
+
+	private IngridDocument getWorkAddressesPortalQuicklist(String userUuid,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"(a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
+				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
+			"and (aMeta.assignerUuid = '" + userUuid + "' or a.modUuid = '" + userUuid + "') ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(aNode) " +
+			"from AddressNode aNode " +
+				"inner join aNode.t02AddressWork a " +
+				"inner join a.addressMetadata aMeta " + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from AddressNode aNode " +
+			"inner join fetch aNode.t02AddressWork a " +
+			"inner join fetch a.addressMetadata aMeta " + qCriteria;
+
+		// always order by date
+		String qOrderBy = " order by a.modTime desc";
+		qStringSelect += qOrderBy;
+		
+		// first count total numbers
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK addresses \"QA\": " + qStringCount);
+		}
+		Long totalNumPaging = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK addresses: " + qStringSelect);
+		}
+		List<AddressNode> aNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.ADR_ENTITIES, aNodes);
 		
 		return result;

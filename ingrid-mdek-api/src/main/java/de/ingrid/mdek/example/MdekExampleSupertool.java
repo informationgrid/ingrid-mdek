@@ -2832,11 +2832,11 @@ public class MdekExampleSupertool {
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
 		);
 
+		System.out.println("  " + a);
+
 		if (!doFullOutput) {
 			return;
 		}
-
-		System.out.println("  " + a);
 
 		debugPermissionsDoc(a, "  ");
 

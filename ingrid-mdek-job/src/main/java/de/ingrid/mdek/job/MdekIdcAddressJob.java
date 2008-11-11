@@ -372,6 +372,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 					// map some user uuids for debugging on client side !
 					beanToDocMapper.mapModUser(a.getModUuid(), addrDoc, MappingQuantity.INITIAL_ENTITY);
 					beanToDocMapper.mapResponsibleUser(a.getResponsibleUuid(), addrDoc, MappingQuantity.INITIAL_ENTITY);
+					beanToDocMapper.mapAssignerUser(a.getAddressMetadata().getAssignerUuid(), addrDoc, MappingQuantity.INITIAL_ENTITY);
 				}
 
 				// map details according to selection !
@@ -384,7 +385,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 					}
 				}
 				if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED ||
-					selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
+					selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW ||
+					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
 					beanToDocMapper.mapUserOperation(aN, addrDoc);
 				}
 				if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {

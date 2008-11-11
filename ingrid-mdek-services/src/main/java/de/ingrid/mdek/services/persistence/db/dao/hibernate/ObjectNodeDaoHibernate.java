@@ -525,6 +525,8 @@ public class ObjectNodeDaoHibernate
 			return getWorkObjectsModified(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
 			return getWorkObjectsInQAWorkflow(userUuid, orderBy, orderAsc, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			return getWorkObjectsPortalQuicklist(userUuid, startHit, numHits);
 		}
 
 		return defaultResult;
@@ -748,6 +750,56 @@ public class ObjectNodeDaoHibernate
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.TOTAL_NUM_QA_ASSIGNED, totalNumAssigned);
 		result.put(MdekKeys.TOTAL_NUM_QA_REASSIGNED, totalNumReassigned);
+		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
+		
+		return result;
+	}
+
+	private IngridDocument getWorkObjectsPortalQuicklist(String userUuid,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"(o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
+				"o.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
+			"and (oMeta.assignerUuid = '" + userUuid + "' or o.modUuid = '" + userUuid + "') ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(oNode) " +
+			"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork o " +
+				"inner join o.objectMetadata oMeta " + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from ObjectNode oNode " +
+				"inner join fetch oNode.t01ObjectWork o " +
+				"inner join fetch o.objectMetadata oMeta " + qCriteria;
+
+		// always order by date
+		String qOrderBy = " order by o.modTime desc";
+		qStringSelect += qOrderBy;
+		
+		// first count total numbers
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK objects \"QA\": " + qStringCount);
+		}
+		Long totalNumPaging = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
+		}
+		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
 		
 		return result;

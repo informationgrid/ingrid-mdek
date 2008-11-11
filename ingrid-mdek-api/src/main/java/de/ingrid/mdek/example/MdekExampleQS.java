@@ -588,6 +588,23 @@ class MdekExampleQSThread extends Thread {
 
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
 
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- PORTAL QUICKLIST: OBJECTS -----");
+		System.out.println("---------------------------------------------");
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get PORTAL_QUICKLIST Objects -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get PORTAL_QUICKLIST Objects -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
+
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("\n----- discard changes -> back to original version -----");
 		supertool.setCallingUser(catalogAdminUuid);
@@ -1107,6 +1124,23 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpQAUuid);
 
 		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- PORTAL QUICKLIST: ADDRESSES -----");
+		System.out.println("---------------------------------------------");
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get PORTAL_QUICKLIST Addresses -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get PORTAL_QUICKLIST Addresses -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
 
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("\n----- discard changes -> back to original version -----");
