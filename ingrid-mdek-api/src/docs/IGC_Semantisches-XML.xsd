@@ -70,11 +70,7 @@
     Fachlicher Name: Land
     Tabelle.Feld   : T03_catalogue.country_code
   -->
-  <xs:element name="country">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="country" type="udk:iso-code"/>
   <!--
     Fachlicher Name: ??
     Tabelle.Feld   : T03_catalogue.state
@@ -153,11 +149,7 @@
     Fachlicher Name:
     Tabelle.Feld   : T01_object.obj_class
   -->
-  <xs:element name="object-class">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.id"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="object-class" type="udk:id"/>
   <!--
     Fachlicher Name: Objektname
     Tabelle.Feld   : T01_object.obj_name
@@ -232,14 +224,7 @@
     Fachlicher Name: Zeichensatz des Metadatensatzes
     Tabelle.Feld   : T01_object.metadata_character_set
   -->
-  <xs:element name="metadata-character-set">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:attributeGroup name="attlist.udk.metadata-character-set">
-    <xs:attribute name="domain-id" use="required"/>
-  </xs:attributeGroup>
+  <xs:element name="metadata-character-set" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Kurzbeschreibung
     Tabelle.Feld   : T01_object.dataset_alternate_name
@@ -249,11 +234,7 @@
     Fachlicher Name: Zeichensatz des Datensatzes
     Tabelle.Feld   : T01_object.dataset_character_set
   -->
-  <xs:element name="dataset-character-set">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="dataset-character-set" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Themenkategorien eines Objektes
     Tabelle.Feld   : t011_obj_topic_cat
@@ -269,11 +250,7 @@
     Fachlicher Name: Themenkategorie eines Objektes
     Tabelle.Feld   : t011_obj_topic_cat.topic_category
   -->
-  <xs:element name="topic-category">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.id"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="topic-category" type="udk:id"/>
   <!--
     Fachlicher Name: Katalog Umweltthemen Infos (Katalogseite)
     Tabellen   : T01_object, T0114_env_topic, T0114_env_category
@@ -296,20 +273,12 @@
     Fachlicher Name: Umweltthema Schlüssel (Katalogseite)
     Tabelle.Feld   : T0114_env_topic.topic_key
   -->
-  <xs:element name="env-topic">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.id"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="env-topic" type="udk:id"/>
   <!--
     Fachlicher Name: Umweltkategorie Schlüssel (Katalogseite)
     Tabelle.Feld   : t0114_env_category.cat_key
   -->
-  <xs:element name="env-category">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.id"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="env-category" type="udk:id"/>
   <!--
     Fachlicher Name: Objektklassen
   -->
@@ -393,29 +362,13 @@
     Tabelle.Feld   : T011_obj_serv.type_key
     Tabelle.Feld   : T011_obj_serv.type_value
   -->
-  <xs:element name="service-classification">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>     
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="service-classification" type="udk:id-string"/>
   <!--
     Fachlicher Name: Service-Typ (INSPIRE Classification of spatial data services)
     Tabelle.Feld   : T011_obj_serv_type.serv_type_key
     Tabelle.Feld   : T011_obj_serv_type.serv_type_value
   -->
-  <xs:element name="service-type">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>     
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="service-type" type="udk:id-string"/>
   <!--
     Fachlicher Name: Historie
     Tabelle.Feld   : T011_obj_serv.history
@@ -463,15 +416,7 @@
     Tabelle.Feld   : T011_obj_serv_operation.name_key
     Tabelle.Feld   : T011_obj_serv_operation.name_value
   -->
-  <xs:element name="operation-name">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="operation-name" type="udk:id-string"/>
   <!--
     Fachlicher Name: Aufruf
     Tabelle.Feld   : T011_obj_serv_operation.invocation_name
@@ -581,15 +526,7 @@
     Tabelle.Feld   : t011_obj_literature.type_key
     Tabelle.Feld   : t011_obj_literature.type_value
   -->
-  <xs:element name="type-of-document">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="type-of-document" type="udk:id-string"/>
   <!--
     Fachlicher Name: Herausgeber
     Tabelle.Feld   : t011_obj_literature.publisher
@@ -666,15 +603,7 @@
     Tabelle.Feld   : T011_obj_geo.referencesystem_key
     Tabelle.Feld   : T011_obj_geo.referencesystem_value
   -->
-  <xs:element name="coordinate-system">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="coordinate-system" type="udk:id-string"/>
   <!--
     Fachlicher Name: Erstellungsma޳tab
     Tabelle   : t011_obj_geo_scale / T011_obj_serv_scale
@@ -724,15 +653,7 @@
     Tabelle.Feld   : T011_obj_geo_keyc.keyc_key
     Tabelle.Feld   : T011_obj_geo_keyc.keyc_value
   -->
-  <xs:element name="key-cat">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="key-cat" type="udk:id-string"/>
   <!--
     Fachlicher Name: Schlüsselkatalog: Datum
     Tabelle.Feld   : T011_obj_geo_keyc.key_date
@@ -778,15 +699,7 @@
     Tabelle.Feld   : T011_obj_geo_symc.symbol_cat_key
     Tabelle.Feld   : T011_obj_geo_symc.symbol_cat_value
   -->
-  <xs:element name="symbol-cat">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="symbol-cat" type="udk:id-string"/>
   <!--
     Fachlicher Name: Symbolkatalog: Datum
     Tabelle.Feld   : T011_obj_geo_symc.symbol_date
@@ -796,20 +709,12 @@
     Fachlicher Name: Datensatz/Datenserie
     Tabelle.Feld   : T011_obj_geo.hierachy_level
   -->
-  <xs:element name="hierarchy-level">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="hierarchy-level" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Digitale Repräsentation (ISO19115 Codeliste B.5.26 "MD_SpatialRepresentationTypeCode")
     Tabelle.Feld   : T011_obj_geo_spatial_rep.type
   -->
-  <xs:element name="spatial-representation-type">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="spatial-representation-type" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Vektorinfo
     Tabelle.Feld   : T011_obj_geo.vector_topology_level
@@ -827,11 +732,7 @@
     Fachlicher Name: Vektorformat: Topologieinformation
     Tabelle.Feld   : T011_obj_geo.vector_topology_level
   -->
-  <xs:element name="vector-topology-level">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="vector-topology-level" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Vektorformat
     Tabelle.Feld   : T011_obj_geo_vector
@@ -848,11 +749,7 @@
     Fachlicher Name: Vektorformat: Geometrietyp
     Tabelle.Feld   : T011_obj_geo_vector.geometric_object_type
   -->
-  <xs:element name="geometric-object-type">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="geometric-object-type" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Vektorformat: Elementanzahl
     Tabelle.Feld   : T011_obj_geo_vector.geometric_object_count
@@ -918,48 +815,24 @@
     Fachlicher Name: Sprache des Datensatzes
     Tabelle.Feld   : T01_object.data_language_code
   -->
-  <xs:element name="data-language">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="data-language" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Sprache des Metadatensatzes
     Tabelle.Feld   : T01_object.metadata_language_code
   -->
-  <xs:element name="metadata-language">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="metadata-language" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Kriterium fuer Export
     Tabelle.Feld   : T014_info_impart.impart_key
     Tabelle.Feld   : T014_info_impart.impart_value
   -->
-  <xs:element name="export-to">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="export-to" type="udk:id-string"/>
   <!--
     Fachlicher Name: Rechtliche Grundlage
     Tabelle.Feld   : T015_legist.legist_key
     Tabelle.Feld   : T015_legist.legist_value
   -->
-  <xs:element name="legislation">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="legislation" type="udk:id-string"/>
   <!--
     Fachlicher Name: Herstellungszweck, Erl㴴erung zu den rechtlichen Grundlagen
     Tabelle.Feld   : T01_object.info_note
@@ -982,15 +855,7 @@
     Tabelle.Feld   : object_access.restriction_key
     Tabelle.Feld   : object_access.restriction_value
   -->
-  <xs:element name="restriction">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="restriction" type="udk:id-string"/>
   <!--
     Fachlicher Name: Nutzungsbedingungen
     Tabelle.Feld   : object_access.terms_of_use
@@ -1018,11 +883,7 @@
     Fachlicher Name: Medium, auf dem die Daten verf�sind
     Tabelle.Feld   : t0112_media_option.medium_name
   -->
-  <xs:element name="medium-name">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="medium-name" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Kennzeichnung von Name und Speicherort der Daten
     Tabelle.Feld   : t0112_media_option.medium_note
@@ -1067,15 +928,7 @@
     Tabelle.Feld   : T0110_avail_format.format_key
     Tabelle.Feld   : T0110_avail_format.format_value
   -->
-  <xs:element name="format-name">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="format-name" type="udk:id-string"/>
   <!--
     Fachlicher Name: Datenformat: Version
     Tabelle.Feld   : T0110_avail_format.ver
@@ -1136,20 +989,12 @@
     Fachlicher Name: H� Ma޳tab
     Tabelle.Feld   : T01_object.vertical_extent_unit
   -->
-  <xs:element name="vertical-extent-unit">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.id"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="vertical-extent-unit" type="udk:id"/>
   <!--
     Fachlicher Name: H� Vertikal Datum
     Tabelle.Feld   : T01_object.vertical_extent_vdatum
   -->
-  <xs:element name="vertical-extent-vdatum">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.id"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="vertical-extent-vdatum" type="udk:id"/>
   <!--
     Fachlicher Name: Raumbezug
     Tabelle   : spatial_ref_value
@@ -1206,15 +1051,7 @@
       Tabelle.Feld   : spatial_ref_value.name_key (bei Frei)
       Tabelle.Feld   : spatial_ref_sns.sns_id (bei Geothesaurus)
   -->
-  <xs:element name="location-name">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="location-name" type="udk:id-string"/>
   <!--
     Fachlicher Name: Administrative Einheit Raumschluessel AGS/RS
     Tabelle.Feld   : spatial_ref_value.nativekey
@@ -1302,20 +1139,12 @@
     Fachlicher Name: Periodizität, ISO19115 Codeliste B.5.18 "MD_MaintenanceFrequencyCode"
     Tabelle.Feld   : t01_object.time_period
   -->
-  <xs:element name="time-period">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="time-period" type="udk:iso-code"/>
   <!--
     Fachlicher Name: ISO19115 Codeliste B.5.23 "MD_ProgressCode"
     Tabelle.Feld   : t01_object.time_status
   -->
-  <xs:element name="time-status">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="time-status" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Zeitbezug: am, seit, von
     Tabelle.Feld   : t01_object.time_type
@@ -1342,11 +1171,7 @@
     Fachlicher Name: Zeitbezug des Datensatzes > Typ, ISO19115 Codeliste B.5.2 "CI_DateTypeCode" (502)
     Tabelle.Feld   : t0113_dataset_reference.type
   -->
-  <xs:element name="dataset-reference-type">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="dataset-reference-type" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Suchbegriffe
   -->
@@ -1363,15 +1188,7 @@
     Tabelle: searchterm_value.searchterm_sns_id
     Tabelle: searchterm_value.term
   -->
-  <xs:element name="controlled-term">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="controlled-term" type="udk:id-string"/>
   <!--
     Fachlicher Name: Freier Suchbegriff
     Tabelle: searchterm_value.term
@@ -1416,15 +1233,7 @@
     Tabelle.Feld   : t017_url_ref.special_ref
     Tabelle.Feld   : t017_url_ref.special_name
   -->
-  <xs:element name="linkage-reference">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="linkage-reference" type="udk:id-string"/>
   <!--
     Fachlicher Name: Erläuterung zum Verweis
     Tabelle.Feld   : t017_url_ref.descr
@@ -1435,15 +1244,7 @@
     Tabelle.Feld   : t017_url_ref.datatype_key
     Tabelle.Feld   : t017_url_ref.datatype_value
   -->
-  <xs:element name="linkage-datatype">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attributeGroup ref="udk:attlist.udk.id"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="linkage-datatype" type="udk:id-string"/>
   <!--
     Fachlicher Name: URL-Verweis > Datenvolumen
     Tabelle.Feld   : t017_url_ref.volume
@@ -1626,11 +1427,7 @@
     Fachlicher Name: Sprache
     Tabelle.Feld   : T03_catalogue.language_code
   -->
-  <xs:element name="language">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="language" type="udk:iso-code"/>
   <!--
     Fachlicher Name:
     Tabelle.Feld   :
@@ -1939,16 +1736,32 @@
     </xs:restriction>
   </xs:simpleType>
   <!--
-    Fachlicher Name: Generische ISO-Code Attribut-Gruppe z.B. ISO-Code fuer Land, Sprache
+    Datentyp: LEERES element mit id-Attribut (z.B. für class_id ...)
   -->
-  <xs:attributeGroup name="attlist.udk.iso-code">
-    <xs:attribute name="iso-code" use="required"/>
-  </xs:attributeGroup>
-  <!--
-    Fachlicher Name: Generische Id Attribut-Gruppe z.B. class_id, Key fuer Syslisten ...
-  -->
+  <xs:complexType name="id">
+    <xs:attributeGroup ref="udk:attlist.udk.id"/>
+  </xs:complexType>
   <xs:attributeGroup name="attlist.udk.id">
     <xs:attribute name="id" use="required"/>
   </xs:attributeGroup>
+  <!--
+    Datentyp: STRING element mit id-Attribut (z.B. für syslist id / value ...)
+  -->
+  <xs:complexType name="id-string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attributeGroup ref="udk:attlist.udk.id"/>
+      </xs:extension>     
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
+    Datentyp: LEERES element mit Iso-Code Attribut
+  -->
+  <xs:complexType name="iso-code">
+    <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
+  </xs:complexType>
+  <xs:attributeGroup name="attlist.udk.iso-code">
+    <xs:attribute name="iso-code" use="required"/>
+  </xs:attributeGroup>  
 </xs:schema>
 

@@ -10,13 +10,13 @@
         <country iso-code="iso-code1"/>
         <language iso-code="iso-code3"/>
         <geo-location>
-<!--                <controlled-location>
+                <controlled-location>
                     <location-name id="id1">location-name0</location-name>
                     <topic-type>topic-type0</topic-type>
-                </controlled-location>-->
-                <uncontrolled-location>
+                </controlled-location>
+<!--                <uncontrolled-location>
                     <location-name id="id3">location-name1</location-name>
-                </uncontrolled-location>
+                </uncontrolled-location>-->
             <location-code>location-code0</location-code>
             <bounding-coordinates>
                 <west-bounding-coordinate>west-bounding-coordinate0</west-bounding-coordinate>
@@ -103,7 +103,7 @@
                     <depends-on>depends-on0</depends-on>
                 </service-operation>
             </service>-->
-<!--            <document>
+            <document>
                 <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
                 <publisher>publisher0</publisher>
                 <publishing-place>publishing-place0</publishing-place>
@@ -118,8 +118,8 @@
                 <pages>pages0</pages>
                 <volume>volume0</volume>
                 <published-in>published-in0</published-in>
-            </document>-->
-            <map>
+            </document>
+<!--            <map>
                 <hierarchy-level iso-code="iso-code9"/>
                 <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
                 <data>data0</data>
@@ -154,7 +154,7 @@
                 <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
                 <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
                 <feature-type>feature-type0</feature-type>
-            </map>
+            </map>-->
 <!--            <project>
                 <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
                 <member-description>member-description0</member-description>
@@ -196,13 +196,13 @@
                 <vertical-extent-vdatum id="id39"/>
             </vertical-extent>
             <geo-location>
-<!--                    <controlled-location>
+                    <controlled-location>
                         <location-name id="id41">location-name2</location-name>
                         <topic-type>topic-type1</topic-type>
-                    </controlled-location>-->
-                    <uncontrolled-location>
+                    </controlled-location>
+<!--                    <uncontrolled-location>
                         <location-name id="id43">location-name3</location-name>
-                    </uncontrolled-location>
+                    </uncontrolled-location>-->
                 <location-code>location-code1</location-code>
                 <bounding-coordinates>
                     <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
@@ -332,24 +332,24 @@
     <data-source-relation>
 <!--            <parent-object-control-identifier>parent-object-control-identifier0</parent-object-control-identifier>-->
             <parent-object-original-identifier>parent-object-original-identifier0</parent-object-original-identifier>
-<!--            <child-object-control-identifier>child-object-control-identifier0</child-object-control-identifier>-->
-            <child-object-original-identifier>child-object-original-identifier0</child-object-original-identifier>
+            <child-object-control-identifier>child-object-control-identifier0</child-object-control-identifier>
+<!--            <child-object-original-identifier>child-object-original-identifier0</child-object-original-identifier>-->
         <parent-child>parent-child0</parent-child>
         <relation-type relation-type-id="0"/>
         <relation-description>relation-description0</relation-description>
     </data-source-relation>
     <data-source-address-relation>
-            <object-identifier>object-identifier4</object-identifier>
-<!--            <original-control-identifier>original-control-identifier1</original-control-identifier>-->
-            <address-identifier>address-identifier4</address-identifier>
-<!--            <original-address-identifier>original-address-identifier1</original-address-identifier>-->
+<!--            <object-identifier>object-identifier4</object-identifier>-->
+            <original-control-identifier>original-control-identifier1</original-control-identifier>
+<!--            <address-identifier>address-identifier4</address-identifier>-->
+            <original-address-identifier>original-address-identifier1</original-address-identifier>
         <address-relation-type relation-type-id="0"/>
     </data-source-address-relation>
     <address-relation>
-            <parent-address-control-identifier>parent-address-control-identifier0</parent-address-control-identifier>
-<!--            <parent-address-original-identifier>parent-address-original-identifier0</parent-address-original-identifier>-->
-<!--            <child-address-control-identifier>child-address-control-identifier0</child-address-control-identifier>-->
-            <child-address-original-identifier>child-address-original-identifier0</child-address-original-identifier>
+<!--            <parent-address-control-identifier>parent-address-control-identifier0</parent-address-control-identifier>-->
+            <parent-address-original-identifier>parent-address-original-identifier0</parent-address-original-identifier>
+            <child-address-control-identifier>child-address-control-identifier0</child-address-control-identifier>
+<!--            <child-address-original-identifier>child-address-original-identifier0</child-address-original-identifier>-->
     </address-relation>
     <data-model-extension>
         <additional-class-definition>
