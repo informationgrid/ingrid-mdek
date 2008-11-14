@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="udk:udk" xmlns:udk="udk:udk">
-  <!-- Version des Austauschformats -->
+  <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.udk">
     <xs:attribute name="exchange-format" default="1.0"/>
   </xs:attributeGroup>
+  <!-- UmweltDatenKatalog / IngridDataCatalog (UDK / IGC) -->
   <xs:element name="udk">
     <xs:complexType>
-      <xs:sequence minOccurs="0" maxOccurs="unbounded">
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:catalogue"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-source"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:address"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-source-relation"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-source-address-relation"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:address-relation"/>
-        <xs:element minOccurs="0" ref="udk:data-model-extension"/>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="udk:catalogue"/>
+        <xs:element minOccurs="0" ref="udk:data-sources"/>
+        <xs:element minOccurs="0" ref="udk:addresses"/>
+        <xs:element minOccurs="0" ref="udk:data-source-hierarchy-relations"/>
+        <xs:element minOccurs="0" ref="udk:data-source-link-relations"/>
+        <xs:element minOccurs="0" ref="udk:data-source-address-relations"/>
+        <xs:element minOccurs="0" ref="udk:address-hierarchy-relations"/>
+        <xs:element minOccurs="0" ref="udk:data-model-extensions"/>
       </xs:sequence>
       <xs:attributeGroup ref="udk:attlist.udk"/>
     </xs:complexType>
   </xs:element>
+  <!-- Katalog Daten -->
   <xs:element name="catalogue">
     <xs:complexType>
       <xs:sequence>
@@ -42,13 +45,10 @@
   -->
   <xs:element name="catalogue-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name: Erstellt von
-    Tabelle.Feld   : object_comment.create_uuid
-  -->
-  <xs:element name="creator-identifier" type="xs:string"/>
-  <!--
     Fachlicher Name: Zuletzt geaendert von
-    Tabelle.Feld   : T03_catalogue.mod_uuid
+    Tabelle.Feld   : t03_catalogue.mod_uuid
+    Tabelle.Feld   : t01_object.mod_uuid
+    Tabelle.Feld   : t02_address.mod_uuid
   -->
   <xs:element name="modificator-identifier" type="xs:string"/>
   <!--
@@ -72,10 +72,10 @@
   -->
   <xs:element name="country" type="udk:iso-code"/>
   <!--
-    Fachlicher Name: ??
-    Tabelle.Feld   : T03_catalogue.state
+    Fachlicher Name: Sprache
+    Tabelle.Feld   : T03_catalogue.language_code
   -->
-  <xs:element name="state" type="xs:string"/>
+  <xs:element name="language" type="udk:iso-code"/>
   <!--
     Fachlicher Name: Workflow Kontrolle
     Tabelle.Feld   : T03_catalogue.workflow_control
@@ -96,6 +96,19 @@
     Tabelle.Feld   : T01_object.create_time
   -->
   <xs:element name="date-of-creation" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objekt Metadatensätze 
+  -->
+  <xs:element name="data-sources">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-source"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Objekt Metadatensatz 
+  -->
   <xs:element name="data-source">
     <xs:complexType>
       <xs:sequence>
@@ -143,10 +156,11 @@
   <!--
     Fachlicher Name: Verantwortlicher
     Tabelle.Feld   : T01_object.responsible_uuid
+    Tabelle.Feld   : t02_address.responsible_uuid
   -->
   <xs:element name="responsible-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name:
+    Fachlicher Name: Objektklasse
     Tabelle.Feld   : T01_object.obj_class
   -->
   <xs:element name="object-class" type="udk:id"/>
@@ -808,6 +822,7 @@
         <xs:element minOccurs="0" ref="udk:publication-condition"/>
         <xs:element minOccurs="0" ref="udk:dataset-usage"/>
         <xs:element minOccurs="0" ref="udk:ordering-instructions"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:comment"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -944,6 +959,32 @@
     Tabelle.Feld   : T0110_avail_format.file_decompression_technique
   -->
   <xs:element name="file-decompression-technique" type="xs:string"/>
+  <!--
+    Fachlicher Name: Kommentar (Objekt-/Adress-Kommentar)
+    Tabelle   : object_comment
+    Tabelle   : adress_comment
+  -->
+  <xs:element name="comment">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="udk:comment-content"/>
+        <xs:element minOccurs="0" ref="udk:creator-identifier"/>
+        <xs:element minOccurs="0" ref="udk:date-of-creation"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Erstellt von
+    Tabelle.Feld   : object_comment.comment
+    Tabelle.Feld   : address_comment.comment
+  -->
+  <xs:element name="comment-content" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erstellt von
+    Tabelle.Feld   : object_comment.create_uuid
+    Tabelle.Feld   : address_comment.create_uuid
+  -->
+  <xs:element name="creator-identifier" type="xs:string"/>
   <!--
     Fachlicher Name: Raumbezug
   -->
@@ -1260,13 +1301,17 @@
     Tabelle.Feld   : t017_url_ref.icon_text
   -->
   <xs:element name="linkage-icon-text" type="xs:string"/>
+  <!--
+    Fachlicher Name: Adresse auf die von Objekt verwiesen wird (Objekt-Adress Verweis)
+    Tabelle   : t012_obj_adr
+  -->
   <xs:element name="related-address">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="udk:type-of-relation"/>
         <xs:element ref="udk:address-identifier"/>
         <xs:element ref="udk:type-of-address"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:organisation"/>
+        <xs:element minOccurs="0" ref="udk:organisation"/>
         <xs:element minOccurs="0" ref="udk:name"/>
         <xs:element minOccurs="0" ref="udk:name-form"/>
         <xs:element minOccurs="0" ref="udk:title-or-function"/>
@@ -1282,14 +1327,16 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Typ des Objekt-Adress Verweises
+    Tabelle.Feld   : t012_obj_adr.type (entry-id)
+    Tabelle.Feld   : t012_obj_adr.special_ref (list-id)
+    Tabelle.Feld   : t012_obj_adr.special_name (value)
   -->
-  <xs:element name="type-of-relation">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.type-of-relation"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="type-of-relation" type="udk:list-entry-ids-string"/>
+  <!--
+    Fachlicher Name: Übergeordnetes Objekt (Hierarchiebaum)
+    Tabelle   : object_node
+  -->
   <xs:element name="parent-data-source">
     <xs:complexType>
       <xs:sequence>
@@ -1299,6 +1346,10 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!--
+    Fachlicher Name: Untergeordnetes Objekt (Hierarchiebaum)
+    Tabelle   : object_node
+  -->
   <xs:element name="child-data-source">
     <xs:complexType>
       <xs:sequence>
@@ -1308,24 +1359,53 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!--
+    Fachlicher Name: Objekt-Objekt Beziehung (Querverweis)
+    Tabelle   : object_reference
+  -->
   <xs:element name="link-data-source">
     <xs:complexType>
       <xs:sequence>
+        <xs:element ref="udk:object-link-type"/>
+        <xs:element ref="udk:object-link-description"/>
         <xs:element ref="udk:object-identifier"/>
         <xs:element ref="udk:object-class"/>
         <xs:element ref="udk:title"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!--
+    Fachlicher Name: Typ des Objekt-Objekt Verweises
+    Tabelle.Feld   : object_reference.special_ref
+    Tabelle.Feld   : object_reference.special_name
+  -->
+  <xs:element name="object-link-type" type="udk:id-string"/>
+  <!--
+    Fachlicher Name: Notizen zum Objekt-Objekt Verweis
+    Tabelle.Feld   : object_reference.descr
+  -->
+  <xs:element name="object-link-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: Adress Metadatensätze 
+  -->
+  <xs:element name="addresses">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:address"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Adress Metadatensatz 
+  -->
   <xs:element name="address">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="udk:address-identifier"/>
-        <xs:element ref="udk:catalogue-identifier"/>
-        <xs:element ref="udk:creator-identifier"/>
         <xs:element ref="udk:modificator-identifier"/>
+        <xs:element ref="udk:responsible-identifier"/>
         <xs:element ref="udk:type-of-address"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:organisation"/>
+        <xs:element minOccurs="0" ref="udk:organisation"/>
         <xs:element minOccurs="0" ref="udk:name"/>
         <xs:element minOccurs="0" ref="udk:name-form"/>
         <xs:element minOccurs="0" ref="udk:title-or-function"/>
@@ -1338,10 +1418,10 @@
         <xs:element minOccurs="0" ref="udk:post-box"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:communication"/>
         <xs:element minOccurs="0" ref="udk:original-address-identifier"/>
-        <xs:element minOccurs="0" ref="udk:language"/>
         <xs:element minOccurs="0" ref="udk:function"/>
         <xs:element minOccurs="0" ref="udk:address-description"/>
         <xs:element minOccurs="0" ref="udk:subject-terms"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:comment"/>
         <xs:element minOccurs="0" ref="udk:date-of-last-modification"/>
         <xs:element minOccurs="0" ref="udk:date-of-creation"/>
         <xs:element minOccurs="0" ref="udk:parent-address"/>
@@ -1350,94 +1430,94 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Address Uuid
+    Tabelle.Feld   : t02_address.adr_uuid
   -->
   <xs:element name="address-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Orginal Adress-ID eines Fremdsystems
+    Tabelle.Feld   : t02_address.org_adr_id
   -->
   <xs:element name="original-address-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Adresstyp
+    Tabelle.Feld   : t02_address.adr_type
   -->
-  <xs:element name="type-of-address">
-    <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.type-of-address"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="type-of-address" type="udk:id"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Nachname (nur Person)
+    Tabelle.Feld   : t02_address.lastname
+    auch benutzt fuer:
+      Fachlicher Name: Parametername der Operation
+      Tabelle   : T011_obj_serv_op_para.name
   -->
   <xs:element name="name" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Institution / übergeordnete Einheit(en)
+    Tabelle.Feld   : t02_address.institution
   -->
   <xs:element name="organisation" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Anrede (Auswahlliste)
+    Tabelle.Feld   : t02_address.address_key
+    Tabelle.Feld   : t02_address.address_value
   -->
-  <xs:element name="name-form" type="xs:string"/>
+  <xs:element name="name-form" type="udk:id-string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Titel (nur Person) (Auswahlliste)
+    Tabelle.Feld   : t02_address.title_key
+    Tabelle.Feld   : t02_address.title_value
   -->
-  <xs:element name="title-or-function" type="xs:string"/>
+  <xs:element name="title-or-function" type="udk:id-string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Vorname (nur Person)
+    Tabelle.Feld   : t02_address.firstname
   -->
   <xs:element name="given-name" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Staat (Kürzel vor PLZ)
+    Tabelle.Feld   : t02_address.country_code
   -->
-  <xs:element name="postal-code-of-country" type="xs:string"/>
+  <xs:element name="postal-code-of-country" type="udk:iso-code"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Postleitzahl (Ort)
+    Tabelle.Feld   : t02_address.postcode
   -->
   <xs:element name="postal-code" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Straße/Hausnummer
+    Tabelle.Feld   : t02_address.street
   -->
   <xs:element name="street" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Ort
+    Tabelle.Feld   : t02_address.city
   -->
   <xs:element name="city" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Postleitzahl zum Postfach
+    Tabelle.Feld   : t02_address.postbox_pc
   -->
   <xs:element name="post-box-postal-code" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Postfach 
+    Tabelle.Feld   : t02_address.postbox
   -->
   <xs:element name="post-box" type="xs:string"/>
   <!--
-    Fachlicher Name: Sprache
-    Tabelle.Feld   : T03_catalogue.language_code
-  -->
-  <xs:element name="language" type="udk:iso-code"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Funktion, Aufgabe
+    Tabelle.Feld   : t02_address.job
   -->
   <xs:element name="function" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Beschreibung der Adresse (Notizen)
+    Tabelle.Feld   : t02_address.descr
   -->
   <xs:element name="address-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: Adresse Kommunikationsdaten 
+    Tabelle   : t021_communication
+  -->
   <xs:element name="communication">
     <xs:complexType>
       <xs:sequence>
@@ -1448,20 +1528,25 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Kommunikation > Art
+    Tabelle.Feld   : t021_communication.commtype_key
+    Tabelle.Feld   : t021_communication.commtype_value
   -->
-  <xs:element name="communication-medium" type="xs:string"/>
+  <xs:element name="communication-medium" type="udk:id-string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Kommunikation > Verbindungsdaten
+    Tabelle.Feld   : t021_communication.comm_value
   -->
   <xs:element name="communication-value" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Kommunikation > Beschreibung der Verbindung
+    Tabelle.Feld   : t021_communication.descr
   -->
   <xs:element name="communication-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: Übergeordnete Adresse (Hierarchiebaum)
+    Tabelle   : address_node
+  -->
   <xs:element name="parent-address">
     <xs:complexType>
       <xs:sequence>
@@ -1475,6 +1560,10 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!--
+    Fachlicher Name: Untergeordnete Adresse (Hierarchiebaum)
+    Tabelle   : address_node
+  -->
   <xs:element name="child-address">
     <xs:complexType>
       <xs:sequence>
@@ -1488,85 +1577,78 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="data-source-relation">
+  <!--
+    Fachlicher Name: Objekt Objekt Hierarchie Beziehungen (Hierarchiebaum)
+  -->
+  <xs:element name="data-source-hierarchy-relations">
     <xs:complexType>
       <xs:sequence>
-        <xs:choice>
-          <xs:element ref="udk:parent-object-control-identifier"/>
-          <xs:element ref="udk:parent-object-original-identifier"/>
-        </xs:choice>
-        <xs:choice>
-          <xs:element ref="udk:child-object-control-identifier"/>
-          <xs:element ref="udk:child-object-original-identifier"/>
-        </xs:choice>
-        <xs:element ref="udk:parent-child"/>
-        <xs:element minOccurs="0" ref="udk:relation-type"/>
-        <xs:element minOccurs="0" ref="udk:relation-description"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-source-hierarchy-relation"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Objekt Objekt Hierarchie Beziehung (Hierarchiebaum)
+    Tabelle: object_node
   -->
-  <xs:element name="parent-object-control-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="parent-object-original-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="child-object-control-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="child-object-original-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="parent-child" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="relation-type">
+  <xs:element name="data-source-hierarchy-relation">
     <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.relation-type"/>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="udk:parent-identifier"/>
+          <xs:element ref="udk:parent-original-identifier"/>
+        </xs:choice>
+        <xs:choice>
+          <xs:element ref="udk:child-identifier"/>
+          <xs:element ref="udk:child-original-identifier"/>
+        </xs:choice>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Objekt Objekt Querverweis Beziehungen
   -->
-  <xs:attributeGroup name="attlist.udk.relation-type">
-    <xs:attribute name="relation-type-id" default="0">
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="0"/>
-          <xs:enumeration value="1300"/>
-          <xs:enumeration value="3100"/>
-          <xs:enumeration value="3210"/>
-          <xs:enumeration value="3345"/>
-          <xs:enumeration value="3515"/>
-          <xs:enumeration value="3520"/>
-          <xs:enumeration value="3535"/>
-          <xs:enumeration value="3555"/>
-          <xs:enumeration value="3570"/>
-          <xs:enumeration value="5066"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
+  <xs:element name="data-source-link-relations">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-source-link-relation"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Objekt Objekt Querverweis Beziehung
+    Tabelle: object_reference
   -->
-  <xs:element name="relation-description" type="xs:string"/>
+  <xs:element name="data-source-link-relation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="udk:from-identifier"/>
+          <xs:element ref="udk:from-original-identifier"/>
+        </xs:choice>
+        <xs:choice>
+          <xs:element ref="udk:to-identifier"/>
+          <xs:element ref="udk:to-original-identifier"/>
+        </xs:choice>
+        <xs:element ref="udk:object-link-type"/>
+        <xs:element ref="udk:object-link-description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Objekt-Adress Beziehungen
+  -->
+  <xs:element name="data-source-address-relations">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:data-source-address-relation"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Objekt-Adress Beziehung
+    Tabelle   : t012_obj_adr
+  -->
   <xs:element name="data-source-address-relation">
     <xs:complexType>
       <xs:sequence>
@@ -1578,154 +1660,120 @@
           <xs:element ref="udk:address-identifier"/>
           <xs:element ref="udk:original-address-identifier"/>
         </xs:choice>
-        <xs:element minOccurs="0" ref="udk:address-relation-type"/>
+        <xs:element minOccurs="0" ref="udk:type-of-relation"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Adress Adress Hierarchie Beziehungen (Hierarchiebaum)
   -->
-  <xs:element name="address-relation-type">
+  <xs:element name="address-hierarchy-relations">
     <xs:complexType>
-      <xs:attributeGroup ref="udk:attlist.udk.address-relation-type"/>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:address-hierarchy-relation"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="address-relation">
+  <!--
+    Fachlicher Name: Adress Adress Hierarchie Beziehung (Hierarchiebaum)
+    Tabelle: address_node
+  -->
+  <xs:element name="address-hierarchy-relation">
     <xs:complexType>
       <xs:sequence>
         <xs:choice>
-          <xs:element ref="udk:parent-address-control-identifier"/>
-          <xs:element ref="udk:parent-address-original-identifier"/>
+          <xs:element ref="udk:parent-identifier"/>
+          <xs:element ref="udk:parent-original-identifier"/>
         </xs:choice>
         <xs:choice>
-          <xs:element ref="udk:child-address-control-identifier"/>
-          <xs:element ref="udk:child-address-original-identifier"/>
+          <xs:element ref="udk:child-identifier"/>
+          <xs:element ref="udk:child-original-identifier"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Objekt/Adress Uuid
+    Tabelle.Feld   : T01_object.obj_uuid
+    Tabelle.Feld   : T02_address.adr_uuid
   -->
-  <xs:element name="parent-address-control-identifier" type="xs:string"/>
+  <xs:element name="parent-identifier" type="xs:string"/>
+  <xs:element name="child-identifier" type="xs:string"/>
+  <xs:element name="from-identifier" type="xs:string"/>
+  <xs:element name="to-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Original ID
+    Tabelle.Feld   : T01_object.org_obj_id
+    Tabelle.Feld   : T02_address.org_adr_id
   -->
-  <xs:element name="parent-address-original-identifier" type="xs:string"/>
+  <xs:element name="parent-original-identifier" type="xs:string"/>
+  <xs:element name="child-original-identifier" type="xs:string"/>
+  <xs:element name="from-original-identifier" type="xs:string"/>
+  <xs:element name="to-original-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Zusatzfelder
   -->
-  <xs:element name="child-address-control-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="child-address-original-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="data-model-extension">
+  <xs:element name="data-model-extensions">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:additional-class-definition"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:general-additional-field-definition"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="additional-class-definition">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="udk:object-class"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:technical-domain-field-definition"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="technical-domain-field-definition">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="udk:field-identifier"/>
-        <xs:element ref="udk:field-name"/>
-        <xs:element ref="udk:field-type"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Zusatzfeld
+    Tabelle   : t08_attr_type
+    Tabelle   : t08_attr_list
   -->
-  <xs:element name="field-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
-  -->
-  <xs:element name="field-type" type="xs:string"/>
   <xs:element name="general-additional-field-definition">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="udk:field-identifier"/>
         <xs:element ref="udk:field-name"/>
+        <xs:element ref="udk:field-length"/>
         <xs:element ref="udk:field-type"/>
+        <xs:element minOccurs="0" ref="udk:field-list"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Zusatzfeld ID
+    Tabelle.Feld   : t08_attr_type.id
   -->
-  <xs:attributeGroup name="attlist.udk.type-of-address">
-    <xs:attribute name="type-id" use="required">
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="0"/>
-          <xs:enumeration value="1"/>
-          <xs:enumeration value="2"/>
-          <xs:enumeration value="3"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
+  <xs:element name="field-identifier" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Zusatzfeld Länge
+    Tabelle.Feld   : t08_attr_type.length
   -->
-  <xs:attributeGroup name="attlist.udk.type-of-relation">
-    <xs:attribute name="type-id" use="required">
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="0"/>
-          <xs:enumeration value="1"/>
-          <xs:enumeration value="2"/>
-          <xs:enumeration value="3"/>
-          <xs:enumeration value="999"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
+  <xs:element name="field-length" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Zusatzfeld Typ
+    Tabelle.Feld   : t08_attr_type.type
   -->
+  <xs:element name="field-type" type="xs:string"/>
   <!--
-    Fachlicher Name:
-    Tabelle.Feld   :
+    Fachlicher Name: Zusatzfeld Auswahlliste
+    Tabelle   : t08_attr_list
   -->
-  <xs:attributeGroup name="attlist.udk.address-relation-type">
-    <xs:attribute name="relation-type-id" default="0">
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="0"/>
-          <xs:enumeration value="3360"/>
-          <xs:enumeration value="3400"/>
-          <xs:enumeration value="3410"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
+  <xs:element name="field-list">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="udk:field-list-type"/>
+        <xs:element maxOccurs="unbounded" ref="udk:field-list-item"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Typ der Zusatzfeld Auswahlliste
+    Tabelle.Feld   : t08_attr_list.type
+  -->
+  <xs:element name="field-list-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zusatzfeld Auswahllisten Item
+    Tabelle.Feld   : t08_attr_list.listitem_value
+    Tabelle.Feld   : t08_attr_list.lang_code
+  -->
+  <xs:element name="field-list-item" type="udk:language-code-string"/>
   <!--
     Fachlicher Name: IGC Boolean Repraesentation
   -->
@@ -1741,9 +1789,6 @@
   <xs:complexType name="id">
     <xs:attributeGroup ref="udk:attlist.udk.id"/>
   </xs:complexType>
-  <xs:attributeGroup name="attlist.udk.id">
-    <xs:attribute name="id" use="required"/>
-  </xs:attributeGroup>
   <!--
     Datentyp: STRING element mit id-Attribut (z.B. für syslist id / value ...)
   -->
@@ -1755,13 +1800,55 @@
     </xs:simpleContent>
   </xs:complexType>
   <!--
+    Datentyp: STRING element mit list-id und entry-id Attribut (z.B. )
+  -->
+  <xs:complexType name="list-entry-ids-string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attributeGroup ref="udk:attlist.udk.list-entry-ids"/>
+      </xs:extension>     
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
     Datentyp: LEERES element mit Iso-Code Attribut
   -->
   <xs:complexType name="iso-code">
     <xs:attributeGroup ref="udk:attlist.udk.iso-code"/>
   </xs:complexType>
+  <!--
+    Datentyp: STRING element mit language-Code Attribut
+  -->
+  <xs:complexType name="language-code-string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attributeGroup ref="udk:attlist.udk.language-code"/>
+      </xs:extension>     
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
+    Attribut-Gruppe: language-code=
+  -->
+  <xs:attributeGroup name="attlist.udk.language-code">
+    <xs:attribute name="language-code" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: iso-code=
+  -->
   <xs:attributeGroup name="attlist.udk.iso-code">
     <xs:attribute name="iso-code" use="required"/>
-  </xs:attributeGroup>  
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: id=
+  -->
+  <xs:attributeGroup name="attlist.udk.id">
+    <xs:attribute name="id" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: list-id= entry-id=
+  -->
+  <xs:attributeGroup name="attlist.udk.list-entry-ids">
+    <xs:attribute name="list-id" use="required"/>
+    <xs:attribute name="entry-id" use="required"/>
+  </xs:attributeGroup>
 </xs:schema>
 
