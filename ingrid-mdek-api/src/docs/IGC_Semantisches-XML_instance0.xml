@@ -155,6 +155,7 @@
                     <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
                     <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
                     <feature-type>feature-type0</feature-type>
+                    <datasource-identificator>datasource-identificator0</datasource-identificator>
                 </map>-->
 <!--                <project>
                     <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
@@ -192,23 +193,28 @@
                     <creator-identifier>creator-identifier0</creator-identifier>
                     <date-of-creation>date-of-creation2</date-of-creation>
                 </comment>
+                <conformity>
+                    <conformity-specification>conformity-specification0</conformity-specification>
+                    <conformity-degree id="id37">conformity-degree0</conformity-degree>
+                    <conformity-publication-date>conformity-publication-date0</conformity-publication-date>
+                </conformity>
             </additional-information>
             <spatial-domain>
                 <description-of-spatial-domain>description-of-spatial-domain0</description-of-spatial-domain>
                 <vertical-extent>
                     <vertical-extent-minimum>vertical-extent-minimum0</vertical-extent-minimum>
                     <vertical-extent-maximum>vertical-extent-maximum0</vertical-extent-maximum>
-                    <vertical-extent-unit id="id37"/>
-                    <vertical-extent-vdatum id="id39"/>
+                    <vertical-extent-unit id="id39"/>
+                    <vertical-extent-vdatum id="id41"/>
                 </vertical-extent>
                 <geo-location>
-<!--                        <controlled-location>
-                            <location-name id="id41">location-name2</location-name>
+                        <controlled-location>
+                            <location-name id="id43">location-name2</location-name>
                             <topic-type>topic-type1</topic-type>
-                        </controlled-location>-->
-                        <uncontrolled-location>
-                            <location-name id="id43">location-name3</location-name>
-                        </uncontrolled-location>
+                        </controlled-location>
+<!--                        <uncontrolled-location>
+                            <location-name id="id45">location-name3</location-name>
+                        </uncontrolled-location>-->
                     <location-code>location-code1</location-code>
                     <bounding-coordinates>
                         <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
@@ -233,16 +239,16 @@
                 </dataset-reference>
             </temporal-domain>
             <subject-terms>
-                <controlled-term id="id45">controlled-term0</controlled-term>
+                <controlled-term id="id47">controlled-term0</controlled-term>
                 <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
             </subject-terms>
             <available-linkage>
                 <linkage-name>linkage-name0</linkage-name>
                 <linkage-url>linkage-url0</linkage-url>
                 <linkage-url-type>linkage-url-type0</linkage-url-type>
-                <linkage-reference id="id47">linkage-reference0</linkage-reference>
+                <linkage-reference id="id49">linkage-reference0</linkage-reference>
                 <linkage-description>linkage-description0</linkage-description>
-                <linkage-datatype id="id49">linkage-datatype0</linkage-datatype>
+                <linkage-datatype id="id51">linkage-datatype0</linkage-datatype>
                 <linkage-volume>linkage-volume0</linkage-volume>
                 <linkage-icon-url>linkage-icon-url0</linkage-icon-url>
                 <linkage-icon-text>linkage-icon-text0</linkage-icon-text>
@@ -250,11 +256,11 @@
             <related-address>
                 <type-of-relation list-id="list-id1" entry-id="entry-id1">type-of-relation0</type-of-relation>
                 <address-identifier>address-identifier0</address-identifier>
-                <type-of-address id="id51"/>
+                <type-of-address id="id53"/>
                 <organisation>organisation0</organisation>
                 <name>name1</name>
-                <name-form id="id53">name-form0</name-form>
-                <title-or-function id="id55">title-or-function0</title-or-function>
+                <name-form id="id55">name-form0</name-form>
+                <title-or-function id="id57">title-or-function0</title-or-function>
                 <given-name>given-name0</given-name>
                 <postal-code-of-country iso-code="iso-code29"/>
                 <postal-code>postal-code0</postal-code>
@@ -263,26 +269,26 @@
                 <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
                 <post-box>post-box0</post-box>
                 <communication>
-                    <communication-medium id="id57">communication-medium0</communication-medium>
+                    <communication-medium id="id59">communication-medium0</communication-medium>
                     <communication-value>communication-value0</communication-value>
                     <communication-description>communication-description0</communication-description>
                 </communication>
             </related-address>
             <parent-data-source>
                 <object-identifier>object-identifier1</object-identifier>
-                <object-class id="id59"/>
+                <object-class id="id61"/>
                 <title>title1</title>
             </parent-data-source>
             <child-data-source>
                 <object-identifier>object-identifier2</object-identifier>
-                <object-class id="id61"/>
+                <object-class id="id63"/>
                 <title>title2</title>
             </child-data-source>
             <link-data-source>
-                <object-link-type id="id63">object-link-type0</object-link-type>
+                <object-link-type id="id65">object-link-type0</object-link-type>
                 <object-link-description>object-link-description0</object-link-description>
                 <object-identifier>object-identifier3</object-identifier>
-                <object-class id="id65"/>
+                <object-class id="id67"/>
                 <title>title3</title>
             </link-data-source>
         </data-source>
@@ -292,11 +298,11 @@
             <address-identifier>address-identifier1</address-identifier>
             <modificator-identifier>modificator-identifier2</modificator-identifier>
             <responsible-identifier>responsible-identifier1</responsible-identifier>
-            <type-of-address id="id67"/>
+            <type-of-address id="id69"/>
             <organisation>organisation1</organisation>
             <name>name2</name>
-            <name-form id="id69">name-form1</name-form>
-            <title-or-function id="id71">title-or-function1</title-or-function>
+            <name-form id="id71">name-form1</name-form>
+            <title-or-function id="id73">title-or-function1</title-or-function>
             <given-name>given-name1</given-name>
             <postal-code-of-country iso-code="iso-code31"/>
             <postal-code>postal-code1</postal-code>
@@ -305,7 +311,7 @@
             <post-box-postal-code>post-box-postal-code1</post-box-postal-code>
             <post-box>post-box1</post-box>
             <communication>
-                <communication-medium id="id73">communication-medium1</communication-medium>
+                <communication-medium id="id75">communication-medium1</communication-medium>
                 <communication-value>communication-value1</communication-value>
                 <communication-description>communication-description1</communication-description>
             </communication>
@@ -313,7 +319,7 @@
             <function>function0</function>
             <address-description>address-description0</address-description>
             <subject-terms>
-                <controlled-term id="id75">controlled-term1</controlled-term>
+                <controlled-term id="id77">controlled-term1</controlled-term>
                 <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
             </subject-terms>
             <comment>
@@ -325,19 +331,19 @@
             <date-of-creation>date-of-creation4</date-of-creation>
             <parent-address>
                 <address-identifier>address-identifier2</address-identifier>
-                <type-of-address id="id77"/>
+                <type-of-address id="id79"/>
                 <organisation>organisation2</organisation>
-                <name-form id="id79">name-form2</name-form>
-                <title-or-function id="id81">title-or-function2</title-or-function>
+                <name-form id="id81">name-form2</name-form>
+                <title-or-function id="id83">title-or-function2</title-or-function>
                 <given-name>given-name2</given-name>
                 <name>name3</name>
             </parent-address>
             <child-address>
                 <address-identifier>address-identifier3</address-identifier>
-                <type-of-address id="id83"/>
+                <type-of-address id="id85"/>
                 <organisation>organisation3</organisation>
-                <name-form id="id85">name-form3</name-form>
-                <title-or-function id="id87">title-or-function3</title-or-function>
+                <name-form id="id87">name-form3</name-form>
+                <title-or-function id="id89">title-or-function3</title-or-function>
                 <given-name>given-name3</given-name>
                 <name>name4</name>
             </child-address>
@@ -345,26 +351,26 @@
     </addresses>
     <data-source-hierarchy-relations>
         <data-source-hierarchy-relation>
-                <parent-identifier>parent-identifier0</parent-identifier>
-<!--                <parent-original-identifier>parent-original-identifier0</parent-original-identifier>-->
+<!--                <parent-identifier>parent-identifier0</parent-identifier>-->
+                <parent-original-identifier>parent-original-identifier0</parent-original-identifier>
                 <child-identifier>child-identifier0</child-identifier>
 <!--                <child-original-identifier>child-original-identifier0</child-original-identifier>-->
         </data-source-hierarchy-relation>
     </data-source-hierarchy-relations>
     <data-source-link-relations>
         <data-source-link-relation>
-<!--                <from-identifier>from-identifier0</from-identifier>-->
-                <from-original-identifier>from-original-identifier0</from-original-identifier>
+                <from-identifier>from-identifier0</from-identifier>
+<!--                <from-original-identifier>from-original-identifier0</from-original-identifier>-->
 <!--                <to-identifier>to-identifier0</to-identifier>-->
                 <to-original-identifier>to-original-identifier0</to-original-identifier>
-            <object-link-type id="id89">object-link-type1</object-link-type>
+            <object-link-type id="id91">object-link-type1</object-link-type>
             <object-link-description>object-link-description1</object-link-description>
         </data-source-link-relation>
     </data-source-link-relations>
     <data-source-address-relations>
         <data-source-address-relation>
-<!--                <object-identifier>object-identifier4</object-identifier>-->
-                <original-control-identifier>original-control-identifier1</original-control-identifier>
+                <object-identifier>object-identifier4</object-identifier>
+<!--                <original-control-identifier>original-control-identifier1</original-control-identifier>-->
                 <address-identifier>address-identifier4</address-identifier>
 <!--                <original-address-identifier>original-address-identifier1</original-address-identifier>-->
             <type-of-relation list-id="list-id3" entry-id="entry-id3">type-of-relation1</type-of-relation>
@@ -372,8 +378,8 @@
     </data-source-address-relations>
     <address-hierarchy-relations>
         <address-hierarchy-relation>
-<!--                <parent-identifier>parent-identifier1</parent-identifier>-->
-                <parent-original-identifier>parent-original-identifier1</parent-original-identifier>
+                <parent-identifier>parent-identifier1</parent-identifier>
+<!--                <parent-original-identifier>parent-original-identifier1</parent-original-identifier>-->
 <!--                <child-identifier>child-identifier1</child-identifier>-->
                 <child-original-identifier>child-original-identifier1</child-original-identifier>
         </address-hierarchy-relation>

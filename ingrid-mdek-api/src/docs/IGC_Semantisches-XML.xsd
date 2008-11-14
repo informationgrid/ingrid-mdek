@@ -372,7 +372,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Service-Klassifikation
+    Fachlicher Name: Service-Klassifikation (INSPIRE)
     Tabelle.Feld   : T011_obj_serv.type_key
     Tabelle.Feld   : T011_obj_serv.type_value
   -->
@@ -599,6 +599,7 @@
         <xs:element minOccurs="0" ref="udk:pos-accuracy-vertical"/>
         <xs:element minOccurs="0" ref="udk:keyc-incl-w-dataset"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:feature-type"/>
+        <xs:element minOccurs="0" ref="udk:datasource-identificator"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -620,7 +621,7 @@
   <xs:element name="coordinate-system" type="udk:id-string"/>
   <!--
     Fachlicher Name: Erstellungsma޳tab
-    Tabelle   : t011_obj_geo_scale / T011_obj_serv_scale
+    Tabelle   : t011_obj_geo_scale / T011_obj_serv_scale (INSPIRE)
   -->
   <xs:element name="publication-scale">
     <xs:complexType>
@@ -785,6 +786,11 @@
   -->
   <xs:element name="feature-type" type="xs:string"/>
   <!--
+    Fachlicher Name: Eindeutiger Identifikator der Datenquelle (INSPIRE)
+    Tabelle.Feld   : t01_obj_geo.datasource_uuid
+  -->
+  <xs:element name="datasource-identificator" type="xs:string"/>
+  <!--
     Fachlicher Name: Vorhaben / Projekt / Programm
     Tabelle   : t011_obj_project
   -->
@@ -823,6 +829,7 @@
         <xs:element minOccurs="0" ref="udk:dataset-usage"/>
         <xs:element minOccurs="0" ref="udk:ordering-instructions"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:comment"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="udk:conformity"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -854,7 +861,7 @@
   -->
   <xs:element name="dataset-intensions" type="xs:string"/>
   <!--
-    Fachlicher Name: Objekt Zugangs- und Nutzungsbeschraenkung
+    Fachlicher Name: Objekt Zugangs- und Nutzungsbeschraenkung (INSPIRE)
     Tabelle.Feld   : object_access
   -->
   <xs:element name="access-constraint">
@@ -985,6 +992,35 @@
     Tabelle.Feld   : address_comment.create_uuid
   -->
   <xs:element name="creator-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objekt Konformität (INSPIRE)
+    Tabelle   : object_conformity
+  -->
+  <xs:element name="conformity">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="udk:conformity-specification"/>
+        <xs:element ref="udk:conformity-degree"/>
+        <xs:element ref="udk:conformity-publication-date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Konformität -> Spezifikation
+    Tabelle.Feld   : object_conformity.specification
+  -->
+  <xs:element name="conformity-specification" type="xs:string"/>
+  <!--
+    Fachlicher Name: Grad der Konformität
+    Tabelle.Feld   : object_conformity.degree_key
+    Tabelle.Feld   : object_conformity.degree_value
+  -->
+  <xs:element name="conformity-degree" type="udk:id-string"/>
+  <!--
+    Fachlicher Name: Konformität -> Veröffentlichungsdatum der Spezifikation
+    Tabelle.Feld   : object_conformity.publication_date
+  -->
+  <xs:element name="conformity-publication-date" type="xs:string"/>
   <!--
     Fachlicher Name: Raumbezug
   -->
