@@ -13,11 +13,11 @@
 <!--                <controlled-location>
                     <location-name id="id1">location-name0</location-name>
                     <topic-type>topic-type0</topic-type>
+                    <location-code>location-code0</location-code>
                 </controlled-location>-->
                 <uncontrolled-location>
                     <location-name id="id3">location-name1</location-name>
                 </uncontrolled-location>
-            <location-code>location-code0</location-code>
             <bounding-coordinates>
                 <west-bounding-coordinate>west-bounding-coordinate0</west-bounding-coordinate>
                 <east-bounding-coordinate>east-bounding-coordinate0</east-bounding-coordinate>
@@ -211,11 +211,11 @@
                         <controlled-location>
                             <location-name id="id43">location-name2</location-name>
                             <topic-type>topic-type1</topic-type>
+                            <location-code>location-code1</location-code>
                         </controlled-location>
 <!--                        <uncontrolled-location>
                             <location-name id="id45">location-name3</location-name>
                         </uncontrolled-location>-->
-                    <location-code>location-code1</location-code>
                     <bounding-coordinates>
                         <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
                         <east-bounding-coordinate>east-bounding-coordinate1</east-bounding-coordinate>
@@ -239,7 +239,7 @@
                 </dataset-reference>
             </temporal-domain>
             <subject-terms>
-                <controlled-term id="id47">controlled-term0</controlled-term>
+                <controlled-term source="UMTHES" id="id47">controlled-term0</controlled-term>
                 <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
             </subject-terms>
             <available-linkage>
@@ -253,43 +253,18 @@
                 <linkage-icon-url>linkage-icon-url0</linkage-icon-url>
                 <linkage-icon-text>linkage-icon-text0</linkage-icon-text>
             </available-linkage>
+            <parent-data-source>
+                <object-identifier>object-identifier1</object-identifier>
+            </parent-data-source>
             <related-address>
                 <type-of-relation list-id="list-id1" entry-id="entry-id1">type-of-relation0</type-of-relation>
                 <address-identifier>address-identifier0</address-identifier>
-                <type-of-address id="id53"/>
-                <organisation>organisation0</organisation>
-                <name>name1</name>
-                <name-form id="id55">name-form0</name-form>
-                <title-or-function id="id57">title-or-function0</title-or-function>
-                <given-name>given-name0</given-name>
-                <postal-code-of-country iso-code="iso-code29"/>
-                <postal-code>postal-code0</postal-code>
-                <street>street0</street>
-                <city>city0</city>
-                <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
-                <post-box>post-box0</post-box>
-                <communication>
-                    <communication-medium id="id59">communication-medium0</communication-medium>
-                    <communication-value>communication-value0</communication-value>
-                    <communication-description>communication-description0</communication-description>
-                </communication>
+                <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
             </related-address>
-            <parent-data-source>
-                <object-identifier>object-identifier1</object-identifier>
-                <object-class id="id61"/>
-                <title>title1</title>
-            </parent-data-source>
-            <child-data-source>
-                <object-identifier>object-identifier2</object-identifier>
-                <object-class id="id63"/>
-                <title>title2</title>
-            </child-data-source>
             <link-data-source>
-                <object-link-type id="id65">object-link-type0</object-link-type>
+                <object-link-type id="id53">object-link-type0</object-link-type>
                 <object-link-description>object-link-description0</object-link-description>
-                <object-identifier>object-identifier3</object-identifier>
-                <object-class id="id67"/>
-                <title>title3</title>
+                <object-identifier>object-identifier2</object-identifier>
             </link-data-source>
         </data-source>
     </data-sources>
@@ -298,28 +273,28 @@
             <address-identifier>address-identifier1</address-identifier>
             <modificator-identifier>modificator-identifier2</modificator-identifier>
             <responsible-identifier>responsible-identifier1</responsible-identifier>
-            <type-of-address id="id69"/>
-            <organisation>organisation1</organisation>
-            <name>name2</name>
-            <name-form id="id71">name-form1</name-form>
-            <title-or-function id="id73">title-or-function1</title-or-function>
-            <given-name>given-name1</given-name>
-            <postal-code-of-country iso-code="iso-code31"/>
-            <postal-code>postal-code1</postal-code>
-            <street>street1</street>
-            <city>city1</city>
-            <post-box-postal-code>post-box-postal-code1</post-box-postal-code>
-            <post-box>post-box1</post-box>
+            <type-of-address id="id55"/>
+            <organisation>organisation0</organisation>
+            <name>name1</name>
+            <name-form id="id57">name-form0</name-form>
+            <title-or-function id="id59">title-or-function0</title-or-function>
+            <given-name>given-name0</given-name>
+            <postal-code-of-country iso-code="iso-code29"/>
+            <postal-code>postal-code0</postal-code>
+            <street>street0</street>
+            <city>city0</city>
+            <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
+            <post-box>post-box0</post-box>
             <communication>
-                <communication-medium id="id75">communication-medium1</communication-medium>
-                <communication-value>communication-value1</communication-value>
-                <communication-description>communication-description1</communication-description>
+                <communication-medium id="id61">communication-medium0</communication-medium>
+                <communication-value>communication-value0</communication-value>
+                <communication-description>communication-description0</communication-description>
             </communication>
             <original-address-identifier>original-address-identifier0</original-address-identifier>
             <function>function0</function>
             <address-description>address-description0</address-description>
             <subject-terms>
-                <controlled-term id="id77">controlled-term1</controlled-term>
+                <controlled-term source="UMTHES" id="id63">controlled-term1</controlled-term>
                 <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
             </subject-terms>
             <comment>
@@ -327,63 +302,13 @@
                 <creator-identifier>creator-identifier1</creator-identifier>
                 <date-of-creation>date-of-creation3</date-of-creation>
             </comment>
-            <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
+            <date-of-last-modification>date-of-last-modification3</date-of-last-modification>
             <date-of-creation>date-of-creation4</date-of-creation>
             <parent-address>
                 <address-identifier>address-identifier2</address-identifier>
-                <type-of-address id="id79"/>
-                <organisation>organisation2</organisation>
-                <name-form id="id81">name-form2</name-form>
-                <title-or-function id="id83">title-or-function2</title-or-function>
-                <given-name>given-name2</given-name>
-                <name>name3</name>
             </parent-address>
-            <child-address>
-                <address-identifier>address-identifier3</address-identifier>
-                <type-of-address id="id85"/>
-                <organisation>organisation3</organisation>
-                <name-form id="id87">name-form3</name-form>
-                <title-or-function id="id89">title-or-function3</title-or-function>
-                <given-name>given-name3</given-name>
-                <name>name4</name>
-            </child-address>
         </address>
     </addresses>
-    <data-source-hierarchy-relations>
-        <data-source-hierarchy-relation>
-<!--                <parent-identifier>parent-identifier0</parent-identifier>-->
-                <parent-original-identifier>parent-original-identifier0</parent-original-identifier>
-                <child-identifier>child-identifier0</child-identifier>
-<!--                <child-original-identifier>child-original-identifier0</child-original-identifier>-->
-        </data-source-hierarchy-relation>
-    </data-source-hierarchy-relations>
-    <data-source-link-relations>
-        <data-source-link-relation>
-                <from-identifier>from-identifier0</from-identifier>
-<!--                <from-original-identifier>from-original-identifier0</from-original-identifier>-->
-<!--                <to-identifier>to-identifier0</to-identifier>-->
-                <to-original-identifier>to-original-identifier0</to-original-identifier>
-            <object-link-type id="id91">object-link-type1</object-link-type>
-            <object-link-description>object-link-description1</object-link-description>
-        </data-source-link-relation>
-    </data-source-link-relations>
-    <data-source-address-relations>
-        <data-source-address-relation>
-                <object-identifier>object-identifier4</object-identifier>
-<!--                <original-control-identifier>original-control-identifier1</original-control-identifier>-->
-                <address-identifier>address-identifier4</address-identifier>
-<!--                <original-address-identifier>original-address-identifier1</original-address-identifier>-->
-            <type-of-relation list-id="list-id3" entry-id="entry-id3">type-of-relation1</type-of-relation>
-        </data-source-address-relation>
-    </data-source-address-relations>
-    <address-hierarchy-relations>
-        <address-hierarchy-relation>
-                <parent-identifier>parent-identifier1</parent-identifier>
-<!--                <parent-original-identifier>parent-original-identifier1</parent-original-identifier>-->
-<!--                <child-identifier>child-identifier1</child-identifier>-->
-                <child-original-identifier>child-original-identifier1</child-original-identifier>
-        </address-hierarchy-relation>
-    </address-hierarchy-relations>
     <data-model-extensions>
         <general-additional-field-definition>
             <field-identifier>field-identifier0</field-identifier>
