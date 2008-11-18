@@ -12,10 +12,11 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.services.catalog.MdekAddressService;
+import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
-import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
@@ -37,9 +38,13 @@ public class DefaultPermissionService implements IPermissionService {
 	private static final Logger LOG = Logger.getLogger(HddPersistenceService.class);
 
 	protected DaoFactory daoFactory;
+	private MdekObjectService objectService;
+	private MdekAddressService addressService;
 
 	public DefaultPermissionService(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
+		objectService = MdekObjectService.getInstance(daoFactory);
+		addressService = MdekAddressService.getInstance(daoFactory);
 	}
 
 	public boolean hasPermissionForAddress(String userUuid, EntityPermission ep) {
@@ -56,13 +61,12 @@ public class DefaultPermissionService implements IPermissionService {
 
 	public boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep) {
 		EntityPermission localPermission = new EntityPermission(ep.permission, ep.getUuid());
-		IAddressNodeDao addressNodeDao = daoFactory.getAddressNodeDao();
 		AddressNode addressNode;
 		do {
 			if (hasPermissionForAddress(userUuid, localPermission)) {
 				return true;
 			}
-			addressNode = addressNodeDao.loadByUuid(localPermission.getUuid(), null);
+			addressNode = addressService.loadByUuid(localPermission.getUuid(), null);
 			if (addressNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -85,13 +89,12 @@ public class DefaultPermissionService implements IPermissionService {
 
 	public boolean hasInheritedPermissionForObject(String userUuid, EntityPermission ep) {
 		EntityPermission localPermission = new EntityPermission(ep.getPermission(), ep.getUuid());
-		IObjectNodeDao objectNodeDao = daoFactory.getObjectNodeDao();
 		ObjectNode objectNode;
 		do {
 			if (hasPermissionForObject(userUuid, localPermission)) {
 				return true;
 			}
-			objectNode = objectNodeDao.loadByUuid(localPermission.getUuid(), null);
+			objectNode = objectService.loadByUuid(localPermission.getUuid(), null);
 			if (objectNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}

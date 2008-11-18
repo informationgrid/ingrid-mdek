@@ -23,12 +23,13 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
+import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
+import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
-import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
@@ -54,13 +55,15 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcObjectJob extends MdekIdcJob {
 
 	private MdekCatalogService catalogService;
+	private MdekObjectService objectService;
+	private MdekAddressService addressService;
+
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
 	private MdekTreePathHandler pathHandler;
 
 	private IObjectNodeDao daoObjectNode;
-	private IAddressNodeDao daoAddressNode;
 	private IT01ObjectDao daoT01Object;
 	private IGenericDao<IEntity> daoObjectReference;
 
@@ -72,13 +75,15 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
+		objectService = MdekObjectService.getInstance(daoFactory);
+		addressService = MdekAddressService.getInstance(daoFactory);
+
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
 		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
-		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 
@@ -126,7 +131,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 
-			List<ObjectNode> oNs = daoObjectNode.getSubObjects(uuid, IdcEntityVersion.WORKING_VERSION, true);
+			List<ObjectNode> oNs = objectService.getSubObjects(
+					uuid, IdcEntityVersion.WORKING_VERSION, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {
@@ -251,7 +257,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// take over data from parent (if set)
 			String parentUuid = oDocIn.getString(MdekKeys.PARENT_UUID);
 			if (parentUuid != null) {
-				ObjectNode pNode = daoObjectNode.loadByUuid(parentUuid, IdcEntityVersion.WORKING_VERSION);
+				ObjectNode pNode = objectService.loadByUuid(parentUuid, IdcEntityVersion.WORKING_VERSION);
 				if (pNode == null) {
 					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
@@ -267,7 +273,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			
 			// "auskunft" address set ? set calling user as "Auskunft" if nothing set
 			if (!hasAuskunftAddress(oDocIn)) {
-				AddressNode addrNode = daoAddressNode.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION);
+				AddressNode addrNode = addressService.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION);
 				addAuskunftAddress(oDocIn, addrNode);
 			}
 
@@ -726,7 +732,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			permissionHandler.checkWritePermissionForObject(uuid, userId, true);
 
 			// load node
-			ObjectNode oNode = daoObjectNode.loadByUuid(uuid, whichEntityVersion);
+			ObjectNode oNode = objectService.loadByUuid(uuid, whichEntityVersion);
 			if (oNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -1042,7 +1048,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);
 
 		// NOTICE: this one also contains Parent Association !
-		ObjectNode oNode = daoObjectNode.loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
+		ObjectNode oNode = objectService.loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
 		if (oNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -1071,7 +1077,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);
 
 		// NOTICE: we just load NODE to determine whether published !
-		ObjectNode oNode = daoObjectNode.loadByUuid(uuid, null);
+		ObjectNode oNode = objectService.loadByUuid(uuid, null);
 		if (oNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -1119,7 +1125,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkPermissionsForMoveObject(fromUuid, toUuid, userUuid);
 
-			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid, null);
+			ObjectNode fromNode = objectService.loadByUuid(fromUuid, null);
 			checkObjectNodesForMove(fromNode, toUuid, forcePubCondition, userUuid);
 
 			// CHECKS OK, proceed
@@ -1253,7 +1259,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	/** Checks whether object branch has working copies (passed root is also checked !). */
 	private IngridDocument checkObjectTreeWorkingCopies(String rootUuid) {
 		// load "root"
-		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, null);
+		ObjectNode rootNode = objectService.loadByUuid(rootUuid, null);
 		if (rootNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
@@ -1307,7 +1313,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			permissionHandler.checkPermissionsForCopyObject(fromUuid, toUuid, userUuid);
 
 			// perform checks
-			ObjectNode fromNode = daoObjectNode.loadByUuid(fromUuid, IdcEntityVersion.WORKING_VERSION);
+			ObjectNode fromNode = objectService.loadByUuid(fromUuid, IdcEntityVersion.WORKING_VERSION);
 			if (fromNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
 			}
@@ -1315,7 +1321,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			ObjectNode toNode = null;
 			// NOTICE: copy to top when toUuid is null
 			if (toUuid != null) {
-				toNode = daoObjectNode.loadByUuid(toUuid, null);
+				toNode = objectService.loadByUuid(toUuid, null);
 				if (toNode == null) {
 					throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 				}
@@ -1376,7 +1382,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// NOTICE: top node when toUuid = null
 		if (toUuid != null) {
 			// load toNode
-			ObjectNode toNode = daoObjectNode.loadByUuid(toUuid, IdcEntityVersion.PUBLISHED_VERSION);
+			ObjectNode toNode = objectService.loadByUuid(toUuid, IdcEntityVersion.PUBLISHED_VERSION);
 			if (toNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}		
@@ -1426,7 +1432,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			if (pathUuid.equals(endOfPath) && !includeEndOfPath) {
 				continue;
 			}
-			ObjectNode pathNode = daoObjectNode.loadByUuid(pathUuid, null);
+			ObjectNode pathNode = objectService.loadByUuid(pathUuid, null);
 			if (pathNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -1452,7 +1458,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		if (parentUuid == null) {
 			// if childUuid is null then we have a new top object !
 			if (childUuid != null) {
-				parentUuid = daoObjectNode.loadByUuid(childUuid, null).getFkObjUuid();				
+				parentUuid = objectService.loadByUuid(childUuid, null).getFkObjUuid();				
 			}
 		}
 		// return if top node
@@ -1460,7 +1466,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			return;
 		}
 		T01Object parentObjPub =
-			daoObjectNode.loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION).getT01ObjectPublished();
+			objectService.loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION).getT01ObjectPublished();
 		if (parentObjPub == null) {
 			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 		}
@@ -1498,7 +1504,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		// get current pub type. Should be set !!! (mandatory when publishing)
 		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);		
-		ObjectNode rootNode = daoObjectNode.loadByUuid(rootUuid, IdcEntityVersion.ALL_VERSIONS);
+		ObjectNode rootNode = objectService.loadByUuid(rootUuid, IdcEntityVersion.ALL_VERSIONS);
 		String topName = rootNode.getT01ObjectWork().getObjName();
 
 		// avoid null !
@@ -1720,7 +1726,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {
-				List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid(),
+				List<ObjectNode> sourceSubNodes = objectService.getSubObjects(sourceNode.getObjUuid(),
 						IdcEntityVersion.WORKING_VERSION, false);
 				for (ObjectNode sourceSubNode : sourceSubNodes) {
 					if (isCopyToOwnSubnode) {
