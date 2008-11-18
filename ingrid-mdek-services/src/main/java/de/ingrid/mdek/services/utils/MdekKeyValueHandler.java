@@ -1,9 +1,10 @@
-package de.ingrid.mdek.services.catalog;
+package de.ingrid.mdek.services.utils;
 
 import java.util.Map;
 
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
@@ -29,21 +30,21 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 /**
  * Encapsulates validation and mapping of key/value pairs in beans. -> syslists !
  */
-public class MdekKeyValueService {
+public class MdekKeyValueHandler {
 
-	private static MdekKeyValueService myInstance;
+	private static MdekKeyValueHandler myInstance;
 
 	private static MdekCatalogService catalogService;
 
 	/** Get The Singleton */
-	public static synchronized MdekKeyValueService getInstance(DaoFactory daoFactory) {
+	public static synchronized MdekKeyValueHandler getInstance(DaoFactory daoFactory) {
 		if (myInstance == null) {
-	        myInstance = new MdekKeyValueService(daoFactory);
+	        myInstance = new MdekKeyValueHandler(daoFactory);
 	      }
 		return myInstance;
 	}
 
-	private MdekKeyValueService(DaoFactory daoFactory) {
+	private MdekKeyValueHandler(DaoFactory daoFactory) {
 		catalogService = MdekCatalogService.getInstance(daoFactory);
 	}
 

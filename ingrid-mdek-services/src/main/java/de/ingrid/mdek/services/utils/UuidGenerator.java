@@ -1,4 +1,4 @@
-package de.ingrid.mdek.services.persistence.db.dao;
+package de.ingrid.mdek.services.utils;
 
 import java.util.UUID;
 

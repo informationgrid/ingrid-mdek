@@ -15,7 +15,6 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.services.catalog.MdekKeyValueService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -75,6 +74,7 @@ import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.persistence.db.model.T08Attr;
+import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -132,7 +132,7 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> daoT011ObjServOpConnpoint;
 	private IGenericDao<IEntity> daoT011ObjServOpPara;
 
-	private MdekKeyValueService keyValueService;
+	private MdekKeyValueHandler keyValueService;
 
 	/** Get The Singleton */
 	public static synchronized DocToBeanMapper getInstance(DaoFactory daoFactory) {
@@ -186,7 +186,7 @@ public class DocToBeanMapper implements IMapper {
 		daoT011ObjServOpConnpoint = daoFactory.getDao(T011ObjServOpConnpoint.class);
 		daoT011ObjServOpPara = daoFactory.getDao(T011ObjServOpPara.class);
 
-		keyValueService = MdekKeyValueService.getInstance(daoFactory);
+		keyValueService = MdekKeyValueHandler.getInstance(daoFactory);
 	}
 	
 	private List<IngridDocument> createObjectConformityList(String specification, int degreeKey) {

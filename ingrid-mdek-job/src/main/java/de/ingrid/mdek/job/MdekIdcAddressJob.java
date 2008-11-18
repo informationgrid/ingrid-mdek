@@ -30,7 +30,6 @@ import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
-import de.ingrid.mdek.services.persistence.db.dao.UuidGenerator;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -44,6 +43,7 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.mdek.services.utils.UuidGenerator;
 import de.ingrid.utils.IngridDocument;
 
 /**
