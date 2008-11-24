@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<udk xmlns="udk:udk"
+<igc xmlns="igc:igc"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="udk:udk file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/IGC_Semantisches-XML.xsd" exchange-format="1.0">
+ xsi:schemaLocation="igc:igc file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/IGC_Semantisches-XML.xsd" exchange-format="1.0">
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
@@ -75,7 +75,7 @@
                     </dataset-parameter>
                     <method>method0</method>
                 </dataset>-->
-                <service>
+<!--                <service>
                     <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
                     <service-classification id="id15">service-classification0</service-classification>
                     <service-type id="id17">service-type0</service-type>
@@ -103,7 +103,7 @@
                         </parameter-of-operation>
                         <depends-on>depends-on0</depends-on>
                     </service-operation>
-                </service>
+                </service>-->
 <!--                <document>
                     <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
                     <publisher>publisher0</publisher>
@@ -120,7 +120,7 @@
                     <volume>volume0</volume>
                     <published-in>published-in0</published-in>
                 </document>-->
-<!--                <map>
+                <map>
                     <hierarchy-level iso-code="iso-code9"/>
                     <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
                     <data>data0</data>
@@ -156,7 +156,7 @@
                     <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
                     <feature-type>feature-type0</feature-type>
                     <datasource-identificator>datasource-identificator0</datasource-identificator>
-                </map>-->
+                </map>
 <!--                <project>
                     <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
                     <member-description>member-description0</member-description>
@@ -321,4 +321,4 @@
             </field-list>
         </general-additional-field-definition>
     </data-model-extensions>
-</udk>
+</igc>
