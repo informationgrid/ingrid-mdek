@@ -17,8 +17,8 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.UserOperation;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -86,7 +86,7 @@ public class BeanToDocMapper implements IMapper {
 
 	private static BeanToDocMapper myInstance;
 
-	private MdekAddressService addressService;
+	private IAddressNodeDao daoAddressNode;
 
 	/** Get The Singleton */
 	public static synchronized BeanToDocMapper getInstance(DaoFactory daoFactory) {
@@ -97,7 +97,7 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 	private BeanToDocMapper(DaoFactory daoFactory) {
-		addressService = MdekAddressService.getInstance(daoFactory);
+		daoAddressNode = daoFactory.getAddressNodeDao();
 	}
 
 	public IngridDocument mapUserOperation(ObjectNode oN, IngridDocument objectDoc) {
@@ -464,7 +464,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		AddressNode aN = addressService.loadByUuid(userAddrUuid, IdcEntityVersion.WORKING_VERSION);
+		AddressNode aN = daoAddressNode.loadByUuid(userAddrUuid, IdcEntityVersion.WORKING_VERSION);
 		if (aN == null) {
 			LOG.warn("User AddressUuid not found ! userAddrUuid='" + userAddrUuid + "'. We throw UUID_NOT_FOUND Exception.");
 			if (throwException) {

@@ -20,7 +20,6 @@ import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
-import de.ingrid.mdek.job.tools.MdekFullIndexHandler;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.log.ILogService;
@@ -41,6 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
@@ -72,7 +72,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			IPermissionService permissionService) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
-		addressService = MdekAddressService.getInstance(daoFactory);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
@@ -481,7 +481,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	}
 
 	public IngridDocument getAddressStatistics(IngridDocument params) {
-		String userUuid = getCurrentUserUuid(params);
+//		String userUuid = getCurrentUserUuid(params);
 		try {
 			String parentUuid = (String) params.get(MdekKeys.UUID);
 			IdcStatisticsSelectionType selectionType = (IdcStatisticsSelectionType) params.get(MdekKeys.REQUESTINFO_ENTITY_SELECTION_TYPE);
@@ -519,7 +519,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnStore(aDocIn);
-			String uuid = storeAddress(aDocIn, userId);
+			String uuid = addressService.storeWorkingCopy(aDocIn, userId, true);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -552,86 +552,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
-	}
-
-	/** Returns uuid of object */
-	private String storeAddress(IngridDocument aDocIn, String userId) {
-		String currentTime = MdekUtils.dateToTimestamp(new Date());
-
-		String uuid = (String) aDocIn.get(MdekKeys.UUID);
-		boolean isNewAddress = (uuid == null) ? true : false;
-		// parentUuid only passed if new address !?
-		String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
-
-		// set common data to transfer to working copy !
-		aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
-		// set current user as responsible user if not set !
-		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
-		if (respUserUuid == null) {
-			beanToDocMapper.mapResponsibleUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);				
-		}
-
-		// check permissions !
-		permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
-
-		if (isNewAddress) {
-			// create new uuid
-			uuid = UuidGenerator.getInstance().generateUuid();
-			aDocIn.put(MdekKeys.UUID, uuid);
-			// NOTICE: don't add further data, is done below when checking working copy !
-		}
-		
-		// load node
-		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
-		if (aNode == null) {
-			// create new node, also take care of correct tree path in node
-			aNode = docToBeanMapper.mapAddressNode(aDocIn, new AddressNode());			
-			pathHandler.setTreePath(aNode, parentUuid);
-		}
-		
-		// get/create working copy
-		// if no working copy then new address -> address and addressNode have to be created
-		if (!hasWorkingCopy(aNode)) {
-			// no working copy yet, create new address/node with BASIC data
-
-			// set some missing data which may not be passed from client.
-			// set from published version if existent
-			T02Address aPub = aNode.getT02AddressPublished();
-			if (aPub != null) {
-				aDocIn.put(MdekKeys.DATE_OF_CREATION, aPub.getCreateTime());				
-			} else {
-				aDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
-			}
-			T02Address aWork = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
-			 // save it to generate id needed for mapping
-			daoT02Address.makePersistent(aWork);
-			
-			// create/update node
-			aNode.setAddrId(aWork.getId());
-			aNode.setT02AddressWork(aWork);
-			daoAddressNode.makePersistent(aNode);
-		}
-
-		// transfer detailed new data
-		T02Address aWork = aNode.getT02AddressWork();
-		docToBeanMapper.mapT02Address(aDocIn, aWork, MappingQuantity.DETAIL_ENTITY);
-
-		// PERFORM CHECKS BEFORE STORING/COMMITTING !!!
-		checkAddressNodeForStore(aNode);
-
-		// store when ok
-		daoT02Address.makePersistent(aWork);
-
-		// UPDATE FULL INDEX !!!
-		fullIndexHandler.updateAddressIndex(aNode);
-
-		// grant write tree permission if not set yet (e.g. new root node)
-		if (isNewAddress) {
-			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
-		}
-		
-		return uuid;
 	}
 
 	public IngridDocument assignAddressToQA(IngridDocument aDocIn) {
@@ -686,7 +606,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	private String assignAddressToQA(IngridDocument aDocIn, String userId) {
 		// set specific data to transfer to working copy and store !
 		workflowHandler.processDocOnAssignToQA(aDocIn, userId);
-		return storeAddress(aDocIn, userId);
+		return addressService.storeWorkingCopy(aDocIn, userId, true);
 	}
 
 	public IngridDocument reassignAddressToAuthor(IngridDocument aDocIn) {
@@ -704,7 +624,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnReassignToAuthor(aDocIn, userId);
-			String uuid = storeAddress(aDocIn, userId);
+			String uuid = addressService.storeWorkingCopy(aDocIn, userId, true);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -1514,20 +1434,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		return targetAddr;
 	}
 
-	private boolean hasWorkingCopy(AddressNode node) {
-		Long workId = node.getAddrId(); 
-		Long pubId = node.getAddrIdPublished(); 
-		if (workId == null || workId.equals(pubId)) {
-			return false;
-		}
-		
-		return true;
-	}
-
-	private boolean hasChildren(AddressNode node) {
-    	return (node.getAddressNodeChildren().size() > 0) ? true : false;
-	}
-
 	/**
 	 * Checks whether address branch contains nodes referenced by other objects (passed top is also checked !).
 	 * Throws Exception if forceDeleteReferences=false !
@@ -1693,28 +1599,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
-	/** Check whether passed node is valid for storing !
-	 * (e.g. check free address conditions ...). Throws MdekException if not valid.
-	 */
-	private void checkAddressNodeForStore(AddressNode node)
-	{
-		if (node == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-		}
-
-		String parentUuid = node.getFkAddrUuid();
-		T02Address aWork = node.getT02AddressWork();
-		AddressType aType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, aWork.getAdrType());
-		if (aType == AddressType.FREI) {
-			if (parentUuid != null) {
-				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
-			}
-			if (hasChildren(node)) {
-				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
-			}
-		}
-	}
-
 	/** Check whether passed node is valid for publishing !
 	 * (e.g. check free address conditions ...). CHECKS PUBLISHED VERSION IN NODE !
 	 * Throws MdekException if not valid.
@@ -1748,7 +1632,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			if (parentUuid != null) {
 				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
 			}
-			if (hasChildren(node)) {
+			if (addressService.hasChildren(node)) {
 				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
 			}
 		}
@@ -1863,7 +1747,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			
 			if (moveToFreeAddress) {
 				// free address has no subnodes !
-				if (hasChildren(fromNode)) {
+				if (addressService.hasChildren(fromNode)) {
 					throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
 				}
 			}

@@ -12,10 +12,10 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
-import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.security.IPermissionService;
@@ -32,8 +32,9 @@ public class MdekWorkflowHandler {
 	
 	private IPermissionService permService;
 	private MdekCatalogService catalogService;
-	private MdekObjectService objectService;
-	private MdekAddressService addressService;
+
+	private IObjectNodeDao daoObjectNode;
+	private IAddressNodeDao daoAddressNode;
 
 	private static MdekWorkflowHandler myInstance;
 
@@ -49,8 +50,9 @@ public class MdekWorkflowHandler {
 	private MdekWorkflowHandler(IPermissionService permissionService, DaoFactory daoFactory) {
 		this.permService = permissionService;
 		catalogService = MdekCatalogService.getInstance(daoFactory);
-		objectService = MdekObjectService.getInstance(daoFactory);
-		addressService = MdekAddressService.getInstance(daoFactory);
+
+		daoObjectNode = daoFactory.getObjectNodeDao();
+		daoAddressNode = daoFactory.getAddressNodeDao();
 	}
 
 	/** Is Workflow enabled ? */
@@ -72,7 +74,7 @@ public class MdekWorkflowHandler {
 		// ok if new object (not persisted yet) 
 		ObjectNode oNode = null;
 		if (objUuid != null) {
-			oNode = objectService.loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION);			
+			oNode = daoObjectNode.loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION);			
 		}
 		if (oNode == null) {
 			return true;			
@@ -104,7 +106,7 @@ public class MdekWorkflowHandler {
 		// ok if new address (not persisted yet) 
 		AddressNode aNode = null;
 		if (addrUuid != null) {
-			aNode = addressService.loadByUuid(addrUuid, IdcEntityVersion.WORKING_VERSION);			
+			aNode = daoAddressNode.loadByUuid(addrUuid, IdcEntityVersion.WORKING_VERSION);			
 		}
 		if (aNode == null) {
 			return true;			

@@ -12,11 +12,10 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.services.catalog.MdekAddressService;
-import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
@@ -37,20 +36,29 @@ public class DefaultPermissionService implements IPermissionService {
 
 	private static final Logger LOG = Logger.getLogger(HddPersistenceService.class);
 
-	protected DaoFactory daoFactory;
-	private MdekObjectService objectService;
-	private MdekAddressService addressService;
+	protected IPermissionDao permissionDao;
+	protected IGenericDao<IEntity> permissionObjDao;
+	protected IGenericDao<IEntity> permissionAddrDao;
+	protected IGenericDao<IEntity> idcUserPermissionDao;
+
+	protected IIdcUserDao idcUserDao;
+	protected IObjectNodeDao objectNodeDao;
+	protected IAddressNodeDao addressNodeDao;
 
 	public DefaultPermissionService(DaoFactory daoFactory) {
-		this.daoFactory = daoFactory;
-		objectService = MdekObjectService.getInstance(daoFactory);
-		addressService = MdekAddressService.getInstance(daoFactory);
+		permissionDao = daoFactory.getPermissionDao();
+		permissionObjDao = daoFactory.getDao(PermissionObj.class);
+		permissionAddrDao = daoFactory.getDao(PermissionAddr.class);
+		idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
+
+		idcUserDao = daoFactory.getIdcUserDao();
+		objectNodeDao = daoFactory.getObjectNodeDao();
+		addressNodeDao = daoFactory.getAddressNodeDao();
 	}
 
 	public boolean hasPermissionForAddress(String userUuid, EntityPermission ep) {
-		IPermissionDao daoPermissionDao = daoFactory.getPermissionDao();
 		List<Permission> l;
-		l = daoPermissionDao.getAddressPermissions(userUuid, ep.getUuid());
+		l = permissionDao.getAddressPermissions(userUuid, ep.getUuid());
 		for (Permission p : l) {
 			if (isEqualPermission(p, ep.getPermission())) {
 				return true;
@@ -66,7 +74,7 @@ public class DefaultPermissionService implements IPermissionService {
 			if (hasPermissionForAddress(userUuid, localPermission)) {
 				return true;
 			}
-			addressNode = addressService.loadByUuid(localPermission.getUuid(), null);
+			addressNode = addressNodeDao.loadByUuid(localPermission.getUuid(), null);
 			if (addressNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -76,9 +84,8 @@ public class DefaultPermissionService implements IPermissionService {
 	}
 
 	public boolean hasPermissionForObject(String userUuid, EntityPermission ep) {
-		IPermissionDao daoPermissionDao = daoFactory.getPermissionDao();
 		List<Permission> l;
-		l = daoPermissionDao.getObjectPermissions(userUuid, ep.getUuid());
+		l = permissionDao.getObjectPermissions(userUuid, ep.getUuid());
 		for (Permission p : l) {
 			if (isEqualPermission(p, ep.getPermission())) {
 				return true;
@@ -94,7 +101,7 @@ public class DefaultPermissionService implements IPermissionService {
 			if (hasPermissionForObject(userUuid, localPermission)) {
 				return true;
 			}
-			objectNode = objectService.loadByUuid(localPermission.getUuid(), null);
+			objectNode = objectNodeDao.loadByUuid(localPermission.getUuid(), null);
 			if (objectNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -104,8 +111,7 @@ public class DefaultPermissionService implements IPermissionService {
 	}
 
 	public boolean hasUserPermission(String userUuid, Permission pIn) {
-		IPermissionDao daoPermissionDao = daoFactory.getPermissionDao();
-		List<Permission> l = daoPermissionDao.getUserPermissions(userUuid);
+		List<Permission> l = permissionDao.getUserPermissions(userUuid);
 		for (Permission p : l) {
 			if (isEqualPermission(p, pIn)) {
 				return true;
@@ -123,7 +129,6 @@ public class DefaultPermissionService implements IPermissionService {
 		pa.setIdcGroupId(idcUser.getIdcGroupId());
 		pa.setUuid(ep.getUuid());
 
-		IGenericDao<IEntity> permissionAddrDao = daoFactory.getDao(PermissionAddr.class);
 		permissionAddrDao.makePersistent(pa);
 	}
 
@@ -136,7 +141,6 @@ public class DefaultPermissionService implements IPermissionService {
 		po.setIdcGroupId(idcUser.getIdcGroupId());
 		po.setUuid(ep.getUuid());
 
-		IGenericDao<IEntity> permissionObjDao = daoFactory.getDao(PermissionObj.class);
 		permissionObjDao.makePersistent(po);
 	}
 
@@ -148,7 +152,6 @@ public class DefaultPermissionService implements IPermissionService {
 		iup.setPermissionId(permission.getId());
 		iup.setIdcGroupId(idcUser.getIdcGroupId());
 
-		IGenericDao<IEntity> idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
 		idcUserPermissionDao.makePersistent(iup);
 	}
 
@@ -161,7 +164,6 @@ public class DefaultPermissionService implements IPermissionService {
 		pa.setIdcGroupId(idcUser.getIdcGroupId());
 		pa.setUuid(ep.getUuid());
 
-		IGenericDao<IEntity> permissionAddrDao = daoFactory.getDao(PermissionAddr.class);
 		List<IEntity> iel = permissionAddrDao.findByExample(pa);
 		for (IEntity ie : iel) {
 			permissionAddrDao.makeTransient(ie);
@@ -178,7 +180,6 @@ public class DefaultPermissionService implements IPermissionService {
 		po.setIdcGroupId(idcUser.getIdcGroupId());
 		po.setUuid(ep.getUuid());
 
-		IGenericDao<IEntity> permissionObjDao = daoFactory.getDao(PermissionObj.class);
 		List<IEntity> iel = permissionObjDao.findByExample(po);
 		for (IEntity ie : iel) {
 			permissionObjDao.makeTransient(ie);
@@ -194,7 +195,6 @@ public class DefaultPermissionService implements IPermissionService {
 		iup.setPermissionId(permission.getId());
 		iup.setIdcGroupId(idcUser.getIdcGroupId());
 
-		IGenericDao<IEntity> idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
 		List<IEntity> iel = idcUserPermissionDao.findByExample(iup);
 		for (IEntity ie : iel) {
 			idcUserPermissionDao.makeTransient(ie);
@@ -205,7 +205,6 @@ public class DefaultPermissionService implements IPermissionService {
 		PermissionAddr pTemplate = new PermissionAddr();
 		pTemplate.setUuid(addrUuid);
 
-		IGenericDao<IEntity> permissionAddrDao = daoFactory.getDao(PermissionAddr.class);
 		List<IEntity> iel = permissionAddrDao.findByExample(pTemplate);
 		for (IEntity ie : iel) {
 			permissionAddrDao.makeTransient(ie);
@@ -216,7 +215,6 @@ public class DefaultPermissionService implements IPermissionService {
 		PermissionObj pTemplate = new PermissionObj();
 		pTemplate.setUuid(objUuid);
 
-		IGenericDao<IEntity> permissionObjDao = daoFactory.getDao(PermissionObj.class);
 		List<IEntity> iel = permissionObjDao.findByExample(pTemplate);
 		for (IEntity ie : iel) {
 			permissionObjDao.makeTransient(ie);
@@ -269,7 +267,6 @@ public class DefaultPermissionService implements IPermissionService {
 	}
 
 	public IdcUser getCatalogAdmin() {
-		IIdcUserDao idcUserDao = daoFactory.getIdcUserDao();
 		return idcUserDao.getCatalogAdmin();
 	}
 
@@ -286,7 +283,6 @@ public class DefaultPermissionService implements IPermissionService {
 	 * @return
 	 */
 	private Permission findUniquePermissionByExample(Permission exampleInstance) {
-		IPermissionDao permissionDao = daoFactory.getPermissionDao();
 		Permission permission = permissionDao.findUniqueByExample(exampleInstance);
 		
 		return permission;
@@ -299,7 +295,6 @@ public class DefaultPermissionService implements IPermissionService {
 	 * @return
 	 */
 	private IdcUser getUserByAddrUuid(String addrUuid) {
-		IIdcUserDao idcUserDao = daoFactory.getIdcUserDao();
 		return idcUserDao.getIdcUserByAddrUuid(addrUuid);
 	}
 

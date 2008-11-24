@@ -5,9 +5,9 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.services.catalog.MdekAddressService;
-import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 
@@ -21,8 +21,8 @@ public class MdekTreePathHandler {
 
 	static private String NODE_SEPARATOR = "|";  
 
-	private MdekAddressService addressService;
-	private MdekObjectService objectService;
+	private IObjectNodeDao daoObjectNode;
+	private IAddressNodeDao daoAddressNode;
 
 	private static MdekTreePathHandler myInstance;
 
@@ -35,15 +35,15 @@ public class MdekTreePathHandler {
 	}
 
 	private MdekTreePathHandler(DaoFactory daoFactory) {
-		objectService = MdekObjectService.getInstance(daoFactory);
-		addressService = MdekAddressService.getInstance(daoFactory);
+		daoObjectNode = daoFactory.getObjectNodeDao();
+		daoAddressNode = daoFactory.getAddressNodeDao();
 	}
 
 	/** Set tree path in node according to passed parent uuid. Returns new path. */
 	public String setTreePath(ObjectNode node, String newParentUuid) {
 		ObjectNode newParentNode = null;
 		if (newParentUuid != null) {
-			newParentNode = objectService.loadByUuid(newParentUuid, null);
+			newParentNode = daoObjectNode.loadByUuid(newParentUuid, null);
 			if (newParentNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}
@@ -56,7 +56,7 @@ public class MdekTreePathHandler {
 	public String setTreePath(AddressNode node, String newParentUuid) {
 		AddressNode newParentNode = null;
 		if (newParentUuid != null) {
-			newParentNode = addressService.loadByUuid(newParentUuid, null);
+			newParentNode = daoAddressNode.loadByUuid(newParentUuid, null);
 			if (newParentNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 			}

@@ -74,8 +74,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		this.permService = permissionService;
 		permHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		userHandler = MdekIdcUserHandler.getInstance(daoFactory);
-		addressService = MdekAddressService.getInstance(daoFactory);
-		objectService = MdekObjectService.getInstance(daoFactory);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
+		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
 		
 		dao = daoFactory.getDao(IEntity.class);
 
