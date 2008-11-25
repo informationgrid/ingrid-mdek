@@ -38,6 +38,7 @@
   <!--
     Fachlicher Name: Katalog Uuid
     Tabelle.Feld   : T03_catalogue.cat_uuid
+    Tabelle.Feld   : T01_object.cat_id
   -->
   <xs:element name="catalogue-identifier" type="xs:string"/>
   <!--
