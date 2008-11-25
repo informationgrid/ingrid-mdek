@@ -1356,7 +1356,7 @@
   <xs:element name="type-of-relation" type="igc:list-entry-ids-string"/>
   <!--
     Fachlicher Name: Übergeordnetes Objekt (Hierarchiebaum)
-    Tabelle   : object_node
+    Tabelle   : object_node.fk_obj_uuid
   -->
   <xs:element name="parent-data-source">
     <xs:complexType>
@@ -1548,7 +1548,7 @@
   <xs:element name="communication-description" type="xs:string"/>
   <!--
     Fachlicher Name: Übergeordnete Adresse (Hierarchiebaum)
-    Tabelle   : address_node
+    Tabelle   : address_node.fk_addr_uuid
   -->
   <xs:element name="parent-address">
     <xs:complexType>
