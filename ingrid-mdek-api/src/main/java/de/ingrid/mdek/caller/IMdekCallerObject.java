@@ -187,7 +187,7 @@ public interface IMdekCallerObject {
 	 * @param toUuid uuid of new parent
 	 * @param forcePublicationCondition apply restricted PubCondition of new parent to
 	 * 		subobjects (true) or receive Error when subobjects PubCondition conflicts (false)
-	 * @return response containing result: map containing info (number of moved objects ...)
+	 * @return response containing result: map containing info (number of moved objects, permissions on moved object, ...)
 	 */
 	IngridDocument moveObject(String plugId, String fromUuid, String toUuid,
 			boolean forcePublicationCondition,

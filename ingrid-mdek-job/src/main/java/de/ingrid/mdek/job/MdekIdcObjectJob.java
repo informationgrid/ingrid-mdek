@@ -701,10 +701,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_PUBLISH, 0, 1, false));
 
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			Boolean forcePubCondition = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 
 			daoObjectNode.beginTransaction();
 			
-			String uuid = objectService.publishObject(oDocIn, userId, true);
+			String uuid = objectService.publishObject(oDocIn, forcePubCondition, userId, true);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !?
 			daoObjectNode.commitTransaction();
@@ -925,36 +926,21 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
 
-			Boolean forcePubCondition = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
-			boolean isNewRootNode = (toUuid == null) ? true : false;
+			Boolean forcePubCondition = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 
 			daoObjectNode.beginTransaction();
 
-			// PERFORM CHECKS
-
-			// check permissions !
-			permissionHandler.checkPermissionsForMoveObject(fromUuid, toUuid, userUuid);
-
-			ObjectNode fromNode = objectService.loadByUuid(fromUuid, null);
-			checkObjectNodesForMove(fromNode, toUuid, forcePubCondition, userUuid);
-
-			// CHECKS OK, proceed
-
-			// process all moved nodes including top node (e.g. change tree path or date and mod_uuid) !
-			IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, userUuid);
-
-			// grant write tree permission if new root node
-			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForObject(fromUuid, userUuid);
-			}
+			IngridDocument resultDoc = objectService.moveObject(
+					fromUuid, toUuid, forcePubCondition, userUuid, true);
 
 			// add permissions to result
 			List<Permission> perms = permissionHandler.getPermissionsForObject(fromUuid, userUuid, true);
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 			daoObjectNode.commitTransaction();
+
 			return resultDoc;		
 
 		} catch (RuntimeException e) {
@@ -967,76 +953,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				removeRunningJob(userUuid);				
 			}
 		}
-	}
-
-	/**
-	 * Process the moved tree, meaning set new tree path or modification date and user in node (in
-	 * published and working version !).
-	 * NOTICE: date and user isn't set in subnodes, see http://jira.media-style.com/browse/INGRIDII-266
-	 * @param rootNode root node of moved tree branch
-	 * @param newParentUuid node uuid of new parent
-	 * @param modUuid user uuid to set as modification user
-	 * @return doc containing additional info (number processed nodes ...)
-	 */
-	private IngridDocument processMovedNodes(ObjectNode rootNode, String newParentUuid, String modUuid)
-	{
-		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
-
-		// process root node
-
-		// set new parent, may be null, then top node !
-		rootNode.setFkObjUuid(newParentUuid);
-		// remember former tree path and set new tree path.
-		String oldRootPath = rootNode.getTreePath();
-		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
-		daoObjectNode.makePersistent(rootNode);
-
-		// set modification time and user only in top node, not in subnodes !
-		// see http://jira.media-style.com/browse/INGRIDII-266
-
-		// set modification time and user (in both versions when present)
-		T01Object objWork = rootNode.getT01ObjectWork();
-		T01Object objPub = rootNode.getT01ObjectPublished();
-
-		// check whether we have a different published version !
-		boolean hasDifferentPublishedVersion = false;
-		if (objPub != null && objWork.getId() != objPub.getId()) {
-			hasDifferentPublishedVersion = true;
-		}
-
-		// change mod time and uuid
-		objWork.setModTime(currentTime);
-		objWork.setModUuid(modUuid);
-
-		if (hasDifferentPublishedVersion) {
-			objPub.setModTime(currentTime);
-			objPub.setModUuid(modUuid);				
-		}
-
-		daoT01Object.makePersistent(objWork);
-		if (hasDifferentPublishedVersion) {
-			daoT01Object.makePersistent(objPub);
-		}				
-
-		// process all subnodes
-
-		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(rootNode.getObjUuid(), null, false);
-		for (ObjectNode subNode : subNodes) {
-			// update tree path
-			pathHandler.updateTreePathAfterMove(subNode, oldRootPath, newRootPath);
-			daoObjectNode.makePersistent(subNode);
-		}
-
-		// total number: root + subobjects
-		int numberOfProcessedObj = subNodes.size() + 1;
-		
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfProcessedObj);
-		if (log.isDebugEnabled()) {
-			log.debug("Number of moved objects: " + numberOfProcessedObj);
-		}
-
-		return result;
 	}
 
 	/** Checks whether subtree of object has working copies. */
@@ -1176,47 +1092,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			if (removeRunningJob) {
 				removeRunningJob(userUuid);				
 			}
-		}
-	}
-
-	/** Check whether passed nodes are valid for move operation
-	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
-	 */
-	private void checkObjectNodesForMove(ObjectNode fromNode, String toUuid,
-		Boolean forcePubCondition,
-		String userId)
-	{
-		if (fromNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
-		}		
-		String fromUuid = fromNode.getObjUuid();
-
-		// NOTICE: top node when toUuid = null
-		if (toUuid != null) {
-			// load toNode
-			ObjectNode toNode = objectService.loadByUuid(toUuid, IdcEntityVersion.PUBLISHED_VERSION);
-			if (toNode == null) {
-				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
-			}		
-
-			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
-			T01Object toObjPub = toNode.getT01ObjectPublished();
-			if (toObjPub == null) {
-				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
-			}
-
-			// is target subnode ?
-			if (daoObjectNode.isSubNode(toUuid, fromUuid)) {
-				throw new MdekException(new MdekError(MdekErrorType.TARGET_IS_SUBNODE_OF_SOURCE));				
-			}
-			
-			// are pubTypes compatible ?
-			// we check and adapt ONLY PUBLISHED version !!!
-			Integer publicationTypeTo = toObjPub.getPublishId();
-			// adapt all child nodes if requested !
-			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
-			objectService.checkObjectPublicationConditionSubTree(fromUuid, publicationTypeTo, forcePubCondition, false,
-				currentTime, userId);
 		}
 	}
 

@@ -231,7 +231,7 @@ public interface IMdekCallerAddress {
 	 * 		true=moved node is free address, parent has to be null<br>
 	 * 		false=moved node is NOT free address, parent can be set, when parent is null
 	 * 		copy is "normal" top address
-	 * @return response containing result: map containing info (number of moved addresses ...)
+	 * @return response containing result: map containing info (number of moved addresses, permissions on moved address, ...)
 	 */
 	IngridDocument moveAddress(String plugId, String fromUuid, String toUuid,
 			boolean moveToFreeAddress,

@@ -847,36 +847,21 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
 
-			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
-			boolean isNewRootNode = (toUuid == null) ? true : false;
+			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 
 			daoAddressNode.beginTransaction();
 
-			// PERFORM CHECKS
-
-			// check permissions !
-			permissionHandler.checkPermissionsForMoveAddress(fromUuid, toUuid, userUuid);
-
-			AddressNode fromNode = addressService.loadByUuid(fromUuid, IdcEntityVersion.WORKING_VERSION);
-			checkAddressNodesForMove(fromNode, toUuid, targetIsFreeAddress);
-
-			// CHECKS OK, proceed
-
-			// process all moved nodes including top node (e.g. change tree path or date and mod_uuid) !
-			IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, targetIsFreeAddress, userUuid);
-
-			// grant write tree permission if new root node
-			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForAddress(fromUuid, userUuid);
-			}
+			IngridDocument resultDoc = addressService.moveAddress(fromUuid, toUuid, targetIsFreeAddress,
+					userUuid, true);
 
 			// add permissions to result
 			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromUuid, userUuid, true);
 			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
 
 			daoAddressNode.commitTransaction();
+
 			return resultDoc;		
 
 		} catch (RuntimeException e) {
@@ -1255,7 +1240,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid, userUuid);
 
 			// handle copies from/to "free address"
-			processMovedOrCopiedAddress(targetAddrWork, copyToFreeAddress);
+			addressService.processMovedOrCopiedAddress(targetAddrWork, copyToFreeAddress);
 
 			// create new Node and set data !
 			// we also set Beans in address node, so we can access them afterwards.
@@ -1482,174 +1467,5 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		// check address type conflicts !
 		addressService.checkAddressTypes(toType, fromType, copyToFreeAddress, false);
-	}
-
-	/** Check whether passed nodes are valid for move operation
-	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
-	 */
-	private void checkAddressNodesForMove(AddressNode fromNode, String toUuid,
-		Boolean moveToFreeAddress)
-	{
-		if (fromNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
-		}		
-		String fromUuid = fromNode.getAddrUuid();
-
-		T02Address fromAddrWork = fromNode.getT02AddressWork();
-		AddressType fromTypeWork = EnumUtil.mapDatabaseToEnumConst(AddressType.class, fromAddrWork.getAdrType());
-
-		// NOTICE: top node when toUuid = null
-		AddressType toTypeWork = null;
-		if (toUuid != null) {
-			// move to a new NODE -> NO TOP NODE
-
-			// free address has to be top node !
-			if (moveToFreeAddress) {
-				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
-			}
-
-			// load toNode
-			AddressNode toNode = addressService.loadByUuid(toUuid, IdcEntityVersion.ALL_VERSIONS);
-			if (toNode == null) {
-				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
-			}		
-
-			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
-			T02Address toAddrPub = toNode.getT02AddressPublished();
-			if (toAddrPub == null) {
-				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
-			}
-
-			// is target subnode ?
-			if (daoAddressNode.isSubNode(toUuid, fromUuid)) {
-				throw new MdekException(new MdekError(MdekErrorType.TARGET_IS_SUBNODE_OF_SOURCE));				
-			}
-
-			T02Address toAddrWork = toNode.getT02AddressWork();
-			toTypeWork = EnumUtil.mapDatabaseToEnumConst(AddressType.class, toAddrWork.getAdrType());
-
-		} else {
-			// move to TOP !
-			
-			if (moveToFreeAddress) {
-				// free address has no subnodes !
-				if (addressService.hasChildren(fromNode)) {
-					throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
-				}
-			}
-		}
-
-		// check address type conflicts !
-		addressService.checkAddressTypes(toTypeWork, fromTypeWork, moveToFreeAddress, false);
-	}
-
-	/**
-	 * Process the moved tree, meaning set new tree path or modification date and user in node (in
-	 * published and working version !).
-	 * NOTICE: date and user isn't set in subnodes, see http://jira.media-style.com/browse/INGRIDII-266
-	 * @param rootNode root node of moved tree branch
-	 * @param newParentUuid node uuid of new parent
-	 * @param modUuid user uuid to set as modification user
-	 * @return doc containing additional info (number processed nodes ...)
-	 */
-	private IngridDocument processMovedNodes(AddressNode rootNode,
-			String newParentUuid, boolean isNowFreeAddress,
-			String modUuid)
-	{
-		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
-
-		// process root node
-
-		// set new parent, may be null, then top node !
-		rootNode.setFkAddrUuid(newParentUuid);
-		// remember former tree path and set new tree path.
-		String oldRootPath = rootNode.getTreePath();
-		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
-		daoAddressNode.makePersistent(rootNode);
-
-		// set modification time and user only in top node, not in subnodes !
-		// see http://jira.media-style.com/browse/INGRIDII-266
-
-		// set modification time and user (in both versions when present)
-		T02Address addrWork = rootNode.getT02AddressWork();
-		T02Address addrPub = rootNode.getT02AddressPublished();
-		
-		// check whether we have a different published version !
-		boolean hasDifferentPublishedVersion = false;
-		if (addrPub != null && addrWork.getId() != addrPub.getId()) {
-			hasDifferentPublishedVersion = true;
-		}
-
-		// change mod time and uuid
-		addrWork.setModTime(currentTime);
-		addrWork.setModUuid(modUuid);
-		if (hasDifferentPublishedVersion) {
-			addrPub.setModTime(currentTime);
-			addrPub.setModUuid(modUuid);				
-		}
-
-		// handle move from/to "free address"
-		processMovedOrCopiedAddress(addrWork, isNowFreeAddress);
-		if (hasDifferentPublishedVersion) {
-			processMovedOrCopiedAddress(addrPub, isNowFreeAddress);
-		}
-
-		daoT02Address.makePersistent(addrWork);
-		if (hasDifferentPublishedVersion) {
-			daoT02Address.makePersistent(addrPub);
-		}
-
-		// process all subnodes
-
-		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(rootNode.getAddrUuid(), null, false);
-		for (AddressNode subNode : subNodes) {
-			// update tree path in subnodes
-			pathHandler.updateTreePathAfterMove(subNode, oldRootPath, newRootPath);
-			daoAddressNode.makePersistent(subNode);
-		}
-
-		// total number: root + subaddresses
-		int numberOfProcessedNodes = subNodes.size() + 1;
-		
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfProcessedNodes);
-		if (log.isDebugEnabled()) {
-			log.debug("Number of processed addresses: " + numberOfProcessedNodes);
-		}
-
-		return result;
-	}
-
-	/**
-	 * Change the passed address concerning type, institution after copied/moved to new location.<br>
-	 * NOTICE: changes working and published version !
-	 * @param a the address as it was moved/copied
-	 * @param isNowFreeAddress new location is free address
-	 */
-	private void processMovedOrCopiedAddress(T02Address a, boolean isNowFreeAddress) {
-		boolean wasFreeAddress = AddressType.FREI.getDbValue().equals(a.getAdrType());
-		if (isNowFreeAddress) {
-			if (!wasFreeAddress) {
-
-				// MOVE NON FREE ADDRESS TO FREE ADDRESS !
-
-				// only Persons can be moved to free addresses !
-				AddressType formerType = EnumUtil.mapDatabaseToEnumConst(AddressType.class, a.getAdrType());
-				if (formerType != AddressType.PERSON) {
-					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
-				}
-
-				a.setAdrType(AddressType.FREI.getDbValue());
-				a.setInstitution("");
-			}
-		} else {
-			if (wasFreeAddress) {
-
-				// MOVE FREE ADDRESS TO NON FREE ADDRESS !
-
-				a.setAdrType(AddressType.PERSON.getDbValue());
-				a.setInstitution("");
-			}				
-		}
 	}
 }
