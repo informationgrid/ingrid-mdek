@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.catalog;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -19,11 +20,13 @@ import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
+import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.mdek.services.utils.UuidGenerator;
 import de.ingrid.utils.IngridDocument;
 
@@ -38,6 +41,7 @@ public class MdekAddressService {
 	private MdekTreePathHandler pathHandler;
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
+	private MdekWorkflowHandler workflowHandler;
 
 	protected BeanToDocMapper beanToDocMapper;
 	protected DocToBeanMapper docToBeanMapper;
@@ -60,6 +64,7 @@ public class MdekAddressService {
 		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
+		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
@@ -73,12 +78,6 @@ public class MdekAddressService {
 	 */
 	public AddressNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		return daoAddressNode.loadByUuid(uuid, whichEntityVersion);
-	}
-
-	
-	/** Returns true if given node has children. False if no children. */
-	public boolean hasChildren(AddressNode node) {
-    	return (node.getAddressNodeChildren().size() > 0) ? true : false;
 	}
 
 	/**
@@ -100,7 +99,7 @@ public class MdekAddressService {
 
 	/**
 	 * Store WORKING COPY of the address represented by the passed doc.<br>
-	 * NOTICE: PARENT_UUID has to be set in doc when new address !
+	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
@@ -193,6 +192,105 @@ public class MdekAddressService {
 		return uuid;
 	}
 
+	/**
+	 * Publish the address represented by the passed doc.<br>
+	 * NOTICE: pass PARENT_UUID in doc when new address !
+	 * @param aDocIn doc representing address
+	 * @param userId user performing operation, will be set as mod-user
+	 * @param checkPermissions true=check whether user has write permission<br>
+	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @return uuid of published address, will be generated if new address (no uuid passed in doc)
+	 */
+	public String publishAddress(IngridDocument aDocIn, String userId, boolean checkPermissions) {
+		// uuid is null when new address !
+		String uuid = (String) aDocIn.get(MdekKeys.UUID);
+		boolean isNewAddress = (uuid == null) ? true : false;
+		// parentUuid only passed if new address !
+		String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
+
+		// set common data to transfer
+		workflowHandler.processDocOnPublish(aDocIn);
+		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+		aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
+		// set current user as responsible user if not set !
+		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
+		if (respUserUuid == null) {
+			beanToDocMapper.mapResponsibleUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);				
+		}
+
+		// check permissions !
+		if (checkPermissions) {
+			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);			
+		}
+
+		if (isNewAddress) {
+			// create new uuid
+			uuid = UuidGenerator.getInstance().generateUuid();
+			aDocIn.put(MdekKeys.UUID, uuid);
+		}
+
+		// load node
+		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+		if (aNode == null) {
+			// create new node, also take care of correct tree path in node
+			aNode = docToBeanMapper.mapAddressNode(aDocIn, new AddressNode());			
+			pathHandler.setTreePath(aNode, parentUuid);
+		}
+		
+		// get/create published version
+		T02Address aPub = aNode.getT02AddressPublished();
+		if (aPub == null) {
+			// set some missing data which may not be passed from client.
+			aDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
+			
+			// create new address with BASIC data
+			aPub = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
+			// save it to generate id needed for mapping of associations
+			daoT02Address.makePersistent(aPub);
+		}
+
+		// transfer new data and store.
+		docToBeanMapper.mapT02Address(aDocIn, aPub, MappingQuantity.DETAIL_ENTITY);
+		daoT02Address.makePersistent(aPub);
+		Long aPubId = aPub.getId();
+
+		// and update AddressNode
+
+		// delete former working copy if set
+		T02Address aWork = aNode.getT02AddressWork();
+		if (aWork != null && !aPubId.equals(aWork.getId())) {
+			// delete working version
+			daoT02Address.makeTransient(aWork);
+		}
+		// and set published one; also as work version
+		// set also beans for oncoming access
+		aNode.setAddrId(aPubId);
+		aNode.setT02AddressWork(aPub);
+		aNode.setAddrIdPublished(aPubId);
+		aNode.setT02AddressPublished(aPub);
+		daoAddressNode.makePersistent(aNode);
+
+		// PERFORM CHECKS ON FINAL DATA BEFORE COMMITTING !!!
+		checkAddressNodeForPublish(aNode);			
+		// checks ok !
+
+		// UPDATE FULL INDEX !!!
+		fullIndexHandler.updateAddressIndex(aNode);
+
+		// grant write tree permission if not set yet (e.g. new root node)
+		if (isNewAddress) {
+			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
+		}
+
+		return uuid;
+	}
+
+	/** Returns true if given node has children. False if no children. */
+	public boolean hasChildren(AddressNode node) {
+    	return (node.getAddressNodeChildren().size() > 0) ? true : false;
+	}
+
 	/** Checks whether given Address has a working copy !
 	 * @param node address to check represented by node !
 	 * @return true=address has different working copy or not published yet<br>
@@ -226,6 +324,142 @@ public class MdekAddressService {
 			}
 			if (hasChildren(node)) {
 				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
+			}
+		}
+	}
+
+	/** Check whether passed node is valid for publishing !
+	 * (e.g. check free address conditions ...). CHECKS PUBLISHED VERSION IN NODE !
+	 * Throws MdekException if not valid.
+	 */
+	private void checkAddressNodeForPublish(AddressNode node)
+	{
+		if (node == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// check whether address has an email address !
+		boolean hasEmail = false;
+		Set<T021Communication> comms = node.getT02AddressPublished().getT021Communications();
+		for (T021Communication comm : comms) {
+			if (MdekUtils.COMM_TYPE_EMAIL.equals(comm.getCommtypeKey())) {
+				hasEmail = true;
+				break;
+			}
+		}
+		if (!hasEmail) {
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_HAS_NO_EMAIL));			
+		}
+
+		AddressType nodeType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
+				node.getT02AddressPublished().getAdrType());
+		boolean isFreeAddress = (nodeType == AddressType.FREI);
+		String parentUuid = node.getFkAddrUuid();
+
+		// basic free address checks
+		if (isFreeAddress) {
+			if (parentUuid != null) {
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
+			}
+			if (hasChildren(node)) {
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_SUBTREE));
+			}
+		}
+
+		// basic parent checks
+		AddressNode parentNode = null;
+		AddressType parentType = null;
+		if (parentUuid != null) {
+
+			// check whether a parent is not published !
+			List<String> pathUuids = daoAddressNode.getAddressPath(parentUuid);
+			
+			for (String pathUuid : pathUuids) {
+				AddressNode pathNode = loadByUuid(pathUuid, null);
+				if (pathNode == null) {
+					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+				}
+				if (pathNode.getAddrIdPublished() == null) {
+					throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
+				}
+			}
+
+			parentNode = loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
+			parentType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
+					parentNode.getT02AddressPublished().getAdrType());
+
+		}
+
+		// check address type conflicts !
+		checkAddressTypes(parentType, nodeType, isFreeAddress, true);
+	}
+
+	/**
+	 * Check whether types parent/child fit together. Throws exception if not 
+	 * @param parentType pass null if no parent (top node). 
+	 * @param childType type of child
+	 * @param finalIsFreeAddress finally child should be free address (under the free address node) ?
+	 * @param isFinalState <br>
+	 * 		true=both types are already in final state<br>
+	 * 		false=types are in state before copy or move operation (pre check)
+	 */
+	public void checkAddressTypes(AddressType parentType, AddressType childType,
+			boolean finalIsFreeAddress,
+			boolean isFinalState) {
+		if (childType == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+		}
+
+		if (finalIsFreeAddress) {
+			// FREE ADDRESS !
+
+			if (parentType != null) {
+				throw new MdekException(new MdekError(MdekErrorType.FREE_ADDRESS_WITH_PARENT));
+			}
+			if (isFinalState) {
+				if (childType != AddressType.FREI) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
+			} else {
+				// check before copy or move operation
+				if (childType != AddressType.PERSON &&
+					childType != AddressType.FREI) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
+			}
+		} else {
+			// NO FREE ADDRESS !
+
+			if (parentType == AddressType.FREI) {
+				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
+			}
+			if (isFinalState) {
+				// final state frei not possible. FREI is copied/moved !
+				if (childType == AddressType.FREI) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
+			}
+
+			if (parentType == null) {
+				// TOP ADDRESS
+
+				// only institutions at top
+				if (childType != AddressType.INSTITUTION) {
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
+				}
+			} else {
+				// NO TOP ADDRESS
+
+				if (parentType == AddressType.EINHEIT) {
+					// only einheit and person below einheit
+					if (childType == AddressType.INSTITUTION) {
+						throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+					}
+
+				} else if (parentType == AddressType.PERSON) {
+					// nothing below person
+					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));
+				}
 			}
 		}
 	}
