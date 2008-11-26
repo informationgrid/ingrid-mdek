@@ -15,7 +15,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleAddress {
@@ -246,10 +246,10 @@ class MdekExampleAddressThread extends Thread {
 		String objReferencing = "C5FEA80D-6AB2-11D3-BB32-1C7607C10000";
 
 		System.out.println("\n----- initial load of referenced address -> all obj references from working version -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- load object referencing address -----");
-		IngridDocument oMap = supertool.fetchObject(objReferencing, Quantity.DETAIL_ENTITY);
+		IngridDocument oMap = supertool.fetchObject(objReferencing, FetchQuantity.EDITOR_ENTITY);
 		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.ADR_REFERENCES_TO);
 		// find address to remove
 		IngridDocument docToRemove = null;
@@ -267,7 +267,7 @@ class MdekExampleAddressThread extends Thread {
 		supertool.storeObject(oMap, true);
 
 		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 1 -> only 1 reference from published included ! -----");
-		aMap = supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 1);
+		aMap = supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY, 0, 1);
 		System.out.println("\n----- load referencing objects separately -----");
 		supertool.fetchAddressObjectReferences(addrReferenced, 0, 1);
 		System.out.println("\n----- store address with refetch (same paging params when refetching) -----");
@@ -275,30 +275,30 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- publish address with refetch (same paging params when refetching) -----");
 		supertool.publishAddress(aMap, true, 0, 1);
 		System.out.println("\n----- load details of referenced address, fetch all objRefs -> all obj references there, 1 reference from published, all from working included -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 2 -> 1 reference from published, 1 from working included ! -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 2);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY, 0, 2);
 		System.out.println("\n----- load referencing objects separately -----");
 		supertool.fetchAddressObjectReferences(addrReferenced, 0, 2);
 
 		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 10 -> 1 reference from published, all from working included ! -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 10);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY, 0, 10);
 		System.out.println("\n----- load referencing objects separately -----");
 		supertool.fetchAddressObjectReferences(addrReferenced, 0, 10);
 
 		System.out.println("\n----- load referenced address WITH PAGING, start at 10, fetch 10 -> NO REFERENCES INCLUDED -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 10, 10);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY, 10, 10);
 		System.out.println("\n----- load referencing objects separately -----");
 		supertool.fetchAddressObjectReferences(addrReferenced, 10, 10);
 
 		System.out.println("\n----- load referenced address WITH PAGING, start at 0, fetch 0 -> NO REFERENCES INCLUDED -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 0, 0);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY, 0, 0);
 		System.out.println("\n----- load referencing objects separately -----");
 		supertool.fetchAddressObjectReferences(addrReferenced, 0, 0);
 
 		System.out.println("\n----- load referenced address WITH PAGING, start at 1, fetch 2 -> 0 reference from published, first 2 from working included ! -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY, 1, 2);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY, 1, 2);
 		System.out.println("\n----- load referencing objects separately -----");
 		supertool.fetchAddressObjectReferences(addrReferenced, 1, 2);
 
@@ -307,10 +307,10 @@ class MdekExampleAddressThread extends Thread {
 		supertool.deleteAddressWorkingCopy(addrReferenced, true);
 
 		System.out.println("\n----- verify object, no working version and references to address again ! -----");
-		supertool.fetchObject(objReferencing, Quantity.DETAIL_ENTITY);
+		supertool.fetchObject(objReferencing, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- verify address, only object references from \"working version\" (equals published ones) -----");
-		supertool.fetchAddress(addrReferenced, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY);
 /*
 		if (alwaysTrue) {
 			isRunning = false;
@@ -335,7 +335,7 @@ class MdekExampleAddressThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n----- address details -----");
-		aMap = supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
+		aMap = supertool.fetchAddress(personUuid, FetchQuantity.EDITOR_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -347,15 +347,15 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n----- COMPARE ADDRESS WORKING/PUBLISHED VERSION -----");
 		System.out.println("\nWORKING VERSION:");
-		supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchAddress(personUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		System.out.println("\nPUBLISHED VERSION:");
-		supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		supertool.fetchAddress(personUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteAddressWorkingCopy(personUuid, true);
 		
 		System.out.println("\n----- and reload -----");
-		aMap = supertool.fetchAddress(personUuid, Quantity.DETAIL_ENTITY);
+		aMap = supertool.fetchAddress(personUuid, FetchQuantity.EDITOR_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -421,9 +421,9 @@ class MdekExampleAddressThread extends Thread {
 		String copy1Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
 		System.out.println("----- load original one -----");
-		supertool.fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addressFrom, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- then load copy -----");
-		supertool.fetchAddress(copy1Uuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(copy1Uuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- verify copy, load top FREE ADDRESSES -> new FREE ADDRESS -----");
 		supertool.fetchTopAddresses(true);
 
@@ -434,9 +434,9 @@ class MdekExampleAddressThread extends Thread {
 		String copy2Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
 		System.out.println("----- load original one -----");
-		supertool.fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addressFrom, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- then load copy -----");
-		supertool.fetchAddress(copy2Uuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(copy2Uuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- verify children -> new child -----");
 		supertool.fetchSubAddresses(addressTo);
 
@@ -447,9 +447,9 @@ class MdekExampleAddressThread extends Thread {
 		String copy3Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
 		System.out.println("----- load original one -----");
-		supertool.fetchAddress(addressFrom, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(addressFrom, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- then load copy -----");
-		supertool.fetchAddress(copy3Uuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(copy3Uuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- delete copies (WORKING COPY) -> FULL DELETE -----");
 		supertool.deleteAddressWorkingCopy(copy1Uuid, true);
@@ -506,7 +506,7 @@ class MdekExampleAddressThread extends Thread {
 		if (l.size() > 0) {
 			System.out.println("\n----- fetch first subaddress details -----");
 			String uuid = ((IngridDocument)l.get(0)).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 
 		System.out.println("\n----- verify old parent subaddresses (cut) -----");
@@ -529,13 +529,13 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- move new Address to FREE Address ! -> SUCCESS -----");
 		supertool.moveAddress(newAddrUuid, null, true);
 		supertool.setFullOutput(false);
-		supertool.fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		System.out.println("\n----- move new FREE Address to NOT FREE Address ! -> SUCCESS -----");
 		newParentUuid = topUuid;
 		supertool.moveAddress(newAddrUuid, newParentUuid, false);
 		supertool.setFullOutput(false);
-		supertool.fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
@@ -556,7 +556,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- delete new address (FULL) -> full delete -----");
 		supertool.deleteAddress(newAddrUuid, true);
 		System.out.println("\n----- verify deletion of new address -----");
-		supertool.fetchAddress(newAddrUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subaddresses -----");
 		supertool.fetchSubAddresses(newParentUuid);
 
@@ -674,7 +674,7 @@ class MdekExampleAddressThread extends Thread {
 		supertool.publishAddress(newPubDoc, true);
 
 		System.out.println("\n----- refetch FULL PARENT, UNPUBLISHED !  -----");
-		aMap = supertool.fetchAddress(pub1Uuid, Quantity.DETAIL_ENTITY);
+		aMap = supertool.fetchAddress(pub1Uuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- change organization and publish PARENT -> create pub version/\"delete\" work version -----");
 		aMap.put(MdekKeys.ORGANISATION, "COPIED, Orga CHANGED and PUBLISHED: " + aMap.get(MdekKeys.ORGANISATION));	
@@ -786,7 +786,7 @@ class MdekExampleAddressThread extends Thread {
 			String uuidStoredAddress = (String) result.get(MdekKeys.UUID);
 			System.out.println("uuid = " + uuidStoredAddress);
 			System.out.println("refetch Address");
-			IngridDocument aRefetchedDoc = supertool.fetchAddress(uuidStoredAddress, Quantity.DETAIL_ENTITY);
+			IngridDocument aRefetchedDoc = supertool.fetchAddress(uuidStoredAddress, FetchQuantity.EDITOR_ENTITY);
 			System.out.println("");
 
 			System.out.println("MANIPULATE ADDRESS: back to origin");

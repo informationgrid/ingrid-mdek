@@ -13,7 +13,7 @@ import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleSecurity {
@@ -657,7 +657,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- fetch object -----");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 
 		System.out.println("\n----- set Responsible User and store object -> working copy with 'MD_ADMIN 2' as ResponsibleUser -----");
@@ -670,7 +670,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- fetch address -----");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 
 		System.out.println("\n----- set Responsible User and store address -> working copy with 'MD_ADMIN 2' as ResponsibleUser -----");
@@ -688,7 +688,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- verify CHANGED ResponsibleUser in Object -----");
 		System.out.println("----- fetch object -----");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		String respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Object ResponsibleUser = " + respUuid);
@@ -699,7 +699,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- verify CHANGED ResponsibleUser in ADDRESS -----");
 		System.out.println("----- fetch address -----");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Address ResponsibleUser = " + respUuid);
@@ -725,7 +725,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- verify CHANGED ResponsibleUser in Object -----");
 		System.out.println("----- fetch object -----");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Object ResponsibleUser = " + respUuid);
@@ -736,7 +736,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- verify CHANGED ResponsibleUser in ADDRESS -----");
 		System.out.println("----- fetch address -----");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Address ResponsibleUser = " + respUuid);
@@ -806,7 +806,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- store address -> NOT ALLOWED -----");
 		System.out.println("-- first fetch address");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeAddress(doc, false);
@@ -818,7 +818,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- store object -> NOT ALLOWED -----");
 		System.out.println("-- first fetch object");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeObject(doc, false);
@@ -857,7 +857,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- write address -> ALLOWED (WRITE_SINGLE) -----");
 		System.out.println("-- first fetch address");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeAddress(doc, false);
@@ -873,7 +873,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- write object -> ALLOWED (WRITE_SINGLE) -----");
 		System.out.println("-- first fetch object");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeObject(doc, false);
@@ -1135,7 +1135,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- write object -> USER HAS WORKING COPY !");
 		System.out.println("-- first fetch object");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		supertool.storeObject(doc, false);
 
@@ -1163,7 +1163,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- publish user as responsible in object -> user NOT editing and is responsible");
 		System.out.println("-- first fetch object");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		String origResponsibleUuid = getResponsibleUuidFromDoc(doc);
 		setResponsibleUuidInDoc(supertool.getCallingUserUuid(), doc);
@@ -1193,7 +1193,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- write address -> USER HAS WORKING COPY !");
 		System.out.println("-- first fetch address");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		supertool.storeAddress(doc, false);
 
@@ -1221,7 +1221,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- publish user as responsible in address -> user NOT editing and is responsible");
 		System.out.println("-- first fetch address");
 		supertool.setFullOutput(false);
-		doc = supertool.fetchAddress(addrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		origResponsibleUuid = getResponsibleUuidFromDoc(doc);
 		setResponsibleUuidInDoc(supertool.getCallingUserUuid(), doc);

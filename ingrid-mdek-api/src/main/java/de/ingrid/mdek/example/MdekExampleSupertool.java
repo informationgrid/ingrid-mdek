@@ -36,7 +36,7 @@ import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
@@ -872,12 +872,12 @@ public class MdekExampleSupertool {
 	}
 
 	/** Fetches WORKING VERSION of object ! */
-	public IngridDocument fetchObject(String uuid, Quantity howMuch) {
+	public IngridDocument fetchObject(String uuid, FetchQuantity howMuch) {
 		return fetchObject(uuid, howMuch, IdcEntityVersion.WORKING_VERSION);
 		
 	}
 
-	public IngridDocument fetchObject(String uuid, Quantity howMuch, IdcEntityVersion whichVersion) {
+	public IngridDocument fetchObject(String uuid, FetchQuantity howMuch, IdcEntityVersion whichVersion) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -903,23 +903,23 @@ public class MdekExampleSupertool {
 	}
 
 	/** Fetches WORKING VERSION of address ! Don't "page" object references to address instead fetch first 50 ones ! */
-	public IngridDocument fetchAddress(String uuid, Quantity howMuch) {
+	public IngridDocument fetchAddress(String uuid, FetchQuantity howMuch) {
 		return fetchAddress(uuid, howMuch, IdcEntityVersion.WORKING_VERSION, 0, 50);
 	}
 
 	/** Fetches requested version of address ! Don't "page" object references to address instead fetch first 50 ones ! */
-	public IngridDocument fetchAddress(String uuid, Quantity howMuch, IdcEntityVersion whichVersion) {
+	public IngridDocument fetchAddress(String uuid, FetchQuantity howMuch, IdcEntityVersion whichVersion) {
 		return fetchAddress(uuid, howMuch, whichVersion, 0, 50);
 	}
 
 	/** Fetches WORKING VERSION of address ! */
-	public IngridDocument fetchAddress(String uuid, Quantity howMuch,
+	public IngridDocument fetchAddress(String uuid, FetchQuantity howMuch,
 			int objRefsStartIndex, int objRefsMaxNum) {
 		return fetchAddress(uuid, howMuch, IdcEntityVersion.WORKING_VERSION,
 				objRefsStartIndex, objRefsMaxNum);
 	}
 
-	public IngridDocument fetchAddress(String uuid, Quantity howMuch, IdcEntityVersion whichVersion,
+	public IngridDocument fetchAddress(String uuid, FetchQuantity howMuch, IdcEntityVersion whichVersion,
 			int objRefsStartIndex, int objRefsMaxNum) {
 		long startTime;
 		long endTime;

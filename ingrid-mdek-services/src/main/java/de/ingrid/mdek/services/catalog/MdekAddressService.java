@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.catalog;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -13,8 +14,10 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -24,10 +27,12 @@ import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
+import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
@@ -61,6 +66,7 @@ public class MdekAddressService {
 	private MdekWorkflowHandler workflowHandler;
 
 	private BeanToDocMapper beanToDocMapper;
+	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 	private DocToBeanMapper docToBeanMapper;
 
 	/** Get The Singleton */
@@ -85,6 +91,7 @@ public class MdekAddressService {
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
+		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 	}
 
@@ -96,6 +103,71 @@ public class MdekAddressService {
 	 */
 	public AddressNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		return daoAddressNode.loadByUuid(uuid, whichEntityVersion);
+	}
+
+	/**
+	 * Fetch single address with given uuid. Pass parameters for paging mechanism of object references.
+	 * @param addrUuid address uuid
+	 * @param whichEntityVersion which address version should be fetched.
+	 * 		NOTICE: In published state working version == published version and it is the same address instance !
+	 * @param howMuch how much data to fetch from address
+	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
+	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
+	 * @param userId
+	 * @return map representation of address containing requested data
+	 */
+	public IngridDocument getAddressDetails(String addrUuid, 
+			IdcEntityVersion whichEntityVersion, FetchQuantity howMuch,
+			int objRefsStartIndex, int objRefsMaxNum,
+			String userId) {
+		// first get all "internal" address data
+		AddressNode aNode = daoAddressNode.getAddrDetails(addrUuid, whichEntityVersion);
+		if (aNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		IngridDocument resultDoc = new IngridDocument();
+		T02Address a;
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			a = aNode.getT02AddressPublished();
+		} else {
+			a = aNode.getT02AddressWork();
+		}
+		beanToDocMapper.mapT02Address(a, resultDoc, MappingQuantity.DETAIL_ENTITY);
+		
+		// also map AddressNode for published info
+		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
+
+		if (howMuch == FetchQuantity.EDITOR_ENTITY) {
+			// then get "external" data (objects referencing the given address ...)
+			HashMap fromObjectsData = 
+				daoAddressNode.getObjectReferencesFrom(addrUuid, objRefsStartIndex, objRefsMaxNum);
+			// we use keys from mdek mapping for data transfer ! 
+			List<ObjectNode>[] fromLists = (List<ObjectNode>[]) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM);
+			int objRefsTotalNum = (Integer) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM);
+
+			beanToDocMapper.mapObjectReferencesFrom(fromLists, objRefsStartIndex, objRefsTotalNum,
+					IdcEntityType.ADDRESS, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+
+			// get parent data
+			AddressNode pNode = daoAddressNode.getParent(addrUuid);
+			if (pNode != null) {
+				beanToDocMapper.mapAddressParentData(pNode.getT02AddressWork(), resultDoc);
+			}
+
+			// supply path info
+			List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(addrUuid, false);
+			resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
+
+			// then map detailed mod user data !
+			beanToDocMapper.mapModUser(a.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+
+			// add permissions the user has on given address !
+			List<Permission> perms = permissionHandler.getPermissionsForAddress(addrUuid, userId, true);
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
+		}
+
+		return resultDoc;
 	}
 
 	/**

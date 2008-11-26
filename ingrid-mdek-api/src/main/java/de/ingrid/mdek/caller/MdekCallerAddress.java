@@ -61,7 +61,7 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		return myInstance;
 	}
 
-	public IngridDocument fetchAddress(String plugId, String addrUuid, Quantity howMuch,
+	public IngridDocument fetchAddress(String plugId, String addrUuid, FetchQuantity howMuch,
 			IdcEntityVersion whichEntityVersion,
 			int objRefsStartIndex, int objRefsMaxNum,
 			String userId) {
@@ -71,7 +71,7 @@ public class MdekCallerAddress extends MdekCallerAbstract implements IMdekCaller
 		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
 		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		if (howMuch == Quantity.DETAIL_ENTITY) {
+		if (howMuch == FetchQuantity.EDITOR_ENTITY) {
 			List jobMethods = mdekCaller.setUpJobMethod("getAddrDetails", jobParams);
 			return mdekCaller.callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 		}

@@ -10,11 +10,17 @@ public interface IMapper {
 
 	/** How much to map of bean/doc content */
 	public enum MappingQuantity {
-		INITIAL_ENTITY, // client: initial data of entity when created
-		BASIC_ENTITY, // client: minimum data of entity needed
-		TREE_ENTITY, // client: entity displayed in tree
-		TABLE_ENTITY, // client: entity displayed in table
-		DETAIL_ENTITY, // client: entity edit/save
-		COPY_ENTITY // complete data -> copy entity via mapping
+		/** IGE: initial data of entity when created */
+		INITIAL_ENTITY,
+		/** IGE: minimum data of entity needed */
+		BASIC_ENTITY,
+		/** IGE: entity displayed in tree */
+		TREE_ENTITY,
+		/** IGE: entity displayed in table */
+		TABLE_ENTITY,
+		/** IGE: entity edit/save */
+		DETAIL_ENTITY,
+		/** complete data -> copy entity via mapping */
+		COPY_ENTITY,
 	}
 }

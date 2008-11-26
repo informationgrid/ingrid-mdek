@@ -20,7 +20,7 @@ import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQS {
@@ -477,12 +477,12 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- Set up test data -----");
 
 		System.out.println("\n----- store working/published \"EXPIRED\" object -> Mod: CATADMIN, Responsible: CATADMIN -----");
-		doc = supertool.fetchObject(topObjUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(topObjUuid, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.updateObjectPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" object -> Mod: CATADMIN, Responsible: CATADMIN -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeObject(doc, true);
 
@@ -491,12 +491,12 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpQAUuid);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" object  -> Mod: MDADMIN, Responsible: CATADMIN -----");
-		doc = supertool.fetchObject(topObjUuid2, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(topObjUuid2, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeObject(doc, true);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" object  -> Mod: MDADMIN, Responsible: MDADMIN -----");
-		doc = supertool.fetchObject(objUuid2, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid2, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.setResponsibleUser(doc, usrGrpQAUuid);
 		supertool.storeObject(doc, true);
@@ -557,11 +557,11 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- Set up test data -----");
 
 		System.out.println("\n----- assign to QA -> working copy with status Q ! -----");
-		doc = supertool.fetchObject(topObjUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(topObjUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.assignObjectToQA(doc, true);
 
 		System.out.println("\n----- assign to QA and reassign -> working copy with status R ! -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		doc = supertool.assignObjectToQA(doc, true);
 		supertool.reassignObjectToAuthor(doc, true);
 
@@ -609,7 +609,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- discard changes -> back to original version -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
-		doc = supertool.fetchObject(topObjUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(topObjUuid, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.INITIAL.getDbValue());
 		supertool.updateObjectPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
@@ -628,7 +628,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n----- object details -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
@@ -689,7 +689,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- REASSIGN QA OBJECT TO Author -----");
 
 		System.out.println("\n----- object details -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("  REASSIGNER_UUID: " + doc.get(MdekKeys.REASSIGNER_UUID));
 		System.out.println("  REASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.REASSIGN_TIME)));
 
@@ -753,7 +753,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- discard changes -> back to published version  -> TOOK OVER COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		
 		System.out.println("\n----- store WITHOUT comments again -> working version WITHOUT comments -----");
 		doc.put(MdekKeys.COMMENT_LIST, null);
@@ -761,7 +761,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- discard changes -> back to published version  -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 
 		supertool.setFullOutput(false);
 
@@ -776,7 +776,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- Set up test data -----");
 
 		System.out.println("\n----- Working Version -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.storeObject(doc, true);
 
 		System.out.println("\n----- create new object and assign to QA -> working copy ! -----");
@@ -787,7 +787,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 		
 		System.out.println("\n----- store working copy + published \"EXPIRED\" OF WRITE_SINGLE object -----");
-		doc = supertool.fetchObject(topObjUuid2, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(topObjUuid2, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.updateObjectPart(doc, IdcEntityVersion.ALL_VERSIONS);
 		supertool.storeObject(doc, true);
@@ -853,7 +853,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- discard changes -> back to original version -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
-		doc = supertool.fetchObject(topObjUuid2, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(topObjUuid2, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.INITIAL.getDbValue());
 		supertool.updateObjectPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
@@ -910,7 +910,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpNoQAUuid);
 		System.out.println("\n----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteObject(newUuid, true);
-		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(newUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- REASSIGN MARK DELETED OBJECT BACK TO AUTHOR as QA -> MARK DELETED REMOVED ! -----");
@@ -927,14 +927,14 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpNoQAUuid);
 		System.out.println("\n----- discard changes -> OK, back to published version ! -----");
 		supertool.deleteObjectWorkingCopy(newUuid, false);
-		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(newUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- DELETE published object as non QA and publish it as QA -> mark deleted gone -----");
 
 		System.out.println("\n----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteObject(newUuid, true);
-		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(newUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 		System.out.println("\n----- publish as QA -> all changes published, NOT MARKED DELETED ! -----");
@@ -947,13 +947,13 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpNoQAUuid);
 		System.out.println("\n----- DELETE published object as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteObject(newUuid, true);
-		doc = supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(newUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 		System.out.println("\n----- COPY as QA -> new object, NOT MARKED DELETED ! -----");
 		doc = supertool.copyObject(newUuid, objUuid, false);
 		String copiedUuid = doc.getString(MdekKeys.UUID);
-		supertool.fetchObject(copiedUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchObject(copiedUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("----- DELETE copy of new object as QA -> FULL DELETE -----");
 		supertool.deleteObject(copiedUuid, true);
 
@@ -962,7 +962,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- MOVE as QA -> STILL MARKED DELETED ! -----");
 		doc = supertool.moveObject(newUuid, objUuid, true);
-		supertool.fetchObject(newUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchObject(newUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- DELETE new object as QA -> FULL DELETE -----");
@@ -1014,12 +1014,12 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- Set up test data -----");
 
 		System.out.println("\n----- store working/published \"EXPIRED\" address -> Mod: CATADMIN, Responsible: CATADMIN -----");
-		doc = supertool.fetchAddress(topAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.updateAddressPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" address -> Mod: CATADMIN, Responsible: CATADMIN -----");
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeAddress(doc, true);
 
@@ -1028,12 +1028,12 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpQAUuid);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" address  -> Mod: MDADMIN, Responsible: CATADMIN -----");
-		doc = supertool.fetchAddress(topAddrUuid2, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(topAddrUuid2, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.storeAddress(doc, true);
 
 		System.out.println("\n----- store working copy \"EXPIRED\" address  -> Mod: MDADMIN, Responsible: MDADMIN -----");
-		doc = supertool.fetchAddress(parentAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.setResponsibleUser(doc, usrGrpQAUuid);
 		supertool.storeAddress(doc, true);
@@ -1094,11 +1094,11 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- Set up test data -----");
 
 		System.out.println("\n----- assign to QA -> working copy with status Q ! -----");
-		doc = supertool.fetchAddress(topAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.assignAddressToQA(doc, true);
 
 		System.out.println("\n----- assign to QA and reassign -> working copy with status R ! -----");
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		doc = supertool.assignAddressToQA(doc, true);
 		supertool.reassignAddressToAuthor(doc, true);
 
@@ -1146,7 +1146,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- discard changes -> back to original version -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
-		doc = supertool.fetchAddress(topAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.INITIAL.getDbValue());
 		supertool.updateAddressPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
@@ -1165,7 +1165,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n----- address details -----");
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
@@ -1226,7 +1226,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- REASSIGN QA ADDRESS TO AUTHOR -----");
 
 		System.out.println("\n----- address details -----");
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("  REASSIGNER_UUID: " + doc.get(MdekKeys.REASSIGNER_UUID));
 		System.out.println("  REASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.REASSIGN_TIME)));
 
@@ -1290,7 +1290,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- discard changes -> back to published version  -> TOOK OVER COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- store WITHOUT comments again -> working version WITHOUT comments -----");
 		doc.put(MdekKeys.COMMENT_LIST, null);
@@ -1298,7 +1298,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- discard changes -> back to published version -> TOOK OVER EMPTY COMMENTS FROM WORKING VERSION -----");
 		supertool.deleteAddressWorkingCopy(personAddrUuid, true);
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		supertool.setFullOutput(false);
 
@@ -1312,7 +1312,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- Set up test data -----");
 
 		System.out.println("\n----- Working Version -----");
-		doc = supertool.fetchAddress(personAddrUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.storeAddress(doc, true);
 
 		System.out.println("\n----- create new address and assign to QA -> working copy ! -----");
@@ -1323,7 +1323,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 
 		System.out.println("\n----- create working copy + published \"EXPIRED\" OF WRITE_SINGLE address -----");
-		doc = supertool.fetchAddress(topAddrUuid2, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(topAddrUuid2, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.EXPIRED.getDbValue());
 		supertool.updateAddressPart(doc, IdcEntityVersion.ALL_VERSIONS);
 		supertool.storeAddress(doc, true);
@@ -1387,7 +1387,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- discard changes -> back to original version -----");
 		supertool.setCallingUser(catalogAdminUuid);
 
-		doc = supertool.fetchAddress(topAddrUuid2, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(topAddrUuid2, FetchQuantity.EDITOR_ENTITY);
 		doc.put(MdekKeys.EXPIRY_STATE, ExpiryState.INITIAL.getDbValue());
 		supertool.updateAddressPart(doc, IdcEntityVersion.ALL_VERSIONS);
 
@@ -1445,7 +1445,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpNoQAUuid);
 		System.out.println("\n----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteAddress(newUuid, true);
-		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(newUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- REASSIGN MARK DELETED ADDRESS BACK TO AUTHOR as QA -> MARK DELETED REMOVED ! -----");
@@ -1462,14 +1462,14 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpNoQAUuid);
 		System.out.println("\n----- discard changes -> OK, back to published version ! -----");
 		supertool.deleteAddressWorkingCopy(newUuid, false);
-		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(newUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- DELETE published address as non QA and publish it as QA -> mark deleted gone -----");
 
 		System.out.println("\n----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteAddress(newUuid, true);
-		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(newUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 		System.out.println("\n----- publish as QA -> all changes published, NOT MARKED DELETED ! -----");
@@ -1482,13 +1482,13 @@ class MdekExampleQSThread extends Thread {
 		supertool.setCallingUser(usrGrpNoQAUuid);
 		System.out.println("\n----- DELETE published address as non QA -> is MARKED AS DELETED and assigned to QA !-----");
 		supertool.deleteAddress(newUuid, true);
-		doc = supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(newUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 		System.out.println("\n----- COPY as QA -> new address, NOT MARKED DELETED ! -----");
 		doc = supertool.copyAddress(newUuid, parentAddrUuid, false, false);
 		copiedUuid = doc.getString(MdekKeys.UUID);
-		supertool.fetchAddress(copiedUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(copiedUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("----- DELETE copy of new address as QA -> FULL DELETE -----");
 		supertool.deleteAddress(copiedUuid, true);
 
@@ -1497,7 +1497,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- MOVE as QA -> STILL MARKED DELETED ! -----");
 		doc = supertool.moveAddress(newUuid, parentAddrUuid, false);
-		supertool.fetchAddress(newUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(newUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- DELETE new address as QA -> FULL DELETE -----");

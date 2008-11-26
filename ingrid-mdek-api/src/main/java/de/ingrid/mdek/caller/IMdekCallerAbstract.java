@@ -6,8 +6,10 @@ package de.ingrid.mdek.caller;
 public abstract interface IMdekCallerAbstract {
 
 	/** How much data to fetch from requested entity ? */
-	// TODO implement other quantities of fetching object ?
-	public enum Quantity {
-		DETAIL_ENTITY // client: edit dialogue -> request maximum data
+	public enum FetchQuantity {
+		/** request only data to be exported */
+		EXPORT_ENTITY,
+		/** request all data to be displayed in IGE */
+		EDITOR_ENTITY,
 	}
 }

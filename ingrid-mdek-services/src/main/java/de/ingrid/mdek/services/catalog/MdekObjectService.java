@@ -13,10 +13,12 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -24,11 +26,13 @@ import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
+import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
@@ -58,6 +62,7 @@ public class MdekObjectService {
 	private MdekWorkflowHandler workflowHandler;
 
 	private BeanToDocMapper beanToDocMapper;
+	private BeanToDocMapperSecurity beanToDocMapperSecurity;
 	private DocToBeanMapper docToBeanMapper;
 
 	/** Get The Singleton */
@@ -81,6 +86,7 @@ public class MdekObjectService {
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
+		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 	}
 
@@ -92,6 +98,58 @@ public class MdekObjectService {
 	 */
 	public ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		return daoObjectNode.loadByUuid(uuid, whichEntityVersion);
+	}
+
+	/**
+	 * Fetch single object with given uuid.
+	 * @param objUuid object uuid
+	 * @param whichEntityVersion which object version should be fetched.
+	 * 		NOTICE: In published state working version == published version and it is the same object instance !
+	 * @param howMuch how much data to fetch from object
+	 * @return map representation of object containing requested data
+	 */
+	public IngridDocument getObjectDetails(String objUuid,
+			IdcEntityVersion whichEntityVersion, FetchQuantity howMuch,
+			String userId) {
+		// first get all "internal" object data (referenced addresses ...)
+		ObjectNode oNode = daoObjectNode.getObjDetails(objUuid, whichEntityVersion);
+		if (oNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		IngridDocument resultDoc = new IngridDocument();
+		T01Object o;
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			o = oNode.getT01ObjectPublished();
+		} else {
+			o = oNode.getT01ObjectWork();
+		}
+		beanToDocMapper.mapT01Object(o, resultDoc, MappingQuantity.DETAIL_ENTITY);
+
+		// also map ObjectNode for published info
+		beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
+	
+		if (howMuch == FetchQuantity.EDITOR_ENTITY) {
+			// get "external" data (objects referencing the given object ...)
+			List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(objUuid);
+			beanToDocMapper.mapObjectReferencesFrom(fromLists, null, null,
+					IdcEntityType.OBJECT, objUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
+
+			// get parent data
+			ObjectNode pNode = daoObjectNode.getParent(objUuid);
+			if (pNode != null) {
+				beanToDocMapper.mapObjectParentData(pNode.getT01ObjectWork(), resultDoc);
+			}
+
+			// then map detailed mod user data !
+			beanToDocMapper.mapModUser(o.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
+
+			// add permissions the user has on given object !
+			List<Permission> perms = permissionHandler.getPermissionsForObject(objUuid, userId, true);
+			beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
+		}
+
+		return resultDoc;
 	}
 
 	/**

@@ -19,6 +19,7 @@ import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.log.ILogService;
@@ -164,8 +165,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	public IngridDocument getAddrDetails(IngridDocument params) {
 		try {
-			daoAddressNode.beginTransaction();
-
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 			IdcEntityVersion whichEntityVersion =
@@ -173,13 +172,17 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			int objRefsStartIndex = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
 			int objRefsMaxNum = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
+			daoAddressNode.beginTransaction();
+
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getAddrDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getAddrDetails(uuid, whichEntityVersion, userUuid,
-					objRefsStartIndex, objRefsMaxNum);
+			IngridDocument result = addressService.getAddressDetails(uuid,
+					whichEntityVersion, FetchQuantity.EDITOR_ENTITY, 
+					objRefsStartIndex, objRefsMaxNum, userUuid);
 			
 			daoAddressNode.commitTransaction();
+
 			return result;
 			
 		} catch (RuntimeException e) {
@@ -189,60 +192,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	/** Fetches WORKING VERSION ! */
 	private IngridDocument getAddrDetails(String addrUuid, String userUuid,
 			int objRefsStartIndex, int objRefsMaxNum) {
-		return getAddrDetails(addrUuid, IdcEntityVersion.WORKING_VERSION, userUuid,
-				objRefsStartIndex, objRefsMaxNum);
-	}
-
-	private IngridDocument getAddrDetails(String addrUuid, IdcEntityVersion whichEntityVersion,
-			String userUuid, int objRefsStartIndex, int objRefsMaxNum) {
-		// first get all "internal" address data
-		AddressNode aNode = daoAddressNode.getAddrDetails(addrUuid, whichEntityVersion);
-		if (aNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-		}
-
-		IngridDocument resultDoc = new IngridDocument();
-		T02Address a;
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
-			a = aNode.getT02AddressPublished();
-		} else {
-			a = aNode.getT02AddressWork();
-		}
-		beanToDocMapper.mapT02Address(a, resultDoc, MappingQuantity.DETAIL_ENTITY);
-		
-		// also map AddressNode for published info
-		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
-
-		// then get "external" data (objects referencing the given address ...)
-		HashMap fromObjectsData = 
-			daoAddressNode.getObjectReferencesFrom(addrUuid, objRefsStartIndex, objRefsMaxNum);
-		// we use keys from mdek mapping for data transfer ! 
-		List<ObjectNode>[] fromLists = (List<ObjectNode>[]) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM);
-		int objRefsTotalNum = (Integer) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM);
-
-		beanToDocMapper.mapObjectReferencesFrom(fromLists, objRefsStartIndex, objRefsTotalNum,
-				IdcEntityType.ADDRESS, addrUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-
-		// get parent data
-		AddressNode pNode = daoAddressNode.getParent(addrUuid);
-		if (pNode != null) {
-			beanToDocMapper.mapAddressParentData(pNode.getT02AddressWork(), resultDoc);
-		}
-
-		// supply path info
-		List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(addrUuid, false);
-		resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
-
-		// then map detailed mod user data !
-		beanToDocMapper.mapModUser(a.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
-
-		// add permissions the user has on given address !
-		List<Permission> perms = permissionHandler.getPermissionsForAddress(addrUuid, userUuid, true);
-		beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
-
-		return resultDoc;
+		return addressService.getAddressDetails(addrUuid,
+				IdcEntityVersion.WORKING_VERSION, FetchQuantity.EDITOR_ENTITY, 
+				objRefsStartIndex, objRefsMaxNum, userUuid);
 	}
 
 	public IngridDocument getAddressObjectReferences(IngridDocument params) {

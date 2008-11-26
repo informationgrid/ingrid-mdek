@@ -11,7 +11,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQuery {
@@ -371,7 +371,7 @@ class MdekExampleQueryThread extends Thread {
 		supertool.queryAddressesFullText(searchterm, 0, 20);
 		System.out.println("\n----- fetch arbitrary address -----");
 		uuid = "095130C2-DDE9-11D2-BB32-006097FE70B1";
-		doc = supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- change organization to searchterm and STORE (result is WORKING COPY !!!) -----");
 		doc.put(MdekKeys.ORGANISATION, searchterm);
 		supertool.setFullOutput(false);
@@ -386,7 +386,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("----- search address via full text -> no result -----");
 		supertool.queryAddressesFullText(searchterm, 0, 20);
 		System.out.println("\n----- fetch again -----");
-		doc = supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- change organization to searchterm and PUBLISH -----");
 		String origOrganization = doc.getString(MdekKeys.ORGANISATION);
 		doc.put(MdekKeys.ORGANISATION, searchterm);
@@ -413,7 +413,7 @@ class MdekExampleQueryThread extends Thread {
 		supertool.queryObjectsFullText(searchterm, 0, 20);
 		System.out.println("\n----- fetch arbitrary object -----");
 		uuid = "3A295152-5091-11D3-AE6C-00104B57C66D";
-		doc = supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- change title to searchterm and STORE (result is WORKING COPY !!!) -----");
 		doc.put(MdekKeys.TITLE, searchterm);
 		supertool.storeObject(doc, true);
@@ -426,7 +426,7 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("----- search object via full text -> no result -----");
 		supertool.queryObjectsFullText(searchterm, 0, 20);
 		System.out.println("\n----- fetch again -----");
-		doc = supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- change title to searchterm and PUBLISH -----");
 		String origTitle = doc.getString(MdekKeys.TITLE);
 		doc.put(MdekKeys.TITLE, searchterm);
@@ -448,7 +448,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 
 		System.out.println("\n----- search objects by thesaurus term (id) -----");
@@ -456,7 +456,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 
 		// -----------------------------------
@@ -545,7 +545,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		}		
 		
 		System.out.println("\n----- search objects by extended search query: geothesaurus.location-sns-id:BUNDESLAND03 -----");
@@ -575,7 +575,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 
 		System.out.println("\n----- search objects by extended search query: Informationssystem thesaurus.term-sns-id:uba_thes_8007 -----");
@@ -602,7 +602,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		}		
 
 		System.out.println("\n----- search objects by extended search query: time-from:19690821000000000 time-to:20081231000000000 -----");
@@ -614,7 +614,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchObject(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 		
 		// -----------------------------------
@@ -631,7 +631,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 		
 		System.out.println("\n----- search addresses by extended search query: Wirtschaft, partial word -----");
@@ -640,7 +640,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 		
 		System.out.println("\n----- search addresses by extended search query: Wirtschaft, partial word, partial-index -----");
@@ -649,7 +649,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 
 		System.out.println("\n----- search addresses by extended search query: Wirtschaft, partial word, partial-index, city:Braunschweig -----");
@@ -658,7 +658,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}		
 
 		System.out.println("\n----- search addresses by extended search query: Peter -----");
@@ -669,7 +669,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 		
 		System.out.println("\n----- search addresses by extended search query: Peter search-range:1 -----");
@@ -682,7 +682,7 @@ class MdekExampleQueryThread extends Thread {
 		if (hits.size() > 0) {
 			System.out.println("\n----- verify: fetch first result ! -----");
 			uuid = hits.get(0).getString(MdekKeys.UUID);
-			supertool.fetchAddress(uuid, Quantity.DETAIL_ENTITY);
+			supertool.fetchAddress(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 		
 		// ===================================

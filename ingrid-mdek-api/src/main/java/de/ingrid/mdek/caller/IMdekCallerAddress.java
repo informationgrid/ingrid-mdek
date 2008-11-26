@@ -6,7 +6,7 @@ import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
@@ -57,7 +57,7 @@ public interface IMdekCallerAddress {
 	 * @param userId
 	 * @return response containing result: map representation of address containing requested data
 	 */
-	IngridDocument fetchAddress(String plugId, String addrUuid, Quantity howMuch,
+	IngridDocument fetchAddress(String plugId, String addrUuid, FetchQuantity howMuch,
 			IdcEntityVersion whichEntityVersion,
 			int objRefsStartIndex, int objRefsMaxNum,
 			String userId);

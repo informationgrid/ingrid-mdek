@@ -6,7 +6,7 @@ import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.Quantity;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -24,7 +24,7 @@ public interface IMdekCallerObject {
 	 * 		NOTICE: In published state working version == published version and it is the same object instance !
 	 * @return response containing result: map representation of object containing requested data
 	 */
-	IngridDocument fetchObject(String plugId, String uuid, Quantity howMuch,
+	IngridDocument fetchObject(String plugId, String uuid, FetchQuantity howMuch,
 			IdcEntityVersion whichEntityVersion, String userId);
 
 	/**

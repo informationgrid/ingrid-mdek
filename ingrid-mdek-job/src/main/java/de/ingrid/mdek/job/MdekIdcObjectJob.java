@@ -10,13 +10,13 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
@@ -169,19 +169,21 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	public IngridDocument getObjDetails(IngridDocument params) {
 		try {
-			daoObjectNode.beginTransaction();
-
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 			IdcEntityVersion whichEntityVersion =
 				(IdcEntityVersion) params.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
 
+			daoObjectNode.beginTransaction();
+
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
 			}
-			IngridDocument result = getObjDetails(uuid, whichEntityVersion, userUuid);
+			IngridDocument result =	objectService.getObjectDetails(uuid,
+					whichEntityVersion, FetchQuantity.EDITOR_ENTITY, userUuid);
 			
 			daoObjectNode.commitTransaction();
+
 			return result;
 			
 		} catch (RuntimeException e) {
@@ -191,51 +193,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 	}
 
+	/** Fetches WORKING VERSION ! */
 	private IngridDocument getObjDetails(String objUuid, String userUuid) {
-		return getObjDetails(objUuid, IdcEntityVersion.WORKING_VERSION, userUuid);
+		return objectService.getObjectDetails(objUuid,
+				IdcEntityVersion.WORKING_VERSION, FetchQuantity.EDITOR_ENTITY, userUuid);
 	}
 			
-	private IngridDocument getObjDetails(String objUuid, IdcEntityVersion whichEntityVersion, 
-			String userUuid) {
-		// first get all "internal" object data (referenced addresses ...)
-		ObjectNode oNode = daoObjectNode.getObjDetails(objUuid, whichEntityVersion);
-		if (oNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-		}
-
-		IngridDocument resultDoc = new IngridDocument();
-		T01Object o;
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
-			o = oNode.getT01ObjectPublished();
-		} else {
-			o = oNode.getT01ObjectWork();
-		}
-		beanToDocMapper.mapT01Object(o, resultDoc, MappingQuantity.DETAIL_ENTITY);
-
-		// also map ObjectNode for published info
-		beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
-	
-		// then get "external" data (objects referencing the given object ...)
-		List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(objUuid);
-		beanToDocMapper.mapObjectReferencesFrom(fromLists, null, null,
-				IdcEntityType.OBJECT, objUuid, resultDoc, MappingQuantity.TABLE_ENTITY);
-
-		// get parent data
-		ObjectNode pNode = daoObjectNode.getParent(objUuid);
-		if (pNode != null) {
-			beanToDocMapper.mapObjectParentData(pNode.getT01ObjectWork(), resultDoc);
-		}
-
-		// then map detailed mod user data !
-		beanToDocMapper.mapModUser(o.getModUuid(), resultDoc, MappingQuantity.DETAIL_ENTITY);
-
-		// add permissions the user has on given object !
-		List<Permission> perms = permissionHandler.getPermissionsForObject(objUuid, userUuid, true);
-		beanToDocMapperSecurity.mapPermissionList(perms, resultDoc);
-
-		return resultDoc;
-	}
-
 	public IngridDocument getInitialObject(IngridDocument oDocIn) {
 		String userUuid = getCurrentUserUuid(oDocIn);
 		try {
