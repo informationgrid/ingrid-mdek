@@ -19,6 +19,8 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
@@ -26,6 +28,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
@@ -46,6 +49,7 @@ public class MdekObjectService {
 
 	private IObjectNodeDao daoObjectNode;
 	private IT01ObjectDao daoT01Object;
+	private IGenericDao<IEntity> daoObjectReference;
 
 	private MdekCatalogService catalogService;
 	private MdekTreePathHandler pathHandler;
@@ -68,6 +72,7 @@ public class MdekObjectService {
 	private MdekObjectService(DaoFactory daoFactory, IPermissionService permissionService) {
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
+		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
 		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
@@ -363,6 +368,113 @@ public class MdekObjectService {
 		return resultDoc;		
 	}
 
+	/**
+	 * DELETE ONLY WORKING COPY. Notice: If no published version exists the object is deleted
+	 * completely, meaning non existent afterwards (including all subobjects !)
+	 * @param uuid object uuid
+	 * @param forceDeleteReferences only relevant if deletion of working copy causes FULL DELETION
+	 * (no published version !)<br>
+	 * 		true=all references to this object are also deleted<br>
+	 * 		false=error if references to this object exist
+	 * @param checkPermissions true=check whether user has delete permission<br>
+	 * 		false=NO check on delete permission ! object will be deleted !
+	 * @return map containing info whether address was fully deleted, marked deleted ...
+	 */
+	public IngridDocument deleteObjectWorkingCopy(String uuid, boolean forceDeleteReferences,
+			String userId, boolean checkPermissions) {
+		// check permissions !
+		if (checkPermissions) {
+			permissionHandler.checkPermissionsForDeleteWorkingCopyObject(uuid, userId);			
+		}
+
+		// NOTICE: this one also contains Parent Association !
+		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
+		if (oNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		Long idPublished = oNode.getObjIdPublished();
+		Long idWorkingCopy = oNode.getObjId();
+
+		IngridDocument result;
+
+		// if we have NO published version -> delete complete node !
+		if (idPublished == null) {
+			result = deleteObject(uuid, forceDeleteReferences, userId, checkPermissions);
+
+		} else {
+			// delete working copy only 
+			result = new IngridDocument();
+			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);			
+			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
+
+			// perform delete of working copy only if really different version
+			if (!idPublished.equals(idWorkingCopy)) {
+				// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
+				T01Object oWorkingCopy = oNode.getT01ObjectWork();
+				IngridDocument commentsDoc = beanToDocMapper.mapObjectComments(oWorkingCopy.getObjectComments(), new IngridDocument());
+				daoT01Object.makeTransient(oWorkingCopy);
+
+				// take over comments to published version
+				T01Object oPublished = oNode.getT01ObjectPublished();
+				docToBeanMapper.updateObjectComments(commentsDoc, oPublished);
+				daoT01Object.makePersistent(oPublished);
+
+				//  and set published one as working copy
+				oNode.setObjId(idPublished);
+				oNode.setT01ObjectWork(oPublished);
+				daoObjectNode.makePersistent(oNode);
+				
+				// UPDATE FULL INDEX !!!
+				fullIndexHandler.updateObjectIndex(oNode);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * FULL DELETE: different behavior when workflow enabled<br>
+	 * - QA: full delete of object (working copy and published version) INCLUDING all subobjects !
+	 * Object non existent afterwards !<br>
+	 * - NON QA: object is just marked deleted and assigned to QA<br>
+	 * If workflow disabled every user acts like a QA (when having write access)
+	 * @param uuid object uuid
+	 * @param forceDeleteReferences how to handle references to this object ?<br>
+	 * 		true=all references to this object are also deleted
+	 * 		false=error if references to this object exist
+	 * @param checkPermissions true=check whether user is QA / has delete permission<br>
+	 * 		false=NO check on QA / delete permission ! object will be deleted !
+	 * @return map containing info whether address was fully deleted, marked deleted ...
+	 */
+	public IngridDocument deleteObjectFull(String uuid, boolean forceDeleteReferences,
+			String userId, boolean checkPermissions) {
+		IngridDocument result;
+		// NOTICE: Always returns true if workflow disabled !
+		if (!checkPermissions || permissionHandler.hasQAPermission(userId)) {
+			result = deleteObject(uuid, forceDeleteReferences, userId, checkPermissions);
+		} else {
+			result = markDeletedObject(uuid, forceDeleteReferences, userId, checkPermissions);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Assign object to QA ! 
+	 * @param oDocIn doc representing object
+	 * @param userId user performing operation, will be set as mod-user
+	 * @param checkPermissions true=check whether user has write permission<br>
+	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @return uuid of stored object, will be generated if new object (no uuid passed in doc)
+	 */
+	public String assignObjectToQA(IngridDocument oDocIn,
+			String userId, boolean checkPermissions) {
+		// set specific data to transfer to working copy !
+		workflowHandler.processDocOnAssignToQA(oDocIn, userId);
+		return storeWorkingCopy(oDocIn, userId, checkPermissions);
+	}
+
 	/** Checks whether given object document has an "Auskunft" address set. */
 	public boolean hasAuskunftAddress(IngridDocument oDoc) {
 		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
@@ -379,6 +491,78 @@ public class MdekObjectService {
 		}
 		
 		return false;
+	}
+
+	/** FULL DELETE ! MAKE TRANSIENT ! */
+	private IngridDocument deleteObject(String uuid, boolean forceDeleteReferences,
+			String userUuid, boolean checkPermissions) {
+		// first check User Permissions
+		if (checkPermissions) {
+			permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);			
+		}
+
+		// NOTICE: this one also contains Parent Association !
+		ObjectNode oNode = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
+		if (oNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		checkObjectTreeReferences(oNode, forceDeleteReferences);
+
+		// delete complete Node ! rest is deleted per cascade !
+		daoObjectNode.makeTransient(oNode);
+
+		// also delete ALL PERMISSIONS (no cascade by hibernate, we keep permissions out of object model)
+		permissionHandler.deletePermissionsForObject(uuid);
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
+
+		return result;
+	}
+
+	/** FULL DELETE IF NOT PUBLISHED !!!<br> 
+	 * If published version exists -> Mark as deleted and assign to QA (already persisted)<br>
+	 * if NO published version -> perform full delete !
+	 */
+	private IngridDocument markDeletedObject(String uuid, boolean forceDeleteReferences,
+			String userUuid, boolean checkPermissions) {
+		// first check User Permissions
+		if (checkPermissions) {
+			permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);			
+		}
+
+		// NOTICE: we just load NODE to determine whether published !
+		ObjectNode oNode = loadByUuid(uuid, null);
+		if (oNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		IngridDocument result;
+
+		// FULL DELETE IF NOT PUBLISHED !
+		if (oNode.getObjIdPublished() == null) {
+			result = deleteObject(uuid, forceDeleteReferences, userUuid, checkPermissions);
+
+		} else {
+			// IS PUBLISHED -> mark deleted
+			// now load details (prefetch data) for faster mapping (less selects !) 
+			oNode = daoObjectNode.getObjDetails(uuid);
+
+			// assign to QA via regular process to guarantee creation of working copy !
+			// we generate doc via mapper and set MARK_DELETED !
+			IngridDocument objDoc =
+				beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), new IngridDocument(), MappingQuantity.COPY_ENTITY);
+			objDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
+			assignObjectToQA(objDoc, userUuid, checkPermissions);
+
+			result = new IngridDocument();
+			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
+			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, true);			
+		}
+
+		return result;
 	}
 
 	/** Checks whether given Object has a working copy !
@@ -657,6 +841,77 @@ public class MdekObjectService {
 			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 			checkObjectPublicationConditionSubTree(fromUuid, publicationTypeTo, forcePubCondition, false,
 				currentTime, userId);
+		}
+	}
+
+	/**
+	 * Checks whether object branch contains nodes referenced by other objects (passed top is also checked !). 
+	 * All references to a node are taken into account, no matter whether from a working or a published version !
+	 * Throws Exception if forceDeleteReferences=false !
+	 * @param topNode top node of tree to check (included in check !)
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkObjectTreeReferences(ObjectNode topNode, boolean forceDeleteReferences) {
+		// process all subnodes including top node
+
+		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(
+				topNode.getObjUuid(), IdcEntityVersion.WORKING_VERSION, false);
+		subNodes.add(0, topNode);
+
+		for (ObjectNode subNode : subNodes) {
+			// check
+			checkObjectNodeReferences(subNode, forceDeleteReferences);			
+		}
+	}
+
+	/**
+	 * Checks whether object node is referenced by other objects.
+	 * All references to node are taken into account, no matter whether from a working or a published version !
+	 * Throws Exception if forceDeleteReferences=false !
+	 * @param oNode object to check
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkObjectNodeReferences(ObjectNode oNode, boolean forceDeleteReferences) {
+		// handle references to object
+		String oUuid = oNode.getObjUuid();
+		ObjectReference exampleRef = new ObjectReference();
+		exampleRef.setObjToUuid(oUuid);
+		List<IEntity> objRefs = daoObjectReference.findByExample(exampleRef);
+		
+		// throw exception with detailed errors when address referenced without reference deletion !
+		if (!forceDeleteReferences) {
+			int numRefs = objRefs.size();
+			if (numRefs > 0) {
+				// existing references -> throw exception with according error info !
+
+				// add info about referenced object
+				IngridDocument errInfo =
+					beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+
+				// add info about objects referencing !
+				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
+				for (IEntity ent : objRefs) {
+					ObjectReference ref = (ObjectReference) ent;
+					// fetch object referencing the address
+					T01Object o = daoT01Object.getById(ref.getObjFromId());
+					IngridDocument objInfo =
+						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+					objList.add(objInfo);
+				}
+				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
+
+				// and throw exception encapsulating errors
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
+			}
+		}
+		
+		// delete references (querverweise)
+		for (IEntity objRef : objRefs) {
+			daoObjectReference.makeTransient(objRef);
 		}
 	}
 }

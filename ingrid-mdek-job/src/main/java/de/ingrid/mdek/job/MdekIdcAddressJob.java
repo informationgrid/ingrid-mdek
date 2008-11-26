@@ -23,22 +23,15 @@ import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.IEntity;
-import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
-import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
-import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
-import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
-import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
@@ -52,16 +45,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private MdekAddressService addressService;
 
-	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
 	private MdekTreePathHandler pathHandler;
 
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
-	private IGenericDao<IEntity> daoT012ObjAdr;
-	private IT01ObjectDao daoT01Object;
-	private IIdcUserDao daoIdcUser;
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 
@@ -72,16 +61,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
-		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
 		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
 
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
-		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
-		daoT01Object = daoFactory.getT01ObjectDao();
-		daoIdcUser = daoFactory.getIdcUserDao();
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 	}
@@ -565,7 +550,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 
-			String uuid = assignAddressToQA(aDocIn, userId);
+			String uuid = addressService.assignAddressToQA(aDocIn, userId, true);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -598,13 +583,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
-	}
-
-	/** Returns uuid of address */
-	private String assignAddressToQA(IngridDocument aDocIn, String userId) {
-		// set specific data to transfer to working copy and store !
-		workflowHandler.processDocOnAssignToQA(aDocIn, userId);
-		return addressService.storeWorkingCopy(aDocIn, userId, true);
 	}
 
 	public IngridDocument reassignAddressToAuthor(IngridDocument aDocIn) {
@@ -955,55 +933,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
 
-			daoAddressNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
+
+			daoAddressNode.beginTransaction();
 			
-			// first check permissions
-			permissionHandler.checkPermissionsForDeleteWorkingCopyAddress(uuid, userId);
-
-			// NOTICE: this one also contains Parent Association !
-			AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
-			if (aNode == null) {
-				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-			}
-
-			Long idPublished = aNode.getAddrIdPublished();
-			Long idWorkingCopy = aNode.getAddrId();
-
-			// if we have NO published version -> delete complete node !
-			IngridDocument result = new IngridDocument();
-			if (idPublished == null) {
-				result = deleteAddress(uuid, forceDeleteReferences, userId);
-
-			} else {
-				// delete working copy only 
-				result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
-				result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
-
-				// perform delete of working copy only if really different version
-				if (!idPublished.equals(idWorkingCopy)) {
-					// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
-					T02Address aWorkingCopy = aNode.getT02AddressWork();
-					IngridDocument commentsDoc = beanToDocMapper.mapAddressComments(aWorkingCopy.getAddressComments(), new IngridDocument());
-					daoT02Address.makeTransient(aWorkingCopy);
-
-					// take over comments to published version
-					T02Address aPublished = aNode.getT02AddressPublished();
-					docToBeanMapper.updateAddressComments(commentsDoc, aPublished);
-					daoT02Address.makePersistent(aPublished);
-
-					// and set published one as working copy
-					aNode.setAddrId(idPublished);
-					aNode.setT02AddressWork(aPublished);
-					daoAddressNode.makePersistent(aNode);
-					
-					// UPDATE FULL INDEX !!!
-					fullIndexHandler.updateAddressIndex(aNode);
-				}
-			}
+			IngridDocument result = addressService.deleteAddressWorkingCopy(uuid, forceDeleteReferences, userId, true);
 
 			daoAddressNode.commitTransaction();
+
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1032,19 +970,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
 
-			daoAddressNode.beginTransaction();
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 
-			IngridDocument result;
-			// NOTICE: Always returns true if workflow disabled !
-			if (permissionHandler.hasQAPermission(userId)) {
-				result = deleteAddress(uuid, forceDeleteReferences, userId);
-			} else {
-				result = markDeletedAddress(uuid, forceDeleteReferences, userId);
-			}
+			daoAddressNode.beginTransaction();
+			
+			IngridDocument result = addressService.deleteAddressFull(uuid, forceDeleteReferences, userId, true);
 
 			daoAddressNode.commitTransaction();
+
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1057,75 +991,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
-	}
-
-	/** FULL DELETE ! MAKE TRANSIENT ! */
-	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences, String userUuid) {
-		// first check User Permissions
-		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
-
-		// NOTICE: this one also contains Parent Association !
-		AddressNode aNode = addressService.loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
-		if (aNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-		}
-
-		// check whether address is address of idcuser !
-		if (daoIdcUser.getIdcUserByAddrUuid(uuid) != null) {
-			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS));			
-		}
-
-		// check whether topnode/subnodes are referenced
-		checkAddressTreeReferences(aNode, forceDeleteReferences);
-
-		// delete complete Node ! rest is deleted per cascade !
-		daoAddressNode.makeTransient(aNode);
-
-		// also delete ALL PERMISSIONS (no cascade by hibernate, we keep permissions out of data model)
-		permissionHandler.deletePermissionsForAddress(uuid);
-
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
-
-		return result;
-	}
-
-	/** FULL DELETE IF NOT PUBLISHED !!!<br> 
-	 * If published version exists -> Mark as deleted and assign to QA (already persisted)<br>
-	 * if NO published version -> perform full delete !
-	 */
-	private IngridDocument markDeletedAddress(String uuid, boolean forceDeleteReferences, String userUuid) {
-		// first check User Permissions
-		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
-
-		// NOTICE: we just load NODE to determine whether published !
-		AddressNode aNode = addressService.loadByUuid(uuid, null);
-		if (aNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-		}
-
-		// FULL DELETE IF NOT PUBLISHED !
-		if (aNode.getAddrIdPublished() == null) {
-			return deleteAddress(uuid, forceDeleteReferences, userUuid);
-		}
-
-		// IS PUBLISHED -> mark deleted
-		// now load details (prefetch data) for faster mapping (less selects !) 
-		aNode = daoAddressNode.getAddrDetails(uuid);
-
-		// assign to QA via regular process to guarantee creation of working copy !
-		// we generate doc via mapper and set MARK_DELETED !
-		IngridDocument addrDoc =
-			beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.COPY_ENTITY);
-		addrDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
-		assignAddressToQA(addrDoc, userUuid);
-
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
-		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, true);
-
-		return result;
 	}
 
 	public IngridDocument searchAddresses(IngridDocument params) {
@@ -1339,101 +1204,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoT02Address.makePersistent(targetAddr);
 
 		return targetAddr;
-	}
-
-	/**
-	 * Checks whether address branch contains nodes referenced by other objects (passed top is also checked !).
-	 * Throws Exception if forceDeleteReferences=false !
-	 * @param topNode top node of tree to check (included in check !)
-	 * @param forceDeleteReferences<br>
-	 * 		true=delete all references found, no exception<br>
-	 * 		false=don't delete references, throw exception
-	 */
-	private void checkAddressTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
-		// process all subnodes including top node
-
-		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(
-				topNode.getAddrUuid(), IdcEntityVersion.WORKING_VERSION, false);
-		subNodes.add(0, topNode);
-
-		for (AddressNode subNode : subNodes) {
-			// check whether address is "auskunft" address. AUSKUNFT CANNOT BE DELETED
-			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
-			checkAddressIsAuskunft(subNode);
-
-			// check
-			checkAddressNodeReferences(subNode, forceDeleteReferences);
-		}
-	}
-
-	/**
-	 * Checks whether address node is referenced by other objects.
-	 * Throws Exception if forceDeleteReferences=false !
-	 * @param aNode address to check
-	 * @param forceDeleteReferences<br>
-	 * 		true=delete all references found, no exception<br>
-	 * 		false=don't delete references, throw exception
-	 */
-	private void checkAddressNodeReferences(AddressNode aNode, boolean forceDeleteReferences) {
-		// handle references to address
-		String aUuid = aNode.getAddrUuid();
-		T012ObjAdr exampleRef = new T012ObjAdr();
-		exampleRef.setAdrUuid(aUuid);
-		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
-		
-		// throw exception with detailed errors when address referenced without reference deletion !
-		if (!forceDeleteReferences) {
-			int numRefs = addrRefs.size();
-			if (numRefs > 0) {
-				// existing references -> throw exception with according error info !
-
-				// add info about referenced address
-				IngridDocument errInfo =
-					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-
-				// add info about objects referencing !
-				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
-				for (IEntity ent : addrRefs) {
-					T012ObjAdr ref = (T012ObjAdr) ent;
-					// fetch object referencing the address
-					T01Object o = daoT01Object.getById(ref.getObjId());
-					IngridDocument objInfo =
-						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-					objList.add(objInfo);
-				}
-				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
-
-				// and throw exception encapsulating errors
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
-			}
-		}
-		
-		// delete references (querverweise)
-		for (IEntity addrRef : addrRefs) {
-			daoT012ObjAdr.makeTransient(addrRef);
-		}
-	}
-
-	/** Checks whether given address is "auskunft" address in any object.
-	 * ONLY CHECKS WORKING VERSIONS OF OBJECTS !
-	 * Throws exception if address is auskunft ! */
-	private void checkAddressIsAuskunft(AddressNode addrNode) {
-		List<ObjectNode> oNs =
-			daoAddressNode.getObjectReferencesByTypeId(addrNode.getAddrUuid(), MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
-		if (oNs.size() > 0) {
-			// throw exception
-			// supply info about referencing objects in exception
-			IngridDocument errInfo = new IngridDocument();			
-			List<IngridDocument> oList = new ArrayList<IngridDocument>();
-			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
-
-			for (ObjectNode oN : oNs) {
-				IngridDocument oDoc = beanToDocMapper.mapT01Object(oN.getT01ObjectWork(),
-							new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-				oList.add(oDoc);
-			}
-			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_AUSKUNFT, errInfo));
-		}
 	}
 
 	/** Check whether passed nodes are valid for copy operation

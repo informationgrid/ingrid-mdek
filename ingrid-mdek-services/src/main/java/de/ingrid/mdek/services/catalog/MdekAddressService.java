@@ -1,5 +1,6 @@
 package de.ingrid.mdek.services.catalog;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -16,12 +17,19 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
@@ -43,6 +51,9 @@ public class MdekAddressService {
 
 	private IAddressNodeDao daoAddressNode;
 	private IT02AddressDao daoT02Address;
+	private IIdcUserDao daoIdcUser;
+	private IT01ObjectDao daoT01Object;
+	private IGenericDao<IEntity> daoT012ObjAdr;
 
 	private MdekTreePathHandler pathHandler;
 	private MdekFullIndexHandler fullIndexHandler;
@@ -64,6 +75,9 @@ public class MdekAddressService {
 	private MdekAddressService(DaoFactory daoFactory, IPermissionService permissionService) {
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+		daoIdcUser = daoFactory.getIdcUserDao();
+		daoT01Object = daoFactory.getT01ObjectDao();
+		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 
 		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
@@ -328,6 +342,189 @@ public class MdekAddressService {
 		}
 
 		return resultDoc;
+	}
+
+	/**
+	 * DELETE ONLY WORKING COPY. Notice: If no published version exists the address is deleted 
+	 * completely, meaning non existent afterwards (including all subaddresses !)
+	 * @param uuid address uuid
+	 * @param forceDeleteReferences only relevant if deletion of working copy causes FULL DELETION (no published version !)<br>
+	 * 		true=all references to this address are also deleted
+	 * 		false=error if references to this address exist
+	 * @param checkPermissions true=check whether user has delete permission<br>
+	 * 		false=NO check on delete permission ! object will be deleted !
+	 * @return map containing info whether address was fully deleted, marked deleted ...
+	 */
+	public IngridDocument deleteAddressWorkingCopy(String uuid, boolean forceDeleteReferences,
+			String userId, boolean checkPermissions) {
+		// first check permissions
+		if (checkPermissions) {
+			permissionHandler.checkPermissionsForDeleteWorkingCopyAddress(uuid, userId);
+		}
+
+		// NOTICE: this one also contains Parent Association !
+		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
+		if (aNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		Long idPublished = aNode.getAddrIdPublished();
+		Long idWorkingCopy = aNode.getAddrId();
+
+		IngridDocument result;
+
+		// if we have NO published version -> delete complete node !
+		if (idPublished == null) {
+			result = deleteAddress(uuid, forceDeleteReferences, userId, checkPermissions);
+
+		} else {
+			// delete working copy only 
+			result = new IngridDocument();
+			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
+			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
+
+			// perform delete of working copy only if really different version
+			if (!idPublished.equals(idWorkingCopy)) {
+				// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
+				T02Address aWorkingCopy = aNode.getT02AddressWork();
+				IngridDocument commentsDoc = beanToDocMapper.mapAddressComments(aWorkingCopy.getAddressComments(), new IngridDocument());
+				daoT02Address.makeTransient(aWorkingCopy);
+
+				// take over comments to published version
+				T02Address aPublished = aNode.getT02AddressPublished();
+				docToBeanMapper.updateAddressComments(commentsDoc, aPublished);
+				daoT02Address.makePersistent(aPublished);
+
+				// and set published one as working copy
+				aNode.setAddrId(idPublished);
+				aNode.setT02AddressWork(aPublished);
+				daoAddressNode.makePersistent(aNode);
+				
+				// UPDATE FULL INDEX !!!
+				fullIndexHandler.updateAddressIndex(aNode);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * FULL DELETE: different behavior when workflow enabled<br>
+	 * - QA: full delete of address (working copy and published version) INCLUDING all subaddresses !
+	 * Address non existent afterwards !<br>
+	 * - NON QA: address is just marked deleted and assigned to QA<br>
+	 * If workflow disabled every user acts like a QA (when having write access)
+	 * @param uuid address uuid
+	 * @param forceDeleteReferences how to handle references to this address ?<br>
+	 * 		true=all references to this address are also deleted
+	 * 		false=error if references to this address exist
+	 * @param checkPermissions true=check whether user is QA / has delete permission<br>
+	 * 		false=NO check on QA / delete permission ! address will be deleted !
+	 * @return map containing info whether address was fully deleted, marked deleted ...
+	 */
+	public IngridDocument deleteAddressFull(String uuid, boolean forceDeleteReferences,
+			String userId, boolean checkPermissions) {
+		IngridDocument result;
+		// NOTICE: Always returns true if workflow disabled !
+		if (!checkPermissions || permissionHandler.hasQAPermission(userId)) {
+			result = deleteAddress(uuid, forceDeleteReferences, userId, checkPermissions);
+		} else {
+			result = markDeletedAddress(uuid, forceDeleteReferences, userId, checkPermissions);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Assign address to QA ! 
+	 * @param aDocIn doc representing address
+	 * @param userId user performing operation, will be set as mod-user
+	 * @param checkPermissions true=check whether user has write permission<br>
+	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @return uuid of stored address, will be generated if new address (no uuid passed in doc)
+	 */
+	public String assignAddressToQA(IngridDocument aDocIn, 
+			String userId, boolean checkPermissions) {
+		// set specific data to transfer to working copy and store !
+		workflowHandler.processDocOnAssignToQA(aDocIn, userId);
+		return storeWorkingCopy(aDocIn, userId, checkPermissions);
+	}
+
+	/** FULL DELETE ! MAKE TRANSIENT ! */
+	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences,
+			String userUuid, boolean checkPermissions) {
+		// first check User Permissions
+		if (checkPermissions) {
+			permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
+		}
+
+		// NOTICE: this one also contains Parent Association !
+		AddressNode aNode = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
+		if (aNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// check whether address is address of idcuser !
+		if (daoIdcUser.getIdcUserByAddrUuid(uuid) != null) {
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS));			
+		}
+
+		// check whether topnode/subnodes are referenced
+		checkAddressTreeReferences(aNode, forceDeleteReferences);
+
+		// delete complete Node ! rest is deleted per cascade !
+		daoAddressNode.makeTransient(aNode);
+
+		// also delete ALL PERMISSIONS (no cascade by hibernate, we keep permissions out of data model)
+		permissionHandler.deletePermissionsForAddress(uuid);
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
+
+		return result;
+	}
+
+	/** FULL DELETE IF NOT PUBLISHED !!!<br> 
+	 * If published version exists -> Mark as deleted and assign to QA (already persisted)<br>
+	 * if NO published version -> perform full delete !
+	 */
+	private IngridDocument markDeletedAddress(String uuid, boolean forceDeleteReferences,
+			String userUuid, boolean checkPermissions) {
+		// first check User Permissions
+		if (checkPermissions) {
+			permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);			
+		}
+
+		// NOTICE: we just load NODE to determine whether published !
+		AddressNode aNode = loadByUuid(uuid, null);
+		if (aNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		IngridDocument result;
+
+		// FULL DELETE IF NOT PUBLISHED !
+		if (aNode.getAddrIdPublished() == null) {
+			result = deleteAddress(uuid, forceDeleteReferences, userUuid, checkPermissions);
+		} else {
+			// IS PUBLISHED -> mark deleted
+			// now load details (prefetch data) for faster mapping (less selects !) 
+			aNode = daoAddressNode.getAddrDetails(uuid);
+
+			// assign to QA via regular process to guarantee creation of working copy !
+			// we generate doc via mapper and set MARK_DELETED !
+			IngridDocument addrDoc =
+				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.COPY_ENTITY);
+			addrDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
+			assignAddressToQA(addrDoc, userUuid, checkPermissions);
+
+			result = new IngridDocument();
+			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
+			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, true);
+		}
+
+		return result;
 	}
 
 	/** Returns true if given node has children. False if no children. */
@@ -675,5 +872,100 @@ public class MdekAddressService {
 
 		// check address type conflicts !
 		checkAddressTypes(toTypeWork, fromTypeWork, moveToFreeAddress, false);
+	}
+
+	/**
+	 * Checks whether address branch contains nodes referenced by other objects (passed top is also checked !).
+	 * Throws Exception if forceDeleteReferences=false !
+	 * @param topNode top node of tree to check (included in check !)
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkAddressTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
+		// process all subnodes including top node
+
+		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(
+				topNode.getAddrUuid(), IdcEntityVersion.WORKING_VERSION, false);
+		subNodes.add(0, topNode);
+
+		for (AddressNode subNode : subNodes) {
+			// check whether address is "auskunft" address. AUSKUNFT CANNOT BE DELETED
+			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
+			checkAddressIsAuskunft(subNode);
+
+			// check
+			checkAddressNodeReferences(subNode, forceDeleteReferences);
+		}
+	}
+
+	/**
+	 * Checks whether address node is referenced by other objects.
+	 * Throws Exception if forceDeleteReferences=false !
+	 * @param aNode address to check
+	 * @param forceDeleteReferences<br>
+	 * 		true=delete all references found, no exception<br>
+	 * 		false=don't delete references, throw exception
+	 */
+	private void checkAddressNodeReferences(AddressNode aNode, boolean forceDeleteReferences) {
+		// handle references to address
+		String aUuid = aNode.getAddrUuid();
+		T012ObjAdr exampleRef = new T012ObjAdr();
+		exampleRef.setAdrUuid(aUuid);
+		List<IEntity> addrRefs = daoT012ObjAdr.findByExample(exampleRef);
+		
+		// throw exception with detailed errors when address referenced without reference deletion !
+		if (!forceDeleteReferences) {
+			int numRefs = addrRefs.size();
+			if (numRefs > 0) {
+				// existing references -> throw exception with according error info !
+
+				// add info about referenced address
+				IngridDocument errInfo =
+					beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+
+				// add info about objects referencing !
+				ArrayList<IngridDocument> objList = new ArrayList<IngridDocument>(numRefs);
+				for (IEntity ent : addrRefs) {
+					T012ObjAdr ref = (T012ObjAdr) ent;
+					// fetch object referencing the address
+					T01Object o = daoT01Object.getById(ref.getObjId());
+					IngridDocument objInfo =
+						beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+					objList.add(objInfo);
+				}
+				errInfo.put(MdekKeys.OBJ_ENTITIES, objList);
+
+				// and throw exception encapsulating errors
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_REFERENCED_BY_OBJ, errInfo));
+			}
+		}
+		
+		// delete references (querverweise)
+		for (IEntity addrRef : addrRefs) {
+			daoT012ObjAdr.makeTransient(addrRef);
+		}
+	}
+
+	/** Checks whether given address is "auskunft" address in any object.
+	 * ONLY CHECKS WORKING VERSIONS OF OBJECTS !
+	 * Throws exception if address is auskunft ! */
+	private void checkAddressIsAuskunft(AddressNode addrNode) {
+		List<ObjectNode> oNs =
+			daoAddressNode.getObjectReferencesByTypeId(addrNode.getAddrUuid(), MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		if (oNs.size() > 0) {
+			// throw exception
+			// supply info about referencing objects in exception
+			IngridDocument errInfo = new IngridDocument();			
+			List<IngridDocument> oList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
+
+			for (ObjectNode oN : oNs) {
+				IngridDocument oDoc = beanToDocMapper.mapT01Object(oN.getT01ObjectWork(),
+							new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+				oList.add(oDoc);
+			}
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_AUSKUNFT, errInfo));
+		}
 	}
 }
