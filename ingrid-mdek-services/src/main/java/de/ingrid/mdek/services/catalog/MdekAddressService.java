@@ -171,20 +171,47 @@ public class MdekAddressService {
 	}
 
 	/**
-	 * Fetches sub nodes (next level) of parent with given uuid. 
-	 * Also prefetch concrete address instance in nodes if requested.
-	 * <br>NOTICE: transaction must be active !
+	 * Fetch all sub addresses of address with given uuid
 	 * @param parentUuid uuid of parent
-	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
-	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
-	 * @return
+	 * @param howMuch how much data to fetch from sub addresses
+	 * @return map containing representations of all sub addresses
 	 */
-	public List<AddressNode> getSubAddresses(String parentUuid, 
-			IdcEntityVersion whichEntityVersion,
-			boolean fetchSubNodesChildren) {
-		List<AddressNode> aNs = daoAddressNode.getSubAddresses(
-				parentUuid, whichEntityVersion, fetchSubNodesChildren);
-		return aNs;
+	public IngridDocument getSubAddresses(String parentUuid, FetchQuantity howMuch,
+			String userId) {
+		// Settings for fetching
+		IdcEntityVersion whichVersion = IdcEntityVersion.WORKING_VERSION;
+		boolean fetchSubNodesChildren = true;
+
+		// set export specific stuff
+		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
+			// do not fetch any details, we only need uuids in node
+			whichVersion = null;
+		}
+
+		List<AddressNode> aNodes =
+			daoAddressNode.getSubAddresses(parentUuid, whichVersion, fetchSubNodesChildren);
+		
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNodes.size());
+		for (AddressNode aNode : aNodes) {
+			IngridDocument adrDoc = new IngridDocument();
+			beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
+			// map details only if necessary
+			if (howMuch == FetchQuantity.EDITOR_ENTITY) {
+				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
+
+				// add permissions the user has on given address !
+				List<Permission> perms =
+					permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userId, true);
+				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);				
+			}
+
+			resultList.add(adrDoc);
+		}
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.ADR_ENTITIES, resultList);
+
+		return result;
 	}
 
 	/**

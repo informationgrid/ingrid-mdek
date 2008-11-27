@@ -153,20 +153,47 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Fetches sub nodes (next level) of parent with given uuid. 
-	 * Also prefetch concrete object instance in nodes if requested.
-	 * <br>NOTICE: transaction must be active !
+	 * Fetch all sub objects of object with given uuid
 	 * @param parentUuid uuid of parent
-	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
-	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
-	 * @return
+	 * @param howMuch how much data to fetch from sub objects
+	 * @return map containing representations of all sub objects
 	 */
-	public List<ObjectNode> getSubObjects(String parentUuid,
-			IdcEntityVersion whichEntityVersion,
-			boolean fetchSubNodesChildren) {
-		List<ObjectNode> oNs = daoObjectNode.getSubObjects(
-				parentUuid, whichEntityVersion, fetchSubNodesChildren);
-		return oNs;
+	public IngridDocument getSubObjects(String parentUuid, FetchQuantity howMuch,
+			String userId) {
+		// Settings for fetching
+		IdcEntityVersion whichVersion = IdcEntityVersion.WORKING_VERSION;
+		boolean fetchSubNodesChildren = true;
+
+		// set export specific stuff
+		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
+			// do not fetch any details, we only need uuids in node
+			whichVersion = null;
+		}
+
+		List<ObjectNode> oNs = 
+			daoObjectNode.getSubObjects(parentUuid, whichVersion, fetchSubNodesChildren);
+
+		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
+		for (ObjectNode oN : oNs) {
+			IngridDocument objDoc = new IngridDocument();
+			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
+			// map details only if necessary
+			if (howMuch == FetchQuantity.EDITOR_ENTITY) {
+				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
+
+				// add permissions the user has on given object !
+				List<Permission> perms = 
+					permissionHandler.getPermissionsForObject(oN.getObjUuid(), userId, true);
+				beanToDocMapperSecurity.mapPermissionList(perms, objDoc);				
+			}
+
+			resultList.add(objDoc);
+		}
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.OBJ_ENTITIES, resultList);
+		
+		return result;
 	}
 
 	/**

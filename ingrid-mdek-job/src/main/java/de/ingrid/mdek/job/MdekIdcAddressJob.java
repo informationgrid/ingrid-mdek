@@ -110,30 +110,16 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	public IngridDocument getSubAddresses(IngridDocument params) {
 		try {
-			daoAddressNode.beginTransaction();
-
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
-			List<AddressNode> aNodes = addressService.getSubAddresses(
-					uuid, IdcEntityVersion.WORKING_VERSION, true);
 
-			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNodes.size());
-			for (AddressNode aNode : aNodes) {
-				IngridDocument adrDoc = new IngridDocument();
-				beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
-				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
+			daoAddressNode.beginTransaction();
 
-				// add permissions the user has on given address !
-				List<Permission> perms = permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userUuid, true);
-				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);
-
-				resultList.add(adrDoc);
-			}
-
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.ADR_ENTITIES, resultList);
+			IngridDocument result = 
+				addressService.getSubAddresses(uuid, FetchQuantity.EDITOR_ENTITY, userUuid);
 
 			daoAddressNode.commitTransaction();
+
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1101,7 +1087,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {
-				List<AddressNode> sourceSubNodes = addressService.getSubAddresses(
+				List<AddressNode> sourceSubNodes = daoAddressNode.getSubAddresses(
 						sourceNode.getAddrUuid(),
 						IdcEntityVersion.WORKING_VERSION, false);
 				for (AddressNode sourceSubNode : sourceSubNodes) {

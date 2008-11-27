@@ -113,31 +113,16 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	public IngridDocument getSubObjects(IngridDocument params) {
 		try {
-			daoObjectNode.beginTransaction();
-
 			String userUuid = getCurrentUserUuid(params);
 			String uuid = (String) params.get(MdekKeys.UUID);
 
-			List<ObjectNode> oNs = objectService.getSubObjects(
-					uuid, IdcEntityVersion.WORKING_VERSION, true);
+			daoObjectNode.beginTransaction();
 
-			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
-			for (ObjectNode oN : oNs) {
-				IngridDocument objDoc = new IngridDocument();
-				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
-				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
-
-				// add permissions the user has on given object !
-				List<Permission> perms = permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid, true);
-				beanToDocMapperSecurity.mapPermissionList(perms, objDoc);
-
-				resultList.add(objDoc);
-			}
-
-			IngridDocument result = new IngridDocument();
-			result.put(MdekKeys.OBJ_ENTITIES, resultList);
+			IngridDocument result = 
+				objectService.getSubObjects(uuid, FetchQuantity.EDITOR_ENTITY, userUuid);
 
 			daoObjectNode.commitTransaction();
+
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1030,7 +1015,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {
-				List<ObjectNode> sourceSubNodes = objectService.getSubObjects(sourceNode.getObjUuid(),
+				List<ObjectNode> sourceSubNodes = daoObjectNode.getSubObjects(sourceNode.getObjUuid(),
 						IdcEntityVersion.WORKING_VERSION, false);
 				for (ObjectNode sourceSubNode : sourceSubNodes) {
 					if (isCopyToOwnSubnode) {
