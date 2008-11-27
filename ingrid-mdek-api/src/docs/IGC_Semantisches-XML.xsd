@@ -820,7 +820,6 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:legislation"/>
         <xs:element minOccurs="0" ref="igc:dataset-intensions"/>
         <xs:element maxOccurs="unbounded" ref="igc:access-constraint"/>
-        <xs:element minOccurs="0" ref="igc:use-constraints"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:data-format"/>
         <xs:element minOccurs="0" ref="igc:publication-condition"/>
@@ -881,11 +880,6 @@
     Tabelle.Feld   : object_access.terms_of_use
   -->
   <xs:element name="terms-of-use" type="xs:string"/>
-  <!--
-    Fachlicher Name: Nutzungsanmerkung, Anmerkung zur Nutzung der Daten und zu Restriktionen
-    Tabelle.Feld   : T01_object.avail_access_note
-  -->
-  <xs:element name="use-constraints" type="xs:string"/>
   <!--
     Fachlicher Name: 
     Tabelle.Feld   : t0112_media_option
