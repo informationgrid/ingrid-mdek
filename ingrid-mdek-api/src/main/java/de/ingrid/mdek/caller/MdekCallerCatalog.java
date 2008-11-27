@@ -99,4 +99,35 @@ public class MdekCallerCatalog extends MdekCallerAbstract implements IMdekCaller
 		List jobMethods = mdekCaller.setUpJobMethod("storeSysGuis", jobParams);
 		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument exportObjectBranch(String plugId, String rootUuid,
+			boolean exportOnlyRoot,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, rootUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT, exportOnlyRoot);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("exportObjectBranch", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument exportObjects(String plugId, String exportCriteria,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.EXPORT_CRITERIA, exportCriteria);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("exportObjects", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument exportAddressBranch(String plugId, String rootUuid,
+			boolean exportOnlyRoot,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, rootUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT, exportOnlyRoot);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = mdekCaller.setUpJobMethod("exportAddressBranch", jobParams);
+		return mdekCaller.callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
 }

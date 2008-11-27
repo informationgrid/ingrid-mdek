@@ -22,6 +22,7 @@
 			<xs:element name="REQUEST_ADDITIONAL_INFO_MAP" type="REQUEST_ADDITIONAL_INFO_MAP"/>
 			<xs:element name="REQUEST_SEARCH_MAP" type="REQUEST_SEARCH_MAP"/>
 			<xs:element name="REQUEST_SECURITY_MAP" type="REQUEST_SECURITY_MAP"/>
+			<xs:element name="REQUEST_EXPORT_MAP" type="REQUEST_EXPORT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -333,6 +334,16 @@
 			<xs:element name="IDC_USER_MAP" type="IDC_USER_MAP"/>
 			<!-- e.g. get detailed permissions of users having write access on entity, then user holds permission list-->
 			<xs:element name="requestinfo_getDetailedPermissions" type="xs:boolean"/>
+		</xs:choice>
+	</xs:complexType>	
+	<xs:complexType name="REQUEST_EXPORT_MAP">
+		<xs:choice>
+			<!-- root of branch to export -->
+			<xs:element ref="uuid"/>
+			<!-- export only root, no subnodes ? -->
+			<xs:element name="requestinfo_exportOnlyRoot" type="xs:boolean"/>
+			<!-- export only objects marked with given criteria -->
+			<xs:element name="export-criteria" type="xs:string"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">

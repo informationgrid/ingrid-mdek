@@ -31,6 +31,7 @@ public abstract class MdekJob implements IJob {
 	protected String JOB_DESCR_MOVE = "MOVE";
 	protected String JOB_DESCR_DELETE = "DELETE";
 	protected String JOB_DESCR_CHECK = "CHECK";
+	protected String JOB_DESCR_EXPORT = "EXPORT";
 
 	public MdekJob(Logger log) {
 		this.log = log;

@@ -66,4 +66,37 @@ public interface IMdekCallerCatalog {
 	IngridDocument storeCatalog(String plugId, IngridDocument catalogDoc,
 			boolean refetchAfterStore,
 			String userId);
+
+	/**
+	 * Export given object branch to XML file.
+	 * @param plugId which mdek server (iplug)
+	 * @param rootUuid object uuid of branch to export (root of branch)
+	 * @param exportOnlyRoot export only the given node, NO sub nodes
+	 * @param userId calling user
+	 * @return response containing result: map containing xml data
+	 */
+	IngridDocument exportObjectBranch(String plugId, String rootUuid,
+			boolean exportOnlyRoot,
+			String userId);
+
+	/**
+	 * Export all objects marked with the given criteria.
+	 * @param plugId which mdek server (iplug)
+	 * @param exportCriteria criteria "tagged value". objects marked with this string are exported.
+	 * @param userId calling user
+	 * @return response containing result: map containing xml data
+	 */
+	IngridDocument exportObjects(String plugId, String exportCriteria, String userId);
+
+	/**
+	 * Export given address branch to XML file.
+	 * @param plugId which mdek server (iplug)
+	 * @param rootUuid address uuid of branch to export (root of branch)
+	 * @param exportOnlyRoot export only the given node, NO sub nodes
+	 * @param userId calling user
+	 * @return response containing result: map containing xml data
+	 */
+	IngridDocument exportAddressBranch(String plugId, String rootUuid,
+			boolean exportOnlyRoot,
+			String userId);
 }

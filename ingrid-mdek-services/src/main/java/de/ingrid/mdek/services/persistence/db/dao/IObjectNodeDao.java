@@ -203,4 +203,11 @@ public interface IObjectNodeDao
 	IngridDocument getObjectStatistics(String parentUuid, 
 			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits);
+
+	/**
+	 * Find objects marked with given export criteria
+	 * @param exportCriteria "tagged value" used to mark objects for export
+	 * @return uuids of objects to export
+	 */
+	List<String> getExportObjectsUuids(String exportCriteria);
 }

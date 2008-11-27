@@ -2339,6 +2339,85 @@ public class MdekExampleSupertool {
 		return result;
 	}
 
+	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE exportObjectBranch ######");
+		System.out.println("- top node of branch:" + rootUuid);
+		System.out.println("- export only top node:" + exportOnlyRoot);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.exportObjectBranch(plugId, rootUuid, exportOnlyRoot,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument exportObjects(String exportCriteria) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE exportObjects ######");
+		System.out.println("- export tag:" + exportCriteria);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.exportObjects(plugId, exportCriteria, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument exportAddressBranch(String rootUuid, boolean exportOnlyRoot) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE exportAddressBranch ######");
+		System.out.println("- top node of branch:" + rootUuid);
+		System.out.println("- export only top node:" + exportOnlyRoot);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.exportAddressBranch(plugId, rootUuid, exportOnlyRoot,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCaller.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			handleError(response);
+		}
+		
+		return result;
+	}
+
 	public void trackRunningJob(int sleepTimeMillis, boolean doCancel) {
 		IngridDocument response;
 		IngridDocument result;

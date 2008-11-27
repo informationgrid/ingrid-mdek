@@ -83,7 +83,7 @@ public interface IMdekCallerQuery {
 	 * @param plugId which mdek server (iplug)
 	 * @param hqlQuery hql query ! NO UPDATE !
 	 * @param userId
-	 * @return
+	 * @return response containing result: map containing csv data
 	 */
 	IngridDocument queryHQLToCsv(String plugId, String hqlQuery,
 			String userId);

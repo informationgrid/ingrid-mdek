@@ -9,6 +9,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
@@ -26,6 +27,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private MdekCatalogService catalogService;
 	private MdekPermissionHandler permissionHandler;
 
+	private IObjectNodeDao daoObjectNode;
+
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {
@@ -33,6 +36,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		
 		catalogService = MdekCatalogService.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
+
+		daoObjectNode = daoFactory.getObjectNodeDao();
 	}
 
 	public IngridDocument getCatalog(IngridDocument params) {
@@ -203,6 +208,105 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				result = getSysGuis(guiIds);
 				genericDao.commitTransaction();
 			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			genericDao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument exportObjectBranch(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_EXPORT, 0, 1, false));
+
+			String rootUuid = (String) docIn.get(MdekKeys.UUID);
+			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
+
+			genericDao.beginTransaction();
+
+			// TODO implement exportObjectBranch
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			genericDao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument exportObjects(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_EXPORT, 0, 1, false));
+
+			String exportCriteria = (String) docIn.get(MdekKeys.EXPORT_CRITERIA);
+
+			genericDao.beginTransaction();
+
+			List<String> expUuids = daoObjectNode.getExportObjectsUuids(exportCriteria);
+
+			// TODO implement exportObjects
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			// !!! HACK !!!
+			result.put("TEST_exportObjects_TOTALNUM", expUuids.size());
+
+			return result;
+
+		} catch (RuntimeException e) {
+			genericDao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument exportAddressBranch(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_EXPORT, 0, 1, false));
+
+			String rootUuid = (String) docIn.get(MdekKeys.UUID);
+			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
+
+			genericDao.beginTransaction();
+
+			// TODO implement exportAddressBranch
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
 			
 			return result;
 

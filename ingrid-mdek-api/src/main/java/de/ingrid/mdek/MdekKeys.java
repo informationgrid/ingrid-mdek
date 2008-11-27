@@ -66,7 +66,8 @@ public class MdekKeys {
     public final static String LANGUAGE = "language";
 
     /** e.g. SEARCH: number of hits requested starting at start hit<br> 
-     * STATISTICS: total number of entities of specific class counted or assigned search terms (Gesamtsumme)<br>
+     * STATISTICS: total number of entities of specific class 
+     * or total num of assigned search terms (Gesamtsumme)<br>
      * Value: Long */
     public final static String TOTAL_NUM = "total-num";
     /** total number of entries for paging<br>
@@ -78,6 +79,17 @@ public class MdekKeys {
     /** total number of entities reassigned from QA<br>
      * Value: Long */
     public final static String TOTAL_NUM_QA_REASSIGNED = "total-num-qa-reassigned";
+
+
+    // EXPORT
+    // ------
+    // REQUEST
+    /** Export only the root node of a branch ?<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
+    /** Criteria determining objects to export<br>
+     * Value: String */
+    public final static String EXPORT_CRITERIA = "export-criteria";
 
 
     // SEARCH / QUERY (Recherche)

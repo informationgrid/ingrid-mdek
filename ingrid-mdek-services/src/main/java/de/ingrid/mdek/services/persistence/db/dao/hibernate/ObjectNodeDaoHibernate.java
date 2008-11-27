@@ -1208,4 +1208,20 @@ public class ObjectNodeDaoHibernate
 
 		return result;
 	}
+
+	public List<String> getExportObjectsUuids(String exportCriteria) {
+		Session session = getSession();
+
+		String q = "select distinct oNode.objUuid " +
+			"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectPublished o " +
+				"inner join o.t014InfoImparts oExp " +
+			"where oExp.impartValue = ?";
+		
+		List<String> oNodes = session.createQuery(q)
+				.setString(0, exportCriteria)
+				.list();
+
+		return oNodes;
+	}
 }
