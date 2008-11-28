@@ -10,9 +10,11 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleCatalog {
@@ -261,6 +263,9 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("EXPORT");
 		System.out.println("=========================");
 
+		System.out.println("\n----- fetch object EXPORT_ENTITY data -----");
+		supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+
 		System.out.println("\n----- export object branch ONLY TOP NODE -----");
 		supertool.exportObjectBranch(objUuid, true);
 
@@ -272,6 +277,9 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.exportObjects("CdS");
 		supertool.exportObjects("test");
 		supertool.exportObjects("TEST");
+
+		System.out.println("\n----- fetch address EXPORT_ENTITY data -----");
+		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		System.out.println("\n----- export address branch ONLY TOP NODE -----");
 		supertool.exportAddressBranch(parentAddrUuid, true);

@@ -157,6 +157,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				(IdcEntityVersion) params.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
 			int objRefsStartIndex = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
 			int objRefsMaxNum = (Integer) params.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
+			FetchQuantity fetchQuantity =
+				(FetchQuantity) params.get(MdekKeys.REQUESTINFO_FETCH_QUANTITY);
 
 			daoAddressNode.beginTransaction();
 
@@ -164,7 +166,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				log.debug("Invoke getAddrDetails (uuid='"+uuid+"').");
 			}
 			IngridDocument result = addressService.getAddressDetails(uuid,
-					whichEntityVersion, FetchQuantity.EDITOR_ENTITY, 
+					whichEntityVersion, fetchQuantity, 
 					objRefsStartIndex, objRefsMaxNum, userUuid);
 			
 			daoAddressNode.commitTransaction();

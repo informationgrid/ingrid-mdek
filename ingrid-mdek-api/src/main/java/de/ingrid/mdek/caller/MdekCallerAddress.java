@@ -63,16 +63,13 @@ public class MdekCallerAddress extends MdekCaller implements IMdekCallerAddress 
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, addrUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_FETCH_QUANTITY, howMuch);
 		jobParams.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, whichEntityVersion);
 		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
 		jobParams.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		if (howMuch == FetchQuantity.EDITOR_ENTITY) {
-			List jobMethods = setUpJobMethod("getAddrDetails", jobParams);
-			return callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
-		}
-
-		return new IngridDocument();
+		List jobMethods = setUpJobMethod("getAddrDetails", jobParams);
+		return callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchAddressObjectReferences(String plugId, String addrUuid, 

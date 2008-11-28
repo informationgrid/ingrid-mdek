@@ -158,6 +158,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			IdcEntityVersion whichEntityVersion =
 				(IdcEntityVersion) params.get(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION);
+			FetchQuantity fetchQuantity =
+				(FetchQuantity) params.get(MdekKeys.REQUESTINFO_FETCH_QUANTITY);
 
 			daoObjectNode.beginTransaction();
 
@@ -165,7 +167,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
 			}
 			IngridDocument result =	objectService.getObjectDetails(uuid,
-					whichEntityVersion, FetchQuantity.EDITOR_ENTITY, userUuid);
+					whichEntityVersion, fetchQuantity, userUuid);
 			
 			daoObjectNode.commitTransaction();
 

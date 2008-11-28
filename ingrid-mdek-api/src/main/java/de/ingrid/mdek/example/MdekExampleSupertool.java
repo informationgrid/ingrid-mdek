@@ -885,7 +885,8 @@ public class MdekExampleSupertool {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
-		System.out.println("  fetch entity version:" + whichVersion);
+		System.out.println("- fetch entity version: " + whichVersion);
+		System.out.println("- fetch quantity: " + howMuch);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.fetchObject(plugId, uuid, howMuch, whichVersion, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -929,7 +930,8 @@ public class MdekExampleSupertool {
 
 		System.out.println("\n###### INVOKE fetchAddress (Details) / fetch objRefs: start=" + objRefsStartIndex +
 				", maxNum=" + objRefsMaxNum +" ######");
-		System.out.println("  fetch entity version:" + whichVersion);
+		System.out.println("- fetch entity version: " + whichVersion);
+		System.out.println("- fetch quantity: " + howMuch);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.fetchAddress(plugId, uuid, howMuch, whichVersion,
 				objRefsStartIndex, objRefsMaxNum, myUserUuid);

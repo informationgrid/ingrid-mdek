@@ -41,6 +41,9 @@ public class MdekKeys {
     /** Which work state should entities to process have<br>
      *  Value: MdekUtils.WorkState Enumeration const */
     public final static String REQUESTINFO_WHICH_WORK_STATE = "requestinfo_whichWorkState";
+    /** How much to fetch from backend ?<br>
+     *  Value: IMdekCaller.FetchQuantity Enumeration const */
+    public final static String REQUESTINFO_FETCH_QUANTITY = "requestinfo_fetchQuantity";
     /** Which entities to fetch (e.g. expired ones ...) ?<br>
      *  Value: MdekUtils.Idc*SelectionType Enumeration const */
     public final static String REQUESTINFO_ENTITY_SELECTION_TYPE = "requestinfo_entitySelectionType";

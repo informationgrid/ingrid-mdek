@@ -61,14 +61,11 @@ public class MdekCallerObject extends MdekCaller implements IMdekCallerObject {
 			IdcEntityVersion whichEntityVersion, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
+		jobParams.put(MdekKeys.REQUESTINFO_FETCH_QUANTITY, howMuch);
 		jobParams.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, whichEntityVersion);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		if (howMuch == FetchQuantity.EDITOR_ENTITY) {
-			List jobMethods = setUpJobMethod("getObjDetails", jobParams);
-			return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
-		}
-		
-		return new IngridDocument();
+		List jobMethods = setUpJobMethod("getObjDetails", jobParams);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument storeObject(String plugId, IngridDocument objDoc,
