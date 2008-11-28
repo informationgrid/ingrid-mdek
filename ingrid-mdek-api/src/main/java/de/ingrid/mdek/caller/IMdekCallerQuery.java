@@ -7,7 +7,7 @@ import de.ingrid.utils.IngridDocument;
  * Defines the interface to be implemented to communicate with the Mdek backend
  * concerning QUERY functionality (inquiry of entities).
  */
-public interface IMdekCallerQuery {
+public interface IMdekCallerQuery extends IMdekCaller {
 
 	/**
 	 * Search addresses via full text search.

@@ -24,19 +24,19 @@ import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
-import de.ingrid.mdek.caller.IMdekCaller;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.IMdekCallerObject;
 import de.ingrid.mdek.caller.IMdekCallerQuery;
 import de.ingrid.mdek.caller.IMdekCallerSecurity;
-import de.ingrid.mdek.caller.MdekCaller;
+import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCallerAddress;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
+import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
@@ -45,7 +45,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekExampleSupertool {
 
-	private IMdekCaller mdekCaller;
+	private IMdekClientCaller mdekClientCaller;
 	private IMdekCallerSecurity mdekCallerSecurity;
 	private IMdekCallerObject mdekCallerObject;
 	private IMdekCallerAddress mdekCallerAddress;
@@ -63,18 +63,18 @@ public class MdekExampleSupertool {
 		this.plugId = plugIdToCall;
 		myUserUuid = callingUserUuid;
 
-		mdekCaller = MdekCaller.getInstance();
+		mdekClientCaller = MdekClientCaller.getInstance();
 		
 		// and our specific job caller !
-		MdekCallerSecurity.initialize(mdekCaller);
+		MdekCallerSecurity.initialize(mdekClientCaller);
 		mdekCallerSecurity = MdekCallerSecurity.getInstance();
-		MdekCallerObject.initialize(mdekCaller);
+		MdekCallerObject.initialize(mdekClientCaller);
 		mdekCallerObject = MdekCallerObject.getInstance();
-		MdekCallerAddress.initialize(mdekCaller);
+		MdekCallerAddress.initialize(mdekClientCaller);
 		mdekCallerAddress = MdekCallerAddress.getInstance();
-		MdekCallerCatalog.initialize(mdekCaller);
+		MdekCallerCatalog.initialize(mdekClientCaller);
 		mdekCallerCatalog = MdekCallerCatalog.getInstance();
-		MdekCallerQuery.initialize(mdekCaller);
+		MdekCallerQuery.initialize(mdekClientCaller);
 		mdekCallerQuery = MdekCallerQuery.getInstance();
 	}
 
@@ -108,12 +108,12 @@ public class MdekExampleSupertool {
 		System.out.println("\n###### INVOKE getVersion ######");
 		startTime = System.currentTimeMillis();
 		// ACHTUNG: ist DIREKT result ! sollte nie null sein (hoechstens leer)
-		response = mdekCaller.getVersion(plugId);
+		response = mdekClientCaller.getVersion(plugId);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekClientCaller.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("All entries in Map: ");
 			Set<Map.Entry> entries = result.entrySet();
@@ -148,7 +148,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugCatalogDoc(result);
@@ -179,7 +179,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -207,7 +207,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			Set entries = result.entrySet();
 			System.out.println("SUCCESS: " + entries.size() + " gui elements");
@@ -241,7 +241,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 
 		if (result != null) {
 			if (refetch) {
@@ -273,7 +273,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugUserDoc(result);
@@ -298,7 +298,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeysSecurity.GROUPS);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -327,7 +327,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugGroupDoc(result);
@@ -351,7 +351,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -378,7 +378,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugUserDoc(result);
@@ -402,7 +402,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -435,7 +435,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -468,7 +468,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -496,7 +496,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugPermissionsDoc(result, "");
@@ -521,7 +521,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugPermissionsDoc(result, "");
@@ -545,7 +545,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugPermissionsDoc(result, "");
@@ -569,7 +569,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			Set<String> listKeys = result.keySet();
 			System.out.println("SUCCESS: " + listKeys.size() + " sys-lists");
@@ -601,7 +601,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			List<String> uuidList = (List<String>) result.get(MdekKeys.PATH);
 			System.out.println("SUCCESS: " + uuidList.size() + " levels");
@@ -630,7 +630,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			List<String> uuidList = (List<String>) result.get(MdekKeys.PATH);
 			System.out.println("SUCCESS: " + uuidList.size() + " levels");
@@ -659,7 +659,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugObjectDoc(result);
@@ -683,7 +683,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugAddressDoc(result);
@@ -713,7 +713,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugGroupDoc(result);
@@ -743,7 +743,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugUserDoc(result);
@@ -767,7 +767,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -795,7 +795,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -828,7 +828,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -855,7 +855,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities");
@@ -891,7 +891,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugObjectDoc(result);
@@ -936,7 +936,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugAddressDoc(result);
@@ -961,7 +961,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			boolean formerFullOutput = doFullOutput;
@@ -988,7 +988,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
@@ -1012,7 +1012,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
@@ -1043,7 +1043,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1074,7 +1074,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS");
@@ -1105,7 +1105,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1138,7 +1138,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1178,7 +1178,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1209,7 +1209,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS");
@@ -1247,7 +1247,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1287,7 +1287,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1332,7 +1332,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugGroupDoc(result);
@@ -1362,7 +1362,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugUserDoc(result);
@@ -1396,7 +1396,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1438,7 +1438,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 
 		if (result != null) {
 			System.out.println("SUCCESS: ");
@@ -1470,7 +1470,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
 			System.out.println(result);
@@ -1497,7 +1497,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
 			System.out.println(result);
@@ -1522,7 +1522,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
 			System.out.println("Root Copy: " + result);
@@ -1550,7 +1550,7 @@ public class MdekExampleSupertool {
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
-			result = mdekCaller.getResultFromResponse(response);
+			result = mdekCallerAddress.getResultFromResponse(response);
 			if (result != null) {
 				System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " copied !");
 				System.out.println("Copy Node (rudimentary): ");
@@ -1578,7 +1578,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
 			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
@@ -1607,7 +1607,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
 			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
@@ -1635,7 +1635,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
 			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
@@ -1663,7 +1663,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS");
 			System.out.println("was fully deleted: " + result.get(MdekKeys.RESULTINFO_WAS_FULLY_DELETED));
@@ -1692,7 +1692,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 		} else {
@@ -1721,7 +1721,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerSecurity.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			debugIdcUsersDoc(result);
@@ -1753,7 +1753,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
@@ -1788,7 +1788,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
@@ -1823,7 +1823,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
@@ -1858,7 +1858,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
@@ -1893,7 +1893,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
@@ -1928,7 +1928,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
@@ -1963,7 +1963,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		List<IngridDocument> hits = null;
 		if (result != null) {
 			hits = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
@@ -1998,7 +1998,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		if (result != null) {
 			Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			IdcEntityType type = IdcEntityType.OBJECT;
@@ -2037,7 +2037,7 @@ public class MdekExampleSupertool {
 			endTime = System.currentTimeMillis();
 			neededTime = endTime - startTime;
 			System.out.println("EXECUTION TIME: " + neededTime + " ms");
-			result = mdekCaller.getResultFromResponse(response);
+			result = mdekCallerQuery.getResultFromResponse(response);
 			if (result != null) {
 				Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM);
 				System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
@@ -2078,7 +2078,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerQuery.getResultFromResponse(response);
 		if (result != null) {
 			List<IngridDocument> hits = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			if (hits == null) {
@@ -2122,7 +2122,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
@@ -2164,7 +2164,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
@@ -2215,7 +2215,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
@@ -2262,7 +2262,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			List<IngridDocument> l = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 			System.out.println("SUCCESS: " + l.size() + " Entities of total num: " + result.get(MdekKeys.TOTAL_NUM_PAGING));
@@ -2297,7 +2297,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
@@ -2328,7 +2328,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerAddress.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
@@ -2355,7 +2355,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
@@ -2380,7 +2380,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
@@ -2407,7 +2407,7 @@ public class MdekExampleSupertool {
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCaller.getResultFromResponse(response);
+		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
@@ -2431,8 +2431,8 @@ public class MdekExampleSupertool {
 				return;
 			}
 
-			response = mdekCaller.getRunningJobInfo(plugId, myUserUuid);
-			result = mdekCaller.getResultFromResponse(response);
+			response = mdekClientCaller.getRunningJobInfo(plugId, myUserUuid);
+			result = mdekClientCaller.getResultFromResponse(response);
 			if (result != null) {
 				String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
 				Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
@@ -2461,8 +2461,8 @@ public class MdekExampleSupertool {
 	public void cancelRunningJob() {
 		System.out.println("\n###### INVOKE cancelRunningJob ######");
 
-		IngridDocument response = mdekCaller.cancelRunningJob(plugId, myUserUuid);
-		IngridDocument result = mdekCaller.getResultFromResponse(response);
+		IngridDocument response = mdekClientCaller.cancelRunningJob(plugId, myUserUuid);
+		IngridDocument result = mdekClientCaller.getResultFromResponse(response);
 		if (result != null) {
 			String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
 			if (jobDescr == null) {
@@ -2987,15 +2987,15 @@ public class MdekExampleSupertool {
 	}
 
 	private void handleError(IngridDocument response) {
-		System.out.println("MDEK ERRORS: " + mdekCaller.getErrorsFromResponse(response));			
-		System.out.println("ERROR MESSAGE: " + mdekCaller.getErrorMsgFromResponse(response));			
+		System.out.println("MDEK ERRORS: " + mdekClientCaller.getErrorsFromResponse(response));			
+		System.out.println("ERROR MESSAGE: " + mdekClientCaller.getErrorMsgFromResponse(response));			
 
 		if (!doFullOutput) {
 			return;
 		}
 
 		// detailed output  
-		List<MdekError> errors = mdekCaller.getErrorsFromResponse(response);
+		List<MdekError> errors = mdekClientCaller.getErrorsFromResponse(response);
 		doFullOutput = false;
 		for (MdekError err : errors) {
 			IngridDocument info = err.getErrorInfo();

@@ -6,7 +6,6 @@ import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
@@ -15,7 +14,7 @@ import de.ingrid.utils.IngridDocument;
  * Defines the interface to be implemented to communicate with the Mdek backend
  * concerning ADDRESS Manipulation.
  */
-public interface IMdekCallerAddress {
+public interface IMdekCallerAddress extends IMdekCaller {
 
 	/**
 	 * Fetch top addresses.

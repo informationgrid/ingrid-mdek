@@ -20,34 +20,30 @@ import de.ingrid.utils.IngridDocument;
  * 
  * @author Martin
  */
-public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerObject {
+public class MdekCallerObject extends MdekCaller implements IMdekCallerObject {
 
 	private final static Logger log = Logger.getLogger(MdekCallerObject.class);
 
 	private static MdekCallerObject myInstance;
-	private IMdekCaller mdekCaller;
 
 	// Jobs
 	private static String MDEK_IDC_OBJECT_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
 
+    private MdekCallerObject(IMdekClientCaller mdekClientCaller) {
+    	super(mdekClientCaller);
+    }
+
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
 	 * Has to be called once before calling getInstance() !!!
-	 * @param communicationProperties props specifying communication
 	 */
-	public static synchronized void initialize(IMdekCaller mdekCaller) {
+	public static synchronized void initialize(IMdekClientCaller mdekClientCaller) {
 		if (myInstance == null) {
-			myInstance = new MdekCallerObject(mdekCaller);
+			myInstance = new MdekCallerObject(mdekClientCaller);
 		} else {
 			log.warn("WARNING! MULTIPLE INITIALIZATION OF " + myInstance.getClass() + " !");
 		}
 	}
-
-    private MdekCallerObject() {}
-
-    private MdekCallerObject(IMdekCaller mdekCaller) {
-    	this.mdekCaller = mdekCaller;
-    }
 
 	/**
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !
@@ -68,8 +64,8 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, whichEntityVersion);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		if (howMuch == FetchQuantity.EDITOR_ENTITY) {
-			List jobMethods = mdekCaller.setUpJobMethod("getObjDetails", jobParams);
-			return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+			List jobMethods = setUpJobMethod("getObjDetails", jobParams);
+			return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 		}
 		
 		return new IngridDocument();
@@ -80,8 +76,8 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 			String userId) {
 		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		objDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("storeObject", objDoc);
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		List jobMethods = setUpJobMethod("storeObject", objDoc);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument assignObjectToQA(String plugId, IngridDocument objDoc,
@@ -89,8 +85,8 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 			String userId) {
 		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		objDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("assignObjectToQA", objDoc);
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		List jobMethods = setUpJobMethod("assignObjectToQA", objDoc);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument reassignObjectToAuthor(String plugId, IngridDocument objDoc,
@@ -98,16 +94,16 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 			String userId) {
 		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		objDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("reassignObjectToAuthor", objDoc);
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		List jobMethods = setUpJobMethod("reassignObjectToAuthor", objDoc);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument updateObjectPart(String plugId, IngridDocument objPartDoc,
 			IdcEntityVersion whichEntityVersion, String userId) {
 		objPartDoc.put(MdekKeys.USER_ID, userId);
 		objPartDoc.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, whichEntityVersion);
-		List jobMethods = mdekCaller.setUpJobMethod("updateObjectPart", objPartDoc);
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		List jobMethods = setUpJobMethod("updateObjectPart", objPartDoc);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument publishObject(String plugId, IngridDocument objDoc,
@@ -117,8 +113,8 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		objDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		objDoc.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
 		objDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("publishObject", objDoc);
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		List jobMethods = setUpJobMethod("publishObject", objDoc);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument deleteObjectWorkingCopy(String plugId, String uuid,
@@ -128,9 +124,9 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, forceDeleteReferences);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("deleteObjectWorkingCopy", jobParams);
+		List jobMethods = setUpJobMethod("deleteObjectWorkingCopy", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument deleteObject(String plugId, String uuid,
@@ -140,17 +136,17 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, forceDeleteReferences);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("deleteObject", jobParams);
+		List jobMethods = setUpJobMethod("deleteObject", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchTopObjects(String plugId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getTopObjects", jobParams);
+		List jobMethods = setUpJobMethod("getTopObjects", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument fetchSubObjects(String plugId, String objUuid,
@@ -158,9 +154,9 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, objUuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getSubObjects", jobParams);
+		List jobMethods = setUpJobMethod("getSubObjects", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getObjectPath(String plugId, String uuid,
@@ -168,9 +164,9 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getObjectPath", jobParams);
+		List jobMethods = setUpJobMethod("getObjectPath", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);		
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);		
 	}
 
 	public IngridDocument checkObjectSubTree(String plugId, String uuid,
@@ -178,9 +174,9 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("checkObjectSubTree", jobParams);
+		List jobMethods = setUpJobMethod("checkObjectSubTree", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument copyObject(String plugId, String fromUuid, String toUuid, boolean copySubtree,
@@ -190,9 +186,9 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.TO_UUID, toUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_COPY_SUBTREE, copySubtree);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("copyObject", jobParams);
+		List jobMethods = setUpJobMethod("copyObject", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument moveObject(String plugId, String fromUuid, String toUuid,
@@ -203,18 +199,18 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.TO_UUID, toUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("moveObject", jobParams);
+		List jobMethods = setUpJobMethod("moveObject", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getInitialObject(String plugId, IngridDocument newBasicObject,
 			String userId) {
 		IngridDocument jobParams = newBasicObject;
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getInitialObject", jobParams);
+		List jobMethods = setUpJobMethod("getInitialObject", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getWorkObjects(String plugId,
@@ -229,9 +225,9 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.REQUESTINFO_START_HIT, startHit);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, numHits);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getWorkObjects", jobParams);
+		List jobMethods = setUpJobMethod("getWorkObjects", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getQAObjects(String plugId,
@@ -247,9 +243,9 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.REQUESTINFO_START_HIT, startHit);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, numHits);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getQAObjects", jobParams);
+		List jobMethods = setUpJobMethod("getQAObjects", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument getObjectStatistics(String plugId, String parentUuid,
@@ -262,8 +258,8 @@ public class MdekCallerObject extends MdekCallerAbstract implements IMdekCallerO
 		jobParams.put(MdekKeys.REQUESTINFO_START_HIT, startHit);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, numHits);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = mdekCaller.setUpJobMethod("getObjectStatistics", jobParams);
+		List jobMethods = setUpJobMethod("getObjectStatistics", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
 }

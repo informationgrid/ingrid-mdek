@@ -6,14 +6,13 @@ import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 /**
  * Defines the interface to be implemented to communicate with the Mdek backend
  * concerning OBJECT Manipulation.
  */
-public interface IMdekCallerObject {
+public interface IMdekCallerObject extends IMdekCaller {
 
 	/**
 	 * Fetch single object with given uuid.

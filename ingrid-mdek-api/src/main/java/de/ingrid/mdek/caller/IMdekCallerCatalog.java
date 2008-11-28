@@ -9,7 +9,7 @@ import de.ingrid.utils.IngridDocument;
  * Defines the interface to be implemented to communicate with the Mdek backend
  * concerning CATALOG data.
  */
-public interface IMdekCallerCatalog {
+public interface IMdekCallerCatalog extends IMdekCaller {
 
 	/**
 	 * Returns a map containing the entries of lists with given ids.

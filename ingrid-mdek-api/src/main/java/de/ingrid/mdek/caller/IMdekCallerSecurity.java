@@ -7,7 +7,7 @@ import de.ingrid.utils.IngridDocument;
  * Defines the interface to be implemented to communicate with the Mdek backend
  * concerning SECURITY / USER MANAGEMENT.
  */
-public interface IMdekCallerSecurity {
+public interface IMdekCallerSecurity extends IMdekCaller {
 
 	/**
 	 * Get all groups.

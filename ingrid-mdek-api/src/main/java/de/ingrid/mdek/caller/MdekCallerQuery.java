@@ -14,34 +14,30 @@ import de.ingrid.utils.IngridDocument;
  * 
  * @author Martin
  */
-public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQuery {
+public class MdekCallerQuery extends MdekCaller implements IMdekCallerQuery {
 
 	private final static Logger log = Logger.getLogger(MdekCallerQuery.class);
 
 	private static IMdekCallerQuery myInstance;
-	IMdekCaller mdekCaller;
 
 	// Jobs
 	static String MDEK_IDC_QUERY_JOB_ID = "de.ingrid.mdek.job.MdekIdcQueryJob";
 
+    private MdekCallerQuery(IMdekClientCaller mdekClientCaller) {
+    	super(mdekClientCaller);
+    }
+
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
 	 * Has to be called once before calling getInstance() !!!
-	 * @param communicationProperties props specifying communication
 	 */
-	public static synchronized void initialize(IMdekCaller mdekCaller) {
+	public static synchronized void initialize(IMdekClientCaller mdekClientCaller) {
 		if (myInstance == null) {
-			myInstance = new MdekCallerQuery(mdekCaller);
+			myInstance = new MdekCallerQuery(mdekClientCaller);
 		} else {
 			log.warn("WARNING! MULTIPLE INITIALIZATION OF " + myInstance.getClass() + " !");
 		}
 	}
-
-    private MdekCallerQuery() {}
-
-    private MdekCallerQuery(IMdekCaller mdekCaller) {
-    	this.mdekCaller = mdekCaller;
-    }
 
 	/**
 	 * NOTICE: Singleton has to be initialized once (initialize(...)) before getting the instance !
@@ -67,9 +63,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		searchParams.put(MdekKeys.SEARCH_TERM, searchTerm);
 		
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
-		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesFullText", jobParams);
+		List jobMethods = setUpJobMethod("queryAddressesFullText", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryAddressesThesaurusTerm(String plugId, String termSnsId,
@@ -84,9 +80,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
 		
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
-		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesThesaurusTerm", jobParams);
+		List jobMethods = setUpJobMethod("queryAddressesThesaurusTerm", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryObjectsFullText(String plugId, String searchTerm,
@@ -101,9 +97,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		searchParams.put(MdekKeys.SEARCH_TERM, searchTerm);
 		
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
-		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsFullText", jobParams);
+		List jobMethods = setUpJobMethod("queryObjectsFullText", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryObjectsThesaurusTerm(String plugId, String termSnsId,
@@ -118,9 +114,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		searchParams.put(MdekKeys.TERM_SNS_ID, termSnsId);
 		
 		jobParams.put(MdekKeys.SEARCH_PARAMS, searchParams);
-		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsThesaurusTerm", jobParams);
+		List jobMethods = setUpJobMethod("queryObjectsThesaurusTerm", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryHQL(String plugId, String hqlQuery,
@@ -132,9 +128,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
 		
-		List jobMethods = mdekCaller.setUpJobMethod("queryHQL", jobParams);
+		List jobMethods = setUpJobMethod("queryHQL", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryHQLToCsv(String plugId, String hqlQuery,
@@ -143,9 +139,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.USER_ID, userId);
 		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
 		
-		List jobMethods = mdekCaller.setUpJobMethod("queryHQLToCsv", jobParams);
+		List jobMethods = setUpJobMethod("queryHQLToCsv", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryHQLToMap(String plugId, String hqlQuery, Integer maxNumHits,
@@ -155,9 +151,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.TOTAL_NUM, new Long(maxNumHits));
 		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
 		
-		List jobMethods = mdekCaller.setUpJobMethod("queryHQLToMap", jobParams);
+		List jobMethods = setUpJobMethod("queryHQLToMap", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryObjectsExtended(String plugId, IngridDocument searchParams,
@@ -168,9 +164,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 		jobParams.put(MdekKeys.SEARCH_EXT_PARAMS, searchParams);
 
-		List jobMethods = mdekCaller.setUpJobMethod("queryObjectsExtended", jobParams);
+		List jobMethods = setUpJobMethod("queryObjectsExtended", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument queryAddressesExtended(String plugId, IngridDocument searchParams,
@@ -181,9 +177,9 @@ public class MdekCallerQuery extends MdekCallerAbstract implements IMdekCallerQu
 		jobParams.put(MdekKeys.TOTAL_NUM, new Long(numHits));
 		jobParams.put(MdekKeys.SEARCH_EXT_PARAMS, searchParams);
 		
-		List jobMethods = mdekCaller.setUpJobMethod("queryAddressesExtended", jobParams);
+		List jobMethods = setUpJobMethod("queryAddressesExtended", jobParams);
 
-		return mdekCaller.callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
+		return callJob(plugId, MDEK_IDC_QUERY_JOB_ID, jobMethods);
 	}
 	
 }

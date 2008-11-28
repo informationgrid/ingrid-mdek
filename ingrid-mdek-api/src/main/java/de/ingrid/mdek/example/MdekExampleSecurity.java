@@ -11,9 +11,10 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
-import de.ingrid.mdek.caller.IMdekCaller;
+import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
-import de.ingrid.mdek.caller.IMdekCallerAbstract.FetchQuantity;
+import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleSecurity {
@@ -51,14 +52,14 @@ public class MdekExampleSecurity {
 
 		// INITIALIZE CENTRAL MDEK CALLER !
 		System.out.println("\n###### start mdek iBus ######\n");
-		MdekCaller.initialize(new File((String) map.get("--descriptor")));
-		IMdekCaller mdekCaller = MdekCaller.getInstance();
+		MdekClientCaller.initialize(new File((String) map.get("--descriptor")));
+		IMdekClientCaller mdekClientCaller = MdekClientCaller.getInstance();
 
 		// wait till iPlug registered !
 		System.out.println("\n###### waiting for mdek iPlug to register ######\n");
 		boolean plugRegistered = false;
 		while (!plugRegistered) {
-			List<String> iPlugs = mdekCaller.getRegisteredIPlugs();
+			List<String> iPlugs = mdekClientCaller.getRegisteredIPlugs();
 			if (iPlugs.size() > 0) {
 				plugRegistered = true;
 				System.out.println("Registered iPlugs: " + iPlugs);
