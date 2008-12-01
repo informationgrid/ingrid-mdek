@@ -315,7 +315,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setMetadataLanguageCode((String) oDocIn.get(MdekKeys.METADATA_LANGUAGE));
 			oIn.setDataLanguageCode((String) oDocIn.get(MdekKeys.DATA_LANGUAGE));
 			oIn.setPublishId((Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION));
-			oIn.setInfoNote((String) oDocIn.get(MdekKeys.DATASET_INTENSIONS));
+			oIn.setInfoNote((String) oDocIn.get(MdekKeys.DATASET_INTENTIONS));
 			oIn.setDatasetUsage((String) oDocIn.get(MdekKeys.DATASET_USAGE));
 
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));

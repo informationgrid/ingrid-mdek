@@ -112,7 +112,8 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="igc:general"/>
-        <xs:element ref="igc:technical-domain"/>
+        <!-- technical-domain in Klasse 0: Organisationseinheit/Fachaufgabe nicht  vorhanden ->  minOccurs=0 -->
+        <xs:element minOccurs="0" ref="igc:technical-domain"/>
         <xs:element ref="igc:additional-information"/>
         <xs:element ref="igc:spatial-domain"/>
         <xs:element minOccurs="0" ref="igc:temporal-domain"/>
@@ -138,7 +139,7 @@
         <xs:element minOccurs="0" ref="igc:date-of-creation"/>
         <xs:element minOccurs="0" ref="igc:original-control-identifier"/>
         <xs:element minOccurs="0" ref="igc:general-additional-values"/>
-        <xs:element ref="igc:metadata"/>
+        <xs:element minOccurs="0" ref="igc:metadata"/>
         <xs:element minOccurs="0" ref="igc:dataset-alternate-name"/>
         <xs:element minOccurs="0" ref="igc:dataset-character-set"/>
         <xs:element ref="igc:topic-categories"/>
@@ -296,7 +297,7 @@
   -->
   <xs:element name="technical-domain">
     <xs:complexType>
-      <xs:choice minOccurs="0">
+      <xs:choice>
         <xs:element ref="igc:dataset"/>
         <xs:element ref="igc:service"/>
         <xs:element ref="igc:document"/>
@@ -331,7 +332,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="igc:parameter"/>
-        <xs:element minOccurs="0" ref="igc:supplemantary-information"/>
+        <xs:element minOccurs="0" ref="igc:supplementary-information"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -344,7 +345,7 @@
     Fachlicher Name: Ergaenzende Angaben (Hinweis: Einheit der Parameter)
     Tabelle.Feld   : T011_obj_data_para.unit
   -->
-  <xs:element name="supplemantary-information" type="xs:string"/>
+  <xs:element name="supplementary-information" type="xs:string"/>
   <!--
     Fachlicher Name: Methode/Datengrundlage
     Tabelle.Feld   : T011_obj_data.base
@@ -409,7 +410,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="igc:operation-name"/>
-        <xs:element ref="igc:description-of-operation"/>
+        <xs:element minOccurs="0" ref="igc:description-of-operation"/>
         <xs:element minOccurs="0" ref="igc:invocation-name"/>
         <xs:element maxOccurs="unbounded" ref="igc:platform"/>
         <xs:element maxOccurs="unbounded" ref="igc:connection-point"/>
@@ -449,7 +450,7 @@
         <xs:element ref="igc:name"/>
         <xs:element ref="igc:optional"/>
         <xs:element ref="igc:repeatability"/>
-        <xs:element ref="igc:direction"/>
+        <xs:element minOccurs="0" ref="igc:direction"/>
         <xs:element minOccurs="0" ref="igc:description-of-parameter"/>
       </xs:sequence>
     </xs:complexType>
@@ -818,15 +819,16 @@
         <xs:element ref="igc:metadata-language"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:export-to"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:legislation"/>
-        <xs:element minOccurs="0" ref="igc:dataset-intensions"/>
-        <xs:element maxOccurs="unbounded" ref="igc:access-constraint"/>
+        <xs:element minOccurs="0" ref="igc:dataset-intentions"/>
+        <!-- kein access-constraint in Klasse 0: Organisationseinheit/Fachaufgabe ->  minOccurs=0 -->
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:access-constraint"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:data-format"/>
         <xs:element minOccurs="0" ref="igc:publication-condition"/>
         <xs:element minOccurs="0" ref="igc:dataset-usage"/>
         <xs:element minOccurs="0" ref="igc:ordering-instructions"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:comment"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="igc:conformity"/>
+        <xs:element maxOccurs="unbounded" ref="igc:conformity"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -856,7 +858,7 @@
     Fachlicher Name: Herstellungszweck, Erl㴴erung zu den rechtlichen Grundlagen
     Tabelle.Feld   : T01_object.info_note
   -->
-  <xs:element name="dataset-intensions" type="xs:string"/>
+  <xs:element name="dataset-intentions" type="xs:string"/>
   <!--
     Fachlicher Name: Objekt Zugangs- und Nutzungsbeschraenkung (INSPIRE)
     Tabelle.Feld   : object_access
@@ -1038,7 +1040,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="igc:vertical-extent-minimum"/>
-        <xs:element ref="igc:vertical-extent-maximum"/>
+        <xs:element minOccurs="0" ref="igc:vertical-extent-maximum"/>
         <xs:element ref="igc:vertical-extent-unit"/>
         <xs:element ref="igc:vertical-extent-vdatum"/>
       </xs:sequence>
@@ -1368,7 +1370,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="igc:object-link-type"/>
-        <xs:element ref="igc:object-link-description"/>
+        <xs:element minOccurs="0" ref="igc:object-link-description"/>
         <xs:element ref="igc:object-identifier"/>
       </xs:sequence>
     </xs:complexType>
@@ -1706,7 +1708,8 @@
     Attribut-Gruppe: list-id= entry-id=
   -->
   <xs:attributeGroup name="attlist.igc.list-entry-ids">
-    <xs:attribute name="list-id" use="required"/>
+    <!-- list-id nur wenn kein freier Eintrag -->
+    <xs:attribute name="list-id"/>
     <xs:attribute name="entry-id" use="required"/>
   </xs:attributeGroup>
 </xs:schema>

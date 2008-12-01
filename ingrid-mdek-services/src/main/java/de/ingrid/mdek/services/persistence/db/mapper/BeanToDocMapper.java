@@ -260,7 +260,7 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.METADATA_LANGUAGE, o.getMetadataLanguageCode());
 			objectDoc.put(MdekKeys.DATA_LANGUAGE, o.getDataLanguageCode());
 			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
-			objectDoc.put(MdekKeys.DATASET_INTENSIONS, o.getInfoNote());
+			objectDoc.put(MdekKeys.DATASET_INTENTIONS, o.getInfoNote());
 			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
 
 			objectDoc.put(MdekKeys.ORDERING_INSTRUCTIONS, o.getOrderingInstructions());

@@ -92,7 +92,7 @@
 			<xs:element name="metadata-language" type="xs:string"/>
 			<xs:element name="data-language" type="xs:string"/>
 			<xs:element name="publication-condition" type="xs:integer"/>
-			<xs:element name="dataset-intensions" type="xs:string"/>
+			<xs:element name="dataset-intentions" type="xs:string"/>
 			<xs:element name="dataset-usage" type="xs:string"/>
 			
 			<xs:element name="ordering-instructions" type="xs:string"/>

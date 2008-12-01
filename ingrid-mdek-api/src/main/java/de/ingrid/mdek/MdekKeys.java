@@ -415,7 +415,7 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String PUBLICATION_CONDITION = "publication-condition";
     /** Value: String */
-    public final static String DATASET_INTENSIONS = "dataset-intensions";
+    public final static String DATASET_INTENTIONS = "dataset-intentions";
     /** Value: String */
     public final static String DATASET_USAGE = "dataset-usage";
     /** Value: String */
