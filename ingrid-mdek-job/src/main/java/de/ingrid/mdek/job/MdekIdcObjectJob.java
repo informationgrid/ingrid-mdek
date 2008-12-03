@@ -418,7 +418,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
@@ -466,7 +466,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
@@ -512,7 +512,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
@@ -560,7 +560,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			String uuid = (String) oPartDocIn.get(MdekKeys.UUID);
 			IdcEntityVersion whichEntityVersion = 
@@ -633,7 +633,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_PUBLISH, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.PUBLISH, 0, 1, false));
 
 			Boolean refetchAfterStore = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 			Boolean forcePubCondition = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
@@ -684,7 +684,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.DELETE, 0, 1, false));
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
@@ -721,7 +721,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.DELETE, 0, 1, false));
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
@@ -752,7 +752,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_MOVE, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JobType.MOVE, 0, 1, false));
 
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
@@ -789,7 +789,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_CHECK, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.CHECK, 0, 1, false));
 
 			String rootUuid = (String) params.get(MdekKeys.UUID);
 
@@ -856,7 +856,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JobType.COPY, 0, 1, false));
 
 			daoObjectNode.beginTransaction();
 
@@ -943,7 +943,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		if (copySubtree) {
 			// total num to copy: root + sub objects
 			totalNumToCopy = 1 + daoObjectNode.countSubObjects(sourceNode.getObjUuid()) + 1;
-			updateRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_COPY, 0, totalNumToCopy, false));				
+			updateRunningJob(userUuid, createRunningJobDescription(JobType.COPY, 0, totalNumToCopy, false));				
 		}
 
 		// check whether we copy to subnode
@@ -1013,7 +1013,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// update our job information ! may be polled from client !
 			// NOTICE: also checks whether job was canceled !
 			updateRunningJob(userUuid, createRunningJobDescription(
-				JOB_DESCR_COPY, numberOfCopiedObj, totalNumToCopy, false));
+					JobType.COPY, numberOfCopiedObj, totalNumToCopy, false));
 
 			// copy subtree ? only if not already a copied node !
 			if (copySubtree) {

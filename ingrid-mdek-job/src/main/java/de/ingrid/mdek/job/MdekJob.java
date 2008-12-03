@@ -23,16 +23,6 @@ public abstract class MdekJob implements IJob {
 
 	protected MdekJobHandler jobHandler;
 
-	// Descriptions of running methods when setting up JobDescription to track ! 
-	protected String JOB_DESCR_READ = "READ";
-	protected String JOB_DESCR_STORE = "STORE";
-	protected String JOB_DESCR_PUBLISH = "PUBLISH";
-	protected String JOB_DESCR_COPY = "COPY";
-	protected String JOB_DESCR_MOVE = "MOVE";
-	protected String JOB_DESCR_DELETE = "DELETE";
-	protected String JOB_DESCR_CHECK = "CHECK";
-	protected String JOB_DESCR_EXPORT = "EXPORT";
-
 	public MdekJob(Logger log) {
 		this.log = log;
 
@@ -67,11 +57,11 @@ public abstract class MdekJob implements IJob {
 	 * @param canceledByUser was this job canceled by user ? 
 	 * @return document describing current state of job
 	 */
-	protected IngridDocument createRunningJobDescription(String jobDescr,
+	protected IngridDocument createRunningJobDescription(JobType jobType,
 			Integer numProcessed,
 			Integer numTotal,
 			boolean canceledByUser) {
-		return jobHandler.createRunningJobDescription(jobDescr,
+		return jobHandler.createRunningJobDescription(jobType,
 				numProcessed,
 				numTotal,
 				canceledByUser);

@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.MdekJob;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -73,12 +74,12 @@ public class MdekJobHandler {
 		return result;
 	}
 
-	public IngridDocument createRunningJobDescription(String jobDescr,
+	public IngridDocument createRunningJobDescription(JobType jobType,
 			Integer numProcessed,
 			Integer numTotal,
 			boolean canceledByUser) {
 		IngridDocument runningJob = new IngridDocument();
-		runningJob.put(MdekKeys.RUNNINGJOB_DESCRIPTION, jobDescr);
+		runningJob.put(MdekKeys.RUNNINGJOB_DESCRIPTION, jobType.getDbValue());
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
 		runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, canceledByUser);

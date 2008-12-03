@@ -191,7 +191,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
 
@@ -249,7 +249,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userUuid, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userUuid, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
 
@@ -316,7 +316,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.DELETE, 0, 1, false));
 
 			daoIdcGroup.beginTransaction();
 
@@ -480,7 +480,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			daoIdcUser.beginTransaction();
 
@@ -548,7 +548,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			daoIdcUser.beginTransaction();
 
@@ -650,7 +650,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_DELETE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.DELETE, 0, 1, false));
 
 			daoIdcUser.beginTransaction();
 			Long inUserId = (Long) uDocIn.get(MdekKeysSecurity.IDC_USER_ID);

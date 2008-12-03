@@ -71,7 +71,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			genericDao.beginTransaction();
 
@@ -177,7 +177,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_STORE, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			Boolean refetchAfterStore = (Boolean) docIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 			List<IngridDocument> sysGuis = (List<IngridDocument>) docIn.get(MdekKeys.SYS_GUI_LIST);
@@ -228,7 +228,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_EXPORT, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 1, false));
 
 			String rootUuid = (String) docIn.get(MdekKeys.UUID);
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
@@ -260,7 +260,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_EXPORT, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 1, false));
 
 			String exportCriteria = (String) docIn.get(MdekKeys.EXPORT_CRITERIA);
 
@@ -295,7 +295,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JOB_DESCR_EXPORT, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 1, false));
 
 			String rootUuid = (String) docIn.get(MdekKeys.UUID);
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
