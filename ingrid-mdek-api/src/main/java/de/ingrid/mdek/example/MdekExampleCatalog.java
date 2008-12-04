@@ -263,7 +263,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("EXPORT");
 		System.out.println("=========================");
 
-		System.out.println("\n----- fetch object EXPORT_ENTITY data -----");
+		System.out.println("\n----- fetch object EXPORT_ENTITY quantity -----");
 		supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		System.out.println("\n----- export object branch ONLY TOP NODE -----");
@@ -278,7 +278,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.exportObjects("test");
 		supertool.exportObjects("TEST");
 
-		System.out.println("\n----- fetch address EXPORT_ENTITY data -----");
+		System.out.println("\n----- fetch address EXPORT_ENTITY quantity -----");
 		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		System.out.println("\n----- export address branch ONLY TOP NODE -----");

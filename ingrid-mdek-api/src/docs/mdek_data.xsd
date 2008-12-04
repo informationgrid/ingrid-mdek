@@ -5,7 +5,7 @@
 			<!-- user-id specifies current user for tracking running jobs -->
 			<xs:element name="user-id" type="xs:string"/>
 			<xs:element ref="uuid"/>
-			<xs:element name="parent-uuid" type="UUID"/>
+			<xs:element ref="parent-uuid"/>
 			<xs:element name="from-uuid" type="UUID"/>
 			<xs:element name="to-uuid" type="UUID"/>
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
@@ -75,6 +75,7 @@
 	<xs:complexType name="OBJECT_MAP">
 		<xs:all>
 			<!--xs:element ref="id"/-->
+			<xs:element ref="parent-uuid"/>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
@@ -117,7 +118,7 @@
 			
 			<xs:element name="linkages" type="LINKAGE_LIST"/>
 			<xs:element name="dataset-references" type="DATASET_REFERENCE_LIST"/>
-			<xs:element name="exports" type="EXPORT_LIST"/>
+			<xs:element name="export-criteria" type="EXPORT_CRITERIA_LIST"/>
 			<xs:element name="legislations" type="LEGISLATION_LIST"/>
 			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
 			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
@@ -150,6 +151,7 @@
 	<xs:complexType name="ADDRESS_MAP">
 		<xs:all>
 			<!--xs:element ref="id"/-->
+			<xs:element ref="parent-uuid"/>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
@@ -196,6 +198,7 @@
 	</xs:complexType>
 
 	<xs:element name="id" type="xs:long"/>
+	<xs:element name="parent-uuid" type="UUID"/>
 	<xs:element name="uuid" type="UUID"/>
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
@@ -344,8 +347,8 @@
 			<xs:element ref="uuid"/>
 			<!-- export only root, no subnodes ? -->
 			<xs:element name="requestinfo_exportOnlyRoot" type="xs:boolean"/>
-			<!-- export only objects marked with given criteria -->
-			<xs:element name="export-criteria" type="xs:string"/>
+			<!-- export only objects marked with given criterion -->
+			<xs:element name="export-criterion-value" type="xs:string"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">
@@ -1009,15 +1012,15 @@
 			<xs:element ref="date-of-last-modification"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="EXPORT_LIST">
+	<xs:complexType name="EXPORT_CRITERIA_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="EXPORT_MAP" type="EXPORT_MAP"/>
+			<xs:element name="EXPORT_CRITERION_MAP" type="EXPORT_CRITERION_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="EXPORT_MAP">
+	<xs:complexType name="EXPORT_CRITERION_MAP">
 		<xs:sequence>
-			<xs:element name="export-value" type="xs:string"/>
-			<xs:element name="export-key" type="xs:integer"/>
+			<xs:element name="export-criterion-value" type="xs:string"/>
+			<xs:element name="export-criterion-key" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="LEGISLATION_LIST">

@@ -1,4 +1,4 @@
-package de.ingrid.mdek.job.tools;
+package de.ingrid.mdek.services.utils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,7 +10,6 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.job.MdekJob;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
@@ -42,7 +41,7 @@ public class MdekJobHandler {
 	public IngridDocument cancelRunningJob(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
 
-		String userId = MdekJob.getCurrentUserUuid(params);
+		String userId = MdekJobHandler.getCurrentUserUuid(params);
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("userId:" + userId);
@@ -58,7 +57,7 @@ public class MdekJobHandler {
 	}
 
 	public IngridDocument getRunningJobInfo(IngridDocument params) {
-		String userId = MdekJob.getCurrentUserUuid(params);
+		String userId = MdekJobHandler.getCurrentUserUuid(params);
 		return getRunningJobInfo(userId);
 	}
 
@@ -74,6 +73,14 @@ public class MdekJobHandler {
 		return result;
 	}
 
+	/**
+	 * Create a document describing a job.
+	 * @param JobType what type of Job/Operation
+	 * @param numProcessed number of already processed entities
+	 * @param numTotal total number of entities to be processed 
+	 * @param canceledByUser was this job canceled by user ? 
+	 * @return document describing current state of job
+	 */
 	public IngridDocument createRunningJobDescription(JobType jobType,
 			Integer numProcessed,
 			Integer numTotal,
@@ -87,6 +94,7 @@ public class MdekJobHandler {
 		return runningJob;
 	}
 
+	/** THROWS EXCEPTION IF USER ALREADY HAS A RUNNING JOB */
 	public void addRunningJob(String userId, IngridDocument jobDescr) {
 		// first check whether there is already a running job
 		IngridDocument runningJob = runningJobsMap.get(userId);
@@ -101,6 +109,8 @@ public class MdekJobHandler {
 		runningJobsMap.put(userId, jobDescr);
 	}
 
+	/** NO checks whether jobs are already running !<br>
+	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
 	public void updateRunningJob(String userId, IngridDocument jobDescr) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("userId:" + userId + ", jobDescr: " + jobDescr);
@@ -130,5 +140,20 @@ public class MdekJobHandler {
 			}
 			throw new MdekException(new MdekError(MdekErrorType.USER_CANCELED_JOB));
 		}
+	}
+
+	/**
+	 * Return the AddressUuid of the user set in passed doc.
+	 * THROWS EXCEPTION IF USER NOT SET in passed doc.
+	 * @param inDoc
+	 * @return
+	 */
+	public static String getCurrentUserUuid(IngridDocument inDoc) {
+		String userId = inDoc.getString(MdekKeys.USER_ID);
+		if (userId == null) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
+		}
+		
+		return userId;
 	}
 }

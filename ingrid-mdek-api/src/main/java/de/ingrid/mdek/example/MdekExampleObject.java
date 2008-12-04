@@ -1069,13 +1069,13 @@ class MdekExampleObjectThread extends Thread {
 		}
 
 		// add entry to EXPORTS
-		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.EXPORTS);
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.EXPORT_CRITERIA);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
 		// check EXPORT_KEY -> EXPORT_VALUE is stored via syslist
-		testDoc.put(MdekKeys.EXPORT_KEY, 1);
+		testDoc.put(MdekKeys.EXPORT_CRITERION_KEY, 1);
 		docList.add(testDoc);
-		oDocIn.put(MdekKeys.EXPORTS, docList);
+		oDocIn.put(MdekKeys.EXPORT_CRITERIA, docList);
 
 		// add entry to LEGISLATIONS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.LEGISLATIONS);
@@ -1403,10 +1403,10 @@ class MdekExampleObjectThread extends Thread {
 			}
 
 			// EXPORTS wieder wie vorher !
-			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.EXPORTS);
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.EXPORT_CRITERIA);
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
-				oRefetchedDoc.put(MdekKeys.EXPORTS, docList);				
+				oRefetchedDoc.put(MdekKeys.EXPORT_CRITERIA, docList);				
 			}
 
 			// LEGISLATIONS wieder wie vorher !

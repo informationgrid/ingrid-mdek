@@ -90,9 +90,6 @@ public class MdekKeys {
     /** Export only the root node of a branch ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
-    /** Criteria determining objects to export<br>
-     * Value: String */
-    public final static String EXPORT_CRITERIA = "export-criteria";
 
 
     // SEARCH / QUERY (Recherche)
@@ -432,13 +429,15 @@ public class MdekKeys {
     public final static String DATASET_REFERENCE_TYPE = "dataset-reference-type";
 
     // EXPORTS
-    /** Value: List of IngridDocs */
-    public final static String EXPORTS = "exports";
-
-    /** Value: Integer  */
-    public final static String EXPORT_KEY = "export-key";
-    /** Value: Integer  */
-    public final static String EXPORT_VALUE = "export-value";
+    /** Criteria determining objects to export<br>
+     * Value: List of IngridDocs (export criterion) */
+    public final static String EXPORT_CRITERIA = "export-criteria";
+    /** Criterion key determining objects to export<br>
+     * Value: Integer  */
+    public final static String EXPORT_CRITERION_KEY = "export-criterion-key";
+    /** Criterion value determining objects to export<br>
+     * Value: Integer  */
+    public final static String EXPORT_CRITERION_VALUE = "export-criterion-value";
     
     // TECHNICAL DOMAIN MAP
     /** Value: IngridDocument encapsulating all MAP data */

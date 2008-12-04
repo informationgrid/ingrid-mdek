@@ -39,6 +39,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefValue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialReference.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysGui.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SysJobInfo.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysList.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0110AvailFormat.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0112MediaOption.hbm.xml</value>

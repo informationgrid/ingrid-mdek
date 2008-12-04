@@ -7,7 +7,6 @@ public interface IJob {
 
 	/** Type of Job Operations. Used for tracking jobs. */
 	public enum JobType implements IMdekEnum {
-		READ("READ"),
 		STORE("STORE"),
 		PUBLISH("PUBLISH"),
 		COPY("COPY"),
@@ -27,5 +26,4 @@ public interface IJob {
 	}
 
 	IngridDocument getResults();
-
 }

@@ -162,6 +162,9 @@ public class BeanToDocMapper implements IMapper {
 		boolean isPublished = (oNIn.getObjIdPublished() == null) ? false : true;
 		objectDoc.putBoolean(MdekKeys.IS_PUBLISHED, isPublished);
 
+		// for testing. Needed in Exporter/Importer ?
+		objectDoc.put(MdekKeys.PARENT_UUID, oNIn.getFkObjUuid());
+
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY) {
 			// child info
@@ -185,6 +188,9 @@ public class BeanToDocMapper implements IMapper {
 		// published info
 		boolean isPublished = (aNIn.getAddrIdPublished() == null) ? false : true;
 		addressDoc.putBoolean(MdekKeys.IS_PUBLISHED, isPublished);
+
+		// for testing. Needed in Exporter/Importer ?
+		addressDoc.put(MdekKeys.PARENT_UUID, aNIn.getFkAddrUuid());
 
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.COPY_ENTITY) {
@@ -876,7 +882,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT014InfoImpart(ref, refDoc);
 			refList.add(refDoc);
 		}
-		objectDoc.put(MdekKeys.EXPORTS, refList);
+		objectDoc.put(MdekKeys.EXPORT_CRITERIA, refList);
 		
 		return objectDoc;
 	}
@@ -886,8 +892,8 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
-		refDoc.put(MdekKeys.EXPORT_KEY, ref.getImpartKey());
-		refDoc.put(MdekKeys.EXPORT_VALUE, ref.getImpartValue());
+		refDoc.put(MdekKeys.EXPORT_CRITERION_KEY, ref.getImpartKey());
+		refDoc.put(MdekKeys.EXPORT_CRITERION_VALUE, ref.getImpartValue());
 
 		return refDoc;
 	}

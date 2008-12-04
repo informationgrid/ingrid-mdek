@@ -21,7 +21,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcEntityComparer {
 
-	private static final Logger log = Logger.getLogger(MdekJobHandler.class);
+	private static final Logger log = Logger.getLogger(MdekIdcEntityComparer.class);
 
 	public static boolean compareObjectMaps(IngridDocument doc1, IngridDocument doc2, String[] ignoredKeysArray) {
 		List<String> ignoredKeys;

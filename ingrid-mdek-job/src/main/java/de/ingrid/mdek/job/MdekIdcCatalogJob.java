@@ -6,6 +6,7 @@ import java.util.List;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -228,14 +229,20 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 0, false));
 
 			String rootUuid = (String) docIn.get(MdekKeys.UUID);
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
 
 			genericDao.beginTransaction();
 
+			// initialize export info in database
+			catalogService.startExportInfo(IdcEntityType.OBJECT, 0, 0, userId);
+
 			// TODO implement exportObjectBranch
+
+			// finish export info in database
+			catalogService.endExportInfo(userId);
 
 			genericDao.commitTransaction();
 
@@ -260,15 +267,25 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 0, false));
 
-			String exportCriteria = (String) docIn.get(MdekKeys.EXPORT_CRITERIA);
+			String exportCriteria = (String) docIn.get(MdekKeys.EXPORT_CRITERION_VALUE);
 
 			genericDao.beginTransaction();
 
+			// find objects to export 
 			List<String> expUuids = daoObjectNode.getExportObjectsUuids(exportCriteria);
+			int numToExport = expUuids.size();
+			
+			if (numToExport > 0) {
+				// initialize export info in database
+				catalogService.startExportInfo(IdcEntityType.OBJECT, 0, numToExport, userId);
 
-			// TODO implement exportObjects
+				// TODO implement exportObjects
+
+				// finish export info in database
+				catalogService.endExportInfo(userId);
+			}
 
 			genericDao.commitTransaction();
 
@@ -295,7 +312,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean removeRunningJob = true;
 		try {
 			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 1, false));
+			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 0, false));
 
 			String rootUuid = (String) docIn.get(MdekKeys.UUID);
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);

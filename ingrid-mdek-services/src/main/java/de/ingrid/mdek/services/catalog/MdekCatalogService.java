@@ -7,26 +7,34 @@ import java.util.Map;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
+import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
+import de.ingrid.mdek.services.utils.MdekJobHandler;
 
 /**
  * Encapsulates access to catalog data (syslists etc.).
  */
 public class MdekCatalogService {
 
+	private static MdekCatalogService myInstance;
+
 	private IGenericDao<IEntity> daoT03Catalogue;
 	private ISysListDao daoSysList;
 	private ISysGuiDao daoSysGui;
+	private ISysJobInfoDao daoSysJobInfo;
 
-	private static MdekCatalogService myInstance;
+	protected MdekJobHandler jobHandler;
 
 	/** Get The Singleton */
 	public static synchronized MdekCatalogService getInstance(DaoFactory daoFactory) {
@@ -40,6 +48,9 @@ public class MdekCatalogService {
 		daoT03Catalogue = daoFactory.getDao(T03Catalogue.class);
 		daoSysList = daoFactory.getSysListDao();
 		daoSysGui = daoFactory.getSysGuiDao();
+		daoSysJobInfo = daoFactory.getSysJobInfoDao();
+
+		jobHandler = MdekJobHandler.getInstance();
 	}
 
 	/** Get catalog. NOTICE: transaction must be active when called the first time ! */
@@ -92,5 +103,27 @@ public class MdekCatalogService {
 		List<SysGui> list = daoSysGui.getSysGuis(guiIds);
 		
 		return list;
+	}
+
+	/** Starts "logging" of Export job information IN DATABASE */
+	public void startExportInfo(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
+		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(JobType.EXPORT, userUuid);
+		if (jobInfo == null) {
+			jobInfo = new SysJobInfo();
+		}
+	}
+
+	/** Updates info about Export job IN MEMORY and IN DATABASE */
+	public void updateExportInfo(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
+		// first update in memory job state
+		jobHandler.updateRunningJob(userUuid, 
+				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
+
+		// TODO: update database
+	}
+
+	/** Ends "logging" of Export job information IN DATABASE */
+	public void endExportInfo(String userUuid) {
+		// TODO: update database
 	}
 }

@@ -982,15 +982,15 @@ public class DocToBeanMapper implements IMapper {
 			int line) 
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setImpartValue(refDoc.getString(MdekKeys.EXPORT_VALUE));
-		ref.setImpartKey((Integer)refDoc.get(MdekKeys.EXPORT_KEY));
+		ref.setImpartValue(refDoc.getString(MdekKeys.EXPORT_CRITERION_VALUE));
+		ref.setImpartKey((Integer)refDoc.get(MdekKeys.EXPORT_CRITERION_KEY));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}
 	private void updateT014InfoImparts(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.EXPORTS);
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.EXPORT_CRITERIA);
 		if (refDocs == null) {
 			refDocs = new ArrayList<IngridDocument>(0);
 		}

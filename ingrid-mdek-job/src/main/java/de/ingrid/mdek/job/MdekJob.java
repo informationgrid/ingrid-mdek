@@ -2,10 +2,7 @@ package de.ingrid.mdek.job;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekError;
-import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.job.tools.MdekJobHandler;
+import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -51,7 +48,7 @@ public abstract class MdekJob implements IJob {
 
 	/**
 	 * Create a document describing a job.
-	 * @param jobDescr plain text description of job, e.g. "COPY" ...
+	 * @param JobType what type of Job/Operation
 	 * @param numProcessed number of already processed entities
 	 * @param numTotal total number of entities to be processed 
 	 * @param canceledByUser was this job canceled by user ? 
@@ -89,11 +86,6 @@ public abstract class MdekJob implements IJob {
 	 * @return
 	 */
 	public static String getCurrentUserUuid(IngridDocument inDoc) {
-		String userId = inDoc.getString(MdekKeys.USER_ID);
-		if (userId == null) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
-		}
-		
-		return userId;
+		return MdekJobHandler.getCurrentUserUuid(inDoc);
 	}
 }

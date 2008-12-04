@@ -749,7 +749,7 @@ public class MdekExampleSupertool {
 				System.out.println("   " + doc);								
 			}			
 		}
-		List<String> strList = (List<String>) o.get(MdekKeys.EXPORTS);
+		List<String> strList = (List<String>) o.get(MdekKeys.EXPORT_CRITERIA);
 		if (strList != null && strList.size() > 0) {
 			System.out.println("  Exports: " + strList.size() + " entries");
 			System.out.println("   " + strList);
