@@ -2,6 +2,7 @@ package de.ingrid.mdek.job;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -20,10 +21,10 @@ public abstract class MdekJob implements IJob {
 
 	protected MdekJobHandler jobHandler;
 
-	public MdekJob(Logger log) {
+	public MdekJob(Logger log, DaoFactory daoFactory) {
 		this.log = log;
 
-		jobHandler = MdekJobHandler.getInstance();
+		jobHandler = MdekJobHandler.getInstance(daoFactory);
 	}
 
 	/**

@@ -91,6 +91,20 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
 
+    // RESULT
+    /** Value: String */
+    public final static String EXPORT_START_DATE = "export-start-date";
+    /** Value: String */
+    public final static String EXPORT_END_DATE = "export-end-date";
+    /** Value: Integer */
+    public final static String EXPORT_NUM_OBJECTS = "export-num-objects";
+    /** Value: Integer */
+    public final static String EXPORT_TOTAL_NUM_OBJECTS = "export-total-num-objects";
+    /** Value: Integer */
+    public final static String EXPORT_NUM_ADDRESSES = "export-num-addresses";
+    /** Value: Integer */
+    public final static String EXPORT_TOTAL_NUM_ADDRESSES = "export-total-num-addresses";
+
 
     // SEARCH / QUERY (Recherche)
     // --------------------------
@@ -428,7 +442,7 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String DATASET_REFERENCE_TYPE = "dataset-reference-type";
 
-    // EXPORTS
+    // EXPORT_CRITERIA
     /** Criteria determining objects to export<br>
      * Value: List of IngridDocs (export criterion) */
     public final static String EXPORT_CRITERIA = "export-criteria";

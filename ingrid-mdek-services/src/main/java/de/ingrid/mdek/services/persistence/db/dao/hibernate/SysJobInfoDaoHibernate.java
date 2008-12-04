@@ -8,7 +8,6 @@ import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
 
 /**
  * Hibernate-specific implementation of the <tt>ISysJobInfoDao</tt>
@@ -17,7 +16,7 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
  * @author Martin
  */
 public class SysJobInfoDaoHibernate
-	extends GenericHibernateDao<SysList>
+	extends GenericHibernateDao<SysJobInfo>
 	implements  ISysJobInfoDao {
 
     public SysJobInfoDaoHibernate(SessionFactory factory) {

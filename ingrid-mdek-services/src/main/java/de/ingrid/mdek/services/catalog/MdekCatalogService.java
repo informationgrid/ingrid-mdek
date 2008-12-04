@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -14,10 +15,8 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
-import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
@@ -32,7 +31,6 @@ public class MdekCatalogService {
 	private IGenericDao<IEntity> daoT03Catalogue;
 	private ISysListDao daoSysList;
 	private ISysGuiDao daoSysGui;
-	private ISysJobInfoDao daoSysJobInfo;
 
 	protected MdekJobHandler jobHandler;
 
@@ -48,9 +46,8 @@ public class MdekCatalogService {
 		daoT03Catalogue = daoFactory.getDao(T03Catalogue.class);
 		daoSysList = daoFactory.getSysListDao();
 		daoSysGui = daoFactory.getSysGuiDao();
-		daoSysJobInfo = daoFactory.getSysJobInfoDao();
 
-		jobHandler = MdekJobHandler.getInstance();
+		jobHandler = MdekJobHandler.getInstance(daoFactory);
 	}
 
 	/** Get catalog. NOTICE: transaction must be active when called the first time ! */
@@ -106,24 +103,40 @@ public class MdekCatalogService {
 	}
 
 	/** Starts "logging" of Export job information IN DATABASE */
-	public void startExportInfo(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
-		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(JobType.EXPORT, userUuid);
-		if (jobInfo == null) {
-			jobInfo = new SysJobInfo();
-		}
+	public void persistExportInfoStart(IdcEntityType whichType, int totalNum, String userUuid) {
+		// set up export details
+        HashMap details = setUpExportDetails(whichType, 0, totalNum);
+        // and store
+		jobHandler.persistJobInfoStart(JobType.EXPORT, details, userUuid);
 	}
 
-	/** Updates info about Export job IN MEMORY and IN DATABASE */
-	public void updateExportInfo(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
+	/** Set up details of export to be stored in database. */
+	private HashMap setUpExportDetails(IdcEntityType whichType, int num, int totalNum) {
+        HashMap details = new HashMap();
+        if (whichType == IdcEntityType.OBJECT) {
+            details.put(MdekKeys.EXPORT_TOTAL_NUM_OBJECTS, totalNum);        	
+            details.put(MdekKeys.EXPORT_NUM_OBJECTS, num);
+        } else if (whichType == IdcEntityType.ADDRESS) {
+            details.put(MdekKeys.EXPORT_TOTAL_NUM_ADDRESSES, totalNum);        	
+            details.put(MdekKeys.EXPORT_NUM_ADDRESSES, num);
+        }
+		
+        return details;
+	}
+
+	/** Updates info of Export job IN MEMORY and IN DATABASE */
+	public void persistExportInfoUpdate(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid, 
 				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
 
-		// TODO: update database
+		// then update job info in database
+        HashMap details = setUpExportDetails(whichType, numExported, totalNum);
+		jobHandler.persistJobInfoUpdate(JobType.EXPORT, details, userUuid);
 	}
 
 	/** Ends "logging" of Export job information IN DATABASE */
-	public void endExportInfo(String userUuid) {
-		// TODO: update database
+	public void persistExportInfoEnd(String userUuid) {
+		jobHandler.persistJobInfoEnd(JobType.EXPORT, userUuid);
 	}
 }

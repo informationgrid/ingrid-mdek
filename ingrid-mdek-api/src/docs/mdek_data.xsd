@@ -51,6 +51,7 @@
 			<xs:element name="RESULT_VERSION_MAP" type="RESULT_VERSION_MAP"/>
 			<xs:element name="RESULT_SECURITY_MAP" type="RESULT_SECURITY_MAP"/>
 			<xs:element name="RESULT_STATISTICS_MAP" type="RESULT_STATISTICS_MAP"/>
+			<xs:element name="RESULT_EXPORT_MAP" type="RESULT_EXPORT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -468,6 +469,20 @@
 			<xs:element name="term-name" type="xs:string"/>
 			<xs:element name="total-num" type="xs:long"/>
 		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RESULT_EXPORT_MAP">
+		<xs:choice>
+			<xs:element name="export-start-date" type="xs:string"/>
+			<xs:element name="export-end-date" type="xs:string"/>
+			<!-- e.g. current number of exported objects at runtime -->
+			<xs:element name="export-num-objects" type="xs:integer"/>
+			<!-- total number of objects to export -->
+			<xs:element name="export-total-num-objects" type="xs:integer"/>
+			<!-- e.g. current number of exported addresses at runtime -->
+			<xs:element name="export-num-addresses" type="xs:integer"/>
+			<!-- total number of addresses to export -->
+			<xs:element name="export-total-num-addresses" type="xs:integer"/>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="ENTITY_PERMISSION_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">

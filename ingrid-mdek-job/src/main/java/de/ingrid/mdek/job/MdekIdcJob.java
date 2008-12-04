@@ -26,7 +26,7 @@ public abstract class MdekIdcJob extends MdekJob {
 	protected DocToBeanMapper docToBeanMapper;
 
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
-		super(log);
+		super(log, daoFactory);
 
 		errorHandler = MdekErrorHandler.getInstance();
 

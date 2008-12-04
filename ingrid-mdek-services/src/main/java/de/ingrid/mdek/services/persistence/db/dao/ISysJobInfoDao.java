@@ -3,7 +3,6 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
 
 
 
@@ -13,7 +12,7 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
  * @author Martin
  */
 public interface ISysJobInfoDao
-	extends IGenericDao<SysList> {
+	extends IGenericDao<SysJobInfo> {
 
 	/**
 	 * Get info about the passed Job/Job-Operation executed by the passed user.

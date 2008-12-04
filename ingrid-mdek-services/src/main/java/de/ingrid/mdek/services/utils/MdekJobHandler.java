@@ -1,16 +1,23 @@
 package de.ingrid.mdek.services.utils;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.thoughtworks.xstream.XStream;
+
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
+import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -23,18 +30,31 @@ public class MdekJobHandler {
 
 	private Map<String, IngridDocument> runningJobsMap;
 
+	private ISysJobInfoDao daoSysJobInfo;
+
 	private static MdekJobHandler myInstance;
 
+    private XStream xstream;
+
 	/** Get The Singleton */
-	public static synchronized MdekJobHandler getInstance() {
+	public static synchronized MdekJobHandler getInstance(DaoFactory daoFactory) {
 		if (myInstance == null) {
-	        myInstance = new MdekJobHandler();
+	        myInstance = new MdekJobHandler(daoFactory);
 	      }
 		return myInstance;
 	}
 
-	private MdekJobHandler() {
+	private MdekJobHandler(DaoFactory daoFactory) {
 		runningJobsMap = Collections.synchronizedMap(new HashMap<String, IngridDocument>());
+
+		daoSysJobInfo = daoFactory.getSysJobInfoDao();
+		
+        try {
+            xstream = new XStream();
+        } catch (Throwable ex) {
+        	LOG.error("Initial Xstream creation failed.", ex);
+            throw new ExceptionInInitializerError(ex);
+        }
 	}
 
 	/** Called from Client */
@@ -141,6 +161,38 @@ public class MdekJobHandler {
 			throw new MdekException(new MdekError(MdekErrorType.USER_CANCELED_JOB));
 		}
 	}
+
+	/** Starts "logging" of job information IN DATABASE */
+	public void persistJobInfoStart(JobType whichJob, Object jobDetails, String userUuid) {
+		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(whichJob, userUuid);
+		if (jobInfo == null) {
+			jobInfo = new SysJobInfo();
+			jobInfo.setJobType(whichJob.getDbValue());
+			jobInfo.setUserUuid(userUuid);
+		}
+		jobInfo.setStartTime(MdekUtils.dateToTimestamp(new Date()));
+		jobInfo.setEndTime(null);
+		jobInfo.setJobDetails(xstream.toXML(jobDetails));
+		
+		daoSysJobInfo.makePersistent(jobInfo);
+	}
+
+	/** Updates job information IN DATABASE */
+	public void persistJobInfoUpdate(JobType whichJob, Object jobDetails, String userUuid) {
+		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(whichJob, userUuid);
+		jobInfo.setJobDetails(xstream.toXML(jobDetails));
+
+		daoSysJobInfo.makePersistent(jobInfo);
+	}
+
+	/** Ends "logging" of job information IN DATABASE */
+	public void persistJobInfoEnd(JobType whichJob, String userUuid) {
+		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(JobType.EXPORT, userUuid);
+		jobInfo.setEndTime(MdekUtils.dateToTimestamp(new Date()));
+		
+		daoSysJobInfo.makePersistent(jobInfo);
+	}
+
 
 	/**
 	 * Return the AddressUuid of the user set in passed doc.
