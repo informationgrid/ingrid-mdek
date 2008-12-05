@@ -103,7 +103,7 @@ public class MdekCatalogService {
 	}
 
 	/** Starts "logging" of Export job information IN DATABASE */
-	public void persistExportInfoStart(IdcEntityType whichType, int totalNum, String userUuid) {
+	public void startExportInfoDB(IdcEntityType whichType, int totalNum, String userUuid) {
 		// set up export details
         HashMap details = setUpExportDetails(whichType, 0, totalNum);
         // and store
@@ -125,7 +125,7 @@ public class MdekCatalogService {
 	}
 
 	/** Updates info of Export job IN MEMORY and IN DATABASE */
-	public void persistExportInfoUpdate(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
+	public void updateExportInfoDB(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid, 
 				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
@@ -136,7 +136,7 @@ public class MdekCatalogService {
 	}
 
 	/** Ends "logging" of Export job information IN DATABASE */
-	public void persistExportInfoEnd(String userUuid) {
+	public void endExportInfoDB(String userUuid) {
 		jobHandler.persistJobInfoEnd(JobType.EXPORT, userUuid);
 	}
 }

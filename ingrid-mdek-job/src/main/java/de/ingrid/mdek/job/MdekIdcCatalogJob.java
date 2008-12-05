@@ -237,15 +237,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 
 			// initialize export info in database
-			catalogService.persistExportInfoStart(IdcEntityType.OBJECT, 0, userId);
+			catalogService.startExportInfoDB(IdcEntityType.OBJECT, 0, userId);
 
 			// TODO implement exportObjectBranch
 
 			// test logging of current state
-			catalogService.persistExportInfoUpdate(IdcEntityType.OBJECT, 1, 1, userId);
+			catalogService.updateExportInfoDB(IdcEntityType.OBJECT, 1, 1, userId);
 
 			// finish export info in database
-			catalogService.persistExportInfoEnd(userId);
+			catalogService.endExportInfoDB(userId);
 
 			genericDao.commitTransaction();
 
@@ -282,12 +282,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			
 			if (numToExport > 0) {
 				// initialize export info in database
-				catalogService.persistExportInfoStart(IdcEntityType.OBJECT, numToExport, userId);
+				catalogService.startExportInfoDB(IdcEntityType.OBJECT, numToExport, userId);
 
 				// TODO implement exportObjects
 
 				// finish export info in database
-				catalogService.persistExportInfoEnd(userId);
+				catalogService.endExportInfoDB(userId);
 			}
 
 			genericDao.commitTransaction();
