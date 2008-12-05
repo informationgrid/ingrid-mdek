@@ -200,7 +200,7 @@
         <xs:element ref="field-name"/>
         <xs:element ref="field-value"/>
       </xs:sequence>
-      <xs:attributeGroup ref="attlist.igc.id"/>
+      <xs:attributeGroup ref="attlist.id"/>
     </xs:complexType>
   </xs:element>
   <!--
@@ -1576,7 +1576,8 @@
         <xs:element ref="field-name"/>
         <xs:element ref="field-length"/>
         <xs:element ref="field-type"/>
-        <xs:element minOccurs="0" ref="field-list"/>
+        <xs:element minOccurs="0" ref="field-list-type"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="field-list-items"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1596,28 +1597,28 @@
   -->
   <xs:element name="field-type" type="xs:string"/>
   <!--
-    Fachlicher Name: Zusatzfeld Auswahlliste
-    Tabelle   : t08_attr_list
-  -->
-  <xs:element name="field-list">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="field-list-type"/>
-        <xs:element maxOccurs="unbounded" ref="field-list-item"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <!--
     Fachlicher Name: Typ der Zusatzfeld Auswahlliste
     Tabelle.Feld   : t08_attr_list.type
   -->
   <xs:element name="field-list-type" type="xs:string"/>
   <!--
-    Fachlicher Name: Zusatzfeld Auswahllisten Item
-    Tabelle.Feld   : t08_attr_list.listitem_value
+    Fachlicher Name: Zusatzfeld Auswahlliste items
+    Tabelle   : t08_attr_list
     Tabelle.Feld   : t08_attr_list.lang_code
   -->
-  <xs:element name="field-list-item" type="language-code-string"/>
+  <xs:element name="field-list-items">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="field-list-item"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.language-code"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zusatzfeld Auswahllisten Item
+    Tabelle.Feld   : t08_attr_list.listitem_value
+  -->
+  <xs:element name="field-list-item" type="xs:string"/>
   <!--
     Fachlicher Name: IGC Boolean Repraesentation
   -->
@@ -1631,7 +1632,7 @@
     Datentyp: LEERES element mit id-Attribut (z.B. für class_id ...)
   -->
   <xs:complexType name="id">
-    <xs:attributeGroup ref="attlist.igc.id"/>
+    <xs:attributeGroup ref="attlist.id"/>
   </xs:complexType>
   <!--
     Datentyp: STRING element mit id-Attribut (z.B. für syslist id / value ...)
@@ -1639,7 +1640,7 @@
   <xs:complexType name="id-string">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attributeGroup ref="attlist.igc.id"/>
+        <xs:attributeGroup ref="attlist.id"/>
       </xs:extension>     
     </xs:simpleContent>
   </xs:complexType>
@@ -1666,7 +1667,7 @@
   <xs:complexType name="list-entry-ids-string">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attributeGroup ref="attlist.igc.list-entry-ids"/>
+        <xs:attributeGroup ref="attlist.list-entry-ids"/>
       </xs:extension>     
     </xs:simpleContent>
   </xs:complexType>
@@ -1674,40 +1675,30 @@
     Datentyp: LEERES element mit Iso-Code Attribut
   -->
   <xs:complexType name="iso-code">
-    <xs:attributeGroup ref="attlist.igc.iso-code"/>
-  </xs:complexType>
-  <!--
-    Datentyp: STRING element mit language-Code Attribut
-  -->
-  <xs:complexType name="language-code-string">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attributeGroup ref="attlist.igc.language-code"/>
-      </xs:extension>     
-    </xs:simpleContent>
+    <xs:attributeGroup ref="attlist.iso-code"/>
   </xs:complexType>
   <!--
     Attribut-Gruppe: language-code=
   -->
-  <xs:attributeGroup name="attlist.igc.language-code">
+  <xs:attributeGroup name="attlist.language-code">
     <xs:attribute name="language-code" use="required"/>
   </xs:attributeGroup>
   <!--
     Attribut-Gruppe: iso-code=
   -->
-  <xs:attributeGroup name="attlist.igc.iso-code">
+  <xs:attributeGroup name="attlist.iso-code">
     <xs:attribute name="iso-code" use="required"/>
   </xs:attributeGroup>
   <!--
     Attribut-Gruppe: id=
   -->
-  <xs:attributeGroup name="attlist.igc.id">
+  <xs:attributeGroup name="attlist.id">
     <xs:attribute name="id" use="required"/>
   </xs:attributeGroup>
   <!--
     Attribut-Gruppe: list-id= entry-id=
   -->
-  <xs:attributeGroup name="attlist.igc.list-entry-ids">
+  <xs:attributeGroup name="attlist.list-entry-ids">
     <!-- list-id nur wenn kein freier Eintrag -->
     <xs:attribute name="list-id"/>
     <xs:attribute name="entry-id" use="required"/>

@@ -73,7 +73,7 @@
                     </dataset-parameter>
                     <method>method0</method>
                 </dataset>-->
-                <service>
+<!--                <service>
                     <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
                     <service-classification id="id15">service-classification0</service-classification>
                     <service-type id="id17">service-type0</service-type>
@@ -101,7 +101,7 @@
                         </parameter-of-operation>
                         <depends-on>depends-on0</depends-on>
                     </service-operation>
-                </service>
+                </service>-->
 <!--                <document>
                     <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
                     <publisher>publisher0</publisher>
@@ -155,11 +155,11 @@
                     <feature-type>feature-type0</feature-type>
                     <datasource-identificator>datasource-identificator0</datasource-identificator>
                 </map>-->
-<!--                <project>
+                <project>
                     <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
                     <member-description>member-description0</member-description>
                     <leader-description>leader-description0</leader-description>
-                </project>-->
+                </project>
             </technical-domain>
             <additional-information>
                 <data-language iso-code="iso-code17"/>
@@ -205,14 +205,14 @@
                     <vertical-extent-vdatum id="id41"/>
                 </vertical-extent>
                 <geo-location>
-                        <controlled-location>
+<!--                        <controlled-location>
                             <location-name id="id43">location-name2</location-name>
                             <topic-type>topic-type1</topic-type>
                             <location-code>location-code1</location-code>
-                        </controlled-location>
-<!--                        <uncontrolled-location>
+                        </controlled-location>-->
+                        <uncontrolled-location>
                             <location-name id="id45">location-name3</location-name>
-                        </uncontrolled-location>-->
+                        </uncontrolled-location>
                     <bounding-coordinates>
                         <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
                         <east-bounding-coordinate>east-bounding-coordinate1</east-bounding-coordinate>
@@ -312,10 +312,10 @@
             <field-name>field-name1</field-name>
             <field-length>field-length0</field-length>
             <field-type>field-type0</field-type>
-            <field-list>
-                <field-list-type>field-list-type0</field-list-type>
-                <field-list-item language-code="language-code1">field-list-item0</field-list-item>
-            </field-list>
+            <field-list-type>field-list-type0</field-list-type>
+            <field-list-items language-code="language-code1">
+                <field-list-item>field-list-item0</field-list-item>
+            </field-list-items>
         </general-additional-field-definition>
     </data-model-extensions>
 </igc>
