@@ -107,10 +107,10 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument exportObjects(String plugId, String exportCriteria,
+	public IngridDocument exportObjects(String plugId, String exportCriterion,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.EXPORT_CRITERION_VALUE, exportCriteria);
+		jobParams.put(MdekKeys.EXPORT_CRITERION_VALUE, exportCriterion);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("exportObjects", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
@@ -124,6 +124,13 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT, exportOnlyRoot);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("exportAddressBranch", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getExportInfo(String plugId, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getExportInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 }

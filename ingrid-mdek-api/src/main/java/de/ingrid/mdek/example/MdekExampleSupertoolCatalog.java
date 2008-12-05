@@ -324,4 +324,28 @@ public class MdekExampleSupertoolCatalog {
 		
 		return result;
 	}
+
+	public IngridDocument getExportInfo() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getExportInfo ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getExportInfo(plugId, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
 }

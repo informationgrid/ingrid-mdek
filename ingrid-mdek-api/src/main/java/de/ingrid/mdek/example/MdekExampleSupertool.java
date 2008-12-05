@@ -130,6 +130,9 @@ public class MdekExampleSupertool {
 	public IngridDocument exportAddressBranch(String rootUuid, boolean exportOnlyRoot) {
 		return supertoolCatalog.exportAddressBranch(rootUuid, exportOnlyRoot);
 	}
+	public IngridDocument getExportInfo() {
+		return supertoolCatalog.getExportInfo();
+	}
 
 	// MdekExampleSupertoolSecurity FACADE !
 	// ----------------------------------

@@ -87,6 +87,6 @@ public abstract class MdekJob implements IJob {
 	 * @return
 	 */
 	public static String getCurrentUserUuid(IngridDocument inDoc) {
-		return MdekJobHandler.getCurrentUserUuid(inDoc);
+		return MdekJobHandler.getCurrentUserUuidFromDoc(inDoc);
 	}
 }

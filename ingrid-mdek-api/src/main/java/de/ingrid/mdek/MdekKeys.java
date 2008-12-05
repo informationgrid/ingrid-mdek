@@ -93,9 +93,9 @@ public class MdekKeys {
 
     // RESULT
     /** Value: String */
-    public final static String EXPORT_START_DATE = "export-start-date";
+    public final static String EXPORT_START_TIME = "export-start-time";
     /** Value: String */
-    public final static String EXPORT_END_DATE = "export-end-date";
+    public final static String EXPORT_END_TIME = "export-end-time";
     /** Value: Integer */
     public final static String EXPORT_NUM_OBJECTS = "export-num-objects";
     /** Value: Integer */

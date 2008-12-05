@@ -73,20 +73,20 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param rootUuid object uuid of branch to export (root of branch)
 	 * @param exportOnlyRoot export only the given node, NO sub nodes
 	 * @param userId calling user
-	 * @return response containing result: map containing xml data
+	 * @return response containing result: map containing xml data and export info
 	 */
 	IngridDocument exportObjectBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
 			String userId);
 
 	/**
-	 * Export all objects marked with the given criteria.
+	 * Export all objects marked with the given criterion.
 	 * @param plugId which mdek server (iplug)
-	 * @param exportCriteria criteria "tagged value". objects marked with this string are exported.
+	 * @param exportCriterion "tagged value". objects marked with this string are exported.
 	 * @param userId calling user
-	 * @return response containing result: map containing xml data
+	 * @return response containing result: map containing xml data and export info
 	 */
-	IngridDocument exportObjects(String plugId, String exportCriteria, String userId);
+	IngridDocument exportObjects(String plugId, String exportCriterion, String userId);
 
 	/**
 	 * Export given address branch to XML file.
@@ -94,9 +94,16 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param rootUuid address uuid of branch to export (root of branch)
 	 * @param exportOnlyRoot export only the given node, NO sub nodes
 	 * @param userId calling user
-	 * @return response containing result: map containing xml data
+	 * @return response containing result: map containing xml data and export info
 	 */
 	IngridDocument exportAddressBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
 			String userId);
+
+	/** Returns information about the last export executed by the given user.
+	 * @param plugId which mdek server (iplug)
+	 * @param userId calling user
+	 * @return response containing result: map containing export information
+	 */
+	IngridDocument getExportInfo(String plugId, String userId);
 }

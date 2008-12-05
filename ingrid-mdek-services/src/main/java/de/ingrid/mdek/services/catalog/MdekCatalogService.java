@@ -17,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
+import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
@@ -102,16 +103,16 @@ public class MdekCatalogService {
 		return list;
 	}
 
-	/** Starts "logging" of Export job information IN DATABASE */
+	/** "logs" Start-Info in Export information IN DATABASE */
 	public void startExportInfoDB(IdcEntityType whichType, int totalNum, String userUuid) {
 		// set up export details
-        HashMap details = setUpExportDetails(whichType, 0, totalNum);
+        HashMap details = setUpExportDetailsDB(whichType, 0, totalNum);
         // and store
-		jobHandler.persistJobInfoStart(JobType.EXPORT, details, userUuid);
+		jobHandler.startJobInfoDB(JobType.EXPORT, details, userUuid);
 	}
 
 	/** Set up details of export to be stored in database. */
-	private HashMap setUpExportDetails(IdcEntityType whichType, int num, int totalNum) {
+	private HashMap setUpExportDetailsDB(IdcEntityType whichType, int num, int totalNum) {
         HashMap details = new HashMap();
         if (whichType == IdcEntityType.OBJECT) {
             details.put(MdekKeys.EXPORT_TOTAL_NUM_OBJECTS, totalNum);        	
@@ -131,12 +132,29 @@ public class MdekCatalogService {
 				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
 
 		// then update job info in database
-        HashMap details = setUpExportDetails(whichType, numExported, totalNum);
-		jobHandler.persistJobInfoUpdate(JobType.EXPORT, details, userUuid);
+        HashMap details = setUpExportDetailsDB(whichType, numExported, totalNum);
+		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
 	}
 
-	/** Ends "logging" of Export job information IN DATABASE */
+	/** "logs" End-Info in Export information IN DATABASE */
 	public void endExportInfoDB(String userUuid) {
-		jobHandler.persistJobInfoEnd(JobType.EXPORT, userUuid);
+		jobHandler.endJobInfoDB(JobType.EXPORT, userUuid);
+	}
+
+	/** Returns "logged" Export job information IN DATABASE.
+	 * NOTICE: returns EMPTY HashMap if no job info ! */
+	public HashMap getExportInfoDB(String userUuid) {
+        HashMap exportInfo = new HashMap();
+
+		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
+		if (jobInfo != null) {
+			HashMap jobDetails = (HashMap) jobHandler.deformatJobDetailsFromDB(jobInfo.getJobDetails());
+
+	        exportInfo.putAll(jobDetails);
+	        exportInfo.put(MdekKeys.EXPORT_START_TIME, jobInfo.getStartTime());
+	        exportInfo.put(MdekKeys.EXPORT_END_TIME, jobInfo.getEndTime());			
+		}
+        
+        return exportInfo;
 	}
 }

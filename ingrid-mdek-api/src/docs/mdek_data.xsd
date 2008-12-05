@@ -472,8 +472,8 @@
 	</xs:complexType>
 	<xs:complexType name="RESULT_EXPORT_MAP">
 		<xs:choice>
-			<xs:element name="export-start-date" type="xs:string"/>
-			<xs:element name="export-end-date" type="xs:string"/>
+			<xs:element name="export-start-time" type="xs:string"/>
+			<xs:element name="export-end-time" type="xs:string"/>
 			<!-- e.g. current number of exported objects at runtime -->
 			<xs:element name="export-num-objects" type="xs:integer"/>
 			<!-- total number of objects to export -->

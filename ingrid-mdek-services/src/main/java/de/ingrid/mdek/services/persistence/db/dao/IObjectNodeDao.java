@@ -205,9 +205,9 @@ public interface IObjectNodeDao
 			int startHit, int numHits);
 
 	/**
-	 * Find objects marked with given export criteria
-	 * @param exportCriteria "tagged value" used to mark objects for export
+	 * Find objects marked with given export criterion
+	 * @param exportCriterion "tagged value" used to mark objects for export
 	 * @return uuids of objects to export
 	 */
-	List<String> getExportObjectsUuids(String exportCriteria);
+	List<String> getExportObjectsUuids(String exportCriterion);
 }

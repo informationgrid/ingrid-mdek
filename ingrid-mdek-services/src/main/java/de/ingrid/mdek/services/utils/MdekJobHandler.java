@@ -61,7 +61,7 @@ public class MdekJobHandler {
 	public IngridDocument cancelRunningJob(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
 
-		String userId = MdekJobHandler.getCurrentUserUuid(params);
+		String userId = MdekJobHandler.getCurrentUserUuidFromDoc(params);
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("userId:" + userId);
@@ -77,7 +77,7 @@ public class MdekJobHandler {
 	}
 
 	public IngridDocument getRunningJobInfo(IngridDocument params) {
-		String userId = MdekJobHandler.getCurrentUserUuid(params);
+		String userId = MdekJobHandler.getCurrentUserUuidFromDoc(params);
 		return getRunningJobInfo(userId);
 	}
 
@@ -162,9 +162,24 @@ public class MdekJobHandler {
 		}
 	}
 
-	/** Starts "logging" of job information IN DATABASE */
-	public void persistJobInfoStart(JobType whichJob, Object jobDetails, String userUuid) {
-		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(whichJob, userUuid);
+	/**
+	 * Return the AddressUuid of the user set in passed doc.
+	 * THROWS EXCEPTION IF USER NOT SET in passed doc.
+	 * @param inDoc
+	 * @return
+	 */
+	public static String getCurrentUserUuidFromDoc(IngridDocument inDoc) {
+		String userId = inDoc.getString(MdekKeys.USER_ID);
+		if (userId == null) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
+		}
+		
+		return userId;
+	}
+
+	/** "logs" Start-Info in job information IN DATABASE */
+	public void startJobInfoDB(JobType whichJob, HashMap jobDetails, String userUuid) {
+		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
 		if (jobInfo == null) {
 			jobInfo = new SysJobInfo();
 			jobInfo.setJobType(whichJob.getDbValue());
@@ -172,40 +187,45 @@ public class MdekJobHandler {
 		}
 		jobInfo.setStartTime(MdekUtils.dateToTimestamp(new Date()));
 		jobInfo.setEndTime(null);
-		jobInfo.setJobDetails(xstream.toXML(jobDetails));
+		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 		
 		daoSysJobInfo.makePersistent(jobInfo);
 	}
 
 	/** Updates job information IN DATABASE */
-	public void persistJobInfoUpdate(JobType whichJob, Object jobDetails, String userUuid) {
-		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(whichJob, userUuid);
-		jobInfo.setJobDetails(xstream.toXML(jobDetails));
+	public void updateJobInfoDB(JobType whichJob, HashMap jobDetails, String userUuid) {
+		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
+		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 
 		daoSysJobInfo.makePersistent(jobInfo);
 	}
 
-	/** Ends "logging" of job information IN DATABASE */
-	public void persistJobInfoEnd(JobType whichJob, String userUuid) {
-		SysJobInfo jobInfo = daoSysJobInfo.getJobInfo(JobType.EXPORT, userUuid);
+	/** "logs" End-Info in job information IN DATABASE */
+	public void endJobInfoDB(JobType whichJob, String userUuid) {
+		SysJobInfo jobInfo = getJobInfoDB(JobType.EXPORT, userUuid);
 		jobInfo.setEndTime(MdekUtils.dateToTimestamp(new Date()));
 		
 		daoSysJobInfo.makePersistent(jobInfo);
 	}
 
-
-	/**
-	 * Return the AddressUuid of the user set in passed doc.
-	 * THROWS EXCEPTION IF USER NOT SET in passed doc.
-	 * @param inDoc
-	 * @return
-	 */
-	public static String getCurrentUserUuid(IngridDocument inDoc) {
-		String userId = inDoc.getString(MdekKeys.USER_ID);
-		if (userId == null) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
+	/** NOTICE: if passed details are NULL writes NULL into DB ! */
+	private String formatJobDetailsForDB(HashMap jobDetailsForDB) {
+		if (jobDetailsForDB == null) {
+			return null;			
 		}
-		
-		return userId;
+		return xstream.toXML(jobDetailsForDB);
+	}
+	/** NOTICE: returns empty HashMap if passed details from DB are null ! */
+	public HashMap deformatJobDetailsFromDB(String jobDetailsFromDB) {
+		if (jobDetailsFromDB == null) {
+			return new HashMap();
+		}
+		return (HashMap) xstream.fromXML(jobDetailsFromDB);
+	}
+	
+	/** Returns job information "logged" IN DATABASE.
+	 * NOTICE: JobDetails are still in Database format !*/
+	public SysJobInfo getJobInfoDB(JobType whichJob, String userUuid) {
+		return daoSysJobInfo.getJobInfo(JobType.EXPORT, userUuid);
 	}
 }
