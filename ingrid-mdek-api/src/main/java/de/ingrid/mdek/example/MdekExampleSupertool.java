@@ -136,6 +136,15 @@ public class MdekExampleSupertool {
 	public IngridDocument getExportInfo() {
 		return supertoolCatalog.getExportInfo();
 	}
+	public IngridDocument importEntities(Byte[] importData,
+			String targetObjectUuid, String targetAddressUuid,
+			boolean publishImmediately) {
+		return supertoolCatalog.importEntities(importData,
+				targetObjectUuid, targetAddressUuid, publishImmediately);
+	}
+	public IngridDocument getImportInfo() {
+		return supertoolCatalog.getImportInfo();
+	}
 
 	// MdekExampleSupertoolSecurity FACADE !
 	// ----------------------------------

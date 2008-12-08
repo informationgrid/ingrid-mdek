@@ -26,6 +26,7 @@
 			<xs:element name="REQUEST_SEARCH_MAP" type="REQUEST_SEARCH_MAP"/>
 			<xs:element name="REQUEST_SECURITY_MAP" type="REQUEST_SECURITY_MAP"/>
 			<xs:element name="REQUEST_EXPORT_MAP" type="REQUEST_EXPORT_MAP"/>
+			<xs:element name="REQUEST_IMPORT_MAP" type="REQUEST_IMPORT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -56,6 +57,7 @@
 			<xs:element name="RESULT_SECURITY_MAP" type="RESULT_SECURITY_MAP"/>
 			<xs:element name="RESULT_STATISTICS_MAP" type="RESULT_STATISTICS_MAP"/>
 			<xs:element name="RESULT_EXPORT_MAP" type="RESULT_EXPORT_MAP"/>
+			<xs:element name="RESULT_IMPORT_MAP" type="RESULT_IMPORT_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -356,6 +358,16 @@
 			<xs:element name="export-criterion-value" type="xs:string"/>
 		</xs:choice>
 	</xs:complexType>	
+	<xs:complexType name="REQUEST_IMPORT_MAP">
+		<xs:choice>
+			<xs:element name="requestinfo_importData" type="BYTE_ARRAY"/>
+			<!-- object / address node where new objects / addresses are imported underneath -->
+			<xs:element name="requestinfo_importObjParentUuid" type="xs:string"/>
+			<xs:element name="requestinfo_importAddrParentUuid" type="xs:string"/>
+			<!-- publish imported entities immediately ? -->
+			<xs:element name="requestinfo_importPublishImmediately" type="xs:boolean"/>
+		</xs:choice>
+	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="PATH_MAP" type="PATH_MAP"/>
@@ -474,19 +486,31 @@
 			<xs:element name="total-num" type="xs:long"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="RESULT_EXPORT_MAP">
+	<xs:complexType name="RESULT_EXCHANGE_MAP">
 		<xs:choice>
-			<xs:element name="export-start-time" type="xs:string"/>
-			<xs:element name="export-end-time" type="xs:string"/>
+			<xs:element name="exchange-start-time" type="xs:string"/>
+			<xs:element name="exchange-end-time" type="xs:string"/>
 			<!-- e.g. current number of exported objects at runtime -->
-			<xs:element name="export-num-objects" type="xs:integer"/>
+			<xs:element name="exchange-num-objects" type="xs:integer"/>
 			<!-- total number of objects to export -->
-			<xs:element name="export-total-num-objects" type="xs:integer"/>
+			<xs:element name="exchange-total-num-objects" type="xs:integer"/>
 			<!-- e.g. current number of exported addresses at runtime -->
-			<xs:element name="export-num-addresses" type="xs:integer"/>
+			<xs:element name="exchange-num-addresses" type="xs:integer"/>
 			<!-- total number of addresses to export -->
-			<xs:element name="export-total-num-addresses" type="xs:integer"/>
+			<xs:element name="exchange-total-num-addresses" type="xs:integer"/>
 		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="RESULT_EXPORT_MAP">
+		<xs:complexContent>
+			<xs:extension base="RESULT_EXCHANGE_MAP">
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RESULT_IMPORT_MAP">
+		<xs:complexContent>
+			<xs:extension base="RESULT_EXCHANGE_MAP">
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="ENTITY_PERMISSION_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -670,6 +694,11 @@
 	<xs:complexType name="STRING_ARRAY">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="STRING" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BYTE_ARRAY">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="BYTE" type="xs:byte"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SPATIAL_REF_MAP">

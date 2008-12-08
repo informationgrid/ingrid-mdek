@@ -296,8 +296,8 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE exportObjectBranch ######");
-		System.out.println("- top node of branch:" + rootUuid);
-		System.out.println("- export only top node:" + exportOnlyRoot);
+		System.out.println("- top node of branch: " + rootUuid);
+		System.out.println("- export only top node: " + exportOnlyRoot);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.exportObjectBranch(plugId, rootUuid, exportOnlyRoot,
 				myUserUuid);
@@ -323,7 +323,7 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE exportObjects ######");
-		System.out.println("- export tag:" + exportCriteria);
+		System.out.println("- export tag: " + exportCriteria);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.exportObjects(plugId, exportCriteria, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -348,8 +348,8 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE exportAddressBranch ######");
-		System.out.println("- top node of branch:" + rootUuid);
-		System.out.println("- export only top node:" + exportOnlyRoot);
+		System.out.println("- top node of branch: " + rootUuid);
+		System.out.println("- export only top node: " + exportOnlyRoot);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.exportAddressBranch(plugId, rootUuid, exportOnlyRoot,
 				myUserUuid);
@@ -377,6 +377,61 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("\n###### INVOKE getExportInfo ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getExportInfo(plugId, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument importEntities(Byte[] importData,
+			String targetObjectUuid, String targetAddressUuid,
+			boolean publishImmediately) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE importEntities ######");
+		System.out.println("- underneath object: " + targetObjectUuid);
+		System.out.println("- underneath address: " + targetAddressUuid);
+		System.out.println("- publish immediately: " + publishImmediately);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.importEntities(plugId, importData,
+				targetObjectUuid, targetAddressUuid, publishImmediately,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getImportInfo() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getImportInfo ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getImportInfo(plugId, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

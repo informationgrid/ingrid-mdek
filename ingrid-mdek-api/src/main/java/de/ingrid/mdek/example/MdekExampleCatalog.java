@@ -304,6 +304,22 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- export address branch FULL BRANCH -----");
 		supertool.exportAddressBranch(parentAddrUuid, false);
 
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("IMPORT");
+		System.out.println("=========================");
+
+		System.out.println("\n----- get LAST Import Info -----");
+		supertool.getImportInfo();
+
+		// CREATE NEW TOP OBJECT / ADDRESS FOR IMPORT !
+
+		System.out.println("\n----- import as WORKING VERSION -----");
+		supertool.importEntities(null, "objUuid", "addrUuid", false);
+
+		System.out.println("\n----- import as PUBLISHED -----");
+		supertool.importEntities(null, "objUuid", "addrUuid", true);
+
 // ===================================
 
 		long exampleEndTime = System.currentTimeMillis();

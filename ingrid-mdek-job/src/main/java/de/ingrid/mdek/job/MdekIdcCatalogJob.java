@@ -393,5 +393,76 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
+	}
+
+	public IngridDocument importEntities(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
+
+			Byte[] importData = (Byte[]) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+			String objParent = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID);
+			String addrParent = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
+			Boolean publishImmediately = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY);
+
+			genericDao.beginTransaction();
+
+			// initialize import info in database
+			catalogService.startImportInfoDB(userId);
+
+// TEST
+			// test logging of current state
+			catalogService.updateImportInfoDB(IdcEntityType.ADDRESS, 1, 10, userId);
+			// test cancel of job (called by client)
+//			cancelRunningJob(docIn);
+			// THROWS EXCEPTION IF CANCELED !
+			catalogService.updateImportInfoDB(IdcEntityType.OBJECT, 2, 10, userId);
+// TEST END
+
+			// TODO implement importEntities
+
+			// finish and fetch import info in database
+			catalogService.endImportInfoDB(userId);
+			HashMap importInfo = catalogService.getImportInfoDB(userId);
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(importInfo);
+			return result;
+
+		} catch (RuntimeException e) {
+			genericDao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument getImportInfo(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		try {
+			genericDao.beginTransaction();
+
+			HashMap importInfo = catalogService.getImportInfoDB(userId);
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(importInfo);
+
+			return result;
+
+		} catch (RuntimeException e) {
+			genericDao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
+		}
 	}	
 }

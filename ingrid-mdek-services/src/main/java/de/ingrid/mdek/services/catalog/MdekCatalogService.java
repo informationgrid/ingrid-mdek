@@ -132,28 +132,20 @@ public class MdekCatalogService {
 		return result;
 	}
 
+
+	/** Returns "logged" Export job information IN DATABASE.
+	 * NOTICE: returns EMPTY HashMap if no job info ! */
+	public HashMap getExportInfoDB(String userUuid) {
+		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
+		return jobHandler.mapJobInfo(jobInfo);
+	}
 	/** "logs" Start-Info in Export information IN DATABASE */
 	public void startExportInfoDB(IdcEntityType whichType, int totalNum, String userUuid) {
 		// set up export details
-        HashMap details = setUpExportDetailsDB(whichType, 0, totalNum);
+        HashMap details = setUpExchangeDetailsDB(whichType, 0, totalNum);
         // and store
 		jobHandler.startJobInfoDB(JobType.EXPORT, details, userUuid);
 	}
-
-	/** Set up details of export to be stored in database. */
-	private HashMap setUpExportDetailsDB(IdcEntityType whichType, int num, int totalNum) {
-        HashMap details = new HashMap();
-        if (whichType == IdcEntityType.OBJECT) {
-            details.put(MdekKeys.EXPORT_TOTAL_NUM_OBJECTS, totalNum);        	
-            details.put(MdekKeys.EXPORT_NUM_OBJECTS, num);
-        } else if (whichType == IdcEntityType.ADDRESS) {
-            details.put(MdekKeys.EXPORT_TOTAL_NUM_ADDRESSES, totalNum);        	
-            details.put(MdekKeys.EXPORT_NUM_ADDRESSES, num);
-        }
-		
-        return details;
-	}
-
 	/** Updates info of Export job IN MEMORY and IN DATABASE */
 	public void updateExportInfoDB(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
 		// first update in memory job state
@@ -161,29 +153,52 @@ public class MdekCatalogService {
 				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
 
 		// then update job info in database
-        HashMap details = setUpExportDetailsDB(whichType, numExported, totalNum);
+        HashMap details = setUpExchangeDetailsDB(whichType, numExported, totalNum);
 		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
 	}
-
 	/** "logs" End-Info in Export information IN DATABASE */
 	public void endExportInfoDB(String userUuid) {
 		jobHandler.endJobInfoDB(JobType.EXPORT, userUuid);
 	}
 
-	/** Returns "logged" Export job information IN DATABASE.
+
+	/** Returns "logged" Import job information IN DATABASE.
 	 * NOTICE: returns EMPTY HashMap if no job info ! */
-	public HashMap getExportInfoDB(String userUuid) {
-        HashMap exportInfo = new HashMap();
+	public HashMap getImportInfoDB(String userUuid) {
+		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.IMPORT, userUuid);
+		return jobHandler.mapJobInfo(jobInfo);
+	}
+	/** "logs" Start-Info in Import information IN DATABASE */
+	public void startImportInfoDB(String userUuid) {
+		jobHandler.startJobInfoDB(JobType.IMPORT, null, userUuid);
+	}
+	/** Updates info of Import job IN MEMORY and IN DATABASE */
+	public void updateImportInfoDB(IdcEntityType whichType, int numImported, int totalNum, String userUuid) {
+		// first update in memory job state
+		jobHandler.updateRunningJob(userUuid, 
+				jobHandler.createRunningJobDescription(JobType.IMPORT, numImported, totalNum, false));
 
-		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
-		if (jobInfo != null) {
-			HashMap jobDetails = (HashMap) jobHandler.deformatJobDetailsFromDB(jobInfo.getJobDetails());
+		// then update job info in database
+        HashMap details = setUpExchangeDetailsDB(whichType, numImported, totalNum);
+		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
+	}
+	/** "logs" End-Info in Import information IN DATABASE */
+	public void endImportInfoDB(String userUuid) {
+		jobHandler.endJobInfoDB(JobType.IMPORT, userUuid);
+	}
 
-	        exportInfo.putAll(jobDetails);
-	        exportInfo.put(MdekKeys.EXPORT_START_TIME, jobInfo.getStartTime());
-	        exportInfo.put(MdekKeys.EXPORT_END_TIME, jobInfo.getEndTime());			
-		}
-        
-        return exportInfo;
+
+	/** Set up details of export/import to be stored in database. */
+	private HashMap setUpExchangeDetailsDB(IdcEntityType whichType, int num, int totalNum) {
+        HashMap details = new HashMap();
+        if (whichType == IdcEntityType.OBJECT) {
+            details.put(MdekKeys.EXCHANGE_TOTAL_NUM_OBJECTS, totalNum);        	
+            details.put(MdekKeys.EXCHANGE_NUM_OBJECTS, num);
+        } else if (whichType == IdcEntityType.ADDRESS) {
+            details.put(MdekKeys.EXCHANGE_TOTAL_NUM_ADDRESSES, totalNum);        	
+            details.put(MdekKeys.EXCHANGE_NUM_ADDRESSES, num);
+        }
+		
+        return details;
 	}
 }

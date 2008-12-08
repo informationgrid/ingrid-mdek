@@ -91,19 +91,36 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
 
-    // RESULT
+    // EXPORT / IMPORT RESULT
     /** Value: String */
-    public final static String EXPORT_START_TIME = "export-start-time";
+    public final static String EXCHANGE_START_TIME = "exchange-start-time";
     /** Value: String */
-    public final static String EXPORT_END_TIME = "export-end-time";
+    public final static String EXCHANGE_END_TIME = "exchange-end-time";
     /** Value: Integer */
-    public final static String EXPORT_NUM_OBJECTS = "export-num-objects";
+    public final static String EXCHANGE_NUM_OBJECTS = "exchange-num-objects";
     /** Value: Integer */
-    public final static String EXPORT_TOTAL_NUM_OBJECTS = "export-total-num-objects";
+    public final static String EXCHANGE_TOTAL_NUM_OBJECTS = "exchange-total-num-objects";
     /** Value: Integer */
-    public final static String EXPORT_NUM_ADDRESSES = "export-num-addresses";
+    public final static String EXCHANGE_NUM_ADDRESSES = "exchange-num-addresses";
     /** Value: Integer */
-    public final static String EXPORT_TOTAL_NUM_ADDRESSES = "export-total-num-addresses";
+    public final static String EXCHANGE_TOTAL_NUM_ADDRESSES = "exchange-total-num-addresses";
+
+
+    // IMPORT
+    // ------
+    // REQUEST
+    /** The data to import (in export/import format)<br>
+     *  Value: Byte[] */
+    public final static String REQUESTINFO_IMPORT_DATA = "requestinfo_importData";
+    /** Object UUID where NEW imported objects are created underneath<br>
+     *  Value: String */
+    public final static String REQUESTINFO_IMPORT_OBJ_PARENT_UUID = "requestinfo_importObjParentUuid";
+    /** Address UUID where NEW imported non free addresses are created underneath<br>
+     *  Value: String */
+    public final static String REQUESTINFO_IMPORT_ADDR_PARENT_UUID = "requestinfo_importAddrParentUuid";
+    /** Publish imported entities immediately ?<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY = "requestinfo_importPublishImmediately";
 
 
     // SEARCH / QUERY (Recherche)

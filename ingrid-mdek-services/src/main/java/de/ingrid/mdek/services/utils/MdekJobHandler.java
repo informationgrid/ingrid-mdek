@@ -202,7 +202,7 @@ public class MdekJobHandler {
 
 	/** "logs" End-Info in job information IN DATABASE */
 	public void endJobInfoDB(JobType whichJob, String userUuid) {
-		SysJobInfo jobInfo = getJobInfoDB(JobType.EXPORT, userUuid);
+		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
 		jobInfo.setEndTime(MdekUtils.dateToTimestamp(new Date()));
 		
 		daoSysJobInfo.makePersistent(jobInfo);
@@ -226,6 +226,18 @@ public class MdekJobHandler {
 	/** Returns job information "logged" IN DATABASE.
 	 * NOTICE: JobDetails are still in Database format !*/
 	public SysJobInfo getJobInfoDB(JobType whichJob, String userUuid) {
-		return daoSysJobInfo.getJobInfo(JobType.EXPORT, userUuid);
+		return daoSysJobInfo.getJobInfo(whichJob, userUuid);
+	}
+	/** Map given jobInfo to Map */
+	public HashMap mapJobInfo(SysJobInfo jobInfo) {
+        HashMap resultMap = new HashMap();
+		if (jobInfo != null) {
+			HashMap jobDetails = (HashMap) deformatJobDetailsFromDB(jobInfo.getJobDetails());
+			resultMap.putAll(jobDetails);
+			resultMap.put(MdekKeys.EXCHANGE_START_TIME, jobInfo.getStartTime());
+			resultMap.put(MdekKeys.EXCHANGE_END_TIME, jobInfo.getEndTime());			
+		}
+
+		return resultMap;
 	}
 }
