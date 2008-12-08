@@ -260,6 +260,20 @@ class MdekExampleCatalogThread extends Thread {
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
+		System.out.println("SYS ADDITIONAL FIELDS (Definitions)");
+		System.out.println("=========================");
+
+		System.out.println("\n----- Specific SysAdditionalFields with language -----");
+		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, catLang);
+
+		System.out.println("\n----- Specific SysAdditionalFields NO language -----");
+		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, null);
+
+		System.out.println("\n----- ALL SysAdditionalFields Values NO language -----");
+		supertool.getSysAdditionalFields(null, null);
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
 		System.out.println("EXPORT");
 		System.out.println("=========================");
 

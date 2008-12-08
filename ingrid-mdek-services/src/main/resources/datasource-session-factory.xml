@@ -177,6 +177,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t015Legists">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t017UrlRefs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T02Address.t021Communications">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T08AttrType.t08AttrLists">read-write</prop>
          </props>
       </property>
 -->

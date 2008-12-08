@@ -178,6 +178,48 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
+	public IngridDocument getSysAdditionalFields(Long[] fieldIds, String languageCode) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getSysAdditionalFields ######");
+		System.out.println("- requested fieldIds: " + fieldIds);
+		System.out.println("- requested language code: " + languageCode);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getSysAdditionalFields(plugId, fieldIds, languageCode, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			Set<String> fieldsKeys = result.keySet();
+			System.out.println("SUCCESS: " + fieldsKeys.size() + " additional fields");
+			for (String fieldsKey : fieldsKeys) {
+				IngridDocument fieldDoc = (IngridDocument) result.get(fieldsKey);
+				System.out.println("  " + fieldsKey + ": "+ fieldDoc);
+				Set<String> keysInField = fieldDoc.keySet();
+				for (String keyInField : keysInField) {
+					if (keyInField.startsWith(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX)) {
+						String langCode = keyInField.substring(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX.length());
+						String[] items = (String[]) fieldDoc.get(keyInField);
+						System.out.print("    items '" + langCode + "': ");
+						for (String item : items) {
+							System.out.print(item + ", ");
+						}
+						System.out.println();
+					}
+				}
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
 	/** Pass null if all gui elements requested */
 	public IngridDocument getSysGuis(String[] guiIds) {
 		long startTime;
@@ -187,7 +229,7 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getSysGuis ######");
-		System.out.println("requested guiIds: " + guiIds);
+		System.out.println("- requested guiIds: " + guiIds);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getSysGuis(plugId, guiIds, myUserUuid);
 		endTime = System.currentTimeMillis();

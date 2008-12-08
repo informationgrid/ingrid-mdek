@@ -14,7 +14,6 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
@@ -123,21 +122,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	
 	public IngridDocument getSysLists(IngridDocument params) {
 		try {
-			genericDao.beginTransaction();
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
 			String language = params.getString(MdekKeys.LANGUAGE);
 
-			IngridDocument result = new IngridDocument();
-			
-			for (int lstId : lstIds) {
-				List<SysList> list = catalogService.getSysList(lstId, language);
-				
-				IngridDocument listDoc = new IngridDocument();
-				beanToDocMapper.mapSysList(list, lstId, listDoc);
-				
-				result.put(MdekKeys.SYS_LIST_KEY_PREFIX + lstId,  listDoc);
-			}
+			genericDao.beginTransaction();
 
+			IngridDocument result = catalogService.getSysLists(lstIds, language);
+			
 			genericDao.commitTransaction();
 			return result;
 
@@ -222,6 +213,25 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
 			}
+		}
+	}
+
+	public IngridDocument getSysAdditionalFields(IngridDocument params) {
+		try {
+			Long[] fieldIds = (Long[]) params.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDS);
+			String language = params.getString(MdekKeys.LANGUAGE);
+
+			genericDao.beginTransaction();
+
+			IngridDocument result = catalogService.getSysAdditionalFields(fieldIds, language);
+
+			genericDao.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			genericDao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+		    throw handledExc;
 		}
 	}
 

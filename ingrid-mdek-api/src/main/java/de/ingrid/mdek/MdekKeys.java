@@ -200,9 +200,10 @@ public class MdekKeys {
 
     // SYS LISTS
     // ---------
-
+    // REQUEST
     /** Value: Integer[] -> all ids of syslists to fetch */
     public final static String SYS_LIST_IDS = "sys-list-ids";
+    // RESULT
     /** Prefix for all sys-lists in result, e.g. sys-list-1100 */
     public final static String SYS_LIST_KEY_PREFIX = "sys-list-";
     /** Value: Integer */
@@ -226,6 +227,29 @@ public class MdekKeys {
     public final static String SYS_GUI_ID = "sys-gui-id";
     /** Value: Integer */
     public final static String SYS_GUI_BEHAVIOUR = "sys-gui-behaviour";
+
+    // SYS ADDITIONAL FIELDS (Definition)
+    // ---------------------
+    // REQUEST
+    /** Value: Long[] -> all ids of additional-fields to fetch */
+    public final static String SYS_ADDITIONAL_FIELD_IDS = "sys-additional-field-ids";
+    // RESULT
+    /** Prefix for all sys-additional-fields in result, e.g. sys-additional-field-1100<br>
+     * Value: IngridDocument */
+    public final static String SYS_ADDITIONAL_FIELD_KEY_PREFIX = "sys-additional-field-";
+    /** Value: Long  */
+    public final static String SYS_ADDITIONAL_FIELD_IDENTIFIER = "sys-additional-field-identifier";
+    /** Value: String  */
+    public final static String SYS_ADDITIONAL_FIELD_NAME = "sys-additional-field-name";
+    /** Value: Integer  */
+    public final static String SYS_ADDITIONAL_FIELD_LENGTH = "sys-additional-field-length";
+    /** Value: String  */
+    public final static String SYS_ADDITIONAL_FIELD_TYPE = "sys-additional-field-type";
+    /** Value: String  */
+    public final static String SYS_ADDITIONAL_FIELD_LIST_TYPE = "sys-additional-field-list-type";
+    /** Prefix for every selection list of a specific language in result, e.g. sys-additional-field-list-items-de<br>
+     * Value: String[] -> all item names of a language ordered by line */
+    public final static String SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX = "sys-additional-field-list-items-";
 
 
     // Top Result Lists
@@ -767,15 +791,11 @@ public class MdekKeys {
     /** Value: String */
     public final static String CREATE_TIME = "create-time";
 
-    // ADDITIONAL FIELDS
+    // ADDITIONAL FIELDS entity data
     /** Value: List of IngridDocs */
     public final static String ADDITIONAL_FIELDS = "additional-fields";
-    /** Value: Long  */
-    public final static String FIELD_IDENTIFIER = "field-identifier";
     /** Value: String  */
-    public final static String FIELD_VALUE = "field-value";
-    /** Value: String  */
-    public final static String FIELD_NAME = "field-name";
+    public final static String ADDITIONAL_FIELD_VALUE = "additional-field-value";
     
     // CATALOG DATA
     /** Value: String */

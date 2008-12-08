@@ -2075,8 +2075,8 @@ public class DocToBeanMapper implements IMapper {
 
 		for (IngridDocument attrDoc : attrDocs) {
 			boolean found = false;
-			Long attrDoc_typeId = (Long) attrDoc.get(MdekKeys.FIELD_IDENTIFIER);
-			String attrDoc_data = attrDoc.getString(MdekKeys.FIELD_VALUE);
+			Long attrDoc_typeId = (Long) attrDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
+			String attrDoc_data = attrDoc.getString(MdekKeys.ADDITIONAL_FIELD_VALUE);
 			for (T08Attr attr : attrs) {
 				if (attr.getAttrTypeId().equals(attrDoc_typeId)) {
 					found = true;

@@ -20,6 +20,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.AddressNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.HQLDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcGroupDaoHibernate;
@@ -35,6 +36,7 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysJobInfoDaoHiberna
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysListDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.T08AttrTypeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
@@ -129,6 +131,10 @@ public class DaoFactory implements IDaoFactory {
 
     public ISysGuiDao getSysGuiDao() {
         return new SysGuiDaoHibernate(_sessionFactory);
+    }
+
+    public IT08AttrTypeDao getT08AttrTypeDao() {
+        return new T08AttrTypeDaoHibernate(_sessionFactory);
     }
 
     public ISysJobInfoDao getSysJobInfoDao() {

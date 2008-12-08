@@ -2,8 +2,11 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -72,6 +75,7 @@ import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.persistence.db.model.T08Attr;
+import de.ingrid.mdek.services.persistence.db.model.T08AttrList;
 import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.utils.IngridDocument;
 
@@ -513,18 +517,63 @@ public class BeanToDocMapper implements IMapper {
 		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
 		for (T08Attr ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
-			refDoc.put(MdekKeys.FIELD_IDENTIFIER, ref.getAttrTypeId());
-			refDoc.put(MdekKeys.FIELD_VALUE, ref.getData());
+			refDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, ref.getAttrTypeId());
+			refDoc.put(MdekKeys.ADDITIONAL_FIELD_VALUE, ref.getData());
 			
 			T08AttrType attrType = ref.getT08AttrType();
 			if (attrType != null) {
-				refDoc.put(MdekKeys.FIELD_NAME, attrType.getName());
+				refDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, attrType.getName());
 			}
 
 			docList.add(refDoc);					
 		}
 		objectDoc.put(MdekKeys.ADDITIONAL_FIELDS, docList);
 		return objectDoc;
+	}
+
+	/** Maps additional field definitions to doc */
+	public IngridDocument mapT08AttrTypes(List<T08AttrType> fields, IngridDocument inDoc) {
+		if (fields == null) {
+			return inDoc;
+		}
+		for (T08AttrType field : fields) {
+			IngridDocument fieldDoc = new IngridDocument();
+			Long fieldId = field.getId();
+			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, fieldId);
+			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, field.getName());
+			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH, field.getLength());
+			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE, field.getType());
+			
+			// map list items it fetched. NOTICE: are ordered via Hibernate mapping
+			Set<T08AttrList> listItems = field.getT08AttrLists();
+			HashMap langListsMap = new HashMap();
+			String langCode;
+			List<String> langList;
+			for (T08AttrList listItem : listItems) {
+				langCode = listItem.getLangCode();
+				langList = (List<String>) langListsMap.get(langCode);
+				if (langList == null) {
+					langList = new ArrayList<String>();
+					langListsMap.put(langCode, langList);
+				}
+				langList.add(listItem.getListitemValue());
+			}
+			if (!langListsMap.isEmpty()) {
+				Set entries = langListsMap.entrySet();
+			    Iterator it = entries.iterator();
+			    while (it.hasNext()) {
+			      Map.Entry entry = (Map.Entry) it.next();
+			      langCode = (String) entry.getKey();
+			      langList = (List<String>) entry.getValue();
+			      fieldDoc.put(
+			    		  MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + langCode, 
+			    		  (String[]) langList.toArray(new String[0]));
+			    }
+			}
+			inDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + fieldId, fieldDoc);
+		}
+
+		return inDoc;
 	}
 
 	public IngridDocument mapAddressComments(Set<AddressComment> refs, IngridDocument addressDoc) {
