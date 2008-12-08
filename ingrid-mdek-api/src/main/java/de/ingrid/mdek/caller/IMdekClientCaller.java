@@ -43,7 +43,7 @@ public interface IMdekClientCaller {
 	IngridDocument callJob(String plugId, String jobId, List jobMethods);
 
 	/**
-	 * Returns information about currently running job of passed user.
+	 * Returns "generic" information about currently running job of passed user.
 	 * @param plugId which mdek server (iplug)
 	 * @param userId user identifier
 	 * @return response containing result: map containing job infos or empty map if no job running !

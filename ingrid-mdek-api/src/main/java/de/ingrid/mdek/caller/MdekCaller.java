@@ -31,12 +31,6 @@ public abstract class MdekCaller implements IMdekCaller {
 	public List<String> getRegisteredIPlugs() {
 		return mdekClientCaller.getRegisteredIPlugs();
 	}
-	public List setUpJobMethod(String methodName, IngridDocument methodParams) {
-		return mdekClientCaller.setUpJobMethod(methodName, methodParams);
-	}
-	public IngridDocument callJob(String plugId, String jobId, List jobMethods) {
-		return mdekClientCaller.callJob(plugId, jobId, jobMethods);
-	}
 	public IngridDocument getRunningJobInfo(String plugId, String userId) {
 		return mdekClientCaller.getRunningJobInfo(plugId, userId);
 	}
@@ -56,6 +50,12 @@ public abstract class MdekCaller implements IMdekCaller {
 		MdekClientCaller.shutdown();
 	}
 
+	protected List setUpJobMethod(String methodName, IngridDocument methodParams) {
+		return mdekClientCaller.setUpJobMethod(methodName, methodParams);
+	}
+	protected IngridDocument callJob(String plugId, String jobId, List jobMethods) {
+		return mdekClientCaller.callJob(plugId, jobId, jobMethods);
+	}
 	
     // Utilities
 
