@@ -172,7 +172,7 @@ public class MdekCatalogService {
 	public void startImportInfoDB(String userUuid) {
 		jobHandler.startJobInfoDB(JobType.IMPORT, null, userUuid);
 	}
-	/** Updates info of Import job IN MEMORY and IN DATABASE */
+	/** Update general info of Import job IN MEMORY and IN DATABASE */
 	public void updateImportInfoDB(IdcEntityType whichType, int numImported, int totalNum, String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid, 
@@ -181,6 +181,15 @@ public class MdekCatalogService {
 		// then update job info in database
         HashMap details = setUpExchangeDetailsDB(whichType, numImported, totalNum);
 		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
+	}
+
+	/** Add new Message to info of Import job IN MEMORY and IN DATABASE. */
+	public void updateImportInfoDBMessages(String newMessage, String userUuid) {
+		// first update in memory job state
+		jobHandler.updateRunningJobMessages(userUuid, newMessage);
+
+		// then update job info in database
+		jobHandler.updateJobInfoDBMessages(JobType.IMPORT, newMessage, userUuid);
 	}
 	/** "logs" End-Info in Import information IN DATABASE */
 	public void endImportInfoDB(String userUuid) {
@@ -192,11 +201,11 @@ public class MdekCatalogService {
 	private HashMap setUpExchangeDetailsDB(IdcEntityType whichType, int num, int totalNum) {
         HashMap details = new HashMap();
         if (whichType == IdcEntityType.OBJECT) {
-            details.put(MdekKeys.EXCHANGE_TOTAL_NUM_OBJECTS, totalNum);        	
-            details.put(MdekKeys.EXCHANGE_NUM_OBJECTS, num);
+            details.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS, totalNum);        	
+            details.put(MdekKeys.JOBINFO_NUM_OBJECTS, num);
         } else if (whichType == IdcEntityType.ADDRESS) {
-            details.put(MdekKeys.EXCHANGE_TOTAL_NUM_ADDRESSES, totalNum);        	
-            details.put(MdekKeys.EXCHANGE_NUM_ADDRESSES, num);
+            details.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES, totalNum);        	
+            details.put(MdekKeys.JOBINFO_NUM_ADDRESSES, num);
         }
 		
         return details;

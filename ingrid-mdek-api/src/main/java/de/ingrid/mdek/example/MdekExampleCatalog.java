@@ -311,6 +311,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- get LAST Import Info -----");
 		supertool.getImportInfo();
+		supertool.getRunningJobInfo();
 
 		// CREATE NEW TOP OBJECT / ADDRESS FOR IMPORT !
 

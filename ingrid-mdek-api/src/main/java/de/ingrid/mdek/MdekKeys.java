@@ -91,19 +91,21 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
 
-    // EXPORT / IMPORT RESULT
+    // EXPORT/IMPORT RESULT
     /** Value: String */
-    public final static String EXCHANGE_START_TIME = "exchange-start-time";
+    public final static String JOBINFO_START_TIME = "jobinfo-start-time";
     /** Value: String */
-    public final static String EXCHANGE_END_TIME = "exchange-end-time";
+    public final static String JOBINFO_END_TIME = "jobinfo-end-time";
     /** Value: Integer */
-    public final static String EXCHANGE_NUM_OBJECTS = "exchange-num-objects";
+    public final static String JOBINFO_NUM_OBJECTS = "jobinfo-num-objects";
     /** Value: Integer */
-    public final static String EXCHANGE_TOTAL_NUM_OBJECTS = "exchange-total-num-objects";
+    public final static String JOBINFO_TOTAL_NUM_OBJECTS = "jobinfo-total-num-objects";
     /** Value: Integer */
-    public final static String EXCHANGE_NUM_ADDRESSES = "exchange-num-addresses";
+    public final static String JOBINFO_NUM_ADDRESSES = "jobinfo-num-addresses";
     /** Value: Integer */
-    public final static String EXCHANGE_TOTAL_NUM_ADDRESSES = "exchange-total-num-addresses";
+    public final static String JOBINFO_TOTAL_NUM_ADDRESSES = "jobinfo-total-num-addresses";
+    /** Value: String */
+    public final static String JOBINFO_MESSAGES = "jobinfo-messages";
 
 
     // IMPORT
@@ -337,6 +339,9 @@ public class MdekKeys {
     /** Additional info: Was the currently running job canceled by user<br>
      *  Value: Boolean */
     public final static String RUNNINGJOB_CANCELED_BY_USER = "runningjob-canceled-by-user";
+    /** Additional info: various messages separated by \n describing progress/problems of job<br>
+     *  Value: String */
+    public final static String RUNNINGJOB_MESSAGES = "runningjob-messages";
 
     // Generic
     // -------

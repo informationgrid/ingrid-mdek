@@ -415,10 +415,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 // TEST
 			// test logging of current state
 			catalogService.updateImportInfoDB(IdcEntityType.ADDRESS, 1, 10, userId);
+			catalogService.updateImportInfoDBMessages("Address 1 out of 10 written !", userId);
+
 			// test cancel of job (called by client)
 //			cancelRunningJob(docIn);
 			// THROWS EXCEPTION IF CANCELED !
 			catalogService.updateImportInfoDB(IdcEntityType.OBJECT, 2, 10, userId);
+			catalogService.updateImportInfoDBMessages("Object 2 out of 10 written !", userId);
 // TEST END
 
 			// TODO implement importEntities

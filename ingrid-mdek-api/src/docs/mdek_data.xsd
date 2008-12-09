@@ -486,29 +486,33 @@
 			<xs:element name="total-num" type="xs:long"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="RESULT_EXCHANGE_MAP">
+	<xs:complexType name="RESULT_JOBINFO_MAP">
 		<xs:choice>
-			<xs:element name="exchange-start-time" type="xs:string"/>
-			<xs:element name="exchange-end-time" type="xs:string"/>
+			<xs:element name="jobinfo-start-time" type="xs:string"/>
+			<xs:element name="jobinfo-end-time" type="xs:string"/>
 			<!-- e.g. current number of exported objects at runtime -->
-			<xs:element name="exchange-num-objects" type="xs:integer"/>
-			<!-- total number of objects to export -->
-			<xs:element name="exchange-total-num-objects" type="xs:integer"/>
+			<xs:element name="jobinfo-num-objects" type="xs:integer"/>
+			<!-- e.g. total number of objects to export -->
+			<xs:element name="jobinfo-total-num-objects" type="xs:integer"/>
 			<!-- e.g. current number of exported addresses at runtime -->
-			<xs:element name="exchange-num-addresses" type="xs:integer"/>
-			<!-- total number of addresses to export -->
-			<xs:element name="exchange-total-num-addresses" type="xs:integer"/>
+			<xs:element name="jobinfo-num-addresses" type="xs:integer"/>
+			<!-- e.g. total number of addresses to export -->
+			<xs:element name="jobinfo-total-num-addresses" type="xs:integer"/>
 		</xs:choice>
 	</xs:complexType>
+	<xs:element name="jobinfo-messages" type="xs:string"/>
 	<xs:complexType name="RESULT_EXPORT_MAP">
 		<xs:complexContent>
-			<xs:extension base="RESULT_EXCHANGE_MAP">
+			<xs:extension base="RESULT_JOBINFO_MAP">
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="RESULT_IMPORT_MAP">
 		<xs:complexContent>
-			<xs:extension base="RESULT_EXCHANGE_MAP">
+			<xs:extension base="RESULT_JOBINFO_MAP">
+				<xs:sequence minOccurs="1" maxOccurs="1">
+					<xs:element ref="jobinfo-messages"/>
+				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -596,6 +600,7 @@
 			<xs:element name="runningjob-number-processed-entities" type="xs:integer"/>
 			<xs:element name="runningjob-number-total-entities" type="xs:integer"/>
 			<xs:element name="runningjob-canceled-by-user" type="xs:boolean"/>
+			<xs:element name="runningjob-messages" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SYS_LIST_MAP">

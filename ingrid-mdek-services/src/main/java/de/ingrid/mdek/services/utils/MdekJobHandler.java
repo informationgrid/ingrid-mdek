@@ -129,17 +129,43 @@ public class MdekJobHandler {
 		runningJobsMap.put(userId, jobDescr);
 	}
 
-	/** NO checks whether jobs are already running !<br>
+	/** Add keys in passed map to current job information.<br> 
+	 * NOTICE: NO checks whether jobs are already running !
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
-	public void updateRunningJob(String userId, IngridDocument jobDescr) {
+	public void updateRunningJob(String userId, Map additionalJobInfo) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("userId:" + userId + ", jobDescr: " + jobDescr);
+			LOG.debug("userId:" + userId + ", jobDescr: " + additionalJobInfo);
 		}
 		// throws exception if canceled !
 		checkRunningJobCanceledByUser(userId);
+		
+		IngridDocument jobInfo = getRunningJobInfo(userId);
+		jobInfo.putAll(additionalJobInfo);
 
-		runningJobsMap.put(userId, jobDescr);
+		runningJobsMap.put(userId, jobInfo);
 	}
+	/** Add new message to current job information.<br> 
+	 * NOTICE: NO checks whether jobs are already running !
+	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
+	public void updateRunningJobMessages(String userId, String newMessage) {
+		// throws exception if canceled !
+		checkRunningJobCanceledByUser(userId);
+
+		IngridDocument jobInfo = getRunningJobInfo(userId);
+
+		String currentMessages = jobInfo.getString(MdekKeys.RUNNINGJOB_MESSAGES);
+		if (currentMessages == null) {
+			currentMessages = "";
+		} else if (!currentMessages.endsWith("\n")) {
+			currentMessages += "\n";
+		}
+		currentMessages += newMessage;
+
+		jobInfo.put(MdekKeys.RUNNINGJOB_MESSAGES, currentMessages);
+
+		runningJobsMap.put(userId, jobInfo);
+	}
+
 
 	public void removeRunningJob(String userId) {
 		if (LOG.isDebugEnabled()) {
@@ -192,11 +218,35 @@ public class MdekJobHandler {
 		daoSysJobInfo.makePersistent(jobInfo);
 	}
 
-	/** Updates job information IN DATABASE */
-	public void updateJobInfoDB(JobType whichJob, HashMap jobDetails, String userUuid) {
+	/** Updates job information IN DATABASE, meaning add all info of passed map (keys) !
+	 * NOTICE: info in database not contained in map stays unchanged ! */
+	public void updateJobInfoDB(JobType whichJob, HashMap additionalJobDetails, String userUuid) {
 		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
+
+		HashMap jobDetails = deformatJobDetailsFromDB(jobInfo.getJobDetails());
+		jobDetails.putAll(additionalJobDetails);
 		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 
+		daoSysJobInfo.makePersistent(jobInfo);
+	}
+	/** Adds a message to the job information IN DATABASE !
+	 * NOTICE: all other infos in DB stay unchanged ! */
+	public void updateJobInfoDBMessages(JobType whichJob, String newMessage, String userUuid) {
+		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
+
+		HashMap jobDetails = deformatJobDetailsFromDB(jobInfo.getJobDetails());
+
+		String currentMessages = (String) jobDetails.get(MdekKeys.JOBINFO_MESSAGES);
+		if (currentMessages == null) {
+			currentMessages = "";
+		} else if (!currentMessages.endsWith("\n")) {
+			currentMessages += "\n";
+		}
+		currentMessages += newMessage;
+
+		jobDetails.put(MdekKeys.JOBINFO_MESSAGES, currentMessages);
+
+		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 		daoSysJobInfo.makePersistent(jobInfo);
 	}
 
@@ -234,8 +284,8 @@ public class MdekJobHandler {
 		if (jobInfo != null) {
 			HashMap jobDetails = (HashMap) deformatJobDetailsFromDB(jobInfo.getJobDetails());
 			resultMap.putAll(jobDetails);
-			resultMap.put(MdekKeys.EXCHANGE_START_TIME, jobInfo.getStartTime());
-			resultMap.put(MdekKeys.EXCHANGE_END_TIME, jobInfo.getEndTime());			
+			resultMap.put(MdekKeys.JOBINFO_START_TIME, jobInfo.getStartTime());
+			resultMap.put(MdekKeys.JOBINFO_END_TIME, jobInfo.getEndTime());			
 		}
 
 		return resultMap;
