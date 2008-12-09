@@ -184,9 +184,12 @@ class MdekExampleObjectThread extends Thread {
 		// ------------------
 		boolean timeout = false;
 		try {
-			System.out.println("\n\n----- copy check, caused error due to missing SpatialRefValue ID ! solved ! -----");
-			supertool.copyObject("38665183-B449-11D2-9A86-080000507261", "3892B136-D1F3-4E45-9E5F-E1CEF117AA74", true);
-//			copyObject("15C69C20-FE15-11D2-AF34-0060084A4596", null, true);			
+			// copy 344 objects !!!
+			supertool.copyObject("15C69C20-FE15-11D2-AF34-0060084A4596", null, true);
+
+			// copy ~50 objects
+//			supertool.copyObject("38665183-B449-11D2-9A86-080000507261", "3892B136-D1F3-4E45-9E5F-E1CEF117AA74", true);
+
 		} catch(Exception ex) {
 			timeout = true;
 		}
@@ -196,7 +199,7 @@ class MdekExampleObjectThread extends Thread {
 
 		if (timeout) {
 			// also cancels Running Job !
-			supertool.trackRunningJob(3000, false);
+			supertool.trackRunningJob(3000, true);
 		}
 
 		if (alwaysTrue) {
