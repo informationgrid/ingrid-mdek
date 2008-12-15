@@ -416,7 +416,7 @@ public class MdekKeys {
     public final static String LOCATIONS = "locations";
     /** Value: String */
     public final static String LOCATION_NAME = "location-name";
-    /** Value: String */
+    /** Value: Integer */
     public final static String LOCATION_NAME_KEY = "location-name-key";
     /** Value: String */
     public final static String LOCATION_TYPE = "location-type";

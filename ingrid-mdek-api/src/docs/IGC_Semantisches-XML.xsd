@@ -1098,10 +1098,25 @@
     </xs:complexType>
   </xs:element>
   <!--
+    Fachlicher Name: Raumbezug Name und Schluessel (Frei oder Geothesaurus)
+    Tabelle.Feld   : spatial_ref_value.name_value
+    (Tabelle.Feld   : t011_town_loc_town.name)
+    Schluessel als Attribut (id):
+    Tabelle.Feld   : spatial_ref_value.name_key (bei Frei)
+    Tabelle.Feld   : spatial_ref_sns.sns_id (bei Geothesaurus)
+  -->
+  <xs:element name="location-name" type="id-string"/>
+  <!--
     Fachlicher Name: Geothesaurus Raumbezug Topic Typ (jeweilige Schlüssel use4Type, use6Type, etc.)
     Tabelle.Feld   : spatial_ref_value.topic_type
   -->
   <xs:element name="topic-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Administrative Einheit Raumschluessel AGS/RS
+    Tabelle.Feld   : spatial_ref_value.nativekey
+    (Tabelle.Feld   : t011_town_loc_town.township_no)
+  -->
+  <xs:element name="location-code" type="xs:string"/>
   <!--
     Fachlicher Name: Freier Raumbezug
     Tabelle   : spatial_ref_value
@@ -1114,21 +1129,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <!--
-    Fachlicher Name: Raumbezug Name und Schluessel (Frei oder Geothesaurus)
-    Tabelle.Feld   : spatial_ref_value.name_value
-    (Tabelle.Feld   : t011_town_loc_town.name)
-    Schluessel::
-      Tabelle.Feld   : spatial_ref_value.name_key (bei Frei)
-      Tabelle.Feld   : spatial_ref_sns.sns_id (bei Geothesaurus)
-  -->
-  <xs:element name="location-name" type="id-string"/>
-  <!--
-    Fachlicher Name: Administrative Einheit Raumschluessel AGS/RS
-    Tabelle.Feld   : spatial_ref_value.nativekey
-    (Tabelle.Feld   : t011_town_loc_town.township_no)
-  -->
-  <xs:element name="location-code" type="xs:string"/>
   <!--
     Fachlicher Name: Bounding-Box, Beschreibung der umschlieޥnden GauݭKr�oordinaten
     Tabelle   : spatial_ref_value

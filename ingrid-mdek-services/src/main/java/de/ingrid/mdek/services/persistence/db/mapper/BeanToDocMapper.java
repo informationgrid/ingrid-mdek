@@ -532,24 +532,29 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 	/** Maps additional field definitions to doc */
-	public IngridDocument mapT08AttrTypes(List<T08AttrType> fields, IngridDocument inDoc) {
-		if (fields == null) {
+	public IngridDocument mapT08AttrTypes(List<T08AttrType> additionalFields, IngridDocument inDoc) {
+		if (additionalFields == null) {
 			return inDoc;
 		}
-		for (T08AttrType field : fields) {
-			IngridDocument fieldDoc = new IngridDocument();
-			Long fieldId = field.getId();
-			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, fieldId);
-			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, field.getName());
-			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH, field.getLength());
-			fieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE, field.getType());
+		for (T08AttrType additionalField : additionalFields) {
+			IngridDocument additionalFieldDoc = new IngridDocument();
+			Long fieldId = additionalField.getId();
+			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, fieldId);
+			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, additionalField.getName());
+			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH, additionalField.getLength());
+			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE, additionalField.getType());
 			
-			// map list items it fetched. NOTICE: are ordered via Hibernate mapping
-			Set<T08AttrList> listItems = field.getT08AttrLists();
+			// map list items if fetched. NOTICE: are ordered via Hibernate mapping
+			Set<T08AttrList> listItems = additionalField.getT08AttrLists();
 			HashMap langListsMap = new HashMap();
 			String langCode;
 			List<String> langList;
+			String listType = null;
 			for (T08AttrList listItem : listItems) {
+				if (listType == null) {
+					listType = listItem.getType();
+					additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_TYPE, listType);					
+				}
 				langCode = listItem.getLangCode();
 				langList = (List<String>) langListsMap.get(langCode);
 				if (langList == null) {
@@ -565,12 +570,12 @@ public class BeanToDocMapper implements IMapper {
 			      Map.Entry entry = (Map.Entry) it.next();
 			      langCode = (String) entry.getKey();
 			      langList = (List<String>) entry.getValue();
-			      fieldDoc.put(
+			      additionalFieldDoc.put(
 			    		  MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + langCode, 
 			    		  (String[]) langList.toArray(new String[0]));
 			    }
 			}
-			inDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + fieldId, fieldDoc);
+			inDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + fieldId, additionalFieldDoc);
 		}
 
 		return inDoc;
