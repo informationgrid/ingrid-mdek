@@ -163,7 +163,8 @@ public class ObjectNodeDaoHibernate
 		return oNodes;
 	}
 
-	public int countSubObjects(String parentUuid) {
+	/** Get total number of ALL subobjects (published or NOT!) in subtree (all levels) */
+	public int countAllSubObjects(String parentUuid) {
 		Session session = getSession();
 		
 		String q = "select count(oNode) " +

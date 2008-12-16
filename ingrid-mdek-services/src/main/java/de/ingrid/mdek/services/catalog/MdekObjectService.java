@@ -153,12 +153,12 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Fetch all sub objects of object with given uuid
+	 * Fetch sub objects of object with given uuid (only next level !)
 	 * @param parentUuid uuid of parent
 	 * @param howMuch how much data to fetch from sub objects
-	 * @return map containing representations of all sub objects
+	 * @return List of docs containing representations of sub objects
 	 */
-	public IngridDocument getSubObjects(String parentUuid, FetchQuantity howMuch,
+	public List<IngridDocument> getSubObjects(String parentUuid, FetchQuantity howMuch,
 			String userId) {
 		// Settings for fetching
 		IdcEntityVersion whichVersion = IdcEntityVersion.WORKING_VERSION;
@@ -166,8 +166,8 @@ public class MdekObjectService {
 
 		// set export specific stuff
 		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
-			// do not fetch any details, we only need uuids in node
-			whichVersion = null;
+			// only published ones can be exported ! so we fetch published version !
+			whichVersion = IdcEntityVersion.PUBLISHED_VERSION;
 		}
 
 		List<ObjectNode> oNs = 
@@ -177,10 +177,15 @@ public class MdekObjectService {
 		for (ObjectNode oN : oNs) {
 			IngridDocument objDoc = new IngridDocument();
 			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
+
+			if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
+				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
+			} else if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+				beanToDocMapper.mapT01Object(oN.getT01ObjectPublished(), objDoc, MappingQuantity.BASIC_ENTITY);				
+			}
+
 			// map details only if necessary
 			if (howMuch == FetchQuantity.EDITOR_ENTITY) {
-				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
-
 				// add permissions the user has on given object !
 				List<Permission> perms = 
 					permissionHandler.getPermissionsForObject(oN.getObjUuid(), userId, true);
@@ -190,10 +195,7 @@ public class MdekObjectService {
 			resultList.add(objDoc);
 		}
 
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.OBJ_ENTITIES, resultList);
-		
-		return result;
+		return resultList;
 	}
 
 	/**

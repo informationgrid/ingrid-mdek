@@ -1,7 +1,6 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
-import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 
 

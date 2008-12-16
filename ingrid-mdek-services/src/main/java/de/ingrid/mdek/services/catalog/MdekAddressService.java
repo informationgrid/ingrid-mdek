@@ -171,12 +171,12 @@ public class MdekAddressService {
 	}
 
 	/**
-	 * Fetch all sub addresses of address with given uuid
+	 * Fetch sub addresses of address with given uuid (only next level !)
 	 * @param parentUuid uuid of parent
 	 * @param howMuch how much data to fetch from sub addresses
-	 * @return map containing representations of all sub addresses
+	 * @return List of docs containing representations of sub addresses
 	 */
-	public IngridDocument getSubAddresses(String parentUuid, FetchQuantity howMuch,
+	public List<IngridDocument> getSubAddresses(String parentUuid, FetchQuantity howMuch,
 			String userId) {
 		// Settings for fetching
 		IdcEntityVersion whichVersion = IdcEntityVersion.WORKING_VERSION;
@@ -184,8 +184,8 @@ public class MdekAddressService {
 
 		// set export specific stuff
 		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
-			// do not fetch any details, we only need uuids in node
-			whichVersion = null;
+			// only published ones can be exported ! so we fetch published version !
+			whichVersion = IdcEntityVersion.PUBLISHED_VERSION;
 		}
 
 		List<AddressNode> aNodes =
@@ -195,10 +195,15 @@ public class MdekAddressService {
 		for (AddressNode aNode : aNodes) {
 			IngridDocument adrDoc = new IngridDocument();
 			beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
+
+			if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
+				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
+			} else if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+				beanToDocMapper.mapT02Address(aNode.getT02AddressPublished(), adrDoc, MappingQuantity.BASIC_ENTITY);
+			}
+
 			// map details only if necessary
 			if (howMuch == FetchQuantity.EDITOR_ENTITY) {
-				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
-
 				// add permissions the user has on given address !
 				List<Permission> perms =
 					permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userId, true);
@@ -208,10 +213,7 @@ public class MdekAddressService {
 			resultList.add(adrDoc);
 		}
 
-		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.ADR_ENTITIES, resultList);
-
-		return result;
+		return resultList;
 	}
 
 	/**

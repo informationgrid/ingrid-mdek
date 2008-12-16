@@ -91,7 +91,7 @@ public class MdekKeys {
      *  Value: Boolean */
     public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
 
-    // EXPORT/IMPORT RESULT
+    // JOBINFO RESULT
     /** Value: String */
     public final static String JOBINFO_START_TIME = "jobinfo-start-time";
     /** Value: String */
@@ -106,6 +106,10 @@ public class MdekKeys {
     public final static String JOBINFO_TOTAL_NUM_ADDRESSES = "jobinfo-total-num-addresses";
     /** Value: String */
     public final static String JOBINFO_MESSAGES = "jobinfo-messages";
+
+    // EXPORT RESULT
+    /** Value: byte[] */
+    public final static String EXPORT_RESULT = "export-result";
 
 
     // IMPORT

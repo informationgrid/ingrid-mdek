@@ -173,7 +173,10 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY) {
 			// child info
 	    	boolean hasChild = (oNIn.getObjectNodeChildren().size() > 0) ? true : false;
-			objectDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
+			objectDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+
+			// NOTICE: NO MAPPING OF UUID ! IS MAPPED VIA T01Object, so we can track, whether
+			// a specific version exists (working or published version)
 		}
 
 		return objectDoc;
@@ -200,7 +203,10 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY) {
 			// child info
 	    	boolean hasChild = (aNIn.getAddressNodeChildren().size() > 0) ? true : false;
-			addressDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);			
+			addressDoc.putBoolean(MdekKeys.HAS_CHILD, hasChild);
+			
+			// NOTICE: NO MAPPING OF UUID ! IS MAPPED VIA T02Address, so we can track, whether
+			// a specific version exists (working or published version)
 		}
 
 		return addressDoc;

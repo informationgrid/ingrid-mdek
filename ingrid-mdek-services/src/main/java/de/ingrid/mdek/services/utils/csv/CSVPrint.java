@@ -19,7 +19,7 @@
 
 package de.ingrid.mdek.services.utils.csv;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  * Print values as a comma separated list.

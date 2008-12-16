@@ -118,11 +118,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
-			IngridDocument result = 
+			List<IngridDocument> subObjDocs = 
 				objectService.getSubObjects(uuid, FetchQuantity.EDITOR_ENTITY, userUuid);
 
 			daoObjectNode.commitTransaction();
 
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.OBJ_ENTITIES, subObjDocs);
 			return result;
 
 		} catch (RuntimeException e) {
@@ -942,7 +944,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		int totalNumToCopy = 1;
 		if (copySubtree) {
 			// total num to copy: root + sub objects
-			totalNumToCopy = 1 + daoObjectNode.countSubObjects(sourceNode.getObjUuid()) + 1;
+			totalNumToCopy = 1 + daoObjectNode.countAllSubObjects(sourceNode.getObjUuid()) + 1;
 			updateRunningJob(userUuid, createRunningJobDescription(JobType.COPY, 0, totalNumToCopy, false));				
 		}
 

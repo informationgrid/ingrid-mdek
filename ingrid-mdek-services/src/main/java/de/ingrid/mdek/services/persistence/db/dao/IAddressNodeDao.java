@@ -61,7 +61,7 @@ public interface IAddressNodeDao
 			boolean fetchSubNodesChildren);
 
 	/** Get total number of subaddresses in subtree (all levels) */
-	int countSubAddresses(String parentUuid);
+	int countAllSubAddresses(String parentUuid);
 
 	/** Get Path of UUIDS in tree starting at root, INCLUDING given uuid. */
 	List<String> getAddressPath(String uuid);

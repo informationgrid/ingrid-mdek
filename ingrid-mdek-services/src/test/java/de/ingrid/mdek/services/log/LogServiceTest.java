@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;

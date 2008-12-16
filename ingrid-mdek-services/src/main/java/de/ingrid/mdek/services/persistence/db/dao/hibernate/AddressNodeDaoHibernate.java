@@ -148,7 +148,8 @@ public class AddressNodeDaoHibernate
 		return aNodes;
 	}
 
-	public int countSubAddresses(String parentUuid) {
+	/** Get total number of ALL subaddresses (published or NOT!) in subtree (all levels) */
+	public int countAllSubAddresses(String parentUuid) {
 		Session session = getSession();
 		
 		String q = "select count(aNode) " +

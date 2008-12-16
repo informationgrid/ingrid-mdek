@@ -308,6 +308,14 @@ public class MdekExampleSupertoolCatalog {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
+			byte[] exportResultZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+			String exportResultUnzipped = "";
+			try {
+				exportResultUnzipped = MdekExampleSupertool.decompressZippedByteArray(exportResultZipped);
+			} catch(Exception ex) {
+				System.out.println(ex);
+			}
+			System.out.println("XML:\n" + exportResultUnzipped);
 		} else {
 			supertoolGeneric.handleError(response);
 		}

@@ -498,21 +498,22 @@
 			<xs:element name="jobinfo-num-addresses" type="xs:integer"/>
 			<!-- e.g. total number of addresses to export -->
 			<xs:element name="jobinfo-total-num-addresses" type="xs:integer"/>
+			<xs:element name="jobinfo-messages" type="xs:string"/>
 		</xs:choice>
 	</xs:complexType>
-	<xs:element name="jobinfo-messages" type="xs:string"/>
 	<xs:complexType name="RESULT_EXPORT_MAP">
 		<xs:complexContent>
 			<xs:extension base="RESULT_JOBINFO_MAP">
+				<xs:sequence>
+					<!-- result of export ! (e.g. zipped XML data) -->
+					<xs:element name="export-result" type="xs:string"/>
+				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="RESULT_IMPORT_MAP">
 		<xs:complexContent>
 			<xs:extension base="RESULT_JOBINFO_MAP">
-				<xs:sequence minOccurs="1" maxOccurs="1">
-					<xs:element ref="jobinfo-messages"/>
-				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>

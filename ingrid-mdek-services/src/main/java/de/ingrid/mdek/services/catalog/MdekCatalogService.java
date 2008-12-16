@@ -146,8 +146,9 @@ public class MdekCatalogService {
         // and store
 		jobHandler.startJobInfoDB(JobType.EXPORT, details, userUuid);
 	}
-	/** Updates info of Export job IN MEMORY and IN DATABASE */
-	public void updateExportInfoDB(IdcEntityType whichType, int numExported, int totalNum, String userUuid) {
+	/** Update general info of Export job IN MEMORY and IN DATABASE */
+	public void updateExportInfoDB(IdcEntityType whichType, int numExported, int totalNum,
+			String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid, 
 				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
@@ -155,6 +156,14 @@ public class MdekCatalogService {
 		// then update job info in database
         HashMap details = setUpExchangeDetailsDB(whichType, numExported, totalNum);
 		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
+	}
+	/** Add new Message to info of Export job IN MEMORY and IN DATABASE. */
+	public void updateExportInfoDBMessages(String newMessage, String userUuid) {
+		// first update in memory job state
+		jobHandler.updateRunningJobMessages(userUuid, newMessage);
+
+		// then update job info in database
+		jobHandler.updateJobInfoDBMessages(JobType.EXPORT, newMessage, userUuid);
 	}
 	/** "logs" End-Info in Export information IN DATABASE */
 	public void endExportInfoDB(String userUuid) {
@@ -173,7 +182,8 @@ public class MdekCatalogService {
 		jobHandler.startJobInfoDB(JobType.IMPORT, null, userUuid);
 	}
 	/** Update general info of Import job IN MEMORY and IN DATABASE */
-	public void updateImportInfoDB(IdcEntityType whichType, int numImported, int totalNum, String userUuid) {
+	public void updateImportInfoDB(IdcEntityType whichType, int numImported, int totalNum,
+			String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid, 
 				jobHandler.createRunningJobDescription(JobType.IMPORT, numImported, totalNum, false));
@@ -182,7 +192,6 @@ public class MdekCatalogService {
         HashMap details = setUpExchangeDetailsDB(whichType, numImported, totalNum);
 		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
 	}
-
 	/** Add new Message to info of Import job IN MEMORY and IN DATABASE. */
 	public void updateImportInfoDBMessages(String newMessage, String userUuid) {
 		// first update in memory job state

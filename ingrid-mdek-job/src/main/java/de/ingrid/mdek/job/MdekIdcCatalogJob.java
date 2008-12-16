@@ -8,7 +8,10 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
+import de.ingrid.mdek.services.catalog.MdekExportService;
+import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
@@ -17,15 +20,18 @@ import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.xml.exporter.XMLExporter;
 import de.ingrid.utils.IngridDocument;
 
 /**
- * Encapsulates all Catalog functionality concerning access, syslists etc..
- 
+ * Encapsulates all Catalog functionality concerning access, syslists etc. 
  */
 public class MdekIdcCatalogJob extends MdekIdcJob {
 
 	private MdekCatalogService catalogService;
+	private MdekObjectService objectService;
+	private MdekAddressService addressService;
+
 	private MdekPermissionHandler permissionHandler;
 
 	private IObjectNodeDao daoObjectNode;
@@ -36,6 +42,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcCatalogJob.class), daoFactory);
 		
 		catalogService = MdekCatalogService.getInstance(daoFactory);
+		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
+
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
@@ -250,20 +259,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// initialize export info in database
 			catalogService.startExportInfoDB(IdcEntityType.OBJECT, 0, userId);
 
-// TEST
-			// test logging of current state
-			catalogService.updateExportInfoDB(IdcEntityType.OBJECT, 1, 2, userId);
-			// test cancel of job (called by client)
-			if (exportOnlyRoot) {
-				cancelRunningJob(docIn);
-			}
-			// THROWS EXCEPTION IF CANCELED !
-			catalogService.updateExportInfoDB(IdcEntityType.OBJECT, 2, 2, userId);
-// TEST END
+			MdekExportService exportCallbacks = MdekExportService.getInstance(
+					catalogService, objectService, addressService);
+			XMLExporter exporter = new XMLExporter(exportCallbacks);
+			
+			byte[] expData = exporter.exportObjectBranch(rootUuid, exportOnlyRoot, userId);
 
-			// TODO implement exportObjectBranch
-
-			// finish and fetch export info in database
+			// finish export info and fetch it
 			catalogService.endExportInfoDB(userId);
 			HashMap exportInfo = catalogService.getExportInfoDB(userId);
 
@@ -271,6 +273,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			IngridDocument result = new IngridDocument();
 			result.putAll(exportInfo);
+			result.put(MdekKeys.EXPORT_RESULT, expData);
+
 			return result;
 
 		} catch (RuntimeException e) {

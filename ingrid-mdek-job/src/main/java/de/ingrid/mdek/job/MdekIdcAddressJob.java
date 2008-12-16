@@ -115,11 +115,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 
-			IngridDocument result = 
+			List<IngridDocument> subAddrDocs = 
 				addressService.getSubAddresses(uuid, FetchQuantity.EDITOR_ENTITY, userUuid);
 
 			daoAddressNode.commitTransaction();
 
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.ADR_ENTITIES, subAddrDocs);
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1010,7 +1012,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		int totalNumToCopy = 1;
 		if (copySubtree) {
 			// total num to copy: root + sub addresses
-			totalNumToCopy = 1 + daoAddressNode.countSubAddresses(sourceNode.getAddrUuid());
+			totalNumToCopy = 1 + daoAddressNode.countAllSubAddresses(sourceNode.getAddrUuid());
 			updateRunningJob(userUuid, createRunningJobDescription(JobType.COPY, 0, totalNumToCopy, false));				
 		}
 

@@ -285,9 +285,32 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- export object branch ONLY TOP NODE -----");
 		supertool.exportObjectBranch(objUuid, true);
+		supertool.getExportInfo();
 
 		System.out.println("\n----- export object branch FULL BRANCH -----");
-		supertool.exportObjectBranch(objUuid, false);
+		try {
+			// causes timeout
+//			supertool.exportObjectBranch(topObjUuid, false);
+			supertool.exportObjectBranch(objUuid, false);
+		} catch(Exception ex) {
+			// if timeout, track running job info (still exporting) !
+			for (int i=1; i<=4; i++) {
+				// NO INFOS -> persistent export info not committed yet !
+				supertool.getExportInfo();				
+				// WITH INFOS -> also outputs running job info (in memory) !  
+				if (!supertool.hasRunningJob()) {
+					break;
+				}
+				supertool.sleep(2000);
+			}
+			// if still running, cancel it !
+			if (supertool.hasRunningJob()) {
+				supertool.cancelRunningJob();
+				// sleep, so backend notices canceled job when updating running job info 
+				supertool.sleep(2000);
+			}
+		}
+		supertool.getExportInfo();
 
 		System.out.println("\n----- export \"tagged\" objects -----");
 		supertool.exportObjects("CDS");
