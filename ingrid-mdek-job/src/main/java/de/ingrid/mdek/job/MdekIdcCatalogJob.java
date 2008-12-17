@@ -20,6 +20,8 @@ import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.xml.exporter.IExporter;
+import de.ingrid.mdek.xml.exporter.IExporterCallback;
 import de.ingrid.mdek.xml.exporter.XMLExporter;
 import de.ingrid.utils.IngridDocument;
 
@@ -259,9 +261,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// initialize export info in database
 			catalogService.startExportInfoDB(IdcEntityType.OBJECT, 0, userId);
 
-			MdekExportService exportCallbacks = MdekExportService.getInstance(
+			IExporterCallback exportCallbacks = MdekExportService.getInstance(
 					catalogService, objectService, addressService);
-			XMLExporter exporter = new XMLExporter(exportCallbacks);
+			IExporter exporter = new XMLExporter(exportCallbacks);
 			
 			byte[] expData = exporter.exportObjectBranch(rootUuid, exportOnlyRoot, userId);
 
