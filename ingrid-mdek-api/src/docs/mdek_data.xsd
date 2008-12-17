@@ -354,6 +354,8 @@
 			<xs:element ref="uuid"/>
 			<!-- export only root, no subnodes ? -->
 			<xs:element name="requestinfo_exportOnlyRoot" type="xs:boolean"/>
+			<!-- which addresses to export if virtual top node (no uuid) is selected, = IMdekCaller.AddressArea Enumeration const -->
+			<xs:element name="requestinfo_exportAddressArea" type="xs:integer"/>
 			<!-- export only objects marked with given criterion -->
 			<xs:element name="export-criterion-value" type="xs:string"/>
 		</xs:choice>

@@ -79,15 +79,36 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 			String userId);
 
 	/**
-	 * Export given object branch to XML file.
+	 * Export given object branch to XML file. Also multiple "top branches" can be exported if virtual
+	 * top node (no uuid) is selected. 
 	 * @param plugId which mdek server (iplug)
-	 * @param rootUuid object uuid of branch to export (root of branch)
-	 * @param exportOnlyRoot export only the given node, NO sub nodes
+	 * @param rootUuid object uuid of branch to export (root of branch), pass NULL if ALL objects !
+	 * @param exportOnlyRoot export only the given node, NO sub nodes.
+	 * 		if virtual top node (no uuid) is selected, this determines whether ONLY TOP NODES (true)
+	 * 		or ALL NODES (false) are exported.
 	 * @param userId calling user
 	 * @return response containing result: map containing xml data and export info
 	 */
 	IngridDocument exportObjectBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
+			String userId);
+
+	/**
+	 * Export given address branch to XML file. Also multiple "top branches" can be exported,
+	 * dependent from selected virtual top node (ALL ADRESSES or ALL FREE ADDRESSES ...)
+	 * @param plugId which mdek server (iplug)
+	 * @param rootUuid address uuid of branch to export (root of branch),
+	 * 		pass NULL if virtual top node (no uuid)
+	 * @param exportOnlyRoot export only the given node, NO sub nodes.
+	 * 		if virtual top node (no uuid) is selected, this determines whether ONLY TOP NODES (true)
+	 * 		or ALL NODES (false) underneath selected virtual top node are exported.
+	 * @param addressArea only relevant if virtual top node (no uuid): determines which address "area" to export.
+	 * @param userId calling user
+	 * @return response containing result: map containing xml data and export info
+	 */
+	IngridDocument exportAddressBranch(String plugId, String rootUuid,
+			boolean exportOnlyRoot,
+			AddressArea addressArea,
 			String userId);
 
 	/**
@@ -98,18 +119,6 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: map containing xml data and export info
 	 */
 	IngridDocument exportObjects(String plugId, String exportCriterion, String userId);
-
-	/**
-	 * Export given address branch to XML file.
-	 * @param plugId which mdek server (iplug)
-	 * @param rootUuid address uuid of branch to export (root of branch)
-	 * @param exportOnlyRoot export only the given node, NO sub nodes
-	 * @param userId calling user
-	 * @return response containing result: map containing xml data and export info
-	 */
-	IngridDocument exportAddressBranch(String plugId, String rootUuid,
-			boolean exportOnlyRoot,
-			String userId);
 
 	/** Returns information about the current/last export executed by the given user.
 	 * @param plugId which mdek server (iplug)

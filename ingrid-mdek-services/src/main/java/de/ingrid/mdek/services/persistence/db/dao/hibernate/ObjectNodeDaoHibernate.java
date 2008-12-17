@@ -62,8 +62,9 @@ public class ObjectNodeDaoHibernate
 		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch oNode.t01ObjectWork ";			
-		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+		}
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch oNode.t01ObjectPublished ";			
 		}
 		qString += "where oNode.objUuid = ?";
@@ -75,15 +76,35 @@ public class ObjectNodeDaoHibernate
 		return oN;
 	}
 
-	public List<ObjectNode> getTopObjects() {
+	public List<ObjectNode> getTopObjects(IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren) {
 		Session session = getSession();
-		List<ObjectNode> oNodes = session.createQuery(
-				"select distinct oNode from ObjectNode oNode " +
-				"left join fetch oNode.t01ObjectWork o " +
-				"left join fetch oNode.objectNodeChildren oChildren " +
-				"where oNode.fkObjUuid is null " +
-				"order by o.objName")
-				.list();
+
+		String q = "select distinct oNode from ObjectNode oNode ";
+		String objAlias = "?";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			objAlias = "oPub";
+			q += "left join fetch oNode.t01ObjectPublished " + objAlias + " ";
+		}
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			objAlias = "oWork";
+			q += "left join fetch oNode.t01ObjectWork " + objAlias + " ";
+		}
+		if (fetchSubNodesChildren) {
+			q += "left join fetch oNode.objectNodeChildren ";
+		}
+		q += "where oNode.fkObjUuid is null ";
+
+		if (whichEntityVersion != null) {
+			// only order if only ONE version requested
+			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+				q += "order by " + objAlias + ".objName"; 
+			}
+		}
+		
+		List<ObjectNode> oNodes = session.createQuery(q).list();
 
 		return oNodes;
 	}
@@ -94,19 +115,27 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct oNode from ObjectNode oNode ";
+		String objAlias = "?";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			objAlias = "oPub";
+			q += "left join fetch oNode.t01ObjectPublished " + objAlias + " ";
+		}
 		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch oNode.t01ObjectWork o ";			
-		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch oNode.t01ObjectPublished o ";			
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			objAlias = "oWork";
+			q += "left join fetch oNode.t01ObjectWork " + objAlias + " ";
 		}
 		if (fetchSubNodesChildren) {
 			q += "left join fetch oNode.objectNodeChildren ";
 		}
 		q += "where oNode.fkObjUuid = ? ";
-		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-			q += "order by o.objName"; 
+
+		if (whichEntityVersion != null) {
+			// only order if only ONE version requested
+			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+				q += "order by " + objAlias + ".objName"; 
+			}
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
@@ -122,19 +151,27 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct oNode from ObjectNode oNode ";
+		String objAlias = "?";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			objAlias = "oPub";
+			q += "left join fetch oNode.t01ObjectPublished " + objAlias + " ";
+		}
 		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch oNode.t01ObjectWork o ";
-		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch oNode.t01ObjectPublished o ";
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			objAlias = "oWork";
+			q += "left join fetch oNode.t01ObjectWork " + objAlias + " ";
 		}
 		if (fetchSubNodesChildren) {
 			q += "left join fetch oNode.objectNodeChildren ";
 		}
 		q += "where oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' ";
-		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-			q += "order by o.objName"; 
+
+		if (whichEntityVersion != null) {
+			// only order if only ONE version requested
+			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+				q += "order by " + objAlias + ".objName"; 
+			}
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
@@ -1210,7 +1247,7 @@ public class ObjectNodeDaoHibernate
 		return result;
 	}
 
-	public List<String> getExportObjectsUuids(String exportCriterion) {
+	public List<String> getObjectUuidsForExport(String exportCriterion) {
 		Session session = getSession();
 
 		String q = "select distinct oNode.objUuid " +

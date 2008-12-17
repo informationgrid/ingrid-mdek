@@ -210,8 +210,8 @@ public interface IMdekCallerAddress extends IMdekCaller {
 	 * 		true=also copy subtree<br>
 	 * 		false=only address without subAddresses
 	 * @param copyToFreeAddress<br>
-	 * 		true=copied node is free address, parent has to be null<br>
-	 * 		false=copied node is NOT free address, parent can be set, when parent is null
+	 * 		true=copied node is free address, parent (toUuid) has to be null<br>
+	 * 		false=copied node is NOT free address, parent (toUuid) can be set, when parent is null
 	 * 		copy is "normal" top address
 	 * @param userId current user to track jobs of user
 	 * @return response containing result: map containing basic data of copied address

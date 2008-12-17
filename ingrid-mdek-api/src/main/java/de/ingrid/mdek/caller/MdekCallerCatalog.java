@@ -128,10 +128,12 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 
 	public IngridDocument exportAddressBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
+			AddressArea addressArea,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, rootUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT, exportOnlyRoot);
+		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA, addressArea);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("exportAddressBranch", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);

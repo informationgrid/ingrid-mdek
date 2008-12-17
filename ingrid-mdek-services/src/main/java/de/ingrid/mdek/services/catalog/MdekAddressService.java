@@ -17,6 +17,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -171,49 +172,53 @@ public class MdekAddressService {
 	}
 
 	/**
-	 * Fetch sub addresses of address with given uuid (only next level !)
-	 * @param parentUuid uuid of parent
-	 * @param howMuch how much data to fetch from sub addresses
-	 * @return List of docs containing representations of sub addresses
+	 * Get uuids of top addresses for export (only published ones) !
+	 * @return List of uuids or empty list
 	 */
-	public List<IngridDocument> getSubAddresses(String parentUuid, FetchQuantity howMuch,
-			String userId) {
-		// Settings for fetching
-		IdcEntityVersion whichVersion = IdcEntityVersion.WORKING_VERSION;
-		boolean fetchSubNodesChildren = true;
+	public List<String> getTopAddressUuidsForExport(AddressArea addressArea) {
+		List<String> uuids = new ArrayList<String>();
 
-		// set export specific stuff
-		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
-			// only published ones can be exported ! so we fetch published version !
-			whichVersion = IdcEntityVersion.PUBLISHED_VERSION;
+		if (addressArea == AddressArea.ALL_ADDRESSES ||
+			addressArea == AddressArea.ALL_NON_FREE_ADDRESSES) {
+			List<AddressNode> nodes = daoAddressNode.getTopAddresses(false, null, false);
+			for (AddressNode node : nodes) {
+				Long idPublished = node.getAddrIdPublished();
+				if (idPublished != null) {
+					uuids.add(node.getAddrUuid());
+				}
+			}
+		}
+		if (addressArea == AddressArea.ALL_ADDRESSES ||
+			addressArea == AddressArea.ALL_FREE_ADDRESSES) {
+			List<AddressNode> nodes = daoAddressNode.getTopAddresses(true, null, false);
+			for (AddressNode node : nodes) {
+				Long idPublished = node.getAddrIdPublished();
+				if (idPublished != null) {
+					uuids.add(node.getAddrUuid());
+				}
+			}
 		}
 
-		List<AddressNode> aNodes =
-			daoAddressNode.getSubAddresses(parentUuid, whichVersion, fetchSubNodesChildren);
-		
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNodes.size());
-		for (AddressNode aNode : aNodes) {
-			IngridDocument adrDoc = new IngridDocument();
-			beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
+		return uuids;
+	}
 
-			if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
-				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
-			} else if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
-				beanToDocMapper.mapT02Address(aNode.getT02AddressPublished(), adrDoc, MappingQuantity.BASIC_ENTITY);
+	/**
+	 * Get uuids of sub addresses (only next level) for export (only published ones) !
+	 * @param parentUuid uuid of parent
+	 * @return List of uuids or empty list
+	 */
+	public List<String> getSubAddressUuidsForExport(String parentUuid) {
+		List<String> uuids = new ArrayList<String>();
+
+		List<AddressNode> nodes = daoAddressNode.getSubAddresses(parentUuid, null, false);
+		for (AddressNode node : nodes) {
+			Long idPublished = node.getAddrIdPublished();
+			if (idPublished != null) {
+				uuids.add(node.getAddrUuid());
 			}
-
-			// map details only if necessary
-			if (howMuch == FetchQuantity.EDITOR_ENTITY) {
-				// add permissions the user has on given address !
-				List<Permission> perms =
-					permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userId, true);
-				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);				
-			}
-
-			resultList.add(adrDoc);
 		}
 
-		return resultList;
+		return uuids;
 	}
 
 	/**

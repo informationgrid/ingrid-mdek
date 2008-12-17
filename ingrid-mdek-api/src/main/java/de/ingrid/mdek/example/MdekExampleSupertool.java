@@ -30,6 +30,7 @@ import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
@@ -137,8 +138,9 @@ public class MdekExampleSupertool {
 	public IngridDocument exportObjects(String exportCriteria) {
 		return supertoolCatalog.exportObjects(exportCriteria);
 	}
-	public IngridDocument exportAddressBranch(String rootUuid, boolean exportOnlyRoot) {
-		return supertoolCatalog.exportAddressBranch(rootUuid, exportOnlyRoot);
+	public IngridDocument exportAddressBranch(String rootUuid,
+			boolean exportOnlyRoot, AddressArea addressArea) {
+		return supertoolCatalog.exportAddressBranch(rootUuid, exportOnlyRoot, addressArea);
 	}
 	public IngridDocument getExportInfo() {
 		return supertoolCatalog.getExportInfo();

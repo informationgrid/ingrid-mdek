@@ -1,5 +1,6 @@
 package de.ingrid.mdek.job;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekExportService;
@@ -257,17 +259,85 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
 
 			genericDao.beginTransaction();
+			
+			List<String> uuidsToExport = new ArrayList<String>();
+			if (rootUuid != null) {
+				uuidsToExport.add(rootUuid);
+			} else {
+				uuidsToExport = objectService.getTopObjectUuidsForExport();
+			}
 
 			// initialize export info in database
-			catalogService.startExportInfoDB(IdcEntityType.OBJECT, 0, userId);
+			int totalNumToExport = 0;
+			if (exportOnlyRoot) {
+				totalNumToExport = uuidsToExport.size();
+			}
+			catalogService.startExportInfoDB(IdcEntityType.OBJECT, totalNumToExport, userId);
 
 			IExporterCallback exportCallbacks = MdekExportService.getInstance(
 					catalogService, objectService, addressService);
 			IExporter exporter = new XMLExporter(exportCallbacks);
 			
-			byte[] expData = exporter.exportObjectBranch(rootUuid, exportOnlyRoot, userId);
+			byte[] expData = exporter.exportObjects(uuidsToExport, !exportOnlyRoot, userId);
 
 			// finish export info and fetch it
+			catalogService.endExportInfoDB(userId);
+			HashMap exportInfo = catalogService.getExportInfoDB(userId);
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(exportInfo);
+			result.put(MdekKeys.EXPORT_RESULT, expData);
+
+			return result;
+
+		} catch (RuntimeException e) {
+			genericDao.rollbackTransaction();
+			RuntimeException handledExc = errorHandler.handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument exportAddressBranch(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 0, false));
+
+			String rootUuid = (String) docIn.get(MdekKeys.UUID);
+			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
+			AddressArea addressArea = (AddressArea) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA);
+
+			genericDao.beginTransaction();
+			
+			List<String> uuidsToExport = new ArrayList<String>();
+			if (rootUuid != null) {
+				uuidsToExport.add(rootUuid);
+			} else {
+				uuidsToExport = addressService.getTopAddressUuidsForExport(addressArea);
+			}
+
+			// initialize export info in database
+			int totalNumToExport = 0;
+			if (exportOnlyRoot) {
+				totalNumToExport = uuidsToExport.size();
+			}
+			catalogService.startExportInfoDB(IdcEntityType.ADDRESS, totalNumToExport, userId);
+
+			IExporterCallback exportCallbacks = MdekExportService.getInstance(
+					catalogService, objectService, addressService);
+			IExporter exporter = new XMLExporter(exportCallbacks);
+			
+			byte[] expData = exporter.exportAddresses(uuidsToExport, !exportOnlyRoot, userId);
+
+			// finish and fetch export info in database
 			catalogService.endExportInfoDB(userId);
 			HashMap exportInfo = catalogService.getExportInfoDB(userId);
 
@@ -303,15 +373,20 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 
 			// find objects to export
-			List<String> expUuids = daoObjectNode.getExportObjectsUuids(exportCriterion);
+			List<String> expUuids = daoObjectNode.getObjectUuidsForExport(exportCriterion);
 			int numToExport = expUuids.size();
 			
-			HashMap exportInfo = new HashMap(); 
+			HashMap exportInfo = new HashMap();
+			byte[] expData = new byte[0];;
 			if (numToExport > 0) {
 				// initialize export info in database
 				catalogService.startExportInfoDB(IdcEntityType.OBJECT, numToExport, userId);
 
-				// TODO implement exportObjects
+				IExporterCallback exportCallbacks = MdekExportService.getInstance(
+						catalogService, objectService, addressService);
+				IExporter exporter = new XMLExporter(exportCallbacks);
+				
+				expData = exporter.exportObjects(expUuids, false, userId);
 
 				// finish and fetch export info in database
 				catalogService.endExportInfoDB(userId);
@@ -322,50 +397,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			IngridDocument result = new IngridDocument();
 			result.putAll(exportInfo);
-			return result;
+			result.put(MdekKeys.EXPORT_RESULT, expData);
 
-		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
-			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
-		    throw handledExc;
-		} finally {
-			if (removeRunningJob) {
-				removeRunningJob(userId);				
-			}
-		}
-	}
-
-	public IngridDocument exportAddressBranch(IngridDocument docIn) {
-		String userId = getCurrentUserUuid(docIn);
-		boolean removeRunningJob = true;
-		try {
-			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 0, false));
-
-			String rootUuid = (String) docIn.get(MdekKeys.UUID);
-			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
-
-			genericDao.beginTransaction();
-
-			// initialize export info in database
-			catalogService.startExportInfoDB(IdcEntityType.ADDRESS, 0, userId);
-
-// TEST
-			// test logging of current state
-			catalogService.updateExportInfoDB(IdcEntityType.ADDRESS, 1, 1, userId);
-// TEST END
-
-			// TODO implement exportObjectBranch
-
-			// finish and fetch export info in database
-			catalogService.endExportInfoDB(userId);
-			HashMap exportInfo = catalogService.getExportInfoDB(userId);
-
-			genericDao.commitTransaction();
-
-			IngridDocument result = new IngridDocument();
-			result.putAll(exportInfo);
 			return result;
 
 		} catch (RuntimeException e) {

@@ -153,49 +153,40 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Fetch sub objects of object with given uuid (only next level !)
-	 * @param parentUuid uuid of parent
-	 * @param howMuch how much data to fetch from sub objects
-	 * @return List of docs containing representations of sub objects
+	 * Get uuids of top objects for export (only published ones) !
+	 * @return List of uuids or empty list
 	 */
-	public List<IngridDocument> getSubObjects(String parentUuid, FetchQuantity howMuch,
-			String userId) {
-		// Settings for fetching
-		IdcEntityVersion whichVersion = IdcEntityVersion.WORKING_VERSION;
-		boolean fetchSubNodesChildren = true;
+	public List<String> getTopObjectUuidsForExport() {
+		List<String> uuids = new ArrayList<String>();
 
-		// set export specific stuff
-		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
-			// only published ones can be exported ! so we fetch published version !
-			whichVersion = IdcEntityVersion.PUBLISHED_VERSION;
+		List<ObjectNode> nodes = daoObjectNode.getTopObjects(null, false);
+		for (ObjectNode node : nodes) {
+			Long idPublished = node.getObjIdPublished();
+			if (idPublished != null) {
+				uuids.add(node.getObjUuid());
+			}
 		}
 
-		List<ObjectNode> oNs = 
-			daoObjectNode.getSubObjects(parentUuid, whichVersion, fetchSubNodesChildren);
+		return uuids;
+	}
 
-		ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
-		for (ObjectNode oN : oNs) {
-			IngridDocument objDoc = new IngridDocument();
-			beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
+	/**
+	 * Get uuids of sub objects (only next level) for export (only published ones) !
+	 * @param parentUuid uuid of parent
+	 * @return List of uuids or empty list
+	 */
+	public List<String> getSubObjectUuidsForExport(String parentUuid) {
+		List<String> uuids = new ArrayList<String>();
 
-			if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
-				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
-			} else if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
-				beanToDocMapper.mapT01Object(oN.getT01ObjectPublished(), objDoc, MappingQuantity.BASIC_ENTITY);				
+		List<ObjectNode> nodes = daoObjectNode.getSubObjects(parentUuid, null, false);
+		for (ObjectNode node : nodes) {
+			Long idPublished = node.getObjIdPublished();
+			if (idPublished != null) {
+				uuids.add(node.getObjUuid());
 			}
-
-			// map details only if necessary
-			if (howMuch == FetchQuantity.EDITOR_ENTITY) {
-				// add permissions the user has on given object !
-				List<Permission> perms = 
-					permissionHandler.getPermissionsForObject(oN.getObjUuid(), userId, true);
-				beanToDocMapperSecurity.mapPermissionList(perms, objDoc);				
-			}
-
-			resultList.add(objDoc);
 		}
 
-		return resultList;
+		return uuids;
 	}
 
 	/**

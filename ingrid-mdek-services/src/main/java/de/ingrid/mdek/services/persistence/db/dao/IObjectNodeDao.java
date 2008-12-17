@@ -33,8 +33,14 @@ public interface IObjectNodeDao
 	 */
 	ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion);
 
-	/** Get root objects. */
-	List<ObjectNode> getTopObjects();
+	/**
+	 * Get top root objects. Also prefetch concrete object instance in nodes if requested.
+	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @param fetchSubNodesChildren also fetch children in fetched topnodes to determine whether subnodes ?
+	 * @return
+	 */
+	List<ObjectNode> getTopObjects(IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren);
 
 	/**
 	 * Fetches sub nodes (next level) of parent with given uuid. 
@@ -209,5 +215,5 @@ public interface IObjectNodeDao
 	 * @param exportCriterion "tagged value" used to mark objects for export
 	 * @return uuids of objects to export
 	 */
-	List<String> getExportObjectsUuids(String exportCriterion);
+	List<String> getObjectUuidsForExport(String exportCriterion);
 }

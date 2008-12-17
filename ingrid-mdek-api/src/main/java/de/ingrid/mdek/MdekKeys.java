@@ -90,6 +90,9 @@ public class MdekKeys {
     /** Export only the root node of a branch ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
+    /** If virtual top address node is selected (no uuid), this determines which area to export ? (free addresses or ...)<br>
+     *  Value: IMdekCaller.AddressArea Enumeration const */
+    public final static String REQUESTINFO_EXPORT_ADDRESS_AREA = "requestinfo_exportAddressArea";
 
     // JOBINFO RESULT
     /** Value: String */

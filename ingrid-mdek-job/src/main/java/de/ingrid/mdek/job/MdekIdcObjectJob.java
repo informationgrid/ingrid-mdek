@@ -84,7 +84,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String userUuid = getCurrentUserUuid(params);
 
 			// fetch top Objects
-			List<ObjectNode> oNs = daoObjectNode.getTopObjects();
+			List<ObjectNode> oNs = daoObjectNode.getTopObjects(IdcEntityVersion.WORKING_VERSION, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {
@@ -98,10 +98,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 				resultList.add(objDoc);
 			}
+
+			daoObjectNode.commitTransaction();
+
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.OBJ_ENTITIES, resultList);
 
-			daoObjectNode.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
@@ -118,8 +120,22 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
-			List<IngridDocument> subObjDocs = 
-				objectService.getSubObjects(uuid, FetchQuantity.EDITOR_ENTITY, userUuid);
+			List<ObjectNode> oNs = 
+				daoObjectNode.getSubObjects(uuid, IdcEntityVersion.WORKING_VERSION, true);
+
+			ArrayList<IngridDocument> subObjDocs = new ArrayList<IngridDocument>(oNs.size());
+			for (ObjectNode oN : oNs) {
+				IngridDocument objDoc = new IngridDocument();
+				beanToDocMapper.mapObjectNode(oN, objDoc, MappingQuantity.TREE_ENTITY);
+				beanToDocMapper.mapT01Object(oN.getT01ObjectWork(), objDoc, MappingQuantity.TREE_ENTITY);
+
+				// add permissions the user has on given object !
+				List<Permission> perms = 
+					permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid, true);
+				beanToDocMapperSecurity.mapPermissionList(perms, objDoc);				
+
+				subObjDocs.add(objDoc);
+			}
 
 			daoObjectNode.commitTransaction();
 

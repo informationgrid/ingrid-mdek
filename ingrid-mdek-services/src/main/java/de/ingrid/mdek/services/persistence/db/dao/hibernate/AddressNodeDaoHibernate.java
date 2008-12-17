@@ -61,9 +61,10 @@ public class AddressNodeDaoHibernate
 		String qString = "from AddressNode aNode ";
 		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			qString += "left join fetch aNode.t02AddressWork ";			
-		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			qString += "left join fetch aNode.t02AddressWork ";
+		}
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch aNode.t02AddressPublished ";			
 		}
 		qString += "where aNode.addrUuid = ?";
@@ -75,20 +76,45 @@ public class AddressNodeDaoHibernate
 		return aN;
 	}
 
-	public List<AddressNode> getTopAddresses(boolean onlyFreeAddresses) {
+	public List<AddressNode> getTopAddresses(boolean onlyFreeAddresses,
+			IdcEntityVersion whichEntityVersion,
+			boolean fetchSubNodesChildren) {
 		Session session = getSession();
-		String query = "select distinct aNode from AddressNode aNode " +
-			"left join fetch aNode.t02AddressWork a " +
-			"left join fetch aNode.addressNodeChildren aChildren " +
-			"where aNode.fkAddrUuid is null ";
-		if (onlyFreeAddresses) {
-			query += "and a.adrType=" + AddressType.FREI.getDbValue();
-		} else {
-			query += "and a.adrType!=" + AddressType.FREI.getDbValue();			
+
+		String q = "select distinct aNode from AddressNode aNode ";
+		String addrAlias = "?";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			addrAlias = "aPub";
+			q += "left join fetch aNode.t02AddressPublished " + addrAlias + " ";
 		}
-		query += "order by a.adrType desc, a.institution, a.lastname, a.firstname";
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			addrAlias = "aWork";
+			q += "left join fetch aNode.t02AddressWork " + addrAlias + " ";
+		}
+		if (fetchSubNodesChildren) {
+			q += "left join fetch aNode.addressNodeChildren aChildren ";
+		}
+		q += "where aNode.fkAddrUuid is null ";
+
+		if (whichEntityVersion != null) {
+			if (onlyFreeAddresses) {
+				q += "and " + addrAlias + ".adrType=" + AddressType.FREI.getDbValue();
+			} else {
+				q += "and " + addrAlias + ".adrType!=" + AddressType.FREI.getDbValue();			
+			}
+			// only order if only ONE version requested
+			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+				q += "order by " + 
+					addrAlias + ".adrType desc, " +
+					addrAlias + ".institution, " +
+					addrAlias + ".lastname, " +
+					addrAlias + ".firstname"; 
+			}
+		}
 		
-		List<AddressNode> aNodes = session.createQuery(query).list();
+		List<AddressNode> aNodes = session.createQuery(q).list();
 
 		return aNodes;
 	}
@@ -99,19 +125,31 @@ public class AddressNodeDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct aNode from AddressNode aNode ";
+		String addrAlias = "?";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			addrAlias = "aPub";
+			q += "left join fetch aNode.t02AddressPublished " + addrAlias + " ";
+		}
 		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch aNode.t02AddressWork a ";			
-		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch aNode.t02AddressPublished a ";			
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			addrAlias = "aWork";
+			q += "left join fetch aNode.t02AddressWork " + addrAlias + " ";
 		}
 		if (fetchSubNodesChildren) {
 			q += "left join fetch aNode.addressNodeChildren aChildren ";
 		}
 		q += "where aNode.fkAddrUuid = ? ";
-		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-			q += "order by a.adrType desc, a.institution, a.lastname, a.firstname"; 
+
+		if (whichEntityVersion != null) {
+			// only order if only ONE version requested
+			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+				q += "order by " + 
+					addrAlias + ".adrType desc, " +
+					addrAlias + ".institution, " +
+					addrAlias + ".lastname, " +
+					addrAlias + ".firstname"; 
+			}
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q)
@@ -127,19 +165,31 @@ public class AddressNodeDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct aNode from AddressNode aNode ";
+		String addrAlias = "?";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			addrAlias = "aPub";
+			q += "left join fetch aNode.t02AddressPublished " + addrAlias + " ";
+		}
 		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch aNode.t02AddressWork a ";			
-		} else if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
-				whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			q += "left join fetch aNode.t02AddressPublished a ";			
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			addrAlias = "aWork";
+			q += "left join fetch aNode.t02AddressWork " + addrAlias + " ";
 		}
 		if (fetchSubNodesChildren) {
 			q += "left join fetch aNode.addressNodeChildren aChildren ";
 		}
 		q += "where aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' ";
-		if (whichEntityVersion != null && whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-			q += "order by a.adrType desc, a.institution, a.lastname, a.firstname"; 
+
+		if (whichEntityVersion != null) {
+			// only order if only ONE version requested
+			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+				q += "order by " + 
+					addrAlias + ".adrType desc, " +
+					addrAlias + ".institution, " +
+					addrAlias + ".lastname, " +
+					addrAlias + ".firstname"; 
+			}
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q)

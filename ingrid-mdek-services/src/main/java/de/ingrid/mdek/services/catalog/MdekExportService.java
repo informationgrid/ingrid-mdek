@@ -1,9 +1,7 @@
 package de.ingrid.mdek.services.catalog;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
@@ -49,26 +47,6 @@ public class MdekExportService implements IExporterCallback {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getSubObjects(java.lang.String, java.lang.String)
-	 */
-	public List<String> getSubObjects(String parentUuid, String userUuid) {
-		List<IngridDocument> objDocs =
-			objectService.getSubObjects(parentUuid, FetchQuantity.EXPORT_ENTITY, userUuid);
-
-		List<String> objUuids = new ArrayList<String>();
-		for (IngridDocument objDoc : objDocs) {
-			// NOTICE: we fetched published version of sub objects ! may not exist, so we filter
-			// "empty" docs.
-			String uuid = objDoc.getString(MdekKeys.UUID);
-			if (uuid != null) {
-				objUuids.add(uuid);				
-			}
-		}
-		
-		return objUuids;
-	}
-
-	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getAddressDetails(java.lang.String, java.lang.String)
 	 */
 	public IngridDocument getAddressDetails(String addrUuid, String userUuid) {
@@ -79,24 +57,19 @@ public class MdekExportService implements IExporterCallback {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getSubObjects(java.lang.String, java.lang.String)
+	 */
+	public List<String> getSubObjects(String parentUuid, String userUuid) {
+		return objectService.getSubObjectUuidsForExport(parentUuid);
+	}
+
+	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getSubAddresses(java.lang.String, java.lang.String)
 	 */
 	public List<String> getSubAddresses(String parentUuid, String userUuid) {
-		List<IngridDocument> addrDocs =
-			addressService.getSubAddresses(parentUuid, FetchQuantity.EXPORT_ENTITY, userUuid);
-
-		List<String> addrUuids = new ArrayList<String>();
-		for (IngridDocument addrDoc : addrDocs) {
-			// NOTICE: we fetched published version of sub addresses ! may not exist, so we filter
-			// "empty" docs.
-			String uuid = addrDoc.getString(MdekKeys.UUID);
-			if (uuid != null) {
-				addrUuids.add(uuid);
-			}
-		}
-		
-		return addrUuids;
+		return addressService.getSubAddressUuidsForExport(parentUuid);
 	}
+
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getSysAdditionalFields(java.lang.Long[])

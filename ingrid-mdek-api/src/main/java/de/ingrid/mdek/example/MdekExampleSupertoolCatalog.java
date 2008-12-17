@@ -9,6 +9,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -348,7 +349,9 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument exportAddressBranch(String rootUuid, boolean exportOnlyRoot) {
+	public IngridDocument exportAddressBranch(String rootUuid,
+			boolean exportOnlyRoot,
+			AddressArea addressArea) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -358,8 +361,10 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("\n###### INVOKE exportAddressBranch ######");
 		System.out.println("- top node of branch: " + rootUuid);
 		System.out.println("- export only top node: " + exportOnlyRoot);
+		System.out.println("- addressArea (if top node NULL): " + addressArea);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.exportAddressBranch(plugId, rootUuid, exportOnlyRoot,
+		response = mdekCallerCatalog.exportAddressBranch(plugId, rootUuid,
+				exportOnlyRoot, addressArea,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;

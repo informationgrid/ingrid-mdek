@@ -18,6 +18,15 @@ public interface IMdekCaller {
 		EDITOR_ENTITY,
 	}
 
+	/** Helper enum when selected address node is virtual (e.g. virtual Root Node of Free Addresses) to
+	 * determine which addresses to process */
+	public enum AddressArea {
+		/** includes free and non-free addresses */
+		ALL_ADDRESSES,
+		ALL_FREE_ADDRESSES,
+		ALL_NON_FREE_ADDRESSES,
+	}
+
 	/**
 	 * Returns info about the version of the MdekServer (iPlug).
 	 * @param plugId which mdek server (iplug)

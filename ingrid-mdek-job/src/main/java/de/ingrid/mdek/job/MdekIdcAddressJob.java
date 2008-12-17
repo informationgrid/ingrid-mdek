@@ -81,7 +81,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			boolean onlyFreeAddresses = (onlyFreeAddressesIn == null) ? false : onlyFreeAddressesIn;
 
 			// fetch top Addresses
-			List<AddressNode> aNs = daoAddressNode.getTopAddresses(onlyFreeAddresses);
+			List<AddressNode> aNs = daoAddressNode.getTopAddresses(
+					onlyFreeAddresses, IdcEntityVersion.WORKING_VERSION, true);
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(aNs.size());
 			for (AddressNode aN : aNs) {
@@ -95,10 +96,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 				resultList.add(adrDoc);
 			}
+
+			daoAddressNode.commitTransaction();
+
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.ADR_ENTITIES, resultList);
 
-			daoAddressNode.commitTransaction();
 			return result;
 
 		} catch (RuntimeException e) {
@@ -115,8 +118,22 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 
-			List<IngridDocument> subAddrDocs = 
-				addressService.getSubAddresses(uuid, FetchQuantity.EDITOR_ENTITY, userUuid);
+			List<AddressNode> aNodes =
+				daoAddressNode.getSubAddresses(uuid, IdcEntityVersion.WORKING_VERSION, true);
+			
+			ArrayList<IngridDocument> subAddrDocs = new ArrayList<IngridDocument>(aNodes.size());
+			for (AddressNode aNode : aNodes) {
+				IngridDocument adrDoc = new IngridDocument();
+				beanToDocMapper.mapAddressNode(aNode, adrDoc, MappingQuantity.TREE_ENTITY);
+				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), adrDoc, MappingQuantity.TREE_ENTITY);
+
+				// add permissions the user has on given address !
+				List<Permission> perms =
+					permissionHandler.getPermissionsForAddress(aNode.getAddrUuid(), userUuid, true);
+				beanToDocMapperSecurity.mapPermissionList(perms, adrDoc);				
+
+				subAddrDocs.add(adrDoc);
+			}
 
 			daoAddressNode.commitTransaction();
 
