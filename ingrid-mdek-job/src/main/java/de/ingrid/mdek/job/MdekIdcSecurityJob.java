@@ -91,6 +91,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getGroups(IngridDocument params) {
 		try {
 			daoIdcGroup.beginTransaction();
+			dao.disableAutoFlush();
 
 			Boolean includeCatAdminGroup = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_INCLUDE_CATADMIN_GROUP);
 
@@ -132,6 +133,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getGroupDetails(IngridDocument params) {
 		try {
 			daoIdcGroup.beginTransaction();
+			dao.disableAutoFlush();
 
 			String name = params.getString(MdekKeys.NAME);
 			IngridDocument result = getGroupDetails(name);
@@ -161,6 +163,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getUsersOfGroup(IngridDocument params) {
 		try {
 			daoIdcUser.beginTransaction();
+			dao.disableAutoFlush();
 
 			String name = params.getString(MdekKeys.NAME);
 			
@@ -373,6 +376,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getAddressPermissions(IngridDocument params) {
 		try {
 			dao.beginTransaction();
+			dao.disableAutoFlush();
 
 			String addrUuid = params.getString(MdekKeys.UUID);
 			String userAddrUuid = getCurrentUserUuid(params);
@@ -396,6 +400,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getObjectPermissions(IngridDocument params) {
 		try {
 			dao.beginTransaction();
+			dao.disableAutoFlush();
 
 			String objUuid = params.getString(MdekKeys.UUID);
 			String userAddrUuid = getCurrentUserUuid(params);
@@ -419,6 +424,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getUserPermissions(IngridDocument params) {
 		try {
 			dao.beginTransaction();
+			dao.disableAutoFlush();
 
 			String userAddrUuid = getCurrentUserUuid(params);
 
@@ -440,6 +446,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getUserDetails(IngridDocument params) {
 		try {
 			daoIdcUser.beginTransaction();
+			dao.disableAutoFlush();
 
 			String addrUuid = params.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 			IngridDocument result = getUserDetails(addrUuid);
@@ -703,6 +710,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getCatalogAdmin(IngridDocument uDocIn) {
 		try {
 			daoIdcUser.beginTransaction();
+			dao.disableAutoFlush();
 
 			IdcUser user = permService.getCatalogAdmin();
 			if (user == null) {
@@ -727,6 +735,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getSubUsers(IngridDocument params) {
 		try {
 			daoIdcUser.beginTransaction();
+			dao.disableAutoFlush();
+
 			Long usrId = (Long) params.get(MdekKeysSecurity.IDC_USER_ID);
 
 			List<IdcUser> subUsers = daoIdcUser.getSubUsers(usrId);
@@ -754,6 +764,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getUsersWithWritePermissionForObject(IngridDocument params) {
 		try {
 			daoIdcUser.beginTransaction();
+			dao.disableAutoFlush();
 
 			String objUuid = (String) params.get(MdekKeys.UUID);
 			Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
@@ -795,6 +806,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	public IngridDocument getUsersWithWritePermissionForAddress(IngridDocument params) {
 		try {
 			daoIdcUser.beginTransaction();
+			dao.disableAutoFlush();
 
 			String addrUuid = (String) params.get(MdekKeys.UUID);
 			Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);

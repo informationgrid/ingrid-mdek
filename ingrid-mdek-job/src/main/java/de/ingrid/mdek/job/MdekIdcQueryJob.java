@@ -7,6 +7,8 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
@@ -24,6 +26,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	private IObjectNodeDao daoObjectNode;
 	private IHQLDao daoHQL;
 
+	/** Generic dao for class unspecific operations !!! */
+	private IGenericDao<IEntity> dao;
+
 	public MdekIdcQueryJob(ILogService logService,
 			DaoFactory daoFactory) {
 		super(logService.getLogger(MdekIdcQueryJob.class), daoFactory);
@@ -31,6 +36,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoHQL = daoFactory.getHQLDao();
+		dao = daoFactory.getDao(IEntity.class);
 	}
 
 	public IngridDocument queryAddressesFullText(IngridDocument params) {
@@ -41,6 +47,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			String searchTerm = searchParams.getString(MdekKeys.SEARCH_TERM);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			long totalNumHits = daoAddressNode.queryAddressesFullTextTotalNum(searchTerm);
 
@@ -81,6 +88,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			String termSnsId = searchParams.getString(MdekKeys.TERM_SNS_ID);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			long totalNumHits = daoAddressNode.queryAddressesThesaurusTermTotalNum(termSnsId);
 
@@ -121,6 +129,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			String searchTerm = searchParams.getString(MdekKeys.SEARCH_TERM);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			long totalNumHits = daoObjectNode.queryObjectsFullTextTotalNum(searchTerm);
 
@@ -161,6 +170,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			String termSnsId = searchParams.getString(MdekKeys.TERM_SNS_ID);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			long totalNumHits = daoObjectNode.queryObjectsThesaurusTermTotalNum(termSnsId);
 
@@ -200,6 +210,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
 
 			daoHQL.beginTransaction();
+			dao.disableAutoFlush();
 
 			long totalNumHits = daoHQL.queryHQLTotalNum(hqlQuery);
 
@@ -261,6 +272,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
 
 			daoHQL.beginTransaction();
+			dao.disableAutoFlush();
 
 			IngridDocument result = daoHQL.queryHQLToCsv(hqlQuery);
 
@@ -281,6 +293,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 
 			daoHQL.beginTransaction();
+			dao.disableAutoFlush();
 
 			IngridDocument result = daoHQL.queryHQLToMap(hqlQuery, numHits);
 
@@ -303,7 +316,8 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 		// execute the query
 		try {
 			daoObjectNode.beginTransaction();
-			
+			dao.disableAutoFlush();
+
 			long totalNumHits = daoObjectNode.queryObjectsExtendedTotalNum(searchParams);
 
 			List<ObjectNode> hits = new ArrayList<ObjectNode>();
@@ -343,7 +357,8 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 		// execute the query
 		try {
 			daoObjectNode.beginTransaction();
-			
+			dao.disableAutoFlush();
+
 			long totalNumHits = daoAddressNode.queryAddressesExtendedTotalNum(searchParams);
 
 			List<AddressNode> hits = new ArrayList<AddressNode>();

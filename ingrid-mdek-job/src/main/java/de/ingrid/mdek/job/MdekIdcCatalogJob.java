@@ -57,6 +57,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument getCatalog(IngridDocument params) {
 		try {
 			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			IngridDocument result = fetchCatalog();
 
@@ -139,6 +140,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String language = params.getString(MdekKeys.LANGUAGE);
 
 			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			IngridDocument result = catalogService.getSysLists(lstIds, language);
 			
@@ -157,7 +159,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String[] guiIds = (String[]) params.get(MdekKeys.SYS_GUI_IDS);
 
 			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
+
 			IngridDocument result = getSysGuis(guiIds);
+
 			genericDao.commitTransaction();
 
 			return result;
@@ -235,6 +240,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String language = params.getString(MdekKeys.LANGUAGE);
 
 			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			IngridDocument result = catalogService.getSysAdditionalFields(fieldIds, language);
 
@@ -316,7 +322,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			AddressArea addressArea = (AddressArea) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA);
 
 			genericDao.beginTransaction();
-			
+
 			List<String> uuidsToExport = new ArrayList<String>();
 			if (rootUuid != null) {
 				uuidsToExport.add(rootUuid);
@@ -417,6 +423,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		String userId = getCurrentUserUuid(docIn);
 		try {
 			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
 
 			HashMap exportInfo = catalogService.getExportInfoDB(userId);
 
@@ -491,6 +498,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		String userId = getCurrentUserUuid(docIn);
 		try {
 			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			HashMap importInfo = catalogService.getImportInfoDB(userId);
 

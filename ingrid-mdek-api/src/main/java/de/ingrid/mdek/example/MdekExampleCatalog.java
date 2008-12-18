@@ -338,7 +338,6 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- fetch address EXPORT_ENTITY quantity -----");
 		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
-		supertool.getExportInfo();
 
 		System.out.println("\n----- get LAST Export Info -----");
 		supertool.getExportInfo();
@@ -364,7 +363,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getExportInfo();
 
 		System.out.println("\n----- export addresses ALL NON FREE ADDRESSES (including subnodes) -----");
-		supertool.exportAddressBranch(null, false, AddressArea.ALL_FREE_ADDRESSES);
+		supertool.exportAddressBranch(null, false, AddressArea.ALL_NON_FREE_ADDRESSES);
 		supertool.getExportInfo();
 
 

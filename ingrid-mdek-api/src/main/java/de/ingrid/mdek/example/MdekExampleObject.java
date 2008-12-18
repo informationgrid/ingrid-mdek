@@ -540,7 +540,9 @@ class MdekExampleObjectThread extends Thread {
 		// tree: sub objects
 
 		System.out.println("\n----- sub objects -----");
-		supertool.fetchSubObjects(parentUuid);
+//		supertool.fetchSubObjects(parentUuid);
+		// > 400 subobjects !
+		supertool.fetchSubObjects("81171714-018E-11D5-87AF-00600852CACF");
 
 		// -----------------------------------
 		// tree: object path

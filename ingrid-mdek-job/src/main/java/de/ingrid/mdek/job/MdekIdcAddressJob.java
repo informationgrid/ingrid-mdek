@@ -75,6 +75,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public IngridDocument getTopAddresses(IngridDocument params) {
 		try {
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			String userUuid = getCurrentUserUuid(params);
 			Boolean onlyFreeAddressesIn = (Boolean) params.get(MdekKeys.REQUESTINFO_ONLY_FREE_ADDRESSES);
@@ -117,6 +118,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			List<AddressNode> aNodes =
 				daoAddressNode.getSubAddresses(uuid, IdcEntityVersion.WORKING_VERSION, true);
@@ -151,6 +153,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public IngridDocument getAddressPath(IngridDocument params) {
 		try {
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			List<String> uuidList = daoAddressNode.getAddressPath(uuid);
@@ -180,6 +183,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				(FetchQuantity) params.get(MdekKeys.REQUESTINFO_FETCH_QUANTITY);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getAddrDetails (uuid='"+uuid+"').");
@@ -210,6 +214,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public IngridDocument getAddressObjectReferences(IngridDocument params) {
 		try {
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 //			String userUuid = getCurrentUserUuid(params);
 			String addrUuid = (String) params.get(MdekKeys.UUID);
@@ -246,7 +251,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		String userUuid = getCurrentUserUuid(aDocIn);
 		try {
 			daoAddressNode.beginTransaction();
-			
+			daoAddressNode.disableAutoFlush();
+
 			// take over data from parent (if set)
 			String parentUuid = aDocIn.getString(MdekKeys.PARENT_UUID);
 			if (parentUuid != null) {
@@ -293,6 +299,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			IngridDocument result =	daoAddressNode.getWorkAddresses(userUuid,
 					selectionType, orderBy, orderAsc,
@@ -376,6 +383,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			boolean isCatAdmin = permissionHandler.isCatalogAdmin(userUuid);
 
@@ -435,6 +443,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			IngridDocument result =
 				daoAddressNode.getAddressStatistics(parentUuid, onlyFreeAddresses, selectionType, startHit, numHits);
@@ -827,6 +836,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String rootUuid = (String) params.get(MdekKeys.UUID);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			IngridDocument checkResult = checkAddressTreeWorkingCopies(rootUuid);
 
@@ -962,6 +972,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			IngridDocument inSearchParams = (IngridDocument) params.get(MdekKeys.SEARCH_PARAMS);
 
 			daoAddressNode.beginTransaction();
+			daoAddressNode.disableAutoFlush();
 
 			long totalNumHits = daoAddressNode.searchTotalNumAddresses(inSearchParams);
 

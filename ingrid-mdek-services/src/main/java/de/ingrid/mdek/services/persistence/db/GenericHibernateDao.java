@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.FlushMode;
 import org.hibernate.LockMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.StaleObjectStateException;
@@ -166,4 +167,7 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
         return crit.list();
     }
 
+    public void disableAutoFlush() {
+        getSession().setFlushMode(FlushMode.MANUAL);
+    }
 }

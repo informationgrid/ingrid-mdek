@@ -80,6 +80,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	public IngridDocument getTopObjects(IngridDocument params) {
 		try {
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			String userUuid = getCurrentUserUuid(params);
 
@@ -119,6 +120,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			List<ObjectNode> oNs = 
 				daoObjectNode.getSubObjects(uuid, IdcEntityVersion.WORKING_VERSION, true);
@@ -153,6 +155,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	public IngridDocument getObjectPath(IngridDocument params) {
 		try {
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			List<String> uuidList = daoObjectNode.getObjectPath(uuid);
@@ -180,6 +183,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				(FetchQuantity) params.get(MdekKeys.REQUESTINFO_FETCH_QUANTITY);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			if (log.isDebugEnabled()) {
 				log.debug("Invoke getObjDetails (uuid='"+uuid+"').");
@@ -208,7 +212,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		String userUuid = getCurrentUserUuid(oDocIn);
 		try {
 			daoObjectNode.beginTransaction();
-			
+			daoObjectNode.disableAutoFlush();
+
 			// take over data from parent (if set)
 			String parentUuid = oDocIn.getString(MdekKeys.PARENT_UUID);
 			if (parentUuid != null) {
@@ -274,6 +279,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			IngridDocument result =	daoObjectNode.getWorkObjects(userUuid,
 					selectionType, orderBy, orderAsc,
@@ -358,6 +364,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			boolean isCatAdmin = permissionHandler.isCatalogAdmin(userUuid);
 
@@ -417,6 +424,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Integer numHits = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			IngridDocument result =
 				daoObjectNode.getObjectStatistics(parentUuid, selectionType, startHit, numHits);
@@ -812,6 +820,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String rootUuid = (String) params.get(MdekKeys.UUID);
 
 			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
 
 			IngridDocument checkResult = checkObjectTreeWorkingCopies(rootUuid);
 

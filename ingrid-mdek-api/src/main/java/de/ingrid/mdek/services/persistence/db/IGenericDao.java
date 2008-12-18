@@ -35,4 +35,9 @@ public interface IGenericDao<T extends IEntity> extends
 
 	void makeTransient(T entity);
 
+	/** Hibernate per default flushes before EVERY QUERY causing huge performance loss (dependent from
+	 * number of beans in session). This method disables auto flushing and switches to
+	 * manual flushing. This mode is very efficient for read only transactions. 
+	 */
+	void disableAutoFlush();
 }
