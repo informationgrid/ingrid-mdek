@@ -180,8 +180,10 @@ public class MdekAddressService {
 
 		if (addressArea == AddressArea.ALL_ADDRESSES ||
 			addressArea == AddressArea.ALL_NON_FREE_ADDRESSES) {
-			List<AddressNode> nodes = daoAddressNode.getTopAddresses(false, null, false);
+			List<AddressNode> nodes = daoAddressNode.getTopAddresses(
+					false, IdcEntityVersion.PUBLISHED_VERSION, false);
 			for (AddressNode node : nodes) {
+				// further check whether published, just to be sure !
 				Long idPublished = node.getAddrIdPublished();
 				if (idPublished != null) {
 					uuids.add(node.getAddrUuid());
@@ -190,8 +192,10 @@ public class MdekAddressService {
 		}
 		if (addressArea == AddressArea.ALL_ADDRESSES ||
 			addressArea == AddressArea.ALL_FREE_ADDRESSES) {
-			List<AddressNode> nodes = daoAddressNode.getTopAddresses(true, null, false);
+			List<AddressNode> nodes = daoAddressNode.getTopAddresses(
+					true, IdcEntityVersion.PUBLISHED_VERSION, false);
 			for (AddressNode node : nodes) {
+				// further check whether published, just to be sure !
 				Long idPublished = node.getAddrIdPublished();
 				if (idPublished != null) {
 					uuids.add(node.getAddrUuid());

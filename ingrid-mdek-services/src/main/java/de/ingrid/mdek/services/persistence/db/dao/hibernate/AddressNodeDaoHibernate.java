@@ -81,6 +81,11 @@ public class AddressNodeDaoHibernate
 			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
+		// we need a concrete instance for determining address type !
+		if (whichEntityVersion == null) {
+			whichEntityVersion = IdcEntityVersion.WORKING_VERSION;
+		}
+
 		String q = "select distinct aNode from AddressNode aNode ";
 		String addrAlias = "?";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
@@ -98,20 +103,18 @@ public class AddressNodeDaoHibernate
 		}
 		q += "where aNode.fkAddrUuid is null ";
 
-		if (whichEntityVersion != null) {
-			if (onlyFreeAddresses) {
-				q += "and " + addrAlias + ".adrType=" + AddressType.FREI.getDbValue();
-			} else {
-				q += "and " + addrAlias + ".adrType!=" + AddressType.FREI.getDbValue();			
-			}
-			// only order if only ONE version requested
-			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-				q += "order by " + 
-					addrAlias + ".adrType desc, " +
-					addrAlias + ".institution, " +
-					addrAlias + ".lastname, " +
-					addrAlias + ".firstname"; 
-			}
+		if (onlyFreeAddresses) {
+			q += "and " + addrAlias + ".adrType = " + AddressType.FREI.getDbValue();
+		} else {
+			q += "and " + addrAlias + ".adrType != " + AddressType.FREI.getDbValue();			
+		}
+		// only order if only ONE version requested
+		if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
+			q += "order by " + 
+				addrAlias + ".adrType desc, " +
+				addrAlias + ".institution, " +
+				addrAlias + ".lastname, " +
+				addrAlias + ".firstname"; 
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q).list();

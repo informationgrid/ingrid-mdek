@@ -32,9 +32,10 @@ public interface IAddressNodeDao
 	AddressNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion);
 
 	/**
-	 * Get top root addresses. Also prefetch concrete address instance in nodes if requested.
+	 * Get top root addresses. ALWAYS prefetches concrete address instance in nodes.
 	 * @param onlyFreeAddresses true=only top free addresses, false=only top NON free addresses
-	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @param whichEntityVersion which address Version to prefetch in node. DO NOT PASS NULL, we need
+	 * 		an address version for determining type of address (free address or not) ! DEFAULT IS WORKING VERSION !
 	 * @param fetchSubNodesChildren also fetch children in fetched topnodes to determine whether subnodes ?
 	 * @return
 	 */
@@ -46,7 +47,7 @@ public interface IAddressNodeDao
 	 * Fetches sub nodes (next level) of parent with given uuid. 
 	 * Also prefetch concrete address instance in nodes if requested.
 	 * @param parentUuid uuid of parent
-	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED
 	 * @param fetchSubNodesChildren also fetch children in fetched subnodes to determine whether leaf or not ?
 	 * @return
 	 */
