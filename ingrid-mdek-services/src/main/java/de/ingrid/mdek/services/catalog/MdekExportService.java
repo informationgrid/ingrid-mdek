@@ -166,14 +166,14 @@ public class MdekExportService implements IExporterCallback {
 	 */
 	public void writeExportInfo(IdcEntityType whichType, int numExported, int totalNum,
 			String userUuid) {
-		updateExportInfoDB(whichType, numExported, totalNum, userUuid);
+		updateExportJobInfo(whichType, numExported, totalNum, userUuid);
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#writeExportInfoMessage(java.lang.String, java.lang.String)
 	 */
 	public void writeExportInfoMessage(String newMessage, String userUuid) {
-		updateExportInfoDBMessages(newMessage, userUuid);
+		updateExportJobInfoMessages(newMessage, userUuid);
 	}
 
 	// ----------------------------------- IExporterCallback END ------------------------------------
@@ -234,16 +234,28 @@ public class MdekExportService implements IExporterCallback {
 		return uuids;
 	}
 
-	/** Maps Info from passed RunningJobInfo to ExportInfo map ! */
-	public HashMap getExportInfoFromRunningJobInfo(HashMap runningJobInfo) {
+	/**
+	 * Maps Info from passed RunningJobInfo to ExportInfo map.
+	 * @param runningJobInfo info from running job
+	 * @param whichEntityType which entity type processes the current job (not stored in job info !)
+	 * @param includeMessages also map messages ? (or only basic data)
+	 * @return map containing export information
+	 */
+	public HashMap getExportInfoFromRunningJobInfo(HashMap runningJobInfo,
+			IdcEntityType whichEntityType,
+			boolean includeMessages) {
 		// set up job info details just like it wouild be stored in DB
         HashMap expInfo = setUpExportJobInfoDetailsDB(
         		// we don't know which entity type from RunningJobInfo ! default is objects !
-        		IdcEntityType.OBJECT,
+        		whichEntityType,
         		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
         		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES));
         // also add start time from running job (was explicitly added, see startExportInfoDB)
         expInfo.put(MdekKeys.JOBINFO_START_TIME, runningJobInfo.get(MdekKeys.JOBINFO_START_TIME));
+        
+        if (includeMessages) {
+            expInfo.put(MdekKeys.JOBINFO_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_MESSAGES));        	
+        }
 		
 		return expInfo;
 	}
@@ -267,7 +279,7 @@ public class MdekExportService implements IExporterCallback {
 		return expInfo;
 	}
 	/** "logs" Start-Info of Export job IN MEMORY and IN DATABASE */
-	public void startExportInfoDB(IdcEntityType whichType, int totalNum, String userUuid) {
+	public void startExportJobInfo(IdcEntityType whichType, int totalNum, String userUuid) {
 		String startTime = MdekUtils.dateToTimestamp(new Date());
 
 		// first update in memory job state
@@ -281,40 +293,56 @@ public class MdekExportService implements IExporterCallback {
 		jobHandler.startJobInfoDB(JobType.EXPORT, startTime, details, userUuid);
 	}
 	/** Update general info of Export job IN MEMORY and IN DATABASE */
-	public void updateExportInfoDB(IdcEntityType whichType, int numExported, int totalNum,
+	public void updateExportJobInfo(IdcEntityType whichType, int numExported, int totalNum,
 			String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid, 
 				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
 
 		// then update job info in database
-        HashMap details = setUpExportJobInfoDetailsDB(whichType, numExported, totalNum);
-		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
+		// NO, only in memory and write at end because of performance issues !
+//        HashMap details = setUpExportJobInfoDetailsDB(whichType, numExported, totalNum);
+//		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
 	}
 	/** Add new Message to info of Export job IN MEMORY and IN DATABASE. */
-	public void updateExportInfoDBMessages(String newMessage, String userUuid) {
+	public void updateExportJobInfoMessages(String newMessage, String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJobMessages(userUuid, newMessage);
 
 		// then update job info in database
-		jobHandler.updateJobInfoDBMessages(JobType.EXPORT, newMessage, userUuid);
+		// NO, only in memory and write at end because of performance issues !
+//		jobHandler.updateJobInfoDBMessages(JobType.EXPORT, newMessage, userUuid);
 	}
-	/** Add export result data to export job info ! */
-	public void updateExportInfoDBResultData(byte[] data, String userUuid) {
-		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
 
-		HashMap jobDetails = jobHandler.deformatJobDetailsFromDB(jobInfo.getJobDetails());
-		jobDetails.put(MdekKeys.EXPORT_RESULT, data);
-		jobInfo.setJobDetails(jobHandler.formatJobDetailsForDB(jobDetails));
-
-		jobHandler.persistJobInfoDB(jobInfo, userUuid);
-	}
 	/** "logs" End-Info in Export information IN DATABASE */
-	public void endExportInfoDB(String userUuid) {
+	/**
+	 * Add export result data to export job info and "logs" End-Info 
+	 * in Export information IN DATABASE <br>
+	 * NOTICE: when job is running we store all info in memory (running job info).
+	 * This method persists that info !
+	 * @param data result data from export (xml)
+	 * @param whichEntityType entity type the export processed (not stored in running job info !)
+	 * @param userUuid calling user
+	 */
+	public void endExportJobInfo(byte[] data,
+			IdcEntityType whichEntityType, String userUuid) {
+		// get running job info (in memory)
+		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		
+		// set up job details to be stored
+		HashMap jobDetails = getExportInfoFromRunningJobInfo(runningJobInfo, whichEntityType, true);
+		jobDetails.put(MdekKeys.EXPORT_RESULT, data);
+
+		// persistent store
+		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
+		jobInfo.setJobDetails(jobHandler.formatJobDetailsForDB(jobDetails));
+		jobHandler.persistJobInfoDB(jobInfo, userUuid);
+
+		// add end info
 		jobHandler.endJobInfoDB(JobType.EXPORT, userUuid);
 	}
 
-	/** Set up details of export to be stored in database. */
+	/** Set up basic details (no messages !) of export to be stored in database. */
 	public static HashMap setUpExportJobInfoDetailsDB(IdcEntityType whichType, int num, int totalNum) {
         HashMap details = new HashMap();
         if (whichType == IdcEntityType.OBJECT) {

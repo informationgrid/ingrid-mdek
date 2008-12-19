@@ -262,6 +262,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
 
 			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
 			
 			List<String> uuidsToExport = new ArrayList<String>();
 			if (rootUuid != null) {
@@ -273,16 +274,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// initialize export job info
 			// NOTICE: totalNumToExport should be called and set in exporter !
 //			int totalNumToExport = exportService.getTotalNumObjectsToExport(uuidsToExport, !exportOnlyRoot, userId);				
-			exportService.startExportInfoDB(IdcEntityType.OBJECT, 0, userId);
+			exportService.startExportJobInfo(IdcEntityType.OBJECT, 0, userId);
 
 			// export
 			byte[] expData = new XMLExporter(exportService).exportObjects(uuidsToExport, !exportOnlyRoot, userId);
 
 			// finish export job info and fetch it
-			exportService.updateExportInfoDBResultData(expData, userId);
-			exportService.endExportInfoDB(userId);
+			exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
 			HashMap exportInfo = exportService.getExportInfoDB(userId, false);
 
+			// just to be sure ExportJobInfo is up to date !
+			genericDao.flush();
 			genericDao.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
@@ -314,6 +316,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			AddressArea addressArea = (AddressArea) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA);
 
 			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
 
 			List<String> uuidsToExport = new ArrayList<String>();
 			if (rootUuid != null) {
@@ -325,16 +328,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// initialize export job info
 			// NOTICE: totalNumToExport should be called and set in exporter !
 //			int totalNumToExport = exportService.getTotalNumAddressesToExport(uuidsToExport, !exportOnlyRoot, userId);
-			exportService.startExportInfoDB(IdcEntityType.ADDRESS, 0, userId);
+			exportService.startExportJobInfo(IdcEntityType.ADDRESS, 0, userId);
 
 			// export
 			byte[] expData = new XMLExporter(exportService).exportAddresses(uuidsToExport, !exportOnlyRoot, userId);
 
 			// finish export job info and fetch it
-			exportService.updateExportInfoDBResultData(expData, userId);
-			exportService.endExportInfoDB(userId);
+			exportService.endExportJobInfo(expData, IdcEntityType.ADDRESS, userId);
 			HashMap exportInfo = exportService.getExportInfoDB(userId, false);
 
+			// just to be sure ExportJobInfo is up to date !
+			genericDao.flush();
 			genericDao.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
@@ -364,6 +368,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String exportCriterion = (String) docIn.get(MdekKeys.EXPORT_CRITERION_VALUE);
 
 			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
 
 			// find objects to export
 			List<String> expUuids = daoObjectNode.getObjectUuidsForExport(exportCriterion);
@@ -373,17 +378,18 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			byte[] expData = new byte[0];;
 			if (numToExport > 0) {
 				// initialize export info in database
-				exportService.startExportInfoDB(IdcEntityType.OBJECT, numToExport, userId);
+				exportService.startExportJobInfo(IdcEntityType.OBJECT, numToExport, userId);
 
 				// export
 				expData = new XMLExporter(exportService).exportObjects(expUuids, false, userId);
 
 				// finish export job info and fetch it
-				exportService.updateExportInfoDBResultData(expData, userId);
-				exportService.endExportInfoDB(userId);
+				exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
 				exportInfo = exportService.getExportInfoDB(userId, false);
 			}
 
+			// just to be sure ExportJobInfo is up to date !
+			genericDao.flush();
 			genericDao.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
@@ -421,8 +427,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				// no job running
 				exportInfo = exportService.getExportInfoDB(userId, includeData);
 			} else {
-				// job running
-				exportInfo = exportService.getExportInfoFromRunningJobInfo(runningJobInfo);
+				// job running, we extract export info from running job info (in memory)
+				exportInfo = exportService.getExportInfoFromRunningJobInfo(
+						runningJobInfo, IdcEntityType.OBJECT, false);
 			}
 
 			genericDao.commitTransaction();

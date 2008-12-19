@@ -170,4 +170,7 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
     public void disableAutoFlush() {
         getSession().setFlushMode(FlushMode.MANUAL);
     }
+    public void flush() {
+        getSession().flush();
+    }
 }

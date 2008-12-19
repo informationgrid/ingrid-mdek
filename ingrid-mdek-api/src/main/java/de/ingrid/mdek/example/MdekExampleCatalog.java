@@ -302,9 +302,9 @@ class MdekExampleCatalogThread extends Thread {
 		} catch(Exception ex) {
 			// if timeout, track running job info (still exporting) !
 			for (int i=1; i<=4; i++) {
-				// NO INFOS -> persistent export info not committed yet !
+				// extracted from running job info if still running
 				supertool.getExportInfo(false);				
-				// WITH INFOS -> also outputs running job info (in memory) !  
+				// also outputs running job info
 				if (!supertool.hasRunningJob()) {
 					break;
 				}
@@ -335,11 +335,22 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- export objects ALL TOP NODES -----");
 		supertool.exportObjectBranch(null, true);
 		supertool.getExportInfo(true);
-/*
+
 		System.out.println("\n----- export objects ALL NODES -----");
-		supertool.exportObjectBranch(null, false);
+		try {
+			// causes timeout
+			supertool.exportObjectBranch(null, false);
+		} catch(Exception ex) {
+			// if timeout, track running job info (still exporting) !
+			// also outputs running job info
+			while(supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getExportInfo(false);				
+				supertool.sleep(1000);
+			}
+		}
 		supertool.getExportInfo(true);
-*/
+
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");

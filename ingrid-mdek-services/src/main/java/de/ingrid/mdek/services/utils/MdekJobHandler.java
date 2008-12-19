@@ -281,6 +281,8 @@ public class MdekJobHandler {
 	/** Returns job information "logged" IN DATABASE.
 	 * NOTICE: JobDetails are still in Database format !*/
 	public SysJobInfo getJobInfoDB(JobType whichJob, String userUuid) {
+		// auto flushing may be disabled ! we flush before query so database is up to date !
+		daoSysJobInfo.flush();
 		return daoSysJobInfo.getJobInfo(whichJob, userUuid);
 	}
 	/** Map given jobInfo to Map */
