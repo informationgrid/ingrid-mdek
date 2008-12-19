@@ -172,60 +172,6 @@ public class MdekAddressService {
 	}
 
 	/**
-	 * Get uuids of top addresses for export (only published ones) !
-	 * @return List of uuids or empty list
-	 */
-	public List<String> getTopAddressUuidsForExport(AddressArea addressArea) {
-		List<String> uuids = new ArrayList<String>();
-
-		if (addressArea == AddressArea.ALL_ADDRESSES ||
-			addressArea == AddressArea.ALL_NON_FREE_ADDRESSES) {
-			List<AddressNode> nodes = daoAddressNode.getTopAddresses(
-					false, IdcEntityVersion.PUBLISHED_VERSION, false);
-			for (AddressNode node : nodes) {
-				// further check whether published, just to be sure !
-				Long idPublished = node.getAddrIdPublished();
-				if (idPublished != null) {
-					uuids.add(node.getAddrUuid());
-				}
-			}
-		}
-		if (addressArea == AddressArea.ALL_ADDRESSES ||
-			addressArea == AddressArea.ALL_FREE_ADDRESSES) {
-			List<AddressNode> nodes = daoAddressNode.getTopAddresses(
-					true, IdcEntityVersion.PUBLISHED_VERSION, false);
-			for (AddressNode node : nodes) {
-				// further check whether published, just to be sure !
-				Long idPublished = node.getAddrIdPublished();
-				if (idPublished != null) {
-					uuids.add(node.getAddrUuid());
-				}
-			}
-		}
-
-		return uuids;
-	}
-
-	/**
-	 * Get uuids of sub addresses (only next level) for export (only published ones) !
-	 * @param parentUuid uuid of parent
-	 * @return List of uuids or empty list
-	 */
-	public List<String> getSubAddressUuidsForExport(String parentUuid) {
-		List<String> uuids = new ArrayList<String>();
-
-		List<AddressNode> nodes = daoAddressNode.getSubAddresses(parentUuid, null, false);
-		for (AddressNode node : nodes) {
-			Long idPublished = node.getAddrIdPublished();
-			if (idPublished != null) {
-				uuids.add(node.getAddrUuid());
-			}
-		}
-
-		return uuids;
-	}
-
-	/**
 	 * Store WORKING COPY of the address represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address

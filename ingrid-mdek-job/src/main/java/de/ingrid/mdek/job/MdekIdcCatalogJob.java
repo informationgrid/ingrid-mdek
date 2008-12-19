@@ -10,11 +10,9 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
-import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekExportService;
 import de.ingrid.mdek.services.catalog.MdekImportService;
-import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
@@ -23,7 +21,6 @@ import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
-import de.ingrid.mdek.xml.exporter.IExporter;
 import de.ingrid.mdek.xml.exporter.XMLExporter;
 import de.ingrid.utils.IngridDocument;
 
@@ -33,8 +30,6 @@ import de.ingrid.utils.IngridDocument;
 public class MdekIdcCatalogJob extends MdekIdcJob {
 
 	private MdekCatalogService catalogService;
-	private MdekObjectService objectService;
-	private MdekAddressService addressService;
 	private MdekExportService exportService;
 	private MdekImportService importService;
 
@@ -48,8 +43,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcCatalogJob.class), daoFactory);
 		
 		catalogService = MdekCatalogService.getInstance(daoFactory);
-		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
-		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 		exportService = MdekExportService.getInstance(daoFactory, permissionService);
 		importService = MdekImportService.getInstance(daoFactory, permissionService);
 
@@ -274,21 +267,18 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			if (rootUuid != null) {
 				uuidsToExport.add(rootUuid);
 			} else {
-				uuidsToExport = objectService.getTopObjectUuidsForExport();
+				uuidsToExport = exportService.getTopObjectUuids();
 			}
 
-			// initialize export info in database
-			int totalNumToExport = 0;
-			if (exportOnlyRoot) {
-				totalNumToExport = uuidsToExport.size();
-			}
-			exportService.startExportInfoDB(IdcEntityType.OBJECT, totalNumToExport, userId);
+			// initialize export job info
+			// NOTICE: totalNumToExport should be called and set in exporter !
+//			int totalNumToExport = exportService.getTotalNumObjectsToExport(uuidsToExport, !exportOnlyRoot, userId);				
+			exportService.startExportInfoDB(IdcEntityType.OBJECT, 0, userId);
 
-			IExporter exporter = new XMLExporter(exportService);
-			
-			byte[] expData = exporter.exportObjects(uuidsToExport, !exportOnlyRoot, userId);
+			// export
+			byte[] expData = new XMLExporter(exportService).exportObjects(uuidsToExport, !exportOnlyRoot, userId);
 
-			// finish export info and fetch it
+			// finish export job info and fetch it
 			exportService.updateExportInfoDBResultData(expData, userId);
 			exportService.endExportInfoDB(userId);
 			HashMap exportInfo = exportService.getExportInfoDB(userId, false);
@@ -329,21 +319,18 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			if (rootUuid != null) {
 				uuidsToExport.add(rootUuid);
 			} else {
-				uuidsToExport = addressService.getTopAddressUuidsForExport(addressArea);
+				uuidsToExport = exportService.getTopAddressUuids(addressArea);
 			}
 
-			// initialize export info in database
-			int totalNumToExport = 0;
-			if (exportOnlyRoot) {
-				totalNumToExport = uuidsToExport.size();
-			}
-			exportService.startExportInfoDB(IdcEntityType.ADDRESS, totalNumToExport, userId);
+			// initialize export job info
+			// NOTICE: totalNumToExport should be called and set in exporter !
+//			int totalNumToExport = exportService.getTotalNumAddressesToExport(uuidsToExport, !exportOnlyRoot, userId);
+			exportService.startExportInfoDB(IdcEntityType.ADDRESS, 0, userId);
 
-			IExporter exporter = new XMLExporter(exportService);
-			
-			byte[] expData = exporter.exportAddresses(uuidsToExport, !exportOnlyRoot, userId);
+			// export
+			byte[] expData = new XMLExporter(exportService).exportAddresses(uuidsToExport, !exportOnlyRoot, userId);
 
-			// finish and fetch export info in database
+			// finish export job info and fetch it
 			exportService.updateExportInfoDBResultData(expData, userId);
 			exportService.endExportInfoDB(userId);
 			HashMap exportInfo = exportService.getExportInfoDB(userId, false);
@@ -388,11 +375,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				// initialize export info in database
 				exportService.startExportInfoDB(IdcEntityType.OBJECT, numToExport, userId);
 
-				IExporter exporter = new XMLExporter(exportService);
-				
-				expData = exporter.exportObjects(expUuids, false, userId);
+				// export
+				expData = new XMLExporter(exportService).exportObjects(expUuids, false, userId);
 
-				// finish and fetch export info in database
+				// finish export job info and fetch it
 				exportService.updateExportInfoDBResultData(expData, userId);
 				exportService.endExportInfoDB(userId);
 				exportInfo = exportService.getExportInfoDB(userId, false);

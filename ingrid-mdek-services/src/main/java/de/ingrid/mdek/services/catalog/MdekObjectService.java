@@ -153,43 +153,6 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Get uuids of top objects for export (only published ones) !
-	 * @return List of uuids or empty list
-	 */
-	public List<String> getTopObjectUuidsForExport() {
-		List<String> uuids = new ArrayList<String>();
-
-		List<ObjectNode> nodes = daoObjectNode.getTopObjects(null, false);
-		for (ObjectNode node : nodes) {
-			Long idPublished = node.getObjIdPublished();
-			if (idPublished != null) {
-				uuids.add(node.getObjUuid());
-			}
-		}
-
-		return uuids;
-	}
-
-	/**
-	 * Get uuids of sub objects (only next level) for export (only published ones) !
-	 * @param parentUuid uuid of parent
-	 * @return List of uuids or empty list
-	 */
-	public List<String> getSubObjectUuidsForExport(String parentUuid) {
-		List<String> uuids = new ArrayList<String>();
-
-		List<ObjectNode> nodes = daoObjectNode.getSubObjects(parentUuid, null, false);
-		for (ObjectNode node : nodes) {
-			Long idPublished = node.getObjIdPublished();
-			if (idPublished != null) {
-				uuids.add(node.getObjUuid());
-			}
-		}
-
-		return uuids;
-	}
-
-	/**
 	 * Store WORKING COPY of the object represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object

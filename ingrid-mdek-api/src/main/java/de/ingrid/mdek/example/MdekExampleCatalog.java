@@ -297,8 +297,8 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- export objects FULL BRANCH UNDER PARENT -----");
 		try {
 			// causes timeout
-			supertool.exportObjectBranch(topObjUuid, false);
-//			supertool.exportObjectBranch(objUuid, false);
+//			supertool.exportObjectBranch(topObjUuid, false);
+			supertool.exportObjectBranch(objUuid, false);
 		} catch(Exception ex) {
 			// if timeout, track running job info (still exporting) !
 			for (int i=1; i<=4; i++) {
@@ -335,7 +335,11 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- export objects ALL TOP NODES -----");
 		supertool.exportObjectBranch(null, true);
 		supertool.getExportInfo(true);
-
+/*
+		System.out.println("\n----- export objects ALL NODES -----");
+		supertool.exportObjectBranch(null, false);
+		supertool.getExportInfo(true);
+*/
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -371,9 +375,13 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES and FREE ADDRESSES -----");
 		supertool.exportAddressBranch(null, true, AddressArea.ALL_ADDRESSES);
 		supertool.getExportInfo(true);
-
+/*
 		System.out.println("\n----- export addresses ALL NON FREE ADDRESSES (including subnodes) -----");
 		supertool.exportAddressBranch(null, false, AddressArea.ALL_NON_FREE_ADDRESSES);
+		supertool.getExportInfo(true);
+*/
+		System.out.println("\n----- export addresses ALL ADDRESSES -----");
+		supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
 		supertool.getExportInfo(true);
 
 

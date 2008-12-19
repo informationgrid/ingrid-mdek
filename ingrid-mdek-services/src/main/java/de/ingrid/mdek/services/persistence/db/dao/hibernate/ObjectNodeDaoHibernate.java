@@ -200,13 +200,19 @@ public class ObjectNodeDaoHibernate
 		return oNodes;
 	}
 
-	/** Get total number of ALL subobjects (published or NOT!) in subtree (all levels) */
-	public int countAllSubObjects(String parentUuid) {
+	public int countAllSubObjects(String parentUuid, IdcEntityVersion versionOfSubObjectsToCount) {
 		Session session = getSession();
 		
 		String q = "select count(oNode) " +
 			"from ObjectNode oNode " +
 			"where oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%'";
+
+		if (versionOfSubObjectsToCount == IdcEntityVersion.WORKING_VERSION) {
+			q += " and oNode.objId != oNode.objIdPublished ";
+
+		} else if (versionOfSubObjectsToCount == IdcEntityVersion.PUBLISHED_VERSION) {
+			q += " and oNode.objIdPublished is not null";			
+		}
 		
 		Long totalNum = (Long) session.createQuery(q).uniqueResult();
 		

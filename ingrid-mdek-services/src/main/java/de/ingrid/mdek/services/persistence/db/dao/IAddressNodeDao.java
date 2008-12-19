@@ -67,8 +67,16 @@ public interface IAddressNodeDao
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren);
 
-	/** Get total number of subaddresses in subtree (all levels) */
-	int countAllSubAddresses(String parentUuid);
+	/**
+	 * Get total number of subaddresses in subtree (all levels)
+	 * @param parentUuid uuid of parent node
+	 * @param versionOfSubAddressesToCount which subaddresses version should be counted e.g.:<br>
+	 * 		WORKING_VERSION: count only subaddresses where working version != published version<br>
+	 * 		PUBLISHED_VERSION: count only subaddresses where published version exists<br>
+	 * 		ALL_VERSIONS: count all subaddresses, no matter in which version
+	 * @return
+	 */
+	int countAllSubAddresses(String parentUuid, IdcEntityVersion versionOfSubAddressesToCount);
 
 	/** Get Path of UUIDS in tree starting at root, INCLUDING given uuid. */
 	List<String> getAddressPath(String uuid);

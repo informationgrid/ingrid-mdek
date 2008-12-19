@@ -969,7 +969,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		int totalNumToCopy = 1;
 		if (copySubtree) {
 			// total num to copy: root + sub objects
-			totalNumToCopy = 1 + daoObjectNode.countAllSubObjects(sourceNode.getObjUuid()) + 1;
+			totalNumToCopy = 1 + 
+				daoObjectNode.countAllSubObjects(sourceNode.getObjUuid(), IdcEntityVersion.ALL_VERSIONS);
 			updateRunningJob(userUuid, createRunningJobDescription(JobType.COPY, 0, totalNumToCopy, false));				
 		}
 

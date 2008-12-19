@@ -79,8 +79,16 @@ public interface IObjectNodeDao
 			IdcChildrenSelectionType whichChildren,
 			PublishType parentPubType);
 
-	/** Get total number of subobjects in subtree (all levels) */
-	int countAllSubObjects(String parentUuid);
+	/**
+	 * Get total number of subobjects in subtree (all levels)
+	 * @param parentUuid uuid of parent node
+	 * @param versionOfSubObjectsToCount which subobjects version should be counted e.g.:<br>
+	 * 		WORKING_VERSION: count only subobjects where working version != published version<br>
+	 * 		PUBLISHED_VERSION: count only subobjects where published version exists<br>
+	 * 		ALL_VERSIONS: count all subobjects, no matter in which version
+	 * @return
+	 */
+	int countAllSubObjects(String parentUuid, IdcEntityVersion versionOfSubObjectsToCount);
 
 	/** Get Path of UUIDS in tree starting at root, INCLUDING given uuid. */
 	List<String> getObjectPath(String uuid);

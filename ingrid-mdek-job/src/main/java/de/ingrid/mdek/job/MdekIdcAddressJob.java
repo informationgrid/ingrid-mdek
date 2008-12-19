@@ -1040,7 +1040,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		int totalNumToCopy = 1;
 		if (copySubtree) {
 			// total num to copy: root + sub addresses
-			totalNumToCopy = 1 + daoAddressNode.countAllSubAddresses(sourceNode.getAddrUuid());
+			totalNumToCopy = 1 +
+				daoAddressNode.countAllSubAddresses(sourceNode.getAddrUuid(), IdcEntityVersion.ALL_VERSIONS);
 			updateRunningJob(userUuid, createRunningJobDescription(JobType.COPY, 0, totalNumToCopy, false));				
 		}
 

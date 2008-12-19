@@ -201,13 +201,19 @@ public class AddressNodeDaoHibernate
 		return aNodes;
 	}
 
-	/** Get total number of ALL subaddresses (published or NOT!) in subtree (all levels) */
-	public int countAllSubAddresses(String parentUuid) {
+	public int countAllSubAddresses(String parentUuid, IdcEntityVersion versionOfSubAddressesToCount) {
 		Session session = getSession();
 		
 		String q = "select count(aNode) " +
 			"from AddressNode aNode " +
 			"where aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%'";
+
+		if (versionOfSubAddressesToCount == IdcEntityVersion.WORKING_VERSION) {
+			q += " and aNode.addrId != aNode.addrIdPublished ";
+
+		} else if (versionOfSubAddressesToCount == IdcEntityVersion.PUBLISHED_VERSION) {
+			q += " and aNode.addrIdPublished is not null";			
+		}
 		
 		Long totalNum = (Long) session.createQuery(q).uniqueResult();
 		
