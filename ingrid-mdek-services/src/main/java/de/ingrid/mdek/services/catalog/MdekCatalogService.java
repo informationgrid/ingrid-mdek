@@ -8,9 +8,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -19,11 +17,9 @@ import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
-import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
-import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -37,8 +33,6 @@ public class MdekCatalogService {
 	private ISysListDao daoSysList;
 	private ISysGuiDao daoSysGui;
 	private IT08AttrTypeDao daoT08AttrType;
-
-	protected MdekJobHandler jobHandler;
 
 	private BeanToDocMapper beanToDocMapper;
 
@@ -55,8 +49,6 @@ public class MdekCatalogService {
 		daoSysList = daoFactory.getSysListDao();
 		daoSysGui = daoFactory.getSysGuiDao();
 		daoT08AttrType = daoFactory.getT08AttrTypeDao();
-
-		jobHandler = MdekJobHandler.getInstance(daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 	}
@@ -130,93 +122,5 @@ public class MdekCatalogService {
 		beanToDocMapper.mapT08AttrTypes(fields, result);
 
 		return result;
-	}
-
-
-	/** Returns "logged" Export job information IN DATABASE.
-	 * NOTICE: returns EMPTY HashMap if no job info ! */
-	public HashMap getExportInfoDB(String userUuid) {
-		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
-		return jobHandler.mapJobInfo(jobInfo);
-	}
-	/** "logs" Start-Info in Export information IN DATABASE */
-	public void startExportInfoDB(IdcEntityType whichType, int totalNum, String userUuid) {
-		// set up export details
-        HashMap details = setUpExchangeDetailsDB(whichType, 0, totalNum);
-        // and store
-		jobHandler.startJobInfoDB(JobType.EXPORT, details, userUuid);
-	}
-	/** Update general info of Export job IN MEMORY and IN DATABASE */
-	public void updateExportInfoDB(IdcEntityType whichType, int numExported, int totalNum,
-			String userUuid) {
-		// first update in memory job state
-		jobHandler.updateRunningJob(userUuid, 
-				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
-
-		// then update job info in database
-        HashMap details = setUpExchangeDetailsDB(whichType, numExported, totalNum);
-		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
-	}
-	/** Add new Message to info of Export job IN MEMORY and IN DATABASE. */
-	public void updateExportInfoDBMessages(String newMessage, String userUuid) {
-		// first update in memory job state
-		jobHandler.updateRunningJobMessages(userUuid, newMessage);
-
-		// then update job info in database
-		jobHandler.updateJobInfoDBMessages(JobType.EXPORT, newMessage, userUuid);
-	}
-	/** "logs" End-Info in Export information IN DATABASE */
-	public void endExportInfoDB(String userUuid) {
-		jobHandler.endJobInfoDB(JobType.EXPORT, userUuid);
-	}
-
-
-	/** Returns "logged" Import job information IN DATABASE.
-	 * NOTICE: returns EMPTY HashMap if no job info ! */
-	public HashMap getImportInfoDB(String userUuid) {
-		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.IMPORT, userUuid);
-		return jobHandler.mapJobInfo(jobInfo);
-	}
-	/** "logs" Start-Info in Import information IN DATABASE */
-	public void startImportInfoDB(String userUuid) {
-		jobHandler.startJobInfoDB(JobType.IMPORT, null, userUuid);
-	}
-	/** Update general info of Import job IN MEMORY and IN DATABASE */
-	public void updateImportInfoDB(IdcEntityType whichType, int numImported, int totalNum,
-			String userUuid) {
-		// first update in memory job state
-		jobHandler.updateRunningJob(userUuid, 
-				jobHandler.createRunningJobDescription(JobType.IMPORT, numImported, totalNum, false));
-
-		// then update job info in database
-        HashMap details = setUpExchangeDetailsDB(whichType, numImported, totalNum);
-		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
-	}
-	/** Add new Message to info of Import job IN MEMORY and IN DATABASE. */
-	public void updateImportInfoDBMessages(String newMessage, String userUuid) {
-		// first update in memory job state
-		jobHandler.updateRunningJobMessages(userUuid, newMessage);
-
-		// then update job info in database
-		jobHandler.updateJobInfoDBMessages(JobType.IMPORT, newMessage, userUuid);
-	}
-	/** "logs" End-Info in Import information IN DATABASE */
-	public void endImportInfoDB(String userUuid) {
-		jobHandler.endJobInfoDB(JobType.IMPORT, userUuid);
-	}
-
-
-	/** Set up details of export/import to be stored in database. */
-	private HashMap setUpExchangeDetailsDB(IdcEntityType whichType, int num, int totalNum) {
-        HashMap details = new HashMap();
-        if (whichType == IdcEntityType.OBJECT) {
-            details.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS, totalNum);        	
-            details.put(MdekKeys.JOBINFO_NUM_OBJECTS, num);
-        } else if (whichType == IdcEntityType.ADDRESS) {
-            details.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES, totalNum);        	
-            details.put(MdekKeys.JOBINFO_NUM_ADDRESSES, num);
-        }
-		
-        return details;
 	}
 }

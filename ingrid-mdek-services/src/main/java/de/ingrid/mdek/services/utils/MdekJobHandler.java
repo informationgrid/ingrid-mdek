@@ -76,13 +76,13 @@ public class MdekJobHandler {
 		return result;
 	}
 
+	/** NOTICE: returns empty Document if no running job ! */
 	public IngridDocument getRunningJobInfo(IngridDocument params) {
 		String userId = MdekJobHandler.getCurrentUserUuidFromDoc(params);
 		return getRunningJobInfo(userId);
 	}
-
 	/** NOTICE: returns empty Document if no running job ! */
-	private IngridDocument getRunningJobInfo(String userId) {
+	public IngridDocument getRunningJobInfo(String userId) {
 		IngridDocument result = new IngridDocument();
 
 		IngridDocument runningJob = runningJobsMap.get(userId);
@@ -204,18 +204,19 @@ public class MdekJobHandler {
 	}
 
 	/** "logs" Start-Info in job information IN DATABASE */
-	public void startJobInfoDB(JobType whichJob, HashMap jobDetails, String userUuid) {
+	public void startJobInfoDB(JobType whichJob, String startTime,
+			HashMap jobDetails, String userUuid) {
 		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
 		if (jobInfo == null) {
 			jobInfo = new SysJobInfo();
 			jobInfo.setJobType(whichJob.getDbValue());
 			jobInfo.setUserUuid(userUuid);
 		}
-		jobInfo.setStartTime(MdekUtils.dateToTimestamp(new Date()));
+		jobInfo.setStartTime(startTime);
 		jobInfo.setEndTime(null);
 		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 		
-		daoSysJobInfo.makePersistent(jobInfo);
+		persistJobInfoDB(jobInfo, userUuid);
 	}
 
 	/** Updates job information IN DATABASE, meaning add all info of passed map (keys) !
@@ -227,7 +228,7 @@ public class MdekJobHandler {
 		jobDetails.putAll(additionalJobDetails);
 		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 
-		daoSysJobInfo.makePersistent(jobInfo);
+		persistJobInfoDB(jobInfo, userUuid);
 	}
 	/** Adds a message to the job information IN DATABASE !
 	 * NOTICE: all other infos in DB stay unchanged ! */
@@ -247,6 +248,10 @@ public class MdekJobHandler {
 		jobDetails.put(MdekKeys.JOBINFO_MESSAGES, currentMessages);
 
 		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
+		persistJobInfoDB(jobInfo, userUuid);
+	}
+	/** Persists given JobInfo */
+	public void persistJobInfoDB(SysJobInfo jobInfo, String userUuid) {
 		daoSysJobInfo.makePersistent(jobInfo);
 	}
 
@@ -255,11 +260,11 @@ public class MdekJobHandler {
 		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
 		jobInfo.setEndTime(MdekUtils.dateToTimestamp(new Date()));
 		
-		daoSysJobInfo.makePersistent(jobInfo);
+		persistJobInfoDB(jobInfo, userUuid);
 	}
 
 	/** NOTICE: if passed details are NULL writes NULL into DB ! */
-	private String formatJobDetailsForDB(HashMap jobDetailsForDB) {
+	public String formatJobDetailsForDB(HashMap jobDetailsForDB) {
 		if (jobDetailsForDB == null) {
 			return null;			
 		}
@@ -279,7 +284,7 @@ public class MdekJobHandler {
 		return daoSysJobInfo.getJobInfo(whichJob, userUuid);
 	}
 	/** Map given jobInfo to Map */
-	public HashMap mapJobInfo(SysJobInfo jobInfo) {
+	public HashMap mapJobInfoDB(SysJobInfo jobInfo) {
         HashMap resultMap = new HashMap();
 		if (jobInfo != null) {
 			HashMap jobDetails = (HashMap) deformatJobDetailsFromDB(jobInfo.getJobDetails());

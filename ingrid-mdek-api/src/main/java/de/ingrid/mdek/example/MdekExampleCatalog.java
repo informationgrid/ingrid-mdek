@@ -278,26 +278,32 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("EXPORT OBJECTS");
 		System.out.println("=========================");
 
+		supertool.setFullOutput(true);
+
 		System.out.println("\n----- fetch object EXPORT_ENTITY quantity -----");
 		supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		System.out.println("\n----- get LAST Export Info -----");
-		supertool.getExportInfo();
+		supertool.setFullOutput(false);
+		supertool.getExportInfo(false);
 
 		System.out.println("\n----- export objects ONLY PARENT NODE -----");
+		supertool.setFullOutput(true);
 		supertool.exportObjectBranch(objUuid, true);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
+
+		supertool.setFullOutput(false);
 
 		System.out.println("\n----- export objects FULL BRANCH UNDER PARENT -----");
 		try {
 			// causes timeout
-//			supertool.exportObjectBranch(topObjUuid, false);
-			supertool.exportObjectBranch(objUuid, false);
+			supertool.exportObjectBranch(topObjUuid, false);
+//			supertool.exportObjectBranch(objUuid, false);
 		} catch(Exception ex) {
 			// if timeout, track running job info (still exporting) !
 			for (int i=1; i<=4; i++) {
 				// NO INFOS -> persistent export info not committed yet !
-				supertool.getExportInfo();				
+				supertool.getExportInfo(false);				
 				// WITH INFOS -> also outputs running job info (in memory) !  
 				if (!supertool.hasRunningJob()) {
 					break;
@@ -311,24 +317,24 @@ class MdekExampleCatalogThread extends Thread {
 				supertool.sleep(2000);
 			}
 		}
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export \"tagged\" objects -----");
 		supertool.exportObjects("CDS");
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		supertool.exportObjects("CdS");
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		supertool.exportObjects("test");
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		supertool.exportObjects("TEST");
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export objects ALL TOP NODES -----");
 		supertool.exportObjectBranch(null, true);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 
 		// -----------------------------------
@@ -336,35 +342,39 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("EXPORT ADDRESSES");
 		System.out.println("=========================");
 
+		supertool.setFullOutput(true);
+
 		System.out.println("\n----- fetch address EXPORT_ENTITY quantity -----");
 		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
+		supertool.setFullOutput(false);
+
 		System.out.println("\n----- get LAST Export Info -----");
-		supertool.getExportInfo();
+		supertool.getExportInfo(false);
 
 		System.out.println("\n----- export addresses ONLY PARENT NODE -----");
 		supertool.exportAddressBranch(parentAddrUuid, true, null);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses FULL BRANCH UNDER PARENT -----");
 		supertool.exportAddressBranch(parentAddrUuid, false, null);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES -----");
 		supertool.exportAddressBranch(null, true, AddressArea.ALL_NON_FREE_ADDRESSES);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses ALL FREE ADDRESSES -----");
 		supertool.exportAddressBranch(null, true, AddressArea.ALL_FREE_ADDRESSES);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES and FREE ADDRESSES -----");
 		supertool.exportAddressBranch(null, true, AddressArea.ALL_ADDRESSES);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses ALL NON FREE ADDRESSES (including subnodes) -----");
 		supertool.exportAddressBranch(null, false, AddressArea.ALL_NON_FREE_ADDRESSES);
-		supertool.getExportInfo();
+		supertool.getExportInfo(true);
 
 
 		// -----------------------------------

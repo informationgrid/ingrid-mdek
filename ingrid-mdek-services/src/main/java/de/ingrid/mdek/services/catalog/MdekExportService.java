@@ -1,10 +1,19 @@
 package de.ingrid.mdek.services.catalog;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
+import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
+import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.xml.exporter.IExporterCallback;
 import de.ingrid.utils.IngridDocument;
 
@@ -19,23 +28,27 @@ public class MdekExportService implements IExporterCallback {
 	private MdekObjectService objectService;
 	private MdekAddressService addressService;
 
+	protected MdekJobHandler jobHandler;
+
 	/** Get The Singleton */
-	public static synchronized MdekExportService getInstance(MdekCatalogService catalogService,
-			MdekObjectService objectService,
-			MdekAddressService addressService) {
+	public static synchronized MdekExportService getInstance(DaoFactory daoFactory,
+			IPermissionService permissionService) {
 		if (myInstance == null) {
-	        myInstance = new MdekExportService(catalogService, objectService, addressService);
+	        myInstance = new MdekExportService(daoFactory, permissionService);
 	      }
 		return myInstance;
 	}
 
-	private MdekExportService(MdekCatalogService catalogService,
-			MdekObjectService objectService,
-			MdekAddressService addressService) {
-		this.catalogService = catalogService;
-		this.objectService = objectService;
-		this.addressService = addressService;
+	private MdekExportService(DaoFactory daoFactory,
+			IPermissionService permissionService) {
+		catalogService = MdekCatalogService.getInstance(daoFactory);
+		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
+
+		jobHandler = MdekJobHandler.getInstance(daoFactory);
 	}
+
+	// ----------------------------------- IExporterCallback START ------------------------------------
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getObjectDetails(java.lang.String, java.lang.String)
@@ -83,13 +96,109 @@ public class MdekExportService implements IExporterCallback {
 	 */
 	public void writeExportInfo(IdcEntityType whichType, int numExported, int totalNum,
 			String userUuid) {
-		catalogService.updateExportInfoDB(whichType, numExported, totalNum, userUuid);
+		updateExportInfoDB(whichType, numExported, totalNum, userUuid);
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#writeExportInfoMessage(java.lang.String, java.lang.String)
 	 */
 	public void writeExportInfoMessage(String newMessage, String userUuid) {
-		catalogService.updateExportInfoDBMessages(newMessage, userUuid);
+		updateExportInfoDBMessages(newMessage, userUuid);
+	}
+
+	// ----------------------------------- IExporterCallback END ------------------------------------
+
+	/** Maps Info from passed RunningJobInfo to ExportInfo map ! */
+	public HashMap getExportInfoFromRunningJobInfo(HashMap runningJobInfo) {
+		// set up job info details just like it wouild be stored in DB
+        HashMap expInfo = setUpExportJobInfoDetailsDB(
+        		// we don't know which entity type from RunningJobInfo ! default is objects !
+        		IdcEntityType.OBJECT,
+        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
+        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES));
+        // also add start time from running job (was explicitly added, see startExportInfoDB)
+        expInfo.put(MdekKeys.JOBINFO_START_TIME, runningJobInfo.get(MdekKeys.JOBINFO_START_TIME));
+		
+		return expInfo;
+	}
+
+	/**
+	 * Returns "logged" Export job information IN DATABASE.
+	 * NOTICE: returns EMPTY HashMap if no job info !
+	 * @param userUuid calling user
+	 * @param includeData true=export result data is included in info<br>
+	 * 		false=not included
+	 * @return
+	 */
+	public HashMap getExportInfoDB(String userUuid, boolean includeData) {
+		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
+		HashMap expInfo = jobHandler.mapJobInfoDB(jobInfo);
+		
+		if (!includeData) {
+			expInfo.remove(MdekKeys.EXPORT_RESULT);
+		}
+		
+		return expInfo;
+	}
+	/** "logs" Start-Info of Export job IN MEMORY and IN DATABASE */
+	public void startExportInfoDB(IdcEntityType whichType, int totalNum, String userUuid) {
+		String startTime = MdekUtils.dateToTimestamp(new Date());
+
+		// first update in memory job state
+		IngridDocument runningJobInfo = 
+			jobHandler.createRunningJobDescription(JobType.EXPORT, 0, totalNum, false);
+		runningJobInfo.put(MdekKeys.JOBINFO_START_TIME, startTime);
+		jobHandler.updateRunningJob(userUuid, runningJobInfo);
+		
+		// then update job info in database
+        HashMap details = setUpExportJobInfoDetailsDB(whichType, 0, totalNum);
+		jobHandler.startJobInfoDB(JobType.EXPORT, startTime, details, userUuid);
+	}
+	/** Update general info of Export job IN MEMORY and IN DATABASE */
+	public void updateExportInfoDB(IdcEntityType whichType, int numExported, int totalNum,
+			String userUuid) {
+		// first update in memory job state
+		jobHandler.updateRunningJob(userUuid, 
+				jobHandler.createRunningJobDescription(JobType.EXPORT, numExported, totalNum, false));
+
+		// then update job info in database
+        HashMap details = setUpExportJobInfoDetailsDB(whichType, numExported, totalNum);
+		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
+	}
+	/** Add new Message to info of Export job IN MEMORY and IN DATABASE. */
+	public void updateExportInfoDBMessages(String newMessage, String userUuid) {
+		// first update in memory job state
+		jobHandler.updateRunningJobMessages(userUuid, newMessage);
+
+		// then update job info in database
+		jobHandler.updateJobInfoDBMessages(JobType.EXPORT, newMessage, userUuid);
+	}
+	/** Add export result data to export job info ! */
+	public void updateExportInfoDBResultData(byte[] data, String userUuid) {
+		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.EXPORT, userUuid);
+
+		HashMap jobDetails = jobHandler.deformatJobDetailsFromDB(jobInfo.getJobDetails());
+		jobDetails.put(MdekKeys.EXPORT_RESULT, data);
+		jobInfo.setJobDetails(jobHandler.formatJobDetailsForDB(jobDetails));
+
+		jobHandler.persistJobInfoDB(jobInfo, userUuid);
+	}
+	/** "logs" End-Info in Export information IN DATABASE */
+	public void endExportInfoDB(String userUuid) {
+		jobHandler.endJobInfoDB(JobType.EXPORT, userUuid);
+	}
+
+	/** Set up details of export to be stored in database. */
+	public static HashMap setUpExportJobInfoDetailsDB(IdcEntityType whichType, int num, int totalNum) {
+        HashMap details = new HashMap();
+        if (whichType == IdcEntityType.OBJECT) {
+            details.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS, totalNum);        	
+            details.put(MdekKeys.JOBINFO_NUM_OBJECTS, num);
+        } else if (whichType == IdcEntityType.ADDRESS) {
+            details.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES, totalNum);        	
+            details.put(MdekKeys.JOBINFO_NUM_ADDRESSES, num);
+        }
+		
+        return details;
 	}
 }

@@ -1,7 +1,15 @@
 package de.ingrid.mdek;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -388,5 +396,51 @@ public class MdekUtils {
 		}
 		
 		return param;
+	}
+
+	/** Deompress zipped byte array to String. */
+	public static String decompressZippedByteArray(byte[] zippedData) throws IOException {
+		ByteArrayOutputStream baos = decompress(new ByteArrayInputStream(zippedData));
+		return baos.toString("UTF-8");
+	}
+
+	// Decompress (unzip) data on InputStream (has to contain zipped data) and write it to a ByteArrayOutputStream
+	private static ByteArrayOutputStream decompress(InputStream is) throws IOException {
+		GZIPInputStream gzin = new GZIPInputStream(new BufferedInputStream(is));
+		ByteArrayOutputStream baout = new ByteArrayOutputStream();
+		BufferedOutputStream out = new BufferedOutputStream(baout);
+
+		final int BUFFER = 2048;
+		int count;
+		byte data[] = new byte[BUFFER];
+		while((count = gzin.read(data, 0, BUFFER)) != -1) {
+		   out.write(data, 0, count);
+		}
+
+		out.close();
+		return baout;
+	}
+
+	/** Compress string to zipped byte array. */
+	public static byte[] compressString(String stringToZip) throws IOException {
+		ByteArrayOutputStream baos = compress(new ByteArrayInputStream(stringToZip.getBytes()));
+		return baos.toByteArray();
+	}
+
+	// Decompress (unzip) data on InputStream (has to contain zipped data) and write it to a ByteArrayOutputStream
+	private static ByteArrayOutputStream compress(InputStream is) throws IOException {
+		BufferedInputStream in = new BufferedInputStream(is);
+		ByteArrayOutputStream baout = new ByteArrayOutputStream();
+		GZIPOutputStream gzout = new GZIPOutputStream(new BufferedOutputStream(baout));
+
+		final int BUFFER = 2048;
+		int count;
+		byte data[] = new byte[BUFFER];
+		while((count = in.read(data, 0, BUFFER)) != -1) {
+			gzout.write(data, 0, count);
+		}
+
+		gzout.close();
+		return baout;
 	}
 }

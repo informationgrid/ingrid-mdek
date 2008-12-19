@@ -139,8 +139,11 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getExportInfo(String plugId, String userId) {
+	public IngridDocument getExportInfo(String plugId,
+			boolean includeExportData,
+			String userId) {
 		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INFO_INCLUDE_DATA, includeExportData);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getExportInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);

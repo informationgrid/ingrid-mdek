@@ -93,8 +93,11 @@ public class MdekKeys {
     /** If virtual top address node is selected (no uuid), this determines which area to export ? (free addresses or ...)<br>
      *  Value: IMdekCaller.AddressArea Enumeration const */
     public final static String REQUESTINFO_EXPORT_ADDRESS_AREA = "requestinfo_exportAddressArea";
+    /** Include export result data in requested export info ?<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_EXPORT_INFO_INCLUDE_DATA = "requestinfo_exportInfoIncludeData";
 
-    // JOBINFO RESULT
+    // GENERIC JOBINFO RESULT
     /** Value: String */
     public final static String JOBINFO_START_TIME = "jobinfo-start-time";
     /** Value: String */
@@ -110,7 +113,7 @@ public class MdekKeys {
     /** Value: String */
     public final static String JOBINFO_MESSAGES = "jobinfo-messages";
 
-    // EXPORT RESULT
+    // SPECIFIC JOBINFO RESULT
     /** Value: byte[] */
     public final static String EXPORT_RESULT = "export-result";
 

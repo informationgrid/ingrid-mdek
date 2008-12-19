@@ -309,14 +309,6 @@ public class MdekExampleSupertoolCatalog {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
-			byte[] exportResultZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
-			String exportResultUnzipped = "";
-			try {
-				exportResultUnzipped = MdekExampleSupertool.decompressZippedByteArray(exportResultZipped);
-			} catch(Exception ex) {
-				System.out.println(ex);
-			}
-			System.out.println("XML:\n" + exportResultUnzipped);
 		} else {
 			supertoolGeneric.handleError(response);
 		}
@@ -380,7 +372,7 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument getExportInfo() {
+	public IngridDocument getExportInfo(boolean includeExportData) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -388,15 +380,32 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getExportInfo ######");
+		System.out.println("- includeExportData: " + includeExportData);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getExportInfo(plugId, myUserUuid);
+		response = mdekCallerCatalog.getExportInfo(plugId, includeExportData, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			byte[] exportResultZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+			if (exportResultZipped != null) {
+				System.out.println("SUCCESS: size zipped XML=" + (exportResultZipped.length / 1024) + " KB");
+			} else {
+				System.out.println("SUCCESS:");
+			}
 			System.out.println(result);
+			
+			if (doFullOutput && exportResultZipped != null) {
+				String exportResultUnzipped = "";
+				try {
+					exportResultUnzipped = MdekUtils.decompressZippedByteArray(exportResultZipped);
+				} catch(Exception ex) {
+					System.out.println(ex);
+				}
+				System.out.println("XML:\n" + exportResultUnzipped);				
+			}
+
 		} else {
 			supertoolGeneric.handleError(response);
 		}

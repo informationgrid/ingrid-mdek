@@ -358,6 +358,8 @@
 			<xs:element name="requestinfo_exportAddressArea" type="xs:integer"/>
 			<!-- export only objects marked with given criterion -->
 			<xs:element name="export-criterion-value" type="xs:string"/>
+			<!-- include export result data in requested export info ? -->
+			<xs:element name="requestinfo_exportInfoIncludeData" type="xs:boolean"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_IMPORT_MAP">

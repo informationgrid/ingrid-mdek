@@ -1,15 +1,8 @@
 package de.ingrid.mdek.example;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -142,8 +135,8 @@ public class MdekExampleSupertool {
 			boolean exportOnlyRoot, AddressArea addressArea) {
 		return supertoolCatalog.exportAddressBranch(rootUuid, exportOnlyRoot, addressArea);
 	}
-	public IngridDocument getExportInfo() {
-		return supertoolCatalog.getExportInfo();
+	public IngridDocument getExportInfo(boolean includeExportData) {
+		return supertoolCatalog.getExportInfo(includeExportData);
 	}
 	public IngridDocument importEntities(Byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
@@ -1303,26 +1296,5 @@ public class MdekExampleSupertool {
 		newDoc.put(MdekKeys.COMMUNICATION, docList);
 		
 		return newDoc;
-	}
-
-	public static String decompressZippedByteArray(byte[] zippedData) throws IOException {
-		ByteArrayOutputStream baos = decompress(new ByteArrayInputStream(zippedData));
-		return baos.toString("UTF-8");
-	}
-	// Decompress (unzip) data on InputStream (has to contain zipped data) and write it to a ByteArrayOutputStream
-	private static ByteArrayOutputStream decompress(InputStream is) throws IOException {
-		GZIPInputStream gzin = new GZIPInputStream(new BufferedInputStream(is));
-		ByteArrayOutputStream baout = new ByteArrayOutputStream();
-		BufferedOutputStream out = new BufferedOutputStream(baout);
-
-		final int BUFFER = 2048;
-		int count;
-		byte data[] = new byte[BUFFER];
-		while((count = gzin.read(data, 0, BUFFER)) != -1) {
-		   out.write(data, 0, count);
-		}
-
-		out.close();
-		return baout;
 	}
 }

@@ -122,10 +122,12 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 
 	/** Returns information about the current/last export executed by the given user.
 	 * @param plugId which mdek server (iplug)
+	 * @param includeExportData true=export result data is also returned<br>
+	 * 		false=no export data !
 	 * @param userId calling user
 	 * @return response containing result: map containing export information
 	 */
-	IngridDocument getExportInfo(String plugId, String userId);
+	IngridDocument getExportInfo(String plugId, boolean includeExportData, String userId);
 
 	/**
 	 * Import the given data (import/export format) and update existing or create new entities.
