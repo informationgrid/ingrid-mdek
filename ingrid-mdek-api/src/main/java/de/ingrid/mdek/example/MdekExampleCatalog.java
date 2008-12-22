@@ -335,7 +335,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- export objects ALL TOP NODES -----");
 		supertool.exportObjectBranch(null, true);
 		supertool.getExportInfo(true);
-
+/*
 		System.out.println("\n----- export objects ALL NODES -----");
 		try {
 			// causes timeout
@@ -350,7 +350,7 @@ class MdekExampleCatalogThread extends Thread {
 			}
 		}
 		supertool.getExportInfo(true);
-
+*/
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -391,10 +391,11 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.exportAddressBranch(null, false, AddressArea.ALL_NON_FREE_ADDRESSES);
 		supertool.getExportInfo(true);
 */
+/*
 		System.out.println("\n----- export addresses ALL ADDRESSES -----");
 		supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
 		supertool.getExportInfo(true);
-
+*/
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");

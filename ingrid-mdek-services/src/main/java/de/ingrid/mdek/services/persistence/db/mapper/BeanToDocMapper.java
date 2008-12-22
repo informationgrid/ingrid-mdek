@@ -233,7 +233,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		// also ID, just to track ID in test suite !
+		// also ID !!! e.g. for fetching related data afterwards or tracking ID in test suite !
 		objectDoc.put(MdekKeys.ID, o.getId());
 		objectDoc.put(MdekKeys.UUID, o.getObjUuid());
 		objectDoc.put(MdekKeys.CLASS, o.getObjClass());
@@ -358,7 +358,7 @@ public class BeanToDocMapper implements IMapper {
 			return addressDoc;
 		}
 
-		// also ID, just to track ID in test suite !
+		// also ID !!! e.g. for fetching related data afterwards or tracking ID in test suite !
 		addressDoc.put(MdekKeys.ID, a.getId());
 		addressDoc.put(MdekKeys.UUID, a.getAdrUuid());
 		addressDoc.put(MdekKeys.CLASS, a.getAdrType());
@@ -615,6 +615,7 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
+		refDoc.put(MdekKeys.ENTITY_METADATA_ID, ref.getId());
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
@@ -1785,6 +1786,7 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
+		refDoc.put(MdekKeys.ENTITY_METADATA_ID, ref.getId());
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());

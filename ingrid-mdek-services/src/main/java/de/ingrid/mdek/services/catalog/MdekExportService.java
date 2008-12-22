@@ -13,9 +13,13 @@ import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.security.IPermissionService;
@@ -38,6 +42,8 @@ public class MdekExportService implements IExporterCallback {
 
 	private IObjectNodeDao daoObjectNode;
 	private IAddressNodeDao daoAddressNode;
+	private IGenericDao<IEntity> daoObjectMetadata;
+	private IGenericDao<IEntity> daoAddressMetadata;
 
 	/** Get The Singleton */
 	public static synchronized MdekExportService getInstance(DaoFactory daoFactory,
@@ -58,6 +64,8 @@ public class MdekExportService implements IExporterCallback {
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
+		daoObjectMetadata = daoFactory.getDao(ObjectMetadata.class);
+		daoAddressMetadata = daoFactory.getDao(AddressMetadata.class);
 	}
 
 	// ----------------------------------- IExporterCallback START ------------------------------------
@@ -84,19 +92,39 @@ public class MdekExportService implements IExporterCallback {
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getObjectDetails(java.lang.String, java.lang.String)
 	 */
 	public IngridDocument getObjectDetails(String objUuid, String userUuid) {
-		return objectService.getObjectDetails(objUuid,
+		IngridDocument details =  objectService.getObjectDetails(objUuid,
 				IdcEntityVersion.PUBLISHED_VERSION, FetchQuantity.EXPORT_ENTITY,
 				userUuid);
+
+		// we write lastexport_time when fetching details for export !
+		// if something fails this one isn't written due to transaction rollback ...
+		// NOTICE: we don't flush before to assure most current data ! autoflush is disabled during export !
+		Long metadataId = (Long) details.get(MdekKeys.ENTITY_METADATA_ID);
+		ObjectMetadata metadata = (ObjectMetadata) daoObjectMetadata.getById(metadataId);
+		metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
+		daoObjectMetadata.makePersistent(metadata);
+
+		return details;
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getAddressDetails(java.lang.String, java.lang.String)
 	 */
 	public IngridDocument getAddressDetails(String addrUuid, String userUuid) {
-		return addressService.getAddressDetails(addrUuid,
+		IngridDocument details =  addressService.getAddressDetails(addrUuid,
 				IdcEntityVersion.PUBLISHED_VERSION, FetchQuantity.EXPORT_ENTITY,
 				0, 0,
 				userUuid);
+
+		// we write lastexport_time when fetching details for export !
+		// if something fails this one isn't written due to transaction rollback ...
+		// NOTICE: we don't flush before to assure most current data ! autoflush is disabled during export !
+		Long metadataId = (Long) details.get(MdekKeys.ENTITY_METADATA_ID);
+		AddressMetadata metadata = (AddressMetadata) daoAddressMetadata.getById(metadataId);
+		metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
+		daoAddressMetadata.makePersistent(metadata);
+
+		return details;
 	}
 
 	/* (non-Javadoc)

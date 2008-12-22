@@ -81,7 +81,8 @@
 
 	<xs:complexType name="OBJECT_MAP">
 		<xs:all>
-			<!--xs:element ref="id"/-->
+			<xs:element ref="id"/>
+			<xs:element ref="entity-metadata-id"/>
 			<xs:element ref="parent-uuid"/>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
@@ -157,7 +158,8 @@
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
 		<xs:all>
-			<!--xs:element ref="id"/-->
+			<xs:element ref="id"/>
+			<xs:element ref="entity-metadata-id"/>
 			<xs:element ref="parent-uuid"/>
 			<xs:element ref="uuid"/>
 			<xs:element ref="class"/>
@@ -205,6 +207,7 @@
 	</xs:complexType>
 
 	<xs:element name="id" type="xs:long"/>
+	<xs:element name="entity-metadata-id" type="xs:long"/>
 	<xs:element name="parent-uuid" type="UUID"/>
 	<xs:element name="uuid" type="UUID"/>
 	<xs:element name="class" type="xs:integer"/>

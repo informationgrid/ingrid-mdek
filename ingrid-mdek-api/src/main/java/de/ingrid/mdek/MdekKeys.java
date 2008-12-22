@@ -406,6 +406,9 @@ public class MdekKeys {
     public final static String RELATION_DESCRIPTION = "relation-description";
     /** Value: String */
     public final static String DATASET_ALTERNATE_NAME = "dataset-alternate-name";    
+    /** ID of according metadata of entity e.g. for writing LASTEXPORT_TIME when exporting !<br> 
+     * Value: Long */
+    public final static String ENTITY_METADATA_ID = "entity-metadata-id";    
 
     // GEO
 
