@@ -263,7 +263,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
-			
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
 			List<String> uuidsToExport = new ArrayList<String>();
 			if (rootUuid != null) {
 				uuidsToExport.add(rootUuid);
@@ -281,7 +284,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// finish export job info and fetch it
 			exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
-			HashMap exportInfo = exportService.getExportInfoDB(userId, false);
+			HashMap exportInfo = exportService.getExportJobInfoDB(userId, false);
 
 			// just to be sure ExportJobInfo is up to date !
 			genericDao.flush();
@@ -318,6 +321,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
 
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
 			List<String> uuidsToExport = new ArrayList<String>();
 			if (rootUuid != null) {
 				uuidsToExport.add(rootUuid);
@@ -335,7 +341,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// finish export job info and fetch it
 			exportService.endExportJobInfo(expData, IdcEntityType.ADDRESS, userId);
-			HashMap exportInfo = exportService.getExportInfoDB(userId, false);
+			HashMap exportInfo = exportService.getExportJobInfoDB(userId, false);
 
 			// just to be sure ExportJobInfo is up to date !
 			genericDao.flush();
@@ -370,6 +376,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
 
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
 			// find objects to export
 			List<String> expUuids = daoObjectNode.getObjectUuidsForExport(exportCriterion);
 			int numToExport = expUuids.size();
@@ -385,7 +394,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 				// finish export job info and fetch it
 				exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
-				exportInfo = exportService.getExportInfoDB(userId, false);
+				exportInfo = exportService.getExportJobInfoDB(userId, false);
 			}
 
 			// just to be sure ExportJobInfo is up to date !
@@ -417,19 +426,16 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
 
-			// extract export info:
-			// - if job is running extract from info in memory
-			// - if no job running extract from database
-
+			// extract export info
 			HashMap exportInfo;
 			HashMap runningJobInfo = jobHandler.getRunningJobInfo(userId);
 			if (runningJobInfo.isEmpty()) {
-				// no job running
-				exportInfo = exportService.getExportInfoDB(userId, includeData);
+				// no job running, we extract import info from database
+				exportInfo = exportService.getExportJobInfoDB(userId, includeData);
 			} else {
 				// job running, we extract export info from running job info (in memory)
-				exportInfo = exportService.getExportInfoFromRunningJobInfo(
-						runningJobInfo, IdcEntityType.OBJECT, false);
+				exportInfo =
+					jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false);
 			}
 
 			genericDao.commitTransaction();
@@ -453,33 +459,24 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
 
-			Byte[] importData = (Byte[]) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+			byte[] importData = (byte[]) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
 			String objParent = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID);
 			String addrParent = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
 			Boolean publishImmediately = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY);
 
 			genericDao.beginTransaction();
 
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
 			// initialize import info in database
-			importService.startImportInfoDB(userId);
-
-// TEST
-			// test logging of current state
-			importService.updateImportInfoDB(IdcEntityType.ADDRESS, 1, 10, userId);
-			importService.updateImportInfoDBMessages("Address 1 out of 10 written !", userId);
-
-			// test cancel of job (called by client)
-//			cancelRunningJob(docIn);
-			// THROWS EXCEPTION IF CANCELED !
-			importService.updateImportInfoDB(IdcEntityType.OBJECT, 2, 10, userId);
-			importService.updateImportInfoDBMessages("Object 2 out of 10 written !", userId);
-// TEST END
+			importService.startImportJobInfo(userId);
 
 			// TODO implement importEntities
 
 			// finish and fetch import info in database
-			importService.endImportInfoDB(userId);
-			HashMap importInfo = importService.getImportInfoDB(userId);
+			importService.endImportJobInfo(userId);
+			HashMap importInfo = importService.getImportJobInfoDB(userId);
 
 			genericDao.commitTransaction();
 
@@ -505,7 +502,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
-			HashMap importInfo = importService.getImportInfoDB(userId);
+			// extract import info
+			HashMap importInfo;
+			HashMap runningJobInfo = jobHandler.getRunningJobInfo(userId);
+			if (runningJobInfo.isEmpty()) {
+				// no job running, we extract import info from database
+				importInfo = importService.getImportJobInfoDB(userId);
+			} else {
+				// job running, we extract import info from running job info (in memory)
+				importInfo = 
+					jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false);
+			}
 
 			genericDao.commitTransaction();
 
@@ -519,5 +526,5 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			RuntimeException handledExc = errorHandler.handleException(e);
 		    throw handledExc;
 		}
-	}	
+	}
 }

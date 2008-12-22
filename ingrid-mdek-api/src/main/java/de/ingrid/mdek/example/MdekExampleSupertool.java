@@ -138,7 +138,7 @@ public class MdekExampleSupertool {
 	public IngridDocument getExportInfo(boolean includeExportData) {
 		return supertoolCatalog.getExportInfo(includeExportData);
 	}
-	public IngridDocument importEntities(Byte[] importData,
+	public IngridDocument importEntities(byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately) {
 		return supertoolCatalog.importEntities(importData,

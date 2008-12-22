@@ -413,7 +413,7 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument importEntities(Byte[] importData,
+	public IngridDocument importEntities(byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately) {
 		long startTime;

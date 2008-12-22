@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleCatalog {
@@ -295,11 +297,19 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.setFullOutput(false);
 
 		System.out.println("\n----- export objects FULL BRANCH UNDER PARENT -----");
+		String exportObjsUnzipped = "";
 		try {
 			// causes timeout
 //			supertool.exportObjectBranch(topObjUuid, false);
+//			supertool.getExportInfo(true);
+
 			supertool.exportObjectBranch(objUuid, false);
-		} catch(Exception ex) {
+			// extract XML result !
+			IngridDocument result = supertool.getExportInfo(true);
+			exportObjsUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+//			System.out.println(exportObjsUnzipped);
+
+		} catch(MdekException ex) {
 			// if timeout, track running job info (still exporting) !
 			for (int i=1; i<=4; i++) {
 				// extracted from running job info if still running
@@ -316,8 +326,9 @@ class MdekExampleCatalogThread extends Thread {
 				// sleep, so backend notices canceled job when updating running job info 
 				supertool.sleep(2000);
 			}
+		} catch(IOException ex) {
+			System.out.println(ex);
 		}
-		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export \"tagged\" objects -----");
 		supertool.exportObjects("CDS");
@@ -406,9 +417,19 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getImportInfo();
 		supertool.getRunningJobInfo();
 
-		// CREATE NEW TOP OBJECT / ADDRESS FOR IMPORT !
+		System.out.println("\n-------------------------------------");
+		System.out.println("\n----- Import: UPDATE EXISTING OBJECT(S) -----");
+		System.out.println("\n-------------------------------------");
 
 		System.out.println("\n----- import as WORKING VERSION -----");
+		// first change data to import
+		String importObjsUnzipped = exportObjsUnzipped.replace("<title>", "<title>MMTest: ");
+		byte[] importObjsZipped = new byte[0];
+		try {
+			importObjsZipped = MdekUtils.compressString(importObjsUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
 		supertool.importEntities(null, "objUuid", "addrUuid", false);
 
 		System.out.println("\n----- import as PUBLISHED -----");

@@ -121,8 +121,8 @@ public class MdekKeys {
     // IMPORT
     // ------
     // REQUEST
-    /** The data to import (in export/import format)<br>
-     *  Value: Byte[] */
+    /** The data to import (in zipped export/import format)<br>
+     *  Value: byte[] */
     public final static String REQUESTINFO_IMPORT_DATA = "requestinfo_importData";
     /** Object UUID where NEW imported objects are created underneath<br>
      *  Value: String */
@@ -340,6 +340,9 @@ public class MdekKeys {
     /** Plain text description of job which is still running on server<br>
      *  Value: String */
     public final static String RUNNINGJOB_DESCRIPTION = "runningjob-description";
+    /** Which type of entity is processed (object or address)<br>
+     *  Value: MdekUtils.IdcEntityType Enumeration const */
+    public final static String RUNNINGJOB_ENTITY_TYPE = "runningjob-entity-type";
     /** Additional info: How many entities already processed ?<br>
      *  Value: Integer */
     public final static String RUNNINGJOB_NUMBER_PROCESSED_ENTITIES = "runningjob-number-processed-entities";

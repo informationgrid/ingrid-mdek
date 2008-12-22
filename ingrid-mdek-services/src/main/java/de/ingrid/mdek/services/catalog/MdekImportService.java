@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.catalog;
 import java.util.Date;
 import java.util.HashMap;
 
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.IJob.JobType;
@@ -84,43 +85,62 @@ public class MdekImportService implements IImporterCallback {
 
 	/** Returns "logged" Import job information IN DATABASE.
 	 * NOTICE: returns EMPTY HashMap if no job info ! */
-	public HashMap getImportInfoDB(String userUuid) {
+	public HashMap getImportJobInfoDB(String userUuid) {
 		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.IMPORT, userUuid);
 		return jobHandler.mapJobInfoDB(jobInfo);
 	}
-	/** "logs" Start-Info in Import information IN DATABASE */
-	public void startImportInfoDB(String userUuid) {
+	/** "logs" Start-Info of Import job IN MEMORY and IN DATABASE */
+	public void startImportJobInfo(String userUuid) {
 		String startTime = MdekUtils.dateToTimestamp(new Date());
 
+		// first update in memory job state
+		IngridDocument runningJobInfo = 
+			jobHandler.createRunningJobDescription(JobType.IMPORT, 0, 0, false);
+		runningJobInfo.put(MdekKeys.JOBINFO_START_TIME, startTime);
+		jobHandler.updateRunningJob(userUuid, runningJobInfo);
+		
+		// then update job info in database
 		jobHandler.startJobInfoDB(JobType.IMPORT, startTime, null, userUuid);
 	}
 	/** Update general info of Import job IN MEMORY and IN DATABASE */
-	public void updateImportInfoDB(IdcEntityType whichType, int numImported, int totalNum,
+	public void updateImportJobInfo(IdcEntityType whichType, int numImported, int totalNum,
 			String userUuid) {
 		// first update in memory job state
-		jobHandler.updateRunningJob(userUuid, 
-				jobHandler.createRunningJobDescription(JobType.IMPORT, numImported, totalNum, false));
+		jobHandler.updateRunningJob(userUuid,
+				jobHandler.createRunningJobDescription(JobType.IMPORT, whichType, numImported, totalNum, false));
 
 		// then update job info in database
-        HashMap details = MdekImportService.setUpImportJobInfoDetailsDB(whichType, numImported, totalNum);
-		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
+		// NO, only in memory and write at end because of performance issues !
+//        HashMap details = MdekImportService.setUpImportJobInfoDetailsDB(whichType, numImported, totalNum);
+//		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
 	}
 	/** Add new Message to info of Import job IN MEMORY and IN DATABASE. */
-	public void updateImportInfoDBMessages(String newMessage, String userUuid) {
+	public void updateImportJobInfoMessages(String newMessage, String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJobMessages(userUuid, newMessage);
 
 		// then update job info in database
-		jobHandler.updateJobInfoDBMessages(JobType.IMPORT, newMessage, userUuid);
-	}
-	/** "logs" End-Info in Import information IN DATABASE */
-	public void endImportInfoDB(String userUuid) {
-		jobHandler.endJobInfoDB(JobType.IMPORT, userUuid);
+		// NO, only in memory and write at end because of performance issues !
+//		jobHandler.updateJobInfoDBMessages(JobType.IMPORT, newMessage, userUuid);
 	}
 
-	/** Set up details of import to be stored in database. */
-	public static HashMap setUpImportJobInfoDetailsDB(IdcEntityType whichType, int num, int totalNum) {
-		// same as export
-		return MdekExportService.setUpExportJobInfoDetailsDB(whichType, num, totalNum);
+	/**
+	 * "logs" End-Info in import job information IN DATABASE !<br>
+	 * NOTICE: at job runtime we store all info in memory (running job info) and persist it now !
+	 * @param userUuid calling user
+	 */
+	/** "logs" End-Info in Import information IN DATABASE */
+	public void endImportJobInfo(String userUuid) {
+		// get running job info (in memory)
+		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		
+		// set up job details to be stored
+		HashMap jobDetails = jobHandler.getJobInfoDetailsFromRunningJobInfo(
+				runningJobInfo, true);
+
+		// then update job info in database
+		jobHandler.updateJobInfoDB(JobType.IMPORT, jobDetails, userUuid);
+		// add end info
+		jobHandler.endJobInfoDB(JobType.IMPORT, userUuid);
 	}
 }

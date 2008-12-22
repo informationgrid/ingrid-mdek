@@ -605,6 +605,8 @@
 	<xs:complexType name="RESULT_RUNNING_JOBS_MAP">
 		<xs:all>
 			<xs:element name="runningjob-description" type="xs:string"/>
+			<!-- which type of entity is processed (object or address), pass MdekUtils.IdcEntityType Enumeration const -->
+			<xs:element name="runningjob-entity-type" type="xs:integer"/>
 			<xs:element name="runningjob-number-processed-entities" type="xs:integer"/>
 			<xs:element name="runningjob-number-total-entities" type="xs:integer"/>
 			<xs:element name="runningjob-canceled-by-user" type="xs:boolean"/>

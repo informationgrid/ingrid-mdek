@@ -142,7 +142,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param userId calling user
 	 * @return response containing result: map containing import information
 	 */
-	IngridDocument importEntities(String plugId, Byte[] importData,
+	IngridDocument importEntities(String plugId, byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			String userId);

@@ -13,6 +13,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -105,8 +106,26 @@ public class MdekJobHandler {
 			Integer numProcessed,
 			Integer numTotal,
 			boolean canceledByUser) {
+		return createRunningJobDescription(jobType, null, numProcessed, numTotal, canceledByUser);
+	}
+
+	/**
+	 * Create a document describing a job.
+	 * @param JobType what type of Job/Operation
+	 * @param whichType what kind of entities are processed (objects or addresses)
+	 * @param numProcessed number of already processed entities
+	 * @param numTotal total number of entities to be processed 
+	 * @param canceledByUser was this job canceled by user ? 
+	 * @return document describing current state of job
+	 */
+	public IngridDocument createRunningJobDescription(JobType jobType,
+			IdcEntityType whichType, 
+			Integer numProcessed,
+			Integer numTotal,
+			boolean canceledByUser) {
 		IngridDocument runningJob = new IngridDocument();
 		runningJob.put(MdekKeys.RUNNINGJOB_DESCRIPTION, jobType.getDbValue());
+		runningJob.put(MdekKeys.RUNNINGJOB_ENTITY_TYPE, whichType);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
 		runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, canceledByUser);
@@ -250,11 +269,6 @@ public class MdekJobHandler {
 		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 		persistJobInfoDB(jobInfo, userUuid);
 	}
-	/** Persists given JobInfo */
-	public void persistJobInfoDB(SysJobInfo jobInfo, String userUuid) {
-		daoSysJobInfo.makePersistent(jobInfo);
-	}
-
 	/** "logs" End-Info in job information IN DATABASE */
 	public void endJobInfoDB(JobType whichJob, String userUuid) {
 		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
@@ -263,15 +277,66 @@ public class MdekJobHandler {
 		persistJobInfoDB(jobInfo, userUuid);
 	}
 
-	/** NOTICE: if passed details are NULL writes NULL into DB ! */
-	public String formatJobDetailsForDB(HashMap jobDetailsForDB) {
+	/** Persists given JobInfo */
+	private void persistJobInfoDB(SysJobInfo jobInfo, String userUuid) {
+		daoSysJobInfo.makePersistent(jobInfo);
+	}
+
+	/**
+	 * Maps Info from passed RunningJobInfo to map to be stored as job details.
+	 * @param runningJobInfo info from running job
+	 * @param includeMessages also map messages ? (or only basic data)
+	 * @return map containing job details information
+	 */
+	public HashMap getJobInfoDetailsFromRunningJobInfo(HashMap runningJobInfo,
+			boolean includeMessages) {
+		IdcEntityType whichEntityType = (IdcEntityType) runningJobInfo.get(MdekKeys.RUNNINGJOB_ENTITY_TYPE);
+		// default is OBJECT ;)
+		if (whichEntityType == null) {
+			whichEntityType = IdcEntityType.OBJECT;
+		}
+		
+		// set up job info details just like it wouild be stored in DB
+        HashMap jobDetails = setUpJobInfoDetailsDB(
+        		whichEntityType,
+        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
+        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES));
+
+        // also add start time from running job if present
+        if (runningJobInfo.containsKey(MdekKeys.JOBINFO_START_TIME)) {
+            jobDetails.put(MdekKeys.JOBINFO_START_TIME, runningJobInfo.get(MdekKeys.JOBINFO_START_TIME));        	
+        }
+        
+        if (includeMessages) {
+            jobDetails.put(MdekKeys.JOBINFO_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_MESSAGES));        	
+        }
+		
+		return jobDetails;
+	}
+
+	/** Set up generic details to be stored in database. */
+	public HashMap setUpJobInfoDetailsDB(IdcEntityType whichType, int num, int totalNum) {
+        HashMap details = new HashMap();
+        if (whichType == IdcEntityType.OBJECT) {
+            details.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS, totalNum);        	
+            details.put(MdekKeys.JOBINFO_NUM_OBJECTS, num);
+        } else if (whichType == IdcEntityType.ADDRESS) {
+            details.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES, totalNum);        	
+            details.put(MdekKeys.JOBINFO_NUM_ADDRESSES, num);
+        }
+		
+        return details;
+	}
+
+	/** NOTICE: if passed details are NULL returns NULL ! */
+	private String formatJobDetailsForDB(HashMap jobDetailsForDB) {
 		if (jobDetailsForDB == null) {
 			return null;			
 		}
 		return xstream.toXML(jobDetailsForDB);
 	}
 	/** NOTICE: returns empty HashMap if passed details from DB are null ! */
-	public HashMap deformatJobDetailsFromDB(String jobDetailsFromDB) {
+	private HashMap deformatJobDetailsFromDB(String jobDetailsFromDB) {
 		if (jobDetailsFromDB == null) {
 			return new HashMap();
 		}

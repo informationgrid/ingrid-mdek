@@ -149,7 +149,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument importEntities(String plugId, Byte[] importData,
+	public IngridDocument importEntities(String plugId, byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			String userId) {
