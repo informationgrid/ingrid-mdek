@@ -464,6 +464,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String defaultObjectParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID);
 			String defaultAddrParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
 			Boolean publishImmediately = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY);
+			Boolean doSeparateImport = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT);
 
 			genericDao.beginTransaction();
 
@@ -471,14 +472,14 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
-			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid, publishImmediately);
+			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid,
+					publishImmediately, doSeparateImport, userId);
 
 			// initialize import info in database
 			importService.startImportJobInfo(userId);
 
 			// import
-			new XMLImporter(importService).importEntities(
-					importData, defaultObjectParentUuid, defaultAddrParentUuid, publishImmediately, userId);
+			new XMLImporter(importService).importEntities(importData, userId);
 
 			// finish and fetch import info in database
 			importService.endImportJobInfo(userId);

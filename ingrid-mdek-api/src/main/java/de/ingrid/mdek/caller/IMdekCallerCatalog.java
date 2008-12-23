@@ -133,18 +133,22 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * Import the given data (import/export format) and update existing or create new entities.
 	 * @param plugId which mdek server (iplug)
 	 * @param importData entities to import in import/export format
-	 * @param targetObjectUuid object node where all new objects are created underneath
-	 * @param targetAddressUuid address node (institution !) where all new addresses are 
-	 * 		created underneath.<br>
-	 * 		NOTICE: new free Addresses are ALWAYS created as new free TOP addresses
+	 * @param targetObjectUuid object node where new objects are created underneath
+	 * 		("object import node").
+	 * @param targetAddressUuid address node (institution !) where new addresses are 
+	 * 		created underneath  ("address import node").<br>
 	 * @param publishImmediately publish imported data immediately<br>
 	 * 		NOTICE: if data is missing, entities are stored in working version ! 
+	 * @param doSeparateImport separate all imported entities underneath the "import nodes".
+	 * 		If an imported entity already exists in catalog, a new uuid is created, so it becomes
+	 * 		a NEW entity.
 	 * @param userId calling user
 	 * @return response containing result: map containing import information
 	 */
 	IngridDocument importEntities(String plugId, byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
+			boolean doSeparateImport,
 			String userId);
 
 	/** Returns information about the current/last import executed by the given user.

@@ -133,6 +133,9 @@ public class MdekKeys {
     /** Publish imported entities immediately ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY = "requestinfo_importPublishImmediately";
+    /** Separate all imported entities underneath of "import nodes" ?<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT = "requestinfo_importDoSeparateImport";
 
 
     // SEARCH / QUERY (Recherche)

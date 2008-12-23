@@ -373,6 +373,8 @@
 			<xs:element name="requestinfo_importAddrParentUuid" type="xs:string"/>
 			<!-- publish imported entities immediately ? -->
 			<xs:element name="requestinfo_importPublishImmediately" type="xs:boolean"/>
+			<!-- separate all imported entities underneath of "import nodes" ? -->
+			<xs:element name="requestinfo_importDoSeparateImport" type="xs:boolean"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">

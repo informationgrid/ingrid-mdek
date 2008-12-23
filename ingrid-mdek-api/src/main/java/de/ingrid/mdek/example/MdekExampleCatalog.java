@@ -418,17 +418,17 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getImportInfo();
 		supertool.getRunningJobInfo();
 
-		System.out.println("\n----- create new Import Top Node for Objects -----");
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
 		IngridDocument objImpTopDoc = supertool.newObjectDoc(null);
 		objImpTopDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
 		objImpTopDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
-		objImpTopDoc = supertool.publishObject(objImpTopDoc, false, false);
+		objImpTopDoc = supertool.storeObject(objImpTopDoc, false);
 		String objImpTopUuid = (String) objImpTopDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- create new Import Top Node for Addresses -----");
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
 		IngridDocument addrImpTopDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		addrImpTopDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
-		addrImpTopDoc = supertool.publishAddress(addrImpTopDoc, false);
+		addrImpTopDoc = supertool.storeAddress(addrImpTopDoc, false);
 		String addrImpTopUuid = (String) addrImpTopDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n-------------------------------------");
@@ -444,7 +444,8 @@ class MdekExampleCatalogThread extends Thread {
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
-		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, true);
+		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, false, false);
+		supertool.getImportInfo();
 
 		System.out.println("\n----- import as PUBLISHED -----");
 //		supertool.importEntities(null, "objUuid", "addrUuid", true);

@@ -294,7 +294,7 @@ public class MdekExportService implements IExporterCallback {
         HashMap details = jobHandler.setUpJobInfoDetailsDB(whichType, 0, totalNum);
 		jobHandler.startJobInfoDB(JobType.EXPORT, startTime, details, userUuid);
 	}
-	/** Update general info of Export job IN MEMORY and IN DATABASE */
+	/** Update general info of Export job IN MEMORY. */
 	public void updateExportJobInfo(IdcEntityType whichType, int numExported, int totalNum,
 			String userUuid) {
 		// first update in memory job state
@@ -306,7 +306,7 @@ public class MdekExportService implements IExporterCallback {
 //        HashMap details = setUpExportJobInfoDetailsDB(whichType, numExported, totalNum);
 //		jobHandler.updateJobInfoDB(JobType.EXPORT, details, userUuid);
 	}
-	/** Add new Message to info of Export job IN MEMORY and IN DATABASE. */
+	/** Add new Message to info of Export job IN MEMORY. */
 	public void updateExportJobInfoMessages(String newMessage, String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJobMessages(userUuid, newMessage);

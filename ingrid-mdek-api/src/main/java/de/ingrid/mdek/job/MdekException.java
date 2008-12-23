@@ -31,6 +31,16 @@ public class MdekException extends RuntimeException {
     	return errors; 
     }
 
+    /** Returns first encapsulated error from list or null if no error exists. */
+    public MdekError getMdekError() {
+    	MdekError retError = null;
+    	if (errors.size() > 0) {
+    		retError = errors.get(0);    		
+    	}
+    	
+    	return retError;
+    }
+
 	public String toString() {
 		String retStr = "";
 		

@@ -152,12 +152,14 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 	public IngridDocument importEntities(String plugId, byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
+			boolean doSeparateImport,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DATA, importData);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, targetObjectUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, targetAddressUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, publishImmediately);
+		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, doSeparateImport);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("importEntities", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);		

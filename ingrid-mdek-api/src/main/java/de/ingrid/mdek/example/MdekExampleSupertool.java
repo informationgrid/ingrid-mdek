@@ -140,9 +140,10 @@ public class MdekExampleSupertool {
 	}
 	public IngridDocument importEntities(byte[] importData,
 			String targetObjectUuid, String targetAddressUuid,
-			boolean publishImmediately) {
+			boolean publishImmediately, boolean doSeparateImport) {
 		return supertoolCatalog.importEntities(importData,
-				targetObjectUuid, targetAddressUuid, publishImmediately);
+				targetObjectUuid, targetAddressUuid,
+				publishImmediately, doSeparateImport);
 	}
 	public IngridDocument getImportInfo() {
 		return supertoolCatalog.getImportInfo();

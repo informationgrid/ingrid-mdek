@@ -423,7 +423,7 @@ public class MdekUtils {
 
 	/** Compress string to zipped byte array. */
 	public static byte[] compressString(String stringToZip) throws IOException {
-		ByteArrayOutputStream baos = compress(new ByteArrayInputStream(stringToZip.getBytes()));
+		ByteArrayOutputStream baos = compress(new ByteArrayInputStream(stringToZip.getBytes("UTF-8")));
 		return baos.toByteArray();
 	}
 
