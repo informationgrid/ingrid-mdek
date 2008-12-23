@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
@@ -417,6 +418,19 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getImportInfo();
 		supertool.getRunningJobInfo();
 
+		System.out.println("\n----- create new Import Top Node for Objects -----");
+		IngridDocument objImpTopDoc = supertool.newObjectDoc(null);
+		objImpTopDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpTopDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpTopDoc = supertool.publishObject(objImpTopDoc, false, false);
+		String objImpTopUuid = (String) objImpTopDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses -----");
+		IngridDocument addrImpTopDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpTopDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpTopDoc = supertool.publishAddress(addrImpTopDoc, false);
+		String addrImpTopUuid = (String) addrImpTopDoc.get(MdekKeys.UUID);
+
 		System.out.println("\n-------------------------------------");
 		System.out.println("\n----- Import: UPDATE EXISTING OBJECT(S) -----");
 		System.out.println("\n-------------------------------------");
@@ -430,10 +444,21 @@ class MdekExampleCatalogThread extends Thread {
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
-		supertool.importEntities(null, "objUuid", "addrUuid", false);
+		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, true);
 
 		System.out.println("\n----- import as PUBLISHED -----");
-		supertool.importEntities(null, "objUuid", "addrUuid", true);
+//		supertool.importEntities(null, "objUuid", "addrUuid", true);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("CLEAN UP");
+		System.out.println("=========================");
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpTopUuid, true);
+		supertool.deleteAddress(addrImpTopUuid, true);
 
 // ===================================
 

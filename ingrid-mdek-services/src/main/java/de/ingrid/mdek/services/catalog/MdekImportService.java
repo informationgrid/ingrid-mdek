@@ -3,12 +3,20 @@ package de.ingrid.mdek.services.catalog;
 import java.util.Date;
 import java.util.HashMap;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.xml.importer.IImporterCallback;
@@ -142,5 +150,67 @@ public class MdekImportService implements IImporterCallback {
 		jobHandler.updateJobInfoDB(JobType.IMPORT, jobDetails, userUuid);
 		// add end info
 		jobHandler.endJobInfoDB(JobType.IMPORT, userUuid);
+	}
+
+	/**
+	 * Arbitrary checks whether passed default parents for imported entities are ok for requested import.
+	 * Throws Exception encapsulating error message if not.
+	 * @param defaultObjectParentUuid uuid of default parent for imported objects
+	 * @param defaultAddrParentUuid  uuid of default parent for imported addresses
+	 * @param publishImmediately publish imported entities immediately ?
+	 * @throws MdekException encapsulates error message
+	 */
+	public void checkDefaultParents(String defaultObjectParentUuid, String defaultAddrParentUuid,
+			boolean publishImmediately)
+	throws MdekException {
+		if (defaultObjectParentUuid == null) {
+			throw createImportException("Top Node for Import of Objects not set.");
+		}
+		if (defaultAddrParentUuid == null) {
+			throw createImportException("Top Node for Import of Addresses not set.");
+		}
+
+		// fetch and check nodes
+		ObjectNode topObjImportNode;
+		AddressNode topAddrImportNode;
+		if (publishImmediately) {
+			topObjImportNode = objectService.loadByUuid(defaultObjectParentUuid, IdcEntityVersion.PUBLISHED_VERSION);
+			topAddrImportNode = addressService.loadByUuid(defaultAddrParentUuid, IdcEntityVersion.PUBLISHED_VERSION);
+		} else {
+			topObjImportNode = objectService.loadByUuid(defaultObjectParentUuid, IdcEntityVersion.WORKING_VERSION);
+			topAddrImportNode = addressService.loadByUuid(defaultAddrParentUuid, IdcEntityVersion.WORKING_VERSION);
+		}
+		if (topObjImportNode == null) {
+			throw createImportException("Top Node for Import of Objects not found.");
+		}			
+		if (topAddrImportNode == null) {
+			throw createImportException("Top Node for Import of Addresses not found.");
+		}			
+
+		// fetch and check entities
+		T01Object topObjImport;
+		T02Address topAddrImport;
+		if (publishImmediately) {
+			topObjImport = topObjImportNode.getT01ObjectPublished();
+			if (topObjImport == null) {
+				throw createImportException("Top Node for Import of Objects not published.");
+			}
+			topAddrImport = topAddrImportNode.getT02AddressPublished();
+			if (topAddrImport == null) {
+				throw createImportException("Top Node for Import of Addresses not published.");
+			}			
+		} else {
+			topObjImport = topObjImportNode.getT01ObjectWork();
+			topAddrImport = topAddrImportNode.getT02AddressWork();
+		}
+
+		// check top address import node
+		if (!MdekUtils.AddressType.INSTITUTION.getDbValue().equals(topAddrImport.getAdrType())) {
+			throw createImportException("Top Node for Import of Addresses is NO Institution.");
+		}
+	}
+	
+	private MdekException createImportException(String message) {
+		return new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, message));
 	}
 }

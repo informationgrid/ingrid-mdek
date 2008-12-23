@@ -147,6 +147,9 @@ public class MdekError implements Serializable {
 		NO_RIGHT_TO_ADD_ADDRESS_PERMISSION("2075"),
 		/** user cannot add user permission when not having same user permission */
 		NO_RIGHT_TO_ADD_USER_PERMISSION("2076"),
+
+		/** a problem during import occured. delivers message describing problem. */
+		IMPORT_PROBLEM("4000"),
 		;
 
 		MdekErrorType(String errorCode) {
@@ -163,16 +166,26 @@ public class MdekError implements Serializable {
 
 	protected MdekErrorType errorType;
 	protected IngridDocument errorInfo;
+	protected String errorMessage;
 
     private MdekError() {}
 
-	/** Constructs an exception containing the passed error. */
+	/** Constructs an error of the given type. */
     public MdekError(MdekErrorType errorType) {
-    	this.errorType = errorType;
+    	this(errorType, null, null);
     }
-	/** Constructs an exception containing the passed error and error information. */
+	/** Constructs an error of the given type containing detailed error information. */
     public MdekError(MdekErrorType errorType, IngridDocument errorInfo) {
+    	this(errorType, null, errorInfo);
+    }
+	/** Constructs an error of the given type containing additional error message. */
+    public MdekError(MdekErrorType errorType, String errorMessage) {
+    	this(errorType, errorMessage, null);
+    }
+	/** Constructs an error of the given type containing additional error message and detailed information. */
+    public MdekError(MdekErrorType errorType, String errorMessage, IngridDocument errorInfo) {
     	this.errorType = errorType;
+    	this.errorMessage = errorMessage;
     	this.errorInfo = errorInfo;
     }
 
@@ -182,12 +195,19 @@ public class MdekError implements Serializable {
 	public IngridDocument getErrorInfo() {
 		return errorInfo;
 	}
+	public String getErrorMessage() {
+		return errorMessage;
+	}
 
 	public String toString() {
 		String retStr = "[";
 		retStr += errorType;
-		retStr += ", ";
-		retStr += errorInfo;		
+		if (errorMessage != null) {
+			retStr += ", " + errorMessage;
+		}
+		if (errorInfo != null) {
+			retStr += ", " + errorInfo;
+		}
 		retStr += "]";
 
 		return retStr;

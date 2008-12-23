@@ -22,6 +22,7 @@ import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.xml.exporter.XMLExporter;
+import de.ingrid.mdek.xml.importer.XMLImporter;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -460,19 +461,24 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
 
 			byte[] importData = (byte[]) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
-			String objParent = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID);
-			String addrParent = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
+			String defaultObjectParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID);
+			String defaultAddrParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
 			Boolean publishImmediately = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY);
 
 			genericDao.beginTransaction();
 
+			// CHECKS BEFORE START OF IMPORT
+
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
+			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid, publishImmediately);
 
 			// initialize import info in database
 			importService.startImportJobInfo(userId);
 
-			// TODO implement importEntities
+			// import
+			new XMLImporter(importService).importEntities(
+					importData, defaultObjectParentUuid, defaultAddrParentUuid, publishImmediately, userId);
 
 			// finish and fetch import info in database
 			importService.endImportJobInfo(userId);
