@@ -17,7 +17,6 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
-import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -223,9 +222,8 @@ public class MdekAddressService {
 		}
 		
 		// get/create working copy
-		// if no working copy then new address -> address and addressNode have to be created
-		if (!hasWorkingCopy(aNode)) {
-			// no working copy yet, create new address/node with BASIC data
+		if (!hasWorkingVersion(aNode)) {
+			// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
 
 			// set some missing data which may not be passed from client.
 			// set from published version if existent
@@ -424,13 +422,10 @@ public class MdekAddressService {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		Long idPublished = aNode.getAddrIdPublished();
-		Long idWorkingCopy = aNode.getAddrId();
-
 		IngridDocument result;
 
 		// if we have NO published version -> delete complete node !
-		if (idPublished == null) {
+		if (!hasPublishedVersion(aNode)) {
 			result = deleteAddress(uuid, forceDeleteReferences, userId, checkPermissions);
 
 		} else {
@@ -440,7 +435,7 @@ public class MdekAddressService {
 			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
 
 			// perform delete of working copy only if really different version
-			if (!idPublished.equals(idWorkingCopy)) {
+			if (hasWorkingVersion(aNode)) {
 				// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
 				T02Address aWorkingCopy = aNode.getT02AddressWork();
 				IngridDocument commentsDoc = beanToDocMapper.mapAddressComments(aWorkingCopy.getAddressComments(), new IngridDocument());
@@ -452,7 +447,7 @@ public class MdekAddressService {
 				daoT02Address.makePersistent(aPublished);
 
 				// and set published one as working copy
-				aNode.setAddrId(idPublished);
+				aNode.setAddrId(aNode.getAddrIdPublished());
 				aNode.setT02AddressWork(aPublished);
 				daoAddressNode.makePersistent(aNode);
 				
@@ -561,7 +556,7 @@ public class MdekAddressService {
 		IngridDocument result;
 
 		// FULL DELETE IF NOT PUBLISHED !
-		if (aNode.getAddrIdPublished() == null) {
+		if (!hasPublishedVersion(aNode)) {
 			result = deleteAddress(uuid, forceDeleteReferences, userUuid, checkPermissions);
 		} else {
 			// IS PUBLISHED -> mark deleted
@@ -588,12 +583,25 @@ public class MdekAddressService {
     	return (node.getAddressNodeChildren().size() > 0) ? true : false;
 	}
 
-	/** Checks whether given Address has a working copy !
+	/** Checks whether given Address has a published version.
 	 * @param node address to check represented by node !
-	 * @return true=address has different working copy or not published yet<br>
+	 * @return true=address has a published version. NOTICE: working copy may differ<br>
+	 * 	false=not published yet, only working version exists !
+	 */
+	private boolean hasPublishedVersion(AddressNode node) {
+		Long pubId = node.getAddrIdPublished(); 
+		if (pubId == null) {
+			return false;
+		}
+		return true;
+	}
+
+	/** Checks whether given Address has a working version !
+	 * @param node address to check represented by node !
+	 * @return true=address has different working copy OR not published yet<br>
 	 * 	false=no working version, same as published version !
 	 */
-	private boolean hasWorkingCopy(AddressNode node) {
+	private boolean hasWorkingVersion(AddressNode node) {
 		Long workId = node.getAddrId(); 
 		Long pubId = node.getAddrIdPublished(); 
 		if (workId == null || workId.equals(pubId)) {
@@ -786,7 +794,7 @@ public class MdekAddressService {
 				if (pathNode == null) {
 					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 				}
-				if (pathNode.getAddrIdPublished() == null) {
+				if (!hasPublishedVersion(pathNode)) {
 					throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 				}
 			}

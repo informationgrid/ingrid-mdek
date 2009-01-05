@@ -204,7 +204,7 @@ public class MdekObjectService {
 		}
 		
 		// get/create working copy
-		if (!hasWorkingCopy(oNode)) {
+		if (!hasWorkingVersion(oNode)) {
 			// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
 
 			// set some missing data which is NOT passed from client.
@@ -434,13 +434,10 @@ public class MdekObjectService {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		Long idPublished = oNode.getObjIdPublished();
-		Long idWorkingCopy = oNode.getObjId();
-
 		IngridDocument result;
 
 		// if we have NO published version -> delete complete node !
-		if (idPublished == null) {
+		if (!hasPublishedVersion(oNode)) {
 			result = deleteObject(uuid, forceDeleteReferences, userId, checkPermissions);
 
 		} else {
@@ -450,10 +447,11 @@ public class MdekObjectService {
 			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
 
 			// perform delete of working copy only if really different version
-			if (!idPublished.equals(idWorkingCopy)) {
+			if (hasWorkingVersion(oNode)) {
 				// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
 				T01Object oWorkingCopy = oNode.getT01ObjectWork();
-				IngridDocument commentsDoc = beanToDocMapper.mapObjectComments(oWorkingCopy.getObjectComments(), new IngridDocument());
+				IngridDocument commentsDoc =
+					beanToDocMapper.mapObjectComments(oWorkingCopy.getObjectComments(), new IngridDocument());
 				daoT01Object.makeTransient(oWorkingCopy);
 
 				// take over comments to published version
@@ -462,7 +460,7 @@ public class MdekObjectService {
 				daoT01Object.makePersistent(oPublished);
 
 				//  and set published one as working copy
-				oNode.setObjId(idPublished);
+				oNode.setObjId(oNode.getObjIdPublished());
 				oNode.setT01ObjectWork(oPublished);
 				daoObjectNode.makePersistent(oNode);
 				
@@ -583,7 +581,7 @@ public class MdekObjectService {
 		IngridDocument result;
 
 		// FULL DELETE IF NOT PUBLISHED !
-		if (oNode.getObjIdPublished() == null) {
+		if (!hasPublishedVersion(oNode)) {
 			result = deleteObject(uuid, forceDeleteReferences, userUuid, checkPermissions);
 
 		} else {
@@ -606,12 +604,25 @@ public class MdekObjectService {
 		return result;
 	}
 
-	/** Checks whether given Object has a working copy !
+	/** Checks whether given Object has a published version.
 	 * @param oNode object to check represented by node !
-	 * @return true=object has different working copy or not published yet<br>
+	 * @return true=object has a published version. NOTICE: working copy may differ<br>
+	 * 	false=not published yet, only working version exists !
+	 */
+	private boolean hasPublishedVersion(ObjectNode oNode) {
+		Long oPubId = oNode.getObjIdPublished(); 
+		if (oPubId == null) {
+			return false;
+		}
+		return true;
+	}
+
+	/** Checks whether given Object has a working version !
+	 * @param oNode object to check represented by node !
+	 * @return true=object has different working copy OR not published yet<br>
 	 * 	false=no working version, same as published version !
 	 */
-	private boolean hasWorkingCopy(ObjectNode oNode) {
+	private boolean hasWorkingVersion(ObjectNode oNode) {
 		Long oWorkId = oNode.getObjId(); 
 		Long oPubId = oNode.getObjIdPublished(); 
 		if (oWorkId == null || oWorkId.equals(oPubId)) {
@@ -721,7 +732,7 @@ public class MdekObjectService {
 			}
 			
 			// check
-			if (pathNode.getObjIdPublished() == null) {
+			if (!hasPublishedVersion(pathNode)) {
 				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 		}
