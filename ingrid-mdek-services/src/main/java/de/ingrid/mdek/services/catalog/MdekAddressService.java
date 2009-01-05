@@ -133,6 +133,10 @@ public class MdekAddressService {
 		} else {
 			a = aNode.getT02AddressWork();
 		}
+		if (a == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));			
+		}
+
 		beanToDocMapper.mapT02Address(a, resultDoc, MappingQuantity.DETAIL_ENTITY);
 		
 		// also map AddressNode for published info

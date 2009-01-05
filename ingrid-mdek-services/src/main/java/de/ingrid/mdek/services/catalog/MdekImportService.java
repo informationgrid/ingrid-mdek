@@ -15,7 +15,6 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
@@ -85,59 +84,80 @@ public class MdekImportService implements IImporterCallback {
 		String objUuid = objDoc.getString(MdekKeys.UUID);
 		String origId = objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
 
-		ObjectNode parentNode = processParent(objDoc, defaultParentNode);
-
+		ObjectNode parentNode = determineObjectParentNode(objDoc, defaultParentNode, userUuid);
+		boolean hasDefaultParent = (parentNode == defaultParentNode);
 
 		if (doSeparateImport) {
-			// TODO: check if UUID exists, then create and set new UUID
+			// TODO: check if UUID exists, then create and set new UUID. Store UUID mapping in Map and use for all import objects (so relations stay the same) !
 			// TODO: check if ORIG_ID exists, then delete ORG_ID ?
 			
 		} else {
 			// TODO: check if ORIG_ID exists, then take over UUID of existing object
 			// TODO: take over mod_uuid and responsible_uuid of existing catalog object or set uuid of calling user if new !
-			// TODO: check if parent changed, then move object			
+			// TODO: check if parent changed, then move object. Also move Object to Top ???
 		}
 
 		// TODO: check additional fields -> store working version if problems
+		// TODO: check relations and remove if not present
 
-		boolean storeWorkingVersion = true;
+
+		// PUBLISH IMPORT OBJECTS
+		// ----------------------
+
+		boolean storeWorkingVersion = true;		
 		if (publishImmediately) {
 			storeWorkingVersion = false;
 
 			// TODO: check mandatory data -> store working version if problems
-			// TODO: check whether parent published (no working version) -> store working version if problems
-			
-			String errorMsg = "Problems publishing imported Object " +  objUuid + ": ";
+
+			// first check whether publishing is possible with according parent
+			if (hasDefaultParent) {
+				// parent not found or new top node -> store working version ! (message already written)
+				storeWorkingVersion = true;
+				
+			} else if (!objectService.hasPublishedVersion(parentNode)) {
+				// parent found but not published -> store working version !
+				updateImportJobInfoMessages("! Object " + objUuid + ": Parent not published", userUuid);
+				storeWorkingVersion = true;
+				
+			} else {
+				// ok, we publish. On error store working version !
+				String errorMsg = "! Object " +  objUuid + ": Problems publishing: ";
+				try {
+					// we DON'T force publication condition ! if error, we store working version !
+					objectService.publishObject(objDoc, false, userUuid, false);
+					updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
+					updateImportJobInfoMessages("Object " + objUuid + ": Stored PUBLISHED version", userUuid);
+
+				} catch (MdekException ex) {
+					updateImportJobInfoMessages(errorMsg + ex.getMdekError(), userUuid);
+					storeWorkingVersion = true;
+				} catch (Exception ex) {
+					updateImportJobInfoMessages(errorMsg + ex.getMessage(), userUuid);
+					storeWorkingVersion = true;				
+				}
+			}
+		}
+
+		// STORE WORKING COPY IMPORT OBJECTS
+		// ---------------------------------
+
+		if (storeWorkingVersion) {
+			if (publishImmediately) {
+				updateImportJobInfoMessages("! Object " +  objUuid + ": Publishing not possible, we store working version", userUuid);
+			}
+
+			String errorMsg = "! Object " +  objUuid + ": Problems storing working version: ";
 			try {
-				objectService.publishObject(objDoc, false, userUuid, false);
+				objectService.storeWorkingCopy(objDoc, userUuid, false);
 				updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-				updateImportJobInfoMessages("Updated PUBLISHED version of Object " + objUuid, userUuid);
+				updateImportJobInfoMessages("Object " + objUuid + ": Stored WORKING version", userUuid);
 
 			} catch (MdekException ex) {
 				updateImportJobInfoMessages(errorMsg + ex.getMdekError(), userUuid);
 				storeWorkingVersion = true;
 			} catch (Exception ex) {
 				updateImportJobInfoMessages(errorMsg + ex.getMessage(), userUuid);
-				storeWorkingVersion = true;				
-			}
-		}
-		
-		String errorMsg = "Problems storing working version of imported Object " +  objUuid + ": ";
-		if (storeWorkingVersion) {
-			if (publishImmediately) {
-				updateImportJobInfoMessages("We store working version of Object " + objUuid, userUuid);
-			}
-
-			try {
-				objectService.storeWorkingCopy(objDoc, userUuid, false);
-				updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-				updateImportJobInfoMessages("Updated WORKING version of Object " + objUuid, userUuid);
-
-			} catch (MdekException ex) {
-				updateImportJobInfoMessages(errorMsg + ex.getMdekError(), userUuid);
-				storeWorkingVersion = true;
-			} catch (Exception ex) {
-				updateImportJobInfoMessages(ex.getMessage(), userUuid);
 				storeWorkingVersion = true;				
 			}
 		}
@@ -246,48 +266,34 @@ public class MdekImportService implements IImporterCallback {
 		}
 
 		// fetch and check nodes
-		ObjectNode topObjImportNode;
-		AddressNode topAddrImportNode;
-		if (publishImmediately) {
-			topObjImportNode = objectService.loadByUuid(defaultObjectParentUuid, IdcEntityVersion.PUBLISHED_VERSION);
-			topAddrImportNode = addressService.loadByUuid(defaultAddrParentUuid, IdcEntityVersion.PUBLISHED_VERSION);
-		} else {
-			topObjImportNode = objectService.loadByUuid(defaultObjectParentUuid, IdcEntityVersion.WORKING_VERSION);
-			topAddrImportNode = addressService.loadByUuid(defaultAddrParentUuid, IdcEntityVersion.WORKING_VERSION);
-		}
-		if (topObjImportNode == null) {
-			throw createImportException("Top Node for Import of Objects not found.");
+		// ONLY WORKING VERSION ! Under these nodes there will never be a published version (IMPORT NODES never published !)
+
+		ObjectNode objImportNode = objectService.loadByUuid(defaultObjectParentUuid, IdcEntityVersion.WORKING_VERSION);
+		AddressNode addrImportNode = addressService.loadByUuid(defaultAddrParentUuid, IdcEntityVersion.WORKING_VERSION);
+		if (objImportNode == null) {
+			throw createImportException("Node for Import of Objects not found.");
 		}			
-		if (topAddrImportNode == null) {
-			throw createImportException("Top Node for Import of Addresses not found.");
+		if (addrImportNode == null) {
+			throw createImportException("Node for Import of Addresses not found.");
 		}			
 
 		// fetch and check entities
-		T01Object topObjImport;
-		T02Address topAddrImport;
-		if (publishImmediately) {
-			topObjImport = topObjImportNode.getT01ObjectPublished();
-			if (topObjImport == null) {
-				throw createImportException("Top Node for Import of Objects not published.");
-			}
-			topAddrImport = topAddrImportNode.getT02AddressPublished();
-			if (topAddrImport == null) {
-				throw createImportException("Top Node for Import of Addresses not published.");
-			}			
-		} else {
-			topObjImport = topObjImportNode.getT01ObjectWork();
-			topAddrImport = topAddrImportNode.getT02AddressWork();
+
+		// check top address for import
+		T02Address addrImport = addrImportNode.getT02AddressWork();
+		if (!MdekUtils.AddressType.INSTITUTION.getDbValue().equals(addrImport.getAdrType())) {
+			throw createImportException("Node for Import of Addresses is NO Institution.");
 		}
 
-		// check top address import node
-		if (!MdekUtils.AddressType.INSTITUTION.getDbValue().equals(topAddrImport.getAdrType())) {
-			throw createImportException("Top Node for Import of Addresses is NO Institution.");
+		// if all should be imported underneath import node, then publishing not possible !
+		if (doSeparateImport && publishImmediately) {
+			throw createImportException("Publishing underneath Import Nodes not possible.");			
 		}
-		
+
 		// all ok, we store data in running job info for later access !
 		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
-		runningJobInfo.put(KEY_OBJ_TOP_NODE, topObjImportNode);
-		runningJobInfo.put(KEY_ADDR_TOP_NODE, topAddrImportNode);
+		runningJobInfo.put(KEY_OBJ_TOP_NODE, objImportNode);
+		runningJobInfo.put(KEY_ADDR_TOP_NODE, addrImportNode);
 		runningJobInfo.put(KEY_PUBLISH_IMMEDIATELY, publishImmediately);
 		runningJobInfo.put(KEY_DO_SEPARATE_IMPORT, doSeparateImport);
 	}
@@ -297,18 +303,43 @@ public class MdekImportService implements IImporterCallback {
 	}
 
 	/** Check whether parent in doc exists else set default parent. Returns the detected parent. */
-	private ObjectNode processParent(IngridDocument objDoc, ObjectNode defaultParentNode) {
+	private ObjectNode determineObjectParentNode(IngridDocument objDoc, ObjectNode defaultParentNode,
+			String userUuid) {
+		String objUuid = objDoc.getString(MdekKeys.UUID);
 		ObjectNode retParentNode = null;
 
 		String docParentUuid = objDoc.getString(MdekKeys.PARENT_UUID);
+		boolean setDefaultParent = false;
 		if (docParentUuid != null) {
-			// check whether parent in doc exists and fetch according version
+			// node to import has parent. check whether parent exists and fetch it.
+
 			retParentNode = objectService.loadByUuid(docParentUuid, null);
+			if (retParentNode == null) {
+				updateImportJobInfoMessages("! Object " + objUuid + ": Parent not found, store underneath import node", userUuid);
+				setDefaultParent = true;
+			}
+		} else {
+			// node to import is top node. check whether new top node !
+
+			ObjectNode existingNode = objectService.loadByUuid(objUuid, null);
+			if (existingNode == null) {
+				// new top node, import underneath import node
+				updateImportJobInfoMessages("! Object " + objUuid + ": New top node, store underneath import node", userUuid);				
+				setDefaultParent = true;
+			} else {
+				// existing node. if parent is import node DON'T MOVE !
+				// TODO: können bestehende Knoten unter Import Knoten verschoben werden aufgrund von neuem Import ? z.B. direktes Kind unter Import-Knoten zu Top Knoten ? 
+				if (defaultParentNode.getObjUuid().equals(existingNode.getFkObjUuid())) {
+					// TODO: Verschiebung nicht möglich
+					updateImportJobInfoMessages("! Object " + objUuid + ": Keep position underneath import node", userUuid);				
+					setDefaultParent = true;
+				}
+			}
 		}
 
-		if (retParentNode == null) {
+		if (setDefaultParent) {
 			retParentNode = defaultParentNode;
-			objDoc.put(MdekKeys.PARENT_UUID, retParentNode.getObjUuid());
+			objDoc.put(MdekKeys.PARENT_UUID, retParentNode.getObjUuid());			
 		}
 
 		return retParentNode;

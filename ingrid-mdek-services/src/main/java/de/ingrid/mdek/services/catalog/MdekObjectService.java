@@ -124,6 +124,10 @@ public class MdekObjectService {
 		} else {
 			o = oNode.getT01ObjectWork();
 		}
+		if (o == null) {
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));			
+		}
+
 		beanToDocMapper.mapT01Object(o, resultDoc, MappingQuantity.DETAIL_ENTITY);
 
 		// also map ObjectNode for published info
@@ -609,7 +613,7 @@ public class MdekObjectService {
 	 * @return true=object has a published version. NOTICE: working copy may differ<br>
 	 * 	false=not published yet, only working version exists !
 	 */
-	private boolean hasPublishedVersion(ObjectNode oNode) {
+	public boolean hasPublishedVersion(ObjectNode oNode) {
 		Long oPubId = oNode.getObjIdPublished(); 
 		if (oPubId == null) {
 			return false;

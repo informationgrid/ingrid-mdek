@@ -432,23 +432,74 @@ class MdekExampleCatalogThread extends Thread {
 		String addrImpTopUuid = (String) addrImpTopDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("\n----- Import: UPDATE EXISTING OBJECT(S) -----");
-		System.out.println("\n-------------------------------------");
+		System.out.println("----- Import: UPDATE EXISTING OBJECT(S) -----");
+		System.out.println("-------------------------------------");
 
-		System.out.println("\n----- import as WORKING VERSION -----");
 		// first change data to import
-		String importObjsUnzipped = exportObjsUnzipped.replace("<title>", "<title>MMTest: ");
+		String importObjsUnzipped = exportObjsUnzipped.replace("<title>", "<title>MMImport: ");
 		byte[] importObjsZipped = new byte[0];
 		try {
 			importObjsZipped = MdekUtils.compressString(importObjsUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
+
+		System.out.println("\n----- import all underneath import nodes AND publish -> ERROR -----");
+		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, true, true);
+
+		System.out.println("\n----- import as WORKING VERSION -----");
 		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, false, false);
 		supertool.getImportInfo();
+		supertool.setFullOutput(false);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(true);
 
 		System.out.println("\n----- import as PUBLISHED -----");
-//		supertool.importEntities(null, "objUuid", "addrUuid", true);
+		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, true, false);
+		supertool.setFullOutput(false);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		supertool.setFullOutput(true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- Import: NEW TOP OBJECT with new child -----");
+		System.out.println("-------------------------------------");
+
+		// first change data to import
+		// new objects !
+		String newUuid1 = "UUID012345678901234567890123456789-1";
+		importObjsUnzipped = exportObjsUnzipped.replace(objUuid, newUuid1);
+		String newUuid2 = "UUID012345678901234567890123456789-2";
+		importObjsUnzipped = importObjsUnzipped.replace(objLeafUuid, newUuid2);
+		// no parent
+		int startIndex = importObjsUnzipped.indexOf("<parent-data-source>");
+		int endIndex = importObjsUnzipped.indexOf("</parent-data-source>") + 21;
+		importObjsUnzipped = importObjsUnzipped.substring(0, startIndex) +
+			importObjsUnzipped.substring(endIndex, importObjsUnzipped.length());
+//		System.out.println(importObjsUnzipped);
+		importObjsZipped = new byte[0];
+		try {
+			importObjsZipped = MdekUtils.compressString(importObjsUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n----- import as WORKING VERSION -----");
+		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, false, false);
+		supertool.setFullOutput(false);
+		supertool.fetchSubObjects(objImpTopUuid);
+		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchSubObjects(newUuid1);
+		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- import as PUBLISHED -----");
+		supertool.importEntities(importObjsZipped, objImpTopUuid, addrImpTopUuid, true, false);
+		supertool.setFullOutput(false);
+		supertool.fetchSubObjects(objImpTopUuid);
+		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		supertool.fetchSubObjects(newUuid1);
+		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		supertool.setFullOutput(true);
 
 		// -----------------------------------
 

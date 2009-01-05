@@ -21,6 +21,7 @@ public interface IMdekCallerObject extends IMdekCaller {
 	 * @param howMuch how much data to fetch from object
 	 * @param whichEntityVersion which object version should be fetched.
 	 * 		NOTICE: In published state working version == published version and it is the same object instance !
+	 * Only ONE version is fetched (default is WORKING_VERSION) !
 	 * @return response containing result: map representation of object containing requested data
 	 */
 	IngridDocument fetchObject(String plugId, String uuid, FetchQuantity howMuch,

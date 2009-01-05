@@ -51,6 +51,7 @@ public interface IMdekCallerAddress extends IMdekCaller {
 	 * @param howMuch how much data to fetch from address
 	 * @param whichEntityVersion which address version should be fetched.
 	 * 		NOTICE: In published state working version == published version and it is the same address instance !
+	 * Only ONE version is fetched (default is WORKING_VERSION) !
 	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
 	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
 	 * @param userId
