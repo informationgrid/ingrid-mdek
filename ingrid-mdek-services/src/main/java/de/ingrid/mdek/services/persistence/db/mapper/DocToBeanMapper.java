@@ -358,11 +358,23 @@ public class DocToBeanMapper implements IMapper {
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
-			oIn.setDatasetCharacterSet((Integer) oDocIn.get(MdekKeys.DATASET_CHARACTER_SET));
-			oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));
-			oIn.setMetadataStandardName((String) oDocIn.get(MdekKeys.METADATA_STANDARD_NAME));
-			oIn.setMetadataStandardVersion((String) oDocIn.get(MdekKeys.METADATA_STANDARD_VERSION));
+			// update only if set (so object keeps former values) ! NOT PASSED FROM CLIENT !!!
+			// BUT E.G. PASSED WHEN IMPORTING !!!
+			if (oDocIn.containsKey(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER)) {
+				oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
+			}
+			if (oDocIn.containsKey(MdekKeys.DATASET_CHARACTER_SET)) {
+				oIn.setDatasetCharacterSet((Integer) oDocIn.get(MdekKeys.DATASET_CHARACTER_SET));
+			}
+			if (oDocIn.containsKey(MdekKeys.METADATA_CHARACTER_SET)) {
+				oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));
+			}
+			if (oDocIn.containsKey(MdekKeys.METADATA_STANDARD_NAME)) {
+				oIn.setMetadataStandardName((String) oDocIn.get(MdekKeys.METADATA_STANDARD_NAME));
+			}
+			if (oDocIn.containsKey(MdekKeys.METADATA_STANDARD_VERSION)) {
+				oIn.setMetadataStandardVersion((String) oDocIn.get(MdekKeys.METADATA_STANDARD_VERSION));			
+			}
 		}
 
 		return oIn;
@@ -410,7 +422,12 @@ public class DocToBeanMapper implements IMapper {
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			aIn.setOrgAdrId(aDocIn.getString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER));
+			// update only if set (so object keeps former values) ! NOT PASSED FROM CLIENT !!!
+			// BUT E.G. PASSED WHEN IMPORTING !!!
+			if (aDocIn.containsKey(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER)) {
+				aIn.setOrgAdrId(aDocIn.getString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER));
+			}
+
 		}
 
 		keyValueService.processKeyValue(aIn);
@@ -2205,7 +2222,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setObjectMetadata(ref);
 		}
 
-		// update only if set (so address keeps former values) !
+		// update only if set (so object keeps former values) !
 		if (oDocIn.containsKey(MdekKeys.LASTEXPORT_TIME)) {
 			ref.setLastexportTime(oDocIn.getString(MdekKeys.LASTEXPORT_TIME));			
 		}

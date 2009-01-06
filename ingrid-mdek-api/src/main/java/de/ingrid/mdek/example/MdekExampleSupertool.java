@@ -1272,7 +1272,8 @@ public class MdekExampleSupertool {
 		newDoc.put(MdekKeys.PARENT_UUID, parentObjUuid);
 		newDoc = getInitialObject(newDoc);
 		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		
+		newDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+
 		return newDoc;
 	}
 

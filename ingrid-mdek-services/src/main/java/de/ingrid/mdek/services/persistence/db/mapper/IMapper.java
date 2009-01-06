@@ -20,7 +20,9 @@ public interface IMapper {
 		TABLE_ENTITY,
 		/** IGE: entity edit/save */
 		DETAIL_ENTITY,
-		/** complete data -> copy entity via mapping */
+		/** complete data EXCLUDING entity specific stuff (ORG_UUID) -> copy entity to new entity */
+		COPY_DATA,
+		/** ALL data INCLUDING entity specific stuff (ORG_UUID) -> copy published <-> working version */
 		COPY_ENTITY,
 	}
 }

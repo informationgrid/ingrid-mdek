@@ -229,7 +229,7 @@ public class MdekAddressService {
 		if (!hasWorkingVersion(aNode)) {
 			// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
 
-			// set some missing data which may not be passed from client.
+			// set some missing data in doc which may not be passed from client.
 			// set from published version if existent
 			T02Address aPub = aNode.getT02AddressPublished();
 			if (aPub != null) {
@@ -237,19 +237,27 @@ public class MdekAddressService {
 			} else {
 				aDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			}
+			
+			// create BASIC working object
 			T02Address aWork = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
 			 // save it to generate id needed for mapping
 			daoT02Address.makePersistent(aWork);
-			
+
+			// save special stuff from pub version not passed by client -> can be queried on working version !
+			if (aPub != null) {
+				// save orig uuid -> all data also in working version !
+				aWork.setOrgAdrId(aPub.getOrgAdrId());
+			}
+
 			// create/update node
 			aNode.setAddrId(aWork.getId());
 			aNode.setT02AddressWork(aWork);
 			daoAddressNode.makePersistent(aNode);
 		}
 
-		// transfer detailed new data
+		// TRANSFER FULL DATA (if set) -> NOT PASSED FROM CLIENT, BUT E.G. PASSED WHEN IMPORTING !!!
 		T02Address aWork = aNode.getT02AddressWork();
-		docToBeanMapper.mapT02Address(aDocIn, aWork, MappingQuantity.DETAIL_ENTITY);
+		docToBeanMapper.mapT02Address(aDocIn, aWork, MappingQuantity.COPY_ENTITY);
 
 		// PERFORM CHECKS BEFORE STORING/COMMITTING !!!
 		checkAddressNodeForStore(aNode);
@@ -325,22 +333,24 @@ public class MdekAddressService {
 			// save it to generate id needed for mapping of associations
 			daoT02Address.makePersistent(aPub);
 		}
-
-		// transfer new data and store.
-		docToBeanMapper.mapT02Address(aDocIn, aPub, MappingQuantity.DETAIL_ENTITY);
-		daoT02Address.makePersistent(aPub);
 		Long aPubId = aPub.getId();
 
-		// and update AddressNode
-
-		// delete former working copy if set
+		// if working copy then take over data and delete it ! 
 		T02Address aWork = aNode.getT02AddressWork();
 		if (aWork != null && !aPubId.equals(aWork.getId())) {
+			// save orig uuid from working version ! may be was set (e.g. in import !)
+			// NOTICE: may be overwritten by mapper below if set in doc
+			aPub.setOrgAdrId(aWork.getOrgAdrId());
+
 			// delete working version
 			daoT02Address.makeTransient(aWork);
 		}
-		// and set published one; also as work version
-		// set also beans for oncoming access
+
+		// TRANSFER FULL DATA (if set) -> NOT PASSED FROM CLIENT, BUT E.G. PASSED WHEN IMPORTING !!!
+		docToBeanMapper.mapT02Address(aDocIn, aPub, MappingQuantity.COPY_ENTITY);
+		daoT02Address.makePersistent(aPub);
+
+		// and update AddressNode, also beans, so we can access them afterwards (index)
 		aNode.setAddrId(aPubId);
 		aNode.setT02AddressWork(aPub);
 		aNode.setAddrIdPublished(aPubId);
@@ -603,7 +613,7 @@ public class MdekAddressService {
 	/** Checks whether given Address has a working version !
 	 * @param node address to check represented by node !
 	 * @return true=address has different working copy OR not published yet<br>
-	 * 	false=no working version, same as published version !
+	 * 	false=no working version OR same as published version !
 	 */
 	private boolean hasWorkingVersion(AddressNode node) {
 		Long workId = node.getAddrId(); 

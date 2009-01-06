@@ -1159,9 +1159,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		// then copy content via mappers
 		
-		// map source bean to doc
+		// map source bean to doc, ONLY data not specific to entity !
 		IngridDocument targetAddrDoc =
-			beanToDocMapper.mapT02Address(sourceAddr, new IngridDocument(), MappingQuantity.COPY_ENTITY);
+			beanToDocMapper.mapT02Address(sourceAddr, new IngridDocument(), MappingQuantity.COPY_DATA);
 		
 		// update changed data in doc from source for target !
 		targetAddrDoc.put(MdekKeys.UUID, newUuid);

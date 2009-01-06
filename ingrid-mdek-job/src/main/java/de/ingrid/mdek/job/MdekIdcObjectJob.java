@@ -1083,9 +1083,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		// then copy content via mappers
 		
-		// map source bean to doc
+		// map source bean to doc, ONLY data not specific to entity !
 		IngridDocument targetObjDoc =
-			beanToDocMapper.mapT01Object(sourceObj, new IngridDocument(), MappingQuantity.COPY_ENTITY);
+			beanToDocMapper.mapT01Object(sourceObj, new IngridDocument(), MappingQuantity.COPY_DATA);
 		
 		// update changed data in doc from source for target !
 		targetObjDoc.put(MdekKeys.UUID, newUuid);

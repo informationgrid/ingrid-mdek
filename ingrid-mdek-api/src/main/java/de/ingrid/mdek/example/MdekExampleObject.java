@@ -528,6 +528,51 @@ class MdekExampleObjectThread extends Thread {
 			return;
 		}
 
+// -----------------------------------
+
+		// TEST handling of ORG_ID, should be unique (and test SPECIAL DATA e.g. DATASET_CHARACTER_SET, METADATA_CHARACTER_SET ...) !
+		// ==============
+
+		System.out.println("\n----- Create new object working version with ORG_ID + SPECIAL DATA (hack, org_id never passed from client, we simulate import !) -----");
+		newObjDoc = supertool.newObjectDoc(null);
+		newObjDoc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, "ORIGINAL_CONTROL_IDENTIFIER");
+		newObjDoc.put(MdekKeys.DATASET_CHARACTER_SET, 6);
+		newObjDoc.put(MdekKeys.METADATA_CHARACTER_SET, 6);
+		newObjDoc.put(MdekKeys.METADATA_STANDARD_NAME, "METADATA_STANDARD_NAME");
+		newObjDoc.put(MdekKeys.METADATA_STANDARD_VERSION, "METADATA_STANDARD_VERSION");			
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Publish new object -> ORG_ID + SPECIAL DATA in published version (check database) -----");
+		newObjDoc = supertool.publishObject(newObjDoc, true, false);
+		supertool.deleteObject(newObjUuid, false);
+
+		System.out.println("\n\n\n----- Publish new object immediately with ORG_ID + SPECIAL DATA (hack, org_id never passed from client, we simulate import !) -----");
+		newObjDoc = supertool.newObjectDoc(null);
+		newObjDoc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, "ORIGINAL_CONTROL_IDENTIFIER");
+		newObjDoc.put(MdekKeys.DATASET_CHARACTER_SET, 6);
+		newObjDoc.put(MdekKeys.METADATA_CHARACTER_SET, 6);
+		newObjDoc.put(MdekKeys.METADATA_STANDARD_NAME, "METADATA_STANDARD_NAME");
+		newObjDoc.put(MdekKeys.METADATA_STANDARD_VERSION, "METADATA_STANDARD_VERSION");			
+		newObjDoc = supertool.publishObject(newObjDoc, true, false);
+		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Store working version of new object -> ORG_ID + SPECIAL DATA in working version (check database) -----");
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+
+		System.out.println("\n----- Copy new object -> ORG_ID NOT copied, SPECIAL DATA copied (check database) -----");
+		oMap = supertool.copyObject(newObjUuid, null, false);
+		String copyUuid = (String)oMap.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Clean up -----");
+		supertool.deleteObject(newObjUuid, false);
+		supertool.deleteObject(copyUuid, false);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
 // ====================
 */
 		// -----------------------------------

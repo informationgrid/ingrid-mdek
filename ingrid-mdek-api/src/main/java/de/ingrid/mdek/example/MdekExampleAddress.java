@@ -233,6 +233,43 @@ class MdekExampleAddressThread extends Thread {
 			isRunning = false;
 			return;
 		}
+
+// -----------------------------------
+
+		// TEST handling of ORG_ID, should be unique
+		// ==============
+
+		System.out.println("\n----- Create new address working version with ORG_ID (hack, org_id never passed from client, we simulate import !) -----");
+		IngridDocument newDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		newDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, "ORIGINAL_ADDRESS_IDENTIFIER");
+		newDoc = supertool.storeAddress(newDoc, true);
+		String newUuid = (String) newDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Publish new address -> ORG_ID in published version (check database) -----");
+		newDoc = supertool.publishAddress(newDoc, true);
+		supertool.deleteAddress(newUuid, false);
+
+		System.out.println("\n\n\n----- Publish new address immediately with ORG_ID (hack, org_id never passed from client, we simulate import !) -----");
+		newDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		newDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, "ORIGINAL_ADDRESS_IDENTIFIER");
+		newDoc = supertool.publishAddress(newDoc, true);
+		newUuid = (String) newDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Store working version of new address -> ORG_ID working version (check database) -----");
+		newDoc = supertool.storeAddress(newDoc, true);
+
+		System.out.println("\n----- Copy new address -> ORG_ID NOT copied (check database) -----");
+		aMap = supertool.copyAddress(newUuid, null, false, false);
+		String copyUuid = (String)aMap.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Clean up -----");
+		supertool.deleteAddress(newUuid, false);
+		supertool.deleteAddress(copyUuid, false);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 */
 // -----------------------------------
 

@@ -245,6 +245,7 @@ public class BeanToDocMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY) 
 		{
 			// mark deleted also needed in "tree view"
@@ -252,6 +253,7 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY) 
 		{
 			objectDoc.put(MdekKeys.DATASET_ALTERNATE_NAME, o.getDatasetAlternateName());
@@ -320,12 +322,16 @@ public class BeanToDocMapper implements IMapper {
 			mapResponsibleUser(o.getResponsibleUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
-		if (howMuch == MappingQuantity.COPY_ENTITY) {
-			objectDoc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, o.getOrgObjId());
+		if (howMuch == MappingQuantity.COPY_DATA ||
+			howMuch == MappingQuantity.COPY_ENTITY) {
 			objectDoc.put(MdekKeys.DATASET_CHARACTER_SET, o.getDatasetCharacterSet());
 			objectDoc.put(MdekKeys.METADATA_CHARACTER_SET, o.getMetadataCharacterSet());
 			objectDoc.put(MdekKeys.METADATA_STANDARD_NAME, o.getMetadataStandardName());
-			objectDoc.put(MdekKeys.METADATA_STANDARD_VERSION, o.getMetadataStandardVersion());
+			objectDoc.put(MdekKeys.METADATA_STANDARD_VERSION, o.getMetadataStandardVersion());			
+		}
+
+		if (howMuch == MappingQuantity.COPY_ENTITY) {
+			objectDoc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, o.getOrgObjId());
 		}
 
 		return objectDoc;
@@ -372,6 +378,7 @@ public class BeanToDocMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			// mark deleted also needed in "tree view"
@@ -380,6 +387,7 @@ public class BeanToDocMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.TABLE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			addressDoc.put(MdekKeys.STREET, a.getStreet());
@@ -394,6 +402,7 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
+			howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			addressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
@@ -410,7 +419,12 @@ public class BeanToDocMapper implements IMapper {
 			mapModUser(a.getModUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 			mapResponsibleUser(a.getResponsibleUuid(), addressDoc, MappingQuantity.INITIAL_ENTITY);
 		}
-
+/*
+		if (howMuch == MappingQuantity.COPY_DATA ||
+			howMuch == MappingQuantity.COPY_ENTITY) {
+			// no further data !
+		}
+*/
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
 			addressDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, a.getOrgAdrId());
 		}

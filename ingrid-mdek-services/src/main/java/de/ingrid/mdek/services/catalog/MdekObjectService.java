@@ -211,7 +211,7 @@ public class MdekObjectService {
 		if (!hasWorkingVersion(oNode)) {
 			// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
 
-			// set some missing data which is NOT passed from client.
+			// set some missing data in doc which is NOT passed from client.
 			// set from published version if existent.
 			T01Object oPub = oNode.getT01ObjectPublished();
 			if (oPub != null) {
@@ -227,16 +227,24 @@ public class MdekObjectService {
 			// save it to generate id needed for mapping of associations
 			daoT01Object.makePersistent(oWork);
 
-			// also SAVE t08_attrs from published in work version (copy) -> NOT MAPPED VIA 
-			// docToBeanMapper (at the moment NOT part of UI) !
-			// we do this, so querying t08_attribs in edited objects (working version) works (otherwise
-			// could only be queried in published version) !
-			// NOTICE: when publishing the work version, its t08_attribs aren't mapped (the OLD published
-			// object is loaded containing the original t08_attrs) !
+			// save special stuff from pub version not passed by client -> can be queried on working version !
 			if (oPub != null) {
+				// also SAVE t08_attrs from published in work version (copy) -> NOT MAPPED VIA 
+				// entity docToBeanMapper (NOT part of UI) !
+				// we do this, so querying t08_attribs in edited objects (working version) works (otherwise
+				// could only be queried in published version) !
+				// NOTICE: when publishing the work version, its t08_attribs aren't mapped (the OLD published
+				// object is loaded containing the original t08_attrs) !
 				docToBeanMapper.updateT08Attrs(
 						beanToDocMapper.mapT08Attrs(oPub.getT08Attrs(), new IngridDocument()),
-						oWork);					
+						oWork);
+
+				// save orig uuid and special stuff -> all data also in working version !
+				oWork.setOrgObjId(oPub.getOrgObjId());
+				oWork.setDatasetCharacterSet(oPub.getDatasetCharacterSet());
+				oWork.setMetadataCharacterSet(oPub.getMetadataCharacterSet());
+				oWork.setMetadataStandardName(oPub.getMetadataStandardName());
+				oWork.setMetadataStandardVersion(oPub.getMetadataStandardVersion());
 			}
 
 			// update node
@@ -245,9 +253,9 @@ public class MdekObjectService {
 			daoObjectNode.makePersistent(oNode);
 		}
 
-		// transfer new data and store.
+		// TRANSFER FULL DATA (if set) -> NOT PASSED FROM CLIENT, BUT E.G. PASSED WHEN IMPORTING !!!
 		T01Object oWork = oNode.getT01ObjectWork();
-		docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.DETAIL_ENTITY);
+		docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.COPY_ENTITY);
 		daoT01Object.makePersistent(oWork);
 
 		// UPDATE FULL INDEX !!!
@@ -335,28 +343,35 @@ public class MdekObjectService {
 			// set some missing data which may not be passed from client.
 			oDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			oDocIn.put(MdekKeys.CATALOGUE_IDENTIFIER, catalogService.getCatalogId());
+			// TODO: set default SPECIAL DATA in doc when NEW OBJECT (DatasetCharacterSet, MetadataCharacterSet ...) ?
 
 			// create new object with BASIC data
 			oPub = docToBeanMapper.mapT01Object(oDocIn, new T01Object(), MappingQuantity.BASIC_ENTITY);
 			// save it to generate id needed for mapping of associations
 			daoT01Object.makePersistent(oPub);
 		}
-
-		// transfer new data and store.
-		docToBeanMapper.mapT01Object(oDocIn, oPub, MappingQuantity.DETAIL_ENTITY);
-		daoT01Object.makePersistent(oPub);
 		Long oPubId = oPub.getId();
 
-		// and update ObjectNode
-
-		// delete former working copy if set
+		// if working copy then take over data and delete it ! 
 		T01Object oWork = oNode.getT01ObjectWork();
 		if (oWork != null && !oPubId.equals(oWork.getId())) {
+			// save orig uuid and special stuff from working version ! may be was set (e.g. in import !)
+			// NOTICE: may be overwritten by mapper below if set in doc
+			oPub.setOrgObjId(oWork.getOrgObjId());
+			oPub.setDatasetCharacterSet(oWork.getDatasetCharacterSet());
+			oPub.setMetadataCharacterSet(oWork.getMetadataCharacterSet());
+			oPub.setMetadataStandardName(oWork.getMetadataStandardName());
+			oPub.setMetadataStandardVersion(oWork.getMetadataStandardVersion());
+
 			// delete working version
 			daoT01Object.makeTransient(oWork);
 		}
 		
-		// set data on node, also beans, so we can access them afterwards (index)
+		// TRANSFER FULL DATA (if set) -> NOT PASSED FROM CLIENT, BUT E.G. PASSED WHEN IMPORTING !!!
+		docToBeanMapper.mapT01Object(oDocIn, oPub, MappingQuantity.COPY_ENTITY);
+		daoT01Object.makePersistent(oPub);
+
+		// and update ObjectNode, also beans, so we can access them afterwards (index)
 		oNode.setObjId(oPubId);
 		oNode.setT01ObjectWork(oPub);
 		oNode.setObjIdPublished(oPubId);
@@ -624,7 +639,7 @@ public class MdekObjectService {
 	/** Checks whether given Object has a working version !
 	 * @param oNode object to check represented by node !
 	 * @return true=object has different working copy OR not published yet<br>
-	 * 	false=no working version, same as published version !
+	 * 	false=no working version OR same as published version !
 	 */
 	private boolean hasWorkingVersion(ObjectNode oNode) {
 		Long oWorkId = oNode.getObjId(); 
