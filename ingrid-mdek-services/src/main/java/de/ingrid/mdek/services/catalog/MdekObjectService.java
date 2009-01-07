@@ -91,13 +91,22 @@ public class MdekObjectService {
 	}
 
 	/** Load object NODE with given uuid. Also prefetch concrete object instance in node if requested.
-	 * <br>NOTICE: transaction must be active !
 	 * @param uuid object uuid
 	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
 	 * @return node or null if not found
 	 */
 	public ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		return daoObjectNode.loadByUuid(uuid, whichEntityVersion);
+	}
+
+	/** Load object NODE with given ORIGINAL_ID (always queries WORKING VERSION !!!).
+	 * Also prefetch concrete object instance in node if requested.
+	 * @param origId object ORIGINAL_ID = id from external system
+	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @return node or null if not found
+	 */
+	public ObjectNode loadByOrigId(String origId, IdcEntityVersion whichEntityVersion) {
+		return daoObjectNode.loadByOrigId(origId, whichEntityVersion);
 	}
 
 	/**
@@ -245,9 +254,13 @@ public class MdekObjectService {
 				oWork.setMetadataCharacterSet(oPub.getMetadataCharacterSet());
 				oWork.setMetadataStandardName(oPub.getMetadataStandardName());
 				oWork.setMetadataStandardVersion(oPub.getMetadataStandardVersion());
+				
+				// NOTICE: NO TAKEOVER OF ENTITY METADATA -> working version starts with defaults !
+				// in working version we don't need expiry state, lastexporttime .... 
+				// further after publish we don't remember assigner, reassigner etc.
 			}
 
-			// update node
+			// create/update node
 			oNode.setObjId(oWork.getId());
 			oNode.setT01ObjectWork(oWork);
 			daoObjectNode.makePersistent(oNode);
@@ -362,6 +375,11 @@ public class MdekObjectService {
 			oPub.setMetadataCharacterSet(oWork.getMetadataCharacterSet());
 			oPub.setMetadataStandardName(oWork.getMetadataStandardName());
 			oPub.setMetadataStandardVersion(oWork.getMetadataStandardVersion());
+
+			// NOTICE: NO TAKEOVER OF ENTITY METADATA -> published version keeps old state !
+			// after publish we don't remember assigner, reassigner etc.
+			// further mark deleted and expiry state is reset when published and lastexporttime is kept
+			// (was set in published metadata when exporting, only published ones can be exported !)
 
 			// delete working version
 			daoT01Object.makeTransient(oWork);

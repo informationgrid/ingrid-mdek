@@ -33,6 +33,14 @@ public interface IObjectNodeDao
 	 */
 	ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion);
 
+	/** Load object NODE with given ORIGINAL_ID (always queries WORKING VERSION !!!).
+	 * Also prefetch concrete object instance in node if requested.
+	 * @param origId object ORIGINAL_ID = id from external system
+	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @return node or null if not found
+	 */
+	ObjectNode loadByOrigId(String origId, IdcEntityVersion whichEntityVersion);
+
 	/**
 	 * Get top root objects. Also prefetch concrete object instance in nodes if requested.
 	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 

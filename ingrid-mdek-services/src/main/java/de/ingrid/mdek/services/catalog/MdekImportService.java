@@ -12,9 +12,12 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
+import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
@@ -32,6 +35,8 @@ public class MdekImportService implements IImporterCallback {
 	private MdekAddressService addressService;
 
 	private MdekJobHandler jobHandler;
+
+	private BeanToDocMapper beanToDocMapper;
 
 	// static keys for accessing data stored in running job info !
 	/** Value: ObjectNode */
@@ -59,6 +64,8 @@ public class MdekImportService implements IImporterCallback {
 		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
+
+		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 	}
 
 	// ----------------------------------- IImporterCallback START ------------------------------------
@@ -81,28 +88,49 @@ public class MdekImportService implements IImporterCallback {
  *   - Alle neuen freien Adressen wandern unter Importknoten als "PERSON"
  *   - Alle top Entities wandern unter den Importknoten
  */
-		String objUuid = objDoc.getString(MdekKeys.UUID);
-		String origId = objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
 
-		// where to add import object
-		ObjectNode parentNode = determineObjectParentNode(objDoc, defaultParentNode, userUuid);
+		// process import doc, remove/fix wrong data from exporting catalog
+		objDoc.remove(MdekKeys.CATALOGUE_IDENTIFIER);
+		objDoc.remove(MdekKeys.DATE_OF_LAST_MODIFICATION);
+		objDoc.remove(MdekKeys.DATE_OF_CREATION);
+
+		// the according catalog node to update, null if new node !
+		ObjectNode existingNode = null;
 
 		if (doSeparateImport) {
 			// TODO: check if UUID exists, then create and set new UUID. Store UUID mapping in Map and use for all import objects (so relations stay the same) !
 			// TODO: check if ORIG_ID exists, then delete ORG_ID ?
 			
 		} else {
-			// TODO: check if ORIG_ID exists, then take over UUID of existing object
-			// TODO: take over mod_uuid and responsible_uuid of existing catalog object or set uuid of calling user if new !
-			// TODO: check if parent changed, then move object. Also move Object to Top ???
+			existingNode = determineObjectNode(objDoc, userUuid);
+
+			// set mod_uuid and responsible_uuid. default is calling user.
+			String modUuid = userUuid;
+			String responsibleUuid = userUuid;
+			if (existingNode != null) {
+				// node found. take over mod_uuid and responsible_uuid FROM WORKING VERSION.
+				T01Object existingObj = existingNode.getT01ObjectWork();
+				modUuid = existingObj.getModUuid();
+				responsibleUuid = existingObj.getResponsibleUuid();
+			}
+			// TODO: Bug: MOD-USER isn't saved via doc ! instead calling user is used ! Do we have to take over MOD-USER ???
+			beanToDocMapper.mapModUser(modUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
+			beanToDocMapper.mapResponsibleUser(responsibleUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
 		}
+
+
+		// where to add import object
+		ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, defaultParentNode, userUuid);
+
+		// TODO: check if parent changed, then move object. Also move Object to Top ???
 
 		// TODO: check additional fields -> store working version if problems
 		// TODO: check relations and remove if not present
-
-
+		
 		// PUBLISH IMPORT OBJECT
 		// ---------------------
+
+		String objUuid = objDoc.getString(MdekKeys.UUID);
 
 		boolean storeWorkingVersion = true;		
 		if (publishImmediately) {
@@ -111,7 +139,8 @@ public class MdekImportService implements IImporterCallback {
 			// TODO: check mandatory data -> store working version if problems
 
 			// first check whether publishing is possible with according parent
-			if (!objectService.hasPublishedVersion(parentNode)) {
+			// NOTICE: determined parent can be null -> update of existing top object 
+			if (parentNode != null && !objectService.hasPublishedVersion(parentNode)) {
 				// parent not published -> store working version !
 				updateImportJobInfoMessages("! Object " + objUuid + ": Parent not published, we store working version", userUuid);
 				storeWorkingVersion = true;
@@ -295,20 +324,55 @@ public class MdekImportService implements IImporterCallback {
 	}
 
 	/**
+	 * Determine the according catalog node to the import entity.
+	 * @param importObjDoc the object to import represented by its doc.
+	 * 		Necessary changes (e.g. keep catalog uuid instead of import uuid) will be adapted in this doc.
+	 * @param userUuid calling user
+	 * @return the detected catalog node or null if new import entity
+	 */
+	private ObjectNode determineObjectNode(IngridDocument importObjDoc, String userUuid) {
+		ObjectNode existingNode = null;
+
+		String objUuid = importObjDoc.getString(MdekKeys.UUID);
+		String origId = importObjDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
+
+		if (objUuid != null) {
+			existingNode = objectService.loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION);
+		}
+		if (existingNode == null && origId != null) {
+			existingNode = objectService.loadByOrigId(origId, IdcEntityVersion.WORKING_VERSION);
+			if (existingNode != null) {
+				// uuid of import doesn't match with uuid in catalog, WE KEEP CATALOG UUID !
+				String existingUuid = existingNode.getObjUuid();
+				importObjDoc.put(MdekKeys.UUID, existingUuid);
+				updateImportJobInfoMessages("! Object " + existingUuid +
+					": Different UUID but same ORIGINAL ID in Import, we keep catalog UUID " + existingUuid + " and import", userUuid);
+			}
+		}
+		
+		return existingNode;
+	}
+
+	/**
 	 * Determine the "new" parent of the object to import.
-	 * @param importObjDoc the object to import represented by its doc. The new parent uuid is also set in this doc.
+	 * @param importObjDoc the object to import represented by its doc.
+	 * 		The new parent uuid will also be set in this doc.
+	 * @param existingNode the according catalog node to the import entity. Null IF NEW ENTITY !
+	 * 		This one is determined separately and passed here, so we don't have to load twice !
 	 * @param defaultParentNode the import node for objects
 	 * @param userUuid calling user
-	 * @return the "new" parent node (never null). This one is also set in importObjDoc. 
+	 * @return the "new" parent node. NOTICE: can be NULL if existing object is top node !.
+	 * 		This one is also set in importObjDoc. 
 	 */
-	private ObjectNode determineObjectParentNode(IngridDocument importObjDoc, ObjectNode defaultParentNode,
+	private ObjectNode determineObjectParentNode(IngridDocument importObjDoc, ObjectNode existingNode, 
+			ObjectNode defaultParentNode,
 			String userUuid) {
 		// default "new" parent is import node
 		ObjectNode newParentNode = defaultParentNode;
 
-		// fetch catalog object to update
+		// the uuid of the import object. NOTICE: already matches with the UUID of the passed
+		// existingNode if object exists in catalog
 		String importUuid = importObjDoc.getString(MdekKeys.UUID);
-		ObjectNode existingNode = objectService.loadByUuid(importUuid, null);
 
 		// fetch parent from import
 		String importParentUuid = importObjDoc.getString(MdekKeys.PARENT_UUID);
@@ -350,7 +414,12 @@ public class MdekImportService implements IImporterCallback {
 			}
 		}
 
-		importObjDoc.put(MdekKeys.PARENT_UUID, newParentNode.getObjUuid());			
+		String newParentUuid = null;
+		// NOTICE: if existing node is top node, the parent node is NULL !
+		if (newParentNode != null) {
+			newParentUuid = newParentNode.getObjUuid();
+		}
+		importObjDoc.put(MdekKeys.PARENT_UUID, newParentUuid);			
 
 		return newParentNode;
 	}

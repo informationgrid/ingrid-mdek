@@ -414,7 +414,7 @@ public class MdekExampleSupertoolCatalog {
 	}
 
 	public IngridDocument importEntities(byte[] importData,
-			String targetObjectUuid, String targetAddressUuid,
+			String objectImportNodeUuid, String addressImportNodeUuid,
 			boolean publishImmediately, boolean doSeparateImport) {
 		long startTime;
 		long endTime;
@@ -423,13 +423,13 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE importEntities ######");
-		System.out.println("- underneath object: " + targetObjectUuid);
-		System.out.println("- underneath address: " + targetAddressUuid);
+		System.out.println("- object import node: " + objectImportNodeUuid);
+		System.out.println("- address import node: " + addressImportNodeUuid);
 		System.out.println("- publish immediately: " + publishImmediately);
 		System.out.println("- doSeparateImport: " + doSeparateImport);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.importEntities(plugId, importData,
-				targetObjectUuid, targetAddressUuid,
+				objectImportNodeUuid, addressImportNodeUuid,
 				publishImmediately, doSeparateImport,
 				myUserUuid);
 		endTime = System.currentTimeMillis();

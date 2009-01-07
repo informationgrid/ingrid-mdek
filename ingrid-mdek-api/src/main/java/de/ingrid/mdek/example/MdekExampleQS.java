@@ -144,6 +144,7 @@ class MdekExampleQSThread extends Thread {
 
 		IngridDocument doc;
 		IngridDocument newDoc;
+		String newUuid;
 		List<IngridDocument> docList;
 
 		// NI catalog
@@ -205,7 +206,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n\n----- Test METADATA EXISTING OBJECT -----");
 		System.out.println("\n----- object details -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- change and store existing object EXPIRY STATE etc. -> working copy ! -----");
 		doc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.TO_BE_EXPIRED.getDbValue());
@@ -220,13 +221,13 @@ class MdekExampleQSThread extends Thread {
 		supertool.updateObjectPart(doc, IdcEntityVersion.WORKING_VERSION);
 
 		System.out.println("\n----- verify update  -----");
-		supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
 		supertool.deleteObjectWorkingCopy(objUuid, false);
 
 		System.out.println("\n----- verify original object details again -----");
-		doc = supertool.fetchObject(objUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		
 		// -----------------------------------
 		System.out.println("\n\n----- Test METADATA NEW OBJECT -----");
@@ -239,10 +240,35 @@ class MdekExampleQSThread extends Thread {
 		// extend initial object with own data !
 		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		doc = supertool.storeObject(newDoc, true);
-		String newUuid = doc.getString(MdekKeys.UUID);
+		newUuid = doc.getString(MdekKeys.UUID);
 
-		System.out.println("\n----- discard changes -> back to published version -----");
-		supertool.deleteObjectWorkingCopy(newUuid, true);
+		System.out.println("\n----- store again with INDIVIDUAL METADATA -> INDIVIDUAL METADATA -----");
+		doc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.TO_BE_EXPIRED.getDbValue());
+		doc.put(MdekKeys.LASTEXPORT_TIME, "LASTEXPORT_TIME");
+		doc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
+		doc.put(MdekKeys.ASSIGNER_UUID, "ASSIGNER_UUID");
+		doc.put(MdekKeys.ASSIGN_TIME, "ASSIGN_TIME");
+		doc.put(MdekKeys.REASSIGNER_UUID, "REASSIGNER_UUID");
+		doc.put(MdekKeys.REASSIGN_TIME, "REASSIGN_TIME");
+		doc = supertool.storeObject(doc, true);
+
+		System.out.println("\n----- and publish (with INDIVIDUAL METADATA in working copy) -> DEFAULT METADATA in published version NO TAKE OVER FROM WORKING COPY (not necessary, see comment) -----");
+		// take over of metadata from working to published version NOT NECESSARY:
+		// - LASTEXPORT_TIME is only stored in published version (only published ones can be exported), so this is correct in published version
+		// - EXPIRY_STATE is stored in published and working version, and is reset when publishing !
+		// - all other data is only relevant for working version ! published version has defaults !
+		// simulate call from IGE without metadata ! 
+		doc.remove(MdekKeys.EXPIRY_STATE);
+		doc.remove(MdekKeys.LASTEXPORT_TIME);
+		doc.remove(MdekKeys.MARK_DELETED);
+		doc.remove(MdekKeys.ASSIGNER_UUID);
+		doc.remove(MdekKeys.ASSIGN_TIME);
+		doc.remove(MdekKeys.REASSIGNER_UUID);
+		doc.remove(MdekKeys.REASSIGN_TIME);
+		doc = supertool.publishObject(doc, true, true);
+
+		System.out.println("\n----- DELETE new object -----");
+		supertool.deleteObject(newUuid, true);
 
 		System.out.println("\n----- publish new object immediately -> DEFAULT METADATA -----");
 		doc = supertool.publishObject(newDoc, true, true);
@@ -252,6 +278,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.deleteObject(newUuid, true);
 
 		System.out.println("\n----- publish new object with INDIVIDUAL METADATA immediately -> INDIVIDUAL METADATA -----");
+		// NOTICE: EXPIRY_STATE and MARK_DELETED is RESET TO DEFAULT WHEN PUBLISHED !!!
 		newDoc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.TO_BE_EXPIRED.getDbValue());
 		newDoc.put(MdekKeys.LASTEXPORT_TIME, MdekUtils.dateToTimestamp(new Date()));
 		newDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
@@ -261,7 +288,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- copy new object -> copy with INDIVIDUAL METADATA -----");
 		doc = supertool.copyObject(newUuid, null, false);
 		String copyUuid = doc.getString(MdekKeys.UUID);
-		doc = supertool.fetchObject(copyUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchObject(copyUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- DELETE new copy object -----");
 		supertool.deleteObject(copyUuid, true);
@@ -274,7 +301,7 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n\n----- Test METADATA EXISTING ADDRESS -----");
 		System.out.println("\n----- address details -----");
-		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- change and store existing address EXPIRY STATE etc. -> working copy ! -----");
 		doc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.TO_BE_EXPIRED.getDbValue());
@@ -284,24 +311,24 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- update address part EXPIRY STATE in working copy (exists!) -----");
 		doc = new IngridDocument();
-		doc.put(MdekKeys.UUID, personAddressUuid);
+		doc.put(MdekKeys.UUID, personAddrUuid);
 		doc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.EXPIRED.getDbValue());
 		supertool.updateAddressPart(doc, IdcEntityVersion.WORKING_VERSION);
 
 		System.out.println("\n----- verify update  -----");
-		supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
+		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- discard changes -> back to published version -----");
-		supertool.deleteAddressWorkingCopy(personAddressUuid, false);
+		supertool.deleteAddressWorkingCopy(personAddrUuid, false);
 
 		System.out.println("\n----- original address details again -----");
-		doc = supertool.fetchAddress(personAddressUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		
 		// ===================================
 		System.out.println("\n\n----- Test METADATA NEW ADDRESS -----");
-		System.out.println("\n----- load initial data from parent " + parentAddressUuid + " -----");
+		System.out.println("\n----- load initial data from parent " + parentAddrUuid + " -----");
 		newDoc = new IngridDocument();
-		newDoc.put(MdekKeys.PARENT_UUID, parentAddressUuid);
+		newDoc.put(MdekKeys.PARENT_UUID, parentAddrUuid);
 		newDoc = supertool.getInitialAddress(newDoc);
 
 		System.out.println("\n----- extend initial address and store -> DEFAULT METADATA -----");
@@ -331,6 +358,7 @@ class MdekExampleQSThread extends Thread {
 		supertool.deleteAddress(newUuid, true);
 
 		System.out.println("\n----- publish new address with INDIVIDUAL METADATA immediately -> INDIVIDUAL METADATA -----");
+		// NOTICE: EXPIRY_STATE and MARK_DELETED is RESET TO DEFAULT WHEN PUBLISHED !!!
 		newDoc.put(MdekKeys.EXPIRY_STATE, MdekUtils.ExpiryState.TO_BE_EXPIRED.getDbValue());
 		newDoc.put(MdekKeys.LASTEXPORT_TIME, MdekUtils.dateToTimestamp(new Date()));
 		newDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
@@ -338,9 +366,9 @@ class MdekExampleQSThread extends Thread {
 		newUuid = doc.getString(MdekKeys.UUID);
 
 		System.out.println("\n----- copy new address -> copy with INDIVIDUAL METADATA -----");
-		doc = supertool.copyAddress(newUuid, parentAddressUuid, false, false);
+		doc = supertool.copyAddress(newUuid, parentAddrUuid, false, false);
 		copyUuid = doc.getString(MdekKeys.UUID);
-		doc = supertool.fetchAddress(copyUuid, Quantity.DETAIL_ENTITY);
+		doc = supertool.fetchAddress(copyUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- DELETE new copy address -----");
 		supertool.deleteAddress(copyUuid, true);
@@ -783,7 +811,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- create new object and assign to QA -> working copy ! -----");
 		newDoc = supertool.newObjectDoc(objUuid);
 		doc = supertool.assignObjectToQA(newDoc, true);
-		String newUuid = doc.getString(MdekKeys.UUID);
+		newUuid = doc.getString(MdekKeys.UUID);
 		System.out.println("  ASSIGNER_UUID: " + doc.get(MdekKeys.ASSIGNER_UUID));
 		System.out.println("  ASSIGN_TIME: " + MdekUtils.timestampToDisplayDate(doc.getString(MdekKeys.ASSIGN_TIME)));
 		

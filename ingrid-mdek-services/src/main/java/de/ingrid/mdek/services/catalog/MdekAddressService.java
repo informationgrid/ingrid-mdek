@@ -247,6 +247,10 @@ public class MdekAddressService {
 			if (aPub != null) {
 				// save orig uuid -> all data also in working version !
 				aWork.setOrgAdrId(aPub.getOrgAdrId());
+
+				// NOTICE: NO TAKEOVER OF ENTITY METADATA -> working version starts with defaults !
+				// in working version we don't need expiry state, lastexporttime .... 
+				// further after publish we don't remember assigner, reassigner etc.
 			}
 
 			// create/update node
@@ -341,6 +345,11 @@ public class MdekAddressService {
 			// save orig uuid from working version ! may be was set (e.g. in import !)
 			// NOTICE: may be overwritten by mapper below if set in doc
 			aPub.setOrgAdrId(aWork.getOrgAdrId());
+
+			// NOTICE: NO TAKEOVER OF ENTITY METADATA -> published version keeps old state !
+			// after publish we don't remember assigner, reassigner etc.
+			// further mark deleted and expiry state is reset when published and lastexporttime is kept
+			// (was set in published metadata when exporting, only published ones can be exported !)
 
 			// delete working version
 			daoT02Address.makeTransient(aWork);

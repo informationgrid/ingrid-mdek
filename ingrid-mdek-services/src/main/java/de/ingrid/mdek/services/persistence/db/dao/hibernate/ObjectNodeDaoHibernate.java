@@ -76,6 +76,29 @@ public class ObjectNodeDaoHibernate
 		return oN;
 	}
 
+	public ObjectNode loadByOrigId(String origId, IdcEntityVersion whichEntityVersion) {
+		if (origId == null) {
+			return null;
+		}
+
+		Session session = getSession();
+
+		// always fetch working version. Is needed for querying, so we fetch it.
+		String qString = "from ObjectNode oNode " +
+				"left join fetch oNode.t01ObjectWork oWork";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			qString += "left join fetch oNode.t01ObjectPublished ";			
+		}
+		qString += "where oWork.orgObjId = ?";
+
+		ObjectNode oN = (ObjectNode) session.createQuery(qString)
+			.setString(0, origId)
+			.uniqueResult();
+
+		return oN;
+	}
+
 	public List<ObjectNode> getTopObjects(IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren) {
 		Session session = getSession();
