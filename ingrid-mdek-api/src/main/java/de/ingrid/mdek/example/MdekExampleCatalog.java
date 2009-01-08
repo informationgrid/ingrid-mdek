@@ -522,7 +522,7 @@ class MdekExampleCatalogThread extends Thread {
 			System.out.println(ex);			
 		}
 
-		// import data: NEW object branch with non existing branch parent !
+		// import data: NEW object branch with non existing parent !
 		// new uuids
 		importUnzipped = exportExistingObjBranchUnzipped.replace("<title>", "<title>MMImport NEW: ");
 		String newUuid1 = "UUID012345678901234567890123456789-1";
@@ -546,6 +546,21 @@ class MdekExampleCatalogThread extends Thread {
 			System.out.println(ex);			
 		}
 
+		// import data: SAME NEW object branch with existing parent !
+		// new uuids
+		importUnzipped = exportExistingObjBranchUnzipped.replace("<title>", "<title>MMImport NEW: ");
+		importUnzipped = importUnzipped.replace(objUuid, newUuid1);
+		importUnzipped = importUnzipped.replace(objLeafUuid, newUuid2);
+		// existing parent
+		String existentParentUuid = objLeafUuid;
+		importUnzipped = importUnzipped.replace("15C69C20-FE15-11D2-AF34-0060084A4596", existentParentUuid);
+		byte[] importNewObjBranchExistentParentZipped = new byte[0];
+		try {
+			importNewObjBranchExistentParentZipped = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
 		supertool.setFullOutput(false);
 
 		System.out.println("\n----- import NEW TOP NODE as WORKING VERSION -> underneath import node -----");
@@ -560,15 +575,33 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteObject(newUuidTop, true);
 
-		System.out.println("\n\n\n----- import NEW object branch with non existing branch parent as WORKING VERSION -> underneath import node -----");
-		supertool.importEntities(importNewObjBranchNonExistentParentZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.fetchSubObjects(objImpNodeUuid);
+
+		System.out.println("\n\n\n----- import NEW object branch with EXISTING parent as WORKING VERSION -> underneath EXISTING PARENT -----");
+		supertool.importEntities(importNewObjBranchExistentParentZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchSubObjects(existentParentUuid);
 		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		supertool.fetchSubObjects(newUuid1);
 		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		supertool.deleteObject(newUuid1, true);
 
-		System.out.println("\n----- import NEW object branch with non existing branch parent as PUBLISHED -> underneath import node as working version -----");
+		System.out.println("\n\n\n----- import NEW object branch with EXISTING parent as PUBLISHED -> underneath EXISTING PARENT ! keep branch ! -----");
+		supertool.importEntities(importNewObjBranchExistentParentZipped, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.fetchSubObjects(existentParentUuid);
+		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		supertool.fetchSubObjects(newUuid1);
+		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+//		supertool.deleteObject(newUuid1, true);
+
+
+		System.out.println("\n\n\n----- import SAME NEW object branch with NON EXISTING parent as WORKING VERSION -> KEEP OLD PARENT -----");
+		supertool.importEntities(importNewObjBranchNonExistentParentZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchSubObjects(existentParentUuid);
+		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchSubObjects(newUuid1);
+		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.deleteObject(newUuid1, true);
+
+		System.out.println("\n----- import NEW object branch with NON EXISTING parent as PUBLISHED -> underneath import node as working version -----");
 		supertool.importEntities(importNewObjBranchNonExistentParentZipped, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objImpNodeUuid);
 		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);

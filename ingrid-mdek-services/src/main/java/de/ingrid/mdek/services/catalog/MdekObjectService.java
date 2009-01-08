@@ -196,11 +196,33 @@ public class MdekObjectService {
 			boolean calledByImporter) {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
+		// WHEN CALLED BY IGE: uuid is null when new object
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
-		boolean isNewObject = (uuid == null) ? true : false;
-		// parentUuid only passed if new object !?
-		String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+		boolean isNewObject = (uuid == null) ? true : false;	
+		// WHEN CALLED BY IMPORTER: uuid is NEVER NULL, but might be NEW OBJECT !
+		// we check via select and SIMULATE IGE call (so all checks work !)
+		String importerUuid = uuid;
+		if (calledByImporter) {
+			isNewObject = (daoObjectNode.loadByUuid(uuid, null) == null);
+			// simulate IGE call !
+			if (isNewObject) {
+				uuid = null;
+				oDocIn.remove(MdekKeys.UUID);
+			}
+		}
 
+		// WHEN CALLED BY IGE: parentUuid only passed if new object
+		String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+		// WHEN CALLED BY IMPORTER: parentUuid always passed. we SIMULATE IGE call (so all checks work !)
+		String importerParentUuid = parentUuid;
+		if (calledByImporter) {
+			// simulate IGE call !
+			if (!isNewObject) {
+				parentUuid = null;
+				oDocIn.remove(MdekKeys.PARENT_UUID);
+			}
+		}
+		
 		// set common data to transfer to working copy !
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 		String modUuid = userId;
@@ -228,11 +250,20 @@ public class MdekObjectService {
 			permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);			
 		}
 
-		if (isNewObject) {
-			// create new uuid
-			uuid = UuidGenerator.getInstance().generateUuid();
+		// End simulating IGE call when called by importer, see above ! now we use importer data !
+		if (calledByImporter) {
+			uuid = importerUuid;
 			oDocIn.put(MdekKeys.UUID, uuid);
-			// NOTICE: don't add further data, is done below when checking working copy !
+			parentUuid = importerParentUuid;
+			oDocIn.put(MdekKeys.PARENT_UUID, parentUuid);
+		} else {
+			// called by IGE !
+			if (isNewObject) {
+				// create new uuid
+				uuid = UuidGenerator.getInstance().generateUuid();
+				oDocIn.put(MdekKeys.UUID, uuid);
+				// NOTICE: don't add further data, is done below when checking working copy !
+			}			
 		}
 		
 		// load node
@@ -335,11 +366,32 @@ public class MdekObjectService {
 	public String publishObject(IngridDocument oDocIn, boolean forcePubCondition,
 			String userId, boolean checkPermissions,
 			boolean calledByImporter) {
-		// uuid is null when new object !
+		// WHEN CALLED BY IGE: uuid is null when new object
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
-		boolean isNewObject = (uuid == null) ? true : false;
-		// parentUuid only passed if new object !
+		boolean isNewObject = (uuid == null) ? true : false;	
+		// WHEN CALLED BY IMPORTER: uuid is NEVER NULL, but might be NEW OBJECT !
+		// we check via select and SIMULATE IGE call (so all checks work !)
+		String importerUuid = uuid;
+		if (calledByImporter) {
+			isNewObject = (daoObjectNode.loadByUuid(uuid, null) == null);
+			// simulate IGE call !
+			if (isNewObject) {
+				uuid = null;
+				oDocIn.remove(MdekKeys.UUID);
+			}
+		}
+
+		// WHEN CALLED BY IGE: parentUuid only passed if new object
 		String parentUuid = (String) oDocIn.get(MdekKeys.PARENT_UUID);
+		// WHEN CALLED BY IMPORTER: parentUuid always passed. we SIMULATE IGE call (so all checks work !)
+		String importerParentUuid = parentUuid;
+		if (calledByImporter) {
+			// simulate IGE call !
+			if (!isNewObject) {
+				parentUuid = null;
+				oDocIn.remove(MdekKeys.PARENT_UUID);
+			}
+		}
 
 		Integer pubTypeIn = (Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION);
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
@@ -384,10 +436,19 @@ public class MdekObjectService {
 			beanToDocMapper.mapResponsibleUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);				
 		}
 
-		if (isNewObject) {
-			// create new uuid
-			uuid = UuidGenerator.getInstance().generateUuid();
+		// End simulating IGE call when called by importer, see above ! now we use importer data !
+		if (calledByImporter) {
+			uuid = importerUuid;
 			oDocIn.put(MdekKeys.UUID, uuid);
+			parentUuid = importerParentUuid;
+			oDocIn.put(MdekKeys.PARENT_UUID, parentUuid);
+		} else {
+			// called by IGE !
+			if (isNewObject) {
+				// create new uuid
+				uuid = UuidGenerator.getInstance().generateUuid();
+				oDocIn.put(MdekKeys.UUID, uuid);
+			}			
 		}
 
 		// load node
