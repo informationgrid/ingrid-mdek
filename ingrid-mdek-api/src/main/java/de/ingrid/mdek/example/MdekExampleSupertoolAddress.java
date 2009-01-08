@@ -64,6 +64,7 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getAddressPath ######");
+		System.out.println("- uuid: " + uuidIn);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.getAddressPath(plugId, uuidIn, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -151,6 +152,7 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE fetchSubAddresses ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.fetchSubAddresses(plugId, uuid, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -197,10 +199,12 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE fetchAddress (Details) / fetch objRefs: start=" + objRefsStartIndex +
-				", maxNum=" + objRefsMaxNum +" ######");
+		System.out.println("\n###### INVOKE fetchAddress (Details) ######");
+		System.out.println("- uuid: " + uuid);
 		System.out.println("- fetch entity version: " + whichVersion);
 		System.out.println("- fetch quantity: " + howMuch);
+		System.out.println("- fetch objRefs start: " + objRefsStartIndex);
+		System.out.println("- fetch objRefs maxNum: " + objRefsMaxNum);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.fetchAddress(plugId, uuid, howMuch, whichVersion,
 				objRefsStartIndex, objRefsMaxNum, myUserUuid);
@@ -225,8 +229,10 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE fetchAddressObjectReferences / startIndex:" + objRefsStartIndex +
-				", maxNum:" + objRefsMaxNum + " ######");
+		System.out.println("\n###### INVOKE fetchAddressObjectReferences ######");
+		System.out.println("- uuid: " + uuid);
+		System.out.println("- fetch objRefs start: " + objRefsStartIndex);
+		System.out.println("- fetch objRefs maxNum: " + objRefsMaxNum);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.fetchAddressObjectReferences(plugId, uuid, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -254,6 +260,7 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE checkAddressSubTree ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.checkAddressSubTree(plugId, uuid, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -289,9 +296,11 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE storeAddress " + refetchAddressInfo + " / fetch objRefs: start=" + objRefsStartIndex +
-			", maxNum=" + objRefsMaxNum +" ######");
+		System.out.println("\n###### INVOKE storeAddress ######");
+		System.out.println("- uuid (may be null if new object?): " + aDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetch: " + refetchAddress);
+		System.out.println("- fetch objRefs start: " + objRefsStartIndex);
+		System.out.println("- fetch objRefs maxNum: " + objRefsMaxNum);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.storeAddress(plugId, aDocIn, refetchAddress, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -322,7 +331,9 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE updateAddressPart (in address version: " + whichVersion + ") ######");
+		System.out.println("\n###### INVOKE updateAddressPart ######");
+		System.out.println("- uuid: " + aPartDocIn.get(MdekKeys.UUID));
+		System.out.println("- in whichVersion: " + whichVersion);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.updateAddressPart(plugId, aPartDocIn, whichVersion, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -358,9 +369,11 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE assignAddressToQA " + refetchAddressInfo + " / fetch objRefs: start=" + objRefsStartIndex +
-			", maxNum=" + objRefsMaxNum +" ######");
+		System.out.println("\n###### INVOKE assignAddressToQA ######");
+		System.out.println("- uuid (may be null if new object?): " + aDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetch: " + refetchAddress);
+		System.out.println("- fetch objRefs start: " + objRefsStartIndex);
+		System.out.println("- fetch objRefs maxNum: " + objRefsMaxNum);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.assignAddressToQA(plugId, aDocIn, refetchAddress, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -398,9 +411,11 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchAddressInfo = (refetchAddress) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE reassignAddressToAuthor " + refetchAddressInfo + " / fetch objRefs: start=" + objRefsStartIndex +
-			", maxNum=" + objRefsMaxNum +" ######");
+		System.out.println("\n###### INVOKE reassignAddressToAuthor ######");
+		System.out.println("- uuid: " + aDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetch: " + refetchAddress);
+		System.out.println("- fetch objRefs start: " + objRefsStartIndex);
+		System.out.println("- fetch objRefs maxNum: " + objRefsMaxNum);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.reassignAddressToAuthor(plugId, aDocIn, refetchAddress, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -437,9 +452,11 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String withRefetchInfo = (withRefetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE publishAddress  " + withRefetchInfo + " / fetch objRefs: start=" + objRefsStartIndex +
-				", maxNum=" + objRefsMaxNum +" ######");
+		System.out.println("\n###### INVOKE publishAddress  ######");
+		System.out.println("- uuid (may be null if new object): " + aDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetch: " + withRefetch);
+		System.out.println("- fetch objRefs start: " + objRefsStartIndex);
+		System.out.println("- fetch objRefs maxNum: " + objRefsMaxNum);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.publishAddress(plugId, aDocIn, withRefetch, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -470,8 +487,10 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String moveToFreeAddressInfo = (moveToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
-		System.out.println("\n###### INVOKE moveAddress " + moveToFreeAddressInfo + " ######");
+		System.out.println("\n###### INVOKE moveAddress ######");
+		System.out.println("- from (node moved): " + fromUuid);
+		System.out.println("- to (new parent): " + toUuid);
+		System.out.println("- moveToFreeAddress: " + moveToFreeAddress);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, moveToFreeAddress, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -497,9 +516,11 @@ public class MdekExampleSupertoolAddress {
 			IngridDocument response;
 			IngridDocument result;
 
-			String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
-			String copyToFreeAddressInfo = (copyToFreeAddress) ? " / TARGET: FREE ADDRESS" : " / TARGET: NOT FREE ADDRESS";
-			System.out.println("\n###### INVOKE copyAddress " + copySubtreeInfo + copyToFreeAddressInfo + " ######");
+			System.out.println("\n###### INVOKE copyAddress ######");
+			System.out.println("- from (node copied): " + fromUuid);
+			System.out.println("- to (new parent): " + toUuid);
+			System.out.println("- copyToFreeAddress: " + copyToFreeAddress);
+			System.out.println("- copySubtree: " + copySubtree);
 			startTime = System.currentTimeMillis();
 			response = mdekCallerAddress.copyAddress(plugId, fromUuid, toUuid, copySubtree, copyToFreeAddress, myUserUuid);
 			endTime = System.currentTimeMillis();
@@ -525,9 +546,9 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteAddressWorkingCopy " + deleteRefsInfo + " ######");
+		System.out.println("\n###### INVOKE deleteAddressWorkingCopy ######");
 		System.out.println("- uuid: " + uuid);
+		System.out.println("- forceDeleteReferences: " + forceDeleteReferences);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.deleteAddressWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -553,9 +574,9 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteAddress " + deleteRefsInfo + " ######");
+		System.out.println("\n###### INVOKE deleteAddress ######");
 		System.out.println("- uuid: " + uuid);
+		System.out.println("- forceDeleteReferences: " + forceDeleteReferences);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.deleteAddress(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -586,9 +607,9 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE searchAddress ######");
+		System.out.println("- searchParams:" + searchParams);
 		System.out.println("- startHit:" + startHit);
 		System.out.println("- numHits:" + numHits);
-		System.out.println("- searchParams:" + searchParams);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.searchAddresses(plugId, searchParams, startHit, numHits, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -710,7 +731,8 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getAddressStatistics: " + whichType + " ######");
+		System.out.println("\n###### INVOKE getAddressStatistics ######");
+		System.out.println("- statistics type:" + whichType);
 		System.out.println("- top node of branch:" + uuidIn);
 		System.out.println("- only free addresses:" + onlyFreeAddresses);
 		System.out.println("- paging from:" + startHit);

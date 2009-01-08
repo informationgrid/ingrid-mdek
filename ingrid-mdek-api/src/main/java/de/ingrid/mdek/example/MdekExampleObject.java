@@ -988,14 +988,15 @@ class MdekExampleObjectThread extends Thread {
 		
 		System.out.println("\n----- move node back to top -----");
 		supertool.moveObject(moveUuid, null, true);
+		oMapMoved1.put(MdekKeys.PARENT_UUID, null);
 
 		System.out.println("\n----- and change all moved nodes back to INTERNET -> SUCCESS -----");
 		oMapMoved1.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
-		supertool.publishObject(oMapMoved1, false, true);
+		supertool.publishObject(oMapMoved1, true, true);
 		oMapMoved2.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
-		supertool.publishObject(oMapMoved2, false, true);
+		supertool.publishObject(oMapMoved2, true, true);
 		oMapMoved3.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
-		supertool.publishObject(oMapMoved3, false, true);
+		supertool.publishObject(oMapMoved3, true, true);
 
 		System.out.println("\n----- change parent back to INTERNET -> SUCCESS -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());

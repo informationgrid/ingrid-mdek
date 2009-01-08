@@ -64,6 +64,7 @@ public class MdekExampleSupertoolObject {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getObjectPath ######");
+		System.out.println("- uuid: " + uuidIn);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.getObjectPath(plugId, uuidIn, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -144,6 +145,7 @@ public class MdekExampleSupertoolObject {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE fetchSubObjects ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.fetchSubObjects(plugId, uuid, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -177,6 +179,7 @@ public class MdekExampleSupertoolObject {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE fetchObject (Details) ######");
+		System.out.println("- uuid: " + uuid);
 		System.out.println("- fetch entity version: " + whichVersion);
 		System.out.println("- fetch quantity: " + howMuch);
 		startTime = System.currentTimeMillis();
@@ -203,6 +206,7 @@ public class MdekExampleSupertoolObject {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE checkObjectSubTree ######");
+		System.out.println("- uuid: " + uuid);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.checkObjectSubTree(plugId, uuid, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -232,8 +236,9 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchObjectInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE storeObject " + refetchObjectInfo + " ######");
+		System.out.println("\n###### INVOKE storeObject ######");
+		System.out.println("- uuid (may be null if new object?): " + oDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetch: " + refetchObject);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.storeObject(plugId, oDocIn, refetchObject, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -264,7 +269,9 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE updateObjectPart (in object version: " + whichVersion + ") ######");
+		System.out.println("\n###### INVOKE updateObjectPart ######");
+		System.out.println("- uuid: " + oPartDocIn.get(MdekKeys.UUID));
+		System.out.println("- in whichVersion: " + whichVersion);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.updateObjectPart(plugId, oPartDocIn, whichVersion, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -294,8 +301,9 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchObjectInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE assignObjectToQA " + refetchObjectInfo + " ######");
+		System.out.println("\n###### INVOKE assignObjectToQA ######");
+		System.out.println("- uuid (may be null if new object?): " + oDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetch: " + refetchObject);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.assignObjectToQA(plugId, oDocIn, refetchObject, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -327,8 +335,9 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchObjectInfo = (refetchObject) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE reassignObjectToAuthor " + refetchObjectInfo + " ######");
+		System.out.println("\n###### INVOKE reassignObjectToAuthor ######");
+		System.out.println("- uuid: " + oDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetch: " + refetchObject);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.reassignObjectToAuthor(plugId, oDocIn, refetchObject, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -362,9 +371,9 @@ public class MdekExampleSupertoolObject {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE publishObject ######");
-		System.out.println("publishObject -> " +
-				"refetchObject: " + withRefetch +
-				", forcePublicationCondition: " + forcePublicationCondition);
+		System.out.println("- uuid (may be null if new object): " + oDocIn.get(MdekKeys.UUID));
+		System.out.println("- refetchObject: " + withRefetch);
+		System.out.println("- forcePublicationCondition: " + forcePublicationCondition);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.publishObject(plugId, oDocIn, withRefetch, forcePublicationCondition, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -394,9 +403,10 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		String forcePubCondInfo = (forcePublicationCondition) ? "WITH FORCE publicationCondition" 
-				: "WITHOUT FORCE publicationCondition";
-		System.out.println("\n###### INVOKE moveObject " + forcePubCondInfo + "######");
+		System.out.println("\n###### INVOKE moveObject ######");
+		System.out.println("- from (node moved): " + fromUuid);
+		System.out.println("- to (new parent): " + toUuid);
+		System.out.println("- forcePublicationCondition: " + forcePublicationCondition);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.moveObject(plugId, fromUuid, toUuid, forcePublicationCondition, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -420,8 +430,10 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		String copySubtreeInfo = (copySubtree) ? "WITH SUBTREE" : "WITHOUT SUBTREE";
-		System.out.println("\n###### INVOKE copyObject " + copySubtreeInfo + " ######");
+		System.out.println("\n###### INVOKE copyObject ######");
+		System.out.println("- from (node copied): " + fromUuid);
+		System.out.println("- to (new parent): " + toUuid);
+		System.out.println("- copySubtree: " + copySubtree);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.copyObject(plugId, fromUuid, toUuid, copySubtree, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -446,9 +458,9 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteObjectWorkingCopy " + deleteRefsInfo + " ######");
+		System.out.println("\n###### INVOKE deleteObjectWorkingCopy ######");
 		System.out.println("- uuid: " + uuid);
+		System.out.println("- forceDeleteReferences: " + forceDeleteReferences);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.deleteObjectWorkingCopy(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -475,9 +487,9 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		String deleteRefsInfo = (forceDeleteReferences) ? "WITH DELETE REFERENCES" : "WITHOUT DELETE REFERENCES";
-		System.out.println("\n###### INVOKE deleteObject " + deleteRefsInfo + " ######");
+		System.out.println("\n###### INVOKE deleteObject ######");
 		System.out.println("- uuid: " + uuid);
+		System.out.println("- forceDeleteReferences: " + forceDeleteReferences);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerObject.deleteObject(plugId, uuid, forceDeleteReferences, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -593,7 +605,8 @@ public class MdekExampleSupertoolObject {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getObjectStatistics: " + whichType + " ######");
+		System.out.println("\n###### INVOKE getObjectStatistics ######");
+		System.out.println("- statistics type:" + whichType);
 		System.out.println("- top node of branch:" + uuidIn);
 		System.out.println("- paging from:" + startHit);
 		System.out.println("- paging num:" + numHits);
