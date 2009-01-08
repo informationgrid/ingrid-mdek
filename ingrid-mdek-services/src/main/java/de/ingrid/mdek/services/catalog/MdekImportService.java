@@ -133,11 +133,12 @@ public class MdekImportService implements IImporterCallback {
 		// PUBLISH IMPORT OBJECT
 		// ---------------------
 
-		String objUuid = objDoc.getString(MdekKeys.UUID);
+		String objTag = createObjectTag(objDoc.getString(MdekKeys.UUID),
+				objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
 
 		// log new nodes ! How to log only nodes outside of objImportNode ? 
 		if (existingNode == null) {
-			updateImportJobInfoMessages("Object " + objUuid + ": New node !", userUuid);
+			updateImportJobInfoMessages(objTag + "New node !", userUuid);
 		}
 
 		boolean storeWorkingVersion = true;		
@@ -150,17 +151,17 @@ public class MdekImportService implements IImporterCallback {
 			// NOTICE: determined parent can be null -> update of existing top object 
 			if (parentNode != null && !objectService.hasPublishedVersion(parentNode)) {
 				// parent not published -> store working version !
-				updateImportJobInfoMessages("! Object " + objUuid + ": Parent not published, we store working version", userUuid);
+				updateImportJobInfoMessages("! " + objTag + "Parent not published, we store working version", userUuid);
 				storeWorkingVersion = true;
 				
 			} else {
 				// ok, we publish. On error store working version !
-				String errorMsg = "! Object " +  objUuid + ": Problems publishing, we store working version : ";
+				String errorMsg = "! " + objTag + "Problems publishing, we store working version : ";
 				try {
 					// we DON'T force publication condition ! if error, we store working version !
 					objectService.publishObject(objDoc, false, userUuid, false, true);
 					updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-					updateImportJobInfoMessages("Object " + objUuid + ": Stored PUBLISHED version", userUuid);
+					updateImportJobInfoMessages(objTag + "Stored PUBLISHED version", userUuid);
 
 				} catch (MdekException ex) {
 					updateImportJobInfoMessages(errorMsg + ex.getMdekError(), userUuid);
@@ -178,11 +179,11 @@ public class MdekImportService implements IImporterCallback {
 		// --------------------------------
 
 		if (storeWorkingVersion) {
-			String errorMsg = "! Object " +  objUuid + ": Problems storing working version : ";
+			String errorMsg = "! " + objTag + "Problems storing working version : ";
 			try {
 				objectService.storeWorkingCopy(objDoc, userUuid, false, true);
 				updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-				updateImportJobInfoMessages("Object " + objUuid + ": Stored WORKING version", userUuid);
+				updateImportJobInfoMessages(objTag + "Stored WORKING version", userUuid);
 
 			} catch (MdekException ex) {
 				updateImportJobInfoMessages(errorMsg + ex.getMdekError(), userUuid);
@@ -335,6 +336,20 @@ public class MdekImportService implements IImporterCallback {
 		return new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, message));
 	}
 
+	/** Creates a tag to be displayed as object "identifier". */
+	private String createObjectTag(String objUuid, String origId) {
+		String tag = "Object";
+		if (objUuid != null) {
+			tag += " UUID:" + objUuid;
+		}
+		if (origId != null) {
+			tag += " ORIG_ID:" + origId;
+		}
+		tag += " > ";
+
+		return tag;
+	}
+
 	/**
 	 * Determine the according catalog node to the import entity.
 	 * @param importObjDoc the object to import represented by its doc.
@@ -347,6 +362,7 @@ public class MdekImportService implements IImporterCallback {
 
 		String objUuid = importObjDoc.getString(MdekKeys.UUID);
 		String origId = importObjDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
+		String objTag = createObjectTag(objUuid, origId);
 
 		if (objUuid != null) {
 			existingNode = objectService.loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION);
@@ -357,8 +373,8 @@ public class MdekImportService implements IImporterCallback {
 				// uuid of import doesn't match with uuid in catalog, WE KEEP CATALOG UUID !
 				String existingUuid = existingNode.getObjUuid();
 				importObjDoc.put(MdekKeys.UUID, existingUuid);
-				updateImportJobInfoMessages("! Object " + existingUuid +
-					": Different UUID but same ORIGINAL ID in Import, we keep catalog UUID " + existingUuid + " and import", userUuid);
+				updateImportJobInfoMessages("! " + objTag +
+					"Different UUID but same ORIGINAL ID in Import, we keep catalog UUID " + existingUuid + " and import", userUuid);
 			}
 		}
 		
@@ -367,7 +383,7 @@ public class MdekImportService implements IImporterCallback {
 
 	/**
 	 * Determine the "new" parent of the object to import.
-	 * @param importObjDoc the object to import represented by its doc.
+	 * @param objDoc the object to import represented by its doc.
 	 * 		The new parent uuid will also be set in this doc.
 	 * @param existingNode the according catalog node to the import entity. Null IF NEW ENTITY !
 	 * 		This one is determined separately and passed here, so we don't have to load twice !
@@ -376,7 +392,7 @@ public class MdekImportService implements IImporterCallback {
 	 * @return the "new" parent node. NOTICE: can be NULL if existing object is top node !.
 	 * 		This one is also set in importObjDoc. 
 	 */
-	private ObjectNode determineObjectParentNode(IngridDocument importObjDoc, ObjectNode existingNode, 
+	private ObjectNode determineObjectParentNode(IngridDocument objDoc, ObjectNode existingNode, 
 			ObjectNode objectImportNode,
 			String userUuid) {
 		// default "new" parent is import node
@@ -384,10 +400,12 @@ public class MdekImportService implements IImporterCallback {
 
 		// the uuid of the import object. NOTICE: already matches with the UUID of the passed
 		// existingNode if object exists in catalog
-		String importUuid = importObjDoc.getString(MdekKeys.UUID);
+		String objUuid = objDoc.getString(MdekKeys.UUID);
+		String origId = objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
+		String objTag = createObjectTag(objUuid, origId);
 
 		// fetch parent from import
-		String importParentUuid = importObjDoc.getString(MdekKeys.PARENT_UUID);
+		String importParentUuid = objDoc.getString(MdekKeys.PARENT_UUID);
 		ObjectNode importParentNode = objectService.loadByUuid(importParentUuid, null);
 		boolean importParentExists = (importParentNode != null);
 
@@ -401,7 +419,7 @@ public class MdekImportService implements IImporterCallback {
 					newParentNode = importParentNode;
 				} else {
 					// import parent does NOT exist. we keep "old" parent.
-					updateImportJobInfoMessages("! Object " + importUuid + ": Parent not found, we keep former parent", userUuid);
+					updateImportJobInfoMessages("! " + objTag + "Parent not found, we keep former parent", userUuid);
 					newParentNode = objectService.loadByUuid(existingNode.getFkObjUuid(), null);
 				}
 			} else {
@@ -417,7 +435,7 @@ public class MdekImportService implements IImporterCallback {
 					newParentNode = importParentNode;
 				} else {
 					// import parent does NOT exist. store under import node.
-					updateImportJobInfoMessages("! Object " + importUuid + ": Parent not found, store underneath import node", userUuid);
+					updateImportJobInfoMessages("! " + objTag + "Parent not found, store underneath import node", userUuid);
 					newParentNode = objectImportNode;
 				}
 			} else {
@@ -431,7 +449,7 @@ public class MdekImportService implements IImporterCallback {
 		if (newParentNode != null) {
 			newParentUuid = newParentNode.getObjUuid();
 		}
-		importObjDoc.put(MdekKeys.PARENT_UUID, newParentUuid);
+		objDoc.put(MdekKeys.PARENT_UUID, newParentUuid);
 
 		return newParentNode;
 	}
