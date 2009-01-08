@@ -12,7 +12,7 @@ public interface IMdekCaller {
 
 	/** How much data to fetch from requested entity ? */
 	public enum FetchQuantity {
-		/** request only data to be exported */
+		/** request all data to be exported */
 		EXPORT_ENTITY,
 		/** request all data to be displayed in IGE */
 		EDITOR_ENTITY,

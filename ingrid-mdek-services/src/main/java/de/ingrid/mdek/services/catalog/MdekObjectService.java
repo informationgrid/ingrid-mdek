@@ -137,7 +137,13 @@ public class MdekObjectService {
 			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));			
 		}
 
-		beanToDocMapper.mapT01Object(o, resultDoc, MappingQuantity.DETAIL_ENTITY);
+		// how much to map from object ? default is DETAIL_ENTITY (called from IGE)
+		MappingQuantity objMappingQuantity = MappingQuantity.DETAIL_ENTITY;
+		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
+			// map all when object should be exported !
+			objMappingQuantity = MappingQuantity.COPY_ENTITY;
+		}
+		beanToDocMapper.mapT01Object(o, resultDoc, objMappingQuantity);
 
 		// also map ObjectNode for published info
 		beanToDocMapper.mapObjectNode(oNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
@@ -166,15 +172,28 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Store WORKING COPY of the object represented by the passed doc.<br>
+	 * Store WORKING COPY of the object represented by the passed doc. MOD USER IS CALLING USER !
+	 * @see #storeWorkingCopy(IngridDocument oDocIn, String userId,	boolean checkPermissions, boolean calledByImporter=false)
+	 */
+	public String storeWorkingCopy(IngridDocument oDocIn, String userId, boolean checkPermissions) {
+		return storeWorkingCopy(oDocIn, userId, checkPermissions, false);
+	}
+
+	/**
+	 * Store WORKING COPY of the object represented by the passed doc.
+	 * MOD USER IS DETERMINED DEPENDEN FROM PASSED FLAG calledByImporter !<br>
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
 	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
+	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored object, will be generated if new object (no uuid passed in doc)
 	 */
-	public String storeWorkingCopy(IngridDocument oDocIn, String userId, boolean checkPermissions) {
+	public String storeWorkingCopy(IngridDocument oDocIn, String userId,
+			boolean checkPermissions,
+			boolean calledByImporter) {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
@@ -184,7 +203,15 @@ public class MdekObjectService {
 
 		// set common data to transfer to working copy !
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
+		String modUuid = userId;
+		if (calledByImporter) {
+			modUuid = docToBeanMapper.extractModUserUuid(oDocIn);
+			if (modUuid == null) {
+				modUuid = userId;
+			}
+		}
+		beanToDocMapper.mapModUser(modUuid, oDocIn, MappingQuantity.INITIAL_ENTITY);
+
 		// set current user as responsible user if not set !
 		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
 		if (respUserUuid == null) {
@@ -283,6 +310,16 @@ public class MdekObjectService {
 	}
 
 	/**
+	 * Publish the object represented by the passed doc. MOD USER IS CALLING USER !
+	 * @see #publishObject(IngridDocument oDocIn, boolean forcePubCondition, String userId,
+	 * 			boolean checkPermissions, boolean calledByImporter=false)
+	 */
+	public String publishObject(IngridDocument oDocIn, boolean forcePubCondition,
+			String userId, boolean checkPermissions) {
+		return publishObject(oDocIn, forcePubCondition, userId, checkPermissions, false);
+	}
+
+	/**
 	 * Publish the object represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object
@@ -291,10 +328,13 @@ public class MdekObjectService {
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
 	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
+	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of published object, will be generated if new object (no uuid passed in doc)
 	 */
 	public String publishObject(IngridDocument oDocIn, boolean forcePubCondition,
-			String userId, boolean checkPermissions) {
+			String userId, boolean checkPermissions,
+			boolean calledByImporter) {
 		// uuid is null when new object !
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
 		boolean isNewObject = (uuid == null) ? true : false;
@@ -329,7 +369,15 @@ public class MdekObjectService {
 		// set common data to transfer
 		workflowHandler.processDocOnPublish(oDocIn);
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		beanToDocMapper.mapModUser(userId, oDocIn, MappingQuantity.INITIAL_ENTITY);
+		String modUuid = userId;
+		if (calledByImporter) {
+			modUuid = docToBeanMapper.extractModUserUuid(oDocIn);
+			if (modUuid == null) {
+				modUuid = userId;
+			}
+		}
+		beanToDocMapper.mapModUser(modUuid, oDocIn, MappingQuantity.INITIAL_ENTITY);
+
 		// set current user as responsible user if not set !
 		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(oDocIn);
 		if (respUserUuid == null) {

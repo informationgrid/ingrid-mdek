@@ -3,6 +3,8 @@ package de.ingrid.mdek.services.catalog;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
+
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
@@ -29,6 +31,8 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekImportService implements IImporterCallback {
 
+	private static final Logger LOG = Logger.getLogger(MdekImportService.class);
+
 	private static MdekImportService myInstance;
 
 	private MdekObjectService objectService;
@@ -40,9 +44,9 @@ public class MdekImportService implements IImporterCallback {
 
 	// static keys for accessing data stored in running job info !
 	/** Value: ObjectNode */
-	private final static String KEY_OBJ_TOP_NODE = "IMPORTSERVICE_OBJ_TOP_NODE";
+	private final static String KEY_OBJ_IMPORT_NODE = "IMPORTSERVICE_OBJ_IMPORT_NODE";
 	/** Value: AddressNode */
-	private final static String KEY_ADDR_TOP_NODE = "IMPORTSERVICE_ADDR_TOP_NODE";
+	private final static String KEY_ADDR_IMPORT_NODE = "IMPORTSERVICE_ADDR_IMPORT_NODE";
 	/** Value: Boolean */
 	private final static String KEY_PUBLISH_IMMEDIATELY = "IMPORTSERVICE_PUBLISH_IMMEDIATELY";
 	/** Value: Boolean */
@@ -78,7 +82,7 @@ public class MdekImportService implements IImporterCallback {
 		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
 		boolean publishImmediately = (Boolean) runningJobInfo.get(KEY_PUBLISH_IMMEDIATELY);
 		boolean doSeparateImport = (Boolean) runningJobInfo.get(KEY_DO_SEPARATE_IMPORT);
-		ObjectNode defaultParentNode = (ObjectNode) runningJobInfo.get(KEY_OBJ_TOP_NODE);
+		ObjectNode objImportNode = (ObjectNode) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
 		int numImported = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
 		int totalNum = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
 
@@ -113,14 +117,13 @@ public class MdekImportService implements IImporterCallback {
 				modUuid = existingObj.getModUuid();
 				responsibleUuid = existingObj.getResponsibleUuid();
 			}
-			// TODO: Bug: MOD-USER isn't saved via doc ! instead calling user is used ! Do we have to take over MOD-USER ???
 			beanToDocMapper.mapModUser(modUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
 			beanToDocMapper.mapResponsibleUser(responsibleUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
 
 		// where to add import object
-		ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, defaultParentNode, userUuid);
+		ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, objImportNode, userUuid);
 
 		// TODO: check if parent changed, then move object. Also move Object to Top ???
 
@@ -131,6 +134,11 @@ public class MdekImportService implements IImporterCallback {
 		// ---------------------
 
 		String objUuid = objDoc.getString(MdekKeys.UUID);
+
+		// log new nodes ! How to log only nodes outside of objImportNode ? 
+		if (existingNode == null) {
+			updateImportJobInfoMessages("Object " + objUuid + ": New node !", userUuid);
+		}
 
 		boolean storeWorkingVersion = true;		
 		if (publishImmediately) {
@@ -150,16 +158,18 @@ public class MdekImportService implements IImporterCallback {
 				String errorMsg = "! Object " +  objUuid + ": Problems publishing, we store working version : ";
 				try {
 					// we DON'T force publication condition ! if error, we store working version !
-					objectService.publishObject(objDoc, false, userUuid, false);
+					objectService.publishObject(objDoc, false, userUuid, false, true);
 					updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
 					updateImportJobInfoMessages("Object " + objUuid + ": Stored PUBLISHED version", userUuid);
 
 				} catch (MdekException ex) {
 					updateImportJobInfoMessages(errorMsg + ex.getMdekError(), userUuid);
 					storeWorkingVersion = true;
+					LOG.error(errorMsg, ex);
 				} catch (Exception ex) {
 					updateImportJobInfoMessages(errorMsg + ex.getMessage(), userUuid);
 					storeWorkingVersion = true;				
+					LOG.error(errorMsg, ex);
 				}
 			}
 		}
@@ -170,16 +180,18 @@ public class MdekImportService implements IImporterCallback {
 		if (storeWorkingVersion) {
 			String errorMsg = "! Object " +  objUuid + ": Problems storing working version : ";
 			try {
-				objectService.storeWorkingCopy(objDoc, userUuid, false);
+				objectService.storeWorkingCopy(objDoc, userUuid, false, true);
 				updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
 				updateImportJobInfoMessages("Object " + objUuid + ": Stored WORKING version", userUuid);
 
 			} catch (MdekException ex) {
 				updateImportJobInfoMessages(errorMsg + ex.getMdekError(), userUuid);
 				storeWorkingVersion = true;
+				LOG.error(errorMsg, ex);
 			} catch (Exception ex) {
 				updateImportJobInfoMessages(errorMsg + ex.getMessage(), userUuid);
 				storeWorkingVersion = true;				
+				LOG.error(errorMsg, ex);
 			}
 		}
 	}
@@ -313,8 +325,8 @@ public class MdekImportService implements IImporterCallback {
 
 		// all ok, we store data in running job info for later access !
 		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
-		runningJobInfo.put(KEY_OBJ_TOP_NODE, objImportNode);
-		runningJobInfo.put(KEY_ADDR_TOP_NODE, addrImportNode);
+		runningJobInfo.put(KEY_OBJ_IMPORT_NODE, objImportNode);
+		runningJobInfo.put(KEY_ADDR_IMPORT_NODE, addrImportNode);
 		runningJobInfo.put(KEY_PUBLISH_IMMEDIATELY, publishImmediately);
 		runningJobInfo.put(KEY_DO_SEPARATE_IMPORT, doSeparateImport);
 	}
@@ -359,16 +371,16 @@ public class MdekImportService implements IImporterCallback {
 	 * 		The new parent uuid will also be set in this doc.
 	 * @param existingNode the according catalog node to the import entity. Null IF NEW ENTITY !
 	 * 		This one is determined separately and passed here, so we don't have to load twice !
-	 * @param defaultParentNode the import node for objects
+	 * @param objectImportNode the import node for objects
 	 * @param userUuid calling user
 	 * @return the "new" parent node. NOTICE: can be NULL if existing object is top node !.
 	 * 		This one is also set in importObjDoc. 
 	 */
 	private ObjectNode determineObjectParentNode(IngridDocument importObjDoc, ObjectNode existingNode, 
-			ObjectNode defaultParentNode,
+			ObjectNode objectImportNode,
 			String userUuid) {
 		// default "new" parent is import node
-		ObjectNode newParentNode = defaultParentNode;
+		ObjectNode newParentNode = objectImportNode;
 
 		// the uuid of the import object. NOTICE: already matches with the UUID of the passed
 		// existingNode if object exists in catalog
@@ -406,11 +418,11 @@ public class MdekImportService implements IImporterCallback {
 				} else {
 					// import parent does NOT exist. store under import node.
 					updateImportJobInfoMessages("! Object " + importUuid + ": Parent not found, store underneath import node", userUuid);
-					newParentNode = defaultParentNode;
+					newParentNode = objectImportNode;
 				}
 			} else {
 				// import parent NOT set. store under import node.
-				newParentNode = defaultParentNode;
+				newParentNode = objectImportNode;
 			}
 		}
 
@@ -419,7 +431,7 @@ public class MdekImportService implements IImporterCallback {
 		if (newParentNode != null) {
 			newParentUuid = newParentNode.getObjUuid();
 		}
-		importObjDoc.put(MdekKeys.PARENT_UUID, newParentUuid);			
+		importObjDoc.put(MdekKeys.PARENT_UUID, newParentUuid);
 
 		return newParentNode;
 	}

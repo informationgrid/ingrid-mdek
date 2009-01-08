@@ -137,7 +137,13 @@ public class MdekAddressService {
 			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));			
 		}
 
-		beanToDocMapper.mapT02Address(a, resultDoc, MappingQuantity.DETAIL_ENTITY);
+		// how much to map from address ? default is DETAIL_ENTITY (called from IGE)
+		MappingQuantity addrMappingQuantity = MappingQuantity.DETAIL_ENTITY;
+		if (howMuch == FetchQuantity.EXPORT_ENTITY) {
+			// map all when address should be exported !
+			addrMappingQuantity = MappingQuantity.COPY_ENTITY;
+		}
+		beanToDocMapper.mapT02Address(a, resultDoc, addrMappingQuantity);
 		
 		// also map AddressNode for published info
 		beanToDocMapper.mapAddressNode(aNode, resultDoc, MappingQuantity.DETAIL_ENTITY);
