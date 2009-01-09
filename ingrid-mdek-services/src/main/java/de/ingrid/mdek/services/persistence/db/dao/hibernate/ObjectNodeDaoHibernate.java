@@ -84,19 +84,33 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		// always fetch working version. Is needed for querying, so we fetch it.
-		String qString = "from ObjectNode oNode " +
-				"left join fetch oNode.t01ObjectWork oWork";
+		String qString = "select distinct oNode from ObjectNode oNode " +
+				"left join fetch oNode.t01ObjectWork oWork ";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch oNode.t01ObjectPublished ";			
 		}
-		qString += "where oWork.orgObjId = ?";
+		qString += "where oWork.orgObjId = ? ";
+		// order to guarantee always same node in front if multiple nodes with same orig id ! 
+		qString += "order by oNode.objUuid";
 
-		ObjectNode oN = (ObjectNode) session.createQuery(qString)
+		List<ObjectNode> oNodes = session.createQuery(qString)
 			.setString(0, origId)
-			.uniqueResult();
+			.list();
 
-		return oN;
+		ObjectNode retNode = null;
+		String nodeUuids = "";
+		for (ObjectNode oNode : oNodes) {
+			if (retNode == null) {
+				retNode = oNode;
+			}
+			nodeUuids += "\n     " + oNode.getObjUuid();
+		}
+		if (oNodes.size() > 1) {
+			LOG.warn("MULTIPLE NODES WITH SAME ORIG_ID: " + origId + " ! Nodes:" + nodeUuids);
+		}
+
+		return retNode;
 	}
 
 	public List<ObjectNode> getTopObjects(IdcEntityVersion whichEntityVersion,

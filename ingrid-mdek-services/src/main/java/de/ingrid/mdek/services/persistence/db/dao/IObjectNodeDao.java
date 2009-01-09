@@ -29,7 +29,7 @@ public interface IObjectNodeDao
 	/** Load object NODE with given uuid. Also prefetch concrete object instance in node if requested.
 	 * @param uuid object uuid
 	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
-	 * @return node or null if not found
+	 * @return node or null if not found. Throws Exception if multiple nodes found !
 	 */
 	ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion);
 
@@ -37,7 +37,7 @@ public interface IObjectNodeDao
 	 * Also prefetch concrete object instance in node if requested.
 	 * @param origId object ORIGINAL_ID = id from external system
 	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
-	 * @return node or null if not found
+	 * @return first node found or null if not found. Logs WARNING if multiple nodes found !!!
 	 */
 	ObjectNode loadByOrigId(String origId, IdcEntityVersion whichEntityVersion);
 

@@ -91,9 +91,9 @@ public class MdekObjectService {
 	}
 
 	/** Load object NODE with given uuid. Also prefetch concrete object instance in node if requested.
-	 * @param uuid object uuid
+	 * @param uuid object uuid. if null is passed we return null !
 	 * @param whichEntityVersion which object Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
-	 * @return node or null if not found
+	 * @return node or null if not found or null was passed !
 	 */
 	public ObjectNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		return daoObjectNode.loadByUuid(uuid, whichEntityVersion);
