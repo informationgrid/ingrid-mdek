@@ -512,7 +512,7 @@ public class MdekExampleSupertool {
 			response = mdekClientCaller.getRunningJobInfo(plugId, myUserUuid);
 			result = mdekClientCaller.getResultFromResponse(response);
 			if (result != null) {
-				String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
+				String jobDescr = result.getString(MdekKeys.RUNNINGJOB_TYPE);
 				Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
 				Integer total = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
 				if (jobDescr == null) {
@@ -574,7 +574,7 @@ public class MdekExampleSupertool {
 		IngridDocument response = mdekClientCaller.cancelRunningJob(plugId, myUserUuid);
 		IngridDocument result = mdekClientCaller.getResultFromResponse(response);
 		if (result != null) {
-			String jobDescr = result.getString(MdekKeys.RUNNINGJOB_DESCRIPTION);
+			String jobDescr = result.getString(MdekKeys.RUNNINGJOB_TYPE);
 			if (jobDescr == null) {
 				System.out.println("JOB FINISHED\n");
 			} else {

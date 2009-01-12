@@ -101,7 +101,7 @@ public class MdekJobHandler {
 
 			// only return specific job type ?
 			if (jobType != null) {
-				if (!jobType.getDbValue().equals(runningJob.get(MdekKeys.RUNNINGJOB_DESCRIPTION))) {
+				if (!jobType.getDbValue().equals(runningJob.get(MdekKeys.RUNNINGJOB_TYPE))) {
 					result = null;
 				}
 			}
@@ -143,7 +143,7 @@ public class MdekJobHandler {
 			Integer numTotal,
 			boolean canceledByUser) {
 		IngridDocument runningJob = new IngridDocument();
-		runningJob.put(MdekKeys.RUNNINGJOB_DESCRIPTION, jobType.getDbValue());
+		runningJob.put(MdekKeys.RUNNINGJOB_TYPE, jobType.getDbValue());
 		runningJob.put(MdekKeys.RUNNINGJOB_ENTITY_TYPE, whichType);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
@@ -220,7 +220,7 @@ public class MdekJobHandler {
 
 		if (wasCanceled) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Job " + runningJob.get(MdekKeys.RUNNINGJOB_DESCRIPTION) + " was canceled by user !");
+				LOG.info("Job " + runningJob.get(MdekKeys.RUNNINGJOB_TYPE) + " was canceled by user !");
 			}
 			throw new MdekException(new MdekError(MdekErrorType.USER_CANCELED_JOB));
 		}

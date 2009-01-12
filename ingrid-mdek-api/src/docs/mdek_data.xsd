@@ -608,7 +608,8 @@
 	<xs:element name="sys-additional-field-name" type="xs:string"/>
 	<xs:complexType name="RESULT_RUNNING_JOBS_MAP">
 		<xs:all>
-			<xs:element name="runningjob-description" type="xs:string"/>
+			<!-- database value of job type -->
+			<xs:element name="runningjob-type" type="xs:string"/>
 			<!-- which type of entity is processed (object or address), pass MdekUtils.IdcEntityType Enumeration const -->
 			<xs:element name="runningjob-entity-type" type="xs:integer"/>
 			<xs:element name="runningjob-number-processed-entities" type="xs:integer"/>

@@ -342,9 +342,9 @@ public class MdekKeys {
 
     // INFO ABOUT RUNNING JOBS
     // -----------------------
-    /** Plain text description of job which is running on server (normally database value of JobType)<br>
+    /** Type of Job which is running on server (database value of JobType enum)<br>
      *  Value: String */
-    public final static String RUNNINGJOB_DESCRIPTION = "runningjob-description";
+    public final static String RUNNINGJOB_TYPE = "runningjob-type";
     /** Which type of entity is processed (object or address)<br>
      *  Value: MdekUtils.IdcEntityType Enumeration const */
     public final static String RUNNINGJOB_ENTITY_TYPE = "runningjob-entity-type";
