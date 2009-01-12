@@ -508,6 +508,8 @@
 			<!-- e.g. total number of addresses to export -->
 			<xs:element name="jobinfo-total-num-addresses" type="xs:integer"/>
 			<xs:element name="jobinfo-messages" type="xs:string"/>
+			<!-- contains Exception if thrown in job -->
+			<xs:element name="jobinfo-exception" type="xs:anyType"/>
 		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="RESULT_EXPORT_MAP">

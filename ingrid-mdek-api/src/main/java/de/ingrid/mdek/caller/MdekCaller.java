@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -58,6 +59,17 @@ public abstract class MdekCaller implements IMdekCaller {
 	}
 	
     // Utilities
+
+	/**
+	 * Extracts Exception from passed JobInfo if present.<br>
+	 * NOTICE: start of long running job may be ok, but maybe exception is thrown afterwards.
+	 * Then it is encapsulated in job info.
+	 * @param jobInfo job info requested from job (e.g. via getImportJobInfo)
+	 * @return Exception or null if no exception (then job still running or finished properly).
+	 */
+	static public Exception getExceptionFromJobInfo(IngridDocument jobInfoDoc) {
+		return (Exception) jobInfoDoc.get(MdekKeys.JOBINFO_EXCEPTION);
+	}
 
 	protected void debugDocument(String title, IngridDocument doc) {
 		if (!log.isDebugEnabled()) {

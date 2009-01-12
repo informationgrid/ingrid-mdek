@@ -271,6 +271,13 @@ public class MdekImportService implements IImporterCallback {
 		// NO, only in memory and write at end because of performance issues !
 //		jobHandler.updateJobInfoDBMessages(JobType.IMPORT, newMessage, userUuid);
 	}
+	/** Logs given Exception in info of Import job IN DATABASE. */
+	public void updateImportJobInfoException(Exception exceptionToLog, String userUuid) {
+		// no log in memory, this one should be called when job has to be exited ...
+
+		// log in job info in database
+		jobHandler.updateJobInfoDBException(JobType.IMPORT, exceptionToLog, userUuid);
+	}
 
 	/**
 	 * "logs" End-Info in import job information IN DATABASE !<br>

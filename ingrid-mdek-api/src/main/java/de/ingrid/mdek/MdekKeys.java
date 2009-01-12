@@ -112,6 +112,8 @@ public class MdekKeys {
     public final static String JOBINFO_TOTAL_NUM_ADDRESSES = "jobinfo-total-num-addresses";
     /** Value: String */
     public final static String JOBINFO_MESSAGES = "jobinfo-messages";
+    /** Value: Exception */
+    public final static String JOBINFO_EXCEPTION = "jobinfo-exception";
 
     // SPECIFIC JOBINFO RESULT
     /** Value: byte[] */
@@ -340,7 +342,7 @@ public class MdekKeys {
 
     // INFO ABOUT RUNNING JOBS
     // -----------------------
-    /** Plain text description of job which is still running on server<br>
+    /** Plain text description of job which is running on server (normally database value of JobType)<br>
      *  Value: String */
     public final static String RUNNINGJOB_DESCRIPTION = "runningjob-description";
     /** Which type of entity is processed (object or address)<br>

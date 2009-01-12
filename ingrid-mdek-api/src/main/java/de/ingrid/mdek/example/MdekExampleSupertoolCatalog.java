@@ -308,7 +308,7 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			System.out.println(result);
+			supertoolGeneric.debugJobInfoDoc(result);
 		} else {
 			supertoolGeneric.handleError(response);
 		}
@@ -333,7 +333,7 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			System.out.println(result);
+			supertoolGeneric.debugJobInfoDoc(result);
 		} else {
 			supertoolGeneric.handleError(response);
 		}
@@ -364,7 +364,7 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			System.out.println(result);
+			supertoolGeneric.debugJobInfoDoc(result);
 		} else {
 			supertoolGeneric.handleError(response);
 		}
@@ -388,22 +388,22 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
+			System.out.println("SUCCESS:");
+			supertoolGeneric.debugJobInfoDoc(result);
+
 			byte[] exportResultZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
 			if (exportResultZipped != null) {
-				System.out.println("SUCCESS: size zipped XML=" + (exportResultZipped.length / 1024) + " KB");
-			} else {
-				System.out.println("SUCCESS:");
-			}
-			System.out.println(result);
-			
-			if (doFullOutput && exportResultZipped != null) {
-				String exportResultUnzipped = "";
-				try {
-					exportResultUnzipped = MdekUtils.decompressZippedByteArray(exportResultZipped);
-				} catch(Exception ex) {
-					System.out.println(ex);
+				System.out.println("- size zipped XML=" + (exportResultZipped.length / 1024) + " KB");
+
+				if (doFullOutput) {
+					String exportResultUnzipped = "";
+					try {
+						exportResultUnzipped = MdekUtils.decompressZippedByteArray(exportResultZipped);
+					} catch(Exception ex) {
+						System.out.println(ex);
+					}
+					System.out.println("XML:\n" + exportResultUnzipped);				
 				}
-				System.out.println("XML:\n" + exportResultUnzipped);				
 			}
 
 		} else {
@@ -438,7 +438,7 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			System.out.println(result);
+			supertoolGeneric.debugJobInfoDoc(result);
 		} else {
 			supertoolGeneric.handleError(response);
 		}
@@ -462,7 +462,7 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			System.out.println(result);
+			supertoolGeneric.debugJobInfoDoc(result);
 		} else {
 			supertoolGeneric.handleError(response);
 		}

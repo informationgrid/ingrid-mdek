@@ -82,15 +82,34 @@ public class MdekJobHandler {
 		String userId = MdekJobHandler.getCurrentUserUuidFromDoc(params);
 		return getRunningJobInfo(userId);
 	}
-	/** NOTICE: returns empty Document if no running job ! */
+	/** return ANY running job information, no matter which job. 
+	 * NOTICE: returns EMPTY Document if no running job ! */
 	public IngridDocument getRunningJobInfo(String userId) {
-		IngridDocument result = new IngridDocument();
+		return getRunningJobInfo(null, userId);
+	}
+	/** return SPECIFIC running job information, only jobs of passed type ! 
+	 * @param jobType pass null if type doen't matter, any running job should be fetched 
+	 * @param userId user who started job
+	 * @return running job info or EMPTY Document if no running job of passed type
+	 */
+	public IngridDocument getRunningJobInfo(JobType jobType, String userId) {
+		IngridDocument result = null;
 
 		IngridDocument runningJob = runningJobsMap.get(userId);
 		if (runningJob != null) {
 			result = runningJob;
+
+			// only return specific job type ?
+			if (jobType != null) {
+				if (!jobType.getDbValue().equals(runningJob.get(MdekKeys.RUNNINGJOB_DESCRIPTION))) {
+					result = null;
+				}
+			}
 		}
 		
+		if (result == null) {
+			result = new IngridDocument();
+		}
 		return result;
 	}
 
@@ -265,6 +284,18 @@ public class MdekJobHandler {
 		currentMessages += newMessage;
 
 		jobDetails.put(MdekKeys.JOBINFO_MESSAGES, currentMessages);
+
+		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
+		persistJobInfoDB(jobInfo, userUuid);
+	}
+	/** Logs the given Exception (and replaces an existing one) in the job information IN DATABASE !
+	 * NOTICE: all other infos in DB stay unchanged ! */
+	public void updateJobInfoDBException(JobType whichJob, Exception exceptionToLog, String userUuid) {
+		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
+
+		HashMap jobDetails = deformatJobDetailsFromDB(jobInfo.getJobDetails());
+
+		jobDetails.put(MdekKeys.JOBINFO_EXCEPTION, exceptionToLog);
 
 		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 		persistJobInfoDB(jobInfo, userUuid);

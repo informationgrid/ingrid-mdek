@@ -22,6 +22,7 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekClientCaller;
+import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
@@ -1092,6 +1093,16 @@ public class MdekExampleSupertool {
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}			
+		}
+	}
+
+	public void debugJobInfoDoc(IngridDocument jobInfoDoc) {
+		System.out.println(jobInfoDoc);
+
+		Exception jobExc = MdekCaller.getExceptionFromJobInfo(jobInfoDoc);
+		if (jobExc != null) {
+			System.out.println("JobInfo Exception !:" + jobExc);
+			printThrowable(jobExc);
 		}
 	}
 

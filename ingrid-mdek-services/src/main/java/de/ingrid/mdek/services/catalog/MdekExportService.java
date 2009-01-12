@@ -315,6 +315,13 @@ public class MdekExportService implements IExporterCallback {
 		// NO, only in memory and write at end because of performance issues !
 //		jobHandler.updateJobInfoDBMessages(JobType.EXPORT, newMessage, userUuid);
 	}
+	/** Logs given Exception in info of Export job IN DATABASE. */
+	public void updateExportJobInfoException(Exception exceptionToLog, String userUuid) {
+		// no log in memory, this one should be called when job has to be exited ...
+
+		// log in job info in database
+		jobHandler.updateJobInfoDBException(JobType.EXPORT, exceptionToLog, userUuid);
+	}
 
 	/**
 	 * Add export result data to export job info and "logs" End-Info 

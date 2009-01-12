@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
@@ -29,6 +31,8 @@ import de.ingrid.utils.IngridDocument;
  * Encapsulates all Catalog functionality concerning access, syslists etc. 
  */
 public class MdekIdcCatalogJob extends MdekIdcJob {
+
+	private static final Logger LOG = Logger.getLogger(MdekIdcCatalogJob.class);
 
 	private MdekCatalogService catalogService;
 	private MdekExportService exportService;
@@ -300,6 +304,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+			
+			// LOG EXCEPTION IN DATABASE Job Info !
+			logExportException(e, IdcEntityType.OBJECT, 0, userId);
+
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
@@ -357,6 +365,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+
+			// LOG EXCEPTION IN DATABASE Job Info !
+			logExportException(e, IdcEntityType.ADDRESS, 0, userId);
+
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
@@ -368,6 +380,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument exportObjects(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
 		boolean removeRunningJob = true;
+		int numToExport = 0;
 		try {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 0, false));
@@ -382,7 +395,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// find objects to export
 			List<String> expUuids = daoObjectNode.getObjectUuidsForExport(exportCriterion);
-			int numToExport = expUuids.size();
+			numToExport = expUuids.size();
 			
 			HashMap exportInfo = new HashMap();
 			byte[] expData = new byte[0];;
@@ -411,11 +424,31 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+
+			// LOG EXCEPTION IN DATABASE Job Info !
+			logExportException(e, IdcEntityType.OBJECT, numToExport, userId);
+
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
 			}
+		}
+	}
+
+	/** Logs given Exception (opens transaction !) in database for access via JobInfo !
+	 * Pass additional describing info. */
+	private void logExportException(RuntimeException e, 
+			IdcEntityType whichEntityType, int numToExport,
+			String userId) {
+		try {
+			genericDao.beginTransaction();
+			exportService.startExportJobInfo(IdcEntityType.OBJECT, numToExport, userId);
+			exportService.updateExportJobInfoException(e, userId);
+			genericDao.commitTransaction();				
+		} catch (RuntimeException e2) {
+			genericDao.rollbackTransaction();
+			LOG.warn("Problems logging Export Job Exception in database (JobInfo) !", e2);
 		}
 	}
 
@@ -429,9 +462,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// extract export info
 			HashMap exportInfo;
-			HashMap runningJobInfo = jobHandler.getRunningJobInfo(userId);
+			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.EXPORT, userId);
 			if (runningJobInfo.isEmpty()) {
-				// no job running, we extract import info from database
+				// no EXPORT job running, we extract import info from database
 				exportInfo = exportService.getExportJobInfoDB(userId, includeData);
 			} else {
 				// job running, we extract export info from running job info (in memory)
@@ -495,11 +528,28 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.rollbackTransaction();
 			RuntimeException handledExc = errorHandler.handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+
+			// LOG EXCEPTION IN DATABASE Job Info !
+			logImportException(e, userId);
+
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
 			}
+		}
+	}
+
+	/** Logs given Exception (opens transaction !) in database for access via JobInfo ! */
+	private void logImportException(RuntimeException e, String userId) {
+		try {
+			genericDao.beginTransaction();
+			importService.startImportJobInfo(userId);
+			importService.updateImportJobInfoException(e, userId);
+			genericDao.commitTransaction();				
+		} catch (RuntimeException e2) {
+			genericDao.rollbackTransaction();
+			LOG.warn("Problems logging Import Job Exception in database (JobInfo) !", e2);
 		}
 	}
 
@@ -511,9 +561,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// extract import info
 			HashMap importInfo;
-			HashMap runningJobInfo = jobHandler.getRunningJobInfo(userId);
+			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.IMPORT, userId);
 			if (runningJobInfo.isEmpty()) {
-				// no job running, we extract import info from database
+				// no IMPORT job running, we extract import info from database
 				importInfo = importService.getImportJobInfoDB(userId);
 			} else {
 				// job running, we extract import info from running job info (in memory)
