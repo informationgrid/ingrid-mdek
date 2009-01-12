@@ -12,7 +12,7 @@ public class MdekException extends RuntimeException {
 
     private MdekException() {}
 
-	/** Throws UNSPECIFIED ERROR ! Just used for testing ! */
+	/** Throws UNSPECIFIED ERROR ! better encapsulate specific error in exception ! */
     public MdekException(String description) {
     	super(description);
     }
@@ -42,11 +42,14 @@ public class MdekException extends RuntimeException {
     }
 
 	public String toString() {
-		String retStr = "";
+		String retStr = getMessage();
+		if (retStr == null) {
+			retStr = "";
+		}
 		
 		for (MdekError err : errors) {
 			if (retStr.length() > 0) {
-				retStr += ", ";				
+				retStr += "\n";				
 			}
 			retStr += err;
 		}

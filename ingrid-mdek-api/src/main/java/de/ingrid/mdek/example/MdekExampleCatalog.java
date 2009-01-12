@@ -154,13 +154,15 @@ class MdekExampleCatalogThread extends Thread {
 		//   15C69C20-FE15-11D2-AF34-0060084A4596
 		//    2C997C68-2247-11D3-AF51-0060084A4596
 		//     C1AA9CA6-772D-11D3-AF92-0060084A4596 // leaf
+		String objParentUuid = "15C69C20-FE15-11D2-AF34-0060084A4596";
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
 		String objLeafUuid = "C1AA9CA6-772D-11D3-AF92-0060084A4596";
 		// all further top nodes (5 top nodes at all)
-		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
+//		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
 //		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
 //		String topObjUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
-//		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
+		// NO SUB OBJECTS !
+		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
 
 		// ADDRESSES
 		// TOP ADDRESS
@@ -205,7 +207,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- backend version -----");
 		supertool.getVersion();
 
-		// -----------------------------------
+// -----------------------------------
 
 		System.out.println("\n\n=========================");
 		System.out.println("CATALOG");
@@ -230,7 +232,8 @@ class MdekExampleCatalogThread extends Thread {
 		catDoc.put(MdekKeys.PROVIDER_NAME, origProvider);
 		catDoc = supertool.storeCatalog(catDoc, true);
 
-		// -----------------------------------
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("SYSLISTS");
 		System.out.println("=========================");
@@ -241,7 +244,8 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- SysList Values language: " + catLang + " -----");
 		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLang);
 
-		// -----------------------------------
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("SYSGUIS");
 		System.out.println("=========================");
@@ -265,7 +269,8 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- get ALL SYSGUI Elements -----");
 		supertool.getSysGuis(null);
 
-		// -----------------------------------
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("SYS ADDITIONAL FIELDS (Definitions)");
 		System.out.println("=========================");
@@ -279,7 +284,8 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- ALL SysAdditionalFields Values NO language -----");
 		supertool.getSysAdditionalFields(null, null);
 
-		// -----------------------------------
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("EXPORT OBJECTS");
 		System.out.println("=========================");
@@ -374,7 +380,8 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getExportInfo(true);
 */
 
-		// -----------------------------------
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("EXPORT ADDRESSES");
 		System.out.println("=========================");
@@ -419,7 +426,8 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getExportInfo(true);
 */
 
-		// -----------------------------------
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("IMPORT");
 		System.out.println("=========================");
@@ -440,6 +448,8 @@ class MdekExampleCatalogThread extends Thread {
 		addrImpTopDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
 		addrImpTopDoc = supertool.storeAddress(addrImpTopDoc, false);
 		String addrImpNodeUuid = (String) addrImpTopDoc.get(MdekKeys.UUID);
+
+// -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: UPDATE EXISTING OBJECTS (UUID) -----");
@@ -524,6 +534,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.importEntities(importExistingObjBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
+// -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: NEW OBJECTS (UUID) -----");
@@ -628,6 +639,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteObject(newUuid1, true);
 
+// -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: ORIG_IDS -----");
@@ -753,7 +765,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.importEntities(importArcGisExistingOrigId, objImpNodeUuid, addrImpNodeUuid, false, false);
 		supertool.fetchObject(topObjUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
-		System.out.println("\n\n----- import ARCGIS object (no uuid) with NEW ORIG_ID as PUBLISHED -> new node underneath import node -----");
+		System.out.println("\n----- import ARCGIS object (no uuid) with NEW ORIG_ID as PUBLISHED -> new node underneath import node -----");
 		supertool.importEntities(importArcGisNewOrigId, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objImpNodeUuid);
 
@@ -762,7 +774,62 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
 
-		// -----------------------------------
+// -----------------------------------
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: MOVE OBJECT -----");
+		System.out.println("-------------------------------------");
+
+		// import data: move branch under top object !
+		importUnzipped = exportExistingObjBranchUnzipped.replace("<object-identifier>15C69C20-FE15-11D2-AF34-0060084A4596</object-identifier>",
+				"<object-identifier>" + topObjUuid5 + "</object-identifier>");
+		byte[] importMoveObjBranch = new byte[0];
+		try {
+			importMoveObjBranch = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n----- old state before import and MOVE -----");
+		System.out.println("\n----- FROM -----");
+		supertool.fetchSubObjects(objParentUuid);
+		System.out.println("\n----- TO -----");
+		supertool.fetchSubObjects(topObjUuid5);
+
+		System.out.println("\n\n----- import existing branch with DIFFERENT parent as WORKING VERSION -> move branch to new parent ! -----");
+		supertool.importEntities(importMoveObjBranch, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchSubObjects(objParentUuid);
+		supertool.fetchSubObjects(topObjUuid5);
+
+		System.out.println("\n----- Clean Up: move back to original position etc.-----");
+		supertool.moveObject(objUuid, objParentUuid, false);
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- import existing branch with DIFFERENT parent as PUBLISHED -> move branch to new parent ! -----");
+		supertool.importEntities(importMoveObjBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.fetchSubObjects(objParentUuid);
+		supertool.fetchSubObjects(topObjUuid5);
+
+		System.out.println("\n----- Clean Up: move back to original position etc.-----");
+		supertool.moveObject(objUuid, objParentUuid, false);
+
+
+		System.out.println("\n\n----- Enforce Error when Moving, set PubCondition of new parent to INTRANET  -----");
+		doc = supertool.fetchObject(topObjUuid5, FetchQuantity.EDITOR_ENTITY);
+		doc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		doc = supertool.publishObject(doc, true, false);
+
+		System.out.println("\n\n----- Import (PUBLISHED) causes Move causes Error (Intranet) -> branch keeps position, branch root stored as working version, subnodes PUBLISHED ! -----");
+		supertool.importEntities(importMoveObjBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.fetchSubObjects(objParentUuid);
+		supertool.fetchSubObjects(topObjUuid5);
+
+		System.out.println("\n----- Clean Up: back to Internet etc.-----");
+		doc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		doc = supertool.publishObject(doc, true, false);
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+// -----------------------------------
 
 		System.out.println("\n\n=========================");
 		System.out.println("CLEAN UP");
