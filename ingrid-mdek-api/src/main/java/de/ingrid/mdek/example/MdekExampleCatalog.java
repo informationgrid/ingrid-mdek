@@ -477,11 +477,27 @@ class MdekExampleCatalogThread extends Thread {
 			System.out.println(ex);			
 		}
 
-		System.out.println("\n----- separate import underneath import nodes AND publish -> ERROR -----");
+		// invalid XML file to test logging of exception in job info
+		// causes NumberFormatException
+		importUnzipped = exportExistingTopObjUnzipped.replace("<object-class id=\"", "<object-class id=\"MM");
+		byte[] importInvalidXML = new byte[0];
+		try {
+			importInvalidXML = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		
+		System.out.println("\n----- do SEPARATE IMPORT underneath import nodes AND publish -> ERROR -----");
 		supertool.importEntities(importExistingObjBranch, objImpNodeUuid, addrImpNodeUuid, true, true);
 
 
-		
+		System.out.println("\n\n----- import INVALID XML -> Exception logged in jobinfo ! -----");
+		supertool.importEntities(importInvalidXML, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getImportInfo();
+
+
+
 		System.out.println("\n\n----- EXISTING TOP NODE BEFORE IMPORT !!! -----");
 		supertool.setFullOutput(false);
 		supertool.fetchObject(topObjUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
