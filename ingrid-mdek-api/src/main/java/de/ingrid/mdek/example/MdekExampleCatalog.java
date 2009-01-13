@@ -893,6 +893,42 @@ class MdekExampleCatalogThread extends Thread {
 
 // -----------------------------------
 
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: ASSIGN TO QA -----");
+		System.out.println("-------------------------------------");
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- ENABLE WORKFLOW in catalog -----");
+		doc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+		System.out.println("\n----- state BEFORE import -----");
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n\n----- import branch with WRONG RELATIONS as WORKING VERSION -> WORKING VERSION -----");
+		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n\n----- import branch with WRONG RELATIONS as PUBLISHED -> ASSIGNED TO QA -----");
+		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n\n----- Clean Up -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- DISABLE WORKFLOW in catalog -----");
+		doc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.NO);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("CLEAN UP");
 		System.out.println("=========================");

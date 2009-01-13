@@ -38,6 +38,7 @@ public class MdekImportService implements IImporterCallback {
 
 	private static MdekImportService myInstance;
 
+	private MdekCatalogService catalogService;
 	private MdekObjectService objectService;
 	private MdekAddressService addressService;
 
@@ -67,6 +68,7 @@ public class MdekImportService implements IImporterCallback {
 
 	private MdekImportService(DaoFactory daoFactory,
 			IPermissionService permissionService) {
+		catalogService = MdekCatalogService.getInstance(daoFactory);
 		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
 		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
@@ -158,30 +160,50 @@ public class MdekImportService implements IImporterCallback {
 		if (publishImmediately && !storeWorkingVersion) {
 
 			// TODO: check mandatory data -> store working version if problems
-			// TODO: if workflow enabled assign to QA !
 
-			// first check whether publishing is possible with according parent
-			// NOTICE: determined parent can be null -> update of existing top object 
-			if (parentNode != null && !objectService.hasPublishedVersion(parentNode)) {
-				// parent not published -> store working version !
-				updateImportJobInfoMessages("! " + objTag + "Parent not published, we store working version", userUuid);
-				storeWorkingVersion = true;
-				
-			} else {
-				// ok, we publish. On error store working version !
-				errorMsg = "! " + objTag + "Problems publishing, we store working version : ";
+			// if workflow enabled then ASSIGN TO QA else PUBLISH !
+			if (catalogService.isWorkflowEnabled()) {
+				// Workflow enabled -> ASSIGN TO QA ! On error store working version !
+
+				errorMsg = "! " + objTag + "Problems assigning to QA, we store working version : ";
 				try {
-					// we DON'T force publication condition ! if error, we store working version !
-					objectService.publishObject(objDoc, false, userUuid, false, true);
+					objectService.assignObjectToQA(objDoc, userUuid, false, true);
 					updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-					updateImportJobInfoMessages(objTag + newObjMsg + "PUBLISHED", userUuid);
+					updateImportJobInfoMessages(objTag + newObjMsg + "ASSIGNED TO QA", userUuid);
 
 				} catch (Exception ex) {
 					updateImportJobInfoMessages(errorMsg + ex, userUuid);
 					storeWorkingVersion = true;
 					LOG.error(errorMsg, ex);
 				}
+
+			} else {
+				// Workflow disabled -> PUBLISH !  On error store working version !
+
+				// first check whether publishing is possible with according parent
+				// NOTICE: determined parent can be null -> update of existing top object 
+				if (parentNode != null && !objectService.hasPublishedVersion(parentNode)) {
+					// parent not published -> store working version !
+					updateImportJobInfoMessages("! " + objTag + "Parent not published, we store working version", userUuid);
+					storeWorkingVersion = true;
+					
+				} else {
+					// ok, we publish. On error store working version !
+					errorMsg = "! " + objTag + "Problems publishing, we store working version : ";
+					try {
+						// we DON'T force publication condition ! if error, we store working version !
+						objectService.publishObject(objDoc, false, userUuid, false, true);
+						updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
+						updateImportJobInfoMessages(objTag + newObjMsg + "PUBLISHED", userUuid);
+
+					} catch (Exception ex) {
+						updateImportJobInfoMessages(errorMsg + ex, userUuid);
+						storeWorkingVersion = true;
+						LOG.error(errorMsg, ex);
+					}
+				}
 			}
+
 		} else {
 			storeWorkingVersion = true;			
 		}

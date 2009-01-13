@@ -172,8 +172,9 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Store WORKING COPY of the object represented by the passed doc. MOD USER IS CALLING USER !
-	 * @see #storeWorkingCopy(IngridDocument oDocIn, String userId,	boolean checkPermissions, boolean calledByImporter=false)
+	 * Store WORKING COPY of the object represented by the passed doc. Called By IGE !
+	 * @see #storeWorkingCopy(IngridDocument oDocIn, String userId,	boolean checkPermissions,
+	 * 			boolean calledByImporter=false)
 	 */
 	public String storeWorkingCopy(IngridDocument oDocIn, String userId, boolean checkPermissions) {
 		return storeWorkingCopy(oDocIn, userId, checkPermissions, false);
@@ -341,7 +342,7 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Publish the object represented by the passed doc. MOD USER IS CALLING USER !
+	 * Publish the object represented by the passed doc. Called By IGE !  
 	 * @see #publishObject(IngridDocument oDocIn, boolean forcePubCondition, String userId,
 	 * 			boolean checkPermissions, boolean calledByImporter=false)
 	 */
@@ -646,18 +647,31 @@ public class MdekObjectService {
 	}
 
 	/**
+	 * Assign object to QA. Called By IGE !
+	 * @see #assignObjectToQA(IngridDocument oDocIn, String userId,	boolean checkPermissions,
+	 * 			boolean calledByImporter=false)
+	 */
+	public String assignObjectToQA(IngridDocument oDocIn,
+			String userId, boolean checkPermissions) {
+		return assignObjectToQA(oDocIn, userId, checkPermissions, false);
+	}
+
+	/**
 	 * Assign object to QA ! 
 	 * @param oDocIn doc representing object
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
 	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
+	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored object, will be generated if new object (no uuid passed in doc)
 	 */
 	public String assignObjectToQA(IngridDocument oDocIn,
-			String userId, boolean checkPermissions) {
+			String userId, boolean checkPermissions,
+			boolean calledByImporter) {
 		// set specific data to transfer to working copy !
 		workflowHandler.processDocOnAssignToQA(oDocIn, userId);
-		return storeWorkingCopy(oDocIn, userId, checkPermissions);
+		return storeWorkingCopy(oDocIn, userId, checkPermissions, calledByImporter);
 	}
 
 	/** Checks whether given object document has an "Auskunft" address set. */
