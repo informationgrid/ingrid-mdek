@@ -2,6 +2,8 @@ package de.ingrid.mdek.services.catalog;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -98,6 +100,7 @@ public class MdekImportService implements IImporterCallback {
 			// TODO: check if ORIG_ID exists, then delete ORG_ID ?
 			
 		} else {
+			// determine the according node in the catalog
 			existingNode = determineObjectNode(objDoc, userUuid);
 
 			// set mod_uuid and responsible_uuid. default is calling user.
@@ -113,12 +116,13 @@ public class MdekImportService implements IImporterCallback {
 			beanToDocMapper.mapResponsibleUser(responsibleUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
 		}
 
-
-		// where to add import object
+		// determine the parent (may differ from current parent)
 		ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, objImportNode, userUuid);
 
+		// remove relations to non existing entities
+		processObjectRelations(objDoc, userUuid);
+
 		// TODO: check additional fields -> store working version if problems
-		// TODO: check relations and remove if not present
 		
 
 		// MOVE EXISTING OBJECT ?
@@ -170,7 +174,7 @@ public class MdekImportService implements IImporterCallback {
 					// we DON'T force publication condition ! if error, we store working version !
 					objectService.publishObject(objDoc, false, userUuid, false, true);
 					updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-					updateImportJobInfoMessages(objTag + newObjMsg + "PUBLISHED !", userUuid);
+					updateImportJobInfoMessages(objTag + newObjMsg + "PUBLISHED", userUuid);
 
 				} catch (Exception ex) {
 					updateImportJobInfoMessages(errorMsg + ex, userUuid);
@@ -494,11 +498,48 @@ public class MdekImportService implements IImporterCallback {
 	}
 
 	/**
+	 * Remove all relations to non existing entities
+	 * @param objDoc the object to import represented by its doc.
+	 * @param userUuid calling user
+	 */
+	private void processObjectRelations(IngridDocument objDoc, String userUuid) {
+		// create object tag for messages !
+		String objTag = createObjectTag(objDoc);
+
+		// check object references. We process list instance in doc and remove non existing refs !
+		List<IngridDocument> objRefs = (List) objDoc.get(MdekKeys.OBJ_REFERENCES_TO);
+		for (Iterator i = objRefs.iterator(); i.hasNext();) {
+			IngridDocument objRef = (IngridDocument) i.next();
+			String objRefUuid = objRef.getString(MdekKeys.UUID);
+			if (objectService.loadByUuid(objRefUuid, null) == null) {
+				String refType = objRef.getString(MdekKeys.RELATION_TYPE_NAME);
+				updateImportJobInfoMessages("! " + objTag +
+					"REMOVED reference of type \"" + refType + "\" to non existing object " + objRefUuid, userUuid);
+				i.remove();
+			}
+		}
+
+		// check address references. We process list instance in doc and remove non existing refs !
+		List<IngridDocument> addrRefs = (List) objDoc.get(MdekKeys.ADR_REFERENCES_TO);
+		for (Iterator i = addrRefs.iterator(); i.hasNext();) {
+			IngridDocument addrRef = (IngridDocument) i.next();
+			String addrRefUuid = addrRef.getString(MdekKeys.UUID);
+			if (addressService.loadByUuid(addrRefUuid, null) == null) {
+				String refType = addrRef.getString(MdekKeys.RELATION_TYPE_NAME);
+				updateImportJobInfoMessages("! " + objTag +
+					"REMOVED reference of type \"" + refType + "\" to non existing address " + addrRefUuid, userUuid);
+				i.remove();
+			}
+		}
+	}
+
+	/**
 	 * Move existing node to "new" parent node if parent in IMPORT differs and exists !
 	 * @param objDoc the object to import represented by its doc.
 	 * 		NOTICE: already processed ! data MUST fit to passed nodes ! 
 	 * @param existingNode existing node like determined before. IF NULL non existent !
 	 * @param parentNode new parent node like determined before. IF NULL then has to be existing top node.
+	 * @param userUuid calling user
 	 */
 	private void processObjectMove(IngridDocument objDoc,
 			ObjectNode existingNode, ObjectNode parentNode, String userUuid)

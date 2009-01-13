@@ -783,30 +783,31 @@ class MdekExampleCatalogThread extends Thread {
 		// import data: move branch under top object !
 		importUnzipped = exportExistingObjBranchUnzipped.replace("<object-identifier>15C69C20-FE15-11D2-AF34-0060084A4596</object-identifier>",
 				"<object-identifier>" + topObjUuid5 + "</object-identifier>");
-		byte[] importMoveObjBranch = new byte[0];
+		byte[] importBranchMoveObj = new byte[0];
 		try {
-			importMoveObjBranch = MdekUtils.compressString(importUnzipped);						
+			importBranchMoveObj = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
-		System.out.println("\n----- old state before import and MOVE -----");
+		System.out.println("\n----- state before import and MOVE -----");
 		System.out.println("\n----- FROM -----");
 		supertool.fetchSubObjects(objParentUuid);
 		System.out.println("\n----- TO -----");
 		supertool.fetchSubObjects(topObjUuid5);
 
 		System.out.println("\n\n----- import existing branch with DIFFERENT parent as WORKING VERSION -> move branch to new parent ! -----");
-		supertool.importEntities(importMoveObjBranch, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.importEntities(importBranchMoveObj, objImpNodeUuid, addrImpNodeUuid, false, false);
 		supertool.fetchSubObjects(objParentUuid);
 		supertool.fetchSubObjects(topObjUuid5);
 
 		System.out.println("\n----- Clean Up: move back to original position etc.-----");
 		supertool.moveObject(objUuid, objParentUuid, false);
 		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
 
 		System.out.println("\n----- import existing branch with DIFFERENT parent as PUBLISHED -> move branch to new parent ! -----");
-		supertool.importEntities(importMoveObjBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.importEntities(importBranchMoveObj, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objParentUuid);
 		supertool.fetchSubObjects(topObjUuid5);
 
@@ -820,7 +821,7 @@ class MdekExampleCatalogThread extends Thread {
 		doc = supertool.publishObject(doc, true, false);
 
 		System.out.println("\n\n----- Import (PUBLISHED) causes Move causes Error (Intranet) -> branch keeps position, branch root stored as working version, subnodes PUBLISHED ! -----");
-		supertool.importEntities(importMoveObjBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.importEntities(importBranchMoveObj, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objParentUuid);
 		supertool.fetchSubObjects(topObjUuid5);
 
@@ -828,6 +829,67 @@ class MdekExampleCatalogThread extends Thread {
 		doc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
 		doc = supertool.publishObject(doc, true, false);
 		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
+
+// -----------------------------------
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: REMOVE RELATIONS -----");
+		System.out.println("-------------------------------------");
+
+		// import data: non existing relations !
+		importUnzipped = exportExistingObjBranchUnzipped;
+		// add wrong address relation
+		startIndex = importUnzipped.indexOf("</related-address>") + 18;
+		importUnzipped = importUnzipped.substring(0, startIndex) +
+        	"\n<related-address>\n" +
+        	"<type-of-relation list-id=\"505\" entry-id=\"7\">Auskunft</type-of-relation>\n" +
+        	"<address-identifier>MMMMMMMMMMMMMMM</address-identifier>\n" +
+        	"</related-address>\n" +
+			importUnzipped.substring(startIndex, importUnzipped.length());
+		// add wrong object relation
+		startIndex = importUnzipped.indexOf("</link-data-source>") + 19;
+		importUnzipped = importUnzipped.substring(0, startIndex) +
+			"\n<link-data-source>\n" +
+			"<object-link-type id=\"-1\">Detailinformation</object-link-type>" +
+			"<object-identifier>MMMMMMMMMMMMMMMMMMMMM</object-identifier>\n" +
+			"</link-data-source>\n" +
+			importUnzipped.substring(startIndex, importUnzipped.length());
+		byte[] importBranchWrongRelations = new byte[0];
+		try {
+			importBranchWrongRelations = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n----- state BEFORE import -----");
+		supertool.setFullOutput(true);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(false);
+
+		System.out.println("\n----- import branch with WRONG RELATIONS as WORKING VERSION -> remove wrong relations -----");
+		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, false, false);
+
+		System.out.println("\n----- state AFTER import -----");
+		supertool.setFullOutput(true);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(false);
+
+
+		System.out.println("\n\n----- import branch with WRONG RELATIONS as PUBLISHED -> remove wrong relations -----");
+		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, true, false);
+
+		System.out.println("\n----- state AFTER import -----");
+		supertool.setFullOutput(true);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(false);
+
+		System.out.println("\n----- Clean Up -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
 
 // -----------------------------------
 
