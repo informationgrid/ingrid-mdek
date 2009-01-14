@@ -325,7 +325,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setResponsibleUuid(extractResponsibleUserUuid(oDocIn));
 
 			// update associations
-			updateObjectReferences(oDocIn, oIn);
+			updateObjectReferences((List<IngridDocument>) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO), oIn);
 			updateT012ObjAdrs(oDocIn, oIn, howMuch);
 			updateSpatialReferences(oDocIn, oIn);
 			updateSearchtermObjs(oDocIn, oIn);
@@ -478,8 +478,7 @@ public class DocToBeanMapper implements IMapper {
 		return oRef;
 	}
 
-	private void updateObjectReferences(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> oDocsTo = (List) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO);
+	public void updateObjectReferences(List<IngridDocument> oDocsTo, T01Object oIn) {
 		if (oDocsTo == null) {
 			oDocsTo = new ArrayList<IngridDocument>(0);
 		}
@@ -840,7 +839,7 @@ public class DocToBeanMapper implements IMapper {
 			ref.setMarkDeleted(MdekUtils.NO);
 			ref.setExpiryState(MdekUtils.ExpiryState.INITIAL.getDbValue());
 			// save the address to get ID from database (not handled by hibernate ?)
-			dao.makePersistent(ref);			
+			dao.makePersistent(ref);
 			aIn.setAddrMetadataId(ref.getId());
 			aIn.setAddressMetadata(ref);
 		}

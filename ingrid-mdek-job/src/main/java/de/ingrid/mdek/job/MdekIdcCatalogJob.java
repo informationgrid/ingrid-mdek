@@ -513,6 +513,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// import
 			new XMLImporter(importService).importEntities(importData, userId);
+			
+			// post process object relations (Querverweise) after importing of all entities
+			importService.postProcessRelationsOfImport(userId);
 
 			// finish and fetch import info in database
 			importService.endImportJobInfo(userId);

@@ -208,7 +208,8 @@ public class MdekObjectService {
 			// simulate IGE call !
 			if (isNewObject) {
 				uuid = null;
-				oDocIn.remove(MdekKeys.UUID);
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				oDocIn.remove(MdekKeys.UUID);
 			}
 		}
 
@@ -220,7 +221,8 @@ public class MdekObjectService {
 			// simulate IGE call !
 			if (!isNewObject) {
 				parentUuid = null;
-				oDocIn.remove(MdekKeys.PARENT_UUID);
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				oDocIn.remove(MdekKeys.PARENT_UUID);
 			}
 		}
 		
@@ -276,7 +278,7 @@ public class MdekObjectService {
 		}
 		
 		// get/create working copy
-		if (!hasWorkingVersion(oNode)) {
+		if (!hasWorkingCopy(oNode)) {
 			// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
 
 			// set some missing data in doc which is NOT passed from client.
@@ -378,7 +380,8 @@ public class MdekObjectService {
 			// simulate IGE call !
 			if (isNewObject) {
 				uuid = null;
-				oDocIn.remove(MdekKeys.UUID);
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				oDocIn.remove(MdekKeys.UUID);
 			}
 		}
 
@@ -390,7 +393,8 @@ public class MdekObjectService {
 			// simulate IGE call !
 			if (!isNewObject) {
 				parentUuid = null;
-				oDocIn.remove(MdekKeys.PARENT_UUID);
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				oDocIn.remove(MdekKeys.PARENT_UUID);
 			}
 		}
 
@@ -594,7 +598,7 @@ public class MdekObjectService {
 			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
 
 			// perform delete of working copy only if really different version
-			if (hasWorkingVersion(oNode)) {
+			if (hasWorkingCopy(oNode)) {
 				// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
 				T01Object oWorkingCopy = oNode.getT01ObjectWork();
 				IngridDocument commentsDoc =
@@ -766,7 +770,7 @@ public class MdekObjectService {
 
 	/** Checks whether given Object has a published version.
 	 * @param oNode object to check represented by node !
-	 * @return true=object has a published version. NOTICE: working copy may differ<br>
+	 * @return true=object has a published version. NOTICE: working version may be different<br>
 	 * 	false=not published yet, only working version exists !
 	 */
 	public boolean hasPublishedVersion(ObjectNode oNode) {
@@ -777,12 +781,12 @@ public class MdekObjectService {
 		return true;
 	}
 
-	/** Checks whether given Object has a working version !
+	/** Checks whether given Object has a working copy !
 	 * @param oNode object to check represented by node !
 	 * @return true=object has different working copy OR not published yet<br>
-	 * 	false=no working version OR same as published version !
+	 * 	false=no working version same as published version (OR no working version at all, should not happen)
 	 */
-	private boolean hasWorkingVersion(ObjectNode oNode) {
+	public boolean hasWorkingCopy(ObjectNode oNode) {
 		Long oWorkId = oNode.getObjId(); 
 		Long oPubId = oNode.getObjIdPublished(); 
 		if (oWorkId == null || oWorkId.equals(oPubId)) {

@@ -859,8 +859,39 @@ class MdekExampleCatalogThread extends Thread {
 		try {
 			importBranchWrongRelations = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+
+		// import data: NEW object branch with existing parent and relation causing problems concerning state !
+		// (FROM is published, TO is not !
+		// new uuids
+		importUnzipped = exportExistingObjBranchUnzipped;
+		importUnzipped = importUnzipped.replace(objUuid, newUuid1);
+		importUnzipped = importUnzipped.replace(objLeafUuid, newUuid2);
+		// existing parent
+		existentParentUuid = objLeafUuid;
+		importUnzipped = importUnzipped.replace("15C69C20-FE15-11D2-AF34-0060084A4596", existentParentUuid);
+		// add object relation
+		startIndex = importUnzipped.indexOf("</link-data-source>") + 19;
+		importUnzipped = importUnzipped.substring(0, startIndex) +
+			"\n<link-data-source>\n" +
+			"<object-link-type id=\"-1\">Detailinformation</object-link-type>" +
+			"<object-identifier>" + newUuid2 + "</object-identifier>\n" +
+			"</link-data-source>\n" +
+			importUnzipped.substring(startIndex, importUnzipped.length());
+		// add wrong publication conditions ! Parent Intranet, child INTERNET !
+		importUnzipped = importUnzipped.replace("<publication-condition>1", "<publication-condition>2");
+		startIndex = importUnzipped.indexOf("</publication-condition>") + 24;
+		String tmpStr = importUnzipped.substring(startIndex, importUnzipped.length());
+		tmpStr = tmpStr.replace("<publication-condition>2", "<publication-condition>1");
+		importUnzipped = importUnzipped.substring(0, startIndex) + tmpStr;
+		byte[] importNewObjBranchRelationTargetIntranet = new byte[0];
+		try {
+			importNewObjBranchRelationTargetIntranet = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
+
 
 		System.out.println("\n----- state BEFORE import -----");
 		supertool.setFullOutput(true);
@@ -890,6 +921,24 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- Clean Up -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
+
+
+		System.out.println("\n\n----- import branch with RELATION INTRANET -> INTERNET as WORKING VERSION -> relation OK, references working versions ! -----");
+		supertool.importEntities(importNewObjBranchRelationTargetIntranet, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.setFullOutput(true);
+		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(false);
+		supertool.deleteObject(newUuid1, true);
+
+		System.out.println("\n\n----- import branch with RELATION INTRANET -> INTERNET as PUBLISHED (causes error, target is stored as WORKING VERSION)! -----");
+		System.out.println("-----  -> relation REMOVED ! source published, target not published ! -----");
+		supertool.importEntities(importNewObjBranchRelationTargetIntranet, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.setFullOutput(true);
+		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(false);
+		supertool.deleteObject(newUuid1, true);
 
 // -----------------------------------
 

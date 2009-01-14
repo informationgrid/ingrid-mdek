@@ -1,5 +1,6 @@
 package de.ingrid.mdek.services.catalog;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,7 +17,10 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
+import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -45,6 +49,10 @@ public class MdekImportService implements IImporterCallback {
 	private MdekJobHandler jobHandler;
 
 	private BeanToDocMapper beanToDocMapper;
+	private DocToBeanMapper docToBeanMapper;
+
+	/** Generic dao for class unspecific operations !!! */
+	private IGenericDao<IEntity> dao;
 
 	// static keys for accessing data stored in running job info !
 	/** Value: ObjectNode */
@@ -55,8 +63,12 @@ public class MdekImportService implements IImporterCallback {
 	private final static String KEY_PUBLISH_IMMEDIATELY = "IMPORTSERVICE_PUBLISH_IMMEDIATELY";
 	/** Value: Boolean */
 	private final static String KEY_DO_SEPARATE_IMPORT = "IMPORTSERVICE_DO_SEPARATE_IMPORT";
-	/** Value: HashMap */
+	/** Holds map with mapping of old to new UUID for existing entities when "separate import" 
+	 * Value: HashMap */
 	private final static String KEY_SEPARATE_IMPORT_UUID_MAP = "IMPORTSERVICE_SEPARATE_IMPORT_UUID_MAP";
+	/** Holds map with list of object references for every processed object<br>
+	 * Value: HashMap */
+	private final static String KEY_OBJECT_REFERENCES_MAP = "IMPORTSERVICE_OBJECT_REFERENCES_MAP";
 
 
 	/** Get The Singleton */
@@ -77,6 +89,9 @@ public class MdekImportService implements IImporterCallback {
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
+		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+
+		dao = daoFactory.getDao(IEntity.class);
 	}
 
 	// ----------------------------------- IImporterCallback START ------------------------------------
@@ -127,8 +142,8 @@ public class MdekImportService implements IImporterCallback {
 			// determine the parent (may differ from current parent)
 			ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, objImportNode, userUuid);
 
-			// remove relations to non existing entities
-			processObjectRelations(objDoc, userUuid);
+			// process all relations to objects and addresses !
+			processRelationsOfObject(objDoc, userUuid);
 
 		// TODO: check additional fields -> store working version if problems
 		
@@ -219,6 +234,7 @@ public class MdekImportService implements IImporterCallback {
 
 		// create object tag for messages !
 		objTag = createObjectTag(objDoc);
+		String objUuid = objDoc.getString(MdekKeys.UUID);
 
 		if (storeWorkingVersion) {
 			errorMsg = "! " + objTag + "Problems storing working version : ";
@@ -229,7 +245,8 @@ public class MdekImportService implements IImporterCallback {
 
 			} catch (Exception ex) {
 				updateImportJobInfoMessages(errorMsg + ex.getMessage(), userUuid);
-				storeWorkingVersion = true;
+				// object was NOT persisted, we also remove remembered obj references of this object.
+				evictObjReferences(objUuid, userUuid);
 				LOG.error(errorMsg, ex);
 			}
 		}
@@ -386,6 +403,66 @@ public class MdekImportService implements IImporterCallback {
 		runningJobInfo.put(KEY_ADDR_IMPORT_NODE, addrImportNode);
 		runningJobInfo.put(KEY_PUBLISH_IMMEDIATELY, publishImmediately);
 		runningJobInfo.put(KEY_DO_SEPARATE_IMPORT, doSeparateImport);
+	}
+
+	/**
+	 * AFTER Import of all Entities process the imported Object-Object relations ("Querverweise"),
+	 * to guarantee no missing objects. Remove all relations to non existing entities or to entities
+	 * not in same state (e.g. published objects can only reference published objects !)
+	 * NOTICE: has to be called AFTER IMPORT of entities. Uses the relations stored in running job info ! 
+	 * @param userUuid calling user
+	 */
+	public void postProcessRelationsOfImport(String userUuid) {
+//		updateImportJobInfoMessages("\nSTART postprocessing of Object references", userUuid);
+
+		// extract map containing ALL object refs !
+		HashMap<String, List<IngridDocument>> allRefsMap = getObjectReferencesMap(userUuid);
+
+		// process all contained source objects
+		for (Iterator<String> i = allRefsMap.keySet().iterator(); i.hasNext();) {
+			String objUuid = i.next();
+			// create object tag for messages !
+			String objTag = createObjectTag(objUuid);
+			
+			// load object instance and add all references to existing objects.
+			// remove reference to non existent objects or to objects not in same state !
+			ObjectNode objNode = objectService.loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION);
+			if (objNode != null) {
+				boolean objIsPublished = !objectService.hasWorkingCopy(objNode);
+
+				// extract object refs from map and remove non existing ones
+				List<IngridDocument> objRefs = allRefsMap.get(objUuid);
+				for (Iterator<IngridDocument> j = objRefs.iterator(); j.hasNext();) {
+					IngridDocument objRef = j.next();
+					String objRefUuid = objRef.getString(MdekKeys.UUID);
+					String refType = objRef.getString(MdekKeys.RELATION_TYPE_NAME);
+
+					ObjectNode objRefNode = objectService.loadByUuid(objRefUuid, null);
+					if (objRefNode == null) {
+						// remove if not found !
+						updateImportJobInfoMessages("! " + objTag +
+								"REMOVED reference of type \"" + refType + "\" to non existing object " + objRefUuid, userUuid);
+						j.remove();
+					} else {
+						// remove if not same state !
+						boolean objRefHasPublishedVersion = objectService.hasPublishedVersion(objRefNode);
+						if (objIsPublished && !objRefHasPublishedVersion) {
+							updateImportJobInfoMessages("! " + objTag +
+									"REMOVED reference of type \"" + refType + "\" to NON PUBLISHED object " + objRefUuid, userUuid);
+							j.remove();
+						}
+					}
+				}
+
+				// add remaining ones to object and store
+				T01Object obj = objNode.getT01ObjectWork();
+				docToBeanMapper.updateObjectReferences(objRefs, obj);
+				dao.makePersistent(obj);
+				
+			} else {
+				LOG.warn("source object " + objUuid + " not found for postprocessing of object references !");
+			}
+		}
 	}
 
 	/** Preprocess import doc, remove/fix wrong data from exporting catalog.
@@ -637,28 +714,21 @@ public class MdekImportService implements IImporterCallback {
 	}
 
 	/**
-	 * Remove all relations to non existing entities
-	 * @param objDoc the object to import represented by its doc.
+	 * Process all relations of the given objects meaning:
+	 * - object-object relations are removed and stored in running job info to be processed after import of all entities !
+	 * - relation to address is checked immediately and removed if address not present !
+	 * @param objDoc the object to import represented by its doc (containing all relations).
+	 * 		NOTICE: will be manipulated (relations to objs removed !)
 	 * @param userUuid calling user
 	 */
-	private void processObjectRelations(IngridDocument objDoc, String userUuid) {
+	private void processRelationsOfObject(IngridDocument objDoc, String userUuid) {
 		// create object tag for messages !
 		String objTag = createObjectTag(objDoc);
+		String objUuid = objDoc.getString(MdekKeys.UUID);
 
-		// check object references. We process list instance in doc and remove non existing refs !
-		List<IngridDocument> objRefs = (List) objDoc.get(MdekKeys.OBJ_REFERENCES_TO);
-		for (Iterator i = objRefs.iterator(); i.hasNext();) {
-			IngridDocument objRef = (IngridDocument) i.next();
-			String objRefUuid = objRef.getString(MdekKeys.UUID);
-			if (objectService.loadByUuid(objRefUuid, null) == null) {
-				String refType = objRef.getString(MdekKeys.RELATION_TYPE_NAME);
-				updateImportJobInfoMessages("! " + objTag +
-					"REMOVED reference of type \"" + refType + "\" to non existing object " + objRefUuid, userUuid);
-				i.remove();
-			}
-		}
+		// ADDRESS REFERENCES
 
-		// check address references. We process list instance in doc and remove non existing refs !
+		// We process list instance in doc and remove non existing refs !
 		List<IngridDocument> addrRefs = (List) objDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		for (Iterator i = addrRefs.iterator(); i.hasNext();) {
 			IngridDocument addrRef = (IngridDocument) i.next();
@@ -670,6 +740,63 @@ public class MdekImportService implements IImporterCallback {
 				i.remove();
 			}
 		}
+
+		// OBJECT REFERENCES
+
+		// remove all relations, but remember them in running job info to be
+		// processed after import of entities ! We process list instance in doc !
+		List<IngridDocument> objRefs = (List) objDoc.get(MdekKeys.OBJ_REFERENCES_TO);
+		rememberObjReferences(objUuid, objRefs, userUuid);
+		objDoc.remove(MdekKeys.OBJ_REFERENCES_TO);
+	}
+	
+	/** Store the given object-object relations in running job info for later access !
+	 * @param fromUuid source object
+	 * @param toObjRefs list of target objects and relation details as stored in import doc !
+	 * @param userUuid calling user
+	 */
+	private void rememberObjReferences(String fromUuid, List<IngridDocument> toObjRefs,
+			String userUuid) {
+		if (toObjRefs == null) {
+			return;
+		}
+
+		// extract map containing ALL object refs !
+		HashMap<String, List<IngridDocument>> allRefsMap = getObjectReferencesMap(userUuid);
+		
+		// extract refs of our object and add ref
+		List<IngridDocument> objRefs = allRefsMap.get(fromUuid);
+		if (objRefs == null) {
+			objRefs = new ArrayList<IngridDocument>();
+			allRefsMap.put(fromUuid, objRefs);
+		}
+		objRefs.addAll(toObjRefs);
+	}
+
+	/** Removes all remembered object references of the given object from running job info
+	 * to avoid post processing. */
+	private void evictObjReferences(String fromUuid, String userUuid) {
+		// extract map containing ALL object refs !
+		HashMap<String, List<IngridDocument>> allRefsMap = getObjectReferencesMap(userUuid);
+
+		// remove references of given obj
+		allRefsMap.remove(fromUuid);
+	}
+	
+	/** Extract map from running job info containing object references of all processed objects.
+	 * @param userUuid calling user
+	 * @return the map. NEVER null.
+	 */
+	private HashMap<String, List<IngridDocument>> getObjectReferencesMap(String userUuid) {
+		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		HashMap<String, List<IngridDocument>> allRefsMap =
+			(HashMap<String, List<IngridDocument>>) runningJobInfo.get(KEY_OBJECT_REFERENCES_MAP);
+		if (allRefsMap == null) {
+			allRefsMap = new HashMap<String, List<IngridDocument>>();
+			runningJobInfo.put(KEY_OBJECT_REFERENCES_MAP, allRefsMap);
+		}
+		
+		return allRefsMap;
 	}
 
 	/**
@@ -718,19 +845,27 @@ public class MdekImportService implements IImporterCallback {
 		return new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, message));
 	}
 
-	/** Creates a object tag from object doc ! To be displayed as object "identifier". */
+	/** Creates object tag from object doc ! To be displayed as object "identifier". */
 	private String createObjectTag(IngridDocument objDoc) {
 		return createObjectTag(objDoc.getString(MdekKeys.UUID),
 				objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER),
 				objDoc.getString(MdekKeys.PARENT_UUID));
 	}
 
-	/** Creates a object tag to be displayed as object "identifier". */
+	/** Creates object tag to be displayed as object "identifier". */
 	private String createObjectTag(String objUuid, String origId, String parentUuid) {
 		String tag = "Object";
 		tag += " UUID:" + objUuid;
 		tag += " ORIG_ID:" + origId;
 		tag += " PARENT_UUID:" + parentUuid;
+		tag += " >> ";
+
+		return tag;
+	}
+	/** Creates object tag simply from UUID ! To be displayed as object "identifier". */
+	private String createObjectTag(String objUuid) {
+		String tag = "Object";
+		tag += " UUID:" + objUuid;
 		tag += " >> ";
 
 		return tag;
