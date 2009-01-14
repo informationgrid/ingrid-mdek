@@ -204,7 +204,7 @@ public class MdekObjectService {
 		// we check via select and SIMULATE IGE call (so all checks work !)
 		String importerUuid = uuid;
 		if (calledByImporter) {
-			isNewObject = (daoObjectNode.loadByUuid(uuid, null) == null);
+			isNewObject = (loadByUuid(uuid, null) == null);
 			// simulate IGE call !
 			if (isNewObject) {
 				uuid = null;
@@ -374,7 +374,7 @@ public class MdekObjectService {
 		// we check via select and SIMULATE IGE call (so all checks work !)
 		String importerUuid = uuid;
 		if (calledByImporter) {
-			isNewObject = (daoObjectNode.loadByUuid(uuid, null) == null);
+			isNewObject = (loadByUuid(uuid, null) == null);
 			// simulate IGE call !
 			if (isNewObject) {
 				uuid = null;
