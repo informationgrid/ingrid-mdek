@@ -55,6 +55,8 @@ public class MdekImportService implements IImporterCallback {
 	private final static String KEY_PUBLISH_IMMEDIATELY = "IMPORTSERVICE_PUBLISH_IMMEDIATELY";
 	/** Value: Boolean */
 	private final static String KEY_DO_SEPARATE_IMPORT = "IMPORTSERVICE_DO_SEPARATE_IMPORT";
+	/** Value: HashMap */
+	private final static String KEY_SEPARATE_IMPORT_UUID_MAP = "IMPORTSERVICE_SEPARATE_IMPORT_UUID_MAP";
 
 
 	/** Get The Singleton */
@@ -94,16 +96,21 @@ public class MdekImportService implements IImporterCallback {
 		// process import doc, remove/fix wrong data from exporting catalog
 		preprocessObjectDoc(objDoc);
 
-		// the according catalog node to update, null if new node !
-		ObjectNode existingNode = null;
+		boolean storeWorkingVersion = false;
+		String objTag;
+		String errorMsg;
+		String newObjMsg = "NEW object ";
 
 		if (doSeparateImport) {
-			// TODO: check if UUID exists, then create and set new UUID. Store UUID mapping in Map and use for all import objects (so relations stay the same) !
-			// TODO: check if ORIG_ID exists, then delete ORG_ID ?
+			processObjectDocOnSeparateImport(objDoc, objImportNode.getObjUuid(), userUuid);
+
+		// TODO: check additional fields -> store working version if problems ?
+		
+			storeWorkingVersion = true;
 			
 		} else {
 			// determine the according node in the catalog
-			existingNode = determineObjectNode(objDoc, userUuid);
+			ObjectNode existingNode = determineObjectNode(objDoc, userUuid);
 
 			// set mod_uuid and responsible_uuid. default is calling user.
 			String modUuid = userUuid;
@@ -116,100 +123,102 @@ public class MdekImportService implements IImporterCallback {
 			}
 			beanToDocMapper.mapModUser(modUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
 			beanToDocMapper.mapResponsibleUser(responsibleUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
-		}
 
-		// determine the parent (may differ from current parent)
-		ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, objImportNode, userUuid);
+			// determine the parent (may differ from current parent)
+			ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, objImportNode, userUuid);
 
-		// remove relations to non existing entities
-		processObjectRelations(objDoc, userUuid);
+			// remove relations to non existing entities
+			processObjectRelations(objDoc, userUuid);
 
 		// TODO: check additional fields -> store working version if problems
 		
 
-		// MOVE EXISTING OBJECT ?
-		// ----------------------
+			// MOVE EXISTING OBJECT ?
+			// ----------------------
 
-		// create object tag for messages !
-		String objTag = createObjectTag(objDoc);
+			// create object tag for messages !
+			objTag = createObjectTag(objDoc);
 
-		// move existing object if valid (import structure has higher priority than existing structure).
-		String errorMsg = "! " + objTag + "Problems moving, we store working version : ";
-		boolean storeWorkingVersion = false;
-		try {
-			processObjectMove(objDoc, existingNode, parentNode, userUuid);
+			// move existing object if valid (import structure has higher priority than existing structure).
+			errorMsg = "! " + objTag + "Problems moving, we store working version : ";
+			try {
+				processObjectMove(objDoc, existingNode, parentNode, userUuid);
 
-		} catch (Exception ex) {
-			updateImportJobInfoMessages(errorMsg + ex, userUuid);
-			storeWorkingVersion = true;
-			LOG.error(errorMsg, ex);
-		}
+			} catch (Exception ex) {
+				updateImportJobInfoMessages(errorMsg + ex, userUuid);
+				storeWorkingVersion = true;
+				LOG.error(errorMsg, ex);
+			}
 
-		// PUBLISH IMPORT OBJECT ?
-		// -----------------------
+			// PUBLISH IMPORT OBJECT ?
+			// -----------------------
 
-		// create object tag for messages !
-		objTag = createObjectTag(objDoc);
+			// create object tag for messages !
+			objTag = createObjectTag(objDoc);
 
-		// message whether node exists or not ! 
-		String newObjMsg = "EXISTING object ";
-		if (existingNode == null) {
-			newObjMsg = "NEW object ";
-		}
+			// message whether node exists or not ! 
+			if (existingNode != null) {
+				newObjMsg = "EXISTING object ";
+			}
 
-		if (publishImmediately && !storeWorkingVersion) {
+			if (publishImmediately && !storeWorkingVersion) {
 
-			// TODO: check mandatory data -> store working version if problems
+				// TODO: check mandatory data -> store working version if problems
 
-			// if workflow enabled then ASSIGN TO QA else PUBLISH !
-			if (catalogService.isWorkflowEnabled()) {
-				// Workflow enabled -> ASSIGN TO QA ! On error store working version !
+				// if workflow enabled then ASSIGN TO QA else PUBLISH !
+				if (catalogService.isWorkflowEnabled()) {
+					// Workflow enabled -> ASSIGN TO QA ! On error store working version !
 
-				errorMsg = "! " + objTag + "Problems assigning to QA, we store working version : ";
-				try {
-					objectService.assignObjectToQA(objDoc, userUuid, false, true);
-					updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-					updateImportJobInfoMessages(objTag + newObjMsg + "ASSIGNED TO QA", userUuid);
-
-				} catch (Exception ex) {
-					updateImportJobInfoMessages(errorMsg + ex, userUuid);
-					storeWorkingVersion = true;
-					LOG.error(errorMsg, ex);
-				}
-
-			} else {
-				// Workflow disabled -> PUBLISH !  On error store working version !
-
-				// first check whether publishing is possible with according parent
-				// NOTICE: determined parent can be null -> update of existing top object 
-				if (parentNode != null && !objectService.hasPublishedVersion(parentNode)) {
-					// parent not published -> store working version !
-					updateImportJobInfoMessages("! " + objTag + "Parent not published, we store working version", userUuid);
-					storeWorkingVersion = true;
-					
-				} else {
-					// ok, we publish. On error store working version !
-					errorMsg = "! " + objTag + "Problems publishing, we store working version : ";
+					errorMsg = "! " + objTag + "Problems assigning to QA, we store working version : ";
 					try {
-						// we DON'T force publication condition ! if error, we store working version !
-						objectService.publishObject(objDoc, false, userUuid, false, true);
+						objectService.assignObjectToQA(objDoc, userUuid, false, true);
 						updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-						updateImportJobInfoMessages(objTag + newObjMsg + "PUBLISHED", userUuid);
+						updateImportJobInfoMessages(objTag + newObjMsg + "ASSIGNED TO QA", userUuid);
 
 					} catch (Exception ex) {
 						updateImportJobInfoMessages(errorMsg + ex, userUuid);
 						storeWorkingVersion = true;
 						LOG.error(errorMsg, ex);
 					}
-				}
-			}
 
-		} else {
-			storeWorkingVersion = true;			
+				} else {
+					// Workflow disabled -> PUBLISH !  On error store working version !
+
+					// first check whether publishing is possible with according parent
+					// NOTICE: determined parent can be null -> update of existing top object 
+					if (parentNode != null && !objectService.hasPublishedVersion(parentNode)) {
+						// parent not published -> store working version !
+						updateImportJobInfoMessages("! " + objTag + "Parent not published, we store working version", userUuid);
+						storeWorkingVersion = true;
+						
+					} else {
+						// ok, we publish. On error store working version !
+						errorMsg = "! " + objTag + "Problems publishing, we store working version : ";
+						try {
+							// we DON'T force publication condition ! if error, we store working version !
+							objectService.publishObject(objDoc, false, userUuid, false, true);
+							updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
+							updateImportJobInfoMessages(objTag + newObjMsg + "PUBLISHED", userUuid);
+
+						} catch (Exception ex) {
+							updateImportJobInfoMessages(errorMsg + ex, userUuid);
+							storeWorkingVersion = true;
+							LOG.error(errorMsg, ex);
+						}
+					}
+				}
+
+			} else {
+				storeWorkingVersion = true;			
+			}
 		}
+
 
 		// STORE WORKING COPY IMPORT OBJECT ?
 		// ----------------------------------
+
+		// create object tag for messages !
+		objTag = createObjectTag(objDoc);
 
 		if (storeWorkingVersion) {
 			errorMsg = "! " + objTag + "Problems storing working version : ";
@@ -381,7 +390,7 @@ public class MdekImportService implements IImporterCallback {
 
 	/** Preprocess import doc, remove/fix wrong data from exporting catalog.
 	 * @param importObjDoc the object to import represented by its doc. Will be manipulated !
-	 * @return again the preprocessed importObjDoc (same instance as passed one !) 
+	 * @return the preprocessed importObjDoc (same instance as passed one !) 
 	 */
 	private IngridDocument preprocessObjectDoc(IngridDocument importObjDoc) {
 		if (importObjDoc.get(MdekKeys.UUID) != null && importObjDoc.getString(MdekKeys.UUID).trim().length() == 0) {
@@ -401,6 +410,114 @@ public class MdekImportService implements IImporterCallback {
 		// TODO: check and repair further import data ?
 
 		return importObjDoc;
+	}
+
+	/**
+	 * Processes the passed doc, so that the node will be created under import node under according parent !
+	 * If UUID exists then a new one will be set to create a new object ! Then the ORIG_ID is removed if not unique.
+	 * The new parent UUID is determined from already mapped objects.
+	 * @param objDoc the object to import represented by its doc. Will be manipulated !
+	 * @param objImportUuid the UUID of the import node for objects
+	 * @param userUuid calling user
+	 * @return the processed objDoc (same instance as passed one !) 
+	 */
+	private IngridDocument processObjectDocOnSeparateImport(IngridDocument objDoc, String objImportUuid,
+			String userUuid) {
+		// first extract map of mapped uuids !
+		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		HashMap<String, String> uuidMap = (HashMap<String, String>) runningJobInfo.get(KEY_SEPARATE_IMPORT_UUID_MAP);
+		if (uuidMap == null) {
+			runningJobInfo.put(KEY_SEPARATE_IMPORT_UUID_MAP, new HashMap<String, String>());
+		}
+
+		String inUuid = objDoc.getString(MdekKeys.UUID);
+		String inOrigId = objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
+		String inParentUuid = objDoc.getString(MdekKeys.PARENT_UUID);
+
+		// process UUID, ORIG_ID
+
+		// check whether object exists. if so create new UUID to store new object and remember mapping !
+		String newUuid = inUuid;
+		String newOrigId = inOrigId;
+		if (inUuid != null) {
+			// first check map (maybe object already mapped ? then included multiple times in import ?)
+			if (uuidMap.get(inUuid) != null) {
+				newUuid = uuidMap.get(inUuid);
+			} else if (objectService.loadByUuid(inUuid, null) != null) {
+				// existing object, new UUID will be created !
+				newUuid = null;
+			}
+		}
+		// create new uuid to create new object !
+		if (newUuid == null) {
+			newUuid = UuidGenerator.getInstance().generateUuid();
+
+			// new object, check orig id and remove if not unique !
+			if (inOrigId != null &&
+				objectService.loadByOrigId(inOrigId,  null) != null) {
+				// same orig id set in other object, we remove this one
+				newOrigId = null;
+				objDoc.remove(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
+			}
+		}
+		objDoc.put(MdekKeys.UUID, newUuid);
+		uuidMap.put(inUuid, newUuid);
+		
+		// process PARENT UUID
+
+		String newParentUuid = inParentUuid;
+		if (inParentUuid != null) {
+			// get mapped UUID returns null if not mapped yet
+			newParentUuid = uuidMap.get(inParentUuid);
+		}
+		// if not mapped yet store under import node
+		if (newParentUuid == null) {
+			newParentUuid = objImportUuid;
+		}
+		objDoc.put(MdekKeys.PARENT_UUID, newParentUuid);
+
+		// log mapping !
+		String objTag = createObjectTag(inUuid, inOrigId, inParentUuid);
+		updateImportJobInfoMessages(objTag +
+				"MAPPED to UUID:" + newUuid + " ORIG_ID:" + newOrigId + " PARENT_UUID:" + newParentUuid, userUuid);
+
+		// process RELATIONS
+
+		// create object tag for messages !
+		objTag = createObjectTag(objDoc);
+
+		// check object references. We process list instance in doc and map UUIDs or remove non existing refs !
+		List<IngridDocument> objRefs = (List) objDoc.get(MdekKeys.OBJ_REFERENCES_TO);
+		for (Iterator i = objRefs.iterator(); i.hasNext();) {
+			IngridDocument objRef = (IngridDocument) i.next();
+			String objRefUuid = objRef.getString(MdekKeys.UUID);
+			if (uuidMap.get(objRefUuid) != null) {
+				// ref object created with new UUID, we replace UUID 
+				objRef.put(MdekKeys.UUID, uuidMap.get(objRefUuid));
+
+			} else {
+				// ALWAYS remove relation if new entity not created yet !
+				String refType = objRef.getString(MdekKeys.RELATION_TYPE_NAME);
+				updateImportJobInfoMessages("! " + objTag +
+					"REMOVED reference of type \"" + refType + "\" to non existing object " + objRefUuid, userUuid);
+				i.remove();
+			}
+		}
+
+		// check address references. We process list instance in doc and remove non existing refs !
+		List<IngridDocument> addrRefs = (List) objDoc.get(MdekKeys.ADR_REFERENCES_TO);
+		for (Iterator i = addrRefs.iterator(); i.hasNext();) {
+			IngridDocument addrRef = (IngridDocument) i.next();
+			String addrRefUuid = addrRef.getString(MdekKeys.UUID);
+			if (addressService.loadByUuid(addrRefUuid, null) == null) {
+				String refType = addrRef.getString(MdekKeys.RELATION_TYPE_NAME);
+				updateImportJobInfoMessages("! " + objTag +
+					"REMOVED reference of type \"" + refType + "\" to non existing address " + addrRefUuid, userUuid);
+				i.remove();
+			}
+		}
+
+		return objDoc;		
 	}
 
 	/**
