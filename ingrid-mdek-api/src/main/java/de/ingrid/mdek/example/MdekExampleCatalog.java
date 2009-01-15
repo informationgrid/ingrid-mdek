@@ -442,12 +442,34 @@ class MdekExampleCatalogThread extends Thread {
 		objImpTopDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
 		objImpTopDoc = supertool.storeObject(objImpTopDoc, false);
 		String objImpNodeUuid = (String) objImpTopDoc.get(MdekKeys.UUID);
+		// doc to be used afterwards for new creation of node !
+		objImpTopDoc.put(MdekKeys.UUID, objImpNodeUuid);
 
 		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
 		IngridDocument addrImpTopDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		addrImpTopDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
 		addrImpTopDoc = supertool.storeAddress(addrImpTopDoc, false);
 		String addrImpNodeUuid = (String) addrImpTopDoc.get(MdekKeys.UUID);
+		// doc to be used afterwards for new creation of node !
+		addrImpTopDoc.put(MdekKeys.UUID, addrImpNodeUuid);
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: INVALID XML -----");
+		System.out.println("-------------------------------------");
+
+		// invalid XML file to test logging of exception in job info
+		// causes NumberFormatException
+		String importUnzipped = exportExistingTopObjUnzipped.replace("<object-class id=\"", "<object-class id=\"MM");
+		byte[] importInvalidXML = new byte[0];
+		try {
+			importInvalidXML = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n----- import INVALID XML -> Exception logged in jobinfo ! -----");
+		supertool.importEntities(importInvalidXML, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getImportInfo();
 
 // -----------------------------------
 
@@ -470,7 +492,7 @@ class MdekExampleCatalogThread extends Thread {
 		// TODO: what else ?
 
 		// import data: single existing top node
-		String importUnzipped = exportExistingTopObjUnzipped.replace("<title>", "<title>MMImport: ");
+		importUnzipped = exportExistingTopObjUnzipped.replace("<title>", "<title>MMImport: ");
 		byte[] importExistingTopObj = new byte[0];
 		try {
 			importExistingTopObj = MdekUtils.compressString(importUnzipped);						
@@ -486,27 +508,6 @@ class MdekExampleCatalogThread extends Thread {
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
-
-		// invalid XML file to test logging of exception in job info
-		// causes NumberFormatException
-		importUnzipped = exportExistingTopObjUnzipped.replace("<object-class id=\"", "<object-class id=\"MM");
-		byte[] importInvalidXML = new byte[0];
-		try {
-			importInvalidXML = MdekUtils.compressString(importUnzipped);						
-		} catch (Exception ex) {
-			System.out.println(ex);			
-		}
-
-		
-		System.out.println("\n----- do SEPARATE IMPORT underneath import nodes AND publish -> ERROR -----");
-		supertool.importEntities(importExistingObjBranch, objImpNodeUuid, addrImpNodeUuid, true, true);
-
-
-		System.out.println("\n\n----- import INVALID XML -> Exception logged in jobinfo ! -----");
-		supertool.importEntities(importInvalidXML, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.getImportInfo();
-
-
 
 		System.out.println("\n\n----- EXISTING TOP NODE BEFORE IMPORT !!! -----");
 		supertool.setFullOutput(false);
@@ -533,6 +534,26 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- import existing branch as PUBLISHED -> check correct catalog id, moduser, responsibleuser -----");
 		supertool.importEntities(importExistingObjBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+
+		
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- SEPARATE Import: UPDATE EXISTING OBJECTS (UUID) -----");
+		System.out.println("-------------------------------------");
+
+		System.out.println("\n----- do SEPARATE IMPORT AND PUBLISH -> ERROR -----");
+		supertool.importEntities(importExistingObjBranch, objImpNodeUuid, addrImpNodeUuid, true, true);
+
+		System.out.println("\n----- separate import existing TOP NODE -> underneath import node, NEW uuid -----");
+		supertool.importEntities(importExistingTopObj, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+
+		System.out.println("\n----- separate import existing branch -> underneath import node, NEW Uuid, KEEP STRUCTURE -----");
+		supertool.importEntities(importExistingObjBranch, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+
+		System.out.println("\n----- Clean Up ImportNode -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpTopDoc, false);
 
 // -----------------------------------
 
@@ -637,6 +658,29 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.fetchSubObjects(newUuid1);
 		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		supertool.deleteObject(newUuid1, true);
+
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- SEPARATE Import: NEW OBJECTS (UUID) -----");
+		System.out.println("-------------------------------------");
+
+		System.out.println("\n----- separate import NEW TOP NODE -> underneath import node, KEEP UUID -----");
+		supertool.importEntities(importNewTopObj, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+		supertool.fetchObject(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.deleteObject(newUuidTop, true);
+
+		System.out.println("\n----- separate import NEW object branch with EXISTING parent -> underneath import node, KEEP UUIDs -----");
+		supertool.importEntities(importNewObjBranchExistentParent, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+		supertool.fetchSubObjects(newUuid1);
+		supertool.deleteObject(newUuid1, true);
+
+		System.out.println("\n----- separate import NEW object branch with NON EXISTING parent -> underneath import node, KEEP UUIDs -----");
+		supertool.importEntities(importNewObjBranchNonExistentParent, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+		supertool.fetchSubObjects(newUuid1);
 		supertool.deleteObject(newUuid1, true);
 
 // -----------------------------------
@@ -774,6 +818,63 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
 
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- SEPARATE Import: ORIG_IDS -----");
+		System.out.println("-------------------------------------");
+
+		System.out.println("\n----- separate import EXISTING top node with NEW ORIG_ID1 -> underneath import node, NEW UUID, KEEP ORIG_ID -----");
+		supertool.importEntities(importExistingTopObjOrigId1, objImpNodeUuid, addrImpNodeUuid, false, true);
+
+		System.out.println("\n----- Clean Up ImportNode -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpTopDoc, false);
+
+
+		System.out.println("\n\n----- store ORIG_ID1 in top node WORKING VERSION  -----");
+		doc = supertool.fetchObject(topObjUuid, FetchQuantity.EDITOR_ENTITY);
+		doc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, origId1);
+		supertool.storeObject(doc, false);
+
+		System.out.println("\n----- separate import EXISTING branch with ORIG_ID1 + ORIG_ID2 ->  underneath import node, NEW UUID, REMOVED ORIG_ID1, KEEP ORIG_ID2 -----");
+		supertool.importEntities(importExistingObjBranchOrigIds1_2, objImpNodeUuid, addrImpNodeUuid, false, true);
+
+		System.out.println("\n----- Clean Up ImportNode -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpTopDoc, false);
+
+
+		System.out.println("\n\n----- store ORIG_ID1 / ORIG_ID2 in branch WORKING VERSION  -----");
+		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
+		doc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, origId1);
+		supertool.storeObject(doc, false);
+		doc = supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY);
+		doc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, origId2);
+		supertool.storeObject(doc, false);
+
+		System.out.println("\n----- separate import NEW branch with ORIG_ID1 (multiple in catalog) and ORIG_ID2 (unique in catalog) -> underneath import node, NEW UUID, REMOVED ORIG_ID1, REMOVED ORIG_ID2 -----");
+		System.out.println("----- !!! LOG WARNING: ORIG_ID1 not unique !!! -----");
+		supertool.importEntities(importNewObjBranchOrigIds1_2, objImpNodeUuid, addrImpNodeUuid, false, true);
+
+		System.out.println("\n----- Clean Up ImportNode -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpTopDoc, false);
+
+
+		System.out.println("\n\n----- separate import ARCGIS object (no uuid) with EXISTING ORIG_ID -> underneath import node, NEW UUID, REMOVED ORIG_ID -----");
+		supertool.importEntities(importArcGisExistingOrigId, objImpNodeUuid, addrImpNodeUuid, false, true);
+
+		System.out.println("\n----- import ARCGIS object (no uuid) with NEW ORIG_ID -> underneath import node, NEW UUID, KEEP ORIG_ID -----");
+		supertool.importEntities(importArcGisNewOrigId, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+
+		System.out.println("\n----- Clean Up -----");
+		supertool.deleteObjectWorkingCopy(topObjUuid, true);
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpTopDoc, false);
+
 // -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
@@ -855,14 +956,14 @@ class MdekExampleCatalogThread extends Thread {
 			"<object-identifier>MMMMMMMMMMMMMMMMMMMMM</object-identifier>\n" +
 			"</link-data-source>\n" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
-		byte[] importBranchWrongRelations = new byte[0];
+		byte[] importExistBranchWrongRelations = new byte[0];
 		try {
-			importBranchWrongRelations = MdekUtils.compressString(importUnzipped);						
+			importExistBranchWrongRelations = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 
-		// import data: NEW object branch with existing parent and relation causing problems concerning state !
+		// import data: NEW object branch with Relation Parent(INTRANET) > Child(INTERNET) causing problems when publishing
 		// (FROM is published, TO is not !
 		// new uuids
 		importUnzipped = exportExistingObjBranchUnzipped;
@@ -899,8 +1000,8 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		supertool.setFullOutput(false);
 
-		System.out.println("\n----- import branch with WRONG RELATIONS as WORKING VERSION -> remove wrong relations -----");
-		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n----- import EXISTING branch with WRONG RELATIONS as WORKING VERSION -> remove wrong relations -----");
+		supertool.importEntities(importExistBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, false, false);
 
 		System.out.println("\n----- state AFTER import -----");
 		supertool.setFullOutput(true);
@@ -909,8 +1010,8 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.setFullOutput(false);
 
 
-		System.out.println("\n\n----- import branch with WRONG RELATIONS as PUBLISHED -> remove wrong relations -----");
-		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, true, false);
+		System.out.println("\n\n----- import EXISTING branch with WRONG RELATIONS as PUBLISHED -> remove wrong relations -----");
+		supertool.importEntities(importExistBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, true, false);
 
 		System.out.println("\n----- state AFTER import -----");
 		supertool.setFullOutput(true);
@@ -923,7 +1024,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
 
 
-		System.out.println("\n\n----- import branch with RELATION INTRANET -> INTERNET as WORKING VERSION -> relation OK, references working versions ! -----");
+		System.out.println("\n\n----- import NEW branch with RELATION Parent(INTRANET) > Child(INTERNET) as WORKING VERSION -> relation OK, references working versions ! -----");
 		supertool.importEntities(importNewObjBranchRelationTargetIntranet, objImpNodeUuid, addrImpNodeUuid, false, false);
 		supertool.setFullOutput(true);
 		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
@@ -931,7 +1032,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.setFullOutput(false);
 		supertool.deleteObject(newUuid1, true);
 
-		System.out.println("\n\n----- import branch with RELATION INTRANET -> INTERNET as PUBLISHED (causes error, target is stored as WORKING VERSION)! -----");
+		System.out.println("\n\n----- import NEW branch with RELATION Parent(INTRANET) > Child(INTERNET) as PUBLISHED (causes error, Child is stored as WORKING VERSION)! -----");
 		System.out.println("-----  -> relation REMOVED ! source published, target not published ! -----");
 		supertool.importEntities(importNewObjBranchRelationTargetIntranet, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.setFullOutput(true);
@@ -939,6 +1040,62 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		supertool.setFullOutput(false);
 		supertool.deleteObject(newUuid1, true);
+
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- SEPARATE Import: REMOVE RELATIONS -----");
+		System.out.println("-------------------------------------");
+
+		// import data: EXISTING object branch with Relation Parent(INTRANET) > Child(INTERNET) 
+		importUnzipped = exportExistingObjBranchUnzipped;
+		// add object relation
+		startIndex = importUnzipped.indexOf("</link-data-source>") + 19;
+		importUnzipped = importUnzipped.substring(0, startIndex) +
+			"\n<link-data-source>\n" +
+			"<object-link-type id=\"-1\">Detailinformation</object-link-type>" +
+			"<object-identifier>" + objLeafUuid + "</object-identifier>\n" +
+			"</link-data-source>\n" +
+			importUnzipped.substring(startIndex, importUnzipped.length());
+		// add wrong publication conditions ! Parent Intranet, child INTERNET !
+		importUnzipped = importUnzipped.replace("<publication-condition>1", "<publication-condition>2");
+		startIndex = importUnzipped.indexOf("</publication-condition>") + 24;
+		tmpStr = importUnzipped.substring(startIndex, importUnzipped.length());
+		tmpStr = tmpStr.replace("<publication-condition>2", "<publication-condition>1");
+		importUnzipped = importUnzipped.substring(0, startIndex) + tmpStr;
+		byte[] importExistObjBranchRelationParentChild = new byte[0];
+		try {
+			importExistObjBranchRelationParentChild = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n----- separate import EXISTING branch with WRONG RELATIONS -> remove wrong relations -----");
+		supertool.importEntities(importExistBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+
+		System.out.println("\n----- Clean Up ImportNode -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpTopDoc, false);
+
+
+		System.out.println("\n\n----- separate import NEW branch with RELATION Parent(INTRANET) > Child(INTERNET)! -----");
+		System.out.println("-----  -> KEEP relations \"to outside\", KEEP Parent > Child (always valid because WORKING VERSIONs) -----");
+		supertool.importEntities(importNewObjBranchRelationTargetIntranet, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+		supertool.setFullOutput(true);
+		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.setFullOutput(false);
+		supertool.deleteObject(newUuid1, true);
+
+		System.out.println("\n\n----- separate import EXISTING branch with RELATION Parent > Child ! -----");
+		System.out.println("-----  -> KEEP relations \"to outside\", MAPPED Parent > Child \"to inside\" (check in database) -----");
+		supertool.importEntities(importExistObjBranchRelationParentChild, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.fetchSubObjects(objImpNodeUuid);
+
+		System.out.println("\n----- Clean Up ImportNode -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpTopDoc, false);
 
 // -----------------------------------
 
@@ -957,12 +1114,12 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
 		System.out.println("\n\n----- import branch with WRONG RELATIONS as WORKING VERSION -> WORKING VERSION -----");
-		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.importEntities(importExistBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, false, false);
 		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
 		System.out.println("\n\n----- import branch with WRONG RELATIONS as PUBLISHED -> ASSIGNED TO QA -----");
-		supertool.importEntities(importBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.importEntities(importExistBranchWrongRelations, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		supertool.fetchObject(objLeafUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 

@@ -109,7 +109,7 @@ public class MdekImportService implements IImporterCallback {
 		int totalNum = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
 
 		// process import doc, remove/fix wrong data from exporting catalog
-		preprocessObjectDoc(objDoc);
+		preprocessObjectDoc(objDoc, userUuid);
 
 		boolean storeWorkingVersion = false;
 		String objTag;
@@ -117,7 +117,11 @@ public class MdekImportService implements IImporterCallback {
 		String newObjMsg = "NEW object ";
 
 		if (doSeparateImport) {
-			processObjectDocOnSeparateImport(objDoc, objImportNode.getObjUuid(), userUuid);
+			// process UUIDs, ORIG_IDs, PARENT_UUIDs so ALL objects will be created under import node ! 
+			processObjectUuidsOnSeparateImport(objDoc, objImportNode.getObjUuid(), userUuid);
+
+			// process all relations (to objects and addresses) !
+			processRelationsOfObject(objDoc, userUuid);
 
 		// TODO: check additional fields -> store working version if problems ?
 		
@@ -127,22 +131,10 @@ public class MdekImportService implements IImporterCallback {
 			// determine the according node in the catalog
 			ObjectNode existingNode = determineObjectNode(objDoc, userUuid);
 
-			// set mod_uuid and responsible_uuid. default is calling user.
-			String modUuid = userUuid;
-			String responsibleUuid = userUuid;
-			if (existingNode != null) {
-				// node found. take over mod_uuid and responsible_uuid FROM WORKING VERSION.
-				T01Object existingObj = existingNode.getT01ObjectWork();
-				modUuid = existingObj.getModUuid();
-				responsibleUuid = existingObj.getResponsibleUuid();
-			}
-			beanToDocMapper.mapModUser(modUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
-			beanToDocMapper.mapResponsibleUser(responsibleUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
-
 			// determine the parent (may differ from current parent)
 			ObjectNode parentNode = determineObjectParentNode(objDoc, existingNode, objImportNode, userUuid);
 
-			// process all relations to objects and addresses !
+			// process all relations (to objects and addresses) !
 			processRelationsOfObject(objDoc, userUuid);
 
 		// TODO: check additional fields -> store working version if problems
@@ -415,10 +407,16 @@ public class MdekImportService implements IImporterCallback {
 	public void postProcessRelationsOfImport(String userUuid) {
 //		updateImportJobInfoMessages("\nSTART postprocessing of Object references", userUuid);
 
+		// extract context
+		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		boolean doSeparateImport = (Boolean) runningJobInfo.get(KEY_DO_SEPARATE_IMPORT);
+
 		// extract map containing ALL object refs !
 		HashMap<String, List<IngridDocument>> allRefsMap = getObjectReferencesMap(userUuid);
+		// extract map containing mapping of old to new UUIDs (when separate import) !
+		HashMap<String, String> uuidMappingMap = getUuidMappingMap(userUuid);
 
-		// process all contained source objects
+		// process all contained objects ("source" objects)
 		for (Iterator<String> i = allRefsMap.keySet().iterator(); i.hasNext();) {
 			String objUuid = i.next();
 			// create object tag for messages !
@@ -430,13 +428,23 @@ public class MdekImportService implements IImporterCallback {
 			if (objNode != null) {
 				boolean objIsPublished = !objectService.hasWorkingCopy(objNode);
 
-				// extract object refs from map and remove non existing ones
+				// extract object refs from map and remove "corrupt" ones
 				List<IngridDocument> objRefs = allRefsMap.get(objUuid);
 				for (Iterator<IngridDocument> j = objRefs.iterator(); j.hasNext();) {
 					IngridDocument objRef = j.next();
 					String objRefUuid = objRef.getString(MdekKeys.UUID);
 					String refType = objRef.getString(MdekKeys.RELATION_TYPE_NAME);
 
+					// if separate import executed check whether UUID was mapped and replace !
+					if (doSeparateImport) {
+						if (uuidMappingMap.containsKey(objRefUuid)) {
+							objRefUuid = uuidMappingMap.get(objRefUuid);
+							// also document !!!!!! is base for update !!!
+							objRef.put(MdekKeys.UUID, objRefUuid);
+						}
+					}
+
+					// check "target" object and relation.
 					ObjectNode objRefNode = objectService.loadByUuid(objRefUuid, null);
 					if (objRefNode == null) {
 						// remove if not found !
@@ -467,9 +475,10 @@ public class MdekImportService implements IImporterCallback {
 
 	/** Preprocess import doc, remove/fix wrong data from exporting catalog.
 	 * @param importObjDoc the object to import represented by its doc. Will be manipulated !
+	 * @param userUuid calling user
 	 * @return the preprocessed importObjDoc (same instance as passed one !) 
 	 */
-	private IngridDocument preprocessObjectDoc(IngridDocument importObjDoc) {
+	private IngridDocument preprocessObjectDoc(IngridDocument importObjDoc, String userUuid) {
 		if (importObjDoc.get(MdekKeys.UUID) != null && importObjDoc.getString(MdekKeys.UUID).trim().length() == 0) {
 			importObjDoc.remove(MdekKeys.UUID);			
 		}
@@ -483,6 +492,10 @@ public class MdekImportService implements IImporterCallback {
 		importObjDoc.remove(MdekKeys.CATALOGUE_IDENTIFIER);
 		importObjDoc.remove(MdekKeys.DATE_OF_LAST_MODIFICATION);
 		importObjDoc.remove(MdekKeys.DATE_OF_CREATION);
+
+		// default: calling user is mod user and responsible !
+		beanToDocMapper.mapModUser(userUuid, importObjDoc, MappingQuantity.INITIAL_ENTITY);
+		beanToDocMapper.mapResponsibleUser(userUuid, importObjDoc, MappingQuantity.INITIAL_ENTITY);
 
 		// TODO: check and repair further import data ?
 
@@ -498,28 +511,23 @@ public class MdekImportService implements IImporterCallback {
 	 * @param userUuid calling user
 	 * @return the processed objDoc (same instance as passed one !) 
 	 */
-	private IngridDocument processObjectDocOnSeparateImport(IngridDocument objDoc, String objImportUuid,
+	private IngridDocument processObjectUuidsOnSeparateImport(IngridDocument objDoc, String objImportUuid,
 			String userUuid) {
 		// first extract map of mapped uuids !
-		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
-		HashMap<String, String> uuidMap = (HashMap<String, String>) runningJobInfo.get(KEY_SEPARATE_IMPORT_UUID_MAP);
-		if (uuidMap == null) {
-			runningJobInfo.put(KEY_SEPARATE_IMPORT_UUID_MAP, new HashMap<String, String>());
-		}
+		HashMap<String, String> uuidMappingMap = getUuidMappingMap(userUuid);
 
 		String inUuid = objDoc.getString(MdekKeys.UUID);
 		String inOrigId = objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
 		String inParentUuid = objDoc.getString(MdekKeys.PARENT_UUID);
 
-		// process UUID, ORIG_ID
+		// process UUID
 
 		// check whether object exists. if so create new UUID to store new object and remember mapping !
 		String newUuid = inUuid;
-		String newOrigId = inOrigId;
 		if (inUuid != null) {
 			// first check map (maybe object already mapped ? then included multiple times in import ?)
-			if (uuidMap.get(inUuid) != null) {
-				newUuid = uuidMap.get(inUuid);
+			if (uuidMappingMap.containsKey(inUuid)) {
+				newUuid = uuidMappingMap.get(inUuid);
 			} else if (objectService.loadByUuid(inUuid, null) != null) {
 				// existing object, new UUID will be created !
 				newUuid = null;
@@ -528,24 +536,32 @@ public class MdekImportService implements IImporterCallback {
 		// create new uuid to create new object !
 		if (newUuid == null) {
 			newUuid = UuidGenerator.getInstance().generateUuid();
-
-			// new object, check orig id and remove if not unique !
-			if (inOrigId != null &&
-				objectService.loadByOrigId(inOrigId,  null) != null) {
-				// same orig id set in other object, we remove this one
-				newOrigId = null;
-				objDoc.remove(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
-			}
 		}
 		objDoc.put(MdekKeys.UUID, newUuid);
-		uuidMap.put(inUuid, newUuid);
+		uuidMappingMap.put(inUuid, newUuid);
+		
+		// process ORIG_ID
+
+		// check orig id and remove if not unique !
+		String newOrigId = inOrigId;
+		if (inOrigId != null) {
+			ObjectNode oNodeWithSameOrigId = objectService.loadByOrigId(inOrigId,  null);
+			if (oNodeWithSameOrigId != null) {
+				// just to be sure: could be the same object (when included multiple times !? )
+				if (!newUuid.equals(oNodeWithSameOrigId.getObjUuid())) {
+					// same orig id set in other object, we remove this one
+					newOrigId = null;
+					objDoc.remove(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);				
+				}				
+			}
+		}
 		
 		// process PARENT UUID
 
 		String newParentUuid = inParentUuid;
 		if (inParentUuid != null) {
 			// get mapped UUID returns null if not mapped yet
-			newParentUuid = uuidMap.get(inParentUuid);
+			newParentUuid = uuidMappingMap.get(inParentUuid);
 		}
 		// if not mapped yet store under import node
 		if (newParentUuid == null) {
@@ -553,54 +569,24 @@ public class MdekImportService implements IImporterCallback {
 		}
 		objDoc.put(MdekKeys.PARENT_UUID, newParentUuid);
 
-		// log mapping !
-		String objTag = createObjectTag(inUuid, inOrigId, inParentUuid);
-		updateImportJobInfoMessages(objTag +
-				"MAPPED to UUID:" + newUuid + " ORIG_ID:" + newOrigId + " PARENT_UUID:" + newParentUuid, userUuid);
-
-		// process RELATIONS
-
-		// create object tag for messages !
-		objTag = createObjectTag(objDoc);
-
-		// check object references. We process list instance in doc and map UUIDs or remove non existing refs !
-		List<IngridDocument> objRefs = (List) objDoc.get(MdekKeys.OBJ_REFERENCES_TO);
-		for (Iterator i = objRefs.iterator(); i.hasNext();) {
-			IngridDocument objRef = (IngridDocument) i.next();
-			String objRefUuid = objRef.getString(MdekKeys.UUID);
-			if (uuidMap.get(objRefUuid) != null) {
-				// ref object created with new UUID, we replace UUID 
-				objRef.put(MdekKeys.UUID, uuidMap.get(objRefUuid));
-
-			} else {
-				// ALWAYS remove relation if new entity not created yet !
-				String refType = objRef.getString(MdekKeys.RELATION_TYPE_NAME);
-				updateImportJobInfoMessages("! " + objTag +
-					"REMOVED reference of type \"" + refType + "\" to non existing object " + objRefUuid, userUuid);
-				i.remove();
-			}
-		}
-
-		// check address references. We process list instance in doc and remove non existing refs !
-		List<IngridDocument> addrRefs = (List) objDoc.get(MdekKeys.ADR_REFERENCES_TO);
-		for (Iterator i = addrRefs.iterator(); i.hasNext();) {
-			IngridDocument addrRef = (IngridDocument) i.next();
-			String addrRefUuid = addrRef.getString(MdekKeys.UUID);
-			if (addressService.loadByUuid(addrRefUuid, null) == null) {
-				String refType = addrRef.getString(MdekKeys.RELATION_TYPE_NAME);
-				updateImportJobInfoMessages("! " + objTag +
-					"REMOVED reference of type \"" + refType + "\" to non existing address " + addrRefUuid, userUuid);
-				i.remove();
-			}
+		// log mapping if changed
+		if (!MdekUtils.isEqual(inUuid, newUuid) ||
+				!MdekUtils.isEqual(inOrigId, newOrigId) ||
+				!MdekUtils.isEqual(inParentUuid, newParentUuid)) {
+			String objTag = createObjectTag(inUuid, inOrigId, inParentUuid);
+			updateImportJobInfoMessages(objTag +
+					"MAPPED to UUID:" + newUuid + " ORIG_ID:" + newOrigId + " PARENT_UUID:" + newParentUuid, userUuid);
 		}
 
 		return objDoc;		
 	}
 
 	/**
-	 * Determine the according catalog node to the import entity. NOTICE: manipulates importObjDoc !
+	 * Determine the according catalog node to the import entity.
+	 * Also takes over mod-user and responsible-user if an existing node was found !
+	 * NOTICE: manipulates importObjDoc !
 	 * @param importObjDoc the object to import represented by its doc.
-	 * 		Necessary changes (e.g. keep catalog uuid instead of import uuid) will be adapted in this doc.
+	 * 		Necessary changes (e.g. keep existing uuid instead of import uuid) will be adapted in this doc.
 	 * @param userUuid calling user
 	 * @return the detected catalog node or null if new import entity
 	 */
@@ -638,7 +624,20 @@ public class MdekImportService implements IImporterCallback {
 			// set new uuid in doc to be used afterwards !
 			importObjDoc.put(MdekKeys.UUID, UuidGenerator.getInstance().generateUuid());
 		}
-		
+
+		// set mod_uuid and responsible_uuid from existing object.
+		if (existingNode != null) {
+			// take over FROM WORKING VERSION.
+			T01Object existingObj = existingNode.getT01ObjectWork();
+			String modUuid = existingObj.getModUuid();
+			String respUuid = existingObj.getResponsibleUuid();
+			// just to be sure: we take over only if set ??? check, at the moment we keep current object state !
+//			modUuid = (modUuid == null) ? userUuid : modUuid;
+//			respUuid = (respUuid == null) ? userUuid : respUuid;
+			beanToDocMapper.mapModUser(modUuid, importObjDoc, MappingQuantity.INITIAL_ENTITY);
+			beanToDocMapper.mapResponsibleUser(respUuid, importObjDoc, MappingQuantity.INITIAL_ENTITY);
+		}
+
 		return existingNode;
 	}
 
@@ -797,6 +796,21 @@ public class MdekImportService implements IImporterCallback {
 		}
 		
 		return allRefsMap;
+	}
+
+	/** Extract map from running job info containing mapping of old to new UUIDs (when executing separate import !).
+	 * @param userUuid calling user
+	 * @return the map. NEVER null.
+	 */
+	private HashMap<String, String> getUuidMappingMap(String userUuid) {
+		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		HashMap<String, String> uuidMap = (HashMap<String, String>) runningJobInfo.get(KEY_SEPARATE_IMPORT_UUID_MAP);
+		if (uuidMap == null) {
+			uuidMap = new HashMap<String, String>();
+			runningJobInfo.put(KEY_SEPARATE_IMPORT_UUID_MAP, uuidMap);
+		}
+
+		return uuidMap;
 	}
 
 	/**

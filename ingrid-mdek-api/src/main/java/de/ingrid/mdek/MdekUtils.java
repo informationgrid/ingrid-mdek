@@ -398,6 +398,14 @@ public class MdekUtils {
 		return param;
 	}
 
+	/** Compares two strings and returns true if equal. Handles null (null equals null but not "") */
+	public static boolean isEqual(String string1, String string2) {
+		String tmp1 = (string1 == null) ? "" : string1;
+		String tmp2 = (string2 == null) ? "" : string2;
+		
+		return tmp1.equals(tmp2);
+	}
+
 	/** Deompress zipped byte array to String. */
 	public static String decompressZippedByteArray(byte[] zippedData) throws IOException {
 		ByteArrayOutputStream baos = decompress(new ByteArrayInputStream(zippedData));
