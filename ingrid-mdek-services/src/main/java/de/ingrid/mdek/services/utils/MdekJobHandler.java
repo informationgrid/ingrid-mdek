@@ -172,7 +172,7 @@ public class MdekJobHandler {
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
 	public void updateRunningJob(String userId, Map additionalJobInfo) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("userId:" + userId + ", jobDescr: " + additionalJobInfo);
+			LOG.debug("updateRunningJob: userId:" + userId + ", jobDescr: " + additionalJobInfo);
 		}
 		// throws exception if canceled !
 		checkRunningJobCanceledByUser(userId);

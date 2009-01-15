@@ -106,8 +106,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -144,8 +143,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -165,8 +163,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -197,8 +194,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 			
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -241,8 +237,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return resultDoc;
 			
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -282,8 +277,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return aDocIn;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -366,8 +360,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -427,8 +420,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -452,8 +444,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -497,8 +488,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -545,8 +535,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -595,8 +584,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -657,8 +645,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -714,8 +701,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -777,8 +763,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return resultDoc;		
 		
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -814,8 +799,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return resultDoc;		
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -844,8 +828,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return checkResult;		
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -917,8 +900,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -954,8 +936,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -999,8 +980,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			daoAddressNode.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}

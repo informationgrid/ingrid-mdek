@@ -26,7 +26,17 @@ public class MdekErrorHandler {
 	}
 
 	private MdekErrorHandler() {}
-	
+
+	/** Checks whether the given exception is a "USER_HAS_RUNNING_JOBS" Error (TRUE) or not (FALSE) */
+	public static boolean isHasRunningJobsException(RuntimeException excIn) {
+		if (excIn instanceof MdekException) {
+			if (((MdekException) excIn).containsError(MdekErrorType.USER_HAS_RUNNING_JOBS)) {
+				return true;
+			}
+		}		
+		return false;
+	}
+
 	/**
 	 * Transform Exception to a Mdek Exception if error is known.
 	 * @return MdekException or exception as it was passed 
@@ -61,14 +71,9 @@ public class MdekErrorHandler {
 	/** Checks whether the info about currently running job should be removed (job finished)
 	 * or not (job still running), dependent from Exception which was thrown. */
 	public boolean shouldRemoveRunningJob(RuntimeException excIn) {
-		boolean removeRunningJob = true;
-
-		if (excIn instanceof MdekException) {
-			MdekException mdekExc = (MdekException) excIn;
-			if (mdekExc.containsError(MdekErrorType.USER_HAS_RUNNING_JOBS)) {
-				removeRunningJob = false;
-			}
+		if (isHasRunningJobsException(excIn)) {
+			return false;
 		}
-		return removeRunningJob;
+		return true;
 	}
 }

@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
+import de.ingrid.mdek.job.tools.MdekErrorHandler;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekExportService;
 import de.ingrid.mdek.services.catalog.MdekImportService;
@@ -67,8 +68,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -125,8 +125,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -150,8 +149,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -170,8 +168,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}	
@@ -225,8 +222,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {
@@ -250,8 +246,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -301,12 +296,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 			
-			// LOG EXCEPTION IN DATABASE Job Info !
-			logExportException(e, IdcEntityType.OBJECT, 0, userId);
+			// LOG relevant EXCEPTION IN DATABASE Job Info !
+			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+				logExportException(handledExc, IdcEntityType.OBJECT, 0, userId);
+			}
 
 		    throw handledExc;
 		} finally {
@@ -362,12 +358,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
-			// LOG EXCEPTION IN DATABASE Job Info !
-			logExportException(e, IdcEntityType.ADDRESS, 0, userId);
+			// LOG relevant EXCEPTION IN DATABASE Job Info !
+			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+				logExportException(handledExc, IdcEntityType.ADDRESS, 0, userId);
+			}
 
 		    throw handledExc;
 		} finally {
@@ -421,12 +418,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
-			// LOG EXCEPTION IN DATABASE Job Info !
-			logExportException(e, IdcEntityType.OBJECT, numToExport, userId);
+			// LOG relevant EXCEPTION IN DATABASE Job Info !
+			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+				logExportException(handledExc, IdcEntityType.OBJECT, numToExport, userId);
+			}
 
 		    throw handledExc;
 		} finally {
@@ -480,8 +478,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}
@@ -528,12 +525,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
-			// LOG EXCEPTION IN DATABASE Job Info !
-			logImportException(e, userId);
+			// LOG relevant EXCEPTION IN DATABASE Job Info !
+			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+				logImportException(handledExc, userId);
+			}
 
 		    throw handledExc;
 		} finally {
@@ -582,8 +580,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			genericDao.rollbackTransaction();
-			RuntimeException handledExc = errorHandler.handleException(e);
+			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
 	}

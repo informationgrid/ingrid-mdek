@@ -65,7 +65,8 @@ public abstract class MdekJob implements IJob {
 				canceledByUser);
 	}
 
-	/** THROWS EXCEPTION IF USER ALREADY HAS A RUNNING JOB */
+	/** CALL BEFORE STARTING TRANSACTION !!! THROWS EXCEPTION IF USER ALREADY
+	 * HAS A RUNNING JOB !!! */
 	protected void addRunningJob(String userId, IngridDocument jobDescr) {
 		jobHandler.addRunningJob(userId, jobDescr);
 	}

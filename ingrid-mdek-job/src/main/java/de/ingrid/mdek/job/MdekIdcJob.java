@@ -57,6 +57,21 @@ public abstract class MdekIdcJob extends MdekJob {
 		}
 	}
 
+	/** Checks passed Exception (catched from Job method) and rollbacks current transaction if necessary (e.g.
+	 * NO rollback if due to USER_HAS_RUNNING_JOBS -> job is still running and needs active transaction !!!).
+	 * Further may "transform" exception to MdekException. */
+	protected RuntimeException handleException(RuntimeException excIn) {
+		
+		// handle transaction rollback
+		// rollback NOT executed if MdekErrorType.USER_HAS_RUNNING_JOBS -> job is still running
+		// and needs active transaction !!!)
+		if (!MdekErrorHandler.isHasRunningJobsException(excIn)) {
+			genericDao.rollbackTransaction();			
+		}
+
+		return errorHandler.handleException(excIn);
+	}
+
 /*
 	public IngridDocument testMdekEntity(IngridDocument params) {
 		IngridDocument result = new IngridDocument();
