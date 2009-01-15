@@ -148,7 +148,9 @@ public class MdekCallerQuery extends MdekCaller implements IMdekCallerQuery {
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeys.TOTAL_NUM, new Long(maxNumHits));
+		if (maxNumHits != null) {
+			jobParams.put(MdekKeys.TOTAL_NUM, new Long(maxNumHits));
+		}
 		jobParams.put(MdekKeys.HQL_QUERY, hqlQuery);
 		
 		List jobMethods = setUpJobMethod("queryHQLToMap", jobParams);

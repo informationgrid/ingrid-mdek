@@ -290,7 +290,10 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	public IngridDocument queryHQLToMap(IngridDocument params) {
 		try {
 			String hqlQuery = params.getString(MdekKeys.HQL_QUERY);
-			Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
+			Integer numHits = null;
+			if (params.containsKey(MdekKeys.TOTAL_NUM)) {
+				numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
+			}
 
 			daoHQL.beginTransaction();
 			dao.disableAutoFlush();

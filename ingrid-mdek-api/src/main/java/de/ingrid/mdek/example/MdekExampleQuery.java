@@ -350,11 +350,25 @@ class MdekExampleQueryThread extends Thread {
 			"inner join oNode.t01ObjectWork obj";
 		supertool.queryHQLToMap(hqlQuery, 10);
 
+		System.out.println("\n----- search objects by hql to MAP, ALL RESULTS -----");
+		hqlQuery = "select obj.id " +
+			"from ObjectNode oNode " +
+			"inner join oNode.t01ObjectWork obj " +
+			"where oNode.fkObjUuid IS NULL";
+		supertool.queryHQLToMap(hqlQuery, null);
+
 		System.out.println("\n----- search addresses by hql to MAP -----");
 		hqlQuery = "select addr.id " +
 			"from AddressNode as aNode " +
 			"inner join aNode.t02AddressWork addr";
 		supertool.queryHQLToMap(hqlQuery, 10);
+
+		System.out.println("\n----- search addresses by hql to MAP, ALL RESULTS -----");
+		hqlQuery = "select addr.id " +
+			"from AddressNode as aNode " +
+			"inner join aNode.t02AddressWork addr " +
+			"where aNode.fkAddrUuid IS NULL";
+		supertool.queryHQLToMap(hqlQuery, null);
 
 		// -----------------------------------
 
