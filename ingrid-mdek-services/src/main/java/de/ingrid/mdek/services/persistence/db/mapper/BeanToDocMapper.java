@@ -551,7 +551,7 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	/** Maps additional field definitions to doc */
+	/** Maps additional field DEFINITIONS to doc */
 	public IngridDocument mapT08AttrTypes(List<T08AttrType> additionalFields, IngridDocument inDoc) {
 		if (additionalFields == null) {
 			return inDoc;

@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.catalog;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -123,7 +124,8 @@ public class MdekImportService implements IImporterCallback {
 			// process all relations (to objects and addresses) !
 			processRelationsOfObject(objDoc, userUuid);
 
-		// TODO: check additional fields -> store working version if problems ?
+			// verify additional fields
+			processAdditionalFields(objDoc, userUuid);
 		
 			storeWorkingVersion = true;
 			
@@ -137,8 +139,11 @@ public class MdekImportService implements IImporterCallback {
 			// process all relations (to objects and addresses) !
 			processRelationsOfObject(objDoc, userUuid);
 
-		// TODO: check additional fields -> store working version if problems
-		
+			// verify additional fields. if problems, store working version !
+			boolean allOk = processAdditionalFields(objDoc, userUuid);
+			if (!allOk) {
+				storeWorkingVersion = true;				
+			}
 
 			// MOVE EXISTING OBJECT ?
 			// ----------------------
@@ -260,14 +265,15 @@ public class MdekImportService implements IImporterCallback {
 		 */
 
 
-		// TODO: implemnt writeAddress
-		
-		if (publishImmediately) {
-			// TODO: check mandatory data
+		// TODO: implement writeAddress
+	}
 
-		} else {
-			
-		}
+	/* (non-Javadoc)
+	 * @see de.ingrid.mdek.xml.importer.IImporterCallback#writeImportInfo(de.ingrid.mdek.MdekUtils.IdcEntityType, int, int, java.lang.String)
+	 */
+	public void writeImportInfo(IdcEntityType whichType, int numImported, int totalNum,
+			String userUuid) {
+		updateImportJobInfo(whichType, numImported, totalNum, userUuid);
 	}
 
 	// ----------------------------------- IImporterCallback END ------------------------------------
@@ -717,7 +723,7 @@ public class MdekImportService implements IImporterCallback {
 	 * - object-object relations are removed and stored in running job info to be processed after import of all entities !
 	 * - relation to address is checked immediately and removed if address not present !
 	 * @param objDoc the object to import represented by its doc (containing all relations).
-	 * 		NOTICE: will be manipulated (relations to objs removed !)
+	 * 		NOTICE: may be manipulated (relations to objs removed !)
 	 * @param userUuid calling user
 	 */
 	private void processRelationsOfObject(IngridDocument objDoc, String userUuid) {
@@ -747,6 +753,92 @@ public class MdekImportService implements IImporterCallback {
 		List<IngridDocument> objRefs = (List) objDoc.get(MdekKeys.OBJ_REFERENCES_TO);
 		rememberObjReferences(objUuid, objRefs, userUuid);
 		objDoc.remove(MdekKeys.OBJ_REFERENCES_TO);
+	}
+	
+	/**
+	 * Process all additional field values and remove a value if the according additional field
+	 * is not found or differs from the one in catalog. Returns whether problems occured.
+	 * @param objDoc the object to import represented by its doc (containing all relations).
+	 * 		NOTICE: may be manipulated (additional field value removed if field not found !)
+	 * @param userUuid calling user
+	 * @return true=all fields ok, NO data changed<br>
+	 * 		false=problems with additional fields, data was removed
+	 */
+	private boolean processAdditionalFields(IngridDocument objDoc, String userUuid) {
+		boolean allFieldsOk = true;
+
+		// create object tag for messages !
+		String objTag = createObjectTag(objDoc);
+
+		List<IngridDocument> inFieldDocs = (List) objDoc.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (inFieldDocs == null) {
+			inFieldDocs = new ArrayList<IngridDocument>(0);
+		}
+
+		for (Iterator<IngridDocument> i = inFieldDocs.iterator(); i.hasNext();) {
+			IngridDocument inFieldDoc = i.next();
+			Long fieldId = (Long) inFieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
+			String fieldName = inFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME);
+			String fieldValue = inFieldDoc.getString(MdekKeys.ADDITIONAL_FIELD_VALUE);
+
+			// check whether additional field / value exists
+			boolean fieldOk = false;
+
+			// fetch field in catalog and compare
+			IngridDocument sysFieldDocs = catalogService.getSysAdditionalFields(new Long[]{fieldId}, null);
+			IngridDocument sysFieldDoc =
+				(IngridDocument) sysFieldDocs.get(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + fieldId);
+			if (sysFieldDoc != null) {
+				Long sysFieldId = (Long) sysFieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
+				String sysFieldName = sysFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME);
+				String sysFieldType = sysFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE);
+				
+				if (fieldId.equals(sysFieldId) &&
+					MdekUtils.isEqual(fieldName, sysFieldName))
+				{
+					// field equals field in catalog, check whether field has selection list and compare value !
+					if (MdekUtils.AdditionalFieldType.LIST.getDbValue().equals(sysFieldType)) {
+						// Is selection list, so restricted entry values ! we fetch all selection lists and compare value
+						for (Iterator<String> j = sysFieldDoc.keySet().iterator(); j.hasNext();) {
+							String sysFieldKey = j.next();
+							if (sysFieldKey.startsWith(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX)) {
+								String[] entries = (String[]) sysFieldDoc.get(sysFieldKey);
+								if (Arrays.asList(entries).contains(fieldValue)) {
+									fieldOk = true;
+									break;
+								}
+							}
+						}
+						if (!fieldOk) {
+							updateImportJobInfoMessages("! " + objTag +
+								"Additional field VALUE \"" + fieldValue + "\" differs from defined SELECTION_LIST, " +
+								"we remove field data and store working version (Field-Id:" + fieldId + ", Name:" + fieldName + ")", userUuid);
+						}
+					} else {
+						// No selection list, so any text value is ok !
+						fieldOk = true;
+					}
+					
+				} else {
+					updateImportJobInfoMessages("! " + objTag +
+						"Additional field DEFINITION differs, we remove field VALUE \"" + fieldValue +
+						"\" and store working version (Field-Id:" + fieldId + ", Name:" + fieldName + 
+						") != (Sys-Id:" + sysFieldId + ", Name:" + sysFieldName + ", Type:" + sysFieldType + ")", userUuid);
+				}
+			} else {
+				updateImportJobInfoMessages("! " + objTag +
+					"Additional field not found, we remove field VALUE \"" + fieldValue +
+					"\" and store working version (Field-Id:" + fieldId + ", Name:" + fieldName + ")", userUuid);
+			}
+			
+			// remove field data if field not ok
+			if (!fieldOk) {
+				allFieldsOk = false;
+				i.remove();
+			}
+		}
+		
+		return allFieldsOk;
 	}
 	
 	/** Store the given object-object relations in running job info for later access !

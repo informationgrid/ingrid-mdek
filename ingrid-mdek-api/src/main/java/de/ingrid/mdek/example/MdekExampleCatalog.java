@@ -164,6 +164,8 @@ class MdekExampleCatalogThread extends Thread {
 		// NO SUB OBJECTS !
 		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
 
+		String objWithAdditionalFieldsUuid = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
+		
 		// ADDRESSES
 		// TOP ADDRESS
 		String topAddrUuid = "3761E246-69E7-11D3-BB32-1C7607C10000";
@@ -304,15 +306,27 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.setFullOutput(true);
 		result = supertool.getExportInfo(true);
 		supertool.setFullOutput(false);
-		String exportExistingTopObjUnzipped = "";
+		String exportTopObjUnzipped = "";
 		try {
-			exportExistingTopObjUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+			exportTopObjUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+		} catch(IOException ex) {
+			System.out.println(ex);
+		}
+		
+		System.out.println("\n----- export object with additional field for testing import -----");
+		supertool.exportObjectBranch(objWithAdditionalFieldsUuid, true);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+		String exportObjWithAdditionalFieldsUnzipped = "";
+		try {
+			exportObjWithAdditionalFieldsUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
 		} catch(IOException ex) {
 			System.out.println(ex);
 		}
 
 		System.out.println("\n----- export objects FULL BRANCH UNDER PARENT -----");
-		String exportExistingObjBranchUnzipped = "";
+		String exportObjBranchUnzipped = "";
 		try {
 			// causes timeout
 //			supertool.exportObjectBranch(topObjUuid, false);
@@ -324,7 +338,7 @@ class MdekExampleCatalogThread extends Thread {
 			supertool.setFullOutput(true);
 			result = supertool.getExportInfo(true);
 			supertool.setFullOutput(false);
-			exportExistingObjBranchUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+			exportObjBranchUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
 
 		} catch(MdekException ex) {
 			// if timeout, track running job info (still exporting) !
@@ -437,21 +451,21 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getRunningJobInfo();
 
 		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
-		IngridDocument objImpTopDoc = supertool.newObjectDoc(null);
-		objImpTopDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
-		objImpTopDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
-		objImpTopDoc = supertool.storeObject(objImpTopDoc, false);
-		String objImpNodeUuid = (String) objImpTopDoc.get(MdekKeys.UUID);
+		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, false);
+		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
 		// doc to be used afterwards for new creation of node !
-		objImpTopDoc.put(MdekKeys.UUID, objImpNodeUuid);
+		objImpNodeDoc.put(MdekKeys.UUID, objImpNodeUuid);
 
 		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
-		IngridDocument addrImpTopDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
-		addrImpTopDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
-		addrImpTopDoc = supertool.storeAddress(addrImpTopDoc, false);
-		String addrImpNodeUuid = (String) addrImpTopDoc.get(MdekKeys.UUID);
+		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, false);
+		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
 		// doc to be used afterwards for new creation of node !
-		addrImpTopDoc.put(MdekKeys.UUID, addrImpNodeUuid);
+		addrImpNodeDoc.put(MdekKeys.UUID, addrImpNodeUuid);
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: INVALID XML -----");
@@ -459,7 +473,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		// invalid XML file to test logging of exception in job info
 		// causes NumberFormatException
-		String importUnzipped = exportExistingTopObjUnzipped.replace("<object-class id=\"", "<object-class id=\"MM");
+		String importUnzipped = exportTopObjUnzipped.replace("<object-class id=\"", "<object-class id=\"MM");
 		byte[] importInvalidXML = new byte[0];
 		try {
 			importInvalidXML = MdekUtils.compressString(importUnzipped);						
@@ -481,18 +495,18 @@ class MdekExampleCatalogThread extends Thread {
 
 		// set some stuff to simulate different catalog etc. will be replaced with correct data !
 		// different catalog
-		exportExistingTopObjUnzipped = exportExistingTopObjUnzipped.replace("<catalogue-identifier>", "<catalogue-identifier>99999");
-		exportExistingObjBranchUnzipped = exportExistingObjBranchUnzipped.replace("<catalogue-identifier>", "<catalogue-identifier>99999");
+		exportTopObjUnzipped = exportTopObjUnzipped.replace("<catalogue-identifier>", "<catalogue-identifier>99999");
+		exportObjBranchUnzipped = exportObjBranchUnzipped.replace("<catalogue-identifier>", "<catalogue-identifier>99999");
 		// different mod user
-		exportExistingTopObjUnzipped = exportExistingTopObjUnzipped.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
-		exportExistingObjBranchUnzipped = exportExistingObjBranchUnzipped.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
+		exportTopObjUnzipped = exportTopObjUnzipped.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
+		exportObjBranchUnzipped = exportObjBranchUnzipped.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
 		// different responsible user
-		exportExistingTopObjUnzipped = exportExistingTopObjUnzipped.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
-		exportExistingObjBranchUnzipped = exportExistingObjBranchUnzipped.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
+		exportTopObjUnzipped = exportTopObjUnzipped.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
+		exportObjBranchUnzipped = exportObjBranchUnzipped.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
 		// TODO: what else ?
 
 		// import data: single existing top node
-		importUnzipped = exportExistingTopObjUnzipped.replace("<title>", "<title>MMImport: ");
+		importUnzipped = exportTopObjUnzipped.replace("<title>", "<title>MMImport: ");
 		byte[] importExistingTopObj = new byte[0];
 		try {
 			importExistingTopObj = MdekUtils.compressString(importUnzipped);						
@@ -501,7 +515,7 @@ class MdekExampleCatalogThread extends Thread {
 		}
 
 		// import data: existing sub nodes (branch)
-		importUnzipped = exportExistingObjBranchUnzipped.replace("<title>", "<title>MMImport: ");
+		importUnzipped = exportObjBranchUnzipped.replace("<title>", "<title>MMImport: ");
 		byte[] importExistingObjBranch = new byte[0];
 		try {
 			importExistingObjBranch = MdekUtils.compressString(importUnzipped);						
@@ -553,7 +567,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteObject(objImpNodeUuid, true);
-		supertool.storeObject(objImpTopDoc, false);
+		supertool.storeObject(objImpNodeDoc, false);
 
 // -----------------------------------
 
@@ -566,7 +580,7 @@ class MdekExampleCatalogThread extends Thread {
 		String newUuid2 = "UUID012345678901234567890123456789-2";
 
 		// import data: single NEW top node
-		importUnzipped = exportExistingTopObjUnzipped.replace("<title>", "<title>MMImport NEW: ");
+		importUnzipped = exportTopObjUnzipped.replace("<title>", "<title>MMImport NEW: ");
 		importUnzipped = importUnzipped.replace(topObjUuid, newUuidTop);
 		byte[] importNewTopObj = new byte[0];
 		try {
@@ -577,7 +591,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		// import data: NEW object branch with non existing parent !
 		// new uuids
-		importUnzipped = exportExistingObjBranchUnzipped.replace("<title>", "<title>MMImport NEW: ");
+		importUnzipped = exportObjBranchUnzipped.replace("<title>", "<title>MMImport NEW: ");
 		importUnzipped = importUnzipped.replace(objUuid, newUuid1);
 		importUnzipped = importUnzipped.replace(objLeafUuid, newUuid2);
 		// non existing parent
@@ -599,7 +613,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		// import data: SAME NEW object branch with existing parent !
 		// new uuids
-		importUnzipped = exportExistingObjBranchUnzipped.replace("<title>", "<title>MMImport NEW: ");
+		importUnzipped = exportObjBranchUnzipped.replace("<title>", "<title>MMImport NEW: ");
 		importUnzipped = importUnzipped.replace(objUuid, newUuid1);
 		importUnzipped = importUnzipped.replace(objLeafUuid, newUuid2);
 		// existing parent
@@ -694,7 +708,7 @@ class MdekExampleCatalogThread extends Thread {
 		String newOrigId = "ORIG_ID_NEW";
 
 		// import data: existing NEW top node with ORIG_ID1
-		importUnzipped = exportExistingTopObjUnzipped.replace("<title>", "<title>1.MMImport ORIG_ID1: ");
+		importUnzipped = exportTopObjUnzipped.replace("<title>", "<title>1.MMImport ORIG_ID1: ");
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</object-identifier>")+20;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
@@ -708,7 +722,7 @@ class MdekExampleCatalogThread extends Thread {
 		}
 
 		// import data: existing branch with ORIG_ID1 and ORIG_ID2
-		importUnzipped = exportExistingObjBranchUnzipped.replace("<title>", "<title>2.MMImport ORIG_ID1/2: ");
+		importUnzipped = exportObjBranchUnzipped.replace("<title>", "<title>2.MMImport ORIG_ID1/2: ");
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</object-identifier>")+20;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
@@ -729,7 +743,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		// import data: NEW object branch (non existing UUIDs) with ORIG_ID1 and ORIG_ID2
 		// new uuids
-		importUnzipped = exportExistingObjBranchUnzipped.replace("<title>", "<title>3.MMImport ORIG_ID1/2: ");
+		importUnzipped = exportObjBranchUnzipped.replace("<title>", "<title>3.MMImport ORIG_ID1/2: ");
 		importUnzipped = importUnzipped.replace(objUuid, newUuid1);
 		importUnzipped = importUnzipped.replace(objLeafUuid, newUuid2);
 		// add ORIG_ID1
@@ -750,7 +764,7 @@ class MdekExampleCatalogThread extends Thread {
 		}
 
 		// import data: NEW arcgis object (no UUID) with EXISTING and NON EXISTING ORIG_ID
-		importUnzipped = exportExistingTopObjUnzipped.replace("<title>", "<title>4.MMImport ORIG_ID1: ");
+		importUnzipped = exportTopObjUnzipped.replace("<title>", "<title>4.MMImport ORIG_ID1: ");
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</object-identifier>")+20;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
@@ -828,7 +842,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteObject(objImpNodeUuid, true);
-		supertool.storeObject(objImpTopDoc, false);
+		supertool.storeObject(objImpNodeDoc, false);
 
 
 		System.out.println("\n\n----- store ORIG_ID1 in top node WORKING VERSION  -----");
@@ -841,7 +855,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteObject(objImpNodeUuid, true);
-		supertool.storeObject(objImpTopDoc, false);
+		supertool.storeObject(objImpNodeDoc, false);
 
 
 		System.out.println("\n\n----- store ORIG_ID1 / ORIG_ID2 in branch WORKING VERSION  -----");
@@ -858,7 +872,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteObject(objImpNodeUuid, true);
-		supertool.storeObject(objImpTopDoc, false);
+		supertool.storeObject(objImpNodeDoc, false);
 
 
 		System.out.println("\n\n----- separate import ARCGIS object (no uuid) with EXISTING ORIG_ID -> underneath import node, NEW UUID, REMOVED ORIG_ID -----");
@@ -873,7 +887,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
 		supertool.deleteObject(objImpNodeUuid, true);
-		supertool.storeObject(objImpTopDoc, false);
+		supertool.storeObject(objImpNodeDoc, false);
 
 // -----------------------------------
 
@@ -882,7 +896,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("-------------------------------------");
 
 		// import data: move branch under top object !
-		importUnzipped = exportExistingObjBranchUnzipped.replace("<object-identifier>15C69C20-FE15-11D2-AF34-0060084A4596</object-identifier>",
+		importUnzipped = exportObjBranchUnzipped.replace("<object-identifier>15C69C20-FE15-11D2-AF34-0060084A4596</object-identifier>",
 				"<object-identifier>" + topObjUuid5 + "</object-identifier>");
 		byte[] importBranchMoveObj = new byte[0];
 		try {
@@ -939,7 +953,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("-------------------------------------");
 
 		// import data: non existing relations !
-		importUnzipped = exportExistingObjBranchUnzipped;
+		importUnzipped = exportObjBranchUnzipped;
 		// add wrong address relation
 		startIndex = importUnzipped.indexOf("</related-address>") + 18;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
@@ -966,7 +980,7 @@ class MdekExampleCatalogThread extends Thread {
 		// import data: NEW object branch with Relation Parent(INTRANET) > Child(INTERNET) causing problems when publishing
 		// (FROM is published, TO is not !
 		// new uuids
-		importUnzipped = exportExistingObjBranchUnzipped;
+		importUnzipped = exportObjBranchUnzipped;
 		importUnzipped = importUnzipped.replace(objUuid, newUuid1);
 		importUnzipped = importUnzipped.replace(objLeafUuid, newUuid2);
 		// existing parent
@@ -1047,7 +1061,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("-------------------------------------");
 
 		// import data: EXISTING object branch with Relation Parent(INTRANET) > Child(INTERNET) 
-		importUnzipped = exportExistingObjBranchUnzipped;
+		importUnzipped = exportObjBranchUnzipped;
 		// add object relation
 		startIndex = importUnzipped.indexOf("</link-data-source>") + 19;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
@@ -1075,7 +1089,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteObject(objImpNodeUuid, true);
-		supertool.storeObject(objImpTopDoc, false);
+		supertool.storeObject(objImpNodeDoc, false);
 
 
 		System.out.println("\n\n----- separate import NEW branch with RELATION Parent(INTRANET) > Child(INTERNET)! -----");
@@ -1095,7 +1109,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteObject(objImpNodeUuid, true);
-		supertool.storeObject(objImpTopDoc, false);
+		supertool.storeObject(objImpNodeDoc, false);
 
 // -----------------------------------
 
@@ -1132,6 +1146,81 @@ class MdekExampleCatalogThread extends Thread {
 		doc = supertool.getCatalog();
 		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.NO);
 		catDoc = supertool.storeCatalog(catDoc, true);
+
+		// -----------------------------------
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: ADDITIONAL FIELDS -----");
+		System.out.println("-------------------------------------");
+
+		// import data: Object with VALID additional fields data 
+		importUnzipped = exportObjWithAdditionalFieldsUnzipped;
+		byte[] importExistObjWithAdditionalFieldsValid = new byte[0];
+		try {
+			importExistObjWithAdditionalFieldsValid = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		// import data: Object with INVALID additional fields, Wrong ID, Wrong NAME
+		importUnzipped = exportObjWithAdditionalFieldsUnzipped;
+		// change ID of TEXT FIELD
+		importUnzipped = importUnzipped.replace("<general-additional-value id=\"167242\">", "<general-additional-value id=\"99999\">");
+		// change NAME of LIST FIELD
+		importUnzipped = importUnzipped.replace("<field-name>Test 2</field-name>", "<field-name>Test MMMM</field-name>");
+		System.out.println(importUnzipped);
+		byte[] importExistObjWithAdditionalFieldsInvalid_ID_Name = new byte[0];
+		try {
+			importExistObjWithAdditionalFieldsInvalid_ID_Name = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		// import data: Object with INVALID additional fields, Wrong ListEntry !
+		importUnzipped = exportObjWithAdditionalFieldsUnzipped;
+		// change Entry of LIST FIELD
+		importUnzipped = importUnzipped.replace("<field-value>Eintrag 1</field-value>", "<field-value>Eintrag MMMMM</field-value>");
+		System.out.println(importUnzipped);
+		byte[] importExistObjWithAdditionalFieldsInvalid_ListEntry = new byte[0];
+		try {
+			importExistObjWithAdditionalFieldsInvalid_ListEntry = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n\n----- import existing object with VALID additional fields as WORKING VERSION -> all ok -----");
+		supertool.importEntities(importExistObjWithAdditionalFieldsValid, objImpNodeUuid, addrImpNodeUuid, false, false);
+
+		System.out.println("\n\n----- import existing object with VALID additional fields as PUBLISHED -> all ok -----");
+		supertool.importEntities(importExistObjWithAdditionalFieldsValid, objImpNodeUuid, addrImpNodeUuid, true, false);
+
+		System.out.println("\n\n----- import existing object with INVALID additional fields (ID, NAME) as PUBLISHED -> removed and stored as WORKING VERSION -----");
+		supertool.importEntities(importExistObjWithAdditionalFieldsInvalid_ID_Name, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.deleteObjectWorkingCopy(objWithAdditionalFieldsUuid, true);
+
+		System.out.println("\n\n----- import existing object with INVALID additional fields (ListEntry) as PUBLISHED -> removed and stored as WORKING VERSION -----");
+		supertool.importEntities(importExistObjWithAdditionalFieldsInvalid_ListEntry, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.deleteObjectWorkingCopy(objWithAdditionalFieldsUuid, true);
+
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- SEPARATE Import: ADDITIONAL FIELDS -----");
+		System.out.println("-------------------------------------");
+
+		System.out.println("\n\n----- separate import existing object with VALID additional fields -> underneath import node, all ok -----");
+		supertool.importEntities(importExistObjWithAdditionalFieldsValid, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpNodeDoc, false);
+
+		System.out.println("\n\n----- import existing object with INVALID additional fields (ID, NAME) -> underneath import node, removed 2 additional fields -----");
+		supertool.importEntities(importExistObjWithAdditionalFieldsInvalid_ID_Name, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpNodeDoc, false);
+
+		System.out.println("\n\n----- import existing object with INVALID additional fields (ListEntry) -> underneath import node, removed 1 additional field -----");
+		supertool.importEntities(importExistObjWithAdditionalFieldsInvalid_ListEntry, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.storeObject(objImpNodeDoc, false);
 
 // -----------------------------------
 

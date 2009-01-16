@@ -299,15 +299,19 @@ public class MdekObjectService {
 
 			// save special stuff from pub version not passed by client -> can be queried on working version !
 			if (oPub != null) {
-				// also SAVE t08_attrs from published in work version (copy) -> NOT MAPPED VIA 
-				// entity docToBeanMapper (NOT part of UI) !
-				// we do this, so querying t08_attribs in edited objects (working version) works (otherwise
-				// could only be queried in published version) !
-				// NOTICE: when publishing the work version, its t08_attribs aren't mapped (the OLD published
-				// object is loaded containing the original t08_attrs) !
-				docToBeanMapper.updateT08Attrs(
-						beanToDocMapper.mapT08Attrs(oPub.getT08Attrs(), new IngridDocument()),
-						oWork);
+				// TODO: remove updateT08Attrs hack when added to IGE !
+				// importer passes additional fields, see below !
+				if (!calledByImporter) {
+					// also SAVE t08_attrs from published in work version (copy) -> NOT MAPPED VIA 
+					// entity docToBeanMapper (NOT part of UI) !
+					// we do this, so querying t08_attribs in edited objects (working version) works (otherwise
+					// could only be queried in published version) !
+					// NOTICE: when publishing the work version, its t08_attribs aren't mapped (the OLD published
+					// object is loaded containing the original t08_attrs) !
+					docToBeanMapper.updateT08Attrs(
+							beanToDocMapper.mapT08Attrs(oPub.getT08Attrs(), new IngridDocument()),
+							oWork);
+				}
 
 				// save orig uuid and special stuff -> all data also in working version !
 				oWork.setOrgObjId(oPub.getOrgObjId());
@@ -330,6 +334,11 @@ public class MdekObjectService {
 		// TRANSFER FULL DATA (if set) -> NOT PASSED FROM CLIENT, BUT E.G. PASSED WHEN IMPORTING !!!
 		T01Object oWork = oNode.getT01ObjectWork();
 		docToBeanMapper.mapT01Object(oDocIn, oWork, MappingQuantity.COPY_ENTITY);
+		// TODO: remove updateT08Attrs hack when added to IGE !
+		// importer passes additional fields
+		if (calledByImporter) {
+			docToBeanMapper.updateT08Attrs(oDocIn, oWork);					
+		}
 		daoT01Object.makePersistent(oWork);
 
 		// UPDATE FULL INDEX !!!
@@ -501,6 +510,11 @@ public class MdekObjectService {
 		
 		// TRANSFER FULL DATA (if set) -> NOT PASSED FROM CLIENT, BUT E.G. PASSED WHEN IMPORTING !!!
 		docToBeanMapper.mapT01Object(oDocIn, oPub, MappingQuantity.COPY_ENTITY);
+		// TODO: remove updateT08Attrs hack when added to IGE !
+		// importer passes additional fields
+		if (calledByImporter) {
+			docToBeanMapper.updateT08Attrs(oDocIn, oPub);					
+		}
 		daoT01Object.makePersistent(oPub);
 
 		// and update ObjectNode, also beans, so we can access them afterwards (index)

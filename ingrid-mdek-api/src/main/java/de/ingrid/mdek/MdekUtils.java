@@ -48,6 +48,7 @@ public class MdekUtils {
 		DELETED;
 	}
 
+	/** Syslists (sys_list.lst_id) */
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1),
 		OBJ_ADR_TYPE(505),
@@ -86,6 +87,22 @@ public class MdekUtils {
 		Integer dbValue;
 	}
 
+	/** Type of Additional Field (t08_attr_type.type) */
+	public enum AdditionalFieldType implements IMdekEnum {
+		TEXT("0"),
+		LIST("1");
+
+		AdditionalFieldType(String dbValue) {
+			this.dbValue = dbValue;
+		}
+		/** returns syslist ID */
+		public String getDbValue() {
+			return dbValue;
+		}
+		String dbValue;
+	}
+
+	/** Behaviour (visibility) of input fields (sys_gui.behaviour) */
 	public enum SysGuiBehaviour implements IMdekEnum {
 		DEFAULT(-1),
 		REMOVED(0),
@@ -166,6 +183,7 @@ public class MdekUtils {
 		STATE,
 	}
 
+	/** expiry state (object/address_metadata.expiry_state) */
 	public enum ExpiryState implements IMdekEnum {
 		INITIAL(0),
 		TO_BE_EXPIRED(10),
@@ -192,7 +210,7 @@ public class MdekUtils {
 		Integer dbValue;
 	}
 
-	/** WorkState of entities */
+	/** WorkState of entities (t01_object /t02_address.work_state) */
 	public enum WorkState implements IMdekEnum {
 		VEROEFFENTLICHT("V", "ver\u00f6ffentlicht"),
 		IN_BEARBEITUNG("B", "in Bearbeitung"),
@@ -213,7 +231,7 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Type of spatial reference */
+	/** Type of spatial reference (spatial_ref_value.type) */
 	public enum SpatialReferenceType implements IMdekEnum {
 		FREI("F", "Freier Raumbezug"),
 		GEO_THESAURUS("G", "Geo-Thesaurus");
@@ -232,7 +250,7 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Type of searchterm */
+	/** Type of searchterm (searchterm_value.type) */
 	public enum SearchtermType implements IMdekEnum {
 		FREI("F", "Freier Term"),
 		THESAURUS("T", "Thesaurus");
@@ -251,7 +269,7 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Publish condition */
+	/** Publish condition (t01_object.publish_id) */
 	public enum PublishType implements IMdekEnum {
 		INTERNET(1, "Internet"),
 		INTRANET(2, "Intranet"),
@@ -283,7 +301,7 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Type of object (object class) */
+	/** Type of object (object class)(t01_object.obj_class) */
 	public enum ObjectType implements IMdekEnum {
 		ORGANISATION(0, "Organisationseinheit/Fachaufgabe"),
 		GEO_INFORMATION(1, "Geo-Information/Karte"),
@@ -306,7 +324,7 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Type of addresses (address class) */
+	/** Type of addresses (address class) (t02_address.adr_type) */
 	public enum AddressType implements IMdekEnum {
 		INSTITUTION(0, "Institution"),
 		EINHEIT(1, "Einheit"),
@@ -405,6 +423,14 @@ public class MdekUtils {
 		
 		return tmp1.equals(tmp2);
 	}
+	/** Compares two Integers and returns true if equal. Handles null -> null.equals(null) is true */
+	public static boolean isEqual(Integer int1, Integer int2) {
+		Integer tmp1 = (int1 == null) ? -1 : int1;
+		Integer tmp2 = (int2 == null) ? -1 : int2;
+		
+		return tmp1.equals(tmp2);
+	}
+
 
 	/** Deompress zipped byte array to String. */
 	public static String decompressZippedByteArray(byte[] zippedData) throws IOException {
