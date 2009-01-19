@@ -416,6 +416,25 @@ public class MdekUtils {
 		return param;
 	}
 
+	/** Checks whether given String "has content", meaning is NOT null/empty and NOT whitespace.
+	 * @param stringToCheck
+	 * @return true=has content<br>false=no content (null or empty or only whitespaces ...)
+	 */
+	public static boolean hasContent(String stringToCheck) {
+		if (stringToCheck == null || stringToCheck.trim().length() == 0) {
+			return false;
+		}
+		return true;
+	}
+	/** Appends the given string. Separator is appended before, if length of base > 0. */
+	public static void appendWithSeparator(StringBuilder appendHere, String separator, String stringToAppend) {
+		if (appendHere.length() > 0) {
+			appendHere.append(separator);
+		}
+		appendHere.append(stringToAppend);
+	}
+
+
 	/** Compares two strings and returns true if equal. Handles null (null equals null but not "") */
 	public static boolean isEqual(String string1, String string2) {
 		String tmp1 = (string1 == null) ? "" : string1;

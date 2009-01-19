@@ -9,12 +9,15 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.ObjectType;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -140,8 +143,7 @@ public class MdekImportService implements IImporterCallback {
 			processRelationsOfObject(objDoc, userUuid);
 
 			// verify additional fields. if problems, store working version !
-			boolean allOk = processAdditionalFields(objDoc, userUuid);
-			if (!allOk) {
+			if (!processAdditionalFields(objDoc, userUuid)) {
 				storeWorkingVersion = true;				
 			}
 
@@ -173,9 +175,9 @@ public class MdekImportService implements IImporterCallback {
 				newObjMsg = "EXISTING object ";
 			}
 
-			if (publishImmediately && !storeWorkingVersion) {
-
-				// TODO: check mandatory data -> store working version if problems
+			if (publishImmediately &&
+					!storeWorkingVersion &&
+					checkObjectMandatoryData(objDoc, userUuid)) {
 
 				// if workflow enabled then ASSIGN TO QA else PUBLISH !
 				if (catalogService.isWorkflowEnabled()) {
@@ -480,32 +482,75 @@ public class MdekImportService implements IImporterCallback {
 	}
 
 	/** Preprocess import doc, remove/fix wrong data from exporting catalog.
-	 * @param importObjDoc the object to import represented by its doc. Will be manipulated !
+	 * @param objDoc the object to import represented by its doc. Will be manipulated !
 	 * @param userUuid calling user
-	 * @return the preprocessed importObjDoc (same instance as passed one !) 
+	 * @return the preprocessed objDoc (same instance as passed one !) 
 	 */
-	private IngridDocument preprocessObjectDoc(IngridDocument importObjDoc, String userUuid) {
-		if (importObjDoc.get(MdekKeys.UUID) != null && importObjDoc.getString(MdekKeys.UUID).trim().length() == 0) {
-			importObjDoc.remove(MdekKeys.UUID);			
+	private IngridDocument preprocessObjectDoc(IngridDocument objDoc, String userUuid) {
+		if (objDoc.containsKey(MdekKeys.UUID) && !MdekUtils.hasContent(objDoc.getString(MdekKeys.UUID))) {
+			objDoc.remove(MdekKeys.UUID);			
 		}
-		if (importObjDoc.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER) != null && importObjDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER).trim().length() == 0) {
-			importObjDoc.remove(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);			
+		if (objDoc.containsKey(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER) && !MdekUtils.hasContent(objDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER))) {
+			objDoc.remove(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);			
 		}
-		if (importObjDoc.get(MdekKeys.PARENT_UUID) != null && importObjDoc.getString(MdekKeys.PARENT_UUID).trim().length() == 0) {
-			importObjDoc.remove(MdekKeys.PARENT_UUID);			
+		if (objDoc.containsKey(MdekKeys.PARENT_UUID) && !MdekUtils.hasContent(objDoc.getString(MdekKeys.PARENT_UUID))) {
+			objDoc.remove(MdekKeys.PARENT_UUID);			
 		}
 		// remove WRONG data (from different catalog ?)
-		importObjDoc.remove(MdekKeys.CATALOGUE_IDENTIFIER);
-		importObjDoc.remove(MdekKeys.DATE_OF_LAST_MODIFICATION);
-		importObjDoc.remove(MdekKeys.DATE_OF_CREATION);
+		objDoc.remove(MdekKeys.CATALOGUE_IDENTIFIER);
+		objDoc.remove(MdekKeys.DATE_OF_LAST_MODIFICATION);
+		objDoc.remove(MdekKeys.DATE_OF_CREATION);
 
 		// default: calling user is mod user and responsible !
-		beanToDocMapper.mapModUser(userUuid, importObjDoc, MappingQuantity.INITIAL_ENTITY);
-		beanToDocMapper.mapResponsibleUser(userUuid, importObjDoc, MappingQuantity.INITIAL_ENTITY);
+		beanToDocMapper.mapModUser(userUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
+		beanToDocMapper.mapResponsibleUser(userUuid, objDoc, MappingQuantity.INITIAL_ENTITY);
 
 		// TODO: check and repair further import data ?
 
-		return importObjDoc;
+		return objDoc;
+	}
+
+	/**
+	 * Check whether all mandatory data is set for publishing.
+	 * @param objDoc the object to import represented by its doc.
+	 * @param userUuid calling user
+	 * @return true=all data set, can be published<br>
+	 * 		false=data is missing, publishing not possible
+	 */
+	private boolean checkObjectMandatoryData(IngridDocument objDoc, String userUuid) {
+		StringBuilder missingFields = new StringBuilder();
+		String separator = ", ";
+
+		// create object tag for messages !
+		String objTag = createObjectTag(objDoc);
+
+		if (EnumUtil.mapDatabaseToEnumConst(ObjectType.class, objDoc.get(MdekKeys.CLASS)) == null) {
+			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.CLASS);
+		}
+		if (!MdekUtils.hasContent(objDoc.getString(MdekKeys.TITLE))) {
+			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.TITLE);
+		}
+		if (!MdekUtils.hasContent(objDoc.getString(MdekKeys.ABSTRACT))) {
+			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.ABSTRACT);
+		}
+		if (EnumUtil.mapDatabaseToEnumConst(PublishType.class, objDoc.get(MdekKeys.PUBLICATION_CONDITION)) == null) {
+			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.PUBLICATION_CONDITION);			
+		}
+		if (docToBeanMapper.extractResponsibleUserUuid(objDoc) == null) {
+			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.RESPONSIBLE_USER);
+		}
+		if (!objectService.hasAuskunftAddress(objDoc)) {
+			MdekUtils.appendWithSeparator(missingFields, separator, "auskunft-address");
+		}
+
+		// TODO: check ALL mandatory data for publishing ?
+
+		if (missingFields.length() > 0) {
+			updateImportJobInfoMessages("! " + objTag + "Mandatory data missing [" + missingFields + "], we store working version", userUuid);
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

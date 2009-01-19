@@ -1222,6 +1222,62 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.deleteObject(objImpNodeUuid, true);
 		supertool.storeObject(objImpNodeDoc, false);
 
+		// -----------------------------------
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: MANDATORY DATA -----");
+		System.out.println("-------------------------------------");
+
+		// import data: branch with root object missing all MANDATORY FIELDS ! 
+		importUnzipped = exportObjBranchUnzipped;		
+		// remove CLASS
+		startIndex = importUnzipped.indexOf("<object-class");
+		endIndex = importUnzipped.indexOf("/>", startIndex) + 2;
+		importUnzipped = importUnzipped.substring(0, startIndex) +
+			importUnzipped.substring(endIndex, importUnzipped.length());
+		// remove TITLE
+		startIndex = importUnzipped.indexOf("<title>");
+		endIndex = importUnzipped.indexOf("</title>") + 8;
+		importUnzipped = importUnzipped.substring(0, startIndex) +
+			importUnzipped.substring(endIndex, importUnzipped.length());
+		// add empty ABSTRACT
+		startIndex = importUnzipped.indexOf("<abstract>") + 10;
+		endIndex = importUnzipped.indexOf("</abstract>");
+		importUnzipped = importUnzipped.substring(0, startIndex) + "     	\n" + 
+			importUnzipped.substring(endIndex, importUnzipped.length());
+		// remove RESPONSIBLE_USER -> will be added again !
+		startIndex = importUnzipped.indexOf("<responsible-identifier>");
+		endIndex = importUnzipped.indexOf("</responsible-identifier>") + 25;
+		importUnzipped = importUnzipped.substring(0, startIndex) +
+			importUnzipped.substring(endIndex, importUnzipped.length());
+		// add WRONG PUBLICATION_CONDITION
+		startIndex = importUnzipped.indexOf("<publication-condition>") + 23;
+		endIndex = importUnzipped.indexOf("</publication-condition>");
+		importUnzipped = importUnzipped.substring(0, startIndex) + "12" + 
+			importUnzipped.substring(endIndex, importUnzipped.length());
+		// invalidate 1. AUSKUNFT ADDRESS
+		startIndex = importUnzipped.indexOf("<type-of-relation list-id=\"505\"") + 27;
+		endIndex = startIndex + 3;
+		importUnzipped = importUnzipped.substring(0, startIndex) + "2010" +
+			importUnzipped.substring(endIndex, importUnzipped.length());
+		System.out.println(importUnzipped);
+		byte[] importExistObjBranchMissingMandatoryFields = new byte[0];
+		try {
+			importExistObjBranchMissingMandatoryFields = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA as WORKING VERSION -> WORKING VERSION -----");
+		supertool.importEntities(importExistObjBranchMissingMandatoryFields, objImpNodeUuid, addrImpNodeUuid, false, false);
+
+		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA as PUBLISHED -> root misses data, is stored as WORKING VERSION -----");
+		supertool.importEntities(importExistObjBranchMissingMandatoryFields, objImpNodeUuid, addrImpNodeUuid, true, false);
+
+		System.out.println("\n----- Clean Up -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
+
 // -----------------------------------
 
 		System.out.println("\n\n=========================");
