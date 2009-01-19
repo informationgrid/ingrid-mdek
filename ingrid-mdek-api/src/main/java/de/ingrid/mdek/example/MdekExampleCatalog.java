@@ -958,7 +958,7 @@ class MdekExampleCatalogThread extends Thread {
 		startIndex = importUnzipped.indexOf("</related-address>") + 18;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
         	"\n<related-address>\n" +
-        	"<type-of-relation list-id=\"505\" entry-id=\"7\">Auskunft</type-of-relation>\n" +
+        	"<type-of-relation entry-id=\"-1\">MM Relation</type-of-relation>\n" +
         	"<address-identifier>MMMMMMMMMMMMMMM</address-identifier>\n" +
         	"</related-address>\n" +
 			importUnzipped.substring(startIndex, importUnzipped.length());

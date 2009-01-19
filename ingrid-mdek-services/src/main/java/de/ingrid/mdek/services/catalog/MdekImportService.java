@@ -457,14 +457,14 @@ public class MdekImportService implements IImporterCallback {
 					if (objRefNode == null) {
 						// remove if not found !
 						updateImportJobInfoMessages("! " + objTag +
-								"REMOVED reference of type \"" + refType + "\" to non existing object " + objRefUuid, userUuid);
+								"REMOVED object reference of type \"" + refType + "\" to non existing object " + objRefUuid, userUuid);
 						j.remove();
 					} else {
 						// remove if not same state !
 						boolean objRefHasPublishedVersion = objectService.hasPublishedVersion(objRefNode);
 						if (objIsPublished && !objRefHasPublishedVersion) {
 							updateImportJobInfoMessages("! " + objTag +
-									"REMOVED reference of type \"" + refType + "\" to NON PUBLISHED object " + objRefUuid, userUuid);
+									"REMOVED object reference of type \"" + refType + "\" to NON PUBLISHED object " + objRefUuid, userUuid);
 							j.remove();
 						}
 					}
@@ -786,7 +786,7 @@ public class MdekImportService implements IImporterCallback {
 			if (addressService.loadByUuid(addrRefUuid, null) == null) {
 				String refType = addrRef.getString(MdekKeys.RELATION_TYPE_NAME);
 				updateImportJobInfoMessages("! " + objTag +
-					"REMOVED reference of type \"" + refType + "\" to non existing address " + addrRefUuid, userUuid);
+					"REMOVED address reference of type \"" + refType + "\" to non existing address " + addrRefUuid, userUuid);
 				i.remove();
 			}
 		}
