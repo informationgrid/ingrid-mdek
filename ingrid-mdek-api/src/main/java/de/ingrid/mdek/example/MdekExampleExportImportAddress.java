@@ -1,7 +1,6 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,12 +9,16 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
-public class MdekExampleCatalog {
+public class MdekExampleExportImportAddress {
 
 	private static Map readParameters(String[] args) {
 		Map<String, String> argumentMap = new HashMap<String, String>();
@@ -69,10 +72,10 @@ public class MdekExampleCatalog {
 
 		// start threads calling job
 		System.out.println("\n###### OUTPUT THREADS ######\n");
-		MdekExampleCatalogThread[] threads = new MdekExampleCatalogThread[numThreads];
+		MdekExampleExportImportAddressThread[] threads = new MdekExampleExportImportAddressThread[numThreads];
 		// initialize
 		for (int i=0; i<numThreads; i++) {
-			threads[i] = new MdekExampleCatalogThread(i+1);
+			threads[i] = new MdekExampleExportImportAddressThread(i+1);
 		}
 		// fire
 		for (int i=0; i<numThreads; i++) {
@@ -112,14 +115,14 @@ public class MdekExampleCatalog {
 	}
 }
 
-class MdekExampleCatalogThread extends Thread {
+class MdekExampleExportImportAddressThread extends Thread {
 
 	private int threadNumber;
 	private boolean isRunning = false;
 
 	private MdekExampleSupertool supertool;
 
-	public MdekExampleCatalogThread(int threadNumber)
+	public MdekExampleExportImportAddressThread(int threadNumber)
 	{
 		this.threadNumber = threadNumber;
 		
@@ -134,6 +137,9 @@ class MdekExampleCatalogThread extends Thread {
 		boolean alwaysTrue = true;
 
 		IngridDocument doc;
+		IngridDocument result;
+		int startIndex;
+		int endIndex;
 		
 		// NI catalog
 
@@ -153,6 +159,7 @@ class MdekExampleCatalogThread extends Thread {
 //		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
 //		String topObjUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
 		// NO SUB OBJECTS !
+		String topObjUuid5 = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
 
 		String objWithAdditionalFieldsUuid = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
 		
@@ -182,17 +189,8 @@ class MdekExampleCatalogThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-		// Test EH Cache on catalog, user ...
+		// Test ...
 		// -----------------------
-
-		supertool.setFullOutput(false);
-
-		for (int i = 1; i <= 5; i++) {
-			supertool.getCatalog();
-		}
-		for (int i = 1; i <= 5; i++) {
-			supertool.getCatalogAdmin();
-		}
 
 		if (alwaysTrue) {
 			isRunning = false;
@@ -201,85 +199,83 @@ class MdekExampleCatalogThread extends Thread {
 */
 // ===================================
 
-		System.out.println("\n----- backend version -----");
-		supertool.getVersion();
+		System.out.println("\n\n=========================");
+		System.out.println("EXPORT ADDRESSES");
+		System.out.println("=========================");
+
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- fetch address EXPORT_ENTITY quantity -----");
+		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+
+		supertool.setFullOutput(false);
+
+		System.out.println("\n----- get LAST Export Info -----");
+		supertool.getExportInfo(false);
+
+		System.out.println("\n----- export addresses ONLY PARENT NODE -----");
+		supertool.exportAddressBranch(parentAddrUuid, true, null);
+		supertool.getExportInfo(true);
+
+		System.out.println("\n----- export addresses FULL BRANCH UNDER PARENT -----");
+		supertool.exportAddressBranch(parentAddrUuid, false, null);
+		supertool.getExportInfo(true);
+
+		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES -----");
+		supertool.exportAddressBranch(null, true, AddressArea.ALL_NON_FREE_ADDRESSES);
+		supertool.getExportInfo(true);
+
+		System.out.println("\n----- export addresses ALL FREE ADDRESSES -----");
+		supertool.exportAddressBranch(null, true, AddressArea.ALL_FREE_ADDRESSES);
+		supertool.getExportInfo(true);
+
+		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES and FREE ADDRESSES -----");
+		supertool.exportAddressBranch(null, true, AddressArea.ALL_ADDRESSES);
+		supertool.getExportInfo(true);
+/*
+		System.out.println("\n----- export addresses ALL NON FREE ADDRESSES (including subnodes) -----");
+		supertool.exportAddressBranch(null, false, AddressArea.ALL_NON_FREE_ADDRESSES);
+		supertool.getExportInfo(true);
+*/
+/*
+		System.out.println("\n----- export addresses ALL ADDRESSES -----");
+		supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
+		supertool.getExportInfo(true);
+*/
 
 // -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("CATALOG");
+		System.out.println("IMPORT ADDRESSES");
 		System.out.println("=========================");
 
-		System.out.println("\n----- CATALOG data -----");
-		IngridDocument catDoc = supertool.getCatalog();
-		String catLang = catDoc.getString(MdekKeys.LANGUAGE);
-		System.out.println("catalog language=" + catLang);
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, false);
+		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+		// doc to be used afterwards for new creation of node !
+		objImpNodeDoc.put(MdekKeys.UUID, objImpNodeUuid);
 
-		System.out.println("\n----- change CATALOG data -----");
-		System.out.println("- change Partner, Provider");
-		String origPartner = catDoc.getString(MdekKeys.PARTNER_NAME);
-		String origProvider = catDoc.getString(MdekKeys.PROVIDER_NAME);
-		catDoc.put(MdekKeys.PARTNER_NAME, "testPARTNER");
-		catDoc.put(MdekKeys.PROVIDER_NAME, "testPROVIDER");
-		catDoc = supertool.storeCatalog(catDoc, true);
-
-		System.out.println("\n----- back to orig data of CATALOG -----");
-		System.out.println("- change Partner, Provider");
-		catDoc.put(MdekKeys.PARTNER_NAME, origPartner);
-		catDoc.put(MdekKeys.PROVIDER_NAME, origProvider);
-		catDoc = supertool.storeCatalog(catDoc, true);
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, false);
+		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+		// doc to be used afterwards for new creation of node !
+		addrImpNodeDoc.put(MdekKeys.UUID, addrImpNodeUuid);
 
 // -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("SYSLISTS");
+		System.out.println("CLEAN UP");
 		System.out.println("=========================");
 
-		System.out.println("\n----- SysList Values NO language -----");
-		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, null);
-
-		System.out.println("\n----- SysList Values language: " + catLang + " -----");
-		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLang);
-
-// -----------------------------------
-
-		System.out.println("\n\n=========================");
-		System.out.println("SYSGUIS");
-		System.out.println("=========================");
-
-		System.out.println("\n----- get ALL SYSGUI Elements -----");
-		supertool.getSysGuis(null);
-
-		System.out.println("\n----- store specific SYSGUI Element and refetch -----");
-		IngridDocument[] sysGuis = new IngridDocument[2];
-		sysGuis[0] = new IngridDocument();
-		sysGuis[0].put(MdekKeys.SYS_GUI_ID, "TEST GUI_ID 1");
-		sysGuis[0].put(MdekKeys.SYS_GUI_BEHAVIOUR, MdekUtils.SysGuiBehaviour.MANDATORY.getDbValue());
-		sysGuis[1] = new IngridDocument();
-		sysGuis[1].put(MdekKeys.SYS_GUI_ID,  "TEST GUI_ID 2");
-		sysGuis[1].put(MdekKeys.SYS_GUI_BEHAVIOUR, MdekUtils.SysGuiBehaviour.REMOVED.getDbValue());
-		supertool.storeSysGuis(Arrays.asList(sysGuis), true);
-
-		System.out.println("\n----- get SPECIFIC SYSGUI Element -----");
-		supertool.getSysGuis(new String[] { "TEST GUI_ID 2" });
-
-		System.out.println("\n----- get ALL SYSGUI Elements -----");
-		supertool.getSysGuis(null);
-
-// -----------------------------------
-
-		System.out.println("\n\n=========================");
-		System.out.println("SYS ADDITIONAL FIELDS (Definitions)");
-		System.out.println("=========================");
-
-		System.out.println("\n----- Specific SysAdditionalFields with language -----");
-		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, catLang);
-
-		System.out.println("\n----- Specific SysAdditionalFields NO language -----");
-		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, null);
-
-		System.out.println("\n----- ALL SysAdditionalFields Values NO language -----");
-		supertool.getSysAdditionalFields(null, null);
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
 
 // ===================================
 
