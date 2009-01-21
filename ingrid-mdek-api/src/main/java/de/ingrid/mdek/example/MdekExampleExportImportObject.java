@@ -15,7 +15,6 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
@@ -307,53 +306,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		supertool.getExportInfo(true);
 */
 
-// -----------------------------------
-
-		System.out.println("\n\n=========================");
-		System.out.println("EXPORT ADDRESSES");
-		System.out.println("=========================");
-
-		supertool.setFullOutput(true);
-
-		System.out.println("\n----- fetch address EXPORT_ENTITY quantity -----");
-		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EXPORT_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
-
-		supertool.setFullOutput(false);
-
-		System.out.println("\n----- get LAST Export Info -----");
-		supertool.getExportInfo(false);
-
-		System.out.println("\n----- export addresses ONLY PARENT NODE -----");
-		supertool.exportAddressBranch(parentAddrUuid, true, null);
-		supertool.getExportInfo(true);
-
-		System.out.println("\n----- export addresses FULL BRANCH UNDER PARENT -----");
-		supertool.exportAddressBranch(parentAddrUuid, false, null);
-		supertool.getExportInfo(true);
-
-		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES -----");
-		supertool.exportAddressBranch(null, true, AddressArea.ALL_NON_FREE_ADDRESSES);
-		supertool.getExportInfo(true);
-
-		System.out.println("\n----- export addresses ALL FREE ADDRESSES -----");
-		supertool.exportAddressBranch(null, true, AddressArea.ALL_FREE_ADDRESSES);
-		supertool.getExportInfo(true);
-
-		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES and FREE ADDRESSES -----");
-		supertool.exportAddressBranch(null, true, AddressArea.ALL_ADDRESSES);
-		supertool.getExportInfo(true);
-/*
-		System.out.println("\n----- export addresses ALL NON FREE ADDRESSES (including subnodes) -----");
-		supertool.exportAddressBranch(null, false, AddressArea.ALL_NON_FREE_ADDRESSES);
-		supertool.getExportInfo(true);
-*/
-/*
-		System.out.println("\n----- export addresses ALL ADDRESSES -----");
-		supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
-		supertool.getExportInfo(true);
-*/
-
-// -----------------------------------
+// ===================================
 
 		System.out.println("\n\n=========================");
 		System.out.println("IMPORT OBJECTS");
