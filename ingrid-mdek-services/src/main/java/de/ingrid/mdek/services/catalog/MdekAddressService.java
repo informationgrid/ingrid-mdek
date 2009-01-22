@@ -38,11 +38,11 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.UuidGenerator;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -103,6 +103,16 @@ public class MdekAddressService {
 	 */
 	public AddressNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion) {
 		return daoAddressNode.loadByUuid(uuid, whichEntityVersion);
+	}
+
+	/** Load NODE with given ORIGINAL_ID (always queries WORKING VERSION !!!).
+	 * Also prefetch concrete address instance in node if requested.
+	 * @param origId id from external system (ORIGINAL_ID)
+	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @return node or null if not found
+	 */
+	public AddressNode loadByOrigId(String origId, IdcEntityVersion whichEntityVersion) {
+		return daoAddressNode.loadByOrigId(origId, whichEntityVersion);
 	}
 
 	/**
@@ -181,25 +191,69 @@ public class MdekAddressService {
 	}
 
 	/**
+	 * Store WORKING COPY of the address represented by the passed doc. Called By IGE !
+	 * @see #storeWorkingCopy(IngridDocument aDocIn, String userId,	boolean checkPermissions,
+	 * 			boolean calledByImporter=false)
+	 */
+	public String storeWorkingCopy(IngridDocument aDocIn, String userId, boolean checkPermissions) {
+		return storeWorkingCopy(aDocIn, userId, checkPermissions, false);
+	}
+
+	/**
 	 * Store WORKING COPY of the address represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
 	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
+	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored address, will be generated if new address (no uuid passed in doc)
 	 */
-	public String storeWorkingCopy(IngridDocument aDocIn, String userId, boolean checkPermissions) {
+	public String storeWorkingCopy(IngridDocument aDocIn, String userId, boolean checkPermissions,
+			boolean calledByImporter) {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
+		// WHEN CALLED BY IGE: uuid is null when new object
 		String uuid = (String) aDocIn.get(MdekKeys.UUID);
 		boolean isNewAddress = (uuid == null) ? true : false;
-		// parentUuid only passed if new address !?
+		// WHEN CALLED BY IMPORTER: uuid is NEVER NULL, but might be NEW ADDRESS !
+		// we check via select and SIMULATE IGE call (so all checks work !)
+		String importerUuid = uuid;
+		if (calledByImporter) {
+			isNewAddress = (loadByUuid(uuid, null) == null);
+			// simulate IGE call !
+			if (isNewAddress) {
+				uuid = null;
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				aDocIn.remove(MdekKeys.UUID);
+			}
+		}
+
+		// WHEN CALLED BY IGE: parentUuid only passed if new address !?
 		String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
+		// WHEN CALLED BY IMPORTER: parentUuid always passed. we SIMULATE IGE call (so all checks work !)
+		String importerParentUuid = parentUuid;
+		if (calledByImporter) {
+			// simulate IGE call !
+			if (!isNewAddress) {
+				parentUuid = null;
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				aDocIn.remove(MdekKeys.PARENT_UUID);
+			}
+		}
 
 		// set common data to transfer to working copy !
 		aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
+		String modUuid = userId;
+		if (calledByImporter) {
+			modUuid = docToBeanMapper.extractModUserUuid(aDocIn);
+			if (modUuid == null) {
+				modUuid = userId;
+			}
+		}
+		beanToDocMapper.mapModUser(modUuid, aDocIn, MappingQuantity.INITIAL_ENTITY);
+
 		// set current user as responsible user if not set !
 		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
 		if (respUserUuid == null) {
@@ -216,11 +270,20 @@ public class MdekAddressService {
 			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
 		}
 
-		if (isNewAddress) {
-			// create new uuid
-			uuid = UuidGenerator.getInstance().generateUuid();
+		// End simulating IGE call when called by importer, see above ! now we use importer data !
+		if (calledByImporter) {
+			uuid = importerUuid;
 			aDocIn.put(MdekKeys.UUID, uuid);
-			// NOTICE: don't add further data, is done below when checking working copy !
+			parentUuid = importerParentUuid;
+			aDocIn.put(MdekKeys.PARENT_UUID, parentUuid);
+		} else {
+			// called by IGE !
+			if (isNewAddress) {
+				// create new uuid
+				uuid = EntityHelper.getInstance().generateUuid();
+				aDocIn.put(MdekKeys.UUID, uuid);
+				// NOTICE: don't add further data, is done below when checking working copy !
+			}
 		}
 		
 		// load node
@@ -232,7 +295,7 @@ public class MdekAddressService {
 		}
 		
 		// get/create working copy
-		if (!hasWorkingVersion(aNode)) {
+		if (!hasWorkingCopy(aNode)) {
 			// no working copy yet, may be NEW object or a PUBLISHED one without working copy ! 
 
 			// set some missing data in doc which may not be passed from client.
@@ -287,26 +350,70 @@ public class MdekAddressService {
 	}
 
 	/**
+	 * Publish the address represented by the passed doc. Called By IGE !  
+	 * @see #publishAddress(IngridDocument aDocIn, String userId,
+	 * 			boolean checkPermissions, boolean calledByImporter=false)
+	 */
+	public String publishAddress(IngridDocument aDocIn, String userId, boolean checkPermissions) {
+		return publishAddress(aDocIn, userId, checkPermissions, false);
+	}
+
+	/**
 	 * Publish the address represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
 	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
+	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of published address, will be generated if new address (no uuid passed in doc)
 	 */
-	public String publishAddress(IngridDocument aDocIn, String userId, boolean checkPermissions) {
-		// uuid is null when new address !
+	public String publishAddress(IngridDocument aDocIn, String userId, boolean checkPermissions,
+			boolean calledByImporter) {
+		// HEN CALLED BY IGE: uuid is null when new address !
 		String uuid = (String) aDocIn.get(MdekKeys.UUID);
 		boolean isNewAddress = (uuid == null) ? true : false;
-		// parentUuid only passed if new address !
+		// WHEN CALLED BY IMPORTER: uuid is NEVER NULL, but might be NEW address !
+		// we check via select and SIMULATE IGE call (so all checks work !)
+		String importerUuid = uuid;
+		if (calledByImporter) {
+			isNewAddress = (loadByUuid(uuid, null) == null);
+			// simulate IGE call !
+			if (isNewAddress) {
+				uuid = null;
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				aDocIn.remove(MdekKeys.UUID);
+			}
+		}
+
+		// WHEN CALLED BY IGE: parentUuid only passed if new address !
 		String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
+		// WHEN CALLED BY IMPORTER: parentUuid always passed. we SIMULATE IGE call (so all checks work !)
+		String importerParentUuid = parentUuid;
+		if (calledByImporter) {
+			// simulate IGE call !
+			if (!isNewAddress) {
+				parentUuid = null;
+				// NO, if exception is thrown UUID in doc is missing (in calling method) !!!
+//				aDocIn.remove(MdekKeys.PARENT_UUID);
+			}
+		}
 
 		// set common data to transfer
 		workflowHandler.processDocOnPublish(aDocIn);
 		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 		aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
-		beanToDocMapper.mapModUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);
+		String modUuid = userId;
+		if (calledByImporter) {
+			// take over mod user from import doc ! was manipulated !
+			modUuid = docToBeanMapper.extractModUserUuid(aDocIn);
+			if (modUuid == null) {
+				modUuid = userId;
+			}
+		}
+		beanToDocMapper.mapModUser(modUuid, aDocIn, MappingQuantity.INITIAL_ENTITY);
+
 		// set current user as responsible user if not set !
 		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
 		if (respUserUuid == null) {
@@ -318,10 +425,19 @@ public class MdekAddressService {
 			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);			
 		}
 
-		if (isNewAddress) {
-			// create new uuid
-			uuid = UuidGenerator.getInstance().generateUuid();
+		// End simulating IGE call when called by importer, see above ! now we use importer data !
+		if (calledByImporter) {
+			uuid = importerUuid;
 			aDocIn.put(MdekKeys.UUID, uuid);
+			parentUuid = importerParentUuid;
+			aDocIn.put(MdekKeys.PARENT_UUID, parentUuid);
+		} else {
+			// called by IGE !
+			if (isNewAddress) {
+				// create new uuid
+				uuid = EntityHelper.getInstance().generateUuid();
+				aDocIn.put(MdekKeys.UUID, uuid);
+			}
 		}
 
 		// load node
@@ -464,10 +580,11 @@ public class MdekAddressService {
 			result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
 
 			// perform delete of working copy only if really different version
-			if (hasWorkingVersion(aNode)) {
+			if (hasWorkingCopy(aNode)) {
 				// delete working copy, BUT REMEMBER COMMENTS -> take over to published version !  
 				T02Address aWorkingCopy = aNode.getT02AddressWork();
-				IngridDocument commentsDoc = beanToDocMapper.mapAddressComments(aWorkingCopy.getAddressComments(), new IngridDocument());
+				IngridDocument commentsDoc =
+					beanToDocMapper.mapAddressComments(aWorkingCopy.getAddressComments(), new IngridDocument());
 				daoT02Address.makeTransient(aWorkingCopy);
 
 				// take over comments to published version
@@ -516,18 +633,31 @@ public class MdekAddressService {
 	}
 
 	/**
-	 * Assign address to QA ! 
+	 * Assign address to QA. Called By IGE !
+	 * @see #assignAddressToQA(IngridDocument aDocIn, String userId, boolean checkPermissions,
+	 * 			boolean calledByImporter=false)
+	 */
+	public String assignAddressToQA(IngridDocument aDocIn, 
+			String userId, boolean checkPermissions) {
+		return assignAddressToQA(aDocIn, userId, checkPermissions, false);
+	}
+
+	/**
+	 * Assign address to QA !
 	 * @param aDocIn doc representing address
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
 	 * 		false=NO check on write permission ! working copy will be stored !
+	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
+	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored address, will be generated if new address (no uuid passed in doc)
 	 */
 	public String assignAddressToQA(IngridDocument aDocIn, 
-			String userId, boolean checkPermissions) {
+			String userId, boolean checkPermissions,
+			boolean calledByImporter) {
 		// set specific data to transfer to working copy and store !
 		workflowHandler.processDocOnAssignToQA(aDocIn, userId);
-		return storeWorkingCopy(aDocIn, userId, checkPermissions);
+		return storeWorkingCopy(aDocIn, userId, checkPermissions, calledByImporter);
 	}
 
 	/** FULL DELETE ! MAKE TRANSIENT ! */
@@ -617,7 +747,7 @@ public class MdekAddressService {
 	 * @return true=address has a published version. NOTICE: working copy may differ<br>
 	 * 	false=not published yet, only working version exists !
 	 */
-	private boolean hasPublishedVersion(AddressNode node) {
+	public boolean hasPublishedVersion(AddressNode node) {
 		Long pubId = node.getAddrIdPublished(); 
 		if (pubId == null) {
 			return false;
@@ -625,12 +755,12 @@ public class MdekAddressService {
 		return true;
 	}
 
-	/** Checks whether given Address has a working version !
+	/** Checks whether given Address has a working copy !
 	 * @param node address to check represented by node !
 	 * @return true=address has different working copy OR not published yet<br>
-	 * 	false=no working version OR same as published version !
+	 * 	false=no working copy, working version is same as published version (OR no working version at all, should not happen)
 	 */
-	private boolean hasWorkingVersion(AddressNode node) {
+	private boolean hasWorkingCopy(AddressNode node) {
 		Long workId = node.getAddrId(); 
 		Long pubId = node.getAddrIdPublished(); 
 		if (workId == null || workId.equals(pubId)) {

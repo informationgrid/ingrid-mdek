@@ -36,7 +36,7 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.UuidGenerator;
+import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -1055,7 +1055,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			// copy source work version !
-			String newUuid = UuidGenerator.getInstance().generateUuid();
+			String newUuid = EntityHelper.getInstance().generateUuid();
 			T02Address targetAddrWork = createT02AddressCopy(sourceNode.getT02AddressWork(), newUuid, userUuid);
 
 			// handle copies from/to "free address"

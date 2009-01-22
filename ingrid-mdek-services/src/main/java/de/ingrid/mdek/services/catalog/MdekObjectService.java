@@ -39,7 +39,7 @@ import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.UuidGenerator;
+import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -181,8 +181,7 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Store WORKING COPY of the object represented by the passed doc.
-	 * MOD USER IS DETERMINED DEPENDEN FROM PASSED FLAG calledByImporter !<br>
+	 * Store WORKING COPY of the object represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object
 	 * @param userId user performing operation, will be set as mod-user
@@ -263,7 +262,7 @@ public class MdekObjectService {
 			// called by IGE !
 			if (isNewObject) {
 				// create new uuid
-				uuid = UuidGenerator.getInstance().generateUuid();
+				uuid = EntityHelper.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
 				// NOTICE: don't add further data, is done below when checking working copy !
 			}			
@@ -437,6 +436,7 @@ public class MdekObjectService {
 		oDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 		String modUuid = userId;
 		if (calledByImporter) {
+			// take over mod user from import doc ! was manipulated !
 			modUuid = docToBeanMapper.extractModUserUuid(oDocIn);
 			if (modUuid == null) {
 				modUuid = userId;
@@ -460,7 +460,7 @@ public class MdekObjectService {
 			// called by IGE !
 			if (isNewObject) {
 				// create new uuid
-				uuid = UuidGenerator.getInstance().generateUuid();
+				uuid = EntityHelper.getInstance().generateUuid();
 				oDocIn.put(MdekKeys.UUID, uuid);
 			}			
 		}
@@ -675,7 +675,7 @@ public class MdekObjectService {
 	}
 
 	/**
-	 * Assign object to QA ! 
+	 * Assign object to QA !
 	 * @param oDocIn doc representing object
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param checkPermissions true=check whether user has write permission<br>
@@ -798,7 +798,7 @@ public class MdekObjectService {
 	/** Checks whether given Object has a working copy !
 	 * @param oNode object to check represented by node !
 	 * @return true=object has different working copy OR not published yet<br>
-	 * 	false=no working version same as published version (OR no working version at all, should not happen)
+	 * 	false=no working copy, working version is same as published version (OR no working version at all, should not happen)
 	 */
 	public boolean hasWorkingCopy(ObjectNode oNode) {
 		Long oWorkId = oNode.getObjId(); 

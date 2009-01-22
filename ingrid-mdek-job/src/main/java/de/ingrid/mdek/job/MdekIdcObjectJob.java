@@ -37,7 +37,7 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.UuidGenerator;
+import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -986,7 +986,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
 			// copy source work version !
-			String newUuid = UuidGenerator.getInstance().generateUuid();
+			String newUuid = EntityHelper.getInstance().generateUuid();
 			T01Object targetObjWork = createT01ObjectCopy(sourceNode.getT01ObjectWork(), newUuid, userUuid);
 			
 			// create new Node and set data !

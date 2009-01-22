@@ -76,6 +76,43 @@ public class AddressNodeDaoHibernate
 		return aN;
 	}
 
+	public AddressNode loadByOrigId(String origId, IdcEntityVersion whichEntityVersion) {
+		if (origId == null) {
+			return null;
+		}
+
+		Session session = getSession();
+
+		// always fetch working version. Is needed for querying, so we fetch it.
+		String qString = "select distinct aNode from AddressNode aNode " +
+				"left join fetch aNode.t02AddressWork aWork ";
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
+			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
+			qString += "left join fetch aNode.t02AddressPublished ";			
+		}
+		qString += "where aWork.orgAdrId = ? ";
+		// order to guarantee always same node in front if multiple nodes with same orig id ! 
+		qString += "order by aNode.addrUuid";
+
+		List<AddressNode> aNodes = session.createQuery(qString)
+			.setString(0, origId)
+			.list();
+
+		AddressNode retNode = null;
+		String nodeUuids = "";
+		for (AddressNode aNode : aNodes) {
+			if (retNode == null) {
+				retNode = aNode;
+			}
+			nodeUuids += "\n     " + aNode.getAddrUuid();
+		}
+		if (aNodes.size() > 1) {
+			LOG.warn("MULTIPLE NODES WITH SAME ORIG_ID: " + origId + " ! Nodes:" + nodeUuids);
+		}
+
+		return retNode;
+	}
+
 	public List<AddressNode> getTopAddresses(boolean onlyFreeAddresses,
 			IdcEntityVersion whichEntityVersion,
 			boolean fetchSubNodesChildren) {

@@ -31,6 +31,14 @@ public interface IAddressNodeDao
 	 */
 	AddressNode loadByUuid(String uuid, IdcEntityVersion whichEntityVersion);
 
+	/** Load address NODE with given ORIGINAL_ID (always queries WORKING VERSION !!!).
+	 * Also prefetch concrete address instance in node if requested.
+	 * @param origId address ORIGINAL_ID = id from external system
+	 * @param whichEntityVersion which address Version to prefetch in node, pass null IF ONLY NODE SHOULD BE LOADED 
+	 * @return first node found or null if not found. Logs WARNING if multiple nodes found !!!
+	 */
+	AddressNode loadByOrigId(String origId, IdcEntityVersion whichEntityVersion);
+
 	/**
 	 * Get top root addresses. ALWAYS prefetches concrete address instance in nodes.
 	 * @param onlyFreeAddresses true=only top free addresses, false=only top NON free addresses

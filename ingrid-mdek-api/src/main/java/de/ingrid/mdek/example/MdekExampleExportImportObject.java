@@ -316,18 +316,14 @@ class MdekExampleExportImportObjectThread extends Thread {
 		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
 		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
 		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
-		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, false);
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
 		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
-		// doc to be used afterwards for new creation of node !
-		objImpNodeDoc.put(MdekKeys.UUID, objImpNodeUuid);
 
 		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
 		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
-		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, false);
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
 		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
-		// doc to be used afterwards for new creation of node !
-		addrImpNodeDoc.put(MdekKeys.UUID, addrImpNodeUuid);
 
 // -----------------------------------
 
@@ -571,7 +567,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		String origId2 = "ORIG_ID2";
 		String newOrigId = "ORIG_ID_NEW";
 
-		// import data: existing NEW top node with ORIG_ID1
+		// import data: existing top node with ORIG_ID1
 		importUnzipped = exportTopObjUnzipped.replace("<title>", "<title>1.MMImport ORIG_ID1: ");
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</object-identifier>")+20;
@@ -646,7 +642,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
-		// import data: NEW arcgis object with EXISTING ORIG_ID
+		// import data: NEW arcgis object with NEW ORIG_ID
 		importUnzipped = importUnzipped.replace(origId1, newOrigId);
 		byte[] importArcGisNewOrigId = new byte[0];
 		try {
