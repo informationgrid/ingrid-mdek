@@ -1007,7 +1007,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		doc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.NO);
 		doc = supertool.storeCatalog(doc, true);
 
-		// -----------------------------------
+// -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: ADDITIONAL FIELDS -----");
@@ -1082,7 +1082,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		supertool.deleteObject(objImpNodeUuid, true);
 		supertool.storeObject(objImpNodeDoc, false);
 
-		// -----------------------------------
+// -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: MANDATORY DATA -----");
@@ -1128,7 +1128,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 			System.out.println(ex);			
 		}
 
-		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA as WORKING VERSION -> WORKING VERSION -----");
+		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA as WORKING VERSION -> no error, WORKING VERSION -----");
 		supertool.importEntities(importExistObjBranchMissingMandatoryFields, objImpNodeUuid, addrImpNodeUuid, false, false);
 
 		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA as PUBLISHED -> root misses data, is stored as WORKING VERSION -----");
