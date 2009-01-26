@@ -726,7 +726,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 
 		System.out.println("\n\n----- import NEW branch with ORIG_ID1 (multiple !) and ORIG_ID2 (unique) -> update FIRST found ORIG_ID1 (top address) and found ORIG_ID2 ->  -----");
-		System.out.println("----- -> remaining children can't find their parent and are sored underneath import node -----");
+		System.out.println("----- -> remaining children can't find their parent and are stored underneath import node -----");
 		System.out.println("----- !!! LOG WARNING: ORIG_ID1 not unique !!! -----");
 		supertool.importEntities(importNewBranchOrigIds1_2, objImpNodeUuid, addrImpNodeUuid, false, false);
 		supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
@@ -811,6 +811,60 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.deleteAddressWorkingCopy(child1PersonAddrUuid, true);
 		supertool.deleteAddress(addrImpNodeUuid, true);
 		supertool.storeAddress(addrImpNodeDoc, false);
+
+// -----------------------------------
+
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: MOVE ADDRESS -----");
+		System.out.println("-------------------------------------");
+
+		// import data: move branch under top address !
+		importUnzipped = exportBranchUnzipped.replace("<address-identifier>3761E246-69E7-11D3-BB32-1C7607C10000</address-identifier>",
+				"<address-identifier>" + topAddrUuid2 + "</address-identifier>");
+		byte[] importBranchMoveBranchToTop = new byte[0];
+		try {
+			importBranchMoveBranchToTop = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		// import data: move branch under FREE address -> ERROR !
+		importUnzipped = exportBranchUnzipped.replace("<address-identifier>3761E246-69E7-11D3-BB32-1C7607C10000</address-identifier>",
+				"<address-identifier>" + freeAddrUuid + "</address-identifier>");
+		byte[] importBranchMoveBranchToFree = new byte[0];
+		try {
+			importBranchMoveBranchToFree = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n----- state before import and MOVE -----");
+		System.out.println("\n----- FROM -----");
+		supertool.fetchSubAddresses(topAddrUuid);
+		System.out.println("\n----- TO -----");
+		supertool.fetchSubAddresses(topAddrUuid2);
+
+		System.out.println("\n\n----- import existing branch with DIFFERENT parent as WORKING VERSION -> move branch to new parent ! -----");
+		supertool.importEntities(importBranchMoveBranchToTop, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchSubAddresses(topAddrUuid);
+		supertool.fetchSubAddresses(topAddrUuid2);
+
+		System.out.println("\n----- Clean Up: move back to original position -----");
+		supertool.moveAddress(parentAddrUuid, topAddrUuid, false);
+
+		System.out.println("\n----- import existing branch with DIFFERENT parent as PUBLISHED -> move branch to new parent ! -----");
+		supertool.importEntities(importBranchMoveBranchToTop, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.fetchSubAddresses(topAddrUuid);
+		supertool.fetchSubAddresses(topAddrUuid2);
+
+		System.out.println("\n----- Clean Up: move back to original position -----");
+		supertool.moveAddress(parentAddrUuid, topAddrUuid, false);
+
+
+		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error (to FREE ADDRESS) ->  branch keeps position, root stored as WORKING version, subnodes PUBLISHED !-----");
+		supertool.importEntities(importBranchMoveBranchToFree, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.fetchSubAddresses(topAddrUuid);
+		supertool.fetchSubAddresses(freeAddrUuid);
 
 // -----------------------------------
 

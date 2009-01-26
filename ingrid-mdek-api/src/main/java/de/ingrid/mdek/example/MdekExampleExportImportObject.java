@@ -795,7 +795,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		doc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		doc = supertool.publishObject(doc, true, false);
 
-		System.out.println("\n\n----- Import (PUBLISHED) causes Move causes Error (Intranet) -> branch keeps position, branch root stored as working version, subnodes PUBLISHED ! -----");
+		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error (Intranet) -> branch keeps position, branch root stored as WORKING version, subnodes PUBLISHED ! -----");
 		supertool.importEntities(importBranchMoveObj, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objParentUuid);
 		supertool.fetchSubObjects(topObjUuid5);

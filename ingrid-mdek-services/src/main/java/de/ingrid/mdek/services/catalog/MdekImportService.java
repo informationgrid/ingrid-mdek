@@ -329,14 +329,11 @@ public class MdekImportService implements IImporterCallback {
 			addrTag = createEntityTag(IdcEntityType.ADDRESS, addrDoc);
 
 			// move existing address if valid (import structure has higher priority than existing structure).
-			errorMsg = MSG_WARN + addrTag + "Problems moving : ";
 			try {
 				processMove(IdcEntityType.ADDRESS, addrDoc, existingNode, parentNode, userUuid);
 
 			} catch (Exception ex) {
-				updateImportJobInfoMessages(errorMsg + ex, userUuid);
 				storeWorkingVersion = true;
-				LOG.error(errorMsg, ex);
 			}
 
 			// PUBLISH IMPORT ADDRESS ?
@@ -736,10 +733,7 @@ public class MdekImportService implements IImporterCallback {
 		HashMap<String, String> uuidMappingMap = getUuidMappingMap(userUuid);
 
 		String inUuid = inDoc.getString(MdekKeys.UUID);
-		String inOrigId = inDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
-		if (whichType == IdcEntityType.ADDRESS) {
-			inOrigId = inDoc.getString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER);
-		}
+		String inOrigId = EntityHelper.getOrigIdFromDoc(whichType, inDoc);
 		String inParentUuid = inDoc.getString(MdekKeys.PARENT_UUID);
 
 		// process UUID
@@ -775,19 +769,14 @@ public class MdekImportService implements IImporterCallback {
 		// check orig id and remove if not unique !
 		String newOrigId = inOrigId;
 		if (inOrigId != null) {
-			String existingUuid = null;
+			IEntity existingNode = null;
 			if (whichType == IdcEntityType.OBJECT) {
-				ObjectNode oNode = objectService.loadByOrigId(inOrigId,  null);
-				if (oNode != null) {
-					existingUuid = oNode.getObjUuid();
-				}
+				existingNode = objectService.loadByOrigId(inOrigId,  null);
 			} else if (whichType == IdcEntityType.ADDRESS) {
-				AddressNode aNode = addressService.loadByOrigId(inOrigId,  null);
-				if (aNode != null) {
-					existingUuid = aNode.getAddrUuid();
-				}
+				existingNode = addressService.loadByOrigId(inOrigId,  null);
 			}
-			if (existingUuid != null) {
+			if (existingNode != null) {
+				String existingUuid = EntityHelper.getUuidFromNode(whichType, existingNode);
 				// just to be sure: could be the same entity (when included multiple times !? )
 				if (!newUuid.equals(existingUuid)) {
 					// same orig id set in other entity, we remove this one
@@ -859,10 +848,7 @@ public class MdekImportService implements IImporterCallback {
 		Boolean storeWorkingVersion = false;
 
 		String inUuid = inDoc.getString(MdekKeys.UUID);
-		String inOrigId = inDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
-		if (whichType == IdcEntityType.ADDRESS) {
-			inOrigId = inDoc.getString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER);
-		}
+		String inOrigId = EntityHelper.getOrigIdFromDoc(whichType, inDoc);
 		String tag = createEntityTag(whichType, inUuid, inOrigId, inDoc.getString(MdekKeys.PARENT_UUID));
 
 		// UUID has highest priority, load via UUID. if entity found then ignore ORIG_ID in doc (which may differ) !
@@ -1233,12 +1219,16 @@ public class MdekImportService implements IImporterCallback {
 			return;
 		}
 
-		String tag = createEntityTag(whichType, inDoc);
 		String currentParentUuid = EntityHelper.getParentUuidFromNode(whichType, existingNode);
 		String newParentUuid = null;
 		if (parentNode != null) {
 			newParentUuid = EntityHelper.getUuidFromNode(whichType, parentNode);
 		}
+
+		// create entity tag with "old" data (doc contains already new parent !)
+		String tag = createEntityTag(whichType, inDoc.getString(MdekKeys.UUID),
+			EntityHelper.getOrigIdFromDoc(whichType, inDoc),
+			currentParentUuid);
 
 		if (newParentUuid == null) {
 			// "new" position is top node -> only possible if existing node is top node !
@@ -1257,10 +1247,16 @@ public class MdekImportService implements IImporterCallback {
 					addressService.moveAddress(uuidToMove, newParentUuid, false, userUuid, false);				
 				}
 
-				updateImportJobInfoMessages(tag + "Moved to new parent, former parent: " + currentParentUuid, userUuid);
+				updateImportJobInfoMessages(tag + "Moved to new parent " + newParentUuid, userUuid);
 			} catch (Exception ex) {
 				// problems ! we set parent in doc to current parent to guarantee correct parent !
-				inDoc.put(MdekKeys.PARENT_UUID, EntityHelper.getParentUuidFromNode(whichType, existingNode));
+				inDoc.put(MdekKeys.PARENT_UUID, currentParentUuid);
+
+				// and log
+				String errorMsg = MSG_WARN + tag + "Problems moving to new parent " + newParentUuid + " : ";
+				LOG.error(errorMsg, ex);
+				updateImportJobInfoMessages(errorMsg + ex, userUuid);
+
 				throw ex;
 			}
 		}
@@ -1272,12 +1268,7 @@ public class MdekImportService implements IImporterCallback {
 
 	/** Creates entity tag from entity doc ! To be displayed as entity "identifier". */
 	private String createEntityTag(IdcEntityType whichType, IngridDocument entityDoc) {
-		String origId = null;
-		if (whichType == IdcEntityType.OBJECT) {
-			origId = entityDoc.getString(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
-		} else if (whichType == IdcEntityType.ADDRESS) {
-			origId = entityDoc.getString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER);
-		}
+		String origId = EntityHelper.getOrigIdFromDoc(whichType, entityDoc);
 		return createEntityTag(whichType,
 				entityDoc.getString(MdekKeys.UUID),
 				origId,
