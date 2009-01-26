@@ -868,6 +868,47 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 // -----------------------------------
 
+		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: ASSIGN TO QA -----");
+		System.out.println("-------------------------------------");
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- ENABLE WORKFLOW in catalog -----");
+		doc = supertool.getCatalog();
+		doc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
+		doc = supertool.storeCatalog(doc, true);
+
+		System.out.println("\n----- state BEFORE import -----");
+		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n\n----- import branch as WORKING VERSION -> WORKING VERSION -----");
+		supertool.importEntities(importExistingAddrBranch, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n\n----- import branch as PUBLISHED -> ASSIGNED TO QA -----");
+		supertool.importEntities(importExistingAddrBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n\n----- Clean Up -----");
+		supertool.deleteAddressWorkingCopy(parentAddrUuid, true);
+		supertool.deleteAddressWorkingCopy(child1PersonAddrUuid, true);
+		supertool.deleteAddressWorkingCopy(child2AddrUuid, true);
+		supertool.deleteAddressWorkingCopy(child3AddrUuid, true);
+		supertool.deleteAddressWorkingCopy(child4AddrUuid, true);
+		supertool.deleteAddressWorkingCopy(child5AddrUuid, true);
+		supertool.deleteAddressWorkingCopy(child6AddrUuid, true);
+
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- DISABLE WORKFLOW in catalog -----");
+		doc = supertool.getCatalog();
+		doc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.NO);
+		doc = supertool.storeCatalog(doc, true);
+
+		// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("CLEAN UP");
 		System.out.println("=========================");
