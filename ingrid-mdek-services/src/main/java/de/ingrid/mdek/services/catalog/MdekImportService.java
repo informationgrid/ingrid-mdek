@@ -115,282 +115,131 @@ public class MdekImportService implements IImporterCallback {
 	 * @see de.ingrid.mdek.xml.importer.IImporterCallback#writeObject(de.ingrid.utils.IngridDocument, java.lang.String, boolean, java.lang.String)
 	 */
 	public void writeObject(IngridDocument objDoc, String userUuid) {
-		// extract context
-		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
-		boolean publishImmediately = (Boolean) runningJobInfo.get(KEY_PUBLISH_IMMEDIATELY);
-		boolean doSeparateImport = (Boolean) runningJobInfo.get(KEY_DO_SEPARATE_IMPORT);
-		ObjectNode objImportNode = (ObjectNode) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
-		int numImported = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
-		int totalNum = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
-
-		// process import doc, remove/fix wrong data from exporting catalog
-		preprocessDoc(IdcEntityType.OBJECT, objDoc, userUuid);
-
-		boolean storeWorkingVersion = false;
-		String objTag;
-		String errorMsg;
-		String newObjMsg = "NEW object ";
-
-		if (doSeparateImport) {
-			// process UUIDs, ORIG_IDs, PARENT_UUIDs so ALL objects will be created under import node ! 
-			processUuidsOnSeparateImport(IdcEntityType.OBJECT, objDoc, objImportNode.getObjUuid(), userUuid);
-
-			// process all relations (to objects and addresses) !
-			processRelationsOfObject(objDoc, userUuid);
-
-			// verify additional fields
-			processAdditionalFields(objDoc, userUuid);
-		
-			storeWorkingVersion = true;
-			
-		} else {
-			// determine the according node in the catalog
-			HashMap retMap = determineNode(IdcEntityType.OBJECT, objDoc, userUuid);
-			ObjectNode existingNode = (ObjectNode) retMap.get(TMP_FOUND_NODE);
-			if ((Boolean) retMap.get(TMP_STORE_WORKING_VERSION)) {
-				storeWorkingVersion = true;
-			}
-
-			// determine the parent (may differ from current parent)
-			retMap = determineParentNode(IdcEntityType.OBJECT, objDoc, existingNode, objImportNode, userUuid);
-			ObjectNode parentNode = (ObjectNode) retMap.get(TMP_FOUND_NODE);
-			if ((Boolean) retMap.get(TMP_STORE_WORKING_VERSION)) {
-				storeWorkingVersion = true;
-			}
-
-			// process all relations (to objects and addresses) !
-			processRelationsOfObject(objDoc, userUuid);
-
-			// verify additional fields. if problems, store working version !
-			if (!processAdditionalFields(objDoc, userUuid)) {
-				storeWorkingVersion = true;				
-			}
-
-			// MOVE EXISTING OBJECT ?
-			// ----------------------
-
-			// create object tag for messages !
-			objTag = createEntityTag(IdcEntityType.OBJECT, objDoc);
-
-			// move existing object if valid (import structure has higher priority than existing structure).
-			errorMsg = MSG_WARN + objTag + "Problems moving : ";
-			try {
-				processMove(IdcEntityType.OBJECT, objDoc, existingNode, parentNode, userUuid);
-
-			} catch (Exception ex) {
-				updateImportJobInfoMessages(errorMsg + ex, userUuid);
-				storeWorkingVersion = true;
-				LOG.error(errorMsg, ex);
-			}
-
-			// PUBLISH IMPORT OBJECT ?
-			// -----------------------
-
-			// create object tag for messages !
-			objTag = createEntityTag(IdcEntityType.OBJECT, objDoc);
-
-			// message whether node exists or not ! 
-			if (existingNode != null) {
-				newObjMsg = "EXISTING object ";
-			}
-
-			if (publishImmediately &&
-					!storeWorkingVersion &&
-					checkMandatoryData(IdcEntityType.OBJECT, objDoc, userUuid)) {
-
-				// if workflow enabled then ASSIGN TO QA else PUBLISH !
-				if (catalogService.isWorkflowEnabled()) {
-					// Workflow enabled -> ASSIGN TO QA ! On error store working version !
-
-					errorMsg = MSG_WARN + objTag + "Problems assigning to QA : ";
-					try {
-						objectService.assignObjectToQA(objDoc, userUuid, false, true);
-						updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-						updateImportJobInfoMessages(objTag + newObjMsg + "ASSIGNED TO QA", userUuid);
-
-					} catch (Exception ex) {
-						updateImportJobInfoMessages(errorMsg + ex, userUuid);
-						storeWorkingVersion = true;
-						LOG.error(errorMsg, ex);
-					}
-
-				} else {
-					// Workflow disabled -> PUBLISH !  On error store working version !
-
-					// first check whether publishing is possible with according parent
-					// NOTICE: determined parent can be null -> update of existing top object 
-					if (parentNode != null && !objectService.hasPublishedVersion(parentNode)) {
-						// parent not published -> store working version !
-						updateImportJobInfoMessages(MSG_WARN + objTag + "Parent not published", userUuid);
-						storeWorkingVersion = true;
-						
-					} else {
-						// ok, we publish. On error store working version !
-						errorMsg = MSG_WARN + objTag + "Problems publishing : ";
-						try {
-							// we DON'T force publication condition ! if error, we store working version !
-							objectService.publishObject(objDoc, false, userUuid, false, true);
-							updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-							updateImportJobInfoMessages(objTag + newObjMsg + "PUBLISHED", userUuid);
-
-						} catch (Exception ex) {
-							updateImportJobInfoMessages(errorMsg + ex, userUuid);
-							storeWorkingVersion = true;
-							LOG.error(errorMsg, ex);
-						}
-					}
-				}
-
-			} else {
-				storeWorkingVersion = true;			
-			}
-		}
-
-
-		// STORE WORKING COPY IMPORT OBJECT ?
-		// ----------------------------------
-
-		// create object tag for messages !
-		objTag = createEntityTag(IdcEntityType.OBJECT, objDoc);
-		String objUuid = objDoc.getString(MdekKeys.UUID);
-
-		if (storeWorkingVersion) {
-			errorMsg = MSG_WARN + objTag + "Problems storing working version : ";
-			try {
-				objectService.storeWorkingCopy(objDoc, userUuid, false, true);
-				updateImportJobInfo(IdcEntityType.OBJECT, numImported+1, totalNum, userUuid);
-				updateImportJobInfoMessages(objTag + newObjMsg + "stored as WORKING version", userUuid);
-
-			} catch (Exception ex) {
-				updateImportJobInfoMessages(errorMsg + ex.getMessage(), userUuid);
-				// object was NOT persisted, we also remove remembered obj references of this object.
-				evictObjReferences(objUuid, userUuid);
-				LOG.error(errorMsg, ex);
-			}
-		}
+		writeEntity(IdcEntityType.OBJECT, objDoc, userUuid);
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.importer.IImporterCallback#writeAddress(de.ingrid.utils.IngridDocument, java.lang.String, boolean, java.lang.String)
 	 */
 	public void writeAddress(IngridDocument addrDoc, String userUuid) {
+		writeEntity(IdcEntityType.ADDRESS, addrDoc, userUuid);
+	}
+
+	public void writeEntity(IdcEntityType whichType, IngridDocument inDoc, String userUuid) {
 		// extract context
 		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
 		boolean publishImmediately = (Boolean) runningJobInfo.get(KEY_PUBLISH_IMMEDIATELY);
 		boolean doSeparateImport = (Boolean) runningJobInfo.get(KEY_DO_SEPARATE_IMPORT);
-		AddressNode addrImportNode = (AddressNode) runningJobInfo.get(KEY_ADDR_IMPORT_NODE);
 		int numImported = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
 		int totalNum = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
+		IEntity importNode = null;
+		if (whichType == IdcEntityType.OBJECT) {
+			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);			
+		} else if (whichType == IdcEntityType.ADDRESS) {
+			importNode = (IEntity) runningJobInfo.get(KEY_ADDR_IMPORT_NODE);
+		}
 
 		// process import doc, remove/fix wrong data from exporting catalog
-		preprocessDoc(IdcEntityType.ADDRESS, addrDoc, userUuid);
+		preprocessDoc(whichType, inDoc, userUuid);
 
 		boolean storeWorkingVersion = false;
-		String addrTag;
-		String errorMsg;
-		String newAddrMsg = "NEW address ";
+		// update existing node or create new node ! this one holds the found node !
+		IEntity existingNode = null;
 
 		if (doSeparateImport) {
-			// process UUIDs, ORIG_IDs, PARENT_UUIDs so ALL addresses will be created under import node ! 
-			processUuidsOnSeparateImport(IdcEntityType.ADDRESS, addrDoc, addrImportNode.getAddrUuid(), userUuid);
+			// process UUIDs, ORIG_IDs, PARENT_UUIDs so ALL entities will be created under import node ! 
+			processUuidsOnSeparateImport(whichType,
+				inDoc, EntityHelper.getUuidFromNode(whichType, importNode), userUuid);
 
-			// transform FREE address to PERSON UNDER IMPORT NODE !
-			processFreeAddressToPerson(addrDoc, addrImportNode.getAddrUuid(), userUuid);
+			// entity type specific stuff
+			if (whichType == IdcEntityType.OBJECT) {
+				// process all relations (to objects and addresses) !
+				processRelationsOfObject(inDoc, userUuid);
 
+				// verify additional fields
+				processAdditionalFields(inDoc, userUuid);
+
+			} else if (whichType == IdcEntityType.ADDRESS) {
+				// transform FREE address to PERSON UNDER IMPORT NODE !
+				processFreeAddressToPerson(inDoc, EntityHelper.getUuidFromNode(whichType, importNode), userUuid);
+			}
+		
 			storeWorkingVersion = true;
 			
 		} else {
 			// determine the according node in the catalog
-			HashMap retMap = determineNode(IdcEntityType.ADDRESS, addrDoc, userUuid);
-			AddressNode existingNode = (AddressNode) retMap.get(TMP_FOUND_NODE);
+			HashMap retMap = determineNode(whichType, inDoc, userUuid);
+			existingNode = (IEntity) retMap.get(TMP_FOUND_NODE);
 			if ((Boolean) retMap.get(TMP_STORE_WORKING_VERSION)) {
 				storeWorkingVersion = true;
 			}
-			
-			// if node not found and is a FREE address then transform it to a PERSON. NEW FREE addresses are never added as
-			// FREE address. Will be added under import node as PERSON !
-			if (existingNode == null) {
-				if (processFreeAddressToPerson(addrDoc, addrImportNode.getAddrUuid(), userUuid)) {
-					storeWorkingVersion = true;
+
+			// entity type specific stuff
+			if (whichType == IdcEntityType.ADDRESS) {
+				// if node not found and is a FREE address then transform it to a PERSON.
+				// NEW FREE addresses are never added as FREE address. Will be added under import node as PERSON !
+				if (existingNode == null) {
+					if (processFreeAddressToPerson(inDoc, EntityHelper.getUuidFromNode(whichType, importNode), userUuid)) {
+						storeWorkingVersion = true;
+					}
 				}
 			}
 
 			// determine the parent (may differ from current parent)
-			retMap = determineParentNode(IdcEntityType.ADDRESS, addrDoc, existingNode, addrImportNode, userUuid);
-			AddressNode parentNode = (AddressNode) retMap.get(TMP_FOUND_NODE);
+			retMap = determineParentNode(whichType, inDoc, existingNode, importNode, userUuid);
+			IEntity parentNode = (IEntity) retMap.get(TMP_FOUND_NODE);
 			if ((Boolean) retMap.get(TMP_STORE_WORKING_VERSION)) {
 				storeWorkingVersion = true;
 			}
 
-			// MOVE EXISTING ADDRESS ?
+			// entity type specific stuff
+			if (whichType == IdcEntityType.OBJECT) {
+				// process all relations (to objects and addresses) !
+				processRelationsOfObject(inDoc, userUuid);				
+
+				// verify additional fields. if problems, store working version !
+				if (!processAdditionalFields(inDoc, userUuid)) {
+					storeWorkingVersion = true;				
+				}
+			}
+
+			// MOVE EXISTING ENTITY ?
 			// ----------------------
 
-			// create address tag for messages !
-			addrTag = createEntityTag(IdcEntityType.ADDRESS, addrDoc);
-
-			// move existing address if valid (import structure has higher priority than existing structure).
+			// move existing entity if valid (import structure has higher priority than existing structure).
 			try {
-				processMove(IdcEntityType.ADDRESS, addrDoc, existingNode, parentNode, userUuid);
+				processMove(whichType, inDoc, existingNode, parentNode, userUuid);
 
 			} catch (Exception ex) {
 				storeWorkingVersion = true;
 			}
 
-			// PUBLISH IMPORT ADDRESS ?
-			// -----------------------
-
-			// create address tag for messages !
-			addrTag = createEntityTag(IdcEntityType.ADDRESS, addrDoc);
-
-			// message whether node exists or not ! 
-			if (existingNode != null) {
-				newAddrMsg = "EXISTING address ";
-			}
+			// PUBLISH ENTITY ?
+			// ----------------
 
 			if (publishImmediately &&
 					!storeWorkingVersion &&
-					checkMandatoryData(IdcEntityType.ADDRESS, addrDoc, userUuid)) {
+					checkMandatoryData(whichType, inDoc, userUuid)) {
 
 				// if workflow enabled then ASSIGN TO QA else PUBLISH !
 				if (catalogService.isWorkflowEnabled()) {
 					// Workflow enabled -> ASSIGN TO QA ! On error store working version !
-
-					errorMsg = MSG_WARN + addrTag + "Problems assigning to QA : ";
 					try {
-						addressService.assignAddressToQA(addrDoc, userUuid, false, true);
-						updateImportJobInfo(IdcEntityType.ADDRESS, numImported+1, totalNum, userUuid);
-						updateImportJobInfoMessages(addrTag + newAddrMsg + "ASSIGNED TO QA", userUuid);
+						processAssignToQA(whichType, inDoc, existingNode,
+							numImported, totalNum, userUuid);
 
 					} catch (Exception ex) {
-						updateImportJobInfoMessages(errorMsg + ex, userUuid);
 						storeWorkingVersion = true;
-						LOG.error(errorMsg, ex);
 					}
 
 				} else {
 					// Workflow disabled -> PUBLISH !  On error store working version !
+					try {
+						processPublish(whichType, inDoc, existingNode, parentNode,
+							numImported, totalNum, userUuid);
 
-					// first check whether publishing is possible with according parent
-					// NOTICE: determined parent can be null -> update of existing top address 
-					if (parentNode != null && !addressService.hasPublishedVersion(parentNode)) {
-						// parent not published -> store working version !
-						updateImportJobInfoMessages(MSG_WARN + addrTag + "Parent not published", userUuid);
+					} catch (Exception ex) {
 						storeWorkingVersion = true;
-						
-					} else {
-						// ok, we publish. On error store working version !
-						errorMsg = MSG_WARN + addrTag + "Problems publishing : ";
-						try {
-							// we DON'T force publication condition ! if error, we store working version !
-							addressService.publishAddress(addrDoc, userUuid, false, true);
-							updateImportJobInfo(IdcEntityType.ADDRESS, numImported+1, totalNum, userUuid);
-							updateImportJobInfoMessages(addrTag + newAddrMsg + "PUBLISHED", userUuid);
-
-						} catch (Exception ex) {
-							updateImportJobInfoMessages(errorMsg + ex, userUuid);
-							storeWorkingVersion = true;
-							LOG.error(errorMsg, ex);
-						}
 					}
 				}
 
@@ -399,25 +248,12 @@ public class MdekImportService implements IImporterCallback {
 			}
 		}
 
-
-		// STORE WORKING COPY IMPORT ADDRESS ?
-		// ----------------------------------
-
-		// create address tag for messages !
-		addrTag = createEntityTag(IdcEntityType.ADDRESS, addrDoc);
-		String addrUuid = addrDoc.getString(MdekKeys.UUID);
+		// STORE WORKING COPY ?
+		// --------------------
 
 		if (storeWorkingVersion) {
-			errorMsg = MSG_WARN + addrTag + "Problems storing working version : ";
-			try {
-				addressService.storeWorkingCopy(addrDoc, userUuid, false, true);
-				updateImportJobInfo(IdcEntityType.ADDRESS, numImported+1, totalNum, userUuid);
-				updateImportJobInfoMessages(addrTag + newAddrMsg + "stored as WORKING version", userUuid);
-
-			} catch (Exception ex) {
-				updateImportJobInfoMessages(errorMsg + ex.getMessage(), userUuid);
-				LOG.error(errorMsg, ex);
-			}
+			processStoreWorkingCopy(whichType, inDoc, existingNode,
+					numImported, totalNum, userUuid);
 		}
 	}
 
@@ -1262,6 +1098,120 @@ public class MdekImportService implements IImporterCallback {
 		}
 	}
 
+	/** Assign entity to QA. */
+	private void processAssignToQA(IdcEntityType whichType,
+			IngridDocument inDoc, IEntity existingNode,
+			int numImported, int totalNum, 
+			String userUuid)
+	throws Exception {
+		// create tag and text for messages !
+		String tag = createEntityTag(whichType, inDoc);
+		String newEntityMsg = createNewEntityMsg(whichType, (existingNode == null));
+
+		try {
+			if (whichType == IdcEntityType.OBJECT) {
+				objectService.assignObjectToQA(inDoc, userUuid, false, true);
+			} else if (whichType == IdcEntityType.ADDRESS) {
+				addressService.assignAddressToQA(inDoc, userUuid, false, true);
+			}
+
+			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+			updateImportJobInfoMessages(tag + newEntityMsg + "ASSIGNED TO QA", userUuid);
+
+		} catch (Exception ex) {
+			String errorMsg = MSG_WARN + tag + "Problems assigning to QA : ";
+			LOG.error(errorMsg, ex);
+			updateImportJobInfoMessages(errorMsg + ex, userUuid);
+
+			throw ex;
+		}
+	}
+
+	/** PUBLISH entity. */
+	private void processPublish(IdcEntityType whichType,
+			IngridDocument inDoc, IEntity existingNode, IEntity parentNode,
+			int numImported, int totalNum, 
+			String userUuid)
+	throws Exception {
+		// create tag and text for messages !
+		String tag = createEntityTag(whichType, inDoc);
+		String newEntityMsg = createNewEntityMsg(whichType, (existingNode == null));
+
+		// first check whether publishing is possible with according parent
+		// NOTICE: determined parent can be null -> update of existing top object 
+		if (parentNode != null) {
+			boolean hasPublishedVersion = false;
+			if (whichType == IdcEntityType.OBJECT) {
+				hasPublishedVersion = objectService.hasPublishedVersion((ObjectNode) parentNode);
+			} else if (whichType == IdcEntityType.ADDRESS) {
+				hasPublishedVersion = addressService.hasPublishedVersion((AddressNode) parentNode);
+			}
+
+			if (!hasPublishedVersion) {
+				// parent not published -> store working version !
+				String msg = MSG_WARN + tag + "Parent not published";
+				updateImportJobInfoMessages(msg, userUuid);
+				throw createImportException(msg);
+			}
+		}
+
+		// ok, we publish !
+		try {
+			if (whichType == IdcEntityType.OBJECT) {
+				// we DON'T force publication condition ! if error, we store working version !
+				objectService.publishObject(inDoc, false, userUuid, false, true);
+			} else if (whichType == IdcEntityType.ADDRESS) {
+				addressService.publishAddress(inDoc, userUuid, false, true);
+			}
+
+			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+			updateImportJobInfoMessages(tag + newEntityMsg + "PUBLISHED", userUuid);
+
+		} catch (Exception ex) {
+			String errorMsg = MSG_WARN + tag + "Problems publishing : ";
+			LOG.error(errorMsg, ex);
+			updateImportJobInfoMessages(errorMsg + ex, userUuid);
+
+			throw ex;
+		}
+	}
+
+	/** Store WORKING VERSION of entity. */
+	private void processStoreWorkingCopy(IdcEntityType whichType,
+			IngridDocument inDoc, IEntity existingNode,
+			int numImported, int totalNum, 
+			String userUuid)
+	throws MdekException {
+		// create tag and text for messages !
+		String tag = createEntityTag(whichType, inDoc);
+		String newEntityMsg = createNewEntityMsg(whichType, (existingNode == null));
+
+		try {
+			if (whichType == IdcEntityType.OBJECT) {
+				objectService.storeWorkingCopy(inDoc, userUuid, false, true);
+			} else if (whichType == IdcEntityType.ADDRESS) {
+				addressService.storeWorkingCopy(inDoc, userUuid, false, true);
+			}
+
+			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+			updateImportJobInfoMessages(tag + newEntityMsg + "stored as WORKING version", userUuid);
+
+		} catch (Exception ex) {
+			String errorMsg = MSG_WARN + tag + "Problems storing working version : ";
+			LOG.error(errorMsg, ex);
+			updateImportJobInfoMessages(errorMsg + ex, userUuid);
+
+			// entity type specific stuff
+			if (whichType == IdcEntityType.OBJECT) {
+				// object was NOT persisted, we also remove remembered obj references of this object.
+				String objUuid = inDoc.getString(MdekKeys.UUID);
+				evictObjReferences(objUuid, userUuid);
+			}
+
+			throw createImportException(errorMsg + ex);			
+		}
+	}
+
 	private MdekException createImportException(String message) {
 		return new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, message));
 	}
@@ -1301,6 +1251,23 @@ public class MdekImportService implements IImporterCallback {
 		}
 		tag.append(" UUID:" + uuid);
 		tag.append(" >> ");
+
+		return tag.toString();
+	}
+
+	/** Creates a message-part whether entity is NEW or EXISTING */
+	private String createNewEntityMsg(IdcEntityType whichType, boolean isNewEntity) {
+		StringBuilder tag = new StringBuilder();
+		if (isNewEntity) {
+			tag.append("NEW ");
+		} else {
+			tag.append("EXISTING ");
+		}
+		if (whichType == IdcEntityType.OBJECT) {
+			tag.append("Object ");
+		} else if (whichType == IdcEntityType.ADDRESS) {
+			tag.append("Address ");
+		}
 
 		return tag.toString();
 	}
