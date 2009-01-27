@@ -360,6 +360,15 @@ public class MdekKeys {
     /** Additional info: various messages separated by \n describing progress/problems of job<br>
      *  Value: String */
     public final static String RUNNINGJOB_MESSAGES = "runningjob-messages";
+    /** This String[] contains the keys for extracting BASIC info of the running job (job description)<br>
+     *  Value: String[] */
+	public final static String[] RUNNINGJOB_BASIC_KEYS = new String[] {
+			RUNNINGJOB_TYPE,
+			RUNNINGJOB_ENTITY_TYPE,
+			RUNNINGJOB_NUMBER_PROCESSED_ENTITIES,
+			RUNNINGJOB_NUMBER_TOTAL_ENTITIES,
+			RUNNINGJOB_CANCELED_BY_USER,
+	};
 
     // Generic
     // -------

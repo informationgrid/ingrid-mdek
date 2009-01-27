@@ -316,6 +316,41 @@ class MdekExampleExportImportAddressThread extends Thread {
 // -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: CANCEL IMPORT ! -----");
+		System.out.println("-------------------------------------");
+
+		System.out.println("\n----- export addresses ALL ADDRESSES -----");
+		supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
+		result = supertool.getExportInfo(true);
+		byte[] importAllAddresses = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- import addresses ALL ADDRESSES -----");
+		try {
+			// causes timeout
+			supertool.importEntities(importAllAddresses, objImpNodeUuid, addrImpNodeUuid, false, true);
+
+		} catch(Throwable t) {
+			// if timeout, track running job info (still exporting) !
+			for (int i=0; i<2; i++) {
+				// extracted from running job info if still running
+				supertool.getImportInfo();				
+				// also outputs running job info
+				if (!supertool.hasRunningJob()) {
+					break;
+				}
+				supertool.sleep(2000);
+			}
+			// if still running, cancel it !
+			if (supertool.hasRunningJob()) {
+				supertool.cancelRunningJob();
+				// sleep, so backend notices canceled job when updating running job info 
+				supertool.sleep(2000);
+			}
+		}
+
+// -----------------------------------
+
+		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: UPDATE EXISTING ADDRESSES (UUID) -----");
 		System.out.println("-------------------------------------");
 

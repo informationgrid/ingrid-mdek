@@ -12,7 +12,6 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
-import de.ingrid.mdek.job.tools.MdekErrorHandler;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekExportService;
 import de.ingrid.mdek.services.catalog.MdekImportService;
@@ -300,7 +299,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 			
 			// LOG relevant EXCEPTION IN DATABASE Job Info !
-			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+			if (errorHandler.shouldLog(handledExc)) {
 				logExportException(handledExc, IdcEntityType.OBJECT, 0, userId);
 			}
 
@@ -362,7 +361,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
 			// LOG relevant EXCEPTION IN DATABASE Job Info !
-			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+			if (errorHandler.shouldLog(handledExc)) {
 				logExportException(handledExc, IdcEntityType.ADDRESS, 0, userId);
 			}
 
@@ -422,7 +421,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
 			// LOG relevant EXCEPTION IN DATABASE Job Info !
-			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+			if (errorHandler.shouldLog(handledExc)) {
 				logExportException(handledExc, IdcEntityType.OBJECT, numToExport, userId);
 			}
 
@@ -529,7 +528,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
 			// LOG relevant EXCEPTION IN DATABASE Job Info !
-			if (!MdekErrorHandler.isHasRunningJobsException(handledExc)) {
+			if (errorHandler.shouldLog(handledExc)) {
 				logImportException(handledExc, userId);
 			}
 

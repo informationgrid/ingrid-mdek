@@ -65,7 +65,7 @@ public abstract class MdekIdcJob extends MdekJob {
 		// handle transaction rollback
 		// rollback NOT executed if MdekErrorType.USER_HAS_RUNNING_JOBS -> job is still running
 		// and needs active transaction !!!)
-		if (!MdekErrorHandler.isHasRunningJobsException(excIn)) {
+		if (!errorHandler.isHasRunningJobsException(excIn)) {
 			genericDao.rollbackTransaction();			
 		}
 
