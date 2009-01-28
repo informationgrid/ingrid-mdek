@@ -253,7 +253,7 @@ public class MdekImportService implements IImporterCallback {
 
 		if (storeWorkingVersion) {
 			processStoreWorkingCopy(whichType, inDoc, existingNode,
-					numImported, totalNum, userUuid);
+					numImported, totalNum, publishImmediately, userUuid);
 		}
 	}
 
@@ -1179,11 +1179,15 @@ public class MdekImportService implements IImporterCallback {
 	/** Store WORKING VERSION of entity. */
 	private void processStoreWorkingCopy(IdcEntityType whichType,
 			IngridDocument inDoc, IEntity existingNode,
-			int numImported, int totalNum, 
+			int numImported, int totalNum, boolean wasPublishImmediately,
 			String userUuid)
 	throws MdekException {
 		// create tag and text for messages !
 		String tag = createEntityTag(whichType, inDoc);
+		// add warning if entity originally should be published !
+		if (wasPublishImmediately) {
+			tag = MSG_WARN + tag;
+		}
 		String newEntityMsg = createNewEntityMsg(whichType, (existingNode == null));
 
 		try {
