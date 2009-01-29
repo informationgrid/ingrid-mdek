@@ -192,11 +192,10 @@ public class MdekAddressService {
 
 	/**
 	 * Store WORKING COPY of the address represented by the passed doc. Called By IGE !
-	 * @see #storeWorkingCopy(IngridDocument aDocIn, String userId,	boolean checkPermissions,
-	 * 			boolean calledByImporter=false)
+	 * @see #storeWorkingCopy(IngridDocument aDocIn, String userId,	boolean calledByImporter=false)
 	 */
-	public String storeWorkingCopy(IngridDocument aDocIn, String userId, boolean checkPermissions) {
-		return storeWorkingCopy(aDocIn, userId, checkPermissions, false);
+	public String storeWorkingCopy(IngridDocument aDocIn, String userId) {
+		return storeWorkingCopy(aDocIn, userId, false);
 	}
 
 	/**
@@ -204,13 +203,11 @@ public class MdekAddressService {
 	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! working copy will be stored !
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored address, will be generated if new address (no uuid passed in doc)
 	 */
-	public String storeWorkingCopy(IngridDocument aDocIn, String userId, boolean checkPermissions,
+	public String storeWorkingCopy(IngridDocument aDocIn, String userId,
 			boolean calledByImporter) {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
@@ -266,7 +263,7 @@ public class MdekAddressService {
 		}
 
 		// check permissions !
-		if (checkPermissions) {
+		if (!calledByImporter) {
 			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
 		}
 
@@ -342,7 +339,7 @@ public class MdekAddressService {
 		fullIndexHandler.updateAddressIndex(aNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (isNewAddress) {
+		if (!calledByImporter && isNewAddress) {
 			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
 		}
 		
@@ -351,11 +348,10 @@ public class MdekAddressService {
 
 	/**
 	 * Publish the address represented by the passed doc. Called By IGE !  
-	 * @see #publishAddress(IngridDocument aDocIn, String userId,
-	 * 			boolean checkPermissions, boolean calledByImporter=false)
+	 * @see #publishAddress(IngridDocument aDocIn, String userId, boolean calledByImporter=false)
 	 */
-	public String publishAddress(IngridDocument aDocIn, String userId, boolean checkPermissions) {
-		return publishAddress(aDocIn, userId, checkPermissions, false);
+	public String publishAddress(IngridDocument aDocIn, String userId) {
+		return publishAddress(aDocIn, userId, false);
 	}
 
 	/**
@@ -363,13 +359,11 @@ public class MdekAddressService {
 	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! working copy will be stored !
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of published address, will be generated if new address (no uuid passed in doc)
 	 */
-	public String publishAddress(IngridDocument aDocIn, String userId, boolean checkPermissions,
+	public String publishAddress(IngridDocument aDocIn, String userId,
 			boolean calledByImporter) {
 		// HEN CALLED BY IGE: uuid is null when new address !
 		String uuid = (String) aDocIn.get(MdekKeys.UUID);
@@ -421,7 +415,7 @@ public class MdekAddressService {
 		}
 
 		// check permissions !
-		if (checkPermissions) {
+		if (!calledByImporter) {
 			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);			
 		}
 
@@ -496,11 +490,21 @@ public class MdekAddressService {
 		fullIndexHandler.updateAddressIndex(aNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (isNewAddress) {
+		if (!calledByImporter && isNewAddress) {
 			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
 		}
 
 		return uuid;
+	}
+
+	/**
+	 * Move an address with its subtree to another parent. Called By IGE !
+	 * @see #moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress, 
+	 * 			String userId, boolean calledByImporter=false)
+	 */
+	public IngridDocument moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress,
+			String userId) {
+		return moveAddress(fromUuid, toUuid, moveToFreeAddress, userId, false);
 	}
 
 	/**
@@ -512,18 +516,18 @@ public class MdekAddressService {
 	 * 		false=moved node is NOT free address, parent can be set, when parent is null
 	 * 		copy is "normal" top address
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! address will be moved !
+	 * @param calledByImporter true=do specials e.g. DON'T check permissions<br>
+	 * 		false=default behaviour when called from IGE
 	 * @return map containing info (number of moved addresses)
 	 */
 	public IngridDocument moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress,
-			String userId, boolean checkPermissions) {
+			String userId, boolean calledByImporter) {
 		boolean isNewRootNode = (toUuid == null) ? true : false;
 
 		// PERFORM CHECKS
 
 		// check permissions !
-		if (checkPermissions) {
+		if (!calledByImporter) {
 			permissionHandler.checkPermissionsForMoveAddress(fromUuid, toUuid, userId);
 		}
 
@@ -536,7 +540,7 @@ public class MdekAddressService {
 		IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, moveToFreeAddress, userId);
 
 		// grant write tree permission if new root node
-		if (isNewRootNode) {
+		if (!calledByImporter && isNewRootNode) {
 			permissionHandler.grantTreePermissionForAddress(fromUuid, userId);
 		}
 
@@ -550,16 +554,12 @@ public class MdekAddressService {
 	 * @param forceDeleteReferences only relevant if deletion of working copy causes FULL DELETION (no published version !)<br>
 	 * 		true=all references to this address are also deleted
 	 * 		false=error if references to this address exist
-	 * @param checkPermissions true=check whether user has delete permission<br>
-	 * 		false=NO check on delete permission ! object will be deleted !
 	 * @return map containing info whether address was fully deleted, marked deleted ...
 	 */
 	public IngridDocument deleteAddressWorkingCopy(String uuid, boolean forceDeleteReferences,
-			String userId, boolean checkPermissions) {
+			String userId) {
 		// first check permissions
-		if (checkPermissions) {
-			permissionHandler.checkPermissionsForDeleteWorkingCopyAddress(uuid, userId);
-		}
+		permissionHandler.checkPermissionsForDeleteWorkingCopyAddress(uuid, userId);
 
 		// NOTICE: this one also contains Parent Association !
 		AddressNode aNode = daoAddressNode.getAddrDetails(uuid);
@@ -571,7 +571,7 @@ public class MdekAddressService {
 
 		// if we have NO published version -> delete complete node !
 		if (!hasPublishedVersion(aNode)) {
-			result = deleteAddress(uuid, forceDeleteReferences, userId, checkPermissions);
+			result = deleteAddress(uuid, forceDeleteReferences, userId);
 
 		} else {
 			// delete working copy only 
@@ -615,18 +615,16 @@ public class MdekAddressService {
 	 * @param forceDeleteReferences how to handle references to this address ?<br>
 	 * 		true=all references to this address are also deleted
 	 * 		false=error if references to this address exist
-	 * @param checkPermissions true=check whether user is QA / has delete permission<br>
-	 * 		false=NO check on QA / delete permission ! address will be deleted !
 	 * @return map containing info whether address was fully deleted, marked deleted ...
 	 */
 	public IngridDocument deleteAddressFull(String uuid, boolean forceDeleteReferences,
-			String userId, boolean checkPermissions) {
+			String userId) {
 		IngridDocument result;
 		// NOTICE: Always returns true if workflow disabled !
-		if (!checkPermissions || permissionHandler.hasQAPermission(userId)) {
-			result = deleteAddress(uuid, forceDeleteReferences, userId, checkPermissions);
+		if (permissionHandler.hasQAPermission(userId)) {
+			result = deleteAddress(uuid, forceDeleteReferences, userId);
 		} else {
-			result = markDeletedAddress(uuid, forceDeleteReferences, userId, checkPermissions);
+			result = markDeletedAddress(uuid, forceDeleteReferences, userId);
 		}
 
 		return result;
@@ -634,39 +632,34 @@ public class MdekAddressService {
 
 	/**
 	 * Assign address to QA. Called By IGE !
-	 * @see #assignAddressToQA(IngridDocument aDocIn, String userId, boolean checkPermissions,
-	 * 			boolean calledByImporter=false)
+	 * @see #assignAddressToQA(IngridDocument aDocIn, String userId, boolean calledByImporter=false)
 	 */
 	public String assignAddressToQA(IngridDocument aDocIn, 
-			String userId, boolean checkPermissions) {
-		return assignAddressToQA(aDocIn, userId, checkPermissions, false);
+			String userId) {
+		return assignAddressToQA(aDocIn, userId, false);
 	}
 
 	/**
 	 * Assign address to QA !
 	 * @param aDocIn doc representing address
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! working copy will be stored !
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored address, will be generated if new address (no uuid passed in doc)
 	 */
 	public String assignAddressToQA(IngridDocument aDocIn, 
-			String userId, boolean checkPermissions,
+			String userId,
 			boolean calledByImporter) {
 		// set specific data to transfer to working copy and store !
 		workflowHandler.processDocOnAssignToQA(aDocIn, userId);
-		return storeWorkingCopy(aDocIn, userId, checkPermissions, calledByImporter);
+		return storeWorkingCopy(aDocIn, userId, calledByImporter);
 	}
 
 	/** FULL DELETE ! MAKE TRANSIENT ! */
 	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences,
-			String userUuid, boolean checkPermissions) {
+			String userUuid) {
 		// first check User Permissions
-		if (checkPermissions) {
-			permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
-		}
+		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
 
 		// NOTICE: this one also contains Parent Association !
 		AddressNode aNode = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
@@ -700,11 +693,10 @@ public class MdekAddressService {
 	 * if NO published version -> perform full delete !
 	 */
 	private IngridDocument markDeletedAddress(String uuid, boolean forceDeleteReferences,
-			String userUuid, boolean checkPermissions) {
+			String userUuid) {
 		// first check User Permissions
-		if (checkPermissions) {
-			permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);			
-		}
+		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
+
 
 		// NOTICE: we just load NODE to determine whether published !
 		AddressNode aNode = loadByUuid(uuid, null);
@@ -716,7 +708,7 @@ public class MdekAddressService {
 
 		// FULL DELETE IF NOT PUBLISHED !
 		if (!hasPublishedVersion(aNode)) {
-			result = deleteAddress(uuid, forceDeleteReferences, userUuid, checkPermissions);
+			result = deleteAddress(uuid, forceDeleteReferences, userUuid);
 		} else {
 			// IS PUBLISHED -> mark deleted
 			// now load details (prefetch data) for faster mapping (less selects !) 
@@ -727,7 +719,7 @@ public class MdekAddressService {
 			IngridDocument addrDoc =
 				beanToDocMapper.mapT02Address(aNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.COPY_ENTITY);
 			addrDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
-			assignAddressToQA(addrDoc, userUuid, checkPermissions);
+			assignAddressToQA(addrDoc, userUuid);
 
 			result = new IngridDocument();
 			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);

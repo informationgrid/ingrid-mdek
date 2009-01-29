@@ -302,14 +302,14 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
 		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
-		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.TITLE, "EXAMPLE Import Objektknoten");
 		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
 		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
 		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
 		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
-		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "EXAMPLE Import Adressknoten");
 		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
 		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
 

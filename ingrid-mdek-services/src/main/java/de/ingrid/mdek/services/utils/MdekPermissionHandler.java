@@ -682,6 +682,10 @@ public class MdekPermissionHandler {
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void grantTreePermissionForObject(String objUuid, String userAddrUuid) {
+		if (isCatalogAdmin(userAddrUuid)) {
+			return;
+		}
+
 		EntityPermission ep = PermissionFactory.getTreeObjectPermissionTemplate(objUuid);
 
 		boolean alreadyGranted = permService.hasInheritedPermissionForObject(userAddrUuid, ep);
@@ -695,6 +699,10 @@ public class MdekPermissionHandler {
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 */
 	public void grantTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+		if (isCatalogAdmin(userAddrUuid)) {
+			return;
+		}
+
 		EntityPermission ep = PermissionFactory.getTreeAddressPermissionTemplate(addrUuid);
 
 		boolean alreadyGranted = permService.hasInheritedPermissionForAddress(userAddrUuid, ep);

@@ -35,11 +35,11 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -173,11 +173,10 @@ public class MdekObjectService {
 
 	/**
 	 * Store WORKING COPY of the object represented by the passed doc. Called By IGE !
-	 * @see #storeWorkingCopy(IngridDocument oDocIn, String userId,	boolean checkPermissions,
-	 * 			boolean calledByImporter=false)
+	 * @see #storeWorkingCopy(IngridDocument oDocIn, String userId,	boolean calledByImporter=false)
 	 */
-	public String storeWorkingCopy(IngridDocument oDocIn, String userId, boolean checkPermissions) {
-		return storeWorkingCopy(oDocIn, userId, checkPermissions, false);
+	public String storeWorkingCopy(IngridDocument oDocIn, String userId) {
+		return storeWorkingCopy(oDocIn, userId, false);
 	}
 
 	/**
@@ -185,14 +184,11 @@ public class MdekObjectService {
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! working copy will be stored !
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored object, will be generated if new object (no uuid passed in doc)
 	 */
 	public String storeWorkingCopy(IngridDocument oDocIn, String userId,
-			boolean checkPermissions,
 			boolean calledByImporter) {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
@@ -248,7 +244,7 @@ public class MdekObjectService {
 		}
 
 		// check permissions !
-		if (checkPermissions) {
+		if (!calledByImporter) {
 			permissionHandler.checkPermissionsForStoreObject(uuid, parentUuid, userId);			
 		}
 
@@ -344,7 +340,7 @@ public class MdekObjectService {
 		fullIndexHandler.updateObjectIndex(oNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (isNewObject) {
+		if (!calledByImporter && isNewObject) {
 			permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId);
 		}
 
@@ -354,11 +350,11 @@ public class MdekObjectService {
 	/**
 	 * Publish the object represented by the passed doc. Called By IGE !  
 	 * @see #publishObject(IngridDocument oDocIn, boolean forcePubCondition, String userId,
-	 * 			boolean checkPermissions, boolean calledByImporter=false)
+	 * 		boolean calledByImporter=false)
 	 */
 	public String publishObject(IngridDocument oDocIn, boolean forcePubCondition,
-			String userId, boolean checkPermissions) {
-		return publishObject(oDocIn, forcePubCondition, userId, checkPermissions, false);
+			String userId) {
+		return publishObject(oDocIn, forcePubCondition, userId, false);
 	}
 
 	/**
@@ -368,14 +364,12 @@ public class MdekObjectService {
 	 * @param forcePublicationCondition apply restricted PubCondition to subobjects (true)
 	 * 		or receive Error when subobjects PubCondition conflicts (false)
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! working copy will be stored !
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of published object, will be generated if new object (no uuid passed in doc)
 	 */
 	public String publishObject(IngridDocument oDocIn, boolean forcePubCondition,
-			String userId, boolean checkPermissions,
+			String userId,
 			boolean calledByImporter) {
 		// WHEN CALLED BY IGE: uuid is null when new object
 		String uuid = (String) oDocIn.get(MdekKeys.UUID);
@@ -413,7 +407,7 @@ public class MdekObjectService {
 		// NOTICE: passed object may NOT exist yet (new object published immediately)
 
 		// check permissions !
-		if (checkPermissions) {
+		if (!calledByImporter) {
 			permissionHandler.checkPermissionsForPublishObject(uuid, parentUuid, userId);
 		}
 
@@ -528,11 +522,21 @@ public class MdekObjectService {
 		fullIndexHandler.updateObjectIndex(oNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (isNewObject) {
+		if (!calledByImporter && isNewObject) {
 			permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId);
 		}
 
 		return uuid;
+	}
+
+	/**
+	 * Move an object with its subtree to another parent. Called By IGE !
+	 * @see #moveObject(String fromUuid, String toUuid, boolean forcePubCondition, 
+	 * 			String userId, boolean calledByImporter=false)
+	 */
+	public IngridDocument moveObject(String fromUuid, String toUuid, boolean forcePubCondition,
+			String userId) {
+		return moveObject(fromUuid, toUuid, forcePubCondition, userId, false);
 	}
 
 	/**
@@ -543,18 +547,18 @@ public class MdekObjectService {
 	 * 		subobjects (true) or receive Error when subobjects PubCondition conflicts with
 	 * 		new parent (false)
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! object will be moved !
+	 * @param calledByImporter true=do specials e.g. DON'T check permissions<br>
+	 * 		false=default behaviour when called from IGE
 	 * @return map containing info (number of moved objects)
 	 */
 	public IngridDocument moveObject(String fromUuid, String toUuid, boolean forcePubCondition,
-			String userId, boolean checkPermissions) {
+			String userId, boolean calledByImporter) {
 		boolean isNewRootNode = (toUuid == null) ? true : false;
 
 		// PERFORM CHECKS
 
 		// check permissions !
-		if (checkPermissions) {
+		if (!calledByImporter) {
 			permissionHandler.checkPermissionsForMoveObject(fromUuid, toUuid, userId);
 		}
 
@@ -567,7 +571,7 @@ public class MdekObjectService {
 		IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, userId);
 
 		// grant write tree permission if new root node
-		if (isNewRootNode) {
+		if (!calledByImporter && isNewRootNode) {
 			permissionHandler.grantTreePermissionForObject(fromUuid, userId);
 		}
 
@@ -582,16 +586,12 @@ public class MdekObjectService {
 	 * (no published version !)<br>
 	 * 		true=all references to this object are also deleted<br>
 	 * 		false=error if references to this object exist
-	 * @param checkPermissions true=check whether user has delete permission<br>
-	 * 		false=NO check on delete permission ! object will be deleted !
 	 * @return map containing info whether address was fully deleted, marked deleted ...
 	 */
 	public IngridDocument deleteObjectWorkingCopy(String uuid, boolean forceDeleteReferences,
-			String userId, boolean checkPermissions) {
+			String userId) {
 		// check permissions !
-		if (checkPermissions) {
-			permissionHandler.checkPermissionsForDeleteWorkingCopyObject(uuid, userId);			
-		}
+		permissionHandler.checkPermissionsForDeleteWorkingCopyObject(uuid, userId);			
 
 		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = daoObjectNode.getObjDetails(uuid);
@@ -603,7 +603,7 @@ public class MdekObjectService {
 
 		// if we have NO published version -> delete complete node !
 		if (!hasPublishedVersion(oNode)) {
-			result = deleteObject(uuid, forceDeleteReferences, userId, checkPermissions);
+			result = deleteObject(uuid, forceDeleteReferences, userId);
 
 		} else {
 			// delete working copy only 
@@ -647,18 +647,16 @@ public class MdekObjectService {
 	 * @param forceDeleteReferences how to handle references to this object ?<br>
 	 * 		true=all references to this object are also deleted
 	 * 		false=error if references to this object exist
-	 * @param checkPermissions true=check whether user is QA / has delete permission<br>
-	 * 		false=NO check on QA / delete permission ! object will be deleted !
 	 * @return map containing info whether address was fully deleted, marked deleted ...
 	 */
 	public IngridDocument deleteObjectFull(String uuid, boolean forceDeleteReferences,
-			String userId, boolean checkPermissions) {
+			String userId) {
 		IngridDocument result;
 		// NOTICE: Always returns true if workflow disabled !
-		if (!checkPermissions || permissionHandler.hasQAPermission(userId)) {
-			result = deleteObject(uuid, forceDeleteReferences, userId, checkPermissions);
+		if (permissionHandler.hasQAPermission(userId)) {
+			result = deleteObject(uuid, forceDeleteReferences, userId);
 		} else {
-			result = markDeletedObject(uuid, forceDeleteReferences, userId, checkPermissions);
+			result = markDeletedObject(uuid, forceDeleteReferences, userId);
 		}
 
 		return result;
@@ -666,30 +664,27 @@ public class MdekObjectService {
 
 	/**
 	 * Assign object to QA. Called By IGE !
-	 * @see #assignObjectToQA(IngridDocument oDocIn, String userId,	boolean checkPermissions,
-	 * 			boolean calledByImporter=false)
+	 * @see #assignObjectToQA(IngridDocument oDocIn, String userId, boolean calledByImporter=false)
 	 */
 	public String assignObjectToQA(IngridDocument oDocIn,
-			String userId, boolean checkPermissions) {
-		return assignObjectToQA(oDocIn, userId, checkPermissions, false);
+			String userId) {
+		return assignObjectToQA(oDocIn, userId, false);
 	}
 
 	/**
 	 * Assign object to QA !
 	 * @param oDocIn doc representing object
 	 * @param userId user performing operation, will be set as mod-user
-	 * @param checkPermissions true=check whether user has write permission<br>
-	 * 		false=NO check on write permission ! working copy will be stored !
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of stored object, will be generated if new object (no uuid passed in doc)
 	 */
 	public String assignObjectToQA(IngridDocument oDocIn,
-			String userId, boolean checkPermissions,
+			String userId,
 			boolean calledByImporter) {
 		// set specific data to transfer to working copy !
 		workflowHandler.processDocOnAssignToQA(oDocIn, userId);
-		return storeWorkingCopy(oDocIn, userId, checkPermissions, calledByImporter);
+		return storeWorkingCopy(oDocIn, userId, calledByImporter);
 	}
 
 	/** Checks whether given object document has an "Auskunft" address set. */
@@ -712,11 +707,9 @@ public class MdekObjectService {
 
 	/** FULL DELETE ! MAKE TRANSIENT ! */
 	private IngridDocument deleteObject(String uuid, boolean forceDeleteReferences,
-			String userUuid, boolean checkPermissions) {
+			String userUuid) {
 		// first check User Permissions
-		if (checkPermissions) {
-			permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);			
-		}
+		permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);			
 
 		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
@@ -744,11 +737,9 @@ public class MdekObjectService {
 	 * if NO published version -> perform full delete !
 	 */
 	private IngridDocument markDeletedObject(String uuid, boolean forceDeleteReferences,
-			String userUuid, boolean checkPermissions) {
+			String userUuid) {
 		// first check User Permissions
-		if (checkPermissions) {
-			permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);			
-		}
+		permissionHandler.checkPermissionsForDeleteObject(uuid, userUuid);			
 
 		// NOTICE: we just load NODE to determine whether published !
 		ObjectNode oNode = loadByUuid(uuid, null);
@@ -760,7 +751,7 @@ public class MdekObjectService {
 
 		// FULL DELETE IF NOT PUBLISHED !
 		if (!hasPublishedVersion(oNode)) {
-			result = deleteObject(uuid, forceDeleteReferences, userUuid, checkPermissions);
+			result = deleteObject(uuid, forceDeleteReferences, userUuid);
 
 		} else {
 			// IS PUBLISHED -> mark deleted
@@ -772,7 +763,7 @@ public class MdekObjectService {
 			IngridDocument objDoc =
 				beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), new IngridDocument(), MappingQuantity.COPY_ENTITY);
 			objDoc.put(MdekKeys.MARK_DELETED, MdekUtils.YES);
-			assignObjectToQA(objDoc, userUuid, checkPermissions);
+			assignObjectToQA(objDoc, userUuid);
 
 			result = new IngridDocument();
 			result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);

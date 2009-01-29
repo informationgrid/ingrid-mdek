@@ -33,10 +33,10 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -464,7 +464,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnStore(aDocIn);
-			String uuid = addressService.storeWorkingCopy(aDocIn, userId, true);
+			String uuid = addressService.storeWorkingCopy(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -511,7 +511,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 
-			String uuid = addressService.assignAddressToQA(aDocIn, userId, true);
+			String uuid = addressService.assignAddressToQA(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -560,7 +560,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnReassignToAuthor(aDocIn, userId);
-			String uuid = addressService.storeWorkingCopy(aDocIn, userId, true);
+			String uuid = addressService.storeWorkingCopy(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -678,7 +678,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 			
-			String uuid = addressService.publishAddress(aDocIn, userId, true);
+			String uuid = addressService.publishAddress(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -788,7 +788,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.beginTransaction();
 
 			IngridDocument resultDoc = addressService.moveAddress(fromUuid, toUuid, targetIsFreeAddress,
-					userUuid, true);
+					userUuid);
 
 			// add permissions to result
 			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromUuid, userUuid, true);
@@ -893,7 +893,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 			
-			IngridDocument result = addressService.deleteAddressWorkingCopy(uuid, forceDeleteReferences, userId, true);
+			IngridDocument result = addressService.deleteAddressWorkingCopy(uuid, forceDeleteReferences, userId);
 
 			daoAddressNode.commitTransaction();
 
@@ -929,7 +929,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 			
-			IngridDocument result = addressService.deleteAddressFull(uuid, forceDeleteReferences, userId, true);
+			IngridDocument result = addressService.deleteAddressFull(uuid, forceDeleteReferences, userId);
 
 			daoAddressNode.commitTransaction();
 

@@ -34,10 +34,10 @@ import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
+import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -444,7 +444,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnStore(oDocIn);
-			String uuid = objectService.storeWorkingCopy(oDocIn, userId, true);
+			String uuid = objectService.storeWorkingCopy(oDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
@@ -489,7 +489,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
-			String uuid = objectService.assignObjectToQA(oDocIn, userId, true);
+			String uuid = objectService.assignObjectToQA(oDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
 			daoObjectNode.commitTransaction();
@@ -536,7 +536,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// set common data to transfer to working copy !
 			workflowHandler.processDocOnReassignToAuthor(oDocIn, userId);
-			String uuid = objectService.storeWorkingCopy(oDocIn, userId, true);
+			String uuid = objectService.storeWorkingCopy(oDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !?
 			daoObjectNode.commitTransaction();
@@ -654,7 +654,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 			
-			String uuid = objectService.publishObject(oDocIn, forcePubCondition, userId, true);
+			String uuid = objectService.publishObject(oDocIn, forcePubCondition, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !?
 			daoObjectNode.commitTransaction();
@@ -704,7 +704,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
-			IngridDocument result = objectService.deleteObjectWorkingCopy(uuid, forceDeleteReferences, userId, true);
+			IngridDocument result = objectService.deleteObjectWorkingCopy(uuid, forceDeleteReferences, userId);
 
 			daoObjectNode.commitTransaction();
 
@@ -740,7 +740,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
-			IngridDocument result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId, true);
+			IngridDocument result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
 
 			daoObjectNode.commitTransaction();
 
@@ -772,7 +772,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.beginTransaction();
 
 			IngridDocument resultDoc = objectService.moveObject(
-					fromUuid, toUuid, forcePubCondition, userUuid, true);
+					fromUuid, toUuid, forcePubCondition, userUuid);
 
 			// add permissions to result
 			List<Permission> perms = permissionHandler.getPermissionsForObject(fromUuid, userUuid, true);

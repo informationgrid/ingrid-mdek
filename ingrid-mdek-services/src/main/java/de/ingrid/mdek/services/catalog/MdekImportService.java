@@ -1078,9 +1078,9 @@ public class MdekImportService implements IImporterCallback {
 				String uuidToMove = EntityHelper.getUuidFromNode(whichType, existingNode);
 
 				if (whichType == IdcEntityType.OBJECT) {
-					objectService.moveObject(uuidToMove, newParentUuid, false, userUuid, false);				
+					objectService.moveObject(uuidToMove, newParentUuid, false, userUuid, true);				
 				} else if (whichType == IdcEntityType.ADDRESS) {
-					addressService.moveAddress(uuidToMove, newParentUuid, false, userUuid, false);				
+					addressService.moveAddress(uuidToMove, newParentUuid, false, userUuid, true);				
 				}
 
 				updateImportJobInfoMessages(tag + "Moved to new parent " + newParentUuid, userUuid);
@@ -1110,9 +1110,9 @@ public class MdekImportService implements IImporterCallback {
 
 		try {
 			if (whichType == IdcEntityType.OBJECT) {
-				objectService.assignObjectToQA(inDoc, userUuid, false, true);
+				objectService.assignObjectToQA(inDoc, userUuid, true);
 			} else if (whichType == IdcEntityType.ADDRESS) {
-				addressService.assignAddressToQA(inDoc, userUuid, false, true);
+				addressService.assignAddressToQA(inDoc, userUuid, true);
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
@@ -1159,9 +1159,9 @@ public class MdekImportService implements IImporterCallback {
 		try {
 			if (whichType == IdcEntityType.OBJECT) {
 				// we DON'T force publication condition ! if error, we store working version !
-				objectService.publishObject(inDoc, false, userUuid, false, true);
+				objectService.publishObject(inDoc, false, userUuid, true);
 			} else if (whichType == IdcEntityType.ADDRESS) {
-				addressService.publishAddress(inDoc, userUuid, false, true);
+				addressService.publishAddress(inDoc, userUuid, true);
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
@@ -1192,9 +1192,9 @@ public class MdekImportService implements IImporterCallback {
 
 		try {
 			if (whichType == IdcEntityType.OBJECT) {
-				objectService.storeWorkingCopy(inDoc, userUuid, false, true);
+				objectService.storeWorkingCopy(inDoc, userUuid, true);
 			} else if (whichType == IdcEntityType.ADDRESS) {
-				addressService.storeWorkingCopy(inDoc, userUuid, false, true);
+				addressService.storeWorkingCopy(inDoc, userUuid, true);
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
