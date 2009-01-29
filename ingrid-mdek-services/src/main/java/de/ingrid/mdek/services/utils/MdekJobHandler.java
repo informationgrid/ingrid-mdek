@@ -58,56 +58,6 @@ public class MdekJobHandler {
         }
 	}
 
-	/** Called from IGE */
-	public IngridDocument cancelRunningJob(IngridDocument params) {
-		String userId = MdekJobHandler.getCurrentUserUuidFromDoc(params);
-
-		IngridDocument fullInfo = getRunningJobInfo(userId);
-		// always add, no matter whether there is a running job or not (empty doc) 
-		fullInfo.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, true);
-		
-		// reduce running job info to stuff which can be transported to IGE !!!
-		return extractRunningJobDescription(fullInfo);
-	}
-
-	/** Called from IGE !!! NOTICE: returns empty Document if no running job ! */
-	public IngridDocument getRunningJobInfo(IngridDocument params) {
-		String userId = MdekJobHandler.getCurrentUserUuidFromDoc(params);
-
-		IngridDocument fullInfo = getRunningJobInfo(userId);
-
-		// reduce running job info to stuff which can be transported to IGE !!!
-		return extractRunningJobDescription(fullInfo);
-	}
-
-	/** return ANY running job information, no matter which job. 
-	 * NOTICE: returns EMPTY Document if no running job ! */
-	public IngridDocument getRunningJobInfo(String userId) {
-		return getRunningJobInfo(null, userId);
-	}
-	/** return SPECIFIC running job information, only jobs of passed type ! 
-	 * @param jobType pass null if type doen't matter, any running job should be fetched 
-	 * @param userId user who started job
-	 * @return running job info or EMPTY Document if no running job of passed type
-	 */
-	public IngridDocument getRunningJobInfo(JobType jobType, String userId) {
-		IngridDocument runningJob = runningJobsMap.get(userId);
-		if (runningJob != null) {
-			// only return specific job type ?
-			if (jobType != null) {
-				if (!jobType.getDbValue().equals(runningJob.get(MdekKeys.RUNNINGJOB_TYPE))) {
-					runningJob = null;
-				}
-			}
-		}
-		
-		if (runningJob == null) {
-			runningJob = new IngridDocument();
-		}
-		
-		return runningJob;
-	}
-
 	/**
 	 * Create a document describing a job.
 	 * @param JobType what type of Job/Operation
@@ -153,7 +103,7 @@ public class MdekJobHandler {
 	 * @param fullJobInfo full running job info from getRunningJobInfo()
 	 * @return reduced running job info ready for transport to IGE !
 	 */
-	private IngridDocument extractRunningJobDescription(IngridDocument fullJobInfo) {
+	public IngridDocument extractRunningJobDescription(IngridDocument fullJobInfo) {
 		IngridDocument baseJobInfo = new IngridDocument();
 		for (String key : MdekKeys.RUNNINGJOB_BASIC_KEYS) {
 			if (fullJobInfo.containsKey(key)) {
@@ -177,6 +127,34 @@ public class MdekJobHandler {
 		}
 
 		runningJobsMap.put(userId, jobDescr);
+	}
+
+	/** return ANY running job information, no matter which job. 
+	 * NOTICE: returns EMPTY Document if no running job ! */
+	public IngridDocument getRunningJobInfo(String userId) {
+		return getRunningJobInfo(null, userId);
+	}
+	/** return SPECIFIC running job information, only jobs of passed type ! 
+	 * @param jobType pass null if type doen't matter, any running job should be fetched 
+	 * @param userId user who started job
+	 * @return running job info or EMPTY Document if no running job of passed type
+	 */
+	public IngridDocument getRunningJobInfo(JobType jobType, String userId) {
+		IngridDocument runningJob = runningJobsMap.get(userId);
+		if (runningJob != null) {
+			// only return specific job type ?
+			if (jobType != null) {
+				if (!jobType.getDbValue().equals(runningJob.get(MdekKeys.RUNNINGJOB_TYPE))) {
+					runningJob = null;
+				}
+			}
+		}
+		
+		if (runningJob == null) {
+			runningJob = new IngridDocument();
+		}
+		
+		return runningJob;
 	}
 
 	/** Add keys in passed map to current job information.<br> 
@@ -216,7 +194,28 @@ public class MdekJobHandler {
 		runningJobsMap.put(userId, jobInfo);
 	}
 
+	/**
+	 * Cancel the current running job of the passed user.
+	 * @param userId running job of this user is canceled
+	 * @return the FULL information of the current running job which was canceled
+	 * 		or empty document if no running job ! 
+	 */
+	public IngridDocument cancelRunningJob(String userId) {
+		IngridDocument fullInfo = getRunningJobInfo(userId);
+		if (!fullInfo.isEmpty()) {
+			// only add if there is a running job 
+			fullInfo.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, true);			
+		}
 
+		return fullInfo;
+	}
+
+	/**
+	 * Remove all Running Job data of the passed user.
+	 * NOTICE: Strictly removes ALL DATA, NO check whether canceled etc.
+	 * THIS ONE SHOULD BE CALLED FROM JOB WHEN JOB IS FINISHED !!!
+	 * @param userId
+	 */
 	public void removeRunningJob(String userId) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("userId:" + userId);
@@ -236,21 +235,6 @@ public class MdekJobHandler {
 			}
 			throw new MdekException(new MdekError(MdekErrorType.USER_CANCELED_JOB));
 		}
-	}
-
-	/**
-	 * Return the AddressUuid of the user set in passed doc.
-	 * THROWS EXCEPTION IF USER NOT SET in passed doc.
-	 * @param inDoc
-	 * @return
-	 */
-	public static String getCurrentUserUuidFromDoc(IngridDocument inDoc) {
-		String userId = inDoc.getString(MdekKeys.USER_ID);
-		if (userId == null) {
-			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
-		}
-		
-		return userId;
 	}
 
 	/** "logs" Start-Info in job information IN DATABASE */

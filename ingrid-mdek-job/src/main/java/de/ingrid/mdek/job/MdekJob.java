@@ -2,6 +2,9 @@ package de.ingrid.mdek.job;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.utils.IngridDocument;
@@ -37,14 +40,24 @@ public abstract class MdekJob implements IJob {
 		return result;
 	}
 
-	/** Called from Client */
+	/** Called from Client (IGE) */
 	public IngridDocument getRunningJobInfo(IngridDocument params) {
-		return jobHandler.getRunningJobInfo(params);
+		String userId = getCurrentUserUuid(params);
+
+		IngridDocument fullInfo = jobHandler.getRunningJobInfo(userId);
+
+		// reduce running job info to stuff which can be transported to IGE !!!
+		return jobHandler.extractRunningJobDescription(fullInfo);
 	}
 
-	/** Called from Client */
+	/** Called from Client (IGE) */
 	public IngridDocument cancelRunningJob(IngridDocument params) {
-		return jobHandler.cancelRunningJob(params);
+		String userId = getCurrentUserUuid(params);
+
+		IngridDocument fullInfo = jobHandler.cancelRunningJob(userId);
+
+		// reduce running job info to stuff which can be transported to IGE !!!
+		return jobHandler.extractRunningJobDescription(fullInfo);
 	}
 
 	/**
@@ -82,12 +95,17 @@ public abstract class MdekJob implements IJob {
 	}
 
 	/**
-	 * Return the AddressUuid of the user set in passed doc.
+	 * Return the AddressUuid of the user set in passed job doc.
 	 * THROWS EXCEPTION IF USER NOT SET in passed doc.
-	 * @param inDoc
-	 * @return
+	 * @param jobDoc the doc as passed to the job
+	 * @return userUuid
 	 */
-	public static String getCurrentUserUuid(IngridDocument inDoc) {
-		return MdekJobHandler.getCurrentUserUuidFromDoc(inDoc);
+	protected String getCurrentUserUuid(IngridDocument jobDoc) {
+		String userId = jobDoc.getString(MdekKeys.USER_ID);
+		if (userId == null) {
+			throw new MdekException(new MdekError(MdekErrorType.USER_ID_NOT_SET));
+		}
+		
+		return userId;
 	}
 }

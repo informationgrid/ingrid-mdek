@@ -332,7 +332,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		} catch(Throwable t) {
 			// if timeout, track running job info (still exporting) !
 			for (int i=0; i<2; i++) {
-				// extracted from running job info if still running
+				// extracted from running job info IN MEMORY if still running
 				supertool.getImportInfo();				
 				// also outputs running job info
 				if (!supertool.hasRunningJob()) {
@@ -347,6 +347,9 @@ class MdekExampleExportImportAddressThread extends Thread {
 				supertool.sleep(2000);
 			}
 		}
+
+		System.out.println("\n----- last Import Info from DATABASE because no running job ! -----");
+		supertool.getImportInfo();				
 
 // -----------------------------------
 
