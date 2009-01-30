@@ -675,11 +675,8 @@ public class MdekAddressService {
 		// check whether topnode/subnodes are referenced
 		checkAddressTreeReferences(aNode, forceDeleteReferences);
 
-		// delete complete Node ! rest is deleted per cascade !
+		// delete complete Node ! rest is deleted per cascade (subnodes, permissions)
 		daoAddressNode.makeTransient(aNode);
-
-		// also delete ALL PERMISSIONS (no cascade by hibernate, we keep permissions out of data model)
-		permissionHandler.deletePermissionsForAddress(uuid);
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);

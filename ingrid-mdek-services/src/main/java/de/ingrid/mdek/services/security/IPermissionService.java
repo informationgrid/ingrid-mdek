@@ -80,16 +80,6 @@ public interface IPermissionService {
 	void revokeUserPermission(String userUuid, Permission p);
 
 	/**
-	 * Delete all existing permissions for the given object (called when object is deleted ...).
-	 */
-	void deleteObjectPermissions(String objUuid);
-
-	/**
-	 * Delete all existing permissions for the given address (called when address is deleted ...).
-	 */
-	void deleteAddressPermissions(String addrUuid);
-
-	/**
 	 * Loads a Permission from database identified by its identification used by client.
 	 * @param permIdClient permission identification used by client
 	 * @return

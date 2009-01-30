@@ -719,11 +719,8 @@ public class MdekObjectService {
 
 		checkObjectTreeReferences(oNode, forceDeleteReferences);
 
-		// delete complete Node ! rest is deleted per cascade !
+		// delete complete Node ! rest is deleted per cascade (subnodes, permissions)
 		daoObjectNode.makeTransient(oNode);
-
-		// also delete ALL PERMISSIONS (no cascade by hibernate, we keep permissions out of object model)
-		permissionHandler.deletePermissionsForObject(uuid);
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);

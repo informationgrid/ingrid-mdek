@@ -712,20 +712,6 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Delete all "direct" permissions for the given object (called when object is deleted ...).
-	 */
-	public void deletePermissionsForObject(String objUuid) {
-		permService.deleteObjectPermissions(objUuid); 
-	}
-
-	/**
-	 * Delete all "direct" permissions for the given address (called when address is deleted ...).
-	 */
-	public void deletePermissionsForAddress(String addrUuid) {
-		permService.deleteAddressPermissions(addrUuid); 
-	}
-
-	/**
 	 * Check Write Permission of given user on given object and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 * @param objUuid

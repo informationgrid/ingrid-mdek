@@ -31,6 +31,11 @@
          <key column="addr_node_id"/>
          <one-to-many class="FullIndexAddr" not-found="ignore"/>
       </set>
+      <set name="permissionAddrs" table="permission_addr" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="uuid" property-ref="addrUuid"/>
+         <one-to-many class="PermissionAddr" not-found="ignore"/>
+      </set>
       <set name="t012ObjAdrs" table="t012_obj_adr" inverse="true"
            cascade="all-delete-orphan">
          <key column="adr_uuid" property-ref="addrUuid"/>

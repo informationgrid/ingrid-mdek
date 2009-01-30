@@ -30,6 +30,11 @@
                    update="false"
                    insert="false"
                    cascade="delete"/>
+      <set name="permissionObjs" table="permission_obj" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="uuid" property-ref="objUuid"/>
+         <one-to-many class="PermissionObj" not-found="ignore"/>
+      </set>
    </class>
 
 </hibernate-mapping>

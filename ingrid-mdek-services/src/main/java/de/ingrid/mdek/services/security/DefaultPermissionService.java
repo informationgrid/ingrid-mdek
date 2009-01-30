@@ -201,26 +201,6 @@ public class DefaultPermissionService implements IPermissionService {
 		}
 	}
 
-	public void deleteAddressPermissions(String addrUuid) {
-		PermissionAddr pTemplate = new PermissionAddr();
-		pTemplate.setUuid(addrUuid);
-
-		List<IEntity> iel = permissionAddrDao.findByExample(pTemplate);
-		for (IEntity ie : iel) {
-			permissionAddrDao.makeTransient(ie);
-		}
-	}
-
-	public void deleteObjectPermissions(String objUuid) {
-		PermissionObj pTemplate = new PermissionObj();
-		pTemplate.setUuid(objUuid);
-
-		List<IEntity> iel = permissionObjDao.findByExample(pTemplate);
-		for (IEntity ie : iel) {
-			permissionObjDao.makeTransient(ie);
-		}
-	}
-
 	public Permission getPermissionByPermIdClient(String permIdClient) {
 		IdcPermission pClientEnumConst = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, permIdClient);
 		Permission pTemplate = null;

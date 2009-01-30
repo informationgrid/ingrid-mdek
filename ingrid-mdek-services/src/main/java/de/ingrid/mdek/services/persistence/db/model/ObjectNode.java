@@ -19,6 +19,7 @@ public class ObjectNode implements IEntity {
 	private T01Object t01ObjectWork;
 	private Set objectNodeChildren = new HashSet();
 	private T01Object t01ObjectPublished;
+	private Set permissionObjs = new HashSet();
 
 	public ObjectNode() {}
 
@@ -109,6 +110,14 @@ public class ObjectNode implements IEntity {
 
 	public void setT01ObjectPublished(T01Object t01ObjectPublished) {
 		this.t01ObjectPublished = t01ObjectPublished;
+	}
+
+	public Set getPermissionObjs() {
+		return permissionObjs;
+	}
+
+	public void setPermissionObjs(Set permissionObjs) {
+		this.permissionObjs = permissionObjs;
 	}
 
 }
