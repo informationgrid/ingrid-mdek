@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -576,6 +577,57 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			IngridDocument result = new IngridDocument();
 			result.putAll(importInfo);
 
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getURLInfo(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		try {
+			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
+
+			// extract url info
+			HashMap urlInfo;
+			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.URL, userId);
+			// always extract URL job info from the database
+			urlInfo = importService.getURLJobInfoDB(userId);
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(urlInfo);
+
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument setURLInfo(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		try {
+			genericDao.beginTransaction();
+
+			List<Map<String, Object>> urlList = docIn.getArrayList(MdekKeys.URL_RESULT);
+			String jobStartTime = docIn.getString(MdekKeys.JOBINFO_START_TIME);
+			HashMap<String, Object> data = new HashMap<String, Object>();
+			data.put(MdekKeys.URL_RESULT, urlList);
+			jobHandler.startJobInfoDB(
+					JobType.URL,
+					jobStartTime,
+					data, userId);
+
+			jobHandler.endJobInfoDB(JobType.URL, userId);
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
 			return result;
 
 		} catch (RuntimeException e) {

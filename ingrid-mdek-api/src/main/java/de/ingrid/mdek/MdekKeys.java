@@ -140,6 +140,23 @@ public class MdekKeys {
     public final static String REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT = "requestinfo_importDoSeparateImport";
 
 
+    // URL
+    // ------
+    // REQUEST
+    // SPECIFIC JOBINFO RESULT
+    /** Value: IngridDocument encapsulating a list with the result */
+    public final static String URL_RESULT = "url-result";
+    /** URL that was checked by the URL validator job
+     * Value: String */
+    public final static String URL_RESULT_URL = "url-result-url";
+    /** Contains the resulting state
+     * Value: de.ingrid.mdek.quartz.jobs.util.URLState.State Enumeration const */
+    public final static String URL_RESULT_STATE = "url-result-state";
+    /** Detailed response code for STATE == HTTP_ERROR
+     * Value: Integer */
+    public final static String URL_RESULT_RESPONSE_CODE = "url-result-response-code";
+
+
     // SEARCH / QUERY (Recherche)
     // --------------------------
     // REQUEST

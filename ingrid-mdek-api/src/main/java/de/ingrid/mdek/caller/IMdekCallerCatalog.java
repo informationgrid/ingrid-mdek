@@ -157,4 +157,19 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: map containing import information
 	 */
 	IngridDocument getImportInfo(String plugId, String userId);
+
+	/** Returns information about the last url job executed by the given user.
+	 * @param plugId which mdek server (iplug)
+	 * @param userId calling user
+	 * @return response containing result: map containing import information
+	 */
+	IngridDocument getURLInfo(String plugId, String userId);
+
+	/** Sets the result for the last url job executed by the given user.
+	 * @param plugId which mdek server (iplug)
+	 * @param urlInfo job info to be stored in the db
+	 * @param userId calling user
+	 * @return response containing result: map containing import information
+	 */
+	IngridDocument setURLInfo(String plugId, IngridDocument urlInfo, String userId);
 }
