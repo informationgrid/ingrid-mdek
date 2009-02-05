@@ -155,6 +155,18 @@ public class MdekKeys {
     /** Detailed response code for STATE == HTTP_ERROR
      * Value: Integer */
     public final static String URL_RESULT_RESPONSE_CODE = "url-result-response-code";
+    /** Class of the object to which the url reference belongs to
+     * Value: Integer */
+    public final static String URL_RESULT_OBJECT_CLASS = "url-result-object-class";
+    /** Name of the object which contains the reference
+     * Value: String */
+    public final static String URL_RESULT_OBJECT_NAME = "url-result-object-name";
+    /** Uuid of the object which contains the reference
+     * Value: String */
+    public final static String URL_RESULT_OBJECT_UUID = "url-result-object-uuid";
+    /** Description of the url reference
+     * Value: String */
+    public final static String URL_RESULT_REFERENCE_DESCRIPTION = "url-result-reference-description";
 
 
     // SEARCH / QUERY (Recherche)
