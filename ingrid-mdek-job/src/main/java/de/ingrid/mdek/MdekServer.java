@@ -116,7 +116,7 @@ public class MdekServer implements IMdekServer {
     }
 
     private static void printUsage() {
-        System.err.println("Usage: " + MdekServer.class.getName() + "--descriptor <communication.properties> --reconnectIntervall <seconds>");
+        System.err.println("Usage: " + MdekServer.class.getName() + "--descriptor <communication.xml> --reconnectIntervall <seconds>");
         System.exit(0);
     }
 

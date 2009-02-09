@@ -127,7 +127,7 @@ startIplug()
   CLASS=de.ingrid.mdek.MdekServer
   
   # run it
-  exec nohup "$JAVA" $JAVA_HEAP_MAX $INGRID_OPTS -classpath "$CLASSPATH" $CLASS --descriptor conf/communication.properties > logs/console.log &
+  exec nohup "$JAVA" $JAVA_HEAP_MAX $INGRID_OPTS -classpath "$CLASSPATH" $CLASS --descriptor conf/communication.xml > logs/console.log &
   
   echo "ingrid component ($INGRID_HOME) started."
   echo $! > $PID
