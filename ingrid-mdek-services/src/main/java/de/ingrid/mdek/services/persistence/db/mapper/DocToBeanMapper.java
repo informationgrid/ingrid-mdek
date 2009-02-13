@@ -349,6 +349,8 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjProject(oDocIn, oIn);
 			// technical domain dataset
 			updateT011ObjData(oDocIn, oIn);
+			// additional fields
+			updateT08Attrs(oDocIn, oIn);
 
 			// comments
 			updateObjectComments(oDocIn, oIn);
