@@ -591,11 +591,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
-			// extract url info
-			HashMap urlInfo;
+			// extract running job info
 			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.URL, userId);
 			// always extract URL job info from the database
-			urlInfo = importService.getURLJobInfoDB(userId);
+			HashMap urlInfo = importService.getURLJobInfoDB(userId);
 
 			genericDao.commitTransaction();
 

@@ -636,6 +636,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		if (oPartDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
 			o.getObjectMetadata().setExpiryState((Integer) oPartDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
+		if (oPartDocIn.get(MdekKeys.TITLE) != null) {
+			o.setObjName((String) oPartDocIn.get(MdekKeys.TITLE));
+		}
 		daoT01Object.makePersistent(o);
 
 		// not null indicates update executed
