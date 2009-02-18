@@ -18,13 +18,17 @@
         <property name="hibernate.format_sql">true</property>
 
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/AddressMetadata.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/FullIndexAddr.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/FullIndexObj.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/IdcGroup.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/IdcUser.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/IdcUserPermission.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml"/>
@@ -60,6 +64,8 @@
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPara.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPlatform.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjServOperation.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjServScale.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjServType.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjServVersion.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjTopicCat.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml"/>
@@ -70,7 +76,9 @@
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T03Catalogue.hbm.xml"/>
-
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/T08Attr.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/T08AttrList.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/T08AttrType.hbm.xml"/>
 
     </session-factory>
 </hibernate-configuration>
