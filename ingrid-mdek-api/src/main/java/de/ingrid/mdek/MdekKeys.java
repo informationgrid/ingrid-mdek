@@ -143,6 +143,13 @@ public class MdekKeys {
     // URL
     // ------
     // REQUEST
+    /** Export list of IngridDocuments containing url references (specified by UUID and LINKAGE_URL)<br>
+     *  Value: List<IngridDocument> */
+    public final static String REQUESTINFO_URL_LIST = "requestinfo_urlList";
+    /** target url to which the source urls are changed <br>
+     *  Value: String */
+    public final static String REQUESTINFO_URL_TARGET = "requestinfo_urlTarget";
+
     // SPECIFIC JOBINFO RESULT
     /** Value: IngridDocument encapsulating a list with the result */
     public final static String URL_RESULT = "url-result";

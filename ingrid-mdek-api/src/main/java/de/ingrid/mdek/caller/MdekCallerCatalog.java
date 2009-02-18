@@ -187,4 +187,22 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		List jobMethods = setUpJobMethod("setURLInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
+
+	public IngridDocument updateURLInfo(String plugId, List<IngridDocument> urlList, String targetUrl, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_URL_LIST, urlList);
+		jobParams.put(MdekKeys.REQUESTINFO_URL_TARGET, targetUrl);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("updateURLInfo", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument replaceURLs(String plugId, List<IngridDocument> urlList, String targetUrl, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_URL_LIST, urlList);
+		jobParams.put(MdekKeys.REQUESTINFO_URL_TARGET, targetUrl);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("replaceURLs", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
 }

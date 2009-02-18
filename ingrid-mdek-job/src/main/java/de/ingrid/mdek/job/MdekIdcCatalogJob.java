@@ -5,13 +5,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekExportService;
@@ -20,7 +24,11 @@ import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
+import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
+import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
@@ -632,6 +640,101 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
+		}
+	}
+
+	public IngridDocument updateURLInfo(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		// The IngridDocument objects in sourceUrls consist of a UUID and LINKAGE_URL
+		List<IngridDocument> sourceUrls = docIn.getArrayList(MdekKeys.REQUESTINFO_URL_LIST);
+		String targetUrl = docIn.getString(MdekKeys.REQUESTINFO_URL_TARGET);
+		try {
+			genericDao.beginTransaction();
+
+			// Retrieve the job info from the db
+			SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.URL, userId);
+			HashMap<String, Object> jobDetails = jobHandler.mapJobInfoDB(jobInfo);
+			List<Map<String, Object>> urlList = (List<Map<String,Object>>) jobDetails.get(MdekKeys.URL_RESULT);
+
+			// Iterate over all sourceUrl objects and locate them in the job detail
+			for (IngridDocument sourceUrl : sourceUrls) {
+				String objUuid = sourceUrl.getString(MdekKeys.UUID);
+				String url = sourceUrl.getString(MdekKeys.LINKAGE_URL);
+
+				// If a reference with UUID objUuid and URL url was found, replace the url with the targetUrl
+				// Also replace the URL_STATE. This field must contain a valid UrlState$State (toString) from
+				// de.ingrid.mdek.quartz.jobs.util.URLState
+				for (Map<String, Object> urlMap : urlList) {
+					if (urlMap.get(MdekKeys.URL_RESULT_OBJECT_UUID).equals(objUuid)
+							&& urlMap.get(MdekKeys.URL_RESULT_URL).equals(url)) {
+						urlMap.put(MdekKeys.URL_RESULT_URL, targetUrl);
+						urlMap.put(MdekKeys.URL_RESULT_STATE, "NOT_CHECKED");
+					}
+				}
+			}
+
+			// Store the changes in the db
+			jobHandler.updateJobInfoDB(JobType.URL, jobDetails, userId);
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument replaceURLs(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		List<IngridDocument> urlList = docIn.getArrayList(MdekKeys.REQUESTINFO_URL_LIST);
+		String targetUrl = docIn.getString(MdekKeys.REQUESTINFO_URL_TARGET);
+
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
+
+			daoObjectNode.beginTransaction();
+
+			IdcEntityVersion whichEntityVersion = IdcEntityVersion.PUBLISHED_VERSION;
+
+			for (IngridDocument urlRefDoc : urlList) {
+				String uuid = (String) urlRefDoc.get(MdekKeys.UUID);
+				String srcUrl = (String) urlRefDoc.get(MdekKeys.LINKAGE_URL);
+
+				// check permissions !
+				permissionHandler.checkWritePermissionForObject(uuid, userId, true);
+
+				// load node
+				ObjectNode oNode = daoObjectNode.loadByUuid(uuid, whichEntityVersion);
+				if (oNode == null) {
+					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+				}
+
+				T01Object obj = oNode.getT01ObjectPublished();
+				Set<T017UrlRef> urlRefs = (Set<T017UrlRef>) obj.getT017UrlRefs();
+				for (T017UrlRef urlRef : urlRefs) {
+					if (urlRef.getUrlLink().equals(srcUrl)) {
+						urlRef.setUrlLink(targetUrl);
+					}
+				}
+			}
+
+			daoObjectNode.commitTransaction();
+
+			return new IngridDocument();
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
 		}
 	}
 }

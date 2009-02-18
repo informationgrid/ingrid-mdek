@@ -161,7 +161,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	/** Returns information about the last url job executed by the given user.
 	 * @param plugId which mdek server (iplug)
 	 * @param userId calling user
-	 * @return response containing result: map containing import information
+	 * @return response containing result: map containing url information
 	 */
 	IngridDocument getURLInfo(String plugId, String userId);
 
@@ -169,7 +169,25 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param plugId which mdek server (iplug)
 	 * @param urlInfo job info to be stored in the db
 	 * @param userId calling user
-	 * @return response containing result: map containing import information
+	 * @return response containing result: empty IngridDocument on success
 	 */
 	IngridDocument setURLInfo(String plugId, IngridDocument urlInfo, String userId);
+
+	/** Updates the URL job info in the db
+	 * @param plugId which mdek server (iplug)
+	 * @param urlList list containing urls which are being replaced and their corresponding object uuids
+	 * @param targetUrl the url which should replace the sourceURLs
+	 * @param userId calling user
+	 * @return response containing result: empty IngridDocument on success
+	 */
+	IngridDocument updateURLInfo(String plugId, List<IngridDocument> urlList, String targetUrl, String userId);
+
+	/** Replaces the given urls with the target url.
+	 * @param plugId which mdek server (iplug)
+	 * @param urlList list containing urls and their corresponding object uuids
+	 * @param targetUrl the url which should replace the sourceURLs
+	 * @param userId calling user
+	 * @return response containing result: empty IngridDocument on success
+	 */
+	IngridDocument replaceURLs(String plugId, List<IngridDocument> urlList, String targetUrl, String userId);
 }
