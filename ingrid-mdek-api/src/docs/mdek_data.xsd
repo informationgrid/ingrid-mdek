@@ -27,6 +27,7 @@
 			<xs:element name="REQUEST_SECURITY_MAP" type="REQUEST_SECURITY_MAP"/>
 			<xs:element name="REQUEST_EXPORT_MAP" type="REQUEST_EXPORT_MAP"/>
 			<xs:element name="REQUEST_IMPORT_MAP" type="REQUEST_IMPORT_MAP"/>
+			<xs:element name="REQUEST_URL_MAP" type="REQUEST_URL_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -377,6 +378,47 @@
 			<xs:element name="requestinfo_importDoSeparateImport" type="xs:boolean"/>
 		</xs:choice>
 	</xs:complexType>	
+	<xs:complexType name="REQUEST_URL_MAP">
+		<xs:choice>
+			<!-- list of IngridDocuments containing url references (specified by UUID and LINKAGE_URL) -->
+			<xs:element name="requestinfo_urlList" type="URL_LIST"/>
+			<!-- target url to which the source urls are changed -->
+			<xs:element name="requestinfo_urlTarget" type="xs:string"/>
+			<!-- passed when setting or updating job info in database (URL checker result) -->
+			<xs:element ref="jobinfo-start-time"/>
+			<xs:element name="url-result" type="URL_RESULT_LIST"/>
+		</xs:choice>
+	</xs:complexType>	
+	<xs:complexType name="URL_LIST">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="URL_MAP" type="URL_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="URL_MAP">
+		<xs:sequence>
+			<xs:element ref="uuid"/>
+			<xs:element ref="linkage-url"/>
+		</xs:sequence>
+	</xs:complexType>	
+	<!-- URL checker result stored in job info -->
+	<xs:complexType name="URL_RESULT_LIST">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="URL_RESULT_MAP" type="URL_RESULT_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- URL checker result stored in job info -->
+	<xs:complexType name="URL_RESULT_MAP">
+		<xs:sequence>
+			<xs:element name="url-result-object-uuid" type="xs:string"/>
+			<xs:element name="url-result-url" type="xs:string"/>
+			<!-- de.ingrid.mdek.quartz.jobs.util.URLState.State Enumeration const -->
+			<xs:element name="url-result-state" type="xs:string"/>
+			<xs:element name="url-result-response-code" type="xs:integer"/>
+			<xs:element name="url-result-object-class" type="xs:integer"/>
+			<xs:element name="url-result-object-name" type="xs:string"/>
+			<xs:element name="url-result-reference-description" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>	
 	<xs:complexType name="PATH_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="PATH_MAP" type="PATH_MAP"/>
@@ -497,7 +539,7 @@
 	</xs:complexType>
 	<xs:complexType name="RESULT_JOBINFO_MAP">
 		<xs:choice>
-			<xs:element name="jobinfo-start-time" type="xs:string"/>
+			<xs:element ref="jobinfo-start-time"/>
 			<xs:element name="jobinfo-end-time" type="xs:string"/>
 			<!-- e.g. current number of exported objects at runtime -->
 			<xs:element name="jobinfo-num-objects" type="xs:integer"/>
@@ -512,6 +554,7 @@
 			<xs:element name="jobinfo-exception" type="xs:anyType"/>
 		</xs:choice>
 	</xs:complexType>
+	<xs:element name="jobinfo-start-time" type="xs:string"/>
 	<xs:complexType name="RESULT_EXPORT_MAP">
 		<xs:complexContent>
 			<xs:extension base="RESULT_JOBINFO_MAP">
@@ -783,7 +826,7 @@
 	</xs:complexType>
 	<xs:complexType name="LINKAGE_MAP">
 		<xs:sequence>
-			<xs:element name="linkage-url" type="xs:string"/>
+			<xs:element ref="linkage-url"/>
 			<xs:element name="linkage-reference-id" type="xs:integer"/>
 			<xs:element name="linkage-reference" type="xs:string"/>
 			<xs:element name="linkage-datatype" type="xs:string"/>
@@ -796,6 +839,7 @@
 			<xs:element name="linkage-url-type" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:element name="linkage-url" type="xs:string"/>
 	<xs:complexType name="DATASET_REFERENCE_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="DATASET_REFERENCE_MAP" type="DATASET_REFERENCE_MAP"/>
