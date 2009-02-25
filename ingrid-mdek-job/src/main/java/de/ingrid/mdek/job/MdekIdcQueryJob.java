@@ -290,7 +290,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			}
 
 			daoHQL.beginTransaction();
-			dao.disableAutoFlush();
+			//dao.disableAutoFlush();
 
 			IngridDocument result = daoHQL.queryHQLToMap(hqlQuery, numHits);
 
@@ -303,7 +303,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 		    throw handledExc;
 		}
 	}
-
+	
 	public IngridDocument queryObjectsExtended(IngridDocument params) {
 		Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
 		Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();

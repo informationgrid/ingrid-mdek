@@ -6,6 +6,7 @@ package de.ingrid.mdek.services.persistence.db;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
@@ -23,6 +24,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.AddressNodeDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.dao.hibernate.ConsistencyCheckerDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.HQLDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcGroupDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IdcUserDaoHibernate;
@@ -159,6 +161,10 @@ public class DaoFactory implements IDaoFactory {
 
     public IIdcGroupDao getIdcGroupDao() {
         return new IdcGroupDaoHibernate(_sessionFactory);
+    }
+    
+    public IConsistencyCheckerDao getConsistencyCheckerDao() {
+        return new ConsistencyCheckerDaoHibernate(_sessionFactory);
     }
     
     public IGenericDao<IEntity> getDao(Class clazz) {

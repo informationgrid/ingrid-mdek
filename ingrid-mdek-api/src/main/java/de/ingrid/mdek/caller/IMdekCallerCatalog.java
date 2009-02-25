@@ -210,4 +210,11 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: empty IngridDocument on success
 	 */
 	IngridDocument replaceURLs(String plugId, List<IngridDocument> urlList, String targetUrl, String userId);
+
+	/** starts the db consistency checker job
+	 * @param plugId which mdek server (iplug)
+	 * @param userId calling user
+	 * @return response containing result: map containing consistency check result
+	 */
+	IngridDocument analyze(String plugId, String userId);
 }

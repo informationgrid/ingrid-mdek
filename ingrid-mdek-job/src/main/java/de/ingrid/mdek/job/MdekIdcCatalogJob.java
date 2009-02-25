@@ -18,6 +18,7 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
+import de.ingrid.mdek.services.catalog.MdekDBConsistencyService;
 import de.ingrid.mdek.services.catalog.MdekExportService;
 import de.ingrid.mdek.services.catalog.MdekImportService;
 import de.ingrid.mdek.services.log.ILogService;
@@ -47,6 +48,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private MdekCatalogService catalogService;
 	private MdekExportService exportService;
 	private MdekImportService importService;
+	private MdekDBConsistencyService dbConsistencyService;
 
 	private MdekPermissionHandler permissionHandler;
 
@@ -60,7 +62,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		catalogService = MdekCatalogService.getInstance(daoFactory);
 		exportService = MdekExportService.getInstance(daoFactory, permissionService);
 		importService = MdekImportService.getInstance(daoFactory, permissionService);
-
+		dbConsistencyService = MdekDBConsistencyService.getInstance(daoFactory);
+		
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
@@ -670,8 +673,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// extract running job info
 			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.URL, userId);
+			
 			// always extract URL job info from the database
-			HashMap urlInfo = importService.getURLJobInfoDB(userId);
+			SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.URL, userId);
+			HashMap urlInfo = jobHandler.mapJobInfoDB(jobInfo);
 
 			genericDao.commitTransaction();
 
@@ -803,6 +808,58 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		} finally {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	/**
+	 * Analyze several tables from the database for inconsistency checks
+	 * @param docIn, which must contain the userUuid at least
+	 * @return a map with the results of the checks
+	 */
+	public IngridDocument analyzeDBConsistency(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.ANALYZE, 0, 0, false));
+			
+			genericDao.beginTransaction();
+			
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+			
+			// initialize import info in database
+			dbConsistencyService.startDBConsistencyJobInfo(userId);
+			
+			// analyze
+			dbConsistencyService.analyze(userId);
+			
+			// finish and fetch import info in database
+			dbConsistencyService.endDBConsistencyJobInfo(userId);
+
+			Map dbConsistencyInfo = dbConsistencyService.getDBConsistencyJobInfoDB(userId);
+			
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(dbConsistencyInfo);
+			return result;
+			
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+
+			// LOG relevant EXCEPTION IN DATABASE Job Info !
+			if (errorHandler.shouldLog(handledExc)) {
+				// TODO create generic method to log exception!
+//				logImportException(handledExc, userId);
+			}
+
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);			
 			}
 		}
 	}

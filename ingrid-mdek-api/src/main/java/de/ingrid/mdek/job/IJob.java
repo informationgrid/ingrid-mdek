@@ -15,7 +15,8 @@ public interface IJob {
 		CHECK("CHECK"),
 		EXPORT("EXPORT"),
 		IMPORT("IMPORT"),
-		URL("URL");
+		URL("URL"),
+		ANALYZE("ANALYZE");
 
 		JobType(String dbValue) {
 			this.dbValue = dbValue;

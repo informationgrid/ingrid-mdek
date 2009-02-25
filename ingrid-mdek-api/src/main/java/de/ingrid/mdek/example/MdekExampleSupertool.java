@@ -156,6 +156,10 @@ public class MdekExampleSupertool {
 		return supertoolCatalog.getImportInfo();
 	}
 
+	public IngridDocument analyze() {
+		return supertoolCatalog.analyze();
+	}
+	
 	// MdekExampleSupertoolSecurity FACADE !
 	// ----------------------------------
 

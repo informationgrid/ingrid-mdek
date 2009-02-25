@@ -302,7 +302,10 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- ALL SysAdditionalFields Values NO language -----");
 		supertool.getSysAdditionalFields(null, null);
-
+		
+// -----------------------------------
+		
+		supertool.analyze();
 // ===================================
 
 		long exampleEndTime = System.currentTimeMillis();

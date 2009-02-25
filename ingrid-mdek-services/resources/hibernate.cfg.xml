@@ -6,7 +6,7 @@
 <hibernate-configuration>
     <session-factory name="sessionFactory">
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost/idc_1_0_2</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/idc_test</property>
         <property name="hibernate.connection.username">root</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
         <property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</property>

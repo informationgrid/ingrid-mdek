@@ -158,7 +158,7 @@ public class HQLDaoHibernate
 
 		return result;
 	}
-	
+	/*
 	public IngridDocument queryHQLToMap(String hqlQuery, Integer maxNumHits) {
 		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
@@ -196,6 +196,22 @@ public class HQLDaoHibernate
 			result.put(MdekKeys.ADR_ENTITIES, resultDocs);
 		}
 		result.put(MdekKeys.TOTAL_NUM, new Long(hits.size()));
+
+		return result;
+	}*/
+	
+	public IngridDocument queryHQLToMap(String hqlQuery, Integer maxNumHits) {
+		Session session = getSession();
+			
+		int processedEntities = session.createQuery(hqlQuery).executeUpdate();
+
+		IngridDocument result = new IngridDocument();
+		List<IngridDocument> resultDocs = new ArrayList<IngridDocument>();
+		for (int i=0; i < processedEntities; i++) {
+			resultDocs.add(new IngridDocument());
+		}
+		result.put(MdekKeys.OBJ_ENTITIES, resultDocs);
+		result.put(MdekKeys.TOTAL_NUM, new Long(processedEntities));
 
 		return result;
 	}

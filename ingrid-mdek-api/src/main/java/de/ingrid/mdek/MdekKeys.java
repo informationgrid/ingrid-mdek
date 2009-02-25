@@ -120,6 +120,16 @@ public class MdekKeys {
     public final static String EXPORT_RESULT = "export-result";
 
 
+    // VALIDATION JOB RESULT
+    /** Value: String */
+    public final static String VALIDATION_MESSAGE = "validation-message";
+    /** Value: String */
+    public final static String VALIDATION_SOLUTION = "validation-solution";
+    /** Value: Integer */
+    
+    /** Value: String */
+    public final static String VALIDATION_RESULT = "validation-result";
+
     // IMPORT
     // ------
     // REQUEST

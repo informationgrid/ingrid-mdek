@@ -335,13 +335,6 @@ public class MdekImportService implements IImporterCallback {
 		jobHandler.endJobInfoDB(JobType.IMPORT, userUuid);
 	}
 
-	/** Returns "logged" URL job information IN DATABASE.
-	 * NOTICE: returns EMPTY HashMap if no job info ! */
-	public HashMap getURLJobInfoDB(String userUuid) {
-		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.URL, userUuid);
-		return jobHandler.mapJobInfoDB(jobInfo);
-	}
-
 	/**
 	 * Arbitrary checks whether passed default parents for imported entities are ok for requested import.
 	 * Throws Exception encapsulating error message if not.
