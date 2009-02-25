@@ -48,6 +48,26 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 			String userId);
 
 	/**
+	 * Returns a map containing values of given generic keys.
+	 * Pass null if all generic keys are requested.
+	 * @param plugId which mdek server (iplug)
+	 * @param keyNames which generic keys, PASS NULL IF ALL KEYS REQUESTED
+	 * @param userId calling user
+	 * @return response containing result: map with requested generic keys (as keys into map !)
+	 */
+	IngridDocument getSysGenericKeys(String plugId, String[] keyNames, String userId);
+
+	/**
+	 * Create/update given generic keys with the given values. 
+	 * @param plugId which mdek server (iplug)
+	 * @param keyNames names of generic keys
+	 * @param keyValues values of generic keys
+	 * @return response containing result: map containing updated keys. NOTICE: result is null if problems occured
+	 */
+	IngridDocument storeSysGenericKeys(String plugId, String[] keyNames, String[] keyValues,
+			String userId);
+
+	/**
 	 * Returns a map containing definitions of additional fields.
 	 * @param plugId which mdek server (iplug)
 	 * @param fieldIds which fields, pass identifiers

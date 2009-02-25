@@ -12,10 +12,12 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
+import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
@@ -32,6 +34,7 @@ public class MdekCatalogService {
 	private IGenericDao<IEntity> daoT03Catalogue;
 	private ISysListDao daoSysList;
 	private ISysGuiDao daoSysGui;
+	private ISysGenericKeyDao daoSysGenericKey;
 	private IT08AttrTypeDao daoT08AttrType;
 
 	private BeanToDocMapper beanToDocMapper;
@@ -48,6 +51,7 @@ public class MdekCatalogService {
 		daoT03Catalogue = daoFactory.getDao(T03Catalogue.class);
 		daoSysList = daoFactory.getSysListDao();
 		daoSysGui = daoFactory.getSysGuiDao();
+		daoSysGenericKey = daoFactory.getSysGenericKeyDao();
 		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
@@ -110,6 +114,13 @@ public class MdekCatalogService {
 	/** Get sysgui elements with given ids AS LIST OF BEANS. */
 	public List<SysGui> getSysGuis(String[] guiIds) {
 		List<SysGui> list = daoSysGui.getSysGuis(guiIds);
+		
+		return list;
+	}
+
+	/** Get generic keys of given names AS LIST OF BEANS. PASS null if all generic keys ! */
+	public List<SysGenericKey> getSysGenericKeys(String[] keyNames) {
+		List<SysGenericKey> list = daoSysGenericKey.getSysGenericKeys(keyNames);
 		
 		return list;
 	}

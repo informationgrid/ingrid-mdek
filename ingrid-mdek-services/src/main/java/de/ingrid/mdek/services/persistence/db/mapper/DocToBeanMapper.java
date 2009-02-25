@@ -38,6 +38,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
@@ -241,6 +242,34 @@ public class DocToBeanMapper implements IMapper {
 			foundSysGui.setBehaviour((Integer) sysGuiDoc.get(MdekKeys.SYS_GUI_BEHAVIOUR));
 			if (makePersistent) {
 				dao.makePersistent(foundSysGui);
+			}
+		}
+	}
+	
+	public void mapSysGenericKeys(IngridDocument inDoc, List<SysGenericKey> sysKeys,
+			boolean makePersistent) {
+		String[] keyNames = (String[]) inDoc.get(MdekKeys.SYS_GENERIC_KEY_NAMES);
+		String[] keyValues = (String[]) inDoc.get(MdekKeys.SYS_GENERIC_KEY_VALUES);
+
+		// Currently we don't DELETE SYS GENERIC KEYS !
+		for (int i=0; i<keyNames.length; i++) {
+			String keyName = keyNames[i];
+			SysGenericKey foundSysKey = null;
+			for (SysGenericKey sysKey : sysKeys) {
+				if (sysKey.getKeyName().equals(keyName)) {
+					foundSysKey = sysKey;
+					break;
+				}
+			}
+			if (foundSysKey == null) {
+				// add new one
+				foundSysKey = new SysGenericKey();
+				foundSysKey.setKeyName(keyName);
+				sysKeys.add(foundSysKey);
+			}
+			foundSysKey.setValueString(keyValues[i]);
+			if (makePersistent) {
+				dao.makePersistent(foundSysKey);
 			}
 		}
 	}

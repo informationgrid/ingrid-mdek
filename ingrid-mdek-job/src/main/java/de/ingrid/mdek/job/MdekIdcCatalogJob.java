@@ -25,6 +25,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
@@ -226,6 +227,74 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				result = getSysGuis(guiIds);
 				genericDao.commitTransaction();
 			}
+			
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument getSysGenericKeys(IngridDocument params) {
+		try {
+			String[] keyNames = (String[]) params.get(MdekKeys.SYS_GENERIC_KEY_NAMES);
+
+			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
+
+			IngridDocument result = getSysGenericKeys(keyNames);
+			
+			genericDao.commitTransaction();
+
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}	
+
+	private IngridDocument getSysGenericKeys(String[] keyNames) {
+		IngridDocument result = new IngridDocument();
+		
+		List<SysGenericKey> sysGenericKeyList = catalogService.getSysGenericKeys(keyNames);
+		beanToDocMapper.mapSysGenericKeys(sysGenericKeyList, result);
+		
+		return result;
+	}
+
+	public IngridDocument storeSysGenericKeys(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
+
+			String[] keyNames = (String[]) docIn.get(MdekKeys.SYS_GENERIC_KEY_NAMES);
+
+			genericDao.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
+			// get according generic keys
+			// transfer new data AND MAKE PERSISTENT !
+			List<SysGenericKey> sysGenericKeys = catalogService.getSysGenericKeys(keyNames);
+			docToBeanMapper.mapSysGenericKeys(docIn, sysGenericKeys, true);
+
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
+			genericDao.commitTransaction();
+
+			// Refetch to return updated values !
+			genericDao.beginTransaction();
+			IngridDocument result = getSysGenericKeys(keyNames);
+			genericDao.commitTransaction();
 			
 			return result;
 

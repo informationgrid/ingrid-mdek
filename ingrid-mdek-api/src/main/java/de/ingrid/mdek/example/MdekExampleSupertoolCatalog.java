@@ -289,6 +289,68 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
+	/** Pass null if all generic keys requested */
+	public IngridDocument getSysGenericKeys(String[] keyNames) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getSysGenericKeys ######");
+		System.out.println("- requested keyNames: " + keyNames);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getSysGenericKeys(plugId, keyNames, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			Set entries = result.entrySet();
+			System.out.println("SUCCESS: " + entries.size() + " generic keys");
+			for (Object entry : entries) {
+				System.out.println("  " + entry);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument storeSysGenericKeys(String[] keyNames, String[] keyValues) {
+		// check whether we have data
+		if (keyNames == null || keyNames.length == 0) {
+			return null;
+		}
+
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeSysGenericKeys ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.storeSysGenericKeys(plugId, keyNames, keyValues, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+
+		if (result != null) {
+			Set entries = result.entrySet();
+			System.out.println("SUCCESS: " + entries.size() + " generic keys");
+			for (Object entry : entries) {
+				System.out.println("  " + entry);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+
+		return result;
+	}
+
 	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot) {
 		long startTime;
 		long endTime;

@@ -120,6 +120,12 @@ public class MdekExampleSupertool {
 			boolean refetch) {
 		return supertoolCatalog.storeSysGuis(sysGuis, refetch);
 	}
+	public IngridDocument getSysGenericKeys(String[] keyNames) {
+		return supertoolCatalog.getSysGenericKeys(keyNames);
+	}
+	public IngridDocument storeSysGenericKeys(String[] keyNames, String[] keyValues) {
+		return supertoolCatalog.storeSysGenericKeys(keyNames, keyValues);
+	}
 	public IngridDocument getSysLists(Integer[] listIds, String language) {
 		return supertoolCatalog.getSysLists(listIds, language);
 	}
@@ -1116,6 +1122,10 @@ public class MdekExampleSupertool {
 
 		// detailed output  
 		List<MdekError> errors = mdekClientCaller.getErrorsFromResponse(response);
+		if (errors == null) {
+			errors = new ArrayList<MdekError>();
+		}
+
 		doFullOutput = false;
 		for (MdekError err : errors) {
 			IngridDocument info = err.getErrorInfo();

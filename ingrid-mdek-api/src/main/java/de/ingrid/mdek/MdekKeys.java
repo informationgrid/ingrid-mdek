@@ -298,6 +298,13 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String SYS_GUI_BEHAVIOUR = "sys-gui-behaviour";
 
+    // SYS GENERIC KEY
+    // ---------------
+    /** Value: String[] -> all names of generic keys to fetch or store */
+    public final static String SYS_GENERIC_KEY_NAMES = "sys-generic-key-names";
+    /** Value: String[] -> values of generic keys to store */
+    public final static String SYS_GENERIC_KEY_VALUES = "sys-generic-key-values";
+
     // SYS ADDITIONAL FIELDS (Definition)
     // ---------------------
     // REQUEST

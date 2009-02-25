@@ -268,6 +268,28 @@ class MdekExampleCatalogThread extends Thread {
 
 // -----------------------------------
 
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("SYS GENERIC KEYS");
+		System.out.println("=========================");
+
+		System.out.println("\n----- get ALL SYS GENERIC KEYS -----");
+		supertool.getSysGenericKeys(null);
+
+		System.out.println("\n----- store specific SYS GENERIC KEYS and refetch -----");
+		String[] keyNames = new String[]{"TEST KEY 1", "TEST KEY 2"};
+		String[] keyValues = new String[]{"TEST VALUE 1", null};
+		supertool.storeSysGenericKeys(keyNames, keyValues);
+
+		System.out.println("\n----- get SPECIFIC SYS GENERIC KEY -----");
+		supertool.getSysGenericKeys(new String[] { "TEST KEY 1" });
+
+		System.out.println("\n----- get ALL SYS GENERIC KEYS -----");
+		supertool.getSysGenericKeys(null);
+
+// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("SYS ADDITIONAL FIELDS (Definitions)");
 		System.out.println("=========================");

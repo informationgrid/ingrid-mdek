@@ -38,6 +38,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
@@ -1720,6 +1721,25 @@ public class BeanToDocMapper implements IMapper {
 			guiElemDoc.put(MdekKeys.SYS_GUI_BEHAVIOUR, guiElem.getBehaviour());
 
 			resultDoc.put(guiId, guiElemDoc);
+		}
+
+		return resultDoc;
+	}
+
+	/**
+	 * Transfer SysGenericKeys to passed doc.
+	 * @param keyList fetched SysGenericKey beans
+	 * @param resultDoc doc where data should be added
+	 * @return resultDoc containing additional data (genericKey names are keys into map)
+	 */
+	public IngridDocument mapSysGenericKeys(List<SysGenericKey> keyList,
+			IngridDocument resultDoc) {
+		if (keyList == null) {
+			return resultDoc;
+		}
+
+		for (SysGenericKey genericKey : keyList) {
+			resultDoc.put(genericKey.getKeyName(), genericKey.getValueString());
 		}
 
 		return resultDoc;
