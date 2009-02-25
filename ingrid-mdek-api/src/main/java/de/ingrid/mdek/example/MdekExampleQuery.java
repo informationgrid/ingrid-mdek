@@ -1,14 +1,18 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.ingrid.mdek.MdekClient;
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQuery {
@@ -140,15 +144,8 @@ class MdekExampleQueryThread extends Thread {
 		IngridDocument searchParams;
 
 		boolean alwaysTrue = true;
-		
-		System.out.println("\n\n----- USING EXAMPLE QUERY FOR DELETING OBJECTS IN DB -----");
 
-		String hqlUpdateQuery = "update versioned AddressNode set fkAddrUuid = 'new uuid-of-parent' where id = 99999";
-		String hqlDeleteQuery = "delete AddressNode where id = 99999";
-		
-		supertool.queryHQLToMap(hqlDeleteQuery, null);
-		
-/*		String hqlQueryAddr1 =
+		String hqlQueryAddr1 =
 			"select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term\n\n\n" +
 			"from AddressNode as aNode\n" +
 			"inner join aNode.t02AddressWork addr\n\t\t\t" +
@@ -178,7 +175,7 @@ class MdekExampleQueryThread extends Thread {
 		Long catalogAdminId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
 		String catalogAdminUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		supertool.setCallingUser(catalogAdminUuid);
-*/
+
 // ====================
 // test single stuff
 // -----------------------------------
@@ -342,7 +339,7 @@ class MdekExampleQueryThread extends Thread {
 		}
 */
 // ===================================
-/*
+
 		System.out.println("\n\n=========================");
 		System.out.println(" HQL QUERY TO MAP");
 		System.out.println("=========================");
@@ -709,7 +706,7 @@ class MdekExampleQueryThread extends Thread {
 		long exampleNeededTime = exampleEndTime - exampleStartTime;
 		System.out.println("\n----------");
 		System.out.println("EXAMPLE EXECUTION TIME: " + exampleNeededTime + " ms");
-*/
+
 		isRunning = false;
 	}
 

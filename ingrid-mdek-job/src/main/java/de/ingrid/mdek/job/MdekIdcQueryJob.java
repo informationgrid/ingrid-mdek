@@ -290,7 +290,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			}
 
 			daoHQL.beginTransaction();
-			//dao.disableAutoFlush();
+			dao.disableAutoFlush();
 
 			IngridDocument result = daoHQL.queryHQLToMap(hqlQuery, numHits);
 
