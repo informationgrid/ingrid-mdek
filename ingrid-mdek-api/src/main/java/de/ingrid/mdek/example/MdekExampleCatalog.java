@@ -305,7 +305,12 @@ class MdekExampleCatalogThread extends Thread {
 		
 // -----------------------------------
 		
+		System.out.println("\n\n=========================");
+		System.out.println("ANALYZE DB (Consistency Check)");
+		System.out.println("=========================");
+
 		supertool.analyze();
+
 // ===================================
 
 		long exampleEndTime = System.currentTimeMillis();

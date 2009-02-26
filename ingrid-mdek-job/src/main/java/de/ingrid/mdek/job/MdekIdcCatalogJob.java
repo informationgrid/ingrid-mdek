@@ -850,12 +850,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
-			// LOG relevant EXCEPTION IN DATABASE Job Info !
-			if (errorHandler.shouldLog(handledExc)) {
-				// TODO create generic method to log exception!
-//				logImportException(handledExc, userId);
-			}
-
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {

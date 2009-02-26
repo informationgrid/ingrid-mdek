@@ -53,6 +53,7 @@
 			<xs:element name="RESULT_STATISTICS_MAP" type="RESULT_STATISTICS_MAP"/>
 			<xs:element name="RESULT_EXPORT_MAP" type="RESULT_EXPORT_MAP"/>
 			<xs:element name="RESULT_IMPORT_MAP" type="RESULT_IMPORT_MAP"/>
+			<xs:element name="RESULT_ANALYZE_MAP" type="RESULT_ANALYZE_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -579,6 +580,22 @@
 			<xs:extension base="RESULT_JOBINFO_MAP">
 			</xs:extension>
 		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RESULT_ANALYZE_MAP">
+		<xs:all>
+			<xs:element name="validation-result" type="ANALYZE_LIST"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="ANALYZE_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ANALYZE_ENTRY_MAP" type="ANALYZE_ENTRY_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ANALYZE_ENTRY_MAP">
+		<xs:sequence>
+			<xs:element name="validation-message" type="xs:string"/>
+			<xs:element name="validation-solution" type="xs:string"/>
+		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ENTITY_PERMISSION_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
