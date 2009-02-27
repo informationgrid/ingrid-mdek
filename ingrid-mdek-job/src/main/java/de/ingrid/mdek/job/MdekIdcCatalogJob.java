@@ -738,17 +738,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// Iterate over all sourceUrl objects and locate them in the job detail
 			for (IngridDocument sourceUrl : sourceUrls) {
-				String objUuid = sourceUrl.getString(MdekKeys.UUID);
-				String url = sourceUrl.getString(MdekKeys.LINKAGE_URL);
+				String objUuid = sourceUrl.getString(MdekKeys.URL_RESULT_OBJECT_UUID);
+				String url = sourceUrl.getString(MdekKeys.URL_RESULT_URL);
+				String state = sourceUrl.getString(MdekKeys.URL_RESULT_STATE);
 
 				// If a reference with UUID objUuid and URL url was found, replace the url with the targetUrl
-				// Also replace the URL_STATE. This field must contain a valid UrlState$State (toString) from
-				// de.ingrid.mdek.quartz.jobs.util.URLState
+				// Also replace the URL_STATE
 				for (Map<String, Object> urlMap : urlList) {
 					if (urlMap.get(MdekKeys.URL_RESULT_OBJECT_UUID).equals(objUuid)
 							&& urlMap.get(MdekKeys.URL_RESULT_URL).equals(url)) {
 						urlMap.put(MdekKeys.URL_RESULT_URL, targetUrl);
-						urlMap.put(MdekKeys.URL_RESULT_STATE, "NOT_CHECKED");
+						urlMap.put(MdekKeys.URL_RESULT_STATE, state);
 					}
 				}
 			}
@@ -784,8 +784,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			IdcEntityVersion whichEntityVersion = IdcEntityVersion.PUBLISHED_VERSION;
 
 			for (IngridDocument urlRefDoc : urlList) {
-				String uuid = (String) urlRefDoc.get(MdekKeys.UUID);
-				String srcUrl = (String) urlRefDoc.get(MdekKeys.LINKAGE_URL);
+				String uuid = (String) urlRefDoc.get(MdekKeys.URL_RESULT_OBJECT_UUID);
+				String srcUrl = (String) urlRefDoc.get(MdekKeys.URL_RESULT_URL);
 
 				// load node
 				ObjectNode oNode = daoObjectNode.loadByUuid(uuid, whichEntityVersion);
