@@ -696,6 +696,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		try {
 			genericDao.beginTransaction();
 
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
 			List<Map<String, Object>> urlList = docIn.getArrayList(MdekKeys.URL_RESULT);
 			String jobStartTime = docIn.getString(MdekKeys.JOBINFO_START_TIME);
 			HashMap<String, Object> data = new HashMap<String, Object>();
@@ -724,6 +727,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		String targetUrl = docIn.getString(MdekKeys.REQUESTINFO_URL_TARGET);
 		try {
 			genericDao.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
 
 			// Retrieve the job info from the db
 			SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.URL, userId);
@@ -772,14 +778,14 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			daoObjectNode.beginTransaction();
 
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
 			IdcEntityVersion whichEntityVersion = IdcEntityVersion.PUBLISHED_VERSION;
 
 			for (IngridDocument urlRefDoc : urlList) {
 				String uuid = (String) urlRefDoc.get(MdekKeys.UUID);
 				String srcUrl = (String) urlRefDoc.get(MdekKeys.LINKAGE_URL);
-
-				// check permissions !
-				permissionHandler.checkWritePermissionForObject(uuid, userId, true);
 
 				// load node
 				ObjectNode oNode = daoObjectNode.loadByUuid(uuid, whichEntityVersion);
