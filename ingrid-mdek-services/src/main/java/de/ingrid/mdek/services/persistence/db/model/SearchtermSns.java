@@ -10,6 +10,7 @@ public class SearchtermSns implements IEntity {
 	private Long id;
 	private int version;
 	private String snsId;
+	private String gemetId;
 	private String expiredAt;
 
 
@@ -37,6 +38,14 @@ public class SearchtermSns implements IEntity {
 
 	public void setSnsId(String snsId) {
 		this.snsId = snsId;
+	}
+
+	public String getGemetId() {
+		return gemetId;
+	}
+
+	public void setGemetId(String gemetId) {
+		this.gemetId = gemetId;
 	}
 
 	public String getExpiredAt() {

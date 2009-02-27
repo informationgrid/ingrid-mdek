@@ -32,12 +32,13 @@ public class SearchtermSnsDaoHibernate
 		return termSns;
 	}
 
-	public SearchtermSns loadOrCreate(String snsId) {
+	public SearchtermSns loadOrCreate(String snsId, String gemetId) {
 		SearchtermSns termSns = load(snsId);
 		
 		if (termSns == null) {
 			termSns = new SearchtermSns();
 			termSns.setSnsId(snsId);
+			termSns.setGemetId(gemetId);
 			makePersistent(termSns);			
 		}
 		

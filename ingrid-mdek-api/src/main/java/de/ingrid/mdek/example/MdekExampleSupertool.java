@@ -804,6 +804,13 @@ public class MdekExampleSupertool {
 				System.out.println("   " + doc);								
 			}			
 		}
+		docList = (List<IngridDocument>) o.get(MdekKeys.SUBJECT_TERMS_INSPIRE);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  INSPIRE Searchterms (Themen): " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
 		docList = (List<IngridDocument>) o.get(MdekKeys.LINKAGES);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  URL References: " + docList.size() + " entries");
@@ -1075,6 +1082,13 @@ public class MdekExampleSupertool {
 		docList = (List<IngridDocument>) a.get(MdekKeys.SUBJECT_TERMS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Subject terms (Searchterms): " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
+		docList = (List<IngridDocument>) a.get(MdekKeys.SUBJECT_TERMS_INSPIRE);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  INSPIRE Searchterms (Themen): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			

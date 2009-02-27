@@ -253,7 +253,9 @@ public class MdekUtils {
 	/** Type of searchterm (searchterm_value.type) */
 	public enum SearchtermType implements IMdekEnum {
 		FREI("F", "Freier Term"),
-		THESAURUS("T", "Thesaurus");
+		UMTHES("T", "UMTHES Thesaurus"),
+		GEMET("G", "GEMET Thesaurus"),
+		INSPIRE("I", "INSPIRE Thema");
 
 		SearchtermType(String dbValue, String description) {
 			this.dbValue = dbValue;

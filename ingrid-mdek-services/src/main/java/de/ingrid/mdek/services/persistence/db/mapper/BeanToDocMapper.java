@@ -21,6 +21,7 @@ import de.ingrid.mdek.MdekUtils.UserOperation;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
@@ -1229,6 +1230,7 @@ public class BeanToDocMapper implements IMapper {
 
 		refDoc.put(MdekKeys.TERM_NAME, ref.getTerm());
 		refDoc.put(MdekKeys.TERM_TYPE, ref.getType());
+		refDoc.put(MdekKeys.TERM_ENTRY_ID, ref.getEntryId());
 
 		return refDoc;
 	}
@@ -1238,73 +1240,70 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		refDoc.put(MdekKeys.TERM_SNS_ID, ref.getSnsId());
+		refDoc.put(MdekKeys.TERM_GEMET_ID, ref.getGemetId());
 
 		return refDoc;
 	}
-	public IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc,
-		MappingQuantity howMuch)
+	private IngridDocument mapSearchterms(IdcEntityType entityType,
+			List<IEntity> termEntityRefs, IngridDocument docIn,
+			MappingQuantity howMuch)
 	{
-		if (refs == null) {
-			return objectDoc;
+		if (termEntityRefs == null) {
+			return docIn;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
-		String THESAURUS_TYPE = MdekUtils.SearchtermType.THESAURUS.getDbValue();
-		for (SearchtermObj ref : refs) {
-			IngridDocument refDoc = new IngridDocument();
-			SearchtermValue refValue = ref.getSearchtermValue();
-			if (refValue == null) {
-				LOG.warn("SearchtermObj " + ref.getSearchtermId() + " has no SearchtermValue !!! We skip this SearchtermObj.");
+		ArrayList<IngridDocument> terms = new ArrayList<IngridDocument>();
+		ArrayList<IngridDocument> termsInspire = new ArrayList<IngridDocument>();
+
+		String THESAURUS_TYPE = MdekUtils.SearchtermType.UMTHES.getDbValue();
+		String GEMET_TYPE = MdekUtils.SearchtermType.GEMET.getDbValue();
+		String INSPIRE_TYPE = MdekUtils.SearchtermType.INSPIRE.getDbValue();
+		for (IEntity termEntityRef : termEntityRefs) {
+			SearchtermValue termValue;
+			if (entityType == IdcEntityType.OBJECT) {
+				termValue = ((SearchtermObj)termEntityRef).getSearchtermValue();
+			} else {
+				termValue = ((SearchtermAdr)termEntityRef).getSearchtermValue();
+			}
+			if (termValue == null) {
 				continue;
 			}
 
+			String termType = termValue.getType();
 			if (howMuch == MappingQuantity.INITIAL_ENTITY) {
-				// only take over thesaurus terms !
-				if (!THESAURUS_TYPE.equals(refValue.getType())) {
+				// only take over thesaurus and inspire terms from parent on initial creation !
+				if (!THESAURUS_TYPE.equals(termType) &&
+					!GEMET_TYPE.equals(termType) &&
+					!INSPIRE_TYPE.equals(termType)) {
 					continue;
 				}
 			}
 
-			mapSearchtermValue(refValue, refDoc);
-			SearchtermSns refSns = refValue.getSearchtermSns();
-			mapSearchtermSns(refSns, refDoc);
-			refList.add(refDoc);					
+			IngridDocument termDoc = new IngridDocument();
+			mapSearchtermValue(termValue, termDoc);
+			mapSearchtermSns(termValue.getSearchtermSns(), termDoc);
+			
+			if (INSPIRE_TYPE.equals(termType)) {
+				termsInspire.add(termDoc);
+			} else {
+				terms.add(termDoc);
+			}
 		}
-		objectDoc.put(MdekKeys.SUBJECT_TERMS, refList);
+		docIn.put(MdekKeys.SUBJECT_TERMS, terms);
+		docIn.put(MdekKeys.SUBJECT_TERMS_INSPIRE, termsInspire);
 		
-		return objectDoc;
+		return docIn;
 	}
-
+	private IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc,
+		MappingQuantity howMuch)
+	{
+		ArrayList<IEntity> termEntityRefs = new ArrayList<IEntity>(refs);
+		return mapSearchterms(IdcEntityType.OBJECT, termEntityRefs, objectDoc, howMuch);
+	}
 	private IngridDocument mapSearchtermAdrs(Set<SearchtermAdr> refs, IngridDocument addressDoc,
 		MappingQuantity howMuch)
 	{
-		if (refs == null) {
-			return addressDoc;
-		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
-		String THESAURUS_TYPE = MdekUtils.SearchtermType.THESAURUS.getDbValue();
-		for (SearchtermAdr ref : refs) {
-			SearchtermValue refValue = ref.getSearchtermValue();
-			if (refValue == null) {
-				LOG.warn("SearchtermAdr " + ref.getSearchtermId() + " has no SearchtermValue !!! We skip this SearchtermAdr.");
-				continue;
-			}
-
-			if (howMuch == MappingQuantity.INITIAL_ENTITY) {
-				// only take over thesaurus terms !
-				if (!THESAURUS_TYPE.equals(refValue.getType())) {
-					continue;
-				}
-			}
-
-			IngridDocument refDoc = new IngridDocument();
-			mapSearchtermValue(refValue, refDoc);
-			SearchtermSns refSns = refValue.getSearchtermSns();
-			mapSearchtermSns(refSns, refDoc);
-			refList.add(refDoc);					
-		}
-		addressDoc.put(MdekKeys.SUBJECT_TERMS, refList);
-		
-		return addressDoc;
+		ArrayList<IEntity> termEntityRefs = new ArrayList<IEntity>(refs);
+		return mapSearchterms(IdcEntityType.ADDRESS, termEntityRefs, addressDoc, howMuch);
 	}
 
 	private IngridDocument mapT0114EnvCategorys(Set<T0114EnvCategory> refs, IngridDocument objectDoc) {

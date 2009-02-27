@@ -16,6 +16,6 @@ public interface ISearchtermSnsDao
 	/** Load SearchtermSns with given snsId. Returns null if not found.	 */
 	SearchtermSns load(String snsId);
 
-	/** Load SearchtermSns with given snsId. If not found create AND save it ! */
-	SearchtermSns loadOrCreate(String snsId);
+	/** Load SearchtermSns with given snsId. If not found create (including gemtId) AND save it ! */
+	SearchtermSns loadOrCreate(String snsId, String gemetId);
 }

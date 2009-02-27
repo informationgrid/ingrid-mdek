@@ -127,6 +127,7 @@
 			<xs:element name="data-formats" type="DATA_FORMAT_LIST"/>
 			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
+			<xs:element name="subject-terms-inspire" type="SUBJECT_TERM_INSPIRE_LIST"/>
 			<xs:element name="env-categories" type="INTEGER_LIST"/>
 			<xs:element name="env-topics" type="INTEGER_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
@@ -192,6 +193,7 @@
 			
 			<xs:element name="communication" type="COMMUNICATION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
+			<xs:element name="subject-terms-inspire" type="SUBJECT_TERM_INSPIRE_LIST"/>
 			<xs:element name="comment_list" type="COMMENT_LIST"/>
 			
 			<xs:element name="ADR_RELATIONS_MAP" type="ADR_RELATIONS_MAP"/>
@@ -390,8 +392,8 @@
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_URL_MAP">
 		<xs:choice>
-			<!-- list of IngridDocuments containing url references (specified by UUID and LINKAGE_URL) -->
-			<xs:element name="requestinfo_urlList" type="URL_LIST"/>
+			<!-- source urls: list of IngridDocuments containing urls -->
+			<xs:element name="requestinfo_urlList" type="URL_SOURCE_LIST"/>
 			<!-- target url to which the source urls are changed -->
 			<xs:element name="requestinfo_urlTarget" type="xs:string"/>
 			<!-- passed when setting or updating job info in database (URL checker result) -->
@@ -399,17 +401,21 @@
 			<xs:element name="url-result" type="URL_RESULT_LIST"/>
 		</xs:choice>
 	</xs:complexType>	
-	<xs:complexType name="URL_LIST">
+	<xs:complexType name="URL_SOURCE_LIST">
 		<xs:sequence maxOccurs="unbounded">
-			<xs:element name="URL_MAP" type="URL_MAP"/>
+			<xs:element name="URL_SOURCE_MAP" type="URL_SOURCE_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="URL_MAP">
-		<xs:sequence>
-			<xs:element ref="uuid"/>
-			<xs:element ref="linkage-url"/>
-		</xs:sequence>
+	<xs:complexType name="URL_SOURCE_MAP">
+		<xs:choice>
+			<xs:element ref="url-result-object-uuid"/>
+			<xs:element ref="url-result-url"/>
+			<xs:element ref="url-result-state"/>
+		</xs:choice>
 	</xs:complexType>	
+	<xs:element name="url-result-object-uuid" type="xs:string"/>
+	<xs:element name="url-result-url" type="xs:string"/>
+	<xs:element name="url-result-state" type="xs:string"/>
 	<!-- URL checker result stored in job info -->
 	<xs:complexType name="URL_RESULT_LIST">
 		<xs:sequence maxOccurs="unbounded">
@@ -419,10 +425,10 @@
 	<!-- URL checker result stored in job info -->
 	<xs:complexType name="URL_RESULT_MAP">
 		<xs:sequence>
-			<xs:element name="url-result-object-uuid" type="xs:string"/>
-			<xs:element name="url-result-url" type="xs:string"/>
+			<xs:element ref="url-result-object-uuid"/>
+			<xs:element ref="url-result-url"/>
 			<!-- de.ingrid.mdek.quartz.jobs.util.URLState.State Enumeration const -->
-			<xs:element name="url-result-state" type="xs:string"/>
+			<xs:element ref="url-result-state"/>
 			<xs:element name="url-result-response-code" type="xs:integer"/>
 			<xs:element name="url-result-object-class" type="xs:integer"/>
 			<xs:element name="url-result-object-name" type="xs:string"/>
@@ -831,15 +837,29 @@
 			<xs:element name="SUBJECT_TERM_MAP" type="SUBJECT_TERM_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="SUBJECT_TERM_MAP">
-		<xs:sequence>
-			<xs:element name="term-name" type="xs:string"/>
-			<xs:element name="term-type" type="xs:string"/>
-			<xs:element ref="term-sns-id"/>
+	<xs:complexType name="SUBJECT_TERM_INSPIRE_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="SUBJECT_TERM_INSPIRE_MAP" type="SUBJECT_TERM_INSPIRE_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="SUBJECT_TERM_MAP">
+		<xs:sequence>
+			<xs:element ref="term-name"/>
+			<xs:element ref="term-type"/>
+			<xs:element ref="term-sns-id"/>
+			<xs:element name="term-gemet-id" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="term-name" type="xs:string"/>
+	<xs:element name="term-type" type="xs:string"/>
 	<xs:element name="term-sns-id" type="xs:string"/>
-
+	<xs:complexType name="SUBJECT_TERM_INSPIRE_MAP">
+		<xs:sequence>
+			<xs:element ref="term-name"/>
+			<xs:element ref="term-type"/>
+			<xs:element name="term-entry-id" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="TIME_MAP">
 		<xs:sequence>
 			<xs:element name="time-type" type="xs:string"/>
@@ -859,7 +879,7 @@
 	</xs:complexType>
 	<xs:complexType name="LINKAGE_MAP">
 		<xs:sequence>
-			<xs:element ref="linkage-url"/>
+			<xs:element name="linkage-url" type="xs:string"/>
 			<xs:element name="linkage-reference-id" type="xs:integer"/>
 			<xs:element name="linkage-reference" type="xs:string"/>
 			<xs:element name="linkage-datatype" type="xs:string"/>
@@ -872,7 +892,6 @@
 			<xs:element name="linkage-url-type" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="linkage-url" type="xs:string"/>
 	<xs:complexType name="DATASET_REFERENCE_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="DATASET_REFERENCE_MAP" type="DATASET_REFERENCE_MAP"/>

@@ -573,6 +573,62 @@ class MdekExampleObjectThread extends Thread {
 			return;
 		}
 
+// -----------------------------------
+
+		// TEST of GEMET searchterms and INSPIRE searchterms (NO INSPIRE searchterms syslist yet !)
+		// ==============
+
+		System.out.println("\n----- Create new Object with FREE, UMTHES, GEMET and INSPIRE searchterms -----");
+		newObjDoc = supertool.newObjectDoc(null);
+		// extend initial object with searchterms !
+		List<IngridDocument> myTerms = new ArrayList<IngridDocument>();
+		newObjDoc.put(MdekKeys.SUBJECT_TERMS, myTerms);
+		IngridDocument myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
+		myTerms.add(myTerm);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.UMTHES.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "Geographie");
+		myTerm.put(MdekKeys.TERM_SNS_ID, "uba_thes_10946");
+		myTerms.add(myTerm);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.GEMET.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "Feinstaub");
+		myTerm.put(MdekKeys.TERM_SNS_ID, "uba_thes_9320");
+		myTerm.put(MdekKeys.TERM_GEMET_ID, "3209");
+		myTerms.add(myTerm);
+		// extend initial object with searchterms INSPIRE !
+		myTerms = new ArrayList<IngridDocument>();
+		newObjDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, myTerms);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.INSPIRE.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "TEST INSPIRE Searchterm !");
+		myTerm.put(MdekKeys.TERM_ENTRY_ID, 99);
+		myTerms.add(myTerm);
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+		// uuid created !
+		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Store again -> Same searchterms ! no new created ones ! -----");
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+
+		System.out.println("\n----- Get initial data for new SUB Object inheriting thesaurus and INSPIRE terms -----");
+		supertool.newObjectDoc(newObjUuid);
+
+		System.out.println("\n----- Remove all terms from parent and store ! -----");
+		newObjDoc.put(MdekKeys.SUBJECT_TERMS, new ArrayList<IngridDocument>());
+		newObjDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, new ArrayList<IngridDocument>());
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+
+		System.out.println("\n----- Clean Up -----");
+		supertool.deleteObject(newObjUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
 // ====================
 */
 		// -----------------------------------

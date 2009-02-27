@@ -9,6 +9,7 @@
       <version name="version" type="integer" column="version"/>
       <property name="type" type="string" column="type"/>
       <property name="searchtermSnsId" type="long" column="searchterm_sns_id"/>
+      <property name="entryId" type="integer" column="entry_id"/>
       <property name="term" type="string" column="term"/>
 
       <many-to-one name="searchtermSns" class="SearchtermSns" column="searchterm_sns_id"

@@ -1235,7 +1235,8 @@ public class ObjectNodeDaoHibernate
 		if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE) {
 			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
 		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
-			qStringFromWhere += " searchtVal.type = '" + SearchtermType.THESAURUS.getDbValue() + "' ";			
+			qStringFromWhere += " (searchtVal.type = '" + SearchtermType.UMTHES.getDbValue() + "' " +
+				"OR searchtVal.type = '" + SearchtermType.GEMET.getDbValue() + "') ";			
 		}
 
 		if (parentUuid != null) {

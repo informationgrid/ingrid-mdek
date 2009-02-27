@@ -11,6 +11,7 @@ public class SearchtermValue implements IEntity {
 	private int version;
 	private String type;
 	private Long searchtermSnsId;
+	private Integer entryId;
 	private String term;
 
 	private SearchtermSns searchtermSns;
@@ -47,6 +48,14 @@ public class SearchtermValue implements IEntity {
 
 	public void setSearchtermSnsId(Long searchtermSnsId) {
 		this.searchtermSnsId = searchtermSnsId;
+	}
+
+	public Integer getEntryId() {
+		return entryId;
+	}
+
+	public void setEntryId(Integer entryId) {
+		this.entryId = entryId;
 	}
 
 	public String getTerm() {

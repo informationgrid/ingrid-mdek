@@ -8,6 +8,7 @@
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="snsId" type="string" column="sns_id"/>
+      <property name="gemetId" type="string" column="gemet_id"/>
       <property name="expiredAt" type="string" column="expired_at"/>
 
    </class>

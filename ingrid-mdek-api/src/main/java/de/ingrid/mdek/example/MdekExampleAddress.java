@@ -270,6 +270,62 @@ class MdekExampleAddressThread extends Thread {
 			isRunning = false;
 			return;
 		}
+
+// -----------------------------------
+
+		// TEST of GEMET searchterms and INSPIRE searchterms (NO INSPIRE searchterms syslist yet !)
+		// ==============
+
+		System.out.println("\n----- Create new Address with FREE, UMTHES, GEMET and INSPIRE searchterms -----");
+		IngridDocument newDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		// extend initial address with searchterms !
+		List<IngridDocument> myTerms = new ArrayList<IngridDocument>();
+		newDoc.put(MdekKeys.SUBJECT_TERMS, myTerms);
+		IngridDocument myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
+		myTerms.add(myTerm);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.UMTHES.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "Geographie");
+		myTerm.put(MdekKeys.TERM_SNS_ID, "uba_thes_10946");
+		myTerms.add(myTerm);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.GEMET.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "Feinstaub");
+		myTerm.put(MdekKeys.TERM_SNS_ID, "uba_thes_9320");
+		myTerm.put(MdekKeys.TERM_GEMET_ID, "3209");
+		myTerms.add(myTerm);
+		// extend initial address with searchterms INSPIRE !
+		myTerms = new ArrayList<IngridDocument>();
+		newDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, myTerms);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.INSPIRE.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "TEST INSPIRE Searchterm !");
+		myTerm.put(MdekKeys.TERM_ENTRY_ID, 99);
+		myTerms.add(myTerm);
+		newDoc = supertool.storeAddress(newDoc, true);
+		// uuid created !
+		String newUuid = (String) newDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Store again -> Same searchterms ! no new created ones ! -----");
+		newDoc = supertool.storeAddress(newDoc, true);
+
+		System.out.println("\n----- Get initial data for new SUB Address inheriting thesaurus and INSPIRE terms -----");
+		supertool.newAddressDoc(newUuid, AddressType.INSTITUTION);
+
+		System.out.println("\n----- Remove all terms from parent and store ! -----");
+		newDoc.put(MdekKeys.SUBJECT_TERMS, new ArrayList<IngridDocument>());
+		newDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, new ArrayList<IngridDocument>());
+		newDoc = supertool.storeAddress(newDoc, true);
+
+		System.out.println("\n----- Clean Up -----");
+		supertool.deleteAddress(newUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 */
 // -----------------------------------
 

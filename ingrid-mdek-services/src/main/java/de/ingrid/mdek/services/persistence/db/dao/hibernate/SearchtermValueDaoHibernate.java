@@ -33,15 +33,9 @@ public class SearchtermValueDaoHibernate
         super(factory, SearchtermValue.class);
     }
     
-	/** Load SearchtermValue according to given values. Returns null if not found. 
-	 * @param type
-	 * @param term
-	 * @param searchtermSnsId id of record in SearchtermSns
-	 * @param entityId connected to this entity (object or address)
-	 * @param entityType type of entity (object or address)
-	 * @return SearchtermValue or null
-	 */
-	private SearchtermValue loadSearchterm(String type, String term, Long searchtermSnsId,
+	/** Load SearchtermValue according to given values. Returns null if not found. */
+	private SearchtermValue loadSearchterm(String type, String term, Integer entryId,
+		Long searchtermSnsId,
 		Long entityId, IdcEntityType entityType)
 	{
 
@@ -59,8 +53,11 @@ public class SearchtermValueDaoHibernate
 				termValue = loadFreiSearchtermAddress(term, entityId);
 			}
 
-		} else if (SearchtermType.THESAURUS == termType) {
-			termValue = loadThesaurusSearchterm(term, searchtermSnsId);
+		} else if (SearchtermType.UMTHES == termType || SearchtermType.GEMET == termType) {
+			termValue = loadThesaurusSearchterm(termType, term, searchtermSnsId);
+			
+		} else if (SearchtermType.INSPIRE == termType) {
+			termValue = loadInspireSearchterm(term, entryId);
 			
 		} else {
 			LOG.warn("Unknown Type of SearchtermValue, type: " + type);
@@ -69,11 +66,7 @@ public class SearchtermValueDaoHibernate
 		return termValue;
 	}
 
-	/** Load Freien SearchtermValue according to given values. Returns null if not found. 
-	 * @param term
-	 * @param objId connected to this object
-	 * @return SearchtermValue or null
-	 */
+	/** Load Freien SearchtermValue according to given values. Returns null if not found. */
 	private SearchtermValue loadFreiSearchtermObject(String term, Long objId) {
 		Session session = getSession();
 
@@ -96,11 +89,7 @@ public class SearchtermValueDaoHibernate
 		return termValue; 
 	}
 
-	/** Load Freien SearchtermValue according to given values. Returns null if not found. 
-	 * @param term
-	 * @param adrId connected to this address
-	 * @return SearchtermValue or null
-	 */
+	/** Load Freien SearchtermValue according to given values. Returns null if not found. */
 	private SearchtermValue loadFreiSearchtermAddress(String term, Long adrId) {
 		Session session = getSession();
 
@@ -125,11 +114,13 @@ public class SearchtermValueDaoHibernate
 
 	/** Load Thesaurus SearchtermValue according to given values. Returns null if not found.
 	 * Pass both search criteria or only one of em.
+	 * @param termType type of term (UMTHES or GEMET). NOT NULL !
 	 * @param term pass null if only searchtermSnsId
 	 * @param searchtermSnsId id of record in SearchtermSns, pass null if only term
 	 * @return SearchtermValue or null
 	 */
-	private SearchtermValue loadThesaurusSearchterm(String term, Long searchtermSnsId) {
+	private SearchtermValue loadThesaurusSearchterm(SearchtermType termType, String term,
+			Long searchtermSnsId) {
 		if (term == null && searchtermSnsId == null) {
 			return null;
 		}
@@ -138,29 +129,20 @@ public class SearchtermValueDaoHibernate
 
 		String qString = "from SearchtermValue termVal " +
 			"left join fetch termVal.searchtermSns " +
-			"where termVal.type = '" + SearchtermType.THESAURUS.getDbValue() + "' ";
+			"where termVal.type = '" + termType.getDbValue() + "' ";
 
 		if (term != null) {
-			qString += "and termVal.term = ? ";
+			qString += "and termVal.term = '" + term + "' ";
 		}
 		if (searchtermSnsId != null) {
-			qString += "and termVal.searchtermSnsId = ? ";
+			qString += "and termVal.searchtermSnsId = " + searchtermSnsId;
 		}
 	
-		Query q = session.createQuery(qString);
-		int nextPos = 0;
-		if (term != null) {
-			q.setString(nextPos++, term);
-		}
-		if (searchtermSnsId != null) {
-			q.setLong(nextPos++, searchtermSnsId);			
-		}
-
 		// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
 		// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
 		// of these names equals true, due to configuration of MySQL !
 		SearchtermValue searchtermVal = null;
-		List<SearchtermValue> searchtermVals = q.list();
+		List<SearchtermValue> searchtermVals = session.createQuery(qString).list();
 		if (searchtermVals.size() > 0) {
 			searchtermVal = searchtermVals.get(0);
 		}
@@ -168,16 +150,45 @@ public class SearchtermValueDaoHibernate
 		return searchtermVal;
 	}
 
-	public SearchtermValue loadOrCreate(String type, String term, SearchtermSns termSns,
+	/** Load INSPIRE SearchtermValue according to given values. Returns null if not found.
+	 * Pass both search criteria or only one of em.
+	 * @param term INSPIRE topic, pass null if only entryId
+	 * @param entryId id of entry in syslist, pass null if only term
+	 * @return SearchtermValue or null
+	 */
+	private SearchtermValue loadInspireSearchterm(String term, Integer entryId) {
+		if (term == null && entryId == null) {
+			return null;
+		}
+
+		Session session = getSession();
+
+		String qString = "from SearchtermValue termVal " +
+			"where termVal.type = '" + SearchtermType.INSPIRE.getDbValue() + "' ";
+	
+		if (term != null) {
+			qString += "and termVal.term = '" + term + "' ";
+		}
+		if (entryId != null) {
+			qString += "and termVal.entryId = " + entryId;
+		}
+
+		return (SearchtermValue) session.createQuery(qString).uniqueResult();
+	}
+
+	public SearchtermValue loadOrCreate(String type, String term, Integer entryId,
+			SearchtermSns termSns,
 			Long entityId, IdcEntityType entityType)
 	{
 		Long termSnsId = (termSns != null) ? termSns.getId() : null; 
-		SearchtermValue termValue = loadSearchterm(type, term, termSnsId, entityId, entityType);
+		SearchtermValue termValue = loadSearchterm(type, term, entryId, termSnsId,
+			entityId, entityType);
 		
 		if (termValue == null) {
 			termValue = new SearchtermValue();
 			termValue.setType(type);
 			termValue.setTerm(term);
+			termValue.setEntryId(entryId);
 			termValue.setSearchtermSns(termSns);
 			termValue.setSearchtermSnsId(termSnsId);
 			makePersistent(termValue);

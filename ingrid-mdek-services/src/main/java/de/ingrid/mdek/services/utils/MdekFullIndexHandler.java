@@ -227,11 +227,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		for (SearchtermAdr term : terms) {
 			SearchtermValue termValue = term.getSearchtermValue();
 			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
-			if (termType == SearchtermType.FREI) {
-				extendFullData(data, termValue.getTerm());
-			} else if (termType == SearchtermType.THESAURUS) {
-				extendFullData(data, termValue.getTerm());
+			extendFullData(data, termValue.getTerm());
+			if (termType == SearchtermType.UMTHES || termType == SearchtermType.GEMET) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
+				extendFullData(data, termValue.getSearchtermSns().getGemetId());
 			}
 		}
 
@@ -275,11 +274,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		for (SearchtermObj term : terms) {
 			SearchtermValue termValue = term.getSearchtermValue();
 			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
-			if (termType == SearchtermType.FREI) {
-				extendFullData(data, termValue.getTerm());
-			} else if (termType == SearchtermType.THESAURUS) {
-				extendFullData(data, termValue.getTerm());
+			extendFullData(data, termValue.getTerm());
+			if (termType == SearchtermType.UMTHES || termType == SearchtermType.GEMET) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
+				extendFullData(data, termValue.getSearchtermSns().getGemetId());
 			}
 		}
 		// SpatialReference
@@ -505,8 +503,9 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		for (SearchtermObj term : terms) {
 			SearchtermValue termValue = term.getSearchtermValue();
 			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
-			if (termType == SearchtermType.THESAURUS) {
+			if (termType == SearchtermType.UMTHES || termType == SearchtermType.GEMET) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
+				extendFullData(data, termValue.getSearchtermSns().getGemetId());
 			}
 		}
 

@@ -521,14 +521,26 @@ public class MdekKeys {
     
     // SEARCHTERMS
 
-    /** Value: List of IngridDocs */
+    /** All FREE and THESAURUS searchterms EXCLUDING INSPIRE terms (term type FREE, UMTHES, GEMET)<br>
+     * Value: List of IngridDocs */
     public final static String SUBJECT_TERMS = "subject-terms";
+    /** All searchterms according to INSPIRE (term type INSPIRE)<br>
+     * Value: List of IngridDocs */
+    public final static String SUBJECT_TERMS_INSPIRE = "subject-terms-inspire";
+
     /** Value: String */
     public final static String TERM_NAME = "term-name";
     /** Value: String */
     public final static String TERM_TYPE = "term-type";
-    /** Value: String */
+    /** If searchterm is syslist entry, then this is the entry ID (TERM_TYPE determines syslist)<br>
+     * Value: Integer */
+    public final static String TERM_ENTRY_ID = "term-entry-id";
+    /** If searchterm is SNS term, then this is the SNS ID (may be UMTHES or GEMET term)<br>
+     * Value: String */
     public final static String TERM_SNS_ID = "term-sns-id";
+    /** If searchterm is GEMET term, then this is the GEMET ID (additional to TERM_SNS_ID)<br>
+     * Value: String */
+    public final static String TERM_GEMET_ID = "term-gemet-id";
 
     // TIME
 

@@ -1449,6 +1449,7 @@ public class DocToBeanMapper implements IMapper {
 	{
 		refValue.setTerm((String) refDoc.get(MdekKeys.TERM_NAME));
 		refValue.setType((String) refDoc.get(MdekKeys.TERM_TYPE));
+		refValue.setEntryId((Integer) refDoc.get(MdekKeys.TERM_ENTRY_ID));
 
 		Long refSnsId = null;
 		if (refSns != null) {
@@ -1460,37 +1461,60 @@ public class DocToBeanMapper implements IMapper {
 		return refValue;
 	}
 
-	private void updateSearchtermObjs(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.SUBJECT_TERMS);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
+	private void updateSearchterms(IdcEntityType entityType, IngridDocument docIn, IEntity entityIn) {
+		List<IngridDocument> inTermDocs = (List) docIn.get(MdekKeys.SUBJECT_TERMS);
+		if (inTermDocs == null) {
+			inTermDocs = new ArrayList<IngridDocument>(0);
 		}
-		Set<SearchtermObj> refs = oIn.getSearchtermObjs();
-		ArrayList<SearchtermObj> refs_unprocessed = new ArrayList<SearchtermObj>(refs);
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			String refDocName = (String) refDoc.get(MdekKeys.TERM_NAME);
-			String refDocName_notNull = (refDocName == null) ? "" : refDocName;
-			String refDocType = (String) refDoc.get(MdekKeys.TERM_TYPE);
-			String refDocSnsId = (String) refDoc.get(MdekKeys.TERM_SNS_ID);
-			String refDocSnsId_notNull = (refDocSnsId == null) ? "" : refDocSnsId;
-			boolean found = false;
-			for (SearchtermObj ref : refs) {
-				SearchtermValue refValue = ref.getSearchtermValue();
-				if (refValue != null) {
-					SearchtermSns refSns = refValue.getSearchtermSns();
+		List<IngridDocument> inTermInspireDocs = (List) docIn.get(MdekKeys.SUBJECT_TERMS_INSPIRE);
+		if (inTermInspireDocs == null) {
+			inTermInspireDocs = new ArrayList<IngridDocument>(0);
+		}
+		// combine all terms for better processing !
+		inTermDocs.addAll(inTermInspireDocs);
 
-					String refName_notNull = (refValue.getTerm() == null) ? "" : refValue.getTerm();
-					String refType = refValue.getType();
-					String refSnsId_notNull = (refSns == null) ? "" : refSns.getSnsId();
-					if (refDocName_notNull.equals(refName_notNull) &&
-						refDocType.equals(refType) &&
-						refDocSnsId_notNull.equals(refSnsId_notNull))
+		Set<IEntity> termEntityRefs;
+		if (entityType == IdcEntityType.OBJECT) {
+			termEntityRefs = ((T01Object)entityIn).getSearchtermObjs();			
+		} else {
+			termEntityRefs = ((T02Address)entityIn).getSearchtermAdrs();			
+		}
+		ArrayList<IEntity> termEntityRefs_unprocessed = new ArrayList<IEntity>(termEntityRefs);
+
+		int line = 1;
+		for (IngridDocument inTermDoc : inTermDocs) {
+			// check on already existing searchterm, compare searchterm values !
+			String inName = (String) inTermDoc.get(MdekKeys.TERM_NAME);
+			String inType = (String) inTermDoc.get(MdekKeys.TERM_TYPE);
+			Integer inEntryId = (Integer) inTermDoc.get(MdekKeys.TERM_ENTRY_ID);
+			String inSnsId = (String) inTermDoc.get(MdekKeys.TERM_SNS_ID);
+			String inGemetId = (String) inTermDoc.get(MdekKeys.TERM_GEMET_ID);
+			boolean found = false;
+			for (IEntity termEntityRef : termEntityRefs) {
+				SearchtermValue termValue;
+				if (entityType == IdcEntityType.OBJECT) {
+					termValue = ((SearchtermObj)termEntityRef).getSearchtermValue();
+				} else {
+					termValue = ((SearchtermAdr)termEntityRef).getSearchtermValue();
+				}
+				if (termValue != null) {
+					SearchtermSns termSns = termValue.getSearchtermSns();
+					String termSnsId = (termSns == null) ? "" : termSns.getSnsId();
+					String termGemetId = (termSns == null) ? "" : termSns.getGemetId();
+					if (MdekUtils.isEqual(inName, termValue.getTerm()) &&
+							MdekUtils.isEqual(inType, termValue.getType()) &&
+							MdekUtils.isEqual(inEntryId, termValue.getEntryId()) &&
+							MdekUtils.isEqual(inSnsId, termSnsId) &&
+							MdekUtils.isEqual(inGemetId, termGemetId))
 					{
-						mapSearchtermValue(refSns, refDoc, refValue);
+						mapSearchtermValue(termSns, inTermDoc, termValue);
 						// update line
-						ref.setLine(line);
-						refs_unprocessed.remove(ref);
+						if (entityType == IdcEntityType.OBJECT) {
+							((SearchtermObj)termEntityRef).setLine(line);
+						} else {
+							((SearchtermAdr)termEntityRef).setLine(line);
+						}
+						termEntityRefs_unprocessed.remove(termEntityRef);
 						found = true;
 						break;
 					}					
@@ -1499,95 +1523,45 @@ public class DocToBeanMapper implements IMapper {
 			if (!found) {
 				// add new one
 				
-				// first load/create SpatialRefSns
-				SearchtermSns refSns = null;
-				if (refDocSnsId != null) {
-					refSns = daoSearchtermSns.loadOrCreate(refDocSnsId);
+				// first load/create SearchtermSns
+				SearchtermSns termSns = null;
+				if (inSnsId != null) {
+					termSns = daoSearchtermSns.loadOrCreate(inSnsId, inGemetId);
 				}
 
-				// then load/create SpatialRefValue
-				SearchtermValue refValue = daoSearchtermValue.loadOrCreate(refDocType, refDocName, refSns,
-					oIn.getId(), IdcEntityType.OBJECT);
-				mapSearchtermValue(refSns, refDoc, refValue);
+				// then load/create SearchtermValue
+				// NOTICE: Freie Schlagwörter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
+				// gleiches Verhalten wie bei FREIEN RAUMBEZUEGEN, s.o.
+				// TODO: Aufraeum Job noetig, der Freie Schlagwörter Leichen (in SearchtermValue) beseitigt !!!
+				SearchtermValue termValue = daoSearchtermValue.loadOrCreate(inType, inName, inEntryId,
+						termSns, (Long)entityIn.getId(), entityType);
+				mapSearchtermValue(termSns, inTermDoc, termValue);
 
-				// then create SpatialReference
-				SearchtermObj ref = new SearchtermObj();
-				mapSearchtermObj(oIn, refValue, ref, line);
-				refs.add(ref);
+				// then create connection to entity
+				IEntity termEntityRef;
+				if (entityType == IdcEntityType.OBJECT) {
+					termEntityRef = new SearchtermObj();
+					mapSearchtermObj((T01Object)entityIn, termValue, (SearchtermObj)termEntityRef, line);
+				} else {
+					termEntityRef = new SearchtermAdr();
+					mapSearchtermAdr((T02Address)entityIn, termValue, (SearchtermAdr)termEntityRef, line);
+				}
+				termEntityRefs.add(termEntityRef);
 			}
 			line++;
 		}
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
-		for (SearchtermObj ref : refs_unprocessed) {
-			refs.remove(ref);
+		for (IEntity ref : termEntityRefs_unprocessed) {
+			termEntityRefs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoSearchtermObj.makeTransient(ref);
+			dao.makeTransient(ref);
 		}		
 	}
-
+	private void updateSearchtermObjs(IngridDocument oDocIn, T01Object oIn) {
+		updateSearchterms(IdcEntityType.OBJECT, oDocIn, oIn);
+	}
 	private void updateSearchtermAdrs(IngridDocument aDocIn, T02Address aIn) {
-		List<IngridDocument> refDocs = (List) aDocIn.get(MdekKeys.SUBJECT_TERMS);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
-		}
-		Set<SearchtermAdr> refs = aIn.getSearchtermAdrs();
-		ArrayList<SearchtermAdr> refs_unprocessed = new ArrayList<SearchtermAdr>(refs);
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			String refDocName = (String) refDoc.get(MdekKeys.TERM_NAME);
-			String refDocName_notNull = (refDocName == null) ? "" : refDocName;
-			String refDocType = (String) refDoc.get(MdekKeys.TERM_TYPE);
-			String refDocSnsId = (String) refDoc.get(MdekKeys.TERM_SNS_ID);
-			String refDocSnsId_notNull = (refDocSnsId == null) ? "" : refDocSnsId;
-			boolean found = false;
-			for (SearchtermAdr ref : refs) {
-				SearchtermValue refValue = ref.getSearchtermValue();
-				if (refValue != null) {
-					SearchtermSns refSns = refValue.getSearchtermSns();
-
-					String refName_notNull = (refValue.getTerm() == null) ? "" : refValue.getTerm();
-					String refType = refValue.getType();
-					String refSnsId_notNull = (refSns == null) ? "" : refSns.getSnsId();
-					if (refDocName_notNull.equals(refName_notNull) &&
-						refDocType.equals(refType) &&
-						refDocSnsId_notNull.equals(refSnsId_notNull))
-					{
-						mapSearchtermValue(refSns, refDoc, refValue);
-						// update line
-						ref.setLine(line);
-						refs_unprocessed.remove(ref);
-						found = true;
-						break;
-					}					
-				}
-			}
-			if (!found) {
-				// add new one
-				
-				// first load/create SpatialRefSns
-				SearchtermSns refSns = null;
-				if (refDocSnsId != null) {
-					refSns = daoSearchtermSns.loadOrCreate(refDocSnsId);
-				}
-
-				// then load/create SpatialRefValue
-				SearchtermValue refValue =
-					daoSearchtermValue.loadOrCreate(refDocType, refDocName, refSns, aIn.getId(), IdcEntityType.ADDRESS);
-				mapSearchtermValue(refSns, refDoc, refValue);
-
-				// then create SpatialReference
-				SearchtermAdr ref = new SearchtermAdr();
-				mapSearchtermAdr(aIn, refValue, ref, line);
-				refs.add(ref);
-			}
-			line++;
-		}
-		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
-		for (SearchtermAdr ref : refs_unprocessed) {
-			refs.remove(ref);
-			// delete-orphan doesn't work !!!?????
-			daoSearchtermAdr.makeTransient(ref);
-		}		
+		updateSearchterms(IdcEntityType.ADDRESS, aDocIn, aIn);		
 	}
 
 	private T0114EnvCategory mapT0114EnvCategory(T01Object oFrom,
