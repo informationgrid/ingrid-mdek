@@ -23,19 +23,17 @@ public class ConsistencyCheckerDaoHibernate
 	extends TransactionService
 	implements IConsistencyCheckerDao {
 
-	private static final Logger LOG = Logger.getLogger(ConsistencyCheckerDaoHibernate.class);
+	private static final Logger LOG 	= Logger.getLogger(ConsistencyCheckerDaoHibernate.class);
 
-	private List<String[]> tableList = new ArrayList<String[]>();
+	private List<QueryParameter> tableList 	= new ArrayList<QueryParameter>();
 	
-	private static final int TABLE = 0;
+	public static String REF_TABLE_NAME	= "ref.table.name";
 	
-	private static final int REF_TABLE = 1;
+	public static String ELEMENT_ID 	= "element.id";
 	
-	public static String TABLE_NAME = "table.name";
+	public static String FOREIGN_KEY 	= "foreign.key";
 	
-	public static String ELEMENT_ID = "element.id";
-	
-	public static String FOREIGN_KEY = "foreign.key";
+	public static String TABLE_NAME 	= "table.name";
 	
 	public ConsistencyCheckerDaoHibernate(SessionFactory factory) {
         super(factory);
@@ -47,88 +45,68 @@ public class ConsistencyCheckerDaoHibernate
 	 * Initialize a list of tables to be checked for correct associations.
 	 * Each entry consists of three String elements:
 	 *   1. the first table-name to check against
-	 *   2. the second table-name
+	 *   2. the reference from first table to second table
 	 *   3. the column of second table which is the foreign key to the first table
+	 *   4. the actual name of the second table
 	 * The third String only is used for the solution, so that the column can be named
 	 * that contains an id which does not exist in the first table.
 	 */
 	private void initTablesToCheck() {
-		tableList.add(new String[]{"ObjectNode", "permissionObjs", "objUuid"});
-		tableList.add(new String[]{"ObjectNode", "t01ObjectPublished", "id"});
-		tableList.add(new String[]{"ObjectNode", "t01ObjectWork", "id"});
+		tableList.add(new QueryParameter("PermissionObj", "uuid", "ObjectNode", new String[]{"objUuid"}));
+		tableList.add(new QueryParameter("T01Object", "id", "ObjectNode", new String[]{"objId","objIdPublished"}));
 		
-		// 0..* relationship
-		//tableList.add(new String[]{"T01Object", "addressNodeMod", "id"});
-		//tableList.add(new String[]{"T01Object", "addressNodeResponsible", "id"});
-		//tableList.add(new String[]{"T01Object", "t03Catalogue", "id"});		
-		tableList.add(new String[]{"T01Object", "objectAccesss", "objId"});
-		tableList.add(new String[]{"T01Object", "objectComments", "objId"});
-		tableList.add(new String[]{"T01Object", "objectConformitys", "objId"});
-		tableList.add(new String[]{"T01Object", "objectMetadata", "id"});
-		tableList.add(new String[]{"T01Object", "objectReferences", "objFromId"});
-		tableList.add(new String[]{"T01Object", "searchtermObjs", "objId"});
-		tableList.add(new String[]{"T01Object", "spatialReferences", "objId"});
-		tableList.add(new String[]{"T01Object", "t0110AvailFormats", "objId"});
-		tableList.add(new String[]{"T01Object", "t0112MediaOptions", "objId"});
-		tableList.add(new String[]{"T01Object", "t0113DatasetReferences", "objId"});
-		tableList.add(new String[]{"T01Object", "t0114EnvCategorys", "objId"});
-		tableList.add(new String[]{"T01Object", "t0114EnvTopics", "objId"});
-		tableList.add(new String[]{"T01Object", "t011ObjDataParas", "objId"});
-		tableList.add(new String[]{"T01Object", "t011ObjDatas", "objId"});
-		tableList.add(new String[]{"T01Object", "t011ObjGeos", "objId"});
-		tableList.add(new String[]{"T01Object", "t011ObjLiteratures", "objId"});
-		tableList.add(new String[]{"T01Object", "t011ObjProjects", "objId"});
-		tableList.add(new String[]{"T01Object", "t011ObjServs", "objId"});
-		tableList.add(new String[]{"T01Object", "t011ObjTopicCats", "objId"});
-		tableList.add(new String[]{"T01Object", "t012ObjAdrs", "objId"});
-		tableList.add(new String[]{"T01Object", "t014InfoImparts", "objId"});
-		tableList.add(new String[]{"T01Object", "t015Legists", "objId"});
-		tableList.add(new String[]{"T01Object", "t017UrlRefs", "objId"});
-		tableList.add(new String[]{"T01Object", "t08Attrs", "objId"});
+		tableList.add(new QueryParameter("ObjectAccess", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("ObjectComment", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("ObjectConformity", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("ObjectMetadata", "id", "T01Object", new String[]{"objMetadataId"}));
+		tableList.add(new QueryParameter("ObjectReference", "objFromId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("SearchtermObj", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("SpatialReference", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T0110AvailFormat", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T0112MediaOption", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T0113DatasetReference", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T0114EnvCategory", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T0114EnvTopic", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjDataPara", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjData", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjGeo", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjLiterature", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjProject", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjServ", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjTopicCat", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T012ObjAdr", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T014InfoImpart", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T015Legist", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T017UrlRef", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("T08Attr", "objId", "T01Object", new String[]{"id"}));
 		
-		//tableList.add(new String[]{"AddressNode", "addressNodeChildren", "id"});
-		tableList.add(new String[]{"AddressNode", "fullIndexAddrs", "addrNodeId"});
-		tableList.add(new String[]{"AddressNode", "permissionAddrs", "addrUuid"});
-		tableList.add(new String[]{"AddressNode", "t012ObjAdrs", "addrUuid"});		
-		tableList.add(new String[]{"AddressNode", "t02AddressPublished", "id"});
-		tableList.add(new String[]{"AddressNode", "t02AddressWork", "id"});
+		tableList.add(new QueryParameter("FullIndexAddr", "addrNodeId", "AddressNode", new String[]{"id"}));
+		tableList.add(new QueryParameter("PermissionAddr", "uuid", "AddressNode", new String[]{"addrUuid"}));
+		tableList.add(new QueryParameter("T02Address", "id", "AddressNode", new String[]{"addrId","addrIdPublished"}));
 		
-		tableList.add(new String[]{"T02Address", "addressComments", "addrId"});
-		tableList.add(new String[]{"T02Address", "addressMetadata", "id"});
-		//tableList.add(new String[]{"T02Address", "addressNodeMod", "id"});
-		//tableList.add(new String[]{"T02Address", "addressNodeResponsible", "id"});
-		tableList.add(new String[]{"T02Address", "searchtermAdrs", "adrId"});
-		tableList.add(new String[]{"T02Address", "t021Communications", "adrId"});
+		tableList.add(new QueryParameter("AddressComment", "addrId", "T02Address", new String[]{"id"}));
+		tableList.add(new QueryParameter("AddressMetadata", "id", "T02Address", new String[]{"addrMetadataId"}));
+		tableList.add(new QueryParameter("SearchtermAdr", "adrId", "T02Address", new String[]{"id"}));
+		tableList.add(new QueryParameter("T021Communication", "adrId", "T02Address", new String[]{"id"}));
 		
-		tableList.add(new String[]{"T08AttrType", "t08AttrLists","attrTypeId"});
+		tableList.add(new QueryParameter("T08AttrList", "attrTypeId", "T08AttrType", new String[]{"id"}));
 		
-		// T03Catalogue has 0..* relationship with T01Object
-		//tableList.add(new String[]{"T03Catalogue", "spatialRefValue","id"});
+		tableList.add(new QueryParameter("T011ObjGeoKeyc", "objGeoId", "T011ObjGeo", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjGeoSymc", "objGeoId", "T011ObjGeo", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjGeoScale", "objGeoId", "T011ObjGeo", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjGeoSupplinfo", "objGeoId", "T011ObjGeo", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjGeoVector", "objGeoId", "T011ObjGeo", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjGeoSpatialRep", "objGeoId", "T011ObjGeo", new String[]{"id"}));
 		
-		tableList.add(new String[]{"T011ObjGeo", "t011ObjGeoKeycs", "objGeoId"});
-		tableList.add(new String[]{"T011ObjGeo", "t011ObjGeoSymcs", "objGeoId"});
-		tableList.add(new String[]{"T011ObjGeo", "t011ObjGeoScales", "objGeoId"});
-		tableList.add(new String[]{"T011ObjGeo", "t011ObjGeoSupplinfos", "objGeoId"});
-		tableList.add(new String[]{"T011ObjGeo", "t011ObjGeoVectors", "objGeoId"});
-		tableList.add(new String[]{"T011ObjGeo", "t011ObjGeoSpatialReps", "objGeoId"});
+		tableList.add(new QueryParameter("T011ObjServType", "objServId", "T011ObjServ", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjServVersion", "objServId", "T011ObjServ", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjServOperation", "objServId", "T011ObjServ", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjServScale", "objServId", "T011ObjServ", new String[]{"id"}));
 		
-		tableList.add(new String[]{"T011ObjServ", "t011ObjServTypes", "objServId"});
-		tableList.add(new String[]{"T011ObjServ", "t011ObjServVersions", "objServId"});
-		tableList.add(new String[]{"T011ObjServ", "t011ObjServOperations", "objServId"});
-		tableList.add(new String[]{"T011ObjServ", "t011ObjServScales", "objServId"});
-		
-		tableList.add(new String[]{"T011ObjServOperation", "t011ObjServOpPlatforms", "objServOpId"});
-		tableList.add(new String[]{"T011ObjServOperation", "t011ObjServOpConnpoints", "objServOpId"});
-		tableList.add(new String[]{"T011ObjServOperation", "t011ObjServOpParas", "objServOpId"});
-		tableList.add(new String[]{"T011ObjServOperation", "t011ObjServOpDependss", "objServOpId"});
-		
-		//tableList.add(new String[]{"AddressNode", "idc_user", "id"});
-		
-		//tableList.add(new String[]{"SpatialRefValue", "spatialRefSns", "id"});
-		
-		//tableList.add(new String[]{"IdcUser", "addressNode", "id"});
-		//tableList.add(new String[]{"IdcUser", "idcGroup", "id"});
-		//tableList.add(new String[]{"IdcUser", "idcUsers", "id"});
+		tableList.add(new QueryParameter("T011ObjServOpPlatform", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjServOpConnpoint", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjServOpPara", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
+		tableList.add(new QueryParameter("T011ObjServOpDepends", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
 	}
 
 	public List<AddressNode> checkAddressHierarchy() {
@@ -179,16 +157,17 @@ public class ConsistencyCheckerDaoHibernate
 	public List<IngridDocument> checkTableAssociations() {
 		List<IngridDocument> docList = new ArrayList<IngridDocument>();
 		
-		for (String[] queryData : tableList) {
-			List<Long> resultList = getSession().createQuery(createQueryString(queryData)).list();
+		for (QueryParameter queryPar : tableList) {
+			List<Long> resultList = getSession().createQuery(createQueryString(queryPar)).list();
 			if (!resultList.isEmpty()) {
 				for (Long elementId : resultList) {
 					IngridDocument document = new IngridDocument();
 					document.put(ELEMENT_ID, elementId);
 					// table name is only correct for right outer joins!!!
 					// createQueryString(...) makes sure of it
-					document.put(TABLE_NAME, queryData[1]);
-					document.put(FOREIGN_KEY, queryData[2]);
+					document.put(FOREIGN_KEY, queryPar.getSrcField());
+					document.put(TABLE_NAME, queryPar.getFirstTable());
+					document.put(REF_TABLE_NAME, queryPar.getSecondTable());
 					docList.add(document);
 				}
 			}
@@ -196,13 +175,81 @@ public class ConsistencyCheckerDaoHibernate
 		return docList;
 	}
 
-	private String createQueryString(String[] queryData) {
-		String hqlQuery = "select element.id from "+queryData[TABLE]+" node " +
-				"right outer join node."+queryData[REF_TABLE]+" element " +
-				"where node = null";
+	/**
+	 * Create a query string that can be sent to the database. It returns the Ids
+	 * of a table that has invalid references to another table. Checked is a column
+	 * of one table with one or more tables of another. 
+	 * @param queryPar
+	 * @return ids of invalid entries in a table
+	 */
+	private String createQueryString(QueryParameter queryPar) {
+		String hqlQuery = "select element.id from "+queryPar.getFirstTable()+" element " +
+				"where ";
+		int i = 0;
+		for (String type : queryPar.getTableFields()) {
+			if (++i > 1) hqlQuery += " and ";
+			hqlQuery +=	"element."+queryPar.getSrcField()+" not in (select node."+type +
+				" from "+queryPar.getSecondTable()+" node)";
+		}
 		
 		return hqlQuery;
 	}
-
 	
+
+	/**
+	 * This inner class encapsulates the parameters used for a query to the database. 
+	 * @author Andre
+	 *
+	 */
+	class QueryParameter {
+		private String firstTable;
+		
+		private String secondTable;
+		
+		private String srcField;
+		
+		private List<String> tableFields;
+		
+		public QueryParameter( String firstTable, String srcField, String secondTable, String[] fields ) {
+			this.firstTable = firstTable;
+			this.secondTable = secondTable;
+			this.setSrcField(srcField);
+			this.tableFields = new ArrayList();
+			for (String field : fields) {
+				this.tableFields.add(field);
+			}			
+		}
+
+		public void setFirstTable(String firstTable) {
+			this.firstTable = firstTable;
+		}
+
+		public String getFirstTable() {
+			return firstTable;
+		}
+
+		public void setSecondTable(String secondTable) {
+			this.secondTable = secondTable;
+		}
+
+		public String getSecondTable() {
+			return secondTable;
+		}
+
+		public void setTableFields(List<String> tableFields) {
+			this.tableFields = tableFields;
+		}
+
+		public List<String> getTableFields() {
+			return tableFields;
+		}
+
+		public void setSrcField(String srcField) {
+			this.srcField = srcField;
+		}
+
+		public String getSrcField() {
+			return srcField;
+		}
+	}
 }

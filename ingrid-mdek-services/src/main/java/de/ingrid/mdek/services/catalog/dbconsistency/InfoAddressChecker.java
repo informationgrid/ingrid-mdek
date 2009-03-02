@@ -56,7 +56,7 @@ public class InfoAddressChecker implements ConsistencyChecker {
 	}
 
 	private String generateMessage(String objUuid, String title) {
-		return "Das Objekt mit der Id '"+objUuid+"' " +
+		return "Das Objekt mit der Uuid '"+objUuid+"' " +
 				"enthaelt keine Datenauskunftsadresse!";
 	}
 	

@@ -35,11 +35,13 @@ public class TableAssociationsChecker implements ConsistencyChecker {
 		List<IngridDocument> resultList = hqlConsistencyChecker.checkTableAssociations();
 		
 		for (IngridDocument element : resultList) {
-			Long id 		  = (Long)   element.get(ConsistencyCheckerDaoHibernate.ELEMENT_ID);
-			String tableName  = (String) element.get(ConsistencyCheckerDaoHibernate.TABLE_NAME);
-			String foreignKey = (String) element.get(ConsistencyCheckerDaoHibernate.FOREIGN_KEY);
+			Long id 		  		= (Long)   element.get(ConsistencyCheckerDaoHibernate.ELEMENT_ID);
+			String foreignKey 		= (String) element.get(ConsistencyCheckerDaoHibernate.FOREIGN_KEY);
+			String tableName  		= (String) element.get(ConsistencyCheckerDaoHibernate.TABLE_NAME);
+			String refTableName  	= (String) element.get(ConsistencyCheckerDaoHibernate.REF_TABLE_NAME);
 			
-			ErrorReport report = new ErrorReport(generateMessage(id, tableName),
+			ErrorReport report = new ErrorReport(
+					generateMessage(id, tableName, refTableName),
 					generateSolution(id, tableName, foreignKey));
 			reportList.add(report);
 		}
@@ -55,7 +57,7 @@ public class TableAssociationsChecker implements ConsistencyChecker {
 				"where id = "+elementId+" >";
 	}
 
-	private String generateMessage(Long elementId, String table) {
-		return "Ungültiger Verweis in Tabelle: " + table + " in Element mit id: " + elementId;
+	private String generateMessage(Long elementId, String table, String refTable) {
+		return "Ungültiger Verweis auf Tabelle "+refTable+" in Tabelle: " + table + " in Element mit id: " + elementId;
 	}
 }
