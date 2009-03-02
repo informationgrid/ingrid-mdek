@@ -1450,6 +1450,7 @@ public class DocToBeanMapper implements IMapper {
 		refValue.setTerm((String) refDoc.get(MdekKeys.TERM_NAME));
 		refValue.setType((String) refDoc.get(MdekKeys.TERM_TYPE));
 		refValue.setEntryId((Integer) refDoc.get(MdekKeys.TERM_ENTRY_ID));
+		keyValueService.processKeyValue(refValue);
 
 		Long refSnsId = null;
 		if (refSns != null) {

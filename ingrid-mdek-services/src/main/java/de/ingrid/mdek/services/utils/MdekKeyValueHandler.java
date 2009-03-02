@@ -10,6 +10,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
@@ -87,6 +88,8 @@ public class MdekKeyValueHandler {
 			processKeyValueObjectAccess((ObjectAccess) bean);
 		} else if (T011ObjServType.class.isAssignableFrom(clazz)) {
 			processKeyValueT011ObjServType((T011ObjServType) bean);
+		} else if (SearchtermValue.class.isAssignableFrom(clazz)) {
+			processKeyValueSearchtermValue((SearchtermValue) bean);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}
@@ -375,6 +378,19 @@ public class MdekKeyValueHandler {
 				catalogService.getCatalogLanguage());
 
 			bean.setServTypeValue(keyNameMap.get(entryKey));
+		}
+
+		return bean;
+	}
+
+	private IEntity processKeyValueSearchtermValue(SearchtermValue bean) {
+		Integer entryKey = bean.getEntryId();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.INSPIRE_SEARCHTERM.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setTerm(keyNameMap.get(entryKey));
 		}
 
 		return bean;
