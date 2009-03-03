@@ -16,10 +16,10 @@ public interface ISearchtermValueDao
 	extends IGenericDao<SearchtermValue> {
 
 	/** Load SearchtermValue according to given values. If not found create AND save it !
-	 * @param type type of term
+	 * @param type type of term NEVER null
 	 * @param term term name
 	 * @param entryId syslist entry id of term (null if no syslist entry)
-	 * @param termSns according bean (or null)
+	 * @param termSns according bean (or null if NO SNS term)
 	 * @param entityId connected to this entity (object or address)
 	 * @param entityType type of entity (object or address)
 	 * @return persisted SearchtermValue (with Id)

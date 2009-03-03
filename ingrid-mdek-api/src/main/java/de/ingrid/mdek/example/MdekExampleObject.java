@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
@@ -578,19 +579,20 @@ class MdekExampleObjectThread extends Thread {
 		// TEST of GEMET searchterms and INSPIRE searchterms (NO INSPIRE searchterms syslist yet !)
 		// ==============
 
-		System.out.println("\n----- Create new Object with FREE, UMTHES, GEMET and INSPIRE searchterms -----");
+		System.out.println("\n----- PUBLISH new TERM-Object with FREE, UMTHES, GEMET and INSPIRE searchterms -----");
 		newObjDoc = supertool.newObjectDoc(null);
 		// extend initial object with searchterms !
 		List<IngridDocument> myTerms = new ArrayList<IngridDocument>();
 		newObjDoc.put(MdekKeys.SUBJECT_TERMS, myTerms);
-		IngridDocument myTerm = new IngridDocument();
-		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
-		myTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
-		myTerms.add(myTerm);
+		IngridDocument myTerm;
 		myTerm = new IngridDocument();
 		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.UMTHES.getDbValue());
 		myTerm.put(MdekKeys.TERM_NAME, "Geographie");
 		myTerm.put(MdekKeys.TERM_SNS_ID, "uba_thes_10946");
+		myTerms.add(myTerm);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
 		myTerms.add(myTerm);
 		myTerm = new IngridDocument();
 		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.GEMET.getDbValue());
@@ -603,26 +605,59 @@ class MdekExampleObjectThread extends Thread {
 		newObjDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, myTerms);
 		myTerm = new IngridDocument();
 		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.INSPIRE.getDbValue());
-		myTerm.put(MdekKeys.TERM_NAME, "TEST INSPIRE Searchterm !");
-		myTerm.put(MdekKeys.TERM_ENTRY_ID, 99);
+		myTerm.put(MdekKeys.TERM_ENTRY_ID, 1);
 		myTerms.add(myTerm);
-		newObjDoc = supertool.storeObject(newObjDoc, true);
+		newObjDoc = supertool.publishObject(newObjDoc, true, false);
 		// uuid created !
 		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- Store again -> Same searchterms ! no new created ones ! -----");
+		System.out.println("\n----- STORE again -> NEW working copy, so NEW FREE searchterm created in DB ! same THESAURUS/INSPIRE terms ! -----");
+		newObjDoc = supertool.storeObject(newObjDoc, true);
+
+		System.out.println("\n----- STORE again -> NO NEW FREE searchterm, because term already connected to same object -----");
 		newObjDoc = supertool.storeObject(newObjDoc, true);
 
 		System.out.println("\n----- Get initial data for new SUB Object inheriting thesaurus and INSPIRE terms -----");
 		supertool.newObjectDoc(newObjUuid);
 
-		System.out.println("\n----- Remove all terms from parent and store ! -----");
+		System.out.println("\n\n=========================");
+		System.out.println("EXPORT TERM-OBJECT");
+
+		System.out.println("\n----- export TERM-Object -----");
+		supertool.exportObjectBranch(newObjUuid, true);
+		supertool.setFullOutput(true);
+		IngridDocument result = supertool.getExportInfo(true);
+		byte[] exportTermObjZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n\n----- Remove all terms from TERM-Object and STORE ! -> working copy has no terms -----");
 		newObjDoc.put(MdekKeys.SUBJECT_TERMS, new ArrayList<IngridDocument>());
 		newObjDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, new ArrayList<IngridDocument>());
 		newObjDoc = supertool.storeObject(newObjDoc, true);
 
+		System.out.println("\n\n=========================");
+		System.out.println("IMPORT TERM-OBJECT");
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import TERM-Object as WORKING VERSION -> all terms again in working version -----");
+		supertool.importEntities(exportTermObjZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchObject(newObjUuid, FetchQuantity.EDITOR_ENTITY);
+
 		System.out.println("\n----- Clean Up -----");
 		supertool.deleteObject(newObjUuid, true);
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
 
 		if (alwaysTrue) {
 			isRunning = false;

@@ -276,19 +276,20 @@ class MdekExampleAddressThread extends Thread {
 		// TEST of GEMET searchterms and INSPIRE searchterms (NO INSPIRE searchterms syslist yet !)
 		// ==============
 
-		System.out.println("\n----- Create new Address with FREE, UMTHES, GEMET and INSPIRE searchterms -----");
+		System.out.println("\n----- PUBLISH new Term-Address with FREE, UMTHES, GEMET and INSPIRE searchterms -----");
 		IngridDocument newDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		// extend initial address with searchterms !
 		List<IngridDocument> myTerms = new ArrayList<IngridDocument>();
 		newDoc.put(MdekKeys.SUBJECT_TERMS, myTerms);
-		IngridDocument myTerm = new IngridDocument();
-		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
-		myTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
-		myTerms.add(myTerm);
+		IngridDocument myTerm;
 		myTerm = new IngridDocument();
 		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.UMTHES.getDbValue());
 		myTerm.put(MdekKeys.TERM_NAME, "Geographie");
 		myTerm.put(MdekKeys.TERM_SNS_ID, "uba_thes_10946");
+		myTerms.add(myTerm);
+		myTerm = new IngridDocument();
+		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		myTerm.put(MdekKeys.TERM_NAME, "TEST Freier Searchterm !");
 		myTerms.add(myTerm);
 		myTerm = new IngridDocument();
 		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.GEMET.getDbValue());
@@ -301,34 +302,67 @@ class MdekExampleAddressThread extends Thread {
 		newDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, myTerms);
 		myTerm = new IngridDocument();
 		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.INSPIRE.getDbValue());
-		myTerm.put(MdekKeys.TERM_NAME, "TEST INSPIRE Searchterm !");
-		myTerm.put(MdekKeys.TERM_ENTRY_ID, 99);
+		myTerm.put(MdekKeys.TERM_ENTRY_ID, 1);
 		myTerms.add(myTerm);
-		newDoc = supertool.storeAddress(newDoc, true);
+		newDoc = supertool.publishAddress(newDoc, true);
 		// uuid created !
 		String newUuid = (String) newDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- Store again -> Same searchterms ! no new created ones ! -----");
+		System.out.println("\n----- STORE again -> NEW working copy, so NEW FREE searchterm created in DB ! same THESAURUS/INSPIRE terms ! -----");
+		newDoc = supertool.storeAddress(newDoc, true);
+
+		System.out.println("\n----- STORE again -> NO NEW FREE searchterm, because term already connected to same address -----");
 		newDoc = supertool.storeAddress(newDoc, true);
 
 		System.out.println("\n----- Get initial data for new SUB Address inheriting thesaurus and INSPIRE terms -----");
 		supertool.newAddressDoc(newUuid, AddressType.INSTITUTION);
 
-		System.out.println("\n----- Remove all terms from parent and store ! -----");
+		System.out.println("\n\n=========================");
+		System.out.println("EXPORT TERM-ADDRESS");
+
+		System.out.println("\n----- export TERM-Address -----");
+		supertool.exportAddressBranch(newUuid, true, null);
+		supertool.setFullOutput(true);
+		IngridDocument result = supertool.getExportInfo(true);
+		byte[] exportTermAddrZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n\n----- Remove all terms from TERM-Address and STORE ! -> working copy has no terms -----");
 		newDoc.put(MdekKeys.SUBJECT_TERMS, new ArrayList<IngridDocument>());
 		newDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, new ArrayList<IngridDocument>());
 		newDoc = supertool.storeAddress(newDoc, true);
 
+		System.out.println("\n\n=========================");
+		System.out.println("IMPORT TERM-ADDRESS");
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import TERM-Address as WORKING VERSION -> all terms again in working version -----");
+		supertool.importEntities(exportTermAddrZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.fetchAddress(newUuid, FetchQuantity.EDITOR_ENTITY);
+
 		System.out.println("\n----- Clean Up -----");
 		supertool.deleteAddress(newUuid, true);
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
 
 		if (alwaysTrue) {
 			isRunning = false;
 			return;
 		}
-*/
-// -----------------------------------
 
+// -----------------------------------
+*/
 		// AOR Paging, see http://jira.101tec.com/browse/INGRID-1503
 		// ------------------
 

@@ -8,14 +8,14 @@
         <country iso-code="iso-code1"/>
         <language iso-code="iso-code3"/>
         <geo-location>
-<!--                <controlled-location>
+                <controlled-location>
                     <location-name id="id1">location-name0</location-name>
                     <topic-type>topic-type0</topic-type>
                     <location-code>location-code0</location-code>
-                </controlled-location>-->
-                <uncontrolled-location>
+                </controlled-location>
+<!--                <uncontrolled-location>
                     <location-name id="id3">location-name1</location-name>
-                </uncontrolled-location>
+                </uncontrolled-location>-->
             <bounding-coordinates>
                 <west-bounding-coordinate>west-bounding-coordinate0</west-bounding-coordinate>
                 <east-bounding-coordinate>east-bounding-coordinate0</east-bounding-coordinate>
@@ -102,7 +102,7 @@
                         <depends-on>depends-on0</depends-on>
                     </service-operation>
                 </service>-->
-<!--                <document>
+                <document>
                     <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
                     <publisher>publisher0</publisher>
                     <publishing-place>publishing-place0</publishing-place>
@@ -117,7 +117,7 @@
                     <pages>pages0</pages>
                     <volume>volume0</volume>
                     <published-in>published-in0</published-in>
-                </document>-->
+                </document>
 <!--                <map>
                     <hierarchy-level iso-code="iso-code9"/>
                     <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
@@ -155,11 +155,11 @@
                     <feature-type>feature-type0</feature-type>
                     <datasource-identificator>datasource-identificator0</datasource-identificator>
                 </map>-->
-                <project>
+<!--                <project>
                     <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
                     <member-description>member-description0</member-description>
                     <leader-description>leader-description0</leader-description>
-                </project>
+                </project>-->
             </technical-domain>
             <additional-information>
                 <data-language iso-code="iso-code17"/>
@@ -236,7 +236,7 @@
                 </dataset-reference>
             </temporal-domain>
             <subject-terms>
-                <controlled-term source="UMTHES" id="id47">controlled-term0</controlled-term>
+                <controlled-term source="UMTHES" gemet-id="gemet-id1" id="id47">controlled-term0</controlled-term>
                 <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
             </subject-terms>
             <available-linkage>
@@ -291,7 +291,7 @@
             <function>function0</function>
             <address-description>address-description0</address-description>
             <subject-terms>
-                <controlled-term source="UMTHES" id="id63">controlled-term1</controlled-term>
+                <controlled-term source="UMTHES" gemet-id="gemet-id3" id="id63">controlled-term1</controlled-term>
                 <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
             </subject-terms>
             <comment>

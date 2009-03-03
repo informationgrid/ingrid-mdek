@@ -54,10 +54,10 @@ public class SearchtermValueDaoHibernate
 			}
 
 		} else if (SearchtermType.UMTHES == termType || SearchtermType.GEMET == termType) {
-			termValue = loadThesaurusSearchterm(termType, term, searchtermSnsId);
+			termValue = loadThesaurusSearchterm(termType, searchtermSnsId);
 			
 		} else if (SearchtermType.INSPIRE == termType) {
-			termValue = loadInspireSearchterm(term, entryId);
+			termValue = loadInspireSearchterm(entryId);
 			
 		} else {
 			LOG.warn("Unknown Type of SearchtermValue, type: " + type);
@@ -113,31 +113,18 @@ public class SearchtermValueDaoHibernate
 	}
 
 	/** Load Thesaurus SearchtermValue according to given values. Returns null if not found.
-	 * Pass both search criteria or only one of em.
 	 * @param termType type of term (UMTHES or GEMET). NOT NULL !
-	 * @param term pass null if only searchtermSnsId
-	 * @param searchtermSnsId id of record in SearchtermSns, pass null if only term
+	 * @param searchtermSnsId id of record in SearchtermSns, NEVER NULL, has to exist !
 	 * @return SearchtermValue or null
 	 */
-	private SearchtermValue loadThesaurusSearchterm(SearchtermType termType, String term,
-			Long searchtermSnsId) {
-		if (term == null && searchtermSnsId == null) {
-			return null;
-		}
-
+	private SearchtermValue loadThesaurusSearchterm(SearchtermType termType, Long searchtermSnsId) {
 		Session session = getSession();
 
 		String qString = "from SearchtermValue termVal " +
 			"left join fetch termVal.searchtermSns " +
-			"where termVal.type = '" + termType.getDbValue() + "' ";
+			"where termVal.type = '" + termType.getDbValue() + "' " +
+			"and termVal.searchtermSnsId = " + searchtermSnsId + "";
 
-		if (term != null) {
-			qString += "and termVal.term = '" + term + "' ";
-		}
-		if (searchtermSnsId != null) {
-			qString += "and termVal.searchtermSnsId = " + searchtermSnsId;
-		}
-	
 		// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
 		// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
 		// of these names equals true, due to configuration of MySQL !
@@ -151,28 +138,16 @@ public class SearchtermValueDaoHibernate
 	}
 
 	/** Load INSPIRE SearchtermValue according to given values. Returns null if not found.
-	 * Pass both search criteria or only one of em.
-	 * @param term INSPIRE topic, pass null if only entryId
-	 * @param entryId id of entry in syslist, pass null if only term
+	 * @param entryId id of entry in syslist, NEVER NULL !
 	 * @return SearchtermValue or null
 	 */
-	private SearchtermValue loadInspireSearchterm(String term, Integer entryId) {
-		if (term == null && entryId == null) {
-			return null;
-		}
-
+	private SearchtermValue loadInspireSearchterm(Integer entryId) {
 		Session session = getSession();
 
 		String qString = "from SearchtermValue termVal " +
-			"where termVal.type = '" + SearchtermType.INSPIRE.getDbValue() + "' ";
+			"where termVal.type = '" + SearchtermType.INSPIRE.getDbValue() + "' " +
+			"and termVal.entryId = " + entryId;
 	
-		if (term != null) {
-			qString += "and termVal.term = '" + term + "' ";
-		}
-		if (entryId != null) {
-			qString += "and termVal.entryId = " + entryId;
-		}
-
 		return (SearchtermValue) session.createQuery(qString).uniqueResult();
 	}
 

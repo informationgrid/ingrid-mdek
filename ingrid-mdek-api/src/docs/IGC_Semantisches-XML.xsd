@@ -1255,8 +1255,10 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Thesaurus-Suchbegriff aus dem Umweltthesaurus
-    Tabelle: searchterm_value.searchterm_sns_id
+    Fachlicher Name: UMTHES/GEMET Thesaurus-Suchbegriff oder INSPIRE Thema
+    Tabelle: searchterm_sns.sns_id  \\ bei UMTHES und GEMET term
+    Tabelle: searchterm_sns.gemet_id  \\ nur bei GEMET term 
+    Tabelle: searchterm_value.entry_id  \\ nur bei INSPIRE Thema (syslist entry-id)
     Tabelle: searchterm_value.term
   -->
   <xs:element name="controlled-term" type="controlled-term"/>
@@ -1645,7 +1647,7 @@
     </xs:simpleContent>
   </xs:complexType>
   <!--
-    Datentyp: STRING element mit id= und source= Attribut fuer thesaurus searchterms
+    Datentyp: STRING element mit "id" und "source" und "gemet-id" Attribut fuer thesaurus searchterms oder INSPIRE Themen
   -->
   <xs:complexType name="controlled-term">
     <xs:simpleContent>
@@ -1655,9 +1657,11 @@
             <xs:restriction base="xs:token">
               <xs:enumeration value="UMTHES"/>
               <xs:enumeration value="GEMET"/>
+              <xs:enumeration value="INSPIRE"/>
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>
+        <xs:attribute name="gemet-id"/>
       </xs:extension>     
     </xs:simpleContent>
   </xs:complexType>
