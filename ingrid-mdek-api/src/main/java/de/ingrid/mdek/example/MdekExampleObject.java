@@ -605,7 +605,7 @@ class MdekExampleObjectThread extends Thread {
 		newObjDoc.put(MdekKeys.SUBJECT_TERMS_INSPIRE, myTerms);
 		myTerm = new IngridDocument();
 		myTerm.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.INSPIRE.getDbValue());
-		myTerm.put(MdekKeys.TERM_ENTRY_ID, 1);
+		myTerm.put(MdekKeys.TERM_ENTRY_ID, 311);
 		myTerms.add(myTerm);
 		newObjDoc = supertool.publishObject(newObjDoc, true, false);
 		// uuid created !

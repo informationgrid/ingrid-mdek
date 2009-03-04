@@ -77,7 +77,7 @@ public class MdekUtils {
 		OBJ_CONFORMITY(6000),
 		OBJ_ACCESS(6010),
 		/** INSPIRE Themen zur Verschlagwortung */
-		INSPIRE_SEARCHTERM(6020);
+		INSPIRE_SEARCHTERM(6100);
 
 		MdekSysList(Integer dbValue) {
 			this.dbValue = dbValue;
