@@ -1,6 +1,7 @@
 package de.ingrid.mdek.example;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,8 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -310,6 +313,137 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("=========================");
 
 		supertool.analyze();
+
+// -----------------------------------
+		
+		System.out.println("\n\n=========================");
+		System.out.println("DELETE ADDRESS (Gesamtkatalogmanagement) ");
+		System.out.println("=========================");
+
+		System.out.println("\n----- STORE new 'Address to replace' (will be AUSKUNFT, RESPONSIBLE USER) -----");
+		doc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		doc.put(MdekKeys.ORGANISATION, "testADDRESS_TO_REPLACE");
+		doc = supertool.storeAddress(doc, true);
+		String uuidToReplace = (String) doc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- STORE new SUB-ADDRESS of 'Address to replace' -----");
+		doc = supertool.newAddressDoc(uuidToReplace, AddressType.INSTITUTION);
+		doc.put(MdekKeys.ORGANISATION, "testSUBADDRESS");
+		doc = supertool.storeAddress(doc, true);
+		String uuidSubaddress = (String) doc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- STORE 'ADDRESS to replace with'. NOTICE: 'Address to replace' is RESPONSIBLE USER -----");
+		IngridDocument newDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		newDoc.put(MdekKeys.ORGANISATION, "testADDRESS_TO_REPLACE_WITH");
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplace);
+		newDoc.put(MdekKeys.RESPONSIBLE_USER, doc);
+		doc = supertool.publishAddress(newDoc, true);
+		String uuidToReplaceWith = (String) doc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- STORE 1. new Object where 'Address to replace' is AUSKUNFT, ANBIETER and RESPONSIBLE USER -----");
+		newDoc = supertool.newObjectDoc(null);
+		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT STORED (NOT Published)");
+		List<IngridDocument> objAdrDocs = new ArrayList<IngridDocument>();
+		newDoc.put(MdekKeys.ADR_REFERENCES_TO, objAdrDocs);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplace);
+		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
+		objAdrDocs.add(doc);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplace);
+		doc.put(MdekKeys.RELATION_TYPE_ID, 1);
+		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
+		objAdrDocs.add(doc);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplace);
+		newDoc.put(MdekKeys.RESPONSIBLE_USER, doc);
+		doc = supertool.storeObject(newDoc, true);
+		String newObjStoredUuid = (String) doc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- PUBLISH 2. new Object where 'Address to replace' is AUSKUNFT, ANBIETER and RESPONSIBLE USER -----");
+		newDoc = supertool.newObjectDoc(null);
+		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT PUBLISHED");
+		objAdrDocs = new ArrayList<IngridDocument>();
+		newDoc.put(MdekKeys.ADR_REFERENCES_TO, objAdrDocs);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplace);
+		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
+		objAdrDocs.add(doc);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplace);
+		doc.put(MdekKeys.RELATION_TYPE_ID, 1);
+		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
+		objAdrDocs.add(doc);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplace);
+		newDoc.put(MdekKeys.RESPONSIBLE_USER, doc);
+		doc = supertool.publishObject(newDoc, true, false);
+		String newObjPublishedUuid = (String) doc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- getObjectsOfAuskunftAddress -> 2 Objects -----");
+		supertool.getObjectsOfAuskunftAddress(uuidToReplace);
+		System.out.println("\n----- according CSV data -----");
+		supertool.getCsvData(CsvRequestType.OBJECTS_OF_AUSKUNFT_ADDRESS, uuidToReplace);
+		
+		System.out.println("\n----- getObjectsOfResponsibleUser -> 2 Objects -----");
+		supertool.getObjectsOfResponsibleUser(uuidToReplace);
+		System.out.println("\n----- according CSV data -----");
+		supertool.getCsvData(CsvRequestType.OBJECTS_OF_RESPONSIBLE_USER, uuidToReplace);
+		
+		System.out.println("\n----- getAddressesOfResponsibleUser -> 1 Address -----");
+		supertool.getAddressesOfResponsibleUser(uuidToReplace);
+		System.out.println("\n----- according CSV data -----");
+		supertool.getCsvData(CsvRequestType.ADDRESSES_OF_RESPONSIBLE_USER, uuidToReplace);
+		
+		System.out.println("\n----- DELETE Address to replace -> Error: ADDRESS_IS_AUSKUNFT -----");
+		supertool.deleteAddress(uuidToReplace, false);
+
+
+		System.out.println("\n\n----- REPLACE CATADMIN address -> Error: ADDRESS_IS_IDCUSER_ADDRESS -----");
+		supertool.replaceAddress(catalogAdminUuid, uuidToReplaceWith);
+		System.out.println("\n----- REPLACE with equal Addresses -> Error: FROM_UUID_EQUALS_TO_UUID -----");
+		supertool.replaceAddress(uuidToReplace, uuidToReplace);
+		System.out.println("\n----- REPLACE with UNPUBLISHED new Address -> Error: ENTITY_NOT_PUBLISHED -----");
+		supertool.replaceAddress(uuidToReplaceWith, uuidToReplace);
+		System.out.println("\n----- REPLACE address has subnodes -> Error: NODE_HAS_SUBNODES -----");
+		supertool.replaceAddress(uuidToReplace, uuidToReplaceWith);
+
+		System.out.println("\n----- DELETE Subaddress of 'Address to replace', so replace works ! -----");
+		supertool.deleteAddress(uuidSubaddress, false);
+
+
+		System.out.println("\n\n----- REPLACE 'Address to replace' with 'Address to replace with' \n" +
+				"          -> all Auskunfts are replaced, all References deleted, all responsible users set to catadmin -----");
+		supertool.replaceAddress(uuidToReplace, uuidToReplaceWith);
+
+		System.out.println("\n----- getObjectsOfAuskunftAddress with OLD Auskunft-> 0 Objects -----");
+		supertool.getObjectsOfAuskunftAddress(uuidToReplace);
+		System.out.println("\n----- getObjectsOfAuskunftAddress with NEW Auskunft-> 2 Objects -----");
+		supertool.getObjectsOfAuskunftAddress(uuidToReplaceWith);
+		
+		System.out.println("\n----- getObjectsOfResponsibleUser with OLD responsible User -> 0 Objects -----");
+		supertool.getObjectsOfResponsibleUser(uuidToReplace);
+		System.out.println("\n----- getObjectsOfResponsibleUser with NEW responsible User (=catadmin) -> LOTs of objects -----");
+		System.out.println("we do NOT execute, but works !");
+//		supertool.getObjectsOfResponsibleUser(catalogAdminUuid);
+		
+		System.out.println("\n----- getAddressesOfResponsibleUser with OLD responsible User -> 0 Addresses -----");
+		supertool.getAddressesOfResponsibleUser(uuidToReplace);
+		System.out.println("\n----- getAddressesOfResponsibleUser with NEW responsible User (=catadmin) -> LOTs of addresses -----");
+		System.out.println("we do NOT execute, but works !");
+//		supertool.getAddressesOfResponsibleUser(catalogAdminUuid);
+
+
+		System.out.println("\n\n----- Clean Up -----");
+		supertool.deleteObject(newObjStoredUuid, true);
+		supertool.deleteObject(newObjPublishedUuid, true);
+		supertool.deleteAddress(uuidToReplaceWith, true);
+		System.out.println("\n----- Auskunft may be already deleted -----");
+		supertool.deleteAddress(uuidToReplace, true);
+
 
 // ===================================
 

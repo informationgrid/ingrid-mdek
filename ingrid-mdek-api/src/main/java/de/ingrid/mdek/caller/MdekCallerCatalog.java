@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -229,6 +230,54 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("analyzeDBConsistency", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument replaceAddress(String plugId, String oldUuid, String newUuid,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.FROM_UUID, oldUuid);
+		jobParams.put(MdekKeys.TO_UUID, newUuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("replaceAddress", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getObjectsOfAuskunftAddress(String plugId, String auskunftAddressUuid,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, auskunftAddressUuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getObjectsOfAuskunftAddress", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getObjectsOfResponsibleUser(String plugId, String responsibleUserUuid,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, responsibleUserUuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getObjectsOfResponsibleUser", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getAddressesOfResponsibleUser(String plugId, String responsibleUserUuid,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, responsibleUserUuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getAddressesOfResponsibleUser", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+
+	public IngridDocument getCsvData(String plugId, CsvRequestType csvType,
+			String uuid, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_CSV_REQUEST_TYPE, csvType);
+		jobParams.put(MdekKeys.UUID, uuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getCsvData", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 }

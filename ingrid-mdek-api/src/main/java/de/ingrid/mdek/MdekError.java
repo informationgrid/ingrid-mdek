@@ -30,11 +30,12 @@ public class MdekError implements Serializable {
 		UUID_NOT_FOUND("10"),
 		FROM_UUID_NOT_FOUND("11"),
 		TO_UUID_NOT_FOUND("12"),
+		FROM_UUID_EQUALS_TO_UUID("13"),
 
 		/** No catalog data found (e.g. entity catalog association is missing) */
-		CATALOG_NOT_FOUND("13"),
+		CATALOG_NOT_FOUND("16"),
 		/** e.g. when storing catalog and required data is missing */
-		CATALOG_DATA_MISSING("14"),
+		CATALOG_DATA_MISSING("17"),
 
 		/** e.g. publish of child not allowed when parent not published */
 		PARENT_NOT_PUBLISHED("20"),
@@ -51,6 +52,8 @@ public class MdekError implements Serializable {
 		SUBTREE_HAS_LARGER_PUBLICATION_CONDITION("32"),
 		/** e.g. when object is published and publication condition doesn't fit to parent */
 		PARENT_HAS_SMALLER_PUBLICATION_CONDITION("33"),
+		/** e.g. when address is replaced (Gesamtkatalogmanagement), not possible if subnodes */
+		NODE_HAS_SUBNODES("35"),
 
 		/** when free address is NOT a root node */
 		FREE_ADDRESS_WITH_PARENT("41"),

@@ -16,6 +16,7 @@ import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.job.tools.MdekIdcUserHandler;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
+import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -35,7 +36,6 @@ import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
@@ -54,6 +54,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	private MdekIdcUserHandler userHandler;
 	private MdekAddressService addressService;
 	private MdekObjectService objectService;
+	private MdekCatalogService catalogService;
 
 	private IIdcGroupDao daoIdcGroup;
 	private IIdcUserDao daoIdcUser;
@@ -76,6 +77,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		userHandler = MdekIdcUserHandler.getInstance(daoFactory);
 		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
+		catalogService = MdekCatalogService.getInstance(daoFactory);
 		
 		dao = daoFactory.getDao(IEntity.class);
 
@@ -100,7 +102,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// fetch group id of catAdmin for comparison
 			Long catAdminGroupId = null;
 			if (!includeCatAdminGroup) {
-				catAdminGroupId = permService.getCatalogAdmin().getIdcGroupId();
+				catAdminGroupId = permService.getCatalogAdminUser().getIdcGroupId();
 			}
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(groups.size());
@@ -611,7 +613,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// address uuid changed ?
 			// then update all entities, where old uuid is responsible user with new address uuid.
 			if (userAddressChanged) {
-				updateResponsibleUserInEntities(oldAddrUuid, newAddrUuid);					
+				catalogService.updateResponsibleUserInEntities(oldAddrUuid, newAddrUuid);					
 			}
 			
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -677,7 +679,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// ok, we update all entities, where user to delete is responsible user with parent user.
 			String oldResponsibleUuid = userToDelete.getAddrUuid();
 			String newResponsibleUuid = userHandler.getUserById(userToDelete.getParentId()).getAddrUuid();
-			updateResponsibleUserInEntities(oldResponsibleUuid, newResponsibleUuid);
+			catalogService.updateResponsibleUserInEntities(oldResponsibleUuid, newResponsibleUuid);
 
 			// finally delete the user !
 			daoIdcUser.makeTransient(userToDelete);
@@ -699,7 +701,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 			dao.disableAutoFlush();
 
-			IdcUser user = permService.getCatalogAdmin();
+			IdcUser user = permService.getCatalogAdminUser();
 			if (user == null) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
@@ -1242,41 +1244,6 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			user.setModTime(currentTime);
 			user.setModUuid(modUuid);
 			daoIdcUser.makePersistent(user);
-		}
-	}
-
-	/**
-	 * Update all entities (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
-	 * NOTICE: already persists entities !
-	 */
-	private void updateResponsibleUserInEntities(String oldResponsibleUuid, String newResponsibleUuid) {
-		updateResponsibleUserInObjects(oldResponsibleUuid, newResponsibleUuid);
-		updateResponsibleUserInAddresses(oldResponsibleUuid, newResponsibleUuid);
-	}
-
-	/**
-	 * Update all objects (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
-	 * NOTICE: already persists objects !
-	 */
-	private void updateResponsibleUserInObjects(String oldResponsibleUuid, String newResponsibleUuid) {
-		List<T01Object> os = 
-			daoObjectNode.getAllObjectsOfResponsibleUser(oldResponsibleUuid);
-		for (T01Object o : os) {
-			o.setResponsibleUuid(newResponsibleUuid);
-			dao.makePersistent(o);
-		}
-	}
-
-	/**
-	 * Update all addresses (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
-	 * NOTICE: already persists addresses !
-	 */
-	private void updateResponsibleUserInAddresses(String oldResponsibleUuid, String newResponsibleUuid) {
-		List<T02Address> as = 
-			daoAddressNode.getAllAddressesOfResponsibleUser(oldResponsibleUuid);
-		for (T02Address a : as) {
-			a.setResponsibleUuid(newResponsibleUuid);
-			dao.makePersistent(a);
 		}
 	}
 

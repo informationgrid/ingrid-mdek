@@ -1,8 +1,10 @@
 package de.ingrid.mdek.services.catalog;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
@@ -15,11 +17,16 @@ import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
+import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.utils.IngridDocument;
@@ -36,6 +43,8 @@ public class MdekCatalogService {
 	private ISysGuiDao daoSysGui;
 	private ISysGenericKeyDao daoSysGenericKey;
 	private IT08AttrTypeDao daoT08AttrType;
+	private IT01ObjectDao daoT01Object;
+	private IT02AddressDao daoT02Address;
 
 	private BeanToDocMapper beanToDocMapper;
 
@@ -53,6 +62,8 @@ public class MdekCatalogService {
 		daoSysGui = daoFactory.getSysGuiDao();
 		daoSysGenericKey = daoFactory.getSysGenericKeyDao();
 		daoT08AttrType = daoFactory.getT08AttrTypeDao();
+		daoT01Object = daoFactory.getT01ObjectDao();
+		daoT02Address = daoFactory.getT02AddressDao();
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 	}
@@ -133,5 +144,98 @@ public class MdekCatalogService {
 		beanToDocMapper.mapT08AttrTypes(fields, result);
 
 		return result;
+	}
+
+	/**
+	 * Update auskunft in all objects (also published ones !).
+	 * Further mod-date and -uuid in objects is updated.<br>
+	 * NOTICE: already persists addresses !
+	 * @param oldAuskunftUuid auskunft to be replaced
+	 * @param newAuskunftUuid with this new auskunft
+	 * @param userUuid calling user
+	 * @return num objects updated
+	 */
+	public int updateAuskunftInObjects(String oldAuskunftUuid, String newAuskunftUuid, String userUuid) {
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
+		int numAuskunftChanged = 0;
+
+		List<T01Object> objs = 
+			daoT02Address.getObjectReferencesByTypeId(oldAuskunftUuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		for (T01Object obj : objs) {
+			Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
+			
+			// replace auskunft
+			boolean objChanged = false;
+			for (T012ObjAdr objAdr : objAdrs) {
+				if (MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(objAdr.getType())) {
+					objAdr.setAdrUuid(newAuskunftUuid);
+					objChanged = true;
+					numAuskunftChanged++;
+				}
+			}
+
+			if (objChanged) {
+				// update mod_time and mod_uuid and save (cascades save to objAdrs)
+				obj.setModTime(currentTime);
+				obj.setModUuid(userUuid);
+				daoT01Object.makePersistent(obj);					
+			}
+		}
+		
+		return numAuskunftChanged;
+	}
+
+	/**
+	 * Update all entities (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
+	 * NOTICE: already persists entities !
+	 * @param oldResponsibleUuid
+	 * @param newResponsibleUuid
+	 * @return num entities updated (objects and addresses)
+	 */
+	public int updateResponsibleUserInEntities(String oldResponsibleUuid, String newResponsibleUuid) {
+		int numObjs = updateResponsibleUserInObjects(oldResponsibleUuid, newResponsibleUuid);
+		int numAddrs = updateResponsibleUserInAddresses(oldResponsibleUuid, newResponsibleUuid);
+		
+		return numObjs + numAddrs;
+	}
+
+	/**
+	 * Update all objects (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
+	 * NOTICE: already persists objects !
+	 * @param oldResponsibleUuid
+	 * @param newResponsibleUuid
+	 * @return num objects updated
+	 */
+	public int updateResponsibleUserInObjects(String oldResponsibleUuid, String newResponsibleUuid) {
+		List<T01Object> os = 
+			daoT01Object.getAllObjectsOfResponsibleUser(oldResponsibleUuid);
+		int numObjs = 0;
+		for (T01Object o : os) {
+			o.setResponsibleUuid(newResponsibleUuid);
+			daoT01Object.makePersistent(o);
+			numObjs++;
+		}
+		
+		return numObjs;
+	}
+
+	/**
+	 * Update all addresses (also published ones !), where passed old uuid is responsible user with passed new uuid.<br>
+	 * NOTICE: already persists addresses !
+	 * @param oldResponsibleUuid
+	 * @param newResponsibleUuid
+	 * @return num addresses updated
+	 */
+	public int updateResponsibleUserInAddresses(String oldResponsibleUuid, String newResponsibleUuid) {
+		List<T02Address> as = 
+			daoT02Address.getAllAddressesOfResponsibleUser(oldResponsibleUuid);
+		int numAddrs = 0;
+		for (T02Address a : as) {
+			a.setResponsibleUuid(newResponsibleUuid);
+			daoT02Address.makePersistent(a);
+			numAddrs++;
+		}
+
+		return numAddrs;
 	}
 }

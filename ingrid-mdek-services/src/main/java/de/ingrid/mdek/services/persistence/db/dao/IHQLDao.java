@@ -31,9 +31,11 @@ public interface IHQLDao
 	/**
 	 * Query entities with the passed hql query and return data as csv
 	 * @param hqlQuery arbitrary hql query ! ONLY READS !
-	 * @return IngridDocument containing csv records
+	 * @param allowQueryDirectInstances false=only nodes allowed in FROM clause (FROM OBJECTNODE, FROM ADDRESSNODE)<br>
+	 * 		true=also direct instances allowed in FROM clause (FROM T01Object, FROM T02Address)
+	 * @return IngridDocument containing ZIPPED csv records and NUM records
 	 */
-	IngridDocument queryHQLToCsv(String hqlQuery);
+	IngridDocument queryHQLToCsv(String hqlQuery, boolean allowQueryDirectInstances);
 
 	/**
 	 * Query entities with the passed hql query and return entity data IN A MAP.

@@ -114,8 +114,8 @@ public class HQLDaoHibernate
 		return result;
 	}
 
-	public IngridDocument queryHQLToCsv(String hqlQuery) {
-		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
+	public IngridDocument queryHQLToCsv(String hqlQuery, boolean allowQueryDirectInstances) {
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery, allowQueryDirectInstances);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
 
@@ -152,8 +152,16 @@ public class HQLDaoHibernate
 			throw new MdekException(new MdekError(MdekErrorType.CSV_WRITER_PROBLEMS));
 		}
 
+		byte[] compressedCsv = new byte[0];
+		try {
+			compressedCsv = MdekUtils.compressString(sw.toString());						
+		} catch (Exception ex) {
+			LOG.error("Problems compressing csv file !", ex);
+			throw new MdekException(new MdekError(MdekErrorType.CSV_WRITER_PROBLEMS));
+		}
+
 		IngridDocument result = new IngridDocument();
-		result.put(MdekKeys.CSV_RESULT, sw.toString());
+		result.put(MdekKeys.CSV_RESULT, compressedCsv);
 		result.put(MdekKeys.TOTAL_NUM, new Long(hits.size()));
 
 		return result;
@@ -203,8 +211,23 @@ public class HQLDaoHibernate
 	/**
 	 * Process HQL query string for querying entities (objects or addresses).
 	 * Performs checks etc.
+	 * @param hqlQuery query to execute. NOTICE: entity to select is restricted ! 
+	 * 		only nodes allowed in FROM clause (FROM OBJECTNODE, FROM ADDRESSNODE)
+	 * @return document containing preprocessed HQL stuff
 	 */
 	private IngridDocument preprocessHQL(String hqlQuery) {
+		return preprocessHQL(hqlQuery, false);
+	}
+
+	/**
+	 * Process HQL query string for querying entities (objects or addresses).
+	 * Performs checks etc.
+	 * @param hqlQuery query to execute. NOTICE: entity to select is restricted !
+	 * @param allowQueryDirectInstances false=only nodes allowed in FROM clause (FROM OBJECTNODE, FROM ADDRESSNODE)<br>
+	 * 		true=also direct instances allowed in FROM clause (FROM T01Object, FROM T02Address)
+	 * @return document containing preprocessed HQL stuff
+	 */
+	private IngridDocument preprocessHQL(String hqlQuery, boolean allowQueryDirectInstances) {
 		IngridDocument result = new IngridDocument();
 		
 		hqlQuery = MdekUtils.processStringParameter(hqlQuery);
@@ -239,13 +262,32 @@ public class HQLDaoHibernate
 		if (fromStartIndex != -1) {
 			entityType = IdcEntityType.OBJECT;
 		}
-		Integer fromAddrStartIndex = hqlUPPERCASE.indexOf("FROM ADDRESSNODE");
-		if (fromAddrStartIndex != -1) {
+		Integer tmpFromStartIndex = hqlUPPERCASE.indexOf("FROM ADDRESSNODE");
+		if (tmpFromStartIndex != -1) {
 			if (entityType != null) {
 				throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
 			}
 			entityType = IdcEntityType.ADDRESS;
-			fromStartIndex = fromAddrStartIndex;
+			fromStartIndex = tmpFromStartIndex;
+		}
+		// querying direct instances allowed ?
+		if (allowQueryDirectInstances) {
+			tmpFromStartIndex = hqlUPPERCASE.indexOf("FROM T01OBJECT");
+			if (tmpFromStartIndex != -1) {
+				if (entityType != null) {
+					throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
+				}
+				entityType = IdcEntityType.OBJECT;
+				fromStartIndex = tmpFromStartIndex;
+			}
+			tmpFromStartIndex = hqlUPPERCASE.indexOf("FROM T02ADDRESS");
+			if (tmpFromStartIndex != -1) {
+				if (entityType != null) {
+					throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
+				}
+				entityType = IdcEntityType.ADDRESS;
+				fromStartIndex = tmpFromStartIndex;
+			}			
 		}
 		// wrong entity queried ?
 		if (entityType == null) {

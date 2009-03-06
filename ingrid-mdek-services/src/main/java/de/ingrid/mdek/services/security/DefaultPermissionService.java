@@ -246,12 +246,12 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	public IdcUser getCatalogAdmin() {
+	public IdcUser getCatalogAdminUser() {
 		return idcUserDao.getCatalogAdmin();
 	}
 
 	public boolean isCatalogAdmin(String userAddrUuid) {
-		IdcUser catAdmin = getCatalogAdmin();
+		IdcUser catAdmin = getCatalogAdminUser();
 		return catAdmin.getAddrUuid().equals(userAddrUuid);
 	}
 

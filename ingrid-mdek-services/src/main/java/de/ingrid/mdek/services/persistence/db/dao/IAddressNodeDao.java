@@ -12,7 +12,6 @@ import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -200,9 +199,6 @@ public interface IAddressNodeDao
 	 * @return
 	 */
 	long queryAddressesExtendedTotalNum(IngridDocument searchParams);
-
-	/** Get ALL Addresses (also published ones) where given user is responsible user. */
-	List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid);
 
 	/**
 	 * WORK/RESPONSIBLE PAGE: Get ALL Addresses matching given selection criteria. 

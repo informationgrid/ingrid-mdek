@@ -185,6 +185,17 @@ public class MdekUtils {
 		STATE,
 	}
 
+	/**
+	 * Kind of csv data to fetch ? */
+	public enum CsvRequestType {
+		/** "Gesamtkatalog: Adresse loeschen" Tab 1 -> all Objects where address is auskunft ! */
+		OBJECTS_OF_AUSKUNFT_ADDRESS,
+		/** "Gesamtkatalog: Adresse loeschen" Tab 2 -> all Objects where address is responsible user ! */
+		OBJECTS_OF_RESPONSIBLE_USER,
+		/** "Gesamtkatalog: Adresse loeschen" Tab 3 -> all Addresses where address is responsible user ! */
+		ADDRESSES_OF_RESPONSIBLE_USER,
+	}
+
 	/** expiry state (object/address_metadata.expiry_state) */
 	public enum ExpiryState implements IMdekEnum {
 		INITIAL(0),

@@ -269,7 +269,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			daoHQL.beginTransaction();
 			dao.disableAutoFlush();
 
-			IngridDocument result = daoHQL.queryHQLToCsv(hqlQuery);
+			IngridDocument result = daoHQL.queryHQLToCsv(hqlQuery, false);
 
 			daoHQL.commitTransaction();
 

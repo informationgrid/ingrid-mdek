@@ -100,7 +100,7 @@ public interface IPermissionService {
 	/**
 	 * Get the catalog administrator.
 	 */
-	IdcUser getCatalogAdmin();
+	IdcUser getCatalogAdminUser();
 
 	/**
 	 * Check whether the given User is the catalog admin !

@@ -555,4 +555,164 @@ public class MdekExampleSupertoolCatalog {
 		
 		return result;
 	}
+
+	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getObjectsOfAuskunftAddress ######");
+		System.out.println("- auskunftAddressUuid: " + auskunftAddressUuid);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getObjectsOfAuskunftAddress(plugId, auskunftAddressUuid,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getObjectsOfResponsibleUser ######");
+		System.out.println("- responsibleUserUuid: " + responsibleUserUuid);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getObjectsOfResponsibleUser(plugId, responsibleUserUuid,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.OBJ_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getAddressesOfResponsibleUser(String responsibleUserUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getAddressesOfResponsibleUser ######");
+		System.out.println("- responsibleUserUuid: " + responsibleUserUuid);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getAddressesOfResponsibleUser(plugId, responsibleUserUuid,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeys.ADR_ENTITIES);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				System.out.println(o);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument replaceAddress(String oldUuid, String newUuid) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE replaceAddress ######");
+		System.out.println("- oldUuid: " + oldUuid);
+		System.out.println("- newUuid: " + newUuid);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.replaceAddress(plugId, oldUuid, newUuid,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public void getCsvData(MdekUtils.CsvRequestType csvType, String uuid) {
+		try {
+			long startTime;
+			long endTime;
+			long neededTime;
+			IngridDocument response;
+			IngridDocument result;
+
+			System.out.println("\n###### INVOKE getCsvData ######");
+			System.out.println("- csvType:" + csvType);
+			System.out.println("- uuid:" + uuid);
+			startTime = System.currentTimeMillis();
+			response = mdekCallerCatalog.getCsvData(plugId, csvType, uuid, myUserUuid);
+			endTime = System.currentTimeMillis();
+			neededTime = endTime - startTime;
+			System.out.println("EXECUTION TIME: " + neededTime + " ms");
+			result = mdekCallerCatalog.getResultFromResponse(response);
+			if (result != null) {
+				Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM);
+				System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
+
+				byte[] csvResultZipped = (byte[]) result.get(MdekKeys.CSV_RESULT);
+				if (csvResultZipped != null) {
+					System.out.println("- size zipped XML=" + (csvResultZipped.length / 1024) + " KB");
+					String csvResult = "";
+					try {
+						csvResult = MdekUtils.decompressZippedByteArray(csvResultZipped);
+					} catch(Exception ex) {
+						System.out.println(ex);
+					}
+					if (csvResult.length() > 3000) {
+						int endIndex = csvResult.indexOf("\n", 3000);
+						System.out.print(csvResult.substring(0, endIndex));					
+						System.out.println("...");					
+					} else {
+						System.out.println(csvResult);					
+					}
+				}
+			} else {
+				supertoolGeneric.handleError(response);
+			}			
+		} catch (Throwable t) {
+			supertoolGeneric.printThrowable(t);
+		}
+	}
 }

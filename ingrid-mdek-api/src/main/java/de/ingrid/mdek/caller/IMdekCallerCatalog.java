@@ -2,6 +2,7 @@ package de.ingrid.mdek.caller;
 
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -217,4 +218,40 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: map containing consistency check result
 	 */
 	IngridDocument analyze(String plugId, String userId);
+
+	/** Replace an address with another address. Not possible if address to replace is user address.
+	 * All auskunft addresses are replaced ! All responsible addresses are set to admin address.
+	 * Modification addresses (mod user) are NOT replaced !
+	 * @param oldUuid address to replace
+	 * @param newUuid with this address
+	 * @return response containing result: empty IngridDocument on success
+	 */
+	IngridDocument replaceAddress(String plugId, String oldUuid, String newUuid, String userId);
+
+	/** Return all objects where given address uuid is auskunft address.
+	 * @param auskunftAddressUuid address uuid of auskunft in objects 
+	 * @return response containing result: list of objects where given uuid is auskunft address
+	 */
+	IngridDocument getObjectsOfAuskunftAddress(String plugId, String auskunftAddressUuid, String userId);
+
+	/** Return all objects where given address uuid is responsible user.
+	 * @param responsibleUserUuid address uuid of responsible user
+	 * @return response containing result: list of objects where given uuid is responsible user
+	 */
+	IngridDocument getObjectsOfResponsibleUser(String plugId, String responsibleUserUuid, String userId);
+
+	/** Return all addresses where given address uuid is responsible user.
+	 * @param responsibleUserUuid address uuid of responsible user 
+	 * @return response containing result: list of addresses where given uuid is responsible user
+	 */
+	IngridDocument getAddressesOfResponsibleUser(String plugId, String responsibleUserUuid, String userId);
+
+	/**
+	 * Request csv data.
+	 * @param csvType specifies what kind of csv data to fetch
+	 * @param uuid additional data specifying entity (if needed, else pass null)
+	 * @return response containing result: csv data as zipped string
+	 */
+	IngridDocument getCsvData(String plugId, MdekUtils.CsvRequestType csvType,
+			String uuid, String userId);
 }

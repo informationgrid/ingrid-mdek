@@ -3,6 +3,7 @@ package de.ingrid.mdek.example;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.caller.IMdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerQuery;
@@ -321,18 +322,29 @@ public class MdekExampleSupertoolQuery {
 			if (result != null) {
 				Long totalNumHits = (Long) result.get(MdekKeys.TOTAL_NUM);
 				System.out.println("SUCCESS: " + totalNumHits + " csvLines returned (and additional title-line)");
-				String csvResult = result.getString(MdekKeys.CSV_RESULT);			
-//				if (doFullOutput) {
-//					System.out.println(csvResult);
-//				} else {
-					if (csvResult.length() > 5000) {
-						int endIndex = csvResult.indexOf("\n", 3000);
-						System.out.print(csvResult.substring(0, endIndex));					
-						System.out.println("...");					
-					} else {
-						System.out.println(csvResult);					
+
+				byte[] csvResultZipped = (byte[]) result.get(MdekKeys.CSV_RESULT);
+				if (csvResultZipped != null) {
+					System.out.println("- size zipped XML=" + (csvResultZipped.length / 1024) + " KB");
+					String csvResult = "";
+					try {
+						csvResult = MdekUtils.decompressZippedByteArray(csvResultZipped);
+					} catch(Exception ex) {
+						System.out.println(ex);
 					}
-//				}
+
+//					if (doFullOutput) {
+//						System.out.println(csvResult);
+//					} else {
+						if (csvResult.length() > 5000) {
+							int endIndex = csvResult.indexOf("\n", 3000);
+							System.out.print(csvResult.substring(0, endIndex));					
+							System.out.println("...");					
+						} else {
+							System.out.println(csvResult);					
+						}
+//					}
+				}
 
 			} else {
 				supertoolGeneric.handleError(response);

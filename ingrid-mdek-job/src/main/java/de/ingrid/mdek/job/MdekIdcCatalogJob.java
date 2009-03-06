@@ -14,16 +14,25 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
+import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekDBConsistencyService;
 import de.ingrid.mdek.services.catalog.MdekExportService;
 import de.ingrid.mdek.services.catalog.MdekImportService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
@@ -31,6 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
@@ -49,10 +59,18 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private MdekExportService exportService;
 	private MdekImportService importService;
 	private MdekDBConsistencyService dbConsistencyService;
+	private MdekAddressService addressService;
 
 	private MdekPermissionHandler permissionHandler;
 
 	private IObjectNodeDao daoObjectNode;
+	private IAddressNodeDao daoAddressNode;
+	private IIdcUserDao daoIdcUser;
+	private IT01ObjectDao daoT01Object;
+	private IT02AddressDao daoT02Address;
+	private IHQLDao daoHQL;
+	/** Generic dao for class unspecific operations !!! */
+	private IGenericDao<IEntity> dao;
 
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
@@ -63,10 +81,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		exportService = MdekExportService.getInstance(daoFactory, permissionService);
 		importService = MdekImportService.getInstance(daoFactory, permissionService);
 		dbConsistencyService = MdekDBConsistencyService.getInstance(daoFactory);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 		
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 
+		dao = daoFactory.getDao(IEntity.class);
 		daoObjectNode = daoFactory.getObjectNodeDao();
+		daoAddressNode = daoFactory.getAddressNodeDao();
+		daoIdcUser = daoFactory.getIdcUserDao();
+		daoT01Object = daoFactory.getT01ObjectDao();
+		daoT02Address = daoFactory.getT02AddressDao();
+		daoHQL = daoFactory.getHQLDao();
 	}
 
 	public IngridDocument getCatalog(IngridDocument params) {
@@ -861,6 +886,188 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			if (removeRunningJob) {
 				removeRunningJob(userId);			
 			}
+		}
+	}
+
+	public IngridDocument replaceAddress(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userUuid, createRunningJobDescription(JobType.REPLACE, 0, 0, false));
+
+			String oldAddrUuid = (String) params.get(MdekKeys.FROM_UUID);
+			String newAddrUuid = (String) params.get(MdekKeys.TO_UUID);
+			if (MdekUtils.isEqual(oldAddrUuid, newAddrUuid)) {
+				throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_EQUALS_TO_UUID));				
+			}
+
+			genericDao.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userUuid);
+			String catAdminUuid = userUuid;
+
+			// check old address:
+			// - has to exist
+			// - user address not allowed
+			// - children not allowed
+			if (daoAddressNode.loadByUuid(oldAddrUuid, IdcEntityVersion.WORKING_VERSION) == null) {
+				throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
+			}
+			if (daoIdcUser.getIdcUserByAddrUuid(oldAddrUuid) != null) {
+				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS));
+			}
+			if (daoAddressNode.getSubAddresses(oldAddrUuid, null, false).size() > 0) {
+				throw new MdekException(new MdekError(MdekErrorType.NODE_HAS_SUBNODES));
+			}
+
+			// check new address:
+			// - has to be published (will be set in published objects as auskunft)
+			if (!addressService.hasPublishedVersion(
+					daoAddressNode.loadByUuid(newAddrUuid, IdcEntityVersion.PUBLISHED_VERSION))) {
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
+			}
+
+			// REPLACE ALL AUSKUNFTS ADDRESSES !
+			int numAuskunftChanged =
+				catalogService.updateAuskunftInObjects(oldAddrUuid, newAddrUuid, userUuid);
+
+			// REPLACE ALL RESPONSIBLE USERS !
+			int numResponsibleUsersChangedObjs =
+				catalogService.updateResponsibleUserInObjects(oldAddrUuid, catAdminUuid);
+			int numResponsibleUsersChangedAddrs =
+				catalogService.updateResponsibleUserInAddresses(oldAddrUuid, catAdminUuid);
+
+			// DELETE
+			// NOTICE: current user IS CATADMIN ! so no QA workflow !
+			addressService.deleteAddressFull(oldAddrUuid, true, catAdminUuid);
+
+			genericDao.commitTransaction();
+
+			IngridDocument resultDoc = new IngridDocument();
+			// just for debugging
+			resultDoc.putInt("numAuskunftChanged", numAuskunftChanged);
+			resultDoc.putInt("numResponsibleUsersChangedObjs", numResponsibleUsersChangedObjs);
+			resultDoc.putInt("numResponsibleUsersChangedAddrs", numResponsibleUsersChangedAddrs);
+			return resultDoc;		
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userUuid);				
+			}
+		}
+	}
+
+	public IngridDocument getObjectsOfAuskunftAddress(IngridDocument params) {
+		try {
+			String uuid = (String) params.get(MdekKeys.UUID);
+
+			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
+
+			List<T01Object> objs = 
+				daoT02Address.getObjectReferencesByTypeId(uuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+
+			List<IngridDocument> objDocs = 
+				beanToDocMapper.mapT01Objects(objs, MappingQuantity.BASIC_ENTITY);
+
+			daoObjectNode.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.OBJ_ENTITIES, objDocs);
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getObjectsOfResponsibleUser(IngridDocument params) {
+		try {
+			String uuid = (String) params.get(MdekKeys.UUID);
+
+			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
+
+			List<T01Object> objs = daoT01Object.getAllObjectsOfResponsibleUser(uuid);
+
+			List<IngridDocument> objDocs = 
+				beanToDocMapper.mapT01Objects(objs, MappingQuantity.BASIC_ENTITY);
+
+			daoObjectNode.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.OBJ_ENTITIES, objDocs);
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getAddressesOfResponsibleUser(IngridDocument params) {
+		try {
+			String uuid = (String) params.get(MdekKeys.UUID);
+
+			daoObjectNode.beginTransaction();
+			daoObjectNode.disableAutoFlush();
+
+			List<T02Address> addrs = daoT02Address.getAllAddressesOfResponsibleUser(uuid);
+
+			List<IngridDocument> addrDocs = 
+				beanToDocMapper.mapT02Addresses(addrs, MappingQuantity.BASIC_ENTITY);
+
+			daoObjectNode.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.ADR_ENTITIES, addrDocs);
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getCsvData(IngridDocument params) {
+		try {
+			CsvRequestType csvType = (CsvRequestType) params.get(MdekKeys.REQUESTINFO_CSV_REQUEST_TYPE);
+			String uuid = (String) params.get(MdekKeys.UUID);
+
+			IngridDocument result = new IngridDocument();
+			String hqlQuery = null;
+			
+			if (csvType == CsvRequestType.OBJECTS_OF_AUSKUNFT_ADDRESS) {
+				hqlQuery = daoT02Address.getCsvHQLObjectReferencesByTypeId(uuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+				
+			} else if (csvType == CsvRequestType.OBJECTS_OF_RESPONSIBLE_USER) {
+				hqlQuery = daoT01Object.getCsvHQLAllObjectsOfResponsibleUser(uuid);
+				
+			} else if (csvType == CsvRequestType.ADDRESSES_OF_RESPONSIBLE_USER) {
+				hqlQuery = daoT02Address.getCsvHQLAllAddressesOfResponsibleUser(uuid);
+			}
+
+			daoHQL.beginTransaction();
+			dao.disableAutoFlush();
+
+			if (hqlQuery != null) {
+				result = daoHQL.queryHQLToCsv(hqlQuery, true);				
+			}
+
+			daoHQL.commitTransaction();
+
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
 		}
 	}
 }

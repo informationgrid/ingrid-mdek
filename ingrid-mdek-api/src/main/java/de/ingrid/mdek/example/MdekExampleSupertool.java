@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
@@ -158,6 +159,26 @@ public class MdekExampleSupertool {
 
 	public IngridDocument analyze() {
 		return supertoolCatalog.analyze();
+	}
+	
+	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid) {
+		return supertoolCatalog.getObjectsOfAuskunftAddress(auskunftAddressUuid);
+	}
+	
+	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid) {
+		return supertoolCatalog.getObjectsOfResponsibleUser(responsibleUserUuid);
+	}
+	
+	public IngridDocument getAddressesOfResponsibleUser(String responsibleUserUuid) {
+		return supertoolCatalog.getAddressesOfResponsibleUser(responsibleUserUuid);
+	}
+	
+	public IngridDocument replaceAddress(String oldUuid, String newUuid) {
+		return supertoolCatalog.replaceAddress(oldUuid, newUuid);
+	}
+	
+	public void getCsvData(CsvRequestType csvType, String uuid) {
+		supertoolCatalog.getCsvData(csvType, uuid);
 	}
 	
 	// MdekExampleSupertoolSecurity FACADE !

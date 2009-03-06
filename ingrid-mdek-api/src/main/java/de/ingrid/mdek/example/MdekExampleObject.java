@@ -576,7 +576,7 @@ class MdekExampleObjectThread extends Thread {
 
 // -----------------------------------
 
-		// TEST of GEMET searchterms and INSPIRE searchterms (NO INSPIRE searchterms syslist yet !)
+		// TEST of GEMET searchterms and INSPIRE searchterms
 		// ==============
 
 		System.out.println("\n----- PUBLISH new TERM-Object with FREE, UMTHES, GEMET and INSPIRE searchterms -----");

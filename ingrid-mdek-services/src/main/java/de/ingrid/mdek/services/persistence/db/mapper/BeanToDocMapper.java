@@ -339,6 +339,18 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	public List<IngridDocument> mapT01Objects(List<T01Object> objs, MappingQuantity howMuch) {
+		ArrayList<IngridDocument> objDocs = new ArrayList<IngridDocument>(objs.size());
+		for (T01Object obj : objs) {
+			IngridDocument objDoc = new IngridDocument();
+			mapT01Object(obj, objDoc, howMuch);
+
+			objDocs.add(objDoc);
+		}
+		
+		return objDocs;
+	}
+
 	/**
 	 * Transfer address data of passed bean to passed doc.
 	 * Also includes communication etc. dependent from MappingQuantity.
@@ -432,6 +444,18 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		return addressDoc;
+	}
+
+	public List<IngridDocument> mapT02Addresses(List<T02Address> addrs, MappingQuantity howMuch) {
+		ArrayList<IngridDocument> addrDocs = new ArrayList<IngridDocument>(addrs.size());
+		for (T02Address addr : addrs) {
+			IngridDocument addrDoc = new IngridDocument();
+			mapT02Address(addr, addrDoc, howMuch);
+
+			addrDocs.add(addrDoc);
+		}
+		
+		return addrDocs;
 	}
 
 	/** Set passed user as mod user in passed doc.

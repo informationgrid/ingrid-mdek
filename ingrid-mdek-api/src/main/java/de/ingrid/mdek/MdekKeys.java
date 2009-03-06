@@ -63,6 +63,9 @@ public class MdekKeys {
     /** PAGING: number of hits requested starting at start hit<br>
      * Value: Integer */
     public final static String REQUESTINFO_NUM_HITS = "requestinfo_numHits";
+    /** Kind of csv data to fetch<br>
+     *  Value: MdekUtils.CsvRequestType Enumeration const */
+    public final static String REQUESTINFO_CSV_REQUEST_TYPE = "requestinfo_csvRequestType";
 
 
     /** Value: String */

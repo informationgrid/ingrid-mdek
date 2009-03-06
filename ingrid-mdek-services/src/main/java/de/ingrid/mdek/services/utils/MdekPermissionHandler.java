@@ -426,6 +426,11 @@ public class MdekPermissionHandler {
 		return permService.isCatalogAdmin(userUuid);
 	}
 
+	/** Get Catalog Admin User */
+	public IdcUser getCatalogAdminUser() {
+		return permService.getCatalogAdminUser();
+	}
+
 	/**
 	 * Checks whether user has permissions to perform the STORE operation AND THROW EXCEPTION IF NOT !
 	 * @param objUuid uuid of object to store
@@ -844,7 +849,7 @@ public class MdekPermissionHandler {
 		List<IdcUser> retUsers = new ArrayList<IdcUser>();
 
 		// get catAdmin to check whether a user is the catAdmin !
-		IdcUser catAdmin = permService.getCatalogAdmin();
+		IdcUser catAdmin = permService.getCatalogAdminUser();
 		String catAdminUuid = catAdmin.getAddrUuid();
 
 		// check every group for write access (via first user in group) and add all users of group if so !

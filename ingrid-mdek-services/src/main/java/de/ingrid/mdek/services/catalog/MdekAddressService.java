@@ -667,12 +667,7 @@ public class MdekAddressService {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		// check whether address is address of idcuser !
-		if (daoIdcUser.getIdcUserByAddrUuid(uuid) != null) {
-			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS));			
-		}
-
-		// check whether topnode/subnodes are referenced
+		// check whether topnode/subnodes are referenced (also user address, responsible ...)
 		checkAddressTreeReferences(aNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade (subnodes, permissions)
@@ -1095,19 +1090,32 @@ public class MdekAddressService {
 	 * 		false=don't delete references, throw exception
 	 */
 	private void checkAddressTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
-		// process all subnodes including top node
+		// process all subnodes INCLUDING top node
 
 		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(
 				topNode.getAddrUuid(), IdcEntityVersion.WORKING_VERSION, false);
 		subNodes.add(0, topNode);
 
 		for (AddressNode subNode : subNodes) {
+			// check whether address is address of idcuser !
+			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
+			// NOTICE: if address is referenced as responsible user, then the address is a user address
+			// and following check throws exception. If user address is changed, then all responsible
+			// addresses are changed too (see updateResponsibleUserInEntities in SecurityJob !), SO
+			// RESPONSIBLE ADDRESS IS ALWAYS A USER ADDRESS !
+			if (daoIdcUser.getIdcUserByAddrUuid(subNode.getAddrUuid()) != null) {
+				// user address !!! -> throw exception with according error info !
+				IngridDocument errInfo =
+					beanToDocMapper.mapT02Address(subNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS, errInfo));
+			}
+
 			// check whether address is "auskunft" address. AUSKUNFT CANNOT BE DELETED
 			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
 			checkAddressIsAuskunft(subNode);
 
 			// check
-			checkAddressNodeReferences(subNode, forceDeleteReferences);
+			checkAddressNodeObjectReferences(subNode, forceDeleteReferences);
 		}
 	}
 
@@ -1119,7 +1127,7 @@ public class MdekAddressService {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkAddressNodeReferences(AddressNode aNode, boolean forceDeleteReferences) {
+	private void checkAddressNodeObjectReferences(AddressNode aNode, boolean forceDeleteReferences) {
 		// handle references to address
 		String aUuid = aNode.getAddrUuid();
 		T012ObjAdr exampleRef = new T012ObjAdr();

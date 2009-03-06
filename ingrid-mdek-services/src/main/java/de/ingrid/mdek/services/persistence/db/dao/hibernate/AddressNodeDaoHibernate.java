@@ -725,20 +725,6 @@ public class AddressNodeDaoHibernate
 		return qString;
 	}
 
-	public List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid) {
-		List<T02Address> retList = new ArrayList<T02Address>();
-
-		Session session = getSession();
-
-		retList = session.createQuery("select distinct a " +
-			"from T02Address a " +
-			"where a.responsibleUuid = ?")
-			.setString(0, responsibleUserUuid)
-			.list();
-
-		return retList;
-	}
-
 	public IngridDocument getWorkAddresses(String userUuid,
 			IdcWorkEntitiesSelectionType selectionType,
 			IdcEntityOrderBy orderBy, boolean orderAsc,

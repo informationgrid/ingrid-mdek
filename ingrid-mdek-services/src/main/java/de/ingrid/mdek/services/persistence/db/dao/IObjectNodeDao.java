@@ -12,7 +12,6 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -174,9 +173,6 @@ public interface IObjectNodeDao
 	 * @return
 	 */
 	long queryObjectsExtendedTotalNum(IngridDocument searchParams);
-
-	/** Get ALL Objects (also published ones) where given user is responsible user. */
-	List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid);
 
 	/**
 	 * WORK/RESPONSIBLE PAGE: Get ALL Objects matching given selection criteria. 
