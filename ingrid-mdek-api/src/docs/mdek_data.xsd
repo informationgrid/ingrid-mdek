@@ -266,6 +266,8 @@
 		<xs:choice>
 			<!-- request specific sys-lists -->
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
+			<!-- WRITE syslist -->
+			<xs:element name="SYS_LIST_MAP" type="SYS_LIST_MAP_STORE"/>
 			<!-- request specific sys-guis -->
 			<xs:element name="sys-gui-ids" type="STRING_ARRAY"/>
 			<!-- WRITE sysguis -->
@@ -704,6 +706,16 @@
 			<xs:element name="sys-list-1100" type="SYS_LIST_MAP"/>
 			<xs:element name="sys-list-...." type="SYS_LIST_MAP"/>
 		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="SYS_LIST_MAP_STORE">
+		<xs:sequence>
+			<xs:element name="lst-id" type="xs:integer"/>
+			<xs:element name="lst-maintainable" type="xs:boolean"/>
+			<xs:element name="lst-default-entry-index" type="xs:integer"/>
+			<xs:element name="lst-entry-ids" type="INTEGER_ARRAY"/>
+			<xs:element name="lst-entry-names-de" type="STRING_ARRAY"/>
+			<xs:element name="lst-entry-names-en" type="STRING_ARRAY"/>
+		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SYS_LIST_MAP">
 		<xs:sequence>

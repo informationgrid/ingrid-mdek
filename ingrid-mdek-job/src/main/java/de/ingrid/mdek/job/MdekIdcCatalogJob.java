@@ -31,6 +31,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
@@ -38,6 +39,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
+import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
@@ -68,6 +70,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private IIdcUserDao daoIdcUser;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
+	private ISysListDao daoSysList;
 	private IHQLDao daoHQL;
 	/** Generic dao for class unspecific operations !!! */
 	private IGenericDao<IEntity> dao;
@@ -91,6 +94,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoIdcUser = daoFactory.getIdcUserDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+		daoSysList = daoFactory.getSysListDao();
 		daoHQL = daoFactory.getHQLDao();
 	}
 
@@ -199,6 +203,41 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument storeSysList(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
+
+			Integer lstId = (Integer) docIn.get(MdekKeys.LST_ID);
+	
+			genericDao.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
+			// get according syslist and update
+			List<SysList> sysListEntries = daoSysList.getSysList(lstId, null);
+			docToBeanMapper.updateSysList(docIn, sysListEntries);
+
+			genericDao.commitTransaction();
+
+			// return something (not null !)
+			IngridDocument result = new IngridDocument();
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
 	public IngridDocument getSysGuis(IngridDocument params) {
 		try {
 			String[] guiIds = (String[]) params.get(MdekKeys.SYS_GUI_IDS);
@@ -250,7 +289,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// get according sysGuis
 			// transfer new data AND MAKE PERSISTENT !
 			List<SysGui> sysGuiList = catalogService.getSysGuis(guiIds);
-			docToBeanMapper.mapSysGuis(sysGuis, sysGuiList, true);
+			docToBeanMapper.updateSysGuis(sysGuis, sysGuiList);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			genericDao.commitTransaction();
@@ -322,7 +361,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// get according generic keys
 			// transfer new data AND MAKE PERSISTENT !
 			List<SysGenericKey> sysGenericKeys = catalogService.getSysGenericKeys(keyNames);
-			docToBeanMapper.mapSysGenericKeys(docIn, sysGenericKeys, true);
+			docToBeanMapper.updateSysGenericKeys(docIn, sysGenericKeys);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			genericDao.commitTransaction();

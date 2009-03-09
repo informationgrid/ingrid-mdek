@@ -40,6 +40,12 @@ public class MdekUtils {
 
 	public final static String YES = "Y";
 	public final static String NO = "N";
+	public final static int YES_INTEGER = 1;
+	public final static int NO_INTEGER = 0;
+
+	public final static String LANGUAGE_DE = "de";
+	public final static String LANGUAGE_EN = "en";
+	public final static String[] LANGUAGES = new String[] { LANGUAGE_DE, LANGUAGE_EN };
 
 	/** Type of user operation */
 	public enum UserOperation {

@@ -40,6 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
+import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
@@ -98,8 +99,6 @@ public class DocToBeanMapper implements IMapper {
 	private IGenericDao<IEntity> dao;
 
 	private IGenericDao<IEntity> daoSpatialReference;
-	private IGenericDao<IEntity> daoSearchtermObj;
-	private IGenericDao<IEntity> daoSearchtermAdr;
 	private IGenericDao<IEntity> daoT021Communication;
 	private IGenericDao<IEntity> daoT012ObjAdr;
 	private IGenericDao<IEntity> daoObjectReference;
@@ -152,8 +151,6 @@ public class DocToBeanMapper implements IMapper {
 		dao = daoFactory.getDao(IEntity.class);
 
 		daoSpatialReference = daoFactory.getDao(SpatialReference.class);
-		daoSearchtermObj = daoFactory.getDao(SearchtermObj.class);
-		daoSearchtermAdr = daoFactory.getDao(SearchtermAdr.class);
 		daoT021Communication = daoFactory.getDao(T021Communication.class);
 		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
@@ -222,7 +219,102 @@ public class DocToBeanMapper implements IMapper {
 		return cat;
 	}
 
-	public void mapSysGuis(List<IngridDocument> sysGuiDocs, List<SysGui> sysGuis, boolean makePersistent) {
+	/**
+	 * Update syslist with new data and persist.
+	 * @param docIn map containing new syslist data
+	 * @param sysList current entries of list from DB ordered by entities ascending
+	 */
+	public void updateSysList(IngridDocument docIn, List<SysList> sysListEntries) {
+
+		Integer inLstId = (Integer) docIn.get(MdekKeys.LST_ID);
+		Boolean tmpMaintainable = (Boolean) docIn.get(MdekKeys.LST_MAINTAINABLE);
+		int inMaintainable = tmpMaintainable ? MdekUtils.YES_INTEGER : MdekUtils.NO_INTEGER;
+		Integer tmpDefaultEntryIndex = (Integer) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_INDEX);
+		int inDefaultEntryIndex = (tmpDefaultEntryIndex == null) ? -1 : tmpDefaultEntryIndex;
+		Integer[] inEntryIds = (Integer[]) docIn.get(MdekKeys.LST_ENTRY_IDS);
+		String[] inNames_de = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_DE);
+		String[] inNames_en = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_EN);
+		boolean hasEnglishEntries = false;
+		for (String inName_en : inNames_en) {
+			if (inName_en != null && inName_en.trim().length() > 0) {
+				hasEnglishEntries = true;
+				break;
+			}
+		}
+
+		// determine max entry id of given syslist in database. If new syslist start at "0".
+		// will be increased for new entries.
+		int maxId = 0;
+		if (sysListEntries.size() > 0) {
+			maxId = sysListEntries.get(sysListEntries.size()-1).getEntryId();
+		}
+
+		// here the ones to delete will remain
+		ArrayList<SysList> entriesUnprocessed = new ArrayList<SysList>(sysListEntries);
+
+		// process passed data, update syslist entries, add new ones, delete removed ones ...
+		for (int i=0; i < inEntryIds.length; i++) {
+			Integer inEntryId = inEntryIds[i];
+
+			// process all languages one by one
+			for (String langId : MdekUtils.LANGUAGES) {
+				String[] inNames;
+
+				if (langId.equals(MdekUtils.LANGUAGE_DE)) {
+					inNames = inNames_de;
+				} else if (langId.equals(MdekUtils.LANGUAGE_EN)) {
+					if (!hasEnglishEntries) {
+						// skip english
+						continue;
+					}
+					inNames = inNames_en;					
+				} else {
+					// UNKNOWN LANGUAGE ! skip it
+					continue;
+				}
+
+				SysList foundEntry = null;
+				if (inEntryId != null) {
+					for (SysList entry : sysListEntries) {
+						if (inLstId.equals(entry.getLstId()) &&
+								inEntryId.equals(entry.getEntryId()) &&
+								langId.equals(entry.getLangId())) {
+							foundEntry = entry;
+							entriesUnprocessed.remove(foundEntry);
+							break;
+						}
+					}				
+				} else {
+					// new entry id is one above former max entry id !
+					maxId++;
+					inEntryId = maxId;
+				}
+				if (foundEntry == null) {
+					// add new one
+					foundEntry = new SysList();
+					foundEntry.setLstId(inLstId);
+					foundEntry.setEntryId(inEntryId);
+					foundEntry.setLangId(langId);
+					// TODO: order of syslist (line attribute) not stored !
+					foundEntry.setLine(0);
+					sysListEntries.add(foundEntry);
+				}
+				String isDefault = (i == inDefaultEntryIndex) ? MdekUtils.YES : MdekUtils.NO;
+				foundEntry.setIsDefault(isDefault);
+				String inName = (inNames[i] == null) ? "" : inNames[i];
+				foundEntry.setName(inName);
+				foundEntry.setMaintainable(inMaintainable);
+				dao.makePersistent(foundEntry);
+			}
+		}
+		// remove the ones not processed
+		for (SysList entryUnprocessed : entriesUnprocessed) {
+			sysListEntries.remove(entryUnprocessed);
+			dao.makeTransient(entryUnprocessed);
+		}		
+	}
+	
+	public void updateSysGuis(List<IngridDocument> sysGuiDocs, List<SysGui> sysGuis) {
 		// Currently we don't DELETE SYS GUIS !
 		for (IngridDocument sysGuiDoc : sysGuiDocs) {
 			String docSysGuiId = sysGuiDoc.getString(MdekKeys.SYS_GUI_ID);
@@ -240,14 +332,11 @@ public class DocToBeanMapper implements IMapper {
 				sysGuis.add(foundSysGui);
 			}
 			foundSysGui.setBehaviour((Integer) sysGuiDoc.get(MdekKeys.SYS_GUI_BEHAVIOUR));
-			if (makePersistent) {
-				dao.makePersistent(foundSysGui);
-			}
+			dao.makePersistent(foundSysGui);
 		}
 	}
 	
-	public void mapSysGenericKeys(IngridDocument inDoc, List<SysGenericKey> sysKeys,
-			boolean makePersistent) {
+	public void updateSysGenericKeys(IngridDocument inDoc, List<SysGenericKey> sysKeys) {
 		String[] keyNames = (String[]) inDoc.get(MdekKeys.SYS_GENERIC_KEY_NAMES);
 		String[] keyValues = (String[]) inDoc.get(MdekKeys.SYS_GENERIC_KEY_VALUES);
 
@@ -268,9 +357,7 @@ public class DocToBeanMapper implements IMapper {
 				sysKeys.add(foundSysKey);
 			}
 			foundSysKey.setValueString(keyValues[i]);
-			if (makePersistent) {
-				dao.makePersistent(foundSysKey);
-			}
+			dao.makePersistent(foundSysKey);
 		}
 	}
 	

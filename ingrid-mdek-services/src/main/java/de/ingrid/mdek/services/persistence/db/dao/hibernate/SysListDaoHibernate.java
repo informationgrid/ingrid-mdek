@@ -41,7 +41,7 @@ public class SysListDaoHibernate
 		if (language != null) {
 			qString += "and langId = ? ";
 		}
-		qString += "order by line";
+		qString += "order by line, entryId";
 
 		Query q = session.createQuery(qString);
 		q.setInteger(0, lstId);

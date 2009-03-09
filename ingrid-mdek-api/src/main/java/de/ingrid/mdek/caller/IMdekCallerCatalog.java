@@ -26,6 +26,22 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument getSysLists(String plugId, Integer[] listIds, String language,
 			String userId);
 
+	/** Store syslist. NOTICE: all arrays describing entries have to be of same length.
+	 * @param plugId which mdek server (iplug)
+	 * @param listId id of the list
+	 * @param maintainable is this list maintainable (true) or not (false=ISO Codelist)
+	 * @param defaultEntryIndex which entry is the default (starting at 0), pass NULL if no default
+	 * @param entryIds ids of entries, pass entry id NULL in array if new entry
+	 * @param entryNames_de german names of entries, pass name NULL in array, if no name 
+	 * @param entryNames_en english names of entries, pass name NULL in array, if no name 
+	 * @param userId calling user
+	 * @return response containing result: empty IngridDocument on success
+	 */
+	IngridDocument storeSysList(String plugId,
+			int listId, boolean maintainable, Integer defaultEntryIndex,
+			Integer[] entryIds, String[] entryNames_de, String[] entryNames_en, 
+			String userId);
+
 	/**
 	 * Returns a map containing details of the gui elements with the given ids.
 	 * Pass null if all gui elements are requested.

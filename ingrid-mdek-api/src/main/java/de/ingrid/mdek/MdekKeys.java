@@ -289,8 +289,6 @@ public class MdekKeys {
     // RESULT
     /** Prefix for all sys-lists in result, e.g. sys-list-1100 */
     public final static String SYS_LIST_KEY_PREFIX = "sys-list-";
-    /** Value: Integer */
-    public final static String LST_ID = "lst-id";
     /** Value: List of IngridDocs */
     public final static String LST_ENTRY_LIST = "lst-entry-list";
     /** Value: Integer */
@@ -299,6 +297,24 @@ public class MdekKeys {
     public final static String ENTRY_NAME = "entry-name";
     /** Value: String ("Y"/"N")*/
     public final static String IS_DEFAULT = "is-default";
+
+    // REDEFINE !!!!!
+    /** Value: Integer */
+    public final static String LST_ID = "lst-id";
+    /** Value: Boolean */
+    public final static String LST_MAINTAINABLE = "lst-maintainable";
+    /** Index of Default Entry. Null if no default.<br>
+     * Value: Integer */
+    public final static String LST_DEFAULT_ENTRY_INDEX = "lst-default-entry-index";
+    /** Entry IDs. If ID in array is null, then NEW entry.<br>
+     * Value: Integer[] */
+    public final static String LST_ENTRY_IDS = "lst-entry-ids";
+    /** Entry names in german. If name in array is null, then no german name.<br>
+     * Value: String[] */
+    public final static String LST_ENTRY_NAMES_DE = "lst-entry-names-de";
+    /** Entry names in english. If name in array is null, then no english name.<br>
+     * Value: String[] */
+    public final static String LST_ENTRY_NAMES_EN = "lst-entry-names-en";
 
     // SYS GUI
     // ---------

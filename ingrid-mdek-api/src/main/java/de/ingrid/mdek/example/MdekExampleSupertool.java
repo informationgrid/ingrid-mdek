@@ -130,6 +130,11 @@ public class MdekExampleSupertool {
 	public IngridDocument getSysLists(Integer[] listIds, String language) {
 		return supertoolCatalog.getSysLists(listIds, language);
 	}
+	public IngridDocument storeSysList(int listId, boolean maintainable, Integer defaultEntryIndex,
+			Integer[] entryIds, String[] entryNames_de, String[] entryNames_en) {
+		return supertoolCatalog.storeSysList(listId, maintainable, defaultEntryIndex,
+				entryIds, entryNames_de, entryNames_en);
+	}
 	public IngridDocument getSysAdditionalFields(Long[] fieldIds, String languageCode) {
 		return supertoolCatalog.getSysAdditionalFields(fieldIds, languageCode);
 	}

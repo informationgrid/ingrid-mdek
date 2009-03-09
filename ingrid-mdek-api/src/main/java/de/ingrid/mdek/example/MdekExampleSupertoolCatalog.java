@@ -127,8 +127,8 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchInfo = (refetchCatalog) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE storeCatalog " + refetchInfo + " ######");
+		System.out.println("\n###### INVOKE storeCatalog ######");
+		System.out.println("- refetch: " + refetchCatalog);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.storeCatalog(plugId, catDocIn, refetchCatalog, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -154,7 +154,8 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getSysLists, language: " + language + " ######");
+		System.out.println("\n###### INVOKE getSysLists ######");
+		System.out.println("- language: " + language);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getSysLists(plugId, listIds, language, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -182,6 +183,38 @@ public class MdekExampleSupertoolCatalog {
 			supertoolGeneric.handleError(response);
 		}
 		
+		return result;
+	}
+
+	public IngridDocument storeSysList(int listId, boolean maintainable, Integer defaultEntryIndex,
+			Integer[] entryIds, String[] entryNames_de, String[] entryNames_en) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeSysList ######");
+		System.out.println("- listId: " + listId);
+		System.out.println("- maintainable: " + maintainable);
+		System.out.println("- index of defaultEntry: " + defaultEntryIndex);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.storeSysList(plugId,
+				listId, maintainable, defaultEntryIndex,
+				entryIds, entryNames_de, entryNames_en,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+
 		return result;
 	}
 
@@ -269,8 +302,8 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument response;
 		IngridDocument result;
 
-		String refetchInfo = (refetch) ? "WITH REFETCH" : "WITHOUT REFETCH";
-		System.out.println("\n###### INVOKE storeSysGuis " + refetchInfo + " ######");
+		System.out.println("\n###### INVOKE storeSysGuis ######");
+		System.out.println("- refetch: " + refetch);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.storeSysGuis(plugId, sysGuis, refetch, myUserUuid);
 		endTime = System.currentTimeMillis();
