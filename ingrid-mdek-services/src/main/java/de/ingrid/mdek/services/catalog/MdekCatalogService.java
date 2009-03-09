@@ -94,9 +94,16 @@ public class MdekCatalogService {
 		return MdekUtils.YES.equals(getCatalog().getWorkflowControl());
 	}
 
+	/** Get all available syslist ids. */
+	public Integer[] getSysListIds() {
+		List<Integer> idList = daoSysList.getSysListIds();
+
+		return idList.toArray(new Integer[idList.size()]);
+	}
+
 	/** Get Doc representation of syslists of given ids and language. */
 	public IngridDocument getSysLists(Integer[] listIds, String language) {
-		IngridDocument result = new IngridDocument(); 
+		IngridDocument result = new IngridDocument();
 			
 		for (int listId : listIds) {
 			List<SysList> list = daoSysList.getSysList(listId, language);

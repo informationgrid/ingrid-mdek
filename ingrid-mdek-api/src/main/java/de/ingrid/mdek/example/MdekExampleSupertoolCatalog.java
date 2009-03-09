@@ -162,14 +162,20 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
-			Set<String> listKeys = result.keySet();
-			System.out.println("SUCCESS: " + listKeys.size() + " sys-lists");
-			for (String listKey : listKeys) {
-				IngridDocument listDoc = (IngridDocument) result.get(listKey);
-				List<IngridDocument> entryDocs =
-					(List<IngridDocument>) listDoc.get(MdekKeys.LST_ENTRY_LIST);
-				System.out.println("  " + listKey + ": " + entryDocs.size() + " entries");
-				System.out.println("    " + entryDocs);				
+			if (listIds != null) {
+				Set<String> listKeys = result.keySet();
+				System.out.println("SUCCESS: " + listKeys.size() + " sys-lists");
+				for (String listKey : listKeys) {
+					IngridDocument listDoc = (IngridDocument) result.get(listKey);
+					List<IngridDocument> entryDocs =
+						(List<IngridDocument>) listDoc.get(MdekKeys.LST_ENTRY_LIST);
+					System.out.println("  " + listKey + ": " + entryDocs.size() + " entries");
+					System.out.println("    " + entryDocs);
+				}
+			} else {
+				// all syslist IDs
+				System.out.println("SUCCESS: ");
+				System.out.println(result);
 			}
 			
 		} else {

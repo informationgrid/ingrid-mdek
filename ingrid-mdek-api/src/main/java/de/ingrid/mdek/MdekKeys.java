@@ -283,7 +283,7 @@ public class MdekKeys {
 
     // SYS LISTS
     // ---------
-    // REQUEST
+    // REQUEST/RESPONSE
     /** Value: Integer[] -> all ids of syslists to fetch */
     public final static String SYS_LIST_IDS = "sys-list-ids";
     // RESULT

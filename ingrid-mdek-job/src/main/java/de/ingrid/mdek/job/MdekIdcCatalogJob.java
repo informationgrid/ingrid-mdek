@@ -177,10 +177,18 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
 			String language = params.getString(MdekKeys.LANGUAGE);
 
+			IngridDocument result;
+
 			genericDao.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
-			IngridDocument result = catalogService.getSysLists(lstIds, language);
+			if (lstIds != null) {
+				result = catalogService.getSysLists(lstIds, language);
+				
+			} else {
+				result = new IngridDocument();
+				result.put(MdekKeys.SYS_LIST_IDS, catalogService.getSysListIds());
+			}
 			
 			genericDao.commitTransaction();
 			return result;

@@ -15,6 +15,9 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
 public interface ISysListDao
 	extends IGenericDao<SysList> {
 
+	/** returns all syslist IDs ordered by id */
+	List<Integer> getSysListIds();
+	
 	/** returns all entries of the given list ordered by entry id */
 	List<SysList> getSysList(int lstId, String language);
 	

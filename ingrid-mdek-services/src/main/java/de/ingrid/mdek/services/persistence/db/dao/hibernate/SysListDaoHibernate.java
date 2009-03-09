@@ -24,6 +24,14 @@ public class SysListDaoHibernate
         super(factory, SysList.class);
     }
 
+	public List<Integer> getSysListIds() {
+		Session session = getSession();
+
+		String qString = "select distinct lstId from SysList order by lstId";
+
+		return session.createQuery(qString).list();
+	}
+
 	public List<SysList> getSysList(int lstId, String language) {
 		Session session = getSession();
 

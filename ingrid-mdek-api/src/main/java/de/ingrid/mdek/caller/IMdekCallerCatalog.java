@@ -15,11 +15,13 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	/**
 	 * Returns a map containing the entries of lists with given ids.
 	 * Pass null as languageCode if it doesn't matter.
+	 * Pass null as list ids if you just want to query ALL existing list ids !
 	 * @param plugId which mdek server (iplug)
-	 * @param listIds which lists
+	 * @param listIds which lists. Pass NULL if querying all list ids.
 	 * @param language which language
 	 * @param userId calling user
-	 * @return response containing result: map with list entries
+	 * @return response containing result: map with list entries per list
+	 * 		or map with all list ids
 	 */
 	IngridDocument getSysLists(String plugId, Integer[] listIds, String language,
 			String userId);

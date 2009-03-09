@@ -697,11 +697,13 @@
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SYS_LIST_MAP">
-		<xs:all>
+		<xs:choice>
+			<!-- all sys-list ids requested -->
+			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
 			<!-- SYS LIST EXAMPLE ! list ids are passed in request ! keys start with "sys-list-" -->
 			<xs:element name="sys-list-1100" type="SYS_LIST_MAP"/>
 			<xs:element name="sys-list-...." type="SYS_LIST_MAP"/>
-		</xs:all>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="SYS_LIST_MAP">
 		<xs:sequence>
