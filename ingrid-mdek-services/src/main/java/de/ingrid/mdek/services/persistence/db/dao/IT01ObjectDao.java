@@ -15,8 +15,9 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 public interface IT01ObjectDao
 	extends IGenericDao<T01Object> {
 
-	/** Get ALL Objects (also published ones) where given user is responsible user. */
-	List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid);
+	/** Get Objects (also published ones) where given user is responsible user.
+	 * Pass maxNum or NULL if all addresses. */
+	List<T01Object> getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum);
 	/** Get according HQL Statement to fetch csv data !. */
 	String getCsvHQLAllObjectsOfResponsibleUser(String responsibleUserUuid);
 }

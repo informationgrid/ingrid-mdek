@@ -243,28 +243,31 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getObjectsOfAuskunftAddress(String plugId, String auskunftAddressUuid,
-			String userId) {
+	public IngridDocument getObjectsOfAuskunftAddress(String plugId,
+			String auskunftAddressUuid, Integer maxNum, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, auskunftAddressUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getObjectsOfAuskunftAddress", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getObjectsOfResponsibleUser(String plugId, String responsibleUserUuid,
-			String userId) {
+	public IngridDocument getObjectsOfResponsibleUser(String plugId,
+			String responsibleUserUuid, Integer maxNum, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, responsibleUserUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getObjectsOfResponsibleUser", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getAddressesOfResponsibleUser(String plugId, String responsibleUserUuid,
-			String userId) {
+	public IngridDocument getAddressesOfResponsibleUser(String plugId,
+			String responsibleUserUuid, Integer maxNum, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, responsibleUserUuid);
+		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getAddressesOfResponsibleUser", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);

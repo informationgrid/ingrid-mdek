@@ -966,12 +966,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument getObjectsOfAuskunftAddress(IngridDocument params) {
 		try {
 			String uuid = (String) params.get(MdekKeys.UUID);
+			Integer maxNum = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
 			List<T01Object> objs = 
-				daoT02Address.getObjectReferencesByTypeId(uuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+				daoT02Address.getObjectReferencesByTypeId(uuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, maxNum);
 
 			List<IngridDocument> objDocs = 
 				beanToDocMapper.mapT01Objects(objs, MappingQuantity.BASIC_ENTITY);
@@ -991,11 +992,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument getObjectsOfResponsibleUser(IngridDocument params) {
 		try {
 			String uuid = (String) params.get(MdekKeys.UUID);
+			Integer maxNum = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
-			List<T01Object> objs = daoT01Object.getAllObjectsOfResponsibleUser(uuid);
+			List<T01Object> objs =
+				daoT01Object.getObjectsOfResponsibleUser(uuid, maxNum);
 
 			List<IngridDocument> objDocs = 
 				beanToDocMapper.mapT01Objects(objs, MappingQuantity.BASIC_ENTITY);
@@ -1015,11 +1018,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument getAddressesOfResponsibleUser(IngridDocument params) {
 		try {
 			String uuid = (String) params.get(MdekKeys.UUID);
+			Integer maxNum = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
 
 			daoObjectNode.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
-			List<T02Address> addrs = daoT02Address.getAllAddressesOfResponsibleUser(uuid);
+			List<T02Address> addrs =
+				daoT02Address.getAddressesOfResponsibleUser(uuid, maxNum);
 
 			List<IngridDocument> addrDocs = 
 				beanToDocMapper.mapT02Addresses(addrs, MappingQuantity.BASIC_ENTITY);

@@ -160,7 +160,7 @@ public class MdekCatalogService {
 		int numAuskunftChanged = 0;
 
 		List<T01Object> objs = 
-			daoT02Address.getObjectReferencesByTypeId(oldAuskunftUuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+			daoT02Address.getObjectReferencesByTypeId(oldAuskunftUuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, null);
 		for (T01Object obj : objs) {
 			Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
 			
@@ -208,7 +208,7 @@ public class MdekCatalogService {
 	 */
 	public int updateResponsibleUserInObjects(String oldResponsibleUuid, String newResponsibleUuid) {
 		List<T01Object> os = 
-			daoT01Object.getAllObjectsOfResponsibleUser(oldResponsibleUuid);
+			daoT01Object.getObjectsOfResponsibleUser(oldResponsibleUuid, null);
 		int numObjs = 0;
 		for (T01Object o : os) {
 			o.setResponsibleUuid(newResponsibleUuid);
@@ -228,7 +228,7 @@ public class MdekCatalogService {
 	 */
 	public int updateResponsibleUserInAddresses(String oldResponsibleUuid, String newResponsibleUuid) {
 		List<T02Address> as = 
-			daoT02Address.getAllAddressesOfResponsibleUser(oldResponsibleUuid);
+			daoT02Address.getAddressesOfResponsibleUser(oldResponsibleUuid, null);
 		int numAddrs = 0;
 		for (T02Address a : as) {
 			a.setResponsibleUuid(newResponsibleUuid);

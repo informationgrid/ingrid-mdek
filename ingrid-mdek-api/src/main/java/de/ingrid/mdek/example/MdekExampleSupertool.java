@@ -161,16 +161,16 @@ public class MdekExampleSupertool {
 		return supertoolCatalog.analyze();
 	}
 	
-	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid) {
-		return supertoolCatalog.getObjectsOfAuskunftAddress(auskunftAddressUuid);
+	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid, Integer maxNum) {
+		return supertoolCatalog.getObjectsOfAuskunftAddress(auskunftAddressUuid, maxNum);
 	}
 	
-	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid) {
-		return supertoolCatalog.getObjectsOfResponsibleUser(responsibleUserUuid);
+	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
+		return supertoolCatalog.getObjectsOfResponsibleUser(responsibleUserUuid, maxNum);
 	}
 	
-	public IngridDocument getAddressesOfResponsibleUser(String responsibleUserUuid) {
-		return supertoolCatalog.getAddressesOfResponsibleUser(responsibleUserUuid);
+	public IngridDocument getAddressesOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
+		return supertoolCatalog.getAddressesOfResponsibleUser(responsibleUserUuid, maxNum);
 	}
 	
 	public IngridDocument replaceAddress(String oldUuid, String newUuid) {

@@ -1,8 +1,8 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -24,18 +24,20 @@ public class T01ObjectDaoHibernate
         super(factory, T01Object.class);
     }
 
-	public List<T01Object> getAllObjectsOfResponsibleUser(String responsibleUserUuid) {
-		List<T01Object> retList = new ArrayList<T01Object>();
-
+	public List<T01Object> getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		Session session = getSession();
 
-		retList = session.createQuery("select distinct o " +
+		String hql = "select distinct o " +
 			"from T01Object o " +
-			"where o.responsibleUuid = ?")
-			.setString(0, responsibleUserUuid)
-			.list();
+			"where o.responsibleUuid = ?";
+	
+		Query q = session.createQuery(hql)
+			.setString(0, responsibleUserUuid);
+		if (maxNum != null) {
+			q.setMaxResults(maxNum);
+		}
 
-		return retList;
+		return q.list();
 	}
 	public String getCsvHQLAllObjectsOfResponsibleUser(String responsibleUserUuid) {
 		String hql = "select distinct o.objUuid, o.objName, o.workState " +

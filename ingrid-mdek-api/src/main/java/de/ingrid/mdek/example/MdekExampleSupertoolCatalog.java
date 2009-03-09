@@ -556,7 +556,7 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid) {
+	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid, Integer maxNum) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -565,8 +565,9 @@ public class MdekExampleSupertoolCatalog {
 
 		System.out.println("\n###### INVOKE getObjectsOfAuskunftAddress ######");
 		System.out.println("- auskunftAddressUuid: " + auskunftAddressUuid);
+		System.out.println("- maxNum: " + maxNum);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getObjectsOfAuskunftAddress(plugId, auskunftAddressUuid,
+		response = mdekCallerCatalog.getObjectsOfAuskunftAddress(plugId, auskunftAddressUuid, maxNum,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
@@ -585,7 +586,7 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid) {
+	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -594,8 +595,9 @@ public class MdekExampleSupertoolCatalog {
 
 		System.out.println("\n###### INVOKE getObjectsOfResponsibleUser ######");
 		System.out.println("- responsibleUserUuid: " + responsibleUserUuid);
+		System.out.println("- maxNum: " + maxNum);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getObjectsOfResponsibleUser(plugId, responsibleUserUuid,
+		response = mdekCallerCatalog.getObjectsOfResponsibleUser(plugId, responsibleUserUuid, maxNum,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
@@ -614,7 +616,7 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument getAddressesOfResponsibleUser(String responsibleUserUuid) {
+	public IngridDocument getAddressesOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -623,8 +625,9 @@ public class MdekExampleSupertoolCatalog {
 
 		System.out.println("\n###### INVOKE getAddressesOfResponsibleUser ######");
 		System.out.println("- responsibleUserUuid: " + responsibleUserUuid);
+		System.out.println("- maxNum: " + maxNum);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getAddressesOfResponsibleUser(plugId, responsibleUserUuid,
+		response = mdekCallerCatalog.getAddressesOfResponsibleUser(plugId, responsibleUserUuid, maxNum,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;

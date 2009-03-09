@@ -17,14 +17,16 @@ public interface IT02AddressDao
 	/** Get objects (no matter whether published or not !) referencing the address with the passed uuid.
 	 * @param addressUuid the address being referenced
 	 * @param referenceTypeId type of reference=entry id in syslist; PASS NULL, IF ALL TYPES !
+	 * @param maxNum maximum number to fetch, pass null to fetch ALL objects
 	 * @return list of objects referencing the address in the given way (type)
 	 */
-	List<T01Object> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId);
+	List<T01Object> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId, Integer maxNum);
 	/** Get according HQL Statement to fetch csv data !. */
 	String getCsvHQLObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId);
 
-	/** Get ALL Addresses (also published ones) where given user is responsible user. */
-	List<T02Address> getAllAddressesOfResponsibleUser(String responsibleUserUuid);
+	/** Get Addresses (also published ones) where given user is responsible user.
+	 * Pass maxNum or NULL if all addresses. */
+	List<T02Address> getAddressesOfResponsibleUser(String responsibleUserUuid, Integer maxNum);
 	/** Get according HQL Statement to fetch csv data !. */
 	String getCsvHQLAllAddressesOfResponsibleUser(String responsibleUserUuid);
 }

@@ -384,17 +384,17 @@ class MdekExampleCatalogThread extends Thread {
 		String newObjPublishedUuid = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- getObjectsOfAuskunftAddress -> 2 Objects -----");
-		supertool.getObjectsOfAuskunftAddress(uuidToReplace);
+		supertool.getObjectsOfAuskunftAddress(uuidToReplace, null);
 		System.out.println("\n----- according CSV data -----");
 		supertool.getCsvData(CsvRequestType.OBJECTS_OF_AUSKUNFT_ADDRESS, uuidToReplace);
 		
 		System.out.println("\n----- getObjectsOfResponsibleUser -> 2 Objects -----");
-		supertool.getObjectsOfResponsibleUser(uuidToReplace);
+		supertool.getObjectsOfResponsibleUser(uuidToReplace, null);
 		System.out.println("\n----- according CSV data -----");
 		supertool.getCsvData(CsvRequestType.OBJECTS_OF_RESPONSIBLE_USER, uuidToReplace);
 		
 		System.out.println("\n----- getAddressesOfResponsibleUser -> 1 Address -----");
-		supertool.getAddressesOfResponsibleUser(uuidToReplace);
+		supertool.getAddressesOfResponsibleUser(uuidToReplace, null);
 		System.out.println("\n----- according CSV data -----");
 		supertool.getCsvData(CsvRequestType.ADDRESSES_OF_RESPONSIBLE_USER, uuidToReplace);
 		
@@ -420,21 +420,19 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.replaceAddress(uuidToReplace, uuidToReplaceWith);
 
 		System.out.println("\n----- getObjectsOfAuskunftAddress with OLD Auskunft-> 0 Objects -----");
-		supertool.getObjectsOfAuskunftAddress(uuidToReplace);
+		supertool.getObjectsOfAuskunftAddress(uuidToReplace, null);
 		System.out.println("\n----- getObjectsOfAuskunftAddress with NEW Auskunft-> 2 Objects -----");
-		supertool.getObjectsOfAuskunftAddress(uuidToReplaceWith);
+		supertool.getObjectsOfAuskunftAddress(uuidToReplaceWith, null);
 		
 		System.out.println("\n----- getObjectsOfResponsibleUser with OLD responsible User -> 0 Objects -----");
-		supertool.getObjectsOfResponsibleUser(uuidToReplace);
+		supertool.getObjectsOfResponsibleUser(uuidToReplace, null);
 		System.out.println("\n----- getObjectsOfResponsibleUser with NEW responsible User (=catadmin) -> LOTs of objects -----");
-		System.out.println("we do NOT execute, but works !");
-//		supertool.getObjectsOfResponsibleUser(catalogAdminUuid);
+		supertool.getObjectsOfResponsibleUser(catalogAdminUuid, 50);
 		
 		System.out.println("\n----- getAddressesOfResponsibleUser with OLD responsible User -> 0 Addresses -----");
-		supertool.getAddressesOfResponsibleUser(uuidToReplace);
+		supertool.getAddressesOfResponsibleUser(uuidToReplace, null);
 		System.out.println("\n----- getAddressesOfResponsibleUser with NEW responsible User (=catadmin) -> LOTs of addresses -----");
-		System.out.println("we do NOT execute, but works !");
-//		supertool.getAddressesOfResponsibleUser(catalogAdminUuid);
+		supertool.getAddressesOfResponsibleUser(catalogAdminUuid, 50);
 
 
 		System.out.println("\n\n----- Clean Up -----");
