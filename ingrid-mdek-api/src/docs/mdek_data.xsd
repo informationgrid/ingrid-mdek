@@ -42,10 +42,7 @@
 			<xs:element name="path" type="UUID_LIST"/>
 			<xs:element name="path_organisations" type="PATH_LIST"/>
 			<xs:element name="RESULT_ADDITIONAL_INFO_MAP" type="RESULT_ADDITIONAL_INFO_MAP"/>
-			<xs:element name="RESULT_SYS_LIST_MAP" type="RESULT_SYS_LIST_MAP"/>
-			<xs:element name="RESULT_SYS_GUI_MAP" type="RESULT_SYS_GUI_MAP"/>
-			<xs:element name="RESULT_SYS_GENERIC_KEY_MAP" type="RESULT_SYS_GENERIC_KEY_MAP"/>
-			<xs:element name="RESULT_SYS_ADDITIONAL_FIELDS_MAP" type="RESULT_SYS_ADDITIONAL_FIELDS_MAP"/>
+			<xs:element name="RESULT_SYS_MAP" type="RESULT_SYS_MAP"/>
 			<xs:element name="RESULT_CATALOG_MAP" type="RESULT_CATALOG_MAP"/>
 			<xs:element name="RESULT_RUNNING_JOBS_MAP" type="RESULT_RUNNING_JOBS_MAP"/>
 			<xs:element name="RESULT_SEARCH_MAP" type="RESULT_SEARCH_MAP"/>
@@ -267,7 +264,7 @@
 			<!-- request specific sys-lists -->
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
 			<!-- WRITE syslist -->
-			<xs:element name="SYS_LIST_MAP" type="SYS_LIST_MAP_STORE"/>
+			<xs:element name="SYS_LIST_MAP" type="SYS_LIST_MAP"/>
 			<!-- request specific sys-guis -->
 			<xs:element name="sys-gui-ids" type="STRING_ARRAY"/>
 			<!-- WRITE sysguis -->
@@ -698,6 +695,14 @@
 			<xs:element name="runningjob-messages" type="xs:string"/>
 		</xs:all>
 	</xs:complexType>
+	<xs:complexType name="RESULT_SYS_MAP">
+		<xs:choice>
+			<xs:element name="RESULT_SYS_LIST_MAP" type="RESULT_SYS_LIST_MAP"/>
+			<xs:element name="RESULT_SYS_GUI_MAP" type="RESULT_SYS_GUI_MAP"/>
+			<xs:element name="RESULT_SYS_GENERIC_KEY_MAP" type="RESULT_SYS_GENERIC_KEY_MAP"/>
+			<xs:element name="RESULT_SYS_ADDITIONAL_FIELDS_MAP" type="RESULT_SYS_ADDITIONAL_FIELDS_MAP"/>
+		</xs:choice>
+	</xs:complexType>	
 	<xs:complexType name="RESULT_SYS_LIST_MAP">
 		<xs:choice>
 			<!-- all sys-list ids requested -->
@@ -707,7 +712,7 @@
 			<xs:element name="sys-list-...." type="SYS_LIST_MAP"/>
 		</xs:choice>
 	</xs:complexType>
-	<xs:complexType name="SYS_LIST_MAP_STORE">
+	<xs:complexType name="SYS_LIST_MAP">
 		<xs:sequence>
 			<xs:element name="lst-id" type="xs:integer"/>
 			<xs:element name="lst-maintainable" type="xs:boolean"/>
@@ -715,24 +720,6 @@
 			<xs:element name="lst-entry-ids" type="INTEGER_ARRAY"/>
 			<xs:element name="lst-entry-names-de" type="STRING_ARRAY"/>
 			<xs:element name="lst-entry-names-en" type="STRING_ARRAY"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SYS_LIST_MAP">
-		<xs:sequence>
-			<xs:element name="lst-id" type="xs:integer"/>
-			<xs:element name="lst-entry-list" type="SYS_LIST_ENTRY_LIST"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SYS_LIST_ENTRY_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="SYS_LIST_ENTRY_MAP" type="SYS_LIST_ENTRY_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SYS_LIST_ENTRY_MAP">
-		<xs:sequence>
-			<xs:element name="entry-id" type="xs:integer"/>
-			<xs:element name="entry-name" type="xs:string"/>
-			<xs:element name="is-default" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SYS_GUI_MAP">

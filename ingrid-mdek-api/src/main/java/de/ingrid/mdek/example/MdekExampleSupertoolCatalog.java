@@ -155,6 +155,7 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getSysLists ######");
+		System.out.println("- listIds: " + listIds);
 		System.out.println("- language: " + language);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getSysLists(plugId, listIds, language, myUserUuid);
@@ -167,11 +168,18 @@ public class MdekExampleSupertoolCatalog {
 				Set<String> listKeys = result.keySet();
 				System.out.println("SUCCESS: " + listKeys.size() + " sys-lists");
 				for (String listKey : listKeys) {
-					IngridDocument listDoc = (IngridDocument) result.get(listKey);
-					List<IngridDocument> entryDocs =
-						(List<IngridDocument>) listDoc.get(MdekKeys.LST_ENTRY_LIST);
-					System.out.println("  " + listKey + ": " + entryDocs.size() + " entries");
-					System.out.println("    " + entryDocs);
+					IngridDocument syslstDoc = (IngridDocument) result.get(listKey);
+					Integer[] entryIds = (Integer[]) syslstDoc.get(MdekKeys.LST_ENTRY_IDS);
+					Integer lstDefaultIndex = (Integer) syslstDoc.get(MdekKeys.LST_DEFAULT_ENTRY_INDEX);
+					int defaultIndex = (lstDefaultIndex==null) ? -1 : lstDefaultIndex;
+					String[] entryNames_de = (String[]) syslstDoc.get(MdekKeys.LST_ENTRY_NAMES_DE);
+					String[] entryNames_en = (String[]) syslstDoc.get(MdekKeys.LST_ENTRY_NAMES_EN);
+					System.out.println("  " + listKey + ": " + entryIds.length + " entries");
+					for (int i=0; i<entryIds.length; i++) {
+						System.out.println("    id:" + entryIds[i] + ", default:" + (i==defaultIndex) +
+							", name_de:" + entryNames_de[i] + 
+							((entryNames_en != null) ? (", name_en:" + entryNames_en[i]) : "") );
+					}
 				}
 			} else {
 				// all syslist IDs
@@ -198,6 +206,9 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("- listId: " + listId);
 		System.out.println("- maintainable: " + maintainable);
 		System.out.println("- index of defaultEntry: " + defaultEntryIndex);
+		System.out.println("- entryIds: " + entryIds);
+		System.out.println("- entryNames_de: " + entryNames_de);
+		System.out.println("- entryNames_en: " + entryNames_en);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.storeSysList(plugId,
 				listId, maintainable, defaultEntryIndex,

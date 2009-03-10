@@ -287,18 +287,11 @@ public class MdekKeys {
     /** Value: Integer[] -> all ids of syslists to fetch */
     public final static String SYS_LIST_IDS = "sys-list-ids";
     // RESULT
-    /** Prefix for all sys-lists in result, e.g. sys-list-1100 */
+    /** Prefix for all sys-lists in result, e.g. sys-list-1100
+     * pointing to according syslist map */
     public final static String SYS_LIST_KEY_PREFIX = "sys-list-";
-    /** Value: List of IngridDocs */
-    public final static String LST_ENTRY_LIST = "lst-entry-list";
-    /** Value: Integer */
-    public final static String ENTRY_ID = "entry-id";
-    /** Value: String */
-    public final static String ENTRY_NAME = "entry-name";
-    /** Value: String ("Y"/"N")*/
-    public final static String IS_DEFAULT = "is-default";
 
-    // REDEFINE !!!!!
+    // SYS_LIST_MAP
     /** Value: Integer */
     public final static String LST_ID = "lst-id";
     /** Value: Boolean */
