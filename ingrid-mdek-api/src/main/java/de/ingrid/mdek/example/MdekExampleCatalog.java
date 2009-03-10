@@ -13,6 +13,7 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -342,7 +343,7 @@ class MdekExampleCatalogThread extends Thread {
 // -----------------------------------
 		
 		System.out.println("\n\n=========================");
-		System.out.println("DELETE ADDRESS (Gesamtkatalogmanagement) ");
+		System.out.println("DELETE ADDRESS (Gesamtkatalogmanagement)");
 		System.out.println("=========================");
 
 		System.out.println("\n----- STORE new 'Address to replace' (will be AUSKUNFT, RESPONSIBLE USER) -----");
@@ -467,6 +468,24 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- Auskunft may be already deleted -----");
 		supertool.deleteAddress(uuidToReplace, true);
 
+// -----------------------------------
+		
+		System.out.println("\n\n=========================");
+		System.out.println("REPLACE FREE LIST ENTRIES");
+		System.out.println("=========================");
+
+		System.out.println("\n----- get sys list entries -----");
+		supertool.getSysLists(new Integer[]{MdekSysList.LEGIST.getDbValue()}, null);
+
+		System.out.println("\n----- get free list entries -----");
+		supertool.getFreeListEntries(MdekSysList.LEGIST);
+
+		System.out.println("\n----- replace free list entry -----");
+		supertool.replaceFreeEntryWithSyslistEntry("Nds. Deichgesetz (NDG)",
+			MdekSysList.LEGIST, 39, "Nieders. Deichgesetz (NDG)");
+
+		System.out.println("\n----- get free list entries (former entry missing, was replaced !) -----");
+		supertool.getFreeListEntries(MdekSysList.LEGIST);
 
 // ===================================
 

@@ -18,6 +18,7 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
@@ -184,6 +185,16 @@ public class MdekExampleSupertool {
 	
 	public void getCsvData(CsvRequestType csvType, String uuid) {
 		supertoolCatalog.getCsvData(csvType, uuid);
+	}
+	
+	public IngridDocument getFreeListEntries(MdekSysList sysLst) {
+		return supertoolCatalog.getFreeListEntries(sysLst);
+	}
+	
+	public IngridDocument replaceFreeEntryWithSyslistEntry(String freeEntry,
+			MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName) {
+		return supertoolCatalog.replaceFreeEntryWithSyslistEntry(freeEntry,
+				sysLst, sysLstEntryId, sysLstEntryName);
 	}
 	
 	// MdekExampleSupertoolSecurity FACADE !

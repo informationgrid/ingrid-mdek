@@ -6,6 +6,7 @@ import java.util.Set;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -767,5 +768,65 @@ public class MdekExampleSupertoolCatalog {
 		} catch (Throwable t) {
 			supertoolGeneric.printThrowable(t);
 		}
+	}
+
+	public IngridDocument getFreeListEntries(MdekSysList sysLst) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getFreeListEntries ######");
+		System.out.println("- syslist: " + sysLst);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getFreeListEntries(plugId, sysLst, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			String[] entryNames = (String[]) result.get(MdekKeys.LST_FREE_ENTRY_NAMES);
+			System.out.println("SUCCESS: " + entryNames.length + " free entries");
+			for (String entryName : entryNames) {
+				System.out.println("  " + entryName);
+			}
+			
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument replaceFreeEntryWithSyslistEntry(String freeEntry,
+			MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE replaceFreeEntryWithSyslistEntry ######");
+		System.out.println("- freeEntry: " + freeEntry);
+		System.out.println("- syslist: " + sysLst);
+		System.out.println("- sysLstEntryId: " + sysLstEntryId);
+		System.out.println("- sysLstEntryName: " + sysLstEntryName);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.replaceFreeEntryWithSyslistEntry(plugId, freeEntry,
+				sysLst, sysLstEntryId, sysLstEntryName, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			Integer numReplaced = (Integer) result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
+			System.out.println("SUCCESS: " + numReplaced + " free entries replaced with syslist entry");
+			
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
 	}
 }

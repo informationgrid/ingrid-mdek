@@ -309,6 +309,10 @@ public class MdekKeys {
      * Value: String[] */
     public final static String LST_ENTRY_NAMES_EN = "lst-entry-names-en";
 
+    /** Free entries in entity of syslist.<br>
+     * Value: String[] */
+    public final static String LST_FREE_ENTRY_NAMES = "lst-free-entry-names";
+
     // SYS GUI
     // ---------
     /** Value: String[] -> all ids of sysgui elements to fetch */
@@ -386,19 +390,19 @@ public class MdekKeys {
 
     // ADDITIONAL INFO IN RESULT
     // -------------------------
-    /** indicates whether a deleted entity was fully deleted (e.g. delete working copy without published version) 
+    /** indicates whether a deleted entity was fully deleted (e.g. delete working copy without published version)<br>
      *  Value: Boolean */
     public final static String RESULTINFO_WAS_FULLY_DELETED = "resultinfo_wasFullyDeleted";
-    /** indicates whether an entity was marked deleted (when workflow activated) 
+    /** indicates whether an entity was marked deleted (when workflow activated)<br>
      *  Value: Boolean */
     public final static String RESULTINFO_WAS_MARKED_DELETED = "resultinfo_wasMarkedDeleted";
-    /** indicates whether a tree has subnodes with working copies, e.g. to determin whether move is allowed 
+    /** indicates whether a tree has subnodes with working copies, e.g. to determin whether move is allowed<br>
      *  Value: Boolean */
     public final static String RESULTINFO_HAS_WORKING_COPY = "resultinfo_hasWorkingCopy";
-    /** How many entities were processed (e.g. when checking subtree state, copying tree etc.) 
+    /** How many entities were processed (e.g. when checking subtree state, copying tree etc.)<br>
      *  Value: Integer */
     public final static String RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES = "resultinfo_numberOfProcessedEntities";
-    /** uuid of the entity which was found (e.g. when looking for working copy in subtree) 
+    /** uuid of the entity which was found (e.g. when looking for working copy in subtree)<br>
      *  Value: String */
     public final static String RESULTINFO_UUID_OF_FOUND_ENTITY = "resultinfo_uuidOfFoundEntity";
     /** Type of operation the user performed on an entity<br>

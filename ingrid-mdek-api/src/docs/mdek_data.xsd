@@ -453,12 +453,13 @@
 			<xs:element name="resultinfo_wasFullyDeleted" type="xs:boolean"/>
 			<xs:element name="resultinfo_wasMarkedDeleted" type="xs:boolean"/>
 			<xs:element name="resultinfo_hasWorkingCopy" type="xs:boolean"/>
-			<xs:element name="resultinfo_numberOfProcessedEntities" type="xs:integer"/>
+			<xs:element ref="resultinfo_numberOfProcessedEntities"/>
 			<xs:element name="resultinfo_uuidOfFoundEntity" type="UUID"/>
 			<!-- e.g. type of operation the user performed on an entity, = MdekUtils.UserOperation Enumeration const -->
 			<xs:element name="resultinfo_userOperation" type="xs:integer"/>
 		</xs:all>
 	</xs:complexType>
+	<xs:element name="resultinfo_numberOfProcessedEntities" type="xs:integer"/>
 	<xs:complexType name="RESULT_SEARCH_MAP">
 		<xs:all>
 			<!-- number of entities in list -->
@@ -710,6 +711,10 @@
 			<!-- SYS LIST EXAMPLE ! list ids are passed in request ! keys start with "sys-list-" -->
 			<xs:element name="sys-list-1100" type="SYS_LIST_MAP"/>
 			<xs:element name="sys-list-...." type="SYS_LIST_MAP"/>
+			<!-- requested free entries of sys-list -->
+			<xs:element name="lst-free-entry-names" type="STRING_ARRAY"/>
+			<!-- how many entities replaced free entry with syslist entry -->
+			<xs:element ref="resultinfo_numberOfProcessedEntities"/>
 		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="SYS_LIST_MAP">

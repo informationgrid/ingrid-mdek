@@ -1,12 +1,15 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
+import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 
@@ -66,5 +69,37 @@ public class SysListDaoHibernate
 		q.setString(2, language);
 
 		return (SysList) q.uniqueResult();
+	}
+
+	public List<String> getFreeListEntries(MdekSysList sysLst) {
+		Session session = getSession();
+
+		List<String> freeEntries = new ArrayList<String>();
+
+		if (sysLst == MdekSysList.LEGIST) {
+			String hql = "select distinct legistValue from T015Legist " +
+				"where legistKey = " + MdekSysList.FREE_ENTRY.getDbValue() +
+				" order by legistValue";
+
+			freeEntries = session.createQuery(hql).list();
+		}
+		
+		return freeEntries;
+	}
+
+	public List<IEntity> getEntitiesOfFreeListEntry(MdekSysList sysLst, String freeEntry) {
+		Session session = getSession();
+
+		List<IEntity> entities = new ArrayList<IEntity>();
+
+		if (sysLst == MdekSysList.LEGIST) {
+			String hql = "from T015Legist " +
+				"where legistKey = " + MdekSysList.FREE_ENTRY.getDbValue() +
+				" and legistValue = '" + freeEntry + "'";
+
+			entities = session.createQuery(hql).list();
+		}
+		
+		return entities;
 	}
 }

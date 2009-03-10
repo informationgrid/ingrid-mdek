@@ -56,43 +56,45 @@ public class MdekUtils {
 
 	/** Syslists (sys_list.lst_id) */
 	public enum MdekSysList implements IMdekEnum {
-		FREE_ENTRY(-1),
-		OBJ_ADR_TYPE(505),
-		OBJ_ADR_TYPE_SPECIAL(2010),
-		OBJ_REFERENCE(2000),
-		OBJ_GEO_REFERENCESYSTEM(100),
-		OBJ_GEO_KEYC(3535),
-		OBJ_GEO_SYMC(3555),
-		OBJ_LITERATURE_TYPE(3385),
-		OBJ_SERV_TYPE(5100),
-		OBJ_SERV_OPERATION_CSW(5105),
-		OBJ_SERV_OPERATION_WMS(5110),
-		OBJ_SERV_OPERATION_WFS(5120),
-		OBJ_SERV_OPERATION_WCTS(5130),
-		OBJ_SERV_TYPE2(5200),
-		INFO_IMPART(1370),
-		LEGIST(1350),
-		URL_REF_SPECIAL(2000),
-		URL_REF_DATATYPE(2240),
-		MEDIA_OPTION_MEDIUM(520),
-		SPATIAL_REF_VALUE(1100),
-		AVAIL_FORMAT(1320),
-		ADDRESS_VALUE(4300),
-		ADDRESS_TITLE(4305),
-		COMM_TYPE(4430),
-		OBJ_CONFORMITY(6000),
-		OBJ_ACCESS(6010),
+		FREE_ENTRY(-1, ""),
+		OBJ_ADR_TYPE(505, "T012ObjAdr -> type=entryId, specialName=name + specialRef='505'"),
+		OBJ_ADR_TYPE_SPECIAL(2010, "T012ObjAdr -> type=entryId, specialName=name + specialRef='2010'"),
+		OBJ_REFERENCE(2000, "ObjectReference -> specialRef=entryId, specialName=name"),
+		OBJ_GEO_REFERENCESYSTEM(100, "T011ObjGeo -> referencesystemKey=entryId, referencesystemValue=name"),
+		OBJ_GEO_KEYC(3535, "T011ObjGeoKeyc -> keycKey=entryId, keycValue=name"),
+		OBJ_GEO_SYMC(3555, "T011ObjGeoSymc -> symbolCatKey=entryId, symbolCatValue=name"),
+		OBJ_LITERATURE_TYPE(3385, "T011ObjLiterature -> typeKey=entryId, typeValue=name"),
+		OBJ_SERV_TYPE(5100, "T011ObjServ -> typeKey=entryId, typeValue=name"),
+		OBJ_SERV_OPERATION_CSW(5105, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=1/CSW"),
+		OBJ_SERV_OPERATION_WMS(5110, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=2/WMS"),
+		OBJ_SERV_OPERATION_WFS(5120, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=3/WFS"),
+		OBJ_SERV_OPERATION_WCTS(5130, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=4/WCTS"),
+		OBJ_SERV_TYPE2(5200, "T011ObjServType -> servTypeKey=entryId, servTypeValue=name"),
+		INFO_IMPART(1370, "T014InfoImpart -> impartKey=entryId, impartValue=name"),
+		LEGIST(1350, "T015Legist -> legistKey=entryId, legistValue=name"),
+		URL_REF_SPECIAL(2000, "T017UrlRef -> specialRef=entryId, specialName=name"),
+		URL_REF_DATATYPE(2240, "T017UrlRef -> datatypeKey=entryId, datatypeValue=name"),
+		MEDIA_OPTION_MEDIUM(520, "T0112MediaOption -> mediumName=name"),
+		SPATIAL_REF_VALUE(1100, "SpatialRefValue -> nameKey=entryId, nameValue=name"),
+		AVAIL_FORMAT(1320, "T0110AvailFormat -> formatKey=entryId, formatValue=name"),
+		ADDRESS_VALUE(4300, "T02Address -> addressKey=entryId, addressValue=name"),
+		ADDRESS_TITLE(4305, "T02Address -> titleKey=entryId, titleValue=name"),
+		COMM_TYPE(4430, "T021Communication -> commtypeKey=entryId, commtypeValue=name"),
+		OBJ_CONFORMITY(6000, "ObjectConformity -> degreeKey=entryId, degreeValue=name"),
+		OBJ_ACCESS(6010, "ObjectAccess -> restrictionKey=entryId, restrictionValue=name"),
 		/** INSPIRE Themen zur Verschlagwortung */
-		INSPIRE_SEARCHTERM(6100);
+		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)");
 
-		MdekSysList(Integer dbValue) {
+		MdekSysList(Integer dbValue, String description) {
 			this.dbValue = dbValue;
+			this.description = description;
 		}
 		/** returns syslist ID */
 		public Integer getDbValue() {
 			return dbValue;
 		}
 		Integer dbValue;
+		String description;
 	}
 
 	/** Type of Additional Field (t08_attr_type.type) */

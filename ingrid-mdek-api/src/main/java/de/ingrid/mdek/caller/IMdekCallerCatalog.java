@@ -3,6 +3,7 @@ package de.ingrid.mdek.caller;
 import java.util.List;
 
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -278,4 +279,22 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 */
 	IngridDocument getCsvData(String plugId, MdekUtils.CsvRequestType csvType,
 			String uuid, String userId);
+
+	/**
+	 * Get all free entries of entities where given syslist is used.
+	 * @param sysLst specifies syslist and according entity(ies) where syslist is used ! 
+	 * @return response containing result: distinct free entries (strings)
+	 */
+	IngridDocument getFreeListEntries(String plugId, MdekSysList sysLst, String userId);
+
+	/** Replace the given free entry with the given syslist entry.
+	 * @param freeEntry entry name of free entry
+	 * @param sysLst specifies syslist and according entities
+	 * @param sysLstEntryId syslist entry id
+	 * @param sysLstEntryName entry name of syslist entry
+	 * @return response containing result: number of replaced free entries
+	 */
+	IngridDocument replaceFreeEntryWithSyslistEntry(String plugId, String freeEntry,
+		MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName,
+		String userId);
 }

@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -289,7 +290,6 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-
 	public IngridDocument getCsvData(String plugId, CsvRequestType csvType,
 			String uuid, String userId) {
 		IngridDocument jobParams = new IngridDocument();
@@ -297,6 +297,28 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getCsvData", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getFreeListEntries(String plugId, MdekSysList sysLst,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.LST_ID, sysLst.getDbValue());
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getFreeListEntries", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument replaceFreeEntryWithSyslistEntry(String plugId, String freeEntry,
+			MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.LST_FREE_ENTRY_NAMES, new String[]{freeEntry});
+		jobParams.put(MdekKeys.LST_ID, sysLst.getDbValue());
+		jobParams.put(MdekKeys.LST_ENTRY_IDS, new Integer[]{sysLstEntryId});
+		jobParams.put(MdekKeys.LST_ENTRY_NAMES_DE, new String[]{sysLstEntryName});
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("replaceFreeEntryWithSyslistEntry", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 }

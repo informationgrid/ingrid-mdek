@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.utils;
 import java.util.Map;
 
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -386,11 +387,12 @@ public class MdekKeyValueHandler {
 	private IEntity processKeyValueSearchtermValue(SearchtermValue bean) {
 		Integer entryKey = bean.getEntryId();
 		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.INSPIRE_SEARCHTERM.getDbValue(),
-				catalogService.getCatalogLanguage());
-
-			bean.setTerm(keyNameMap.get(entryKey));
+			if (SearchtermType.INSPIRE.getDbValue().equals(bean.getType())) {
+				Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.INSPIRE_SEARCHTERM.getDbValue(),
+						catalogService.getCatalogLanguage());
+				bean.setTerm(keyNameMap.get(entryKey));
+			}
 		}
 
 		return bean;

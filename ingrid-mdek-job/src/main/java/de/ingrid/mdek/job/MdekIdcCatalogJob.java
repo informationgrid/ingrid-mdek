@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
@@ -17,6 +18,7 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
@@ -25,8 +27,6 @@ import de.ingrid.mdek.services.catalog.MdekExportService;
 import de.ingrid.mdek.services.catalog.MdekImportService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.IEntity;
-import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
@@ -72,8 +72,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private IT02AddressDao daoT02Address;
 	private ISysListDao daoSysList;
 	private IHQLDao daoHQL;
-	/** Generic dao for class unspecific operations !!! */
-	private IGenericDao<IEntity> dao;
 
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
@@ -88,7 +86,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 
-		dao = daoFactory.getDao(IEntity.class);
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoIdcUser = daoFactory.getIdcUserDao();
@@ -1107,7 +1104,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 
 			daoHQL.beginTransaction();
-			dao.disableAutoFlush();
+			genericDao.disableAutoFlush();
 
 			if (hqlQuery != null) {
 				result = daoHQL.queryHQLToCsv(hqlQuery, true);				
@@ -1120,6 +1117,66 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getFreeListEntries(IngridDocument params) {
+		try {
+			Integer lstId = (Integer) params.get(MdekKeys.LST_ID);
+			MdekSysList sysLst = EnumUtil.mapDatabaseToEnumConst(MdekSysList.class, lstId);
+
+			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
+
+			List<String> freeEntries = daoSysList.getFreeListEntries(sysLst);
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.LST_FREE_ENTRY_NAMES, freeEntries.toArray(new String[freeEntries.size()]));
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument replaceFreeEntryWithSyslistEntry(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
+
+			String freeEntryName = ((String[]) docIn.get(MdekKeys.LST_FREE_ENTRY_NAMES))[0];
+			Integer lstId = (Integer) docIn.get(MdekKeys.LST_ID);
+			MdekSysList sysLst = EnumUtil.mapDatabaseToEnumConst(MdekSysList.class, lstId);
+			Integer syslstEntryId = ((Integer[]) docIn.get(MdekKeys.LST_ENTRY_IDS))[0];
+			String syslstEntryName = ((String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_DE))[0];
+	
+			genericDao.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
+			int numReplaced = catalogService.replaceFreeEntryWithSyslistEntry(freeEntryName,
+					sysLst, syslstEntryId, syslstEntryName);
+
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numReplaced);
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
 		}
 	}
 }

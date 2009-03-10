@@ -10,6 +10,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -25,6 +26,7 @@ import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
+import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
@@ -45,6 +47,7 @@ public class MdekCatalogService {
 	private IT08AttrTypeDao daoT08AttrType;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
+	private IGenericDao<IEntity> dao;
 
 	private BeanToDocMapper beanToDocMapper;
 
@@ -64,6 +67,7 @@ public class MdekCatalogService {
 		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+		dao = daoFactory.getDao(IEntity.class);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 	}
@@ -244,5 +248,31 @@ public class MdekCatalogService {
 		}
 
 		return numAddrs;
+	}
+
+	/** Replace the given free entry with the given syslist entry.
+	 * @param freeEntry entry name of free entry
+	 * @param sysLst specifies syslist and according entities
+	 * @param sysLstEntryId syslist entry id
+	 * @param sysLstEntryName entry name of syslist entry
+	 * @return number of free entries (entities) replaced
+	 */
+	public int replaceFreeEntryWithSyslistEntry(String freeEntry,
+			MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName) {
+
+		List<IEntity> entities = daoSysList.getEntitiesOfFreeListEntry(sysLst, freeEntry);
+		
+		int numReplaced = 0;
+		if (sysLst == MdekSysList.LEGIST) {
+			for (IEntity entity : entities) {
+				T015Legist legist = (T015Legist) entity;
+				legist.setLegistKey(sysLstEntryId);
+				legist.setLegistValue(sysLstEntryName);
+				dao.makePersistent(legist);
+				numReplaced++;
+			}
+		}
+		
+		return numReplaced;
 	}
 }
