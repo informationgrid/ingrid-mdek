@@ -334,12 +334,19 @@ public class MdekKeys {
     // SYS ADDITIONAL FIELDS (Definition)
     // ---------------------
     // REQUEST
-    /** Value: Long[] -> all ids of additional-fields to fetch */
-    public final static String SYS_ADDITIONAL_FIELD_IDS = "sys-additional-field-ids";
+    /** All additional fields to store.<br>
+     *  Value: List<IngridDocument> */
+    public final static String SYS_ADDITIONAL_FIELD_LIST = "sys-additional-field-list";
     // RESULT
     /** Prefix for all sys-additional-fields in result, e.g. sys-additional-field-1100<br>
      * Value: IngridDocument */
     public final static String SYS_ADDITIONAL_FIELD_KEY_PREFIX = "sys-additional-field-";
+    // REQUEST/RESULT
+    /** All ids of additional-fields to fetch / returned ids of stored additional fields<br>
+     * Value: Long[] */
+    public final static String SYS_ADDITIONAL_FIELD_IDS = "sys-additional-field-ids";
+
+    // SYS_ADDITIONAL_FIELD_MAP
     /** Value: Long  */
     public final static String SYS_ADDITIONAL_FIELD_IDENTIFIER = "sys-additional-field-identifier";
     /** Value: String  */

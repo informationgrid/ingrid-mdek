@@ -273,9 +273,12 @@
 			<xs:element name="sys-generic-key-names" type="STRING_ARRAY"/>
 			<xs:element name="sys-generic-key-values" type="STRING_ARRAY"/>
 			<!-- request specific sys-additional-fields -->
-			<xs:element name="sys-additional-field-ids" type="LONG_ARRAY"/>
+			<xs:element ref="sys-additional-field-ids"/>
+			<!-- WRITE ALL sys-additional-fields -->
+			<xs:element name="sys-additional-field-list" type="SYS_ADDITIONAL_FIELD_LIST"/>
 		</xs:choice>
 	</xs:complexType>	
+	<xs:element name="sys-additional-field-ids" type="LONG_ARRAY"/>
 	<xs:complexType name="REQUEST_SEARCH_MAP">
 		<xs:all>
 			<xs:element name="search-start-hit" type="xs:integer"/>
@@ -757,6 +760,13 @@
 			<!-- SYS ADDITIONAL FIELD EXAMPLE ! field ids are passed in request ! keys start with "sys-additional-field-" -->
 			<xs:element name="sys-additional-field-1100" type="SYS_ADDITIONAL_FIELD_MAP"/>
 			<xs:element name="sys-additional-field-...." type="SYS_ADDITIONAL_FIELD_MAP"/>
+			<!-- ids of stored additional fields (may be new ones if new field) -->
+			<xs:element ref="sys-additional-field-ids"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SYS_ADDITIONAL_FIELD_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="SYS_ADDITIONAL_FIELD_MAP" type="SYS_ADDITIONAL_FIELD_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SYS_ADDITIONAL_FIELD_MAP">

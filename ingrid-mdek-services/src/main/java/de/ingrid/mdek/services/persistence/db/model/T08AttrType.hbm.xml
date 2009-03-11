@@ -12,7 +12,8 @@
       <property name="type" type="string" column="type"/>
 
       <set name="t08AttrLists" order-by="listitem_line, lang_code" table="t08_attr_list"
-           inverse="true">
+           inverse="true"
+           cascade="all-delete-orphan">
          <key column="attr_type_id"/>
          <one-to-many class="T08AttrList" not-found="ignore"/>
       </set>

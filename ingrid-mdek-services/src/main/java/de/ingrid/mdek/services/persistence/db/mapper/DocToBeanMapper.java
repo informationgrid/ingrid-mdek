@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.AdditionalFieldType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.job.MdekException;
@@ -22,6 +23,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -76,6 +78,8 @@ import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.persistence.db.model.T08Attr;
+import de.ingrid.mdek.services.persistence.db.model.T08AttrList;
+import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -94,43 +98,10 @@ public class DocToBeanMapper implements IMapper {
 	private ISpatialRefValueDao daoSpatialRefValue;
 	private ISearchtermSnsDao daoSearchtermSns;
 	private ISearchtermValueDao daoSearchtermValue;
+	private IT08AttrTypeDao daoT08AttrType;
 
 	/** Generic dao for class unspecific operations !!! */
 	private IGenericDao<IEntity> dao;
-
-	private IGenericDao<IEntity> daoSpatialReference;
-	private IGenericDao<IEntity> daoT021Communication;
-	private IGenericDao<IEntity> daoT012ObjAdr;
-	private IGenericDao<IEntity> daoObjectReference;
-	private IGenericDao<IEntity> daoT017UrlRef;
-	private IGenericDao<IEntity> daoT0113DatasetReference;
-	private IGenericDao<IEntity> daoT014InfoImpart;
-	private IGenericDao<IEntity> daoT011ObjGeo;
-	private IGenericDao<IEntity> daoT011ObjGeoKeyc;
-	private IGenericDao<IEntity> daoT011ObjGeoScale;
-	private IGenericDao<IEntity> daoT011ObjGeoSymc;
-	private IGenericDao<IEntity> daoT011ObjGeoSupplinfo;
-	private IGenericDao<IEntity> daoT011ObjGeoVector;
-	private IGenericDao<IEntity> daoT011ObjGeoSpatialRep;
-	private IGenericDao<IEntity> daoT015Legist;
-	private IGenericDao<IEntity> daoT0110AvailFormat;
-	private IGenericDao<IEntity> daoT0112MediaOption;
-	private IGenericDao<IEntity> daoT0114EnvCategory;
-	private IGenericDao<IEntity> daoT0114EnvTopic;
-	private IGenericDao<IEntity> daoT011ObjTopicCat;
-	private IGenericDao<IEntity> daoT011ObjData;
-	private IGenericDao<IEntity> daoT011ObjDataPara;
-	private IGenericDao<IEntity> daoT011ObjProject;
-	private IGenericDao<IEntity> daoT011ObjLiterature;
-	private IGenericDao<IEntity> daoObjectComment;
-	private IGenericDao<IEntity> daoAddressComment;
-	private IGenericDao<IEntity> daoT011ObjServ;
-	private IGenericDao<IEntity> daoT011ObjServVersion;
-	private IGenericDao<IEntity> daoT011ObjServOperation;
-	private IGenericDao<IEntity> daoT011ObjServOpPlatform;
-	private IGenericDao<IEntity> daoT011ObjServOpDepends;
-	private IGenericDao<IEntity> daoT011ObjServOpConnpoint;
-	private IGenericDao<IEntity> daoT011ObjServOpPara;
 
 	private MdekKeyValueHandler keyValueService;
 
@@ -147,42 +118,9 @@ public class DocToBeanMapper implements IMapper {
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
+		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 
 		dao = daoFactory.getDao(IEntity.class);
-
-		daoSpatialReference = daoFactory.getDao(SpatialReference.class);
-		daoT021Communication = daoFactory.getDao(T021Communication.class);
-		daoT012ObjAdr = daoFactory.getDao(T012ObjAdr.class);
-		daoObjectReference = daoFactory.getDao(ObjectReference.class);
-		daoT017UrlRef = daoFactory.getDao(T017UrlRef.class);
-		daoT0113DatasetReference = daoFactory.getDao(T0113DatasetReference.class);
-		daoT014InfoImpart = daoFactory.getDao(T014InfoImpart.class);
-		daoT011ObjGeo = daoFactory.getDao(T011ObjGeo.class);
-		daoT011ObjGeoKeyc = daoFactory.getDao(T011ObjGeoKeyc.class);
-		daoT011ObjGeoScale = daoFactory.getDao(T011ObjGeoScale.class);
-		daoT011ObjGeoSymc = daoFactory.getDao(T011ObjGeoSymc.class);
-		daoT011ObjGeoSupplinfo = daoFactory.getDao(T011ObjGeoSupplinfo.class);
-		daoT011ObjGeoVector = daoFactory.getDao(T011ObjGeoVector.class);
-		daoT011ObjGeoSpatialRep= daoFactory.getDao(T011ObjGeoSpatialRep.class);
-		daoT015Legist = daoFactory.getDao(T015Legist.class);
-		daoT0110AvailFormat = daoFactory.getDao(T0110AvailFormat.class);
-		daoT0112MediaOption = daoFactory.getDao(T0112MediaOption.class);
-		daoT0114EnvCategory = daoFactory.getDao(T0114EnvCategory.class);
-		daoT0114EnvTopic = daoFactory.getDao(T0114EnvTopic.class);
-		daoT011ObjTopicCat = daoFactory.getDao(T011ObjTopicCat.class);
-		daoT011ObjData = daoFactory.getDao(T011ObjData.class);
-		daoT011ObjDataPara = daoFactory.getDao(T011ObjDataPara.class);
-		daoT011ObjProject = daoFactory.getDao(T011ObjProject.class);
-		daoT011ObjLiterature = daoFactory.getDao(T011ObjLiterature.class);
-		daoObjectComment = daoFactory.getDao(ObjectComment.class);
-		daoAddressComment = daoFactory.getDao(AddressComment.class);
-		daoT011ObjServ = daoFactory.getDao(T011ObjServ.class);
-		daoT011ObjServVersion = daoFactory.getDao(T011ObjServVersion.class);
-		daoT011ObjServOperation = daoFactory.getDao(T011ObjServOperation.class);
-		daoT011ObjServOpPlatform = daoFactory.getDao(T011ObjServOpPlatform.class);
-		daoT011ObjServOpDepends = daoFactory.getDao(T011ObjServOpDepends.class);
-		daoT011ObjServOpConnpoint = daoFactory.getDao(T011ObjServOpConnpoint.class);
-		daoT011ObjServOpPara = daoFactory.getDao(T011ObjServOpPara.class);
 
 		keyValueService = MdekKeyValueHandler.getInstance(daoFactory);
 	}
@@ -625,7 +563,7 @@ public class DocToBeanMapper implements IMapper {
 		for (ObjectReference oR : oRefs_unprocessed) {
 			oRefs.remove(oR);
 			// delete-orphan doesn't work !!!?????
-			daoObjectReference.makeTransient(oR);
+			dao.makeTransient(oR);
 		}		
 	}
 
@@ -700,7 +638,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T012ObjAdr oA : oAs_unprocessed) {
 			oAs.remove(oA);
 			// delete-orphan doesn't work !!!?????
-			daoT012ObjAdr.makeTransient(oA);
+			dao.makeTransient(oA);
 		}		
 	}
 
@@ -784,7 +722,7 @@ public class DocToBeanMapper implements IMapper {
 		for (SpatialReference spRef : spatialRefs_unprocessed) {
 			spatialRefs.remove(spRef);
 			// delete-orphan doesn't work !!!?????
-			daoSpatialReference.makeTransient(spRef);
+			dao.makeTransient(spRef);
 		}		
 	}
 
@@ -890,7 +828,7 @@ public class DocToBeanMapper implements IMapper {
 		for (ObjectComment ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoObjectComment.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.COMMENT_LIST);
@@ -923,7 +861,7 @@ public class DocToBeanMapper implements IMapper {
 		for (AddressComment ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoAddressComment.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<IngridDocument> refDocs = (List) aDocIn.get(MdekKeys.COMMENT_LIST);
@@ -994,7 +932,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T021Communication ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT021Communication.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}
 
 		// and add new ones !
@@ -1063,7 +1001,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T017UrlRef ref : refs_unprocessed) {
 			urlRefs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT017UrlRef.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1098,7 +1036,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T0113DatasetReference ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT0113DatasetReference.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1134,7 +1072,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T014InfoImpart ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT014InfoImpart.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1153,7 +1091,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjGeo ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeo.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}
 		
 		IngridDocument refDoc = (IngridDocument)oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
@@ -1176,7 +1114,7 @@ public class DocToBeanMapper implements IMapper {
 			keyValueService.processKeyValue(ref);
 
 			// save the object and get ID from database (cascading insert do not work??)
-			daoT011ObjGeo.makePersistent(ref);
+			dao.makePersistent(ref);
 			
 			// map 1:N relations
 			updateT011ObjGeoKeycs(refDoc, ref);
@@ -1197,7 +1135,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjGeoKeyc ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeoKeyc.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.KEY_CATALOG_LIST);
@@ -1227,7 +1165,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjGeoScale ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeoScale.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.PUBLICATION_SCALE_LIST);
@@ -1255,7 +1193,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjGeoSymc ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeoSymc.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.SYMBOL_CATALOG_LIST);
@@ -1285,7 +1223,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjGeoSupplinfo ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeoSupplinfo.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<String> refStrs = (List<String>)docIn.get(MdekKeys.FEATURE_TYPE_LIST);
@@ -1311,7 +1249,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjGeoVector ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeoVector.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.GEO_VECTOR_LIST);
@@ -1338,7 +1276,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjGeoSpatialRep ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjGeoSpatialRep.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		
 		List<Integer> refInts = (List<Integer>)docIn.get(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST);
@@ -1365,7 +1303,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjLiterature ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjLiterature.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}
 		
 		IngridDocument refDoc = (IngridDocument)oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
@@ -1418,7 +1356,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T015Legist ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT015Legist.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1457,7 +1395,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T0110AvailFormat ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT0110AvailFormat.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1493,7 +1431,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T0112MediaOption ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT0112MediaOption.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1674,7 +1612,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T0114EnvCategory ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT0114EnvCategory.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1707,7 +1645,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T0114EnvTopic ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT0114EnvTopic.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1740,7 +1678,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjTopicCat ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjTopicCat.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1768,7 +1706,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjData ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjData.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add new one !
 		IngridDocument domainDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
@@ -1799,7 +1737,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjDataPara ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjDataPara.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}
 
 		// and add new ones !
@@ -1837,7 +1775,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjProject ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjProject.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add new one !
 		IngridDocument domainDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
@@ -1854,7 +1792,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjServ ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjServ.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add new one !
 		IngridDocument domainDoc = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
@@ -1862,7 +1800,7 @@ public class DocToBeanMapper implements IMapper {
 			T011ObjServ ref = mapT011ObjServ(oIn, domainDoc, new T011ObjServ());
 
 			// save the object and get ID from database (cascading insert do not work??)
-			daoT011ObjServ.makePersistent(ref);
+			dao.makePersistent(ref);
 
 			// map 1:N relations
 			updateT011ObjServVersions(domainDoc, ref);
@@ -1899,7 +1837,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjServVersion ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjServVersion.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -1927,7 +1865,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjServOperation ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjServOperation.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}
 
 		// and add new ones !
@@ -1941,7 +1879,7 @@ public class DocToBeanMapper implements IMapper {
 			T011ObjServOperation ref = mapT011ObjServOperation(oIn, refDoc, new T011ObjServOperation(), line);
 			
 			// save the object and get ID from database (cascading insert do not work??)
-			daoT011ObjServOperation.makePersistent(ref);
+			dao.makePersistent(ref);
 
 			// map 1:N relations
 			updateT011ObjServOpPlatforms(refDoc, ref);
@@ -1979,7 +1917,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjServOpPlatform ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjServOpPlatform.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -2011,7 +1949,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjServOpDepends ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjServOpDepends.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -2043,7 +1981,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjServOpConnpoint ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjServOpConnpoint.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
 		int line = 1;
@@ -2071,7 +2009,7 @@ public class DocToBeanMapper implements IMapper {
 		for (T011ObjServOpPara ref : refs_unprocessed) {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
-			daoT011ObjServOpPara.makeTransient(ref);			
+			dao.makeTransient(ref);			
 		}
 
 		// and add new ones !
@@ -2208,6 +2146,104 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			dao.makeTransient(attr);
 		}		
+	}
+
+	/**
+	 * Add/Update/Delete additional fields and PERSIST.
+	 * @param fieldDocs ALL additional fields -> state to save
+	 * @param fields ALL former additional fields to update/delete 
+	 * @return list of IDs of stored additional fields (new ids if new fields !)
+	 */
+	public List<Long> updateT08AttrTypes(List<IngridDocument> fieldDocs, List<T08AttrType> fields) {
+		if (fieldDocs == null) {
+			fieldDocs = new ArrayList<IngridDocument>(0);
+		}
+		List<Long> retIds = new ArrayList<Long>(fieldDocs.size()); 
+
+		ArrayList<T08AttrType> fields_unprocessed = new ArrayList<T08AttrType>(fields);
+
+		for (IngridDocument fieldDoc : fieldDocs) {
+			Long docFieldId = (Long) fieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
+			T08AttrType foundField = null;
+			if (docFieldId != null) {
+				for (T08AttrType field : fields) {
+					if (field.getId().equals(docFieldId)) {
+						foundField = field;
+						fields_unprocessed.remove(foundField);
+						break;
+					}
+				}
+			}
+			if (foundField == null) {
+				foundField = new T08AttrType();
+				// save the object and get ID from database (cascading insert do not work??)
+				dao.makePersistent(foundField);
+				fields.add(foundField);
+			}
+			foundField.setName(fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME));
+			foundField.setLength((Integer)fieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH));
+			foundField.setType(fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE));
+
+			// update list entries (if field is of type list)
+			updateT08AttrList(fieldDoc, foundField);
+
+			dao.makePersistent(foundField);
+			
+			retIds.add(foundField.getId());
+		}
+
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (T08AttrType field_unprocessed : fields_unprocessed) {
+			fields.remove(field_unprocessed);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(field_unprocessed);
+
+			// also delete according data entries of field (connected to objects)
+			Long deletedFieldId = field_unprocessed.getId();
+			List<T08Attr> dataEntries = daoT08AttrType.getT08Attr(deletedFieldId);
+			for (T08Attr dataEntry : dataEntries) {
+				dao.makeTransient(dataEntry);
+			}
+		}
+		
+		return retIds;
+	}
+	private void updateT08AttrList(IngridDocument fieldDoc, T08AttrType additField) {
+		Set<T08AttrList> refs = additField.getT08AttrLists();
+		ArrayList<T08AttrList> refs_unprocessed = new ArrayList<T08AttrList>(refs);
+
+		// remove all !
+		for (T08AttrList ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+
+		// and add all "new" ones (if LIST field)
+		AdditionalFieldType fieldType =
+			EnumUtil.mapDatabaseToEnumConst(AdditionalFieldType.class, fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE));
+		if (fieldType == AdditionalFieldType.LIST) {
+			// type of list ?
+			String listType = fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_TYPE);
+
+			// add entries for all languages (if set)
+			for (String language : MdekUtils.LANGUAGES) {
+				String[] listItemNames = (String[]) fieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + language);
+				if (listItemNames != null) {
+					int line = 1;
+					for (String listItemName : listItemNames) {
+						T08AttrList ref = new T08AttrList();
+						ref.setAttrTypeId(additField.getId());
+						ref.setType(listType);
+						ref.setLangCode(language);
+						ref.setListitemValue(listItemName);
+						ref.setListitemLine(line);
+						refs.add(ref);
+						line++;
+					}
+				}
+			}
+		}
 	}
 
 	private ObjectConformity mapObjectConformity(T01Object oFrom,

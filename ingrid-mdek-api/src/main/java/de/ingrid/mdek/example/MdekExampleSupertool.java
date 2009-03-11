@@ -139,6 +139,9 @@ public class MdekExampleSupertool {
 	public IngridDocument getSysAdditionalFields(Long[] fieldIds, String languageCode) {
 		return supertoolCatalog.getSysAdditionalFields(fieldIds, languageCode);
 	}
+	public IngridDocument storeAllSysAdditionalFields(List<IngridDocument> allAddFields) {
+		return supertoolCatalog.storeAllSysAdditionalFields(allAddFields);
+	}
 	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot) {
 		return supertoolCatalog.exportObjectBranch(rootUuid, exportOnlyRoot);
 	}

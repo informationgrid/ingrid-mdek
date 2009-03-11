@@ -143,6 +143,15 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument storeAllSysAdditionalFields(String plugId, List<IngridDocument> allAddFields,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.SYS_ADDITIONAL_FIELD_LIST, allAddFields );
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("storeAllSysAdditionalFields", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument exportObjectBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
 			String userId) {

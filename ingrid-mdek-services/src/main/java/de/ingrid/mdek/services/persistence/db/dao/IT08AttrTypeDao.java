@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.model.T08Attr;
 import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 
 
@@ -22,4 +23,11 @@ public interface IT08AttrTypeDao
 	 * @return list of beans with prefetched selection lists
 	 */
 	List<T08AttrType> getT08AttrTypes(Long[] fieldIds, String languageCode);
+
+	/**
+	 * Get all input data (connected to objects) of additional field of given id. 
+	 * @param fieldId additional field identifier
+	 * @return list of data entries
+	 */
+	List<T08Attr> getT08Attr(Long fieldId);
 }

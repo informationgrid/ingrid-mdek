@@ -34,6 +34,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
+import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
@@ -44,6 +45,7 @@ import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
+import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.xml.exporter.XMLExporter;
@@ -72,6 +74,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private IT02AddressDao daoT02Address;
 	private ISysListDao daoSysList;
 	private IHQLDao daoHQL;
+	private IT08AttrTypeDao daoT08AttrType;
 
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
@@ -93,6 +96,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoSysList = daoFactory.getSysListDao();
 		daoHQL = daoFactory.getHQLDao();
+		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 	}
 
 	public IngridDocument getCatalog(IngridDocument params) {
@@ -397,6 +401,44 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
+		}
+	}
+
+	public IngridDocument storeAllSysAdditionalFields(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
+
+			List<IngridDocument> fieldDocs = (List<IngridDocument>) docIn.get(MdekKeys.SYS_ADDITIONAL_FIELD_LIST);
+			
+			genericDao.beginTransaction();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
+			// get all current additional fields
+			List<T08AttrType> additFields = daoT08AttrType.getT08AttrTypes(null, null);
+			// add/update/delete additional fields according to docs !
+			List<Long> ids = docToBeanMapper.updateT08AttrTypes(fieldDocs, additFields);
+
+			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
+			genericDao.commitTransaction();
+
+			// return ids of stored additional fields
+			IngridDocument result = new IngridDocument();
+			result.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDS, ids.toArray(new Long[ids.size()]));
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
 		}
 	}
 

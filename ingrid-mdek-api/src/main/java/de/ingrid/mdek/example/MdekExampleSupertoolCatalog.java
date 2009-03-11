@@ -272,6 +272,34 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
+	public IngridDocument storeAllSysAdditionalFields(List<IngridDocument> allAddFields) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeAllSysAdditionalFields ######");
+		System.out.println("- list of additional fields to store: " + allAddFields);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.storeAllSysAdditionalFields(plugId, allAddFields, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			Long[] ids = (Long[]) result.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDS);
+			System.out.println("SUCCESS: " + ids.length + " stored Ids");
+			for (Long id : ids) {
+				System.out.println("  " + id);				
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
 	/** Pass null if all gui elements requested */
 	public IngridDocument getSysGuis(String[] guiIds) {
 		long startTime;

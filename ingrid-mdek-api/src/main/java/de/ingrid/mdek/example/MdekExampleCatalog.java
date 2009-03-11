@@ -11,12 +11,14 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AdditionalFieldType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleCatalog {
@@ -323,15 +325,76 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("SYS ADDITIONAL FIELDS (Definitions)");
 		System.out.println("=========================");
 
-		System.out.println("\n----- Specific SysAdditionalFields with language -----");
+		System.out.println("\n----- get specific SysAdditionalFields with language -----");
 		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, catLang);
 
-		System.out.println("\n----- Specific SysAdditionalFields NO language -----");
+		System.out.println("\n----- get specific SysAdditionalFields NO language -----");
 		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, null);
 
-		System.out.println("\n----- ALL SysAdditionalFields Values NO language -----");
-		supertool.getSysAdditionalFields(null, null);
+		System.out.println("\n----- get ALL SysAdditionalFields NO language -----");
+		doc = supertool.getSysAdditionalFields(null, null);
+		List<IngridDocument> allFields = new ArrayList(doc.values()); 
+
+		System.out.println("\n----- store NEW TEXT SysAdditionalField -----");
+		doc = new IngridDocument();
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH, 99);
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, "MM TEST TEXT");
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE, AdditionalFieldType.TEXT.getDbValue());
+		allFields.add(doc);
+		doc = supertool.storeAllSysAdditionalFields(allFields);
+
+		System.out.println("\n----- verify: get ALL SysAdditionalField -----");
+		doc = supertool.getSysAdditionalFields(null, null);
+		allFields = new ArrayList(doc.values()); 
+
+		System.out.println("\n----- store NEW LIST SysAdditionalField only \"de\" entries -----");
+		doc = new IngridDocument();
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH, 999);
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, "MM TEST LIST");
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE, AdditionalFieldType.LIST.getDbValue());
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + "de",
+				new String[]{"item1_de", "item2_de", "item3_de"});
+		allFields.add(doc);
+		doc = supertool.storeAllSysAdditionalFields(allFields);
+		Long[] storedIdsArray = (Long[]) doc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDS);
+		Long newListFieldId = storedIdsArray[storedIdsArray.length-1];
+
+		System.out.println("\n----- verify: get ALL SysAdditionalField -----");
+		doc = supertool.getSysAdditionalFields(null, null);
+		allFields = new ArrayList(doc.values()); 
+		doc = (IngridDocument) doc.get(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + newListFieldId);
+
+		System.out.println("\n----- update NEW LIST SysAdditionalField with \"en\" entries -----");
+		doc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + "en",
+				new String[]{"item1_en", "item2_en", "item3_en"});
+		supertool.storeAllSysAdditionalFields(allFields);
+
+		System.out.println("\n----- verify: get NEW LIST SysAdditionalField -----");
+		supertool.getSysAdditionalFields(new Long[]{newListFieldId}, null);
+
+		System.out.println("\n----- verify: get ALL SysAdditionalField -----");
+		doc = supertool.getSysAdditionalFields(null, null);
+		allFields = new ArrayList(doc.values()); 
+
+		System.out.println("\n----- fetch object with additional field data -----");
+		doc = supertool.fetchObject("3892B136-D1F3-4E45-9E5F-E1CEF117AA74", FetchQuantity.EDITOR_ENTITY);
 		
+		System.out.println("\n----- DELETE SysAdditionalField -> ALSO DATA DELETED !!! -----");
+		allFields.remove(0);
+		doc = supertool.storeAllSysAdditionalFields(allFields);
+
+		System.out.println("\n----- verify: fetch object with additional field data -> data gone -----");
+		doc = supertool.fetchObject("3892B136-D1F3-4E45-9E5F-E1CEF117AA74", FetchQuantity.EDITOR_ENTITY);
+		
+		System.out.println("\n----- DELETE ALL SysAdditionalFields !!! ALSO DATA DELETED !!! -----");
+		doc = supertool.storeAllSysAdditionalFields(new ArrayList<IngridDocument>());
+
+		System.out.println("\n----- verify: fetch object with additional field data -> ALL data gone -----");
+		doc = supertool.fetchObject("3892B136-D1F3-4E45-9E5F-E1CEF117AA74", FetchQuantity.EDITOR_ENTITY);
+		
+		System.out.println("\n----- get ALL SysAdditionalFields -----");
+		supertool.getSysAdditionalFields(null, null);
+
 // -----------------------------------
 		
 		System.out.println("\n\n=========================");
