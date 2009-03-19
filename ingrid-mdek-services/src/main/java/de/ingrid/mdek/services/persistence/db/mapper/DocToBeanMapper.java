@@ -173,10 +173,12 @@ public class DocToBeanMapper implements IMapper {
 		String[] inNames_de = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_DE);
 		String[] inNames_en = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_EN);
 		boolean hasEnglishEntries = false;
-		for (String inName_en : inNames_en) {
-			if (inName_en != null && inName_en.trim().length() > 0) {
-				hasEnglishEntries = true;
-				break;
+		if (inNames_en != null) {
+			for (String inName_en : inNames_en) {
+				if (inName_en != null && inName_en.trim().length() > 0) {
+					hasEnglishEntries = true;
+					break;
+				}
 			}
 		}
 

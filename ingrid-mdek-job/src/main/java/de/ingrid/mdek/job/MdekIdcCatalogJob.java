@@ -151,6 +151,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			docToBeanMapper.mapT03Catalog(cDocIn, catalog);
 			genericDao.makePersistent(catalog);
 
+			// clear all caches !
+			catalogService.clearCaches();
+
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			genericDao.commitTransaction();
 
@@ -221,6 +224,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// get according syslist and update
 			List<SysList> sysListEntries = daoSysList.getSysList(lstId, null);
 			docToBeanMapper.updateSysList(docIn, sysListEntries);
+
+			// clear all caches !
+			catalogService.clearCaches();
 
 			genericDao.commitTransaction();
 
@@ -475,7 +481,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// finish export job info and fetch it
 			exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
-			HashMap exportInfo = exportService.getExportJobInfoDB(userId, false);
+			HashMap exportInfo = getJobInfo(JobType.EXPORT, userId, false, false);
 
 			// just to be sure ExportJobInfo is up to date !
 			genericDao.flush();
@@ -537,7 +543,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// finish export job info and fetch it
 			exportService.endExportJobInfo(expData, IdcEntityType.ADDRESS, userId);
-			HashMap exportInfo = exportService.getExportJobInfoDB(userId, false);
+			HashMap exportInfo = getJobInfo(JobType.EXPORT, userId, false, false);
 
 			// just to be sure ExportJobInfo is up to date !
 			genericDao.flush();
@@ -596,7 +602,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 				// finish export job info and fetch it
 				exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
-				exportInfo = exportService.getExportJobInfoDB(userId, false);
+				exportInfo = getJobInfo(JobType.EXPORT, userId, false, false);
 			}
 
 			// just to be sure ExportJobInfo is up to date !
@@ -650,16 +656,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.disableAutoFlush();
 
 			// extract export info
-			HashMap exportInfo;
-			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.EXPORT, userId);
-			if (runningJobInfo.isEmpty()) {
-				// no EXPORT job running, we extract import info from database
-				exportInfo = exportService.getExportJobInfoDB(userId, includeData);
-			} else {
-				// job running, we extract export info from running job info (in memory)
-				exportInfo =
-					jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false);
-			}
+			HashMap exportInfo = getJobInfo(JobType.EXPORT, userId, true, includeData);
 
 			genericDao.commitTransaction();
 
@@ -707,7 +704,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// finish and fetch import info in database
 			importService.endImportJobInfo(userId);
-			HashMap importInfo = importService.getImportJobInfoDB(userId);
+			HashMap importInfo = getJobInfo(JobType.IMPORT, userId, false, false);
 
 			genericDao.commitTransaction();
 
@@ -745,28 +742,25 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
-	public IngridDocument getImportInfo(IngridDocument docIn) {
+	public IngridDocument getJobInfo(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
 		try {
+			JobType jobType = (JobType) docIn.get(MdekKeys.REQUESTINFO_JOB_TYPE);
+			boolean checkRunningJob = true;
+			if (jobType == JobType.URL) {
+				checkRunningJob = false;
+			}
+
 			genericDao.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
-			// extract import info
-			HashMap importInfo;
-			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.IMPORT, userId);
-			if (runningJobInfo.isEmpty()) {
-				// no IMPORT job running, we extract import info from database
-				importInfo = importService.getImportJobInfoDB(userId);
-			} else {
-				// job running, we extract import info from running job info (in memory)
-				importInfo = 
-					jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false);
-			}
+			// extract job info. Never include additional data when calling this standard job info method !
+			HashMap jobInfo = getJobInfo(jobType, userId, checkRunningJob, false);
 
 			genericDao.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
-			result.putAll(importInfo);
+			result.putAll(jobInfo);
 
 			return result;
 
@@ -776,30 +770,40 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
-	public IngridDocument getURLInfo(IngridDocument docIn) {
-		String userId = getCurrentUserUuid(docIn);
-		try {
-			genericDao.beginTransaction();
-			daoObjectNode.disableAutoFlush();
+	/** Extract info of job of given type. 
+	 * @param jobType type of job to fetch info about
+	 * @param userUuid calling user, job infos are stored per user !
+	 * @param checkRunningJob true=fetch job info from running job if there is one (of same type)
+	 * @param includeAdditionalData true=include additional data in job info, e.g. zipped export file !
+	 * @return Map containing job info
+	 */
+	private HashMap getJobInfo(JobType jobType, String userUuid,
+			boolean checkRunningJob, boolean includeAdditionalData) {
+		HashMap jobInfo = null;
 
-			// extract running job info
-			HashMap runningJobInfo = jobHandler.getRunningJobInfo(JobType.URL, userId);
-			
-			// always extract URL job info from the database
-			SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.URL, userId);
-			HashMap urlInfo = jobHandler.mapJobInfoDB(jobInfo);
-
-			genericDao.commitTransaction();
-
-			IngridDocument result = new IngridDocument();
-			result.putAll(urlInfo);
-
-			return result;
-
-		} catch (RuntimeException e) {
-			RuntimeException handledExc = handleException(e);
-		    throw handledExc;
+		// get job info from running job if requested
+		if (checkRunningJob) {
+			HashMap runningJobInfo = jobHandler.getRunningJobInfo(jobType, userUuid);
+			if (!runningJobInfo.isEmpty()) {
+				// job running, we extract job info from running job (in memory).
+				// we never extract messages from running job !
+				jobInfo = jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false);
+			}
 		}
+
+		// extract info from database if no info yet
+		if (jobInfo == null) {
+			if (jobType == JobType.EXPORT) {
+				// specials when EXPORT info. We may include exported file !
+				jobInfo = exportService.getExportJobInfoDB(userUuid, includeAdditionalData);				
+			} else {
+				// default mapping
+				SysJobInfo jobInfoDB = jobHandler.getJobInfoDB(jobType, userUuid);
+				jobInfo = jobHandler.mapJobInfoDB(jobInfoDB);				
+			}
+		}
+		
+		return jobInfo;
 	}
 
 	public IngridDocument setURLInfo(IngridDocument docIn) {
@@ -946,13 +950,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
 			
-			// initialize import info in database
+			// initialize job info in database
 			dbConsistencyService.startDBConsistencyJobInfo(userId);
 			
 			// analyze
 			dbConsistencyService.analyze(userId);
 			
-			// finish and fetch import info in database
+			// finish and fetch job info in database
 			dbConsistencyService.endDBConsistencyJobInfo(userId);
 
 			Map dbConsistencyInfo = dbConsistencyService.getDBConsistencyJobInfoDB(userId);
@@ -1209,6 +1213,60 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numReplaced);
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
+		}
+	}
+
+	public IngridDocument rebuildSyslistData(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.REBUILD_SYSLISTS, 0, 0, false));
+
+			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
+			// initialize job info in database
+			catalogService.startRebuildSyslistJobInfo(userId);
+
+			// clear all caches, read NEWEST DATA !
+			catalogService.clearCaches();
+
+			// first update content in entities
+			catalogService.rebuildEntitiesSyslistData(userId);
+
+			// COMMIT IN BETWEEN TO HAVE NEW SESSION WHEN UPDATING INDEX !?
+			genericDao.flush();
+			genericDao.commitTransaction();
+
+			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
+
+			// then rebuild index
+			catalogService.rebuildEntitiesIndex(userId);
+			
+			// finish and fetch job info in database
+			catalogService.endRebuildSyslistJobInfo(userId);
+			HashMap rebuildInfo = getJobInfo(JobType.REBUILD_SYSLISTS, userId, false, false);
+
+			genericDao.flush();
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(rebuildInfo);
 			return result;
 
 		} catch (RuntimeException e) {

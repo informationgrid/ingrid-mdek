@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -201,19 +202,15 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 			boolean doSeparateImport,
 			String userId);
 
-	/** Returns information about the current/last import executed by the given user.
+	/** Returns DEFAULT information about the current/last job of given type executed by the given user.
+	 * NOTICE: if special info should be delivered call separate method (e.g. getExportInfo for fetching
+	 * export file).
 	 * @param plugId which mdek server (iplug)
+	 * @param jobType job type to get info about
 	 * @param userId calling user
-	 * @return response containing result: map containing import information
+	 * @return response containing result: map containing job information
 	 */
-	IngridDocument getImportInfo(String plugId, String userId);
-
-	/** Returns information about the last url job executed by the given user.
-	 * @param plugId which mdek server (iplug)
-	 * @param userId calling user
-	 * @return response containing result: map containing url information
-	 */
-	IngridDocument getURLInfo(String plugId, String userId);
+	IngridDocument getJobInfo(String plugId, JobType jobType, String userId);
 
 	/** Sets the result for the last url job executed by the given user.
 	 * @param plugId which mdek server (iplug)
@@ -307,4 +304,10 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument replaceFreeEntryWithSyslistEntry(String plugId, String freeEntry,
 		MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName,
 		String userId);
+
+	/** Update all syslist data according to current syslists (values in entities, index ...).
+	 * Should be called after syslists were changed !
+	 * @return response containing result: map containing rebuild information
+	 */
+	IngridDocument rebuildSyslistData(String plugId, String userId);
 }

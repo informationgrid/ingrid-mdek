@@ -257,6 +257,8 @@
 			<xs:element name="requestinfo_numHits" type="xs:integer"/>
 			<!-- kind of csv data to fetch, pass MdekUtils.CsvRequestType Enumeration const -->
 			<xs:element name="requestinfo_csvRequestType" type="xs:integer"/>
+			<!-- kind of Job Info to fetch, pass IJob.JobType Enumeration const -->
+			<xs:element name="requestinfo_jobType" type="xs:integer"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_SYS_MAP">
@@ -563,14 +565,19 @@
 		<xs:choice>
 			<xs:element ref="jobinfo-start-time"/>
 			<xs:element name="jobinfo-end-time" type="xs:string"/>
-			<!-- e.g. current number of exported objects at runtime -->
+			<!-- OBJECT Info: e.g. current number of exported objects -->
+			<!-- and total number of objects to export -->
 			<xs:element name="jobinfo-num-objects" type="xs:integer"/>
-			<!-- e.g. total number of objects to export -->
 			<xs:element name="jobinfo-total-num-objects" type="xs:integer"/>
-			<!-- e.g. current number of exported addresses at runtime -->
+			<!-- ADDRESS Info: e.g. current number of exported addresses -->
+			<!-- and total number of addresses to export -->
 			<xs:element name="jobinfo-num-addresses" type="xs:integer"/>
-			<!-- e.g. total number of addresses to export -->
 			<xs:element name="jobinfo-total-num-addresses" type="xs:integer"/>
+			<!-- Arbitrary Entity Info: e.g. used for tracking entities in rebuild process ! -->
+			<xs:element name="jobinfo-entity-type" type="xs:string"/>
+			<xs:element name="jobinfo-num-entities" type="xs:integer"/>
+			<xs:element name="jobinfo-total-num-entities" type="xs:integer"/>
+			<!-- arbitrary messages generated -->
 			<xs:element name="jobinfo-messages" type="xs:string"/>
 			<!-- contains Exception if thrown in job -->
 			<xs:element name="jobinfo-exception" type="xs:anyType"/>
@@ -691,8 +698,8 @@
 		<xs:all>
 			<!-- database value of job type -->
 			<xs:element name="runningjob-type" type="xs:string"/>
-			<!-- which type of entity is processed (object or address), pass MdekUtils.IdcEntityType Enumeration const -->
-			<xs:element name="runningjob-entity-type" type="xs:integer"/>
+			<!-- which type of entity is processed (object, address, ...), e.g. pass Class name -->
+			<xs:element name="runningjob-entity-type" type="xs:string"/>
 			<xs:element name="runningjob-number-processed-entities" type="xs:integer"/>
 			<xs:element name="runningjob-number-total-entities" type="xs:integer"/>
 			<xs:element name="runningjob-canceled-by-user" type="xs:boolean"/>

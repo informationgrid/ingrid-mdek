@@ -1459,4 +1459,34 @@ public class AddressNodeDaoHibernate
 
 		return result;
 	}
+
+	public List<String> getAllAddressUuids() {
+		Session session = getSession();
+
+		String q = "select distinct addrUuid " +
+			"from AddressNode";
+		
+		List<String> uuids = session.createQuery(q)
+				.list();
+
+		return uuids;
+	}
+
+	public AddressNode getAddressForIndex(String uuid) {
+		Session session = getSession();
+
+		String q = "from AddressNode aNode " +
+			"left join fetch aNode.t02AddressWork a " +			
+			"left join fetch a.addressComments " +
+			"left join fetch a.searchtermAdrs " +
+			"left join fetch a.t021Communications " +
+			"where aNode.addrUuid = ?";
+		
+		// fetch all at once (one select with outer joins)
+		AddressNode aN = (AddressNode) session.createQuery(q)
+			.setString(0, uuid)
+			.uniqueResult();
+
+		return aN;
+	}
 }

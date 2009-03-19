@@ -228,4 +228,10 @@ public interface IObjectNodeDao
 	 * @return uuids of objects to export
 	 */
 	List<String> getObjectUuidsForExport(String exportCriterion);
+
+	/** Get ALL Object Node UUIDs (distinct) */
+	List<String> getAllObjectUuids();
+
+	/** Get ObjectNode with prefetched data for generating Index !!! */
+	ObjectNode getObjectForIndex(String uuid);
 }

@@ -1285,10 +1285,73 @@ public class ObjectNodeDaoHibernate
 				"inner join o.t014InfoImparts oExp " +
 			"where oExp.impartValue = ?";
 		
-		List<String> oNodes = session.createQuery(q)
+		List<String> uuids = session.createQuery(q)
 				.setString(0, exportCriterion)
 				.list();
 
-		return oNodes;
+		return uuids;
+	}
+
+	public List<String> getAllObjectUuids() {
+		Session session = getSession();
+
+		String q = "select distinct objUuid " +
+			"from ObjectNode";
+		
+		List<String> uuids = session.createQuery(q)
+				.list();
+
+		return uuids;
+	}
+
+	public ObjectNode getObjectForIndex(String uuid) {
+		Session session = getSession();
+
+		String q = "from ObjectNode oNode " +
+			"left join fetch oNode.t01ObjectWork o " +			
+			"left join fetch o.objectComments " +
+
+			"left join fetch o.searchtermObjs oTerm " +
+			"left join fetch oTerm.searchtermValue termVal " +
+			"left join fetch termVal.searchtermSns " +
+
+			"left join fetch o.spatialReferences oSpRef " +
+			"left join fetch oSpRef.spatialRefValue spRefVal " +
+			"left join fetch spRefVal.spatialRefSns " +
+
+			"left join fetch o.t0110AvailFormats " +
+			"left join fetch o.t0112MediaOptions " +
+			"left join fetch o.t011ObjDatas " +
+			"left join fetch o.t011ObjDataParas " +
+
+			"left join fetch o.t011ObjGeos oGeo " +
+			"left join fetch oGeo.t011ObjGeoKeycs " +
+			"left join fetch oGeo.t011ObjGeoSymcs " +
+
+			"left join fetch o.t011ObjLiteratures " +
+			"left join fetch o.t011ObjProjects " +
+
+			"left join fetch o.t011ObjServs oServ " +
+			"left join fetch oServ.t011ObjServOperations oServOp " +
+			"left join fetch oServOp.t011ObjServOpConnpoints " +
+			"left join fetch oServOp.t011ObjServOpDependss " +
+			"left join fetch oServOp.t011ObjServOpParas " +
+			"left join fetch oServOp.t011ObjServOpPlatforms " +
+			"left join fetch oServ.t011ObjServVersions " +
+
+			"left join fetch o.t014InfoImparts " +
+			"left join fetch o.t015Legists " +
+			"left join fetch o.t017UrlRefs " +
+			"left join fetch o.t08Attrs " +
+			"left join fetch o.objectConformitys " +
+			"left join fetch o.objectAccesss " +
+			"where oNode.objUuid = ?";
+		
+		// fetch all at once (one select with outer joins)
+		ObjectNode oN = (ObjectNode) session.createQuery(q)
+			.setString(0, uuid)
+			.uniqueResult();
+
+		return oN;
 	}
 }

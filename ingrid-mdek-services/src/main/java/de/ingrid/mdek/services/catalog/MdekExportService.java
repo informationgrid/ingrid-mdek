@@ -286,12 +286,12 @@ public class MdekExportService implements IExporterCallback {
 
 		// first update in memory job state
 		IngridDocument runningJobInfo = 
-			jobHandler.createRunningJobDescription(JobType.EXPORT, whichType, 0, totalNum, false);
+			jobHandler.createRunningJobDescription(JobType.EXPORT, whichType.getDbValue(), 0, totalNum, false);
 		runningJobInfo.put(MdekKeys.JOBINFO_START_TIME, startTime);
 		jobHandler.updateRunningJob(userUuid, runningJobInfo);
 		
 		// then update job info in database
-        HashMap details = jobHandler.setUpJobInfoDetailsDB(whichType, 0, totalNum);
+        HashMap details = jobHandler.setUpJobInfoDetailsDB(whichType.getDbValue(), 0, totalNum);
 		jobHandler.startJobInfoDB(JobType.EXPORT, startTime, details, userUuid);
 	}
 	/** Update general info of Export job IN MEMORY. */
@@ -299,7 +299,7 @@ public class MdekExportService implements IExporterCallback {
 			String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid, 
-				jobHandler.createRunningJobDescription(JobType.EXPORT, whichType, numExported, totalNum, false));
+				jobHandler.createRunningJobDescription(JobType.EXPORT, whichType.getDbValue(), numExported, totalNum, false));
 
 		// then update job info in database
 		// NO, only in memory and write at end because of performance issues !

@@ -25,15 +25,6 @@ public interface ISysListDao
 	List<SysList> getSysList(int lstId, String language);
 	
 	/**
-	 * Get a specific entry. DON'T PASS NULL VALUES !
-	 * @param lstId id of list -> NOT NULL.
-	 * @param entryId id of list entry -> NOT NULL
-	 * @param language language of list/entry -> NOT NULL 
-	 * @return the list entry or null if not found !
-	 */
-	SysList getSysListEntry(int lstId, int entryId, String language);
-
-	/**
 	 * Get all free entries of entities where given syslist is used.
 	 * @param sysLst specifies syslist and according entity(ies) where syslist is used ! 
 	 * @return distinct free entries (strings)

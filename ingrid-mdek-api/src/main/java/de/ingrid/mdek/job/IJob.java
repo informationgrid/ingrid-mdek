@@ -7,7 +7,9 @@ public interface IJob {
 
 	/** Type of Job Operations. Used for tracking jobs. */
 	public enum JobType implements IMdekEnum {
+		/** e.g. generate working copy, assign entity to QA, store group, syslists ...*/
 		STORE("STORE"),
+		/** publish Object/Address ...*/
 		PUBLISH("PUBLISH"),
 		COPY("COPY"),
 		MOVE("MOVE"),
@@ -17,7 +19,10 @@ public interface IJob {
 		IMPORT("IMPORT"),
 		URL("URL"),
 		ANALYZE("ANALYZE"),
-		REPLACE("REPLACE");
+		/** e.g. replace address ...*/
+		REPLACE("REPLACE"),
+		/** update all syslist data in entities/index */
+		REBUILD_SYSLISTS("REBUILD_SYSLISTS");
 
 		JobType(String dbValue) {
 			this.dbValue = dbValue;

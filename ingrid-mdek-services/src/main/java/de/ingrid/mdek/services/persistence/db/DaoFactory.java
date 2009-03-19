@@ -47,7 +47,9 @@ import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
+import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
@@ -55,6 +57,8 @@ import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
+import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
@@ -78,6 +82,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
@@ -85,6 +90,7 @@ import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 
 public class DaoFactory implements IDaoFactory {
@@ -172,7 +178,7 @@ public class DaoFactory implements IDaoFactory {
 
 		if (clazz.isAssignableFrom(IEntity.class)) {
 			// Generic dao for class unspecific operations !!!
-			dao = new GenericHibernateDao<SpatialReference>(_sessionFactory, IEntity.class);			
+			dao = new GenericHibernateDao<IEntity>(_sessionFactory, IEntity.class);			
 		} else if (clazz.isAssignableFrom(SpatialReference.class)) {
 			dao = new GenericHibernateDao<SpatialReference>(_sessionFactory, SpatialReference.class);
 		} else if (clazz.isAssignableFrom(SearchtermObj.class)) {
@@ -246,9 +252,9 @@ public class DaoFactory implements IDaoFactory {
 		} else if (clazz.isAssignableFrom(T03Catalogue.class)) {
 			dao = new GenericHibernateDao<T03Catalogue>(_sessionFactory, T03Catalogue.class);
 		} else if (clazz.isAssignableFrom(IdcGroup.class)) {
-			dao = new GenericHibernateDao<IdcGroup>(_sessionFactory, IdcGroup.class);
+			dao = getIdcGroupDao();
 		} else if (clazz.isAssignableFrom(Permission.class)) {
-			dao = new GenericHibernateDao<Permission>(_sessionFactory, Permission.class);
+			dao = getPermissionDao();
 		} else if (clazz.isAssignableFrom(IdcUserPermission.class)) {
 			dao = new GenericHibernateDao<IdcUserPermission>(_sessionFactory, IdcUserPermission.class);
 		} else if (clazz.isAssignableFrom(PermissionObj.class)) {
@@ -263,6 +269,18 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<ObjectMetadata>(_sessionFactory, ObjectMetadata.class);
 		} else if (clazz.isAssignableFrom(AddressMetadata.class)) {
 			dao = new GenericHibernateDao<AddressMetadata>(_sessionFactory, AddressMetadata.class);
+		} else if (clazz.isAssignableFrom(SpatialRefValue.class)) {
+			dao = getSpatialRefValueDao();
+		} else if (clazz.isAssignableFrom(T02Address.class)) {
+			dao = getT02AddressDao();
+		} else if (clazz.isAssignableFrom(ObjectConformity.class)) {
+			dao = new GenericHibernateDao<ObjectConformity>(_sessionFactory, ObjectConformity.class);
+		} else if (clazz.isAssignableFrom(ObjectAccess.class)) {
+			dao = new GenericHibernateDao<ObjectAccess>(_sessionFactory, ObjectAccess.class);
+		} else if (clazz.isAssignableFrom(T011ObjServType.class)) {
+			dao = new GenericHibernateDao<T011ObjServType>(_sessionFactory, T011ObjServType.class);
+		} else if (clazz.isAssignableFrom(SearchtermValue.class)) {
+			dao = getSearchtermValueDao();
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

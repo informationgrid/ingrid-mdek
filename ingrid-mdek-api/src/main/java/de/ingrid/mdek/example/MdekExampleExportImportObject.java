@@ -17,6 +17,7 @@ import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleExportImportObject {
@@ -343,7 +344,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 
 		System.out.println("\n----- import INVALID XML -> Exception logged in jobinfo ! -----");
 		supertool.importEntities(importInvalidXML, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.getImportInfo();
+		supertool.getJobInfo(JobType.IMPORT);
 
 // -----------------------------------
 
@@ -389,7 +390,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 
 		System.out.println("\n----- import existing TOP NODE as WORKING VERSION -> check correct catalog id, moduser, responsibleuser -----");
 		supertool.importEntities(importExistingTopObj, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.getImportInfo();
+		supertool.getJobInfo(JobType.IMPORT);
 		supertool.fetchObject(topObjUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
 		System.out.println("\n----- import existing TOP NODE as PUBLISHED -> check correct catalog id, moduser, responsibleuser -----");

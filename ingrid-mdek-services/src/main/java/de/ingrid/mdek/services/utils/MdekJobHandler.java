@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.thoughtworks.xstream.XStream;
 
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
@@ -83,13 +84,13 @@ public class MdekJobHandler {
 	 * @return document describing current state of job
 	 */
 	public IngridDocument createRunningJobDescription(JobType jobType,
-			IdcEntityType whichType, 
+			String entityType, 
 			Integer numProcessed,
 			Integer numTotal,
 			boolean canceledByUser) {
 		IngridDocument runningJob = new IngridDocument();
 		runningJob.put(MdekKeys.RUNNINGJOB_TYPE, jobType.getDbValue());
-		runningJob.put(MdekKeys.RUNNINGJOB_ENTITY_TYPE, whichType);
+		runningJob.put(MdekKeys.RUNNINGJOB_ENTITY_TYPE, entityType);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
 		runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, canceledByUser);
@@ -161,9 +162,11 @@ public class MdekJobHandler {
 	 * NOTICE: NO checks whether jobs are already running !
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
 	public void updateRunningJob(String userId, Map additionalJobInfo) {
+/*
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("updateRunningJob: userId:" + userId + ", jobDescr: " + additionalJobInfo);
 		}
+*/
 		// throws exception if canceled !
 		checkRunningJobCanceledByUser(userId);
 		
@@ -317,15 +320,11 @@ public class MdekJobHandler {
 	 */
 	public HashMap getJobInfoDetailsFromRunningJobInfo(HashMap runningJobInfo,
 			boolean includeMessages) {
-		IdcEntityType whichEntityType = (IdcEntityType) runningJobInfo.get(MdekKeys.RUNNINGJOB_ENTITY_TYPE);
-		// default is OBJECT ;)
-		if (whichEntityType == null) {
-			whichEntityType = IdcEntityType.OBJECT;
-		}
+		String entityType = (String) runningJobInfo.get(MdekKeys.RUNNINGJOB_ENTITY_TYPE);
 		
 		// set up job info details just like it wouild be stored in DB
         HashMap jobDetails = setUpJobInfoDetailsDB(
-        		whichEntityType,
+        		entityType,
         		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
         		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES));
 
@@ -341,15 +340,23 @@ public class MdekJobHandler {
 		return jobDetails;
 	}
 
-	/** Set up generic details to be stored in database. */
-	public HashMap setUpJobInfoDetailsDB(IdcEntityType whichType, int num, int totalNum) {
+	/** Set up generic details to be stored in database.
+	 * @param entityType type of entity, pass IdcEntityType.getDbValue() or arbitrary string if other entity !
+	 */
+	public HashMap setUpJobInfoDetailsDB(String entityType, int num, int totalNum) {
         HashMap details = new HashMap();
+    	details.put(MdekKeys.JOBINFO_ENTITY_TYPE, entityType);
+
+		IdcEntityType whichType = EnumUtil.mapDatabaseToEnumConst(IdcEntityType.class, entityType);
         if (whichType == IdcEntityType.OBJECT) {
             details.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS, totalNum);        	
             details.put(MdekKeys.JOBINFO_NUM_OBJECTS, num);
         } else if (whichType == IdcEntityType.ADDRESS) {
             details.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES, totalNum);        	
             details.put(MdekKeys.JOBINFO_NUM_ADDRESSES, num);
+        } else {
+            details.put(MdekKeys.JOBINFO_TOTAL_NUM_ENTITIES, totalNum);        	
+            details.put(MdekKeys.JOBINFO_NUM_ENTITIES, num);
         }
 		
         return details;

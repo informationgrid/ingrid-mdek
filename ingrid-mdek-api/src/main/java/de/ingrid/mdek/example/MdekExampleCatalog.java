@@ -19,6 +19,7 @@ import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleCatalog {
@@ -140,7 +141,8 @@ class MdekExampleCatalogThread extends Thread {
 		boolean alwaysTrue = true;
 
 		IngridDocument doc;
-		
+		List<IngridDocument> docList;
+
 		// NI catalog
 
 		// OBJECTS
@@ -271,6 +273,101 @@ class MdekExampleCatalogThread extends Thread {
 			new String[]{});
 		supertool.getSysLists(new Integer[] { 815 }, null);
 
+
+		System.out.println("\n=========================");
+		System.out.println("SYSLISTS REBUILD !");
+
+		System.out.println("\n----- STORE 1. new Object with syslist LEGIST(1350) entries -----");
+		IngridDocument newDoc = supertool.newObjectDoc(null);
+		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT STORED (NOT Published)");
+		// add entry to LEGISLATIONS
+		docList = new ArrayList<IngridDocument>();
+		IngridDocument tmpDoc = new IngridDocument();
+		tmpDoc.put(MdekKeys.LEGISLATION_KEY, 35);
+		docList.add(tmpDoc);
+		tmpDoc = new IngridDocument();
+		tmpDoc.put(MdekKeys.LEGISLATION_KEY, 49);
+		docList.add(tmpDoc);
+		newDoc.put(MdekKeys.LEGISLATIONS, docList);
+		doc = supertool.storeObject(newDoc, true);
+		String newObjStoredUuid = (String) doc.get(MdekKeys.UUID);
+		
+		System.out.println("\n----- STORE 2. new Object with same syslist LEGIST(1350) entries -----");
+		doc = supertool.storeObject(newDoc, true);
+		String newObjStoredUuid2 = (String) doc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- load, change and store Syslist LEGIST(1350) -----");
+		int syslistId = MdekUtils.MdekSysList.LEGIST.getDbValue();
+		doc = supertool.getSysLists(new Integer[] { syslistId }, null);
+		IngridDocument syslistDoc = (IngridDocument) doc.get(MdekKeys.SYS_LIST_KEY_PREFIX + syslistId);
+		Integer[] entryIds = (Integer[]) syslistDoc.get(MdekKeys.LST_ENTRY_IDS);
+		String[] entryNames_de = (String[]) syslistDoc.get(MdekKeys.LST_ENTRY_NAMES_DE);
+
+		System.out.println("- remove entry 49");
+		ArrayList<Integer> idList = new ArrayList<Integer>(Arrays.asList(entryIds));
+		ArrayList<String> nameList_de = new ArrayList<String>(Arrays.asList(entryNames_de));
+		int index = idList.indexOf(49);
+		idList.remove(index);
+		String removedName = nameList_de.get(index);
+		nameList_de.remove(index);
+		System.out.println("- change entry 35");
+		index = idList.indexOf(35);
+		String changedNameOrig = nameList_de.get(index);
+		String changedName = "MM UPDATED ENTRY !";
+		nameList_de.set(index, changedName);	
+		supertool.storeSysList(syslistId, true, null,
+				idList.toArray(new Integer[idList.size()]),
+				nameList_de.toArray(new String[nameList_de.size()]),
+				null);
+
+		System.out.println("\n----- verify: changed Syslist LEGIST(1350) -----");
+		doc = supertool.getSysLists(new Integer[] { syslistId }, null);
+
+		System.out.println("\n----- verify: query Index FORMER syslist values ! -> ALL THERE -----");
+		supertool.queryObjectsFullText(removedName, 0, 5);
+		supertool.queryObjectsFullText(changedNameOrig, 0, 5);
+
+		System.out.println("\n----- verify: query Index NEW syslist values ! -> NOT THERE -----");
+		supertool.queryObjectsFullText(changedName, 0, 5);
+
+		System.out.println("\n----- fetch and store 1. Object -> new syslist entries: empty and changed syslist entry ! -----");
+		doc = supertool.fetchObject(newObjStoredUuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.storeObject(doc, true);
+
+		System.out.println("\n----- fetch 2. Object -> still old wrong values ! -----");
+		doc = supertool.fetchObject(newObjStoredUuid2, FetchQuantity.EDITOR_ENTITY);
+
+		System.out.println("\n----- start REBUILD job -----");
+		try {
+			// causes timeout
+			supertool.rebuildSyslistData();
+
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.REBUILD_SYSLISTS);
+				supertool.sleep(3000);
+			}
+		}
+
+		System.out.println("\n----- verify: query Index FORMER syslist VALUES ! -> NOT THERE OR entities with DIFFERENT syslist entry with same content (+ §42) -----");
+		supertool.queryObjectsFullText(removedName, 0, 5);
+		supertool.queryObjectsFullText(changedNameOrig, 0, 5);
+
+		System.out.println("\n----- verify: query Index NEW syslist values ! -> ALL THERE -----");
+		supertool.queryObjectsFullText(changedName, 0, 5);
+
+		System.out.println("\n----- fetch 2. Object -> new syslist entries: empty and changed syslist entry ! -----");
+		doc = supertool.fetchObject(newObjStoredUuid, FetchQuantity.EDITOR_ENTITY);
+
+		System.out.println("\n----- Clean Up -----");
+		supertool.deleteObject(newObjStoredUuid, true);
+		supertool.deleteObject(newObjStoredUuid2, true);
+		supertool.storeSysList(syslistId, true, null,
+				entryIds,
+				entryNames_de,
+				null);
 
 // -----------------------------------
 
@@ -422,7 +519,7 @@ class MdekExampleCatalogThread extends Thread {
 		String uuidSubaddress = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- STORE 'ADDRESS to replace with'. NOTICE: 'Address to replace' is RESPONSIBLE USER -----");
-		IngridDocument newDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		newDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		newDoc.put(MdekKeys.ORGANISATION, "testADDRESS_TO_REPLACE_WITH");
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
@@ -449,7 +546,7 @@ class MdekExampleCatalogThread extends Thread {
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		newDoc.put(MdekKeys.RESPONSIBLE_USER, doc);
 		doc = supertool.storeObject(newDoc, true);
-		String newObjStoredUuid = (String) doc.get(MdekKeys.UUID);
+		newObjStoredUuid = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- PUBLISH 2. new Object where 'Address to replace' is AUSKUNFT, ANBIETER and RESPONSIBLE USER -----");
 		newDoc = supertool.newObjectDoc(null);

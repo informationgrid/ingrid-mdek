@@ -58,9 +58,7 @@ public class MdekErrorHandler {
 			// do nothing, we already have an identified error !
 			
 		} else  {
-//			if (LOG.isDebugEnabled()) {
-				LOG.warn("EXCEPTION: " + excIn);
-//			}
+			LOG.error("EXCEPTION: " + excIn);
 
 			if (excIn instanceof StaleStateException) {
 				// database version is different, someone else changed entity

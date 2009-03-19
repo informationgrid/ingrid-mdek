@@ -11,6 +11,7 @@ import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -587,16 +588,17 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument getImportInfo() {
+	public IngridDocument getJobInfo(JobType jobType) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getImportInfo ######");
+		System.out.println("\n###### INVOKE getJobInfo ######");
+		System.out.println("- jobType: " + jobType);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getImportInfo(plugId, myUserUuid);
+		response = mdekCallerCatalog.getJobInfo(plugId, jobType, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -851,6 +853,30 @@ public class MdekExampleSupertoolCatalog {
 			Integer numReplaced = (Integer) result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
 			System.out.println("SUCCESS: " + numReplaced + " free entries replaced with syslist entry");
 			
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument rebuildSyslistData() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE rebuildSyslistData ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.rebuildSyslistData(plugId, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
 		} else {
 			supertoolGeneric.handleError(response);
 		}

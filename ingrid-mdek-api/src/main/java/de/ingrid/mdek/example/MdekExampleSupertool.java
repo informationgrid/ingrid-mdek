@@ -28,6 +28,7 @@ import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -162,8 +163,8 @@ public class MdekExampleSupertool {
 				objectImportNodeUuid, addressImportNodeUuid,
 				publishImmediately, doSeparateImport);
 	}
-	public IngridDocument getImportInfo() {
-		return supertoolCatalog.getImportInfo();
+	public IngridDocument getJobInfo(JobType jobType) {
+		return supertoolCatalog.getJobInfo(jobType);
 	}
 
 	public IngridDocument analyze() {
@@ -198,6 +199,10 @@ public class MdekExampleSupertool {
 			MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName) {
 		return supertoolCatalog.replaceFreeEntryWithSyslistEntry(freeEntry,
 				sysLst, sysLstEntryId, sysLstEntryName);
+	}
+
+	public IngridDocument rebuildSyslistData() {
+		return supertoolCatalog.rebuildSyslistData();
 	}
 	
 	// MdekExampleSupertoolSecurity FACADE !

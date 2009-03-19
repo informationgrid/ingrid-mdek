@@ -17,6 +17,7 @@ import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleExportImportAddress {
@@ -333,7 +334,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 			// if timeout, track running job info (still exporting) !
 			for (int i=0; i<2; i++) {
 				// extracted from running job info IN MEMORY if still running
-				supertool.getImportInfo();				
+				supertool.getJobInfo(JobType.IMPORT);
 				// also outputs running job info
 				if (!supertool.hasRunningJob()) {
 					break;
@@ -349,7 +350,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		}
 
 		System.out.println("\n----- last Import Info from DATABASE because no running job ! -----");
-		supertool.getImportInfo();				
+		supertool.getJobInfo(JobType.IMPORT);				
 
 // -----------------------------------
 

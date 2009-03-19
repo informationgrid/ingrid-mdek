@@ -66,6 +66,9 @@ public class MdekKeys {
     /** Kind of csv data to fetch<br>
      *  Value: MdekUtils.CsvRequestType Enumeration const */
     public final static String REQUESTINFO_CSV_REQUEST_TYPE = "requestinfo_csvRequestType";
+    /** Kind of Job Info to fetch<br>
+     *  Value: IJob.JobType Enumeration const */
+    public final static String REQUESTINFO_JOB_TYPE = "requestinfo_jobType";
 
 
     /** Value: String */
@@ -113,6 +116,15 @@ public class MdekKeys {
     public final static String JOBINFO_NUM_ADDRESSES = "jobinfo-num-addresses";
     /** Value: Integer */
     public final static String JOBINFO_TOTAL_NUM_ADDRESSES = "jobinfo-total-num-addresses";
+    /** Type of Entity to process, , e.g. used for tracking entities in rebuild process !<br> !<br> 
+     * Value: String */
+    public final static String JOBINFO_ENTITY_TYPE = "jobinfo-entity-type";
+    /** Number of arbitrary entities processed (type in MdekKeys.JOBINFO_ENTITY_TYPE), e.g. used for tracking entities in rebuild process !<br> !<br> 
+     * Value: Integer */
+    public final static String JOBINFO_NUM_ENTITIES = "jobinfo-num-entities";
+    /** Total num of arbitrary entities to process (type in MdekKeys.JOBINFO_ENTITY_TYPE), e.g. used for tracking entities in rebuild process !<br>
+     * Value: Integer */
+    public final static String JOBINFO_TOTAL_NUM_ENTITIES = "jobinfo-total-num-entities";
     /** Value: String */
     public final static String JOBINFO_MESSAGES = "jobinfo-messages";
     /** Value: Exception */
@@ -421,8 +433,8 @@ public class MdekKeys {
     /** Type of Job which is running on server (database value of JobType enum)<br>
      *  Value: String */
     public final static String RUNNINGJOB_TYPE = "runningjob-type";
-    /** Which type of entity is processed (object or address)<br>
-     *  Value: MdekUtils.IdcEntityType Enumeration const */
+    /** Which type of entity is processed (object, address, ...)<br>
+     *  Value: String */
     public final static String RUNNINGJOB_ENTITY_TYPE = "runningjob-entity-type";
     /** Additional info: How many entities already processed ?<br>
      *  Value: Integer */

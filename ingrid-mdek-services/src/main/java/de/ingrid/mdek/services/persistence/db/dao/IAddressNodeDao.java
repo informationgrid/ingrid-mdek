@@ -249,4 +249,10 @@ public interface IAddressNodeDao
 	IngridDocument getAddressStatistics(String parentUuid, boolean onlyFreeAddresses,
 			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits);
+
+	/** Get ALL Address Node UUIDs (distinct) */
+	List<String> getAllAddressUuids();
+
+	/** Get AddressNode with prefetched data for generating Index !!! */
+	AddressNode getAddressForIndex(String uuid);
 }

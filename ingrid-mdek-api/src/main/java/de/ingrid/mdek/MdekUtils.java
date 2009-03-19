@@ -127,10 +127,18 @@ public class MdekUtils {
 		Integer dbValue;
 	}
 
-	/** Type of entities */
-	public enum IdcEntityType {
-		OBJECT,
-		ADDRESS;
+	/** Type of entities. NOT STORED IN DATABASE !
+	 * But implemented as IMdekEnum so we can use String (for arbitrary entities) and Enum for checking ! */
+	public enum IdcEntityType implements IMdekEnum  {
+		OBJECT("Object"),
+		ADDRESS("Address");
+		IdcEntityType(String entityName) {
+			this.entityName = entityName;
+		}
+		public String getDbValue() {
+			return entityName;
+		}
+		String entityName;
 	}
 
 	/** Different versions of IDC entities */

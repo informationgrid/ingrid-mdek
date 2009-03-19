@@ -29,7 +29,6 @@ import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
@@ -267,12 +266,6 @@ public class MdekImportService implements IImporterCallback {
 
 	// ----------------------------------- IImporterCallback END ------------------------------------
 
-	/** Returns "logged" Import job information IN DATABASE.
-	 * NOTICE: returns EMPTY HashMap if no job info ! */
-	public HashMap getImportJobInfoDB(String userUuid) {
-		SysJobInfo jobInfo = jobHandler.getJobInfoDB(JobType.IMPORT, userUuid);
-		return jobHandler.mapJobInfoDB(jobInfo);
-	}
 	/** "logs" Start-Info of Import job IN MEMORY and IN DATABASE */
 	public void startImportJobInfo(String userUuid) {
 		String startTime = MdekUtils.dateToTimestamp(new Date());
@@ -291,7 +284,7 @@ public class MdekImportService implements IImporterCallback {
 			String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid,
-				jobHandler.createRunningJobDescription(JobType.IMPORT, whichType, numImported, totalNum, false));
+				jobHandler.createRunningJobDescription(JobType.IMPORT, whichType.getDbValue(), numImported, totalNum, false));
 
 		// then update job info in database
 		// NO, only in memory and write at end because of performance issues !
@@ -320,7 +313,6 @@ public class MdekImportService implements IImporterCallback {
 	 * NOTICE: at job runtime we store all info in memory (running job info) and persist it now !
 	 * @param userUuid calling user
 	 */
-	/** "logs" End-Info in Import information IN DATABASE */
 	public void endImportJobInfo(String userUuid) {
 		// get running job info (in memory)
 		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);

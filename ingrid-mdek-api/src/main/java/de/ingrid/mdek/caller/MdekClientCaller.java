@@ -260,6 +260,7 @@ public class MdekClientCaller implements IMdekClientCaller {
 		IngridDocument registerDocument = new IngridDocument();
 		registerDocument.put(IJobRepository.JOB_ID, jobId);
 		registerDocument.put(IJobRepository.JOB_DESCRIPTION, jobXml);
+		// ALWAYS PERSIST, will be loaded from persistent XML at startup, otherwise job not registered !
 		registerDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
 		IJobRepositoryFacade jobRepo = getJobRepo(plugId);

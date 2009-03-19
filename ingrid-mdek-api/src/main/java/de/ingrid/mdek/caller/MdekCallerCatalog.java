@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -211,17 +212,11 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);		
 	}
 
-	public IngridDocument getImportInfo(String plugId, String userId) {
+	public IngridDocument getJobInfo(String plugId, JobType jobType, String userId) {
 		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_JOB_TYPE, jobType);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getImportInfo", jobParams);
-		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
-	}
-
-	public IngridDocument getURLInfo(String plugId, String userId) {
-		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getURLInfo", jobParams);
+		List jobMethods = setUpJobMethod("getJobInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -328,6 +323,13 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.LST_ENTRY_NAMES_DE, new String[]{sysLstEntryName});
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("replaceFreeEntryWithSyslistEntry", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument rebuildSyslistData(String plugId, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("rebuildSyslistData", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 }

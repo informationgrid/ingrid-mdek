@@ -28,7 +28,6 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
@@ -568,12 +567,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		if (MdekSysList.FREE_ENTRY.getDbValue().equals(sysListEntryId)) {
 			retValue = freeValue;
 		} else {
-			String catalogLanguage = catalogService.getCatalogLanguage();
-			// TODO: cache syslists in Ehcache
-			SysList listEntry = daoSysList.getSysListEntry(sysList.getDbValue(), sysListEntryId, catalogLanguage);
-			if (listEntry != null) {
-				retValue = listEntry.getName();
-			}
+			retValue = catalogService.getSysListEntryName(sysList.getDbValue(), sysListEntryId);
 		}
 		
 		return retValue;
