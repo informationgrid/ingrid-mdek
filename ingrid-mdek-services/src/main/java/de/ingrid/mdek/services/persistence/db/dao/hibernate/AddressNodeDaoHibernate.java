@@ -1475,10 +1475,18 @@ public class AddressNodeDaoHibernate
 	public AddressNode getAddressForIndex(String uuid) {
 		Session session = getSession();
 
+		// NOTICE:
+		// WE MAY NOT FETCH ASSOCIATIONS WITH LINE ATTRIBUTES which are ordered by SQL ("order-by" in mapping) !
+		// These order by in SQL is extreme time consuming when fetching huge data sets !
+
 		String q = "from AddressNode aNode " +
 			"left join fetch aNode.t02AddressWork a " +			
 			"left join fetch a.addressComments " +
-			"left join fetch a.searchtermAdrs " +
+
+			"left join fetch a.searchtermAdrs aTerm " +
+			"left join fetch aTerm.searchtermValue termVal " +
+			"left join fetch termVal.searchtermSns " +
+
 			"left join fetch a.t021Communications " +
 			"where aNode.addrUuid = ?";
 		
