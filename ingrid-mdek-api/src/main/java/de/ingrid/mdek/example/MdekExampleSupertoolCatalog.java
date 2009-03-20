@@ -7,6 +7,7 @@ import java.util.Set;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -157,7 +158,7 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getSysLists ######");
-		System.out.println("- listIds: " + listIds);
+		supertoolGeneric.debugArray(listIds, "- listIds: ");
 		System.out.println("- language: " + language);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getSysLists(plugId, listIds, language, myUserUuid);
@@ -208,9 +209,9 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("- listId: " + listId);
 		System.out.println("- maintainable: " + maintainable);
 		System.out.println("- index of defaultEntry: " + defaultEntryIndex);
-		System.out.println("- entryIds: " + entryIds);
-		System.out.println("- entryNames_de: " + entryNames_de);
-		System.out.println("- entryNames_en: " + entryNames_en);
+		supertoolGeneric.debugArray(entryIds, "- entryIds: ");
+		supertoolGeneric.debugArray(entryNames_de, "- entryNames_de: ");
+		supertoolGeneric.debugArray(entryNames_en, "- entryNames_en: ");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.storeSysList(plugId,
 				listId, maintainable, defaultEntryIndex,
@@ -239,7 +240,7 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getSysAdditionalFields ######");
-		System.out.println("- requested fieldIds: " + fieldIds);
+		supertoolGeneric.debugArray(fieldIds, "- requested fieldIds: ");
 		System.out.println("- requested language code: " + languageCode);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getSysAdditionalFields(plugId, fieldIds, languageCode, myUserUuid);
@@ -310,7 +311,7 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getSysGuis ######");
-		System.out.println("- requested guiIds: " + guiIds);
+		supertoolGeneric.debugArray(guiIds, "- requested guiIds: ");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getSysGuis(plugId, guiIds, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -378,7 +379,7 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE getSysGenericKeys ######");
-		System.out.println("- requested keyNames: " + keyNames);
+		supertoolGeneric.debugArray(keyNames, "- requested keyNames: ");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.getSysGenericKeys(plugId, keyNames, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -411,6 +412,8 @@ public class MdekExampleSupertoolCatalog {
 		IngridDocument result;
 
 		System.out.println("\n###### INVOKE storeSysGenericKeys ######");
+		supertoolGeneric.debugArray(keyNames, "- keyNames: ");
+		supertoolGeneric.debugArray(keyValues, "- keyValues: ");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.storeSysGenericKeys(plugId, keyNames, keyValues, myUserUuid);
 		endTime = System.currentTimeMillis();
@@ -877,6 +880,39 @@ public class MdekExampleSupertoolCatalog {
 		if (result != null) {
 			System.out.println("SUCCESS: ");
 			System.out.println(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getSearchTerms(SearchtermType[] termTypes) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getSearchTerms ######");
+		supertoolGeneric.debugArray(termTypes, "- termTypes: ");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getSearchTerms(plugId, termTypes, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			List<IngridDocument> termDocs = (List<IngridDocument>) result.get(MdekKeys.SUBJECT_TERMS);
+			System.out.println("SUCCESS: " + termDocs.size() + " searchterms");
+			int cnt = 0;
+			for (IngridDocument termDoc : termDocs) {
+				System.out.println("  " + termDoc);
+				cnt++;
+				if (cnt > 4) break;
+			}
+			System.out.println("  ...");
+			
 		} else {
 			supertoolGeneric.handleError(response);
 		}

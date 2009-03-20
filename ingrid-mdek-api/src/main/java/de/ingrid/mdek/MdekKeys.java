@@ -69,6 +69,9 @@ public class MdekKeys {
     /** Kind of Job Info to fetch<br>
      *  Value: IJob.JobType Enumeration const */
     public final static String REQUESTINFO_JOB_TYPE = "requestinfo_jobType";
+    /** What type of SearchTerms to fetch<br>
+     *  Value: Array of MdekUtils.SearchtermType Enumeration consts */
+    public final static String REQUESTINFO_SEARCHTERM_TYPES = "requestinfo_searchtermTypes";
 
 
     /** Value: String */

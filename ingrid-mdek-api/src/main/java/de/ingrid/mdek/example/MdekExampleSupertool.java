@@ -21,6 +21,7 @@ import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekClientCaller;
@@ -166,43 +167,37 @@ public class MdekExampleSupertool {
 	public IngridDocument getJobInfo(JobType jobType) {
 		return supertoolCatalog.getJobInfo(jobType);
 	}
-
 	public IngridDocument analyze() {
 		return supertoolCatalog.analyze();
 	}
-	
 	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid, Integer maxNum) {
 		return supertoolCatalog.getObjectsOfAuskunftAddress(auskunftAddressUuid, maxNum);
 	}
-	
 	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		return supertoolCatalog.getObjectsOfResponsibleUser(responsibleUserUuid, maxNum);
 	}
-	
 	public IngridDocument getAddressesOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		return supertoolCatalog.getAddressesOfResponsibleUser(responsibleUserUuid, maxNum);
 	}
-	
 	public IngridDocument replaceAddress(String oldUuid, String newUuid) {
 		return supertoolCatalog.replaceAddress(oldUuid, newUuid);
 	}
-	
 	public void getCsvData(CsvRequestType csvType, String uuid) {
 		supertoolCatalog.getCsvData(csvType, uuid);
 	}
-	
 	public IngridDocument getFreeListEntries(MdekSysList sysLst) {
 		return supertoolCatalog.getFreeListEntries(sysLst);
 	}
-	
 	public IngridDocument replaceFreeEntryWithSyslistEntry(String freeEntry,
 			MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName) {
 		return supertoolCatalog.replaceFreeEntryWithSyslistEntry(freeEntry,
 				sysLst, sysLstEntryId, sysLstEntryName);
 	}
-
 	public IngridDocument rebuildSyslistData() {
 		return supertoolCatalog.rebuildSyslistData();
+	}
+	public IngridDocument getSearchTerms(SearchtermType[] termTypes) {
+		return supertoolCatalog.getSearchTerms(termTypes);
 	}
 	
 	// MdekExampleSupertoolSecurity FACADE !
@@ -1173,6 +1168,17 @@ public class MdekExampleSupertool {
 			System.out.println("JobInfo Exception !:" + jobExc);
 			printThrowable(jobExc);
 		}
+	}
+	public void debugArray(Object[] params, String label) {
+		System.out.print(label);
+		if (params != null) {
+			for (Object param : params) {
+				System.out.print(param + ", ");
+			}
+		} else {
+			System.out.print(params);
+		}
+		System.out.println();
 	}
 
 	public void handleError(IngridDocument response) {

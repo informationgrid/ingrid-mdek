@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
@@ -288,9 +289,12 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 			String uuid, String userId);
 
 	/**
-	 * Get all free entries of entities where given syslist is used.
+	 * Get all free entries of entities where given syslist is used, e.g. if passed
+	 * syslist is MdekSysList.LEGIST then all free entries in entity T015Legist
+	 * are returned (distinct). NOTICE: only works for subset of syslists (not all implemented) !!!
 	 * @param sysLst specifies syslist and according entity(ies) where syslist is used ! 
-	 * @return response containing result: distinct free entries (strings)
+	 * @return response containing result: distinct free entries (strings) or empty list OR NULL !
+	 * 		NULL means backend functionality for passed list NOT IMPLEMENTED yet !
 	 */
 	IngridDocument getFreeListEntries(String plugId, MdekSysList sysLst, String userId);
 
@@ -310,4 +314,11 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: map containing rebuild information
 	 */
 	IngridDocument rebuildSyslistData(String plugId, String userId);
+
+	/**
+	 * Get search terms (distinct!) of requested type.
+	 * @param termTypes pass the types of terms to fetch. Pass null or empty array if all types !
+	 * @return response containing result: distinct searchterms accessable via MdekKeys.SUBJECT_TERMS
+	 */
+	IngridDocument getSearchTerms(String plugId, SearchtermType[] termTypes, String userId);
 }

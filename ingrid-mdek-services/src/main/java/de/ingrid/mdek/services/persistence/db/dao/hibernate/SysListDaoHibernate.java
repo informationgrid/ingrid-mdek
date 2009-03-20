@@ -58,7 +58,8 @@ public class SysListDaoHibernate
 	public List<String> getFreeListEntries(MdekSysList sysLst) {
 		Session session = getSession();
 
-		List<String> freeEntries = new ArrayList<String>();
+		// return NULL if passed list not implemented yet !
+		List<String> freeEntries = null;
 
 		if (sysLst == MdekSysList.LEGIST) {
 			String hql = "select distinct legistValue from T015Legist " +

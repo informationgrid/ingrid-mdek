@@ -1,6 +1,9 @@
 package de.ingrid.mdek.services.persistence.db.dao;
 
+import java.util.List;
+
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
@@ -27,4 +30,11 @@ public interface ISearchtermValueDao
 	SearchtermValue loadOrCreate(String type, String term, Integer entryId,
 		SearchtermSns termSns,
 		Long entityId, IdcEntityType entityType);
+
+	/** get searchterms of given type(s).
+	 * @param types pass types to fetch. Pass null or empty array if all types !
+	 * @return list of searchterms.
+	 * 		NOTICE: NOT distinct, e.g. same free searchterms exist multiple times !
+	 */
+	List<SearchtermValue> getSearchtermValues(SearchtermType[] types);
 }

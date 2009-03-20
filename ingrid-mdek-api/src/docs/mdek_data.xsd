@@ -259,6 +259,8 @@
 			<xs:element name="requestinfo_csvRequestType" type="xs:integer"/>
 			<!-- kind of Job Info to fetch, pass IJob.JobType Enumeration const -->
 			<xs:element name="requestinfo_jobType" type="xs:integer"/>
+			<!-- kind of SearchTerms to fetch, pass Array of MdekUtils.SearchtermType Enumeration consts -->
+			<xs:element name="requestinfo_searchtermTypes" type="INTEGER_ARRAY"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_SYS_MAP">

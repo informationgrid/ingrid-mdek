@@ -3,6 +3,7 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +20,7 @@ import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
@@ -31,12 +33,14 @@ import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
@@ -75,6 +79,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private ISysListDao daoSysList;
 	private IHQLDao daoHQL;
 	private IT08AttrTypeDao daoT08AttrType;
+	private ISearchtermValueDao daoSearchtermValue;
 
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
@@ -97,6 +102,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoSysList = daoFactory.getSysListDao();
 		daoHQL = daoFactory.getHQLDao();
 		daoT08AttrType = daoFactory.getT08AttrTypeDao();
+		daoSearchtermValue = daoFactory.getSearchtermValueDao();
 	}
 
 	public IngridDocument getCatalog(IngridDocument params) {
@@ -1277,6 +1283,44 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
 			}
+		}
+	}
+
+	public IngridDocument getSearchTerms(IngridDocument params) {
+		try {
+			SearchtermType[] termTypes = (SearchtermType[]) params.get(MdekKeys.REQUESTINFO_SEARCHTERM_TYPES);
+
+			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
+
+			// get all searchterms
+			List<SearchtermValue> terms = daoSearchtermValue.getSearchtermValues(termTypes);
+
+			// set up result, filter duplicates
+			Set<String> filterSet = new HashSet<String>();
+			List<SearchtermValue> resultTerms = new ArrayList<SearchtermValue>();
+
+			for (SearchtermValue term : terms) {
+				String termKey = (term.getType() +
+					term.getSearchtermSnsId() +
+					term.getTerm() +
+					term.getEntryId()).toLowerCase();
+				if (!filterSet.contains(termKey)) {
+					filterSet.add(termKey);
+					// add new Term
+					resultTerms.add(term);
+				}
+			}
+			IngridDocument result =
+				beanToDocMapper.mapSearchtermValues(resultTerms, new IngridDocument());
+			
+			genericDao.commitTransaction();
+
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
 		}
 	}
 }

@@ -171,4 +171,23 @@ public class SearchtermValueDaoHibernate
 		
 		return termValue;
 	}
+
+	public List<SearchtermValue> getSearchtermValues(SearchtermType[] types) {
+		if (types == null) {
+			types = new SearchtermType[0];
+		}
+
+		Session session = getSession();
+
+		String q = "from SearchtermValue termVal " +
+			"left join fetch termVal.searchtermSns ";
+
+		String hqlToken = "where ";
+		for (SearchtermType type : types) {
+			q += hqlToken + "termVal.type = '" + type.getDbValue() + "' ";
+			hqlToken = "OR ";
+		}
+		
+		return  session.createQuery(q).list();
+	}
 }

@@ -15,11 +15,11 @@ import de.ingrid.mdek.MdekUtils.AdditionalFieldType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
-import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleCatalog {
@@ -274,8 +274,9 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getSysLists(new Integer[] { 815 }, null);
 
 
-		System.out.println("\n=========================");
+		System.out.println("\n\n=========================");
 		System.out.println("SYSLISTS REBUILD !");
+		System.out.println("=========================");
 
 		System.out.println("\n----- STORE 1. new Object with syslist LEGIST(1350) entries -----");
 		IngridDocument newDoc = supertool.newObjectDoc(null);
@@ -338,6 +339,8 @@ class MdekExampleCatalogThread extends Thread {
 		doc = supertool.fetchObject(newObjStoredUuid2, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- start REBUILD job -----");
+		System.out.println("NO TAKES TOOOO LONG !!! UNCOMMENT IF NEEDED !!!!!");
+/*
 		try {
 			// causes timeout
 			supertool.rebuildSyslistData();
@@ -350,7 +353,7 @@ class MdekExampleCatalogThread extends Thread {
 				supertool.sleep(3000);
 			}
 		}
-
+*/
 		System.out.println("\n----- verify: query Index FORMER syslist VALUES ! -> NOT THERE OR entities with DIFFERENT syslist entry with same content (+ §42) -----");
 		supertool.queryObjectsFullText(removedName, 0, 5);
 		supertool.queryObjectsFullText(changedNameOrig, 0, 5);
@@ -646,6 +649,20 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- get free list entries (former entry missing, was replaced !) -----");
 		supertool.getFreeListEntries(MdekSysList.LEGIST);
+
+// -----------------------------------
+		
+		System.out.println("\n\n=========================");
+		System.out.println("SNS Update");
+		System.out.println("=========================");
+
+		System.out.println("\n----- validate: get searchterms of different type(s) -----");
+		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.FREI });
+		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.GEMET });
+		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.UMTHES });
+		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.INSPIRE });
+		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.INSPIRE, SearchtermType.UMTHES });
+		supertool.getSearchTerms(null);
 
 // ===================================
 

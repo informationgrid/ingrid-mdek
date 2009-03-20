@@ -1247,6 +1247,23 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	public IngridDocument mapSearchtermValues(List<SearchtermValue> termValues, IngridDocument inDoc) {
+		if (termValues == null) {
+			return inDoc;
+		}
+
+		ArrayList<IngridDocument> termDocs = new ArrayList<IngridDocument>();
+		for (SearchtermValue termValue : termValues) {
+			IngridDocument termDoc = mapSearchtermValue(termValue, new IngridDocument());
+			mapSearchtermSns(termValue.getSearchtermSns(), termDoc);
+
+			termDocs.add(termDoc);
+		}
+		inDoc.put(MdekKeys.SUBJECT_TERMS, termDocs);
+		
+		return inDoc;
+	}
+
 	private IngridDocument mapSearchtermValue(SearchtermValue ref, IngridDocument refDoc) {
 		if (ref == null) {
 			return refDoc;
