@@ -1,5 +1,7 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -144,5 +146,28 @@ public class SpatialRefValueDaoHibernate
 		}
 		
 		return spRefValue;
+	}
+
+	public List<SpatialRefValue> getSpatialReferences(SpatialReferenceType[] types) {
+		if (types == null) {
+			types = new SpatialReferenceType[0];
+		}
+
+		Session session = getSession();
+
+		String q = "from SpatialRefValue spRefVal " +
+			"left join fetch spRefVal.spatialRefSns spRefSns " +
+			"where spRefSns.expiredAt is null ";
+
+		String hqlToken = "and ( ";
+		for (SpatialReferenceType type : types) {
+			q += hqlToken + "spRefVal.type = '" + type.getDbValue() + "' ";
+			hqlToken = "OR ";
+		}
+		if (hqlToken.equals("OR ")) {
+			q += ")";
+		}
+		
+		return  session.createQuery(q).list();
 	}
 }

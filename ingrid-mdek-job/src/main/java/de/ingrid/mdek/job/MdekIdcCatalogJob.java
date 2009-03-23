@@ -21,6 +21,7 @@ import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
@@ -34,6 +35,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
@@ -41,6 +43,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
+import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
@@ -80,6 +83,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private IHQLDao daoHQL;
 	private IT08AttrTypeDao daoT08AttrType;
 	private ISearchtermValueDao daoSearchtermValue;
+	private ISpatialRefValueDao daoSpatialRefValue;
 
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
@@ -103,6 +107,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoHQL = daoFactory.getHQLDao();
 		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
+		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 	}
 
 	public IngridDocument getCatalog(IngridDocument params) {
@@ -1288,12 +1293,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 	public IngridDocument getSearchTerms(IngridDocument params) {
 		try {
-			SearchtermType[] termTypes = (SearchtermType[]) params.get(MdekKeys.REQUESTINFO_SEARCHTERM_TYPES);
+			SearchtermType[] termTypes = (SearchtermType[]) params.get(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY);
 
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
 
-			// get all searchterms
+			// get all searchterms of passed type(s)
 			List<SearchtermValue> terms = daoSearchtermValue.getSearchtermValues(termTypes);
 
 			// set up result, filter duplicates
@@ -1313,6 +1318,45 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 			IngridDocument result =
 				beanToDocMapper.mapSearchtermValues(resultTerms, new IngridDocument());
+			
+			genericDao.commitTransaction();
+
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
+	public IngridDocument getSpatialReferences(IngridDocument params) {
+		try {
+			SpatialReferenceType[] spatialRefTypes =
+				(SpatialReferenceType[]) params.get(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY);
+
+			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
+
+			// get all locations of passed type(s)
+			List<SpatialRefValue> spatialRefValues = daoSpatialRefValue.getSpatialReferences(spatialRefTypes);
+
+			// set up result, filter duplicates
+			Set<String> filterSet = new HashSet<String>();
+			List<SpatialRefValue> resultRefValues = new ArrayList<SpatialRefValue>();
+
+			for (SpatialRefValue refValue : spatialRefValues) {
+				String refKey = (refValue.getType() +
+					refValue.getSpatialRefSnsId() +
+					refValue.getNameKey() +
+					refValue.getNameValue()).toLowerCase();
+				if (!filterSet.contains(refKey)) {
+					filterSet.add(refKey);
+					// add new location
+					resultRefValues.add(refValue);
+				}
+			}
+			IngridDocument result =
+				beanToDocMapper.mapSpatialRefValues(resultRefValues, new IngridDocument());
 			
 			genericDao.commitTransaction();
 

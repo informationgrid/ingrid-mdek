@@ -16,6 +16,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -663,6 +664,12 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.INSPIRE });
 		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.INSPIRE, SearchtermType.UMTHES });
 		supertool.getSearchTerms(null);
+
+		System.out.println("\n----- validate: get spatial references different type(s) -----");
+		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.FREI });
+		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.GEO_THESAURUS });
+		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.GEO_THESAURUS, SpatialReferenceType.FREI });
+		supertool.getSpatialReferences(null);
 
 // ===================================
 

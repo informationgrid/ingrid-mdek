@@ -8,6 +8,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -908,6 +909,39 @@ public class MdekExampleSupertoolCatalog {
 			int cnt = 0;
 			for (IngridDocument termDoc : termDocs) {
 				System.out.println("  " + termDoc);
+				cnt++;
+				if (cnt > 4) break;
+			}
+			System.out.println("  ...");
+			
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getSpatialReferences(SpatialReferenceType[] refTypes) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getSpatialReferences ######");
+		supertoolGeneric.debugArray(refTypes, "- spatialRefTypes: ");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.getSpatialReferences(plugId, refTypes, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			List<IngridDocument> refDocs = (List<IngridDocument>) result.get(MdekKeys.LOCATIONS);
+			System.out.println("SUCCESS: " + refDocs.size() + " spatial references");
+			int cnt = 0;
+			for (IngridDocument refDoc : refDocs) {
+				System.out.println("  " + refDoc);
 				cnt++;
 				if (cnt > 4) break;
 			}

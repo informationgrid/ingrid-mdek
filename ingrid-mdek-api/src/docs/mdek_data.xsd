@@ -259,8 +259,9 @@
 			<xs:element name="requestinfo_csvRequestType" type="xs:integer"/>
 			<!-- kind of Job Info to fetch, pass IJob.JobType Enumeration const -->
 			<xs:element name="requestinfo_jobType" type="xs:integer"/>
-			<!-- kind of SearchTerms to fetch, pass Array of MdekUtils.SearchtermType Enumeration consts -->
-			<xs:element name="requestinfo_searchtermTypes" type="INTEGER_ARRAY"/>
+			<!-- Generic param for passing which types of an entity to fetch ? used for arbitrary entities.
+				Pass according Enumeration consts e.g. MdekUtils.SearchtermType or MdekUtils.SpatialReferenceType -->
+			<xs:element name="requestinfo_typesOfEntity" type="INTEGER_ARRAY"/>
 		</xs:all>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_SYS_MAP">

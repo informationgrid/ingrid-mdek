@@ -69,10 +69,10 @@ public class MdekKeys {
     /** Kind of Job Info to fetch<br>
      *  Value: IJob.JobType Enumeration const */
     public final static String REQUESTINFO_JOB_TYPE = "requestinfo_jobType";
-    /** What type of SearchTerms to fetch<br>
-     *  Value: Array of MdekUtils.SearchtermType Enumeration consts */
-    public final static String REQUESTINFO_SEARCHTERM_TYPES = "requestinfo_searchtermTypes";
-
+    /** Generic parameter determining which types of an entity to fetch ? used for arbitrary entities.
+     * Pass according Enumeration consts e.g. MdekUtils.SearchtermType or MdekUtils.SpatialReferenceType.
+     *  Value: Array of Enumeration consts dependent from Entity (e.g. MdekUtils.SearchtermType for searchterms) */
+    public final static String REQUESTINFO_TYPES_OF_ENTITY = "requestinfo_typesOfEntity";
 
     /** Value: String */
     public final static String LANGUAGE = "language";

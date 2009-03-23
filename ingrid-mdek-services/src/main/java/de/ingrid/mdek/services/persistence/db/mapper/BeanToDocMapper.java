@@ -856,6 +856,23 @@ public class BeanToDocMapper implements IMapper {
 		return commDoc;
 	}
 
+	public IngridDocument mapSpatialRefValues(List<SpatialRefValue> refValues, IngridDocument inDoc) {
+		if (refValues == null) {
+			return inDoc;
+		}
+
+		ArrayList<IngridDocument> refDocs = new ArrayList<IngridDocument>();
+		for (SpatialRefValue refValue : refValues) {
+			IngridDocument refDoc = mapSpatialRefValue(refValue, new IngridDocument());
+			mapSpatialRefSns(refValue.getSpatialRefSns(), refDoc);
+
+			refDocs.add(refDoc);
+		}
+		inDoc.put(MdekKeys.LOCATIONS, refDocs);
+		
+		return inDoc;
+	}
+
 	/**
 	 * Transfer data of passed bean to passed doc.
 	 * @return doc containing additional data.

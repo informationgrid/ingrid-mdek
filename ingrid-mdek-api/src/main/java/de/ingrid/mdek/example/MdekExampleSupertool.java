@@ -22,6 +22,7 @@ import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.caller.IMdekClientCaller;
@@ -198,6 +199,9 @@ public class MdekExampleSupertool {
 	}
 	public IngridDocument getSearchTerms(SearchtermType[] termTypes) {
 		return supertoolCatalog.getSearchTerms(termTypes);
+	}
+	public IngridDocument getSpatialReferences(SpatialReferenceType[] refTypes) {
+		return supertoolCatalog.getSpatialReferences(refTypes);
 	}
 	
 	// MdekExampleSupertoolSecurity FACADE !

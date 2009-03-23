@@ -8,6 +8,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
@@ -334,12 +335,19 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-
 	public IngridDocument getSearchTerms(String plugId, SearchtermType[] termTypes, String userId) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.REQUESTINFO_SEARCHTERM_TYPES, termTypes);
+		jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, termTypes);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getSearchTerms", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
+	public IngridDocument getSpatialReferences(String plugId, SpatialReferenceType[] spatialRefTypes, String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, spatialRefTypes);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("getSpatialReferences", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
@@ -321,4 +322,11 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: distinct searchterms accessable via MdekKeys.SUBJECT_TERMS
 	 */
 	IngridDocument getSearchTerms(String plugId, SearchtermType[] termTypes, String userId);
+
+	/**
+	 * Get NON EXPIRED spatial references (distinct!) of requested type.
+	 * @param spatialRefTypes types of spatial references to fetch. Pass null or empty array if all types !
+	 * @return response containing result: distinct spatial references accessable via MdekKeys.LOCATIONS
+	 */
+	IngridDocument getSpatialReferences(String plugId, SpatialReferenceType[] spatialRefTypes, String userId);
 }
