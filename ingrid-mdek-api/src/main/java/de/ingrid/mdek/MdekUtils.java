@@ -26,17 +26,23 @@ public class MdekUtils {
 	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 	private final static SimpleDateFormat displayDateTimeFormatter = new SimpleDateFormat("dd.MM.yyyy/HH:mm");
 
+	/** Entry IDs in syslist OBJ_SERV_TYPE (5100) */
 	public final static Integer OBJ_SERV_TYPE_CSW = 1;
 	public final static Integer OBJ_SERV_TYPE_WMS = 2;
 	public final static Integer OBJ_SERV_TYPE_WFS = 3;
 	public final static Integer OBJ_SERV_TYPE_WCTS = 4;
 
+	/** Entry ID of AUSKUNFT in syslist OBJ_ADR_TYPE (505) */
 	public final static Integer OBJ_ADR_TYPE_AUSKUNFT_ID = 7;
 
+	/** Entry ID of EMAIL in syslist COMM_TYPE (4430) */
 	public final static Integer COMM_TYPE_EMAIL = 3;
 
-	public final static String OBJ_CONFORMITY_SPECIFICATION_INSPIRE = "INSPIRE-Richtlinie";
+	/** Entry ID "nicht evaluiert" in syslist OBJ_CONFORMITY (6000) */
 	public final static Integer OBJ_CONFORMITY_NOT_EVALUATED = 3;
+	/** INSPIRE-"Specification" String in ObjectConformity entity */
+	public final static String OBJ_CONFORMITY_SPECIFICATION_INSPIRE = "INSPIRE-Richtlinie";
+
 
 	public final static String YES = "Y";
 	public final static String NO = "N";
@@ -82,6 +88,7 @@ public class MdekUtils {
 		COMM_TYPE(4430, "T021Communication -> commtypeKey=entryId, commtypeValue=name"),
 		OBJ_CONFORMITY(6000, "ObjectConformity -> degreeKey=entryId, degreeValue=name"),
 		OBJ_ACCESS(6010, "ObjectAccess -> restrictionKey=entryId, restrictionValue=name"),
+		OBJ_TOPIC_CAT(527, "T011ObjTopicCat -> topicCategory=entryId"),
 		/** INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)");
 
