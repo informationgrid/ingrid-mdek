@@ -134,8 +134,12 @@ public class MdekKeys {
     public final static String JOBINFO_EXCEPTION = "jobinfo-exception";
 
     // SPECIFIC JOBINFO RESULT
-    /** Value: byte[] */
+    /** Export: exported zip file<br>
+     * Value: byte[] */
     public final static String EXPORT_RESULT = "export-result";
+    /** SNS Update: list of all updated terms to display in IGE<br>
+     *  Value: List< Map > */
+    public final static String JOBINFO_TERMS_UPDATED = "jobinfo-terms-updated";
 
 
     // VALIDATION JOB RESULT
@@ -172,7 +176,7 @@ public class MdekKeys {
     // ------
     // REQUEST
     /** Export list of IngridDocuments containing url references (specified by UUID and LINKAGE_URL)<br>
-     *  Value: List<IngridDocument> */
+     *  Value: List< IngridDocument > */
     public final static String REQUESTINFO_URL_LIST = "requestinfo_urlList";
     /** target url to which the source urls are changed <br>
      *  Value: String */
@@ -227,16 +231,16 @@ public class MdekKeys {
      * Value: Integer */
 	public static final String RELATION = "relation";
 	/** object classes for extended search querying objects<br>
-	/** Value: List of Integer */
+	/** Value: List< Integer > */
 	public static final String OBJ_CLASSES = "obj-classes";
     /** thesaurus for extended search querying objects (only the term-sns-id will be supplied)<br>
-	/** Value: List of IngridDocuments */
+	/** Value: List< IngridDocument > */
 	public static final Object THESAURUS_TERMS = "thesaurus-terms";
     /** relation (and = 0, or = 1) for thesaurus term relation for extended search querying objects<br>
      * Value: Integer */
 	public static final String THESAURUS_RELATION = "thesaurus-relation";
     /** geo thesaurus for extended search querying objects (only the term-sns-id will be supplied)<br>
-	/** Value: List of IngridDocuments */
+	/** Value: List< IngridDocument > */
 	public static final Object GEO_THESAURUS_TERMS = "geo-thesaurus-terms";
     /** relation (and = 0, or = 1) for geo thesaurus term relation for extended search querying objects<br>
      * Value: Integer */
@@ -274,7 +278,7 @@ public class MdekKeys {
     // STATISTICS
     // ----------
     // RESULT
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String STATISTICS_SEARCHTERM_LIST = "statistics-searchterm-list";
 
     // VERSIONING (read from properties file)
@@ -324,7 +328,7 @@ public class MdekKeys {
      * Value: String[] */
     public final static String LST_ENTRY_NAMES_EN = "lst-entry-names-en";
 
-    /** Free entries in entity of syslist.<br>
+    /** Free entries in entity of syslist, e.g. free entries in T015Legist if LEGIST syslist<br>
      * Value: String[] */
     public final static String LST_FREE_ENTRY_NAMES = "lst-free-entry-names";
 
@@ -332,7 +336,7 @@ public class MdekKeys {
     // ---------
     /** Value: String[] -> all ids of sysgui elements to fetch */
     public final static String SYS_GUI_IDS = "sys-gui-ids";
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String SYS_GUI_LIST = "sys-gui-list";
     /** Value: String */
     public final static String SYS_GUI_ID = "sys-gui-id";
@@ -350,7 +354,7 @@ public class MdekKeys {
     // ---------------------
     // REQUEST
     /** All additional fields to store.<br>
-     *  Value: List<IngridDocument> */
+     *  Value: List< IngridDocument > */
     public final static String SYS_ADDITIONAL_FIELD_LIST = "sys-additional-field-list";
     // RESULT
     /** Prefix for all sys-additional-fields in result, e.g. sys-additional-field-1100<br>
@@ -380,9 +384,9 @@ public class MdekKeys {
     // Top Result Lists
     // ----------------
 
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String OBJ_ENTITIES = "objEntities";
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String ADR_ENTITIES = "adrEntities";
     /** When fetching object references via paging, start with this object (first object is index 0)<br>
      * Value: Integer */
@@ -394,20 +398,20 @@ public class MdekKeys {
      * Value: Integer */
     public final static String OBJ_REFERENCES_FROM_TOTAL_NUM = "objReferencesFrom_totalNum";
     /** Object references from working version<br>
-     * Value: List of IngridDocs */
+     * Value: List< IngridDocument > */
     public final static String OBJ_REFERENCES_FROM = "objReferencesFrom";
     /** Object references only from published version (deleted in work version !)<br>
-     * Value: List of IngridDocs */
+     * Value: List< IngridDocument > */
     public final static String OBJ_REFERENCES_FROM_PUBLISHED_ONLY = "objReferencesFromPublishedOnly";
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String OBJ_REFERENCES_TO = "objReferencesTo";
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String ADR_REFERENCES_TO = "adrReferencesTo";
     /** Path in tree to entity containing uuids<br>
-     * Value: List of Strings (uuids) */
+     * Value: List< String > (uuids) */
     public final static String PATH = "path";
     /** Path in tree to entity containing organizations etc.<br>
-     * Value: List of IngridDocs containing organization/adrType */
+     * Value: List< IngridDocument > containing organization/adrType */
     public final static String PATH_ORGANISATIONS = "path_organisations";
 
     // ADDITIONAL INFO IN RESULT
@@ -533,7 +537,7 @@ public class MdekKeys {
 
     // SPATIAL REFERENCES
 
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String LOCATIONS = "locations";
     /** Value: String */
     public final static String LOCATION_NAME = "location-name";
@@ -560,10 +564,10 @@ public class MdekKeys {
     // SEARCHTERMS
 
     /** All FREE and THESAURUS searchterms EXCLUDING INSPIRE terms (term type FREE, UMTHES, GEMET)<br>
-     * Value: List of IngridDocs */
+     * Value: List< IngridDocument > */
     public final static String SUBJECT_TERMS = "subject-terms";
     /** All searchterms according to INSPIRE (term type INSPIRE)<br>
-     * Value: List of IngridDocs */
+     * Value: List< IngridDocument > */
     public final static String SUBJECT_TERMS_INSPIRE = "subject-terms-inspire";
 
     /** Value: String */
@@ -579,6 +583,15 @@ public class MdekKeys {
     /** If searchterm is GEMET term, then this is the GEMET ID (additional to TERM_SNS_ID)<br>
      * Value: String */
     public final static String TERM_GEMET_ID = "term-gemet-id";
+    
+    // SEARCHTERMS UPDATE (SNS)
+    /** OLD searchterms before update<br>
+     * Value: List< IngridDocument > */
+    public final static String SUBJECT_TERMS_OLD = "subject-terms-old";
+    /** NEW searchterms to update to<br>
+     * Value: List< IngridDocument > */
+    public final static String SUBJECT_TERMS_NEW = "subject-terms-new";
+
 
     // TIME
 
@@ -614,7 +627,7 @@ public class MdekKeys {
     public final static String IS_CATALOG_DATA = "is-catalog-data";
 
     // DATA REFERENCE
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String DATASET_REFERENCES = "dataset-references";
     /** Value: String (timestamp) */
     public final static String DATASET_REFERENCE_DATE = "dataset-reference-date";
@@ -623,7 +636,7 @@ public class MdekKeys {
 
     // EXPORT_CRITERIA
     /** Criteria determining objects to export<br>
-     * Value: List of IngridDocs (export criterion) */
+     * Value: List< IngridDocument > (export criterion) */
     public final static String EXPORT_CRITERIA = "export-criteria";
     /** Criterion key determining objects to export<br>
      * Value: Integer  */
@@ -662,7 +675,7 @@ public class MdekKeys {
     public final static String DATASOURCE_UUID = "datasource-uuid";
     
     // TECHNICAL DOMAIN MAP - KEY CATALOG
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String KEY_CATALOG_LIST = "key-catalog-list";
     /** Value: String  */
     public final static String SUBJECT_CAT = "subject-cat";
@@ -674,7 +687,7 @@ public class MdekKeys {
     public final static String EDITION = "edition";
 
     // TECHNICAL DOMAIN MAP AND SERVICE(!) - PUBLICATION SCALE
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String PUBLICATION_SCALE_LIST = "publication-scale-list";
     /** Value: Integer  */
     public final static String SCALE = "scale";
@@ -684,7 +697,7 @@ public class MdekKeys {
     public final static String RESOLUTION_SCAN = "resolution-scan";
     
     // TECHNICAL DOMAIN MAP - SYMBOL CATALOG
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String SYMBOL_CATALOG_LIST = "symbol-catalog-list";
     /** Value: String  */
     public final static String SYMBOL_CAT = "symbol-cat";
@@ -696,11 +709,11 @@ public class MdekKeys {
     public final static String SYMBOL_EDITION = "symbol-edition";
     
     // TECHNICAL DOMAIN MAP - FEATURE TYPE
-    /** Value: List of Strings  */
+    /** Value: List< String >  */
     public final static String FEATURE_TYPE_LIST = "feature-type-list";
 
     // TECHNICAL DOMAIN MAP - VECTOR FORMAT GEO VECTOR
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String GEO_VECTOR_LIST = "geo-vector-list";
     /** Value: Integer  */
     public final static String GEOMETRIC_OBJECT_TYPE = "geometric-object-type";
@@ -708,7 +721,7 @@ public class MdekKeys {
     public final static String GEOMETRIC_OBJECT_COUNT = "geometric-object-count";
 
     // TECHNICAL DOMAIN MAP - SPATIAL REPRESENTATION TYPE
-    /** Value: List of Integer  */
+    /** Value: List< Integer >  */
     public final static String SPATIAL_REPRESENTATION_TYPE_LIST = "spatial-representation-type-list";
     
     // TECHNICAL DOMAIN DOCUMENT (LITERATURE)
@@ -763,10 +776,10 @@ public class MdekKeys {
 //    /** Value: String  */
 //    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
     // TECHNICAL DOMAIN SERVICE - VERSIONS
-    /** Value: List of Strings  */
+    /** Value: List< String >  */
     public final static String SERVICE_VERSION_LIST = "service-version-list";
     // TECHNICAL DOMAIN SERVICE - OPERATIONS
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String SERVICE_OPERATION_LIST = "service-operation-list";
     /** Value: String */
     public final static String SERVICE_OPERATION_NAME = "service-operation-name";
@@ -777,16 +790,16 @@ public class MdekKeys {
     /** Value: String */
     public final static String INVOCATION_NAME = "invocation-name";
     // TECHNICAL DOMAIN SERVICE OPERATION - PLATFORMS
-    /** Value: List of Strings  */
+    /** Value: List< String >  */
     public final static String PLATFORM_LIST = "platform-list";
     // TECHNICAL DOMAIN SERVICE OPERATION - DEPENDS ONS
-    /** Value: List of Strings  */
+    /** Value: List< String >  */
     public final static String DEPENDS_ON_LIST = "depends-on-list";
     // TECHNICAL DOMAIN SERVICE OPERATION - CONNPOINTS
-    /** Value: List of Strings  */
+    /** Value: List< String >  */
     public final static String CONNECT_POINT_LIST = "connect-point-list";
     // TECHNICAL DOMAIN SERVICE - OPERATION - PARAMETERS
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String PARAMETER_LIST = "parameter-list";
     /** Value: String */
     public final static String PARAMETER_NAME = "parameter-name";
@@ -799,7 +812,7 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String REPEATABILITY = "repeatability";
     // TECHNICAL DOMAIN SERVICE - TYPES ("subtypes")
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String SERVICE_TYPE2_LIST = "service-type2-list";
     /** Value: Integer */
     public final static String SERVICE_TYPE2_KEY = "service-type2-key";
@@ -825,7 +838,7 @@ public class MdekKeys {
     // defined above
 //    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
     // TECHNICAL DOMAIN DATASET - PARAMETERS
-    /** Value: List of IngridDocs  */
+    /** Value: List< IngridDocument >  */
     public final static String PARAMETERS = "parameters";
     /** Value: String  */
     public final static String PARAMETER = "parameter";
@@ -833,7 +846,7 @@ public class MdekKeys {
     public final static String SUPPLEMENTARY_INFORMATION = "supplementary-information";
 
     // LEGISLATIONS
-    /** Value: List of IngridDocument */
+    /** Value: List< IngridDocument > */
     public final static String LEGISLATIONS = "legislations";
 
     /** Value: String  */
@@ -843,17 +856,17 @@ public class MdekKeys {
     
     
     // ENVIRONMENT-TOPICS / -CATEGORIES
-    /** Value: List of Integer */
+    /** Value: List< Integer > */
     public final static String ENV_CATEGORIES = "env-categories";
-    /** Value: List of Integer */
+    /** Value: List< Integer > */
     public final static String ENV_TOPICS = "env-topics";
 
     // TOPIC-CATEGORIES
-    /** Value: List of Integer */
+    /** Value: List< Integer > */
     public final static String TOPIC_CATEGORIES = "topic-categories";
 
     // DATA FORMATS
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String DATA_FORMATS = "data-formats";
     /** Value: String */
     public final static String FORMAT_NAME = "format-name";
@@ -867,7 +880,7 @@ public class MdekKeys {
     public final static String FORMAT_FILE_DECOMPRESSION_TECHNIQUE = "format-file-decompression-technique";
 
     // MEDIUM OPTIONS
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String MEDIUM_OPTIONS = "medium-options";
     /** Value: Integer */
     public final static String MEDIUM_NAME = "medium-name";
@@ -877,7 +890,7 @@ public class MdekKeys {
     public final static String MEDIUM_NOTE = "medium-note";
 
     // URL REF
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String LINKAGES = "linkages";
     /** Value: String */
     public final static String LINKAGE_URL = "linkage-url";
@@ -937,7 +950,7 @@ public class MdekKeys {
 
 
     // COMMENTS
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String COMMENT_LIST = "comment_list";
     /** Value: String */
     public final static String COMMENT = "comment";
@@ -947,7 +960,7 @@ public class MdekKeys {
     public final static String CREATE_TIME = "create-time";
 
     // ADDITIONAL FIELDS entity data
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String ADDITIONAL_FIELDS = "additional-fields";
     /** Value: String  */
     public final static String ADDITIONAL_FIELD_VALUE = "additional-field-value";
@@ -1014,7 +1027,7 @@ public class MdekKeys {
     /** Value: String */
     public final static String ORIGINAL_ADDRESS_IDENTIFIER = "original-address-identifier";
 
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String COMMUNICATION = "communication";
     /** Value: String */
     public final static String COMMUNICATION_MEDIUM = "communication-medium";
@@ -1032,7 +1045,7 @@ public class MdekKeys {
     // INSPIRE
     // -------
 
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String CONFORMITY_LIST = "conformity_list";
     /** Value: String */
     public final static String CONFORMITY_SPECIFICATION = "conformity-specification";
@@ -1043,7 +1056,7 @@ public class MdekKeys {
     /** Value: String */
     public final static String CONFORMITY_DEGREE_VALUE = "conformity-degree-value";
 
-    /** Value: List of IngridDocs */
+    /** Value: List< IngridDocument > */
     public final static String ACCESS_LIST = "access_list";
     /** Value: Integer */
     public final static String ACCESS_RESTRICTION_KEY = "access-restriction-key";

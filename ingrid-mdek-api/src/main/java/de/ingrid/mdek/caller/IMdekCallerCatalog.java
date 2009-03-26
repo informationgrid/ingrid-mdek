@@ -316,15 +316,25 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 */
 	IngridDocument rebuildSyslistData(String plugId, String userId);
 
-	/**
-	 * Get search terms (distinct!) of requested type.
+	/** Get REFERENCED search terms (distinct!) of requested type !
+	 * NOTICE: only returns terms REFERENCED by Objects/Addresses (e.g. NOT unused thesaurus terms) !
 	 * @param termTypes pass the types of terms to fetch. Pass null or empty array if all types !
 	 * @return response containing result: distinct searchterms accessable via MdekKeys.SUBJECT_TERMS
 	 */
 	IngridDocument getSearchTerms(String plugId, SearchtermType[] termTypes, String userId);
 
-	/**
-	 * Get NON EXPIRED spatial references (distinct!) of requested type.
+	/** Update searchterms (SNS Update). Passed lists have to have same size
+	 * determining "mapping" of old to new (updated) term.
+	 * @param oldTerms former searchterms before update
+	 * @param newTerms searchterm after update
+	 * @return response containing result: map containing job info
+	 */
+	IngridDocument updateSearchTerms(String plugId,
+			List<IngridDocument> oldTerms, List<IngridDocument> newTerms,
+			String userId);
+
+	/** Get REFERENCED NON EXPIRED spatial references (distinct!) of requested type.
+	 * NOTICE: only returns spatial references REFERENCED by Objects/Addresses (NOT unused ones) !
 	 * @param spatialRefTypes types of spatial references to fetch. Pass null or empty array if all types !
 	 * @return response containing result: distinct spatial references accessable via MdekKeys.LOCATIONS
 	 */

@@ -1250,8 +1250,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
 
-			// initialize job info in database
-			catalogService.startRebuildSyslistJobInfo(userId);
+			// initialize job info
+			catalogService.startJobInfo(JobType.REBUILD_SYSLISTS, 0, 0, null, userId);
 
 			// clear all caches, read NEWEST DATA !
 			catalogService.clearCaches();
@@ -1269,8 +1269,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// then rebuild index
 			catalogService.rebuildEntitiesIndex(userId);
 			
-			// finish and fetch job info in database
-			catalogService.endRebuildSyslistJobInfo(userId);
+			// finish and fetch job info
+			catalogService.endJobInfo(JobType.REBUILD_SYSLISTS, userId);
 			HashMap rebuildInfo = getJobInfo(JobType.REBUILD_SYSLISTS, userId, false, false);
 
 			genericDao.flush();
@@ -1326,6 +1326,56 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
+		}
+	}
+
+	public IngridDocument updateSearchTerms(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.UPDATE_SEARCHTERMS, 0, 0, false));
+
+			List<IngridDocument> termsOld = (List<IngridDocument>) docIn.get(MdekKeys.SUBJECT_TERMS_OLD);
+			List<IngridDocument> termsNew = (List<IngridDocument>) docIn.get(MdekKeys.SUBJECT_TERMS_NEW);
+			if (termsOld == null || termsOld.size() == 0) {
+				termsOld = new ArrayList<IngridDocument>(0);
+			}
+
+			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
+			// initialize job info
+			catalogService.startJobInfo(JobType.UPDATE_SEARCHTERMS, 0, termsOld.size(), null, userId);
+
+			// clear all caches, read NEWEST DATA !
+			catalogService.clearCaches();
+
+			// update content in entities and log protocol in job info
+			catalogService.updateSearchTerms(termsOld, termsNew, userId);
+
+			// finish and fetch job info in database
+			catalogService.endJobInfo(JobType.UPDATE_SEARCHTERMS, userId);
+			HashMap jobInfo = getJobInfo(JobType.UPDATE_SEARCHTERMS, userId, false, false);
+
+			genericDao.flush();
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(jobInfo);
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
 		}
 	}
 

@@ -138,7 +138,9 @@ public class MdekJobHandler {
 	/** return SPECIFIC running job information, only jobs of passed type ! 
 	 * @param jobType pass null if type doen't matter, any running job should be fetched 
 	 * @param userId user who started job
-	 * @return running job info or EMPTY Document if no running job of passed type
+	 * @return running job info.
+	 * 		NOTICE: returns NEW UNMANAGED EMPTY Document if no running job of passed type.
+	 * 		This document has to be stored with updateRunningJob(...) to be "managed" !!!
 	 */
 	public IngridDocument getRunningJobInfo(JobType jobType, String userId) {
 		IngridDocument runningJob = runningJobsMap.get(userId);
@@ -269,6 +271,7 @@ public class MdekJobHandler {
 	}
 	/** Adds a message to the job information IN DATABASE !
 	 * NOTICE: all other infos in DB stay unchanged ! */
+/*
 	public void updateJobInfoDBMessages(JobType whichJob, String newMessage, String userUuid) {
 		SysJobInfo jobInfo = getJobInfoDB(whichJob, userUuid);
 
@@ -287,6 +290,7 @@ public class MdekJobHandler {
 		jobInfo.setJobDetails(formatJobDetailsForDB(jobDetails));
 		persistJobInfoDB(jobInfo, userUuid);
 	}
+*/
 	/** Logs the given Exception (and replaces an existing one) in the job information IN DATABASE !
 	 * NOTICE: all other infos in DB stay unchanged ! */
 	public void updateJobInfoDBException(JobType whichJob, Exception exceptionToLog, String userUuid) {

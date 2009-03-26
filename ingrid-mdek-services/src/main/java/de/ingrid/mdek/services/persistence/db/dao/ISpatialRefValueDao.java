@@ -29,10 +29,11 @@ public interface ISpatialRefValueDao
 	SpatialRefValue loadOrCreate(String type, String nameValue, Integer nameKey,
 		SpatialRefSns spRefSns, String nativekey, Long objectId);
 
-	/** get NON EXPIRED spatial references of given type(s).
+	/** get REFERENCED NON EXPIRED spatial references of given type(s).
+	 * NOTICE: only returns spatial references REFERENCED by Objects/Addresses (e.g. NOT unused ones) !
 	 * @param types pass types to fetch. Pass null or empty array if all types !
 	 * @return list of searchterms.
-	 * 		NOTICE: NOT distinct, e.g. same free spatial references exist multiple times !
+	 * 	NOTICE: NOT distinct, e.g. same free spatial reference may exist in multiple DIFFERENCT SpatialRefValue !
 	 */
 	List<SpatialRefValue> getSpatialReferences(SpatialReferenceType[] types);
 }

@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.catalog;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +11,16 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+
+import org.apache.log4j.Logger;
+
+import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -22,6 +28,8 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
@@ -29,8 +37,13 @@ import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
+import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
@@ -52,6 +65,8 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekCatalogService {
 
+	private static final Logger LOG = Logger.getLogger(MdekCatalogService.class);
+
 	private static MdekCatalogService myInstance;
 
 	private static String CACHE_CONFIG_FILE = "/ehcache-services.xml";
@@ -67,6 +82,8 @@ public class MdekCatalogService {
 	private IT08AttrTypeDao daoT08AttrType;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
+	private ISearchtermValueDao daoSearchtermValue;
+	private ISearchtermSnsDao daoSearchtermSns;
 	private IGenericDao<IEntity> dao;
 
 	private MdekJobHandler jobHandler;
@@ -95,6 +112,8 @@ public class MdekCatalogService {
 		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
+		daoSearchtermValue = daoFactory.getSearchtermValueDao();
+		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
 		dao = daoFactory.getDao(IEntity.class);
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
@@ -375,43 +394,70 @@ public class MdekCatalogService {
 		return numReplaced;
 	}
 
-	/** "logs" Start-Info of RebuildSyslist job IN MEMORY and IN DATABASE */
-	public void startRebuildSyslistJobInfo(String userUuid) {
+	/** "logs" Start-Info in job information of given type IN MEMORY and IN DATABASE */
+	public void startJobInfo(JobType jobType, int numProcessed, int totalNum, HashMap jobDetails, String userUuid) {
 		String startTime = MdekUtils.dateToTimestamp(new Date());
 
 		// first update in memory job state
 		IngridDocument runningJobInfo = 
-			jobHandler.createRunningJobDescription(JobType.REBUILD_SYSLISTS, 0, 0, false);
+			jobHandler.createRunningJobDescription(jobType, numProcessed, totalNum, false);
 		runningJobInfo.put(MdekKeys.JOBINFO_START_TIME, startTime);
 		jobHandler.updateRunningJob(userUuid, runningJobInfo);
 		
 		// then update job info in database
-		jobHandler.startJobInfoDB(JobType.REBUILD_SYSLISTS, startTime, null, userUuid);
+		jobHandler.startJobInfoDB(jobType, startTime, jobDetails, userUuid);
 	}
-	/** Update general info of RebuildSyslist job IN MEMORY. */
-	public void updateRebuildSyslistJobInfo(String entityType, int numUpdated, int totalNum, String userUuid) {
+	/** Update general info of job IN MEMORY. */
+	public void updateJobInfo(JobType jobType, 
+			String entityType, int numUpdated, int totalNum, String userUuid) {
 		// update in memory job state.
 		IngridDocument jobDoc = jobHandler.createRunningJobDescription(
-				JobType.REBUILD_SYSLISTS, entityType, numUpdated, totalNum, false);
+				jobType, entityType, numUpdated, totalNum, false);
 		jobHandler.updateRunningJob(userUuid, jobDoc);
 	}
+	/** Update special info of UPDATE_SEARCHTERMS job IN MEMORY (Info displayed on 2. tab) ! */
+	public void updateJobInfoNewUpdatedTerm(String termName, String termType,
+			String msg, int numObj, int numAddr, String userUuid) {
+		IngridDocument jobInfo = jobHandler.getRunningJobInfo(JobType.UPDATE_SEARCHTERMS, userUuid);
+		
+		List<Map> termList = (List<Map>) jobInfo.get(MdekKeys.JOBINFO_TERMS_UPDATED);
+		if (termList == null) {
+			termList = new ArrayList<Map>();
+			jobInfo.put(MdekKeys.JOBINFO_TERMS_UPDATED, termList);
+		}
+
+		Map term = new HashMap();
+		term.put(MdekKeys.TERM_NAME, termName);
+		term.put(MdekKeys.TERM_TYPE, termType);
+		term.put(MdekKeys.JOBINFO_MESSAGES, msg);
+		term.put(MdekKeys.JOBINFO_NUM_OBJECTS, numObj);
+		term.put(MdekKeys.JOBINFO_NUM_ADDRESSES, numAddr);
+
+		termList.add(term);
+		
+		// CALL back !!! to check job canceled !
+		jobHandler.updateRunningJob(userUuid, jobInfo);
+	}
 	/**
-	 * "logs" End-Info in rebuild job information IN DATABASE !<br>
+	 * "logs" End-Info in job information of given type IN DATABASE !<br>
 	 * NOTICE: at job runtime we store all info in memory (running job info) and persist it now !
 	 * @param userUuid calling user
 	 */
-	public void endRebuildSyslistJobInfo(String userUuid) {
+	public void endJobInfo(JobType jobType, String userUuid) {
 		// get running job info (in memory)
 		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
 		
 		// set up job details to be stored
 		HashMap jobDetails = jobHandler.getJobInfoDetailsFromRunningJobInfo(
 				runningJobInfo, false);
+		if (jobType == JobType.UPDATE_SEARCHTERMS) {
+			jobDetails.put(MdekKeys.JOBINFO_TERMS_UPDATED, runningJobInfo.get(MdekKeys.JOBINFO_TERMS_UPDATED));
+		}
 
 		// then update job info in database
-		jobHandler.updateJobInfoDB(JobType.REBUILD_SYSLISTS, jobDetails, userUuid);
+		jobHandler.updateJobInfoDB(jobType, jobDetails, userUuid);
 		// add end info
-		jobHandler.endJobInfoDB(JobType.REBUILD_SYSLISTS, userUuid);
+		jobHandler.endJobInfoDB(jobType, userUuid);
 	}
 
 	/** Update all syslist values in entities according to current syslists. updates WORKING AND PUBLISHED VERSION !!! */
@@ -451,7 +497,7 @@ public class MdekCatalogService {
 				}
 				dao.makePersistent(entity);
 
-				updateRebuildSyslistJobInfo(className, ++numProcessed, totalNum, userUuid);
+				updateJobInfo(JobType.REBUILD_SYSLISTS, className, ++numProcessed, totalNum, userUuid);
 			}
 		}
 	}
@@ -472,12 +518,12 @@ public class MdekCatalogService {
 		
 		totalNum = uuids.size();
 		numProcessed = 0;
-		updateRebuildSyslistJobInfo("Object Index", numProcessed, totalNum, userUuid);
+		updateJobInfo(JobType.REBUILD_SYSLISTS, "Object Index", numProcessed, totalNum, userUuid);
 
 		for (String uuid : uuids) {
 			ObjectNode oNode = daoObjectNode.getObjectForIndex(uuid);
 			fullIndexHandler.updateObjectIndex(oNode);
-			updateRebuildSyslistJobInfo("Object Index", ++numProcessed, totalNum, userUuid);
+			updateJobInfo(JobType.REBUILD_SYSLISTS, "Object Index", ++numProcessed, totalNum, userUuid);
 		}
 
 		// address index
@@ -487,12 +533,326 @@ public class MdekCatalogService {
 
 		totalNum = uuids.size();
 		numProcessed = 0;
-		updateRebuildSyslistJobInfo("Address Index", numProcessed, totalNum, userUuid);
+		updateJobInfo(JobType.REBUILD_SYSLISTS, "Address Index", numProcessed, totalNum, userUuid);
 
 		for (String uuid : uuids) {
 			AddressNode aNode = daoAddressNode.getAddressForIndex(uuid);
 			fullIndexHandler.updateAddressIndex(aNode);
-			updateRebuildSyslistJobInfo("Address Index", ++numProcessed, totalNum, userUuid);
+			updateJobInfo(JobType.REBUILD_SYSLISTS, "Address Index", ++numProcessed, totalNum, userUuid);
 		}
+	}
+
+	/** Flushes after every processed term. */
+	public void updateSearchTerms(List<IngridDocument> termsOld, List<IngridDocument> termsNew,
+			String userUuid) {
+
+		// temporary beans containing searchterm data of passed docs for better handling
+		SearchtermValue tmpOldTerm = new SearchtermValue();
+
+		int totalNum = termsOld.size();
+		int numUpdated = 0;
+		for (int i=0; i < totalNum; i++) {
+			IngridDocument oldDoc = termsOld.get(i);
+			IngridDocument newDoc = termsNew.get(i);
+
+			// map old doc to bean for better handling
+			DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+			docToBeanMapper.mapSearchtermValueForSNSUpdate(oldDoc, tmpOldTerm);
+			SearchtermType oldType =
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpOldTerm.getType());
+
+			if (SearchtermType.isThesaurusTerm(oldType)) {
+				updateThesaurusTerm(tmpOldTerm, newDoc, userUuid);
+				
+			} else if (oldType == SearchtermType.FREI) {
+				updateFreeTermToThesaurus(tmpOldTerm, newDoc, userUuid);
+			}
+			
+			updateJobInfo(JobType.UPDATE_SEARCHTERMS, "Searchterm", ++numUpdated, totalNum, userUuid);
+			// flush per term
+			dao.flush();
+		}
+	}
+
+	private void updateThesaurusTerm(SearchtermValue tmpOldTerm, IngridDocument newTermDoc, String userUuid) {
+		// check type of old term
+		SearchtermType oldType =
+			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpOldTerm.getType());
+		if (!SearchtermType.isThesaurusTerm(oldType)) {
+			LOG.warn("SNS Update: Old type of searchterm is NOT \"Thesaurus\", we skip this one ! " +
+				"type/term:" + oldType + "/" + tmpOldTerm.getTerm());
+			return;
+		}
+
+		if (newTermDoc == null) {
+			// Add FREE term records with according references to Objects/Addresses ! delete thesaurus record !
+			updateThesaurusTermToFree(tmpOldTerm, true, userUuid);
+
+		} else {
+			// map new doc to bean for better handling
+			DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+			SearchtermValue tmpNewTerm = 
+				docToBeanMapper.mapSearchtermValueForSNSUpdate(newTermDoc, new SearchtermValue());
+
+			// check type of new term
+			SearchtermType newType =
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpNewTerm.getType());
+			if (!SearchtermType.isThesaurusTerm(newType)) {
+				// ??? should not happen !!! all new terms are thesaurus terms !!!
+				LOG.warn("SNS Update: New type of searchterm is NOT \"Thesaurus\", we skip this one ! doc:" + newTermDoc);
+				return;
+			}
+
+			// get sns ids ("uba_thes...")
+			String oldSnsId = tmpOldTerm.getSearchtermSns().getSnsId();
+			String newSnsId = tmpNewTerm.getSearchtermSns().getSnsId();
+			
+			if (oldSnsId.equals(newSnsId)) {
+				// Keep/update term record, keep/update SNS record
+				updateThesaurusTermSameSnsId(tmpOldTerm, tmpNewTerm, userUuid);
+				
+			} else {
+				String oldName = tmpOldTerm.getTerm();
+				String newName = tmpNewTerm.getTerm();
+				if (oldName.equals(newName)) {
+					// Keep/update term record, replace SNS record (delete old SNS record)
+					updateThesaurusTermNewSnsId(tmpOldTerm, tmpNewTerm, userUuid);
+				} else {
+					// Add FREE term records with according references to Objects/Addresses ! do NOT delete thesaurus record !
+					updateThesaurusTermToFree(tmpOldTerm, false, userUuid);
+					// Keep/update term record, replace SNS record (delete old SNS record)
+					updateThesaurusTermNewSnsId(tmpOldTerm, tmpNewTerm, userUuid);
+				}
+			}
+		}
+	}
+
+	/** Add term FREE records with according references to Objects/Addresses (based on thesaurus term references) !
+	 * Delete thesaurus term if requested ! */
+	private void updateThesaurusTermToFree(SearchtermValue inTermOld, boolean deleteThesaurusTerm, String userUuid) {
+		// get all database searchterm beans !
+		List<SearchtermValue> oldTermValues = daoSearchtermValue.getSearchtermValues(
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermOld.getType()),
+				inTermOld.getTerm(),
+				inTermOld.getSearchtermSns().getSnsId());
+
+		// and process
+		for (SearchtermValue oldTermValue : oldTermValues) {
+			
+			// get all references to objects and update / create new ones
+			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldTermValue.getId());
+			int numObj = oldTermObjs.size();
+			for (SearchtermObj oldTermObj : oldTermObjs) {
+
+				// !!! create NEW FREE term (not connected to entity !)
+				SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(
+						SearchtermType.FREI.getDbValue(), oldTermValue.getTerm(), null, null, null, null);
+
+				// connect to Object
+				SearchtermObj newTermObj = null;
+				if (deleteThesaurusTerm) {
+					// we use the same termObj entities, not needed anymore because thesaurus term will be deleted !
+					newTermObj = oldTermObj;
+				} else {
+					// we create new termObjs, the ones to thesaurus term still needed, because will not be deleted !
+					newTermObj = new SearchtermObj();
+					newTermObj.setLine(oldTermObj.getLine());
+					newTermObj.setObjId(oldTermObj.getObjId());
+				}
+				newTermObj.setSearchtermId(freeTerm.getId());
+				newTermObj.setSearchtermValue(freeTerm);
+				dao.makePersistent(newTermObj);
+			}
+
+			// get all references to addresses and update / create new ones
+			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldTermValue.getId());
+			int numAddr = oldTermAdrs.size();
+			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
+				// create NEW FREE term (not connected to entity !)
+				SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(
+						SearchtermType.FREI.getDbValue(), oldTermValue.getTerm(), null, null, null, null);
+
+				// connect to Address
+				SearchtermAdr newTermAdr = null;
+				if (deleteThesaurusTerm) {
+					// we use the same termAdr entities, not needed anymore because thesaurus term will be deleted !
+					newTermAdr = oldTermAdr;
+				} else {
+					// we create new termAdrs, the ones to thesaurus term still needed, because will not be deleted !
+					newTermAdr = new SearchtermAdr();
+					newTermAdr.setLine(oldTermAdr.getLine());
+					newTermAdr.setAdrId(oldTermAdr.getAdrId());
+				}
+				newTermAdr.setSearchtermId(freeTerm.getId());
+				newTermAdr.setSearchtermValue(freeTerm);
+				dao.makePersistent(newTermAdr);
+			}
+			
+			// DELETE Thesaurus TERM if requested !!! NO EXPIRED (not needed for display in IGE) !
+			if (deleteThesaurusTerm) {
+				dao.makeTransient(oldTermValue.getSearchtermSns());
+				dao.makeTransient(oldTermValue);
+			}
+			
+			updateJobInfoNewUpdatedTerm(oldTermValue.getTerm(), oldTermValue.getType(),
+				"Deskriptor in freien Suchbegriff überführt",
+				numObj, numAddr, userUuid);
+		}
+	}
+	/** Update term record, update SNS record.
+	 * NOTICE: term may change name or type (e.g. UMTHES to GEMET) */
+	private void updateThesaurusTermSameSnsId(SearchtermValue inTermOld, SearchtermValue inTermNew,
+			String userUuid) {
+		// get all database searchterm beans ! throws exception if not SINGLE one !
+		List<SearchtermValue> termValues = daoSearchtermValue.getSearchtermValues(
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermOld.getType()),
+				inTermOld.getTerm(),
+				inTermOld.getSearchtermSns().getSnsId());
+
+		// and process
+		for (SearchtermValue termValue : termValues) {
+			// NOTICE: may become GEMET from UMTHES !
+			String oldType = termValue.getType();
+			termValue.setType(inTermNew.getType());
+			String oldTerm = termValue.getTerm();
+			termValue.setTerm(inTermNew.getTerm());
+			termValue.setEntryId(null);
+			
+			// NOTICE: may become GEMET from UMTHES !
+			SearchtermSns termSns = termValue.getSearchtermSns();
+			termSns.setSnsId(inTermNew.getSearchtermSns().getSnsId());
+			termSns.setGemetId(inTermNew.getSearchtermSns().getGemetId());
+
+			// persist both: default cascading is "none" !
+			dao.makePersistent(termSns);
+			dao.makePersistent(termValue);
+
+			long numObj = daoSearchtermValue.countObjectsOfSearchterm(termValue.getId());
+			long numAddr = daoSearchtermValue.countAddressesOfSearchterm(termValue.getId());
+
+			SearchtermType newType =
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
+			updateJobInfoNewUpdatedTerm(oldTerm, oldType,
+				"Deskriptor aktualisiert, ist jetzt \"" + termValue.getTerm() + "\" (" + newType + ")",
+				(int)numObj, (int)numAddr, userUuid);
+		}
+	}
+	/** Update term record, replace SNS record (delete old SNS record) */
+	private void updateThesaurusTermNewSnsId(SearchtermValue inTermOld, SearchtermValue inTermNew, String userUuid) {
+		// get all database searchterm beans ! throws exception if not SINGLE one !
+		List<SearchtermValue> termValues = daoSearchtermValue.getSearchtermValues(
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermOld.getType()),
+				inTermOld.getTerm(),
+				inTermOld.getSearchtermSns().getSnsId());
+
+		// and process
+		for (SearchtermValue termValue : termValues) {
+
+			// load NEW sns term, may already exist ! else create it !
+			SearchtermSns newTermSns = daoSearchtermSns.loadOrCreate(
+					inTermNew.getSearchtermSns().getSnsId(),
+					inTermNew.getSearchtermSns().getGemetId());
+
+			// remember old sns term, will be deleted !
+			// NOTICE: may be null if already deleted (when multiple SearchtermValues, e.g. "Messdaten", "Meßdaten" !) 
+			SearchtermSns oldTermSns = termValue.getSearchtermSns();
+
+			// set new data and PERSIST
+			String oldType = termValue.getType();
+			termValue.setType(inTermNew.getType());
+			String oldName = termValue.getTerm();
+			termValue.setTerm(inTermNew.getTerm());
+			termValue.setEntryId(null);
+			// also sns data
+			termValue.setSearchtermSnsId(newTermSns.getId());
+			termValue.setSearchtermSns(newTermSns);
+			dao.makePersistent(termValue);
+
+			// DELETE SNS TERM !!! NO EXPIRED (not needed for display in IGE) !
+			dao.makeTransient(oldTermSns);
+			
+			long numObj = daoSearchtermValue.countObjectsOfSearchterm(termValue.getId());
+			long numAddr = daoSearchtermValue.countAddressesOfSearchterm(termValue.getId());
+
+			SearchtermType newType =
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
+			updateJobInfoNewUpdatedTerm(oldName, oldType,
+				"Deskriptor ERSETZT durch Deskriptor \"" + termValue.getTerm() + "\" (" + newType + ")",
+				(int)numObj, (int)numAddr, userUuid);
+		}
+	}
+
+	private void updateFreeTermToThesaurus(SearchtermValue inTermOld, IngridDocument newTermDoc, String userUuid) {
+		// check type of old term
+		SearchtermType oldType =
+			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermOld.getType());
+		if (oldType != SearchtermType.FREI) {
+			LOG.warn("SNS Update: Old type of searchterm is NOT \"FREI\", we skip this one ! " +
+				"type/term:" + oldType + "/" + inTermOld.getTerm());
+			return;
+		}
+
+		// map new doc to bean for better handling
+		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+		SearchtermValue inTermNew = 
+			docToBeanMapper.mapSearchtermValueForSNSUpdate(newTermDoc, new SearchtermValue());
+		SearchtermType newType = null;
+		if (inTermNew != null) {
+			newType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermNew.getType());
+		}
+		if (!SearchtermType.isThesaurusTerm(newType)) {
+			// ??? should not happen !!! all new terms are thesaurus terms !!!
+			LOG.warn("SNS Update: New type of searchterm is NOT \"Thesaurus\", we skip this one ! doc:" + newTermDoc);
+			return;
+		}
+
+		// CREATE SNS TERM !
+
+		// load NEW sns data, may already exist ! else create it !
+		SearchtermSns newSnsData = daoSearchtermSns.loadOrCreate(
+				inTermNew.getSearchtermSns().getSnsId(),
+				inTermNew.getSearchtermSns().getGemetId());
+		// load NEW sns term, may already exist ! else create it !
+		SearchtermValue newSnsTerm = daoSearchtermValue.loadOrCreate(inTermNew.getType(),
+				inTermNew.getTerm(), null, newSnsData, null, null);
+
+
+		// UPDATE ALL REFERENCES TO OBJECTS/ADDRESSES OF FREE TERMS AND DELETE FREE TERMS
+
+		// get all FREE terms !
+		List<SearchtermValue> oldFreeTerms = daoSearchtermValue.getSearchtermValues(oldType,
+				inTermOld.getTerm(),
+				inTermOld.getSearchtermSns().getSnsId());
+
+		// and process
+		int numObj = 0;
+		int numAddr = 0;		
+		for (SearchtermValue oldFreeTerm : oldFreeTerms) {
+			
+			// get all references to objects and update to SNS term
+			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldFreeTerm.getId());
+			numObj += oldTermObjs.size();
+			for (SearchtermObj oldTermObj : oldTermObjs) {
+				oldTermObj.setSearchtermId(newSnsTerm.getId());
+				oldTermObj.setSearchtermValue(newSnsTerm);
+				dao.makePersistent(oldTermObj);
+			}
+
+			// get all references to addresses and update to SNS term
+			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldFreeTerm.getId());
+			numAddr += oldTermAdrs.size();
+			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
+				oldTermAdr.setSearchtermId(newSnsTerm.getId());
+				oldTermAdr.setSearchtermValue(newSnsTerm);
+				dao.makePersistent(oldTermAdr);
+			}
+			
+			// DELETE FREE Term
+			dao.makeTransient(oldFreeTerm);
+		}
+		
+		updateJobInfoNewUpdatedTerm(inTermOld.getTerm(), inTermOld.getType(),
+			"Freien Suchbegriff überführt in Deskriptor \"" + newSnsTerm.getTerm() + "\" (" + newType + ")",
+			numObj, numAddr, userUuid);
 	}
 }

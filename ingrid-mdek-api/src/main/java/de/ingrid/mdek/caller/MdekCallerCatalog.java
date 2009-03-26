@@ -343,6 +343,17 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument updateSearchTerms(String plugId,
+			List<IngridDocument> oldTerms, List<IngridDocument> newTerms,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.SUBJECT_TERMS_OLD, oldTerms);
+		jobParams.put(MdekKeys.SUBJECT_TERMS_NEW, newTerms);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("updateSearchTerms", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+
 	public IngridDocument getSpatialReferences(String plugId, SpatialReferenceType[] spatialRefTypes, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, spatialRefTypes);

@@ -15,6 +15,8 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AdditionalFieldType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -723,8 +725,15 @@ public class DocToBeanMapper implements IMapper {
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (SpatialReference spRef : spatialRefs_unprocessed) {
 			spatialRefs.remove(spRef);
-			// delete-orphan doesn't work !!!?????
+			SpatialRefValue spRefValue = spRef.getSpatialRefValue();
+
+			// delete reference. delete-orphan doesn't work !!!?????
 			dao.makeTransient(spRef);
+			
+			// also delete spRefValue if FREE spatial ref ! Every Object has its own FREE refs
+			if (SpatialReferenceType.FREI.getDbValue().equals(spRefValue.getType())) {
+				dao.makeTransient(spRefValue);				
+			}
 		}		
 	}
 
@@ -744,6 +753,7 @@ public class DocToBeanMapper implements IMapper {
 			updated = updateSpatialRefValueViaDoc(locDoc, spRefValue);
 		}
 		if (!updated) {
+			// pass NULL as object reference, so it always will be created if FREE spatial ref
 			spRefValue = loadOrCreateSpatialRefValueViaDoc(locDoc, null);
 
 			cIn.setSpatialRefId(spRefValue.getId());
@@ -816,7 +826,7 @@ public class DocToBeanMapper implements IMapper {
 		// der vorhandene Thesaurus Begriff genommen, wenn schon da; dies ist bei Freien nicht moeglich, da die ja objektspezifisch
 		// geaendert werden koennen -> vom Frontend kommen immer die akt. Freien, die Prüfung ob Freier schon da erfolgt dann über fast
 		// alle Attribute, bis auf BBox Koordinaten, wenn gefunden, werden also die BBox Koords aktualisiert). -> Aufraeum Job noetig !
-		// TODO: Aufraeum Job noetig, der Freie Raumbezug Leichen (in SpatialRefValue) beseitigt !!!
+		// NEIN, nicht mehr noetig, da Freie Raumbezuege jetzt geloescht werden, wenn Ihre Referenz zum Objekt gelöscht wird, s.updateSpatialReferences(...)
 		SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, locCode, objectId);
 		mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
 		
@@ -1470,6 +1480,28 @@ public class DocToBeanMapper implements IMapper {
 		return ref;
 	}
 
+	/** Just map searchterm doc to bean for better handling of searchterms ! NO DATABASE BEAN !!! */
+	public SearchtermValue mapSearchtermValueForSNSUpdate(IngridDocument refDoc,
+			SearchtermValue refValue)
+	{
+		if (refDoc == null) {
+			return null;
+		}
+
+		refValue.setTerm(refDoc.getString(MdekKeys.TERM_NAME));
+		refValue.setType(refDoc.getString(MdekKeys.TERM_TYPE));
+		
+		SearchtermSns refSns = refValue.getSearchtermSns();
+		if (refSns == null) {
+			refSns = new SearchtermSns();
+			refValue.setSearchtermSns(refSns);
+		}
+		refSns.setSnsId(refDoc.getString(MdekKeys.TERM_SNS_ID));
+		refSns.setGemetId(refDoc.getString(MdekKeys.TERM_GEMET_ID));
+
+		return refValue;
+	}
+
 	private SearchtermValue mapSearchtermValue(SearchtermSns refSns,
 		IngridDocument refDoc,
 		SearchtermValue refValue) 
@@ -1560,7 +1592,6 @@ public class DocToBeanMapper implements IMapper {
 				// then load/create SearchtermValue
 				// NOTICE: Freie Schlagwörter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
 				// gleiches Verhalten wie bei FREIEN RAUMBEZUEGEN, s.o.
-				// TODO: Aufraeum Job noetig, der Freie Schlagwörter Leichen (in SearchtermValue) beseitigt !!!
 				SearchtermValue termValue = daoSearchtermValue.loadOrCreate(inType, inName, inEntryId,
 						termSns, (Long)entityIn.getId(), entityType);
 				mapSearchtermValue(termSns, inTermDoc, termValue);
@@ -1581,8 +1612,20 @@ public class DocToBeanMapper implements IMapper {
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (IEntity ref : termEntityRefs_unprocessed) {
 			termEntityRefs.remove(ref);
-			// delete-orphan doesn't work !!!?????
+			SearchtermValue termValue;
+			if (entityType == IdcEntityType.OBJECT) {
+				termValue = ((SearchtermObj)ref).getSearchtermValue();
+			} else {
+				termValue = ((SearchtermAdr)ref).getSearchtermValue();
+			}
+
+			// delete reference. delete-orphan doesn't work !!!?????
 			dao.makeTransient(ref);
+			
+			// also delete termValue if FREE term ! Every Entity has its own FREE terms !
+			if (SearchtermType.FREI.getDbValue().equals(termValue.getType())) {
+				dao.makeTransient(termValue);				
+			}
 		}		
 	}
 	private void updateSearchtermObjs(IngridDocument oDocIn, T01Object oIn) {

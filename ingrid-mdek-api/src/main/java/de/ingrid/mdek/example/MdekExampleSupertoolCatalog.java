@@ -609,7 +609,7 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("SUCCESS: ");
-			supertoolGeneric.debugJobInfoDoc(result);
+			supertoolGeneric.debugJobInfoDoc(result, jobType);
 		} else {
 			supertoolGeneric.handleError(response);
 		}
@@ -946,6 +946,34 @@ public class MdekExampleSupertoolCatalog {
 				if (cnt > 4) break;
 			}
 			System.out.println("  ...");
+			
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument updateSearchTerms(List<IngridDocument> oldTerms,
+			List<IngridDocument> newTerms) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE updateSearchTerms ######");
+		System.out.println("- num oldTerms: " + oldTerms.size());
+		System.out.println("- num newTerms: " + newTerms.size());
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.updateSearchTerms(plugId, oldTerms, newTerms, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			supertoolGeneric.debugJobInfoDoc(result, JobType.UPDATE_SEARCHTERMS);
 			
 		} else {
 			supertoolGeneric.handleError(response);

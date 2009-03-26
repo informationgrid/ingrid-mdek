@@ -289,8 +289,8 @@ public class MdekUtils {
 	/** Type of searchterm (searchterm_value.type) */
 	public enum SearchtermType implements IMdekEnum {
 		FREI("F", "Freier Term"),
-		UMTHES("T", "UMTHES Thesaurus"),
-		GEMET("G", "GEMET Thesaurus"),
+		UMTHES("T", "UMTHES Term"),
+		GEMET("G", "GEMET Term"),
 		INSPIRE("I", "INSPIRE Thema");
 
 		SearchtermType(String dbValue, String description) {
@@ -302,6 +302,12 @@ public class MdekUtils {
 		}
 		public String toString() {
 			return description;
+		}
+		public static boolean isThesaurusTerm(SearchtermType inType) {
+			if (inType == UMTHES || inType == GEMET) {
+				return true;
+			}
+			return false;
 		}
 		String dbValue;
 		String description;

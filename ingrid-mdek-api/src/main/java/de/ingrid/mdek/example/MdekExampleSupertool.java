@@ -3,6 +3,7 @@ package de.ingrid.mdek.example;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -202,6 +203,10 @@ public class MdekExampleSupertool {
 	}
 	public IngridDocument getSpatialReferences(SpatialReferenceType[] refTypes) {
 		return supertoolCatalog.getSpatialReferences(refTypes);
+	}
+	public IngridDocument updateSearchTerms(List<IngridDocument> oldTerms,
+			List<IngridDocument> newTerms) {
+		return supertoolCatalog.updateSearchTerms(oldTerms, newTerms);
 	}
 	
 	// MdekExampleSupertoolSecurity FACADE !
@@ -1165,12 +1170,35 @@ public class MdekExampleSupertool {
 	}
 
 	public void debugJobInfoDoc(IngridDocument jobInfoDoc) {
+		debugJobInfoDoc(jobInfoDoc, null);
+	}
+	public void debugJobInfoDoc(IngridDocument jobInfoDoc, JobType jobType) {
 		System.out.println(jobInfoDoc);
 
 		Exception jobExc = MdekCaller.getExceptionFromJobInfo(jobInfoDoc);
 		if (jobExc != null) {
 			System.out.println("JobInfo Exception !:" + jobExc);
 			printThrowable(jobExc);
+		}
+
+		if (!doFullOutput) {
+			return;
+		}
+
+		if (jobType == JobType.UPDATE_SEARCHTERMS) {
+			List<Map> msgs = (List<Map>) jobInfoDoc.get(MdekKeys.JOBINFO_TERMS_UPDATED);
+			if (msgs != null) {
+				System.out.println("  " + msgs.size() + " messages to display:");
+				int maxNum = 50;
+				for (int i=0; i<msgs.size(); i++) {
+					Map msg = msgs.get(i);
+					System.out.println("    " + msg);
+					if (i > maxNum) {
+						System.out.println("    ...");
+						break;
+					}
+				}
+			}
 		}
 	}
 	public void debugArray(Object[] params, String label) {

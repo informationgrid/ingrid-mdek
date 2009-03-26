@@ -155,7 +155,10 @@ public class SpatialRefValueDaoHibernate
 
 		Session session = getSession();
 
-		String q = "from SpatialRefValue spRefVal " +
+		// fetch all refs referenced by Objects !
+		String q = "select distinct spRefVal " +
+			"from SpatialReference spRef " +
+			"inner join spRef.spatialRefValue spRefVal " +
 			"left join fetch spRefVal.spatialRefSns spRefSns " +
 			"where spRefSns.expiredAt is null ";
 
@@ -167,7 +170,7 @@ public class SpatialRefValueDaoHibernate
 		if (hqlToken.equals("OR ")) {
 			q += ")";
 		}
-		
+
 		return  session.createQuery(q).list();
 	}
 }

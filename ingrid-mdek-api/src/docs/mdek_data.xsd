@@ -22,6 +22,7 @@
 			<xs:element name="REQUEST_EXPORT_MAP" type="REQUEST_EXPORT_MAP"/>
 			<xs:element name="REQUEST_IMPORT_MAP" type="REQUEST_IMPORT_MAP"/>
 			<xs:element name="REQUEST_URL_MAP" type="REQUEST_URL_MAP"/>
+			<xs:element name="REQUEST_SNS_UPDATE_MAP" type="REQUEST_SNS_UPDATE_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -52,6 +53,7 @@
 			<xs:element name="RESULT_EXPORT_MAP" type="RESULT_EXPORT_MAP"/>
 			<xs:element name="RESULT_IMPORT_MAP" type="RESULT_IMPORT_MAP"/>
 			<xs:element name="RESULT_ANALYZE_MAP" type="RESULT_ANALYZE_MAP"/>
+			<xs:element name="RESULT_SNS_UPDATE_MAP" type="RESULT_SNS_UPDATE_MAP"/>
 		</xs:all>
 	</xs:complexType>
 
@@ -445,6 +447,13 @@
 			<xs:element name="url-result-reference-description" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>	
+	<xs:complexType name="REQUEST_SNS_UPDATE_MAP">
+		<xs:choice>
+			<!-- Update of searchterms: old and new terms -->
+			<xs:element name="subject-terms-old" type="SUBJECT_TERM_LIST"/>
+			<xs:element name="subject-terms-new" type="SUBJECT_TERM_LIST"/>
+		</xs:choice>
+	</xs:complexType>
 	<xs:complexType name="PATH_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="PATH_MAP" type="PATH_MAP"/>
@@ -560,7 +569,7 @@
 	</xs:complexType>
 	<xs:complexType name="STATISTICS_SEARCHTERM_MAP">
 		<xs:sequence>
-			<xs:element name="term-name" type="xs:string"/>
+			<xs:element ref="term-name"/>
 			<xs:element name="total-num" type="xs:long"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -570,23 +579,26 @@
 			<xs:element name="jobinfo-end-time" type="xs:string"/>
 			<!-- OBJECT Info: e.g. current number of exported objects -->
 			<!-- and total number of objects to export -->
-			<xs:element name="jobinfo-num-objects" type="xs:integer"/>
+			<xs:element ref="jobinfo-num-objects"/>
 			<xs:element name="jobinfo-total-num-objects" type="xs:integer"/>
 			<!-- ADDRESS Info: e.g. current number of exported addresses -->
 			<!-- and total number of addresses to export -->
-			<xs:element name="jobinfo-num-addresses" type="xs:integer"/>
+			<xs:element ref="jobinfo-num-addresses"/>
 			<xs:element name="jobinfo-total-num-addresses" type="xs:integer"/>
 			<!-- Arbitrary Entity Info: e.g. used for tracking entities in rebuild process ! -->
 			<xs:element name="jobinfo-entity-type" type="xs:string"/>
 			<xs:element name="jobinfo-num-entities" type="xs:integer"/>
 			<xs:element name="jobinfo-total-num-entities" type="xs:integer"/>
 			<!-- arbitrary messages generated -->
-			<xs:element name="jobinfo-messages" type="xs:string"/>
+			<xs:element ref="jobinfo-messages"/>
 			<!-- contains Exception if thrown in job -->
 			<xs:element name="jobinfo-exception" type="xs:anyType"/>
 		</xs:choice>
 	</xs:complexType>
 	<xs:element name="jobinfo-start-time" type="xs:string"/>
+	<xs:element name="jobinfo-num-objects" type="xs:integer"/>
+	<xs:element name="jobinfo-num-addresses" type="xs:integer"/>
+	<xs:element name="jobinfo-messages" type="xs:string"/>
 	<xs:complexType name="RESULT_EXPORT_MAP">
 		<xs:complexContent>
 			<xs:extension base="RESULT_JOBINFO_MAP">
@@ -607,6 +619,29 @@
 		<xs:all>
 			<xs:element name="validation-result" type="ANALYZE_LIST"/>
 		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="RESULT_SNS_UPDATE_MAP">
+		<xs:complexContent>
+			<xs:extension base="RESULT_JOBINFO_MAP">
+				<xs:sequence>
+					<xs:element name="jobinfo-terms-updated" type="TERMS_UPDATED_LIST"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TERMS_UPDATED_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="TERM_UPDATED_MAP" type="TERM_UPDATED_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TERM_UPDATED_MAP">
+		<xs:sequence>
+			<xs:element ref="term-name"/>
+			<xs:element ref="term-type"/>
+			<xs:element ref="jobinfo-messages"/>
+			<xs:element ref="jobinfo-num-objects"/>
+			<xs:element ref="jobinfo-num-addresses"/>
+		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ANALYZE_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -876,12 +911,13 @@
 			<xs:element ref="term-name"/>
 			<xs:element ref="term-type"/>
 			<xs:element ref="term-sns-id"/>
-			<xs:element name="term-gemet-id" type="xs:string"/>
+			<xs:element name="term-gemet-id"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="term-name" type="xs:string"/>
 	<xs:element name="term-type" type="xs:string"/>
 	<xs:element name="term-sns-id" type="xs:string"/>
+	<xs:element name="term-gemet-id" type="xs:string"/>
 	<xs:complexType name="SUBJECT_TERM_INSPIRE_MAP">
 		<xs:sequence>
 			<xs:element ref="term-name"/>

@@ -13,9 +13,9 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
 public interface ISearchtermSnsDao
 	extends IGenericDao<SearchtermSns> {
 
-	/** Load SearchtermSns according to given values. If not found create AND save it !
-	 * @param snsId NEVER NULL !
-	 * @param gemetId GEMET ID of term, pass null if no GEMET term
+	/** Load SearchtermSns with given snsId. If not found create AND save it !
+	 * @param snsId NEVER NULL ! used for loading term !
+	 * @param gemetId GEMET ID of term. Ignored for loading term, but set when creating term !
 	 * @return persisted SearchtermSns (with Id)
 	 */
 	SearchtermSns loadOrCreate(String snsId, String gemetId);

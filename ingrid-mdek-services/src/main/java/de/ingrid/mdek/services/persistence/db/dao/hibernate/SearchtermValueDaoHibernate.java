@@ -1,6 +1,9 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -47,13 +50,15 @@ public class SearchtermValueDaoHibernate
 
 		SearchtermValue termValue = null;
 		if (SearchtermType.FREI == termType) {
-			if (entityType == IdcEntityType.OBJECT) {
-				termValue = loadFreiSearchtermObject(term, entityId);
-			} else {
-				termValue = loadFreiSearchtermAddress(term, entityId);
+			if (entityType != null && entityId != null) {
+				if (entityType == IdcEntityType.OBJECT) {
+					termValue = loadFreiSearchtermObject(term, entityId);
+				} else {
+					termValue = loadFreiSearchtermAddress(term, entityId);
+				}
 			}
 
-		} else if (SearchtermType.UMTHES == termType || SearchtermType.GEMET == termType) {
+		} else if (SearchtermType.isThesaurusTerm(termType)) {
 			termValue = loadThesaurusSearchterm(termType, searchtermSnsId);
 			
 		} else if (SearchtermType.INSPIRE == termType) {
@@ -127,7 +132,7 @@ public class SearchtermValueDaoHibernate
 
 		// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
 		// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
-		// of these names equals true, due to configuration of MySQL !
+		// of these names in MySQL equals true, due to configuration of MySQL !
 		SearchtermValue searchtermVal = null;
 		List<SearchtermValue> searchtermVals = session.createQuery(qString).list();
 		if (searchtermVals.size() > 0) {
@@ -172,6 +177,41 @@ public class SearchtermValueDaoHibernate
 		return termValue;
 	}
 
+	public List<SearchtermValue> getSearchtermValues(SearchtermType type, String term,
+			String snsId) {
+		Session session = getSession();
+		List<SearchtermValue> retList = null;
+
+		String q = "from SearchtermValue termVal ";
+		if (SearchtermType.isThesaurusTerm(type)) {
+			q += "left join fetch termVal.searchtermSns termSns ";
+		}
+		q += "where termVal.type = '" + type.getDbValue() + "' ";
+
+		if (type == SearchtermType.FREI) {
+			q += "and termVal.term = '" + term + "'";
+			// NOTICE: we query MULTIPLE values !
+			retList = session.createQuery(q).list();
+
+		} else if (SearchtermType.isThesaurusTerm(type)) {
+			q += "and termSns.snsId = '" + snsId + "'";
+/*
+			// NOTICE: we query SINGLE value ! Has to be unique !
+			retList = new ArrayList<SearchtermValue>();
+			SearchtermValue termValue = (SearchtermValue) session.createQuery(q).uniqueResult();
+			if (termValue != null) {
+				retList.add(termValue);
+			}
+*/
+			// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
+			// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
+			// of these names in MySQL equals true, due to configuration of MySQL !
+			retList = session.createQuery(q).list();
+		}
+
+		return retList;
+	}
+
 	public List<SearchtermValue> getSearchtermValues(SearchtermType[] types) {
 		if (types == null) {
 			types = new SearchtermType[0];
@@ -179,15 +219,69 @@ public class SearchtermValueDaoHibernate
 
 		Session session = getSession();
 
-		String q = "from SearchtermValue termVal " +
-			"left join fetch termVal.searchtermSns ";
-
+		// create where clause
+		String whereClause = "";
 		String hqlToken = "where ";
 		for (SearchtermType type : types) {
-			q += hqlToken + "termVal.type = '" + type.getDbValue() + "' ";
+			whereClause += hqlToken + "termVal.type = '" + type.getDbValue() + "' ";
 			hqlToken = "OR ";
 		}
 		
-		return  session.createQuery(q).list();
+		// fetch all terms referenced by Objects !
+		String q = "select distinct termVal " +
+			"from SearchtermObj termObj " +
+			"inner join termObj.searchtermValue termVal " +
+			"left join fetch termVal.searchtermSns " +
+			whereClause;
+		List<SearchtermValue> terms = session.createQuery(q).list();
+
+		// fetch all terms referenced by Addresses and add to list
+		q = "select distinct termVal " +
+			"from SearchtermAdr termAdr " +
+			"inner join termAdr.searchtermValue termVal " +
+			"left join fetch termVal.searchtermSns " +
+			whereClause;
+		List<SearchtermValue> addrTerms = session.createQuery(q).list();
+		terms.addAll(addrTerms);
+		
+		// set up result list, remove duplicate SearchtermValues
+		List<SearchtermValue> resultList = new ArrayList<SearchtermValue>();
+		Set<Long> addedIds = new HashSet<Long>();
+		for (SearchtermValue term : terms) {
+			if (!addedIds.contains(term.getId())) {
+				addedIds.add(term.getId());
+				resultList.add(term);
+			}
+		}
+		
+		return resultList;
+	}
+
+	public long countObjectsOfSearchterm(long termId) {
+		String q = "select count(distinct termObj) " +
+			"from SearchtermObj termObj " +
+			"where termObj.searchtermId = " + termId;
+		
+		return (Long) getSession().createQuery(q).uniqueResult();
+	}
+	public long countAddressesOfSearchterm(long termId) {
+		String q = "select count(distinct termAdr) " +
+			"from SearchtermAdr termAdr " +
+			"where termAdr.searchtermId = " + termId;
+	
+		return (Long) getSession().createQuery(q).uniqueResult();
+	}
+
+	public List<SearchtermObj> getSearchtermObjs(long searchtermValueId) {
+		String q = "from SearchtermObj termObj " +
+			"where termObj.searchtermId = " + searchtermValueId;
+		
+		return  getSession().createQuery(q).list();
+	}
+	public List<SearchtermAdr> getSearchtermAdrs(long searchtermValueId) {
+		String q = "from SearchtermAdr termAdr " +
+			"where termAdr.searchtermId = " + searchtermValueId;
+		
+		return  getSession().createQuery(q).list();
 	}
 }

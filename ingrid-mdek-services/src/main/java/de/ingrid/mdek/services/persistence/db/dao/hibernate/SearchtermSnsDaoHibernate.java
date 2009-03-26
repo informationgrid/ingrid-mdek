@@ -21,15 +21,11 @@ public class SearchtermSnsDaoHibernate
         super(factory, SearchtermSns.class);
     }
 
-	public SearchtermSns load(String snsId, String gemetId) {
+	private SearchtermSns load(String snsId) {
 		Session session = getSession();
 
 		String qString = "from SearchtermSns " +
 			"where snsId = '" + snsId + "' ";
-
-		if (gemetId != null && gemetId.length() > 0) {
-			qString += "and gemetId = '" + gemetId + "'";
-		}
 
 		SearchtermSns termSns = (SearchtermSns) session.createQuery(qString)
 			.uniqueResult();
@@ -38,7 +34,7 @@ public class SearchtermSnsDaoHibernate
 	}
 
 	public SearchtermSns loadOrCreate(String snsId, String gemetId) {
-		SearchtermSns termSns = load(snsId, gemetId);
+		SearchtermSns termSns = load(snsId);
 		
 		if (termSns == null) {
 			termSns = new SearchtermSns();

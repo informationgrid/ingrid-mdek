@@ -21,6 +21,7 @@ import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
+import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleCatalog {
@@ -147,20 +148,21 @@ class MdekExampleCatalogThread extends Thread {
 		// NI catalog
 
 		// OBJECTS
-		String topObjUuid = "3866463B-B449-11D2-9A86-080000507261";
+		String objTopUuid = "3866463B-B449-11D2-9A86-080000507261";
 		// underneath upper top node
 		// 3866463B-B449-11D2-9A86-080000507261
 		//  38664688-B449-11D2-9A86-080000507261
 		//   15C69C20-FE15-11D2-AF34-0060084A4596
 		//    2C997C68-2247-11D3-AF51-0060084A4596
 		//     C1AA9CA6-772D-11D3-AF92-0060084A4596 // leaf
+		String objTopChildUuid = "38664688-B449-11D2-9A86-080000507261";
 		String objParentUuid = "15C69C20-FE15-11D2-AF34-0060084A4596";
 		String objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
 		String objLeafUuid = "C1AA9CA6-772D-11D3-AF92-0060084A4596";
 		// all further top nodes (5 top nodes at all)
-//		String topObjUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
-//		String topObjUuid3 = "38665183-B449-11D2-9A86-080000507261";
-//		String topObjUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
+		String objTopUuid2 = "79297FDD-729B-4BC5-BF40-C1F3FB53D2F2";
+		String objTopUuid3 = "38665183-B449-11D2-9A86-080000507261";
+		String objTopUuid4 = "7937CA1A-3F3A-4D36-9EBA-E2F55190811A";
 		// NO SUB OBJECTS !
 
 		String objWithAdditionalFieldsUuid = "3892B136-D1F3-4E45-9E5F-E1CEF117AA74";
@@ -654,7 +656,7 @@ class MdekExampleCatalogThread extends Thread {
 // -----------------------------------
 		
 		System.out.println("\n\n=========================");
-		System.out.println("SNS Update");
+		System.out.println("SNS Searchterms Update");
 		System.out.println("=========================");
 
 		System.out.println("\n----- validate: get searchterms of different type(s) -----");
@@ -664,6 +666,181 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.INSPIRE });
 		supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.INSPIRE, SearchtermType.UMTHES });
 		supertool.getSearchTerms(null);
+
+		System.out.println("\n----- before SNS UPDATE: validate searchterms of object -----");
+		doc = supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
+		List<IngridDocument> termDocsMixed = (List<IngridDocument>) doc.get(MdekKeys.SUBJECT_TERMS);
+
+		System.out.println("\n----- before SNS UPDATE: validate searchterms of address -----");
+		doc = supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
+		termDocsMixed.addAll((List<IngridDocument>) doc.get(MdekKeys.SUBJECT_TERMS));
+
+//		System.out.println("\n----- UPDATE: all UMTHES !!! -----");
+//		doc = supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.UMTHES });
+//		termDocsMixed = (List<IngridDocument>) doc.get(MdekKeys.SUBJECT_TERMS);
+
+/*
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS UPDATE: THESAURUS to FREE -----");
+
+		// new terms are all null !
+		List<IngridDocument> termDocsNull = Collections.nCopies(termDocsMixed.size(), null);
+		try {
+			// causes timeout ?
+			supertool.updateSearchTerms(termDocsMixed, termDocsNull);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of object -----");
+		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
+		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
+
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS UPDATE: FREE to THESAURUS -----");
+		
+		// set up free list from former mixed list !
+		List<IngridDocument> termDocsFree = new ArrayList<IngridDocument>(termDocsMixed.size());
+		for (IngridDocument termDocMixed : termDocsMixed) {
+			IngridDocument termDocFree = new IngridDocument();
+			termDocFree.putAll(termDocMixed);
+			termDocFree.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+			termDocsFree.add(termDocFree);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSearchTerms(termDocsFree, termDocsMixed);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of object -----");
+		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
+		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
+*/
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW TERM -----");
+		System.out.println("----- = Keep all records, Update data -----");
+		
+		// set up free list from former mixed list !
+		List<IngridDocument> termDocsMixed_newName = new ArrayList<IngridDocument>(termDocsMixed.size());
+		for (IngridDocument termDocMixed : termDocsMixed) {
+			IngridDocument termDocNewName = new IngridDocument();
+			termDocNewName.putAll(termDocMixed);
+			termDocNewName.put(MdekKeys.TERM_NAME, "MMTEST1_" + termDocMixed.getString(MdekKeys.TERM_NAME));
+			termDocsMixed_newName.add(termDocNewName);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSearchTerms(termDocsMixed, termDocsMixed_newName);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of object -----");
+		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
+		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW SNS-ID -----");
+		System.out.println("----- = Update term records, delete old sns record, create new sns record and assign -----");
+		
+		// set up free list from former mixed list !
+		List<IngridDocument> termDocsMixed_newSnsId = new ArrayList<IngridDocument>(termDocsMixed.size());
+		for (IngridDocument termDocMixed : termDocsMixed) {
+			IngridDocument termDocNewSnSId = new IngridDocument();
+			termDocNewSnSId.putAll(termDocMixed);
+			termDocNewSnSId.put(MdekKeys.TERM_SNS_ID, "MMTEST2_" + termDocMixed.getString(MdekKeys.TERM_SNS_ID));
+			termDocsMixed_newSnsId.add(termDocNewSnSId);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSearchTerms(termDocsMixed, termDocsMixed_newSnsId);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of object -----");
+		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
+		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW SNS-ID, NEW NAME -----");
+		System.out.println("----- = New free records with old thesaurus term ! -----");
+		System.out.println("----- = Update thesaurus term records, delete old sns record, create new sns record and assign -----");
+		
+		// set up free list from former mixed list !
+		List<IngridDocument> termDocsMixed_newSnsIdNewName = new ArrayList<IngridDocument>(termDocsMixed.size());
+		for (IngridDocument termDocMixed : termDocsMixed) {
+			IngridDocument termDocNewSnSIdNewName = new IngridDocument();
+			termDocNewSnSIdNewName.putAll(termDocMixed);
+			termDocNewSnSIdNewName.put(MdekKeys.TERM_NAME, "MMTEST3_" + termDocMixed.getString(MdekKeys.TERM_NAME));
+			termDocNewSnSIdNewName.put(MdekKeys.TERM_SNS_ID, "MMTES3_" + termDocMixed.getString(MdekKeys.TERM_SNS_ID));
+			termDocsMixed_newSnsIdNewName.add(termDocNewSnSIdNewName);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSearchTerms(termDocsMixed_newSnsId, termDocsMixed_newSnsIdNewName);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of object -----");
+		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
+		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
+
+// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("SNS SpatialReferences Update");
+		System.out.println("=========================");
 
 		System.out.println("\n----- validate: get spatial references different type(s) -----");
 		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.FREI });
