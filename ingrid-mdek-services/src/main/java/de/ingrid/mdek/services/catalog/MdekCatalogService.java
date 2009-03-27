@@ -565,7 +565,7 @@ public class MdekCatalogService {
 				updateThesaurusTerm(tmpOldTerm, newDoc, userUuid);
 				
 			} else if (oldType == SearchtermType.FREI) {
-				updateFreeTermToThesaurus(tmpOldTerm, newDoc, userUuid);
+				updateFreeTerm(tmpOldTerm, newDoc, userUuid);
 			}
 			
 			updateJobInfo(JobType.UPDATE_SEARCHTERMS, "Searchterm", ++numUpdated, totalNum, userUuid);
@@ -643,17 +643,13 @@ public class MdekCatalogService {
 			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldTermValue.getId());
 			int numObj = oldTermObjs.size();
 			for (SearchtermObj oldTermObj : oldTermObjs) {
-
-				// !!! create NEW FREE term (not connected to entity !)
+				// !!! create NEW FREE term per object (not connected to entity !)
 				SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(
 						SearchtermType.FREI.getDbValue(), oldTermValue.getTerm(), null, null, null, null);
 
 				// connect to Object
-				SearchtermObj newTermObj = null;
-				if (deleteThesaurusTerm) {
-					// we use the same termObj entities, not needed anymore because thesaurus term will be deleted !
-					newTermObj = oldTermObj;
-				} else {
+				SearchtermObj newTermObj = oldTermObj;
+				if (!deleteThesaurusTerm) {
 					// we create new termObjs, the ones to thesaurus term still needed, because will not be deleted !
 					newTermObj = new SearchtermObj();
 					newTermObj.setLine(oldTermObj.getLine());
@@ -668,16 +664,13 @@ public class MdekCatalogService {
 			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldTermValue.getId());
 			int numAddr = oldTermAdrs.size();
 			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
-				// create NEW FREE term (not connected to entity !)
+				// create NEW FREE term per address (not connected to entity !)
 				SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(
 						SearchtermType.FREI.getDbValue(), oldTermValue.getTerm(), null, null, null, null);
 
 				// connect to Address
-				SearchtermAdr newTermAdr = null;
-				if (deleteThesaurusTerm) {
-					// we use the same termAdr entities, not needed anymore because thesaurus term will be deleted !
-					newTermAdr = oldTermAdr;
-				} else {
+				SearchtermAdr newTermAdr = oldTermAdr;
+				if (!deleteThesaurusTerm) {
 					// we create new termAdrs, the ones to thesaurus term still needed, because will not be deleted !
 					newTermAdr = new SearchtermAdr();
 					newTermAdr.setLine(oldTermAdr.getLine());
@@ -782,29 +775,46 @@ public class MdekCatalogService {
 		}
 	}
 
-	private void updateFreeTermToThesaurus(SearchtermValue inTermOld, IngridDocument newTermDoc, String userUuid) {
+	private void updateFreeTerm(SearchtermValue tmpOldTerm, IngridDocument newTermDoc, String userUuid) {
 		// check type of old term
 		SearchtermType oldType =
-			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermOld.getType());
+			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpOldTerm.getType());
 		if (oldType != SearchtermType.FREI) {
 			LOG.warn("SNS Update: Old type of searchterm is NOT \"FREI\", we skip this one ! " +
-				"type/term:" + oldType + "/" + inTermOld.getTerm());
+				"type/term:" + oldType + "/" + tmpOldTerm.getTerm());
 			return;
 		}
 
 		// map new doc to bean for better handling
 		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
-		SearchtermValue inTermNew = 
+		SearchtermValue tmpNewTerm = 
 			docToBeanMapper.mapSearchtermValueForSNSUpdate(newTermDoc, new SearchtermValue());
 		SearchtermType newType = null;
-		if (inTermNew != null) {
-			newType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermNew.getType());
+		if (tmpNewTerm != null) {
+			newType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpNewTerm.getType());
 		}
 		if (!SearchtermType.isThesaurusTerm(newType)) {
 			// ??? should not happen !!! all new terms are thesaurus terms !!!
 			LOG.warn("SNS Update: New type of searchterm is NOT \"Thesaurus\", we skip this one ! doc:" + newTermDoc);
 			return;
 		}
+
+		String oldName = tmpOldTerm.getTerm();
+		String newName = tmpNewTerm.getTerm();
+		if (oldName.equals(newName)) {
+			// replace free with thesaurus term
+			updateFreeTermToThesaurus(tmpOldTerm, tmpNewTerm, true, userUuid);
+		} else {
+			// keep free term, add new thesaurus term
+			updateFreeTermToThesaurus(tmpOldTerm, tmpNewTerm, false, userUuid);
+		}
+	}
+
+	/** Add THESAURUS record with according references to Objects/Addresses (based on free term references) !
+	 * Replace free term if requested or add thesaurus term additionally ! */
+	private void updateFreeTermToThesaurus(SearchtermValue inTermOld, SearchtermValue inTermNew,
+			boolean replaceFreeTerm,
+			String userUuid) {
 
 		// CREATE SNS TERM !
 
@@ -817,10 +827,11 @@ public class MdekCatalogService {
 				inTermNew.getTerm(), null, newSnsData, null, null);
 
 
-		// UPDATE ALL REFERENCES TO OBJECTS/ADDRESSES OF FREE TERMS AND DELETE FREE TERMS
+		// UPDATE / CREATE NEW REFERENCES TO OBJECTS/ADDRESSES
 
 		// get all FREE terms !
-		List<SearchtermValue> oldFreeTerms = daoSearchtermValue.getSearchtermValues(oldType,
+		List<SearchtermValue> oldFreeTerms = daoSearchtermValue.getSearchtermValues(
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermOld.getType()),
 				inTermOld.getTerm(),
 				inTermOld.getSearchtermSns().getSnsId());
 
@@ -829,30 +840,55 @@ public class MdekCatalogService {
 		int numAddr = 0;		
 		for (SearchtermValue oldFreeTerm : oldFreeTerms) {
 			
-			// get all references to objects and update to SNS term
+			// get all references to objects and update / create new ones
 			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldFreeTerm.getId());
 			numObj += oldTermObjs.size();
 			for (SearchtermObj oldTermObj : oldTermObjs) {
-				oldTermObj.setSearchtermId(newSnsTerm.getId());
-				oldTermObj.setSearchtermValue(newSnsTerm);
-				dao.makePersistent(oldTermObj);
+				// connect to Object
+				SearchtermObj newTermObj = oldTermObj;
+				if (!replaceFreeTerm) {
+					// we create new termObjs, the ones to free term still needed, because free term is kept !
+					newTermObj = new SearchtermObj();
+					newTermObj.setLine(oldTermObj.getLine());
+					newTermObj.setObjId(oldTermObj.getObjId());
+				}
+				newTermObj.setSearchtermId(newSnsTerm.getId());
+				newTermObj.setSearchtermValue(newSnsTerm);
+				dao.makePersistent(newTermObj);
 			}
 
-			// get all references to addresses and update to SNS term
+			// get all references to addresses and update  / create new ones
 			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldFreeTerm.getId());
 			numAddr += oldTermAdrs.size();
 			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
-				oldTermAdr.setSearchtermId(newSnsTerm.getId());
-				oldTermAdr.setSearchtermValue(newSnsTerm);
-				dao.makePersistent(oldTermAdr);
+				// connect to Address
+				SearchtermAdr newTermAdr = oldTermAdr;
+				if (!replaceFreeTerm) {
+					// we create new termAdrs, the ones to free term still needed, because free term is kept !
+					newTermAdr = new SearchtermAdr();
+					newTermAdr.setLine(oldTermAdr.getLine());
+					newTermAdr.setAdrId(oldTermAdr.getAdrId());
+				}
+				newTermAdr.setSearchtermId(newSnsTerm.getId());
+				newTermAdr.setSearchtermValue(newSnsTerm);
+				dao.makePersistent(newTermAdr);
 			}
 			
-			// DELETE FREE Term
-			dao.makeTransient(oldFreeTerm);
+			// DELETE FREE Term if requested
+			if (replaceFreeTerm) {
+				dao.makeTransient(oldFreeTerm);
+			}
 		}
 		
-		updateJobInfoNewUpdatedTerm(inTermOld.getTerm(), inTermOld.getType(),
-			"Freien Suchbegriff überführt in Deskriptor \"" + newSnsTerm.getTerm() + "\" (" + newType + ")",
+		SearchtermType newType =
+			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newSnsTerm.getType());
+		String msg;
+		if (replaceFreeTerm) {
+			msg = "Freien Suchbegriff ersetzt durch Deskriptor \"" + newSnsTerm.getTerm() + "\" (" + newType + ")";
+		} else {
+			msg = "Freien Suchbegriff ergänzt mit Deskriptor \"" + newSnsTerm.getTerm() + "\" (" + newType + ")";			
+		}
+		updateJobInfoNewUpdatedTerm(inTermOld.getTerm(), inTermOld.getType(), msg,
 			numObj, numAddr, userUuid);
 	}
 }

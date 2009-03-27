@@ -3,6 +3,7 @@ package de.ingrid.mdek.example;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -679,7 +680,8 @@ class MdekExampleCatalogThread extends Thread {
 //		doc = supertool.getSearchTerms(new SearchtermType[]{ SearchtermType.UMTHES });
 //		termDocsMixed = (List<IngridDocument>) doc.get(MdekKeys.SUBJECT_TERMS);
 
-/*
+		// -----------------------------------
+
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS UPDATE: THESAURUS to FREE -----");
 
@@ -704,6 +706,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
 		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
+		// -----------------------------------
 
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS UPDATE: FREE to THESAURUS -----");
@@ -716,9 +719,49 @@ class MdekExampleCatalogThread extends Thread {
 			termDocFree.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
 			termDocsFree.add(termDocFree);
 		}
+
+		List<IngridDocument> termDocsMixed_newName;
+
+		// --------------------------------------------------
+		// ONLY USE ONE OF THE following FREE to THESAURUS UPDATES !!!!
+		// --------------------------------------------------
+
+		System.out.println("\n=========================");
+		System.out.println("----- SNS UPDATE: FREE to THESAURUS, same Name -> Replace FREE -----");
+		
 		try {
 			// causes timeout ?
 			supertool.updateSearchTerms(termDocsFree, termDocsMixed);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SEARCHTERMS);
+
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of object -----");
+		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
+		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
+/*
+		System.out.println("\n=========================");
+		System.out.println("----- SNS UPDATE: FREE to THESAURUS, DIFFERENT Name -> Keep FREE, Add Thesaurus -----");
+		
+		// set up list with NEW Name from former mixed list !
+		termDocsMixed_newName = new ArrayList<IngridDocument>(termDocsMixed.size());
+		for (IngridDocument termDocMixed : termDocsMixed) {
+			IngridDocument termDocNewName = new IngridDocument();
+			termDocNewName.putAll(termDocMixed);
+			termDocNewName.put(MdekKeys.TERM_NAME, "MMTEST1_" + termDocMixed.getString(MdekKeys.TERM_NAME));
+			termDocsMixed_newName.add(termDocNewName);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSearchTerms(termDocsFree, termDocsMixed_newName);
 		} catch(Exception ex) {
 			// track job info if still running !
 			while (supertool.hasRunningJob()) {
@@ -742,11 +785,11 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("----- = Keep all records, Update data -----");
 		
 		// set up free list from former mixed list !
-		List<IngridDocument> termDocsMixed_newName = new ArrayList<IngridDocument>(termDocsMixed.size());
+		termDocsMixed_newName = new ArrayList<IngridDocument>(termDocsMixed.size());
 		for (IngridDocument termDocMixed : termDocsMixed) {
 			IngridDocument termDocNewName = new IngridDocument();
 			termDocNewName.putAll(termDocMixed);
-			termDocNewName.put(MdekKeys.TERM_NAME, "MMTEST1_" + termDocMixed.getString(MdekKeys.TERM_NAME));
+			termDocNewName.put(MdekKeys.TERM_NAME, "MMTEST2_" + termDocMixed.getString(MdekKeys.TERM_NAME));
 			termDocsMixed_newName.add(termDocNewName);
 		}
 		try {
@@ -779,7 +822,7 @@ class MdekExampleCatalogThread extends Thread {
 		for (IngridDocument termDocMixed : termDocsMixed) {
 			IngridDocument termDocNewSnSId = new IngridDocument();
 			termDocNewSnSId.putAll(termDocMixed);
-			termDocNewSnSId.put(MdekKeys.TERM_SNS_ID, "MMTEST2_" + termDocMixed.getString(MdekKeys.TERM_SNS_ID));
+			termDocNewSnSId.put(MdekKeys.TERM_SNS_ID, "MMTEST3_" + termDocMixed.getString(MdekKeys.TERM_SNS_ID));
 			termDocsMixed_newSnsId.add(termDocNewSnSId);
 		}
 		try {
@@ -813,8 +856,8 @@ class MdekExampleCatalogThread extends Thread {
 		for (IngridDocument termDocMixed : termDocsMixed) {
 			IngridDocument termDocNewSnSIdNewName = new IngridDocument();
 			termDocNewSnSIdNewName.putAll(termDocMixed);
-			termDocNewSnSIdNewName.put(MdekKeys.TERM_NAME, "MMTEST3_" + termDocMixed.getString(MdekKeys.TERM_NAME));
-			termDocNewSnSIdNewName.put(MdekKeys.TERM_SNS_ID, "MMTES3_" + termDocMixed.getString(MdekKeys.TERM_SNS_ID));
+			termDocNewSnSIdNewName.put(MdekKeys.TERM_NAME, "MMTEST4_" + termDocMixed.getString(MdekKeys.TERM_NAME));
+			termDocNewSnSIdNewName.put(MdekKeys.TERM_SNS_ID, "MMTEST4_" + termDocMixed.getString(MdekKeys.TERM_SNS_ID));
 			termDocsMixed_newSnsIdNewName.add(termDocNewSnSIdNewName);
 		}
 		try {
