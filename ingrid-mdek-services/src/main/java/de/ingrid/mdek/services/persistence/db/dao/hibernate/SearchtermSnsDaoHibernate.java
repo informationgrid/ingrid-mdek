@@ -38,10 +38,12 @@ public class SearchtermSnsDaoHibernate
 		
 		if (termSns == null) {
 			termSns = new SearchtermSns();
-			termSns.setSnsId(snsId);
-			termSns.setGemetId(gemetId);
-			makePersistent(termSns);			
 		}
+
+		// update with newest values
+		termSns.setSnsId(snsId);
+		termSns.setGemetId(gemetId);
+		makePersistent(termSns);
 		
 		return termSns;
 	}

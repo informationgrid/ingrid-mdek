@@ -156,7 +156,9 @@ public class SearchtermValueDaoHibernate
 		return (SearchtermValue) session.createQuery(qString).uniqueResult();
 	}
 
-	public SearchtermValue loadOrCreate(String type, String term, Integer entryId,
+	public SearchtermValue loadOrCreate(String type,
+			String term, String alternateTerm,  
+			Integer entryId,
 			SearchtermSns termSns,
 			Long entityId, IdcEntityType entityType)
 	{
@@ -166,14 +168,17 @@ public class SearchtermValueDaoHibernate
 		
 		if (termValue == null) {
 			termValue = new SearchtermValue();
-			termValue.setType(type);
-			termValue.setTerm(term);
-			termValue.setEntryId(entryId);
-			termValue.setSearchtermSns(termSns);
-			termValue.setSearchtermSnsId(termSnsId);
-			makePersistent(termValue);
 		}
-		
+
+		// update with newest values
+		termValue.setType(type);
+		termValue.setTerm(term);
+		termValue.setAlternateTerm(alternateTerm);
+		termValue.setEntryId(entryId);
+		termValue.setSearchtermSns(termSns);
+		termValue.setSearchtermSnsId(termSnsId);
+		makePersistent(termValue);
+
 		return termValue;
 	}
 

@@ -1287,6 +1287,7 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		refDoc.put(MdekKeys.TERM_NAME, ref.getTerm());
+		refDoc.put(MdekKeys.TERM_ALTERNATE_NAME, ref.getAlternateTerm());
 		refDoc.put(MdekKeys.TERM_TYPE, ref.getType());
 		refDoc.put(MdekKeys.TERM_ENTRY_ID, ref.getEntryId());
 

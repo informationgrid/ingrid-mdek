@@ -637,6 +637,7 @@
 	<xs:complexType name="TERM_UPDATED_MAP">
 		<xs:sequence>
 			<xs:element ref="term-name"/>
+			<xs:element ref="term-alternate-name"/>
 			<xs:element ref="term-type"/>
 			<xs:element ref="jobinfo-messages"/>
 			<xs:element ref="jobinfo-num-objects"/>
@@ -909,12 +910,14 @@
 	<xs:complexType name="SUBJECT_TERM_MAP">
 		<xs:sequence>
 			<xs:element ref="term-name"/>
+			<xs:element ref="term-alternate-name"/>
 			<xs:element ref="term-type"/>
 			<xs:element ref="term-sns-id"/>
 			<xs:element name="term-gemet-id"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="term-name" type="xs:string"/>
+	<xs:element name="term-alternate-name" type="xs:string"/>
 	<xs:element name="term-type" type="xs:string"/>
 	<xs:element name="term-sns-id" type="xs:string"/>
 	<xs:element name="term-gemet-id" type="xs:string"/>

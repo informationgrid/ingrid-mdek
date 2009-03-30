@@ -65,14 +65,14 @@
                 </env-information>
             </general>
             <technical-domain>
-<!--                <dataset>
+                <dataset>
                     <description-of-tech-domain>description-of-tech-domain0</description-of-tech-domain>
                     <dataset-parameter>
                         <parameter>parameter0</parameter>
                         <supplementary-information>supplementary-information0</supplementary-information>
                     </dataset-parameter>
                     <method>method0</method>
-                </dataset>-->
+                </dataset>
 <!--                <service>
                     <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
                     <service-classification id="id15">service-classification0</service-classification>
@@ -102,7 +102,7 @@
                         <depends-on>depends-on0</depends-on>
                     </service-operation>
                 </service>-->
-                <document>
+<!--                <document>
                     <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
                     <publisher>publisher0</publisher>
                     <publishing-place>publishing-place0</publishing-place>
@@ -117,7 +117,7 @@
                     <pages>pages0</pages>
                     <volume>volume0</volume>
                     <published-in>published-in0</published-in>
-                </document>
+                </document>-->
 <!--                <map>
                     <hierarchy-level iso-code="iso-code9"/>
                     <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
@@ -205,14 +205,14 @@
                     <vertical-extent-vdatum id="id41"/>
                 </vertical-extent>
                 <geo-location>
-<!--                        <controlled-location>
+                        <controlled-location>
                             <location-name id="id43">location-name2</location-name>
                             <topic-type>topic-type1</topic-type>
                             <location-code>location-code1</location-code>
-                        </controlled-location>-->
-                        <uncontrolled-location>
+                        </controlled-location>
+<!--                        <uncontrolled-location>
                             <location-name id="id45">location-name3</location-name>
-                        </uncontrolled-location>
+                        </uncontrolled-location>-->
                     <bounding-coordinates>
                         <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
                         <east-bounding-coordinate>east-bounding-coordinate1</east-bounding-coordinate>
@@ -236,7 +236,7 @@
                 </dataset-reference>
             </temporal-domain>
             <subject-terms>
-                <controlled-term source="UMTHES" gemet-id="gemet-id1" id="id47">controlled-term0</controlled-term>
+                <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id47">controlled-term0</controlled-term>
                 <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
             </subject-terms>
             <available-linkage>
@@ -291,7 +291,7 @@
             <function>function0</function>
             <address-description>address-description0</address-description>
             <subject-terms>
-                <controlled-term source="UMTHES" gemet-id="gemet-id3" id="id63">controlled-term1</controlled-term>
+                <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id63">controlled-term1</controlled-term>
                 <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
             </subject-terms>
             <comment>

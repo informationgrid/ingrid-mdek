@@ -11,6 +11,7 @@
       <property name="searchtermSnsId" type="long" column="searchterm_sns_id"/>
       <property name="entryId" type="integer" column="entry_id"/>
       <property name="term" type="string" column="term"/>
+      <property name="alternateTerm" type="string" column="alternate_term"/>
 
       <many-to-one name="searchtermSns" class="SearchtermSns" column="searchterm_sns_id"
                    update="false"

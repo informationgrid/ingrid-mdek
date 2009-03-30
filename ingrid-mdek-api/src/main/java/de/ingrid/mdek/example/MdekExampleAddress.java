@@ -881,14 +881,22 @@ class MdekExampleAddressThread extends Thread {
 		docList.add(testDoc);
 		aDocIn.put(MdekKeys.COMMUNICATION, docList);
 
-		// add entry to SUBJECT_TERMS
-		System.out.println("- add test SUBJECT_TERM");
+		// add entries to SUBJECT_TERMS
 		docList = (List<IngridDocument>) aDocIn.get(MdekKeys.SUBJECT_TERMS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		System.out.println("- add test SUBJECT_TERM GEMET");
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.TERM_NAME, "TEST TERM_NAME");
-		testDoc.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
+		testDoc.put(MdekKeys.TERM_ALTERNATE_NAME, "TEST TERM_ALTERNATE_NAME");
+		testDoc.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.GEMET.getDbValue());
 		testDoc.put(MdekKeys.TERM_SNS_ID, "TEST TERM_SNS_ID");
+		testDoc.put(MdekKeys.TERM_GEMET_ID, "TEST TERM_GEMET_ID");
+		testDoc.put(MdekKeys.TERM_ENTRY_ID, 1);
+		docList.add(testDoc);
+		System.out.println("- add test SUBJECT_TERM FREE");
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.TERM_NAME, "TEST FREE TERM_NAME");
+		testDoc.put(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue());
 		docList.add(testDoc);
 		aDocIn.put(MdekKeys.SUBJECT_TERMS, docList);
 
@@ -935,6 +943,7 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("- remove test SUBJECT_TERM");
 			docList = (List<IngridDocument>) aRefetchedDoc.get(MdekKeys.SUBJECT_TERMS);
 			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
 				docList.remove(docList.size()-1);
 				aRefetchedDoc.put(MdekKeys.SUBJECT_TERMS, docList);				
 			}

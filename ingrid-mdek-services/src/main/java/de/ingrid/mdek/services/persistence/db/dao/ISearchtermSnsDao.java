@@ -15,7 +15,7 @@ public interface ISearchtermSnsDao
 
 	/** Load SearchtermSns with given snsId. If not found create AND save it !
 	 * @param snsId NEVER NULL ! used for loading term !
-	 * @param gemetId GEMET ID of term. Ignored for loading term, but set when creating term !
+	 * @param gemetId GEMET ID of term. Ignored for loading term, but set when creating/updating term !
 	 * @return persisted SearchtermSns (with Id)
 	 */
 	SearchtermSns loadOrCreate(String snsId, String gemetId);

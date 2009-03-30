@@ -22,14 +22,19 @@ public interface ISearchtermValueDao
 
 	/** Load SearchtermValue according to given values. If not found create AND save it !
 	 * @param type type of term NEVER null
-	 * @param term term name
-	 * @param entryId syslist entry id of term (null if no syslist entry)
+	 * @param term term name. always pass (used for loading FREE term; set when creating new term !) 
+	 * @param alternateTerm alternate term name. Ignored for loading term, but set when creating/updating term !
+	 * @param entryId syslist entry id of term (null if no syslist entry; used for loading INSPIRE term)
 	 * @param termSns according bean (or null if NO SNS term)
-	 * @param entityId connected to this entity (object or address), PASS NULL IF CONNECTION DOESN'T MATTER
-	 * @param entityType type of entity (object or address), PASS NULL IF CONNECTION DOESN'T MATTER
+	 * @param entityId connected to this object/address (used for loading FREE term).
+	 * 		PASS NULL IF CONNECTION DOESN'T MATTER (or new FREE term should be created)
+	 * @param entityType type of entity (object or address. used for loading FREE term).
+	 * 		PASS NULL IF CONNECTION DOESN'T MATTER (or new FREE term should be created)
 	 * @return persisted SearchtermValue (with Id)
 	 */
-	SearchtermValue loadOrCreate(String type, String term, Integer entryId,
+	SearchtermValue loadOrCreate(String type,
+		String term, String alternateTerm,
+		Integer entryId,
 		SearchtermSns termSns,
 		Long entityId, IdcEntityType entityType);
 

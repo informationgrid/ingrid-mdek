@@ -227,9 +227,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			SearchtermValue termValue = term.getSearchtermValue();
 			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
 			extendFullData(data, termValue.getTerm());
-			if (termType == SearchtermType.UMTHES || termType == SearchtermType.GEMET) {
+			if (SearchtermType.isThesaurusTerm(termType)) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
 				extendFullData(data, termValue.getSearchtermSns().getGemetId());
+				extendFullData(data, termValue.getAlternateTerm());
 			}
 		}
 
@@ -274,9 +275,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			SearchtermValue termValue = term.getSearchtermValue();
 			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
 			extendFullData(data, termValue.getTerm());
-			if (termType == SearchtermType.UMTHES || termType == SearchtermType.GEMET) {
+			if (SearchtermType.isThesaurusTerm(termType)) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
 				extendFullData(data, termValue.getSearchtermSns().getGemetId());
+				extendFullData(data, termValue.getAlternateTerm());
 			}
 		}
 		// SpatialReference

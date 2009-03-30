@@ -570,8 +570,12 @@ public class MdekKeys {
      * Value: List< IngridDocument > */
     public final static String SUBJECT_TERMS_INSPIRE = "subject-terms-inspire";
 
-    /** Value: String */
+    /** Term name to display in frontend. Is GEMET name if term type is GEMET.<br>
+     * Value: String */
     public final static String TERM_NAME = "term-name";
+    /** according UMTHES Name if term type is GEMET.<br>
+     * Value: String */
+    public final static String TERM_ALTERNATE_NAME = "term-alternate-name";
     /** Value: String */
     public final static String TERM_TYPE = "term-type";
     /** If searchterm is syslist entry, then this is the entry ID (TERM_TYPE determines syslist)<br>

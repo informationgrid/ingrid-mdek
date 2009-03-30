@@ -1481,7 +1481,7 @@ public class DocToBeanMapper implements IMapper {
 	}
 
 	/** Just map searchterm doc to bean for better handling of searchterms ! NO DATABASE BEAN !!! */
-	public SearchtermValue mapSearchtermValueForSNSUpdate(IngridDocument refDoc,
+	public SearchtermValue mapHelperSearchtermValue(IngridDocument refDoc,
 			SearchtermValue refValue)
 	{
 		if (refDoc == null) {
@@ -1489,6 +1489,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 
 		refValue.setTerm(refDoc.getString(MdekKeys.TERM_NAME));
+		refValue.setAlternateTerm(refDoc.getString(MdekKeys.TERM_ALTERNATE_NAME));
 		refValue.setType(refDoc.getString(MdekKeys.TERM_TYPE));
 		
 		SearchtermSns refSns = refValue.getSearchtermSns();
@@ -1502,12 +1503,13 @@ public class DocToBeanMapper implements IMapper {
 		return refValue;
 	}
 
-	private SearchtermValue mapSearchtermValue(SearchtermSns refSns,
+	public SearchtermValue mapSearchtermValue(SearchtermSns refSns,
 		IngridDocument refDoc,
 		SearchtermValue refValue) 
 	{
-		refValue.setTerm((String) refDoc.get(MdekKeys.TERM_NAME));
-		refValue.setType((String) refDoc.get(MdekKeys.TERM_TYPE));
+		refValue.setTerm(refDoc.getString(MdekKeys.TERM_NAME));
+		refValue.setAlternateTerm(refDoc.getString(MdekKeys.TERM_ALTERNATE_NAME));
+		refValue.setType(refDoc.getString(MdekKeys.TERM_TYPE));
 		refValue.setEntryId((Integer) refDoc.get(MdekKeys.TERM_ENTRY_ID));
 		keyValueService.processKeyValue(refValue);
 
@@ -1520,6 +1522,15 @@ public class DocToBeanMapper implements IMapper {
 
 		return refValue;
 	}
+	public SearchtermSns mapSearchtermSns(IngridDocument refDoc,
+			SearchtermSns refValue) 
+	{
+		refValue.setSnsId(refDoc.getString(MdekKeys.TERM_SNS_ID));			
+		refValue.setGemetId(refDoc.getString(MdekKeys.TERM_GEMET_ID));			
+
+		return refValue;
+	}
+
 
 	private void updateSearchterms(IdcEntityType entityType, IngridDocument docIn, IEntity entityIn) {
 		List<IngridDocument> inTermDocs = (List) docIn.get(MdekKeys.SUBJECT_TERMS);
@@ -1559,10 +1570,10 @@ public class DocToBeanMapper implements IMapper {
 				}
 				if (termValue != null) {
 					SearchtermSns termSns = termValue.getSearchtermSns();
-					String termSnsId = (termSns == null) ? "" : termSns.getSnsId();
-					String termGemetId = (termSns == null) ? "" : termSns.getGemetId();
-					if (MdekUtils.isEqual(inName, termValue.getTerm()) &&
-							MdekUtils.isEqual(inType, termValue.getType()) &&
+					String termSnsId = (termSns == null) ? null : termSns.getSnsId();
+					String termGemetId = (termSns == null) ? null : termSns.getGemetId();
+					if (MdekUtils.isEqual(inType, termValue.getType()) &&
+							MdekUtils.isEqual(inName, termValue.getTerm()) &&
 							MdekUtils.isEqual(inEntryId, termValue.getEntryId()) &&
 							MdekUtils.isEqual(inSnsId, termSnsId) &&
 							MdekUtils.isEqual(inGemetId, termGemetId))
@@ -1592,8 +1603,9 @@ public class DocToBeanMapper implements IMapper {
 				// then load/create SearchtermValue
 				// NOTICE: Freie Schlagwörter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
 				// gleiches Verhalten wie bei FREIEN RAUMBEZUEGEN, s.o.
-				SearchtermValue termValue = daoSearchtermValue.loadOrCreate(inType, inName, inEntryId,
-						termSns, (Long)entityIn.getId(), entityType);
+				SearchtermValue termValue = daoSearchtermValue.loadOrCreate(inType, inName,
+						inTermDoc.getString(MdekKeys.TERM_ALTERNATE_NAME),
+						inEntryId, termSns, (Long)entityIn.getId(), entityType);
 				mapSearchtermValue(termSns, inTermDoc, termValue);
 
 				// then create connection to entity
