@@ -38,6 +38,19 @@ public interface ISearchtermValueDao
 		SearchtermSns termSns,
 		Long entityId, IdcEntityType entityType);
 
+	/** Load SearchtermValue according to given values. Returns null if not found.
+	 * @param type type of term NEVER null
+	 * @param term term name, pass for loading FREE term 
+	 * @param entryId syslist entry id of term, pass for loading INSPIRE term
+	 * @param searchtermSnsId sns id of term, pass for loading THESAURUS term
+	 * @param entityId connected to this object/address, pass for loading FREE term
+	 * @param entityType type of entity connected to (object or address), pass for loading FREE term
+	 * @return found searchterm value or null
+	 */
+	SearchtermValue loadSearchterm(String type,
+			String term, Integer entryId, Long searchtermSnsId,
+			Long entityId, IdcEntityType entityType);
+
 	/** Load SearchtermValues according to given parameters. Passed type determines how to
 	 * fetch term. NOTICE: even for SNS terms multiple results can be delivered, e.g. "Messdaten"
 	 * and "Meﬂdaten" were imported and comparison equals true in MySQL due to configuration of MySQL !
@@ -62,6 +75,11 @@ public interface ISearchtermValueDao
 
 	/** Get all references to Objects of given searchterm */
 	List<SearchtermObj> getSearchtermObjs(long searchtermValueId);
+	/** Get FIRST occurence of the passed obj/searchterm reference. Returns null if not found ! */
+	SearchtermObj getSearchtermObj(long objId, long searchtermValueId);
+
 	/** Get all references to Addresses of given searchterm */
 	List<SearchtermAdr> getSearchtermAdrs(long searchtermValueId);
+	/** Get FIRST occurence of the passed addr/searchterm reference. Returns null if not found ! */
+	SearchtermAdr getSearchtermAdr(long addrId, long searchtermValueId);
 }

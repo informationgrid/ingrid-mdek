@@ -36,8 +36,7 @@ public class SearchtermValueDaoHibernate
         super(factory, SearchtermValue.class);
     }
     
-	/** Load SearchtermValue according to given values. Returns null if not found. */
-	private SearchtermValue loadSearchterm(String type, String term, Integer entryId,
+	public SearchtermValue loadSearchterm(String type, String term, Integer entryId,
 		Long searchtermSnsId,
 		Long entityId, IdcEntityType entityType)
 	{
@@ -283,10 +282,37 @@ public class SearchtermValueDaoHibernate
 		
 		return  getSession().createQuery(q).list();
 	}
+	public SearchtermObj getSearchtermObj(long objId, long searchtermValueId) {
+		String q = "from SearchtermObj termObj " +
+			"where termObj.objId = " + objId +
+			"and termObj.searchtermId = " + searchtermValueId;
+		
+		SearchtermObj result = null;
+		List<SearchtermObj> results = getSession().createQuery(q).list();
+		if (results.size() > 0) {
+			result = results.get(0);
+		}
+		
+		return result;
+	}
+
 	public List<SearchtermAdr> getSearchtermAdrs(long searchtermValueId) {
 		String q = "from SearchtermAdr termAdr " +
 			"where termAdr.searchtermId = " + searchtermValueId;
 		
 		return  getSession().createQuery(q).list();
+	}
+	public SearchtermAdr getSearchtermAdr(long addrId, long searchtermValueId) {
+		String q = "from SearchtermAdr termAdr " +
+			"where termAdr.adrId = " + addrId +
+			"and termAdr.searchtermId = " + searchtermValueId;
+		
+		SearchtermAdr result = null;
+		List<SearchtermAdr> results = getSession().createQuery(q).list();
+		if (results.size() > 0) {
+			result = results.get(0);
+		}
+		
+		return result;
 	}
 }

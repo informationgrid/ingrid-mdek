@@ -13,7 +13,6 @@ import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -65,7 +64,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 
 	private IGenericDao<IEntity> daoFullIndexAddr;
 	private IGenericDao<IEntity> daoFullIndexObj;
-	private ISysListDao daoSysList;
 
 	private static MdekFullIndexHandler myInstance;
 
@@ -82,7 +80,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 
 		daoFullIndexAddr = daoFactory.getDao(FullIndexAddr.class);
 		daoFullIndexObj = daoFactory.getDao(FullIndexObj.class);
-		daoSysList = daoFactory.getSysListDao();
 	}
 
 	/** Updates data of given address in index. */

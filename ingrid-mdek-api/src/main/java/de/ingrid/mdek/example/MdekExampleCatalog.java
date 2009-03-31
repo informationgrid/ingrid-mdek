@@ -760,7 +760,7 @@ class MdekExampleCatalogThread extends Thread {
 		List<IngridDocument> termDocsMixed_newName = termDocsMixed;
 
 		// -----------------------------------
-/*
+
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS UPDATE: THESAURUS to FREE -----");
 
@@ -805,12 +805,12 @@ class MdekExampleCatalogThread extends Thread {
 
 		// ------------- 1. Option --------------------------
 
-//		System.out.println("\n=========================");
-//		System.out.println("----- SNS UPDATE: FREE to THESAURUS, same Name -> Replace FREE -----");
-//		termDocsMixed_newName = termDocsMixed;
+		System.out.println("\n=========================");
+		System.out.println("----- SNS UPDATE: FREE to THESAURUS, same Name -> Replace FREE -----");
+		termDocsMixed_newName = termDocsMixed;
 
 		// ------------- 2. Option --------------------------
-
+/*
 		System.out.println("\n=========================");
 		System.out.println("----- SNS UPDATE: FREE to THESAURUS, DIFFERENT Name -> Keep FREE, Add Thesaurus -----");
 		
@@ -819,7 +819,7 @@ class MdekExampleCatalogThread extends Thread {
 		for (IngridDocument termDocMixed : termDocsMixed) {
 			IngridDocument termDocNewName = new IngridDocument();
 			termDocNewName.putAll(termDocMixed);
-			if (SearchtermType.isThesaurusTerm(
+			if (SearchtermType.isThesaurusType(
 					EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termDocNewName.getString(MdekKeys.TERM_TYPE)))) {
 				termDocNewName.put(MdekKeys.TERM_TYPE, SearchtermType.GEMET.getDbValue());				
 			}
@@ -828,7 +828,7 @@ class MdekExampleCatalogThread extends Thread {
 			termDocNewName.put(MdekKeys.TERM_ALTERNATE_NAME, "MMTEST1_" + termDocMixed.getString(MdekKeys.TERM_NAME));
 			termDocsMixed_newName.add(termDocNewName);
 		}
-
+*/
 		// ------------- End Option --------------------------
 
 		try {
@@ -849,7 +849,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
 		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
-*/
+
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");

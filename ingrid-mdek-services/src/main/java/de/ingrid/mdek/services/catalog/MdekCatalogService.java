@@ -19,6 +19,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
@@ -689,44 +690,74 @@ public class MdekCatalogService {
 			
 			// get all references to objects and update / create new ones
 			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldTermValue.getId());
-			int numObj = oldTermObjs.size();
+			int numObj = 0;
 			for (SearchtermObj oldTermObj : oldTermObjs) {
-				// !!! create NEW FREE term per object (not connected to entity !)
-				SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(SearchtermType.FREI.getDbValue(),
-						oldTermValue.getTerm(), null, null, null, null, null);
+				// first check whether connected free term already exists !
+				SearchtermValue existingFreeTerm = daoSearchtermValue.loadSearchterm(SearchtermType.FREI.getDbValue(),
+						oldTermValue.getTerm(), null, null, oldTermObj.getObjId(), IdcEntityType.OBJECT);
 
-				// connect to Object
-				SearchtermObj newTermObj = oldTermObj;
-				if (!deleteThesaurusTerm) {
-					// we create new termObjs, the ones to thesaurus term still needed, because will not be deleted !
-					newTermObj = new SearchtermObj();
-					newTermObj.setLine(oldTermObj.getLine());
-					newTermObj.setObjId(oldTermObj.getObjId());
+				if (existingFreeTerm != null) {
+					// connected FREE term already exists !
+					// delete all references to thesaurus term if term should be deleted 
+					if (deleteThesaurusTerm) {
+						dao.makeTransient(oldTermObj);
+						numObj++;
+					}
+				} else {
+					// FREE term does not exist, create it !
+					// !!! create NEW FREE term per object (not connected to entity !)
+					SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(SearchtermType.FREI.getDbValue(),
+							oldTermValue.getTerm(), null, null, null, null, null);
+
+					// connect to Object
+					SearchtermObj newTermObj = oldTermObj;
+					if (!deleteThesaurusTerm) {
+						// we create new termObjs, the ones to thesaurus term still needed, because term will not be deleted !
+						newTermObj = new SearchtermObj();
+						newTermObj.setLine(oldTermObj.getLine());
+						newTermObj.setObjId(oldTermObj.getObjId());
+					}
+					newTermObj.setSearchtermId(freeTerm.getId());
+					newTermObj.setSearchtermValue(freeTerm);
+					dao.makePersistent(newTermObj);
+					numObj++;
 				}
-				newTermObj.setSearchtermId(freeTerm.getId());
-				newTermObj.setSearchtermValue(freeTerm);
-				dao.makePersistent(newTermObj);
 			}
 
 			// get all references to addresses and update / create new ones
 			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldTermValue.getId());
-			int numAddr = oldTermAdrs.size();
+			int numAddr = 0;
 			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
-				// create NEW FREE term per address (not connected to entity !)
-				SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(SearchtermType.FREI.getDbValue(),
-						oldTermValue.getTerm(), null, null, null, null, null);
+				// first check whether connected free term already exists !
+				SearchtermValue existingFreeTerm = daoSearchtermValue.loadSearchterm(SearchtermType.FREI.getDbValue(),
+						oldTermValue.getTerm(), null, null, oldTermAdr.getAdrId(), IdcEntityType.ADDRESS);
 
-				// connect to Address
-				SearchtermAdr newTermAdr = oldTermAdr;
-				if (!deleteThesaurusTerm) {
-					// we create new termAdrs, the ones to thesaurus term still needed, because will not be deleted !
-					newTermAdr = new SearchtermAdr();
-					newTermAdr.setLine(oldTermAdr.getLine());
-					newTermAdr.setAdrId(oldTermAdr.getAdrId());
+				if (existingFreeTerm != null) {
+					// connected FREE term already exists !
+					// delete all references to thesaurus term if term should be deleted 
+					if (deleteThesaurusTerm) {
+						dao.makeTransient(oldTermAdr);
+						numAddr++;
+					}
+				} else {
+					// FREE term does not exist, create it !
+					// !!! create NEW FREE term per address (not connected to entity !)
+					SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(SearchtermType.FREI.getDbValue(),
+							oldTermValue.getTerm(), null, null, null, null, null);
+
+					// connect to Address
+					SearchtermAdr newTermAdr = oldTermAdr;
+					if (!deleteThesaurusTerm) {
+						// we create new termAdrs, the ones to thesaurus term still needed, because will not be deleted !
+						newTermAdr = new SearchtermAdr();
+						newTermAdr.setLine(oldTermAdr.getLine());
+						newTermAdr.setAdrId(oldTermAdr.getAdrId());
+					}
+					newTermAdr.setSearchtermId(freeTerm.getId());
+					newTermAdr.setSearchtermValue(freeTerm);
+					dao.makePersistent(newTermAdr);
+					numAddr++;
 				}
-				newTermAdr.setSearchtermId(freeTerm.getId());
-				newTermAdr.setSearchtermValue(freeTerm);
-				dao.makePersistent(newTermAdr);
 			}
 			
 			// DELETE Thesaurus TERM if requested !!! NO EXPIRED (not needed for display in IGE) !
@@ -734,11 +765,14 @@ public class MdekCatalogService {
 				dao.makeTransient(oldTermValue.getSearchtermSns());
 				dao.makeTransient(oldTermValue);
 			}
-			
-			updateJobInfoNewUpdatedTerm(oldTermValue.getTerm(), oldTermValue.getAlternateTerm(),
-				oldTermValue.getType(),
-				"Deskriptor in freien Suchbegriff überführt",
-				numObj, numAddr, userUuid);
+
+			// update job info only if obj/addr processed !
+			if (numObj > 0 || numAddr > 0) {
+				updateJobInfoNewUpdatedTerm(oldTermValue.getTerm(), oldTermValue.getAlternateTerm(),
+					oldTermValue.getType(),
+					"Deskriptor in freien Suchbegriff überführt",
+					numObj, numAddr, userUuid);
+			}
 		}
 	}
 	/** Update term record, update SNS record.
@@ -900,42 +934,70 @@ public class MdekCatalogService {
 				inTermOld.getSearchtermSns().getSnsId());
 
 		// and process
-		int numObj = 0;
-		int numAddr = 0;		
+		int numProcessedObj = 0;
+		int numProcessedAddr = 0;		
 		for (SearchtermValue oldFreeTerm : oldFreeTerms) {
 			
 			// get all references to objects and update / create new ones
 			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldFreeTerm.getId());
-			numObj += oldTermObjs.size();
 			for (SearchtermObj oldTermObj : oldTermObjs) {
-				// connect to Object
-				SearchtermObj newTermObj = oldTermObj;
-				if (!replaceFreeTerm) {
-					// we create new termObjs, the ones to free term still needed, because free term is kept !
-					newTermObj = new SearchtermObj();
-					newTermObj.setLine(oldTermObj.getLine());
-					newTermObj.setObjId(oldTermObj.getObjId());
+				// first check whether connected thesaurus term already exists !
+				SearchtermObj existingThesaurusTerm =
+					daoSearchtermValue.getSearchtermObj(oldTermObj.getObjId(), newSnsTerm.getId());
+
+				if (existingThesaurusTerm != null) {
+					// connected thesaurus term already exists !
+					// delete all references and free term if term should be replaced 
+					if (replaceFreeTerm) {
+						dao.makeTransient(oldTermObj);
+						numProcessedObj++;
+					}
+				} else {
+					// Thesaurus term does not exist !
+					// connect thesaurus term to Object, default: use free term connections
+					SearchtermObj newTermObj = oldTermObj;
+					if (!replaceFreeTerm) {
+						// we create new termObjs, the ones to free term still needed, because free term is kept !
+						newTermObj = new SearchtermObj();
+						newTermObj.setLine(oldTermObj.getLine());
+						newTermObj.setObjId(oldTermObj.getObjId());
+					}
+					newTermObj.setSearchtermId(newSnsTerm.getId());
+					newTermObj.setSearchtermValue(newSnsTerm);
+					dao.makePersistent(newTermObj);
+					numProcessedObj++;
 				}
-				newTermObj.setSearchtermId(newSnsTerm.getId());
-				newTermObj.setSearchtermValue(newSnsTerm);
-				dao.makePersistent(newTermObj);
 			}
 
 			// get all references to addresses and update  / create new ones
 			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldFreeTerm.getId());
-			numAddr += oldTermAdrs.size();
 			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
-				// connect to Address
-				SearchtermAdr newTermAdr = oldTermAdr;
-				if (!replaceFreeTerm) {
-					// we create new termAdrs, the ones to free term still needed, because free term is kept !
-					newTermAdr = new SearchtermAdr();
-					newTermAdr.setLine(oldTermAdr.getLine());
-					newTermAdr.setAdrId(oldTermAdr.getAdrId());
+				// first check whether connected thesaurus term already exists !
+				SearchtermObj existingThesaurusTerm =
+					daoSearchtermValue.getSearchtermObj(oldTermAdr.getAdrId(), newSnsTerm.getId());
+
+				if (existingThesaurusTerm != null) {
+					// connected thesaurus term already exists !
+					// delete all references and free term if term should be replaced 
+					if (replaceFreeTerm) {
+						dao.makeTransient(oldTermAdr);
+						numProcessedAddr++;
+					}
+				} else {
+					// Thesaurus term does not exist !
+					// connect thesaurus term to Address, default: use free term connections
+					SearchtermAdr newTermAdr = oldTermAdr;
+					if (!replaceFreeTerm) {
+						// we create new termAdrs, the ones to free term still needed, because free term is kept !
+						newTermAdr = new SearchtermAdr();
+						newTermAdr.setLine(oldTermAdr.getLine());
+						newTermAdr.setAdrId(oldTermAdr.getAdrId());
+					}
+					newTermAdr.setSearchtermId(newSnsTerm.getId());
+					newTermAdr.setSearchtermValue(newSnsTerm);
+					dao.makePersistent(newTermAdr);
+					numProcessedAddr++;
 				}
-				newTermAdr.setSearchtermId(newSnsTerm.getId());
-				newTermAdr.setSearchtermValue(newSnsTerm);
-				dao.makePersistent(newTermAdr);
 			}
 			
 			// DELETE FREE Term if requested
@@ -943,25 +1005,28 @@ public class MdekCatalogService {
 				dao.makeTransient(oldFreeTerm);
 			}
 		}
-		
-		SearchtermType newType =
-			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newSnsTerm.getType());
-		String newTermTag;
-		if (newType == SearchtermType.GEMET) {
-			newTermTag = "\"" + newSnsTerm.getTerm() + "\" (" + newType + "), " +
-				"\"" + newSnsTerm.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
-		} else {
-			newTermTag = "\"" + newSnsTerm.getTerm() + "\" (" + newType + ")";			
+
+		// update job info only if obj/addr processed !
+		if (numProcessedObj > 0 || numProcessedAddr > 0) {
+			SearchtermType newType =
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newSnsTerm.getType());
+			String newTermTag;
+			if (newType == SearchtermType.GEMET) {
+				newTermTag = "\"" + newSnsTerm.getTerm() + "\" (" + newType + "), " +
+					"\"" + newSnsTerm.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
+			} else {
+				newTermTag = "\"" + newSnsTerm.getTerm() + "\" (" + newType + ")";			
+			}
+			String msg;
+			if (replaceFreeTerm) {
+				msg = "Freien Suchbegriff ersetzt durch Deskriptor " + newTermTag;
+			} else {
+				msg = "Freien Suchbegriff ergänzt mit Deskriptor " + newTermTag;
+			}
+			updateJobInfoNewUpdatedTerm(inTermOld.getTerm(), inTermOld.getAlternateTerm(),
+				inTermOld.getType(), msg,
+				numProcessedObj, numProcessedAddr, userUuid);
 		}
-		String msg;
-		if (replaceFreeTerm) {
-			msg = "Freien Suchbegriff ersetzt durch Deskriptor " + newTermTag;
-		} else {
-			msg = "Freien Suchbegriff ergänzt mit Deskriptor " + newTermTag;
-		}
-		updateJobInfoNewUpdatedTerm(inTermOld.getTerm(), inTermOld.getAlternateTerm(),
-			inTermOld.getType(), msg,
-			numObj, numAddr, userUuid);
 	}
 
 	/** Flushes after every processed term. */
@@ -1020,8 +1085,6 @@ public class MdekCatalogService {
 			
 			// get all objects referencing expired spatial ref
 			List<T01Object> objs = daoSpatialRefValue.getObjectsOfSpatialRefValue(spRefValue.getId());
-
-			// TODO: Object als Verantwortlicher in Bearbeitungsversion speichern !!!
 
 			updateJobInfoNewUpdatedSpatialRef(spRefValue.getNameValue(), spRefValue.getNativekey(), 
 				"entfällt", objs.size(), objs, userUuid);
