@@ -656,6 +656,82 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getFreeListEntries(MdekSysList.LEGIST);
 
 // -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("SNS SpatialReferences Update");
+		System.out.println("=========================");
+
+		System.out.println("\n----- validate: get spatial references different type(s) -----");
+		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.FREI });
+		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.GEO_THESAURUS });
+		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.GEO_THESAURUS, SpatialReferenceType.FREI });
+		supertool.getSpatialReferences(null);
+
+		String objUuidWithSpatRefs = "7AC6048A-7018-11D3-A599-C70A0FEBD4FC"; // 8 Geo, 1 Free
+//		String objUuidWithSpatRefs = "3A295152-5091-11D3-AE6C-00104B57C66D"; // 1 Geo, 1 Free (Göttingen)
+//		String objUuidWithSpatRefs = "E13A483B-4FAB-11D3-AE6B-00104B57C66D"; // 1 Geo (Niedersachsen)
+
+		System.out.println("\n----- before SNS UPDATE: validate spatial refs of object -----");
+		doc = supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
+		List<IngridDocument> locationDocsMixed = (List<IngridDocument>) doc.get(MdekKeys.LOCATIONS);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW BBOX -----");
+		System.out.println("----- = Keep all records, Update data -----");
+		
+		// set up changed list from former mixed list !
+		List<IngridDocument> locationDocsChanged = new ArrayList<IngridDocument>(locationDocsMixed.size());
+		for (IngridDocument locationDocMixed : locationDocsMixed) {
+			IngridDocument locationDocChanged = new IngridDocument();
+			locationDocChanged.putAll(locationDocMixed);
+			locationDocChanged.put(MdekKeys.LOCATION_NAME, "MMTEST1_" + locationDocChanged.getString(MdekKeys.LOCATION_NAME));
+			locationDocChanged.put(MdekKeys.NORTH_BOUNDING_COORDINATE, 123.99);
+			locationDocsChanged.add(locationDocChanged);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSpatialReferences(locationDocsMixed, locationDocsChanged);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+
+		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object -----");
+		supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS UPDATE: THESAURUS to EXPIRED -----");
+
+		// new spatial refs are all null !
+		List<IngridDocument> locationDocsNull = Collections.nCopies(locationDocsMixed.size(), null);
+		try {
+			// causes timeout ?
+			supertool.updateSpatialReferences(locationDocsChanged, locationDocsNull);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+
+		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object -----");
+		supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
+
+// -----------------------------------
 		
 		System.out.println("\n\n=========================");
 		System.out.println("SNS Searchterms Update");
@@ -785,7 +861,7 @@ class MdekExampleCatalogThread extends Thread {
 		for (IngridDocument termDocMixed : termDocsMixed) {
 			IngridDocument termDocNewName = new IngridDocument();
 			termDocNewName.putAll(termDocMixed);
-			if (SearchtermType.isThesaurusTerm(
+			if (SearchtermType.isThesaurusType(
 					EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termDocNewName.getString(MdekKeys.TERM_TYPE)))) {
 				termDocNewName.put(MdekKeys.TERM_TYPE, SearchtermType.GEMET.getDbValue());				
 			}
@@ -824,7 +900,7 @@ class MdekExampleCatalogThread extends Thread {
 		for (IngridDocument termDocMixed : termDocsMixed_newName2) {
 			IngridDocument termDocNewSnSId = new IngridDocument();
 			termDocNewSnSId.putAll(termDocMixed);
-			if (SearchtermType.isThesaurusTerm(
+			if (SearchtermType.isThesaurusType(
 					EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termDocNewSnSId.getString(MdekKeys.TERM_TYPE)))) {
 				termDocNewSnSId.put(MdekKeys.TERM_TYPE, SearchtermType.GEMET.getDbValue());				
 			}
@@ -866,7 +942,7 @@ class MdekExampleCatalogThread extends Thread {
 		for (IngridDocument termDocMixed : termDocsMixed) {
 			IngridDocument termDocNewSnSIdNewName = new IngridDocument();
 			termDocNewSnSIdNewName.putAll(termDocMixed);
-			if (SearchtermType.isThesaurusTerm(
+			if (SearchtermType.isThesaurusType(
 					EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termDocNewSnSIdNewName.getString(MdekKeys.TERM_TYPE)))) {
 				termDocNewSnSIdNewName.put(MdekKeys.TERM_TYPE, SearchtermType.GEMET.getDbValue());				
 			}
@@ -894,18 +970,6 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
 		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
-
-// -----------------------------------
-
-		System.out.println("\n\n=========================");
-		System.out.println("SNS SpatialReferences Update");
-		System.out.println("=========================");
-
-		System.out.println("\n----- validate: get spatial references different type(s) -----");
-		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.FREI });
-		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.GEO_THESAURUS });
-		supertool.getSpatialReferences(new SpatialReferenceType[]{ SpatialReferenceType.GEO_THESAURUS, SpatialReferenceType.FREI });
-		supertool.getSpatialReferences(null);
 
 // ===================================
 

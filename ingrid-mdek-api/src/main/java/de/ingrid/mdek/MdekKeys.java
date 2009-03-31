@@ -137,9 +137,12 @@ public class MdekKeys {
     /** Export: exported zip file<br>
      * Value: byte[] */
     public final static String EXPORT_RESULT = "export-result";
-    /** SNS Update: list of all updated terms to display in IGE<br>
+    /** SNS Update: list of all updated searchterms to display in IGE<br>
      *  Value: List< Map > */
     public final static String JOBINFO_TERMS_UPDATED = "jobinfo-terms-updated";
+    /** SNS Update: list of all updated spatial references to display in IGE<br>
+     *  Value: List< Map > */
+    public final static String JOBINFO_LOCATIONS_UPDATED = "jobinfo-locations-updated";
 
 
     // VALIDATION JOB RESULT
@@ -549,6 +552,8 @@ public class MdekKeys {
     public final static String LOCATION_CODE = "location-code";
     /** Value: String */
     public final static String LOCATION_SNS_ID = "location-sns-id";
+    /** Value: String */
+    public final static String LOCATION_EXPIRED_AT = "location-expired-at";
     /** Value: Double */
     public final static String WEST_BOUNDING_COORDINATE = "west-bounding-coordinate";
     /** Value: Double */
@@ -559,6 +564,14 @@ public class MdekKeys {
     public final static String NORTH_BOUNDING_COORDINATE = "north-bounding-coordinate";
     /** Value: String */
     public final static String SNS_TOPIC_TYPE = "sns-topic-type";
+
+    // SPATIAL REFERENCES (SNS)
+    /** OLD spatial references before update<br>
+     * Value: List< IngridDocument > */
+    public final static String LOCATIONS_OLD = "locations-old";
+    /** NEW spatial references to update to<br>
+     * Value: List< IngridDocument > */
+    public final static String LOCATIONS_NEW = "locations-new";
 
     
     // SEARCHTERMS

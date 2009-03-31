@@ -58,7 +58,7 @@ public class SearchtermValueDaoHibernate
 				}
 			}
 
-		} else if (SearchtermType.isThesaurusTerm(termType)) {
+		} else if (SearchtermType.isThesaurusType(termType)) {
 			termValue = loadThesaurusSearchterm(termType, searchtermSnsId);
 			
 		} else if (SearchtermType.INSPIRE == termType) {
@@ -188,7 +188,7 @@ public class SearchtermValueDaoHibernate
 		List<SearchtermValue> retList = null;
 
 		String q = "from SearchtermValue termVal ";
-		if (SearchtermType.isThesaurusTerm(type)) {
+		if (SearchtermType.isThesaurusType(type)) {
 			q += "left join fetch termVal.searchtermSns termSns ";
 		}
 		q += "where termVal.type = '" + type.getDbValue() + "' ";
@@ -198,7 +198,7 @@ public class SearchtermValueDaoHibernate
 			// NOTICE: we query MULTIPLE values !
 			retList = session.createQuery(q).list();
 
-		} else if (SearchtermType.isThesaurusTerm(type)) {
+		} else if (SearchtermType.isThesaurusType(type)) {
 			q += "and termSns.snsId = '" + snsId + "'";
 /*
 			// NOTICE: we query SINGLE value ! Has to be unique !

@@ -38,8 +38,8 @@
 			<xs:element name="total-num-qa-reassigned" type="xs:long"/>
 			<!-- number of entities in list -->
 			<xs:element name="total-num" type="xs:long"/>
-			<xs:element name="objEntities" type="OBJECT_LIST"/>
-			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
+			<xs:element ref="objEntities"/>
+			<xs:element ref="adrEntities"/>
 			<xs:element name="path" type="UUID_LIST"/>
 			<xs:element name="path_organisations" type="PATH_LIST"/>
 			<xs:element name="RESULT_ADDITIONAL_INFO_MAP" type="RESULT_ADDITIONAL_INFO_MAP"/>
@@ -56,6 +56,8 @@
 			<xs:element name="RESULT_SNS_UPDATE_MAP" type="RESULT_SNS_UPDATE_MAP"/>
 		</xs:all>
 	</xs:complexType>
+	<xs:element name="objEntities" type="OBJECT_LIST"/>
+	<xs:element name="adrEntities" type="ADDRESS_LIST"/>
 
 	<!-- Additional Error Info when Mdek Exception is thrown concerning Security -->
 	<xs:complexType name="EXCEPTION_SECURITY_INFO_MAP">
@@ -68,9 +70,9 @@
 			</xs:choice>
 			<xs:choice>
 				<!-- The Object(s) affected by the exception. NOTICE: When multiple then order is important (parent/child) -->
-				<xs:element name="objEntities" type="OBJECT_LIST"/>
+				<xs:element ref="objEntities"/>
 				<!-- The Address(es) affected by the exception. NOTICE: When multiple then order is important (parent/child) -->
-				<xs:element name="adrEntities" type="ADDRESS_LIST"/>
+				<xs:element ref="adrEntities"/>
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
@@ -452,6 +454,9 @@
 			<!-- Update of searchterms: old and new terms -->
 			<xs:element name="subject-terms-old" type="SUBJECT_TERM_LIST"/>
 			<xs:element name="subject-terms-new" type="SUBJECT_TERM_LIST"/>
+			<!-- Update of spatial references: old and new spatial references -->
+			<xs:element name="locations-old" type="LOCATION_LIST"/>
+			<xs:element name="locations-new" type="LOCATION_LIST"/>
 		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="PATH_LIST">
@@ -481,8 +486,8 @@
 		<xs:all>
 			<!-- number of entities in list -->
 			<xs:element name="total-num" type="xs:long"/>
-			<xs:element name="adrEntities" type="ADDRESS_LIST"/>
-			<xs:element name="objEntities" type="OBJECT_LIST"/>
+			<xs:element ref="adrEntities"/>
+			<xs:element ref="objEntities"/>
 			<!-- total number of entities for paging -->
 			<xs:element name="total-num-paging" type="xs:long"/>
 			<!-- csv result as zipped string containing csv lines -->
@@ -623,9 +628,10 @@
 	<xs:complexType name="RESULT_SNS_UPDATE_MAP">
 		<xs:complexContent>
 			<xs:extension base="RESULT_JOBINFO_MAP">
-				<xs:sequence>
+				<xs:choice>
 					<xs:element name="jobinfo-terms-updated" type="TERMS_UPDATED_LIST"/>
-				</xs:sequence>
+					<xs:element name="jobinfo-locations-updated" type="LOCATIONS_UPDATED_LIST"/>
+				</xs:choice>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -642,6 +648,20 @@
 			<xs:element ref="jobinfo-messages"/>
 			<xs:element ref="jobinfo-num-objects"/>
 			<xs:element ref="jobinfo-num-addresses"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LOCATIONS_UPDATED_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="LOCATION_UPDATED_MAP" type="LOCATION_UPDATED_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LOCATION_UPDATED_MAP">
+		<xs:sequence>
+			<xs:element ref="location-name"/>
+			<xs:element ref="location-code"/>
+			<xs:element ref="jobinfo-messages"/>
+			<xs:element ref="jobinfo-num-objects"/>
+			<xs:element ref="objEntities"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ANALYZE_LIST">
@@ -885,11 +905,12 @@
 	</xs:complexType>
 	<xs:complexType name="LOCATION_MAP">
 		<xs:sequence>
-			<xs:element name="location-name" type="xs:string"/>
+			<xs:element ref="location-name"/>
 			<xs:element name="location-name-key" type="xs:integer"/>
 			<xs:element name="location-type" type="xs:string"/>
-			<xs:element name="location-code" type="xs:string"/>
+			<xs:element ref="location-code"/>
 			<xs:element name="location-sns-id" type="xs:string"/>
+			<xs:element name="location-expired-at" type="xs:string"/>
 			<xs:element name="west-bounding-coordinate" type="xs:double"/>
 			<xs:element name="east-bounding-coordinate" type="xs:double"/>
 			<xs:element name="north-bounding-coordinate" type="xs:double"/>
@@ -897,6 +918,8 @@
 			<xs:element name="sns-topic-type" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:element name="location-name" type="xs:string"/>
+	<xs:element name="location-code" type="xs:string"/>
 	<xs:complexType name="SUBJECT_TERM_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="SUBJECT_TERM_MAP" type="SUBJECT_TERM_MAP"/>

@@ -981,4 +981,32 @@ public class MdekExampleSupertoolCatalog {
 		
 		return result;
 	}
+
+	public IngridDocument updateSpatialReferences(List<IngridDocument> oldSpatialRefs,
+			List<IngridDocument> newSpatialRefs) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE updateSpatialReferences ######");
+		System.out.println("- num oldSpatialRefs: " + oldSpatialRefs.size());
+		System.out.println("- num newSpatialRefs: " + newSpatialRefs.size());
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.updateSpatialReferences(plugId, oldSpatialRefs, newSpatialRefs, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			supertoolGeneric.debugJobInfoDoc(result, JobType.UPDATE_SPATIAL_REFERENCES);
+			
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
 }

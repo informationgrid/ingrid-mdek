@@ -339,4 +339,14 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: distinct spatial references accessable via MdekKeys.LOCATIONS
 	 */
 	IngridDocument getSpatialReferences(String plugId, SpatialReferenceType[] spatialRefTypes, String userId);
+
+	/** Update SNS spatial references (SNS Update). Passed lists have to have same size
+	 * determining "mapping" of old to new (updated) spatial reference.
+	 * @param oldSpatialRefs former spatial references before update
+	 * @param newSpatialRefs spatial references  after update
+	 * @return response containing result: map containing job info
+	 */
+	IngridDocument updateSpatialReferences(String plugId,
+			List<IngridDocument> oldSpatialRefs, List<IngridDocument> newSpatialRefs,
+			String userId);
 }

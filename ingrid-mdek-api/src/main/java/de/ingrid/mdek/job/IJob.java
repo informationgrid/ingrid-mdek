@@ -24,7 +24,9 @@ public interface IJob {
 		/** update all syslist data in entities / update index */
 		REBUILD_SYSLISTS("REBUILD_SYSLISTS"),
 		/** SNS update:  update searchterm data in entities */
-		UPDATE_SEARCHTERMS("UPDATE_SEARCHTERMS");
+		UPDATE_SEARCHTERMS("UPDATE_SEARCHTERMS"),
+		/** SNS update:  update spatial reference data in entities */
+		UPDATE_SPATIAL_REFERENCES("UPDATE_SPATIAL_REFERENCES");
 
 		JobType(String dbValue) {
 			this.dbValue = dbValue;

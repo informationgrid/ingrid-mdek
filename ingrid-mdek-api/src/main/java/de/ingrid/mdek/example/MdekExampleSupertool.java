@@ -208,6 +208,10 @@ public class MdekExampleSupertool {
 			List<IngridDocument> newTerms) {
 		return supertoolCatalog.updateSearchTerms(oldTerms, newTerms);
 	}
+	public IngridDocument updateSpatialReferences(List<IngridDocument> oldSpatialRefs,
+			List<IngridDocument> newSpatialRefs) {
+		return supertoolCatalog.updateSpatialReferences(oldSpatialRefs, newSpatialRefs);
+	}
 	
 	// MdekExampleSupertoolSecurity FACADE !
 	// ----------------------------------
@@ -1199,7 +1203,22 @@ public class MdekExampleSupertool {
 					}
 				}
 			}
+		} else if (jobType == JobType.UPDATE_SPATIAL_REFERENCES) {
+			List<Map> msgs = (List<Map>) jobInfoDoc.get(MdekKeys.JOBINFO_LOCATIONS_UPDATED);
+			if (msgs != null) {
+				System.out.println("  " + msgs.size() + " messages to display:");
+				int maxNum = 50;
+				for (int i=0; i<msgs.size(); i++) {
+					Map msg = msgs.get(i);
+					System.out.println("    " + msg);
+					if (i > maxNum) {
+						System.out.println("    ...");
+						break;
+					}
+				}
+			}
 		}
+
 	}
 	public void debugArray(Object[] params, String label) {
 		System.out.print(label);

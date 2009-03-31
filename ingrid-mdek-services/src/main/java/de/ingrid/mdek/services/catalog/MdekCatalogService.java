@@ -21,6 +21,7 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -30,6 +31,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
@@ -38,12 +40,14 @@ import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
+import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
+import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
@@ -84,6 +88,7 @@ public class MdekCatalogService {
 	private IT02AddressDao daoT02Address;
 	private ISearchtermValueDao daoSearchtermValue;
 	private ISearchtermSnsDao daoSearchtermSns;
+	private ISpatialRefValueDao daoSpatialRefValue;
 	private IGenericDao<IEntity> dao;
 
 	private MdekJobHandler jobHandler;
@@ -114,6 +119,7 @@ public class MdekCatalogService {
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
 		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
+		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 		dao = daoFactory.getDao(IEntity.class);
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
@@ -415,7 +421,7 @@ public class MdekCatalogService {
 				jobType, entityType, numUpdated, totalNum, false);
 		jobHandler.updateRunningJob(userUuid, jobDoc);
 	}
-	/** Update special info of UPDATE_SEARCHTERMS job IN MEMORY (Info displayed on 2. tab) ! */
+	/** Update special info of UPDATE_SEARCHTERMS job IN MEMORY (Info displayed in IGE) ! */
 	public void updateJobInfoNewUpdatedTerm(String termName, String alternateName, String termType,
 			String msg, int numObj, int numAddr, String userUuid) {
 		IngridDocument jobInfo = jobHandler.getRunningJobInfo(JobType.UPDATE_SEARCHTERMS, userUuid);
@@ -436,7 +442,48 @@ public class MdekCatalogService {
 
 		termList.add(term);
 		
-		// CALL back !!! to check job canceled !
+		// CALL back to guarantee info "is managed" !!! also checks job canceled !
+		jobHandler.updateRunningJob(userUuid, jobInfo);
+	}
+	/** Update special info of UPDATE_SPATIAL_REFERENCES job IN MEMORY (Info displayed in IGE) !
+	 * @param oldSpatRefName name of spatial reference before update
+	 * @param oldSpatRefCode code of spatial reference before update
+	 * @param msg the message to display
+	 * @param numObj how many objects referencing the spatial ref
+	 * @param referencingObjs the referencing objects, PASS NULL if no additional data here
+	 */
+	public void updateJobInfoNewUpdatedSpatialRef(String oldSpatRefName, String oldSpatRefCode,
+			String msg, int numObj,  List<T01Object> referencingObjs, String userUuid) {
+		IngridDocument jobInfo = jobHandler.getRunningJobInfo(JobType.UPDATE_SPATIAL_REFERENCES, userUuid);
+		
+		List<Map> spRefList = (List<Map>) jobInfo.get(MdekKeys.JOBINFO_LOCATIONS_UPDATED);
+		if (spRefList == null) {
+			spRefList = new ArrayList<Map>();
+			jobInfo.put(MdekKeys.JOBINFO_LOCATIONS_UPDATED, spRefList);
+		}
+
+		Map spRef = new HashMap();
+		spRef.put(MdekKeys.LOCATION_NAME, oldSpatRefName);
+		spRef.put(MdekKeys.LOCATION_CODE, oldSpatRefCode);
+		spRef.put(MdekKeys.JOBINFO_MESSAGES, msg);
+		spRef.put(MdekKeys.JOBINFO_NUM_OBJECTS, numObj);
+
+		// add referencing objects info
+		if (referencingObjs != null) {
+			BeanToDocMapper beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
+			List<IngridDocument> objDocs = new ArrayList<IngridDocument>();
+			for (T01Object obj : referencingObjs) {
+				IngridDocument objDoc =
+					beanToDocMapper.mapT01Object(obj, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+				beanToDocMapper.mapResponsibleUser(obj.getResponsibleUuid(), objDoc, MappingQuantity.INITIAL_ENTITY);
+				objDocs.add(objDoc);
+			}
+			spRef.put(MdekKeys.OBJ_ENTITIES, objDocs);			
+		}
+
+		spRefList.add(spRef);
+		
+		// CALL back to guarantee info "is managed" !!! also checks job canceled !
 		jobHandler.updateRunningJob(userUuid, jobInfo);
 	}
 	/**
@@ -453,7 +500,9 @@ public class MdekCatalogService {
 				runningJobInfo, false);
 		if (jobType == JobType.UPDATE_SEARCHTERMS) {
 			jobDetails.put(MdekKeys.JOBINFO_TERMS_UPDATED, runningJobInfo.get(MdekKeys.JOBINFO_TERMS_UPDATED));
-		}
+		} else if (jobType == JobType.UPDATE_SPATIAL_REFERENCES) {
+			jobDetails.put(MdekKeys.JOBINFO_LOCATIONS_UPDATED, runningJobInfo.get(MdekKeys.JOBINFO_LOCATIONS_UPDATED));
+		} 
 
 		// then update job info in database
 		jobHandler.updateJobInfoDB(jobType, jobDetails, userUuid);
@@ -547,9 +596,6 @@ public class MdekCatalogService {
 	public void updateSearchTerms(List<IngridDocument> termsOld, List<IngridDocument> termsNew,
 			String userUuid) {
 
-		// temporary beans containing searchterm data of passed docs for better handling
-		SearchtermValue tmpOldTerm = new SearchtermValue();
-
 		int totalNum = termsOld.size();
 		int numUpdated = 0;
 		for (int i=0; i < totalNum; i++) {
@@ -558,11 +604,12 @@ public class MdekCatalogService {
 
 			// map old doc to bean for better handling
 			DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
-			docToBeanMapper.mapHelperSearchtermValue(oldDoc, tmpOldTerm);
+			SearchtermValue tmpOldTerm =
+				docToBeanMapper.mapHelperSearchtermValue(oldDoc, new SearchtermValue());
 			SearchtermType oldType =
 				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpOldTerm.getType());
 
-			if (SearchtermType.isThesaurusTerm(oldType)) {
+			if (SearchtermType.isThesaurusType(oldType)) {
 				updateThesaurusTerm(tmpOldTerm, newDoc, userUuid);
 				
 			} else if (oldType == SearchtermType.FREI) {
@@ -579,9 +626,9 @@ public class MdekCatalogService {
 		// check type of old term
 		SearchtermType oldType =
 			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpOldTerm.getType());
-		if (!SearchtermType.isThesaurusTerm(oldType)) {
+		if (!SearchtermType.isThesaurusType(oldType)) {
 			LOG.warn("SNS Update: Old type of searchterm is NOT \"Thesaurus\", we skip this one ! " +
-				"type/term:" + oldType + "/" + tmpOldTerm.getTerm());
+				"type/term: " + oldType + "/" + tmpOldTerm.getTerm());
 			return;
 		}
 
@@ -598,7 +645,7 @@ public class MdekCatalogService {
 			// check type of new term
 			SearchtermType newType =
 				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpNewTerm.getType());
-			if (!SearchtermType.isThesaurusTerm(newType)) {
+			if (!SearchtermType.isThesaurusType(newType)) {
 				// ??? should not happen !!! all new terms are thesaurus terms !!!
 				LOG.warn("SNS Update: New type of searchterm is NOT \"Thesaurus\", we skip this one ! doc:" + newTermDoc);
 				return;
@@ -797,7 +844,7 @@ public class MdekCatalogService {
 			EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpOldTerm.getType());
 		if (oldType != SearchtermType.FREI) {
 			LOG.warn("SNS Update: Old type of searchterm is NOT \"FREI\", we skip this one ! " +
-				"type/term:" + oldType + "/" + tmpOldTerm.getTerm());
+				"type/term: " + oldType + "/" + tmpOldTerm.getTerm());
 			return;
 		}
 
@@ -809,7 +856,7 @@ public class MdekCatalogService {
 		if (tmpNewTerm != null) {
 			newType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpNewTerm.getType());
 		}
-		if (!SearchtermType.isThesaurusTerm(newType)) {
+		if (!SearchtermType.isThesaurusType(newType)) {
 			// ??? should not happen !!! all new terms are thesaurus terms !!!
 			LOG.warn("SNS Update: New type of searchterm is NOT \"Thesaurus\", we skip this one ! doc:" + newTermDoc);
 			return;
@@ -915,5 +962,112 @@ public class MdekCatalogService {
 		updateJobInfoNewUpdatedTerm(inTermOld.getTerm(), inTermOld.getAlternateTerm(),
 			inTermOld.getType(), msg,
 			numObj, numAddr, userUuid);
+	}
+
+	/** Flushes after every processed term. */
+	public void updateSpatialReferences(List<IngridDocument> spRefsOld, List<IngridDocument> spRefsNew,
+			String userUuid) {
+
+		// temporary beans containing searchterm data of passed docs for better handling
+
+		int totalNum = spRefsOld.size();
+		int numUpdated = 0;
+		
+		for (int i=0; i < totalNum; i++) {
+			IngridDocument oldDoc = spRefsOld.get(i);
+			IngridDocument newDoc = spRefsNew.get(i);
+
+			// map old doc to bean for better handling
+			DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+			SpatialRefValue tmpOldSpRef = 
+				docToBeanMapper.mapHelperSpatialRefValue(oldDoc, new SpatialRefValue());
+
+			// check type of old term
+			SpatialReferenceType oldType =
+				EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, tmpOldSpRef.getType());
+			if (!SpatialReferenceType.isThesaurusType(oldType)) {
+				LOG.warn("SNS Update: Old type of spatial reference is NOT \"Thesaurus\", we skip this one ! " +
+					"type/term: " + oldType + "/" + tmpOldSpRef.getNameValue());
+			} else {
+				
+				// process
+				if (newDoc == null) {
+					updateSpatialRefToExpired(tmpOldSpRef, userUuid);
+
+				} else {
+					updateSpatialRefValue(tmpOldSpRef, newDoc, userUuid);				
+				}
+			}
+			
+			updateJobInfo(JobType.UPDATE_SPATIAL_REFERENCES, "SpatialRefValue", ++numUpdated, totalNum, userUuid);
+			// flush per spatial reference
+			dao.flush();
+		}
+	}
+	private void updateSpatialRefToExpired(SpatialRefValue inRefOld, String userUuid) {
+		// get all database beans !
+		List<SpatialRefValue> spRefValues = daoSpatialRefValue.getSpatialRefValues(
+				EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, inRefOld.getType()),
+				inRefOld.getNameValue(),
+				inRefOld.getSpatialRefSns().getSnsId());
+
+		// and process
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
+		for (SpatialRefValue spRefValue : spRefValues) {
+			// set expired date !
+			spRefValue.getSpatialRefSns().setExpiredAt(currentTime);
+			dao.makePersistent(spRefValue.getSpatialRefSns());
+			
+			// get all objects referencing expired spatial ref
+			List<T01Object> objs = daoSpatialRefValue.getObjectsOfSpatialRefValue(spRefValue.getId());
+
+			// TODO: Object als Verantwortlicher in Bearbeitungsversion speichern !!!
+
+			updateJobInfoNewUpdatedSpatialRef(spRefValue.getNameValue(), spRefValue.getNativekey(), 
+				"entfällt", objs.size(), objs, userUuid);
+		}
+	}
+	private void updateSpatialRefValue(SpatialRefValue inRefOld, IngridDocument inRefNewDoc,
+			String userUuid) {
+		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+		SpatialRefValue inRefNew = 
+			docToBeanMapper.mapHelperSpatialRefValue(inRefNewDoc, new SpatialRefValue());
+
+		// get all database beans !
+		List<SpatialRefValue> spRefValues = daoSpatialRefValue.getSpatialRefValues(
+				EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, inRefOld.getType()),
+				inRefOld.getNameValue(),
+				inRefOld.getSpatialRefSns().getSnsId());
+
+		// and process
+		for (SpatialRefValue spRefValue : spRefValues) {
+			// set up message
+			String msg = null;
+			if (!MdekUtils.isEqual(spRefValue.getNameValue(), inRefNew.getNameValue())) {
+				msg = "neue Bezeichnung \"" + inRefNew.getNameValue() + "\"";
+			}
+			if (!MdekUtils.isEqual(spRefValue.getX1(), inRefNew.getX1()) ||
+				!MdekUtils.isEqual(spRefValue.getX2(), inRefNew.getX2()) ||
+				!MdekUtils.isEqual(spRefValue.getY1(), inRefNew.getY1()) ||
+				!MdekUtils.isEqual(spRefValue.getY2(), inRefNew.getY2())) {
+				msg = (msg == null) ? "" : (msg + ", ");
+				msg += "neuer Grenzverlauf";
+			}
+			if (msg == null) {
+				msg = "Raumeinheit geändert";
+			}
+			
+			// remember old data
+			String oldName = spRefValue.getNameValue();
+			String oldCode = spRefValue.getNativekey();
+
+			// set new data and PERSIST
+			docToBeanMapper.mapSpatialRefValue(spRefValue.getSpatialRefSns(), inRefNewDoc, spRefValue);
+			dao.makePersistent(spRefValue);
+
+			long numObj = daoSpatialRefValue.countObjectsOfSpatialRefValue(spRefValue.getId());
+
+			updateJobInfoNewUpdatedSpatialRef(oldName, oldCode, msg, (int)numObj, null, userUuid);
+		}
 	}
 }

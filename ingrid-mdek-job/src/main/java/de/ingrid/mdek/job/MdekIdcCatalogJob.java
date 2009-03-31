@@ -1388,7 +1388,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.disableAutoFlush();
 
 			// get all locations of passed type(s)
-			List<SpatialRefValue> spatialRefValues = daoSpatialRefValue.getSpatialReferences(spatialRefTypes);
+			List<SpatialRefValue> spatialRefValues = daoSpatialRefValue.getSpatialRefValues(spatialRefTypes);
 
 			// set up result, filter duplicates
 			Set<String> filterSet = new HashSet<String>();
@@ -1415,6 +1415,57 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
+		}
+	}
+
+
+	public IngridDocument updateSpatialReferences(IngridDocument docIn) {
+		String userId = getCurrentUserUuid(docIn);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userId, createRunningJobDescription(JobType.UPDATE_SPATIAL_REFERENCES, 0, 0, false));
+
+			List<IngridDocument> spRefsOld = (List<IngridDocument>) docIn.get(MdekKeys.LOCATIONS_OLD);
+			List<IngridDocument> spRefsNew = (List<IngridDocument>) docIn.get(MdekKeys.LOCATIONS_NEW);
+			if (spRefsOld == null || spRefsOld.size() == 0) {
+				spRefsOld = new ArrayList<IngridDocument>(0);
+			}
+
+			genericDao.beginTransaction();
+			genericDao.disableAutoFlush();
+
+			// check permissions !
+			permissionHandler.checkIsCatalogAdmin(userId);
+
+			// initialize job info
+			catalogService.startJobInfo(JobType.UPDATE_SPATIAL_REFERENCES, 0, spRefsOld.size(), null, userId);
+
+			// clear all caches, read NEWEST DATA !
+			catalogService.clearCaches();
+
+			// update content in entities and log protocol in job info
+			catalogService.updateSpatialReferences(spRefsOld, spRefsNew, userId);
+
+			// finish and fetch job info in database
+			catalogService.endJobInfo(JobType.UPDATE_SPATIAL_REFERENCES, userId);
+			HashMap jobInfo = getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES, userId, false, false);
+
+			genericDao.flush();
+			genericDao.commitTransaction();
+
+			IngridDocument result = new IngridDocument();
+			result.putAll(jobInfo);
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userId);				
+			}
 		}
 	}
 }

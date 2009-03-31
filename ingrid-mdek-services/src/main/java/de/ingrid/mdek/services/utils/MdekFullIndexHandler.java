@@ -227,7 +227,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			SearchtermValue termValue = term.getSearchtermValue();
 			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
 			extendFullData(data, termValue.getTerm());
-			if (SearchtermType.isThesaurusTerm(termType)) {
+			if (SearchtermType.isThesaurusType(termType)) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
 				extendFullData(data, termValue.getSearchtermSns().getGemetId());
 				extendFullData(data, termValue.getAlternateTerm());
@@ -275,7 +275,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			SearchtermValue termValue = term.getSearchtermValue();
 			SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
 			extendFullData(data, termValue.getTerm());
-			if (SearchtermType.isThesaurusTerm(termType)) {
+			if (SearchtermType.isThesaurusType(termType)) {
 				extendFullData(data, termValue.getSearchtermSns().getSnsId());
 				extendFullData(data, termValue.getSearchtermSns().getGemetId());
 				extendFullData(data, termValue.getAlternateTerm());

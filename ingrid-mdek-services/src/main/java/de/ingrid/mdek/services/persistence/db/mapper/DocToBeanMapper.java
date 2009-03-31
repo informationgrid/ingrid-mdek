@@ -646,9 +646,22 @@ public class DocToBeanMapper implements IMapper {
 		}		
 	}
 
-	/**
-	 * Transfer data to passed bean.
-	 */
+	/** Just map spatial ref doc to bean for better handling of spatial references ! NO DATABASE BEAN !!! */
+	public SpatialRefValue mapHelperSpatialRefValue(IngridDocument refDoc, SpatialRefValue refValue) {
+		if (refDoc == null) {
+			return null;
+		}
+
+		SpatialRefSns refSns = refValue.getSpatialRefSns();
+		if (refSns == null) {
+			refSns = new SpatialRefSns();
+		}
+		mapSpatialRefSns(refDoc, refSns);
+		mapSpatialRefValue(refSns, refDoc, refValue);
+
+		return refValue;
+	}
+
 	private SpatialReference mapSpatialReference(T01Object oFrom,
 		SpatialRefValue spRefValue,
 		SpatialReference spRef,
@@ -661,10 +674,7 @@ public class DocToBeanMapper implements IMapper {
 
 		return spRef;
 	}
-	/**
-	 * Transfer data to passed bean.
-	 */
-	private SpatialRefValue mapSpatialRefValue(SpatialRefSns spRefSns,
+	public SpatialRefValue mapSpatialRefValue(SpatialRefSns spRefSns,
 		IngridDocument locDoc,
 		SpatialRefValue spRefValue) 
 	{
@@ -687,6 +697,13 @@ public class DocToBeanMapper implements IMapper {
 		keyValueService.processKeyValue(spRefValue);
 
 		return spRefValue;
+	}
+	private SpatialRefSns mapSpatialRefSns(IngridDocument refDoc, SpatialRefSns refValue) {
+		refValue.setSnsId(refDoc.getString(MdekKeys.LOCATION_SNS_ID));
+		// NO mapping of expired. Will not be updated via doc (set from job !)
+//		refValue.setExpiredAt(refDoc.getString(MdekKeys.LOCATION_EXPIRED_AT));			
+
+		return refValue;
 	}
 	private void updateSpatialReferences(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> locList = (List) oDocIn.get(MdekKeys.LOCATIONS);
@@ -769,30 +786,15 @@ public class DocToBeanMapper implements IMapper {
 	 * false=spRefValue entity is different from locationDoc and was NOT updated
 	 */
 	private boolean updateSpatialRefValueViaDoc(IngridDocument locationDoc, SpatialRefValue spRefValue) {
-		String locNameValue = (String) locationDoc.get(MdekKeys.LOCATION_NAME);
-		String locNameValue_notNull = (locNameValue == null) ? "" : locNameValue;
-		Integer locNameKey = (Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY);
-		Integer locNameKey_notNull = (locNameKey == null) ? new Integer(-1) : locNameKey;
-		String locType = (String) locationDoc.get(MdekKeys.LOCATION_TYPE);
-		String locSnsId = (String) locationDoc.get(MdekKeys.LOCATION_SNS_ID);
-		String locSnsId_notNull = (locSnsId == null) ? "" : locSnsId;
-		String locCode = (String) locationDoc.get(MdekKeys.LOCATION_CODE);
-		String locCode_notNull = (locCode == null) ? "" : locCode;
-
 		SpatialRefSns spRefSns = spRefValue.getSpatialRefSns();
-
-		String refNameValue_notNull = (spRefValue.getNameValue() == null) ? "" : spRefValue.getNameValue();
-		Integer refNameKey_notNull = (spRefValue.getNameKey() == null) ? new Integer(-1) : spRefValue.getNameKey();
-		String refType = spRefValue.getType();
-		String refSnsId_notNull = (spRefSns == null) ? "" : spRefSns.getSnsId();
-		String refCode_notNull = (spRefValue.getNativekey() == null) ? "" : spRefValue.getNativekey();
+		String refSnsId = (spRefSns == null) ? null : spRefSns.getSnsId();
 
 		boolean updated = false;
-		if (locNameValue_notNull.equals(refNameValue_notNull) &&
-			locNameKey_notNull.intValue() == refNameKey_notNull.intValue() &&
-			locType.equals(refType) &&
-			locSnsId_notNull.equals(refSnsId_notNull) &&
-			locCode_notNull.equals(refCode_notNull))
+		if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_NAME), spRefValue.getNameValue()) &&
+			MdekUtils.isEqual((Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY), spRefValue.getNameKey()) &&
+			MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_TYPE), spRefValue.getType()) &&
+			MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_SNS_ID), refSnsId) &&
+			MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_CODE), spRefValue.getNativekey()))
 		{
 			mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
 			updated = true;
@@ -814,10 +816,10 @@ public class DocToBeanMapper implements IMapper {
 			spRefSns = daoSpatialRefSns.loadOrCreate(locSnsId);
 		}
 
-		String locNameValue = (String) locationDoc.get(MdekKeys.LOCATION_NAME);
+		String locNameValue = locationDoc.getString(MdekKeys.LOCATION_NAME);
 		Integer locNameKey = (Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY);
-		String locType = (String) locationDoc.get(MdekKeys.LOCATION_TYPE);
-		String locCode = (String) locationDoc.get(MdekKeys.LOCATION_CODE);
+		String locType = locationDoc.getString(MdekKeys.LOCATION_TYPE);
+		String locCode = locationDoc.getString(MdekKeys.LOCATION_CODE);
 
 		// then load/create SpatialRefValue
 		// NOTICE: Freie Raumbezuege (SpatialRefValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
@@ -1488,17 +1490,12 @@ public class DocToBeanMapper implements IMapper {
 			return null;
 		}
 
-		refValue.setTerm(refDoc.getString(MdekKeys.TERM_NAME));
-		refValue.setAlternateTerm(refDoc.getString(MdekKeys.TERM_ALTERNATE_NAME));
-		refValue.setType(refDoc.getString(MdekKeys.TERM_TYPE));
-		
 		SearchtermSns refSns = refValue.getSearchtermSns();
 		if (refSns == null) {
 			refSns = new SearchtermSns();
-			refValue.setSearchtermSns(refSns);
 		}
-		refSns.setSnsId(refDoc.getString(MdekKeys.TERM_SNS_ID));
-		refSns.setGemetId(refDoc.getString(MdekKeys.TERM_GEMET_ID));
+		mapSearchtermSns(refDoc, refSns);
+		mapSearchtermValue(refSns, refDoc, refValue);
 
 		return refValue;
 	}
@@ -1530,8 +1527,6 @@ public class DocToBeanMapper implements IMapper {
 
 		return refValue;
 	}
-
-
 	private void updateSearchterms(IdcEntityType entityType, IngridDocument docIn, IEntity entityIn) {
 		List<IngridDocument> inTermDocs = (List) docIn.get(MdekKeys.SUBJECT_TERMS);
 		if (inTermDocs == null) {

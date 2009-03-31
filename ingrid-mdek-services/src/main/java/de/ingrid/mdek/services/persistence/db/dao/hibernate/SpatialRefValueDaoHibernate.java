@@ -17,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 
 /**
  * Hibernate-specific implementation of the <tt>SpatialRefValue</tt>
@@ -148,7 +149,41 @@ public class SpatialRefValueDaoHibernate
 		return spRefValue;
 	}
 
-	public List<SpatialRefValue> getSpatialReferences(SpatialReferenceType[] types) {
+	public List<SpatialRefValue> getSpatialRefValues(SpatialReferenceType type, String name,
+			String snsId) {
+		Session session = getSession();
+		List<SpatialRefValue> retList = null;
+
+		String q = "from SpatialRefValue spRefVal ";
+		if (SpatialReferenceType.isThesaurusType(type)) {
+			q += "left join fetch spRefVal.spatialRefSns spRefSns ";
+		}
+		q += "where spRefVal.type = '" + type.getDbValue() + "' ";
+
+		if (type == SpatialReferenceType.FREI) {
+			q += "and spRefVal.nameValue = '" + name + "'";
+			// NOTICE: we query MULTIPLE values !
+			retList = session.createQuery(q).list();
+
+		} else if (SpatialReferenceType.isThesaurusType(type)) {
+			q += "and spRefSns.snsId = '" + snsId + "'";
+/*
+			// NOTICE: we query SINGLE value ! Has to be unique !
+			retList = new ArrayList<SpatialRefValue>();
+			SpatialRefValue spRefValue = (SpatialRefValue) session.createQuery(q).uniqueResult();
+			if (spRefValue != null) {
+				retList.add(spRefValue);
+			}
+*/
+			// we query list(), maybe NOT uniqueResult() ! e.g. multiple imported values
+			// refering to same searchtermSns.
+			retList = session.createQuery(q).list();
+		}
+
+		return retList;
+	}
+
+	public List<SpatialRefValue> getSpatialRefValues(SpatialReferenceType[] types) {
 		if (types == null) {
 			types = new SpatialReferenceType[0];
 		}
@@ -172,5 +207,22 @@ public class SpatialRefValueDaoHibernate
 		}
 
 		return  session.createQuery(q).list();
+	}
+
+	public long countObjectsOfSpatialRefValue(long idSpatialRefValue) {
+		String q = "select count(distinct spRef) " +
+			"from SpatialReference spRef " +
+			"where spRef.spatialRefId = " + idSpatialRefValue;
+		
+		return (Long) getSession().createQuery(q).uniqueResult();
+	}
+
+	public List<T01Object> getObjectsOfSpatialRefValue(long idSpatialRefValue) {
+		String q = "select distinct obj " +
+			"from T01Object obj " +
+			"inner join obj.spatialReferences spRef " +
+			"where spRef.spatialRefId = " + idSpatialRefValue;
+		
+		return  getSession().createQuery(q).list();
 	}
 }

@@ -904,6 +904,7 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		locDoc.put(MdekKeys.LOCATION_SNS_ID, spatRefSns.getSnsId());
+		locDoc.put(MdekKeys.LOCATION_EXPIRED_AT, spatRefSns.getExpiredAt());
 
 		return locDoc;
 	}

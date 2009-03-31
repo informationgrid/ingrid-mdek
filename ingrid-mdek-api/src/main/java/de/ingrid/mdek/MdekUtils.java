@@ -282,6 +282,12 @@ public class MdekUtils {
 		public String toString() {
 			return description;
 		}
+		public static boolean isThesaurusType(SpatialReferenceType inType) {
+			if (inType == GEO_THESAURUS) {
+				return true;
+			}
+			return false;
+		}
 		String dbValue;
 		String description;
 	}
@@ -303,7 +309,7 @@ public class MdekUtils {
 		public String toString() {
 			return description;
 		}
-		public static boolean isThesaurusTerm(SearchtermType inType) {
+		public static boolean isThesaurusType(SearchtermType inType) {
 			if (inType == UMTHES || inType == GEMET) {
 				return true;
 			}
@@ -490,6 +496,13 @@ public class MdekUtils {
 	public static boolean isEqual(Integer int1, Integer int2) {
 		Integer tmp1 = (int1 == null) ? -1 : int1;
 		Integer tmp2 = (int2 == null) ? -1 : int2;
+		
+		return tmp1.equals(tmp2);
+	}
+	/** Compares two Doubles and returns true if equal. Handles null -> null.equals(null) is true */
+	public static boolean isEqual(Double val1, Double val2) {
+		Double tmp1 = (val1 == null) ? 0.0 : val1;
+		Double tmp2 = (val2 == null) ? 0.0 : val2;
 		
 		return tmp1.equals(tmp2);
 	}
