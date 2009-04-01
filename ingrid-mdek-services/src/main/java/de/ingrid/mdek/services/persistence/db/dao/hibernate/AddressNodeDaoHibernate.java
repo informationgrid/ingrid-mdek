@@ -1198,9 +1198,6 @@ public class AddressNodeDaoHibernate
 				}
 				if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 					qStringCriteria += "aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_RELATIONS_UPDATED) {
-					// TODO: Add when implementing catalog management sns update !
-					return result;
 				} else {
 					// QASelectionType not handled ? return nothing !
 					return result;

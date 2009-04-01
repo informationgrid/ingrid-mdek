@@ -160,12 +160,14 @@ public class MdekUtils {
 	 * - WORK/RESPONSIBLE PAGE: "modified" Entities.<br> 
 	 * - PORTAL QUICKLIST: quicklist to show in portal IGE entry page ! */
 	public enum IdcWorkEntitiesSelectionType {
-		/** WORK/RESPONSIBLE PAGE Table 1 -> all expired entities where user is RESPONSIBLE. QUERIES PUBLISHED VERSION !!! */
+		/** WORK/RESPONSIBLE PAGE -> all expired entities where user is RESPONSIBLE. QUERIES PUBLISHED VERSION !!! */
 		EXPIRED,
-		/** WORK/RESPONSIBLE PAGE Table 2 -> all modified entities where user is RESPONSIBLE or MOD-User */
+		/** WORK/RESPONSIBLE PAGE -> all modified entities where user is RESPONSIBLE or MOD-User */
 		MODIFIED,
-		/** WORK/RESPONSIBLE PAGE Table 3 -> all entities in QA workflow where user is RESPONSIBLE or MOD-User or Assigner */
+		/** WORK/RESPONSIBLE PAGE -> all entities in QA workflow where user is RESPONSIBLE or MOD-User or Assigner */
 		IN_QA_WORKFLOW,
+		/** WORK/RESPONSIBLE PAGE -> all entities where a spatial relation is expired and user is RESPONSIBLE. */
+		SPATIAL_REF_EXPIRED,
 		/** PORTAL QUICKLIST -> MODIFIED or REASSIGNED entities where user is MOD-User or Assigner */
 		PORTAL_QUICKLIST,
 	}
@@ -174,8 +176,8 @@ public class MdekUtils {
 	public enum IdcQAEntitiesSelectionType {
 		/** all expired entities where user is QA. QUERIES PUBLISHED VERSION !!! */
 		EXPIRED,
-		/** all entities where user is QA and spatial relations were updated */
-		SPATIAL_RELATIONS_UPDATED,
+		/** all entities where user is QA and a spatial relation is expired */
+		SPATIAL_REF_EXPIRED,
 	}
 
 	/** STATISTICS PAGE: What kind of statistics ? */

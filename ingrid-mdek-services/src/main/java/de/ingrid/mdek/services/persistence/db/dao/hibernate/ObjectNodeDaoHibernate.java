@@ -23,6 +23,7 @@ import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
@@ -591,6 +592,8 @@ public class ObjectNodeDaoHibernate
 			return getWorkObjectsModified(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
 			return getWorkObjectsInQAWorkflow(userUuid, orderBy, orderAsc, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
+			return getWorkObjectsSpatialRefExpired(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
 			return getWorkObjectsPortalQuicklist(userUuid, startHit, numHits);
 		}
@@ -821,6 +824,84 @@ public class ObjectNodeDaoHibernate
 		return result;
 	}
 
+	private IngridDocument getWorkObjectsSpatialRefExpired(String userUuid,
+			IdcEntityOrderBy orderBy, boolean orderAsc,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		String qCriteria = " where " +
+			"o.responsibleUuid = '"+ userUuid +"' " +
+			"and spRefVal.type = '" + SpatialReferenceType.GEO_THESAURUS.getDbValue() + "' " +
+			"and spRefSns.expiredAt is not null";
+
+		// common associations
+		String qStringCommon = "inner join o.spatialReferences spRef " +
+			"inner join spRef.spatialRefValue spRefVal " +
+			"inner join spRefVal.spatialRefSns spRefSns ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(distinct oNode) " +
+			"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork o " +
+				qStringCommon + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "select distinct oNode " +
+				"from ObjectNode oNode " +
+				"inner join fetch oNode.t01ObjectWork o " +
+				"left join fetch o.addressNodeMod aNode " +
+				"left join fetch aNode.t02AddressWork a " +
+				qStringCommon + qCriteria;
+
+		// order by: default is date
+		String qOrderBy = " order by o.modTime ";
+		if (orderBy == IdcEntityOrderBy.CLASS) {
+			qOrderBy = " order by o.objClass ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.NAME) {
+			qOrderBy = " order by o.objName ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		} else  if (orderBy == IdcEntityOrderBy.USER) {
+			qOrderBy = " order by a.institution ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.lastname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", a.firstname ";
+			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += ", o.modTime ";
+		}
+		qOrderBy += orderAsc ? " asc " : " desc ";
+
+		qStringSelect += qOrderBy;
+		
+		// first count total number
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting WORK objects: " + qStringCount);
+		}
+		Long totalNum = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching WORK objects: " + qStringSelect);
+		}
+		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
+		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
+		
+		return result;
+	}
+
 	private IngridDocument getWorkObjectsPortalQuicklist(String userUuid,
 			int startHit, int numHits) {
 		Session session = getSession();
@@ -987,9 +1068,14 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		// prepare queries
+		
+		// associations for querying expired spatial refs 
+		String qStringSpatialRefs = "inner join o.spatialReferences spRef " +
+			"inner join spRef.spatialRefValue spRefVal " +
+			"inner join spRefVal.spatialRefSns spRefSns ";
 
 		// query string for counting -> without fetch (fetching not possible)
-		String qStringCount = "select count(oNode) " +
+		String qStringCount = "select count(distinct oNode) " +
 			"from ObjectNode oNode ";
 		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 			// queries PUBLISHED version because mod-date of published one is displayed !
@@ -998,10 +1084,13 @@ public class ObjectNodeDaoHibernate
 			qStringCount += "inner join oNode.t01ObjectWork o ";			
 		}
 		qStringCount += "inner join o.objectMetadata oMeta ";
-
+		if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
+			qStringCount += qStringSpatialRefs;
+		}
 
 		// with fetch: always fetch object and metadata, e.g. needed when mapping user operation (mark deleted) 
-		String qStringSelect = "from ObjectNode oNode ";
+		String qStringSelect = "select distinct oNode " +
+			"from ObjectNode oNode ";
 		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 			// queries PUBLISHED version because mod-date of published one is displayed !
 			qStringSelect += "inner join fetch oNode.t01ObjectPublished o ";
@@ -1015,6 +1104,9 @@ public class ObjectNodeDaoHibernate
 			qStringSelect += "inner join fetch o.addressNodeMod aNode ";
 		}
 		qStringSelect += "inner join fetch aNode.t02AddressWork a ";
+		if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
+			qStringSelect += qStringSpatialRefs;
+		}
 
 		// selection criteria
 		if (whichWorkState != null || selectionType != null ||
@@ -1034,9 +1126,9 @@ public class ObjectNodeDaoHibernate
 				}
 				if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 					qStringCriteria += "oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
-				} else if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_RELATIONS_UPDATED) {
-					// TODO: Add when implementing catalog management sns update !
-					return result;
+				} else if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
+					qStringCriteria += "spRefVal.type = '" + SpatialReferenceType.GEO_THESAURUS.getDbValue() + "' " +
+						"and spRefSns.expiredAt is not null";
 				} else {
 					// QASelectionType not handled ? return nothing !
 					return result;

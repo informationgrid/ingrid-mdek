@@ -297,8 +297,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					o = oN.getT01ObjectWork();
 				}
 
-				IngridDocument objDoc = new IngridDocument();
-				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
+				IngridDocument objDoc =
+					beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
 
 				// DEBUGGING for tests !
 				if (log.isDebugEnabled()) {
@@ -310,7 +310,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 				// map details according to selection !
 				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED ||
-					selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
+					selectionType == IdcWorkEntitiesSelectionType.MODIFIED ||
+					selectionType == IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
 					// map mod user
 					AddressNode modAddressNode = o.getAddressNodeMod();
 					if (modAddressNode != null) {
@@ -375,8 +376,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			ArrayList<IngridDocument> oNDocs = new ArrayList<IngridDocument>(oNs.size());
 			for (ObjectNode oN : oNs) {
 				T01Object o = oN.getT01ObjectWork();
-				IngridDocument objDoc = new IngridDocument();
-				beanToDocMapper.mapT01Object(o, objDoc, MappingQuantity.BASIC_ENTITY);
+				IngridDocument objDoc =
+					beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
 				// map details according to selection (according to displayed data on QA page !)
 				if (whichWorkState == WorkState.QS_UEBERWIESEN) {
 					// map assigner user !
@@ -386,7 +387,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.BASIC_ENTITY);					
 					beanToDocMapper.mapModUser(o.getModUuid(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				}
-				if (selectionType != IdcQAEntitiesSelectionType.EXPIRED) {
+				if (selectionType != IdcQAEntitiesSelectionType.EXPIRED &&
+					selectionType != IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
 					beanToDocMapper.mapUserOperation(oN, objDoc);
 				}
 

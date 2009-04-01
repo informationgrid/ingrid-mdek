@@ -556,6 +556,30 @@ class MdekExampleQSThread extends Thread {
 
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
 
+		System.out.println("\n\n---------------------------------------------");
+		System.out.println("----- WORK/RESPONSIBLE PAGE: SPATIAL REF EXPIRED OBJECTS -----");
+		System.out.println("---------------------------------------------");
+		
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- CATADMIN: get SPATIAL REF EXPIRED Objects -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.CLASS, true, 1, 1);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.CLASS, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.NAME, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.NAME, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.USER, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.USER, false, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.DATE, true, 0, maxNum);
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.DATE, false, 0, maxNum);
+
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- MDADMIN: get SPATIAL REF EXPIRED Objects -----");
+		supertool.setCallingUser(usrGrpQAUuid);
+
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED, IdcEntityOrderBy.CLASS, true, 0, maxNum);
+
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- WORK/RESPONSIBLE PAGE: MODIFIED OBJECTS (2. Table) -----");
 		System.out.println("---------------------------------------------");
@@ -850,6 +874,10 @@ class MdekExampleQSThread extends Thread {
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, null, true, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_RUECKUEBERWIESEN, null, null, true, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcQAEntitiesSelectionType.EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(null, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(WorkState.VEROEFFENTLICHT, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
 		
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- USER WITH QA -> getQAObjects delivers ALL ENTITIES OF GROUP -----");
@@ -864,6 +892,9 @@ class MdekExampleQSThread extends Thread {
 		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcQAEntitiesSelectionType.EXPIRED, null, true, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, null, true, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcQAEntitiesSelectionType.EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(null, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(WorkState.VEROEFFENTLICHT, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- USER NO_QA -> getQAObjects delivers NO ENTITIES -----");
@@ -877,6 +908,9 @@ class MdekExampleQSThread extends Thread {
 		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcQAEntitiesSelectionType.EXPIRED, null, true, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, null, null, true, 0, maxNum);
 		supertool.getQAObjects(WorkState.QS_UEBERWIESEN, IdcQAEntitiesSelectionType.EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(null, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(WorkState.IN_BEARBEITUNG, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
+		supertool.getQAObjects(WorkState.VEROEFFENTLICHT, IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED, null, true, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("\n----- discard changes -> back to original version -----");
