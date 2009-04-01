@@ -678,7 +678,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW BBOX -----");
+		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW BBOX -----");
 		System.out.println("----- = Keep all records, Update data -----");
 		
 		// set up changed list from former mixed list !
@@ -710,7 +710,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS UPDATE: THESAURUS to EXPIRED -----");
+		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to EXPIRED -----");
 
 		// new spatial refs are all null !
 		List<IngridDocument> locationDocsNull = Collections.nCopies(locationDocsMixed.size(), null);
@@ -760,7 +760,7 @@ class MdekExampleCatalogThread extends Thread {
 		List<IngridDocument> termDocsMixed_newName = termDocsMixed;
 
 		// -----------------------------------
-
+/*
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS UPDATE: THESAURUS to FREE -----");
 
@@ -805,12 +805,12 @@ class MdekExampleCatalogThread extends Thread {
 
 		// ------------- 1. Option --------------------------
 
-		System.out.println("\n=========================");
-		System.out.println("----- SNS UPDATE: FREE to THESAURUS, same Name -> Replace FREE -----");
-		termDocsMixed_newName = termDocsMixed;
+//		System.out.println("\n=========================");
+//		System.out.println("----- SNS UPDATE: FREE to THESAURUS, same Name -> Replace FREE -----");
+//		termDocsMixed_newName = termDocsMixed;
 
 		// ------------- 2. Option --------------------------
-/*
+
 		System.out.println("\n=========================");
 		System.out.println("----- SNS UPDATE: FREE to THESAURUS, DIFFERENT Name -> Keep FREE, Add Thesaurus -----");
 		
@@ -828,7 +828,7 @@ class MdekExampleCatalogThread extends Thread {
 			termDocNewName.put(MdekKeys.TERM_ALTERNATE_NAME, "MMTEST1_" + termDocMixed.getString(MdekKeys.TERM_NAME));
 			termDocsMixed_newName.add(termDocNewName);
 		}
-*/
+
 		// ------------- End Option --------------------------
 
 		try {
@@ -849,7 +849,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
 		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
-
+*/
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
@@ -893,7 +893,6 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, SAME NAME, NEW SNS-ID -----");
-		System.out.println("----- = Update term records, delete old sns record, create new sns record and assign -----");
 		
 		// set up free list from former mixed list !
 		List<IngridDocument> termDocsMixed_newSnsId = new ArrayList<IngridDocument>(termDocsMixed.size());
@@ -935,7 +934,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW SNS-ID -----");
 		System.out.println("----- = New free records with old thesaurus term ! -----");
-		System.out.println("----- = Update thesaurus term records, delete old sns record, create new sns record and assign -----");
+		System.out.println("----- = Update thesaurus term -----");
 		
 		// set up free list from former mixed list !
 		List<IngridDocument> termDocsMixed_newSnsIdNewName = new ArrayList<IngridDocument>(termDocsMixed.size());

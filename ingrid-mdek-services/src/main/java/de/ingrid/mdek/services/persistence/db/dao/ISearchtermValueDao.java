@@ -75,11 +75,11 @@ public interface ISearchtermValueDao
 
 	/** Get all references to Objects of given searchterm */
 	List<SearchtermObj> getSearchtermObjs(long searchtermValueId);
-	/** Get FIRST occurence of the passed obj/searchterm reference. Returns null if not found ! */
-	SearchtermObj getSearchtermObj(long objId, long searchtermValueId);
+	/** Get all DISTINCT object ids where the given term is connected to */
+	List<Long> getSearchtermObj_objIds(long searchtermValueId);
 
 	/** Get all references to Addresses of given searchterm */
 	List<SearchtermAdr> getSearchtermAdrs(long searchtermValueId);
-	/** Get FIRST occurence of the passed addr/searchterm reference. Returns null if not found ! */
-	SearchtermAdr getSearchtermAdr(long addrId, long searchtermValueId);
+	/** Get all DISTINCT address ids where the given term is connected to */
+	List<Long> getSearchtermAdr_adrIds(long searchtermValueId);
 }

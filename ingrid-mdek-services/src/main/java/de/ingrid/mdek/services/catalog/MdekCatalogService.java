@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -820,55 +821,93 @@ public class MdekCatalogService {
 				(int)numObj, (int)numAddr, userUuid);
 		}
 	}
-	/** Update term record, replace SNS record (delete old SNS record) */
+	/** Load/create new term, delete old term. Update/delete obj/addr references
+	 * dependent from whether new term already connected ! */
 	private void updateThesaurusTermNewSnsId(SearchtermValue inTermOld, IngridDocument inTermNewDoc,
 			String userUuid) {
 		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 		SearchtermValue inTermNew = docToBeanMapper.mapHelperSearchtermValue(inTermNewDoc, new SearchtermValue());
 
-		// load NEW sns term, may already exist ! else create it !
-		SearchtermSns newTermSns = daoSearchtermSns.loadOrCreate(
+		// load NEW sns data, may already exist ! else create it !
+		SearchtermSns newSnsData = daoSearchtermSns.loadOrCreate(
 				inTermNew.getSearchtermSns().getSnsId(),
 				inTermNew.getSearchtermSns().getGemetId());
+		// load NEW sns term, may already exist ! else create it !
+		SearchtermValue newTermValue = daoSearchtermValue.loadOrCreate(inTermNew.getType(),
+				inTermNew.getTerm(), inTermNew.getAlternateTerm(),
+				null, newSnsData, null, null);
+
+		// fetch all object ids where new term is already connected to
+		Set<Long> objIdsOfNewTerm =
+			new HashSet<Long>(daoSearchtermValue.getSearchtermObj_objIds(newTermValue.getId()));
+		// fetch all address ids where new term is connected to
+		Set<Long> addrIdsOfNewTerm =
+			new HashSet<Long>(daoSearchtermValue.getSearchtermAdr_adrIds(newTermValue.getId()));
 
 		// get all database searchterm beans !
-		List<SearchtermValue> termValues = daoSearchtermValue.getSearchtermValues(
+		List<SearchtermValue> oldTermValues = daoSearchtermValue.getSearchtermValues(
 				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, inTermOld.getType()),
 				inTermOld.getTerm(),
 				inTermOld.getSearchtermSns().getSnsId());
-
+		
 		// and process
-		for (SearchtermValue termValue : termValues) {
-			// remember old data
-			// sns term, will be deleted !
-			// NOTICE: may be null if already deleted (when multiple SearchtermValues, e.g. "Messdaten", "Meﬂdaten" !) 
-			SearchtermSns oldTermSns = termValue.getSearchtermSns();
-			String oldType = termValue.getType();
-			String oldName = termValue.getTerm();
-			String oldAlternateName = termValue.getAlternateTerm();
+		for (SearchtermValue oldTermValue : oldTermValues) {
+			// get all object refs and check whether objects already have NEW sns term ! 
+			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldTermValue.getId());
+			int numProcessedObj = 0;
+			for (SearchtermObj oldTermObj : oldTermObjs) {
+				// first check whether new thesaurus term already connected to object !
+				if (objIdsOfNewTerm.contains(oldTermObj.getObjId())) {
+					// new thesaurus term already connected
+					// delete all old references 
+					dao.makeTransient(oldTermObj);
+				} else {
+					// new thesaurus term NOT connected
+					// connect thesaurus term to Object, use old term connection
+					oldTermObj.setSearchtermId(newTermValue.getId());
+					oldTermObj.setSearchtermValue(newTermValue);
+					dao.makePersistent(oldTermObj);
+					objIdsOfNewTerm.add(oldTermObj.getObjId());
+				}
+				numProcessedObj++;
+			}
 
-			// set new data and PERSIST
-			// NOTICE: may become GEMET from UMTHES !
-			docToBeanMapper.mapSearchtermValue(newTermSns, inTermNewDoc, termValue);
-			dao.makePersistent(termValue);
+			// get all address refs and check whether addresses already have NEW sns term ! 
+			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldTermValue.getId());
+			int numProcessedAddr = 0;
+			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
+				// first check whether new thesaurus term already connected to address !
+				if (addrIdsOfNewTerm.contains(oldTermAdr.getAdrId())) {
+					// new thesaurus term already connected
+					// delete all old references 
+					dao.makeTransient(oldTermAdr);
+				} else {
+					// new thesaurus term NOT connected
+					// connect thesaurus term to Address, use old term connection
+					oldTermAdr.setSearchtermId(newTermValue.getId());
+					oldTermAdr.setSearchtermValue(newTermValue);
+					dao.makePersistent(oldTermAdr);
+					addrIdsOfNewTerm.add(oldTermAdr.getAdrId());
+				}
+				numProcessedAddr++;
+			}
 
-			// DELETE SNS TERM !!! NO EXPIRED (not needed for display in IGE) !
-			dao.makeTransient(oldTermSns);
+			// DELETE OLD STUFF !!! NO EXPIRED (not needed for display in IGE) !
+			// NOTICE: SearchtermSns may be null if already deleted (when multiple SearchtermValues, e.g. "Messdaten", "Meﬂdaten" !)
+			dao.makeTransient(oldTermValue.getSearchtermSns());
+			dao.makeTransient(oldTermValue);
 			
-			long numObj = daoSearchtermValue.countObjectsOfSearchterm(termValue.getId());
-			long numAddr = daoSearchtermValue.countAddressesOfSearchterm(termValue.getId());
-
 			SearchtermType newType =
-				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newTermValue.getType());
 			String msg;
 			if (newType == SearchtermType.GEMET) {
-				msg = "Deskriptor ERSETZT durch Deskriptor \"" + termValue.getTerm() + "\" (" + newType + "), " +
-					"\"" + termValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
+				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newTermValue.getTerm() + "\" (" + newType + "), " +
+					"\"" + newTermValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
 			} else {
-				msg = "Deskriptor ERSETZT durch Deskriptor \"" + termValue.getTerm() + "\" (" + newType + ")";			
+				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newTermValue.getTerm() + "\" (" + newType + ")";			
 			}
-			updateJobInfoNewUpdatedTerm(oldName, oldAlternateName, oldType, msg,
-				(int)numObj, (int)numAddr, userUuid);
+			updateJobInfoNewUpdatedTerm(oldTermValue.getTerm(), oldTermValue.getAlternateTerm(),
+				oldTermValue.getType(), msg, numProcessedObj, numProcessedAddr, userUuid);
 		}
 	}
 
@@ -924,6 +963,12 @@ public class MdekCatalogService {
 				inTermNew.getTerm(), inTermNew.getAlternateTerm(),
 				null, newSnsData, null, null);
 
+		// fetch all object ids where new term is already connected to
+		Set<Long> objIdsOfNewTerm =
+			new HashSet<Long>(daoSearchtermValue.getSearchtermObj_objIds(newSnsTerm.getId()));
+		// fetch all address ids where new term is connected to
+		Set<Long> addrIdsOfNewTerm =
+			new HashSet<Long>(daoSearchtermValue.getSearchtermAdr_adrIds(newSnsTerm.getId()));
 
 		// UPDATE / CREATE NEW REFERENCES TO OBJECTS/ADDRESSES
 
@@ -942,10 +987,7 @@ public class MdekCatalogService {
 			List<SearchtermObj> oldTermObjs = daoSearchtermValue.getSearchtermObjs(oldFreeTerm.getId());
 			for (SearchtermObj oldTermObj : oldTermObjs) {
 				// first check whether connected thesaurus term already exists !
-				SearchtermObj existingThesaurusTerm =
-					daoSearchtermValue.getSearchtermObj(oldTermObj.getObjId(), newSnsTerm.getId());
-
-				if (existingThesaurusTerm != null) {
+				if (objIdsOfNewTerm.contains(oldTermObj.getObjId())) {
 					// connected thesaurus term already exists !
 					// delete all references and free term if term should be replaced 
 					if (replaceFreeTerm) {
@@ -965,6 +1007,7 @@ public class MdekCatalogService {
 					newTermObj.setSearchtermId(newSnsTerm.getId());
 					newTermObj.setSearchtermValue(newSnsTerm);
 					dao.makePersistent(newTermObj);
+					objIdsOfNewTerm.add(newTermObj.getObjId());
 					numProcessedObj++;
 				}
 			}
@@ -973,10 +1016,7 @@ public class MdekCatalogService {
 			List<SearchtermAdr> oldTermAdrs = daoSearchtermValue.getSearchtermAdrs(oldFreeTerm.getId());
 			for (SearchtermAdr oldTermAdr : oldTermAdrs) {
 				// first check whether connected thesaurus term already exists !
-				SearchtermObj existingThesaurusTerm =
-					daoSearchtermValue.getSearchtermObj(oldTermAdr.getAdrId(), newSnsTerm.getId());
-
-				if (existingThesaurusTerm != null) {
+				if (addrIdsOfNewTerm.contains(oldTermAdr.getAdrId())) {
 					// connected thesaurus term already exists !
 					// delete all references and free term if term should be replaced 
 					if (replaceFreeTerm) {
@@ -996,6 +1036,7 @@ public class MdekCatalogService {
 					newTermAdr.setSearchtermId(newSnsTerm.getId());
 					newTermAdr.setSearchtermValue(newSnsTerm);
 					dao.makePersistent(newTermAdr);
+					addrIdsOfNewTerm.add(newTermAdr.getAdrId());
 					numProcessedAddr++;
 				}
 			}

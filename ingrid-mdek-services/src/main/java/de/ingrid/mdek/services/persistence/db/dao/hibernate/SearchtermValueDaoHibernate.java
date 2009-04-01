@@ -282,18 +282,12 @@ public class SearchtermValueDaoHibernate
 		
 		return  getSession().createQuery(q).list();
 	}
-	public SearchtermObj getSearchtermObj(long objId, long searchtermValueId) {
-		String q = "from SearchtermObj termObj " +
-			"where termObj.objId = " + objId +
-			"and termObj.searchtermId = " + searchtermValueId;
-		
-		SearchtermObj result = null;
-		List<SearchtermObj> results = getSession().createQuery(q).list();
-		if (results.size() > 0) {
-			result = results.get(0);
-		}
-		
-		return result;
+	public List<Long> getSearchtermObj_objIds(long searchtermValueId) {
+		String q = "select distinct termObj.objId " +
+			"from SearchtermObj termObj " +
+			"where termObj.searchtermId = " + searchtermValueId;
+
+		return  getSession().createQuery(q).list();
 	}
 
 	public List<SearchtermAdr> getSearchtermAdrs(long searchtermValueId) {
@@ -302,17 +296,11 @@ public class SearchtermValueDaoHibernate
 		
 		return  getSession().createQuery(q).list();
 	}
-	public SearchtermAdr getSearchtermAdr(long addrId, long searchtermValueId) {
-		String q = "from SearchtermAdr termAdr " +
-			"where termAdr.adrId = " + addrId +
-			"and termAdr.searchtermId = " + searchtermValueId;
-		
-		SearchtermAdr result = null;
-		List<SearchtermAdr> results = getSession().createQuery(q).list();
-		if (results.size() > 0) {
-			result = results.get(0);
-		}
-		
-		return result;
+	public List<Long> getSearchtermAdr_adrIds(long searchtermValueId) {
+		String q = "select distinct termAdr.adrId " +
+			"from SearchtermAdr termAdr " +
+			"where termAdr.searchtermId = " + searchtermValueId;
+
+		return  getSession().createQuery(q).list();
 	}
 }
