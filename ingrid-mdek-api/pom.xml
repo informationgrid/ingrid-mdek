@@ -58,7 +58,7 @@
 				<filtering>true</filtering>
 				<includes>
 					<include>mdek-api-version.properties</include>
-					<include>ehcache.xml</include>
+					<include>ehcache-ige-api.xml</include>
 <!-- Enable for temporary debugging in mdek-api classes, disable for release ! -->
 					<!--include>log4j.properties</include-->
 				</includes>

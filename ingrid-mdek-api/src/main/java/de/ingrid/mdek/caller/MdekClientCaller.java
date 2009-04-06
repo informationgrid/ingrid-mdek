@@ -1,6 +1,7 @@
 package de.ingrid.mdek.caller;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -36,6 +37,7 @@ public class MdekClientCaller implements IMdekClientCaller {
 	/** Interface to backend */
 	private static MdekClient client;
 	
+	private static String CACHE_CONFIG_FILE = "/ehcache-ige-api.xml";
 	private static CacheManager cacheManager;
 	private static Cache jobRepoCache;
 
@@ -61,7 +63,8 @@ public class MdekClientCaller implements IMdekClientCaller {
     private MdekClientCaller(File communicationProperties) {
         try {
     		// First set up cache for use !
-    		cacheManager = new CacheManager();
+    		URL url = getClass().getResource(CACHE_CONFIG_FILE);
+    		cacheManager = new CacheManager(url);
     		jobRepoCache = cacheManager.getCache("mdekJobRepoCache");
  
     		// instantiate client (ibus)
