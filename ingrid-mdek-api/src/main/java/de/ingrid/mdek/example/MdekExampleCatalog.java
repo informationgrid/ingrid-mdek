@@ -678,7 +678,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW BBOX -----");
+		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to THESAURUS, SAME SNS-ID -----");
 		System.out.println("----- = Keep all records, Update data -----");
 		
 		// set up changed list from former mixed list !
@@ -710,13 +710,44 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
+		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to THESAURUS, DIFFERENT SNS-ID -----");
+		System.out.println("----- = Delete SpatialRef, Use New/Existing one -----");
+		
+		// set up changed list from former mixed list !
+		List<IngridDocument> locationDocsIdChanged = new ArrayList<IngridDocument>(locationDocsMixed.size());
+		for (IngridDocument locationDocMixed : locationDocsMixed) {
+			IngridDocument locationDocIdChanged = new IngridDocument();
+			locationDocIdChanged.putAll(locationDocMixed);
+			locationDocIdChanged.put(MdekKeys.LOCATION_SNS_ID, "MM_" + locationDocMixed.getString(MdekKeys.LOCATION_SNS_ID));
+			locationDocsIdChanged.add(locationDocIdChanged);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSpatialReferences(locationDocsChanged, locationDocsIdChanged);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+
+		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object -----");
+		supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
 		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to EXPIRED -----");
 
 		// new spatial refs are all null !
 		List<IngridDocument> locationDocsNull = Collections.nCopies(locationDocsMixed.size(), null);
 		try {
 			// causes timeout ?
-			supertool.updateSpatialReferences(locationDocsChanged, locationDocsNull);
+			supertool.updateSpatialReferences(locationDocsIdChanged, locationDocsNull);
 		} catch(Exception ex) {
 			// track job info if still running !
 			while (supertool.hasRunningJob()) {
@@ -762,7 +793,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 /*
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS UPDATE: THESAURUS to FREE -----");
+		System.out.println("----- SNS Searchterms UPDATE: THESAURUS to FREE -----");
 
 		// new terms are all null !
 		List<IngridDocument> termDocsNull = Collections.nCopies(termDocsMixed.size(), null);
@@ -788,7 +819,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS UPDATE: FREE to THESAURUS -----");
+		System.out.println("----- SNS Searchterms UPDATE: FREE to THESAURUS -----");
 		
 		// set up free list from former mixed list !
 		List<IngridDocument> termDocsFree = new ArrayList<IngridDocument>(termDocsMixed.size());
@@ -806,13 +837,13 @@ class MdekExampleCatalogThread extends Thread {
 		// ------------- 1. Option --------------------------
 
 //		System.out.println("\n=========================");
-//		System.out.println("----- SNS UPDATE: FREE to THESAURUS, same Name -> Replace FREE -----");
+//		System.out.println("----- SNS Searchterms UPDATE: FREE to THESAURUS, same Name -> Replace FREE -----");
 //		termDocsMixed_newName = termDocsMixed;
 
 		// ------------- 2. Option --------------------------
 
 		System.out.println("\n=========================");
-		System.out.println("----- SNS UPDATE: FREE to THESAURUS, DIFFERENT Name -> Keep FREE, Add Thesaurus -----");
+		System.out.println("----- SNS Searchterms UPDATE: FREE to THESAURUS, DIFFERENT Name -> Keep FREE, Add Thesaurus -----");
 		
 		// set up list with NEW Name from former mixed list !
 		termDocsMixed_newName = new ArrayList<IngridDocument>(termDocsMixed.size());
@@ -853,7 +884,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW NAME, SAME SNS-ID -----");
+		System.out.println("----- SNS Searchterms UPDATE: THESAURUS to THESAURUS, NEW NAME, SAME SNS-ID -----");
 		System.out.println("----- = Keep all records, Update data -----");
 		
 		// set up free list from former mixed list !
@@ -892,7 +923,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, SAME NAME, NEW SNS-ID -----");
+		System.out.println("----- SNS Searchterms UPDATE: THESAURUS to THESAURUS, SAME NAME, NEW SNS-ID -----");
 		
 		// set up free list from former mixed list !
 		List<IngridDocument> termDocsMixed_newSnsId = new ArrayList<IngridDocument>(termDocsMixed.size());
@@ -932,7 +963,7 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW SNS-ID -----");
+		System.out.println("----- SNS Searchterms UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW SNS-ID -----");
 		System.out.println("----- = New free records with old thesaurus term ! -----");
 		System.out.println("----- = Update thesaurus term -----");
 		

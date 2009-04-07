@@ -6,6 +6,7 @@ import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
+import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 
 
@@ -19,16 +20,16 @@ public interface ISpatialRefValueDao
 	extends IGenericDao<SpatialRefValue> {
 
 	/** Load SpatialRefValue according to given values. If not found create AND save it !
-	 * @param type
-	 * @param nameValue
-	 * @param nameKey
-	 * @param spRefSns according bean (or null)
-	 * @param nativekey
-	 * @param objectId connected to this object, PASS NULL IF CONNECTION DOESN'T MATTER
+	 * NOTICE: map missing data (BBox etc.) after loading/creating bean ! 
+	 * @param type type of spatial ref NEVER null
+	 * @param nameValue term name. always pass (used for loading FREE spatial ref; set when creating new one !) 
+	 * @param nameKey term key. always pass (used for loading FREE spatial ref; set when creating new one !)
+	 * @param spRefSns according bean (or null if NO SNS spatial ref)
+	 * @param objectId connected to this object (used for loading FREE spatial ref, else pass null).
 	 * @return persisted SpatialRefValue (with Id)
 	 */
 	SpatialRefValue loadOrCreate(String type, String nameValue, Integer nameKey,
-		SpatialRefSns spRefSns, String nativekey, Long objectId);
+		SpatialRefSns spRefSns, Long objectId);
 
 	/** Load SpatialRefValues according to given parameters. Passed type determines how to
 	 * fetch.
@@ -49,6 +50,10 @@ public interface ISpatialRefValueDao
 	/** Return number of objects referencing the given spatial ref.*/
 	long countObjectsOfSpatialRefValue(long idSpatialRefValue);
 
-	/** Get all referencing objects of given spatial ref */
+	/** Get all referencing objects of given spatial ref value */
 	List<T01Object> getObjectsOfSpatialRefValue(long idSpatialRefValue);
+	/** Get DISTINCT ids of objects referencing given spatial ref value */
+	List<Long> getObjectIdsOfSpatialRefValue(long idSpatialRefValue);
+	/** Get all spatial references of given spatial ref value */
+	List<SpatialReference> getSpatialReferences(long searchtermValueId);
 }

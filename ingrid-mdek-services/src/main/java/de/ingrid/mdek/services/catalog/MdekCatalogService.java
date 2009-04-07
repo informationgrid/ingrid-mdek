@@ -33,6 +33,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
+import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
@@ -50,6 +51,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
+import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
@@ -91,6 +93,7 @@ public class MdekCatalogService {
 	private ISearchtermValueDao daoSearchtermValue;
 	private ISearchtermSnsDao daoSearchtermSns;
 	private ISpatialRefValueDao daoSpatialRefValue;
+	private ISpatialRefSnsDao daoSpatialRefSns;
 	private IGenericDao<IEntity> dao;
 
 	private MdekJobHandler jobHandler;
@@ -122,6 +125,7 @@ public class MdekCatalogService {
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
 		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
+		daoSpatialRefSns = daoFactory.getSpatialRefSnsDao();
 		dao = daoFactory.getDao(IEntity.class);
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
@@ -645,8 +649,10 @@ public class MdekCatalogService {
 				docToBeanMapper.mapHelperSearchtermValue(newTermDoc, new SearchtermValue());
 
 			// check type of new term
-			SearchtermType newType =
-				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpNewTerm.getType());
+			SearchtermType newType = null;
+			if (tmpNewTerm != null) {
+				newType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, tmpNewTerm.getType());
+			}
 			if (!SearchtermType.isThesaurusType(newType)) {
 				// ??? should not happen !!! all new terms are thesaurus terms !!!
 				LOG.warn("SNS Update: New type of searchterm is NOT \"Thesaurus\", we skip this one ! doc:" + newTermDoc);
@@ -707,7 +713,8 @@ public class MdekCatalogService {
 				} else {
 					// FREE term does not exist, create it !
 					// !!! create NEW FREE term per object (not connected to entity !)
-					SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(SearchtermType.FREI.getDbValue(),
+					SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(
+							SearchtermType.FREI.getDbValue(),
 							oldTermValue.getTerm(), null, null, null, null, null);
 
 					// connect to Object
@@ -743,7 +750,8 @@ public class MdekCatalogService {
 				} else {
 					// FREE term does not exist, create it !
 					// !!! create NEW FREE term per address (not connected to entity !)
-					SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(SearchtermType.FREI.getDbValue(),
+					SearchtermValue freeTerm = daoSearchtermValue.loadOrCreate(
+							SearchtermType.FREI.getDbValue(),
 							oldTermValue.getTerm(), null, null, null, null, null);
 
 					// connect to Address
@@ -825,24 +833,18 @@ public class MdekCatalogService {
 	 * dependent from whether new term already connected ! */
 	private void updateThesaurusTermNewSnsId(SearchtermValue inTermOld, IngridDocument inTermNewDoc,
 			String userUuid) {
-		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
-		SearchtermValue inTermNew = docToBeanMapper.mapHelperSearchtermValue(inTermNewDoc, new SearchtermValue());
 
-		// load NEW sns data, may already exist ! else create it !
-		SearchtermSns newSnsData = daoSearchtermSns.loadOrCreate(
-				inTermNew.getSearchtermSns().getSnsId(),
-				inTermNew.getSearchtermSns().getGemetId());
-		// load NEW sns term, may already exist ! else create it !
-		SearchtermValue newTermValue = daoSearchtermValue.loadOrCreate(inTermNew.getType(),
-				inTermNew.getTerm(), inTermNew.getAlternateTerm(),
-				null, newSnsData, null, null);
+		// load/create NEW spRefValue !
+		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+		SearchtermValue newSnsTermValue =
+			docToBeanMapper.loadOrCreateSearchtermValueViaDoc(inTermNewDoc, null, null, true);
 
 		// fetch all object ids where new term is already connected to
 		Set<Long> objIdsOfNewTerm =
-			new HashSet<Long>(daoSearchtermValue.getSearchtermObj_objIds(newTermValue.getId()));
+			new HashSet<Long>(daoSearchtermValue.getSearchtermObj_objIds(newSnsTermValue.getId()));
 		// fetch all address ids where new term is connected to
 		Set<Long> addrIdsOfNewTerm =
-			new HashSet<Long>(daoSearchtermValue.getSearchtermAdr_adrIds(newTermValue.getId()));
+			new HashSet<Long>(daoSearchtermValue.getSearchtermAdr_adrIds(newSnsTermValue.getId()));
 
 		// get all database searchterm beans !
 		List<SearchtermValue> oldTermValues = daoSearchtermValue.getSearchtermValues(
@@ -864,8 +866,8 @@ public class MdekCatalogService {
 				} else {
 					// new thesaurus term NOT connected
 					// connect thesaurus term to Object, use old term connection
-					oldTermObj.setSearchtermId(newTermValue.getId());
-					oldTermObj.setSearchtermValue(newTermValue);
+					oldTermObj.setSearchtermId(newSnsTermValue.getId());
+					oldTermObj.setSearchtermValue(newSnsTermValue);
 					dao.makePersistent(oldTermObj);
 					objIdsOfNewTerm.add(oldTermObj.getObjId());
 				}
@@ -884,8 +886,8 @@ public class MdekCatalogService {
 				} else {
 					// new thesaurus term NOT connected
 					// connect thesaurus term to Address, use old term connection
-					oldTermAdr.setSearchtermId(newTermValue.getId());
-					oldTermAdr.setSearchtermValue(newTermValue);
+					oldTermAdr.setSearchtermId(newSnsTermValue.getId());
+					oldTermAdr.setSearchtermValue(newSnsTermValue);
 					dao.makePersistent(oldTermAdr);
 					addrIdsOfNewTerm.add(oldTermAdr.getAdrId());
 				}
@@ -898,13 +900,13 @@ public class MdekCatalogService {
 			dao.makeTransient(oldTermValue);
 			
 			SearchtermType newType =
-				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newTermValue.getType());
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newSnsTermValue.getType());
 			String msg;
 			if (newType == SearchtermType.GEMET) {
-				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newTermValue.getTerm() + "\" (" + newType + "), " +
-					"\"" + newTermValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
+				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newSnsTermValue.getTerm() + "\" (" + newType + "), " +
+					"\"" + newSnsTermValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
 			} else {
-				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newTermValue.getTerm() + "\" (" + newType + ")";			
+				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newSnsTermValue.getTerm() + "\" (" + newType + ")";			
 			}
 			updateJobInfoNewUpdatedTerm(oldTermValue.getTerm(), oldTermValue.getAlternateTerm(),
 				oldTermValue.getType(), msg, numProcessedObj, numProcessedAddr, userUuid);
@@ -939,36 +941,30 @@ public class MdekCatalogService {
 		String newName = tmpNewTerm.getTerm();
 		if (oldName.equals(newName)) {
 			// replace free with thesaurus term
-			updateFreeTermToThesaurus(tmpOldTerm, tmpNewTerm, true, userUuid);
+			updateFreeTermToThesaurus(tmpOldTerm, newTermDoc, true, userUuid);
 		} else {
 			// keep free term, add new thesaurus term
-			updateFreeTermToThesaurus(tmpOldTerm, tmpNewTerm, false, userUuid);
+			updateFreeTermToThesaurus(tmpOldTerm, newTermDoc, false, userUuid);
 		}
 	}
 
 	/** Add THESAURUS record with according references to Objects/Addresses (based on free term references) !
 	 * Replace free term if requested or add thesaurus term additionally ! */
-	private void updateFreeTermToThesaurus(SearchtermValue inTermOld, SearchtermValue inTermNew,
+	private void updateFreeTermToThesaurus(SearchtermValue inTermOld, IngridDocument inTermNewDoc,
 			boolean replaceFreeTerm,
 			String userUuid) {
 
-		// CREATE SNS TERM !
-
-		// load NEW sns data, may already exist ! else create it !
-		SearchtermSns newSnsData = daoSearchtermSns.loadOrCreate(
-				inTermNew.getSearchtermSns().getSnsId(),
-				inTermNew.getSearchtermSns().getGemetId());
-		// load NEW sns term, may already exist ! else create it !
-		SearchtermValue newSnsTerm = daoSearchtermValue.loadOrCreate(inTermNew.getType(),
-				inTermNew.getTerm(), inTermNew.getAlternateTerm(),
-				null, newSnsData, null, null);
+		// load/create NEW spRefValue !
+		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+		SearchtermValue newSnsTermValue =
+			docToBeanMapper.loadOrCreateSearchtermValueViaDoc(inTermNewDoc, null, null, true);
 
 		// fetch all object ids where new term is already connected to
 		Set<Long> objIdsOfNewTerm =
-			new HashSet<Long>(daoSearchtermValue.getSearchtermObj_objIds(newSnsTerm.getId()));
+			new HashSet<Long>(daoSearchtermValue.getSearchtermObj_objIds(newSnsTermValue.getId()));
 		// fetch all address ids where new term is connected to
 		Set<Long> addrIdsOfNewTerm =
-			new HashSet<Long>(daoSearchtermValue.getSearchtermAdr_adrIds(newSnsTerm.getId()));
+			new HashSet<Long>(daoSearchtermValue.getSearchtermAdr_adrIds(newSnsTermValue.getId()));
 
 		// UPDATE / CREATE NEW REFERENCES TO OBJECTS/ADDRESSES
 
@@ -1004,8 +1000,8 @@ public class MdekCatalogService {
 						newTermObj.setLine(oldTermObj.getLine());
 						newTermObj.setObjId(oldTermObj.getObjId());
 					}
-					newTermObj.setSearchtermId(newSnsTerm.getId());
-					newTermObj.setSearchtermValue(newSnsTerm);
+					newTermObj.setSearchtermId(newSnsTermValue.getId());
+					newTermObj.setSearchtermValue(newSnsTermValue);
 					dao.makePersistent(newTermObj);
 					objIdsOfNewTerm.add(newTermObj.getObjId());
 					numProcessedObj++;
@@ -1033,8 +1029,8 @@ public class MdekCatalogService {
 						newTermAdr.setLine(oldTermAdr.getLine());
 						newTermAdr.setAdrId(oldTermAdr.getAdrId());
 					}
-					newTermAdr.setSearchtermId(newSnsTerm.getId());
-					newTermAdr.setSearchtermValue(newSnsTerm);
+					newTermAdr.setSearchtermId(newSnsTermValue.getId());
+					newTermAdr.setSearchtermValue(newSnsTermValue);
 					dao.makePersistent(newTermAdr);
 					addrIdsOfNewTerm.add(newTermAdr.getAdrId());
 					numProcessedAddr++;
@@ -1050,13 +1046,13 @@ public class MdekCatalogService {
 		// update job info only if obj/addr processed !
 		if (numProcessedObj > 0 || numProcessedAddr > 0) {
 			SearchtermType newType =
-				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newSnsTerm.getType());
+				EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, newSnsTermValue.getType());
 			String newTermTag;
 			if (newType == SearchtermType.GEMET) {
-				newTermTag = "\"" + newSnsTerm.getTerm() + "\" (" + newType + "), " +
-					"\"" + newSnsTerm.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
+				newTermTag = "\"" + newSnsTermValue.getTerm() + "\" (" + newType + "), " +
+					"\"" + newSnsTermValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
 			} else {
-				newTermTag = "\"" + newSnsTerm.getTerm() + "\" (" + newType + ")";			
+				newTermTag = "\"" + newSnsTermValue.getTerm() + "\" (" + newType + ")";			
 			}
 			String msg;
 			if (replaceFreeTerm) {
@@ -1101,7 +1097,26 @@ public class MdekCatalogService {
 					updateSpatialRefToExpired(tmpOldSpRef, userUuid);
 
 				} else {
-					updateSpatialRefValue(tmpOldSpRef, newDoc, userUuid);				
+					// map new doc to bean for better handling
+					SpatialRefValue tmpNewSpRef = 
+						docToBeanMapper.mapHelperSpatialRefValue(newDoc, new SpatialRefValue());
+
+					// check type of new term
+					SpatialReferenceType newType =
+						EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, tmpNewSpRef.getType());
+					if (!SpatialReferenceType.isThesaurusType(newType)) {
+						LOG.warn("SNS Update: New type of spatial reference is NOT \"Thesaurus\", we skip this one ! " +
+							"type/term: " + newType + "/" + tmpNewSpRef.getNameValue());
+					}
+
+					String oldSnsId = tmpOldSpRef.getSpatialRefSns().getSnsId();
+					String newSnsId = tmpNewSpRef.getSpatialRefSns().getSnsId();
+					if (oldSnsId.equals(newSnsId)) {
+						updateSpatialRefValueSameSnsId(tmpOldSpRef, newDoc, userUuid);
+
+					} else {
+						updateSpatialRefValueNewSnsId(tmpOldSpRef, newDoc, userUuid);
+					}
 				}
 			}
 			
@@ -1131,7 +1146,7 @@ public class MdekCatalogService {
 				"entfällt", objs.size(), objs, userUuid);
 		}
 	}
-	private void updateSpatialRefValue(SpatialRefValue inRefOld, IngridDocument inRefNewDoc,
+	private void updateSpatialRefValueSameSnsId(SpatialRefValue inRefOld, IngridDocument inRefNewDoc,
 			String userUuid) {
 		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 		SpatialRefValue inRefNew = 
@@ -1146,20 +1161,7 @@ public class MdekCatalogService {
 		// and process
 		for (SpatialRefValue spRefValue : spRefValues) {
 			// set up message
-			String msg = null;
-			if (!MdekUtils.isEqual(spRefValue.getNameValue(), inRefNew.getNameValue())) {
-				msg = "neue Bezeichnung \"" + inRefNew.getNameValue() + "\"";
-			}
-			if (!MdekUtils.isEqual(spRefValue.getX1(), inRefNew.getX1()) ||
-				!MdekUtils.isEqual(spRefValue.getX2(), inRefNew.getX2()) ||
-				!MdekUtils.isEqual(spRefValue.getY1(), inRefNew.getY1()) ||
-				!MdekUtils.isEqual(spRefValue.getY2(), inRefNew.getY2())) {
-				msg = (msg == null) ? "" : (msg + ", ");
-				msg += "neuer Grenzverlauf";
-			}
-			if (msg == null) {
-				msg = "Raumeinheit geändert";
-			}
+			String msg = getSpatialRefChangesMsg(spRefValue, inRefNew);
 			
 			// remember old data
 			String oldName = spRefValue.getNameValue();
@@ -1173,5 +1175,87 @@ public class MdekCatalogService {
 
 			updateJobInfoNewUpdatedSpatialRef(oldName, oldCode, msg, (int)numObj, null, userUuid);
 		}
+	}
+	private void updateSpatialRefValueNewSnsId(SpatialRefValue inRefOld, IngridDocument inRefNewDoc,
+			String userUuid) {
+
+		// load/create NEW sns spRefValue, may already exist ! else create it (including spRefSns) !
+		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+		SpatialRefValue newSpRefValue =
+			docToBeanMapper.loadOrCreateSpatialRefValueViaDoc(inRefNewDoc, null, true);
+
+		// fetch all object ids where new spRefValue is already connected to
+		Set<Long> objIdsOfNewSpRef =
+			new HashSet<Long>(daoSpatialRefValue.getObjectIdsOfSpatialRefValue(newSpRefValue.getId()));
+
+		// get all old database spRefValue beans !
+		List<SpatialRefValue> oldSpRefValues = daoSpatialRefValue.getSpatialRefValues( 
+				EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, inRefOld.getType()),
+				inRefOld.getNameValue(),
+				inRefOld.getSpatialRefSns().getSnsId());
+		
+		// and process
+		for (SpatialRefValue oldSpRefValue : oldSpRefValues) {
+			// get all object refs and check whether objects already have NEW sns spRef ! 
+			List<SpatialReference> oldSpRefs = daoSpatialRefValue.getSpatialReferences(oldSpRefValue.getId());
+			int numProcessedObj = 0;
+			for (SpatialReference oldSpRef : oldSpRefs) {
+				// first check whether new spRef already connected to object !
+				if (objIdsOfNewSpRef.contains(oldSpRef.getObjId())) {
+					// new spRef already connected
+					// delete all old references 
+					dao.makeTransient(oldSpRef);
+				} else {
+					// new spRef NOT connected
+					// connect spRefValue to Object, use old connection
+					oldSpRef.setSpatialRefId(newSpRefValue.getId());
+					oldSpRef.setSpatialRefValue(newSpRefValue);
+					dao.makePersistent(oldSpRef);
+					objIdsOfNewSpRef.add(oldSpRef.getObjId());
+				}
+				numProcessedObj++;
+			}
+
+			// set up message
+			String msg = getSpatialRefChangesMsg(oldSpRefValue, newSpRefValue);
+			
+			// remember old data
+			String oldName = oldSpRefValue.getNameValue();
+			String oldCode = oldSpRefValue.getNativekey();
+
+			// DELETE OLD STUFF !!! NO EXPIRED, we replaced spatial ref
+			// NOTICE: SpatialRefSns may be null if already deleted (when multiple SpatialRefValues)
+			dao.makeTransient(oldSpRefValue.getSpatialRefSns());
+			dao.makeTransient(oldSpRefValue);
+
+			updateJobInfoNewUpdatedSpatialRef(oldName, oldCode, msg, numProcessedObj, null, userUuid);
+		}
+	}
+	private String getSpatialRefChangesMsg(SpatialRefValue spRefValueOld, SpatialRefValue spRefValueNew) {
+		// set up message
+		String msg = null;
+		if (!MdekUtils.isEqual(spRefValueOld.getNameValue(), spRefValueNew.getNameValue())) {
+			msg = "neue Bezeichnung \"" + spRefValueNew.getNameValue() + "\"";
+		}
+		if (!MdekUtils.isEqual(spRefValueOld.getX1(), spRefValueNew.getX1()) ||
+			!MdekUtils.isEqual(spRefValueOld.getX2(), spRefValueNew.getX2()) ||
+			!MdekUtils.isEqual(spRefValueOld.getY1(), spRefValueNew.getY1()) ||
+			!MdekUtils.isEqual(spRefValueOld.getY2(), spRefValueNew.getY2())) {
+			msg = (msg == null) ? "" : (msg + ", ");
+			msg += "neuer Grenzverlauf";
+		}
+		if (!MdekUtils.isEqual(spRefValueOld.getTopicType(), spRefValueNew.getTopicType())) {
+			msg = (msg == null) ? "" : (msg + ", ");
+			msg += "neuer Topic-Type \"" + spRefValueNew.getTopicType() + "\"";
+		}
+		if (!MdekUtils.isEqual(spRefValueOld.getSpatialRefSns().getSnsId(), spRefValueNew.getSpatialRefSns().getSnsId())) {
+			msg = (msg == null) ? "" : (msg + ", ");
+			msg += "neue Topic-Id \"" + spRefValueNew.getSpatialRefSns().getSnsId() + "\"";
+		}
+		if (msg == null) {
+			msg = "Raumeinheit geändert";
+		}
+
+		return msg;
 	}
 }

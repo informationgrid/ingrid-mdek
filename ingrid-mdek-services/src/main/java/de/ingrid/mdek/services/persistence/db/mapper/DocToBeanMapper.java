@@ -730,7 +730,8 @@ public class DocToBeanMapper implements IMapper {
 				}
 			}
 			if (!found) {
-				SpatialRefValue spRefValue = loadOrCreateSpatialRefValueViaDoc(loc, oIn.getId());
+				SpatialRefValue spRefValue =
+					loadOrCreateSpatialRefValueViaDoc(loc, oIn.getId(), false);
 
 				// then create SpatialReference
 				SpatialReference spRef = new SpatialReference();
@@ -771,7 +772,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 		if (!updated) {
 			// pass NULL as object reference, so it always will be created if FREE spatial ref
-			spRefValue = loadOrCreateSpatialRefValueViaDoc(locDoc, null);
+			spRefValue = loadOrCreateSpatialRefValueViaDoc(locDoc, null, false);
 
 			cIn.setSpatialRefId(spRefValue.getId());
 			cIn.setSpatialRefValue(spRefValue);
@@ -803,12 +804,16 @@ public class DocToBeanMapper implements IMapper {
 		return updated;
 	}
 
-	/** Get the SpatialRefValue entity according to the passed location document.
+	/** Load/Create SpatialRefValue entity according to the passed location document.
 	 * @param locationDoc data describing SpatialRefValue
 	 * @param objectId SpatialRef is connected to this object, PASS NULL IF CONNECTION DOESN'T MATTER
-	 * @return persistent SpatialRefValue (with Id)
+	 * @param persistAllData normally result contains complete data of doc but NOT fully persisted yet.
+	 * 		pass true if all data should be persisted here (not necessary if cascaded save is called afterwards).
+	 * @return persistent SpatialRefValue (with Id) BUT maybe not fully persisted data (dependent from
+	 * 		passed persistAllData)
 	 */
-	private SpatialRefValue loadOrCreateSpatialRefValueViaDoc(IngridDocument locationDoc, Long objectId) {
+	public SpatialRefValue loadOrCreateSpatialRefValueViaDoc(IngridDocument locationDoc, Long objectId,
+			boolean persistAllData) {
 		// first load/create SpatialRefSns
 		String locSnsId = (String) locationDoc.get(MdekKeys.LOCATION_SNS_ID);
 		SpatialRefSns spRefSns = null;
@@ -819,7 +824,6 @@ public class DocToBeanMapper implements IMapper {
 		String locNameValue = locationDoc.getString(MdekKeys.LOCATION_NAME);
 		Integer locNameKey = (Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY);
 		String locType = locationDoc.getString(MdekKeys.LOCATION_TYPE);
-		String locCode = locationDoc.getString(MdekKeys.LOCATION_CODE);
 
 		// then load/create SpatialRefValue
 		// NOTICE: Freie Raumbezuege (SpatialRefValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
@@ -829,9 +833,14 @@ public class DocToBeanMapper implements IMapper {
 		// geaendert werden koennen -> vom Frontend kommen immer die akt. Freien, die Prüfung ob Freier schon da erfolgt dann über fast
 		// alle Attribute, bis auf BBox Koordinaten, wenn gefunden, werden also die BBox Koords aktualisiert). -> Aufraeum Job noetig !
 		// NEIN, nicht mehr noetig, da Freie Raumbezuege jetzt geloescht werden, wenn Ihre Referenz zum Objekt gelöscht wird, s.updateSpatialReferences(...)
-		SpatialRefValue spRefValue = daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, locCode, objectId);
+		SpatialRefValue spRefValue =
+			daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, objectId);
 		mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
 		
+		if (persistAllData) {
+			dao.makePersistent(spRefValue);
+		}
+
 		return spRefValue;
 	}
 
@@ -1527,6 +1536,12 @@ public class DocToBeanMapper implements IMapper {
 
 		return refValue;
 	}
+	private void updateSearchtermObjs(IngridDocument oDocIn, T01Object oIn) {
+		updateSearchterms(IdcEntityType.OBJECT, oDocIn, oIn);
+	}
+	private void updateSearchtermAdrs(IngridDocument aDocIn, T02Address aIn) {
+		updateSearchterms(IdcEntityType.ADDRESS, aDocIn, aIn);		
+	}
 	private void updateSearchterms(IdcEntityType entityType, IngridDocument docIn, IEntity entityIn) {
 		List<IngridDocument> inTermDocs = (List) docIn.get(MdekKeys.SUBJECT_TERMS);
 		if (inTermDocs == null) {
@@ -1588,20 +1603,10 @@ public class DocToBeanMapper implements IMapper {
 			}
 			if (!found) {
 				// add new one
-				
-				// first load/create SearchtermSns
-				SearchtermSns termSns = null;
-				if (inSnsId != null) {
-					termSns = daoSearchtermSns.loadOrCreate(inSnsId, inGemetId);
-				}
 
-				// then load/create SearchtermValue
-				// NOTICE: Freie Schlagwörter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
-				// gleiches Verhalten wie bei FREIEN RAUMBEZUEGEN, s.o.
-				SearchtermValue termValue = daoSearchtermValue.loadOrCreate(inType, inName,
-						inTermDoc.getString(MdekKeys.TERM_ALTERNATE_NAME),
-						inEntryId, termSns, (Long)entityIn.getId(), entityType);
-				mapSearchtermValue(termSns, inTermDoc, termValue);
+				// first load/create SearchtermValue
+				SearchtermValue termValue = loadOrCreateSearchtermValueViaDoc(
+						inTermDoc, (Long)entityIn.getId(), entityType, false);
 
 				// then create connection to entity
 				IEntity termEntityRef;
@@ -1635,11 +1640,43 @@ public class DocToBeanMapper implements IMapper {
 			}
 		}		
 	}
-	private void updateSearchtermObjs(IngridDocument oDocIn, T01Object oIn) {
-		updateSearchterms(IdcEntityType.OBJECT, oDocIn, oIn);
-	}
-	private void updateSearchtermAdrs(IngridDocument aDocIn, T02Address aIn) {
-		updateSearchterms(IdcEntityType.ADDRESS, aDocIn, aIn);		
+	/** Load/Create SearchtermValue according to the passed term document.
+	 * @param inTermDoc data describing SearchtermValue
+	 * @param entityId SearchtermValue is connected to this entity, PASS NULL IF CONNECTION DOESN'T MATTER
+	 * @param entityType type of entity the term is connected to, PASS NULL IF CONNECTION DOESN'T MATTER
+	 * @param persistAllData normally result contains complete data of doc but NOT fully persisted yet.
+	 * 		pass true if all data should be persisted here (not necessary if cascaded save is called afterwards).
+	 * @return persistent SearchtermValue (with Id) BUT maybe not fully persisted data (dependent from
+	 * 		passed persistAllData)
+	 */
+	public SearchtermValue loadOrCreateSearchtermValueViaDoc(IngridDocument inTermDoc,
+			Long entityId, IdcEntityType entityType,
+			boolean persistAllData) {
+		// first load/create SearchtermSns
+		String termSnsId = inTermDoc.getString(MdekKeys.TERM_SNS_ID);
+		String termGemetId = inTermDoc.getString(MdekKeys.TERM_GEMET_ID);
+		SearchtermSns termSns = null;
+		if (termSnsId != null) {
+			termSns = daoSearchtermSns.loadOrCreate(termSnsId, termGemetId);
+		}
+
+		// then load/create SearchtermValue
+		// NOTICE: Freie Schlagwörter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
+		// gleiches Verhalten wie bei FREIEN RAUMBEZUEGEN, s.o.
+		SearchtermValue termValue = daoSearchtermValue.loadOrCreate(
+				inTermDoc.getString(MdekKeys.TERM_TYPE),
+				inTermDoc.getString(MdekKeys.TERM_NAME),
+				inTermDoc.getString(MdekKeys.TERM_ALTERNATE_NAME),
+				(Integer) inTermDoc.get(MdekKeys.TERM_ENTRY_ID),
+				termSns,
+				entityId, entityType);
+		mapSearchtermValue(termSns, inTermDoc, termValue);
+		
+		if (persistAllData) {
+			dao.makePersistent(termValue);
+		}
+
+		return termValue;
 	}
 
 	private T0114EnvCategory mapT0114EnvCategory(T01Object oFrom,

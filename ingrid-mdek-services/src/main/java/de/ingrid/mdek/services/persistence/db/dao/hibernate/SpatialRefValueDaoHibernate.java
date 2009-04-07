@@ -44,12 +44,8 @@ public class SpatialRefValueDaoHibernate
 	 * @param objectId connected to this object, PASS NULL IF CONNECTION DOESN'T MATTER
 	 * @return SpatialRefValue or null
 	 */
-	private SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey, Long spatialRefSnsId, String nativekey,
-			Long objId) {
-//		if (LOG.isDebugEnabled()) {
-//			LOG.debug("type: " + type + ", nameKey: " + nameKey + ", nameValue: " + nameValue + ", SpatialRefSns_ID: " + spatialRefSnsId + ", nativeKey: " + nativekey);			
-//		}
-
+	private SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey,
+			Long spatialRefSnsId, Long objId) {
 		SpatialReferenceType spRefType = EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, type);
 
 		SpatialRefValue spRefValue = null;
@@ -57,7 +53,7 @@ public class SpatialRefValueDaoHibernate
 			spRefValue = loadFreiRefValue(nameValue, nameKey, objId);
 
 		} else if (SpatialReferenceType.GEO_THESAURUS == spRefType) {
-			spRefValue = loadThesaurusRefValue(nameValue, spatialRefSnsId, nativekey);
+			spRefValue = loadThesaurusRefValue(spatialRefSnsId);
 			
 		} else {
 			LOG.warn("Unknown Type of SpatialRefValue, type: " + type);
@@ -107,13 +103,11 @@ public class SpatialRefValueDaoHibernate
 		return spRefValue; 
 	}
 
-	/** Load SNS Geo-Thesaurus SpatialRefValue according to given values. Returns null if not found. 
-	 * @param nameValue
-	 * @param spatialRefSnsId id of record in SpatialRefSns
-	 * @param nativekey
+	/** Load SNS Geo-Thesaurus SpatialRefValue according to given value. Returns null if not found. 
+	 * @param spatialRefSnsId id of record in SpatialRefSns, NEVER NULL, has to exist !
 	 * @return SpatialRefValue or null
 	 */
-	private SpatialRefValue loadThesaurusRefValue(String nameValue, Long spatialRefSnsId, String nativekey) {
+	private SpatialRefValue loadThesaurusRefValue(Long spatialRefSnsId) {
 		Session session = getSession();
 
 		String qString = "from SpatialRefValue spRefVal " +
@@ -131,20 +125,24 @@ public class SpatialRefValueDaoHibernate
 		return (SpatialRefValue) q.uniqueResult();
 	}
 
-	public SpatialRefValue loadOrCreate(String type, String nameValue, Integer nameKey, SpatialRefSns spRefSns, String nativekey, Long objId) {
+	public SpatialRefValue loadOrCreate(String type, 
+			String nameValue, Integer nameKey, 
+			SpatialRefSns spRefSns, Long objId) {
 		Long spRefSnsId = (spRefSns != null) ? spRefSns.getId() : null; 
-		SpatialRefValue spRefValue = loadRefValue(type, nameValue, nameKey, spRefSnsId, nativekey, objId);
+		SpatialRefValue spRefValue =
+			loadRefValue(type, nameValue, nameKey, spRefSnsId, objId);
 		
 		if (spRefValue == null) {
 			spRefValue = new SpatialRefValue();
-			spRefValue.setType(type);
-			spRefValue.setNameValue(nameValue);
-			spRefValue.setNameKey(nameKey);
-			spRefValue.setSpatialRefSns(spRefSns);
-			spRefValue.setSpatialRefSnsId(spRefSnsId);
-			spRefValue.setNativekey(nativekey);
-			makePersistent(spRefValue);
 		}
+
+		// update with newest values
+		spRefValue.setType(type);
+		spRefValue.setNameValue(nameValue);
+		spRefValue.setNameKey(nameKey);
+		spRefValue.setSpatialRefSns(spRefSns);
+		spRefValue.setSpatialRefSnsId(spRefSnsId);
+		makePersistent(spRefValue);
 		
 		return spRefValue;
 	}
@@ -221,6 +219,19 @@ public class SpatialRefValueDaoHibernate
 		String q = "select distinct obj " +
 			"from T01Object obj " +
 			"inner join obj.spatialReferences spRef " +
+			"where spRef.spatialRefId = " + idSpatialRefValue;
+		
+		return  getSession().createQuery(q).list();
+	}
+	public List<Long> getObjectIdsOfSpatialRefValue(long idSpatialRefValue) {
+		String q = "select distinct spRef.objId " +
+			"from SpatialReference spRef " +
+			"where spRef.spatialRefId = " + idSpatialRefValue;
+
+		return  getSession().createQuery(q).list();
+	}
+	public List<SpatialReference> getSpatialReferences(long idSpatialRefValue) {
+		String q = "from SpatialReference spRef " +
 			"where spRef.spatialRefId = " + idSpatialRefValue;
 		
 		return  getSession().createQuery(q).list();

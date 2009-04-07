@@ -127,7 +127,7 @@ public class SearchtermValueDaoHibernate
 		String qString = "from SearchtermValue termVal " +
 			"left join fetch termVal.searchtermSns " +
 			"where termVal.type = '" + termType.getDbValue() + "' " +
-			"and termVal.searchtermSnsId = " + searchtermSnsId + "";
+			"and termVal.searchtermSnsId = " + searchtermSnsId;
 
 		// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
 		// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
