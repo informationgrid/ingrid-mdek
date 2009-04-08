@@ -85,9 +85,14 @@ public class SearchtermValueDaoHibernate
 		q.setLong(1, objId);
 
 		SearchtermValue termValue = null;
-		SearchtermObj termObj = (SearchtermObj) q.uniqueResult();
-		if (termObj != null) {
-			termValue = termObj.getSearchtermValue();
+		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
+		// then we check all results in Java whether equal !
+		List<SearchtermObj> termObjs = q.list();
+		for (SearchtermObj termObj : termObjs) {
+			if (term.equals(termObj.getSearchtermValue().getTerm())) {
+				termValue = termObj.getSearchtermValue();
+				break;
+			}
 		}
 
 		return termValue; 
@@ -108,9 +113,14 @@ public class SearchtermValueDaoHibernate
 		q.setLong(1, adrId);
 
 		SearchtermValue termValue = null;
-		SearchtermAdr termAdr = (SearchtermAdr) q.uniqueResult();
-		if (termAdr != null) {
-			termValue = termAdr.getSearchtermValue();
+		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
+		// then we check all results in Java whether equal !
+		List<SearchtermAdr> termAdrs = q.list();
+		for (SearchtermAdr termAdr : termAdrs) {
+			if (term.equals(termAdr.getSearchtermValue().getTerm())) {
+				termValue = termAdr.getSearchtermValue();
+				break;
+			}
 		}
 
 		return termValue; 

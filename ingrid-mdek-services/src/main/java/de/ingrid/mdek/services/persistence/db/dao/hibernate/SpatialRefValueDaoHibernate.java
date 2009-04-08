@@ -94,10 +94,15 @@ public class SpatialRefValueDaoHibernate
 
 		Query q = session.createQuery(qString);
 
-		SpatialReference spRef = (SpatialReference) q.uniqueResult();
 		SpatialRefValue spRefValue = null;
-		if (spRef != null) {
-			spRefValue = spRef.getSpatialRefValue();
+		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
+		// then we check all results in Java whether equal !
+		List<SpatialReference> spRefs = q.list();
+		for (SpatialReference spRef : spRefs) {
+			if (nameValue.equals(spRef.getSpatialRefValue().getNameValue())) {
+				spRefValue = spRef.getSpatialRefValue();
+				break;
+			}
 		}
 
 		return spRefValue; 
