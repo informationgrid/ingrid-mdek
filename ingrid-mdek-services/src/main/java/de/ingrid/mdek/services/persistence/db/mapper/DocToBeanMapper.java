@@ -1635,9 +1635,13 @@ public class DocToBeanMapper implements IMapper {
 			dao.makeTransient(ref);
 			
 			// also delete termValue if FREE term ! Every Entity has its own FREE terms !
+			// NO !!!!! Initial Migration refers to SAME FREE termValue MULTIPLE TIMES FROM DIFFERENT OBJECTS !!!
+			// SO DO NOT DELETE termValue to avoid MISSING termValues when loading other Objects !!!
+/*
 			if (SearchtermType.FREI.getDbValue().equals(termValue.getType())) {
 				dao.makeTransient(termValue);				
 			}
+*/
 		}		
 	}
 	/** Load/Create SearchtermValue according to the passed term document.
@@ -1663,6 +1667,9 @@ public class DocToBeanMapper implements IMapper {
 		// then load/create SearchtermValue
 		// NOTICE: Freie Schlagwörter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
 		// gleiches Verhalten wie bei FREIEN RAUMBEZUEGEN, s.o.
+		// ABER: ist eigentlich nicht nötig, da ursprüngliche Migration gleiche freie Suchbegriffe NUR EINMAL ANGELEGT HAT
+		// und diese mit mehrerern Objekten/Adressen verknüft hat !!!!!!!!! Diese dürfen also NICHT geloescht werden !
+		// Gleiche Freie Raumbezuege koennten also auch nur EINMAL existieren !!!
 		SearchtermValue termValue = daoSearchtermValue.loadOrCreate(
 				inTermDoc.getString(MdekKeys.TERM_TYPE),
 				inTermDoc.getString(MdekKeys.TERM_NAME),
