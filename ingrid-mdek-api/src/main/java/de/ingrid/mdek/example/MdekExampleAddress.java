@@ -866,8 +866,12 @@ class MdekExampleAddressThread extends Thread {
 		aDocIn.put(MdekKeys.ORGANISATION, "TEST/" + origORGANISATION);
 		aDocIn.put(MdekKeys.GIVEN_NAME, "TEST/" + origGIVEN_NAME);
 		// check storing of value to key !
+		Integer origNameFormKey = (Integer) aDocIn.get(MdekKeys.NAME_FORM_KEY);
 		aDocIn.put(MdekKeys.NAME_FORM_KEY, 2);
+		Integer origTitleKey = (Integer) aDocIn.get(MdekKeys.TITLE_OR_FUNCTION_KEY);
 		aDocIn.put(MdekKeys.TITLE_OR_FUNCTION_KEY, 3);
+		Integer origCountryKey = (Integer) aDocIn.get(MdekKeys.COUNTRY_CODE);
+		aDocIn.put(MdekKeys.COUNTRY_CODE, 826);
 
 		// add entry to COMMUNICATION
 		System.out.println("- add test COMMUNICATION");
@@ -930,6 +934,9 @@ class MdekExampleAddressThread extends Thread {
 			System.out.println("- set original ORGANISATION, GIVEN_NAME");
 			aRefetchedDoc.put(MdekKeys.ORGANISATION, origORGANISATION);
 			aRefetchedDoc.put(MdekKeys.GIVEN_NAME, origGIVEN_NAME);
+			aRefetchedDoc.put(MdekKeys.NAME_FORM_KEY, origNameFormKey);
+			aRefetchedDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, origTitleKey);
+			aRefetchedDoc.put(MdekKeys.COUNTRY_CODE, origCountryKey);
 
 			// COMMUNICATION wieder wie vorher !
 			System.out.println("- remove test COMMUNICATION");

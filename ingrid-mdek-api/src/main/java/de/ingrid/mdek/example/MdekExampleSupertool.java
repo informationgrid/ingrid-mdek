@@ -671,7 +671,7 @@ public class MdekExampleSupertool {
 		System.out.println("Catalog: " + c.get(MdekKeysSecurity.CATALOG_NAME) 
 			+ ", partner: " + c.get(MdekKeys.PARTNER_NAME)
 			+ ", provider: " + c.get(MdekKeys.PROVIDER_NAME)
-			+ ", country: " + c.get(MdekKeys.COUNTRY)
+			+ ", country: " + c.get(MdekKeys.COUNTRY_CODE) + "/" + c.get(MdekKeys.COUNTRY_NAME)
 			+ ", language: " + c.get(MdekKeys.LANGUAGE)
 		);
 		System.out.println("         "

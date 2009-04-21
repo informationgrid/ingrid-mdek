@@ -27,6 +27,7 @@ import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
+import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 
 
 /**
@@ -59,6 +60,7 @@ public class MdekKeyValueHandler {
 		ObjectAccess.class,
 		T011ObjServType.class,
 		SearchtermValue.class,
+		T03Catalogue.class,
 	};
 
 	/** Get The Singleton */
@@ -123,6 +125,8 @@ public class MdekKeyValueHandler {
 			processKeyValueT011ObjServType((T011ObjServType) bean);
 		} else if (SearchtermValue.class.isAssignableFrom(clazz)) {
 			processKeyValueSearchtermValue((SearchtermValue) bean);
+		} else if (T03Catalogue.class.isAssignableFrom(clazz)) {
+			processKeyValueT03Catalogue((T03Catalogue) bean);
 
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 
@@ -324,7 +328,6 @@ public class MdekKeyValueHandler {
 			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.ADDRESS_VALUE.getDbValue(),
 				catalogService.getCatalogLanguage());
-
 			bean.setAddressValue(keyNameMap.get(entryKey));
 		}
 		
@@ -333,8 +336,15 @@ public class MdekKeyValueHandler {
 			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.ADDRESS_TITLE.getDbValue(),
 				catalogService.getCatalogLanguage());
-
 			bean.setTitleValue(keyNameMap.get(entryKey));
+		}
+		
+		entryKey = bean.getCountryKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.COUNTRY.getDbValue(),
+				catalogService.getCatalogLanguage());
+			bean.setCountryValue(keyNameMap.get(entryKey));
 		}
 		
 		return bean;
@@ -430,6 +440,18 @@ public class MdekKeyValueHandler {
 			}
 		}
 
+		return bean;
+	}
+
+	private IEntity processKeyValueT03Catalogue(T03Catalogue bean) {
+		Integer entryKey = bean.getCountryKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.COUNTRY.getDbValue(),
+				catalogService.getCatalogLanguage());
+			bean.setCountryValue(keyNameMap.get(entryKey));
+		}
+		
 		return bean;
 	}
 }

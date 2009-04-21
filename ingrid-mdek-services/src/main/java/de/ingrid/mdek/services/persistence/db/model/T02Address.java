@@ -24,7 +24,8 @@ public class T02Address implements IEntity {
 	private String postbox;
 	private String postboxPc;
 	private String city;
-	private String countryCode;
+	private Integer countryKey;
+	private String countryValue;
 	private String job;
 	private String descr;
 	private String workState;
@@ -179,12 +180,20 @@ public class T02Address implements IEntity {
 		this.city = city;
 	}
 
-	public String getCountryCode() {
-		return countryCode;
+	public Integer getCountryKey() {
+		return countryKey;
 	}
 
-	public void setCountryCode(String countryCode) {
-		this.countryCode = countryCode;
+	public void setCountryKey(Integer countryKey) {
+		this.countryKey = countryKey;
+	}
+
+	public String getCountryValue() {
+		return countryValue;
+	}
+
+	public void setCountryValue(String countryValue) {
+		this.countryValue = countryValue;
 	}
 
 	public String getJob() {

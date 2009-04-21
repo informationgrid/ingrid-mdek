@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.portalu.de/" xmlns="http://www.portalu.de/">
   <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="1.0"/>
+    <xs:attribute name="exchange-format" default="1.0.5"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -65,9 +65,12 @@
   <xs:element name="provider-name" type="xs:string"/>
   <!--
     Fachlicher Name: Land
-    Tabelle.Feld   : T03_catalogue.country_code
+    Tabelle.Feld   : T03_catalogue.country_key
+    Tabelle.Feld   : T03_catalogue.country_value
+    Tabelle.Feld   : T02_address.country_key
+    Tabelle.Feld   : T02_address.country_value
   -->
-  <xs:element name="country" type="iso-code"/>
+  <xs:element name="country" type="id-string"/>
   <!--
     Fachlicher Name: Sprache
     Tabelle.Feld   : T03_catalogue.language_code
@@ -1414,7 +1417,7 @@
         <xs:element minOccurs="0" ref="name-form"/>
         <xs:element minOccurs="0" ref="title-or-function"/>
         <xs:element minOccurs="0" ref="given-name"/>
-        <xs:element minOccurs="0" ref="postal-code-of-country"/>
+        <xs:element minOccurs="0" ref="country"/>
         <xs:element minOccurs="0" ref="postal-code"/>
         <xs:element minOccurs="0" ref="street"/>
         <xs:element minOccurs="0" ref="city"/>
@@ -1477,11 +1480,6 @@
     Tabelle.Feld   : t02_address.firstname
   -->
   <xs:element name="given-name" type="xs:string"/>
-  <!--
-    Fachlicher Name: Staat (Kürzel vor PLZ)
-    Tabelle.Feld   : t02_address.country_code
-  -->
-  <xs:element name="postal-code-of-country" type="iso-code"/>
   <!--
     Fachlicher Name: Postleitzahl (Ort)
     Tabelle.Feld   : t02_address.postcode

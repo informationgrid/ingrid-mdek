@@ -15,7 +15,6 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AdditionalFieldType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -143,7 +142,8 @@ public class DocToBeanMapper implements IMapper {
 		cat.setCatName(inDoc.getString(MdekKeys.CATALOG_NAME));
 		cat.setPartnerName(inDoc.getString(MdekKeys.PARTNER_NAME));
 		cat.setProviderName(inDoc.getString(MdekKeys.PROVIDER_NAME));
-		cat.setCountryCode(inDoc.getString(MdekKeys.COUNTRY));
+		cat.setCountryKey((Integer)inDoc.get(MdekKeys.COUNTRY_CODE));
+		cat.setCountryValue(inDoc.getString(MdekKeys.COUNTRY_NAME));
 		cat.setLanguageCode(inDoc.getString(MdekKeys.LANGUAGE));
 		cat.setWorkflowControl(inDoc.getString(MdekKeys.WORKFLOW_CONTROL));
 		cat.setExpiryDuration((Integer) inDoc.get(MdekKeys.EXPIRY_DURATION));
@@ -155,6 +155,8 @@ public class DocToBeanMapper implements IMapper {
 		cat.setModUuid(extractModUserUuid(inDoc));
 
 		updateSpatialRefValueOfCatalogue(inDoc, cat);
+
+		keyValueService.processKeyValue(cat);
 
 		return cat;
 	}
@@ -460,7 +462,8 @@ public class DocToBeanMapper implements IMapper {
 				howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			aIn.setStreet(aDocIn.getString(MdekKeys.STREET));
-			aIn.setCountryCode(aDocIn.getString(MdekKeys.POSTAL_CODE_OF_COUNTRY));
+			aIn.setCountryKey((Integer)aDocIn.get(MdekKeys.COUNTRY_CODE));
+			aIn.setCountryValue(aDocIn.getString(MdekKeys.COUNTRY_NAME));
 			aIn.setPostcode(aDocIn.getString(MdekKeys.POSTAL_CODE));
 			aIn.setCity(aDocIn.getString(MdekKeys.CITY));
 			aIn.setPostboxPc(aDocIn.getString(MdekKeys.POST_BOX_POSTAL_CODE));

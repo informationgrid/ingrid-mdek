@@ -990,22 +990,11 @@ public class MdekKeys {
     /** Value: String */
     public final static String PROVIDER_NAME = "provider-name";
     /** Value: String */
-    public final static String COUNTRY = "country";
-    /** Value: String */
     public final static String WORKFLOW_CONTROL = "workflow-control";
     /** Value: Integer */
     public final static String EXPIRY_DURATION = "expiry-duration";
     /** Value: IngridDocument encapsulating all SPATIAL REFERENCE data */
     public final static String CATALOG_LOCATION = "catalog-location";
-    /** Value: String */
-    // defined above
-    // public final static String DATE_OF_CREATION = "date-of-creation";
-    /** Value: String */
-    // defined above
-    // public final static String MOD_UUID = "mod-uuid";
-    /** Value: String */
-    // defined above
-    // public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
     
     
     // ADDRESS DATA
@@ -1027,8 +1016,10 @@ public class MdekKeys {
     public final static String TITLE_OR_FUNCTION_KEY = "title-or-function-key";
     /** Value: String */
     public final static String STREET = "street";
+    /** Value: Integer */
+    public final static String COUNTRY_CODE = "country-code";
     /** Value: String */
-    public final static String POSTAL_CODE_OF_COUNTRY = "postal-code-of-country";
+    public final static String COUNTRY_NAME = "country-name";
     /** Value: String */
     public final static String POSTAL_CODE = "postal-code";
     /** Value: String */

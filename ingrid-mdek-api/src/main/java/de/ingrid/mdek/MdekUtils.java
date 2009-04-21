@@ -90,7 +90,8 @@ public class MdekUtils {
 		OBJ_ACCESS(6010, "ObjectAccess -> restrictionKey=entryId, restrictionValue=name"),
 		OBJ_TOPIC_CAT(527, "T011ObjTopicCat -> topicCategory=entryId"),
 		/** INSPIRE Themen zur Verschlagwortung */
-		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)");
+		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)"),
+		COUNTRY(6200, "T03Catalogue, T02Address -> countryKey=entryId, countryValue=name");
 
 		MdekSysList(Integer dbValue, String description) {
 			this.dbValue = dbValue;

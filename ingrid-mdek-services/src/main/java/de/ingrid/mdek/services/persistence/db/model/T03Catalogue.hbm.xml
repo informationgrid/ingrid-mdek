@@ -11,7 +11,8 @@
       <property name="catName" type="string" column="cat_name"/>
       <property name="partnerName" type="string" column="partner_name"/>
       <property name="providerName" type="string" column="provider_name"/>
-      <property name="countryCode" type="string" column="country_code"/>
+      <property name="countryKey" type="integer" column="country_key"/>
+      <property name="countryValue" type="string" column="country_value"/>
       <property name="languageCode" type="string" column="language_code"/>
       <property name="spatialRefId" type="long" column="spatial_ref_id"/>
       <property name="workflowControl" type="string" column="workflow_control"/>

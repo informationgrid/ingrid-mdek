@@ -355,6 +355,24 @@ class MdekExampleExportImportAddressThread extends Thread {
 // -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
+		System.out.println("----- Import: WRONG IMPORT FORMAT !!! -----");
+		System.out.println("-------------------------------------");
+
+		String importUnzipped = exportTopAddrUnzipped.replace("exchange-format=\"", "exchange-format=\"0.");
+		byte[] importWrongFormat = new byte[0];
+		try {
+			importWrongFormat = MdekUtils.compressString(importUnzipped);						
+		} catch (Exception ex) {
+			System.out.println(ex);			
+		}
+
+		System.out.println("\n----- import Wrong Format -> ERROR -----");
+		supertool.importEntities(importWrongFormat, objImpNodeUuid, addrImpNodeUuid, false, false);
+
+
+// -----------------------------------
+
+		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: UPDATE EXISTING ADDRESSES (UUID) -----");
 		System.out.println("-------------------------------------");
 
@@ -372,7 +390,9 @@ class MdekExampleExportImportAddressThread extends Thread {
 		// TODO: what else ?
 
 		// import data: single existing top node
-		String importUnzipped = exportTopAddrUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportTopAddrUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		// different country (germany to austria)
+		importUnzipped = importUnzipped.replace("<country id=\"276\">", "<country id=\"40\">");
 		byte[] importExistingTopAddr = new byte[0];
 		try {
 			importExistingTopAddr = MdekUtils.compressString(importUnzipped);						
@@ -382,6 +402,8 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 		// import data: single existing free node
 		importUnzipped = exportFreeAddrUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		// different country (germany to austria)
+		importUnzipped = importUnzipped.replace("<country id=\"276\">", "<country id=\"40\">");
 		byte[] importExistingFreeAddr = new byte[0];
 		try {
 			importExistingFreeAddr = MdekUtils.compressString(importUnzipped);						
@@ -391,6 +413,8 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 		// import data: existing sub nodes (branch)
 		importUnzipped = exportBranchUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		// different country (germany to austria)
+		importUnzipped = importUnzipped.replace("<country id=\"276\">", "<country id=\"40\">");
 		byte[] importExistingAddrBranch = new byte[0];
 		try {
 			importExistingAddrBranch = MdekUtils.compressString(importUnzipped);						

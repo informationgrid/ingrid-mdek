@@ -365,7 +365,8 @@ public class BeanToDocMapper implements IMapper {
 		// supply initial data when entity is created
 		if (howMuch == MappingQuantity.INITIAL_ENTITY) {
 			addressDoc.put(MdekKeys.STREET, a.getStreet());
-			addressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
+			addressDoc.put(MdekKeys.COUNTRY_CODE, a.getCountryKey());
+			addressDoc.put(MdekKeys.COUNTRY_NAME, a.getCountryValue());
 			addressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
 			addressDoc.put(MdekKeys.CITY, a.getCity());
 			addressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
@@ -405,7 +406,8 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			addressDoc.put(MdekKeys.STREET, a.getStreet());
-			addressDoc.put(MdekKeys.POSTAL_CODE_OF_COUNTRY, a.getCountryCode());
+			addressDoc.put(MdekKeys.COUNTRY_CODE, a.getCountryKey());
+			addressDoc.put(MdekKeys.COUNTRY_NAME, a.getCountryValue());
 			addressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
 			addressDoc.put(MdekKeys.CITY, a.getCity());
 			addressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
@@ -1709,7 +1711,8 @@ public class BeanToDocMapper implements IMapper {
 		resultDoc.put(MdekKeys.CATALOG_NAME, cat.getCatName());
 		resultDoc.put(MdekKeys.PARTNER_NAME, cat.getPartnerName());
 		resultDoc.put(MdekKeys.PROVIDER_NAME, cat.getProviderName());
-		resultDoc.put(MdekKeys.COUNTRY, cat.getCountryCode());
+		resultDoc.put(MdekKeys.COUNTRY_CODE, cat.getCountryKey());
+		resultDoc.put(MdekKeys.COUNTRY_NAME, cat.getCountryValue());
 		resultDoc.put(MdekKeys.LANGUAGE, cat.getLanguageCode());
 		resultDoc.put(MdekKeys.WORKFLOW_CONTROL, cat.getWorkflowControl());
 		resultDoc.put(MdekKeys.EXPIRY_DURATION, cat.getExpiryDuration());

@@ -13,7 +13,8 @@ public class T03Catalogue implements IEntity {
 	private String catName;
 	private String partnerName;
 	private String providerName;
-	private String countryCode;
+	private Integer countryKey;
+	private String countryValue;
 	private String languageCode;
 	private Long spatialRefId;
 	private String workflowControl;
@@ -74,12 +75,20 @@ public class T03Catalogue implements IEntity {
 		this.providerName = providerName;
 	}
 
-	public String getCountryCode() {
-		return countryCode;
+	public Integer getCountryKey() {
+		return countryKey;
 	}
 
-	public void setCountryCode(String countryCode) {
-		this.countryCode = countryCode;
+	public void setCountryKey(Integer countryKey) {
+		this.countryKey = countryKey;
+	}
+
+	public String getCountryValue() {
+		return countryValue;
+	}
+
+	public void setCountryValue(String countryValue) {
+		this.countryValue = countryValue;
 	}
 
 	public String getLanguageCode() {

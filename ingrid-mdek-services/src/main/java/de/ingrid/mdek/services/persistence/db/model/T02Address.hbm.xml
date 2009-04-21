@@ -22,7 +22,8 @@
       <property name="postbox" type="string" column="postbox"/>
       <property name="postboxPc" type="string" column="postbox_pc"/>
       <property name="city" type="string" column="city"/>
-      <property name="countryCode" type="string" column="country_code"/>
+      <property name="countryKey" type="integer" column="country_key"/>
+      <property name="countryValue" type="string" column="country_value"/>
       <property name="job" type="string" column="job"/>
       <property name="descr" type="string" column="descr"/>
       <property name="workState" type="string" column="work_state"/>
