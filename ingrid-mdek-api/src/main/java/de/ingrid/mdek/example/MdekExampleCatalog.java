@@ -536,20 +536,30 @@ class MdekExampleCatalogThread extends Thread {
 		String uuidToReplaceWith = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- STORE 1. new Object where 'Address to replace' is AUSKUNFT, ANBIETER and RESPONSIBLE USER -----");
+		System.out.println("----- !!! also add 'ADDRESS to replace with' as AUSKUNFT !!! to check whether same AUSKUNFT exists only ONCE !!! -----");
 		newDoc = supertool.newObjectDoc(null);
 		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT STORED (NOT Published)");
 		List<IngridDocument> objAdrDocs = new ArrayList<IngridDocument>();
 		newDoc.put(MdekKeys.ADR_REFERENCES_TO, objAdrDocs);
+		// 'Address to replace'-Auskunft
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
 		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
 		objAdrDocs.add(doc);
+		// 'Address to replace with'-Auskunft
+		doc = new IngridDocument();
+		doc.put(MdekKeys.UUID, uuidToReplaceWith);
+		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
+		objAdrDocs.add(doc);
+		// Anbieter
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		doc.put(MdekKeys.RELATION_TYPE_ID, 1);
 		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
 		objAdrDocs.add(doc);
+		// responsible user
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		newDoc.put(MdekKeys.RESPONSIBLE_USER, doc);
@@ -561,16 +571,19 @@ class MdekExampleCatalogThread extends Thread {
 		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT PUBLISHED");
 		objAdrDocs = new ArrayList<IngridDocument>();
 		newDoc.put(MdekKeys.ADR_REFERENCES_TO, objAdrDocs);
+		// 'Address to replace'-Auskunft
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
 		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
 		objAdrDocs.add(doc);
+		// Anbieter
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		doc.put(MdekKeys.RELATION_TYPE_ID, 1);
 		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
 		objAdrDocs.add(doc);
+		// responsible user
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		newDoc.put(MdekKeys.RESPONSIBLE_USER, doc);
@@ -628,6 +641,9 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- getAddressesOfResponsibleUser with NEW responsible User (=catadmin) -> LOTs of addresses -----");
 		supertool.getAddressesOfResponsibleUser(catalogAdminUuid, 50);
 
+		System.out.println("\n----- verify: ONLY ONE NEW AUSKUNFT, further associations to 'Address to replace' removed ! -----");
+		supertool.fetchObject(newObjStoredUuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.fetchObject(newObjPublishedUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n\n----- Clean Up -----");
 		supertool.deleteObject(newObjStoredUuid, true);
@@ -961,7 +977,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		// -----------------------------------
-
+/*
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS Searchterms UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW SNS-ID -----");
 		System.out.println("----- = New free records with old thesaurus term ! -----");
@@ -1000,7 +1016,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchObject(objTopChildUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- after SNS UPDATE: validate searchterms of address -----");
 		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
-
+*/
 // ===================================
 
 		long exampleEndTime = System.currentTimeMillis();

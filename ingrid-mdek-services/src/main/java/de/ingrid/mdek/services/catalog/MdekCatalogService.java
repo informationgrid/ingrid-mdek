@@ -293,33 +293,80 @@ public class MdekCatalogService {
 	 * NOTICE: already persists addresses !
 	 * @param oldAuskunftUuid auskunft to be replaced
 	 * @param newAuskunftUuid with this new auskunft
+	 * @param oldAuskunftWillBeDeleted pass true if oldAuskunft will be deleted, so we
+	 * 		care for removement of further associations to oldAuskunft !
 	 * @param userUuid calling user
 	 * @return num objects updated
 	 */
-	public int updateAuskunftInObjects(String oldAuskunftUuid, String newAuskunftUuid, String userUuid) {
-		String currentTime = MdekUtils.dateToTimestamp(new Date());
+	public int updateAuskunftInObjects(String oldAuskunftUuid, String newAuskunftUuid,
+			boolean oldAuskunftWillBeDeleted,
+			String userUuid) {
 		int numAuskunftChanged = 0;
+		if (MdekUtils.isEqual(oldAuskunftUuid, newAuskunftUuid)) {
+			return numAuskunftChanged;
+		}
+
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
 		List<T01Object> objs = 
 			daoT02Address.getObjectReferencesByTypeId(oldAuskunftUuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, null);
+
+		// process all objects
 		for (T01Object obj : objs) {
 			Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
-			
-			// replace auskunft
-			boolean objChanged = false;
+
+			// first check whether object already has NEW auskunft,
+			// then old auskunft has to be removed instead of replaced !
+			boolean alreadyHasNewAuskunft = false;
 			for (T012ObjAdr objAdr : objAdrs) {
-				if (MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(objAdr.getType())) {
-					objAdr.setAdrUuid(newAuskunftUuid);
-					objChanged = true;
-					numAuskunftChanged++;
+				if (newAuskunftUuid.equals(objAdr.getAdrUuid()) &&
+						MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(objAdr.getType())) {
+					alreadyHasNewAuskunft = true;
+					break;
 				}
 			}
 
+			// then process associations
+			List<T012ObjAdr> objAdrsToRemove = new ArrayList<T012ObjAdr>();
+			boolean objChanged = false;
+			for (T012ObjAdr objAdr : objAdrs) {
+				if (oldAuskunftUuid.equals(objAdr.getAdrUuid())) {
+					// association to oldAuskunft address
+					if (MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(objAdr.getType())) {
+						// auskunft association to oldAuskunft
+						if (alreadyHasNewAuskunft) {
+							// has to be removed from associations ! new auskunft already there.
+							objAdrsToRemove.add(objAdr);
+						} else {
+							// update old auskunft to new one
+							objAdr.setAdrUuid(newAuskunftUuid);
+						}						
+						numAuskunftChanged++;
+						objChanged = true;
+					} else {
+						// further association to oldAuskunft address
+						if (oldAuskunftWillBeDeleted) {
+							// also remove this one to avoid Exceptions when address is deleted !
+							objAdrsToRemove.add(objAdr);
+							objChanged = true;
+						}
+					}
+				}
+			}
+
+			// persist object if changed !
 			if (objChanged) {
+				// first remove all associations not needed anymore !
+				for (T012ObjAdr objAdrToRemove : objAdrsToRemove) {
+					objAdrs.remove(objAdrToRemove);
+					// delete-orphan doesn't work !!!?????
+					dao.makeTransient(objAdrToRemove);
+				}
+
 				// update mod_time and mod_uuid and save (cascades save to objAdrs)
 				obj.setModTime(currentTime);
 				obj.setModUuid(userUuid);
-				daoT01Object.makePersistent(obj);					
+				daoT01Object.makePersistent(obj);
 			}
 		}
 		

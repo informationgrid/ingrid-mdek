@@ -27,9 +27,12 @@ public class T02AddressDaoHibernate
 
 	public List<T01Object> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId, Integer maxNum) {
 		Session session = getSession();
-		
-		String hql = "select distinct obj from T01Object obj " +
-			"left join fetch obj.t012ObjAdrs objAdr " +
+
+		// NOTICE: we DON'T FETCH t012ObjAdrs, so we get ALL t012ObjAdrs when requested afterwards !
+		// (otherwise only the t012ObjAdrs matching selection criteria would be fetched !)
+		String hql = "select distinct obj " +
+			"from T01Object obj " +
+			"join obj.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = ?";
 		
 		if (referenceTypeId != null) {
@@ -47,7 +50,7 @@ public class T02AddressDaoHibernate
 	public String getCsvHQLObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
 		String hql = "select distinct o.objUuid, o.objName, o.workState " +
 			"from T01Object o " +
-			"left join o.t012ObjAdrs objAdr " +
+			"join o.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = '" + addressUuid + "'";
 		
 		if (referenceTypeId != null) {

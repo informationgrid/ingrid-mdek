@@ -1032,7 +1032,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// REPLACE ALL AUSKUNFTS ADDRESSES !
 			int numAuskunftChanged =
-				catalogService.updateAuskunftInObjects(oldAddrUuid, newAddrUuid, userUuid);
+				catalogService.updateAuskunftInObjects(oldAddrUuid, newAddrUuid, true, userUuid);
 
 			// REPLACE ALL RESPONSIBLE USERS !
 			int numResponsibleUsersChangedObjs =
