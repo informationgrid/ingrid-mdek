@@ -18,16 +18,16 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 
 	/**
 	 * Returns a map containing the entries of lists with given ids.
-	 * Pass null as languageCode if it doesn't matter.
+	 * Pass null as languageShortcut if it doesn't matter.
 	 * Pass null as list ids if you just want to query ALL existing list ids !
 	 * @param plugId which mdek server (iplug)
 	 * @param listIds which lists. Pass NULL if querying all list ids.
-	 * @param language which language
+	 * @param languageShortcut which language, e.g. "de", "en"
 	 * @param userId calling user
 	 * @return response containing result: map with list entries per list
 	 * 		or map with all list ids
 	 */
-	IngridDocument getSysLists(String plugId, Integer[] listIds, String language,
+	IngridDocument getSysLists(String plugId, Integer[] listIds, String languageShortcut,
 			String userId);
 
 	/** Store syslist. NOTICE: all arrays describing entries have to be of same length.
@@ -94,11 +94,12 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * Returns a map containing definitions of additional fields.
 	 * @param plugId which mdek server (iplug)
 	 * @param fieldIds which fields, pass identifiers
-	 * @param language which language, pass null if all languages (language of selection list of field if present)
+	 * @param languageShortcut in which language, e.g. "de", "en". Pass null
+	 * 		if all languages (language of fields selection list if present)
 	 * @param userId calling user
 	 * @return response containing result: map with definitions of additional fields
 	 */
-	IngridDocument getSysAdditionalFields(String plugId, Long[] fieldIds, String language,
+	IngridDocument getSysAdditionalFields(String plugId, Long[] fieldIds, String languageShortcut,
 			String userId);
 
 	/** Store ALL additional Fields. NOTICE: DELETES existing additional fields not contained in

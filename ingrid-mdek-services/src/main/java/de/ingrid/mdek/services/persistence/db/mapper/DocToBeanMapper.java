@@ -144,7 +144,8 @@ public class DocToBeanMapper implements IMapper {
 		cat.setProviderName(inDoc.getString(MdekKeys.PROVIDER_NAME));
 		cat.setCountryKey((Integer)inDoc.get(MdekKeys.COUNTRY_CODE));
 		cat.setCountryValue(inDoc.getString(MdekKeys.COUNTRY_NAME));
-		cat.setLanguageCode(inDoc.getString(MdekKeys.LANGUAGE));
+		cat.setLanguageKey((Integer)inDoc.get(MdekKeys.LANGUAGE_CODE));
+		cat.setLanguageValue(inDoc.getString(MdekKeys.LANGUAGE_NAME));
 		cat.setWorkflowControl(inDoc.getString(MdekKeys.WORKFLOW_CONTROL));
 		cat.setExpiryDuration((Integer) inDoc.get(MdekKeys.EXPIRY_DURATION));
 		String creationDate = (String) inDoc.get(MdekKeys.DATE_OF_CREATION);
@@ -201,12 +202,12 @@ public class DocToBeanMapper implements IMapper {
 			Integer inEntryId = inEntryIds[i];
 
 			// process all languages one by one
-			for (String langId : MdekUtils.LANGUAGES) {
+			for (String langId : MdekUtils.LANGUAGES_SHORTCUTS) {
 				String[] inNames;
 
-				if (langId.equals(MdekUtils.LANGUAGE_DE)) {
+				if (langId.equals(MdekUtils.LANGUAGE_SHORTCUT_DE)) {
 					inNames = inNames_de;
-				} else if (langId.equals(MdekUtils.LANGUAGE_EN)) {
+				} else if (langId.equals(MdekUtils.LANGUAGE_SHORTCUT_EN)) {
 					if (!hasEnglishEntries) {
 						// skip english
 						continue;
@@ -372,8 +373,10 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setTimeAlle((String) oDocIn.get(MdekKeys.TIME_SCALE));
 			oIn.setTimeDescr((String) oDocIn.get(MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN));
 			
-			oIn.setMetadataLanguageCode((String) oDocIn.get(MdekKeys.METADATA_LANGUAGE));
-			oIn.setDataLanguageCode((String) oDocIn.get(MdekKeys.DATA_LANGUAGE));
+			oIn.setMetadataLanguageKey((Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE));
+			oIn.setMetadataLanguageValue(oDocIn.getString(MdekKeys.METADATA_LANGUAGE_NAME));
+			oIn.setDataLanguageKey((Integer) oDocIn.get(MdekKeys.DATA_LANGUAGE_CODE));
+			oIn.setDataLanguageValue(oDocIn.getString(MdekKeys.DATA_LANGUAGE_NAME));
 			oIn.setPublishId((Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION));
 			oIn.setInfoNote((String) oDocIn.get(MdekKeys.DATASET_INTENTIONS));
 			oIn.setDatasetUsage((String) oDocIn.get(MdekKeys.DATASET_USAGE));
@@ -438,6 +441,8 @@ public class DocToBeanMapper implements IMapper {
 				oIn.setMetadataStandardVersion((String) oDocIn.get(MdekKeys.METADATA_STANDARD_VERSION));			
 			}
 		}
+
+		keyValueService.processKeyValue(oIn);
 
 		return oIn;
 	}
@@ -2326,7 +2331,7 @@ public class DocToBeanMapper implements IMapper {
 			String listType = fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_TYPE);
 
 			// add entries for all languages (if set)
-			for (String language : MdekUtils.LANGUAGES) {
+			for (String language : MdekUtils.LANGUAGES_SHORTCUTS) {
 				String[] listItemNames = (String[]) fieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + language);
 				if (listItemNames != null) {
 					int line = 1;

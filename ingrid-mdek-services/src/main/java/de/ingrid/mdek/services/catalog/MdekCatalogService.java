@@ -67,6 +67,7 @@ import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
 /**
  * Encapsulates access to catalog data (syslists etc.).
@@ -160,7 +161,7 @@ public class MdekCatalogService {
 		return getCatalog().getId();
 	}
 
-	/** Get language of catalog. USES CACHE !!!
+	/** Get language SHORTCUT (e.g. "de", "en") of catalog. USES CACHE !!!
 	 * NOTICE: transaction must be active when called the first time ! */
 	public String getCatalogLanguage() {
 		boolean useCache = true;
@@ -178,7 +179,7 @@ public class MdekCatalogService {
 		
 		// read language if not cached !
 		if (language == null) {
-			language = getCatalog().getLanguageCode();
+			language = UtilsLanguageCodelist.getShortcutFromCode(getCatalog().getLanguageKey());
 		}
 
 		// add to cache if cache used !

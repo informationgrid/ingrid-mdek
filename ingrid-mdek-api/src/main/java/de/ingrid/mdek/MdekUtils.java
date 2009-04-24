@@ -49,9 +49,9 @@ public class MdekUtils {
 	public final static int YES_INTEGER = 1;
 	public final static int NO_INTEGER = 0;
 
-	public final static String LANGUAGE_DE = "de";
-	public final static String LANGUAGE_EN = "en";
-	public final static String[] LANGUAGES = new String[] { LANGUAGE_DE, LANGUAGE_EN };
+	public final static String LANGUAGE_SHORTCUT_DE = "de";
+	public final static String LANGUAGE_SHORTCUT_EN = "en";
+	public final static String[] LANGUAGES_SHORTCUTS = new String[] { LANGUAGE_SHORTCUT_DE, LANGUAGE_SHORTCUT_EN };
 
 	/** Type of user operation */
 	public enum UserOperation {
@@ -91,7 +91,8 @@ public class MdekUtils {
 		OBJ_TOPIC_CAT(527, "T011ObjTopicCat -> topicCategory=entryId"),
 		/** INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)"),
-		COUNTRY(6200, "T03Catalogue, T02Address -> countryKey=entryId, countryValue=name");
+		COUNTRY(6200, "T03Catalogue, T02Address -> countryKey=entryId, countryValue=name"),
+		LANGUAGE(99999999, "T03Catalogue, T01Object -> *languageKey=entryId, *languageValue=name");
 
 		MdekSysList(Integer dbValue, String description) {
 			this.dbValue = dbValue;

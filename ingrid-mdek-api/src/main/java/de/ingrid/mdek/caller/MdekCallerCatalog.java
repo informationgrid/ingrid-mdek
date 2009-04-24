@@ -72,11 +72,11 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getSysLists(String plugId, Integer[] listIds, String language,
+	public IngridDocument getSysLists(String plugId, Integer[] listIds, String languageShortcut,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.SYS_LIST_IDS, listIds);
-		jobParams.put(MdekKeys.LANGUAGE, language);
+		jobParams.put(MdekKeys.LANGUAGE_SHORTCUT, languageShortcut);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getSysLists", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
@@ -136,11 +136,11 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getSysAdditionalFields(String plugId, Long[] fieldIds, String language,
+	public IngridDocument getSysAdditionalFields(String plugId, Long[] fieldIds, String languageShortcut,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDS, fieldIds);
-		jobParams.put(MdekKeys.LANGUAGE, language);
+		jobParams.put(MdekKeys.LANGUAGE_SHORTCUT, languageShortcut);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("getSysAdditionalFields", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);

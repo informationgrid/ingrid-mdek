@@ -9,7 +9,7 @@
 			<!-- from/to used for move and replace operations -->
 			<xs:element name="from-uuid" type="UUID"/>
 			<xs:element name="to-uuid" type="UUID"/>
-			<xs:element ref="language"/>
+			<xs:element name="language-shortcut" type="xs:string"/>
 			<xs:element name="OBJECT_MAP" type="OBJECT_MAP"/>
 			<!-- how much objects referencing an address to fetch and where to start (needed for paging of object references in address) -->
 			<xs:element name="objReferencesFrom_startIndex" type="xs:integer"/>
@@ -96,8 +96,10 @@
 			<xs:element name="SPATIAL_REF_MAP" type="SPATIAL_REF_MAP"/>
 			<xs:element name="TIME_MAP" type="TIME_MAP"/>
 			
-			<xs:element name="metadata-language" type="xs:string"/>
-			<xs:element name="data-language" type="xs:string"/>
+			<xs:element name="metadata-language-code" type="xs:integer"/>
+			<xs:element name="metadata-language-name" type="xs:string"/>
+			<xs:element name="data-language-code" type="xs:integer"/>
+			<xs:element name="data-language-name" type="xs:string"/>
 			<xs:element name="publication-condition" type="xs:integer"/>
 			<xs:element name="dataset-intentions" type="xs:string"/>
 			<xs:element name="dataset-usage" type="xs:string"/>
@@ -226,7 +228,8 @@
 	<xs:element name="organisation" type="xs:string"/>
 	<xs:element name="name" type="xs:string"/>
 	<xs:element name="given-name" type="xs:string"/>
-	<xs:element name="language" type="xs:string"/>
+	<xs:element name="language-code" type="xs:integer"/>
+	<xs:element name="language-name" type="xs:string"/>
 	<xs:element name="country-code" type="xs:integer"/>
 	<xs:element name="country-name" type="xs:string"/>
 	<xs:simpleType name="TIMESTAMP">
@@ -1289,7 +1292,8 @@
 			<xs:element name="provider-name" type="xs:string"/>
 			<xs:element ref="country-code"/>
 			<xs:element ref="country-name"/>
-			<xs:element ref="language"/>
+			<xs:element ref="language-code"/>
+			<xs:element ref="language-name"/>
 			<xs:element name="workflow-control" type="xs:string"/>
 			<xs:element name="expiry-duration" type="xs:integer"/>
 			<xs:element name="catalog-location" type="LOCATION_MAP"/>

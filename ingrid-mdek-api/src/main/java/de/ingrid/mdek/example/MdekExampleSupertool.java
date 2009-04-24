@@ -672,7 +672,7 @@ public class MdekExampleSupertool {
 			+ ", partner: " + c.get(MdekKeys.PARTNER_NAME)
 			+ ", provider: " + c.get(MdekKeys.PROVIDER_NAME)
 			+ ", country: " + c.get(MdekKeys.COUNTRY_CODE) + "/" + c.get(MdekKeys.COUNTRY_NAME)
-			+ ", language: " + c.get(MdekKeys.LANGUAGE)
+			+ ", language: " + c.get(MdekKeys.LANGUAGE_CODE) + "/" + c.get(MdekKeys.LANGUAGE_NAME)
 		);
 		System.out.println("         "
 			+ ", workflow: " + c.get(MdekKeys.WORKFLOW_CONTROL)

@@ -277,8 +277,10 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.TIME_SCALE, o.getTimeAlle());
 			objectDoc.put(MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN, o.getTimeDescr());
 
-			objectDoc.put(MdekKeys.METADATA_LANGUAGE, o.getMetadataLanguageCode());
-			objectDoc.put(MdekKeys.DATA_LANGUAGE, o.getDataLanguageCode());
+			objectDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, o.getMetadataLanguageKey());
+			objectDoc.put(MdekKeys.METADATA_LANGUAGE_NAME, o.getMetadataLanguageValue());
+			objectDoc.put(MdekKeys.DATA_LANGUAGE_CODE, o.getDataLanguageKey());
+			objectDoc.put(MdekKeys.DATA_LANGUAGE_NAME, o.getDataLanguageValue());
 			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 			objectDoc.put(MdekKeys.DATASET_INTENTIONS, o.getInfoNote());
 			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
@@ -1713,7 +1715,8 @@ public class BeanToDocMapper implements IMapper {
 		resultDoc.put(MdekKeys.PROVIDER_NAME, cat.getProviderName());
 		resultDoc.put(MdekKeys.COUNTRY_CODE, cat.getCountryKey());
 		resultDoc.put(MdekKeys.COUNTRY_NAME, cat.getCountryValue());
-		resultDoc.put(MdekKeys.LANGUAGE, cat.getLanguageCode());
+		resultDoc.put(MdekKeys.LANGUAGE_CODE, cat.getLanguageKey());
+		resultDoc.put(MdekKeys.LANGUAGE_NAME, cat.getLanguageValue());
 		resultDoc.put(MdekKeys.WORKFLOW_CONTROL, cat.getWorkflowControl());
 		resultDoc.put(MdekKeys.EXPIRY_DURATION, cat.getExpiryDuration());
 		resultDoc.put(MdekKeys.DATE_OF_CREATION, cat.getCreateTime());
@@ -1767,9 +1770,9 @@ public class BeanToDocMapper implements IMapper {
 			if (MdekUtils.YES.equals(entry.getIsDefault())) {
 				listDoc.put(MdekKeys.LST_DEFAULT_ENTRY_INDEX, entryIndex);
 			}
-			if (MdekUtils.LANGUAGE_DE.equals(entry.getLangId())) {
+			if (MdekUtils.LANGUAGE_SHORTCUT_DE.equals(entry.getLangId())) {
 				addEntryToList(entry.getName(), entryNames_de, entryIndex);
-			} else if (MdekUtils.LANGUAGE_EN.equals(entry.getLangId())) {
+			} else if (MdekUtils.LANGUAGE_SHORTCUT_EN.equals(entry.getLangId())) {
 				addEntryToList(entry.getName(), entryNames_en, entryIndex);
 			}
 		}

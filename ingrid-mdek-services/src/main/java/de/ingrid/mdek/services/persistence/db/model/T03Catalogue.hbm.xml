@@ -13,7 +13,8 @@
       <property name="providerName" type="string" column="provider_name"/>
       <property name="countryKey" type="integer" column="country_key"/>
       <property name="countryValue" type="string" column="country_value"/>
-      <property name="languageCode" type="string" column="language_code"/>
+      <property name="languageKey" type="integer" column="language_key"/>
+      <property name="languageValue" type="string" column="language_value"/>
       <property name="spatialRefId" type="long" column="spatial_ref_id"/>
       <property name="workflowControl" type="string" column="workflow_control"/>
       <property name="expiryDuration" type="integer" column="expiry_duration"/>

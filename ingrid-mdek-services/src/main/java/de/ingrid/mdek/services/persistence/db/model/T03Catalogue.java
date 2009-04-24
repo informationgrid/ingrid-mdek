@@ -15,7 +15,8 @@ public class T03Catalogue implements IEntity {
 	private String providerName;
 	private Integer countryKey;
 	private String countryValue;
-	private String languageCode;
+	private Integer languageKey;
+	private String languageValue;
 	private Long spatialRefId;
 	private String workflowControl;
 	private Integer expiryDuration;
@@ -91,12 +92,20 @@ public class T03Catalogue implements IEntity {
 		this.countryValue = countryValue;
 	}
 
-	public String getLanguageCode() {
-		return languageCode;
+	public Integer getLanguageKey() {
+		return languageKey;
 	}
 
-	public void setLanguageCode(String languageCode) {
-		this.languageCode = languageCode;
+	public void setLanguageKey(Integer languageKey) {
+		this.languageKey = languageKey;
+	}
+
+	public String getLanguageValue() {
+		return languageValue;
+	}
+
+	public void setLanguageValue(String languageValue) {
+		this.languageValue = languageValue;
 	}
 
 	public Long getSpatialRefId() {

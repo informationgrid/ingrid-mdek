@@ -11,13 +11,13 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
 public class MdekExampleObject {
 
@@ -1155,6 +1155,10 @@ class MdekExampleObjectThread extends Thread {
 		// manipulate former loaded object !
 
 		oDocIn.put(MdekKeys.TITLE, "BEARBEITET: " + oDocIn.get(MdekKeys.TITLE));
+		Integer origDataLanguageCode = (Integer) oDocIn.get(MdekKeys.DATA_LANGUAGE_CODE);
+		oDocIn.put(MdekKeys.DATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
+		Integer origMetadataLanguageCode = (Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE);
+		oDocIn.put(MdekKeys.METADATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 
 		// remove first address !
 		List<IngridDocument> docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
@@ -1488,7 +1492,12 @@ class MdekExampleObjectThread extends Thread {
 			System.out.println("refetch Object");
 			IngridDocument oRefetchedDoc = supertool.fetchObject(uuidStoredObject, FetchQuantity.EDITOR_ENTITY);
 			System.out.println("");
-			
+
+			System.out.println("MANIPULATE OBJECT: back to origin");
+
+			oRefetchedDoc.put(MdekKeys.DATA_LANGUAGE_CODE, origDataLanguageCode);
+			oRefetchedDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, origMetadataLanguageCode);
+
 			if (aRemoved != null) {
 				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADR_REFERENCES_TO);
 				docList.add(aRemoved);

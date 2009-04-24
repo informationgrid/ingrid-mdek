@@ -25,6 +25,8 @@ import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.udk.UtilsCountryCodelist;
+import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
 public class MdekExampleCatalog {
 
@@ -225,21 +227,28 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- CATALOG data -----");
 		IngridDocument catDoc = supertool.getCatalog();
-		String catLang = catDoc.getString(MdekKeys.LANGUAGE);
-		System.out.println("catalog language=" + catLang);
+		String catLangShortcut =
+			UtilsLanguageCodelist.getShortcutFromCode((Integer)catDoc.get(MdekKeys.LANGUAGE_CODE));
+		System.out.println("catalog language=" + catLangShortcut);
 
 		System.out.println("\n----- change CATALOG data -----");
 		System.out.println("- change Partner, Provider");
 		String origPartner = catDoc.getString(MdekKeys.PARTNER_NAME);
 		String origProvider = catDoc.getString(MdekKeys.PROVIDER_NAME);
+		Integer origCountryCode = (Integer) catDoc.get(MdekKeys.COUNTRY_CODE);
+		Integer origLanguageCode = (Integer) catDoc.get(MdekKeys.LANGUAGE_CODE);
 		catDoc.put(MdekKeys.PARTNER_NAME, "testPARTNER");
 		catDoc.put(MdekKeys.PROVIDER_NAME, "testPROVIDER");
+		catDoc.put(MdekKeys.COUNTRY_CODE, UtilsCountryCodelist.getCodeFromShortcut2("GB"));
+		catDoc.put(MdekKeys.LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		catDoc = supertool.storeCatalog(catDoc, true);
 
 		System.out.println("\n----- back to orig data of CATALOG -----");
 		System.out.println("- change Partner, Provider");
 		catDoc.put(MdekKeys.PARTNER_NAME, origPartner);
 		catDoc.put(MdekKeys.PROVIDER_NAME, origProvider);
+		catDoc.put(MdekKeys.COUNTRY_CODE, origCountryCode);
+		catDoc.put(MdekKeys.LANGUAGE_CODE, origLanguageCode);
 		catDoc = supertool.storeCatalog(catDoc, true);
 
 // -----------------------------------
@@ -254,8 +263,8 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- SysList Values NO language -----");
 		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, null);
 
-		System.out.println("\n----- SysList Values language: " + catLang + " -----");
-		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLang);
+		System.out.println("\n----- SysList Values language: " + catLangShortcut + " -----");
+		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLangShortcut);
 
 		System.out.println("\n\n----- new Syslist id=0815 and load -----");
 		supertool.storeSysList(815, true, null,
@@ -431,7 +440,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- get specific SysAdditionalFields with language -----");
-		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, catLang);
+		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, catLangShortcut);
 
 		System.out.println("\n----- get specific SysAdditionalFields NO language -----");
 		supertool.getSysAdditionalFields(new Long[] { 167242L, 167243L }, null);

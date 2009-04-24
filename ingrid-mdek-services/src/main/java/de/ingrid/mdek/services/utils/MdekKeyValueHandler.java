@@ -25,6 +25,7 @@ import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
@@ -61,6 +62,7 @@ public class MdekKeyValueHandler {
 		T011ObjServType.class,
 		SearchtermValue.class,
 		T03Catalogue.class,
+		T01Object.class,
 	};
 
 	/** Get The Singleton */
@@ -127,7 +129,8 @@ public class MdekKeyValueHandler {
 			processKeyValueSearchtermValue((SearchtermValue) bean);
 		} else if (T03Catalogue.class.isAssignableFrom(clazz)) {
 			processKeyValueT03Catalogue((T03Catalogue) bean);
-
+		} else if (T01Object.class.isAssignableFrom(clazz)) {
+			processKeyValueT01Object((T01Object) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 
 		} else {
@@ -450,6 +453,34 @@ public class MdekKeyValueHandler {
 				MdekSysList.COUNTRY.getDbValue(),
 				catalogService.getCatalogLanguage());
 			bean.setCountryValue(keyNameMap.get(entryKey));
+		}
+		
+		entryKey = bean.getLanguageKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.LANGUAGE.getDbValue(),
+				catalogService.getCatalogLanguage());
+			bean.setLanguageValue(keyNameMap.get(entryKey));
+		}
+		
+		return bean;
+	}
+
+	private IEntity processKeyValueT01Object(T01Object bean) {
+		Integer entryKey = bean.getDataLanguageKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.LANGUAGE.getDbValue(),
+				catalogService.getCatalogLanguage());
+			bean.setDataLanguageValue(keyNameMap.get(entryKey));
+		}
+		
+		entryKey = bean.getMetadataLanguageKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.LANGUAGE.getDbValue(),
+				catalogService.getCatalogLanguage());
+			bean.setMetadataLanguageValue(keyNameMap.get(entryKey));
 		}
 		
 		return bean;

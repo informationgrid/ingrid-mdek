@@ -194,7 +194,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument getSysLists(IngridDocument params) {
 		try {
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
-			String language = params.getString(MdekKeys.LANGUAGE);
+			String language = params.getString(MdekKeys.LANGUAGE_SHORTCUT);
 
 			IngridDocument result;
 
@@ -405,7 +405,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument getSysAdditionalFields(IngridDocument params) {
 		try {
 			Long[] fieldIds = (Long[]) params.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDS);
-			String language = params.getString(MdekKeys.LANGUAGE);
+			String language = params.getString(MdekKeys.LANGUAGE_SHORTCUT);
 
 			genericDao.beginTransaction();
 			daoObjectNode.disableAutoFlush();

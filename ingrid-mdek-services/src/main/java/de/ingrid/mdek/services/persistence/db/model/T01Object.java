@@ -29,11 +29,13 @@ public class T01Object implements IEntity {
 	private String datasetAlternateName;
 	private Integer datasetCharacterSet;
 	private String datasetUsage;
-	private String dataLanguageCode;
+	private Integer dataLanguageKey;
+	private String dataLanguageValue;
 	private Integer metadataCharacterSet;
 	private String metadataStandardName;
 	private String metadataStandardVersion;
-	private String metadataLanguageCode;
+	private Integer metadataLanguageKey;
+	private String metadataLanguageValue;
 	private Double verticalExtentMinimum;
 	private Double verticalExtentMaximum;
 	private Integer verticalExtentUnit;
@@ -253,12 +255,20 @@ public class T01Object implements IEntity {
 		this.datasetUsage = datasetUsage;
 	}
 
-	public String getDataLanguageCode() {
-		return dataLanguageCode;
+	public Integer getDataLanguageKey() {
+		return dataLanguageKey;
 	}
 
-	public void setDataLanguageCode(String dataLanguageCode) {
-		this.dataLanguageCode = dataLanguageCode;
+	public void setDataLanguageKey(Integer dataLanguageKey) {
+		this.dataLanguageKey = dataLanguageKey;
+	}
+
+	public String getDataLanguageValue() {
+		return dataLanguageValue;
+	}
+
+	public void setDataLanguageValue(String dataLanguageValue) {
+		this.dataLanguageValue = dataLanguageValue;
 	}
 
 	public Integer getMetadataCharacterSet() {
@@ -285,12 +295,20 @@ public class T01Object implements IEntity {
 		this.metadataStandardVersion = metadataStandardVersion;
 	}
 
-	public String getMetadataLanguageCode() {
-		return metadataLanguageCode;
+	public Integer getMetadataLanguageKey() {
+		return metadataLanguageKey;
 	}
 
-	public void setMetadataLanguageCode(String metadataLanguageCode) {
-		this.metadataLanguageCode = metadataLanguageCode;
+	public void setMetadataLanguageKey(Integer metadataLanguageKey) {
+		this.metadataLanguageKey = metadataLanguageKey;
+	}
+
+	public String getMetadataLanguageValue() {
+		return metadataLanguageValue;
+	}
+
+	public void setMetadataLanguageValue(String metadataLanguageValue) {
+		this.metadataLanguageValue = metadataLanguageValue;
 	}
 
 	public Double getVerticalExtentMinimum() {

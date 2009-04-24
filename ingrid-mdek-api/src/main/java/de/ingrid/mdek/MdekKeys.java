@@ -75,7 +75,7 @@ public class MdekKeys {
     public final static String REQUESTINFO_TYPES_OF_ENTITY = "requestinfo_typesOfEntity";
 
     /** Value: String */
-    public final static String LANGUAGE = "language";
+    public final static String LANGUAGE_SHORTCUT = "language-shortcut";
 
     /** e.g. SEARCH: number of hits requested starting at start hit<br> 
      * STATISTICS: total number of entities of specific class 
@@ -628,10 +628,14 @@ public class MdekKeys {
     public final static String TIME_SCALE = "time-scale";
     /** Value: String */
     public final static String DESCRIPTION_OF_TEMPORAL_DOMAIN = "description-of-temporal-domain";
+    /** Value: Integer */
+    public final static String METADATA_LANGUAGE_CODE = "metadata-language-code";
     /** Value: String */
-    public final static String METADATA_LANGUAGE = "metadata-language";
+    public final static String METADATA_LANGUAGE_NAME = "metadata-language-name";
+    /** Value: Integer */
+    public final static String DATA_LANGUAGE_CODE = "data-language-code";
     /** Value: String */
-    public final static String DATA_LANGUAGE = "data-language";
+    public final static String DATA_LANGUAGE_NAME = "data-language-name";
     /** Value: Integer */
     public final static String PUBLICATION_CONDITION = "publication-condition";
     /** Value: String */
@@ -995,7 +999,10 @@ public class MdekKeys {
     public final static String EXPIRY_DURATION = "expiry-duration";
     /** Value: IngridDocument encapsulating all SPATIAL REFERENCE data */
     public final static String CATALOG_LOCATION = "catalog-location";
-    
+    /** Value: Integer */
+    public final static String LANGUAGE_CODE = "language-code";
+    /** Value: String */
+    public final static String LANGUAGE_NAME = "language-name";
     
     // ADDRESS DATA
     // ------------
