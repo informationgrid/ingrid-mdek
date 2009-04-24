@@ -73,9 +73,10 @@
   <xs:element name="country" type="id-string"/>
   <!--
     Fachlicher Name: Sprache
-    Tabelle.Feld   : T03_catalogue.language_code
+    Tabelle.Feld   : T03_catalogue.language_key
+    Tabelle.Feld   : T03_catalogue.language_value
   -->
-  <xs:element name="language" type="iso-code"/>
+  <xs:element name="language" type="id-string"/>
   <!--
     Fachlicher Name: Workflow Kontrolle
     Tabelle.Feld   : T03_catalogue.workflow_control
@@ -837,14 +838,16 @@
   </xs:element>
   <!--
     Fachlicher Name: Sprache des Datensatzes
-    Tabelle.Feld   : T01_object.data_language_code
+    Tabelle.Feld   : T01_object.data_language_key
+    Tabelle.Feld   : T01_object.data_language_value
   -->
-  <xs:element name="data-language" type="iso-code"/>
+  <xs:element name="data-language" type="id-string"/>
   <!--
     Fachlicher Name: Sprache des Metadatensatzes
-    Tabelle.Feld   : T01_object.metadata_language_code
+    Tabelle.Feld   : T01_object.metadata_language_key
+    Tabelle.Feld   : T01_object.metadata_language_value
   -->
-  <xs:element name="metadata-language" type="iso-code"/>
+  <xs:element name="metadata-language" type="id-string"/>
   <!--
     Fachlicher Name: Kriterium fuer Export
     Tabelle.Feld   : T014_info_impart.impart_key

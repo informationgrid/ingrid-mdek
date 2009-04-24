@@ -368,6 +368,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 
 		// import data: single existing top node
 		importUnzipped = exportTopObjUnzipped.replace("<title>", "<title>MMImport: ");
+		// different languages (german to english)
+		importUnzipped = importUnzipped.replace("<data-language id=\"150\">", "<data-language id=\"123\">");
+		importUnzipped = importUnzipped.replace("<metadata-language id=\"150\">", "<metadata-language id=\"123\">");
 		byte[] importExistingTopObj = new byte[0];
 		try {
 			importExistingTopObj = MdekUtils.compressString(importUnzipped);						
@@ -377,6 +380,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 
 		// import data: existing sub nodes (branch)
 		importUnzipped = exportObjBranchUnzipped.replace("<title>", "<title>MMImport: ");
+		// different languages (german to english)
+		importUnzipped = importUnzipped.replace("<data-language id=\"150\">", "<data-language id=\"123\">");
+		importUnzipped = importUnzipped.replace("<metadata-language id=\"150\">", "<metadata-language id=\"123\">");
 		byte[] importExistingObjBranch = new byte[0];
 		try {
 			importExistingObjBranch = MdekUtils.compressString(importUnzipped);						
