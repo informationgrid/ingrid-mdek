@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AdditionalFieldType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -723,6 +725,8 @@ public class DocToBeanMapper implements IMapper {
 		ArrayList<SpatialReference> spatialRefs_unprocessed = new ArrayList<SpatialReference>(spatialRefs);
 
 		int line = 1;
+		// remember ids of all added spatial refs to avoid delete of added one(s) 
+		Set<Long> idsSpatialRefValsAdded = new HashSet<Long>();
 		for (IngridDocument loc : locList) {
 			boolean found = false;
 			for (SpatialReference spRef : spatialRefs) {
@@ -733,6 +737,7 @@ public class DocToBeanMapper implements IMapper {
 						// update line
 						spRef.setLine(line);
 						spatialRefs_unprocessed.remove(spRef);
+						idsSpatialRefValsAdded.add(spRefValue.getId());
 						break;
 					}
 				}
@@ -745,6 +750,7 @@ public class DocToBeanMapper implements IMapper {
 				SpatialReference spRef = new SpatialReference();
 				mapSpatialReference(oIn, spRefValue, spRef, line);
 				spatialRefs.add(spRef);
+				idsSpatialRefValsAdded.add(spRefValue.getId());
 			}
 			line++;
 		}
@@ -757,7 +763,8 @@ public class DocToBeanMapper implements IMapper {
 			dao.makeTransient(spRef);
 			
 			// also delete spRefValue if FREE spatial ref ! Every Object has its own FREE refs
-			if (SpatialReferenceType.FREI.getDbValue().equals(spRefValue.getType())) {
+			if (SpatialReferenceType.FREI.getDbValue().equals(spRefValue.getType()) &&
+					!idsSpatialRefValsAdded.contains(spRefValue.getId())) {
 				dao.makeTransient(spRefValue);				
 			}
 		}		
@@ -796,20 +803,33 @@ public class DocToBeanMapper implements IMapper {
 	 */
 	private boolean updateSpatialRefValueViaDoc(IngridDocument locationDoc, SpatialRefValue spRefValue) {
 		SpatialRefSns spRefSns = spRefValue.getSpatialRefSns();
-		String refSnsId = (spRefSns == null) ? null : spRefSns.getSnsId();
 
-		boolean updated = false;
-		if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_NAME), spRefValue.getNameValue()) &&
-			MdekUtils.isEqual((Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY), spRefValue.getNameKey()) &&
-			MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_TYPE), spRefValue.getType()) &&
-			MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_SNS_ID), refSnsId) &&
-			MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_CODE), spRefValue.getNativekey()))
-		{
-			mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
-			updated = true;
-		}					
+		// to be more robust compare data dependent from type !!!!!!!
+		// NOTICE: this compare has to match comparison in daoSpatialRefValue.loadOrCreate(...) !!!
+		boolean doUpdate = false;
+		if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_TYPE), spRefValue.getType())) {
+			// type matches !
+			if (MdekUtils.SpatialReferenceType.FREI.getDbValue().equals(spRefValue.getType())) {
+				// FREE Spatial Ref
+				if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_NAME), spRefValue.getNameValue()) &&
+					MdekUtils.isEqual((Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY), spRefValue.getNameKey())) {
+					doUpdate = true;
+				}
+				
+			} else if (MdekUtils.SpatialReferenceType.GEO_THESAURUS.getDbValue().equals(spRefValue.getType())) {
+				// SNS Spatial Ref
+				if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_SNS_ID), spRefSns.getSnsId())) {
+					doUpdate = true;
+				}
+			}
+		}
 		
-		return updated;
+		if (doUpdate) {
+			mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
+			return true;
+		}
+
+		return false;
 	}
 
 	/** Load/Create SpatialRefValue entity according to the passed location document.
@@ -1573,11 +1593,6 @@ public class DocToBeanMapper implements IMapper {
 		int line = 1;
 		for (IngridDocument inTermDoc : inTermDocs) {
 			// check on already existing searchterm, compare searchterm values !
-			String inName = (String) inTermDoc.get(MdekKeys.TERM_NAME);
-			String inType = (String) inTermDoc.get(MdekKeys.TERM_TYPE);
-			Integer inEntryId = (Integer) inTermDoc.get(MdekKeys.TERM_ENTRY_ID);
-			String inSnsId = (String) inTermDoc.get(MdekKeys.TERM_SNS_ID);
-			String inGemetId = (String) inTermDoc.get(MdekKeys.TERM_GEMET_ID);
 			boolean found = false;
 			for (IEntity termEntityRef : termEntityRefs) {
 				SearchtermValue termValue;
@@ -1587,16 +1602,8 @@ public class DocToBeanMapper implements IMapper {
 					termValue = ((SearchtermAdr)termEntityRef).getSearchtermValue();
 				}
 				if (termValue != null) {
-					SearchtermSns termSns = termValue.getSearchtermSns();
-					String termSnsId = (termSns == null) ? null : termSns.getSnsId();
-					String termGemetId = (termSns == null) ? null : termSns.getGemetId();
-					if (MdekUtils.isEqual(inType, termValue.getType()) &&
-							MdekUtils.isEqual(inName, termValue.getTerm()) &&
-							MdekUtils.isEqual(inEntryId, termValue.getEntryId()) &&
-							MdekUtils.isEqual(inSnsId, termSnsId) &&
-							MdekUtils.isEqual(inGemetId, termGemetId))
-					{
-						mapSearchtermValue(termSns, inTermDoc, termValue);
+					found = updateSearchtermValueViaDoc(inTermDoc, termValue);
+					if (found) {
 						// update line
 						if (entityType == IdcEntityType.OBJECT) {
 							((SearchtermObj)termEntityRef).setLine(line);
@@ -1606,7 +1613,7 @@ public class DocToBeanMapper implements IMapper {
 						termEntityRefs_unprocessed.remove(termEntityRef);
 						found = true;
 						break;
-					}					
+					}
 				}
 			}
 			if (!found) {
@@ -1632,13 +1639,14 @@ public class DocToBeanMapper implements IMapper {
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
 		for (IEntity ref : termEntityRefs_unprocessed) {
 			termEntityRefs.remove(ref);
+/*
 			SearchtermValue termValue;
 			if (entityType == IdcEntityType.OBJECT) {
 				termValue = ((SearchtermObj)ref).getSearchtermValue();
 			} else {
 				termValue = ((SearchtermAdr)ref).getSearchtermValue();
 			}
-
+*/
 			// delete reference. delete-orphan doesn't work !!!?????
 			dao.makeTransient(ref);
 			
@@ -1652,6 +1660,52 @@ public class DocToBeanMapper implements IMapper {
 */
 		}		
 	}
+
+	/** Checks whether passed term doc represents passed SearchtermValue and updates
+	 * data in entity if so.
+	 * @param inTermDoc data describing SearchtermValue
+	 * @param termValue SearchtermValue entity
+	 * @return true=termValue entity was updated<br>
+	 * false=termValue entity is different from inTermDoc and was NOT updated
+	 */
+	private boolean updateSearchtermValueViaDoc(IngridDocument inTermDoc, SearchtermValue termValue) {
+		SearchtermSns termSns = termValue.getSearchtermSns();
+
+		// to be more robust compare data dependent from type !!!!!!!
+		// NOTICE: this compare has to match comparison in daoSearchtermValue.loadOrCreate(...) !!!
+		boolean doUpdate = false;
+		if (MdekUtils.isEqual(inTermDoc.getString(MdekKeys.TERM_TYPE), termValue.getType())) {
+			// type matches !
+			SearchtermType termValType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, termValue.getType());
+
+			if (SearchtermType.FREI == termValType) {
+				// FREE Searchterm
+				if (MdekUtils.isEqual(inTermDoc.getString(MdekKeys.TERM_NAME), termValue.getTerm())) {
+					doUpdate = true;
+				}
+				
+			} else if (SearchtermType.INSPIRE == termValType) {
+				// INSPIRE Term
+				if (MdekUtils.isEqual((Integer)inTermDoc.get(MdekKeys.TERM_ENTRY_ID), termValue.getEntryId())) {
+					doUpdate = true;
+				}
+
+			} else if (SearchtermType.isThesaurusType(termValType)) {
+				// SNS Term
+				if (MdekUtils.isEqual(inTermDoc.getString(MdekKeys.TERM_SNS_ID), termSns.getSnsId())) {
+					doUpdate = true;
+				}
+			}
+		}
+		
+		if (doUpdate) {
+			mapSearchtermValue(termSns, inTermDoc, termValue);
+			return true;
+		}
+
+		return false;
+	}
+
 	/** Load/Create SearchtermValue according to the passed term document.
 	 * @param inTermDoc data describing SearchtermValue
 	 * @param entityId SearchtermValue is connected to this entity, PASS NULL IF CONNECTION DOESN'T MATTER
