@@ -167,7 +167,7 @@ public class MdekClientCaller implements IMdekClientCaller {
 		IJobRepositoryFacade jobRepo = getJobRepo(plugId);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
-		debugDocument("Job: " + jobId + ", RESPONSE:", response);
+		debugDocument("Job: " + jobId + ", Plug: " + plugId + ", RESPONSE:", response);
 		
 		return response;
 	}
