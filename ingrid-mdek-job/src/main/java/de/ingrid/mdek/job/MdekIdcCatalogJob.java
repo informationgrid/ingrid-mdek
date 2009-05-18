@@ -598,23 +598,23 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
 
+			// initialize export info in database
+			exportService.startExportJobInfo(IdcEntityType.OBJECT, numToExport, userId);
+
 			// find objects to export
 			List<String> expUuids = daoObjectNode.getObjectUuidsForExport(exportCriterion);
 			numToExport = expUuids.size();
 			
 			HashMap exportInfo = new HashMap();
-			byte[] expData = new byte[0];;
+			byte[] expData = new byte[0];
 			if (numToExport > 0) {
-				// initialize export info in database
-				exportService.startExportJobInfo(IdcEntityType.OBJECT, numToExport, userId);
-
 				// export
 				expData = new XMLExporter(exportService).exportObjects(expUuids, false, userId);
-
-				// finish export job info and fetch it
-				exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
-				exportInfo = getJobInfo(JobType.EXPORT, userId, false, false);
 			}
+
+			// finish export job info and fetch it
+			exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
+			exportInfo = getJobInfo(JobType.EXPORT, userId, false, false);
 
 			// just to be sure ExportJobInfo is up to date !
 			genericDao.flush();
