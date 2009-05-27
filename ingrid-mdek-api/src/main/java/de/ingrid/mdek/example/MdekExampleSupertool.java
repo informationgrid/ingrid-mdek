@@ -52,19 +52,18 @@ public class MdekExampleSupertool {
 	private String myUserUuid;
 	boolean doFullOutput = true;
 
-	public MdekExampleSupertool(String plugIdToCall,
-			String callingUserUuid)
+	public MdekExampleSupertool(String callingUserUuid)
 	{
-		this.plugId = plugIdToCall;
+		this.plugId = "ige-iplug-test";
 		myUserUuid = callingUserUuid;
 
 		mdekClientCaller = MdekClientCaller.getInstance();
 		
-		supertoolCatalog = new MdekExampleSupertoolCatalog(plugIdToCall, callingUserUuid, this);
-		supertoolSecurity = new MdekExampleSupertoolSecurity(plugIdToCall, callingUserUuid, this);
-		supertoolObject = new MdekExampleSupertoolObject(plugIdToCall, callingUserUuid, this);
-		supertoolAddress = new MdekExampleSupertoolAddress(plugIdToCall, callingUserUuid, this);
-		supertoolQuery = new MdekExampleSupertoolQuery(plugIdToCall, callingUserUuid, this);
+		supertoolCatalog = new MdekExampleSupertoolCatalog(plugId, callingUserUuid, this);
+		supertoolSecurity = new MdekExampleSupertoolSecurity(plugId, callingUserUuid, this);
+		supertoolObject = new MdekExampleSupertoolObject(plugId, callingUserUuid, this);
+		supertoolAddress = new MdekExampleSupertoolAddress(plugId, callingUserUuid, this);
+		supertoolQuery = new MdekExampleSupertoolQuery(plugId, callingUserUuid, this);
 	}
 
 	public void setPlugIdToCall(String plugIdToCall)

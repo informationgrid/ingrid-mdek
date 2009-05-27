@@ -121,7 +121,7 @@ class MdekExampleStatisticsThread extends Thread {
 	{
 		this.threadNumber = threadNumber;
 		
-		supertool = new MdekExampleSupertool("mdek-iplug-idctest", "EXAMPLE_USER_" + threadNumber);
+		supertool = new MdekExampleSupertool("EXAMPLE_USER_" + threadNumber);
 }
 
 	public void run() {
