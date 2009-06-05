@@ -5,7 +5,7 @@ IGE
 ===
 
 - mdek_data.xsd
-Beschreibung des Austauschformats (Map Struktur von IngridDocument) zwischen IGE Frontend und Backend ("MDEK iPlug")
+Beschreibung des Austauschformats (Map Struktur von IngridDocument) zwischen IGE Frontend und Backend ("IGE iPlug")
 
 - mapping.xls
 Beschreibung Mapping Austauschformat (IngridDocument) auf Frontend Felder (IGE)

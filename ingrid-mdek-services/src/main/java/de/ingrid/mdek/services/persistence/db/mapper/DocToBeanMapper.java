@@ -811,11 +811,20 @@ public class DocToBeanMapper implements IMapper {
 			// type matches !
 			if (MdekUtils.SpatialReferenceType.FREI.getDbValue().equals(spRefValue.getType())) {
 				// FREE Spatial Ref
-				if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_NAME), spRefValue.getNameValue()) &&
-					MdekUtils.isEqual((Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY), spRefValue.getNameKey())) {
-					doUpdate = true;
+				Integer inNameKey = (Integer) locationDoc.get(MdekKeys.LOCATION_NAME_KEY);
+				if (MdekUtils.isEqual(inNameKey, spRefValue.getNameKey())) {
+					// same name key (is never null)
+					if (inNameKey.equals(-1)) {
+						// freier eintrag, check name, name is criteria !
+						if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_NAME), spRefValue.getNameValue())) {
+							doUpdate = true;
+						}
+					} else {
+						// combo entry, we do NOT check name, key is criteria !
+						doUpdate = true;
+					}
 				}
-				
+
 			} else if (MdekUtils.SpatialReferenceType.GEO_THESAURUS.getDbValue().equals(spRefValue.getType())) {
 				// SNS Spatial Ref
 				if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_SNS_ID), spRefSns.getSnsId())) {
