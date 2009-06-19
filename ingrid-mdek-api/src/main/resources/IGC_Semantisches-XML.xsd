@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.portalu.de/" xmlns="http://www.portalu.de/">
-  <!-- VERSION DES AUSTAUSCHFORMATES -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.portalu.de/http://www.portalu.de/igc-import" xmlns="http://www.portalu.de/http://www.portalu.de/igc-import">
+    
+    <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
     <xs:attribute name="exchange-format" default="1.0.5"/>
   </xs:attributeGroup>
