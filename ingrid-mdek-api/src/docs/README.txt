@@ -17,8 +17,10 @@ Beschreibung Details von IGE Abläufen (Verhalten bei copy, move etc.)
 IMPORT/EXPORT
 =============
 
-- IGC_Semantisches-XML.xsd
-Import/Export Format basierend auf UDK5 semantischem XML (UDK_Semantisches-XML.dtd) und angepasst/erweitert an IGC
+- src/main/resources/IGC_Semantisches-XML.xsd
+Import/Export Format basierend auf UDK5 semantischem XML (UDK_Semantisches-XML.dtd) und angepasst/erweitert an IGC.
+Nach src/main/resources verschoben -> we need this to check import/export functionality in other projects by unit testcase
+
 
 - IGC_Semantisches-XML_instance0.xml
 Aus .xsd generierte Beispiel-Instanz zur besseren Nachvollziehbarkeit
