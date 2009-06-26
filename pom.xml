@@ -122,4 +122,10 @@
       </plugin>
     </plugins>
   </reporting>
+  <distributionManagement>
+    <site>
+      <id>de.ingrid.mdek</id>
+      <url>file:///srv/www/htdocs/ingrid/ingrid-mdek</url>
+    </site>
+  </distributionManagement>
 </project>
