@@ -62,7 +62,7 @@ public class MdekUtilsSecurity {
 
 		// User Permissions (bound to group)
 		CREATE_ROOT("create-root", "Root anlegen"),
-		QUALITY_ASSURANCE("qa", "Qualit‰tssicherung");
+		QUALITY_ASSURANCE("qa", "Qualit√§tssicherung");
 
 		/**
 		 * @param dbValue THIS IS ALSO THE client side STRING USED IN MAP TO IDENTIFY PERMISSION

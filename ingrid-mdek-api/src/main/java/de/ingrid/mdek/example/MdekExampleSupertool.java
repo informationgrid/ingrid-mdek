@@ -930,7 +930,7 @@ public class MdekExampleSupertool {
 			}
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.PUBLICATION_SCALE_LIST);
 			if (docList != null && docList.size() > 0) {
-				System.out.println("    MAP - publication scales (Erstellungsmaﬂstab): " + docList.size() + " entries");
+				System.out.println("    MAP - publication scales (Erstellungsma√üstab): " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("     " + doc);								
 				}			
@@ -988,7 +988,7 @@ public class MdekExampleSupertool {
 			}
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.PUBLICATION_SCALE_LIST);
 			if (docList != null && docList.size() > 0) {
-				System.out.println("    SERVICE - publication scales = Erstellungsmaﬂstab (INSPIRE): " + docList.size() + " entries");
+				System.out.println("    SERVICE - publication scales = Erstellungsma√üstab (INSPIRE): " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("      " + doc);								
 				}

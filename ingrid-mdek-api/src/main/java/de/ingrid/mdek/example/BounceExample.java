@@ -283,7 +283,7 @@ class BounceThread extends Thread {
 		String DELIMITER = "\t";
 		for (int i=0; i<finalLengths.size(); i++) {
 			if (i==0) {
-				System.out.print("Datengrösse" + DELIMITER);
+				System.out.print("DatengrÃ¶sse" + DELIMITER);
 			}
 			// 2 Spalten je Datengroesse -> 2 unterschiedliche Server Calls
 			System.out.print(finalLengths.get(i) + DELIMITER + DELIMITER);

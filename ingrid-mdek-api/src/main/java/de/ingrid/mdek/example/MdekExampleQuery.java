@@ -134,7 +134,7 @@ class MdekExampleQueryThread extends Thread {
 		// thesaurs terms (sns ids)
 		// Naturschutz = uba_thes_28749: Institutionen, Einheiten und Personen
 //		String termSnsId = "uba_thes_28749";
-		// Emissionsüberwachung = uba_thes_8007: Institutionen und Personen
+		// EmissionsÃ¼berwachung = uba_thes_8007: Institutionen und Personen
 		String termSnsId = "uba_thes_8007";
 
 		String uuid;
@@ -382,7 +382,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n----- check: update address index on STORE -----");
 		System.out.println("----- search address via full text -> no result -----");
-		searchterm = "sdfhljkhfösh";
+		searchterm = "sdfhljkhfÃ¶sh";
 		supertool.queryAddressesFullText(searchterm, 0, 20);
 		System.out.println("\n----- fetch arbitrary address -----");
 		uuid = "095130C2-DDE9-11D2-BB32-006097FE70B1";
@@ -424,7 +424,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n----- check: update object index on STORE -----");
 		System.out.println("----- search object via full text -> no result -----");
-		searchterm = "sdfhljkhfösh";
+		searchterm = "sdfhljkhfÃ¶sh";
 		supertool.queryObjectsFullText(searchterm, 0, 20);
 		System.out.println("\n----- fetch arbitrary object -----");
 		uuid = "3A295152-5091-11D3-AE6C-00104B57C66D";
@@ -520,32 +520,32 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println(" EXTENDED SEARCH OBJECTS");
 		System.out.println("=========================");
 		
-		System.out.println("\n----- search objects by extended search query: Göttingen -----");
+		System.out.println("\n----- search objects by extended search query: GÃ¶ttingen -----");
 		searchParams = new IngridDocument();
-		searchParams.put(MdekKeys.QUERY_TERM, "Göttingen");
+		searchParams.put(MdekKeys.QUERY_TERM, "GÃ¶ttingen");
 		searchParams.put(MdekKeys.RELATION, new Integer(0));
 
 		hits = supertool.queryObjectsExtended(searchParams, 0, 20);
 
-		System.out.println("\n----- search objects by extended search query: \"Göttingen Wasserrecht\" -----");
-		searchParams.put(MdekKeys.QUERY_TERM, "Göttingen Wasserrecht");
+		System.out.println("\n----- search objects by extended search query: \"GÃ¶ttingen Wasserrecht\" -----");
+		searchParams.put(MdekKeys.QUERY_TERM, "GÃ¶ttingen Wasserrecht");
 		searchParams.put(MdekKeys.RELATION, new Integer(0));
 
 		hits = supertool.queryObjectsExtended(searchParams, 0, 20);
 
-		System.out.println("\n----- search objects by extended search query: Göttingen, partial word -----");
-		searchParams.put(MdekKeys.QUERY_TERM, "Göttingen");
+		System.out.println("\n----- search objects by extended search query: GÃ¶ttingen, partial word -----");
+		searchParams.put(MdekKeys.QUERY_TERM, "GÃ¶ttingen");
 		searchParams.put(MdekKeys.SEARCH_TYPE, new Integer(1));
 		hits = supertool.queryObjectsExtended(searchParams, 0, 20);
 		
-		System.out.println("\n----- search objects by extended search query: Göttingen, partial word, Object class=0-----");
+		System.out.println("\n----- search objects by extended search query: GÃ¶ttingen, partial word, Object class=0-----");
 		List<Integer> aList = new ArrayList<Integer>();
 		aList.add(0);
 		searchParams.put(MdekKeys.OBJ_CLASSES, aList);
 
 		hits = supertool.queryObjectsExtended(searchParams, 0, 20);
 		
-		System.out.println("\n----- search objects by extended search query: Göttingen, partial word, Object class=0, sns_thesaurus_id:uba_thes_11450 & uba_thes_28711 -----");
+		System.out.println("\n----- search objects by extended search query: GÃ¶ttingen, partial word, Object class=0, sns_thesaurus_id:uba_thes_11450 & uba_thes_28711 -----");
 		List<IngridDocument> docList = new ArrayList<IngridDocument>();
 		doc = new IngridDocument();
 		doc.put(MdekKeys.TERM_SNS_ID, "uba_thes_11450");

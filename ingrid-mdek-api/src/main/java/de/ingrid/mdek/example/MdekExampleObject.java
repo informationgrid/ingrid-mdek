@@ -279,7 +279,7 @@ class MdekExampleObjectThread extends Thread {
 		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
 		locs.add(locDoc);
 		locDoc = new IngridDocument();
-		locDoc.put(MdekKeys.LOCATION_NAME, "freie Fl‰che");
+		locDoc.put(MdekKeys.LOCATION_NAME, "freie Fl√§che");
 		locDoc.put(MdekKeys.LOCATION_NAME_KEY, -1);
 		locDoc.put(MdekKeys.LOCATION_TYPE, "F");
 		locs.add(locDoc);
@@ -300,7 +300,7 @@ class MdekExampleObjectThread extends Thread {
 		locDoc.put(MdekKeys.LOCATION_SNS_ID, "NATURRAUM5000");
 		locs.add(locDoc);
 		locDoc = new IngridDocument();
-		locDoc.put(MdekKeys.LOCATION_NAME, "Allg‰uer Alpen");
+		locDoc.put(MdekKeys.LOCATION_NAME, "Allg√§uer Alpen");
 		locDoc.put(MdekKeys.LOCATION_TYPE, "G");
 		locDoc.put(MdekKeys.LOCATION_CODE, null);
 		locDoc.put(MdekKeys.LOCATION_SNS_ID, "GEBIRGE218");
