@@ -368,7 +368,7 @@ class MdekExampleCatalogThread extends Thread {
 			}
 		}
 */
-		System.out.println("\n----- verify: query Index FORMER syslist VALUES ! -> NOT THERE OR entities with DIFFERENT syslist entry with same content (+ §42) -----");
+		System.out.println("\n----- verify: query Index FORMER syslist VALUES ! -> NOT THERE OR entities with DIFFERENT syslist entry with same content (+ Â§42) -----");
 		supertool.queryObjectsFullText(removedName, 0, 5);
 		supertool.queryObjectsFullText(changedNameOrig, 0, 5);
 
@@ -693,7 +693,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.getSpatialReferences(null);
 
 		String objUuidWithSpatRefs = "7AC6048A-7018-11D3-A599-C70A0FEBD4FC"; // 8 Geo, 1 Free
-//		String objUuidWithSpatRefs = "3A295152-5091-11D3-AE6C-00104B57C66D"; // 1 Geo, 1 Free (Göttingen)
+//		String objUuidWithSpatRefs = "3A295152-5091-11D3-AE6C-00104B57C66D"; // 1 Geo, 1 Free (GÃ¶ttingen)
 //		String objUuidWithSpatRefs = "E13A483B-4FAB-11D3-AE6B-00104B57C66D"; // 1 Geo (Niedersachsen)
 
 		System.out.println("\n----- before SNS UPDATE: validate spatial refs of object -----");
