@@ -51,7 +51,7 @@ public class InfoAddressChecker implements ConsistencyChecker {
 	}
 
 	private String generateSolution(String objUuid, String title) {
-		return "Bitte fügen Sie eine Auskunftsadresse im Objekt " + objUuid +
+		return "Bitte fÃ¼gen Sie eine Auskunftsadresse im Objekt " + objUuid +
 			" (Titel: '"+title+"') ein!";
 	}
 

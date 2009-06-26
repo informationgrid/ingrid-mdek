@@ -85,7 +85,7 @@ public class SearchtermValueDaoHibernate
 		q.setLong(1, objId);
 
 		SearchtermValue termValue = null;
-		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ﬂ, lower <-> uppercase ...
+		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> √ü, lower <-> uppercase ...
 		// then we check all results in Java whether equal !
 		List<SearchtermObj> termObjs = q.list();
 		for (SearchtermObj termObj : termObjs) {
@@ -113,7 +113,7 @@ public class SearchtermValueDaoHibernate
 		q.setLong(1, adrId);
 
 		SearchtermValue termValue = null;
-		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ﬂ, lower <-> uppercase ...
+		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> √ü, lower <-> uppercase ...
 		// then we check all results in Java whether equal !
 		List<SearchtermAdr> termAdrs = q.list();
 		for (SearchtermAdr termAdr : termAdrs) {
@@ -140,7 +140,7 @@ public class SearchtermValueDaoHibernate
 			"and termVal.searchtermSnsId = " + searchtermSnsId;
 
 		// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
-		// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
+		// values ("Messdaten", "Me√üdaten") refering to same searchtermSns. Comparison 
 		// of these names in MySQL equals true, due to configuration of MySQL !
 		SearchtermValue searchtermVal = null;
 		List<SearchtermValue> searchtermVals = session.createQuery(qString).list();
@@ -218,7 +218,7 @@ public class SearchtermValueDaoHibernate
 			}
 */
 			// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
-			// values ("Messdaten", "Meﬂdaten") refering to same searchtermSns. Comparison 
+			// values ("Messdaten", "Me√üdaten") refering to same searchtermSns. Comparison 
 			// of these names in MySQL equals true, due to configuration of MySQL !
 			retList = session.createQuery(q).list();
 		}

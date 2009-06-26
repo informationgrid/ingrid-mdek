@@ -95,7 +95,7 @@ public class SpatialRefValueDaoHibernate
 		Query q = session.createQuery(qString);
 
 		SpatialRefValue spRefValue = null;
-		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
+		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ÃŸ, lower <-> uppercase ...
 		// then we check all results in Java whether equal !
 		List<SpatialReference> spRefs = q.list();
 		for (SpatialReference spRef : spRefs) {

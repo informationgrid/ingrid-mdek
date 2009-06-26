@@ -52,12 +52,12 @@ public class TableAssociationsChecker implements ConsistencyChecker {
 	private String generateSolution(Long elementId, String table, String foreignKey) {
 		return "Sie koennen den Eintrag mit folgendem HQL Query loeschen: " +
 				"< delete "+table+" where id = "+elementId+" > " +
-				"oder an einem anderen Knoten anhängen mit:" +
+				"oder an einem anderen Knoten anhÃ¤ngen mit:" +
 				"< update versioned "+table+" set "+foreignKey+" = '...' " +
 				"where id = "+elementId+" >";
 	}
 
 	private String generateMessage(Long elementId, String table, String refTable) {
-		return "Ungültiger Verweis auf Tabelle "+refTable+" in Tabelle: " + table + " in Element mit id: " + elementId;
+		return "UngÃ¼ltiger Verweis auf Tabelle "+refTable+" in Tabelle: " + table + " in Element mit id: " + elementId;
 	}
 }

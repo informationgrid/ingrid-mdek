@@ -53,7 +53,7 @@ public interface ISearchtermValueDao
 
 	/** Load SearchtermValues according to given parameters. Passed type determines how to
 	 * fetch term. NOTICE: even for SNS terms multiple results can be delivered, e.g. "Messdaten"
-	 * and "Meﬂdaten" were imported and comparison equals true in MySQL due to configuration of MySQL !
+	 * and "Me√üdaten" were imported and comparison equals true in MySQL due to configuration of MySQL !
 	 * @param term pass if type FREI
 	 * @param snsId pass if type UMTHES or GEMET
 	 * @return list of terms or empty list if not found

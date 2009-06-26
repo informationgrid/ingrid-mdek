@@ -984,9 +984,9 @@ public class MdekObjectService {
 					Set<ObjectComment> commentSet = objPub.getObjectComments();
 					ObjectComment newComment = new ObjectComment();
 					newComment.setObjId(objPub.getId());
-					newComment.setComment("Hinweis: Durch Änderung des Wertes des Feldes 'Veröffentlichung' im " +
-						"übergeordneten Objekt '" + topName +
-						"' ist der Wert dieses Feldes für dieses Objekt auf '" + pubTypeNew.toString() +
+					newComment.setComment("Hinweis: Durch Ã„nderung des Wertes des Feldes 'VerÃ¶ffentlichung' im " +
+						"Ã¼bergeordneten Objekt '" + topName +
+						"' ist der Wert dieses Feldes fÃ¼r dieses Objekt auf '" + pubTypeNew.toString() +
 						"' gesetzt worden.");
 					newComment.setCreateTime(objPub.getModTime());
 					newComment.setCreateUuid(objPub.getModUuid());

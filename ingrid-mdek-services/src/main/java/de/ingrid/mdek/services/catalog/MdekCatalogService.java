@@ -827,7 +827,7 @@ public class MdekCatalogService {
 			if (numObj > 0 || numAddr > 0) {
 				updateJobInfoNewUpdatedTerm(oldTermValue.getTerm(), oldTermValue.getAlternateTerm(),
 					oldTermValue.getType(),
-					"Deskriptor in freien Suchbegriff ¸berf¸hrt",
+					"Deskriptor in freien Suchbegriff √ºberf√ºhrt",
 					numObj, numAddr, userUuid);
 			}
 		}
@@ -943,7 +943,7 @@ public class MdekCatalogService {
 			}
 
 			// DELETE OLD STUFF !!! NO EXPIRED (not needed for display in IGE) !
-			// NOTICE: SearchtermSns may be null if already deleted (when multiple SearchtermValues, e.g. "Messdaten", "Meﬂdaten" !)
+			// NOTICE: SearchtermSns may be null if already deleted (when multiple SearchtermValues, e.g. "Messdaten", "Me√üdaten" !)
 			dao.makeTransient(oldTermValue.getSearchtermSns());
 			dao.makeTransient(oldTermValue);
 			
@@ -1106,7 +1106,7 @@ public class MdekCatalogService {
 			if (replaceFreeTerm) {
 				msg = "Freien Suchbegriff ersetzt durch Deskriptor " + newTermTag;
 			} else {
-				msg = "Freien Suchbegriff erg‰nzt mit Deskriptor " + newTermTag;
+				msg = "Freien Suchbegriff erg√§nzt mit Deskriptor " + newTermTag;
 			}
 			updateJobInfoNewUpdatedTerm(inTermOld.getTerm(), inTermOld.getAlternateTerm(),
 				inTermOld.getType(), msg,
@@ -1191,7 +1191,7 @@ public class MdekCatalogService {
 			List<T01Object> objs = daoSpatialRefValue.getObjectsOfSpatialRefValue(spRefValue.getId());
 
 			updateJobInfoNewUpdatedSpatialRef(spRefValue.getNameValue(), spRefValue.getNativekey(), 
-				"entf‰llt", objs.size(), objs, userUuid);
+				"entf√§llt", objs.size(), objs, userUuid);
 		}
 	}
 	private void updateSpatialRefValueSameSnsId(SpatialRefValue inRefOld, IngridDocument inRefNewDoc,
@@ -1301,7 +1301,7 @@ public class MdekCatalogService {
 			msg += "neue Topic-Id \"" + spRefValueNew.getSpatialRefSns().getSnsId() + "\"";
 		}
 		if (msg == null) {
-			msg = "Raumeinheit ge‰ndert";
+			msg = "Raumeinheit ge√§ndert";
 		}
 
 		return msg;

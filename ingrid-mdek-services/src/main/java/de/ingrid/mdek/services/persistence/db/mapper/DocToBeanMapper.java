@@ -867,9 +867,9 @@ public class DocToBeanMapper implements IMapper {
 		// Selbst wenn der identische Freie Raumbezug vorhanden ist. Beim Loeschen des Objektes wird nur die Referenz (SpatialReference)
 		// geloescht (cascade nicht moeglich, da hier auch Thesaurusbegriffe drin stehen, die erhalten bleiben sollen ! bei denen wird
 		// der vorhandene Thesaurus Begriff genommen, wenn schon da; dies ist bei Freien nicht moeglich, da die ja objektspezifisch
-		// geaendert werden koennen -> vom Frontend kommen immer die akt. Freien, die Prüfung ob Freier schon da erfolgt dann über fast
+		// geaendert werden koennen -> vom Frontend kommen immer die akt. Freien, die PrÃ¼fung ob Freier schon da erfolgt dann Ã¼ber fast
 		// alle Attribute, bis auf BBox Koordinaten, wenn gefunden, werden also die BBox Koords aktualisiert). -> Aufraeum Job noetig !
-		// NEIN, nicht mehr noetig, da Freie Raumbezuege jetzt geloescht werden, wenn Ihre Referenz zum Objekt gelöscht wird, s.updateSpatialReferences(...)
+		// NEIN, nicht mehr noetig, da Freie Raumbezuege jetzt geloescht werden, wenn Ihre Referenz zum Objekt gelÃ¶scht wird, s.updateSpatialReferences(...)
 		SpatialRefValue spRefValue =
 			daoSpatialRefValue.loadOrCreate(locType, locNameValue, locNameKey, spRefSns, objectId);
 		mapSpatialRefValue(spRefSns, locationDoc, spRefValue);
@@ -1736,10 +1736,10 @@ public class DocToBeanMapper implements IMapper {
 		}
 
 		// then load/create SearchtermValue
-		// NOTICE: Freie Schlagwörter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
+		// NOTICE: Freie SchlagwÃ¶rter (SearchtermValue) werden IMMER neu angelegt, wenn die Objektbeziehung nicht vorhanden ist.
 		// gleiches Verhalten wie bei FREIEN RAUMBEZUEGEN, s.o.
-		// ABER: ist eigentlich nicht nötig, da ursprüngliche Migration gleiche freie Suchbegriffe NUR EINMAL ANGELEGT HAT
-		// und diese mit mehrerern Objekten/Adressen verknüft hat !!!!!!!!! Diese dürfen also NICHT geloescht werden !
+		// ABER: ist eigentlich nicht nÃ¶tig, da ursprÃ¼ngliche Migration gleiche freie Suchbegriffe NUR EINMAL ANGELEGT HAT
+		// und diese mit mehrerern Objekten/Adressen verknÃ¼ft hat !!!!!!!!! Diese dÃ¼rfen also NICHT geloescht werden !
 		// Gleiche Freie Raumbezuege koennten also auch nur EINMAL existieren !!!
 		SearchtermValue termValue = daoSearchtermValue.loadOrCreate(
 				inTermDoc.getString(MdekKeys.TERM_TYPE),
