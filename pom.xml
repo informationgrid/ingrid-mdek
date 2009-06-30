@@ -41,12 +41,6 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>maven</groupId>
-          <artifactId>maven-javacc-plugin</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
