@@ -1,0 +1,55 @@
+<project name="PortalU Installation">
+    <description>
+        iPlug-IGE Installation Script
+    </description>
+    <!-- set global properties for this build -->
+    <property name="iPlugName"          value="${project.build.finalName}"/>
+    <property name="xml-communication"  value="${installDir}/conf/communication.xml"/>
+    <property name="default-datasource-properties"  value="${installDir}/conf/default-datasource.properties"/>
+    
+    <target name="extract" description="Extract all files to the installation directory.">
+        <unzip src="${antinstaller.jar}" dest="${installDir}">
+            <patternset>
+                <include name="${iPlugName}/**/*.*"/>
+            </patternset>
+        </unzip>
+        
+        <move toDir="${installDir}">
+            <fileset dir="${installDir}/${iPlugName}"/>
+        </move>
+    </target>
+    
+    <target name="communication" description="Set configuration correctly for the communication.">
+        <echo>Schreibe Verbindungs-Konfiguration in communication.xml</echo>
+        <xmlproperty file="${xml-communication}" prefix="plugXML"/>
+        <replace file="${xml-communication}" token="${plugXML.communication.client(name)}"                              value="${clientName}"/>
+        <replace file="${xml-communication}" token="${plugXML.communication.client.connections.server(name)}"           value="/ingrid-group:ige-ibus"/>
+        <replace file="${xml-communication}" token="${plugXML.communication.client.connections.server.socket(ip)}"      value="${serverIp}"/>
+        <replace file="${xml-communication}" token="${plugXML.communication.client.connections.server.socket(port)}"    value="${serverPort}"/>     
+    </target>
+	
+    <target name="database" description="Configure the mySQL database.">
+        <echo>Schreiben der DB-Konfiguration in default-datasource.properties</echo>
+        <replace file="${default-datasource-properties}" token="@DB_USER@" value="${dbUser}" />
+        <replace file="${default-datasource-properties}" token="@DB_PASSWORD@" value="${dbPassword}" />
+        <replace file="${default-datasource-properties}" token="@DB_ALIAS@" value="${dbAlias}" />
+    </target>
+    
+    <target name="startIPlug">
+        <echo>
+=================
+Weiteres Vorgehen
+=================
+
+        </echo>
+        <echo>
+Gehen Sie ins Verzeichnis:
+${installDir}
+und rufen Sie von der Kommandozeile "sh start.sh start"
+auf, um das iPlug zu starten.
+
+Log Ausgaben finden sich in logs/log.log
+        </echo>
+    </target>
+    
+</project>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <assembly>
-  <id>bin</id>
+  <id>installer</id>
   <formats>
-    <format>tar.gz</format>
+    <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <moduleSets>
@@ -11,11 +11,14 @@
         <include>de.ingrid.mdek:ingrid-mdek-job</include>
       </includes>
       <binaries>
-        <outputDirectory>lib</outputDirectory>
+        <outputDirectory>${project.build.finalName}/lib</outputDirectory>
         <unpack>false</unpack>
         <dependencySets>
           <dependencySet>
             <scope>runtime</scope>
+            <excludes>
+              <exclude>de.ingrid:ingrid-installer</exclude>
+            </excludes>
           </dependencySet>
         </dependencySets>
       </binaries>
@@ -23,23 +26,29 @@
   </moduleSets>
   <fileSets>
     <fileSet>
-      <directory>ingrid-mdek-job/src/main/resources</directory>
-      <excludes>
-        <exclude>mdek-job-version.properties</exclude>
-        <exclude>**/*.bak</exclude>
-      </excludes>
-      <outputDirectory>conf</outputDirectory>
+      <directory>ingrid-mdek-job/src/main/release/conf</directory>
+      <outputDirectory>${project.build.finalName}/conf</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>ingrid-mdek-job/src/main/scripts</directory>
+      <directory>ingrid-mdek-job/src/main/release/scripts</directory>
+      <outputDirectory>${project.build.finalName}/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>ingrid-mdek-services/src/main/release/conf</directory>
+      <outputDirectory>${project.build.finalName}/conf</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>src/main/release/ant-installer</directory>
+      <outputDirectory>/</outputDirectory>
+      <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
+      <directory>target/installer</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>ingrid-mdek-services/src/main/resources</directory>
-      <excludes>
-        <exclude>**/*.bak</exclude>
-      </excludes>
-      <outputDirectory>conf</outputDirectory>
+      <directory>target/site</directory>
+      <outputDirectory>${project.build.finalName}/doc</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>

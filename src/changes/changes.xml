@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<document>
+  <properties>
+    <title>Changes InGrid iPlug IGE</title>
+  </properties>
+  <body>
+    <release version="1.2.0" date="2009-06-05" description="1st Release">
+      <action type="update">
+        erste Distribution des IGE-iPlug basierend auf IGC version 1.0.5 / Export Format 1.0.5
+      </action>
+      <action type="add">
+        Integration Codelisten für Länder und Sprachen
+      </action>
+      <action type="add">
+        SNS Update: Raumbezüge werden jetzt auch auf Name, etc. verglichen und ändern evtl. Topic-ID
+      </action>
+      <action type="fix">
+        Freier Raumbezug aus Sysliste nicht wiederholt speicherbar (verursachte NPE)
+      </action>
+      <action type="fix">
+        Export schreibt leere Export-Info wenn keine Objekte gefunden
+      </action>
+      <action type="fix">
+        Änderung Namensgebung in communication (Gruppe, iBus, iBus-Client)
+      </action>
+      <action type="fix">
+        Freie Raumbezüge/Freie Suchbegriffe: Speichervorgang robuster (exakter Namensvergleich, typenspezifisch etc.)
+      </action>
+      <action type="fix">
+        "Adresse löschen" berücksichtigt jetzt auch Mehrfachzuweisung von gleicher Adresse
+      </action>
+    </release>
+
+    <release version="1.1.1" date="2009-04-02" description="2nd Kst-Release">
+      <action type="update">
+        erste Release Installation des IGE iPlug (MDEK) basierend auf IGC Katalog version 1.0.4 (Installation auf Kst-Servern, KEINE Distribution)
+      </action>
+    </release>
+
+    <release version="1.1.0" date="2008-11-05" description="Initial Kst-Release">
+      <action type="add">
+        Initial installation of IGE iPlug (MDEK) covering IGC version 1.0.3 (INSPIRE etc.)
+      </action>
+    </release>
+  </body>
+</document>

@@ -36,7 +36,9 @@ Distribution erstellen
 ----------------------
 
 - cd C:\...\ingrid-mdek\trunk
-mvn clean package assembly:assembly -Dmaven.test.skip=true
+mvn clean package changes:changes-report assembly:assembly
+(-Dmaven.test.skip=true)
+
 
 "Test Suite"
 -----------
