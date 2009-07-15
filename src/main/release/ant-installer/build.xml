@@ -17,6 +17,8 @@
         <move toDir="${installDir}">
             <fileset dir="${installDir}/${iPlugName}"/>
         </move>
+
+		<mkdir dir="${installDir}/serializable"/>
     </target>
     
     <target name="communication" description="Set configuration correctly for the communication.">
