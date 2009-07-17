@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
@@ -22,7 +22,6 @@
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
     <repository>
-      <snapshots />
       <id>de.ingrid.m2</id>
       <name>Maven2 Repo InGrid</name>
       <url>http://harrison.its-technidata.de/ingrid/maven2</url>
