@@ -13,7 +13,6 @@
   <name>ingrid-iplug-ige</name>
   <modules>
     <module>ingrid-mdek-api</module>
-    <module>ingrid-import-export</module>
     <module>ingrid-mdek-job</module>
     <module>ingrid-mdek-services</module>
   </modules>
