@@ -1,0 +1,1707 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.portalu.de/igc-import" xmlns="http://www.portalu.de/igc-import">
+  <!-- VERSION DES AUSTAUSCHFORMATES -->
+  <xs:attributeGroup name="attlist.igc">
+    <xs:attribute name="exchange-format" default="1.0"/>
+  </xs:attributeGroup>
+  <!-- InGridCatalog (IGC) containing UDK data -->
+  <xs:element name="igc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="catalogue"/>
+        <xs:element minOccurs="0" ref="data-sources"/>
+        <xs:element minOccurs="0" ref="addresses"/>
+        <xs:element minOccurs="0" ref="data-model-extensions"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.igc"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- Katalog Daten -->
+  <xs:element name="catalogue">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="catalogue-identifier"/>
+        <xs:element ref="catalogue-name"/>
+        <xs:element minOccurs="0" ref="partner-name"/>
+        <xs:element minOccurs="0" ref="provider-name"/>
+        <xs:element minOccurs="0" ref="country"/>
+        <xs:element minOccurs="0" ref="language"/>
+        <xs:element minOccurs="0" ref="geo-location"/>
+        <xs:element minOccurs="0" ref="workflow-control"/>
+        <xs:element minOccurs="0" ref="expiry-duration"/>
+        <xs:element minOccurs="0" ref="date-of-creation"/>
+        <xs:element minOccurs="0" ref="modificator-identifier"/>
+        <xs:element minOccurs="0" ref="date-of-last-modification"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Katalog Uuid
+    Tabelle.Feld   : T03_catalogue.cat_uuid
+    Tabelle.Feld   : T01_object.cat_id
+  -->
+  <xs:element name="catalogue-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zuletzt geaendert von
+    Tabelle.Feld   : t03_catalogue.mod_uuid
+    Tabelle.Feld   : t01_object.mod_uuid
+    Tabelle.Feld   : t02_address.mod_uuid
+  -->
+  <xs:element name="modificator-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Katalog Name
+    Tabelle.Feld   : T03_catalogue.cat_name 
+  -->
+  <xs:element name="catalogue-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Partner Name
+    Tabelle.Feld   : T03_catalogue.partner_name
+  -->
+  <xs:element name="partner-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Anbieter Name
+    Tabelle.Feld   : T03_catalogue.provider_name
+  -->
+  <xs:element name="provider-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Land
+    Tabelle.Feld   : T03_catalogue.country_code
+  -->
+  <xs:element name="country" type="iso-code"/>
+  <!--
+    Fachlicher Name: Sprache
+    Tabelle.Feld   : T03_catalogue.language_code
+  -->
+  <xs:element name="language" type="iso-code"/>
+  <!--
+    Fachlicher Name: Workflow Kontrolle
+    Tabelle.Feld   : T03_catalogue.workflow_control
+  -->
+  <xs:element name="workflow-control" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: Ablaufdauer
+    Tabelle.Feld   : T03_catalogue.expiry_duration
+  -->
+  <xs:element name="expiry-duration" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zuletzt geaendert am
+    Tabelle.Feld   : T03_catalogue.mod_time
+    Tabelle.Feld   : T01_object.mod_time
+    ...
+  -->
+  <xs:element name="date-of-last-modification" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erstellt am
+    Tabelle.Feld   : T01_object.create_time
+  -->
+  <xs:element name="date-of-creation" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objekt Metadatensätze 
+  -->
+  <xs:element name="data-sources">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-source"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Objekt Metadatensatz 
+  -->
+  <xs:element name="data-source">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="general"/>
+        <!-- technical-domain in Klasse 0: Organisationseinheit/Fachaufgabe nicht  vorhanden ->  minOccurs=0 -->
+        <xs:element minOccurs="0" ref="technical-domain"/>
+        <xs:element ref="additional-information"/>
+        <xs:element ref="spatial-domain"/>
+        <xs:element minOccurs="0" ref="temporal-domain"/>
+        <xs:element minOccurs="0" ref="subject-terms"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="available-linkage"/>
+        <xs:element minOccurs="0" ref="parent-data-source"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="related-address"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="link-data-source"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="general">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="object-identifier"/>
+        <xs:element ref="catalogue-identifier"/>
+        <xs:element ref="modificator-identifier"/>
+        <xs:element ref="responsible-identifier"/>
+        <xs:element ref="object-class"/>
+        <xs:element ref="title"/>
+        <xs:element minOccurs="0" ref="abstract"/>
+        <xs:element minOccurs="0" ref="date-of-last-modification"/>
+        <xs:element minOccurs="0" ref="date-of-creation"/>
+        <xs:element minOccurs="0" ref="original-control-identifier"/>
+        <xs:element minOccurs="0" ref="general-additional-values"/>
+        <xs:element minOccurs="0" ref="metadata"/>
+        <xs:element minOccurs="0" ref="dataset-alternate-name"/>
+        <xs:element minOccurs="0" ref="dataset-character-set"/>
+        <xs:element ref="topic-categories"/>
+        <xs:element minOccurs="0" ref="env-information"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Objekt Uuid
+    Tabelle.Feld   : T01_object.obj_uuid
+  -->
+  <xs:element name="object-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Verantwortlicher
+    Tabelle.Feld   : T01_object.responsible_uuid
+    Tabelle.Feld   : t02_address.responsible_uuid
+  -->
+  <xs:element name="responsible-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objektklasse
+    Tabelle.Feld   : T01_object.obj_class
+  -->
+  <xs:element name="object-class" type="id"/>
+  <!--
+    Fachlicher Name: Objektname
+    Tabelle.Feld   : T01_object.obj_name
+  -->
+  <xs:element name="title" type="xs:string"/>
+  <!--
+    Fachlicher Name: Beschreibung
+    Tabelle.Feld   : T01_object.obj_descr
+  -->
+  <xs:element name="abstract" type="xs:string"/>
+  <!--
+    Fachlicher Name: Original ID
+    Tabelle.Feld   : T01_object.org_obj_id
+  -->
+  <xs:element name="original-control-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zusatzfelder
+    Tabelle   : t08_attr*
+  -->
+  <xs:element name="general-additional-values">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="general-additional-value"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zusatzfeld (generische Attribute)
+    Tabelle.Feld   : t08_attr_type.id
+    Tabelle   : t08_attr_type, t08_attr
+  -->
+  <xs:element name="general-additional-value">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="field-name"/>
+        <xs:element ref="field-value"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.id"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Attributname
+    Tabelle.Feld   : t08_attr_type.name
+  -->
+  <xs:element name="field-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Attributwert
+    Tabelle.Feld   : t08_attr.data
+  -->
+  <xs:element name="field-value" type="xs:string"/>
+  <!-- Neu in T01_object, Elemente von general -->
+  <xs:element name="metadata">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="metadata-standard-name"/>
+        <xs:element minOccurs="0" ref="metadata-standard-version"/>
+        <xs:element minOccurs="0" ref="metadata-character-set"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Name des Metadatenstandards
+    Tabelle.Feld   : statisch T01_object.metadata_standard_name
+  -->
+  <xs:element name="metadata-standard-name" type="xs:string" default="ISO-19115"/>
+  <!--
+    Fachlicher Name: Version des Metadatenstandards
+    Tabelle.Feld   : statisch T01_object.metadata_standard_version
+  -->
+  <xs:element name="metadata-standard-version" type="xs:string" default="1.0"/>
+  <!--
+    Fachlicher Name: Zeichensatz des Metadatensatzes
+    Tabelle.Feld   : T01_object.metadata_character_set
+  -->
+  <xs:element name="metadata-character-set" type="iso-code"/>
+  <!--
+    Fachlicher Name: Kurzbeschreibung
+    Tabelle.Feld   : T01_object.dataset_alternate_name
+  -->
+  <xs:element name="dataset-alternate-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zeichensatz des Datensatzes
+    Tabelle.Feld   : T01_object.dataset_character_set
+  -->
+  <xs:element name="dataset-character-set" type="iso-code"/>
+  <!--
+    Fachlicher Name: Themenkategorien eines Objektes
+    Tabelle.Feld   : t011_obj_topic_cat
+  -->
+  <xs:element name="topic-categories">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="topic-category"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Themenkategorie eines Objektes
+    Tabelle.Feld   : t011_obj_topic_cat.topic_category
+  -->
+  <xs:element name="topic-category" type="id"/>
+  <!--
+    Fachlicher Name: Katalog Umweltthemen Infos (Katalogseite)
+    Tabellen   : T01_object, T0114_env_topic, T0114_env_category
+  -->
+  <xs:element name="env-information">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="is-catalog"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="env-topic"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="env-category"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Als Katalogseite in Umweltthemen anzeigen
+    Tabelle.Feld   : T01_object.is_catalog_data
+  -->
+  <xs:element name="is-catalog" default="N" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: Umweltthema Schlüssel (Katalogseite)
+    Tabelle.Feld   : T0114_env_topic.topic_key
+  -->
+  <xs:element name="env-topic" type="id"/>
+  <!--
+    Fachlicher Name: Umweltkategorie Schlüssel (Katalogseite)
+    Tabelle.Feld   : t0114_env_category.cat_key
+  -->
+  <xs:element name="env-category" type="id"/>
+  <!--
+    Fachlicher Name: Objektklassen
+  -->
+  <xs:element name="technical-domain">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="dataset"/>
+        <xs:element ref="service"/>
+        <xs:element ref="document"/>
+        <xs:element ref="map"/>
+        <xs:element ref="project"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Datensammlung /Datenbank
+    Tabelle   : t011_obj_data*
+  -->
+  <xs:element name="dataset">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="description-of-tech-domain"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="dataset-parameter"/>
+        <xs:element minOccurs="0" ref="method"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Erl㴴erung zum Fachbezug
+    Tabelle.Feld   : T011_obj_*.description
+  -->
+  <xs:element name="description-of-tech-domain" type="xs:string"/>
+  <!--
+    Fachlicher Name: Inhalte / Ergaenzende Angaben der Datensammlung/Datenbank
+    Tabelle   : T011_obj_data_para
+  -->
+  <xs:element name="dataset-parameter">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="parameter"/>
+        <xs:element minOccurs="0" ref="supplementary-information"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Inhalte der Datensammlung/Datenbank
+    Tabelle.Feld   : T011_obj_data_para.parameter
+  -->
+  <xs:element name="parameter" type="xs:string"/>
+  <!--
+    Fachlicher Name: Ergaenzende Angaben (Hinweis: Einheit der Parameter)
+    Tabelle.Feld   : T011_obj_data_para.unit
+  -->
+  <xs:element name="supplementary-information" type="xs:string"/>
+  <!--
+    Fachlicher Name: Methode/Datengrundlage
+    Tabelle.Feld   : T011_obj_data.base
+  -->
+  <xs:element name="method" type="xs:string"/>
+  <!--
+    Fachlicher Name: Dienst / Anwendung / Informationssystem
+    Tabelle   : t011_obj_serv*
+  -->
+  <xs:element name="service">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="description-of-tech-domain"/>
+        <xs:element ref="service-classification"/>
+        <xs:element maxOccurs="unbounded" ref="service-type"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="publication-scale"/>
+        <xs:element minOccurs="0" ref="system-history"/>
+        <xs:element minOccurs="0" ref="database-of-system"/>
+        <xs:element minOccurs="0" ref="system-environment"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-version"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-operation"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Service-Klassifikation (INSPIRE)
+    Tabelle.Feld   : T011_obj_serv.type_key
+    Tabelle.Feld   : T011_obj_serv.type_value
+  -->
+  <xs:element name="service-classification" type="id-string"/>
+  <!--
+    Fachlicher Name: Service-Typ (INSPIRE Classification of spatial data services)
+    Tabelle.Feld   : T011_obj_serv_type.serv_type_key
+    Tabelle.Feld   : T011_obj_serv_type.serv_type_value
+  -->
+  <xs:element name="service-type" type="id-string"/>
+  <!--
+    Fachlicher Name: Historie
+    Tabelle.Feld   : T011_obj_serv.history
+  -->
+  <xs:element name="system-history" type="xs:string"/>
+  <!--
+    Fachlicher Name: Basisdaten
+    Tabelle.Feld   : T011_obj_serv.base
+  -->
+  <xs:element name="database-of-system" type="xs:string"/>
+  <!--
+    Fachlicher Name: Systemumgebung
+    Tabelle.Feld   : T011_obj_serv.environment
+  -->
+  <xs:element name="system-environment" type="xs:string"/>
+  <!--
+    Fachlicher Name: Version des Service
+    Tabelle.Feld   : T011_obj_serv_version.version
+  -->
+  <xs:element name="service-version" type="xs:string"/>
+  <!--
+    Fachlicher Name: Operation
+    Tabelle   : T011_obj_serv_op*
+  -->
+  <xs:element name="service-operation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="operation-name"/>
+        <xs:element minOccurs="0" ref="description-of-operation"/>
+        <xs:element minOccurs="0" ref="invocation-name"/>
+        <xs:element maxOccurs="unbounded" ref="platform"/>
+        <xs:element maxOccurs="unbounded" ref="connection-point"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="parameter-of-operation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="depends-on"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Operationbeschreibung
+    Tabelle.Feld   : T011_obj_serv_operation.descr
+  -->
+  <xs:element name="description-of-operation" type="xs:string"/>
+  <!--
+    Fachlicher Name: Operation-Namensschluessel / -Name
+    Tabelle.Feld   : T011_obj_serv_operation.name_key
+    Tabelle.Feld   : T011_obj_serv_operation.name_value
+  -->
+  <xs:element name="operation-name" type="id-string"/>
+  <!--
+    Fachlicher Name: Aufruf
+    Tabelle.Feld   : T011_obj_serv_operation.invocation_name
+  -->
+  <xs:element name="invocation-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Platform
+    Tabelle.Feld   : T011_obj_serv_op_platform.platform
+  -->
+  <xs:element name="platform" type="xs:string"/>
+  <!--
+    Fachlicher Name: Parameter der Operation
+    Tabelle   : T011_obj_serv_op_para
+  -->
+  <xs:element name="parameter-of-operation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="name"/>
+        <xs:element ref="optional"/>
+        <xs:element ref="repeatability"/>
+        <xs:element minOccurs="0" ref="direction"/>
+        <xs:element minOccurs="0" ref="description-of-parameter"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Attribute des Parameters
+    Tabelle.Feld   : T011_obj_serv_op_para.optional
+  -->
+  <xs:element name="optional" type="xs:string"/>
+  <!--
+    Fachlicher Name: Attribute des Parameters
+    Tabelle.Feld   : T011_obj_serv_op_para.repeatability
+  -->
+  <xs:element name="repeatability" type="xs:string"/>
+  <!--
+    Fachlicher Name: Attribute des Parameters
+    Tabelle.Feld   : T011_obj_serv_op_para.direction
+  -->
+  <xs:element name="direction" type="xs:string"/>
+  <!--
+    Fachlicher Name: Beschreibung des Parameters
+    Tabelle.Feld   : T011_obj_serv_op_para.descr
+  -->
+  <xs:element name="description-of-parameter" type="xs:string"/>
+  <!--
+    Fachlicher Name: Abhängigkeiten
+    Tabelle.Feld   : T011_obj_serv_op_depends.depends_on
+  -->
+  <xs:element name="depends-on" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zugriffsadresse
+    Tabelle.Feld   : t011_obj_serv_op_connpoint.connect_point
+  -->
+  <xs:element name="connection-point" type="xs:string"/>
+  <!--
+    Fachlicher Name: Gutachten / Bericht / Literatur
+    Tabelle   : t011_obj_literature
+  -->
+  <xs:element name="document">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="description-of-tech-domain"/>
+        <xs:element minOccurs="0" ref="publisher"/>
+        <xs:element minOccurs="0" ref="publishing-place"/>
+        <xs:element minOccurs="0" ref="year"/>
+        <xs:element minOccurs="0" ref="isbn"/>
+        <xs:element minOccurs="0" ref="source"/>
+        <xs:element minOccurs="0" ref="type-of-document"/>
+        <xs:element minOccurs="0" ref="editor"/>
+        <xs:element minOccurs="0" ref="author"/>
+        <xs:element minOccurs="0" ref="additional-bibliographic-info"/>
+        <xs:element minOccurs="0" ref="location"/>
+        <xs:element minOccurs="0" ref="pages"/>
+        <xs:element minOccurs="0" ref="volume"/>
+        <xs:element minOccurs="0" ref="published-in"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Verlag
+    Tabelle.Feld   : t011_obj_literature.publishing
+  -->
+  <xs:element name="publisher" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erscheinungsort
+    Tabelle.Feld   : t011_obj_literature.publish_loc
+  -->
+  <xs:element name="publishing-place" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erscheinungsjahr
+    Tabelle.Feld   : t011_obj_literature.publish_year
+  -->
+  <xs:element name="year" type="xs:string"/>
+  <!--
+    Fachlicher Name: ISBN-Nr.
+    Tabelle.Feld   : t011_obj_literature.isbn
+  -->
+  <xs:element name="isbn" type="xs:string"/>
+  <!--
+    Fachlicher Name: Basisdaten
+    Tabelle.Feld   : t011_obj_literature.base
+  -->
+  <xs:element name="source" type="xs:string"/>
+  <!--
+    Fachlicher Name: Dokumententyp
+    Tabelle.Feld   : t011_obj_literature.type_key
+    Tabelle.Feld   : t011_obj_literature.type_value
+  -->
+  <xs:element name="type-of-document" type="id-string"/>
+  <!--
+    Fachlicher Name: Herausgeber
+    Tabelle.Feld   : t011_obj_literature.publisher
+  -->
+  <xs:element name="editor" type="xs:string"/>
+  <!--
+    Fachlicher Name: Autor/Verfasser
+    Tabelle.Feld   : t011_obj_literature.author
+  -->
+  <xs:element name="author" type="xs:string"/>
+  <!--
+    Fachlicher Name: Weitere bibliographische Angaben
+    Tabelle.Feld   : t011_obj_literature.doc_info
+  -->
+  <xs:element name="additional-bibliographic-info" type="xs:string"/>
+  <!--
+    Fachlicher Name: Standort
+    Tabelle.Feld   : T011_obj_literatur.loc
+  -->
+  <xs:element name="location" type="xs:string"/>
+  <!--
+    Fachlicher Name: Seiten
+    Tabelle.Feld   : t011_obj_literature.sides
+  -->
+  <xs:element name="pages" type="xs:string"/>
+  <!--
+    Fachlicher Name: Band, Heft
+    Tabelle.Feld   : t011_obj_literature.volume
+  -->
+  <xs:element name="volume" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erschienen in
+    Tabelle.Feld   : t011_obj_literature.publish_in
+  -->
+  <xs:element name="published-in" type="xs:string"/>
+  <!--
+    Fachlicher Name: Geo-Information /Karte
+    Tabelle   : t011_obj_geo*
+  -->
+  <xs:element name="map">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="hierarchy-level"/>
+        <xs:element minOccurs="0" ref="description-of-tech-domain"/>
+        <xs:element minOccurs="0" ref="data"/>
+        <xs:element minOccurs="0" ref="resolution"/>
+        <xs:element minOccurs="0" ref="coordinate-system"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="publication-scale"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="key-catalogue"/>
+        <xs:element minOccurs="0" ref="degree-of-record"/>
+        <xs:element minOccurs="0" ref="method-of-production"/>
+        <xs:element minOccurs="0" ref="technical-base"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="symbol-catalogue"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="spatial-representation-type"/>
+        <xs:element minOccurs="0" ref="vector-format"/>
+        <xs:element minOccurs="0" ref="pos-accuracy-vertical"/>
+        <xs:element minOccurs="0" ref="keyc-incl-w-dataset"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="feature-type"/>
+        <xs:element minOccurs="0" ref="datasource-identificator"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Datengrundlage, Beschreibung der Datengrundlage
+    Tabelle.Feld   : T011_obj_geo.data_base
+  -->
+  <xs:element name="data" type="xs:string"/>
+  <!--
+    Fachlicher Name: Lagegenauigkeit, Genauigkeit der Datengewinnung
+    Tabelle.Feld   : T011_obj_geo.rec_exact
+  -->
+  <xs:element name="resolution" type="xs:string"/>
+  <!--
+    Fachlicher Name: Raum-Bezugssystem, Koordinatensystem der Geoinformation / Karte
+    Tabelle.Feld   : T011_obj_geo.referencesystem_key
+    Tabelle.Feld   : T011_obj_geo.referencesystem_value
+  -->
+  <xs:element name="coordinate-system" type="id-string"/>
+  <!--
+    Fachlicher Name: Erstellungsma޳tab
+    Tabelle   : t011_obj_geo_scale / T011_obj_serv_scale (INSPIRE)
+  -->
+  <xs:element name="publication-scale">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="scale"/>
+        <xs:element minOccurs="0" ref="resolution-ground"/>
+        <xs:element minOccurs="0" ref="resolution-scan"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Erstellungsma޳tab: Ma޳tab, Erfassungs- bzw. Erstellungsma޳tab
+    Tabelle.Feld   : T011_obj_geo_scale.scale
+    Tabelle.Feld   : T011_obj_serv_scale.scale
+  -->
+  <xs:element name="scale" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erstellungsma޳tab: Bodenaufl�g
+    Tabelle.Feld   : T011_obj_geo_scale.resolution_ground
+    Tabelle.Feld   : T011_obj_serv_scale.resolution_ground
+  -->
+  <xs:element name="resolution-ground" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erstellungsma޳tab: Scanaufl�g
+    Tabelle.Feld   : T011_obj_geo_scale.resolution_scan
+    Tabelle.Feld   : T011_obj_serv_scale.resolution_scan
+  -->
+  <xs:element name="resolution-scan" type="xs:string"/>
+  <!--
+    Fachlicher Name: Schlüsselkatalog
+    Tabelle   : t011_obj_geo_keyc
+  -->
+  <xs:element name="key-catalogue">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="key-cat"/>
+        <xs:element minOccurs="0" ref="key-date"/>
+        <xs:element minOccurs="0" ref="edition"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Schlüsselkatalog: Titel
+    Tabelle.Feld   : T011_obj_geo_keyc.keyc_key
+    Tabelle.Feld   : T011_obj_geo_keyc.keyc_value
+  -->
+  <xs:element name="key-cat" type="id-string"/>
+  <!--
+    Fachlicher Name: Schlüsselkatalog: Datum
+    Tabelle.Feld   : T011_obj_geo_keyc.key_date
+  -->
+  <xs:element name="key-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: Schlüsselkatalog: Version
+    Tabelle.Feld   : T011_obj_geo_keyc.edition
+    Fachlicher Name: Symbollkatalog: Version
+    Tabelle.Feld   : T011_obj_geo_symc.edition
+  -->
+  <xs:element name="edition" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erfassungsgrad, Grad der Erfassung in %
+    Tabelle.Feld   : T011_obj_geo.rec_grade
+  -->
+  <xs:element name="degree-of-record" type="xs:string"/>
+  <!--
+    Fachlicher Name: Herstellungsprozess, Normen und/oder Methode des Verfahrens
+    Tabelle.Feld   : T011_obj_geo.method
+  -->
+  <xs:element name="method-of-production" type="xs:string"/>
+  <!--
+    Fachlicher Name: Fachliche Grundlage, Fachliche Grundlage der Datenerzeugung
+    Tabelle.Feld   : T011_obj_geo.special_base
+  -->
+  <xs:element name="technical-base" type="xs:string"/>
+  <!--
+    Fachlicher Name: Symbolkatalog
+    Tabelle   : t011_obj_geo_symc
+  -->
+  <xs:element name="symbol-catalogue">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="symbol-cat"/>
+        <xs:element minOccurs="0" ref="symbol-date"/>
+        <xs:element minOccurs="0" ref="edition"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Symbolkatalog:Titel
+    Tabelle.Feld   : T011_obj_geo_symc.symbol_cat_key
+    Tabelle.Feld   : T011_obj_geo_symc.symbol_cat_value
+  -->
+  <xs:element name="symbol-cat" type="id-string"/>
+  <!--
+    Fachlicher Name: Symbolkatalog: Datum
+    Tabelle.Feld   : T011_obj_geo_symc.symbol_date
+  -->
+  <xs:element name="symbol-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: Datensatz/Datenserie
+    Tabelle.Feld   : T011_obj_geo.hierachy_level
+  -->
+  <xs:element name="hierarchy-level" type="iso-code"/>
+  <!--
+    Fachlicher Name: Digitale Repräsentation (ISO19115 Codeliste B.5.26 "MD_SpatialRepresentationTypeCode")
+    Tabelle.Feld   : T011_obj_geo_spatial_rep.type
+  -->
+  <xs:element name="spatial-representation-type" type="iso-code"/>
+  <!--
+    Fachlicher Name: Vektorinfo
+    Tabelle.Feld   : T011_obj_geo.vector_topology_level
+    Tabelle   : T011_obj_geo_vektor
+  -->
+  <xs:element name="vector-format">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="vector-topology-level"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="geo-vector"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Vektorformat: Topologieinformation
+    Tabelle.Feld   : T011_obj_geo.vector_topology_level
+  -->
+  <xs:element name="vector-topology-level" type="iso-code"/>
+  <!--
+    Fachlicher Name: Vektorformat
+    Tabelle.Feld   : T011_obj_geo_vector
+  -->
+  <xs:element name="geo-vector">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="geometric-object-type"/>
+        <xs:element minOccurs="0" ref="geometric-object-count"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Vektorformat: Geometrietyp
+    Tabelle.Feld   : T011_obj_geo_vector.geometric_object_type
+  -->
+  <xs:element name="geometric-object-type" type="iso-code"/>
+  <!--
+    Fachlicher Name: Vektorformat: Elementanzahl
+    Tabelle.Feld   : T011_obj_geo_vector.geometric_object_count
+  -->
+  <xs:element name="geometric-object-count" type="xs:string"/>
+  <!--
+    Fachlicher Name: H�genauigkeit, Genauigkeit der Datengewinnung
+    Tabelle.Feld   : T011_obj_geo.pos_accuracy_vertical
+  -->
+  <xs:element name="pos-accuracy-vertical" type="xs:string"/>
+  <!--
+    Fachlicher Name: Flag, das anzeigt ob Informationen zum Schl�atalog im Datensatz vorhanden sind
+    Tabelle.Feld   : t01_obj_geo.keyc_incl_w_dataset
+  -->
+  <xs:element name="keyc-incl-w-dataset" type="xs:string"/>
+  <!--
+    Fachlicher Name: Sachdaten / Attributinformationen, Angaben zu den Attributen
+    Tabelle.Feld   : T011_obj_geo_supplinfo.feature_type
+  -->
+  <xs:element name="feature-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Eindeutiger Identifikator der Datenquelle (INSPIRE)
+    Tabelle.Feld   : t01_obj_geo.datasource_uuid
+  -->
+  <xs:element name="datasource-identificator" type="xs:string"/>
+  <!--
+    Fachlicher Name: Vorhaben / Projekt / Programm
+    Tabelle   : t011_obj_project
+  -->
+  <xs:element name="project">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="description-of-tech-domain"/>
+        <xs:element minOccurs="0" ref="member-description"/>
+        <xs:element minOccurs="0" ref="leader-description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Projektbeteiligte
+    Tabelle.Feld   : T011_obj_project.member
+  -->
+  <xs:element name="member-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: Projektleiter
+    Tabelle.Feld   : T011_obj_project.leader
+  -->
+  <xs:element name="leader-description" type="xs:string"/>
+  <xs:element name="additional-information">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="data-language"/>
+        <xs:element ref="metadata-language"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="export-to"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="legislation"/>
+        <xs:element minOccurs="0" ref="dataset-intentions"/>
+        <!-- kein access-constraint in Klasse 0: Organisationseinheit/Fachaufgabe ->  minOccurs=0 -->
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="access-constraint"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="medium-option"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format"/>
+        <xs:element minOccurs="0" ref="publication-condition"/>
+        <xs:element minOccurs="0" ref="dataset-usage"/>
+        <xs:element minOccurs="0" ref="ordering-instructions"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="comment"/>
+        <xs:element maxOccurs="unbounded" ref="conformity"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Sprache des Datensatzes
+    Tabelle.Feld   : T01_object.data_language_code
+  -->
+  <xs:element name="data-language" type="iso-code"/>
+  <!--
+    Fachlicher Name: Sprache des Metadatensatzes
+    Tabelle.Feld   : T01_object.metadata_language_code
+  -->
+  <xs:element name="metadata-language" type="iso-code"/>
+  <!--
+    Fachlicher Name: Kriterium fuer Export
+    Tabelle.Feld   : T014_info_impart.impart_key
+    Tabelle.Feld   : T014_info_impart.impart_value
+  -->
+  <xs:element name="export-to" type="id-string"/>
+  <!--
+    Fachlicher Name: Rechtliche Grundlage
+    Tabelle.Feld   : T015_legist.legist_key
+    Tabelle.Feld   : T015_legist.legist_value
+  -->
+  <xs:element name="legislation" type="id-string"/>
+  <!--
+    Fachlicher Name: Herstellungszweck, Erl㴴erung zu den rechtlichen Grundlagen
+    Tabelle.Feld   : T01_object.info_note
+  -->
+  <xs:element name="dataset-intentions" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objekt Zugangs- und Nutzungsbeschraenkung (INSPIRE)
+    Tabelle.Feld   : object_access
+  -->
+  <xs:element name="access-constraint">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="restriction"/>
+        <xs:element ref="terms-of-use"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zugangsbeschränkungen (gemaess INSPIRE-Richtlinie)
+    Tabelle.Feld   : object_access.restriction_key
+    Tabelle.Feld   : object_access.restriction_value
+  -->
+  <xs:element name="restriction" type="id-string"/>
+  <!--
+    Fachlicher Name: Nutzungsbedingungen
+    Tabelle.Feld   : object_access.terms_of_use
+  -->
+  <xs:element name="terms-of-use" type="xs:string"/>
+  <!--
+    Fachlicher Name: 
+    Tabelle.Feld   : t0112_media_option
+  -->
+  <xs:element name="medium-option">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="medium-name"/>
+        <xs:element minOccurs="0" ref="medium-note"/>
+        <xs:element minOccurs="0" ref="transfer-size"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Medium, auf dem die Daten verf�sind
+    Tabelle.Feld   : t0112_media_option.medium_name
+  -->
+  <xs:element name="medium-name" type="iso-code"/>
+  <!--
+    Fachlicher Name: Kennzeichnung von Name und Speicherort der Daten
+    Tabelle.Feld   : t0112_media_option.medium_note
+  -->
+  <xs:element name="medium-note" type="xs:string"/>
+  <!--
+    Fachlicher Name: Datenvolumen
+    Tabelle.Feld   : t0112_media_option.transfer_size
+  -->
+  <xs:element name="transfer-size" type="xs:string"/>
+  <!--
+    Fachlicher Name: Ver�ntlichung, Klassifizierung des Ver�ntlichungslevels
+    Tabelle.Feld   : T01_object.publish_id
+  -->
+  <xs:element name="publication-condition" type="xs:string"/>
+  <!--
+    Fachlicher Name: Eignung/Nutzung
+    Tabelle.Feld   : T01_object.dataset_usage
+  -->
+  <xs:element name="dataset-usage" type="xs:string"/>
+  <!--
+    Fachlicher Name: Bestellinformation
+    Tabelle.Feld   : T01_object.ordering_instructions
+  -->
+  <xs:element name="ordering-instructions" type="xs:string"/>
+  <!--
+    Fachlicher Name: Datenformat
+    Tabelle.Feld   : T0110_avail_format
+  -->
+  <xs:element name="data-format">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="format-name"/>
+        <xs:element minOccurs="0" ref="version"/>
+        <xs:element minOccurs="0" ref="specification"/>
+        <xs:element minOccurs="0" ref="file-decompression-technique"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Datenformat: Name
+    Tabelle.Feld   : T0110_avail_format.format_key
+    Tabelle.Feld   : T0110_avail_format.format_value
+  -->
+  <xs:element name="format-name" type="id-string"/>
+  <!--
+    Fachlicher Name: Datenformat: Version
+    Tabelle.Feld   : T0110_avail_format.ver
+  -->
+  <xs:element name="version" type="xs:string"/>
+  <!--
+    Fachlicher Name: Datenformat: Bildpunkttiefe
+    Tabelle.Feld   : T0110_avail_format.specification
+  -->
+  <xs:element name="specification" type="xs:string"/>
+  <!--
+    Fachlicher Name: Datenformat: Kompressionstechnik
+    Tabelle.Feld   : T0110_avail_format.file_decompression_technique
+  -->
+  <xs:element name="file-decompression-technique" type="xs:string"/>
+  <!--
+    Fachlicher Name: Kommentar (Objekt-/Adress-Kommentar)
+    Tabelle   : object_comment
+    Tabelle   : adress_comment
+  -->
+  <xs:element name="comment">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="comment-content"/>
+        <xs:element minOccurs="0" ref="creator-identifier"/>
+        <xs:element minOccurs="0" ref="date-of-creation"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Erstellt von
+    Tabelle.Feld   : object_comment.comment
+    Tabelle.Feld   : address_comment.comment
+  -->
+  <xs:element name="comment-content" type="xs:string"/>
+  <!--
+    Fachlicher Name: Erstellt von
+    Tabelle.Feld   : object_comment.create_uuid
+    Tabelle.Feld   : address_comment.create_uuid
+  -->
+  <xs:element name="creator-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objekt Konformität (INSPIRE)
+    Tabelle   : object_conformity
+  -->
+  <xs:element name="conformity">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="conformity-specification"/>
+        <xs:element ref="conformity-degree"/>
+        <xs:element ref="conformity-publication-date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Konformität -> Spezifikation
+    Tabelle.Feld   : object_conformity.specification
+  -->
+  <xs:element name="conformity-specification" type="xs:string"/>
+  <!--
+    Fachlicher Name: Grad der Konformität
+    Tabelle.Feld   : object_conformity.degree_key
+    Tabelle.Feld   : object_conformity.degree_value
+  -->
+  <xs:element name="conformity-degree" type="id-string"/>
+  <!--
+    Fachlicher Name: Konformität -> Veröffentlichungsdatum der Spezifikation
+    Tabelle.Feld   : object_conformity.publication_date
+  -->
+  <xs:element name="conformity-publication-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: Raumbezug
+  -->
+  <xs:element name="spatial-domain">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="description-of-spatial-domain"/>
+        <xs:element minOccurs="0" ref="vertical-extent"/>
+        <xs:element maxOccurs="unbounded" ref="geo-location"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zus㳺liche Beschreibung zum Raumbezug
+    Tabelle.Feld   : T01_object.loc_descr
+  -->
+  <xs:element name="description-of-spatial-domain" type="xs:string"/>
+  <!--
+    Fachlicher Name: Infos Vertikale Ausmasse
+    Tabelle   : T01_object
+  -->
+  <xs:element name="vertical-extent">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="vertical-extent-minimum"/>
+        <xs:element minOccurs="0" ref="vertical-extent-maximum"/>
+        <xs:element ref="vertical-extent-unit"/>
+        <xs:element ref="vertical-extent-vdatum"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: H� Minumum
+    Tabelle.Feld   : T01_object.vertical_extent_minimum
+  -->
+  <xs:element name="vertical-extent-minimum" type="xs:string"/>
+  <!--
+    Fachlicher Name: H� Maximum
+    Tabelle.Feld   : T01_object.vertical_extent_maximum
+  -->
+  <xs:element name="vertical-extent-maximum" type="xs:string"/>
+  <!--
+    Fachlicher Name: H� Ma޳tab
+    Tabelle.Feld   : T01_object.vertical_extent_unit
+  -->
+  <xs:element name="vertical-extent-unit" type="id"/>
+  <!--
+    Fachlicher Name: H� Vertikal Datum
+    Tabelle.Feld   : T01_object.vertical_extent_vdatum
+  -->
+  <xs:element name="vertical-extent-vdatum" type="id"/>
+  <!--
+    Fachlicher Name: Raumbezug
+    Tabelle   : spatial_ref_value
+    (Tabelle   : t011_town_loc_town)
+  -->
+  <xs:element name="geo-location">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="controlled-location"/>
+          <xs:element ref="uncontrolled-location"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="bounding-coordinates"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Geothesaurus Raumbezug
+    Tabelle   : spatial_ref_value
+    Tabelle   : spatial_ref_sns
+    (Tabelle   : t011_town_loc_town)
+  -->
+  <xs:element name="controlled-location">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="location-name"/>
+        <xs:element ref="topic-type"/>
+        <xs:element minOccurs="0" ref="location-code"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Geothesaurus Raumbezug Topic Typ (jeweilige Schlüssel use4Type, use6Type, etc.)
+    Tabelle.Feld   : spatial_ref_value.topic_type
+  -->
+  <xs:element name="topic-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Freier Raumbezug
+    Tabelle   : spatial_ref_value
+    (Tabelle   : t011_town_loc_town)
+  -->
+  <xs:element name="uncontrolled-location">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="location-name"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Raumbezug Name und Schluessel (Frei oder Geothesaurus)
+    Tabelle.Feld   : spatial_ref_value.name_value
+    (Tabelle.Feld   : t011_town_loc_town.name)
+    Schluessel::
+      Tabelle.Feld   : spatial_ref_value.name_key (bei Frei)
+      Tabelle.Feld   : spatial_ref_sns.sns_id (bei Geothesaurus)
+  -->
+  <xs:element name="location-name" type="id-string"/>
+  <!--
+    Fachlicher Name: Administrative Einheit Raumschluessel AGS/RS
+    Tabelle.Feld   : spatial_ref_value.nativekey
+    (Tabelle.Feld   : t011_town_loc_town.township_no)
+  -->
+  <xs:element name="location-code" type="xs:string"/>
+  <!--
+    Fachlicher Name: Bounding-Box, Beschreibung der umschlieޥnden GauݭKr�oordinaten
+    Tabelle   : spatial_ref_value
+  -->
+  <xs:element name="bounding-coordinates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="west-bounding-coordinate"/>
+        <xs:element ref="east-bounding-coordinate"/>
+        <xs:element ref="north-bounding-coordinate"/>
+        <xs:element ref="south-bounding-coordinate"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Rechts1
+    Tabelle.Feld   : spatial_ref_value.x1
+  -->
+  <xs:element name="west-bounding-coordinate" type="xs:string"/>
+  <!--
+    Fachlicher Name: Rechts2
+    Tabelle.Feld   : spatial_ref_value.x2
+  -->
+  <xs:element name="east-bounding-coordinate" type="xs:string"/>
+  <!--
+    Fachlicher Name: Hoch1
+    Tabelle.Feld   : spatial_ref_value.y1
+  -->
+  <xs:element name="south-bounding-coordinate" type="xs:string"/>
+  <!--
+    Fachlicher Name: Hoch2
+    Tabelle.Feld   : spatial_ref_value.y2
+  -->
+  <xs:element name="north-bounding-coordinate" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zeitbezug
+  -->
+  <xs:element name="temporal-domain">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="description-of-temporal-domain"/>
+        <xs:element minOccurs="0" ref="beginning-date"/>
+        <xs:element minOccurs="0" ref="ending-date"/>
+        <xs:element minOccurs="0" ref="time-step"/>
+        <xs:element minOccurs="0" ref="time-scale"/>
+        <xs:element minOccurs="0" ref="time-period"/>
+        <xs:element minOccurs="0" ref="time-status"/>
+        <xs:element minOccurs="0" ref="time-type"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="dataset-reference"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zus㳺liche Beschreibung zum Zeitbezug
+    Tabelle.Feld   : t01_object.time_descr
+  -->
+  <xs:element name="description-of-temporal-domain" type="xs:string"/>
+  <!--
+    Fachlicher Name: Startdatum
+    Tabelle.Feld   : t01_object.time_from
+  -->
+  <xs:element name="beginning-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: Enddatum
+    Tabelle.Feld   : t01_object.time_to
+  -->
+  <xs:element name="ending-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: Intervall (Auswahlliste Zeiteinheit)
+    Tabelle.Feld   : t01_object.time_interval
+  -->
+  <xs:element name="time-step" type="xs:string"/>
+  <!--
+    Fachlicher Name: Intervall  > Zahlenwert (Bsp. alle 2 Sekunden) (Intervall Laenge)
+    Tabelle.Feld   : t01_object.time_alle
+  -->
+  <xs:element name="time-scale" type="xs:string"/>
+  <!--
+    Fachlicher Name: Periodizität, ISO19115 Codeliste B.5.18 "MD_MaintenanceFrequencyCode"
+    Tabelle.Feld   : t01_object.time_period
+  -->
+  <xs:element name="time-period" type="iso-code"/>
+  <!--
+    Fachlicher Name: ISO19115 Codeliste B.5.23 "MD_ProgressCode"
+    Tabelle.Feld   : t01_object.time_status
+  -->
+  <xs:element name="time-status" type="iso-code"/>
+  <!--
+    Fachlicher Name: Zeitbezug: am, seit, von
+    Tabelle.Feld   : t01_object.time_type
+  -->
+  <xs:element name="time-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zeitbezug des Datensatzes
+    Tabelle   : t0113_dataset_reference
+  -->
+  <xs:element name="dataset-reference">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="dataset-reference-date"/>
+        <xs:element ref="dataset-reference-type"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zeitbezug des Datensatzes > Datum
+    Tabelle.Feld   : t0113_dataset_reference.reference_date
+  -->
+  <xs:element name="dataset-reference-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zeitbezug des Datensatzes > Typ, ISO19115 Codeliste B.5.2 "CI_DateTypeCode" (502)
+    Tabelle.Feld   : t0113_dataset_reference.type
+  -->
+  <xs:element name="dataset-reference-type" type="iso-code"/>
+  <!--
+    Fachlicher Name: Suchbegriffe
+  -->
+  <xs:element name="subject-terms">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="controlled-term"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="uncontrolled-term"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Thesaurus-Suchbegriff aus dem Umweltthesaurus
+    Tabelle: searchterm_value.searchterm_sns_id
+    Tabelle: searchterm_value.term
+  -->
+  <xs:element name="controlled-term" type="controlled-term"/>
+  <!--
+    Fachlicher Name: Freier Suchbegriff
+    Tabelle: searchterm_value.term
+  -->
+  <xs:element name="uncontrolled-term" type="xs:string"/>
+  <!--
+    Fachlicher Name: Verweis auf eine Internet-Seite 
+    Tabelle   : t017_url_ref
+  -->
+  <xs:element name="available-linkage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="linkage-name"/>
+        <xs:element ref="linkage-url"/>
+        <xs:element ref="linkage-url-type"/>
+        <xs:element minOccurs="0" ref="linkage-reference"/>
+        <xs:element minOccurs="0" ref="linkage-description"/>
+        <xs:element minOccurs="0" ref="linkage-datatype"/>
+        <xs:element minOccurs="0" ref="linkage-volume"/>
+        <xs:element minOccurs="0" ref="linkage-icon-url"/>
+        <xs:element minOccurs="0" ref="linkage-icon-text"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Beschreibung des Inhaltes.
+    Tabelle.Feld   : t017_url_ref.content
+  -->
+  <xs:element name="linkage-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Hyperlink auf eine externe Webseite
+    Tabelle.Feld   : t017_url_ref.url_link
+  -->
+  <xs:element name="linkage-url" type="xs:string"/>
+  <!--
+    Fachlicher Name: Klassifizierung des URL-Typs. (1: Internet, 2: Intranet)
+    Tabelle.Feld   : t017_url_ref.url_type
+  -->
+  <xs:element name="linkage-url-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Fachlicher Bezug; Verweisbeziehung (URL-Verweis)
+    Tabelle.Feld   : t017_url_ref.special_ref
+    Tabelle.Feld   : t017_url_ref.special_name
+  -->
+  <xs:element name="linkage-reference" type="id-string"/>
+  <!--
+    Fachlicher Name: Erläuterung zum Verweis
+    Tabelle.Feld   : t017_url_ref.descr
+  -->
+  <xs:element name="linkage-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: URL-Verweis > Datentyp
+    Tabelle.Feld   : t017_url_ref.datatype_key
+    Tabelle.Feld   : t017_url_ref.datatype_value
+  -->
+  <xs:element name="linkage-datatype" type="id-string"/>
+  <!--
+    Fachlicher Name: URL-Verweis > Datenvolumen
+    Tabelle.Feld   : t017_url_ref.volume
+  -->
+  <xs:element name="linkage-volume" type="xs:string"/>
+  <!--
+    Fachlicher Name: URL-Verweis > URL für ein Icon
+    Tabelle.Feld   : t017_url_ref.icon
+  -->
+  <xs:element name="linkage-icon-url" type="xs:string"/>
+  <!--
+    Fachlicher Name: URL-Verweis > (Tooltip)Text für Icon
+    Tabelle.Feld   : t017_url_ref.icon_text
+  -->
+  <xs:element name="linkage-icon-text" type="xs:string"/>
+  <!--
+    Fachlicher Name: Adresse auf die von Objekt verwiesen wird (Objekt-Adress Verweis)
+    Tabelle   : t012_obj_adr
+  -->
+  <xs:element name="related-address">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="type-of-relation"/>
+        <xs:element ref="address-identifier"/>
+        <xs:element minOccurs="0" ref="date-of-last-modification"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Typ des Objekt-Adress Verweises
+    Tabelle.Feld   : t012_obj_adr.type (entry-id)
+    Tabelle.Feld   : t012_obj_adr.special_ref (list-id)
+    Tabelle.Feld   : t012_obj_adr.special_name (value)
+  -->
+  <xs:element name="type-of-relation" type="list-entry-ids-string"/>
+  <!--
+    Fachlicher Name: Übergeordnetes Objekt (Hierarchiebaum)
+    Tabelle   : object_node.fk_obj_uuid
+  -->
+  <xs:element name="parent-data-source">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="object-identifier"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Objekt-Objekt Beziehung (Querverweis)
+    Tabelle   : object_reference
+  -->
+  <xs:element name="link-data-source">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="object-link-type"/>
+        <xs:element minOccurs="0" ref="object-link-description"/>
+        <xs:element ref="object-identifier"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Typ des Objekt-Objekt Verweises
+    Tabelle.Feld   : object_reference.special_ref
+    Tabelle.Feld   : object_reference.special_name
+  -->
+  <xs:element name="object-link-type" type="id-string"/>
+  <!--
+    Fachlicher Name: Notizen zum Objekt-Objekt Verweis
+    Tabelle.Feld   : object_reference.descr
+  -->
+  <xs:element name="object-link-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: Adress Metadatensätze 
+  -->
+  <xs:element name="addresses">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="address"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Adress Metadatensatz 
+  -->
+  <xs:element name="address">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="address-identifier"/>
+        <xs:element ref="modificator-identifier"/>
+        <xs:element ref="responsible-identifier"/>
+        <xs:element ref="type-of-address"/>
+        <xs:element minOccurs="0" ref="organisation"/>
+        <xs:element minOccurs="0" ref="name"/>
+        <xs:element minOccurs="0" ref="name-form"/>
+        <xs:element minOccurs="0" ref="title-or-function"/>
+        <xs:element minOccurs="0" ref="given-name"/>
+        <xs:element minOccurs="0" ref="postal-code-of-country"/>
+        <xs:element minOccurs="0" ref="postal-code"/>
+        <xs:element minOccurs="0" ref="street"/>
+        <xs:element minOccurs="0" ref="city"/>
+        <xs:element minOccurs="0" ref="post-box-postal-code"/>
+        <xs:element minOccurs="0" ref="post-box"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="communication"/>
+        <xs:element minOccurs="0" ref="original-address-identifier"/>
+        <xs:element minOccurs="0" ref="function"/>
+        <xs:element minOccurs="0" ref="address-description"/>
+        <xs:element minOccurs="0" ref="subject-terms"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="comment"/>
+        <xs:element minOccurs="0" ref="date-of-last-modification"/>
+        <xs:element minOccurs="0" ref="date-of-creation"/>
+        <xs:element minOccurs="0" ref="parent-address"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Address Uuid
+    Tabelle.Feld   : t02_address.adr_uuid
+  -->
+  <xs:element name="address-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Orginal Adress-ID eines Fremdsystems
+    Tabelle.Feld   : t02_address.org_adr_id
+  -->
+  <xs:element name="original-address-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Adresstyp
+    Tabelle.Feld   : t02_address.adr_type
+  -->
+  <xs:element name="type-of-address" type="id"/>
+  <!--
+    Fachlicher Name: Nachname (nur Person)
+    Tabelle.Feld   : t02_address.lastname
+    auch benutzt fuer:
+      Fachlicher Name: Parametername der Operation
+      Tabelle   : T011_obj_serv_op_para.name
+  -->
+  <xs:element name="name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Institution / übergeordnete Einheit(en)
+    Tabelle.Feld   : t02_address.institution
+  -->
+  <xs:element name="organisation" type="xs:string"/>
+  <!--
+    Fachlicher Name: Anrede (Auswahlliste)
+    Tabelle.Feld   : t02_address.address_key
+    Tabelle.Feld   : t02_address.address_value
+  -->
+  <xs:element name="name-form" type="id-string"/>
+  <!--
+    Fachlicher Name: Titel (nur Person) (Auswahlliste)
+    Tabelle.Feld   : t02_address.title_key
+    Tabelle.Feld   : t02_address.title_value
+  -->
+  <xs:element name="title-or-function" type="id-string"/>
+  <!--
+    Fachlicher Name: Vorname (nur Person)
+    Tabelle.Feld   : t02_address.firstname
+  -->
+  <xs:element name="given-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Staat (Kürzel vor PLZ)
+    Tabelle.Feld   : t02_address.country_code
+  -->
+  <xs:element name="postal-code-of-country" type="iso-code"/>
+  <!--
+    Fachlicher Name: Postleitzahl (Ort)
+    Tabelle.Feld   : t02_address.postcode
+  -->
+  <xs:element name="postal-code" type="xs:string"/>
+  <!--
+    Fachlicher Name: Straße/Hausnummer
+    Tabelle.Feld   : t02_address.street
+  -->
+  <xs:element name="street" type="xs:string"/>
+  <!--
+    Fachlicher Name: Ort
+    Tabelle.Feld   : t02_address.city
+  -->
+  <xs:element name="city" type="xs:string"/>
+  <!--
+    Fachlicher Name: Postleitzahl zum Postfach
+    Tabelle.Feld   : t02_address.postbox_pc
+  -->
+  <xs:element name="post-box-postal-code" type="xs:string"/>
+  <!--
+    Fachlicher Name: Postfach 
+    Tabelle.Feld   : t02_address.postbox
+  -->
+  <xs:element name="post-box" type="xs:string"/>
+  <!--
+    Fachlicher Name: Funktion, Aufgabe
+    Tabelle.Feld   : t02_address.job
+  -->
+  <xs:element name="function" type="xs:string"/>
+  <!--
+    Fachlicher Name: Beschreibung der Adresse (Notizen)
+    Tabelle.Feld   : t02_address.descr
+  -->
+  <xs:element name="address-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: Adresse Kommunikationsdaten 
+    Tabelle   : t021_communication
+  -->
+  <xs:element name="communication">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="communication-medium"/>
+        <xs:element ref="communication-value"/>
+        <xs:element minOccurs="0" ref="communication-description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Kommunikation > Art
+    Tabelle.Feld   : t021_communication.commtype_key
+    Tabelle.Feld   : t021_communication.commtype_value
+  -->
+  <xs:element name="communication-medium" type="id-string"/>
+  <!--
+    Fachlicher Name: Kommunikation > Verbindungsdaten
+    Tabelle.Feld   : t021_communication.comm_value
+  -->
+  <xs:element name="communication-value" type="xs:string"/>
+  <!--
+    Fachlicher Name: Kommunikation > Beschreibung der Verbindung
+    Tabelle.Feld   : t021_communication.descr
+  -->
+  <xs:element name="communication-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: Übergeordnete Adresse (Hierarchiebaum)
+    Tabelle   : address_node.fk_addr_uuid
+  -->
+  <xs:element name="parent-address">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="address-identifier"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zusatzfelder
+  -->
+  <xs:element name="data-model-extensions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="general-additional-field-definition"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zusatzfeld
+    Tabelle   : t08_attr_type
+    Tabelle   : t08_attr_list
+  -->
+  <xs:element name="general-additional-field-definition">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="field-identifier"/>
+        <xs:element ref="field-name"/>
+        <xs:element ref="field-length"/>
+        <xs:element ref="field-type"/>
+        <xs:element minOccurs="0" ref="field-list-type"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="field-list-items"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zusatzfeld ID
+    Tabelle.Feld   : t08_attr_type.id
+  -->
+  <xs:element name="field-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zusatzfeld Länge
+    Tabelle.Feld   : t08_attr_type.length
+  -->
+  <xs:element name="field-length" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zusatzfeld Typ
+    Tabelle.Feld   : t08_attr_type.type
+  -->
+  <xs:element name="field-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Typ der Zusatzfeld Auswahlliste
+    Tabelle.Feld   : t08_attr_list.type
+  -->
+  <xs:element name="field-list-type" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zusatzfeld Auswahlliste items
+    Tabelle   : t08_attr_list
+    Tabelle.Feld   : t08_attr_list.lang_code
+  -->
+  <xs:element name="field-list-items">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="field-list-item"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.language-code"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Zusatzfeld Auswahllisten Item
+    Tabelle.Feld   : t08_attr_list.listitem_value
+  -->
+  <xs:element name="field-list-item" type="xs:string"/>
+  <!--
+    Fachlicher Name: IGC Boolean Repraesentation
+  -->
+  <xs:simpleType name="igc-boolean">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Y"/>
+      <xs:enumeration value="N"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--
+    Datentyp: LEERES element mit id-Attribut (z.B. für class_id ...)
+  -->
+  <xs:complexType name="id">
+    <xs:attributeGroup ref="attlist.id"/>
+  </xs:complexType>
+  <!--
+    Datentyp: STRING element mit id-Attribut (z.B. für syslist id / value ...)
+  -->
+  <xs:complexType name="id-string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attributeGroup ref="attlist.id"/>
+      </xs:extension>     
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
+    Datentyp: STRING element mit id= und source= Attribut fuer thesaurus searchterms
+  -->
+  <xs:complexType name="controlled-term">
+    <xs:simpleContent>
+      <xs:extension base="id-string">
+        <xs:attribute name="source" use="required">
+          <xs:simpleType>
+            <xs:restriction base="xs:token">
+              <xs:enumeration value="UMTHES"/>
+              <xs:enumeration value="GEMET"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>     
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
+    Datentyp: STRING element mit list-id und entry-id Attribut (z.B. )
+  -->
+  <xs:complexType name="list-entry-ids-string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attributeGroup ref="attlist.list-entry-ids"/>
+      </xs:extension>     
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
+    Datentyp: LEERES element mit Iso-Code Attribut
+  -->
+  <xs:complexType name="iso-code">
+    <xs:attributeGroup ref="attlist.iso-code"/>
+  </xs:complexType>
+  <!--
+    Attribut-Gruppe: language-code=
+  -->
+  <xs:attributeGroup name="attlist.language-code">
+    <xs:attribute name="language-code" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: iso-code=
+  -->
+  <xs:attributeGroup name="attlist.iso-code">
+    <xs:attribute name="iso-code" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: id=
+  -->
+  <xs:attributeGroup name="attlist.id">
+    <xs:attribute name="id" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: list-id= entry-id=
+  -->
+  <xs:attributeGroup name="attlist.list-entry-ids">
+    <!-- list-id nur wenn kein freier Eintrag -->
+    <xs:attribute name="list-id"/>
+    <xs:attribute name="entry-id" use="required"/>
+  </xs:attributeGroup>
+</xs:schema>
+
