@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>1.2.1</version>
+  <version>1.2.1-SNAPSHOT</version>
   <name>ingrid-iplug-ige</name>
   <modules>
     <module>ingrid-mdek-api</module>
@@ -17,8 +17,8 @@
     <module>ingrid-mdek-services</module>
   </modules>
   <scm>
-    <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/tags/ingrid-mdek-1.2.1</connection>
-    <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-releases-pom/tags/ingrid-mdek-1.2.1</developerConnection>
+    <connection>${scmConnectionBase}/ingrid-mdek/trunk</connection>
+    <developerConnection>${scmConnectionBase}/ingrid-mdek/trunk</developerConnection>
   </scm>
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
