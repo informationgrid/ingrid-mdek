@@ -9,11 +9,11 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek-services</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.1.0</version>
   <name>ingrid-mdek-services</name>
   <scm>
-    <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk/ingrid-mdek-services</connection>
-    <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk/ingrid-mdek-services</developerConnection>
+    <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/tags/ingrid-mdek-1.2.1/ingrid-mdek-services</connection>
+    <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/tags/ingrid-mdek-1.2.1/ingrid-mdek-services</developerConnection>
   </scm>
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
