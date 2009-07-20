@@ -27,7 +27,7 @@
       <artifactId>ingrid-mdek-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>de.ingrid</groupId>
+      <groupId>de.ingrid.mdek</groupId>
       <artifactId>ingrid-import-export</artifactId>
     </dependency>
     <dependency>
