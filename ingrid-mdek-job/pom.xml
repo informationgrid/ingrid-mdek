@@ -6,16 +6,22 @@
     <version>1.2.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek-job</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.1-SNAPSHOT</version>
   <name>ingrid-mdek-job</name>
   <scm>
     <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid/ingrid-mdek/trunk/ingrid-mdek-job</connection>
     <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk/ingrid-mdek-job</developerConnection>
   </scm>
   <dependencies>
+    <dependency>
+      <groupId>de.ingrid.mdek</groupId>
+      <artifactId>ingrid-mdek-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>de.ingrid.mdek</groupId>
+      <artifactId>ingrid-mdek-services</artifactId>
+    </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
@@ -34,14 +40,6 @@
     <dependency>
       <groupId>org.jmock</groupId>
       <artifactId>jmock</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.ingrid.mdek</groupId>
-      <artifactId>ingrid-mdek-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.ingrid.mdek</groupId>
-      <artifactId>ingrid-mdek-services</artifactId>
     </dependency>
   </dependencies>
   <build>
