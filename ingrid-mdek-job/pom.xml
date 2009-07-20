@@ -3,15 +3,15 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-job</artifactId>
   <packaging>jar</packaging>
   <name>ingrid-mdek-job</name>
   <scm>
-    <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid/ingrid-mdek/tags/ingrid-mdek-1.2.2</connection>
-    <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/tags/ingrid-mdek-1.2.2/ingrid-mdek-job</developerConnection>
+    <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid/ingrid-mdek/trunk/ingrid-mdek-job</connection>
+    <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk/ingrid-mdek-job</developerConnection>
   </scm>
   <dependencies>
     <dependency>
