@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>de.ingrid.mdek</groupId>
+    <artifactId>ingrid-mdek</artifactId>
+    <version>1.2.2-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>ingrid-import-export</artifactId>
+  <packaging>jar</packaging>
+  <name>Ingrid XML Import Export</name>
+  <scm>
+    <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk/ingrid-import-export</connection>
+    <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk/ingrid-import-export</developerConnection>
+  </scm>
+  <repositories>
+    <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
+    <repository>
+      <id>de.ingrid.m2</id>
+      <name>Maven2 Repo InGrid</name>
+      <url>http://harrison.its-technidata.de/ingrid/maven2</url>
+    </repository>
+  </repositories>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/TestMapper.java</exclude>
+            <exclude>**/TestXMLExporter.java</exclude>
+            <exclude>**/TestXMLImporter.java</exclude>
+            <exclude>**/TestXMLStreamReader.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <!-- ==================== DEPENDENCIES ==================== -->
+  <dependencies>
+    <dependency>
+      <groupId>de.ingrid.mdek</groupId>
+      <artifactId>ingrid-mdek-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.5</version>
+    </dependency>
+  </dependencies>
+</project>
