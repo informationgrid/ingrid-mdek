@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-api</artifactId>
@@ -28,6 +28,15 @@
           <excludes>
             <exclude>**/example/*</exclude>
           </excludes>
+        </configuration>
+      </plugin>
+      <!-- "DISABLE" WAGON PLUGIN TO AVOID EMPTY UPLOAD DIRECTORIES FROM SUBMODULES -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>wagon-maven-plugin</artifactId>
+        <configuration>
+          <fromDir>NOT_EXISITING_DIRECTORY</fromDir>
+          <url>/dev/null</url>
         </configuration>
       </plugin>
     </plugins>
