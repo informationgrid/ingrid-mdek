@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE installer PUBLIC "-//tp23 //DTD Ant Installer Config//EN" "http://antinstaller.sf.net/dtd/antinstall-config-0.8.dtd">
 <installer
-            ui          ="swing,text"
-            verbose     ="true"
-            debug       ="true"
-            lookAndFeel ="org.tp23.jgoodies.plaf.plastic.PlasticXPLookAndFeel"
-            name        ="iPlug-IGE Installation"
-            windowIcon  ="/resources/icons/logoIcon.gif"
+            ui			            ="swing,text,swing-auto,text-auto"
+            loadDefaults        ="prompt"
+            verbose             ="true"
+            debug               ="true"
+            lookAndFeel         ="org.tp23.jgoodies.plaf.plastic.PlasticXPLookAndFeel"
+            name                ="iPlug-IGE Installation"
+            windowIcon          ="/resources/icons/logoIcon.gif"
             defaultImageResource="/resources/makewavesdawn.png"
-            minJavaVersion      ="1.6">
+            minJavaVersion      ="1.6"
+            version             ="1.0">
             
     <!--  The target "extract" must be called first, so it is defined on the first page -->
     <page
@@ -17,17 +19,18 @@
             displayText ="Willkommen zur iPlug-IGE Installation"
             target      ="extract">
             <comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs."/>
+            <comment displayText="Hinweis: " bold="true"/>
+            <comment displayText="" explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gelichen Verzeichnis auszuführen."/>
     </page>
 
     <page
             type        ="input"
             name        ="iPlugOptions"
-            displayText ="Einstellungen fuer den IGE-iBus"
-            >
+            displayText ="Einstellungen fuer den IGE-iBus">
+            
+            <comment displayText="" explanatoryText="Die Client-ID muss eindeutig sein, da es sonst zu Kommunikationsproblemen zum IGE-iBus führen kann."/>
             
             <text property="clientName" displayText="Client ID:" defaultValue="/ingrid-group:ige-iplug-'Ihr-Name'"/>
-            
-            <comment displayText="" explanatoryText="Die Client-ID muss eindeutig sein, da es sonst zu Kommunikationsproblemen zum IGE-iBus fuehren kann."/>
     </page>
     
     <page
@@ -36,11 +39,11 @@
             displayText ="Einstellungen fuer den IGE-iBus"
             target      ="communication">
             
+            <comment displayText="" explanatoryText="Die Server-IP ist die Adresse des PORTAL Rechners. Auf diesem laeuft der IGE-iBus und kann ueber den Server-Port angesprochen werden."/>
+            
             <!--text property="serverName" displayText="Server ID:" defaultValue="/ingrid-group:ige-ibus"/-->
             <text property="serverIp"   displayText="Server IP:"   defaultValue="127.0.0.1"/>
             <text property="serverPort" displayText="Server Port:" defaultValue="11000"/>
-            
-            <comment displayText="" explanatoryText="Die Server-IP ist die Adresse des PORTAL Rechners. Auf diesem laeuft der IGE-iBus und kann ueber den Server-Port angesprochen werden."/>
     </page>
     
     <page
@@ -48,13 +51,15 @@
             name        ="mysqlOptions"
             displayText ="Einstellungen fuer die MySQL-Datenbank"
             target      ="database">
-            
+ 
+        <comment bold="false" displayText="" explanatoryText="Diese Daten werden für den Zugriff auf den InGridCatalog (IGC) benötigt." />
+        <comment bold="true" displayText="" explanatoryText="Falls eine andere Datenbank als MySQL zum Einsatz kommt, müssen die Anpassungen an der Datei conf/default-datasource.properties manuell vorgenommen werden." />
+        
         <text property="dbUser" displayText="MySQL Benutzername:" defaultValue="root"/>
         <text property="dbPassword" displayText="MySQL Benutzer-Passwort:" defaultValue=""/>
         <text property="dbAlias" displayText="MySQL Datenbank-Alias (IGC):" defaultValue="//localhost/igc_???"/>
 
-        <comment bold="false" displayText="" explanatoryText="Diese Daten werden für den Zugriff auf den InGridCatalog (IGC) benötigt." />
-        <comment bold="true" displayText="" explanatoryText="Falls eine andere Datenbank als MySQL zum Einsatz kommt, müssen die Anpassungen an der Datei conf/default-datasource.properties manuell vorgenommen werden." />
+        
     </page>
     
     
@@ -62,7 +67,7 @@
     <page
             type        ="input"
             name        ="properties"
-            displayText ="Benoetigte Installationsoptionen">
+            displayText ="Benötigte Installationsoptionen">
         <directory
                 property        ="installDir"
                 defaultValue    ="/usr/local/${project.artifactId}-${project.version}"
