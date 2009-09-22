@@ -89,6 +89,7 @@ import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
@@ -281,6 +282,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjServType>(_sessionFactory, T011ObjServType.class);
 		} else if (clazz.isAssignableFrom(SearchtermValue.class)) {
 			dao = getSearchtermValueDao();
+		} else if (clazz.isAssignableFrom(T01Object.class)) {
+			dao = getT01ObjectDao();
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

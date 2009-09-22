@@ -41,6 +41,7 @@ public class MdekKeyValueHandler {
 	private MdekCatalogService catalogService;
 
 	// DO NOT FORGET TO KEEP THIS ONE UP TO DATE !!!
+	// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 	private static Class[] keyValueClasses = new Class[] {
 		T011ObjServ.class,
 		T011ObjServOperation.class,
@@ -132,6 +133,7 @@ public class MdekKeyValueHandler {
 		} else if (T01Object.class.isAssignableFrom(clazz)) {
 			processKeyValueT01Object((T01Object) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
+		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
