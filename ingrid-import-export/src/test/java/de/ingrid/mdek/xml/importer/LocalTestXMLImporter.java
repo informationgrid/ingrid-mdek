@@ -33,6 +33,10 @@ public class LocalTestXMLImporter {
 			public void writeImportInfo(IdcEntityType whichType, int numImported,
 					int totalNum, String userUuid) {
 				System.out.println("Importing '"+whichType+"'. Count: "+numImported);
+			}
+			@Override
+			public void writeImportInfoMessage(String message, String userUuid) {
+				System.out.println("writeImportInfoMessage '"+message+"'");
 			}});
 
 		FileInputStream in = new FileInputStream("src/test/resources/test.xml");

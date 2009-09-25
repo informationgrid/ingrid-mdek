@@ -32,4 +32,11 @@ public interface IImporterCallback {
 	 */
 	void writeImportInfo(IdcEntityType whichType, int numImported, int totalNum,
 			String userUuid);
+
+	/**
+	 * Add a message to protocol of the import process (can be downloaded by user).
+	 * @param message The message to write
+	 * @param userUuid calling user
+	 */
+	void writeImportInfoMessage(String message, String userUuid);
 }

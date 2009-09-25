@@ -264,6 +264,13 @@ public class MdekImportService implements IImporterCallback {
 		updateImportJobInfo(whichType, numImported, totalNum, userUuid);
 	}
 
+	/* (non-Javadoc)
+	 * @see de.ingrid.mdek.xml.importer.IImporterCallback#writeImportInfoMessage(java.lang.String, java.lang.String)
+	 */
+	public void writeImportInfoMessage(String message, String userUuid) {
+		updateImportJobInfoMessages(message, userUuid);
+	}
+
 	// ----------------------------------- IImporterCallback END ------------------------------------
 
 	/** "logs" Start-Info of Import job IN MEMORY and IN DATABASE */
