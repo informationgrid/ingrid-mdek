@@ -38,9 +38,10 @@ public class TestXMLFilterReader {
 
 	private static void setupIngridXMLReader() throws IOException {
 		long startTime = System.currentTimeMillis();
+		IImporterCallback callback = null;
 		xmlReader = new IngridXMLStreamReader(
 				new BufferedInputStream(new FileInputStream(
-						"src/test/resources/test.xml")));
+						"src/test/resources/test.xml")), callback, "");
 		long endTime = System.currentTimeMillis();
 		System.out.println("parsing document for uuids took "+(endTime - startTime)+" ms.");
 	}

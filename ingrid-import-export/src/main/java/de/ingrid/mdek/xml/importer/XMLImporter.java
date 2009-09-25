@@ -56,7 +56,7 @@ public class XMLImporter implements IImporter {
 			mapper = IngridXMLMapperFactory.getIngridXMLMapper(version);
 
 			InputStream in = new GZIPInputStream(new ByteArrayInputStream(importData));
-			streamReader = new IngridXMLStreamReader(in);
+			streamReader = new IngridXMLStreamReader(in, importerCallback, currentUserUuid);
 			readAdditionalFieldDefinition();
 			// addresses before objects, so object-address relations won't get lost !
 			importAddresses();
@@ -64,13 +64,14 @@ public class XMLImporter implements IImporter {
 
 		} catch (XMLStreamException ex) {
 			log.error("Error reading file version.", ex);
+			importerCallback.writeImportInfoMessage("Error reading file version.", currentUserUuid);
 
 		} catch (SAXException ex) {
 			log.error("Error reading additional fields.", ex);
-
+			importerCallback.writeImportInfoMessage("Error reading additional fields.", currentUserUuid);
 		} catch (IOException ex) {
 			log.error("Error importing entities.", ex);
-
+			importerCallback.writeImportInfoMessage("Error importing entities.", currentUserUuid);
 		}
 	}
 

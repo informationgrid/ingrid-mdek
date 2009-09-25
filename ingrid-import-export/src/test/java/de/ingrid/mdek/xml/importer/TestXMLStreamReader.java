@@ -100,7 +100,8 @@ public class TestXMLStreamReader {
 		mapper = IngridXMLMapperFactory.getIngridXMLMapper(version);
 
 		InputStream in = new FileInputStream("src/test/resources/test.xml");
-		streamReader = new IngridXMLStreamReader(in);
+		IImporterCallback callback = null;
+		streamReader = new IngridXMLStreamReader(in, callback, "");
 		objectUuids = streamReader.getObjectUuids();
 		addressUuids = streamReader.getAddressUuids();
 	}

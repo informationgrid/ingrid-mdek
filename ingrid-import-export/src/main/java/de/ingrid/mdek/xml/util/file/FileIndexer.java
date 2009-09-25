@@ -11,10 +11,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import de.ingrid.mdek.xml.importer.IImporterCallback;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 
 public class FileIndexer {
+	private final static Logger log = Logger.getLogger(FileIndexer.class);
 
 	private final static String XML_ENCODING = "ISO-8859-1";
 	
@@ -27,9 +31,14 @@ public class FileIndexer {
 	private Map<String, FileIndex> objectIndexMap = null;
 	private Map<String, FileIndex> addressIndexMap = null;
 	private FileIndex additionalFieldsIndex = null;
+	
+	private IImporterCallback importerCallback;
+	private String currentUserUuid;
 
-	public FileIndexer(File file) {
+	public FileIndexer(File file, IImporterCallback importerCallback, String userUuid) {
 		this.file = file;
+		this.importerCallback = importerCallback;
+		this.currentUserUuid = userUuid;
 	}
 
 	public Map<String, FileIndex> getObjectIndexMap() {
@@ -62,11 +71,11 @@ public class FileIndexer {
 			reader = new PushbackReader(new BufferedReader(new InputStreamReader(new FileInputStream(file), XML_ENCODING)));
 			charsRead = 0;
 			additionalFieldsIndex = createAdditionalFieldsIndexOrThrow();
-
 		} catch (Exception e) {
 			// Exception while creating the index. Return null
 			additionalFieldsIndex = null;
-
+			log.error("Error creating AdditionalFields index map from file.", e);
+			importerCallback.writeImportInfoMessage(e.toString() + "(AdditionalFields)", currentUserUuid);
 		} finally {
 			try {
 				reader.close();
@@ -87,8 +96,9 @@ public class FileIndexer {
 
 		} catch (Exception e) {
 			// Exception while creating the index map. Return an empty map
+			log.error("Error creating Object index map from file.", e);
+			importerCallback.writeImportInfoMessage(e.toString() + "(ObjectIndex)", currentUserUuid);
 			fileIndexMap = Collections.emptyMap();
-
 		} finally {
 			try {
 				reader.close();
@@ -109,8 +119,9 @@ public class FileIndexer {
 
 		} catch (Exception e) {
 			// Exception while creating the index map. Return an empty map
+			log.error("Error creating Address index map from file.", e);
+			importerCallback.writeImportInfoMessage(e.toString() + "(AddressIndex)", currentUserUuid);
 			fileIndexMap = Collections.emptyMap();
-
 		} finally {
 			try {
 				reader.close();

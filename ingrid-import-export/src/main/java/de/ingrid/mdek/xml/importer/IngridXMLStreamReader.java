@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -26,35 +27,42 @@ import de.ingrid.mdek.xml.util.file.FileIndexer;
 import de.ingrid.mdek.xml.util.file.TemporaryFile;
 
 public class IngridXMLStreamReader {
-
+	private final static Logger log = Logger.getLogger(IngridXMLStreamReader.class);
+	
 	private final FileFragmentLoader fileFragmentLoader;
 	private final Map<String, FileIndex> objectIndexMap;
 	private final Map<String, FileIndex> addressIndexMap;
 	private final FileIndex additionalFieldsIndex;
 	private final DocumentBuilder documentBuilder;
+	
+	private IImporterCallback importerCallback;
+	private String currentUserUuid;
 
-	public IngridXMLStreamReader(InputStream in) throws IOException {
+	public IngridXMLStreamReader(InputStream in, IImporterCallback importerCallback, String userUuid) throws IOException {
 		TemporaryFile temporaryFile = new TemporaryFile();
 		temporaryFile.write(in);
 
-		fileFragmentLoader = new FileFragmentLoader(temporaryFile.getFile());
-		FileIndexer fileIndexer = new FileIndexer(temporaryFile.getFile());
-		objectIndexMap = fileIndexer.getObjectIndexMap();
-		addressIndexMap = fileIndexer.getAddressIndexMap();
-		additionalFieldsIndex = fileIndexer.getAdditionalFieldsIndex();
+		this.importerCallback 	= importerCallback;
+		this.currentUserUuid 	= userUuid;
+		fileFragmentLoader 		= new FileFragmentLoader(temporaryFile.getFile());
+		FileIndexer fileIndexer = new FileIndexer(temporaryFile.getFile(), importerCallback, userUuid);
+		objectIndexMap 			= fileIndexer.getObjectIndexMap();
+		addressIndexMap 		= fileIndexer.getAddressIndexMap();
+		additionalFieldsIndex 	= fileIndexer.getAdditionalFieldsIndex();
 
-		documentBuilder = createDocumentBuilder();
+		documentBuilder 		= createDocumentBuilder();
 	}
 
 	private DocumentBuilder createDocumentBuilder() {
 		try {
-			DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+			DocumentBuilderFactory documentFactory 	= DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder 		= documentFactory.newDocumentBuilder();
 			return documentBuilder;
 
 		} catch (ParserConfigurationException e) {
 			// Should not happen with a standard configuration
-			e.printStackTrace();
+			log.error("Error creating document builder.", e);
+			importerCallback.writeImportInfoMessage(e.toString(), currentUserUuid);
 		}
 		assert false : "IngridXMLStreamReader was not able to create a standard DocumentBuilder";
 		return null;

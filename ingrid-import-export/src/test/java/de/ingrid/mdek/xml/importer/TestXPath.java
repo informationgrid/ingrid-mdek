@@ -39,9 +39,10 @@ public class TestXPath {
 	}
 
 	private static void setupIngridXMLReader() throws IOException {
+		IImporterCallback callback = null;
 		xmlReader = new IngridXMLStreamReader(
 				new BufferedInputStream(new FileInputStream(
-						"src/test/resources/test.xml")));
+						"src/test/resources/test.xml")), callback, "");
 	}
 
 	private static void setupDocument() throws IOException, SAXException {
