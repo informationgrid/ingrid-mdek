@@ -97,6 +97,14 @@
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <inherited>false</inherited>
+			<!-- Add Type of Component to Manifest of Installer for Upgrade Server -->
+			<configuration>
+				<archive>
+				  <manifestEntries>
+					  <ingridComponentType>IPLUG_IGE</ingridComponentType>
+				</manifestEntries>
+				</archive>
+			</configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
