@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-services</artifactId>
@@ -21,7 +21,15 @@
       <url>http://harrison.its-technidata.de/ingrid/maven2</url>
     </repository>
   </repositories>
-  <dependencies>
+  <dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>ojdbc</groupId>
+            <artifactId>ojdbc</artifactId>
+            <version>14</version>
+        </dependency>
+    </dependencies>
+  </dependencyManagement>  <dependencies>
     <dependency>
       <groupId>de.ingrid.mdek</groupId>
       <artifactId>ingrid-mdek-api</artifactId>
@@ -104,6 +112,10 @@
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>ojdbc</groupId>
+        <artifactId>ojdbc</artifactId>
     </dependency>
   </dependencies>
   <build>

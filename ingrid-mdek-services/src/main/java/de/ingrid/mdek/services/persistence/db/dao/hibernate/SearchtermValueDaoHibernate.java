@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -77,12 +78,12 @@ public class SearchtermValueDaoHibernate
 		String qString = "from SearchtermObj termObj " +
 			"left join fetch termObj.searchtermValue termVal " +
 			"where termVal.type = '" + SearchtermType.FREI.getDbValue() + "' " +
-			"and termVal.term = ? " +
-			"and termObj.objId = ?";
+			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
+			// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
+			"and termVal.term LIKE '" + term + "' " + 
+			"and termObj.objId = " + objId;
 	
 		Query q = session.createQuery(qString);
-		q.setString(0, term);
-		q.setLong(1, objId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
@@ -105,12 +106,12 @@ public class SearchtermValueDaoHibernate
 		String qString = "from SearchtermAdr termAdr " +
 			"left join fetch termAdr.searchtermValue termVal " +
 			"where termVal.type = '" + SearchtermType.FREI.getDbValue() + "' " +
-			"and termVal.term = ? " +
-			"and termAdr.adrId = ?";
+			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
+			// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
+			"and termVal.term LIKE '" + term + "' " + 
+			"and termAdr.adrId = " + adrId;
 	
 		Query q = session.createQuery(qString);
-		q.setString(0, term);
-		q.setLong(1, adrId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
@@ -203,7 +204,9 @@ public class SearchtermValueDaoHibernate
 		q += "where termVal.type = '" + type.getDbValue() + "' ";
 
 		if (type == SearchtermType.FREI) {
-			q += "and termVal.term = '" + term + "'";
+			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
+			// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
+			q += "and termVal.term LIKE '" + term + "'";
 			// NOTICE: we query MULTIPLE values !
 			retList = session.createQuery(q).list();
 
@@ -242,20 +245,24 @@ public class SearchtermValueDaoHibernate
 		}
 		
 		// fetch all terms referenced by Objects !
-		String q = "select distinct termVal " +
+		String q = "select termVal " +
 			"from SearchtermObj termObj " +
 			"inner join termObj.searchtermValue termVal " +
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
-		List<SearchtermValue> terms = session.createQuery(q).list();
+		List<SearchtermValue> terms = session.createQuery(q)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		// fetch all terms referenced by Addresses and add to list
-		q = "select distinct termVal " +
+		q = "select termVal " +
 			"from SearchtermAdr termAdr " +
 			"inner join termAdr.searchtermValue termVal " +
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
-		List<SearchtermValue> addrTerms = session.createQuery(q).list();
+		List<SearchtermValue> addrTerms = session.createQuery(q)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 		terms.addAll(addrTerms);
 		
 		// set up result list, remove duplicate SearchtermValues

@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -89,7 +90,9 @@ public class SpatialRefValueDaoHibernate
 				throw new MdekException(new MdekError(MdekErrorType.LIST_NO_KEY_NO_VALUE));
 			}
 			// select also via name value !
-			qString = qString + " and spRefVal.nameValue = '" + nameValue + "'";
+			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
+			// NOTICE: nameValue changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
+			qString = qString + " and spRefVal.nameValue LIKE '" + nameValue + "'";
 		}
 
 		Query q = session.createQuery(qString);
@@ -164,7 +167,9 @@ public class SpatialRefValueDaoHibernate
 		q += "where spRefVal.type = '" + type.getDbValue() + "' ";
 
 		if (type == SpatialReferenceType.FREI) {
-			q += "and spRefVal.nameValue = '" + name + "'";
+			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
+			// NOTICE: nameValue changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
+			q += "and spRefVal.nameValue LIKE '" + name + "'";
 			// NOTICE: we query MULTIPLE values !
 			retList = session.createQuery(q).list();
 
@@ -194,7 +199,7 @@ public class SpatialRefValueDaoHibernate
 		Session session = getSession();
 
 		// fetch all refs referenced by Objects !
-		String q = "select distinct spRefVal " +
+		String q = "select spRefVal " +
 			"from SpatialReference spRef " +
 			"inner join spRef.spatialRefValue spRefVal " +
 			"left join fetch spRefVal.spatialRefSns spRefSns " +
@@ -209,7 +214,9 @@ public class SpatialRefValueDaoHibernate
 			q += ")";
 		}
 
-		return  session.createQuery(q).list();
+		return  session.createQuery(q)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 	}
 
 	public long countObjectsOfSpatialRefValue(long idSpatialRefValue) {
@@ -221,12 +228,14 @@ public class SpatialRefValueDaoHibernate
 	}
 
 	public List<T01Object> getObjectsOfSpatialRefValue(long idSpatialRefValue) {
-		String q = "select distinct obj " +
+		String q = "select obj " +
 			"from T01Object obj " +
 			"inner join obj.spatialReferences spRef " +
 			"where spRef.spatialRefId = " + idSpatialRefValue;
 		
-		return  getSession().createQuery(q).list();
+		return  getSession().createQuery(q)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 	}
 	public List<Long> getObjectIdsOfSpatialRefValue(long idSpatialRefValue) {
 		String q = "select distinct spRef.objId " +

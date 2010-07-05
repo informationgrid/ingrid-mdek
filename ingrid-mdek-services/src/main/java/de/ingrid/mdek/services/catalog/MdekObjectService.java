@@ -792,7 +792,7 @@ public class MdekObjectService {
 		// set new parent, may be null, then top node !
 		rootNode.setFkObjUuid(newParentUuid);
 		// remember former tree path and set new tree path.
-		String oldRootPath = rootNode.getTreePath();
+		String oldRootPath = pathHandler.getTreePathNotNull(rootNode);
 		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
 		daoObjectNode.makePersistent(rootNode);
 

@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
@@ -30,7 +31,7 @@ public class T02AddressDaoHibernate
 
 		// NOTICE: we DON'T FETCH t012ObjAdrs, so we get ALL t012ObjAdrs when requested afterwards !
 		// (otherwise only the t012ObjAdrs matching selection criteria would be fetched !)
-		String hql = "select distinct obj " +
+		String hql = "select obj " +
 			"from T01Object obj " +
 			"join obj.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = ?";
@@ -45,7 +46,8 @@ public class T02AddressDaoHibernate
 			q.setMaxResults(maxNum);
 		}
 
-		return q.list();
+		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 	}
 	public String getCsvHQLObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
 		String hql = "select distinct o.objUuid, o.objName, o.workState " +
@@ -63,7 +65,7 @@ public class T02AddressDaoHibernate
 	public List<T02Address> getAddressesOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		Session session = getSession();
 
-		String hql = "select distinct a " +
+		String hql = "select a " +
 			"from T02Address a " +
 			"where a.responsibleUuid = ?";
 		
@@ -73,7 +75,8 @@ public class T02AddressDaoHibernate
 			q.setMaxResults(maxNum);
 		}
 
-		return q.list();
+		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 	}
 	public String getCsvHQLAllAddressesOfResponsibleUser(String responsibleUserUuid) {
 		String hql = "select distinct a.adrUuid, a.institution, a.lastname, a.firstname, a.workState " +

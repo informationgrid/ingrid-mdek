@@ -371,6 +371,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// different languages (german to english)
 		importUnzipped = importUnzipped.replace("<data-language id=\"150\">", "<data-language id=\"123\">");
 		importUnzipped = importUnzipped.replace("<metadata-language id=\"150\">", "<metadata-language id=\"123\">");
+		System.out.println("importExistingTopObj:\n" + importUnzipped);
 		byte[] importExistingTopObj = new byte[0];
 		try {
 			importExistingTopObj = MdekUtils.compressString(importUnzipped);						
@@ -383,6 +384,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// different languages (german to english)
 		importUnzipped = importUnzipped.replace("<data-language id=\"150\">", "<data-language id=\"123\">");
 		importUnzipped = importUnzipped.replace("<metadata-language id=\"150\">", "<metadata-language id=\"123\">");
+		System.out.println("importExistingObjBranch:\n" + importUnzipped);
 		byte[] importExistingObjBranch = new byte[0];
 		try {
 			importExistingObjBranch = MdekUtils.compressString(importUnzipped);						
@@ -504,6 +506,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- import NEW TOP NODE as PUBLISHED -> underneath import node as working version -----");
 		supertool.importEntities(importNewTopObj, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objImpNodeUuid);
+		System.out.println("\n----- NO PUBLISHED_VERSION -----");
 		supertool.fetchObject(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteObject(newUuidTop, true);
 
@@ -536,8 +539,10 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- import NEW object branch with NON EXISTING parent as PUBLISHED -> underneath import node as working version -----");
 		supertool.importEntities(importNewObjBranchNonExistentParent, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objImpNodeUuid);
+		System.out.println("\n----- NO PUBLISHED_VERSION -----");
 		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.fetchSubObjects(newUuid1);
+		System.out.println("\n----- NO PUBLISHED_VERSION -----");
 		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteObject(newUuid1, true);
 

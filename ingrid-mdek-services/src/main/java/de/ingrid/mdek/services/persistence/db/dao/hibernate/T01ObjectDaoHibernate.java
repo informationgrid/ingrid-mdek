@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
@@ -27,7 +28,7 @@ public class T01ObjectDaoHibernate
 	public List<T01Object> getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		Session session = getSession();
 
-		String hql = "select distinct o " +
+		String hql = "select o " +
 			"from T01Object o " +
 			"where o.responsibleUuid = ?";
 	
@@ -37,7 +38,8 @@ public class T01ObjectDaoHibernate
 			q.setMaxResults(maxNum);
 		}
 
-		return q.list();
+		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 	}
 	public String getCsvHQLAllObjectsOfResponsibleUser(String responsibleUserUuid) {
 		String hql = "select distinct o.objUuid, o.objName, o.workState " +

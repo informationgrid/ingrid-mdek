@@ -39,6 +39,28 @@ public class MdekTreePathHandler {
 		daoAddressNode = daoFactory.getAddressNodeDao();
 	}
 
+	/** Helper Method due to ORACLE can't store empty string in treePath (becomes null in CLOB) !
+	 * This method returns empty string if path of node is null !
+	 */
+	public String getTreePathNotNull(ObjectNode node) {
+		String path = node.getTreePath();
+		if (path == null) {
+			path = "";
+		}
+		return path;
+	}
+
+	/** Helper Method due to ORACLE can't store empty string in treePath (becomes null in CLOB) !
+	 * This method returns empty string if path of node is null !
+	 */
+	public String getTreePathNotNull(AddressNode node) {
+		String path = node.getTreePath();
+		if (path == null) {
+			path = "";
+		}
+		return path;
+	}
+
 	/** Set tree path in node according to passed parent uuid. Returns new path. */
 	public String setTreePath(ObjectNode node, String newParentUuid) {
 		ObjectNode newParentNode = null;
@@ -70,7 +92,7 @@ public class MdekTreePathHandler {
 		// NOTICE: node itself isn't part of its path ! top nodes have "" path !
 		String path = "";
 		if (newParentNode != null) {
-			String parentPath = newParentNode.getTreePath();
+			String parentPath = getTreePathNotNull(newParentNode);
 			// parent path does NOT include parent node, add it
 			path = addNodeToPath(parentPath, newParentNode.getObjUuid());
 		}
@@ -84,7 +106,7 @@ public class MdekTreePathHandler {
 		// NOTICE: node itself isn't part of its path ! top nodes have "" path !
 		String path = "";
 		if (newParentNode != null) {
-			String parentPath = newParentNode.getTreePath();
+			String parentPath = getTreePathNotNull(newParentNode);
 			// parent path does NOT include parent node, add it
 			path = addNodeToPath(parentPath, newParentNode.getAddrUuid());
 		}
@@ -98,10 +120,10 @@ public class MdekTreePathHandler {
 		String path = "";
 		if (rootPathBeforeMove.length() == 0) {
 			// if old path is empty we have a former top node, add new root path at front
-			path = rootPathAfterMove + node.getTreePath();
+			path = rootPathAfterMove + getTreePathNotNull(node);
 		} else {
 			// else replace old root path with new root path
-			path = node.getTreePath().replace(rootPathBeforeMove, rootPathAfterMove);
+			path = getTreePathNotNull(node).replace(rootPathBeforeMove, rootPathAfterMove);
 		}
 
 		node.setTreePath(path);
@@ -114,10 +136,10 @@ public class MdekTreePathHandler {
 		String path = "";
 		if (rootPathBeforeMove.length() == 0) {
 			// if old path is empty we have a former top node, add new root path at front
-			path = rootPathAfterMove + node.getTreePath();
+			path = rootPathAfterMove + getTreePathNotNull(node);
 		} else {
 			// else replace old root path with new root path
-			path = node.getTreePath().replace(rootPathBeforeMove, rootPathAfterMove);
+			path = getTreePathNotNull(node).replace(rootPathBeforeMove, rootPathAfterMove);
 		}
 
 		node.setTreePath(path);
@@ -127,6 +149,10 @@ public class MdekTreePathHandler {
 
 	/** Adds the given nodeUuid at the end of the given path and returns new path. */
 	public String addNodeToPath(String path, String nodeUuid) {
+		// ORACLE: empty strings become NULL in CLOBS !
+		if (path == null) {
+			path = "";
+		}
 		return path + translateToTreePathUuid(nodeUuid);
 	}
 

@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
@@ -42,6 +43,8 @@ public class HQLDaoHibernate
 	private static String KEY_ENTITY_ALIAS = "_ENTITY_ALIAS";
 	/** Value: Integer */
 	private static String KEY_FROM_START_INDEX = "_FROM_START_INDEX";
+	/** Value: Boolean */
+	private static String KEY_REMOVED_DISTINCT = "_REMOVED_DISTINCT";
 
 	public HQLDaoHibernate(SessionFactory factory) {
         super(factory);
@@ -49,7 +52,7 @@ public class HQLDaoHibernate
 
 	public long queryHQLTotalNum(String hqlQuery) {
 
-		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery, false, false);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
 		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
@@ -64,6 +67,7 @@ public class HQLDaoHibernate
 			qString = "select count(*) "
 				+ qStringFrom;			
 		} else {
+			// WORKS on ORACLE !
 			qString = "select count(distinct "
 				+ entityAlias + ") "
 				+ qStringFrom;
@@ -79,7 +83,7 @@ public class HQLDaoHibernate
 
 	public IngridDocument queryHQL(String hqlQuery,
 			int startHit, int numHits) {
-		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery, false, false);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
 		String entityAlias = hqlDoc.getString(KEY_ENTITY_ALIAS);
@@ -91,7 +95,7 @@ public class HQLDaoHibernate
 			String qStringFrom = qString.substring(fromStartIndex);
 
 			if (entityAlias != null) {
-				qString = "select distinct "
+				qString = "select "
 					+ entityAlias + " " 
 					+ qStringFrom;
 			}
@@ -101,6 +105,7 @@ public class HQLDaoHibernate
 			entityList = session.createQuery(qString)
 				.setFirstResult(startHit)				
 				.setMaxResults(numHits)				
+				.setResultTransformer(new DistinctRootEntityResultTransformer())
 				.list();
 		}
 
@@ -115,15 +120,20 @@ public class HQLDaoHibernate
 	}
 
 	public IngridDocument queryHQLToCsv(String hqlQuery, boolean allowQueryDirectInstances) {
-		IngridDocument hqlDoc = preprocessHQL(hqlQuery, allowQueryDirectInstances);
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery, allowQueryDirectInstances, false);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
-
+		Boolean distinctRemoved = (Boolean) hqlDoc.get(KEY_REMOVED_DISTINCT);
+		
 		List hits = new ArrayList();
 		if (qString != null) {
 			Session session = getSession();
-			hits = session.createQuery(qString)
-				.list();
+			Query q = session.createQuery(qString);
+			if (distinctRemoved) {
+				// NO ! "destroys" result columns
+//				q.setResultTransformer(new DistinctRootEntityResultTransformer());
+			}
+			hits = q.list();
 		}
 
 		StringWriter sw = new StringWriter();
@@ -168,10 +178,11 @@ public class HQLDaoHibernate
 	}
 	
 	public IngridDocument queryHQLToMap(String hqlQuery, Integer maxNumHits) {
-		IngridDocument hqlDoc = preprocessHQL(hqlQuery);
+		IngridDocument hqlDoc = preprocessHQL(hqlQuery, false, false);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		IdcEntityType entityType = (IdcEntityType) hqlDoc.get(KEY_ENTITY_TYPE);
 		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
+		Boolean distinctRemoved = (Boolean) hqlDoc.get(KEY_REMOVED_DISTINCT);
 
 		List hits = new ArrayList();
 		if (qString != null) {
@@ -180,6 +191,9 @@ public class HQLDaoHibernate
 			Query q = session.createQuery(qString);
 			if (maxNumHits != null) {
 				q.setMaxResults(maxNumHits);				
+			}
+			if (distinctRemoved) {
+				q.setResultTransformer(new DistinctRootEntityResultTransformer());
 			}
 			hits = q.list();
 		}
@@ -211,23 +225,16 @@ public class HQLDaoHibernate
 	/**
 	 * Process HQL query string for querying entities (objects or addresses).
 	 * Performs checks etc.
-	 * @param hqlQuery query to execute. NOTICE: entity to select is restricted ! 
-	 * 		only nodes allowed in FROM clause (FROM OBJECTNODE, FROM ADDRESSNODE)
-	 * @return document containing preprocessed HQL stuff
-	 */
-	private IngridDocument preprocessHQL(String hqlQuery) {
-		return preprocessHQL(hqlQuery, false);
-	}
-
-	/**
-	 * Process HQL query string for querying entities (objects or addresses).
-	 * Performs checks etc.
 	 * @param hqlQuery query to execute. NOTICE: entity to select is restricted !
 	 * @param allowQueryDirectInstances false=only nodes allowed in FROM clause (FROM OBJECTNODE, FROM ADDRESSNODE)<br>
 	 * 		true=also direct instances allowed in FROM clause (FROM T01Object, FROM T02Address)
+	 * @param removeDistinct false=keep DISTINCT in select if present<br>
+	 * 		true=remove DISTINCT from select
 	 * @return document containing preprocessed HQL stuff
 	 */
-	private IngridDocument preprocessHQL(String hqlQuery, boolean allowQueryDirectInstances) {
+	private IngridDocument preprocessHQL(String hqlQuery,
+			boolean allowQueryDirectInstances,
+			boolean removeDistinct) {
 		IngridDocument result = new IngridDocument();
 		
 		hqlQuery = MdekUtils.processStringParameter(hqlQuery);
@@ -253,6 +260,21 @@ public class HQLDaoHibernate
 		// fetch not allowed ! Problems with select count()
 		if (hqlUPPERCASE.indexOf("JOIN FETCH") != -1) {
 			throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));			
+		}
+
+		// Remove distinct because of Oracle ! not possible with CLOBS
+		// ----------
+		Boolean distinctRemoved = false;
+		if (removeDistinct) {
+			Integer distinctIndex = hqlUPPERCASE.indexOf("DISTINCT");
+			while (distinctIndex != -1) {
+				distinctRemoved = true;
+				// remove distinct
+				hqlQuery = hqlQuery.substring(0, distinctIndex) +
+					hqlQuery.substring(distinctIndex + 8);
+				hqlUPPERCASE = hqlQuery.toUpperCase();
+				distinctIndex = hqlUPPERCASE.indexOf("DISTINCT");
+			}			
 		}
 
 		// check which entity
@@ -297,10 +319,11 @@ public class HQLDaoHibernate
 		// determine entity alias!
 		// ----------
 		String entityAlias = extractEntityAlias(hqlQuery.substring(fromStartIndex));
-		
+
 		result.put(KEY_ENTITY_TYPE, entityType);
 		result.put(KEY_ENTITY_ALIAS, entityAlias);
 		result.put(KEY_FROM_START_INDEX, fromStartIndex);
+		result.put(KEY_REMOVED_DISTINCT, distinctRemoved);
 		result.put(MdekKeys.HQL_QUERY, hqlQuery);
 
 		return result;

@@ -321,7 +321,29 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("-------------------------------------");
 
 		System.out.println("\n----- export addresses ALL ADDRESSES -----");
-		supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
+		try {
+			// can cause timeout
+			supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
+
+		} catch(Throwable t) {
+			// if timeout, track running job info (still exporting) !
+			for (int i=0; i<2; i++) {
+				// extracted from running job info IN MEMORY if still running
+				supertool.getJobInfo(JobType.EXPORT);
+				// also outputs running job info
+				if (!supertool.hasRunningJob()) {
+					break;
+				}
+				supertool.sleep(2000);
+			}
+			// if still running, cancel it !
+			if (supertool.hasRunningJob()) {
+				supertool.cancelRunningJob();
+				// sleep, so backend notices canceled job when updating running job info 
+				supertool.sleep(2000);
+			}
+		}
+
 		result = supertool.getExportInfo(true);
 		byte[] importAllAddresses = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
 
@@ -331,7 +353,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 			supertool.importEntities(importAllAddresses, objImpNodeUuid, addrImpNodeUuid, false, true);
 
 		} catch(Throwable t) {
-			// if timeout, track running job info (still exporting) !
+			// if timeout, track running job info (still importing) !
 			for (int i=0; i<2; i++) {
 				// extracted from running job info IN MEMORY if still running
 				supertool.getJobInfo(JobType.IMPORT);
@@ -577,6 +599,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("\n----- import NEW TOP NODE as PUBLISHED -> underneath import node as working version -----");
 		supertool.importEntities(importNewTopAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
+		System.out.println("\n----- NO PUBLISHED_VERSION -----");
 		supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteAddress(newUuidTop, true);
 
@@ -589,6 +612,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("\n----- import NEW FREE NODE as PUBLISHED -> underneath import node as working version, CLASS Person instead of FREE ! -----");
 		supertool.importEntities(importNewFreeAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
+		System.out.println("\n----- NO PUBLISHED_VERSION -----");
 		supertool.fetchAddress(newUuidFree, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteAddress(newUuidFree, true);
 

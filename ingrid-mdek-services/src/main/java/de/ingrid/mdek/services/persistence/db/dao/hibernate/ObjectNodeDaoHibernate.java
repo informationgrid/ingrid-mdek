@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -84,7 +85,7 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		// always fetch working version. Is needed for querying, so we fetch it.
-		String qString = "select distinct oNode from ObjectNode oNode " +
+		String qString = "select oNode from ObjectNode oNode " +
 				"left join fetch oNode.t01ObjectWork oWork ";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -96,6 +97,7 @@ public class ObjectNodeDaoHibernate
 
 		List<ObjectNode> oNodes = session.createQuery(qString)
 			.setString(0, origId)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		ObjectNode retNode = null;
@@ -117,7 +119,7 @@ public class ObjectNodeDaoHibernate
 			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
-		String q = "select distinct oNode from ObjectNode oNode ";
+		String q = "select oNode from ObjectNode oNode ";
 		String objAlias = "?";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -141,7 +143,9 @@ public class ObjectNodeDaoHibernate
 			}
 		}
 		
-		List<ObjectNode> oNodes = session.createQuery(q).list();
+		List<ObjectNode> oNodes = session.createQuery(q)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		return oNodes;
 	}
@@ -151,7 +155,7 @@ public class ObjectNodeDaoHibernate
 			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
-		String q = "select distinct oNode from ObjectNode oNode ";
+		String q = "select oNode from ObjectNode oNode ";
 		String objAlias = "?";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -176,8 +180,9 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
-				.setString(0, parentUuid)
-				.list();
+			.setString(0, parentUuid)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		return oNodes;
 	}
@@ -187,7 +192,7 @@ public class ObjectNodeDaoHibernate
 			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
-		String q = "select distinct oNode from ObjectNode oNode ";
+		String q = "select oNode from ObjectNode oNode ";
 		String objAlias = "?";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -212,7 +217,8 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
-				.list();
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		return oNodes;
 	}
@@ -222,7 +228,7 @@ public class ObjectNodeDaoHibernate
 			PublishType parentPubType) {
 		Session session = getSession();
 
-		String q = "select distinct oNode from ObjectNode oNode ";
+		String q = "select oNode from ObjectNode oNode ";
 		if (whichChildren == IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC) {
 			q += "left join fetch oNode.t01ObjectPublished o ";
 		}
@@ -232,7 +238,8 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
-				.list();
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		return oNodes;
 	}
@@ -363,21 +370,23 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> nodesWork = new ArrayList<ObjectNode>();
 		if (nodeIdsWork.size() > 0) {
 			nodesWork = session.createQuery(
-					"select distinct oNode from ObjectNode oNode " +
+					"select oNode from ObjectNode oNode " +
 					"left join fetch oNode.t01ObjectWork oWork " +
 					"where oNode.id in (:idList)")
 					.setParameterList("idList", nodeIdsWork)
-					.list();			
+					.setResultTransformer(new DistinctRootEntityResultTransformer())
+					.list();
 		}
 
 		// fetch all "nodes with only publish references"
 		List<ObjectNode> nodesPubOnly = new ArrayList<ObjectNode>();
 		if (nodeIdsPubOnly.size() > 0) {
 			nodesPubOnly = session.createQuery(
-					"select distinct oNode from ObjectNode oNode " +
+					"select oNode from ObjectNode oNode " +
 					"left join fetch oNode.t01ObjectPublished oPub " +
 					"where oNode.id in (:idList)")
 					.setParameterList("idList", nodeIdsPubOnly)
+					.setResultTransformer(new DistinctRootEntityResultTransformer())
 					.list();			
 		}
 		
@@ -431,7 +440,7 @@ public class ObjectNodeDaoHibernate
 			return retList;
 		}
 
-		qString = "select distinct oNode " + qString;
+		qString = "select oNode " + qString;
 		qString += " order by obj.objClass, obj.objName";
 
 		Session session = getSession();
@@ -439,6 +448,7 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		return retList;
@@ -499,7 +509,7 @@ public class ObjectNodeDaoHibernate
 			return retList;
 		}
 
-		qString = "select distinct oNode " + qString;
+		qString = "select oNode " + qString;
 		qString += " order by obj.objClass, obj.objName";
 
 		Session session = getSession();
@@ -507,6 +517,7 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		return retList;
@@ -520,7 +531,7 @@ public class ObjectNodeDaoHibernate
 		// create hql from queryParams
 		String qString = ExtendedSearchHqlUtil.createObjectExtendedSearchQuery(searchParams);
 		
-		qString = "select distinct oNode " + qString;
+		qString = "select oNode " + qString;
 		qString += " order by obj.objClass, obj.objName";
 		
 		Session session = getSession();
@@ -528,6 +539,7 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		return retList;
@@ -849,7 +861,7 @@ public class ObjectNodeDaoHibernate
 				qStringCommon + qCriteria;
 
 		// query string for fetching results ! 
-		String qStringSelect = "select distinct oNode " +
+		String qStringSelect = "select oNode " +
 				"from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectWork o " +
 				"left join fetch o.addressNodeMod aNode " +
@@ -892,6 +904,7 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 	
 		// return results
@@ -1089,7 +1102,7 @@ public class ObjectNodeDaoHibernate
 		}
 
 		// with fetch: always fetch object and metadata, e.g. needed when mapping user operation (mark deleted) 
-		String qStringSelect = "select distinct oNode " +
+		String qStringSelect = "select oNode " +
 			"from ObjectNode oNode ";
 		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 			// queries PUBLISHED version because mod-date of published one is displayed !
@@ -1220,8 +1233,10 @@ public class ObjectNodeDaoHibernate
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Fetching QA objects: " + qStringSelect);
 		}
-		List<ObjectNode> oNodes = qSelect.setFirstResult(startHit)
+		List<ObjectNode> oNodes = qSelect
+			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 	
 		// and return results

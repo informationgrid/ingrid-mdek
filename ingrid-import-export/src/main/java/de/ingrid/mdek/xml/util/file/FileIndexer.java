@@ -136,7 +136,12 @@ public class FileIndexer {
 	private Map<String, FileIndex> createObjectIndexMapOrThrow() throws IOException {
 		Map<String, FileIndex> fileIndex = new HashMap<String, FileIndex>();
 
-		skipToNext("<data-sources>");
+		try {
+			skipToNext("<data-sources>");			
+		} catch (IOException e) {
+			// NO OBJECTS in import file
+			return fileIndex;
+		}
 
 		do {
 			long beginOfOpeningDatasourceTag = -1;
@@ -165,7 +170,12 @@ public class FileIndexer {
 	private Map<String, FileIndex> createAddressIndexMapOrThrow() throws IOException {
 		Map<String, FileIndex> fileIndex = new HashMap<String, FileIndex>();
 
-		skipToNext("<addresses>");
+		try {
+			skipToNext("<addresses>");			
+		} catch (IOException e) {
+			// NO ADDRESSES in import file
+			return fileIndex;
+		}
 
 		do {
 			long beginOfOpeningAddressTag = -1;
@@ -191,13 +201,22 @@ public class FileIndexer {
 	}
 
 	private FileIndex createAdditionalFieldsIndexOrThrow() throws IOException {
-		skipToNext("<data-model-extensions>");
+		FileIndex fileIndex = null;
+
+		try {
+			skipToNext("<data-model-extensions>");
+		} catch (IOException e) {
+			// NO ADDITIONAL FIELDS in import file
+			return fileIndex;
+		}
+
 		long beginIndex = charsRead - "<data-model-extensions>".length();
 		skipToNext("</data-model-extensions>");
 		long endIndex = charsRead;
+		fileIndex = new FileIndex(beginIndex, endIndex);
 
 		reader.close();
-		return new FileIndex(beginIndex, endIndex);
+		return fileIndex;
 	}
 
 	
@@ -218,9 +237,17 @@ public class FileIndexer {
 	}
 
 	private String skipToOneOfNext(String[] tags) throws IOException {
+		String tagInfo = "";
+		for (String tag : tags) {
+			if (tagInfo.length() != 0) {
+				tagInfo += ", ";
+			}
+			tagInfo += tag;
+		}
+
 		String nextTag;
 		do {
-			nextTag = nextTag();
+			nextTag = nextTag(tagInfo);
 		} while (!Arrays.asList(tags).contains(nextTag));
 		return nextTag;
 	}
@@ -228,11 +255,11 @@ public class FileIndexer {
 	private void skipToNext(String tag) throws IOException {
 		String nextTag;
 		do {
-			nextTag = nextTag();
+			nextTag = nextTag(tag);
 		} while (!nextTag.equals(tag));
 	}
 
-	private String nextTag() throws IOException {
+	private String nextTag(String tagInfoForMsg) throws IOException {
 		StringBuilder stringBuilder = new StringBuilder();
 
 		int c = -1;
@@ -241,7 +268,7 @@ public class FileIndexer {
 			charsRead++;
 
 			if (c == -1) {
-				throw new EOFException("Tried to find the start of the next xml tag but end of stream was reached.");
+				throw new EOFException("Tried to find the start of the next xml tag but end of stream was reached (" + tagInfoForMsg + ").");
 			}
 
 		} while (c != START_TAG);
@@ -252,7 +279,7 @@ public class FileIndexer {
 			charsRead++;
 
 			if (c == -1) {
-				throw new EOFException("Tried to read the end of the current xml tag but end of stream was reached.");
+				throw new EOFException("Tried to read the end of the current xml tag but end of stream was reached (" + tagInfoForMsg + ").");
 			}
 
 		} while (c != END_TAG);

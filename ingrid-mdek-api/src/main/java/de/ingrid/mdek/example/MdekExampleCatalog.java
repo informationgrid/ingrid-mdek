@@ -784,7 +784,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
 		supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
 
-		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object -----");
+		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object (now expired !) -----");
 		supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
 
 // -----------------------------------
@@ -816,7 +816,7 @@ class MdekExampleCatalogThread extends Thread {
 		List<IngridDocument> termDocsMixed_newName = termDocsMixed;
 
 		// -----------------------------------
-/*
+/* COMMENTED VERY TIME CONSUMING !
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS Searchterms UPDATE: THESAURUS to FREE -----");
 
@@ -986,7 +986,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.fetchAddress(personAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		// -----------------------------------
-/*
+/* COMMENTED VERY TIME CONSUMING !
 		System.out.println("\n\n=========================");
 		System.out.println("----- SNS Searchterms UPDATE: THESAURUS to THESAURUS, NEW NAME, NEW SNS-ID -----");
 		System.out.println("----- = New free records with old thesaurus term ! -----");

@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -84,7 +85,7 @@ public class AddressNodeDaoHibernate
 		Session session = getSession();
 
 		// always fetch working version. Is needed for querying, so we fetch it.
-		String qString = "select distinct aNode from AddressNode aNode " +
+		String qString = "select aNode from AddressNode aNode " +
 				"left join fetch aNode.t02AddressWork aWork ";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -96,6 +97,7 @@ public class AddressNodeDaoHibernate
 
 		List<AddressNode> aNodes = session.createQuery(qString)
 			.setString(0, origId)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		AddressNode retNode = null;
@@ -123,7 +125,7 @@ public class AddressNodeDaoHibernate
 			whichEntityVersion = IdcEntityVersion.WORKING_VERSION;
 		}
 
-		String q = "select distinct aNode from AddressNode aNode ";
+		String q = "select aNode from AddressNode aNode ";
 		String addrAlias = "?";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -154,7 +156,9 @@ public class AddressNodeDaoHibernate
 				addrAlias + ".firstname"; 
 		}
 		
-		List<AddressNode> aNodes = session.createQuery(q).list();
+		List<AddressNode> aNodes = session.createQuery(q)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		return aNodes;
 	}
@@ -164,7 +168,7 @@ public class AddressNodeDaoHibernate
 			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
-		String q = "select distinct aNode from AddressNode aNode ";
+		String q = "select aNode from AddressNode aNode ";
 		String addrAlias = "?";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -193,8 +197,9 @@ public class AddressNodeDaoHibernate
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q)
-				.setString(0, parentUuid)
-				.list();
+			.setString(0, parentUuid)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		return aNodes;
 	}
@@ -204,7 +209,7 @@ public class AddressNodeDaoHibernate
 			boolean fetchSubNodesChildren) {
 		Session session = getSession();
 
-		String q = "select distinct aNode from AddressNode aNode ";
+		String q = "select aNode from AddressNode aNode ";
 		String addrAlias = "?";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
@@ -233,7 +238,8 @@ public class AddressNodeDaoHibernate
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q)
-				.list();
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
 
 		return aNodes;
 	}
@@ -302,25 +308,43 @@ public class AddressNodeDaoHibernate
 		HashMap retMap = new HashMap();
 
 		// select ALL references from published ones, has highest "prio"
-		List<Long> nodeIdsPub = session.createQuery(
-				"select distinct oNode.id from ObjectNode oNode " +
+		List<Object[]> nodeIdsAndNamesPub = session.createQuery(
+				"select distinct oNode.id, oPub.objName " +
+				"from ObjectNode oNode " +
 				"left join oNode.t01ObjectPublished oPub " +
 				"left join oPub.t012ObjAdrs objAdr " +
 				"where objAdr.adrUuid = ? " +
 				"order by oPub.objName")
 				.setString(0, addressUuid)
 				.list();
+		// extract ids as list !
+		List<Long> nodeIdsPub = new ArrayList<Long>();
+		for (Object[] nodeIdAndNamePub : nodeIdsAndNamesPub) {
+			Long nodeIdPub = (Long) nodeIdAndNamePub[0];
+			if (!nodeIdsPub.contains(nodeIdPub)) {
+				nodeIdsPub.add(nodeIdPub);
+			}
+		}
 
 		// select ALL references from working copies (node ids)
 		// NOTICE: working copy == published one if not "in Bearbeitung" !
-		List<Long> nodeIdsWork = session.createQuery(
-				"select distinct oNode.id from ObjectNode oNode " +
+		List<Object[]> nodeIdsAndNamesWork = session.createQuery(
+				"select distinct oNode.id, oWork.objName " +
+				"from ObjectNode oNode " +
 				"left join oNode.t01ObjectWork oWork " +
 				"left join oWork.t012ObjAdrs objAdr " +
 				"where objAdr.adrUuid = ? " +
 				"order by oWork.objName")
 				.setString(0, addressUuid)
 				.list();			
+		// extract ids as list !
+		List<Long> nodeIdsWork = new ArrayList<Long>();
+		for (Object[] nodeIdAndNameWork : nodeIdsAndNamesWork) {
+			Long nodeIdWork = (Long) nodeIdAndNameWork[0];
+			if (!nodeIdsWork.contains(nodeIdWork)) {
+				nodeIdsWork.add(nodeIdWork);
+			}
+		}
 
 		// then remove all published references also contained in working references.
 		// we get the ones only in published version, meaning they were deleted in the
@@ -377,11 +401,12 @@ public class AddressNodeDaoHibernate
 		List<ObjectNode> nodesPubOnly = new ArrayList<ObjectNode>();
 		if (nodeIdsPubOnly.size() > 0) {
 			nodesPubOnly = session.createQuery(
-					"select distinct oNode from ObjectNode oNode " +
+					"select oNode from ObjectNode oNode " +
 					"left join fetch oNode.t01ObjectPublished oPub " +
 					"where oNode.id in (:idList) " +
 					"order by oPub.objName")
 					.setParameterList("idList", nodeIdsPubOnly)
+					.setResultTransformer(new DistinctRootEntityResultTransformer())
 					.list();			
 		}
 
@@ -389,11 +414,12 @@ public class AddressNodeDaoHibernate
 		List<ObjectNode> nodesWork = new ArrayList<ObjectNode>();
 		if (nodeIdsWork.size() > 0) {
 			nodesWork = session.createQuery(
-					"select distinct oNode from ObjectNode oNode " +
+					"select oNode from ObjectNode oNode " +
 					"left join fetch oNode.t01ObjectWork oWork " +
 					"where oNode.id in (:idList) " +
 					"order by oWork.objName")
 					.setParameterList("idList", nodeIdsWork)
+					.setResultTransformer(new DistinctRootEntityResultTransformer())
 					.list();			
 		}
 
@@ -411,7 +437,7 @@ public class AddressNodeDaoHibernate
 	public List<ObjectNode> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
 		Session session = getSession();
 		
-		String sql = "select distinct oNode from ObjectNode oNode " +
+		String sql = "select oNode from ObjectNode oNode " +
 			"left join oNode.t01ObjectWork oWork " +
 			"left join oWork.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = ?";
@@ -422,6 +448,7 @@ public class AddressNodeDaoHibernate
 
 		List<ObjectNode> objs = session.createQuery(sql)
 				.setString(0, addressUuid)
+				.setResultTransformer(new DistinctRootEntityResultTransformer())
 				.list();
 		
 		return objs;
@@ -507,7 +534,7 @@ public class AddressNodeDaoHibernate
 			return retList;
 		}
 
-		qString = "select distinct aNode " + qString;
+		qString = "select aNode " + qString;
 		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 
 		Session session = getSession();
@@ -515,6 +542,7 @@ public class AddressNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		return retList;
@@ -582,7 +610,7 @@ public class AddressNodeDaoHibernate
 			return retList;
 		}
 
-		qString = "select distinct aNode " + qString;
+		qString = "select aNode " + qString;
 		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 
 		Session session = getSession();
@@ -590,6 +618,7 @@ public class AddressNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		return retList;
@@ -647,7 +676,7 @@ public class AddressNodeDaoHibernate
 			return retList;
 		}
 
-		qString = "select distinct aNode " + qString;
+		qString = "select aNode " + qString;
 		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 
 		Session session = getSession();
@@ -655,6 +684,7 @@ public class AddressNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		return retList;
@@ -670,12 +700,13 @@ public class AddressNodeDaoHibernate
 		
 		Session session = getSession();
 
-		qString = "select distinct aNode " + qString;
+		qString = "select aNode " + qString;
 		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 		
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
 			.list();
 
 		return retList;

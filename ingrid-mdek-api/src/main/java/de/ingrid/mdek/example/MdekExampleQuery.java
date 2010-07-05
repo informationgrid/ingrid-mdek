@@ -2,6 +2,7 @@ package de.ingrid.mdek.example;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,6 +137,8 @@ class MdekExampleQueryThread extends Thread {
 //		String termSnsId = "uba_thes_28749";
 		// Emissionsüberwachung = uba_thes_8007: Institutionen und Personen
 		String termSnsId = "uba_thes_8007";
+		String objUuid = "3A295152-5091-11D3-AE6C-00104B57C66D";
+		String adrUuid = "095130C2-DDE9-11D2-BB32-006097FE70B1";
 
 		String uuid;
 		String searchterm;
@@ -146,7 +149,7 @@ class MdekExampleQueryThread extends Thread {
 		boolean alwaysTrue = true;
 
 		String hqlQueryAddr1 =
-			"select distinct aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term\n\n\n" +
+			"select aNode, addr.adrUuid, addr.adrType, addr.institution, addr.lastname, termVal.term\n\n\n" +
 			"from AddressNode as aNode\n" +
 			"inner join aNode.t02AddressWork addr\n\t\t\t" +
 			"inner join addr.searchtermAdrs termAdrs\n\n" +
@@ -158,7 +161,7 @@ class MdekExampleQueryThread extends Thread {
 
 		String hqlQueryAddr2 = "from AddressNode";
 
-		String hqlQueryObj1 = "select distinct oNode, obj.objName, termVal.term\n\n\n" +
+		String hqlQueryObj1 = "select oNode, obj.objName, termVal.term\n\n\n" +
 			"from ObjectNode oNode\n" +
 			"inner join oNode.t01ObjectWork obj\n\t\t\t" +
 			"inner join obj.searchtermObjs termObjs " +
@@ -369,6 +372,123 @@ class MdekExampleQueryThread extends Thread {
 			"inner join aNode.t02AddressWork addr " +
 			"where aNode.fkAddrUuid IS NULL";
 		supertool.queryHQLToMap(hqlQuery, null);
+		
+		// -----------------------------------
+
+		System.out.println("\n\n-------------------------");
+		System.out.println(" EXAMPLES FROM IGE FRONTEND");
+
+		// CatalogManagementServiceImpl.getDuplicateObjects()
+		// ---------------------------------------
+		System.out.println("\n----- CatalogManagementServiceImpl.getDuplicateObjects() -----");
+		System.out.println("----- Exception catched, may take too long or exceed message Size -----");
+		String qString = "select obj.objUuid, obj.objClass, obj.objName, obj.objDescr "
+			+ "from ObjectNode oNode "
+				+ "inner join oNode.t01ObjectPublished obj "
+			+ "where oNode.objIdPublished = oNode.objId "
+			+ "order by obj.objName";
+		try {
+			supertool.queryHQLToMap(qString, null);			
+		} catch (Exception ex) {
+			// takes to long ! SELECT MAKES NO SENSE ???!!!
+			System.out.println(ex.toString());
+		}
+
+		// CheckForExpiredDatasetsJob.getExpiredObjects()
+		// ---------------------------------------
+		System.out.println("\n----- CheckForExpiredDatasetsJob.getExpiredObjects() -----");
+		qString = "select obj.objUuid, obj.objName, obj.modTime, comm.commValue," +
+		"modUserAddr.institution, modUserAddr.firstname, modUserAddr.lastname " +
+"from ObjectNode oNode " +
+		"inner join oNode.t01ObjectPublished obj " +
+		"inner join obj.objectMetadata oMeta, " +
+	"AddressNode as responsibleUserNode " +
+		"inner join responsibleUserNode.t02AddressWork responsibleUserAddr " +
+		"inner join responsibleUserAddr.t021Communications comm, " +
+	"AddressNode as modUserNode " +
+		"inner join modUserNode.t02AddressWork modUserAddr " +
+"where " +
+	"oMeta.expiryState <= " + de.ingrid.mdek.MdekUtils.ExpiryState.INITIAL.getDbValue() +
+	" and obj.responsibleUuid = responsibleUserNode.addrUuid " +
+	" and comm.commtypeKey = " + de.ingrid.mdek.MdekUtils.COMM_TYPE_EMAIL +
+	" and obj.modTime <= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date()) +
+	" and modUserNode.addrUuid = obj.modUuid" +
+	" and obj.modTime >= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date()) +
+	" order by obj.objClass, obj.objName";
+		supertool.queryHQLToMap(qString, 10);
+
+		// CheckForExpiredDatasetsJob.getExpiredAddresses()
+		// ---------------------------------------
+		System.out.println("\n----- CheckForExpiredDatasetsJob.getExpiredAddresses() -----");
+		qString = "select adr.adrUuid, adr.institution, adr.firstname, adr.lastname, adr.modTime, comm.commValue," +
+		"modUserAddr.institution, modUserAddr.firstname, modUserAddr.lastname " +
+"from AddressNode addrNode " +
+		"inner join addrNode.t02AddressPublished adr " +
+		"inner join adr.addressMetadata aMeta, " +
+	"AddressNode as responsibleUserNode " +
+		"inner join responsibleUserNode.t02AddressWork responsibleUserAddr " +
+		"inner join responsibleUserAddr.t021Communications comm, " +
+	"AddressNode as modUserNode " +
+		"inner join modUserNode.t02AddressWork modUserAddr " +
+"where " +
+	"aMeta.expiryState <= " + de.ingrid.mdek.MdekUtils.ExpiryState.INITIAL.getDbValue() +
+	" and adr.responsibleUuid = responsibleUserNode.addrUuid " +
+	" and comm.commtypeKey = " + de.ingrid.mdek.MdekUtils.COMM_TYPE_EMAIL +
+	" and adr.modTime <= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date()) +
+	" and modUserNode.addrUuid = adr.modUuid" +
+	" and adr.modTime >= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date());
+		supertool.queryHQLToMap(qString, 10);
+		
+		// MdekEmailUtils.getAssignUserUuid(MdekDataBean)
+		// ---------------------------------------
+		System.out.println("\n----- MdekEmailUtils.getAssignUserUuid(MdekDataBean) -----");
+		qString = "select distinct oMeta.assignerUuid " +
+		"from ObjectNode oNode, " +
+			" T01Object obj, " +
+			" ObjectMetadata oMeta " +
+		"where " +
+			" oNode.objUuid = '"+objUuid+"'" +
+			" and oNode.objId = obj.id " +
+			" and obj.objMetadataId = oMeta.id";
+		supertool.queryHQLToMap(qString, null);
+
+		// MdekEmailUtils.getAssignUserUuid(MdekAddressBean)
+		// ---------------------------------------
+		System.out.println("\n----- MdekEmailUtils.getAssignUserUuid(MdekAddressBean) -----");
+		qString = "select distinct aMeta.assignerUuid " +
+		"from AddressNode aNode, " +
+			" T02Address adr, " +
+			" AddressMetadata aMeta " +
+		"where " +
+			" aNode.addrUuid = '"+adrUuid+"'" +
+			" and aNode.addrId = adr.id " +
+			" and adr.addrMetadataId = aMeta.id";
+		supertool.queryHQLToMap(qString, null);
+
+		// MdekEmailUtils.getEmailAddressesForUsers(...)
+		// ---------------------------------------
+		System.out.println("\n----- MdekEmailUtils.getEmailAddressesForUsers(...) -----");
+		qString = "select distinct comm.commValue " +
+		"from AddressNode aNode, " +
+			" T021Communication comm " +
+		"where " +
+			" aNode.addrId = comm.adrId " +
+			" and comm.commtypeKey = " + de.ingrid.mdek.MdekUtils.COMM_TYPE_EMAIL;
+		qString += " and (aNode.addrUuid = '"+adrUuid+"')";
+		supertool.queryHQLToMap(qString, null);
+
+		// URLValidatorJob.fetchUrls()
+		// ---------------------------------------
+		System.out.println("\n----- URLValidatorJob.fetchUrls() -----");
+		qString = "select obj.objUuid, obj.objName, obj.objClass, " +
+		"urlRef.urlLink, urlRef.content " +
+	"from ObjectNode oNode " +
+		"inner join oNode.t01ObjectPublished obj " +
+		"inner join obj.t017UrlRefs urlRef " +
+	"where oNode.objIdPublished = oNode.objId " +
+	"order by urlRef.urlLink";
+		supertool.queryHQLToMap(qString, null);
+
 
 		// -----------------------------------
 
@@ -498,7 +618,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n----- search objects by hql to csv -----");
 		supertool.queryHQLToCsv(hqlQueryObj1);
-		String hqlQueryObj3 = "select distinct obj " +
+		String hqlQueryObj3 = "select distinct obj.objUuid, obj.objName, obj.objClass " +
 			"from ObjectNode oNode " +
 			"inner join oNode.t01ObjectWork obj " +
 			"order by obj.objClass, obj.objName";
@@ -506,7 +626,7 @@ class MdekExampleQueryThread extends Thread {
 
 		System.out.println("\n----- search addresses by hql to csv -----");
 		supertool.queryHQLToCsv(hqlQueryAddr1);
-		String hqlQueryAddr3 = "select distinct addr " +
+		String hqlQueryAddr3 = "select distinct addr.adrUuid, addr.adrType, addr.institution, addr.lastname, addr.firstname " +
 			"from AddressNode as aNode " +
 			"inner join aNode.t02AddressWork addr " +
 			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
