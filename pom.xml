@@ -115,6 +115,10 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>wagon-maven-plugin</artifactId>
         <inherited>false</inherited>
+        <configuration>
+<!-- NOTICE: REDEFINE directory on distribution server -->
+          <url>file:///opt/ingrid/distributions/${project.name}/${project.version}</url>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
