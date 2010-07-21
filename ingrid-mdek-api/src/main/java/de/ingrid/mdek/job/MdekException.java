@@ -19,6 +19,7 @@ public class MdekException extends RuntimeException {
 
 	/** Constructs an exception containing the passed error. */
     public MdekException(MdekError error) {
+    	super("" + error);
     	this.errors.add(error);
     }
 
