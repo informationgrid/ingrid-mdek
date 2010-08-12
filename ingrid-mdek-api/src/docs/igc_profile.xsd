@@ -4,8 +4,10 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
         ADAPT VERSION OF PROFILE FORMAT !
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-    <xs:attribute name="profile-format" default="1.0.0"/>
-
+    <xs:attributeGroup name="attributes.profile">
+        <xs:attribute name="profile-format" type="xs:string" fixed="1.0.0"/>
+    </xs:attributeGroup>
+    
 
     <!-- ==============================
         elements 
@@ -20,7 +22,7 @@
                 <xs:element name="profile-name" type="xs:string"/>
                 <xs:element ref="fields"/>
             </xs:sequence>
-            <xs:attribute ref="profile-format"/>
+            <xs:attributeGroup ref="attributes.profile"/>
         </xs:complexType>
     </xs:element>
 
@@ -151,13 +153,6 @@
 
 
     <!-- ==============================
-        attributes 
-        ============================== -->
-    <xs:attribute name="lang" type="xs:string"/>
-    <xs:attribute name="extendable" type="xs:boolean" default="false"/>
-
-
-    <!-- ==============================
         types 
         ============================== -->
 
@@ -173,7 +168,7 @@
     <xs:complexType name="localized-stringType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute ref="lang" use="required"/>
+                <xs:attribute name="lang" type="xs:string" use="required"/>
             </xs:extension>     
         </xs:simpleContent>
     </xs:complexType>
@@ -182,7 +177,7 @@
     <xs:complexType name="field-selection-listType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute ref="extendable"/>
+                <xs:attribute name="extendable" type="xs:boolean" default="false"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
