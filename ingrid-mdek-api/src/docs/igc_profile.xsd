@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.portalu.de/ige-profile" xmlns="http://www.portalu.de/ige-profile">
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        ADAPT VERSION OF PROFILE FORMAT !
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:attribute name="profile-format" default="1.0.0"/>
+
+
+    <!-- ==============================
+        elements 
+        ============================== -->
+    
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        profile
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="profile">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="profile-name" type="xs:string"/>
+                <xs:element ref="fields"/>
+            </xs:sequence>
+            <xs:attribute ref="profile-format"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        fields
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="fields">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="text-field" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="number-field" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="date-field" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="table-field" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        text-field
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="text-field">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="field-identifier"/>
+                <xs:element ref="field-label" maxOccurs="unbounded"/>
+                <xs:element ref="field-help" maxOccurs="unbounded"/>
+                <xs:element ref="field-csw-mapping"/>
+                <xs:element ref="field-validation" minOccurs="0"/>
+                <xs:element ref="field-is-mandatory" minOccurs="0"/>
+                <xs:element ref="field-is-visible" minOccurs="0"/>
+                <xs:element ref="field-is-indexed" minOccurs="0"/>
+                <xs:element ref="field-width" minOccurs="0"/>
+                <xs:element ref="field-num-lines" minOccurs="0"/>
+                <xs:element ref="field-selection-list-identifier" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType> 
+    </xs:element>
+        
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        number-field
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="number-field">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="field-identifier"/>
+                <xs:element ref="field-label" maxOccurs="unbounded"/>
+                <xs:element ref="field-help" maxOccurs="unbounded"/>
+                <xs:element ref="field-csw-mapping"/>
+                <xs:element ref="field-validation" minOccurs="0"/>
+                <xs:element ref="field-is-mandatory" minOccurs="0"/>
+                <xs:element ref="field-is-visible" minOccurs="0"/>
+                <xs:element ref="field-is-indexed" minOccurs="0"/>
+                <xs:element ref="field-width" minOccurs="0"/>
+                <xs:element ref="field-number-unit" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType> 
+    </xs:element>
+    
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        date-field
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="date-field">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="field-identifier"/>
+                <xs:element ref="field-label" maxOccurs="unbounded"/>
+                <xs:element ref="field-help" maxOccurs="unbounded"/>
+                <xs:element ref="field-csw-mapping"/>
+                <xs:element ref="field-validation" minOccurs="0"/>
+                <xs:element ref="field-is-mandatory" minOccurs="0"/>
+                <xs:element ref="field-is-visible" minOccurs="0"/>
+                <xs:element ref="field-is-indexed" minOccurs="0"/>
+                <xs:element ref="field-width" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType> 
+    </xs:element>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        table-field
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="table-field">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="columns"/>
+            </xs:sequence>
+        </xs:complexType> 
+    </xs:element>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        columns
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="columns">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="column" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        column
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="column">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element ref="text-field"/>
+                <xs:element ref="number-field"/>
+                <xs:element ref="date-field"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
+        "simple" element definitions
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="field-identifier" type="xs:string"/>
+    <xs:element name="field-label" type="localized-stringType"/>
+    <xs:element name="field-help" type="localized-stringType"/>
+    <xs:element name="field-csw-mapping" type="xs:string"/>
+    <xs:element name="field-validation" type="xs:string"/>
+    <xs:element name="field-is-mandatory" type="xs:boolean" default="true"/>
+    <xs:element name="field-is-visible" type="xs:boolean" default="true"/>
+    <xs:element name="field-is-indexed" type="xs:boolean" default="true"/>
+    <xs:element name="field-selection-list-identifier" type="field-selection-listType"/>
+    <xs:element name="field-width" type="percentType" default="100"/>
+    <xs:element name="field-num-lines" type="xs:integer" default="1"/>
+    <xs:element name="field-number-unit" type="xs:string"/>
+
+
+    <!-- ==============================
+        attributes 
+        ============================== -->
+    <xs:attribute name="lang" type="xs:string"/>
+    <xs:attribute name="extendable" type="xs:boolean" default="false"/>
+
+
+    <!-- ==============================
+        types 
+        ============================== -->
+
+    <!-- %: 0 - 100 -->
+    <xs:simpleType name="percentType">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="100"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Lokalisierter String: STRING element mit lang-Attribut -->
+    <xs:complexType name="localized-stringType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute ref="lang" use="required"/>
+            </xs:extension>     
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Auswahlliste: STRING element (= Listen-ID) mit "extendable"-Attribut (wenn freie Einträge) -->
+    <xs:complexType name="field-selection-listType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute ref="extendable"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+</xs:schema>
