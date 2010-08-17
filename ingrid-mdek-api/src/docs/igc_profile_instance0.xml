@@ -115,4 +115,38 @@
             <scriptedProperties>scriptedProperties7</scriptedProperties>
         </legacyField>-->
     </fields>
+    <lists>
+        <sysList>
+            <id>0</id>
+            <entryIds>
+                <int>0</int>
+                <int>0</int>
+            </entryIds>
+            <deEntries>
+                <string>string0</string>
+                <string>string1</string>
+            </deEntries>
+            <enEntries>
+                <string>string2</string>
+                <string>string3</string>
+            </enEntries>
+            <maintainable>false</maintainable>
+        </sysList>
+        <sysList>
+            <id>0</id>
+            <entryIds>
+                <int>0</int>
+                <int>0</int>
+            </entryIds>
+            <deEntries>
+                <string>string4</string>
+                <string>string5</string>
+            </deEntries>
+            <enEntries>
+                <string>string6</string>
+                <string>string7</string>
+            </enEntries>
+            <maintainable>false</maintainable>
+        </sysList>
+    </lists>
 </profile>

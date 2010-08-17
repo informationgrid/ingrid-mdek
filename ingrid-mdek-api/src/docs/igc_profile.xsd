@@ -19,8 +19,9 @@
     <xs:element name="profile">
         <xs:complexType>
             <xs:all>
-                <xs:element name="name" type="xs:string"/>
-                <xs:element name="fields" type="Fields"/>
+                <xs:element ref="name"/>
+                <xs:element ref="fields"/>
+                <xs:element ref="lists" minOccurs="0"/>
             </xs:all>
             <xs:attributeGroup ref="attributes.profile"/>
         </xs:complexType>
@@ -29,15 +30,20 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
         complex elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="fields" type="Fields"/>
     <xs:element name="textField" type="TextField"/>
     <xs:element name="numberField" type="NumberField"/>    
     <xs:element name="dateField" type="DateField"/>
     <xs:element name="tableField" type="TableField"/>
     <xs:element name="legacyField" type="LegacyField"/>
+
+    <xs:element name="lists" type="Lists"/>
+    <xs:element name="sysList" type="SysList"/>
     
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
         "simple" elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <xs:element name="name" type="xs:string"/>
     <xs:element name="id" type="xs:string"/>
     <xs:element name="localizedLabel" type="LocalizedString"/>
     <xs:element name="localizedLabelPostfix" type="LocalizedString"/>
@@ -62,6 +68,7 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
         element types
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- All possible fields in Profile -->
     <xs:complexType name="Fields">
         <xs:choice>
             <xs:element ref="textField"/>
@@ -72,7 +79,7 @@
         </xs:choice>
     </xs:complexType>
 
-    <!-- elements of all fields -->
+    <!-- AbstractField: elements of all fields -->
     <xs:complexType name="AbstractField" abstract="true">
         <xs:sequence>
             <xs:element ref="id"/>
@@ -81,14 +88,14 @@
         </xs:sequence>
     </xs:complexType>
     
-    <!-- legacy field -->
+    <!-- LegacyField: existing field in core model -->
     <xs:complexType name="LegacyField">
         <xs:complexContent>
             <xs:extension base="AbstractField"/>
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- additional elements of all new fields -->
+    <!-- AbstractNewField: additional elements of all new fields -->
     <xs:complexType name="AbstractNewField" abstract="true">
         <xs:complexContent>
             <xs:extension base="AbstractField">
@@ -105,7 +112,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- new text field -->
+    <!-- TextField: new text field -->
     <xs:complexType name="TextField">
         <xs:complexContent>
             <xs:extension base="AbstractNewField">
@@ -117,7 +124,7 @@
         </xs:complexContent>
     </xs:complexType>
     
-    <!-- new number field -->
+    <!-- NumberField: new number field -->
     <xs:complexType name="NumberField">
         <xs:complexContent>
             <xs:extension base="AbstractNewField">
@@ -125,7 +132,7 @@
         </xs:complexContent>
     </xs:complexType>
     
-    <!-- new date field -->
+    <!-- DateField: new date field -->
     <xs:complexType name="DateField">
         <xs:complexContent>
             <xs:extension base="AbstractNewField">
@@ -133,7 +140,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- new table field -->
+    <!-- TableField: new table -->
     <xs:complexType name="TableField">
         <xs:complexContent>
             <xs:extension base="AbstractNewField">
@@ -144,12 +151,47 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType> 
+    <!-- ColumnFields: possible fields in columns -->
     <xs:complexType name="ColumnFields">
         <xs:choice>
             <xs:element ref="textField"/>
             <xs:element ref="numberField"/>
             <xs:element ref="dateField"/>
         </xs:choice>
+    </xs:complexType>
+    
+    <!-- Defining / Redefining syslists (syslist exchange format !) -->
+    <xs:complexType name="Lists">
+        <xs:sequence>
+            <xs:element ref="sysList" maxOccurs="unbounded"/>            
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="SysList">
+        <xs:sequence>
+            <xs:element name="id" type="xs:integer"/>
+            <xs:element name="entryIds">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="int" type="xs:integer" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deEntries">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="string" type="xs:string" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="enEntries" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="string" type="xs:string" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="maintainable" type="xs:boolean"/>
+        </xs:sequence>
     </xs:complexType>
     
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
