@@ -1,142 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<profile xmlns="http://www.portalu.de/ige-profile"
+<profile xmlns="http://www.portalu.de/igc-profile"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/ige-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/igc_profile.xsd" profile-format="1.0.0">
-    <profile-name>profile-name0</profile-name>
+ xsi:schemaLocation="http://www.portalu.de/igc-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/igc_profile.xsd" version="1.0.0">
+    <name>name0</name>
     <fields>
-        <text-field>
-            <field-identifier>field-identifier0</field-identifier>
-            <field-label lang="lang1">field-label0</field-label>
-            <field-label lang="lang3">field-label1</field-label>
-            <field-help lang="lang5">field-help0</field-help>
-            <field-help lang="lang7">field-help1</field-help>
-            <field-csw-mapping>field-csw-mapping0</field-csw-mapping>
-            <field-validation>field-validation0</field-validation>
-            <field-is-mandatory>true</field-is-mandatory>
-            <field-is-visible>true</field-is-visible>
-            <field-is-indexed>true</field-is-indexed>
-            <field-width>100</field-width>
-            <field-num-lines>1</field-num-lines>
-            <field-selection-list-identifier extendable="false">field-selection-list-identifier0</field-selection-list-identifier>
-        </text-field>
-        <number-field>
-            <field-identifier>field-identifier1</field-identifier>
-            <field-label lang="lang9">field-label2</field-label>
-            <field-label lang="lang11">field-label3</field-label>
-            <field-help lang="lang13">field-help2</field-help>
-            <field-help lang="lang15">field-help3</field-help>
-            <field-csw-mapping>field-csw-mapping1</field-csw-mapping>
-            <field-validation>field-validation1</field-validation>
-            <field-is-mandatory>true</field-is-mandatory>
-            <field-is-visible>true</field-is-visible>
-            <field-is-indexed>true</field-is-indexed>
-            <field-width>100</field-width>
-            <field-number-unit>field-number-unit0</field-number-unit>
-        </number-field>
-        <date-field>
-            <field-identifier>field-identifier2</field-identifier>
-            <field-label lang="lang17">field-label4</field-label>
-            <field-label lang="lang19">field-label5</field-label>
-            <field-help lang="lang21">field-help4</field-help>
-            <field-help lang="lang23">field-help5</field-help>
-            <field-csw-mapping>field-csw-mapping2</field-csw-mapping>
-            <field-validation>field-validation2</field-validation>
-            <field-is-mandatory>true</field-is-mandatory>
-            <field-is-visible>true</field-is-visible>
-            <field-is-indexed>true</field-is-indexed>
-            <field-width>100</field-width>
-        </date-field>
-        <table-field>
-            <columns>
-                <column>
-                    <text-field>
-                        <field-identifier>field-identifier3</field-identifier>
-                        <field-label lang="lang25">field-label6</field-label>
-                        <field-label lang="lang27">field-label7</field-label>
-                        <field-help lang="lang29">field-help6</field-help>
-                        <field-help lang="lang31">field-help7</field-help>
-                        <field-csw-mapping>field-csw-mapping3</field-csw-mapping>
-                        <field-validation>field-validation3</field-validation>
-                        <field-is-mandatory>true</field-is-mandatory>
-                        <field-is-visible>true</field-is-visible>
-                        <field-is-indexed>true</field-is-indexed>
-                        <field-width>100</field-width>
-                        <field-num-lines>1</field-num-lines>
-                        <field-selection-list-identifier extendable="false">field-selection-list-identifier1</field-selection-list-identifier>
-                    </text-field>
-<!--                    <number-field>
-                        <field-identifier>field-identifier4</field-identifier>
-                        <field-label lang="lang33">field-label8</field-label>
-                        <field-label lang="lang35">field-label9</field-label>
-                        <field-help lang="lang37">field-help8</field-help>
-                        <field-help lang="lang39">field-help9</field-help>
-                        <field-csw-mapping>field-csw-mapping4</field-csw-mapping>
-                        <field-validation>field-validation4</field-validation>
-                        <field-is-mandatory>true</field-is-mandatory>
-                        <field-is-visible>true</field-is-visible>
-                        <field-is-indexed>true</field-is-indexed>
-                        <field-width>100</field-width>
-                        <field-number-unit>field-number-unit1</field-number-unit>
-                    </number-field>-->
-<!--                    <date-field>
-                        <field-identifier>field-identifier5</field-identifier>
-                        <field-label lang="lang41">field-label10</field-label>
-                        <field-label lang="lang43">field-label11</field-label>
-                        <field-help lang="lang45">field-help10</field-help>
-                        <field-help lang="lang47">field-help11</field-help>
-                        <field-csw-mapping>field-csw-mapping5</field-csw-mapping>
-                        <field-validation>field-validation5</field-validation>
-                        <field-is-mandatory>true</field-is-mandatory>
-                        <field-is-visible>true</field-is-visible>
-                        <field-is-indexed>true</field-is-indexed>
-                        <field-width>100</field-width>
-                    </date-field>-->
-                </column>
-                <column>
-                    <text-field>
-                        <field-identifier>field-identifier6</field-identifier>
-                        <field-label lang="lang49">field-label12</field-label>
-                        <field-label lang="lang51">field-label13</field-label>
-                        <field-help lang="lang53">field-help12</field-help>
-                        <field-help lang="lang55">field-help13</field-help>
-                        <field-csw-mapping>field-csw-mapping6</field-csw-mapping>
-                        <field-validation>field-validation6</field-validation>
-                        <field-is-mandatory>true</field-is-mandatory>
-                        <field-is-visible>true</field-is-visible>
-                        <field-is-indexed>true</field-is-indexed>
-                        <field-width>100</field-width>
-                        <field-num-lines>1</field-num-lines>
-                        <field-selection-list-identifier extendable="false">field-selection-list-identifier2</field-selection-list-identifier>
-                    </text-field>
-<!--                    <number-field>
-                        <field-identifier>field-identifier7</field-identifier>
-                        <field-label lang="lang57">field-label14</field-label>
-                        <field-label lang="lang59">field-label15</field-label>
-                        <field-help lang="lang61">field-help14</field-help>
-                        <field-help lang="lang63">field-help15</field-help>
-                        <field-csw-mapping>field-csw-mapping7</field-csw-mapping>
-                        <field-validation>field-validation7</field-validation>
-                        <field-is-mandatory>true</field-is-mandatory>
-                        <field-is-visible>true</field-is-visible>
-                        <field-is-indexed>true</field-is-indexed>
-                        <field-width>100</field-width>
-                        <field-number-unit>field-number-unit2</field-number-unit>
-                    </number-field>-->
-<!--                    <date-field>
-                        <field-identifier>field-identifier8</field-identifier>
-                        <field-label lang="lang65">field-label16</field-label>
-                        <field-label lang="lang67">field-label17</field-label>
-                        <field-help lang="lang69">field-help16</field-help>
-                        <field-help lang="lang71">field-help17</field-help>
-                        <field-csw-mapping>field-csw-mapping8</field-csw-mapping>
-                        <field-validation>field-validation8</field-validation>
-                        <field-is-mandatory>true</field-is-mandatory>
-                        <field-is-visible>true</field-is-visible>
-                        <field-is-indexed>true</field-is-indexed>
-                        <field-width>100</field-width>
-                    </date-field>-->
-                </column>
-            </columns>
-        </table-field>
+        <textField>
+                    <id>id0</id>
+                    <isVisible>true</isVisible>
+                    <scriptedProperties>scriptedProperties0</scriptedProperties>
+                    <localizedLabel lang="lang1">localizedLabel0</localizedLabel>
+                    <localizedLabel lang="lang3">localizedLabel1</localizedLabel>
+                    <localizedLabelPostfix lang="lang5">localizedLabelPostfix0</localizedLabelPostfix>
+                    <localizedHelp lang="lang7">localizedHelp0</localizedHelp>
+                    <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
+                    <scriptedCswMapping>scriptedCswMapping0</scriptedCswMapping>
+                    <isIndexed>true</isIndexed>
+                    <layoutWidth>100</layoutWidth>
+                    <layoutCategory>layoutCategory0</layoutCategory>
+                <layoutNumLines>1</layoutNumLines>
+                <selectionListId extendable="false">selectionListId0</selectionListId>
+        </textField>
+<!--        <numberField>
+                <id>id1</id>
+                <isVisible>true</isVisible>
+                <scriptedProperties>scriptedProperties1</scriptedProperties>
+                <localizedLabel lang="lang11">localizedLabel2</localizedLabel>
+                <localizedLabel lang="lang13">localizedLabel3</localizedLabel>
+                <localizedLabelPostfix lang="lang15">localizedLabelPostfix1</localizedLabelPostfix>
+                <localizedHelp lang="lang17">localizedHelp2</localizedHelp>
+                <localizedHelp lang="lang19">localizedHelp3</localizedHelp>
+                <scriptedCswMapping>scriptedCswMapping1</scriptedCswMapping>
+                <isIndexed>true</isIndexed>
+                <layoutWidth>100</layoutWidth>
+                <layoutCategory>layoutCategory1</layoutCategory>
+        </numberField>-->
+<!--        <dateField>
+                <id>id2</id>
+                <isVisible>true</isVisible>
+                <scriptedProperties>scriptedProperties2</scriptedProperties>
+                <localizedLabel lang="lang21">localizedLabel4</localizedLabel>
+                <localizedLabel lang="lang23">localizedLabel5</localizedLabel>
+                <localizedLabelPostfix lang="lang25">localizedLabelPostfix2</localizedLabelPostfix>
+                <localizedHelp lang="lang27">localizedHelp4</localizedHelp>
+                <localizedHelp lang="lang29">localizedHelp5</localizedHelp>
+                <scriptedCswMapping>scriptedCswMapping2</scriptedCswMapping>
+                <isIndexed>true</isIndexed>
+                <layoutWidth>100</layoutWidth>
+                <layoutCategory>layoutCategory2</layoutCategory>
+        </dateField>-->
+<!--        <tableField>
+                    <id>id3</id>
+                    <isVisible>true</isVisible>
+                    <scriptedProperties>scriptedProperties3</scriptedProperties>
+                    <localizedLabel lang="lang31">localizedLabel6</localizedLabel>
+                    <localizedLabel lang="lang33">localizedLabel7</localizedLabel>
+                    <localizedLabelPostfix lang="lang35">localizedLabelPostfix3</localizedLabelPostfix>
+                    <localizedHelp lang="lang37">localizedHelp6</localizedHelp>
+                    <localizedHelp lang="lang39">localizedHelp7</localizedHelp>
+                    <scriptedCswMapping>scriptedCswMapping3</scriptedCswMapping>
+                    <isIndexed>true</isIndexed>
+                    <layoutWidth>100</layoutWidth>
+                    <layoutCategory>layoutCategory3</layoutCategory>
+                <layoutNumLines>1</layoutNumLines>
+                <columns>
+                    <textField>
+                                <id>id4</id>
+                                <isVisible>true</isVisible>
+                                <scriptedProperties>scriptedProperties4</scriptedProperties>
+                                <localizedLabel lang="lang41">localizedLabel8</localizedLabel>
+                                <localizedLabel lang="lang43">localizedLabel9</localizedLabel>
+                                <localizedLabelPostfix lang="lang45">localizedLabelPostfix4</localizedLabelPostfix>
+                                <localizedHelp lang="lang47">localizedHelp8</localizedHelp>
+                                <localizedHelp lang="lang49">localizedHelp9</localizedHelp>
+                                <scriptedCswMapping>scriptedCswMapping4</scriptedCswMapping>
+                                <isIndexed>true</isIndexed>
+                                <layoutWidth>100</layoutWidth>
+                                <layoutCategory>layoutCategory4</layoutCategory>
+                            <layoutNumLines>1</layoutNumLines>
+                            <selectionListId extendable="false">selectionListId1</selectionListId>
+                    </textField>
+<!--                    <numberField>
+                            <id>id5</id>
+                            <isVisible>true</isVisible>
+                            <scriptedProperties>scriptedProperties5</scriptedProperties>
+                            <localizedLabel lang="lang51">localizedLabel10</localizedLabel>
+                            <localizedLabel lang="lang53">localizedLabel11</localizedLabel>
+                            <localizedLabelPostfix lang="lang55">localizedLabelPostfix5</localizedLabelPostfix>
+                            <localizedHelp lang="lang57">localizedHelp10</localizedHelp>
+                            <localizedHelp lang="lang59">localizedHelp11</localizedHelp>
+                            <scriptedCswMapping>scriptedCswMapping5</scriptedCswMapping>
+                            <isIndexed>true</isIndexed>
+                            <layoutWidth>100</layoutWidth>
+                            <layoutCategory>layoutCategory5</layoutCategory>
+                    </numberField>-->
+<!--                    <dateField>
+                            <id>id6</id>
+                            <isVisible>true</isVisible>
+                            <scriptedProperties>scriptedProperties6</scriptedProperties>
+                            <localizedLabel lang="lang61">localizedLabel12</localizedLabel>
+                            <localizedLabel lang="lang63">localizedLabel13</localizedLabel>
+                            <localizedLabelPostfix lang="lang65">localizedLabelPostfix6</localizedLabelPostfix>
+                            <localizedHelp lang="lang67">localizedHelp12</localizedHelp>
+                            <localizedHelp lang="lang69">localizedHelp13</localizedHelp>
+                            <scriptedCswMapping>scriptedCswMapping6</scriptedCswMapping>
+                            <isIndexed>true</isIndexed>
+                            <layoutWidth>100</layoutWidth>
+                            <layoutCategory>layoutCategory6</layoutCategory>
+                    </dateField>-->
+                </columns>
+        </tableField>-->
+<!--        <legacyField>
+            <id>id7</id>
+            <isVisible>true</isVisible>
+            <scriptedProperties>scriptedProperties7</scriptedProperties>
+        </legacyField>-->
     </fields>
 </profile>
