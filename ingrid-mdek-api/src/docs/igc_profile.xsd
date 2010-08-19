@@ -46,7 +46,8 @@
     <xs:element name="localizedHelp" type="LocalizedString"/>
     <!-- script contains mapping to csw -->
     <xs:element name="scriptedCswMapping" type="xs:string"/>
-    <!-- script contains validation (e.g. mandatory), visibility on INSPIRE themes etc. -->
+    <!-- script contains validation (e.g. mandatory, URL, number type ... ), visibility dependent from INSPIRE theme (including deletion of database content when hidden),
+        visibility dependent from object class (including deletion of database content when hidden ?) etc. -->
     <xs:element name="scriptedProperties" type="xs:string"/>
     <!-- visibility of optional elements NOT scripted to be integrated in existing gui mechanism ("Katalogverwaltung/Feldeinstellungen") -->
     <xs:element name="isVisible" type="xs:boolean" default="true"/>
@@ -174,7 +175,7 @@
             </xs:element>
         </xs:sequence>
         <!-- also free entry of text possible (true) or not (false) -->
-        <xs:attribute name="extendable" type="xs:boolean" default="false"/>
+        <xs:attribute name="isExtendable" type="xs:boolean" default="false"/>
     </xs:complexType>
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   

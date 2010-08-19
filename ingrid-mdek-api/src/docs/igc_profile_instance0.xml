@@ -17,7 +17,7 @@
                         <isIndexed>true</isIndexed>
                         <layoutWidth>100</layoutWidth>
                     <layoutNumLines>1</layoutNumLines>
-                    <selectionList extendable="false">
+                    <selectionList isExtendable="false">
                         <items lang="lang9">
                             <item>item0</item>
                         </items>
@@ -68,7 +68,7 @@
                                     <isIndexed>true</isIndexed>
                                     <layoutWidth>100</layoutWidth>
                                 <layoutNumLines>1</layoutNumLines>
-                                <selectionList extendable="false">
+                                <selectionList isExtendable="false">
                                     <items lang="lang35">
                                         <item>item1</item>
                                     </items>
