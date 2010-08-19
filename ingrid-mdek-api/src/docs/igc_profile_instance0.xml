@@ -3,150 +3,105 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.portalu.de/igc-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/igc_profile.xsd" version="1.0.0">
     <name>name0</name>
-    <fields>
-        <textField>
-                    <id>id0</id>
+    <layoutRubric isLegacy="false">
+        <id>id0</id>
+        <localizedLabel lang="lang1">localizedLabel0</localizedLabel>
+            <textControl>
+                        <id>id1</id>
+                        <isVisible>true</isVisible>
+                        <scriptedProperties>scriptedProperties0</scriptedProperties>
+                        <localizedLabel lang="lang3">localizedLabel1</localizedLabel>
+                        <localizedLabelPostfix lang="lang5">localizedLabelPostfix0</localizedLabelPostfix>
+                        <localizedHelp lang="lang7">localizedHelp0</localizedHelp>
+                        <scriptedCswMapping>scriptedCswMapping0</scriptedCswMapping>
+                        <isIndexed>true</isIndexed>
+                        <layoutWidth>100</layoutWidth>
+                    <layoutNumLines>1</layoutNumLines>
+                    <selectionList extendable="false">
+                        <items lang="lang9">
+                            <item>item0</item>
+                        </items>
+                    </selectionList>
+            </textControl>
+<!--            <numberControl>
+                    <id>id2</id>
                     <isVisible>true</isVisible>
-                    <scriptedProperties>scriptedProperties0</scriptedProperties>
-                    <localizedLabel lang="lang1">localizedLabel0</localizedLabel>
-                    <localizedLabel lang="lang3">localizedLabel1</localizedLabel>
-                    <localizedLabelPostfix lang="lang5">localizedLabelPostfix0</localizedLabelPostfix>
-                    <localizedHelp lang="lang7">localizedHelp0</localizedHelp>
-                    <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
-                    <scriptedCswMapping>scriptedCswMapping0</scriptedCswMapping>
+                    <scriptedProperties>scriptedProperties1</scriptedProperties>
+                    <localizedLabel lang="lang11">localizedLabel2</localizedLabel>
+                    <localizedLabelPostfix lang="lang13">localizedLabelPostfix1</localizedLabelPostfix>
+                    <localizedHelp lang="lang15">localizedHelp1</localizedHelp>
+                    <scriptedCswMapping>scriptedCswMapping1</scriptedCswMapping>
                     <isIndexed>true</isIndexed>
                     <layoutWidth>100</layoutWidth>
-                    <layoutCategory>layoutCategory0</layoutCategory>
-                <layoutNumLines>1</layoutNumLines>
-                <selectionListId extendable="false">selectionListId0</selectionListId>
-        </textField>
-<!--        <numberField>
-                <id>id1</id>
-                <isVisible>true</isVisible>
-                <scriptedProperties>scriptedProperties1</scriptedProperties>
-                <localizedLabel lang="lang11">localizedLabel2</localizedLabel>
-                <localizedLabel lang="lang13">localizedLabel3</localizedLabel>
-                <localizedLabelPostfix lang="lang15">localizedLabelPostfix1</localizedLabelPostfix>
-                <localizedHelp lang="lang17">localizedHelp2</localizedHelp>
-                <localizedHelp lang="lang19">localizedHelp3</localizedHelp>
-                <scriptedCswMapping>scriptedCswMapping1</scriptedCswMapping>
-                <isIndexed>true</isIndexed>
-                <layoutWidth>100</layoutWidth>
-                <layoutCategory>layoutCategory1</layoutCategory>
-        </numberField>-->
-<!--        <dateField>
-                <id>id2</id>
-                <isVisible>true</isVisible>
-                <scriptedProperties>scriptedProperties2</scriptedProperties>
-                <localizedLabel lang="lang21">localizedLabel4</localizedLabel>
-                <localizedLabel lang="lang23">localizedLabel5</localizedLabel>
-                <localizedLabelPostfix lang="lang25">localizedLabelPostfix2</localizedLabelPostfix>
-                <localizedHelp lang="lang27">localizedHelp4</localizedHelp>
-                <localizedHelp lang="lang29">localizedHelp5</localizedHelp>
-                <scriptedCswMapping>scriptedCswMapping2</scriptedCswMapping>
-                <isIndexed>true</isIndexed>
-                <layoutWidth>100</layoutWidth>
-                <layoutCategory>layoutCategory2</layoutCategory>
-        </dateField>-->
-<!--        <tableField>
+            </numberControl>-->
+<!--            <dateControl>
                     <id>id3</id>
                     <isVisible>true</isVisible>
-                    <scriptedProperties>scriptedProperties3</scriptedProperties>
-                    <localizedLabel lang="lang31">localizedLabel6</localizedLabel>
-                    <localizedLabel lang="lang33">localizedLabel7</localizedLabel>
-                    <localizedLabelPostfix lang="lang35">localizedLabelPostfix3</localizedLabelPostfix>
-                    <localizedHelp lang="lang37">localizedHelp6</localizedHelp>
-                    <localizedHelp lang="lang39">localizedHelp7</localizedHelp>
-                    <scriptedCswMapping>scriptedCswMapping3</scriptedCswMapping>
+                    <scriptedProperties>scriptedProperties2</scriptedProperties>
+                    <localizedLabel lang="lang17">localizedLabel3</localizedLabel>
+                    <localizedLabelPostfix lang="lang19">localizedLabelPostfix2</localizedLabelPostfix>
+                    <localizedHelp lang="lang21">localizedHelp2</localizedHelp>
+                    <scriptedCswMapping>scriptedCswMapping2</scriptedCswMapping>
                     <isIndexed>true</isIndexed>
                     <layoutWidth>100</layoutWidth>
-                    <layoutCategory>layoutCategory3</layoutCategory>
-                <layoutNumLines>1</layoutNumLines>
-                <columns>
-                    <textField>
-                                <id>id4</id>
+            </dateControl>-->
+<!--            <tableControl>
+                        <id>id4</id>
+                        <isVisible>true</isVisible>
+                        <scriptedProperties>scriptedProperties3</scriptedProperties>
+                        <localizedLabel lang="lang23">localizedLabel4</localizedLabel>
+                        <localizedLabelPostfix lang="lang25">localizedLabelPostfix3</localizedLabelPostfix>
+                        <localizedHelp lang="lang27">localizedHelp3</localizedHelp>
+                        <scriptedCswMapping>scriptedCswMapping3</scriptedCswMapping>
+                        <isIndexed>true</isIndexed>
+                        <layoutWidth>100</layoutWidth>
+                    <layoutNumLines>1</layoutNumLines>
+                    <columns>
+                        <textControl>
+                                    <id>id5</id>
+                                    <isVisible>true</isVisible>
+                                    <scriptedProperties>scriptedProperties4</scriptedProperties>
+                                    <localizedLabel lang="lang29">localizedLabel5</localizedLabel>
+                                    <localizedLabelPostfix lang="lang31">localizedLabelPostfix4</localizedLabelPostfix>
+                                    <localizedHelp lang="lang33">localizedHelp4</localizedHelp>
+                                    <scriptedCswMapping>scriptedCswMapping4</scriptedCswMapping>
+                                    <isIndexed>true</isIndexed>
+                                    <layoutWidth>100</layoutWidth>
+                                <layoutNumLines>1</layoutNumLines>
+                                <selectionList extendable="false">
+                                    <items lang="lang35">
+                                        <item>item1</item>
+                                    </items>
+                                </selectionList>
+                        </textControl>
+<!--                        <numberControl>
+                                <id>id6</id>
                                 <isVisible>true</isVisible>
-                                <scriptedProperties>scriptedProperties4</scriptedProperties>
-                                <localizedLabel lang="lang41">localizedLabel8</localizedLabel>
-                                <localizedLabel lang="lang43">localizedLabel9</localizedLabel>
-                                <localizedLabelPostfix lang="lang45">localizedLabelPostfix4</localizedLabelPostfix>
-                                <localizedHelp lang="lang47">localizedHelp8</localizedHelp>
-                                <localizedHelp lang="lang49">localizedHelp9</localizedHelp>
-                                <scriptedCswMapping>scriptedCswMapping4</scriptedCswMapping>
+                                <scriptedProperties>scriptedProperties5</scriptedProperties>
+                                <localizedLabel lang="lang37">localizedLabel6</localizedLabel>
+                                <localizedLabelPostfix lang="lang39">localizedLabelPostfix5</localizedLabelPostfix>
+                                <localizedHelp lang="lang41">localizedHelp5</localizedHelp>
+                                <scriptedCswMapping>scriptedCswMapping5</scriptedCswMapping>
                                 <isIndexed>true</isIndexed>
                                 <layoutWidth>100</layoutWidth>
-                                <layoutCategory>layoutCategory4</layoutCategory>
-                            <layoutNumLines>1</layoutNumLines>
-                            <selectionListId extendable="false">selectionListId1</selectionListId>
-                    </textField>
-<!--                    <numberField>
-                            <id>id5</id>
-                            <isVisible>true</isVisible>
-                            <scriptedProperties>scriptedProperties5</scriptedProperties>
-                            <localizedLabel lang="lang51">localizedLabel10</localizedLabel>
-                            <localizedLabel lang="lang53">localizedLabel11</localizedLabel>
-                            <localizedLabelPostfix lang="lang55">localizedLabelPostfix5</localizedLabelPostfix>
-                            <localizedHelp lang="lang57">localizedHelp10</localizedHelp>
-                            <localizedHelp lang="lang59">localizedHelp11</localizedHelp>
-                            <scriptedCswMapping>scriptedCswMapping5</scriptedCswMapping>
-                            <isIndexed>true</isIndexed>
-                            <layoutWidth>100</layoutWidth>
-                            <layoutCategory>layoutCategory5</layoutCategory>
-                    </numberField>-->
-<!--                    <dateField>
-                            <id>id6</id>
-                            <isVisible>true</isVisible>
-                            <scriptedProperties>scriptedProperties6</scriptedProperties>
-                            <localizedLabel lang="lang61">localizedLabel12</localizedLabel>
-                            <localizedLabel lang="lang63">localizedLabel13</localizedLabel>
-                            <localizedLabelPostfix lang="lang65">localizedLabelPostfix6</localizedLabelPostfix>
-                            <localizedHelp lang="lang67">localizedHelp12</localizedHelp>
-                            <localizedHelp lang="lang69">localizedHelp13</localizedHelp>
-                            <scriptedCswMapping>scriptedCswMapping6</scriptedCswMapping>
-                            <isIndexed>true</isIndexed>
-                            <layoutWidth>100</layoutWidth>
-                            <layoutCategory>layoutCategory6</layoutCategory>
-                    </dateField>-->
-                </columns>
-        </tableField>-->
-<!--        <legacyField>
-            <id>id7</id>
-            <isVisible>true</isVisible>
-            <scriptedProperties>scriptedProperties7</scriptedProperties>
-        </legacyField>-->
-    </fields>
-    <lists>
-        <sysList>
-            <id>0</id>
-            <entryIds>
-                <int>0</int>
-                <int>0</int>
-            </entryIds>
-            <deEntries>
-                <string>string0</string>
-                <string>string1</string>
-            </deEntries>
-            <enEntries>
-                <string>string2</string>
-                <string>string3</string>
-            </enEntries>
-            <maintainable>false</maintainable>
-        </sysList>
-        <sysList>
-            <id>0</id>
-            <entryIds>
-                <int>0</int>
-                <int>0</int>
-            </entryIds>
-            <deEntries>
-                <string>string4</string>
-                <string>string5</string>
-            </deEntries>
-            <enEntries>
-                <string>string6</string>
-                <string>string7</string>
-            </enEntries>
-            <maintainable>false</maintainable>
-        </sysList>
-    </lists>
+                        </numberControl>-->
+<!--                        <dateControl>
+                                <id>id7</id>
+                                <isVisible>true</isVisible>
+                                <scriptedProperties>scriptedProperties6</scriptedProperties>
+                                <localizedLabel lang="lang43">localizedLabel7</localizedLabel>
+                                <localizedLabelPostfix lang="lang45">localizedLabelPostfix6</localizedLabelPostfix>
+                                <localizedHelp lang="lang47">localizedHelp6</localizedHelp>
+                                <scriptedCswMapping>scriptedCswMapping6</scriptedCswMapping>
+                                <isIndexed>true</isIndexed>
+                                <layoutWidth>100</layoutWidth>
+                        </dateControl>-->
+                    </columns>
+            </tableControl>-->
+<!--            <legacyControl>
+                <id>id8</id>
+                <isVisible>true</isVisible>
+                <scriptedProperties>scriptedProperties7</scriptedProperties>
+            </legacyControl>-->
+    </layoutRubric>
 </profile>

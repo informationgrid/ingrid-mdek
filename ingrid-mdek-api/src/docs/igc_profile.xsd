@@ -18,11 +18,10 @@
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <xs:element name="profile">
         <xs:complexType>
-            <xs:all>
+            <xs:sequence>
                 <xs:element ref="name"/>
-                <xs:element ref="fields"/>
-                <xs:element ref="lists" minOccurs="0"/>
-            </xs:all>
+                <xs:element ref="layoutRubric" maxOccurs="unbounded"/>
+            </xs:sequence>
             <xs:attributeGroup ref="attributes.profile"/>
         </xs:complexType>
     </xs:element>
@@ -30,16 +29,13 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
         complex elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-    <xs:element name="fields" type="Fields"/>
-    <xs:element name="textField" type="TextField"/>
-    <xs:element name="numberField" type="NumberField"/>    
-    <xs:element name="dateField" type="DateField"/>
-    <xs:element name="tableField" type="TableField"/>
-    <xs:element name="legacyField" type="LegacyField"/>
+    <xs:element name="layoutRubric" type="LayoutRubric"/>
+    <xs:element name="textControl" type="TextControl"/>
+    <xs:element name="numberControl" type="NumberControl"/>    
+    <xs:element name="dateControl" type="DateControl"/>
+    <xs:element name="tableControl" type="TableControl"/>
+    <xs:element name="legacyControl" type="LegacyControl"/>
 
-    <xs:element name="lists" type="Lists"/>
-    <xs:element name="sysList" type="SysList"/>
-    
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
         "simple" elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -50,15 +46,14 @@
     <xs:element name="localizedHelp" type="LocalizedString"/>
     <!-- script contains mapping to csw -->
     <xs:element name="scriptedCswMapping" type="xs:string"/>
-    <!-- script contains validation (mandatory), visibility on INSPIRE themes etc. -->
+    <!-- script contains validation (e.g. mandatory), visibility on INSPIRE themes etc. -->
     <xs:element name="scriptedProperties" type="xs:string"/>
-    <!-- isVisible NOT scripted to be integrated in existing gui mechanism ("Katalogverwaltung/Feldeinstellungen") -->
+    <!-- visibility of optional elements NOT scripted to be integrated in existing gui mechanism ("Katalogverwaltung/Feldeinstellungen") -->
     <xs:element name="isVisible" type="xs:boolean" default="true"/>
     <xs:element name="isIndexed" type="xs:boolean" default="true"/>
-    <xs:element name="selectionListId" type="selectionListId"/>
+    <xs:element name="selectionList" type="SelectionList"/>
     <xs:element name="layoutWidth" type="Percent" default="100"/>
     <xs:element name="layoutNumLines" type="xs:integer" default="1"/>
-    <xs:element name="layoutCategory" type="xs:string"/>
 
 
     <!-- ==============================
@@ -66,21 +61,28 @@
         ============================== -->
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
-        element types
+        complex types containing elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-    <!-- All possible fields in Profile -->
-    <xs:complexType name="Fields">
-        <xs:choice>
-            <xs:element ref="textField"/>
-            <xs:element ref="numberField"/>
-            <xs:element ref="dateField"/>
-            <xs:element ref="tableField"/>
-            <xs:element ref="legacyField"/>
-        </xs:choice>
+    <!-- LayoutRubric: contains all possible Profile Controls -->
+    <xs:complexType name="LayoutRubric">
+        <xs:sequence>
+            <xs:element ref="id"/>
+            <!-- Label (heading) only relevant if not core rubric -->
+            <xs:element ref="localizedLabel"/>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref="textControl"/>
+                <xs:element ref="numberControl"/>
+                <xs:element ref="dateControl"/>
+                <xs:element ref="tableControl"/>
+                <xs:element ref="legacyControl"/>
+            </xs:choice>
+        </xs:sequence>
+        <!-- Rubric part of core model (true) or not (false) -->
+        <xs:attribute name="isLegacy" type="xs:boolean"/>
     </xs:complexType>
 
-    <!-- AbstractField: elements of all fields -->
-    <xs:complexType name="AbstractField" abstract="true">
+    <!-- AbstractControl: elements of all Controls -->
+    <xs:complexType name="AbstractControl" abstract="true">
         <xs:sequence>
             <xs:element ref="id"/>
             <xs:element ref="isVisible" minOccurs="0"/>
@@ -88,17 +90,17 @@
         </xs:sequence>
     </xs:complexType>
     
-    <!-- LegacyField: existing field in core model -->
-    <xs:complexType name="LegacyField">
+    <!-- LegacyControl: existing Control in core model -->
+    <xs:complexType name="LegacyControl">
         <xs:complexContent>
-            <xs:extension base="AbstractField"/>
+            <xs:extension base="AbstractControl"/>
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- AbstractNewField: additional elements of all new fields -->
-    <xs:complexType name="AbstractNewField" abstract="true">
+    <!-- AbstractAdditionalControl: elemnts all additional Controls -->
+    <xs:complexType name="AbstractAdditionalControl" abstract="true">
         <xs:complexContent>
-            <xs:extension base="AbstractField">
+            <xs:extension base="AbstractControl">
                 <xs:sequence>
                     <xs:element ref="localizedLabel" maxOccurs="unbounded"/>
                     <xs:element ref="localizedLabelPostfix" minOccurs="0" maxOccurs="unbounded"/>
@@ -106,96 +108,77 @@
                     <xs:element ref="scriptedCswMapping"/>
                     <xs:element ref="isIndexed" minOccurs="0"/>
                     <xs:element ref="layoutWidth" minOccurs="0"/>
-                    <xs:element ref="layoutCategory" minOccurs="0"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- TextField: new text field -->
-    <xs:complexType name="TextField">
+    <!-- TextControl: additional text Control -->
+    <xs:complexType name="TextControl">
         <xs:complexContent>
-            <xs:extension base="AbstractNewField">
+            <xs:extension base="AbstractAdditionalControl">
                 <xs:sequence>
                     <xs:element ref="layoutNumLines" minOccurs="0"/>
-                    <xs:element ref="selectionListId" minOccurs="0"/>
+                    <xs:element ref="selectionList" minOccurs="0"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
     
-    <!-- NumberField: new number field -->
-    <xs:complexType name="NumberField">
+    <!-- NumberControl: additional number Control -->
+    <xs:complexType name="NumberControl">
         <xs:complexContent>
-            <xs:extension base="AbstractNewField">
+            <xs:extension base="AbstractAdditionalControl">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
     
-    <!-- DateField: new date field -->
-    <xs:complexType name="DateField">
+    <!-- DateControl: additional date Control -->
+    <xs:complexType name="DateControl">
         <xs:complexContent>
-            <xs:extension base="AbstractNewField">
+            <xs:extension base="AbstractAdditionalControl">
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- TableField: new table -->
-    <xs:complexType name="TableField">
+    <!-- TableControl: additional table -->
+    <xs:complexType name="TableControl">
         <xs:complexContent>
-            <xs:extension base="AbstractNewField">
+            <xs:extension base="AbstractAdditionalControl">
                 <xs:sequence>
                     <xs:element ref="layoutNumLines" minOccurs="0"/>
-                    <xs:element name="columns" type="ColumnFields"/>
+                    <xs:element name="columns" type="Columns"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType> 
-    <!-- ColumnFields: possible fields in columns -->
-    <xs:complexType name="ColumnFields">
-        <xs:choice>
-            <xs:element ref="textField"/>
-            <xs:element ref="numberField"/>
-            <xs:element ref="dateField"/>
+    <!-- Columns: possible Controls in columns -->
+    <xs:complexType name="Columns">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element ref="textControl"/>
+            <xs:element ref="numberControl"/>
+            <xs:element ref="dateControl"/>
         </xs:choice>
     </xs:complexType>
     
-    <!-- Defining / Redefining syslists (syslist exchange format !) -->
-    <xs:complexType name="Lists">
-        <xs:sequence>
-            <xs:element ref="sysList" maxOccurs="unbounded"/>            
+    <!-- SelectionList: Additional selection list for textfield (may be extendable) -->
+    <xs:complexType name="SelectionList">
+            <xs:sequence>
+            <xs:element name="items" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="item" type="xs:string" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="lang" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
+        <!-- also free entry of text possible (true) or not (false) -->
+        <xs:attribute name="extendable" type="xs:boolean" default="false"/>
     </xs:complexType>
-    <xs:complexType name="SysList">
-        <xs:sequence>
-            <xs:element name="id" type="xs:integer"/>
-            <xs:element name="entryIds">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="int" type="xs:integer" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="deEntries">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="string" type="xs:string" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="enEntries" minOccurs="0">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="string" type="xs:string" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="maintainable" type="xs:boolean"/>
-        </xs:sequence>
-    </xs:complexType>
-    
+
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
-        "data" types
+        "data" types, NOT containing elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <!-- %: 0 - 100 -->
     <xs:simpleType name="Percent">
@@ -211,15 +194,6 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="lang" type="xs:string" use="required"/>
             </xs:extension>     
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- Auswahlliste: STRING element (= Listen-ID) mit "extendable"-Attribut (wenn freie Einträge) -->
-    <xs:complexType name="selectionListId">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="extendable" type="xs:boolean" default="false"/>
-            </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
 
