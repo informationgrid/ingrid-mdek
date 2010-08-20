@@ -449,9 +449,21 @@ public class MdekKeys {
     /** Additional info: How many entities already processed ?<br>
      *  Value: Integer */
     public final static String RUNNINGJOB_NUMBER_PROCESSED_ENTITIES = "runningjob-number-processed-entities";
+    /** Additional info: How many objects already processed ?<br>
+     *  Value: Integer */
+    public final static String RUNNINGJOB_NUMBER_PROCESSED_OBJECTS = "runningjob-number-processed-objects";
+    /** Additional info: How many addresses already processed ?<br>
+     *  Value: Integer */
+    public final static String RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES = "runningjob-number-processed-addresses";
     /** Additional info: Total number of entities to process<br>
      *  Value: Integer */
     public final static String RUNNINGJOB_NUMBER_TOTAL_ENTITIES = "runningjob-number-total-entities";
+    /** Additional info: Total number of objects to process<br>
+     *  Value: Integer */
+    public final static String RUNNINGJOB_NUMBER_TOTAL_OBJECTS = "runningjob-number-total-objects";
+    /** Additional info: Total number of addresses to process<br>
+     *  Value: Integer */
+    public final static String RUNNINGJOB_NUMBER_TOTAL_ADDRESSES = "runningjob-number-total-addresses";
     /** Additional info: Was the currently running job canceled by user<br>
      *  Value: Boolean */
     public final static String RUNNINGJOB_CANCELED_BY_USER = "runningjob-canceled-by-user";
@@ -464,6 +476,8 @@ public class MdekKeys {
 			RUNNINGJOB_TYPE,
 			RUNNINGJOB_ENTITY_TYPE,
 			RUNNINGJOB_NUMBER_PROCESSED_ENTITIES,
+			RUNNINGJOB_NUMBER_PROCESSED_OBJECTS,
+			RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES,
 			RUNNINGJOB_NUMBER_TOTAL_ENTITIES,
 			RUNNINGJOB_CANCELED_BY_USER,
 	};

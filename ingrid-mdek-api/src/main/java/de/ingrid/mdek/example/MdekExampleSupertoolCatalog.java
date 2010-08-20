@@ -1,5 +1,6 @@
 package de.ingrid.mdek.example;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -559,7 +560,7 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument importEntities(byte[] importData,
+	public IngridDocument importEntities(ArrayList <byte[]> importData,
 			String objectImportNodeUuid, String addressImportNodeUuid,
 			boolean publishImmediately, boolean doSeparateImport) {
 		long startTime;

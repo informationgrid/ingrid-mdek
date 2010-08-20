@@ -46,10 +46,6 @@ public class XMLImporter implements IImporter {
 	public void importEntities(byte[] importData,
 			String userUuid) {
 		this.currentUserUuid = userUuid;
-		importObjectCount = 0;
-		importAddressCount = 0;
-		totalNumObjects = 0;
-		totalNumAddresses = 0;
 
 		try {
 			String version = getVersion(importData);
@@ -85,7 +81,7 @@ public class XMLImporter implements IImporter {
 
 	private void importObjects() {
 		List<String> objectWriteSequence = getObjectWriteSequence();
-		totalNumObjects = objectWriteSequence.size();
+		totalNumObjects = totalNumObjects + objectWriteSequence.size();
 
 		for (String objUuid : objectWriteSequence) {
 			importObject(objUuid);
@@ -109,7 +105,7 @@ public class XMLImporter implements IImporter {
 			addAdditionalFieldDefinitionsToObject(dataSource);
 			importerCallback.writeObject(dataSource, currentUserUuid);
 			importObjectCount++;
-			importerCallback.writeImportInfo(IdcEntityType.OBJECT, importObjectCount, totalNumObjects, currentUserUuid);
+			importerCallback.writeImportInfo(IdcEntityType.OBJECT, importObjectCount, importAddressCount, totalNumObjects, totalNumAddresses, currentUserUuid);
 		}
 	}
 
@@ -133,7 +129,7 @@ public class XMLImporter implements IImporter {
 
 	private void importAddresses() {
 		List<String> addressWriteSequence = getAddressWriteSequence();
-		totalNumAddresses = addressWriteSequence.size();
+		totalNumAddresses = totalNumAddresses + addressWriteSequence.size();
 
 		for (String adrUuid : addressWriteSequence) {
 			importAddress(adrUuid);
@@ -156,7 +152,7 @@ public class XMLImporter implements IImporter {
 		if (address != null) {
 			importerCallback.writeAddress(address, currentUserUuid);
 			importAddressCount++;
-			importerCallback.writeImportInfo(IdcEntityType.ADDRESS, importAddressCount, totalNumAddresses, currentUserUuid);
+			importerCallback.writeImportInfo(IdcEntityType.ADDRESS, importObjectCount, importAddressCount, totalNumObjects, totalNumAddresses, currentUserUuid);
 		}
 	}
 

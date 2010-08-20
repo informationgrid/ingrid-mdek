@@ -41,7 +41,6 @@ import de.ingrid.utils.IngridDocument;
  * Callbacks for importer.
  */
 public class MdekImportService implements IImporterCallback {
-
 	private static final Logger LOG = Logger.getLogger(MdekImportService.class);
 
 	private static MdekImportService myInstance;
@@ -79,7 +78,7 @@ public class MdekImportService implements IImporterCallback {
 	 * Value: Boolean */
 	private final static String TMP_STORE_WORKING_VERSION = "TMP_STORE_WORKING_VERSION";
 	/** Found node in catalog (e.g. to update from Import or "new" parent node)<br>
-	 * Value: IEntity (Objec-/AddressNode) */
+	 * Value: IEntity (Object-/AddressNode) */
 	private final static String TMP_FOUND_NODE = "TMP_FOUND_NODE";
 	
 	// static strings for import messages !
@@ -129,8 +128,10 @@ public class MdekImportService implements IImporterCallback {
 		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
 		boolean publishImmediately = (Boolean) runningJobInfo.get(KEY_PUBLISH_IMMEDIATELY);
 		boolean doSeparateImport = (Boolean) runningJobInfo.get(KEY_DO_SEPARATE_IMPORT);
-		int numImported = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
-		int totalNum = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
+		int numImportedObjects = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS);
+		int numImportedAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
+		int totalNumObjects = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS);
+		int totalNumAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
 			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);			
@@ -225,7 +226,7 @@ public class MdekImportService implements IImporterCallback {
 					// Workflow enabled -> ASSIGN TO QA ! On error store working version !
 					try {
 						processAssignToQA(whichType, inDoc, existingNode,
-							numImported, totalNum, userUuid);
+							numImportedObjects, numImportedAddresses, totalNumObjects, totalNumAddresses, userUuid);
 
 					} catch (Exception ex) {
 						storeWorkingVersion = true;
@@ -235,7 +236,7 @@ public class MdekImportService implements IImporterCallback {
 					// Workflow disabled -> PUBLISH !  On error store working version !
 					try {
 						processPublish(whichType, inDoc, existingNode, parentNode,
-							numImported, totalNum, userUuid);
+								numImportedObjects, numImportedAddresses, totalNumObjects, totalNumAddresses, userUuid);
 
 					} catch (Exception ex) {
 						storeWorkingVersion = true;
@@ -252,16 +253,16 @@ public class MdekImportService implements IImporterCallback {
 
 		if (storeWorkingVersion) {
 			processStoreWorkingCopy(whichType, inDoc, existingNode,
-					numImported, totalNum, publishImmediately, userUuid);
+					numImportedObjects, numImportedAddresses, totalNumObjects, totalNumAddresses, publishImmediately, userUuid);
 		}
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.importer.IImporterCallback#writeImportInfo(de.ingrid.mdek.MdekUtils.IdcEntityType, int, int, java.lang.String)
 	 */
-	public void writeImportInfo(IdcEntityType whichType, int numImported, int totalNum,
+	public void writeImportInfo(IdcEntityType whichType, int numImportedObjects, int numImportedAddresses, int totalNumObjects, int totalNumAddresses,
 			String userUuid) {
-		updateImportJobInfo(whichType, numImported, totalNum, userUuid);
+		updateImportJobInfo(whichType, numImportedObjects, numImportedAddresses, totalNumObjects, totalNumAddresses, userUuid);
 	}
 
 	/* (non-Javadoc)
@@ -279,7 +280,7 @@ public class MdekImportService implements IImporterCallback {
 
 		// first update in memory job state
 		IngridDocument runningJobInfo = 
-			jobHandler.createRunningJobDescription(JobType.IMPORT, 0, 0, false);
+			jobHandler.createRunningJobDescription(JobType.IMPORT, null, 0, 0, 0, 0, false);
 		runningJobInfo.put(MdekKeys.JOBINFO_START_TIME, startTime);
 		jobHandler.updateRunningJob(userUuid, runningJobInfo);
 		
@@ -287,11 +288,11 @@ public class MdekImportService implements IImporterCallback {
 		jobHandler.startJobInfoDB(JobType.IMPORT, startTime, null, userUuid);
 	}
 	/** Update general info of Import job IN MEMORY. */
-	public void updateImportJobInfo(IdcEntityType whichType, int numImported, int totalNum,
+	public void updateImportJobInfo(IdcEntityType whichType, int numImportedObjects, int numAddressesImported, int totalNumObjects, int totalNumAddresses,
 			String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid,
-				jobHandler.createRunningJobDescription(JobType.IMPORT, whichType.getDbValue(), numImported, totalNum, false));
+				jobHandler.createRunningJobDescription(JobType.IMPORT, whichType.getDbValue(), numImportedObjects, numAddressesImported, totalNumObjects, totalNumAddresses, false));
 
 		// then update job info in database
 		// NO, only in memory and write at end because of performance issues !
@@ -326,7 +327,7 @@ public class MdekImportService implements IImporterCallback {
 		
 		// set up job details to be stored
 		HashMap jobDetails = jobHandler.getJobInfoDetailsFromRunningJobInfo(
-				runningJobInfo, true);
+				runningJobInfo, true, JobType.IMPORT);
 
 		// then update job info in database
 		jobHandler.updateJobInfoDB(JobType.IMPORT, jobDetails, userUuid);
@@ -1100,7 +1101,7 @@ public class MdekImportService implements IImporterCallback {
 	/** Assign entity to QA. */
 	private void processAssignToQA(IdcEntityType whichType,
 			IngridDocument inDoc, IEntity existingNode,
-			int numImported, int totalNum, 
+			int numImportedObjects, int numImportedAddresses, int totalNumObjects, int totalNumAddresses, 
 			String userUuid)
 	throws Exception {
 		// create tag and text for messages !
@@ -1110,11 +1111,12 @@ public class MdekImportService implements IImporterCallback {
 		try {
 			if (whichType == IdcEntityType.OBJECT) {
 				objectService.assignObjectToQA(inDoc, userUuid, true);
+				updateImportJobInfo(whichType, numImportedObjects+1, numImportedAddresses, totalNumObjects, totalNumAddresses,  userUuid);
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.assignAddressToQA(inDoc, userUuid, true);
+				updateImportJobInfo(whichType, numImportedObjects, numImportedAddresses+1,  totalNumObjects, totalNumAddresses, userUuid);
 			}
 
-			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "ASSIGNED TO QA", userUuid);
 
 		} catch (Exception ex) {
@@ -1129,7 +1131,7 @@ public class MdekImportService implements IImporterCallback {
 	/** PUBLISH entity. */
 	private void processPublish(IdcEntityType whichType,
 			IngridDocument inDoc, IEntity existingNode, IEntity parentNode,
-			int numImported, int totalNum, 
+			int numImportedObjects, int numImportedAddresses,  int  totalNumObjects, int totalNumAddresses,
 			String userUuid)
 	throws Exception {
 		// create tag and text for messages !
@@ -1159,11 +1161,12 @@ public class MdekImportService implements IImporterCallback {
 			if (whichType == IdcEntityType.OBJECT) {
 				// we DON'T force publication condition ! if error, we store working version !
 				objectService.publishObject(inDoc, false, userUuid, true);
+				updateImportJobInfo(whichType, numImportedObjects+1, numImportedAddresses,  totalNumObjects, totalNumAddresses, userUuid);
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.publishAddress(inDoc, userUuid, true);
+				updateImportJobInfo(whichType, numImportedObjects, numImportedAddresses+1,  totalNumObjects, totalNumAddresses, userUuid);
 			}
 
-			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "PUBLISHED", userUuid);
 
 		} catch (Exception ex) {
@@ -1178,7 +1181,7 @@ public class MdekImportService implements IImporterCallback {
 	/** Store WORKING VERSION of entity. */
 	private void processStoreWorkingCopy(IdcEntityType whichType,
 			IngridDocument inDoc, IEntity existingNode,
-			int numImported, int totalNum, boolean wasPublishImmediately,
+			int numImportedObjects, int numImportedAddresses, int  totalNumObjects, int totalNumAddresses, boolean wasPublishImmediately,
 			String userUuid)
 	throws MdekException {
 		// create tag and text for messages !
@@ -1192,11 +1195,12 @@ public class MdekImportService implements IImporterCallback {
 		try {
 			if (whichType == IdcEntityType.OBJECT) {
 				objectService.storeWorkingCopy(inDoc, userUuid, true);
+				updateImportJobInfo(whichType, numImportedObjects+1, numImportedAddresses,  totalNumObjects, totalNumAddresses, userUuid);
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.storeWorkingCopy(inDoc, userUuid, true);
+				updateImportJobInfo(whichType, numImportedObjects, numImportedAddresses+1, totalNumObjects, totalNumAddresses, userUuid);
 			}
 
-			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "stored as WORKING version", userUuid);
 
 		} catch (Exception ex) {

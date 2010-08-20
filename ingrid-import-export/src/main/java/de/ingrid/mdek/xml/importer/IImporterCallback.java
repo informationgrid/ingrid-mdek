@@ -30,7 +30,7 @@ public interface IImporterCallback {
 	 * @param totalNum total number to import
 	 * @param userUuid calling user
 	 */
-	void writeImportInfo(IdcEntityType whichType, int numImported, int totalNum,
+	void writeImportInfo(IdcEntityType whichType, int numImportedObjects, int numImportedAddresses, int totalNumObjects, int totalNumAddresses,
 			String userUuid);
 
 	/**

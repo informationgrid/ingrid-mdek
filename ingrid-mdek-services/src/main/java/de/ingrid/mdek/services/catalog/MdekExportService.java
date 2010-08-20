@@ -338,7 +338,7 @@ public class MdekExportService implements IExporterCallback {
 		
 		// set up job details to be stored
 		HashMap jobDetails =
-			jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, true);
+			jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, true, JobType.EXPORT);
 		jobDetails.put(MdekKeys.EXPORT_RESULT, data);
 
 		// then update job info in database

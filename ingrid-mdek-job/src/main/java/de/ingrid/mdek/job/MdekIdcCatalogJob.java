@@ -689,7 +689,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
 
-			byte[] importData = (byte[]) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+			ArrayList<byte[]> importData = (ArrayList<byte[]>) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
 			String defaultObjectParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID);
 			String defaultAddrParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
 			Boolean publishImmediately = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY);
@@ -706,9 +706,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// initialize import info in database
 			importService.startImportJobInfo(userId);
-
-			// import
-			new XMLImporter(importService).importEntities(importData, userId);
+			XMLImporter xmlImporter = new XMLImporter(importService);
+			
+			for(int i=0; i<importData.size();i++){
+				// import
+				xmlImporter.importEntities(importData.get(i), userId);
+			}
 			
 			// post process object relations (Querverweise) after importing of all entities
 			importService.postProcessRelationsOfImport(userId);
@@ -798,7 +801,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			if (!runningJobInfo.isEmpty()) {
 				// job running, we extract job info from running job (in memory).
 				// we never extract messages from running job !
-				jobInfo = jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false);
+				jobInfo = jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false, jobType);
 			}
 		}
 

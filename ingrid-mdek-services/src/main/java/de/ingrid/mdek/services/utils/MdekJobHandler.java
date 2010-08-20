@@ -93,6 +93,37 @@ public class MdekJobHandler {
 		runningJob.put(MdekKeys.RUNNINGJOB_ENTITY_TYPE, entityType);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
 		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS, numTotal);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES, numTotal);
+		runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, canceledByUser);
+		
+		return runningJob;
+	}
+
+	/**
+	 * Create a document describing a job.
+	 * @param JobType what type of Job/Operation
+	 * @param whichType what kind of entities are processed (objects or addresses)
+	 * @param numProcessed number of already processed entities
+	 * @param numTotal total number of entities to be processed 
+	 * @param canceledByUser was this job canceled by user ? 
+	 * @return document describing current state of job
+	 */
+	public IngridDocument createRunningJobDescription(JobType jobType,
+			String entityType, 
+			Integer numProcessedObjects,
+			Integer numProcessedAddresses,
+			Integer numTotalObjects,
+			Integer numTotalAddresses,
+			boolean canceledByUser) {
+		IngridDocument runningJob = new IngridDocument();
+		runningJob.put(MdekKeys.RUNNINGJOB_TYPE, jobType.getDbValue());
+		runningJob.put(MdekKeys.RUNNINGJOB_ENTITY_TYPE, entityType);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS, numProcessedObjects);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES, numProcessedAddresses);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS, numTotalObjects);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES, numTotalAddresses);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotalObjects + numTotalAddresses);
 		runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, canceledByUser);
 		
 		return runningJob;
@@ -323,16 +354,23 @@ public class MdekJobHandler {
 	 * @return map containing job details information
 	 */
 	public HashMap getJobInfoDetailsFromRunningJobInfo(HashMap runningJobInfo,
-			boolean includeMessages) {
+			boolean includeMessages, JobType jobType) {
 		String entityType = (String) runningJobInfo.get(MdekKeys.RUNNINGJOB_ENTITY_TYPE);
 		
 		// set up job info details just like it wouild be stored in DB
-        HashMap jobDetails = setUpJobInfoDetailsDB(
-        		entityType,
-        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
-        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES));
-
-        // also add start time from running job if present
+        HashMap jobDetails;
+        if(jobType.equals(JobType.IMPORT))
+        	jobDetails = setUpJobInfoDetailsDB(entityType,
+                		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS),
+        				(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES),
+        				(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS),
+		        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES));
+        else
+        	jobDetails = setUpJobInfoDetailsDB(entityType,
+        	        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
+        					(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES));
+        	
+		// also add start time from running job if present
         if (runningJobInfo.containsKey(MdekKeys.JOBINFO_START_TIME)) {
             jobDetails.put(MdekKeys.JOBINFO_START_TIME, runningJobInfo.get(MdekKeys.JOBINFO_START_TIME));        	
         }
@@ -363,6 +401,22 @@ public class MdekJobHandler {
             details.put(MdekKeys.JOBINFO_NUM_ENTITIES, num);
         }
 		
+        return details;
+	}
+
+	/** Set up generic details to be stored in database.
+	 * @param entityType type of entity, pass IdcEntityType.getDbValue() or arbitrary string if other entity !
+	 */
+	public HashMap setUpJobInfoDetailsDB(String entityType, int numObjects, int numAddresses, int totalNumObjects, int totalNumAddresses) {
+        HashMap details = new HashMap();
+    	details.put(MdekKeys.JOBINFO_ENTITY_TYPE, entityType);
+
+		IdcEntityType whichType = EnumUtil.mapDatabaseToEnumConst(IdcEntityType.class, entityType);
+        details.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS, totalNumObjects);        	
+        details.put(MdekKeys.JOBINFO_NUM_OBJECTS, numObjects);
+        details.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES, totalNumAddresses);        	
+        details.put(MdekKeys.JOBINFO_NUM_ADDRESSES, numAddresses);
+        
         return details;
 	}
 

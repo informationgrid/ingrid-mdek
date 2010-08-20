@@ -158,7 +158,7 @@ public class MdekExampleSupertool {
 	public IngridDocument getExportInfo(boolean includeExportData) {
 		return supertoolCatalog.getExportInfo(includeExportData);
 	}
-	public IngridDocument importEntities(byte[] importData,
+	public IngridDocument importEntities(ArrayList <byte[]> importData,
 			String objectImportNodeUuid, String addressImportNodeUuid,
 			boolean publishImmediately, boolean doSeparateImport) {
 		return supertoolCatalog.importEntities(importData,
@@ -575,7 +575,7 @@ public class MdekExampleSupertool {
 			result = mdekClientCaller.getResultFromResponse(response);
 			if (result != null) {
 				String jobDescr = result.getString(MdekKeys.RUNNINGJOB_TYPE);
-				Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
+				Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS);
 				Integer total = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
 				if (jobDescr == null) {
 					// job finished !

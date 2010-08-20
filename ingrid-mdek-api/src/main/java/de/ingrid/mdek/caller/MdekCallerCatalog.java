@@ -1,5 +1,6 @@
 package de.ingrid.mdek.caller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -198,7 +199,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument importEntities(String plugId, byte[] importData,
+	public IngridDocument importEntities(String plugId, ArrayList<byte[]> importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,

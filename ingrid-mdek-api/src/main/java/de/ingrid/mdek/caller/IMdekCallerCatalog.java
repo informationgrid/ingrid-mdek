@@ -1,5 +1,6 @@
 package de.ingrid.mdek.caller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.ingrid.mdek.MdekUtils;
@@ -199,7 +200,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param userId calling user
 	 * @return response containing result: map containing import information
 	 */
-	IngridDocument importEntities(String plugId, byte[] importData,
+	IngridDocument importEntities(String plugId, ArrayList<byte[]> importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,
