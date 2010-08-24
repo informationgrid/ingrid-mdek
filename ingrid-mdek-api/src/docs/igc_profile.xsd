@@ -51,7 +51,7 @@
     <xs:element name="scriptedProperties" type="xs:string"/>
     <!-- visibility of optional elements NOT scripted to be integrated in existing gui mechanism ("Katalogverwaltung/Feldeinstellungen") -->
     <xs:element name="isVisible" type="xs:boolean" default="true"/>
-    <xs:element name="isIndexed" type="xs:boolean" default="true"/>
+    <xs:element name="indexName" type="xs:string"/>
     <xs:element name="selectionList" type="SelectionList"/>
     <xs:element name="layoutWidth" type="Percent" default="100"/>
     <xs:element name="layoutNumLines" type="xs:integer" default="1"/>
@@ -107,7 +107,7 @@
                     <xs:element ref="localizedLabelPostfix" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element ref="localizedHelp" maxOccurs="unbounded"/>
                     <xs:element ref="scriptedCswMapping"/>
-                    <xs:element ref="isIndexed" minOccurs="0"/>
+                    <xs:element ref="indexName" minOccurs="0"/>
                     <xs:element ref="layoutWidth" minOccurs="0"/>
                 </xs:sequence>
             </xs:extension>
