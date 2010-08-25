@@ -468,28 +468,6 @@ public class MdekCatalogService {
 		jobHandler.startJobInfoDB(jobType, startTime, jobDetails, userUuid);
 	}
 
-	/** "logs" Start-Info in job information of given type IN MEMORY and IN DATABASE */
-	public void startJobInfo(JobType jobType, int numProcessedObjects, int numProcessedAddresses, int totalNumObjects, int totalNumAddresses, HashMap jobDetails, String userUuid) {
-		String startTime = MdekUtils.dateToTimestamp(new Date());
-
-		// first update in memory job state
-		IngridDocument runningJobInfo = 
-			jobHandler.createRunningJobDescription(jobType, null, numProcessedObjects, numProcessedAddresses, totalNumObjects, totalNumAddresses, false);
-		runningJobInfo.put(MdekKeys.JOBINFO_START_TIME, startTime);
-		jobHandler.updateRunningJob(userUuid, runningJobInfo);
-		
-		// then update job info in database
-		jobHandler.startJobInfoDB(jobType, startTime, jobDetails, userUuid);
-	}
-	/** Update general info of job IN MEMORY. */
-	public void updateJobInfo(JobType jobType, 
-			String entityType, int numUpdatedObjects, int numUpdatedAddresses, int totalNumObjects, int totalNumAddresses, String userUuid) {
-		// update in memory job state.
-		IngridDocument jobDoc = jobHandler.createRunningJobDescription(
-				jobType, entityType, numUpdatedObjects, numUpdatedAddresses, totalNumObjects, totalNumAddresses, false);
-		jobHandler.updateRunningJob(userUuid, jobDoc);
-	}
-	
 	/** Update general info of job IN MEMORY. */
 	public void updateJobInfo(JobType jobType, 
 			String entityType, int numUpdated, int totalNum, String userUuid) {
@@ -574,7 +552,7 @@ public class MdekCatalogService {
 		
 		// set up job details to be stored
 		HashMap jobDetails = jobHandler.getJobInfoDetailsFromRunningJobInfo(
-				runningJobInfo, false, jobType);
+				runningJobInfo, false);
 		if (jobType == JobType.UPDATE_SEARCHTERMS) {
 			jobDetails.put(MdekKeys.JOBINFO_TERMS_UPDATED, runningJobInfo.get(MdekKeys.JOBINFO_TERMS_UPDATED));
 		} else if (jobType == JobType.UPDATE_SPATIAL_REFERENCES) {

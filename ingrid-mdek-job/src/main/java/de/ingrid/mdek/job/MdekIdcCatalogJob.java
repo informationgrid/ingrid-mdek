@@ -801,7 +801,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			if (!runningJobInfo.isEmpty()) {
 				// job running, we extract job info from running job (in memory).
 				// we never extract messages from running job !
-				jobInfo = jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false, jobType);
+				jobInfo = jobHandler.getJobInfoDetailsFromRunningJobInfo(runningJobInfo, false);
 			}
 		}
 

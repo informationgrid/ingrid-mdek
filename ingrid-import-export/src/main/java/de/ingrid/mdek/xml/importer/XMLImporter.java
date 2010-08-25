@@ -105,7 +105,7 @@ public class XMLImporter implements IImporter {
 			addAdditionalFieldDefinitionsToObject(dataSource);
 			importerCallback.writeObject(dataSource, currentUserUuid);
 			importObjectCount++;
-			importerCallback.writeImportInfo(IdcEntityType.OBJECT, importObjectCount, importAddressCount, totalNumObjects, totalNumAddresses, currentUserUuid);
+			importerCallback.writeImportInfo(IdcEntityType.OBJECT, importObjectCount, totalNumObjects, currentUserUuid);
 		}
 	}
 
@@ -152,7 +152,7 @@ public class XMLImporter implements IImporter {
 		if (address != null) {
 			importerCallback.writeAddress(address, currentUserUuid);
 			importAddressCount++;
-			importerCallback.writeImportInfo(IdcEntityType.ADDRESS, importObjectCount, importAddressCount, totalNumObjects, totalNumAddresses, currentUserUuid);
+			importerCallback.writeImportInfo(IdcEntityType.ADDRESS, importAddressCount, totalNumAddresses, currentUserUuid);
 		}
 	}
 

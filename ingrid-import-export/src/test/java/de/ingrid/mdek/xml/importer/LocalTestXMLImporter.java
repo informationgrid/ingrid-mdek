@@ -30,9 +30,8 @@ public class LocalTestXMLImporter {
 			}
 			
 			@Override
-			public void writeImportInfo(IdcEntityType whichType, int numObjectsImported, int numAddressesImported,
-					int totalNumObjects, int totalNumAddresses, String userUuid) {
-				System.out.println("Importing '"+whichType+"'. Count: "+numAddressesImported);
+			public void writeImportInfo(IdcEntityType whichType, int numImported, int totalNum, String userUuid) {
+				System.out.println("Importing '"+whichType+"'. Count: "+numImported);
 			}
 			@Override
 			public void writeImportInfoMessage(String message, String userUuid) {

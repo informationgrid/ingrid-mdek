@@ -346,12 +346,14 @@ class MdekExampleExportImportAddressThread extends Thread {
 		}
 
 		result = supertool.getExportInfo(true);
-		ArrayList <byte[]> importAllAddresses = (ArrayList <byte[]>) result.get(MdekKeys.EXPORT_RESULT);
+		byte[] importAllAddresses = (byte[])result.get(MdekKeys.EXPORT_RESULT);
 
 		System.out.println("\n----- import addresses ALL ADDRESSES -----");
 		try {
 			// causes timeout
-			supertool.importEntities(importAllAddresses, objImpNodeUuid, addrImpNodeUuid, false, true);
+			ArrayList<byte[]> importAllAddressesArrayList = new ArrayList<byte[]>();
+			importAllAddressesArrayList.add(importAllAddresses);
+			supertool.importEntities(importAllAddressesArrayList, objImpNodeUuid, addrImpNodeUuid, false, true);
 
 		} catch(Throwable t) {
 			// if timeout, track running job info (still importing) !
