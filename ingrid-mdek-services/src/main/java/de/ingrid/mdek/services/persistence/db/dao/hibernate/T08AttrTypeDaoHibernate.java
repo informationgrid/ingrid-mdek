@@ -6,6 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
@@ -56,6 +57,41 @@ public class T08AttrTypeDaoHibernate
 		Query q = session.createQuery(hql);
 		if (selectIds) {
 			q.setParameterList("idList", fieldIds, new LongType());
+		}
+		
+		return q.list();
+	}
+
+	public List<T08AttrType> getT08AttrTypesByName(String[] fieldNames, String languageCode) {
+		Session session = getSession();
+
+		boolean selectIds = (fieldNames == null) ? false : true;
+		boolean selectLanguage = (languageCode == null) ? false : true; 
+
+		String hql = "select distinct addField " +
+			"from T08AttrType addField " +
+			"left join fetch addField.t08AttrLists addFieldList ";			
+		if (selectIds || selectLanguage) {
+			hql += "where ";
+		}
+		boolean addAnd = false;
+		if (selectIds) {
+			hql += "addField.name in (:nameList) ";
+			addAnd = true;
+		}
+		if (selectLanguage) {
+			if (addAnd) {
+				hql += "and ";				
+			}
+			// also select "nulls" to select additional without selection list (direct input)
+			hql += "(addFieldList.langCode = '" + languageCode + "' " +
+					"OR addFieldList.langCode is null)";
+			addAnd = true;
+		}
+		
+		Query q = session.createQuery(hql);
+		if (selectIds) {
+			q.setParameterList("nameList", fieldNames, new StringType());
 		}
 		
 		return q.list();

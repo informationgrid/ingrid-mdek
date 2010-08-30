@@ -220,9 +220,10 @@ class MdekExampleExportImportObjectThread extends Thread {
 		supertool.setFullOutput(true);
 		result = supertool.getExportInfo(true);
 		supertool.setFullOutput(false);
+		byte[] exportTopObjZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
 		String exportTopObjUnzipped = "";
 		try {
-			exportTopObjUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+			exportTopObjUnzipped = MdekUtils.decompressZippedByteArray(exportTopObjZipped);
 		} catch(IOException ex) {
 			System.out.println(ex);
 		}
@@ -232,14 +233,16 @@ class MdekExampleExportImportObjectThread extends Thread {
 		supertool.setFullOutput(true);
 		result = supertool.getExportInfo(true);
 		supertool.setFullOutput(false);
+		byte[] exportObjWithAdditionalFieldsZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
 		String exportObjWithAdditionalFieldsUnzipped = "";
 		try {
-			exportObjWithAdditionalFieldsUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+			exportObjWithAdditionalFieldsUnzipped = MdekUtils.decompressZippedByteArray(exportObjWithAdditionalFieldsZipped);
 		} catch(IOException ex) {
 			System.out.println(ex);
 		}
 
 		System.out.println("\n----- export objects FULL BRANCH UNDER PARENT -----");
+		byte[] exportObjBranchZipped = null;
 		String exportObjBranchUnzipped = "";
 		try {
 			// causes timeout
@@ -252,7 +255,8 @@ class MdekExampleExportImportObjectThread extends Thread {
 			supertool.setFullOutput(true);
 			result = supertool.getExportInfo(true);
 			supertool.setFullOutput(false);
-			exportObjBranchUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+			exportObjBranchZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+			exportObjBranchUnzipped = MdekUtils.decompressZippedByteArray(exportObjBranchZipped);
 
 		} catch(MdekException ex) {
 			// if timeout, track running job info (still exporting) !
@@ -336,9 +340,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// invalid XML file to test logging of exception in job info
 		// causes NumberFormatException
 		String importUnzipped = exportTopObjUnzipped.replace("<object-class id=\"", "<object-class id=\"MM");
-		ArrayList <byte[]> importInvalidXML = new ArrayList <byte[]>();
+		byte[] importInvalidXML = new byte[0];
 		try {
-			importInvalidXML.add(MdekUtils.compressString(importUnzipped));						
+			importInvalidXML = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -373,9 +377,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		importUnzipped = importUnzipped.replace("<data-language id=\"150\">", "<data-language id=\"123\">");
 		importUnzipped = importUnzipped.replace("<metadata-language id=\"150\">", "<metadata-language id=\"123\">");
 		System.out.println("importExistingTopObj:\n" + importUnzipped);
-		ArrayList <byte[]> importExistingTopObj = new ArrayList <byte[]>();
+		byte[] importExistingTopObj = new byte[0];
 		try {
-			importExistingTopObj.add(MdekUtils.compressString(importUnzipped));						
+			importExistingTopObj = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -386,9 +390,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		importUnzipped = importUnzipped.replace("<data-language id=\"150\">", "<data-language id=\"123\">");
 		importUnzipped = importUnzipped.replace("<metadata-language id=\"150\">", "<metadata-language id=\"123\">");
 		System.out.println("importExistingObjBranch:\n" + importUnzipped);
-		ArrayList <byte[]> importExistingObjBranch = new ArrayList <byte[]>();
+		byte[] importExistingObjBranch = new byte[0];
 		try {
-			importExistingObjBranch.add(MdekUtils.compressString(importUnzipped));						
+			importExistingObjBranch = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -452,9 +456,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// import data: single NEW top node
 		importUnzipped = exportTopObjUnzipped.replace("<title>", "<title>MMImport NEW: ");
 		importUnzipped = importUnzipped.replace(topObjUuid, newUuidTop);
-		ArrayList <byte[]> importNewTopObj = new ArrayList <byte[]>();
+		byte[] importNewTopObj = new byte[0];
 		try {
-			importNewTopObj.add(MdekUtils.compressString(importUnzipped));						
+			importNewTopObj = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -474,9 +478,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 			importUnzipped.substring(endIndex, importUnzipped.length());
 */
 //		System.out.println(importUnzipped);
-		ArrayList <byte[]> importNewObjBranchNonExistentParent = new ArrayList <byte[]>();
+		byte[] importNewObjBranchNonExistentParent = new byte[0];
 		try {
-			importNewObjBranchNonExistentParent.add(MdekUtils.compressString(importUnzipped));						
+			importNewObjBranchNonExistentParent = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -489,9 +493,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// existing parent
 		String existentParentUuid = objLeafUuid;
 		importUnzipped = importUnzipped.replace("15C69C20-FE15-11D2-AF34-0060084A4596", existentParentUuid);
-		ArrayList <byte[]> importNewObjBranchExistentParent = new ArrayList <byte[]>();
+		byte[] importNewObjBranchExistentParent = new byte[0];
 		try {
-			importNewObjBranchExistentParent.add(MdekUtils.compressString(importUnzipped));						
+			importNewObjBranchExistentParent = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -587,9 +591,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			"\n<original-control-identifier>" + origId1 + "</original-control-identifier>" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
-		ArrayList <byte[]> importExistingTopObjOrigId1 = new ArrayList <byte[]>();
+		byte[] importExistingTopObjOrigId1 = new byte[0];
 		try {
-			importExistingTopObjOrigId1.add(MdekUtils.compressString(importUnzipped));						
+			importExistingTopObjOrigId1 = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -607,9 +611,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 			"\n<original-control-identifier>" + origId2 + "</original-control-identifier>" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
 //		System.out.println(importUnzipped);
-		ArrayList <byte[]> importExistingObjBranchOrigIds1_2 = new ArrayList <byte[]>();
+		byte[] importExistingObjBranchOrigIds1_2 = new byte[0];
 		try {
-			importExistingObjBranchOrigIds1_2.add(MdekUtils.compressString(importUnzipped));						
+			importExistingObjBranchOrigIds1_2 = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -629,9 +633,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			"\n<original-control-identifier>" + origId2 + "</original-control-identifier>" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
-		ArrayList <byte[]> importNewObjBranchOrigIds1_2 = new ArrayList <byte[]>();
+		byte[] importNewObjBranchOrigIds1_2 = new byte[0];
 		try {
-			importNewObjBranchOrigIds1_2.add(MdekUtils.compressString(importUnzipped));						
+			importNewObjBranchOrigIds1_2 = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -649,17 +653,17 @@ class MdekExampleExportImportObjectThread extends Thread {
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			importUnzipped.substring(endIndex, importUnzipped.length());
 		// import data: NEW arcgis object with EXISTING ORIG_ID
-		ArrayList <byte[]> importArcGisExistingOrigId = new ArrayList <byte[]>();
+		byte[] importArcGisExistingOrigId = new byte[0];
 		try {
-			importArcGisExistingOrigId.add(MdekUtils.compressString(importUnzipped));						
+			importArcGisExistingOrigId = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 		// import data: NEW arcgis object with NEW ORIG_ID
 		importUnzipped = importUnzipped.replace(origId1, newOrigId);
-		ArrayList <byte[]> importArcGisNewOrigId = new ArrayList <byte[]>();
+		byte[] importArcGisNewOrigId = new byte[0];
 		try {
-			importArcGisNewOrigId.add(MdekUtils.compressString(importUnzipped));						
+			importArcGisNewOrigId = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -771,9 +775,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// import data: move branch under top object !
 		importUnzipped = exportObjBranchUnzipped.replace("<object-identifier>15C69C20-FE15-11D2-AF34-0060084A4596</object-identifier>",
 				"<object-identifier>" + topObjUuid5 + "</object-identifier>");
-		ArrayList <byte[]> importBranchMoveObj = new ArrayList <byte[]>();
+		byte[] importBranchMoveObj = new byte[0];
 		try {
-			importBranchMoveObj.add(MdekUtils.compressString(importUnzipped));						
+			importBranchMoveObj = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -843,9 +847,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 			"<object-identifier>MMMMMMMMMMMMMMMMMMMMM</object-identifier>\n" +
 			"</link-data-source>\n" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
-		ArrayList <byte[]> importExistBranchWrongRelations = new ArrayList <byte[]>();
+		byte[] importExistBranchWrongRelations = new byte[0];
 		try {
-			importExistBranchWrongRelations.add(MdekUtils.compressString(importUnzipped));						
+			importExistBranchWrongRelations = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
@@ -873,9 +877,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		String tmpStr = importUnzipped.substring(startIndex, importUnzipped.length());
 		tmpStr = tmpStr.replace("<publication-condition>2", "<publication-condition>1");
 		importUnzipped = importUnzipped.substring(0, startIndex) + tmpStr;
-		ArrayList <byte[]> importNewObjBranchRelationTargetIntranet = new ArrayList <byte[]>();
+		byte[] importNewObjBranchRelationTargetIntranet = new byte[0];
 		try {
-			importNewObjBranchRelationTargetIntranet.add(MdekUtils.compressString(importUnzipped));						
+			importNewObjBranchRelationTargetIntranet = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -949,9 +953,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		tmpStr = importUnzipped.substring(startIndex, importUnzipped.length());
 		tmpStr = tmpStr.replace("<publication-condition>2", "<publication-condition>1");
 		importUnzipped = importUnzipped.substring(0, startIndex) + tmpStr;
-		ArrayList <byte[]> importExistObjBranchRelationParentChild = new ArrayList <byte[]>();
+		byte[] importExistObjBranchRelationParentChild = new byte[0];
 		try {
-			importExistObjBranchRelationParentChild.add(MdekUtils.compressString(importUnzipped));						
+			importExistObjBranchRelationParentChild = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -1028,9 +1032,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 
 		// import data: Object with VALID additional fields data 
 		importUnzipped = exportObjWithAdditionalFieldsUnzipped;
-		ArrayList <byte[]> importExistObjWithAdditionalFieldsValid = new ArrayList <byte[]>();
+		byte[] importExistObjWithAdditionalFieldsValid = new byte[0];
 		try {
-			importExistObjWithAdditionalFieldsValid.add(MdekUtils.compressString(importUnzipped));						
+			importExistObjWithAdditionalFieldsValid = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -1042,9 +1046,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// change NAME of LIST FIELD
 		importUnzipped = importUnzipped.replace("<field-name>Test 2</field-name>", "<field-name>Test MMMM</field-name>");
 		System.out.println(importUnzipped);
-		ArrayList <byte[]> importExistObjWithAdditionalFieldsInvalid_ID_Name = new ArrayList <byte[]>();
+		byte[] importExistObjWithAdditionalFieldsInvalid_ID_Name = new byte[0];
 		try {
-			importExistObjWithAdditionalFieldsInvalid_ID_Name.add(MdekUtils.compressString(importUnzipped));						
+			importExistObjWithAdditionalFieldsInvalid_ID_Name = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -1054,9 +1058,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		// change Entry of LIST FIELD
 		importUnzipped = importUnzipped.replace("<field-value>Eintrag 1</field-value>", "<field-value>Eintrag MMMMM</field-value>");
 		System.out.println(importUnzipped);
-		ArrayList<byte[]> importExistObjWithAdditionalFieldsInvalid_ListEntry = new ArrayList <byte[]>();
+		byte[] importExistObjWithAdditionalFieldsInvalid_ListEntry = new byte[0];
 		try {
-			importExistObjWithAdditionalFieldsInvalid_ListEntry.add(MdekUtils.compressString(importUnzipped));						
+			importExistObjWithAdditionalFieldsInvalid_ListEntry = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -1134,9 +1138,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		importUnzipped = importUnzipped.substring(0, startIndex) + "2010" +
 			importUnzipped.substring(endIndex, importUnzipped.length());
 		System.out.println(importUnzipped);
-		ArrayList <byte[]> importExistObjBranchMissingMandatoryFields = new ArrayList <byte[]>();
+		byte[] importExistObjBranchMissingMandatoryFields = new byte[0];
 		try {
-			importExistObjBranchMissingMandatoryFields.add(MdekUtils.compressString(importUnzipped));						
+			importExistObjBranchMissingMandatoryFields = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -1150,6 +1154,42 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- Clean Up -----");
 		supertool.deleteObjectWorkingCopy(objUuid, true);
 		supertool.deleteObjectWorkingCopy(objLeafUuid, true);
+
+// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("IMPORT MULTIPLE FILES !!!!");
+		System.out.println("=========================");
+
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- export addresses FULL BRANCH UNDER PARENT -----");
+		supertool.exportAddressBranch(parentAddrUuid, false, null);
+		result = supertool.getExportInfo(true);
+		byte[] exportAddressBranchZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- import multiple files with frontend protocol -----");
+		List<byte[]> importList = new ArrayList<byte[]>();
+		importList.add(exportObjWithAdditionalFieldsZipped);
+		importList.add(exportAddressBranchZipped);
+		importList.add(exportObjBranchZipped);
+		importList.add(exportTopObjZipped);
+		String frontendProtocol = "exportObjWithAdditionalFieldsZipped\n\n" +
+			"exportAddressBranchZipped\n\n" +
+			"exportObjBranchZipped\n\n" +
+			"exportTopObjZipped\n\n";
+		try {
+			supertool.importEntities(importList, objImpNodeUuid, addrImpNodeUuid, false, false, frontendProtocol);			
+		} catch(Exception ex) {
+			// if timeout, track running job info (still importing) !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.IMPORT);				
+				supertool.sleep(2000);
+			}
+		}
+
+		supertool.getJobInfo(JobType.IMPORT);
 
 // -----------------------------------
 

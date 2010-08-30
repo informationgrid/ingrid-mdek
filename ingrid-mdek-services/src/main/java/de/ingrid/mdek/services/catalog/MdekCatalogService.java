@@ -278,9 +278,19 @@ public class MdekCatalogService {
 		return list;
 	}
 
-	/** Get Doc representation of DEFINITIONS of additional fields of given ids and language (for items in selection list if present). */
+	/** Get Doc representation of DEFINITIONS of additional fields of given IDS and language (for items in selection list if present). */
 	public IngridDocument getSysAdditionalFields(Long[] fieldIds, String language) {
 		List<T08AttrType> fields = daoT08AttrType.getT08AttrTypes(fieldIds, language);
+
+		IngridDocument result = new IngridDocument();
+		beanToDocMapper.mapT08AttrTypes(fields, result);
+
+		return result;
+	}
+
+	/** Get Doc representation of DEFINITIONS of additional fields of given NAMES and language (for items in selection list if present). */
+	public IngridDocument getSysAdditionalFieldsByName(String[] fieldNames, String language) {
+		List<T08AttrType> fields = daoT08AttrType.getT08AttrTypesByName(fieldNames, language);
 
 		IngridDocument result = new IngridDocument();
 		beanToDocMapper.mapT08AttrTypes(fields, result);
@@ -467,7 +477,6 @@ public class MdekCatalogService {
 		// then update job info in database
 		jobHandler.startJobInfoDB(jobType, startTime, jobDetails, userUuid);
 	}
-
 	/** Update general info of job IN MEMORY. */
 	public void updateJobInfo(JobType jobType, 
 			String entityType, int numUpdated, int totalNum, String userUuid) {

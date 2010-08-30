@@ -173,6 +173,9 @@ public class MdekKeys {
     /** Separate all imported entities underneath of "import nodes" ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT = "requestinfo_importDoSeparateImport";
+    /** Protocol from frontend to be added to backend JobInfo. null or empty if no protocol !<br>
+     *  Value: String */
+    public final static String REQUESTINFO_IMPORT_FRONTEND_PROTOCOL = "requestinfo_importFrontendProtocol";
 
 
     // URL
@@ -446,7 +449,8 @@ public class MdekKeys {
     /** Which type of entity is processed (object, address, ...)<br>
      *  Value: String */
     public final static String RUNNINGJOB_ENTITY_TYPE = "runningjob-entity-type";
-    /** Additional info: How many entities already processed ?<br>
+    /** Additional info: How many entities already processed ? NOTICE: May be objects or addresse, not both !
+     * Explicitly fetch _OBJECTS or _ADDRESSES for differentiation.<br>
      *  Value: Integer */
     public final static String RUNNINGJOB_NUMBER_PROCESSED_ENTITIES = "runningjob-number-processed-entities";
     /** Additional info: How many objects already processed ?<br>
@@ -455,7 +459,8 @@ public class MdekKeys {
     /** Additional info: How many addresses already processed ?<br>
      *  Value: Integer */
     public final static String RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES = "runningjob-number-processed-addresses";
-    /** Additional info: Total number of entities to process<br>
+    /** Additional info: Total number of entities to process. NOTICE: May be objects or addresse, not both !
+     * Explicitly fetch _OBJECTS or _ADDRESSES for differentiation.<br>
      *  Value: Integer */
     public final static String RUNNINGJOB_NUMBER_TOTAL_ENTITIES = "runningjob-number-total-entities";
     /** Additional info: Total number of objects to process<br>
@@ -479,6 +484,8 @@ public class MdekKeys {
 			RUNNINGJOB_NUMBER_PROCESSED_OBJECTS,
 			RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES,
 			RUNNINGJOB_NUMBER_TOTAL_ENTITIES,
+			RUNNINGJOB_NUMBER_TOTAL_OBJECTS,
+			RUNNINGJOB_NUMBER_TOTAL_ADDRESSES,
 			RUNNINGJOB_CANCELED_BY_USER,
 	};
 

@@ -689,11 +689,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
 
-			ArrayList<byte[]> importData = (ArrayList<byte[]>) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+			Object importData = docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+			boolean multipleImportFiles = false;
+			if (List.class.isAssignableFrom(importData.getClass())) {
+				// multipleFiles !
+				multipleImportFiles = true;
+			}
 			String defaultObjectParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID);
 			String defaultAddrParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
 			Boolean publishImmediately = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY);
 			Boolean doSeparateImport = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT);
+			String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
 
 			genericDao.beginTransaction();
 
@@ -701,18 +707,34 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
+
+			// add frontend protocol to jobinfo (should start with that one)
+			// NOTICE: check of import nodes already add top nodes to job info !
+			if (frontendProtocol != null && !frontendProtocol.isEmpty()) {
+				importService.updateImportJobInfoMessages("FRONTEND PROTOCOl:\n==================\n", userId);
+				importService.updateImportJobInfoMessages(frontendProtocol, userId);
+				importService.updateImportJobInfoMessages("\n\nBACKEND PROTOCOl:\n=================\n", userId);
+			}
+
+			// check top import nodes ! Adds messages to job info !
 			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid,
 					publishImmediately, doSeparateImport, userId);
 
 			// initialize import info in database
 			importService.startImportJobInfo(userId);
+
+			// import
 			XMLImporter xmlImporter = new XMLImporter(importService);
-			
-			for(int i=0; i<importData.size();i++){
-				// import
-				xmlImporter.importEntities(importData.get(i), userId);
+			if (multipleImportFiles) {
+				List<byte[]> importDataList = (List<byte[]>) importData;
+				for(int i=0; i<importDataList.size(); i++){
+					// import
+					xmlImporter.importEntities(importDataList.get(i), userId);
+				}				
+			} else {
+				xmlImporter.importEntities((byte[])importData, userId);
 			}
-			
+
 			// post process object relations (Querverweise) after importing of all entities
 			importService.postProcessRelationsOfImport(userId);
 

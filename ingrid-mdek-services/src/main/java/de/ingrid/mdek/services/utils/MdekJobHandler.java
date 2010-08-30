@@ -76,6 +76,7 @@ public class MdekJobHandler {
 
 	/**
 	 * Create a document describing a job.
+	 * NOTICE: Adds only basic data (passed stuff) which then can be extended !
 	 * @param JobType what type of Job/Operation
 	 * @param whichType what kind of entities are processed (objects or addresses)
 	 * @param numProcessed number of already processed entities
@@ -90,24 +91,20 @@ public class MdekJobHandler {
 			boolean canceledByUser) {
 		IngridDocument runningJob = new IngridDocument();
 		runningJob.put(MdekKeys.RUNNINGJOB_TYPE, jobType.getDbValue());
+
 		runningJob.put(MdekKeys.RUNNINGJOB_ENTITY_TYPE, entityType);
-		if(jobType == JobType.IMPORT){
-			if(entityType == IdcEntityType.OBJECT.getDbValue()){
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS, numProcessed);
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS, numTotal);
-			}else if(entityType == IdcEntityType.ADDRESS.getDbValue()){
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES, numProcessed);
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES, numTotal);
-			}else{
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS, 0);
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS, 0);
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES, 0);
-				runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES, 0);
-			}
-		}else{
-			runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
-			runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES, numProcessed);
+		runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES, numTotal);
+
+		// also differentiate objects and addresses
+		if (entityType == IdcEntityType.OBJECT.getDbValue()) {
+			runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS, numProcessed);
+			runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS, numTotal);
+		} else if(entityType == IdcEntityType.ADDRESS.getDbValue()){
+			runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES, numProcessed);
+			runningJob.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES, numTotal);
 		}
+
 		runningJob.put(MdekKeys.RUNNINGJOB_CANCELED_BY_USER, canceledByUser);
 		
 		return runningJob;
@@ -188,6 +185,8 @@ public class MdekJobHandler {
 		checkRunningJobCanceledByUser(userId);
 		
 		IngridDocument jobInfo = getRunningJobInfo(userId);
+		// NOTICE: we do NOT sync number of ADDRESSES/OBJECTS with number of ENTITIES !
+		// So entities does NOT contain sum of addresses and objects !
 		jobInfo.putAll(additionalJobInfo);
 
 		runningJobsMap.put(userId, jobInfo);
@@ -339,31 +338,24 @@ public class MdekJobHandler {
 	 */
 	public HashMap getJobInfoDetailsFromRunningJobInfo(HashMap runningJobInfo,
 			boolean includeMessages) {
-		String entityType = (String) runningJobInfo.get(MdekKeys.RUNNINGJOB_ENTITY_TYPE);
-		
-		// set up job info details just like it wouild be stored in DB
-        HashMap jobDetails = new HashMap();
-        if(runningJobInfo.get(MdekKeys.RUNNINGJOB_TYPE).equals(JobType.IMPORT.getDbValue())){
-        	if(runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS) != null && runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS) != null){
-        		jobDetails = setUpJobInfoDetailsDB(IdcEntityType.OBJECT.getDbValue(),
-    	        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS),
-    					(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS),
-    					jobDetails);
-        	}
-        	if(runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES) != null && runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES) != null){
-        		jobDetails = setUpJobInfoDetailsDB(IdcEntityType.ADDRESS.getDbValue(),
-    	        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES),
-    					(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES),
-    					jobDetails);
-        	}
-        }else{
-        	jobDetails = setUpJobInfoDetailsDB(entityType,
-        	        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
-        					(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES),
-        					jobDetails
-        					);
-        }
-		// also add start time from running job if present
+
+		// set up BASIC job info details just like it would be stored in DB
+        HashMap jobDetails = setUpJobInfoDetailsDB(
+        		(String) runningJobInfo.get(MdekKeys.RUNNINGJOB_ENTITY_TYPE),
+        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES),
+        		(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES));
+
+        // add explicit object/address counter from running job !
+        jobDetails.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS,
+        	(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS));
+        jobDetails.put(MdekKeys.JOBINFO_NUM_OBJECTS,
+        	(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS));
+        jobDetails.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES,
+        	(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES));
+        jobDetails.put(MdekKeys.JOBINFO_NUM_ADDRESSES,
+        	(Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES));
+
+        // also add start time from running job if present
         if (runningJobInfo.containsKey(MdekKeys.JOBINFO_START_TIME)) {
             jobDetails.put(MdekKeys.JOBINFO_START_TIME, runningJobInfo.get(MdekKeys.JOBINFO_START_TIME));        	
         }
@@ -375,25 +367,25 @@ public class MdekJobHandler {
 		return jobDetails;
 	}
 
-	/** Set up generic details to be stored in database.
+	/** Set up BASIC generic details to be stored in database.
 	 * @param entityType type of entity, pass IdcEntityType.getDbValue() or arbitrary string if other entity !
 	 */
-	public HashMap setUpJobInfoDetailsDB(String entityType, int num, int totalNum, HashMap details) {
-        if(details == null){
-        	details = new HashMap();
-        }
+	public HashMap setUpJobInfoDetailsDB(String entityType, int num, int totalNum) {
+        HashMap details = new HashMap();
     	details.put(MdekKeys.JOBINFO_ENTITY_TYPE, entityType);
 
-		IdcEntityType whichType = EnumUtil.mapDatabaseToEnumConst(IdcEntityType.class, entityType);
+    	// always set generic entities
+        details.put(MdekKeys.JOBINFO_TOTAL_NUM_ENTITIES, totalNum);
+        details.put(MdekKeys.JOBINFO_NUM_ENTITIES, num);
+
+		// also differentiate objects and addresses
+        IdcEntityType whichType = EnumUtil.mapDatabaseToEnumConst(IdcEntityType.class, entityType);
         if (whichType == IdcEntityType.OBJECT) {
             details.put(MdekKeys.JOBINFO_TOTAL_NUM_OBJECTS, totalNum);        	
             details.put(MdekKeys.JOBINFO_NUM_OBJECTS, num);
         } else if (whichType == IdcEntityType.ADDRESS) {
             details.put(MdekKeys.JOBINFO_TOTAL_NUM_ADDRESSES, totalNum);        	
             details.put(MdekKeys.JOBINFO_NUM_ADDRESSES, num);
-        } else {
-            details.put(MdekKeys.JOBINFO_TOTAL_NUM_ENTITIES, totalNum);        	
-            details.put(MdekKeys.JOBINFO_NUM_ENTITIES, num);
         }
 		
         return details;

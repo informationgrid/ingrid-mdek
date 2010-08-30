@@ -158,12 +158,21 @@ public class MdekExampleSupertool {
 	public IngridDocument getExportInfo(boolean includeExportData) {
 		return supertoolCatalog.getExportInfo(includeExportData);
 	}
-	public IngridDocument importEntities(ArrayList <byte[]> importData,
+	public IngridDocument importEntities(byte[] importData,
 			String objectImportNodeUuid, String addressImportNodeUuid,
 			boolean publishImmediately, boolean doSeparateImport) {
 		return supertoolCatalog.importEntities(importData,
 				objectImportNodeUuid, addressImportNodeUuid,
 				publishImmediately, doSeparateImport);
+	}
+	public IngridDocument importEntities(List<byte[]> importData,
+			String objectImportNodeUuid, String addressImportNodeUuid,
+			boolean publishImmediately, boolean doSeparateImport,
+			String frontendProtocol) {
+		return supertoolCatalog.importEntities(importData,
+				objectImportNodeUuid, addressImportNodeUuid,
+				publishImmediately, doSeparateImport,
+				frontendProtocol);
 	}
 	public IngridDocument getJobInfo(JobType jobType) {
 		return supertoolCatalog.getJobInfo(jobType);
@@ -575,32 +584,20 @@ public class MdekExampleSupertool {
 			result = mdekClientCaller.getResultFromResponse(response);
 			if (result != null) {
 				String jobDescr = result.getString(MdekKeys.RUNNINGJOB_TYPE);
-				
-				if(jobDescr.equals(JobType.IMPORT.getDbValue())){
-					Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS);
-					Integer totalObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS);
-					Integer numAddresses = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES);
-					Integer totalAddresses = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
-					if (jobDescr == null) {
-						// job finished !
-						jobIsRunning = false;					
-						System.out.println("JOB FINISHED\n");
-					} else {
-						System.out.println("job:" + jobDescr + ", objects:" + numObjs + ", total:" + totalObjs);
-						System.out.println("job:" + jobDescr + ", addresses:" + numAddresses+ ", total:" + totalAddresses);
-					}
-				}else{
-					Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
-					Integer total = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
-					if (jobDescr == null) {
-						// job finished !
-						jobIsRunning = false;
-						System.out.println("JOB FINISHED\n");
-					} else {
-						System.out.println("job:" + jobDescr + ", entities:" + numObjs + ", total:" + total);
-					}	
+				Integer numEntities = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ENTITIES);
+				Integer totalEntities = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ENTITIES);
+				Integer numObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS);
+				Integer totalObjs = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS);
+				Integer numAddresses = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES);
+				Integer totalAddresses = (Integer) result.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
+				if (jobDescr == null) {
+					// job finished !
+					jobIsRunning = false;					
+					System.out.println("JOB FINISHED\n");
+				} else {
+					System.out.println("job: " + jobDescr + ", entities:" + numEntities + ", total:" + totalEntities +
+						", objects:" + numObjs + ", total:" + totalObjs + ", addresses:" + numAddresses+ ", total:" + totalAddresses);
 				}
-			
 			} else {
 				handleError(response);
 				jobIsRunning = false;

@@ -1,6 +1,5 @@
 package de.ingrid.mdek.caller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.ingrid.mdek.MdekUtils;
@@ -185,9 +184,21 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument getExportInfo(String plugId, boolean includeExportData, String userId);
 
 	/**
-	 * Import the given data (import/export format) and update existing or create new entities.
+	 * @deprecated KEPT FOR COMPATIBILITY WITH OLD FRONTENDS, replaced by 
+	 * {@link #importEntities(String, List,...)}
+	 */
+	@Deprecated
+	IngridDocument importEntities(String plugId, byte[] importData,
+			String targetObjectUuid, String targetAddressUuid,
+			boolean publishImmediately,
+			boolean doSeparateImport,
+			String userId);
+
+	/**
+	 * Import the given MULTIPLE NUMBER OF FILES (import/export format) and update existing 
+	 * or create new entities. FURTHER ADD PROTOCOL OF MAPPING to backend job info !
 	 * @param plugId which mdek server (iplug)
-	 * @param importData entities to import in import/export format
+	 * @param importData entities to import in import/export format IN MULTIPLE FILES !
 	 * @param targetObjectUuid object node where new objects are created underneath
 	 * 		("object import node").
 	 * @param targetAddressUuid address node (institution !) where new addresses are 
@@ -197,13 +208,15 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param doSeparateImport separate all imported entities underneath the "import nodes".
 	 * 		If an imported entity already exists in catalog, a new uuid is created, so it becomes
 	 * 		a NEW entity.
+	 * @param frontendProtocol the protocol from frontend to add to backend job info. Pass null or empty string if no Protocol.
 	 * @param userId calling user
 	 * @return response containing result: map containing import information
 	 */
-	IngridDocument importEntities(String plugId, ArrayList<byte[]> importData,
+	IngridDocument importEntities(String plugId, List<byte[]> importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,
+			String frontendProtocol,
 			String userId);
 
 	/** Returns DEFAULT information about the current/last job of given type executed by the given user.

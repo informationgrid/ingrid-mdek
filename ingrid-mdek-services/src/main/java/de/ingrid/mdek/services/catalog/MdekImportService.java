@@ -266,7 +266,8 @@ public class MdekImportService implements IImporterCallback {
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.importer.IImporterCallback#writeImportInfo(de.ingrid.mdek.MdekUtils.IdcEntityType, int, int, java.lang.String)
 	 */
-	public void writeImportInfo(IdcEntityType whichType, int numImported, int totalNum,	String userUuid) {
+	public void writeImportInfo(IdcEntityType whichType, int numImported, int totalNum,
+			String userUuid) {
 		updateImportJobInfo(whichType, numImported, totalNum, userUuid);
 	}
 
@@ -286,6 +287,11 @@ public class MdekImportService implements IImporterCallback {
 		// first update in memory job state
 		IngridDocument runningJobInfo = 
 			jobHandler.createRunningJobDescription(JobType.IMPORT, 0, 0, false);
+		// add default values !
+		runningJobInfo.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_OBJECTS, 0);
+		runningJobInfo.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS, 0);
+		runningJobInfo.put(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES, 0);
+		runningJobInfo.put(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES, 0);
 		runningJobInfo.put(MdekKeys.JOBINFO_START_TIME, startTime);
 		jobHandler.updateRunningJob(userUuid, runningJobInfo);
 		
@@ -293,7 +299,8 @@ public class MdekImportService implements IImporterCallback {
 		jobHandler.startJobInfoDB(JobType.IMPORT, startTime, null, userUuid);
 	}
 	/** Update general info of Import job IN MEMORY. */
-	public void updateImportJobInfo(IdcEntityType whichType, int numImported, int totalNum, String userUuid) {
+	public void updateImportJobInfo(IdcEntityType whichType, int numImported, int totalNum,
+			String userUuid) {
 		// first update in memory job state
 		jobHandler.updateRunningJob(userUuid,
 				jobHandler.createRunningJobDescription(JobType.IMPORT, whichType.getDbValue(), numImported, totalNum, false));
@@ -907,6 +914,7 @@ public class MdekImportService implements IImporterCallback {
 		// create object tag for messages !
 		String objTag = createEntityTag(IdcEntityType.OBJECT, objDoc);
 
+		// get additional field data of object (NOT DEFINITION)
 		List<IngridDocument> inFieldDocs = (List) objDoc.get(MdekKeys.ADDITIONAL_FIELDS);
 		if (inFieldDocs == null) {
 			inFieldDocs = new ArrayList<IngridDocument>(0);
@@ -914,62 +922,81 @@ public class MdekImportService implements IImporterCallback {
 
 		for (Iterator<IngridDocument> i = inFieldDocs.iterator(); i.hasNext();) {
 			IngridDocument inFieldDoc = i.next();
-			Long fieldId = (Long) inFieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
-			String fieldName = inFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME);
-			String fieldValue = inFieldDoc.getString(MdekKeys.ADDITIONAL_FIELD_VALUE);
+			Long inFieldId = (Long) inFieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
+			String inFieldName = inFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME);
+			String inFieldValue = inFieldDoc.getString(MdekKeys.ADDITIONAL_FIELD_VALUE);
+			
+			// type of additional field NOT part of object data !
+			// but all field definitions are also part of object doc, get type via definition !
+			String inFieldType = null;
+			IngridDocument inFieldDef = (IngridDocument) objDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + inFieldId);
+			if (inFieldDef != null) {
+				inFieldType = inFieldDef.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE);
+			}
 
 			// check whether additional field / value exists
 			boolean fieldOk = false;
 
-			// fetch field in catalog and compare
-			IngridDocument sysFieldDocs = catalogService.getSysAdditionalFields(new Long[]{fieldId}, null);
-			IngridDocument sysFieldDoc =
-				(IngridDocument) sysFieldDocs.get(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + fieldId);
-			if (sysFieldDoc != null) {
-				Long sysFieldId = (Long) sysFieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
-				String sysFieldName = sysFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME);
-				String sysFieldType = sysFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE);
-				
-				if (fieldId.equals(sysFieldId) &&
-					MdekUtils.isEqual(fieldName, sysFieldName))
-				{
-					// field equals field in catalog, check whether field has selection list and compare value !
-					if (MdekUtils.AdditionalFieldType.LIST.getDbValue().equals(sysFieldType)) {
-						// Is selection list, so restricted entry values ! we fetch all selection lists and compare value
-						for (Iterator<String> j = sysFieldDoc.keySet().iterator(); j.hasNext();) {
-							String sysFieldKey = j.next();
-							if (sysFieldKey.startsWith(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX)) {
-								String[] entries = (String[]) sysFieldDoc.get(sysFieldKey);
-								if (Arrays.asList(entries).contains(fieldValue)) {
-									fieldOk = true;
-									break;
+			// fetch field(s) in catalog and compare
+			// NOTICE: We fetch field by NAME cause ids might differ across IGC catalogs.
+			IngridDocument sysFieldDocs = catalogService.getSysAdditionalFieldsByName(new String[]{inFieldName}, null);
+			Iterator itKeys = sysFieldDocs.keySet().iterator();
+			while (itKeys.hasNext()) {
+				String key = (String) itKeys.next();
+				Long sysFieldId = null;
+				if (key != null && key.startsWith(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX)) {
+					IngridDocument sysFieldDoc = (IngridDocument) sysFieldDocs.get(key);
+					if (sysFieldDoc != null) {
+						sysFieldId = (Long) sysFieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
+						String sysFieldName = sysFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME);
+						String sysFieldType = sysFieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE);
+						
+						if (MdekUtils.isEqual(inFieldName, sysFieldName) &&
+								MdekUtils.isEqual(inFieldType, sysFieldType))
+						{
+							// field equals field in catalog, check whether field has selection list and compare value !
+							if (MdekUtils.AdditionalFieldType.LIST.getDbValue().equals(sysFieldType)) {
+								// Is selection list, so restricted entry values ! we fetch all selection lists and compare value
+								for (Iterator<String> j = sysFieldDoc.keySet().iterator(); j.hasNext();) {
+									String sysFieldKey = j.next();
+									if (sysFieldKey.startsWith(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX)) {
+										String[] entries = (String[]) sysFieldDoc.get(sysFieldKey);
+										if (Arrays.asList(entries).contains(inFieldValue)) {
+											fieldOk = true;
+											break;
+										}
+									}
 								}
+								if (!fieldOk) {
+									updateImportJobInfoMessages(MSG_WARN + objTag +
+										"Additional field DATA \"" + inFieldValue + "\" NOT FOUND in defined SELECTION_LIST " +
+										"(Field-Name:" + inFieldName + ", Field-Type:" + inFieldType + ")", userUuid);
+								}
+							} else {
+								// No selection list, so any text value is ok !
+								fieldOk = true;
 							}
-						}
-						if (!fieldOk) {
+						} else {
 							updateImportJobInfoMessages(MSG_WARN + objTag +
-								"Additional field VALUE \"" + fieldValue + "\" differs from defined SELECTION_LIST, " +
-								"we remove field data (Field-Id:" + fieldId + ", Name:" + fieldName + ")", userUuid);
+								"Additional field DEFINITION found, but differs ! DATA \"" + inFieldValue +
+								"\" (Field-Name:" + inFieldName + ", Field-Type:" + inFieldType +
+								") != (Sys-Name:" + sysFieldName + ", Sys-Type:" + sysFieldType + ")", userUuid);
 						}
-					} else {
-						// No selection list, so any text value is ok !
-						fieldOk = true;
 					}
-					
-				} else {
-					updateImportJobInfoMessages(MSG_WARN + objTag +
-						"Additional field DEFINITION differs, we remove field VALUE \"" + fieldValue +
-						"\" (Field-Id:" + fieldId + ", Name:" + fieldName + 
-						") != (Sys-Id:" + sysFieldId + ", Name:" + sysFieldName + ", Type:" + sysFieldType + ")", userUuid);
 				}
-			} else {
-				updateImportJobInfoMessages(MSG_WARN + objTag +
-					"Additional field not found, we remove field VALUE \"" + fieldValue +
-					"\" (Field-Id:" + fieldId + ", Name:" + fieldName + ")", userUuid);
+				
+				// break if field found and is ok ! But take over field id of this catalog (may differ across catalogs !)
+				if (fieldOk) {
+					inFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, sysFieldId);
+					break;
+				}
 			}
 			
-			// remove field data if field not ok
+			// remove field from import if field not ok
 			if (!fieldOk) {
+				updateImportJobInfoMessages(MSG_WARN + objTag +
+					"Remove Additional field from Object ! DATA \"" + inFieldValue +
+					"\" (Field-Name:" + inFieldName + ", Field-Type:" + inFieldType + ")", userUuid);
 				allFieldsOk = false;
 				i.remove();
 			}

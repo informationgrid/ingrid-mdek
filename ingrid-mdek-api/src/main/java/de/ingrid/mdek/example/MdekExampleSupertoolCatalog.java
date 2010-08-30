@@ -560,9 +560,17 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument importEntities(ArrayList <byte[]> importData,
+	public IngridDocument importEntities(byte[] importData,
 			String objectImportNodeUuid, String addressImportNodeUuid,
 			boolean publishImmediately, boolean doSeparateImport) {
+/*
+		List<byte[]> importList = new ArrayList<byte[]>();
+		importList.add(importData);
+		return importEntities(importList,
+			objectImportNodeUuid, addressImportNodeUuid,
+			publishImmediately, doSeparateImport,
+			null);
+*/
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -578,6 +586,43 @@ public class MdekExampleSupertoolCatalog {
 		response = mdekCallerCatalog.importEntities(plugId, importData,
 				objectImportNodeUuid, addressImportNodeUuid,
 				publishImmediately, doSeparateImport,
+				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			supertoolGeneric.debugJobInfoDoc(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument importEntities(List<byte[]> importData,
+			String objectImportNodeUuid, String addressImportNodeUuid,
+			boolean publishImmediately, boolean doSeparateImport,
+			String frontendProtocol) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE importEntities ######");
+		System.out.println("- object import node: " + objectImportNodeUuid);
+		System.out.println("- address import node: " + addressImportNodeUuid);
+		System.out.println("- publish immediately: " + publishImmediately);
+		System.out.println("- doSeparateImport: " + doSeparateImport);
+		System.out.println("- multiple import files ?: " + (importData.size() > 1));
+		System.out.println("- frontendProtocol included ?: " + (frontendProtocol != null && !frontendProtocol.isEmpty()));
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.importEntities(plugId, importData,
+				objectImportNodeUuid, addressImportNodeUuid,
+				publishImmediately, doSeparateImport,
+				frontendProtocol,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
