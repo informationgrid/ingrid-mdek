@@ -64,18 +64,21 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   
         complex types containing elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-    <!-- LayoutRubric: contains all possible Profile Controls -->
+    <!-- LayoutRubric: core or additional rubric, encapsulates controls -->
     <xs:complexType name="LayoutRubric">
         <xs:sequence>
             <xs:element ref="id"/>
             <!-- Label (heading) only relevant if not core rubric -->
-            <xs:element ref="localizedLabel"/>
-            <xs:choice maxOccurs="unbounded">
+            <xs:element ref="localizedLabel" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- Help only relevant if not core rubric -->
+            <xs:element ref="localizedHelp" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- core controls always before additional controls -->
+            <xs:element ref="legacyControl" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="textControl"/>
                 <xs:element ref="numberControl"/>
                 <xs:element ref="dateControl"/>
                 <xs:element ref="tableControl"/>
-                <xs:element ref="legacyControl"/>
             </xs:choice>
         </xs:sequence>
         <!-- Rubric part of core model (true) or not (false) -->

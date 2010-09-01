@@ -6,102 +6,103 @@
     <layoutRubric isLegacy="false">
         <id>id0</id>
         <localizedLabel lang="lang1">localizedLabel0</localizedLabel>
+        <localizedHelp lang="lang3">localizedHelp0</localizedHelp>
+        <legacyControl>
+            <id>id1</id>
+            <isVisible>true</isVisible>
+            <scriptedProperties>scriptedProperties0</scriptedProperties>
+        </legacyControl>
             <textControl>
-                        <id>id1</id>
+                        <id>id2</id>
                         <isVisible>true</isVisible>
-                        <scriptedProperties>scriptedProperties0</scriptedProperties>
-                        <localizedLabel lang="lang3">localizedLabel1</localizedLabel>
-                        <localizedLabelPostfix lang="lang5">localizedLabelPostfix0</localizedLabelPostfix>
-                        <localizedHelp lang="lang7">localizedHelp0</localizedHelp>
+                        <scriptedProperties>scriptedProperties1</scriptedProperties>
+                        <localizedLabel lang="lang5">localizedLabel1</localizedLabel>
+                        <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
+                        <localizedHelp lang="lang9">localizedHelp1</localizedHelp>
                         <scriptedCswMapping>scriptedCswMapping0</scriptedCswMapping>
                         <indexName>indexName0</indexName>
                         <layoutWidth>100</layoutWidth>
                     <layoutNumLines>1</layoutNumLines>
                     <selectionList isExtendable="false">
-                        <items lang="lang9">
+                        <items lang="lang11">
                             <item>item0</item>
                         </items>
                     </selectionList>
             </textControl>
 <!--            <numberControl>
-                    <id>id2</id>
+                    <id>id3</id>
                     <isVisible>true</isVisible>
-                    <scriptedProperties>scriptedProperties1</scriptedProperties>
-                    <localizedLabel lang="lang11">localizedLabel2</localizedLabel>
-                    <localizedLabelPostfix lang="lang13">localizedLabelPostfix1</localizedLabelPostfix>
-                    <localizedHelp lang="lang15">localizedHelp1</localizedHelp>
+                    <scriptedProperties>scriptedProperties2</scriptedProperties>
+                    <localizedLabel lang="lang13">localizedLabel2</localizedLabel>
+                    <localizedLabelPostfix lang="lang15">localizedLabelPostfix1</localizedLabelPostfix>
+                    <localizedHelp lang="lang17">localizedHelp2</localizedHelp>
                     <scriptedCswMapping>scriptedCswMapping1</scriptedCswMapping>
                     <indexName>indexName1</indexName>
                     <layoutWidth>100</layoutWidth>
             </numberControl>-->
 <!--            <dateControl>
-                    <id>id3</id>
+                    <id>id4</id>
                     <isVisible>true</isVisible>
-                    <scriptedProperties>scriptedProperties2</scriptedProperties>
-                    <localizedLabel lang="lang17">localizedLabel3</localizedLabel>
-                    <localizedLabelPostfix lang="lang19">localizedLabelPostfix2</localizedLabelPostfix>
-                    <localizedHelp lang="lang21">localizedHelp2</localizedHelp>
+                    <scriptedProperties>scriptedProperties3</scriptedProperties>
+                    <localizedLabel lang="lang19">localizedLabel3</localizedLabel>
+                    <localizedLabelPostfix lang="lang21">localizedLabelPostfix2</localizedLabelPostfix>
+                    <localizedHelp lang="lang23">localizedHelp3</localizedHelp>
                     <scriptedCswMapping>scriptedCswMapping2</scriptedCswMapping>
                     <indexName>indexName2</indexName>
                     <layoutWidth>100</layoutWidth>
             </dateControl>-->
 <!--            <tableControl>
-                        <id>id4</id>
+                        <id>id5</id>
                         <isVisible>true</isVisible>
-                        <scriptedProperties>scriptedProperties3</scriptedProperties>
-                        <localizedLabel lang="lang23">localizedLabel4</localizedLabel>
-                        <localizedLabelPostfix lang="lang25">localizedLabelPostfix3</localizedLabelPostfix>
-                        <localizedHelp lang="lang27">localizedHelp3</localizedHelp>
+                        <scriptedProperties>scriptedProperties4</scriptedProperties>
+                        <localizedLabel lang="lang25">localizedLabel4</localizedLabel>
+                        <localizedLabelPostfix lang="lang27">localizedLabelPostfix3</localizedLabelPostfix>
+                        <localizedHelp lang="lang29">localizedHelp4</localizedHelp>
                         <scriptedCswMapping>scriptedCswMapping3</scriptedCswMapping>
                         <indexName>indexName3</indexName>
                         <layoutWidth>100</layoutWidth>
                     <layoutNumLines>1</layoutNumLines>
                     <columns>
                         <textControl>
-                                    <id>id5</id>
+                                    <id>id6</id>
                                     <isVisible>true</isVisible>
-                                    <scriptedProperties>scriptedProperties4</scriptedProperties>
-                                    <localizedLabel lang="lang29">localizedLabel5</localizedLabel>
-                                    <localizedLabelPostfix lang="lang31">localizedLabelPostfix4</localizedLabelPostfix>
-                                    <localizedHelp lang="lang33">localizedHelp4</localizedHelp>
+                                    <scriptedProperties>scriptedProperties5</scriptedProperties>
+                                    <localizedLabel lang="lang31">localizedLabel5</localizedLabel>
+                                    <localizedLabelPostfix lang="lang33">localizedLabelPostfix4</localizedLabelPostfix>
+                                    <localizedHelp lang="lang35">localizedHelp5</localizedHelp>
                                     <scriptedCswMapping>scriptedCswMapping4</scriptedCswMapping>
                                     <indexName>indexName4</indexName>
                                     <layoutWidth>100</layoutWidth>
                                 <layoutNumLines>1</layoutNumLines>
                                 <selectionList isExtendable="false">
-                                    <items lang="lang35">
+                                    <items lang="lang37">
                                         <item>item1</item>
                                     </items>
                                 </selectionList>
                         </textControl>
 <!--                        <numberControl>
-                                <id>id6</id>
+                                <id>id7</id>
                                 <isVisible>true</isVisible>
-                                <scriptedProperties>scriptedProperties5</scriptedProperties>
-                                <localizedLabel lang="lang37">localizedLabel6</localizedLabel>
-                                <localizedLabelPostfix lang="lang39">localizedLabelPostfix5</localizedLabelPostfix>
-                                <localizedHelp lang="lang41">localizedHelp5</localizedHelp>
+                                <scriptedProperties>scriptedProperties6</scriptedProperties>
+                                <localizedLabel lang="lang39">localizedLabel6</localizedLabel>
+                                <localizedLabelPostfix lang="lang41">localizedLabelPostfix5</localizedLabelPostfix>
+                                <localizedHelp lang="lang43">localizedHelp6</localizedHelp>
                                 <scriptedCswMapping>scriptedCswMapping5</scriptedCswMapping>
                                 <indexName>indexName5</indexName>
                                 <layoutWidth>100</layoutWidth>
                         </numberControl>-->
 <!--                        <dateControl>
-                                <id>id7</id>
+                                <id>id8</id>
                                 <isVisible>true</isVisible>
-                                <scriptedProperties>scriptedProperties6</scriptedProperties>
-                                <localizedLabel lang="lang43">localizedLabel7</localizedLabel>
-                                <localizedLabelPostfix lang="lang45">localizedLabelPostfix6</localizedLabelPostfix>
-                                <localizedHelp lang="lang47">localizedHelp6</localizedHelp>
+                                <scriptedProperties>scriptedProperties7</scriptedProperties>
+                                <localizedLabel lang="lang45">localizedLabel7</localizedLabel>
+                                <localizedLabelPostfix lang="lang47">localizedLabelPostfix6</localizedLabelPostfix>
+                                <localizedHelp lang="lang49">localizedHelp7</localizedHelp>
                                 <scriptedCswMapping>scriptedCswMapping6</scriptedCswMapping>
                                 <indexName>indexName6</indexName>
                                 <layoutWidth>100</layoutWidth>
                         </dateControl>-->
                     </columns>
             </tableControl>-->
-<!--            <legacyControl>
-                <id>id8</id>
-                <isVisible>true</isVisible>
-                <scriptedProperties>scriptedProperties7</scriptedProperties>
-            </legacyControl>-->
     </layoutRubric>
 </profile>
