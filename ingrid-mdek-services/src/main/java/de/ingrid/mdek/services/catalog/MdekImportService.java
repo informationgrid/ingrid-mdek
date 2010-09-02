@@ -954,6 +954,10 @@ public class MdekImportService implements IImporterCallback {
 						if (MdekUtils.isEqual(inFieldName, sysFieldName) &&
 								MdekUtils.isEqual(inFieldType, sysFieldType))
 						{
+							// WE DO NOT COMPARE VALUE OF SELECTION LIST BECAUSE OF COMBOBOX in GUI (FREE TEXT ENTRY POSSIBLE !!!) !!!
+							// so we take over all values if name and type of field is ok !
+							fieldOk = true;
+/*							
 							// field equals field in catalog, check whether field has selection list and compare value !
 							if (MdekUtils.AdditionalFieldType.LIST.getDbValue().equals(sysFieldType)) {
 								// Is selection list, so restricted entry values ! we fetch all selection lists and compare value
@@ -976,11 +980,12 @@ public class MdekImportService implements IImporterCallback {
 								// No selection list, so any text value is ok !
 								fieldOk = true;
 							}
+*/
 						} else {
 							updateImportJobInfoMessages(MSG_WARN + objTag +
 								"Additional field DEFINITION found, but differs ! DATA \"" + inFieldValue +
-								"\" (Field-Name:" + inFieldName + ", Field-Type:" + inFieldType +
-								") != (Sys-Name:" + sysFieldName + ", Sys-Type:" + sysFieldType + ")", userUuid);
+								"\" (Import Field-Name:" + inFieldName + ", Field-Type:" + inFieldType +
+								") != (Existing Field-Name:" + sysFieldName + ", Field-Type:" + sysFieldType + ")", userUuid);
 						}
 					}
 				}
@@ -995,7 +1000,7 @@ public class MdekImportService implements IImporterCallback {
 			// remove field from import if field not ok
 			if (!fieldOk) {
 				updateImportJobInfoMessages(MSG_WARN + objTag +
-					"Remove Additional field from Object ! DATA \"" + inFieldValue +
+					"Additional Field not found in catalogue, REMOVE from Object ! DATA \"" + inFieldValue +
 					"\" (Field-Name:" + inFieldName + ", Field-Type:" + inFieldType + ")", userUuid);
 				allFieldsOk = false;
 				i.remove();
