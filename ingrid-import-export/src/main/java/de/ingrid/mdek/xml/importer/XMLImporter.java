@@ -33,13 +33,37 @@ public class XMLImporter implements IImporter {
 	private String currentUserUuid;
 	private IngridDocument additionalFields;
 
-	private int importObjectCount;
-	private int importAddressCount;
-	private int totalNumObjects;
-	private int totalNumAddresses;
+	private int importObjectCount = 0;
+	private int importAddressCount = 0;
+	private int totalNumObjects = 0;
+	private int totalNumAddresses = 0;
 
 	public XMLImporter(IImporterCallback importerCallback) {
 		this.importerCallback = importerCallback;
+	}
+
+	@Override
+	public void countEntities(List<byte[]> importDataList, String userUuid) {
+		for (byte[] importData : importDataList) {
+			try {
+				InputStream in = new GZIPInputStream(new ByteArrayInputStream(importData));
+				streamReader = new IngridXMLStreamReader(in, importerCallback, currentUserUuid);
+
+				List<String> objectWriteSequence = getObjectWriteSequence();
+				totalNumObjects = totalNumObjects + objectWriteSequence.size();			
+
+				List<String> addressWriteSequence = getAddressWriteSequence();
+				totalNumAddresses = totalNumAddresses + addressWriteSequence.size();			
+
+			} catch (IOException ex) {
+				log.error("Error counting entities.", ex);
+				importerCallback.writeImportInfoMessage("Error counting entities.", currentUserUuid);
+			}
+		}
+
+		// and initialize Job Info in backend !
+		importerCallback.writeImportInfo(IdcEntityType.OBJECT, 0, totalNumObjects, userUuid);
+		importerCallback.writeImportInfo(IdcEntityType.ADDRESS, 0, totalNumAddresses, userUuid);
 	}
 
 	@Override
@@ -81,7 +105,11 @@ public class XMLImporter implements IImporter {
 
 	private void importObjects() {
 		List<String> objectWriteSequence = getObjectWriteSequence();
-		totalNumObjects = totalNumObjects + objectWriteSequence.size();
+		
+		// only update total number if not set yet ! Maybe was already counted for multiple files !
+		if (totalNumObjects == 0) {
+			totalNumObjects = totalNumObjects + objectWriteSequence.size();			
+		}
 
 		for (String objUuid : objectWriteSequence) {
 			importObject(objUuid);
@@ -129,7 +157,11 @@ public class XMLImporter implements IImporter {
 
 	private void importAddresses() {
 		List<String> addressWriteSequence = getAddressWriteSequence();
-		totalNumAddresses = totalNumAddresses + addressWriteSequence.size();
+
+		// only update total number if not set yet ! Maybe was already counted for multiple files !
+		if (totalNumAddresses == 0) {
+			totalNumAddresses = totalNumAddresses + addressWriteSequence.size();			
+		}
 
 		for (String adrUuid : addressWriteSequence) {
 			importAddress(adrUuid);

@@ -56,6 +56,7 @@ import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.xml.exporter.XMLExporter;
+import de.ingrid.mdek.xml.importer.IImporter;
 import de.ingrid.mdek.xml.importer.XMLImporter;
 import de.ingrid.utils.IngridDocument;
 
@@ -724,9 +725,14 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			importService.startImportJobInfo(userId);
 
 			// import
-			XMLImporter xmlImporter = new XMLImporter(importService);
+			IImporter xmlImporter = new XMLImporter(importService);
 			if (multipleImportFiles) {
 				List<byte[]> importDataList = (List<byte[]>) importData;
+
+				// FIRST COUNT OBJECTS / ADDRESSES of all files to get correct total number
+				// before starting import of single files !
+				xmlImporter.countEntities(importDataList, userId);
+
 				for(int i=0; i<importDataList.size(); i++){
 					// import
 					xmlImporter.importEntities(importDataList.get(i), userId);
