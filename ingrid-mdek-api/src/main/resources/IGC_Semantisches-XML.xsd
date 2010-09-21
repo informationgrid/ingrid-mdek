@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="1.0.5"/>
+    <xs:attribute name="exchange-format" default="1.0.8"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -827,6 +827,8 @@
         <xs:element minOccurs="0" ref="dataset-intentions"/>
         <!-- kein access-constraint in Klasse 0: Organisationseinheit/Fachaufgabe ->  minOccurs=0 -->
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="access-constraint"/>
+        <!-- kein use-constraint in Klasse 0: Organisationseinheit/Fachaufgabe ->  minOccurs=0 -->
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="use-constraint"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format"/>
         <xs:element minOccurs="0" ref="publication-condition"/>
@@ -867,14 +869,13 @@
   -->
   <xs:element name="dataset-intentions" type="xs:string"/>
   <!--
-    Fachlicher Name: Objekt Zugangs- und Nutzungsbeschraenkung (INSPIRE)
+    Fachlicher Name: Objekt Zugangsbeschraenkung (INSPIRE)
     Tabelle.Feld   : object_access
   -->
   <xs:element name="access-constraint">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="restriction"/>
-        <xs:element ref="terms-of-use"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -884,6 +885,17 @@
     Tabelle.Feld   : object_access.restriction_value
   -->
   <xs:element name="restriction" type="id-string"/>
+  <!--
+    Fachlicher Name: Objekt Nutzungsbeschraenkung (INSPIRE)
+    Tabelle.Feld   : object_use
+  -->
+  <xs:element name="use-constraint">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="terms-of-use"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <!--
     Fachlicher Name: Nutzungsbedingungen
     Tabelle.Feld   : object_access.terms_of_use

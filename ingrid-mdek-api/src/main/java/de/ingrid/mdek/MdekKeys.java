@@ -1098,7 +1098,10 @@ public class MdekKeys {
     public final static String ACCESS_RESTRICTION_KEY = "access-restriction-key";
     /** Value: String */
     public final static String ACCESS_RESTRICTION_VALUE = "access-restriction-value";
+
+    /** Value: List< IngridDocument > */
+    public final static String USE_LIST = "use_list";
     /** Value: String */
-    public final static String ACCESS_TERMS_OF_USE = "access-terms-of-use";
+    public final static String USE_TERMS_OF_USE = "use-terms-of-use";
 
 }

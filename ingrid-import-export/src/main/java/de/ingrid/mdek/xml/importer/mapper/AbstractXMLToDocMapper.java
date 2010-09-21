@@ -1,6 +1,8 @@
-package de.ingrid.mdek.xml.importer.mapper.version1_0;
+package de.ingrid.mdek.xml.importer.mapper;
 
-import static de.ingrid.mdek.xml.util.IngridDocUtils.*;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putDocList;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putInt;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putString;
 
 import java.util.ArrayList;
 import java.util.List;

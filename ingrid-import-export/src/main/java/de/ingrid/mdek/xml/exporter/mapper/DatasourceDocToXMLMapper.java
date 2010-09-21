@@ -545,6 +545,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		additionalInformation.addChildren(createLegislations());
 		additionalInformation.addChild(createDatasetIntentions());
 		additionalInformation.addChildren(createAccessConstraints());
+		additionalInformation.addChildren(createUseConstraints());
 		additionalInformation.addChildren(createMediumOptions());
 		additionalInformation.addChildren(createDataFormats());
 		additionalInformation.addChild(createPublicationCondition());
@@ -613,7 +614,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createAccessConstraint(IngridDocument accessConstraintContext) {
 		XMLElement accessConstraint = new XMLElement(ACCESS_CONSTRAINT);
 		accessConstraint.addChild(createRestriction(accessConstraintContext));
-		accessConstraint.addChild(new XMLElement(TERMS_OF_USE, getStringForKey(MdekKeys.ACCESS_TERMS_OF_USE, accessConstraintContext)));
 		return accessConstraint;
 	}
 
@@ -621,6 +621,21 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		XMLElement restriction = new XMLElement(RESTRICTION, getStringForKey(MdekKeys.ACCESS_RESTRICTION_VALUE, accessConstraintContext));
 		restriction.addAttribute(ID, getIntegerForKey(MdekKeys.ACCESS_RESTRICTION_KEY, accessConstraintContext));
 		return restriction;
+	}
+
+	private List<XMLElement> createUseConstraints() {
+		List<XMLElement> useConstraints = new ArrayList<XMLElement>();
+		List<IngridDocument> useConstraintList = getIngridDocumentListForKey(MdekKeys.USE_LIST);
+		for (IngridDocument useConstraint : useConstraintList) {
+			useConstraints.add(createUseConstraint(useConstraint));
+		}
+		return useConstraints;
+	}
+
+	private XMLElement createUseConstraint(IngridDocument useConstraintContext) {
+		XMLElement useConstraint = new XMLElement(USE_CONSTRAINT);
+		useConstraint.addChild(new XMLElement(TERMS_OF_USE, getStringForKey(MdekKeys.USE_TERMS_OF_USE, useConstraintContext)));
+		return useConstraint;
 	}
 
 	private List<XMLElement> createMediumOptions() {

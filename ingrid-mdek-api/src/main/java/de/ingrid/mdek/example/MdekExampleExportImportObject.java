@@ -143,7 +143,12 @@ class MdekExampleExportImportObjectThread extends Thread {
 		IngridDocument result;
 		int startIndex;
 		int endIndex;
-		
+
+		IngridDocument objImpNodeDoc;
+		String objImpNodeUuid;
+		IngridDocument addrImpNodeDoc;
+		String addrImpNodeUuid;
+
 		// NI catalog
 
 		// OBJECTS
@@ -192,8 +197,56 @@ class MdekExampleExportImportObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-		// Test ...
-		// -----------------------
+		// Test EXPORT / IMPORT new Exchange Format
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- object details -----");
+		IngridDocument oMap = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+
+		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+		// add entry to OBJECT USE
+		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.USE_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.USE_TERMS_OF_USE, "TEST USE_TERMS_OF_USE");
+		docList.add(testDoc);
+		oMap.put(MdekKeys.USE_LIST, docList);
+		oMap = supertool.publishObject(oMap, true, false);
+
+		System.out.println("\n----- export object -----");
+		supertool.exportObjectBranch(objUuid, true);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import object as WORKING VERSION -----");
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- discard changes -> remove former change -----");
+		docList = (List<IngridDocument>) oMap.get(MdekKeys.USE_LIST);
+		if (docList != null && docList.size() > 0) {
+			docList.remove(docList.size()-1);
+		}
+		result = supertool.publishObject(oMap, true, false);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
 
 		if (alwaysTrue) {
 			isRunning = false;
@@ -319,17 +372,17 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
-		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc = supertool.newObjectDoc(null);
 		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
 		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
 		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
-		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
-		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
 		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
-		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
 
 // -----------------------------------
 

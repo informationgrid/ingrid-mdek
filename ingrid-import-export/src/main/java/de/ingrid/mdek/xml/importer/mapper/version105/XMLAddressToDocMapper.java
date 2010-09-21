@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.xml.importer.mapper.AbstractXMLToDocMapper;
 import de.ingrid.mdek.xml.util.XPathUtils;
 import de.ingrid.utils.IngridDocument;
 

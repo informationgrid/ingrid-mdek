@@ -1,9 +1,10 @@
-package de.ingrid.mdek.xml.importer.mapper.version105;
+package de.ingrid.mdek.xml.importer.mapper.version108;
 
 import org.w3c.dom.Document;
 
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
 import de.ingrid.mdek.xml.importer.mapper.XMLAdditionalFieldsToDocMapper;
+import de.ingrid.mdek.xml.importer.mapper.version105.XMLAddressToDocMapper;
 import de.ingrid.utils.IngridDocument;
 
 public class IngridXMLMapperImpl implements IngridXMLMapper {
@@ -25,6 +26,6 @@ public class IngridXMLMapperImpl implements IngridXMLMapper {
 
 	@Override
 	public boolean canReadVersion(String version) {
-		return "1.0.5".equals(version);
+		return "1.0.8".equals(version);
 	}
 }

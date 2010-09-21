@@ -2,17 +2,16 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class ObjectAccess implements IEntity {
+public class ObjectUse implements IEntity {
 
 	private Long id;
 	private int version;
 	private Long objId;
 	private Integer line;
-	private Integer restrictionKey;
-	private String restrictionValue;
+	private String termsOfUse;
 
 
-	public ObjectAccess() {}
+	public ObjectUse() {}
 
 	public Long getId() {
 		return id;
@@ -46,20 +45,12 @@ public class ObjectAccess implements IEntity {
 		this.line = line;
 	}
 
-	public Integer getRestrictionKey() {
-		return restrictionKey;
+	public String getTermsOfUse() {
+		return termsOfUse;
 	}
 
-	public void setRestrictionKey(Integer restrictionKey) {
-		this.restrictionKey = restrictionKey;
-	}
-
-	public String getRestrictionValue() {
-		return restrictionValue;
-	}
-
-	public void setRestrictionValue(String restrictionValue) {
-		this.restrictionValue = restrictionValue;
+	public void setTermsOfUse(String termsOfUse) {
+		this.termsOfUse = termsOfUse;
 	}
 
 

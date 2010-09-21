@@ -1,13 +1,6 @@
-package de.ingrid.mdek.xml.importer.mapper.version105;
+package de.ingrid.mdek.xml.importer.mapper.version108;
 
-import static de.ingrid.mdek.xml.util.IngridDocUtils.getOrCreateNew;
-import static de.ingrid.mdek.xml.util.IngridDocUtils.putDocList;
-import static de.ingrid.mdek.xml.util.IngridDocUtils.putDouble;
-import static de.ingrid.mdek.xml.util.IngridDocUtils.putInt;
-import static de.ingrid.mdek.xml.util.IngridDocUtils.putIntList;
-import static de.ingrid.mdek.xml.util.IngridDocUtils.putLong;
-import static de.ingrid.mdek.xml.util.IngridDocUtils.putString;
-import static de.ingrid.mdek.xml.util.IngridDocUtils.putStringList;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,7 +129,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_LIST = "//data-source/additional-information/access-constraint";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION = "restriction/text()";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION_KEY = "restriction/@id";
-	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_TERMS_OF_USE = "terms-of-use";
+	private static final String X_ADDITIONAL_USE_CONSTRAINT_LIST = "//data-source/additional-information/use-constraint";
+	private static final String X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE = "terms-of-use";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_LIST = "//data-source/additional-information/medium-option";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NAME = "medium-name/@iso-code";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NOTE = "medium-note/text()";
@@ -571,6 +565,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putString(MdekKeys.DATASET_INTENTIONS,
 				XPathUtils.getString(source, X_ADDITIONAL_DATASET_INTENTIONS), target);
 		mapAccessConstraints(source, target);
+		mapUseConstraints(source, target);
 		mapMediumOptions(source, target);
 		mapDataFormats(source, target);
 		putInt(MdekKeys.PUBLICATION_CONDITION,
@@ -622,13 +617,26 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			IngridDocument accessConstraintDoc = new IngridDocument();
 			putString(MdekKeys.ACCESS_RESTRICTION_VALUE, XPathUtils.getString(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION), accessConstraintDoc);
 			putInt(MdekKeys.ACCESS_RESTRICTION_KEY, XPathUtils.getInt(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION_KEY), accessConstraintDoc);
-			// TODO: REMOVED IN VERSION 1.0.8. !!! Fix if import of older formats needed !
-//			putString(MdekKeys.ACCESS_TERMS_OF_USE, XPathUtils.getString(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_TERMS_OF_USE), accessConstraintDoc);
 
 			accessConstraintList.add(accessConstraintDoc);
 		}
 
 		putDocList(MdekKeys.ACCESS_LIST, accessConstraintList, target);
+	}
+
+	private static void mapUseConstraints(Document source, IngridDocument target) {
+		NodeList useConstraints = XPathUtils.getNodeList(source, X_ADDITIONAL_USE_CONSTRAINT_LIST);
+		List<IngridDocument> useConstraintList = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < useConstraints.getLength(); index++) {
+			Node useConstraint = useConstraints.item(index);
+			IngridDocument useConstraintDoc = new IngridDocument();
+			putString(MdekKeys.USE_TERMS_OF_USE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE), useConstraintDoc);
+
+			useConstraintList.add(useConstraintDoc);
+		}
+
+		putDocList(MdekKeys.USE_LIST, useConstraintList, target);
 	}
 
 	private static void mapMediumOptions(Document source, IngridDocument target) {

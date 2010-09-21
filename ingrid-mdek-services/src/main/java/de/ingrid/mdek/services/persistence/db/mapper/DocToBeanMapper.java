@@ -36,6 +36,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
@@ -421,6 +422,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectComments(oDocIn, oIn);
 			updateObjectConformitys(oDocIn, oIn);
 			updateObjectAccesses(oDocIn, oIn);
+			updateObjectUses(oDocIn, oIn);
 			updateObjectMetadata(oDocIn, oIn);
 		}
 
@@ -2475,7 +2477,6 @@ public class DocToBeanMapper implements IMapper {
 		ref.setObjId(oFrom.getId());
 		ref.setRestrictionKey((Integer)refDoc.get(MdekKeys.ACCESS_RESTRICTION_KEY));
 		ref.setRestrictionValue(refDoc.getString(MdekKeys.ACCESS_RESTRICTION_VALUE));
-		ref.setTermsOfUse(refDoc.getString(MdekKeys.ACCESS_TERMS_OF_USE));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 
@@ -2499,6 +2500,40 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
 			ObjectAccess ref = mapObjectAccess(oIn, refDoc, new ObjectAccess(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+	private ObjectUse mapObjectUse(T01Object oFrom,
+			IngridDocument refDoc,
+			ObjectUse ref, 
+			int line)
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setTermsOfUse(refDoc.getString(MdekKeys.USE_TERMS_OF_USE));
+		ref.setLine(line);
+
+		return ref;
+	}
+	private void updateObjectUses(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.USE_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<ObjectUse> refs = oIn.getObjectUses();
+		ArrayList<ObjectUse> refs_unprocessed = new ArrayList<ObjectUse>(refs);
+		// remove all !
+		for (ObjectUse ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			ObjectUse ref = mapObjectUse(oIn, refDoc, new ObjectUse(), line);
 			refs.add(ref);
 			line++;
 		}

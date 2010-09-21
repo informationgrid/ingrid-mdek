@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.xml.importer.mapper.AbstractXMLToDocMapper;
 import de.ingrid.mdek.xml.util.XPathUtils;
 import de.ingrid.utils.IngridDocument;
 
@@ -64,7 +65,7 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 		putInt(MdekKeys.TITLE_OR_FUNCTION_KEY, XPathUtils.getInt(source, X_TITLE_OR_FUNCTION_KEY), address);
 		putString(MdekKeys.GIVEN_NAME, XPathUtils.getString(source, X_GIVEN_NAME), address);
 		
-		// TODO: REMOVED IN VERSION 1.0.5. NO VERSIONING OF MdekKeys (yet ?).
+		// TODO: REMOVED IN VERSION 1.0.5. !!! Fix if import of older formats needed !
 //		putString(MdekKeys.POSTAL_CODE_OF_COUNTRY, XPathUtils.getString(source, X_POSTAL_CODE_COUNTRY), address);
 
 		putString(MdekKeys.POSTAL_CODE, XPathUtils.getString(source, X_POSTAL_CODE), address);

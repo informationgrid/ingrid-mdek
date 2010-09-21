@@ -12,6 +12,7 @@ import org.w3c.dom.NodeList;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.xml.importer.mapper.AbstractXMLToDocMapper;
 import de.ingrid.mdek.xml.util.XPathUtils;
 import de.ingrid.utils.IngridDocument;
 
@@ -548,7 +549,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	}
 
 	private static void mapAdditionalInformation(Document source, IngridDocument target) {
-		// TODO: REMOVED IN VERSION 1.0.5. NO VERSIONING OF MdekKeys (yet ?).
+		// TODO: REMOVED IN VERSION 1.0.5. !!! Fix if import of older formats needed !
 //		putString(MdekKeys.DATA_LANGUAGE, XPathUtils.getString(source, X_ADDITIONAL_DATA_LANGUAGE), target);
 //		putString(MdekKeys.METADATA_LANGUAGE, XPathUtils.getString(source, X_ADDITIONAL_METADATA_LANGUAGE), target);
 
@@ -608,7 +609,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			IngridDocument accessConstraintDoc = new IngridDocument();
 			putString(MdekKeys.ACCESS_RESTRICTION_VALUE, XPathUtils.getString(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION), accessConstraintDoc);
 			putInt(MdekKeys.ACCESS_RESTRICTION_KEY, XPathUtils.getInt(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION_KEY), accessConstraintDoc);
-			putString(MdekKeys.ACCESS_TERMS_OF_USE, XPathUtils.getString(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_TERMS_OF_USE), accessConstraintDoc);
+			// TODO: REMOVED IN VERSION 1.0.8. !!! Fix if import of older formats needed !
+//			putString(MdekKeys.ACCESS_TERMS_OF_USE, XPathUtils.getString(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_TERMS_OF_USE), accessConstraintDoc);
 
 			accessConstraintList.add(accessConstraintDoc);
 		}

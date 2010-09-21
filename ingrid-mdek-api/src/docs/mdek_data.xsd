@@ -154,6 +154,7 @@
 			<!-- INSPIRE -->
 			<xs:element name="conformity_list" type="CONFORMITY_LIST"/>
 			<xs:element name="access_list" type="ACCESS_LIST"/>
+			<xs:element name="use_list" type="USE_LIST"/>
 			
 		</xs:all>
 	</xs:complexType>
@@ -1271,7 +1272,16 @@
 		<xs:sequence>
 			<xs:element name="access-restriction-key" type="xs:integer"/>
 			<xs:element name="access-restriction-value" type="xs:string"/>
-			<xs:element name="access-terms-of-use" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="USE_LIST">
+		<xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="USE_MAP" type="USE_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="USE_MAP">
+		<xs:sequence>
+			<xs:element name="use-terms-of-use" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_PARENT_INFO_MAP">

@@ -3,6 +3,7 @@ package de.ingrid.mdek.xml.importer.mapper.version1_0;
 import org.w3c.dom.Document;
 
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
+import de.ingrid.mdek.xml.importer.mapper.XMLAdditionalFieldsToDocMapper;
 import de.ingrid.utils.IngridDocument;
 
 public class IngridXMLMapperImpl implements IngridXMLMapper {

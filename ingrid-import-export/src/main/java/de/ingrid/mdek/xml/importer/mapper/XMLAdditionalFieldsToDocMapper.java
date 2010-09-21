@@ -1,6 +1,9 @@
-package de.ingrid.mdek.xml.importer.mapper.version105;
+package de.ingrid.mdek.xml.importer.mapper;
 
-import static de.ingrid.mdek.xml.util.IngridDocUtils.*;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putInt;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putLong;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putString;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putStringArray;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

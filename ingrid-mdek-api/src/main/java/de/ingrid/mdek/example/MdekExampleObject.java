@@ -1475,11 +1475,18 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ACCESS_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.ACCESS_TERMS_OF_USE, "TEST ACCESS_TERMS_OF_USE");
 		// check ACCESS_RESTRICTION_KEY -> ACCESS_RESTRICTION_VALUE is stored via syslist
 		testDoc.put(MdekKeys.ACCESS_RESTRICTION_KEY, 1);
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.ACCESS_LIST, docList);
+
+		// add entry to OBJECT USE
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.USE_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.USE_TERMS_OF_USE, "TEST USE_TERMS_OF_USE");
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.USE_LIST, docList);
 
 		// store
 		System.out.println("STORE");
@@ -1636,6 +1643,13 @@ class MdekExampleObjectThread extends Thread {
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.ACCESS_LIST, docList);
+			}
+
+			// OBJECT USE wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.USE_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.USE_LIST, docList);
 			}
 
 			// store
