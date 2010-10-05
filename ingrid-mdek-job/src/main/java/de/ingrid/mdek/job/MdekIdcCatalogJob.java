@@ -116,6 +116,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
+			// before fetching catalog check whether version of IGC in database fits !
+			// throws Exception if not !
+			catalogService.checkIGCVersion();
+			
 			IngridDocument result = fetchCatalog();
 
 			genericDao.commitTransaction();

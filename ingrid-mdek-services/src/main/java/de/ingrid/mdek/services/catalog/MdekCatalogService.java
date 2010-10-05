@@ -19,6 +19,7 @@ import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.Versioning;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
@@ -276,6 +277,24 @@ public class MdekCatalogService {
 		List<SysGenericKey> list = daoSysGenericKey.getSysGenericKeys(keyNames);
 		
 		return list;
+	}
+
+	public void checkIGCVersion() throws MdekException {
+		List<SysGenericKey> list =
+			daoSysGenericKey.getSysGenericKeys(new String[]{Versioning.BACKEND_IGC_VERSION_KEY});
+		
+		String currentIgcVersion = "";
+		if (list != null && list.size() > 0) {
+			currentIgcVersion = list.get(0).getValueString();
+		}
+		
+		if (!Versioning.NEEDED_IGC_VERSION.equals(currentIgcVersion)) {
+			String errorMsg = "IGC catalogue (schema) in database has wrong version for IGE iPlug:\n" +
+				"Needed IGC version=" + Versioning.NEEDED_IGC_VERSION + " <-> current IGC Version in database=" + currentIgcVersion;
+			MdekException exc = new MdekException(errorMsg);
+			LOG.error("Conflicting IGC schema in database with IGE iPlug !", exc);
+			throw exc;
+		}
 	}
 
 	/** Get Doc representation of DEFINITIONS of additional fields of given IDS and language (for items in selection list if present). */

@@ -107,7 +107,7 @@ public class JobRepository implements IJobRepository {
 				MdekException mdekExc = (MdekException) e.getCause();
 				ret.put(JOB_INVOKE_ERROR_MDEK, mdekExc.getMdekErrors());
 
-				ret.put(JOB_INVOKE_ERROR_MESSAGE, "Mdek Errors: " + mdekExc);
+				ret.put(JOB_INVOKE_ERROR_MESSAGE, "Mdek Errors: " + getStackTrace(mdekExc));
 
 			// or an "unhandled" exception
 			} else {
@@ -115,13 +115,7 @@ public class JobRepository implements IJobRepository {
 					LOG.warn("method invoke failed for jobid [" + jobId + "]", e);
 				}
 				
-				String msg = e.getMessage();
-				if (msg == null) {
-					StringWriter sw = new StringWriter();
-					e.printStackTrace(new PrintWriter(sw));
-					msg = sw.toString();
-				}
-				ret.put(JOB_INVOKE_ERROR_MESSAGE, msg);
+				ret.put(JOB_INVOKE_ERROR_MESSAGE, getStackTrace(e));
 			}
 
 			ret.putBoolean(JOB_INVOKE_SUCCESS, false);
@@ -132,6 +126,12 @@ public class JobRepository implements IJobRepository {
 		}
 
 		return ret;
+	}
+
+	private String getStackTrace(Throwable t) {
+		StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();		
 	}
 
 	private Method getMethodToInvoke(IJob registeredJob, String methodName) {

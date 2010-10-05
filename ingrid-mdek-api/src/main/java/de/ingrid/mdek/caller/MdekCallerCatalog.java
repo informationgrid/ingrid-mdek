@@ -26,7 +26,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 	private static MdekCallerCatalog myInstance;
 
 	// Jobs
-	private static String MDEK_IDC_CATALOG_JOB_ID = "de.ingrid.mdek.job.MdekIdcCatalogJob";
+	public static String MDEK_IDC_CATALOG_JOB_ID = "de.ingrid.mdek.job.MdekIdcCatalogJob";
 
     private MdekCallerCatalog(IMdekClientCaller mdekClientCaller) {
     	super(mdekClientCaller);

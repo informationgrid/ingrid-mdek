@@ -16,7 +16,12 @@ import net.weta.components.communication.tcp.TcpCommunication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import de.ingrid.mdek.caller.MdekCallerCatalog;
+import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
+import de.ingrid.mdek.job.repository.Pair;
+import de.ingrid.utils.IngridDocument;
 
 public class MdekServer implements IMdekServer {
 
@@ -138,6 +143,13 @@ public class MdekServer implements IMdekServer {
         IJobRepositoryFacade jobRepositoryFacade = (IJobRepositoryFacade) context.getBean(IJobRepositoryFacade.class
                 .getName());
         MdekServer server = new MdekServer(new File(communicationFile), jobRepositoryFacade);
+        
+        // call job checking Version of IGC in database !
+        IngridDocument response = callJob(jobRepositoryFacade,
+        	MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
+        // check response, throws Exception if wrong version !
+        checkResponse(response);
+
         server.run();
     }
 
@@ -149,4 +161,45 @@ public class MdekServer implements IMdekServer {
         }
         return result;
     }
+
+	static private IngridDocument callJob(IJobRepositoryFacade jobRepo,
+			String jobId, String methodName, IngridDocument methodParams) {
+		ArrayList<Pair> methodList = new ArrayList<Pair>();
+		methodList.add(new Pair(methodName, methodParams));
+		
+		IngridDocument invokeDocument = new IngridDocument();
+		invokeDocument.put(IJobRepository.JOB_ID, jobId);
+		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
+//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
+
+		IngridDocument response = jobRepo.execute(invokeDocument);
+		
+		return response;
+	}
+
+	static private void checkResponse(IngridDocument mdekResponse) throws MdekException {
+		boolean success = mdekResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
+		if (!success) {
+			int numErrorTypes = 4;
+			String[] errMsgs = new String[numErrorTypes];
+
+			errMsgs[0] = (String) mdekResponse.get(IJobRepository.JOB_REGISTER_ERROR_MESSAGE);
+			errMsgs[1] = (String) mdekResponse.get(IJobRepository.JOB_INVOKE_ERROR_MESSAGE);
+			errMsgs[2] = (String) mdekResponse.get(IJobRepository.JOB_COMMON_ERROR_MESSAGE);
+			errMsgs[3] = (String) mdekResponse.get(IJobRepository.JOB_DEREGISTER_ERROR_MESSAGE);
+
+			String retMsg = null;
+			for (String errMsg : errMsgs) {
+				if (errMsg != null) {
+					if (retMsg == null) {
+						retMsg = errMsg;
+					} else {
+						retMsg += "\n!!! Further Error !!!:\n" + errMsg;
+					}
+				}
+			}
+			
+			throw new MdekException(retMsg);
+		}
+	}
 }

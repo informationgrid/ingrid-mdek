@@ -29,7 +29,7 @@ public class IngridXMLMapperFactory {
 		} else ...
 */
 
-		if (Versioning.CURRENT_VERSION.equals(version)) {
+		if (Versioning.CURRENT_IMPORT_EXPORT_VERSION.equals(version)) {
 			try {
 				myMapper = (IngridXMLMapper) Versioning.CURRENT_IMPORT_MAPPER_CLASS.newInstance();				
 			} catch (Exception exc) {
@@ -39,7 +39,7 @@ public class IngridXMLMapperFactory {
 				throw new MdekException(msg + "\n" + exc);
 			}
 		} else {
-			String msg = "Import Format " + version + " not supported ! Supported version is " + Versioning.CURRENT_VERSION;
+			String msg = "Import Format " + version + " not supported ! Supported version is " + Versioning.CURRENT_IMPORT_EXPORT_VERSION;
 			log.error(msg);
 			throw new MdekException(msg);
 		}
