@@ -5,8 +5,11 @@
   </properties>
   <body>
 	<release version="?" date="?" description="Release. ENFORCES UPDATE OF IGC Schema (1.0.8) AND PORTAL !">
+      <action type="add" dev="wemove">
+        Überprüfung Kompatibilität von IGE-iPlug und IGC Schema in Datenbank (bei Start IGE-iPlug bzw. jedem getCatalog auf Backend). Versionskonflikte werden geloggt bzw. ans Portal übertragen.
+      </action>
       <action type="add" dev="wemove" issue="INGRID23-5">
-        Trennung Zugangsbeschränkungen und Nutzungsbedingungen in unabhängige Tabellen.
+        Trennung Zugangsbeschränkungen und Nutzungsbedingungen in unabhängige Tabellen (based on IGC Schema 1.0.8).
       </action>
     </release>
 
