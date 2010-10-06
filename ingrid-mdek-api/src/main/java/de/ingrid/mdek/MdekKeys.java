@@ -353,7 +353,8 @@ public class MdekKeys {
     // ---------------
     /** Value: String[] -> all names of generic keys to fetch or store */
     public final static String SYS_GENERIC_KEY_NAMES = "sys-generic-key-names";
-    /** Value: String[] -> values of generic keys to store */
+    /** Value: String[] -> values of generic keys to store.
+     * Also used for returning database Version of IGC (schema) to frontend ("about info"). */
     public final static String SYS_GENERIC_KEY_VALUES = "sys-generic-key-values";
 
     // SYS ADDITIONAL FIELDS (Definition)

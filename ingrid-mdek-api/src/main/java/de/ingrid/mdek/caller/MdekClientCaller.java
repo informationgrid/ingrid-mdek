@@ -44,7 +44,7 @@ public class MdekClientCaller implements IMdekClientCaller {
 	// Jobs
 	// TODO: better create separate job for handling job synchronization (at the moment we use object job !)
 	private static String MDEK_IDC_SYNC_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
-	private static String MDEK_IDC_VERSION_JOB_ID = "de.ingrid.mdek.job.MdekIdcObjectJob";
+	private static String MDEK_IDC_VERSION_JOB_ID = MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID;
 
 	/**
 	 * INITIALIZATION OF SINGLETON !!!
@@ -122,13 +122,16 @@ public class MdekClientCaller implements IMdekClientCaller {
 
 		IngridDocument resultDoc = getResultFromResponse(response);
 
-		// then version of api (in client)
-		// NOTICE: has to have different property names !
-		ResourceBundle resourceBundle = ResourceBundle.getBundle("mdek-api-version");   
-		Enumeration<String> keys = resourceBundle.getKeys();
-		while (keys.hasMoreElements()) {
-			String key = keys.nextElement();
-			resultDoc.put(key, resourceBundle.getObject(key));
+		// result is null if backend threw Exception ! Then errors are in response !
+		if (resultDoc != null) {
+			// add version of api (OF CLIENT = Frontend !)
+			// NOTICE: has to have different property names !
+			ResourceBundle resourceBundle = ResourceBundle.getBundle("mdek-api-version");   
+			Enumeration<String> keys = resourceBundle.getKeys();
+			while (keys.hasMoreElements()) {
+				String key = keys.nextElement();
+				resultDoc.put(key, resourceBundle.getObject(key));
+			}
 		}
 
 		return response;

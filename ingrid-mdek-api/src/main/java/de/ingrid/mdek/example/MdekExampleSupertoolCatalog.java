@@ -1,6 +1,5 @@
 package de.ingrid.mdek.example;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +88,8 @@ public class MdekExampleSupertoolCatalog {
 			System.out.println("  SERVER_BUILD_VERSION: " + result.get(MdekKeys.SERVER_BUILD_VERSION));
 			System.out.println("  SERVER_BUILD_NUMBER: " + result.get(MdekKeys.SERVER_BUILD_NUMBER));
 			System.out.println("  SERVER_BUILD_TIMESTAMP (converted): " + MdekUtils.millisecToDisplayDateTime(result.getString(MdekKeys.SERVER_BUILD_TIMESTAMP)));
+			String[] sysValues = (String[]) result.get(MdekKeys.SYS_GENERIC_KEY_VALUES);
+			System.out.println("  SYS_GENERIC_KEY_VALUES[0] (= IGC Schema version): " + sysValues[0]);
 
 		} else {
 			supertoolGeneric.handleError(response);

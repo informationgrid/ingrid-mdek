@@ -111,6 +111,30 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 	}
 
+	public IngridDocument getVersion(IngridDocument params) {
+		try {
+			genericDao.beginTransaction();
+			daoObjectNode.disableAutoFlush();
+
+			IngridDocument result = super.getVersion(params);
+
+			// first check own conflicts ;) (between IGE and IGC schema)
+			// throws Exception if conflicts occur.
+			catalogService.checkIGCVersion();
+			
+			// add Version of IGC Schema to version info, needed in frontend for checking compatibility !
+			String igcSchemaVersion = catalogService.getIGCVersion();
+			result.put(MdekKeys.SYS_GENERIC_KEY_VALUES, new String[] {igcSchemaVersion});
+
+			genericDao.commitTransaction();
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument getCatalog(IngridDocument params) {
 		try {
 			genericDao.beginTransaction();

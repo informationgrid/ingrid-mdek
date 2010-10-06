@@ -279,20 +279,38 @@ public class MdekCatalogService {
 		return list;
 	}
 
-	public void checkIGCVersion() throws MdekException {
+	/**
+	 * Returns version of IGC in database (schema).
+	 */
+	public String getIGCVersion() throws MdekException {
 		List<SysGenericKey> list =
 			daoSysGenericKey.getSysGenericKeys(new String[]{Versioning.BACKEND_IGC_VERSION_KEY});
 		
-		String currentIgcVersion = "";
+		String databaseIgcVersion = "";
 		if (list != null && list.size() > 0) {
-			currentIgcVersion = list.get(0).getValueString();
+			databaseIgcVersion = list.get(0).getValueString();
 		}
 		
-		if (!Versioning.NEEDED_IGC_VERSION.equals(currentIgcVersion)) {
+		return databaseIgcVersion;
+	}
+
+	/**
+	 * Throws Exception if IGC schema in database conflicts with IGE iPlug.
+	 */
+	public void checkIGCVersion() throws MdekException {
+		String databaseIgcVersion = getIGCVersion();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("IGC schema in database version=" + databaseIgcVersion);			
+			LOG.info("IGE iPlug needed version=" + Versioning.NEEDED_IGC_VERSION);
+		}
+
+		if (!Versioning.NEEDED_IGC_VERSION.equals(databaseIgcVersion)) {
 			String errorMsg = "IGC catalogue (schema) in database has wrong version for IGE iPlug:\n" +
-				"Needed IGC version=" + Versioning.NEEDED_IGC_VERSION + " <-> current IGC Version in database=" + currentIgcVersion;
+				"Needed IGC version=" + Versioning.NEEDED_IGC_VERSION + " <-> current IGC Version in database=" + databaseIgcVersion;
 			MdekException exc = new MdekException(errorMsg);
-			LOG.error("Conflicting IGC schema in database with IGE iPlug !", exc);
+			LOG.error("Conflicting IGC schema in database (version=" + databaseIgcVersion +
+				") with IGE iPlug (needed version=" + Versioning.NEEDED_IGC_VERSION + ") !", exc);
 			throw exc;
 		}
 	}
