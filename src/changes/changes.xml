@@ -6,10 +6,11 @@
   <body>
 	<release version="?" date="?" description="Release. ENFORCES UPDATE OF IGC Schema (1.0.8) AND PORTAL !">
       <action type="add" dev="wemove">
-        Überprüfung Kompatibilität von IGE-iPlug und IGC Schema in Datenbank (bei Start IGE-iPlug bzw. jedem getCatalog auf Backend). Versionskonflikte werden geloggt bzw. ans Portal übertragen.
+        Überprüfung Kompatibilität von IGE- Frontend <-> IGE-iPlug <-> IGC Datenbank.
+Kompatibilitätsprobleme führen entweder zur direkten Beendigung IGE iPlug (beim Start) oder zu Fehlermeldungen, die auch im Frontend dargestellt werden (in den IGE Einstiegsseiten).
       </action>
       <action type="add" dev="wemove" issue="INGRID23-5">
-        Trennung Zugangsbeschränkungen und Nutzungsbedingungen in unabhängige Tabellen (based on IGC Schema 1.0.8).
+        Trennung Zugangsbeschränkungen und Nutzungsbedingungen in unabhängige Tabellen (IGC Schema 1.0.8).
       </action>
     </release>
 
