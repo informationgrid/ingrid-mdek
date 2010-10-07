@@ -43,6 +43,8 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServUrl;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
 import de.ingrid.mdek.services.persistence.db.model.T015Legist;
@@ -380,9 +382,14 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oServ.getBase());
 			extendFullData(data, oServ.getDescription());
 			Integer oServTypeKey = oServ.getTypeKey();
-			String oServTypeName = getSysListOrFreeValue(MdekSysList.OBJ_SERV_TYPE,
-					oServTypeKey, oServ.getTypeValue());
-			extendFullData(data, oServTypeName);
+			extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_TYPE,
+				oServTypeKey, oServ.getTypeValue());
+			extendFullData(data, oServ.getName());
+			Set<T011ObjServType> oServClassifications = oServ.getT011ObjServTypes();
+			for (T011ObjServType oServClassification : oServClassifications) {
+				extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_TYPE2,
+					oServClassification.getServTypeKey(), oServClassification.getServTypeValue());				
+			}
 			Set<T011ObjServOperation> oServOps = oServ.getT011ObjServOperations();
 			for (T011ObjServOperation oServOp : oServOps) {
 				if (MdekUtils.OBJ_SERV_TYPE_WMS.equals(oServTypeKey)) {
@@ -424,6 +431,11 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			Set<T011ObjServVersion> oServVersions = oServ.getT011ObjServVersions();
 			for (T011ObjServVersion oServVersion : oServVersions) {
 				extendFullData(data, oServVersion.getServVersion());
+			}
+			Set<T011ObjServUrl> oServUrls = oServ.getT011ObjServUrls();
+			for (T011ObjServUrl oServUrl : oServUrls) {
+				extendFullData(data, oServUrl.getUrl());
+				extendFullData(data, oServUrl.getDescription());
 			}
 		}
 		// T014InfoImpart

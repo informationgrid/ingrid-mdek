@@ -1036,6 +1036,13 @@ public class MdekExampleSupertool {
 					}
 				}
 			}
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.URL_LIST);
+			if (docList != null && docList.size() > 0) {
+				System.out.println("    SERVICE (class 6 \"APPLICATION\") - Urls: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("      " + doc);								
+				}
+			}
 		}
 		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
 		if (myDoc != null) {

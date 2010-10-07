@@ -360,9 +360,10 @@ public class MdekUtils {
 		ORGANISATION(0, "Organisationseinheit/Fachaufgabe"),
 		GEO_INFORMATION(1, "Geo-Information/Karte"),
 		DOKUMENT(2, "Dokument/Bericht/Literatur"),
-		DIENST(3, "Dienst/Anwendung/Informationssystem"),
+		GEO_DIENST(3, "Geodatendienst"),
 		VORHABEN(4, "Vorhaben/Projekt/Programm"),
-		DATENSAMMLUNG(5, "Datensammlung/Datenbank");
+		DATENSAMMLUNG(5, "Datensammlung/Datenbank"),
+		INFOSYSTEM_DIENST(6, "Informationssystem/Dienst/Anwendung");
 
 		ObjectType(Integer dbValue, String description) {
 			this.dbValue = dbValue;

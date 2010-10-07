@@ -803,6 +803,8 @@ public class MdekKeys {
     //public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
 
     // TECHNICAL DOMAIN SERVICE
+    // NOTICE: used for class "Geodatendienst" (class 3) and "Informationssystem/Dienst/Anwendung" (class 6)
+    // with different content !
     /** Value: IngridDocument encapsulating all SERVICE data */
     public final static String TECHNICAL_DOMAIN_SERVICE = "technical-domain-service";
     /** Value: String */
@@ -815,9 +817,10 @@ public class MdekKeys {
     public final static String SYSTEM_ENVIRONMENT = "system-environment";
     /** Value: String */
     public final static String DATABASE_OF_SYSTEM = "database-of-system";
-    // defined below
-//    /** Value: String  */
-//    public final static String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
+// DESCRIPTION_OF_TECH_DOMAIN already defined, also used here in subdocument !
+    /** Value: String */
+    public final static String HAS_ACCESS_CONSTRAINT = "has-access-constraint";
+// NAME already defined, also used here in subdocument !
     // TECHNICAL DOMAIN SERVICE - VERSIONS
     /** Value: List< String >  */
     public final static String SERVICE_VERSION_LIST = "service-version-list";
@@ -861,6 +864,12 @@ public class MdekKeys {
     public final static String SERVICE_TYPE2_KEY = "service-type2-key";
     /** Value: String */
     public final static String SERVICE_TYPE2_VALUE = "service-type2-value";
+    // TECHNICAL DOMAIN SERVICE (for class "APPLICATION") - URLs
+    /** Value: List< IngridDocument >  */
+    public final static String URL_LIST = "url-list";
+    /** Value: String */
+    public final static String URL = "url";
+// DESCRIPTION already defined, also used here in subdocument !
     
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */

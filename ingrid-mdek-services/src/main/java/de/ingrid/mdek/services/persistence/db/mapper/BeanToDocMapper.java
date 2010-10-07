@@ -67,6 +67,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServScale;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServUrl;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
@@ -304,15 +305,17 @@ public class BeanToDocMapper implements IMapper {
 			mapT0114EnvTopics(o.getT0114EnvTopics(), objectDoc);
 			mapT011ObjTopicCats(o.getT011ObjTopicCats(), objectDoc);
 
-			// technical domain map
+			// technical domain map (class 1)
 			mapT011ObjGeo(o.getT011ObjGeos(), objectDoc);
-			// technical domain document
+			// technical domain document (class 2)
 			mapT011ObjLiterature(o.getT011ObjLiteratures(), objectDoc);
-			// technical domain service
+			// NOTICE: T011ObjServ is used for the object classes "Geodatendienst" (class 3) AND
+			// "Informationssystem/Dienst/Anwendung" (class 6) with DIFFERENT content !
+			// we don't distinguish here and map all stuff available !
 			mapT011ObjServ(o.getT011ObjServs(), objectDoc);
-			// technical domain project
+			// technical domain project (class 4)
 			mapT011ObjProject(o.getT011ObjProjects(), objectDoc);
-			// technical domain dataset
+			// technical domain dataset (class 5)
 			mapT011ObjData(o, objectDoc);
 
 			// object comments
@@ -1490,6 +1493,10 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
+		// NOTICE: This container is used for the object classes "Geodatendienst" AND
+		// "Informationssystem/Dienst/Anwendung" with DIFFERENT content !
+		// BUT WE ALWAYS MAP EVERYTHING ASSUMING EVERY CLASS HAS ITS RIGHT CONTENT !
+
 		// there should only be one object in the set because of the 1:1 relation between tables 
 		// get first object from iterator
 		T011ObjServ ref = refs.iterator().next();
@@ -1500,12 +1507,18 @@ public class BeanToDocMapper implements IMapper {
 
 		// add service versions
 		mapT011ObjServVersions(ref.getT011ObjServVersions(), domainDoc);
-		// add service operations
+		
+		// following stuff should only be present in class "Geodatendienst" !
+		// add geoservice operations
 		mapT011ObjServOperations(ref.getT011ObjServOperations(), domainDoc);
-		// add service types
+		// add geoservice types ("Klassifikation")
 		mapT011ObjServTypes(ref.getT011ObjServTypes(), domainDoc);
-		// add publication scales
+		// add geoservice publication scales ("Erstellungsmassstab")
 		mapT011ObjServScales(ref.getT011ObjServScales(), domainDoc);
+
+		// following stuff should only be present in class "Informationssystem/Dienst/Anwendung" !
+		// add URLs
+		mapT011ObjServUrls(ref.getT011ObjServUrls(), domainDoc);
 
 		return objectDoc;
 	}
@@ -1520,6 +1533,8 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.SYSTEM_ENVIRONMENT, ref.getEnvironment());
 		refDoc.put(MdekKeys.DATABASE_OF_SYSTEM, ref.getBase());
 		refDoc.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, ref.getDescription());
+		refDoc.put(MdekKeys.HAS_ACCESS_CONSTRAINT, ref.getHasAccessConstraint());
+		refDoc.put(MdekKeys.NAME, ref.getName());
 
 		return refDoc;
 	}
@@ -1688,7 +1703,32 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
+	private IngridDocument mapT011ObjServUrls(Set<T011ObjServUrl> refs, IngridDocument inDoc) {
+		if (refs == null || refs.size() == 0) {
+			return inDoc;
+		}
 
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (T011ObjServUrl ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapT011ObjServUrl(ref, refDoc);
+			refList.add(refDoc);
+		}
+
+		inDoc.put(MdekKeys.URL_LIST, refList);
+		
+		return inDoc;
+	}
+	private IngridDocument mapT011ObjServUrl(T011ObjServUrl ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.URL, ref.getUrl());
+		refDoc.put(MdekKeys.DESCRIPTION, ref.getDescription());
+
+		return refDoc;
+	}
 
 	public IngridDocument mapObjectParentData(T01Object parentObject, IngridDocument resultDoc) {
 		if (parentObject == null) {

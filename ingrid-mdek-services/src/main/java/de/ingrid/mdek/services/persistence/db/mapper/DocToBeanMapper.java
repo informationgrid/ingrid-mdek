@@ -71,6 +71,7 @@ import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServScale;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServUrl;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
@@ -405,16 +406,19 @@ public class DocToBeanMapper implements IMapper {
 			updateT0114EnvTopics(oDocIn, oIn);
 			updateT011ObjTopicCats(oDocIn, oIn);
 
-			// technical domain map
+			// technical domain map (class 1)
 			updateT011ObjGeo(oDocIn, oIn);
-			// technical domain literature
+			// technical domain document (class 2)
 			updateT011ObjLiterature(oDocIn, oIn);
-			// technical domain service
+			// NOTICE: T011ObjServ is used for the object classes "Geodatendienst" (class 3) AND
+			// "Informationssystem/Dienst/Anwendung" (class 6) with DIFFERENT content !
+			// we don't distinguish here and map all stuff available !
 			updateT011ObjServ(oDocIn, oIn);
-			// technical domain project
+			// technical domain project (class 4)
 			updateT011ObjProject(oDocIn, oIn);
-			// technical domain dataset
+			// technical domain dataset (class 5)
 			updateT011ObjData(oDocIn, oIn);
+
 			// additional fields
 			updateT08Attrs(oDocIn, oIn);
 
@@ -1956,6 +1960,11 @@ public class DocToBeanMapper implements IMapper {
 
 	private void updateT011ObjServ(IngridDocument oDocIn, T01Object oIn) {
 		Set<T011ObjServ> refs = oIn.getT011ObjServs();
+
+		// NOTICE: This container is used for the object classes "Geodatendienst" AND
+		// "Informationssystem/Dienst/Anwendung" with DIFFERENT content !
+		// BUT WE ALWAYS MAP EVERYTHING ASSUMING EVERY CLASS HAS ITS RIGHT CONTENT !
+
 		ArrayList<T011ObjServ> refs_unprocessed = new ArrayList<T011ObjServ>(refs);
 		// remove all !
 		for (T011ObjServ ref : refs_unprocessed) {
@@ -1972,10 +1981,15 @@ public class DocToBeanMapper implements IMapper {
 			dao.makePersistent(ref);
 
 			// map 1:N relations
+
 			updateT011ObjServVersions(domainDoc, ref);
+			// following stuff should only be present in class "Geodatendienst" !
 			updateT011ObjServOperations(domainDoc, ref);
 			updateT011ObjServTypes(domainDoc, ref);
 			updateT011ObjServScales(domainDoc, ref);
+			// following stuff should only be present in class "Informationssystem/Dienst/Anwendung" !
+			// add URLs
+			updateT011ObjServUrls(domainDoc, ref);
 
 			refs.add(ref);
 		}
@@ -1991,6 +2005,8 @@ public class DocToBeanMapper implements IMapper {
 		ref.setEnvironment(refDoc.getString(MdekKeys.SYSTEM_ENVIRONMENT));
 		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
 		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
+		ref.setHasAccessConstraint(refDoc.getString(MdekKeys.HAS_ACCESS_CONSTRAINT));
+		ref.setName(refDoc.getString(MdekKeys.NAME));
 		keyValueService.processKeyValue(ref);
 
 		return ref;
@@ -2279,6 +2295,40 @@ public class DocToBeanMapper implements IMapper {
 
 		return ref;
 	}
+	private void updateT011ObjServUrls(IngridDocument oDocIn, T011ObjServ oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.URL_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<T011ObjServUrl> refs = oIn.getT011ObjServUrls();
+		ArrayList<T011ObjServUrl> refs_unprocessed = new ArrayList<T011ObjServUrl>(refs);
+		// remove all !
+		for (T011ObjServUrl ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			T011ObjServUrl ref = mapT011ObjServUrl(oIn, refDoc, new T011ObjServUrl(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+	private T011ObjServUrl mapT011ObjServUrl(T011ObjServ oFrom,
+			IngridDocument refDoc,
+			T011ObjServUrl ref, 
+			int line)
+	{
+		ref.setObjServId(oFrom.getId());
+		ref.setUrl(refDoc.getString(MdekKeys.URL));
+		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION));
+		ref.setLine(line);
+
+		return ref;
+	}
 
 	public void updateT08Attrs(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> attrDocs = (List) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
@@ -2436,7 +2486,9 @@ public class DocToBeanMapper implements IMapper {
 		// values in other types. We guarantee default values, when necessary ! object-classes can be switched
 		// so conformity might be wrong, remaining from former class !
 		ObjectType oType = EnumUtil.mapDatabaseToEnumConst(ObjectType.class, oIn.getObjClass());
-		if (oType == ObjectType.GEO_INFORMATION || oType == ObjectType.DIENST) {
+		if (oType == ObjectType.GEO_INFORMATION || 
+				oType == ObjectType.GEO_DIENST ||
+				oType == ObjectType.INFOSYSTEM_DIENST) {
 			// set default if not set, else keep set values. DISPLAYED in frontend.
 			if (refDocs == null) {
 				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);

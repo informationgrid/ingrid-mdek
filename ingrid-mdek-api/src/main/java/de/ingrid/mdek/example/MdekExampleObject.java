@@ -1365,6 +1365,8 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.SYSTEM_ENVIRONMENT, "TEST SYSTEM_ENVIRONMENT");
 		technicalDomain.put(MdekKeys.DATABASE_OF_SYSTEM, "TEST DATABASE_OF_SYSTEM");
 		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST DESCRIPTION_OF_TECH_DOMAIN");
+		technicalDomain.put(MdekKeys.HAS_ACCESS_CONSTRAINT, "Y");
+		technicalDomain.put(MdekKeys.NAME, "TEST NAME");
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
 		// add TECHNICAL DOMAIN SERVICE - versions
 		strList = (List<String>) technicalDomain.get(MdekKeys.SERVICE_VERSION_LIST);
@@ -1425,6 +1427,18 @@ class MdekExampleObjectThread extends Thread {
 		testDoc2.put(MdekKeys.REPEATABILITY, 2);
 		docList2.add(testDoc2);
 		testDoc.put(MdekKeys.PARAMETER_LIST, docList2);
+		// add TECHNICAL DOMAIN SERVICE - Urls
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.URL_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.URL, "http://www.test.url1.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		testDoc.put(MdekKeys.DESCRIPTION, "url1 DESCRIPTION !!!!!!!!!!!!!!!");
+		docList.add(testDoc);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.URL, "http://www.test.url2.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		testDoc.put(MdekKeys.DESCRIPTION, "url2 DESCRIPTION !!!!!!!!!!!!!!!");
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.URL_LIST, docList);
 
 		// add TECHNICAL DOMAIN PROJECT
 		technicalDomain = (IngridDocument) oDocIn.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);

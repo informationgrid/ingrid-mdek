@@ -16,10 +16,13 @@ public class T011ObjServ implements IEntity {
 	private String environment;
 	private String base;
 	private String description;
+	private String hasAccessConstraint;
+	private String name;
 
 	private Set t011ObjServOperations = new HashSet();
 	private Set t011ObjServScales = new HashSet();
 	private Set t011ObjServTypes = new HashSet();
+	private Set t011ObjServUrls = new HashSet();
 	private Set t011ObjServVersions = new HashSet();
 
 	public T011ObjServ() {}
@@ -96,6 +99,22 @@ public class T011ObjServ implements IEntity {
 		this.description = description;
 	}
 
+	public String getHasAccessConstraint() {
+		return hasAccessConstraint;
+	}
+
+	public void setHasAccessConstraint(String hasAccessConstraint) {
+		this.hasAccessConstraint = hasAccessConstraint;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 
 	public Set getT011ObjServOperations() {
 		return t011ObjServOperations;
@@ -119,6 +138,14 @@ public class T011ObjServ implements IEntity {
 
 	public void setT011ObjServTypes(Set t011ObjServTypes) {
 		this.t011ObjServTypes = t011ObjServTypes;
+	}
+
+	public Set getT011ObjServUrls() {
+		return t011ObjServUrls;
+	}
+
+	public void setT011ObjServUrls(Set t011ObjServUrls) {
+		this.t011ObjServUrls = t011ObjServUrls;
 	}
 
 	public Set getT011ObjServVersions() {
