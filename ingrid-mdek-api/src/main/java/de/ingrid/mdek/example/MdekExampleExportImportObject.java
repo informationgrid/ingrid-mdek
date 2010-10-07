@@ -205,6 +205,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		IngridDocument oMap = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
 
 		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+
 		// add entry to OBJECT USE
 		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.USE_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
@@ -212,6 +213,39 @@ class MdekExampleExportImportObjectThread extends Thread {
 		testDoc.put(MdekKeys.USE_TERMS_OF_USE, "TEST USE_TERMS_OF_USE");
 		docList.add(testDoc);
 		oMap.put(MdekKeys.USE_LIST, docList);
+
+		// test new SERVICE stuff
+		IngridDocument serviceDoc = (IngridDocument) oMap.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+		// should be null for tests (object is of other type !)
+		if (serviceDoc != null)
+			throw new RuntimeException("Fachbezug \"Service\" vorhanden, Test nicht möglich !!!");
+		serviceDoc = new IngridDocument();
+		oMap.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, serviceDoc);
+		serviceDoc.put(MdekKeys.HAS_ACCESS_CONSTRAINT, "N");
+		serviceDoc.put(MdekKeys.NAME, "Test NAME");
+		serviceDoc.put(MdekKeys.SERVICE_TYPE_KEY, new Integer(6));
+		serviceDoc.put(MdekKeys.SERVICE_TYPE, "Sonstige Dienste");
+		docList = new ArrayList<IngridDocument>();
+		serviceDoc.put(MdekKeys.SERVICE_TYPE2_LIST, docList);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.SERVICE_TYPE2_KEY, new Integer(108));
+		doc.put(MdekKeys.SERVICE_TYPE2_VALUE, "Editor für geografische Symbole");
+		docList.add(doc);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.SERVICE_TYPE2_KEY, new Integer(109));
+		doc.put(MdekKeys.SERVICE_TYPE2_VALUE, "Editor für die Objektgeneralisierung");
+		docList.add(doc);
+		docList = new ArrayList<IngridDocument>();
+		serviceDoc.put(MdekKeys.URL_LIST, docList);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.URL, "www.url11111111");
+		doc.put(MdekKeys.DESCRIPTION, "www.url11111111 Descriptionnnnnnnn");
+		docList.add(doc);
+		doc = new IngridDocument();
+		doc.put(MdekKeys.URL, "www.url222222");
+		doc.put(MdekKeys.DESCRIPTION, "www.url2222 Descriptionnnnnnnn");
+		docList.add(doc);
+
 		oMap = supertool.publishObject(oMap, true, false);
 
 		System.out.println("\n----- export object -----");
@@ -242,6 +276,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		if (docList != null && docList.size() > 0) {
 			docList.remove(docList.size()-1);
 		}
+		oMap.remove(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
 		result = supertool.publishObject(oMap, true, false);
 
 		System.out.println("----- DELETE Import Top Nodes -----");

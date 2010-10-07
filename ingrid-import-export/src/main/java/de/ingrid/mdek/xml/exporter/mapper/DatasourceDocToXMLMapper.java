@@ -231,8 +231,8 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		service.addChild(
 				new XMLElement(DESCRIPTION_OF_TECH_DOMAIN,
 						getStringForKey(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, serviceContext)));
-		service.addChild(createServiceClassification(serviceContext));
-		service.addChildren(createServiceTypes(serviceContext));
+		service.addChild(createServiceType(serviceContext));
+		service.addChildren(createServiceClassifications(serviceContext));
 		service.addChildren(createPublicationScales(serviceContext));
 		service.addChild(
 				new XMLElement(SYSTEM_HISTORY,
@@ -245,29 +245,35 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 						getStringForKey(MdekKeys.SYSTEM_ENVIRONMENT, serviceContext)));
 		service.addChildren(createServiceVersions(serviceContext));
 		service.addChildren(createServiceOperations(serviceContext));
-		
+
+		service.addChild(new XMLElement(HAS_ACCESS_CONSTRAINT,
+			getStringForKey(MdekKeys.HAS_ACCESS_CONSTRAINT, serviceContext)));
+		service.addChild(new XMLElement(NAME,
+				getStringForKey(MdekKeys.NAME, serviceContext)));
+		service.addChildren(createServiceUrls(serviceContext));
+
 		return service;
 	}
 
-	private XMLElement createServiceClassification(IngridDocument serviceContext) {
-		XMLElement serviceClassification = new XMLElement(SERVICE_CLASSIFICATION, getStringForKey(MdekKeys.SERVICE_TYPE, serviceContext));
-		serviceClassification.addAttribute(ID, getIntegerForKey(MdekKeys.SERVICE_TYPE_KEY, serviceContext));
-		return serviceClassification;
-	}
-
-	private List<XMLElement> createServiceTypes(IngridDocument serviceContext) {
-		List<XMLElement> serviceTypes = new ArrayList<XMLElement>();
-		List<IngridDocument> serviceTypeDocs = getIngridDocumentListForKey(MdekKeys.SERVICE_TYPE2_LIST, serviceContext);
-		for (IngridDocument serviceType : serviceTypeDocs) {
-			serviceTypes.add(createServiceType(serviceType));
-		}
-		return serviceTypes;
-	}
-
-	private XMLElement createServiceType(IngridDocument serviceTypeContext) {
-		XMLElement serviceType = new XMLElement(SERVICE_TYPE, getStringForKey(MdekKeys.SERVICE_TYPE2_VALUE, serviceTypeContext));
-		serviceType.addAttribute(ID, getIntegerForKey(MdekKeys.SERVICE_TYPE2_KEY, serviceTypeContext));
+	private XMLElement createServiceType(IngridDocument serviceContext) {
+		XMLElement serviceType = new XMLElement(SERVICE_TYPE, getStringForKey(MdekKeys.SERVICE_TYPE, serviceContext));
+		serviceType.addAttribute(ID, getIntegerForKey(MdekKeys.SERVICE_TYPE_KEY, serviceContext));
 		return serviceType;
+	}
+
+	private List<XMLElement> createServiceClassifications(IngridDocument serviceContext) {
+		List<XMLElement> serviceClassifications = new ArrayList<XMLElement>();
+		List<IngridDocument> serviceClassificationDocs = getIngridDocumentListForKey(MdekKeys.SERVICE_TYPE2_LIST, serviceContext);
+		for (IngridDocument serviceClassificationDoc : serviceClassificationDocs) {
+			serviceClassifications.add(createServiceClassification(serviceClassificationDoc));
+		}
+		return serviceClassifications;
+	}
+
+	private XMLElement createServiceClassification(IngridDocument serviceClassificContext) {
+		XMLElement serviceClassific = new XMLElement(SERVICE_CLASSIFICATION, getStringForKey(MdekKeys.SERVICE_TYPE2_VALUE, serviceClassificContext));
+		serviceClassific.addAttribute(ID, getIntegerForKey(MdekKeys.SERVICE_TYPE2_KEY, serviceClassificContext));
+		return serviceClassific;
 	}
 
 	private List<XMLElement> createPublicationScales(IngridDocument serviceContext) {
@@ -367,6 +373,22 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 			resultList.add(new XMLElement(DEPENDS_ON, dependsOnId));
 		}
 		return resultList;
+	}
+
+	private List<XMLElement> createServiceUrls(IngridDocument contextDoc) {
+		List<XMLElement> elements = new ArrayList<XMLElement>();
+		List<IngridDocument> docs = getIngridDocumentListForKey(MdekKeys.URL_LIST, contextDoc);
+		for (IngridDocument doc : docs) {
+			elements.add(createServiceUrl(doc));
+		}
+		return elements;
+	}
+
+	private XMLElement createServiceUrl(IngridDocument contextDoc) {
+		XMLElement element = new XMLElement(SERVICE_URL);
+		element.addChild(new XMLElement(URL, getStringForKey(MdekKeys.URL, contextDoc)));
+		element.addChild(new XMLElement(DESCRIPTION, getStringForKey(MdekKeys.DESCRIPTION, contextDoc)));
+		return element;
 	}
 
 	private XMLElement createDocument(IngridDocument documentContext) {

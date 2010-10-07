@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="1.0.8"/>
+    <xs:attribute name="exchange-format" default="1.0.9"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -357,21 +357,25 @@
   -->
   <xs:element name="method" type="xs:string"/>
   <!--
-    Fachlicher Name: Dienst / Anwendung / Informationssystem
+    Fachlicher Name: Fachbezug "Geodatendienst" UND "Informationssystem/Dienst/Anwendung" (vormals Klasse "Dienst / Anwendung / Informationssystem", die in InGrid 2.3 geteilt wurde !) 
     Tabelle   : t011_obj_serv*
   -->
   <xs:element name="service">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="description-of-tech-domain"/>
-        <xs:element ref="service-classification"/>
-        <xs:element maxOccurs="unbounded" ref="service-type"/>
+        <xs:element ref="service-type"/>
+        <!-- minOccurs=0 da nicht vorhanden in "Informationssystem/Dienst/Anwendung", aber Pflicht in "Geodatendienst"  -->
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-classification"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="publication-scale"/>
         <xs:element minOccurs="0" ref="system-history"/>
         <xs:element minOccurs="0" ref="database-of-system"/>
         <xs:element minOccurs="0" ref="system-environment"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-version"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-operation"/>
+        <xs:element minOccurs="0" ref="has-access-constraint"/>
+        <xs:element minOccurs="0" ref="name"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-url"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -402,6 +406,33 @@
     Tabelle.Feld   : T011_obj_serv.environment
   -->
   <xs:element name="system-environment" type="xs:string"/>
+  <!--
+    Fachlicher Name: Zugangsbeschränkungen ("zeige Karte" anzeigen ?)
+    Tabelle.Feld   : T011_obj_serv.has_access_constraint
+  -->
+  <xs:element name="has-access-constraint" default="N" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: URLs von "Informationssystem/Dienst/Anwendung"
+    Tabelle   : t011_obj_serv_url
+  -->
+  <xs:element name="service-url">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="url"/>
+        <xs:element ref="description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: URL
+    Tabelle.Feld   : t011_obj_serv_url.url
+  -->
+  <xs:element name="url" type="xs:string"/>
+  <!--
+    Fachlicher Name: Beschreibung von URL
+    Tabelle.Feld   : t011_obj_serv_url.description
+  -->
+  <xs:element name="description" type="xs:string"/>
   <!--
     Fachlicher Name: Version des Service
     Tabelle.Feld   : T011_obj_serv_version.version
@@ -1470,8 +1501,10 @@
     Fachlicher Name: Nachname (nur Person)
     Tabelle.Feld   : t02_address.lastname
     auch benutzt fuer:
-      Fachlicher Name: Parametername der Operation
+    - Fachlicher Name: Parametername der Operation
       Tabelle   : T011_obj_serv_op_para.name
+    - Fachlicher Name: Name von "Informationssystem/Dienst/Anwendung" ?
+      Tabelle.Feld   : T011_obj_serv.name
   -->
   <xs:element name="name" type="xs:string"/>
   <!--

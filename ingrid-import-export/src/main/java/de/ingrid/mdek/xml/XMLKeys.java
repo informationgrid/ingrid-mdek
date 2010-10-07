@@ -150,6 +150,10 @@ public class XMLKeys {
 	public static final String SERVICE_TYPE = "service-type";
 	public static final String SERVICE_CLASSIFICATION = "service-classification";
 	public static final String SERVICE = "service";
+	public static final String HAS_ACCESS_CONSTRAINT = "has-access-constraint";
+	public static final String SERVICE_URL = "service-url";
+	public static final String URL = "url";
+	public static final String DESCRIPTION = "description";
 	public static final String SUPPLEMENTARY_INFORMATION = "supplementary-information";
 	public static final String PARAMETER = "parameter";
 	public static final String DATASET_PARAMETER = "dataset-parameter";
