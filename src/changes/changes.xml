@@ -6,14 +6,17 @@
   <body>
 	<release version="?" date="?" description="Release. ENFORCES UPDATE OF IGC Schema (1.0.9) AND PORTAL !">
       <action type="add" dev="wemove" issue="INGRID23-24">
-        Erstellung einer eigenen Klasse für geographische Services (new IGC Schema 1.0.9).
+        InGrid 2.3: Erstellung einer eigenen Klasse für geographische Services (IGC Schema 1.0.9).
+      </action>
+      <action type="add" dev="wemove" issue="INGRID23-5">
+        InGrid 2.3: Trennung Zugangsbeschränkungen und Nutzungsbedingungen in unabhängige Tabellen (IGC Schema 1.0.8).
       </action>
       <action type="add" dev="wemove">
         Überprüfung Kompatibilität von "IGE- Frontend" / "IGE-iPlug" / "IGC Datenbank".
 Kompatibilitätsprobleme führen entweder zur direkten Beendigung IGE iPlug (beim Start) oder zu Fehlermeldungen, die auch im Frontend dargestellt werden (in den IGE Einstiegsseiten).
       </action>
-      <action type="add" dev="wemove" issue="INGRID23-5">
-        Trennung Zugangsbeschränkungen und Nutzungsbedingungen in unabhängige Tabellen (new IGC Schema 1.0.8).
+      <action type="fix" dev="wemove" issue="INGRID-1840">
+        Im Importformat vertauschte tags Service Typ und Service Klassifikation korrigiert.
       </action>
     </release>
 
