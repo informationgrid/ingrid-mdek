@@ -374,7 +374,6 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-version"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-operation"/>
         <xs:element minOccurs="0" ref="has-access-constraint"/>
-        <xs:element minOccurs="0" ref="name"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-url"/>
       </xs:sequence>
     </xs:complexType>
@@ -418,6 +417,7 @@
   <xs:element name="service-url">
     <xs:complexType>
       <xs:sequence>
+        <xs:element ref="name"/>
         <xs:element ref="url"/>
         <xs:element ref="description"/>
       </xs:sequence>

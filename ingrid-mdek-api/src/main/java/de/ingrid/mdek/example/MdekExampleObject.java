@@ -1431,10 +1431,12 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.URL_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.NAME, "url1 NAME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		testDoc.put(MdekKeys.URL, "http://www.test.url1.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		testDoc.put(MdekKeys.DESCRIPTION, "url1 DESCRIPTION !!!!!!!!!!!!!!!");
 		docList.add(testDoc);
 		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.NAME, "url2 NAME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		testDoc.put(MdekKeys.URL, "http://www.test.url2.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		testDoc.put(MdekKeys.DESCRIPTION, "url2 DESCRIPTION !!!!!!!!!!!!!!!");
 		docList.add(testDoc);

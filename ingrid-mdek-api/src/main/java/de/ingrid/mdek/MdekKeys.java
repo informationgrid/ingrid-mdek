@@ -869,7 +869,7 @@ public class MdekKeys {
     public final static String URL_LIST = "url-list";
     /** Value: String */
     public final static String URL = "url";
-// DESCRIPTION already defined, also used here in subdocument !
+// NAME AND DESCRIPTION already defined, also used here in subdocument !
     
     // TECHNICAL DOMAIN PROJECT
     /** Value: IngridDocument encapsulating all PROJECT data */

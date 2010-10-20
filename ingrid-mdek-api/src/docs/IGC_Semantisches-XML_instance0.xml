@@ -104,8 +104,8 @@
                         <depends-on>depends-on0</depends-on>
                     </service-operation>
                     <has-access-constraint>N</has-access-constraint>
-                    <name>name1</name>
                     <service-url>
+                        <name>name1</name>
                         <url>url0</url>
                         <description>description0</description>
                     </service-url>

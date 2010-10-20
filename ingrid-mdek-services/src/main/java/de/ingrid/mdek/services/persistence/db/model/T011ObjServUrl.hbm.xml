@@ -9,6 +9,7 @@
       <version name="version" type="integer" column="version"/>
       <property name="objServId" type="long" column="obj_serv_id"/>
       <property name="line" type="integer" column="line"/>
+      <property name="name" type="string" column="name"/>
       <property name="url" type="string" column="url"/>
       <property name="description" type="string" column="description"/>
 

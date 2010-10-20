@@ -1156,8 +1156,7 @@
 			<!-- InGrid 2.3: hinzugekommen bei neuer Klasse "Geodatendienst" -->
 			<xs:element name="has-access-constraint" type="xs:string"/>
 			<!-- InGrid 2.3: hinzugekommen bei neuer Klasse "Informationssystem/Dienst/Anwendung" -->
-			<xs:element name="name" type="xs:string"/>
-			<xs:element name="url-list" type="TECHNICAL_DOMAIN_SERVICE_URL_LIST"/>
+			<xs:element name="url-list" type="TECHNICAL_DOMAIN_SERVICE_URL_LIST" maxOccurs="unbounded" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_LIST">
@@ -1210,8 +1209,9 @@
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_URL_MAP">
 		<xs:sequence>
-			<xs:element name="url" type="xs:string"/>
-			<xs:element name="description" type="xs:string"/>
+			<xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="url" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="description" type="xs:string" maxOccurs="1" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 

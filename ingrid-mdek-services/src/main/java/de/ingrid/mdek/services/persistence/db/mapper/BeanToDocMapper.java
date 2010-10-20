@@ -1534,7 +1534,6 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.DATABASE_OF_SYSTEM, ref.getBase());
 		refDoc.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, ref.getDescription());
 		refDoc.put(MdekKeys.HAS_ACCESS_CONSTRAINT, ref.getHasAccessConstraint());
-		refDoc.put(MdekKeys.NAME, ref.getName());
 
 		return refDoc;
 	}
@@ -1724,6 +1723,7 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
+		refDoc.put(MdekKeys.NAME, ref.getName());
 		refDoc.put(MdekKeys.URL, ref.getUrl());
 		refDoc.put(MdekKeys.DESCRIPTION, ref.getDescription());
 

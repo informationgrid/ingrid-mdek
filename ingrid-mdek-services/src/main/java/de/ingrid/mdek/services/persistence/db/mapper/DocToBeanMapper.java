@@ -2006,7 +2006,6 @@ public class DocToBeanMapper implements IMapper {
 		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
 		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
 		ref.setHasAccessConstraint(refDoc.getString(MdekKeys.HAS_ACCESS_CONSTRAINT));
-		ref.setName(refDoc.getString(MdekKeys.NAME));
 		keyValueService.processKeyValue(ref);
 
 		return ref;
@@ -2323,6 +2322,7 @@ public class DocToBeanMapper implements IMapper {
 			int line)
 	{
 		ref.setObjServId(oFrom.getId());
+		ref.setName(refDoc.getString(MdekKeys.NAME));
 		ref.setUrl(refDoc.getString(MdekKeys.URL));
 		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION));
 		ref.setLine(line);

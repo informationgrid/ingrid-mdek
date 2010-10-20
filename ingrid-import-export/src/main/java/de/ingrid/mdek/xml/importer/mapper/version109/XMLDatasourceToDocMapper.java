@@ -356,8 +356,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.HAS_ACCESS_CONSTRAINT},
 				XPathUtils.getString(service, X_SERVICE_HAS_ACCESS_CONSTRAINT), target);
-		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.NAME},
-				XPathUtils.getString(service, X_SERVICE_NAME), target);
 		mapServiceUrls(service, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE));
 	}
 
@@ -440,6 +438,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < serviceUrlNodeList.getLength(); index++) {
 			Node serviceUrl = serviceUrlNodeList.item(index);
 			IngridDocument serviceUrlDoc = new IngridDocument();
+			putString(MdekKeys.NAME, XPathUtils.getString(serviceUrl, X_SERVICE_NAME), serviceUrlDoc);
 			putString(MdekKeys.URL, XPathUtils.getString(serviceUrl, X_SERVICE_URL), serviceUrlDoc);
 			putString(MdekKeys.DESCRIPTION, XPathUtils.getString(serviceUrl, X_SERVICE_URL_DESCRIPTION), serviceUrlDoc);
 			serviceUrlDocs.add(serviceUrlDoc);

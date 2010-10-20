@@ -17,7 +17,6 @@ public class T011ObjServ implements IEntity {
 	private String base;
 	private String description;
 	private String hasAccessConstraint;
-	private String name;
 
 	private Set t011ObjServOperations = new HashSet();
 	private Set t011ObjServScales = new HashSet();
@@ -106,15 +105,6 @@ public class T011ObjServ implements IEntity {
 	public void setHasAccessConstraint(String hasAccessConstraint) {
 		this.hasAccessConstraint = hasAccessConstraint;
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 
 	public Set getT011ObjServOperations() {
 		return t011ObjServOperations;

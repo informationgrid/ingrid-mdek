@@ -384,7 +384,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			Integer oServTypeKey = oServ.getTypeKey();
 			extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_TYPE,
 				oServTypeKey, oServ.getTypeValue());
-			extendFullData(data, oServ.getName());
 			Set<T011ObjServType> oServClassifications = oServ.getT011ObjServTypes();
 			for (T011ObjServType oServClassification : oServClassifications) {
 				extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_TYPE2,
@@ -434,6 +433,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			}
 			Set<T011ObjServUrl> oServUrls = oServ.getT011ObjServUrls();
 			for (T011ObjServUrl oServUrl : oServUrls) {
+				extendFullData(data, oServUrl.getName());
 				extendFullData(data, oServUrl.getUrl());
 				extendFullData(data, oServUrl.getDescription());
 			}

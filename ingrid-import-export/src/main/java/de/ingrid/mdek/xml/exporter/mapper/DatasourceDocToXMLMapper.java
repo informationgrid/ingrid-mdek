@@ -386,6 +386,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createServiceUrl(IngridDocument contextDoc) {
 		XMLElement element = new XMLElement(SERVICE_URL);
+		element.addChild(new XMLElement(NAME, getStringForKey(MdekKeys.NAME, contextDoc)));
 		element.addChild(new XMLElement(URL, getStringForKey(MdekKeys.URL, contextDoc)));
 		element.addChild(new XMLElement(DESCRIPTION, getStringForKey(MdekKeys.DESCRIPTION, contextDoc)));
 		return element;

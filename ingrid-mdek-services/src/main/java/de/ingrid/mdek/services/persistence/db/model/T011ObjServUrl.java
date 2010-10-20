@@ -8,6 +8,7 @@ public class T011ObjServUrl implements IEntity {
 	private int version;
 	private Long objServId;
 	private Integer line;
+	private String name;
 	private String url;
 	private String description;
 
@@ -44,6 +45,14 @@ public class T011ObjServUrl implements IEntity {
 
 	public void setLine(Integer line) {
 		this.line = line;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getUrl() {
