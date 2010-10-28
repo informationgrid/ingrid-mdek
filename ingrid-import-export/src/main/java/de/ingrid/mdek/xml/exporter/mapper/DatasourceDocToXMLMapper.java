@@ -248,8 +248,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 		service.addChild(new XMLElement(HAS_ACCESS_CONSTRAINT,
 			getStringForKey(MdekKeys.HAS_ACCESS_CONSTRAINT, serviceContext)));
-		service.addChild(new XMLElement(NAME,
-				getStringForKey(MdekKeys.NAME, serviceContext)));
 		service.addChildren(createServiceUrls(serviceContext));
 
 		return service;

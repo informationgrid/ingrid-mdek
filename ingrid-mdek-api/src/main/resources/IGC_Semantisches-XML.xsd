@@ -1503,8 +1503,8 @@
     auch benutzt fuer:
     - Fachlicher Name: Parametername der Operation
       Tabelle   : T011_obj_serv_op_para.name
-    - Fachlicher Name: Name von "Informationssystem/Dienst/Anwendung" ?
-      Tabelle.Feld   : T011_obj_serv.name
+    - Fachlicher Name: Name von URL in neuer Klasse "Informationssystem/Dienst/Anwendung" ?
+      Tabelle.Feld   : T011_obj_serv_url.name
   -->
   <xs:element name="name" type="xs:string"/>
   <!--

@@ -1366,7 +1366,6 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.DATABASE_OF_SYSTEM, "TEST DATABASE_OF_SYSTEM");
 		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST DESCRIPTION_OF_TECH_DOMAIN");
 		technicalDomain.put(MdekKeys.HAS_ACCESS_CONSTRAINT, "Y");
-		technicalDomain.put(MdekKeys.NAME, "TEST NAME");
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
 		// add TECHNICAL DOMAIN SERVICE - versions
 		strList = (List<String>) technicalDomain.get(MdekKeys.SERVICE_VERSION_LIST);

@@ -222,7 +222,6 @@ class MdekExampleExportImportObjectThread extends Thread {
 		serviceDoc = new IngridDocument();
 		oMap.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, serviceDoc);
 		serviceDoc.put(MdekKeys.HAS_ACCESS_CONSTRAINT, "N");
-		serviceDoc.put(MdekKeys.NAME, "Test NAME");
 		serviceDoc.put(MdekKeys.SERVICE_TYPE_KEY, new Integer(6));
 		serviceDoc.put(MdekKeys.SERVICE_TYPE, "Sonstige Dienste");
 		docList = new ArrayList<IngridDocument>();
@@ -238,10 +237,12 @@ class MdekExampleExportImportObjectThread extends Thread {
 		docList = new ArrayList<IngridDocument>();
 		serviceDoc.put(MdekKeys.URL_LIST, docList);
 		doc = new IngridDocument();
+		doc.put(MdekKeys.NAME, "www.url11111111 NAME");
 		doc.put(MdekKeys.URL, "www.url11111111");
 		doc.put(MdekKeys.DESCRIPTION, "www.url11111111 Descriptionnnnnnnn");
 		docList.add(doc);
 		doc = new IngridDocument();
+		doc.put(MdekKeys.NAME, "www.url222222 NAME");
 		doc.put(MdekKeys.URL, "www.url222222");
 		doc.put(MdekKeys.DESCRIPTION, "www.url2222 Descriptionnnnnnnn");
 		docList.add(doc);
