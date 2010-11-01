@@ -637,9 +637,15 @@ public class MdekCatalogService {
 			int totalNum = entities.size();
 			int numProcessed = 0;
 			for (IEntity entity : entities) {
-				// special handling if T011ObjServOperation !
-				// fetch according T011ObjServ, determines syslist !
-				if (entityClass.equals(T011ObjServOperation.class)) {
+				if (entityClass.equals(T011ObjServ.class)) {
+					// special handling if T011ObjServ !
+					// fetch according T01Object, determines syslist !
+					T011ObjServ objServ = (T011ObjServ) entity;
+					T01Object obj = (T01Object) daoT01Object.loadById(objServ.getObjId());
+					keyValueHandler.processKeyValueT011ObjServ(objServ, obj);
+				} else if (entityClass.equals(T011ObjServOperation.class)) {
+					// special handling if T011ObjServOperation !
+					// fetch according T011ObjServ, determines syslist !
 					T011ObjServOperation objServOp = (T011ObjServOperation) entity;
 					T011ObjServ objServ = (T011ObjServ) daoT011ObjServ.loadById(objServOp.getObjServId());
 					keyValueHandler.processKeyValueT011ObjServOperation(objServOp, objServ);

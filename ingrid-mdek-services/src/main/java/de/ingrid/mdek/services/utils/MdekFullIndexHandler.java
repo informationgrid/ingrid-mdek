@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
@@ -382,8 +383,17 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oServ.getBase());
 			extendFullData(data, oServ.getDescription());
 			Integer oServTypeKey = oServ.getTypeKey();
-			extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_TYPE,
+
+			// ServType syslist is dependent from class of object !
+			// default is class 3 = "Geodatendienst"
+			MdekSysList sysListServType = MdekSysList.OBJ_SERV_TYPE;
+			// change syslist if class 6 = "Informationssystem/Dienst/Anwendung"
+			if (ObjectType.INFOSYSTEM_DIENST.getDbValue().equals(o.getObjClass())) {
+				sysListServType = MdekSysList.OBJ_SERV_TYPE_CLASS_6;
+			}
+			extendFullDataWithSysList(data, sysListServType,
 				oServTypeKey, oServ.getTypeValue());
+
 			Set<T011ObjServType> oServClassifications = oServ.getT011ObjServTypes();
 			for (T011ObjServType oServClassification : oServClassifications) {
 				extendFullDataWithSysList(data, MdekSysList.OBJ_SERV_TYPE2,

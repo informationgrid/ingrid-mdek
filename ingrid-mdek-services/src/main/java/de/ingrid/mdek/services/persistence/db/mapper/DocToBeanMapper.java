@@ -2006,7 +2006,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
 		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
 		ref.setHasAccessConstraint(refDoc.getString(MdekKeys.HAS_ACCESS_CONSTRAINT));
-		keyValueService.processKeyValue(ref);
+		keyValueService.processKeyValueT011ObjServ(ref, oFrom);
 
 		return ref;
 	}
