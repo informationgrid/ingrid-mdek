@@ -297,13 +297,14 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument getObjectsOfAuskunftAddress(String plugId,
-			String auskunftAddressUuid, Integer maxNum, String userId) {
+	public IngridDocument getObjectsOfAddressByType(String plugId,
+			String auskunftAddressUuid, Integer referenceTypeId, Integer maxNum, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, auskunftAddressUuid);
+    jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, referenceTypeId);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getObjectsOfAuskunftAddress", jobParams);
+		List jobMethods = setUpJobMethod("getObjectsOfAddressByType", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 

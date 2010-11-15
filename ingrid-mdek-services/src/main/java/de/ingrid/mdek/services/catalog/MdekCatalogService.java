@@ -336,69 +336,46 @@ public class MdekCatalogService {
 	}
 
 	/**
-	 * Update auskunft in all objects (also published ones !).
+	 * Update address in all objects (also published ones !).
 	 * Further mod-date and -uuid in objects is updated.<br>
 	 * NOTICE: already persists addresses !
-	 * @param oldAuskunftUuid auskunft to be replaced
-	 * @param newAuskunftUuid with this new auskunft
-	 * @param oldAuskunftWillBeDeleted pass true if oldAuskunft will be deleted, so we
-	 * 		care for removement of further associations to oldAuskunft !
+	 * @param oldAddressUuid Address to be replaced
+	 * @param newAddressUuid with this new Address
 	 * @param userUuid calling user
 	 * @return num objects updated
 	 */
-	public int updateAuskunftInObjects(String oldAuskunftUuid, String newAuskunftUuid,
-			boolean oldAuskunftWillBeDeleted,
+	public int updateAddressInObjects(String oldAddressUuid, String newAddressUuid,
 			String userUuid) {
-		int numAuskunftChanged = 0;
-		if (MdekUtils.isEqual(oldAuskunftUuid, newAuskunftUuid)) {
-			return numAuskunftChanged;
+		int numAdressesChanged = 0;
+		if (MdekUtils.isEqual(oldAddressUuid, newAddressUuid)) {
+			return numAdressesChanged;
 		}
 
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 
+		// get all objects connected to the old address...
 		List<T01Object> objs = 
-			daoT02Address.getObjectReferencesByTypeId(oldAuskunftUuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, null);
+			daoT02Address.getObjectReferencesByTypeId(oldAddressUuid, null, null);
 
 		// process all objects
 		for (T01Object obj : objs) {
 			Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
 
-			// first check whether object already has NEW auskunft,
-			// then old auskunft has to be removed instead of replaced !
-			boolean alreadyHasNewAuskunft = false;
-			for (T012ObjAdr objAdr : objAdrs) {
-				if (newAuskunftUuid.equals(objAdr.getAdrUuid()) &&
-						MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(objAdr.getType())) {
-					alreadyHasNewAuskunft = true;
-					break;
-				}
-			}
-
 			// then process associations
 			List<T012ObjAdr> objAdrsToRemove = new ArrayList<T012ObjAdr>();
 			boolean objChanged = false;
 			for (T012ObjAdr objAdr : objAdrs) {
-				if (oldAuskunftUuid.equals(objAdr.getAdrUuid())) {
-					// association to oldAuskunft address
-					if (MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(objAdr.getType())) {
-						// auskunft association to oldAuskunft
-						if (alreadyHasNewAuskunft) {
-							// has to be removed from associations ! new auskunft already there.
-							objAdrsToRemove.add(objAdr);
-						} else {
-							// update old auskunft to new one
-							objAdr.setAdrUuid(newAuskunftUuid);
-						}						
-						numAuskunftChanged++;
-						objChanged = true;
-					} else {
-						// further association to oldAuskunft address
-						if (oldAuskunftWillBeDeleted) {
-							// also remove this one to avoid Exceptions when address is deleted !
-							objAdrsToRemove.add(objAdr);
-							objChanged = true;
-						}
-					}
+			  if (oldAddressUuid.equals(objAdr.getAdrUuid())) {
+	        // make sure no duplicates will be introduced by the replacement
+			  	if (daoT01Object.hasAddressRelation(obj.getObjUuid(), newAddressUuid, objAdr.getType())) {
+            // new relation would be a duplicate, mark for removal of the dataset
+			  	  objAdrsToRemove.add(objAdr);
+          } else {
+            // update old address with new address
+            objAdr.setAdrUuid(newAddressUuid);
+            numAdressesChanged++;
+            objChanged = true;
+          }
 				}
 			}
 
@@ -418,7 +395,7 @@ public class MdekCatalogService {
 			}
 		}
 		
-		return numAuskunftChanged;
+		return numAdressesChanged;
 	}
 
 	/**

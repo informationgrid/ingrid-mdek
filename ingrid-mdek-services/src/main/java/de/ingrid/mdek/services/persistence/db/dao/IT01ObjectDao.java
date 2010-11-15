@@ -20,4 +20,17 @@ public interface IT01ObjectDao
 	List<T01Object> getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum);
 	/** Get according HQL Statement to fetch csv data !. */
 	String getCsvHQLAllObjectsOfResponsibleUser(String responsibleUserUuid);
+	
+	/**
+	 * Check for specific object address reference. If referenceTypeId is null
+	 * the method checks if the object is related to the address no matter what
+	 * type the reference has. 
+	 * 
+	 * @param objectUuid The object UUID
+	 * @param addressUuid The address UUID.
+	 * @param referenceTypeId The address reference type ("Auskunft").
+	 * 
+	 * @return True if the object has a specific address reference, false if not.
+	 */
+	boolean hasAddressRelation(String objectUuid, String addressUuid, Integer referenceTypeId);
 }

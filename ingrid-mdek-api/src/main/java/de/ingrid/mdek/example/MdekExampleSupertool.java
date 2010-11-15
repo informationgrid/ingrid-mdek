@@ -180,8 +180,8 @@ public class MdekExampleSupertool {
 	public IngridDocument analyze() {
 		return supertoolCatalog.analyze();
 	}
-	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid, Integer maxNum) {
-		return supertoolCatalog.getObjectsOfAuskunftAddress(auskunftAddressUuid, maxNum);
+	public IngridDocument getObjectsOfAddressByType(String auskunftAddressUuid, Integer referenceTypeId, Integer maxNum) {
+		return supertoolCatalog.getObjectsOfAddressbyType(auskunftAddressUuid, referenceTypeId, maxNum);
 	}
 	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		return supertoolCatalog.getObjectsOfResponsibleUser(responsibleUserUuid, maxNum);

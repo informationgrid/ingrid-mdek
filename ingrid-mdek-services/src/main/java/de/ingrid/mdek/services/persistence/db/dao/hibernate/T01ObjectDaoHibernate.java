@@ -48,4 +48,21 @@ public class T01ObjectDaoHibernate
 
 		return hql;
 	}
+	
+	public boolean hasAddressRelation(String objectUuid, String addressUuid, Integer realtionTypeId) {
+	  Session session = getSession();
+	  
+	  String hql = "select objAdr " +
+      "from T01Object obj " +
+      "join obj.t012ObjAdrs objAdr " +
+      "where objAdr.adrUuid = ? and obj.objUuid = ?";
+    
+    if (realtionTypeId != null) {
+      hql += " and objAdr.type = " + realtionTypeId;
+    }
+
+    Query q = session.createQuery(hql).setString(0, addressUuid).setString(1, objectUuid);
+
+    return !q.list().isEmpty();
+	}
 }

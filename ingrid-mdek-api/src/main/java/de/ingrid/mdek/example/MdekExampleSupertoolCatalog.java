@@ -688,18 +688,19 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument getObjectsOfAuskunftAddress(String auskunftAddressUuid, Integer maxNum) {
+	public IngridDocument getObjectsOfAddressbyType(String addressUuid, Integer referenceTypeId, Integer maxNum) {
 		long startTime;
 		long endTime;
 		long neededTime;
 		IngridDocument response;
 		IngridDocument result;
 
-		System.out.println("\n###### INVOKE getObjectsOfAuskunftAddress ######");
-		System.out.println("- auskunftAddressUuid: " + auskunftAddressUuid);
+		System.out.println("\n###### INVOKE getObjectsOfAddressbyType ######");
+		System.out.println("- addressUuid: " + addressUuid);
+    System.out.println("- referenceTypeId: " + referenceTypeId);
 		System.out.println("- maxNum: " + maxNum);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.getObjectsOfAuskunftAddress(plugId, auskunftAddressUuid, maxNum,
+		response = mdekCallerCatalog.getObjectsOfAddressByType(plugId, addressUuid, referenceTypeId, maxNum,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;

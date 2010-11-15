@@ -271,13 +271,16 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 */
 	IngridDocument replaceAddress(String plugId, String oldUuid, String newUuid, String userId);
 
-	/** Return all objects where given address uuid is auskunft address.
+	/** Return all objects where given address uuid is from a specific address typ like "Auskunft".
+	 * If the referenceTypeId is null, all objects that reference the address with any type will 
+	 * be returned.
 	 * @param auskunftAddressUuid address uuid of auskunft in objects 
+   * @param referenceTypeId Id of the object to address type (i.e. "Auskunft")
 	 * @param maxNum maximum number to fetch, pass null to fetch ALL objects
 	 * @return response containing result: list of objects where given uuid is auskunft address
 	 */
-	IngridDocument getObjectsOfAuskunftAddress(String plugId,
-			String auskunftAddressUuid, Integer maxNum, String userId);
+	IngridDocument getObjectsOfAddressByType(String plugId,
+			String auskunftAddressUuid, Integer referenceTypeId, Integer maxNum, String userId);
 
 	/** Return all objects where given address uuid is responsible user.
 	 * @param responsibleUserUuid address uuid of responsible user

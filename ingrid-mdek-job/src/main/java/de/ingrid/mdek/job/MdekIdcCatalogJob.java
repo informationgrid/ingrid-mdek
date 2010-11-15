@@ -1083,15 +1083,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 
 			// check new address:
-			// - has to be published (will be set in published objects as auskunft)
+			// - has to be published (will be set in published objects)
 			if (!addressService.hasPublishedVersion(
 					daoAddressNode.loadByUuid(newAddrUuid, IdcEntityVersion.PUBLISHED_VERSION))) {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_PUBLISHED));
 			}
 
-			// REPLACE ALL AUSKUNFTS ADDRESSES !
-			int numAuskunftChanged =
-				catalogService.updateAuskunftInObjects(oldAddrUuid, newAddrUuid, true, userUuid);
+			// REPLACE ALL ADDRESSES !
+			int numObjectsChanged =
+				catalogService.updateAddressInObjects(oldAddrUuid, newAddrUuid, userUuid);
 
 			// REPLACE ALL RESPONSIBLE USERS !
 			int numResponsibleUsersChangedObjs =
@@ -1107,7 +1107,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			IngridDocument resultDoc = new IngridDocument();
 			// just for debugging
-			resultDoc.putInt("numAuskunftChanged", numAuskunftChanged);
+			resultDoc.putInt("numObjectsChanged", numObjectsChanged);
 			resultDoc.putInt("numResponsibleUsersChangedObjs", numResponsibleUsersChangedObjs);
 			resultDoc.putInt("numResponsibleUsersChangedAddrs", numResponsibleUsersChangedAddrs);
 			return resultDoc;		
@@ -1123,16 +1123,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
-	public IngridDocument getObjectsOfAuskunftAddress(IngridDocument params) {
+	public IngridDocument getObjectsOfAddressByType(IngridDocument params) {
 		try {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Integer maxNum = (Integer) params.get(MdekKeys.REQUESTINFO_NUM_HITS);
+			Integer referenceTypeId = (Integer) params.get(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY);
 
 			daoObjectNode.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
 			List<T01Object> objs = 
-				daoT02Address.getObjectReferencesByTypeId(uuid, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, maxNum);
+				daoT02Address.getObjectReferencesByTypeId(uuid, referenceTypeId, maxNum);
 
 			List<IngridDocument> objDocs = 
 				beanToDocMapper.mapT01Objects(objs, MappingQuantity.BASIC_ENTITY);

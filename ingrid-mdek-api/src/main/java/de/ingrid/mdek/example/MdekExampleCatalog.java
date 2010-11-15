@@ -615,7 +615,7 @@ class MdekExampleCatalogThread extends Thread {
 		String newObjPublishedUuid = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- getObjectsOfAuskunftAddress -> 2 Objects -----");
-		supertool.getObjectsOfAuskunftAddress(uuidToReplace, null);
+		supertool.getObjectsOfAddressByType(uuidToReplace, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, null);
 		System.out.println("\n----- according CSV data -----");
 		supertool.getCsvData(CsvRequestType.OBJECTS_OF_AUSKUNFT_ADDRESS, uuidToReplace);
 		
@@ -651,9 +651,9 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.replaceAddress(uuidToReplace, uuidToReplaceWith);
 
 		System.out.println("\n----- getObjectsOfAuskunftAddress with OLD Auskunft-> 0 Objects -----");
-		supertool.getObjectsOfAuskunftAddress(uuidToReplace, null);
+		supertool.getObjectsOfAddressByType(uuidToReplace, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, null);
 		System.out.println("\n----- getObjectsOfAuskunftAddress with NEW Auskunft-> 2 Objects -----");
-		supertool.getObjectsOfAuskunftAddress(uuidToReplaceWith, null);
+		supertool.getObjectsOfAddressByType(uuidToReplaceWith, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID, null);
 		
 		System.out.println("\n----- getObjectsOfResponsibleUser with OLD responsible User -> 0 Objects -----");
 		supertool.getObjectsOfResponsibleUser(uuidToReplace, null);
