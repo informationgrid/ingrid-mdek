@@ -213,6 +213,21 @@ class MdekExampleCatalogThread extends Thread {
 			isRunning = false;
 			return;
 		}
+
+		// Test Syslist stuff ...
+		// -----------------------
+
+		supertool.setFullOutput(true);
+
+		supertool.getSysLists(null, null);
+
+		System.out.println("\n----- SysList Values NO language -----");
+		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, "en");
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
 */
 // ===================================
 

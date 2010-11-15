@@ -183,7 +183,7 @@ public class MdekExampleSupertoolCatalog {
 					System.out.println("  " + listKey + ": " + entryIds.length + " entries");
 					for (int i=0; i<entryIds.length; i++) {
 						System.out.println("    id:" + entryIds[i] + ", default:" + (i==defaultIndex) +
-							", name_de:" + entryNames_de[i] + 
+							((entryNames_de != null) ? (", name_de:" + entryNames_de[i]) : "") +
 							((entryNames_en != null) ? (", name_en:" + entryNames_en[i]) : "") );
 					}
 				}
