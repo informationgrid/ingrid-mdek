@@ -15,6 +15,9 @@
         Überprüfung Kompatibilität von "IGE- Frontend" / "IGE-iPlug" / "IGC Datenbank".
 Kompatibilitätsprobleme führen entweder zur direkten Beendigung IGE iPlug (beim Start) oder zu Fehlermeldungen, die auch im Frontend dargestellt werden (in den IGE Einstiegsseiten).
       </action>
+      <action type="fix" dev="wemove">
+        Fix fetching of syslists on ORACLE (NO PreparedStatements in Dao due to Problems with Oracle JDBC).
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-1840">
         Im Importformat vertauschte tags Service Typ und Service Klassifikation korrigiert.
       </action>
