@@ -39,19 +39,14 @@ public class SysListDaoHibernate
 		Session session = getSession();
 
 		String qString = "from SysList " +
-			"where lstId = ? ";
+			"where lstId = " + lstId;
 
 		if (language != null) {
-			qString += "and langId = ? ";
+			qString += " and langId = '" + language + "'";
 		}
-		qString += "order by line, entryId";
+		qString += " order by line, entryId";
 
 		Query q = session.createQuery(qString);
-		q.setInteger(0, lstId);
-		if (language != null) {
-			q.setString(1, language);			
-		}
-
 		return q.list();
 	}
 
