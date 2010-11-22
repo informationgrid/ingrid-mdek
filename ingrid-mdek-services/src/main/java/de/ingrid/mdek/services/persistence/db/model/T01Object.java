@@ -52,6 +52,7 @@ public class T01Object implements IEntity {
 	private Set objectAccesss = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
+	private Set objectDataQualitys = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set objectUses = new HashSet();
 	private Set searchtermObjs = new HashSet();
@@ -431,6 +432,14 @@ public class T01Object implements IEntity {
 
 	public void setObjectConformitys(Set objectConformitys) {
 		this.objectConformitys = objectConformitys;
+	}
+
+	public Set getObjectDataQualitys() {
+		return objectDataQualitys;
+	}
+
+	public void setObjectDataQualitys(Set objectDataQualitys) {
+		this.objectDataQualitys = objectDataQualitys;
 	}
 
 	public Set getObjectReferences() {

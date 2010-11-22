@@ -25,9 +25,11 @@
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataQuality.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectUse.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/PermissionObj.hbm.xml</value>
@@ -66,6 +68,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOperation.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServScale.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServType.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServUrl.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServVersion.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjTopicCat.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
@@ -92,9 +95,11 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectAccess">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectComment">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectConformity">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectMetadata">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectNode">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectReference">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectUse">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.Permission">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionAddr">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionObj">read-write</prop>
@@ -127,6 +132,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServScale">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServType">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServUrl">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T012ObjAdr">read-write</prop>

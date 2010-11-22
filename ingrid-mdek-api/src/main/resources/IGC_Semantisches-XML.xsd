@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="1.0.9"/>
+    <xs:attribute name="exchange-format" default="2.3.0"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -867,6 +867,7 @@
         <xs:element minOccurs="0" ref="ordering-instructions"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="comment"/>
         <xs:element maxOccurs="unbounded" ref="conformity"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-quality"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1065,6 +1066,41 @@
     Tabelle.Feld   : object_conformity.publication_date
   -->
   <xs:element name="conformity-publication-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: Objekt Datenqualität (INSPIRE)
+    Tabelle   : object_data_quality
+  -->
+  <xs:element name="data-quality">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="dq-element-id"/>
+        <xs:element ref="dq-name-of-measure"/>
+        <xs:element ref="dq-result-value"/>
+        <xs:element ref="dq-measure-description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Datenqualität -> INSPIRE ID DQ_Element
+    Tabelle.Feld   : object_data_quality.dq_element_id
+  -->
+  <xs:element name="dq-element-id" type="xs:integer"/>
+  <!--
+    Fachlicher Name: Datenqualität -> Testverfahren/Art der Messung (INSPIRE)
+    Tabelle.Feld   : object_data_quality.name_of_measure_key
+    Tabelle.Feld   : object_data_quality.name_of_measure_value
+  -->
+  <xs:element name="dq-name-of-measure" type="id-string"/>
+  <!--
+    Fachlicher Name: Datenqualität -> Ergebnis (INSPIRE)
+    Tabelle.Feld   : object_data_quality.result_value
+  -->
+  <xs:element name="dq-result-value" type="xs:string"/>
+  <!--
+    Fachlicher Name: Datenqualität -> Verfahrensbeschreibung (INSPIRE)
+    Tabelle.Feld   : object_data_quality.measure_description
+  -->
+  <xs:element name="dq-measure-description" type="xs:string"/>
   <!--
     Fachlicher Name: Raumbezug
   -->

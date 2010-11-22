@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="ObjectDataQuality" table="object_data_quality">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objId" type="long" column="obj_id"/>
+      <property name="dqElementId" type="integer" column="dq_element_id"/>
+      <property name="line" type="integer" column="line"/>
+      <property name="nameOfMeasureKey" type="integer" column="name_of_measure_key"/>
+      <property name="nameOfMeasureValue" type="string" column="name_of_measure_value"/>
+      <property name="resultValue" type="string" column="result_value"/>
+      <property name="measureDescription" type="string" column="measure_description"/>
+
+   </class>
+
+</hibernate-mapping>

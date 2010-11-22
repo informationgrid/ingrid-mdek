@@ -61,6 +61,11 @@ public class XMLKeys {
 	public static final String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
 	public static final String CONFORMITY_SPECIFICATION = "conformity-specification";
 	public static final String CONFORMITY = "conformity";
+	public static final String DATA_QUALITY = "data-quality";
+	public static final String DQ_ELEMENT_ID = "dq-element-id";
+	public static final String DQ_NAME_OF_MEASURE = "dq-name-of-measure";
+	public static final String DQ_RESULT_VALUE = "dq-result-value";
+	public static final String DQ_MEASURE_DESCRIPTION = "dq-measure-description";
 	public static final String CREATOR_IDENTIFIER = "creator-identifier";
 	public static final String COMMENT_CONTENT = "comment-content";
 	public static final String COMMENT = "comment";

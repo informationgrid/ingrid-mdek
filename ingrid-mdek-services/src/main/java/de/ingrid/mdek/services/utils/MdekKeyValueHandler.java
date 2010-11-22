@@ -11,6 +11,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
@@ -65,6 +66,7 @@ public class MdekKeyValueHandler {
 		SearchtermValue.class,
 		T03Catalogue.class,
 		T01Object.class,
+		ObjectDataQuality.class
 	};
 
 	/** Get The Singleton */
@@ -134,6 +136,8 @@ public class MdekKeyValueHandler {
 			processKeyValueT03Catalogue((T03Catalogue) bean);
 		} else if (T01Object.class.isAssignableFrom(clazz)) {
 			processKeyValueT01Object((T01Object) bean);
+		} else if (ObjectDataQuality.class.isAssignableFrom(clazz)) {
+			processKeyValueObjectDataQuality((ObjectDataQuality) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -495,6 +499,68 @@ public class MdekKeyValueHandler {
 				MdekSysList.LANGUAGE.getDbValue(),
 				catalogService.getCatalogLanguage());
 			bean.setMetadataLanguageValue(keyNameMap.get(entryKey));
+		}
+		
+		return bean;
+	}
+
+	private IEntity processKeyValueObjectDataQuality(ObjectDataQuality bean) {
+		Integer dqElemId = bean.getDqElementId();
+		Integer entryKey = bean.getNameOfMeasureKey();
+
+		if (dqElemId != null && dqElemId > -1 &&
+				entryKey != null && entryKey > -1)
+		{
+			Map<Integer, String> keyNameMap = null;
+			if (dqElemId.equals(MdekSysList.DQ_AbsoluteExternalPositionalAccuracy.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_AbsoluteExternalPositionalAccuracy.getDbValue(),
+						catalogService.getCatalogLanguage());
+			} else if (dqElemId.equals(MdekSysList.DQ_CompletenessComission.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_CompletenessComission.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_CompletenessOmission.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_CompletenessOmission.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_ConceptualConsistency.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_ConceptualConsistency.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_DomainConsistency.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_DomainConsistency.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_FormatConsistency.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_FormatConsistency.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_NonQuantitativeAttributeAccuracy.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_NonQuantitativeAttributeAccuracy.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_QuantitativeAttributeAccuracy.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_QuantitativeAttributeAccuracy.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_TemporalConsistency.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_TemporalConsistency.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_ThematicClassificationCorrectness.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_ThematicClassificationCorrectness.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			} else if (dqElemId.equals(MdekSysList.DQ_TopologicalConsistency.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_TopologicalConsistency.getDbValue(),
+						catalogService.getCatalogLanguage());				
+			}
+
+			if (keyNameMap != null) {
+				bean.setNameOfMeasureValue(keyNameMap.get(entryKey));
+			}
 		}
 		
 		return bean;

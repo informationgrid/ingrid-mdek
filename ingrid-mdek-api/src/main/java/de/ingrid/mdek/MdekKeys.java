@@ -1114,4 +1114,16 @@ public class MdekKeys {
     /** Value: String */
     public final static String USE_TERMS_OF_USE = "use-terms-of-use";
 
+    /** Value: List< IngridDocument > */
+    public final static String DATA_QUALITY_LIST = "data-quality-list";
+    /** Value: Integer */
+    public final static String DQ_ELEMENT_ID = "dq-element-id";
+    /** Value: Integer */
+    public final static String NAME_OF_MEASURE_KEY = "name-of-measure-key";
+    /** Value: String */
+    public final static String NAME_OF_MEASURE_VALUE = "name-of-measure-value";
+    /** Value: String */
+    public final static String RESULT_VALUE = "result-value";
+    /** Value: String */
+    public final static String MEASURE_DESCRIPTION = "measure-description";
 }

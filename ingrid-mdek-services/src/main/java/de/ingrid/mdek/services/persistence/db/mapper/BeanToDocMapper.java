@@ -29,6 +29,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
@@ -325,6 +326,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 			mapObjectUses(o.getObjectUses(), objectDoc);
+			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -1974,6 +1976,36 @@ public class BeanToDocMapper implements IMapper {
 		}
 
 		refDoc.put(MdekKeys.USE_TERMS_OF_USE, ref.getTermsOfUse());
+
+		return refDoc;
+	}
+
+	private IngridDocument mapObjectDataQualitys(Set<ObjectDataQuality> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (ObjectDataQuality ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapObjectDataQuality(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.DATA_QUALITY_LIST, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapObjectDataQuality(ObjectDataQuality ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.DQ_ELEMENT_ID, ref.getDqElementId());
+		refDoc.put(MdekKeys.NAME_OF_MEASURE_KEY, ref.getNameOfMeasureKey());
+		refDoc.put(MdekKeys.NAME_OF_MEASURE_VALUE, ref.getNameOfMeasureValue());
+		refDoc.put(MdekKeys.RESULT_VALUE, ref.getResultValue());
+		refDoc.put(MdekKeys.MEASURE_DESCRIPTION, ref.getMeasureDescription());
 
 		return refDoc;
 	}

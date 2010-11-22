@@ -13,6 +13,7 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -197,7 +198,89 @@ class MdekExampleExportImportObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-		// Test EXPORT / IMPORT new Exchange Format
+		// Test EXPORT / IMPORT new Exchange Format 2.0.3
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- object details -----");
+		IngridDocument oMap = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+
+		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+		// add entries to OBJECT DQ
+		MdekSysList[] dqSyslists = new MdekSysList[] {
+				MdekSysList.DQ_CompletenessComission,
+				MdekSysList.DQ_CompletenessOmission,
+				MdekSysList.DQ_ConceptualConsistency,
+				MdekSysList.DQ_DomainConsistency,
+				MdekSysList.DQ_FormatConsistency,
+				MdekSysList.DQ_TopologicalConsistency,
+				MdekSysList.DQ_AbsoluteExternalPositionalAccuracy,
+				MdekSysList.DQ_TemporalConsistency,
+				MdekSysList.DQ_ThematicClassificationCorrectness,
+				MdekSysList.DQ_NonQuantitativeAttributeAccuracy,
+				MdekSysList.DQ_QuantitativeAttributeAccuracy };
+		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.DATA_QUALITY_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		oMap.put(MdekKeys.DATA_QUALITY_LIST, docList);
+		for (MdekSysList dqSyslist : dqSyslists) {
+			// also add free entry for every list (key = -1)
+			int key = 1;
+			while (key >= -1) {
+				IngridDocument testDoc = new IngridDocument();
+				testDoc.put(MdekKeys.DQ_ELEMENT_ID, dqSyslist.getDqElementId());
+				testDoc.put(MdekKeys.NAME_OF_MEASURE_KEY, key);
+				testDoc.put(MdekKeys.NAME_OF_MEASURE_VALUE, "Free NAME_OF_MEASURE_VALUE !!!?");
+				testDoc.put(MdekKeys.RESULT_VALUE, "Test RESULT_VALUE " + dqSyslist.getDqElementId());
+				testDoc.put(MdekKeys.MEASURE_DESCRIPTION, "Test MEASURE_DESCRIPTION " + dqSyslist.getDqElementId());
+				docList.add(testDoc);
+				key = key - 2;
+			}
+		}
+		oMap = supertool.publishObject(oMap, true, false);
+
+		System.out.println("\n----- export object -----");
+		supertool.exportObjectBranch(objUuid, true);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import object as WORKING VERSION -----");
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- discard changes -> remove former change -----");
+		// remove all added test dq elements
+		docList = (List<IngridDocument>) oMap.get(MdekKeys.DATA_QUALITY_LIST);
+		for (int i=0; i < dqSyslists.length; i++) {
+			docList.remove(docList.size()-1);
+			docList.remove(docList.size()-1);
+		}
+		result = supertool.publishObject(oMap, true, false);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+/*
+		// Test EXPORT / IMPORT new Exchange Format 1.0.9
 		// --------------------------
 		supertool.setFullOutput(true);
 

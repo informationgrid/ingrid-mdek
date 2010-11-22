@@ -93,6 +93,28 @@ public class MdekUtils {
 		/** INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)"),
 		COUNTRY(6200, "T03Catalogue, T02Address -> countryKey=entryId, countryValue=name"),
+		DQ_CompletenessComission(7109, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=109"),
+		DQ_CompletenessOmission(7110, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=110"),
+		DQ_ConceptualConsistency(7112, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=112"),
+		DQ_DomainConsistency(7113, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=113"),
+		DQ_FormatConsistency(7114, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=114"),
+		DQ_TopologicalConsistency(7115, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=115"),
+		DQ_AbsoluteExternalPositionalAccuracy(7117, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=117"),
+		DQ_TemporalConsistency(7120, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=120"),
+		DQ_ThematicClassificationCorrectness(7125, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=125"),
+		DQ_NonQuantitativeAttributeAccuracy(7126, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=126"),
+		DQ_QuantitativeAttributeAccuracy(7127, "ObjectDataQuality -> " +
+			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=127"),
 		LANGUAGE(99999999, "T03Catalogue, T01Object -> *languageKey=entryId, *languageValue=name");
 
 		MdekSysList(Integer dbValue, String description) {
@@ -102,6 +124,10 @@ public class MdekUtils {
 		/** returns syslist ID */
 		public Integer getDbValue() {
 			return dbValue;
+		}
+		/** returns ISO DQ_Element Id from syslist */
+		public Integer getDqElementId() {
+			return dbValue - 7000;
 		}
 		Integer dbValue;
 		String description;

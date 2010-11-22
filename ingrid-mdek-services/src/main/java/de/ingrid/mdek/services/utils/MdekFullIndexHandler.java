@@ -22,6 +22,7 @@ import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
@@ -500,6 +501,13 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		Set<ObjectUse> objUses = o.getObjectUses();
 		for (ObjectUse objUse : objUses) {
 			extendFullData(data, objUse.getTermsOfUse());
+		}
+		// Data Quality
+		Set<ObjectDataQuality> objDQs = o.getObjectDataQualitys();
+		for (ObjectDataQuality objDQ : objDQs) {
+			extendFullData(data, objDQ.getNameOfMeasureValue());
+			extendFullData(data, objDQ.getResultValue());
+			extendFullData(data, objDQ.getMeasureDescription());
 		}
 
 		// T01Object

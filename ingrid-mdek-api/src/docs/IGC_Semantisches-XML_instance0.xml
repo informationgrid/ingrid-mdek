@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <igc xmlns="http://www.portalu.de/igc-import"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/igc-import file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/main/resources/IGC_Semantisches-XML.xsd" exchange-format="1.0.9">
+ xsi:schemaLocation="http://www.portalu.de/igc-import file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/main/resources/IGC_Semantisches-XML.xsd" exchange-format="2.3.0">
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
@@ -205,23 +205,29 @@
                     <conformity-degree id="id45">conformity-degree0</conformity-degree>
                     <conformity-publication-date>conformity-publication-date0</conformity-publication-date>
                 </conformity>
+                <data-quality>
+                    <dq-element-id>0</dq-element-id>
+                    <dq-name-of-measure id="id47">dq-name-of-measure0</dq-name-of-measure>
+                    <dq-result-value>dq-result-value0</dq-result-value>
+                    <dq-measure-description>dq-measure-description0</dq-measure-description>
+                </data-quality>
             </additional-information>
             <spatial-domain>
                 <description-of-spatial-domain>description-of-spatial-domain0</description-of-spatial-domain>
                 <vertical-extent>
                     <vertical-extent-minimum>vertical-extent-minimum0</vertical-extent-minimum>
                     <vertical-extent-maximum>vertical-extent-maximum0</vertical-extent-maximum>
-                    <vertical-extent-unit id="id47"/>
-                    <vertical-extent-vdatum id="id49"/>
+                    <vertical-extent-unit id="id49"/>
+                    <vertical-extent-vdatum id="id51"/>
                 </vertical-extent>
                 <geo-location>
                         <controlled-location>
-                            <location-name id="id51">location-name2</location-name>
+                            <location-name id="id53">location-name2</location-name>
                             <topic-type>topic-type1</topic-type>
                             <location-code>location-code1</location-code>
                         </controlled-location>
 <!--                        <uncontrolled-location>
-                            <location-name id="id53">location-name3</location-name>
+                            <location-name id="id55">location-name3</location-name>
                         </uncontrolled-location>-->
                     <bounding-coordinates>
                         <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
@@ -246,16 +252,16 @@
                 </dataset-reference>
             </temporal-domain>
             <subject-terms>
-                <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id55">controlled-term0</controlled-term>
+                <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id57">controlled-term0</controlled-term>
                 <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
             </subject-terms>
             <available-linkage>
                 <linkage-name>linkage-name0</linkage-name>
                 <linkage-url>linkage-url0</linkage-url>
                 <linkage-url-type>linkage-url-type0</linkage-url-type>
-                <linkage-reference id="id57">linkage-reference0</linkage-reference>
+                <linkage-reference id="id59">linkage-reference0</linkage-reference>
                 <linkage-description>linkage-description0</linkage-description>
-                <linkage-datatype id="id59">linkage-datatype0</linkage-datatype>
+                <linkage-datatype id="id61">linkage-datatype0</linkage-datatype>
                 <linkage-volume>linkage-volume0</linkage-volume>
                 <linkage-icon-url>linkage-icon-url0</linkage-icon-url>
                 <linkage-icon-text>linkage-icon-text0</linkage-icon-text>
@@ -269,7 +275,7 @@
                 <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
             </related-address>
             <link-data-source>
-                <object-link-type id="id61">object-link-type0</object-link-type>
+                <object-link-type id="id63">object-link-type0</object-link-type>
                 <object-link-description>object-link-description0</object-link-description>
                 <object-identifier>object-identifier2</object-identifier>
             </link-data-source>
@@ -280,20 +286,20 @@
             <address-identifier>address-identifier1</address-identifier>
             <modificator-identifier>modificator-identifier2</modificator-identifier>
             <responsible-identifier>responsible-identifier1</responsible-identifier>
-            <type-of-address id="id63"/>
+            <type-of-address id="id65"/>
             <organisation>organisation0</organisation>
             <name>name2</name>
-            <name-form id="id65">name-form0</name-form>
-            <title-or-function id="id67">title-or-function0</title-or-function>
+            <name-form id="id67">name-form0</name-form>
+            <title-or-function id="id69">title-or-function0</title-or-function>
             <given-name>given-name0</given-name>
-            <country id="id69">country1</country>
+            <country id="id71">country1</country>
             <postal-code>postal-code0</postal-code>
             <street>street0</street>
             <city>city0</city>
             <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
             <post-box>post-box0</post-box>
             <communication>
-                <communication-medium id="id71">communication-medium0</communication-medium>
+                <communication-medium id="id73">communication-medium0</communication-medium>
                 <communication-value>communication-value0</communication-value>
                 <communication-description>communication-description0</communication-description>
             </communication>
@@ -301,7 +307,7 @@
             <function>function0</function>
             <address-description>address-description0</address-description>
             <subject-terms>
-                <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id73">controlled-term1</controlled-term>
+                <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id75">controlled-term1</controlled-term>
                 <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
             </subject-terms>
             <comment>

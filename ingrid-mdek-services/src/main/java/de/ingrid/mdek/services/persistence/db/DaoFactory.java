@@ -50,6 +50,7 @@ import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
@@ -284,6 +285,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = getSearchtermValueDao();
 		} else if (clazz.isAssignableFrom(T01Object.class)) {
 			dao = getT01ObjectDao();
+		} else if (clazz.isAssignableFrom(ObjectDataQuality.class)) {
+			dao = new GenericHibernateDao<ObjectDataQuality>(_sessionFactory, ObjectDataQuality.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

@@ -574,6 +574,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		additionalInformation.addChild(createOrderingInstructions());
 		additionalInformation.addChildren(createComments());
 		additionalInformation.addChildren(createConformities());
+		additionalInformation.addChildren(createDQs());
 		return additionalInformation;
 	}
 
@@ -762,6 +763,31 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		conformityDegree.addAttribute(ID, getIntegerForKey(MdekKeys.CONFORMITY_DEGREE_KEY, conformityContext));
 		return conformityDegree;
 	}
+
+	private List<XMLElement> createDQs() {
+		List<XMLElement> elementList = new ArrayList<XMLElement>();
+		List<IngridDocument> dqList = getIngridDocumentListForKey(MdekKeys.DATA_QUALITY_LIST);
+		for (IngridDocument dq : dqList) {
+			elementList.add(createDQ(dq));
+		}
+		return elementList;
+	}
+
+	private XMLElement createDQ(IngridDocument dqDoc) {
+		XMLElement dqElem = new XMLElement(DATA_QUALITY);
+		dqElem.addChild(new XMLElement(DQ_ELEMENT_ID, getIntegerForKey(MdekKeys.DQ_ELEMENT_ID, dqDoc)));
+		dqElem.addChild(createNameOfMeasure(dqDoc));
+		dqElem.addChild(new XMLElement(DQ_RESULT_VALUE, getStringForKey(MdekKeys.RESULT_VALUE, dqDoc)));
+		dqElem.addChild(new XMLElement(DQ_MEASURE_DESCRIPTION, getStringForKey(MdekKeys.MEASURE_DESCRIPTION, dqDoc)));
+		return dqElem;
+	}
+
+	private XMLElement createNameOfMeasure(IngridDocument dqDoc) {
+		XMLElement nameOfMeasureElem = new XMLElement(DQ_NAME_OF_MEASURE, getStringForKey(MdekKeys.NAME_OF_MEASURE_VALUE, dqDoc));
+		nameOfMeasureElem.addAttribute(ID, getIntegerForKey(MdekKeys.NAME_OF_MEASURE_KEY, dqDoc));
+		return nameOfMeasureElem;
+	}
+
 
 	private XMLElement createSpatialDomain() {
 		XMLElement spatialDomain = new XMLElement(SPATIAL_DOMAIN);

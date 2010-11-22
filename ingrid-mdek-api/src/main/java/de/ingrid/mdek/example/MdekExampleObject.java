@@ -12,6 +12,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -1503,6 +1504,37 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.USE_LIST, docList);
 
+		// add entries to OBJECT DATA QUALITY
+		MdekSysList[] dqSyslists = new MdekSysList[] {
+				MdekSysList.DQ_CompletenessComission,
+				MdekSysList.DQ_CompletenessOmission,
+				MdekSysList.DQ_ConceptualConsistency,
+				MdekSysList.DQ_DomainConsistency,
+				MdekSysList.DQ_FormatConsistency,
+				MdekSysList.DQ_TopologicalConsistency,
+				MdekSysList.DQ_AbsoluteExternalPositionalAccuracy,
+				MdekSysList.DQ_TemporalConsistency,
+				MdekSysList.DQ_ThematicClassificationCorrectness,
+				MdekSysList.DQ_NonQuantitativeAttributeAccuracy,
+				MdekSysList.DQ_QuantitativeAttributeAccuracy };
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_QUALITY_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		oDocIn.put(MdekKeys.DATA_QUALITY_LIST, docList);
+		for (MdekSysList dqSyslist : dqSyslists) {
+			// also add free entry for every list (key = -1)
+			int key = 1;
+			while (key >= -1) {
+				testDoc = new IngridDocument();
+				testDoc.put(MdekKeys.DQ_ELEMENT_ID, dqSyslist.getDqElementId());
+				testDoc.put(MdekKeys.NAME_OF_MEASURE_KEY, key);
+				testDoc.put(MdekKeys.NAME_OF_MEASURE_VALUE, "Free NAME_OF_MEASURE_VALUE !!!?");
+				testDoc.put(MdekKeys.RESULT_VALUE, "Test RESULT_VALUE " + dqSyslist.getDqElementId());
+				testDoc.put(MdekKeys.MEASURE_DESCRIPTION, "Test MEASURE_DESCRIPTION " + dqSyslist.getDqElementId());
+				docList.add(testDoc);
+				key = key - 2;
+			}
+		}
+
 		// store
 		System.out.println("STORE");
 		result = supertool.storeObject(oDocIn, false);
@@ -1665,6 +1697,16 @@ class MdekExampleObjectThread extends Thread {
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.USE_LIST, docList);
+			}
+
+			// OBJECT USE wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_QUALITY_LIST);
+			if (docList != null && docList.size() > 0) {
+				// remove all added test dq elements
+				for (int i=0; i < dqSyslists.length; i++) {
+					docList.remove(docList.size()-1);
+					docList.remove(docList.size()-1);
+				}
 			}
 
 			// store

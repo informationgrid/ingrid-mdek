@@ -33,6 +33,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
@@ -427,6 +428,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectConformitys(oDocIn, oIn);
 			updateObjectAccesses(oDocIn, oIn);
 			updateObjectUses(oDocIn, oIn);
+			updateObjectDataQualitys(oDocIn, oIn);
 			updateObjectMetadata(oDocIn, oIn);
 		}
 
@@ -2586,6 +2588,46 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
 			ObjectUse ref = mapObjectUse(oIn, refDoc, new ObjectUse(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+	private ObjectDataQuality mapObjectDataQuality(T01Object oFrom,
+			IngridDocument refDoc,
+			ObjectDataQuality ref,
+			int line)
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setDqElementId((Integer)refDoc.get(MdekKeys.DQ_ELEMENT_ID));
+		ref.setNameOfMeasureKey((Integer)refDoc.get(MdekKeys.NAME_OF_MEASURE_KEY));
+		ref.setNameOfMeasureValue(refDoc.getString(MdekKeys.NAME_OF_MEASURE_VALUE));
+		ref.setResultValue(refDoc.getString(MdekKeys.RESULT_VALUE));
+		ref.setMeasureDescription(refDoc.getString(MdekKeys.MEASURE_DESCRIPTION));
+		ref.setLine(line);
+
+		keyValueService.processKeyValue(ref);
+
+		return ref;
+	}
+	private void updateObjectDataQualitys(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.DATA_QUALITY_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<ObjectDataQuality> refs = oIn.getObjectDataQualitys();
+		ArrayList<ObjectDataQuality> refs_unprocessed = new ArrayList<ObjectDataQuality>(refs);
+		// remove all !
+		for (ObjectDataQuality ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			ObjectDataQuality ref = mapObjectDataQuality(oIn, refDoc, new ObjectDataQuality(), line);
 			refs.add(ref);
 			line++;
 		}
