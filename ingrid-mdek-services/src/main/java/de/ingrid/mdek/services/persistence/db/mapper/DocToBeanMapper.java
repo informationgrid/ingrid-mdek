@@ -385,6 +385,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setPublishId((Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION));
 			oIn.setInfoNote((String) oDocIn.get(MdekKeys.DATASET_INTENTIONS));
 			oIn.setDatasetUsage((String) oDocIn.get(MdekKeys.DATASET_USAGE));
+			oIn.setDatasetCharacterSet((Integer) oDocIn.get(MdekKeys.DATASET_CHARACTER_SET));
 
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
@@ -437,9 +438,6 @@ public class DocToBeanMapper implements IMapper {
 			// BUT E.G. PASSED WHEN IMPORTING !!!
 			if (oDocIn.containsKey(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER)) {
 				oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
-			}
-			if (oDocIn.containsKey(MdekKeys.DATASET_CHARACTER_SET)) {
-				oIn.setDatasetCharacterSet((Integer) oDocIn.get(MdekKeys.DATASET_CHARACTER_SET));
 			}
 			if (oDocIn.containsKey(MdekKeys.METADATA_CHARACTER_SET)) {
 				oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));

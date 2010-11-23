@@ -287,6 +287,7 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 			objectDoc.put(MdekKeys.DATASET_INTENTIONS, o.getInfoNote());
 			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
+			objectDoc.put(MdekKeys.DATASET_CHARACTER_SET, o.getDatasetCharacterSet());
 
 			objectDoc.put(MdekKeys.ORDERING_INSTRUCTIONS, o.getOrderingInstructions());
 			objectDoc.put(MdekKeys.IS_CATALOG_DATA, o.getIsCatalogData());
@@ -335,7 +336,6 @@ public class BeanToDocMapper implements IMapper {
 
 		if (howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY) {
-			objectDoc.put(MdekKeys.DATASET_CHARACTER_SET, o.getDatasetCharacterSet());
 			objectDoc.put(MdekKeys.METADATA_CHARACTER_SET, o.getMetadataCharacterSet());
 			objectDoc.put(MdekKeys.METADATA_STANDARD_NAME, o.getMetadataStandardName());
 			objectDoc.put(MdekKeys.METADATA_STANDARD_VERSION, o.getMetadataStandardVersion());			

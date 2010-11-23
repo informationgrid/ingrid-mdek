@@ -64,6 +64,9 @@ public class MdekUtils {
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1, ""),
 		OBJ_ADR_TYPE(505, "T012ObjAdr -> type=entryId, specialName=name + specialRef='505'"),
+//		CHARACTER_SET(510, "T01Object -> datasetCharacterSet=entryId, metadataCharacterSet=entryId"),
+//		HIERARCHY_LEVEL(525, "T011ObjGeo -> hierarchyLevel=entryId"),
+//		DATASET_REFERENCE(502, "T0113DatasetReference -> type=entryId"),
 		OBJ_ADR_TYPE_SPECIAL(2010, "T012ObjAdr -> type=entryId, specialName=name + specialRef='2010'"),
 		OBJ_REFERENCE(2000, "ObjectReference -> specialRef=entryId, specialName=name"),
 		OBJ_GEO_REFERENCESYSTEM(100, "T011ObjGeo -> referencesystemKey=entryId, referencesystemValue=name"),
