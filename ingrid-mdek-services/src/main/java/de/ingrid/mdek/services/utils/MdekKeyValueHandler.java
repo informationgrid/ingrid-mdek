@@ -512,49 +512,49 @@ public class MdekKeyValueHandler {
 				entryKey != null && entryKey > -1)
 		{
 			Map<Integer, String> keyNameMap = null;
-			if (dqElemId.equals(MdekSysList.DQ_AbsoluteExternalPositionalAccuracy.getDqElementId())) {
+			if (dqElemId.equals(MdekSysList.DQ_117_AbsoluteExternalPositionalAccuracy.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_AbsoluteExternalPositionalAccuracy.getDbValue(),
+						MdekSysList.DQ_117_AbsoluteExternalPositionalAccuracy.getDbValue(),
 						catalogService.getCatalogLanguage());
-			} else if (dqElemId.equals(MdekSysList.DQ_CompletenessComission.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_109_CompletenessComission.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_CompletenessComission.getDbValue(),
+						MdekSysList.DQ_109_CompletenessComission.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_CompletenessOmission.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_110_CompletenessOmission.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_CompletenessOmission.getDbValue(),
+						MdekSysList.DQ_110_CompletenessOmission.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_ConceptualConsistency.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_112_ConceptualConsistency.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_ConceptualConsistency.getDbValue(),
+						MdekSysList.DQ_112_ConceptualConsistency.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_DomainConsistency.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_113_DomainConsistency.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_DomainConsistency.getDbValue(),
+						MdekSysList.DQ_113_DomainConsistency.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_FormatConsistency.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_114_FormatConsistency.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_FormatConsistency.getDbValue(),
+						MdekSysList.DQ_114_FormatConsistency.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_NonQuantitativeAttributeAccuracy.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_126_NonQuantitativeAttributeAccuracy.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_NonQuantitativeAttributeAccuracy.getDbValue(),
+						MdekSysList.DQ_126_NonQuantitativeAttributeAccuracy.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_QuantitativeAttributeAccuracy.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_127_QuantitativeAttributeAccuracy.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_QuantitativeAttributeAccuracy.getDbValue(),
+						MdekSysList.DQ_127_QuantitativeAttributeAccuracy.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_TemporalConsistency.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_120_TemporalConsistency.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_TemporalConsistency.getDbValue(),
+						MdekSysList.DQ_120_TemporalConsistency.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_ThematicClassificationCorrectness.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_125_ThematicClassificationCorrectness.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_ThematicClassificationCorrectness.getDbValue(),
+						MdekSysList.DQ_125_ThematicClassificationCorrectness.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_TopologicalConsistency.getDqElementId())) {
+			} else if (dqElemId.equals(MdekSysList.DQ_115_TopologicalConsistency.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_TopologicalConsistency.getDbValue(),
+						MdekSysList.DQ_115_TopologicalConsistency.getDbValue(),
 						catalogService.getCatalogLanguage());				
 			}
 

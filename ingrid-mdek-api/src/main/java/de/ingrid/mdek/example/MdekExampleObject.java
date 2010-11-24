@@ -1506,17 +1506,17 @@ class MdekExampleObjectThread extends Thread {
 
 		// add entries to OBJECT DATA QUALITY
 		MdekSysList[] dqSyslists = new MdekSysList[] {
-				MdekSysList.DQ_CompletenessComission,
-				MdekSysList.DQ_CompletenessOmission,
-				MdekSysList.DQ_ConceptualConsistency,
-				MdekSysList.DQ_DomainConsistency,
-				MdekSysList.DQ_FormatConsistency,
-				MdekSysList.DQ_TopologicalConsistency,
-				MdekSysList.DQ_AbsoluteExternalPositionalAccuracy,
-				MdekSysList.DQ_TemporalConsistency,
-				MdekSysList.DQ_ThematicClassificationCorrectness,
-				MdekSysList.DQ_NonQuantitativeAttributeAccuracy,
-				MdekSysList.DQ_QuantitativeAttributeAccuracy };
+				MdekSysList.DQ_109_CompletenessComission,
+				MdekSysList.DQ_110_CompletenessOmission,
+				MdekSysList.DQ_112_ConceptualConsistency,
+				MdekSysList.DQ_113_DomainConsistency,
+				MdekSysList.DQ_114_FormatConsistency,
+				MdekSysList.DQ_115_TopologicalConsistency,
+				MdekSysList.DQ_117_AbsoluteExternalPositionalAccuracy,
+				MdekSysList.DQ_120_TemporalConsistency,
+				MdekSysList.DQ_125_ThematicClassificationCorrectness,
+				MdekSysList.DQ_126_NonQuantitativeAttributeAccuracy,
+				MdekSysList.DQ_127_QuantitativeAttributeAccuracy };
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_QUALITY_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		oDocIn.put(MdekKeys.DATA_QUALITY_LIST, docList);
