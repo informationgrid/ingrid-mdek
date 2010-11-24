@@ -128,9 +128,13 @@ public class MdekUtils {
 		public Integer getDbValue() {
 			return dbValue;
 		}
-		/** returns ISO DQ_Element Id from syslist */
-		public Integer getDqElementId() {
+		/** returns ISO DQ_Element Id from Syslist Id (name of measure) */
+		public int getDqElementId() {
 			return dbValue - 7000;
+		}
+		/** returns Syslist Id (name of measure) of ISO DQ_Element Id */
+		public static int getSyslistIdFromDqElementId(int dqElementId) {
+			return dqElementId + 7000;
 		}
 		Integer dbValue;
 		String description;
