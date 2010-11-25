@@ -5,7 +5,7 @@
   </properties>
   <body>
 	<release version="?" date="?" description="Release. ENFORCES UPDATE OF IGC Schema (2.3.0) AND PORTAL !">
-      <action type="add" dev="wemove" issue="INGRID23-24">
+      <action type="add" dev="wemove" issue="INGRID23-31">
         InGrid 2.3: Add INSPIRE Conformity when INSPIRE Theme selected. Introduce Data Quality input in "Geoinformation/Karte" (IGC Schema 2.3.0).
       </action>
       <action type="add" dev="wemove" issue="INGRID23-24">
