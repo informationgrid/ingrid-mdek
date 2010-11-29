@@ -4,7 +4,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-	<release version="?" date="?" description="Release. ENFORCES UPDATE OF IGC Schema (2.3.0) AND PORTAL !">
+	<release version="2.3.0-SNAPSHOT" date="?" description="Release InGrid 2.3 static changes. ENFORCES UPDATE OF IGC Schema (2.3.0) AND PORTAL !">
       <action type="add" dev="wemove" issue="INGRID23-31">
         InGrid 2.3: Add INSPIRE Conformity when INSPIRE Theme selected. Introduce Data Quality input in "Geoinformation/Karte" (IGC Schema 2.3.0).
       </action>
