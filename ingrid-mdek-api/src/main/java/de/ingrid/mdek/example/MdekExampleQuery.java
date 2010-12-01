@@ -549,6 +549,8 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("\n----- fetch arbitrary object -----");
 		uuid = "3A295152-5091-11D3-AE6C-00104B57C66D";
 		doc = supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n----- was unpublished by udk updater (1.0.9), we have to publish again, so example works ! -----");
+		supertool.publishObject(doc, false,false);
 		System.out.println("\n----- change title to searchterm and STORE (result is WORKING COPY !!!) -----");
 		doc.put(MdekKeys.TITLE, searchterm);
 		supertool.storeObject(doc, true);

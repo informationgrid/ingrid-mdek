@@ -401,6 +401,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		}
 		
 		System.out.println("\n----- export object with additional field for testing import -----");
+		System.out.println("\n----- was unpublished by udk updater (1.0.9), we have to publish before export (only published ones are exported !!!! -----");
+		doc = supertool.fetchObject(objWithAdditionalFieldsUuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.publishObject(doc, false,false);
 		supertool.exportObjectBranch(objWithAdditionalFieldsUuid, true);
 		supertool.setFullOutput(true);
 		result = supertool.getExportInfo(true);
