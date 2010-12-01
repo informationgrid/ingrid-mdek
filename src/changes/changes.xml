@@ -17,6 +17,9 @@
       <action type="add" dev="wemove">
         Check Compatibility of schemes of "IGE-Frontend" / "IGE-iPlug" / "IGC Catalog". IGE-iPlug exits on startup if different schema than Catalog. Display of Errors in IGE entry page if schemes don't map.
       </action>
+      <action type="fix" dev="wemove">
+        Fix move of unpublished object under unpublished parent (before parent always had to be published).
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-1840">
         Fix wrong wording of Service-Type and Service-Classification in export/import format (now vice versa).
       </action>

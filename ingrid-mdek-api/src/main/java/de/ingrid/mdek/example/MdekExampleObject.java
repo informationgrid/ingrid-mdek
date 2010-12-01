@@ -821,10 +821,13 @@ class MdekExampleObjectThread extends Thread {
 		// uuid created !
 		String newTopObjUuid = (String) newTopObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n\n----- move new object to NEW TOP OBJECT -> ERROR (new parent not published) -----");
+		System.out.println("\n\n----- move new object to NEW TOP OBJECT -> BOTH NOT PUBLISHED, OK !!! -----");
 		String oldParentUuid = objUuid;
 		String newParentUuid = newTopObjUuid;
 		supertool.moveObject(newObjUuid, newParentUuid, true);
+		System.out.println("\n\n----- move back -----");
+		supertool.moveObject(newObjUuid, oldParentUuid, true);
+
 		System.out.println("\n----- publish NEW TOP OBJECT -----");
 		supertool.publishObject(newTopObjDoc, true, true);
 		System.out.println("\n----- set new object (the one to move) to INTERNET and publish (pub=work=INTERNET) -----");

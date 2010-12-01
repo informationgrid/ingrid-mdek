@@ -1015,12 +1015,6 @@ public class MdekObjectService {
 			ObjectNode toNode = loadByUuid(toUuid, IdcEntityVersion.PUBLISHED_VERSION);
 			if (toNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
-			}		
-
-			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
-			T01Object toObjPub = toNode.getT01ObjectPublished();
-			if (toObjPub == null) {
-				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 
 			// is target subnode ?
@@ -1028,13 +1022,23 @@ public class MdekObjectService {
 				throw new MdekException(new MdekError(MdekErrorType.TARGET_IS_SUBNODE_OF_SOURCE));				
 			}
 			
-			// are pubTypes compatible ?
-			// we check and adapt ONLY PUBLISHED version !!!
-			Integer publicationTypeTo = toObjPub.getPublishId();
-			// adapt all child nodes if requested !
-			String currentTime = MdekUtils.dateToTimestamp(new Date()); 
-			checkObjectPublicationConditionSubTree(fromUuid, publicationTypeTo, forcePubCondition, false,
-				currentTime, userId);
+			// from object published ? then check compatibility !
+			boolean isFromPublished = (fromNode.getT01ObjectPublished() != null);
+			if (isFromPublished) {
+				// new parent has to be published ! -> not possible to move published nodes under unpublished parent
+				T01Object toObjPub = toNode.getT01ObjectPublished();
+				if (toObjPub == null) {
+					throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
+				}				
+
+				// are pubTypes compatible ?
+				// we check and adapt ONLY PUBLISHED version !!!
+				Integer publicationTypeTo = toObjPub.getPublishId();
+				// adapt all child nodes if requested !
+				String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+				checkObjectPublicationConditionSubTree(fromUuid, publicationTypeTo, forcePubCondition, false,
+					currentTime, userId);
+			}
 		}
 	}
 
