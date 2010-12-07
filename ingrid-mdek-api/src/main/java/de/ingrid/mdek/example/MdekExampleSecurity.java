@@ -178,7 +178,7 @@ class MdekExampleSecurityThread extends Thread {
 // ====================
 
 		System.out.println("\n\n------------------------------------------------");
-		System.out.println("----- GROUP: Remove Object/Address/User-Permissions -> only allowed if user has according permission himself ! -----");
+		System.out.println("----- GROUP: Remove Object/Address/User-Permissions -> only allowed if user has according permission himself (no matter from which group) ! -----");
 		System.out.println("------------------------------------------------");
 
 		System.out.println("\n-------------------------------------");
@@ -190,12 +190,12 @@ class MdekExampleSecurityThread extends Thread {
 		IngridDocument newGroup1Doc = new IngridDocument();
 		newGroup1Doc.put(MdekKeys.NAME, nameNewGrp1);
 		newGroup1Doc = supertool.createGroup(newGroup1Doc, true);
-		Long newGroup1Id = (Long) newGroup1Doc.get(MdekKeysSecurity.IDC_GROUP_ID);
+		Long newGroup1Id = (Long) newGroup1Doc.get(MdekKeysSecurity.ID);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR GROUP 1' -----");
 		IngridDocument newMetaAdminGroup1Doc = new IngridDocument();
 		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "38664584-B449-11D2-9A86-080000507261");
-		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroup1Id);
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroup1Id});
 		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdminGroup1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		newMetaAdminGroup1Doc = supertool.createUser(newMetaAdminGroup1Doc, true);
@@ -207,12 +207,12 @@ class MdekExampleSecurityThread extends Thread {
 		IngridDocument newGroup2Doc = new IngridDocument();
 		newGroup2Doc.put(MdekKeys.NAME, nameNewGrp2);
 		newGroup2Doc = supertool.createGroup(newGroup2Doc, true);
-		Long newGroup2Id = (Long) newGroup2Doc.get(MdekKeysSecurity.IDC_GROUP_ID);
+		Long newGroup2Id = (Long) newGroup2Doc.get(MdekKeysSecurity.ID);
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR GROUP 2' -----");
 		IngridDocument newMetaAdminGroup2Doc = new IngridDocument();
 		newMetaAdminGroup2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "10646604-D21F-11D2-BB32-006097FE70B1");
-		newMetaAdminGroup2Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroup2Id);
+		newMetaAdminGroup2Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroup2Id});
 		newMetaAdminGroup2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdminGroup2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		newMetaAdminGroup2Doc = supertool.createUser(newMetaAdminGroup2Doc, true);
@@ -286,7 +286,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO MD_ADMINISTRATOR GROUP 1 (ALL permissions OF GROUP1) -----");
 		supertool.setCallingUser(newMetaAdminGroup1Uuid);
 
-		System.out.println("\n----- ADD OBJECT, ADDRESS, USER permission to GROUP2 -> ALLOWED ! -----");
+		System.out.println("\n----- ADD OBJECT, ADDRESS, USER permission to GROUP2 -> ALLOWED, cause has these permissions from group1 ! -----");
 		supertool.addObjPermissionToGroupDoc(newGroup2Doc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.addAddrPermissionToGroupDoc(newGroup2Doc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.addUserPermissionToGroupDoc(newGroup2Doc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
@@ -342,7 +342,14 @@ class MdekExampleSecurityThread extends Thread {
 		IngridDocument newGroupDoc = new IngridDocument();
 		newGroupDoc.put(MdekKeys.NAME, nameNewGrp);
 		newGroupDoc = supertool.createGroup(newGroupDoc, true);
-		Long newGroupId = (Long) newGroupDoc.get(MdekKeysSecurity.IDC_GROUP_ID);
+		Long newGroupId = (Long) newGroupDoc.get(MdekKeysSecurity.ID);
+
+		System.out.println("\n----- create 2nd new group !!! NOW MULTIPLE GROUPS PER USER !!! -----");
+		String nameNewAdditionalGrp = "new TEST-Gruppe ADDITIONAL";
+		IngridDocument newAdditionalGroupDoc = new IngridDocument();
+		newAdditionalGroupDoc.put(MdekKeys.NAME, nameNewAdditionalGrp);
+		newAdditionalGroupDoc = supertool.createGroup(newAdditionalGroupDoc, true);
+		Long newAdditionalGroupId = (Long) newAdditionalGroupDoc.get(MdekKeysSecurity.ID);
 
 		System.out.println("\n----- get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
@@ -430,25 +437,25 @@ class MdekExampleSecurityThread extends Thread {
 		String addrUuidNotUsedForUser = "ADEED0B6-545F-11D3-AE6F-00104B57C66D";
 		IngridDocument secondCatAdminDoc = new IngridDocument();
 		secondCatAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
-		secondCatAdminDoc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		secondCatAdminDoc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		secondCatAdminDoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue());
 		secondCatAdminDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, null);
 		supertool.createUser(secondCatAdminDoc, true);
 
-		System.out.println("\n----- create new user 'MD_ADMINISTRATOR 1' -> ALLOWED -----");
+		System.out.println("\n----- create new user 'MD_ADMINISTRATOR 1' with MULTIPLE GROUPS ! -> ALLOWED -----");
 		IngridDocument newMetaAdmin1Doc = new IngridDocument();
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
-		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId, newAdditionalGroupId});
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdmin1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		newMetaAdmin1Doc = supertool.createUser(newMetaAdmin1Doc, true);
 		Long newMetaAdmin1Id = (Long) newMetaAdmin1Doc.get(MdekKeysSecurity.IDC_USER_ID);
 		String newMetaAdmin1Uuid = newMetaAdmin1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
-		System.out.println("\n----- create new user 'MD_AUTHOR 1' -> ALLOWED -----");
+		System.out.println("\n----- create new user 'MD_AUTHOR 1' with MULTIPLE GROUPS ! -> ALLOWED -----");
 		IngridDocument newMetaAuthor1Doc = new IngridDocument();
 		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "386645BC-B449-11D2-9A86-080000507261");
-		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId, newAdditionalGroupId});
 		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
 		newMetaAuthor1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin1Id);
 		newMetaAuthor1Doc = supertool.createUser(newMetaAuthor1Doc, true);
@@ -458,7 +465,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- create 2ND new user 'MD_ADMINISTRATOR 2' -> ALLOWED -----");
 		IngridDocument newMetaAdmin2Doc = new IngridDocument();
 		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE4-FE15-11D2-AF34-0060084A4596");
-		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdmin2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		newMetaAdmin2Doc = supertool.createUser(newMetaAdmin2Doc, true);
@@ -468,7 +475,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- create new user WITH SAME ADDRESS -> ERROR: ENTITY_ALREADY_EXISTS -----");
 		doc = new IngridDocument();
 		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE4-FE15-11D2-AF34-0060084A4596");
-		doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		supertool.createUser(newMetaAdmin2Doc, true);
@@ -495,7 +502,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- create new user 'MD_AUTHOR 2' UNDER 'MD_ADMINISTRATOR 2' = not subuser !!! -> ERROR: USER_HIERARCHY_WRONG (calling user not parent) -----");
 		IngridDocument newMetaAuthor2Doc = new IngridDocument();
 		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "0C2EA4F9-18DE-11D3-AF47-0060084A4596");
-		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_GROUP_ID, newGroupId);
+		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
 		newMetaAuthor2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin2Id);
 		supertool.createUser(newMetaAuthor2Doc, true);
@@ -832,10 +839,15 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- add address/object WRITE_SINGLE permissions to group -----");
+		System.out.println("----- add address/object WRITE_SINGLE permissions to INITIAL group -----");
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+		System.out.println("----- add SAME address/object WRITE_SINGLE permissions to ADDITIONAL group (duplicate permissions ok when multiple groups) -----");
+		supertool.addObjPermissionToGroupDoc(newAdditionalGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		supertool.addAddrPermissionToGroupDoc(newAdditionalGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+		newAdditionalGroupDoc = supertool.storeGroup(newAdditionalGroupDoc, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with WRITE_SINGLE permissions) -----");
@@ -950,9 +962,9 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- add user permission CREATE_ROOT to group -----");
-		supertool.addUserPermissionToGroupDoc(newGroupDoc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
-		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+		System.out.println("----- add user permission CREATE_ROOT to ADDITIONAL group -----");
+		supertool.addUserPermissionToGroupDoc(newAdditionalGroupDoc, MdekUtilsSecurity.IdcPermission.CREATE_ROOT);
+		newAdditionalGroupDoc = supertool.storeGroup(newAdditionalGroupDoc, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with CREATE_ROOT permissions) -----");
@@ -980,7 +992,11 @@ class MdekExampleSecurityThread extends Thread {
 		String copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- verify granted WRITE_TREE permissions on new roots -> get group details -----");
+		System.out.println("----- verify granted WRITE_TREE permissions on new roots -> ONLY IN ADDITIONAL GROUP with create-root permission -----");
+		supertool.getGroupDetails(nameNewAdditionalGrp);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- INITIAL GROUP has NO WRITE_TREE permissions -> ONLY IN GROUP with create-root permission -----");
 		supertool.getGroupDetails(nameNewGrp);
 
 		System.out.println("\n-------------------------------------");
@@ -997,6 +1013,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- verify deletion of permissions on deleted entities -> get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
+		newAdditionalGroupDoc = supertool.getGroupDetails(nameNewAdditionalGrp);
 
 // ===================================
 		
@@ -1143,7 +1160,11 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- REMOVE permission and store group -> ERROR: USER_EDITING_OBJECT_PERMISSION_MISSING -----");
+		System.out.println("\n----- REMOVE permission in ADDITIONAL GROUP and store -> NO ERROR: Still permissions from INITIAL group -----");
+		newAdditionalGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
+		supertool.storeGroup(newAdditionalGroupDoc, true);
+
+		System.out.println("\n----- REMOVE permission in INITIAL GROUP and store group -> ERROR: USER_EDITING_OBJECT_PERMISSION_MISSING -----");
 		newGroupDoc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
 		supertool.storeGroup(newGroupDoc, true);
 
@@ -1201,6 +1222,10 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
 
+		System.out.println("\n----- REMOVE permission in ADDITIONAL GROUP and store -> NO ERROR: Still permissions from INITIAL group -----");
+		newAdditionalGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
+		supertool.storeGroup(newAdditionalGroupDoc, true);
+
 		System.out.println("\n----- REMOVE permission and store group -> ERROR: USER_EDITING_ADDRESS_PERMISSION_MISSING -----");
 		newGroupDoc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
 		supertool.storeGroup(newGroupDoc, true);
@@ -1256,14 +1281,17 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- verify no wrong permissions in group -> get group details -----");
+		System.out.println("----- verify no wrong permissions in groups -> get group details -----");
 		newGroupDoc = supertool.getGroupDetails(nameNewGrp);
+		newAdditionalGroupDoc = supertool.getGroupDetails(nameNewAdditionalGrp);
 
 		System.out.println("\n----- delete group, NO FORCE DELETE WHEN HAVING USERS -> ERROR: GROUP_HAS_USERS -----");
 		supertool.deleteGroup(newGroupId, false);
+		supertool.deleteGroup(newAdditionalGroupId, false);
 
 		System.out.println("\n----- delete group, WITH FORCE DELETE WHEN HAVING USERS -> returns 'groupless' users of deleted group -----");
 		supertool.deleteGroup(newGroupId, true);
+		supertool.deleteGroup(newAdditionalGroupId, true);
 
 		System.out.println("\n----- delete users from \"low to high\" -----");
 		supertool.deleteUser(newMetaAuthor1Id);

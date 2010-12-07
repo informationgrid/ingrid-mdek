@@ -1112,6 +1112,7 @@ public class AddressNodeDaoHibernate
 		String qString = "select distinct pAddr.uuid, p2.action as perm " +
 		"from " +
 			"IdcUser usr, " +
+			"IdcUserGroup uGrp, " +
 			"IdcGroup grp, " +
 			"IdcUserPermission pUsr, " +
 			"Permission p1, " +
@@ -1120,7 +1121,8 @@ public class AddressNodeDaoHibernate
 		"where " +
 			// user -> grp -> QA
 			"usr.addrUuid = '" + userUuid + "'" +
-			" and usr.idcGroupId = grp.id" +
+			" and usr.id = uGrp.idcUserId" +
+			" and uGrp.idcGroupId = grp.id" +
 			" and grp.id = pUsr.idcGroupId " +
 			" and pUsr.permissionId = p1.id " +
 			" and p1.action = '" + IdcPermission.QUALITY_ASSURANCE.getDbValue() + "'" +

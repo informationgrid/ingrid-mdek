@@ -3,6 +3,9 @@
  */
 package de.ingrid.mdek.services.security;
 
+import java.util.List;
+
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 
@@ -50,34 +53,84 @@ public interface IPermissionService {
 	boolean hasUserPermission(String userUuid, Permission p);
 
 	/**
-	 * Grants a specific object EntityPermission for user (better group)
+	 * Grants a specific object EntityPermission for user (better groups).
+	 * <br>NOTICE: User has now MULTIPLE groups ! Permission is granted on ALL groups
+	 * of user if no specific groups are passed !
+	 * <br><b>NOTICE: NO CHECK ON PASSED GROUPS, whether user belongs to them !</b>
+	 * @param userUuid
+	 * @param ep
+	 * @param groupIds groups where the permission is added, pass NULL for all groups of user.
+	 * No check whether user is connected to passed groups !
 	 */
-	void grantObjectPermission(String userUuid, EntityPermission ep);
+	void grantObjectPermission(String userUuid, EntityPermission ep, List<Long> groupIds);
 
 	/**
-	 * Grants a specific address EntityPermission for user (better group)
+	 * Grants a specific address EntityPermission for user (better groups).
+	 * <br>NOTICE: User has now MULTIPLE groups ! Permission is granted on ALL groups
+	 * of user if no specific groups are passed !
+	 * <br><b>NOTICE: NO CHECK ON PASSED GROUPS, whether user belongs to them !</b>
+	 * @param userUuid
+	 * @param ep
+	 * @param groupIds groups where the permission is added, pass NULL for all groups of user.
+	 * No check whether user is connected to passed groups !
 	 */
-	void grantAddressPermission(String userUuid, EntityPermission ep);
+	void grantAddressPermission(String userUuid, EntityPermission ep, List<Long> groupIds);
 
 	/**
-	 * Grants a specific User Permission for user (better group)
+	 * Grants a specific User Permission for user (better groups).
+	 * <br>NOTICE: User has now MULTIPLE groups ! Permission is granted on ALL groups
+	 * of user if no specific groups are passed !
+	 * <br><b>NOTICE: NO CHECK ON PASSED GROUPS, whether user belongs to them !</b>
+	 * @param userUuid
+	 * @param ep
+	 * @param groupIds groups where the permission is added, pass NULL for all groups of user.
+	 * No check whether user is connected to passed groups !
 	 */
-	void grantUserPermission(String userUuid, Permission p);
+	void grantUserPermission(String userUuid, Permission p, List<Long> groupIds);
 
 	/**
-	 * Revokes a specific object EntityPermission for user (better group)
+	 * Revokes a specific object EntityPermission for user (better groups)
+	 * <br>NOTICE: User has now MULTIPLE groups ! Permission is revoked on ALL groups
+	 * of user if no specific groups are passed !
+	 * <br><b>NOTICE: NO CHECK ON PASSED GROUPS, whether user belongs to them !</b>
+	 * @param userUuid
+	 * @param ep
+	 * @param groupIds groups where the permission is revoked, pass NULL for all groups of user.
+	 * No check whether user is connected to passed groups !
 	 */
-	void revokeObjectPermission(String userUuid, EntityPermission p);
+	void revokeObjectPermission(String userUuid, EntityPermission p, List<Long> groupIds);
 
 	/**
-	 * Revokes a specific address EntityPermission for user (better group)
+	 * Revokes a specific address EntityPermission for user (better groups)
+	 * <br>NOTICE: User has now MULTIPLE groups ! Permission is revoked on ALL groups
+	 * of user if no specific groups are passed !
+	 * <br><b>NOTICE: NO CHECK ON PASSED GROUPS, whether user belongs to them !</b>
+	 * @param userUuid
+	 * @param ep
+	 * @param groupIds groups where the permission is revoked, pass NULL for all groups of user.
+	 * No check whether user is connected to passed groups !
 	 */
-	void revokeAddressPermission(String userUuid, EntityPermission ep);
+	void revokeAddressPermission(String userUuid, EntityPermission ep, List<Long> groupIds);
 
 	/**
-	 * Revokes a specific user Permission for user (better group)
+	 * Revokes a specific user Permission for user (better groups)
+	 * <br>NOTICE: User has now MULTIPLE groups ! Permission is revoked on ALL groups
+	 * of user if no specific groups are passed !
+	 * <br><b>NOTICE: NO CHECK ON PASSED GROUPS, whether user belongs to them !</b>
+	 * @param userUuid
+	 * @param p Permission Template
+	 * @param groupIds groups where the permission is revoked, pass NULL for all groups of user.
+	 * No check whether user is connected to passed groups !
 	 */
-	void revokeUserPermission(String userUuid, Permission p);
+	void revokeUserPermission(String userUuid, Permission p, List<Long> groupIds);
+
+	/**
+	 * Get ids of groups containing the given user permission connected to given user.  
+	 * @param userUuid
+	 * @param p Permission Template
+	 * @return
+	 */
+	public List<Long> getGroupIdsContainingUserPermission(String userUuid, Permission p);
 
 	/**
 	 * Loads a Permission from database identified by its identification used by client.
@@ -101,6 +154,11 @@ public interface IPermissionService {
 	 * Get the catalog administrator.
 	 */
 	IdcUser getCatalogAdminUser();
+
+	/**
+	 * Get the administrator group.
+	 */
+	IdcGroup getCatalogAdminGroup();
 
 	/**
 	 * Check whether the given User is the catalog admin !

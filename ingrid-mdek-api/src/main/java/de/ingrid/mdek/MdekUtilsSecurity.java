@@ -13,6 +13,8 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekUtilsSecurity {
 
+	public static String GROUP_NAME_ADMINISTRATORS = "administrators";
+
 	public enum IdcRole implements IMdekEnum {
 		CATALOG_ADMINISTRATOR(1, "Katalog-Administrator"),
 		METADATA_ADMINISTRATOR(2, "Metadaten-Administrator"),

@@ -3,12 +3,14 @@
  */
 package de.ingrid.mdek.services.security;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
 import de.ingrid.mdek.job.MdekException;
@@ -16,11 +18,14 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IPermissionDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
@@ -42,6 +47,7 @@ public class DefaultPermissionService implements IPermissionService {
 	protected IGenericDao<IEntity> idcUserPermissionDao;
 
 	protected IIdcUserDao idcUserDao;
+	protected IIdcGroupDao idcGroupDao;
 	protected IObjectNodeDao objectNodeDao;
 	protected IAddressNodeDao addressNodeDao;
 
@@ -52,6 +58,7 @@ public class DefaultPermissionService implements IPermissionService {
 		idcUserPermissionDao = daoFactory.getDao(IdcUserPermission.class);
 
 		idcUserDao = daoFactory.getIdcUserDao();
+		idcGroupDao = daoFactory.getIdcGroupDao();
 		objectNodeDao = daoFactory.getObjectNodeDao();
 		addressNodeDao = daoFactory.getAddressNodeDao();
 	}
@@ -120,87 +127,127 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	public void grantAddressPermission(String userUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(userUuid);
+	public void grantAddressPermission(String userUuid, EntityPermission ep, List<Long> groupIds) {
 		Permission permission = findUniquePermissionByExample(ep.getPermission());
 
-		PermissionAddr pa = new PermissionAddr();
-		pa.setPermissionId(permission.getId());
-		pa.setIdcGroupId(idcUser.getIdcGroupId());
-		pa.setUuid(ep.getUuid());
+		// if no explicit groups are passed, use all groups of user !
+		if (groupIds == null) {
+			groupIds = getGroupIdsOfUser(getUserByAddrUuid(userUuid));
+		}
 
-		permissionAddrDao.makePersistent(pa);
+		for (Long groupId : groupIds) {
+			PermissionAddr pa = new PermissionAddr();
+			pa.setPermissionId(permission.getId());
+			pa.setIdcGroupId(groupId);
+			pa.setUuid(ep.getUuid());
+
+			permissionAddrDao.makePersistent(pa);
+		}
 	}
 
-	public void grantObjectPermission(String userUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(userUuid);
+	public void grantObjectPermission(String userUuid, EntityPermission ep, List<Long> groupIds) {
 		Permission permission = findUniquePermissionByExample(ep.getPermission());
 
-		PermissionObj po = new PermissionObj();
-		po.setPermissionId(permission.getId());
-		po.setIdcGroupId(idcUser.getIdcGroupId());
-		po.setUuid(ep.getUuid());
+		// if no explicit groups are passed, use all groups of user !
+		if (groupIds == null) {
+			groupIds = getGroupIdsOfUser(getUserByAddrUuid(userUuid));
+		}
 
-		permissionObjDao.makePersistent(po);
+		for (Long groupId : groupIds) {
+			PermissionObj po = new PermissionObj();
+			po.setPermissionId(permission.getId());
+			po.setIdcGroupId(groupId);
+			po.setUuid(ep.getUuid());
+
+			permissionObjDao.makePersistent(po);
+		}
 	}
 
-	public void grantUserPermission(String userUuid, Permission p) {
-		IdcUser idcUser = getUserByAddrUuid(userUuid);
+	public void grantUserPermission(String userUuid, Permission p, List<Long> groupIds) {
 		Permission permission = findUniquePermissionByExample(p);
 
-		IdcUserPermission iup = new IdcUserPermission();
-		iup.setPermissionId(permission.getId());
-		iup.setIdcGroupId(idcUser.getIdcGroupId());
-
-		idcUserPermissionDao.makePersistent(iup);
-	}
-
-	public void revokeAddressPermission(String userUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(userUuid);
-		Permission permission = findUniquePermissionByExample(ep.getPermission());
-
-		PermissionAddr pa = new PermissionAddr();
-		pa.setPermissionId(permission.getId());
-		pa.setIdcGroupId(idcUser.getIdcGroupId());
-		pa.setUuid(ep.getUuid());
-
-		List<IEntity> iel = permissionAddrDao.findByExample(pa);
-		for (IEntity ie : iel) {
-			permissionAddrDao.makeTransient(ie);
+		// if no explicit groups are passed, use all groups of user !
+		if (groupIds == null) {
+			groupIds = getGroupIdsOfUser(getUserByAddrUuid(userUuid));
 		}
 
+		for (Long groupId : groupIds) {
+			IdcUserPermission iup = new IdcUserPermission();
+			iup.setPermissionId(permission.getId());
+			iup.setIdcGroupId(groupId);
+
+			idcUserPermissionDao.makePersistent(iup);
+		}
 	}
 
-	public void revokeObjectPermission(String userUuid, EntityPermission ep) {
-		IdcUser idcUser = getUserByAddrUuid(userUuid);
+	public void revokeAddressPermission(String userUuid, EntityPermission ep, List<Long> groupIds) {
 		Permission permission = findUniquePermissionByExample(ep.getPermission());
 
-		PermissionObj po = new PermissionObj();
-		po.setPermissionId(permission.getId());
-		po.setIdcGroupId(idcUser.getIdcGroupId());
-		po.setUuid(ep.getUuid());
-
-		List<IEntity> iel = permissionObjDao.findByExample(po);
-		for (IEntity ie : iel) {
-			permissionObjDao.makeTransient(ie);
+		// if no explicit groups are passed, use all groups of user !
+		if (groupIds == null) {
+			groupIds = getGroupIdsOfUser(getUserByAddrUuid(userUuid));
 		}
 
+		for (Long groupId : groupIds) {
+			PermissionAddr pa = new PermissionAddr();
+			pa.setPermissionId(permission.getId());
+			pa.setIdcGroupId(groupId);
+			pa.setUuid(ep.getUuid());
+
+			List<IEntity> iel = permissionAddrDao.findByExample(pa);
+			for (IEntity ie : iel) {
+				permissionAddrDao.makeTransient(ie);
+			}
+		}
 	}
 
-	public void revokeUserPermission(String userUuid, Permission p) {
-		IdcUser idcUser = getUserByAddrUuid(userUuid);
+	public void revokeObjectPermission(String userUuid, EntityPermission ep, List<Long> groupIds) {
+		Permission permission = findUniquePermissionByExample(ep.getPermission());
+
+		// if no explicit groups are passed, use all groups of user !
+		if (groupIds == null) {
+			groupIds = getGroupIdsOfUser(getUserByAddrUuid(userUuid));
+		}
+
+		for (Long groupId : groupIds) {
+			PermissionObj po = new PermissionObj();
+			po.setPermissionId(permission.getId());
+			po.setIdcGroupId(groupId);
+			po.setUuid(ep.getUuid());
+
+			List<IEntity> iel = permissionObjDao.findByExample(po);
+			for (IEntity ie : iel) {
+				permissionObjDao.makeTransient(ie);
+			}
+		}
+	}
+
+	public void revokeUserPermission(String userUuid, Permission p, List<Long> groupIds) {
 		Permission permission = findUniquePermissionByExample(p);
 
-		IdcUserPermission iup = new IdcUserPermission();
-		iup.setPermissionId(permission.getId());
-		iup.setIdcGroupId(idcUser.getIdcGroupId());
+		// if no explicit groups are passed, use all groups of user !
+		if (groupIds == null) {
+			groupIds = getGroupIdsOfUser(getUserByAddrUuid(userUuid));
+		}
 
-		List<IEntity> iel = idcUserPermissionDao.findByExample(iup);
-		for (IEntity ie : iel) {
-			idcUserPermissionDao.makeTransient(ie);
+		for (Long groupId : groupIds) {
+			IdcUserPermission iup = new IdcUserPermission();
+			iup.setPermissionId(permission.getId());
+			iup.setIdcGroupId(groupId);
+
+			List<IEntity> iel = idcUserPermissionDao.findByExample(iup);
+			for (IEntity ie : iel) {
+				idcUserPermissionDao.makeTransient(ie);
+			}
 		}
 	}
 
+	public List<Long> getGroupIdsContainingUserPermission(String userUuid, Permission p) {
+		Permission permission = findUniquePermissionByExample(p);
+		
+		return idcGroupDao.getGroupIdsContainingUserPermission(userUuid, permission.getId());
+	}
+	
 	public Permission getPermissionByPermIdClient(String permIdClient) {
 		IdcPermission pClientEnumConst = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, permIdClient);
 		Permission pTemplate = null;
@@ -250,6 +297,10 @@ public class DefaultPermissionService implements IPermissionService {
 		return idcUserDao.getCatalogAdmin();
 	}
 
+	public IdcGroup getCatalogAdminGroup() {
+		return idcGroupDao.loadByName(MdekUtilsSecurity.GROUP_NAME_ADMINISTRATORS);
+	}
+
 	public boolean isCatalogAdmin(String userAddrUuid) {
 		IdcUser catAdmin = getCatalogAdminUser();
 		return catAdmin.getAddrUuid().equals(userAddrUuid);
@@ -276,6 +327,14 @@ public class DefaultPermissionService implements IPermissionService {
 	 */
 	private IdcUser getUserByAddrUuid(String addrUuid) {
 		return idcUserDao.getIdcUserByAddrUuid(addrUuid);
+	}
+
+	private List<Long> getGroupIdsOfUser(IdcUser idcUser) {
+		List<Long> groupIds = new ArrayList<Long>();
+		for (Object userGroup : idcUser.getIdcUserGroups()) {
+			groupIds.add(((IdcUserGroup)userGroup).getIdcGroupId());
+		}
+		return groupIds;
 	}
 
 }

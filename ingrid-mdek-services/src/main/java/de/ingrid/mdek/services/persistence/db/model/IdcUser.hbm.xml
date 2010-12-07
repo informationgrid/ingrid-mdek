@@ -12,18 +12,20 @@
       <property name="createTime" type="string" column="create_time"/>
       <property name="modTime" type="string" column="mod_time"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
-      <property name="idcGroupId" type="long" column="idc_group_id"/>
       <property name="idcRole" type="integer" column="idc_role"/>
 
       <many-to-one name="addressNode" class="AddressNode" column="addr_uuid"
                    property-ref="addrUuid"
                    update="false"
                    insert="false"/>
-      <many-to-one name="idcGroup" class="IdcGroup" column="idc_group_id" update="false"
-                   insert="false"/>
       <set name="idcUsers" table="idc_user" inverse="true" cascade="all-delete-orphan">
          <key column="parent_id"/>
          <one-to-many class="IdcUser" not-found="ignore"/>
+      </set>
+      <set name="idcUserGroups" table="idc_user_group" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="idc_user_id"/>
+         <one-to-many class="IdcUserGroup" not-found="ignore"/>
       </set>
    </class>
 

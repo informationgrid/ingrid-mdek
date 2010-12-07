@@ -11,6 +11,7 @@ import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
@@ -57,7 +58,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 		}
 
 		// also ID, is needed when name is changed !!!
-		groupDoc.put(MdekKeysSecurity.IDC_GROUP_ID, group.getId());
+		groupDoc.put(MdekKeysSecurity.ID, group.getId());
 		groupDoc.put(MdekKeysSecurity.NAME, group.getName());
 		
 		if (howMuch == MappingQuantity.DETAIL_ENTITY) 
@@ -91,7 +92,7 @@ public class BeanToDocMapperSecurity implements IMapper {
 		// also ID, is needed when addr uuid is changed !!!
 		userDoc.put(MdekKeysSecurity.IDC_USER_ID, user.getId());
 		userDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, user.getAddrUuid());
-		userDoc.put(MdekKeysSecurity.IDC_GROUP_ID, user.getIdcGroupId());
+		mapIdcUserGroups(user.getIdcUserGroups(), userDoc);
 		userDoc.put(MdekKeysSecurity.IDC_ROLE, user.getIdcRole());
 		userDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, user.getParentId());
 		
@@ -116,6 +117,22 @@ public class BeanToDocMapperSecurity implements IMapper {
 		}
 
 		return userDoc;
+	}
+
+	/**
+	 * Map given userGroup beans to document.
+	 * @return doc with mapped userGroup ids
+	 */
+	public IngridDocument mapIdcUserGroups(Set<IdcUserGroup> inRefs, IngridDocument inDoc) {
+		ArrayList<Long> refList = new ArrayList<Long>(inRefs.size());
+
+		for (IdcUserGroup inRef : inRefs) {
+			refList.add(inRef.getIdcGroupId());
+		}
+
+		inDoc.put(MdekKeysSecurity.IDC_GROUP_IDS, refList.toArray(new Long[refList.size()]));
+		
+		return inDoc;
 	}
 
 	/**

@@ -340,7 +340,7 @@ public class MdekAddressService {
 
 		// grant write tree permission if not set yet (e.g. new root node)
 		if (!calledByImporter && isNewAddress) {
-			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
+			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId, true);
 		}
 		
 		return uuid;
@@ -491,7 +491,7 @@ public class MdekAddressService {
 
 		// grant write tree permission if not set yet (e.g. new root node)
 		if (!calledByImporter && isNewAddress) {
-			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId);
+			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId, true);
 		}
 
 		return uuid;
@@ -541,7 +541,7 @@ public class MdekAddressService {
 
 		// grant write tree permission if new root node
 		if (!calledByImporter && isNewRootNode) {
-			permissionHandler.grantTreePermissionForAddress(fromUuid, userId);
+			permissionHandler.grantTreePermissionForAddress(fromUuid, userId, true);
 		}
 
 		return resultDoc;

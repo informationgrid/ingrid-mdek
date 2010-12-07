@@ -26,11 +26,15 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 
 		Session session = getSession();
 		List<Permission> ps = session.createQuery(
-				"select distinct permission from IdcUser u " +
-					"inner join u.idcGroup g " +
-					"inner join g.permissionAddrs pA " +
-					"inner join pA.permission permission " +
-					"where u.addrUuid = ? and pA.uuid = ?")
+				"select distinct p " +
+				"from IdcUser u, IdcUserGroup uG, IdcGroup g, " +
+				"PermissionAddr pA, Permission p " +
+				"where " +
+				"u.id = uG.idcUserId " +
+				"AND uG.idcGroupId = g.id " +
+				"AND g.id = pA.idcGroupId " +
+				"AND pA.permissionId = p.id " +
+				"AND u.addrUuid = ? and pA.uuid = ?")
 					.setString(0, userUuid).setString(1, addrUuid).list();
 
 		return ps;
@@ -41,11 +45,15 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 		Session session = getSession();
 
 		List<Permission> ps = session.createQuery(
-				"select distinct permission from IdcUser u " +
-					"inner join u.idcGroup g " +
-					"inner join g.permissionObjs pO " +
-					"inner join pO.permission permission " +
-					"where u.addrUuid = ? and pO.uuid = ?")
+				"select distinct p " +
+				"from IdcUser u, IdcUserGroup uG, IdcGroup g, " +
+				"PermissionObj pO, Permission p " +
+				"where " +
+				"u.id = uG.idcUserId " +
+				"AND uG.idcGroupId = g.id " +
+				"AND g.id = pO.idcGroupId " +
+				"AND pO.permissionId = p.id " +
+				"AND u.addrUuid = ? and pO.uuid = ?")
 					.setString(0, userUuid).setString(1, objUuid).list();
 
 		return ps;
@@ -56,12 +64,16 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 		Session session = getSession();
 
 		List<Permission> ps = session.createQuery(
-			"select distinct permission from IdcUser u " + 
-				"inner join u.idcGroup g " +
-				"inner join g.idcUserPermissions pU " + 
-				"inner join pU.permission permission " +
-				"where u.addrUuid = ?")
-				.setString(0, userUuid).list();
+				"select distinct p " +
+				"from IdcUser u, IdcUserGroup uG, IdcGroup g, " +
+				"IdcUserPermission pU, Permission p " +
+				"where " +
+				"u.id = uG.idcUserId " +
+				"AND uG.idcGroupId = g.id " +
+				"AND g.id = pU.idcGroupId " +
+				"AND pU.permissionId = p.id " +
+				"AND u.addrUuid = ?")
+					.setString(0, userUuid).list();
 
 		return ps;
 	}

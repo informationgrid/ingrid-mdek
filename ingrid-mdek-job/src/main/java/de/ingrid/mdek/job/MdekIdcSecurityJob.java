@@ -102,7 +102,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// fetch group id of catAdmin for comparison
 			Long catAdminGroupId = null;
 			if (!includeCatAdminGroup) {
-				catAdminGroupId = permService.getCatalogAdminUser().getIdcGroupId();
+				catAdminGroupId = permService.getCatalogAdminGroup().getId();
 			}
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(groups.size());
@@ -224,7 +224,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// return basic data
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeysSecurity.IDC_GROUP_ID, newGrp.getId());
+			result.put(MdekKeysSecurity.ID, newGrp.getId());
 
 			if (refetchAfterStore) {
 				daoIdcGroup.beginTransaction();
@@ -255,7 +255,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcGroup.beginTransaction();
 
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
-			Long grpId = (Long) gDocIn.get(MdekKeysSecurity.IDC_GROUP_ID);
+			Long grpId = (Long) gDocIn.get(MdekKeysSecurity.ID);
 			Boolean refetchAfterStore = (Boolean) gDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
 
 			// set common data to transfer !
@@ -290,7 +290,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// return basic data
 			IngridDocument result = new IngridDocument();
-			result.put(MdekKeysSecurity.IDC_GROUP_ID, grp.getId());
+			result.put(MdekKeysSecurity.ID, grp.getId());
 
 			if (refetchAfterStore) {
 				daoIdcGroup.beginTransaction();
@@ -321,7 +321,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcGroup.beginTransaction();
 
 			Boolean forceDeleteGroupWhenUsers = (Boolean) docIn.get(MdekKeysSecurity.REQUESTINFO_FORCE_DELETE_GROUP_WHEN_USERS);
-			Long grpId = (Long) docIn.get(MdekKeysSecurity.IDC_GROUP_ID);
+			Long grpId = (Long) docIn.get(MdekKeysSecurity.ID);
 			IdcGroup group = daoIdcGroup.getById(grpId);
 			
 			// first checks
@@ -348,7 +348,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			checkMissingPermissionOfGroup(group);
 			
 			// ok, we update ex group users (remove from group, ...) and return them
-			clearGroupOnUsers(groupUsers, userId);
+			clearGroupOnUsers(group, groupUsers, userId);
 			IngridDocument result = new IngridDocument();
 			beanToDocMapperSecurity.mapIdcUserList(groupUsers, result, true);
 
@@ -510,9 +510,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			if (!userHandler.isUser1AboveOrEqualUser2(callingUser.getId(), newUserParentId)) {
 				throw new MdekException(new MdekError(MdekErrorType.USER_HIERARCHY_WRONG));
 			}				
-			
-			IdcUser newUser = docToBeanMapperSecurity.mapIdcUser(uDocIn, new IdcUser());
-			 // save it, generates id. NOT NECESSARY TO CREATE ID BEFORE DETAIL MAPPING, because no associations ! 
+
+			// create new user and save it (to generate id !). ID NEEDED FOR MAPPING OF ASSOCIATIONS !
+			IdcUser newUser = new IdcUser();
+			daoIdcUser.makePersistent(newUser);
+			// then map full details ! user id used for associations 
+			newUser = docToBeanMapperSecurity.mapIdcUser(uDocIn, newUser);
 			daoIdcUser.makePersistent(newUser);
 			
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -1236,13 +1239,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	/**
 	 * Clear all group data on given users. NOTICE: already persists users !
 	 */
-	private void clearGroupOnUsers(List<IdcUser> users, String modUuid) {
+	private void clearGroupOnUsers(IdcGroup grp, List<IdcUser> users, String modUuid) {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 		for (IdcUser user : users) {
-			user.setIdcGroupId(null);
-			user.setIdcGroup(null);
 			user.setModTime(currentTime);
 			user.setModUuid(modUuid);
+			docToBeanMapperSecurity.removeIdcUserGroup(grp.getId(), user);
 			daoIdcUser.makePersistent(user);
 		}
 	}

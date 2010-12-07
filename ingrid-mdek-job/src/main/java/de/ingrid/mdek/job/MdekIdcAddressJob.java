@@ -752,7 +752,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userUuid);
+				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userUuid, true);
 			}
 
 			// add permissions to result

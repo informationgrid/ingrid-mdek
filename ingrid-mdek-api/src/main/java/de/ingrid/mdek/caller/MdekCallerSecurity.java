@@ -106,7 +106,7 @@ public class MdekCallerSecurity extends MdekCaller implements IMdekCallerSecurit
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		jobParams.put(MdekKeysSecurity.IDC_GROUP_ID, idcGroupId);
+		jobParams.put(MdekKeysSecurity.ID, idcGroupId);
 		jobParams.put(MdekKeysSecurity.REQUESTINFO_FORCE_DELETE_GROUP_WHEN_USERS, forceDeleteGroupWhenUsers);
 		List jobMethods = setUpJobMethod("deleteGroup", jobParams);
 		return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);

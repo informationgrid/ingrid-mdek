@@ -90,6 +90,17 @@ public class IdcGroupDaoHibernate
 		return qString;
 	}
 
+	private String getHQLUserUuidsOfGroup(String groupName) {
+		String qString = "select distinct u.addrUuid " +
+			"from IdcUserGroup uG, IdcGroup g, IdcUser u " +
+			"where " +
+			"uG.idcGroupId = g.id " +
+			"AND uG.idcUserId = u.id " +
+			"AND g.name='" + groupName + "'";
+		
+		return qString;
+	}
+
 	public List<Map> getGroupUsersWithObjectsNotInGivenState(String groupName,
 			WorkState objWorkState) {
 		Session session = getSession();
@@ -103,8 +114,7 @@ public class IdcGroupDaoHibernate
 			"where " +
 			"o.workState != '" + objWorkState.getDbValue() + "' " +
 			"and o.modUuid in (" +
-				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
-				"where grp.name='" + groupName + "'" +
+				getHQLUserUuidsOfGroup(groupName) +
 			")";
 
 		List<Map> maps = session.createQuery(q).list();
@@ -125,8 +135,7 @@ public class IdcGroupDaoHibernate
 			"where " +
 			"a.workState != '" + addrWorkState.getDbValue() + "' " +
 			"and a.modUuid in (" +
-				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
-				"where grp.name='" + groupName + "'" +
+				getHQLUserUuidsOfGroup(groupName) +
 			")";
 
 		List<Map> maps = session.createQuery(q).list();
@@ -145,8 +154,7 @@ public class IdcGroupDaoHibernate
 			"inner join oNode.t01ObjectWork o " +
 			"where " +
 			"o.responsibleUuid in (" +
-				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
-				"where grp.name='" + groupName + "'" +
+				getHQLUserUuidsOfGroup(groupName) +
 			")";
 
 		List<Map> maps = session.createQuery(q).list();
@@ -165,12 +173,26 @@ public class IdcGroupDaoHibernate
 			"inner join aNode.t02AddressWork a " +
 			"where " +
 			"a.responsibleUuid in (" +
-				"select u.addrUuid from IdcUser u inner join u.idcGroup grp " +
-				"where grp.name='" + groupName + "'" +
+				getHQLUserUuidsOfGroup(groupName) +
 			")";
 
 		List<Map> maps = session.createQuery(q).list();
 
 		return maps;
+	}
+
+	public List<Long> getGroupIdsContainingUserPermission(String userUuid, Long permId) {
+		Session session = getSession();
+
+		String qString = "select distinct uG.idcGroupId " +
+			"from IdcUser u, IdcUserGroup uG, IdcUserPermission uP " +
+			"where " +
+			"u.id = uG.idcUserId " +
+			"AND uG.idcGroupId = uP.idcGroupId " +
+			"AND u.addrUuid='" + userUuid + "' " +
+			"AND uP.permissionId=" + permId + "";
+
+		return (List<Long>)session.createQuery(qString).list();
+
 	}
 }

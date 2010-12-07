@@ -726,7 +726,7 @@ public class MdekExampleSupertool {
 	}
 	
 	public void debugGroupDoc(IngridDocument g) {
-		System.out.println("Group: " + g.get(MdekKeysSecurity.IDC_GROUP_ID) 
+		System.out.println("Group: " + g.get(MdekKeysSecurity.ID) 
 			+ ", " + g.get(MdekKeys.NAME)
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_CREATION))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)g.get(MdekKeys.DATE_OF_LAST_MODIFICATION))

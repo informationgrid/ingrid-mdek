@@ -52,4 +52,11 @@ public interface IIdcGroupDao extends IGenericDao<IdcGroup> {
 	 * Returns a list of maps. Map contains entityUuid and the userUuid who currently is
 	 * responsible for the entity. */
 	List<Map> getGroupUsersResponsibleForAddresses(String groupName);
+
+	/** Get ids of groups containing the given user permission connected to given user.  
+	 * @param userUuid address uuid of user to get groups from
+	 * @param permId id of user permission to search for in groups
+	 * @return
+	 */
+	List<Long> getGroupIdsContainingUserPermission(String userUuid, Long permId);
 }

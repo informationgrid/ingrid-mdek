@@ -1,6 +1,7 @@
 package de.ingrid.mdek.services.utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -556,8 +557,10 @@ public class MdekPermissionHandler {
 		// permissions ok !
 		// we already remove a possible set WRITE_TREE perm of object to move to guarantee no
 		// nested WRITE_TREE perms after move !
-		permService.revokeObjectPermission(userUuid,
-				PermissionFactory.getTreeObjectPermissionTemplate(fromUuid));
+		// NO !!!!!!!!!!!!!!!!
+		// user has now multiple groups and groups should keep their direct permissions when moving !!!
+//		permService.revokeObjectPermission(userUuid,
+//				PermissionFactory.getTreeObjectPermissionTemplate(fromUuid));
 	}
 
 	/**
@@ -576,8 +579,10 @@ public class MdekPermissionHandler {
 		// permissions ok !
 		// we already remove a possible set WRITE_TREE perm of address to move to guarantee no
 		// nested WRITE_TREE perms after move !
-		permService.revokeAddressPermission(userUuid,
-				PermissionFactory.getTreeAddressPermissionTemplate(fromUuid));
+		// NO !!!!!!!!!!!!!!!!
+		// user has now multiple groups and groups should keep their direct permissions when moving !!!
+//		permService.revokeAddressPermission(userUuid,
+//				PermissionFactory.getTreeAddressPermissionTemplate(fromUuid));
 	}
 
 	/**
@@ -683,10 +688,19 @@ public class MdekPermissionHandler {
 
 
 	/**
-	 * Grant WriteTree Permission of given user on given objectIF NOT ALREADY GRANTED.
+	 * Grant WriteTree Permission of given user on given object IF NOT ALREADY GRANTED.
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * <br>NOTICE: User has now MULTIPLE groups ! Flag determines whether Permission is granted
+	 * on all groups or only on groups where create-root permission is present. This method is called
+	 * when new top node was created, so we guarantee only the relevant groups are updated !
+	 * @param addrUuid
+	 * @param userAddrUuid
+	 * @param onlyGroupsWithCreateRoot true=permission is added only to groups, where create-root
+	 * permission is present. This way we add new permission only to relevant groups, when top node was created !
+	 * false=permission is added TO ALL GROUPS OF USER !
 	 */
-	public void grantTreePermissionForObject(String objUuid, String userAddrUuid) {
+	public void grantTreePermissionForObject(String objUuid, String userAddrUuid,
+			boolean onlyGroupsWithCreateRoot) {
 		if (isCatalogAdmin(userAddrUuid)) {
 			return;
 		}
@@ -695,15 +709,33 @@ public class MdekPermissionHandler {
 
 		boolean alreadyGranted = permService.hasInheritedPermissionForObject(userAddrUuid, ep);
 		if (!alreadyGranted) {
-			permService.grantObjectPermission(userAddrUuid, ep);
+			if (!onlyGroupsWithCreateRoot) {
+				permService.grantObjectPermission(userAddrUuid, ep, null);
+			} else {
+				// grant permission only on groups containing create-root permission !
+				Permission createRootPerm = PermissionFactory.getPermissionTemplateCreateRoot();
+				List<Long> groupIds =
+					permService.getGroupIdsContainingUserPermission(userAddrUuid, createRootPerm);
+
+				permService.grantObjectPermission(userAddrUuid, ep, groupIds);
+			}
 		}
 	}
 
 	/**
 	 * Grant WriteTree Permission of given user on given address IF NOT ALREADY GRANTED.
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+	 * <br>NOTICE: User has now MULTIPLE groups ! Flag determines whether Permission is granted
+	 * on all groups or only on groups where create-root permission is present. This method is called
+	 * when new top node was created, so we guarantee only the relevant groups are updated !
+	 * @param addrUuid
+	 * @param userAddrUuid
+	 * @param onlyGroupsWithCreateRoot true=permission is added only to groups, where create-root
+	 * permission is present. This way we add new permission only to relevant groups, when top node was created !
+	 * false=permission is added TO ALL GROUPS OF USER !
 	 */
-	public void grantTreePermissionForAddress(String addrUuid, String userAddrUuid) {
+	public void grantTreePermissionForAddress(String addrUuid, String userAddrUuid,
+			boolean onlyGroupsWithCreateRoot) {
 		if (isCatalogAdmin(userAddrUuid)) {
 			return;
 		}
@@ -712,7 +744,16 @@ public class MdekPermissionHandler {
 
 		boolean alreadyGranted = permService.hasInheritedPermissionForAddress(userAddrUuid, ep);
 		if (!alreadyGranted) {
-			permService.grantAddressPermission(userAddrUuid, ep);			
+			if (!onlyGroupsWithCreateRoot) {
+				permService.grantAddressPermission(userAddrUuid, ep, null);
+			} else {
+				// grant permission only on groups containing create-root permission !
+				Permission createRootPerm = PermissionFactory.getPermissionTemplateCreateRoot();
+				List<Long> groupIds =
+					permService.getGroupIdsContainingUserPermission(userAddrUuid, createRootPerm);
+
+				permService.grantAddressPermission(userAddrUuid, ep, groupIds);
+			}
 		}
 	}
 
@@ -891,6 +932,18 @@ public class MdekPermissionHandler {
 		}
 		if (addCatAdmin) {
 			retUsers.add(catAdmin);
+		}
+
+		// remove duplicate users ! user may have multiple groups, is present for every group
+		List<Long> userIds = new ArrayList<Long>();
+		Iterator<IdcUser> itr  = retUsers.iterator();
+		while(itr.hasNext()) {
+			IdcUser u = itr.next();
+			if (!userIds.contains(u.getId())) {
+				userIds.add(u.getId());
+			} else {
+				itr.remove();
+			}
 		}
 		
 		return retUsers;

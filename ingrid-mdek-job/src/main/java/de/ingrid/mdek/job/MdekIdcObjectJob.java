@@ -916,7 +916,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// grant write tree permission if new root node
 			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userUuid);
+				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userUuid, true);
 			}
 
 			// add permissions to result

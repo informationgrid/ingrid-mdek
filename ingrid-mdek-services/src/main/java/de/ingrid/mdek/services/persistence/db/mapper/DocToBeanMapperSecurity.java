@@ -17,6 +17,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
@@ -90,7 +91,6 @@ public class DocToBeanMapperSecurity implements IMapper {
 	public IdcUser mapIdcUser(IngridDocument docIn, IdcUser userIn) {
 
 		userIn.setAddrUuid(docIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID));
-		userIn.setIdcGroupId((Long)docIn.get(MdekKeysSecurity.IDC_GROUP_ID));
 		userIn.setIdcRole((Integer)docIn.get(MdekKeysSecurity.IDC_ROLE));
 		Long parentId = (Long)docIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
 		if (parentId == null && !IdcRole.CATALOG_ADMINISTRATOR.getDbValue().equals(userIn.getIdcRole())) {
@@ -105,7 +105,71 @@ public class DocToBeanMapperSecurity implements IMapper {
 		userIn.setModTime(docIn.getString(MdekKeysSecurity.DATE_OF_LAST_MODIFICATION));
 		userIn.setModUuid(docToBeanMapper.extractModUserUuid(docIn));
 
+		// update associations
+		updateIdcUserGroups(docIn, userIn);
+
 		return userIn;
+	}
+
+	private IdcUserGroup mapIdcUserGroup(Long userId,
+			Long groupId,
+			IdcUserGroup ref)
+	{
+		ref.setIdcUserId(userId);
+		ref.setIdcGroupId(groupId);
+
+		return ref;
+	}
+
+	private void updateIdcUserGroups(IngridDocument docIn, IdcUser userIn) {
+		Long[] docGroupIds = (Long[]) docIn.get(MdekKeysSecurity.IDC_GROUP_IDS);
+		if (docGroupIds == null) {
+			docGroupIds = new Long[] {};
+		}
+		Set<IdcUserGroup> refs = userIn.getIdcUserGroups();
+		ArrayList<IdcUserGroup> refs_unprocessed = new ArrayList<IdcUserGroup>(refs);
+		for (Long docGroupId : docGroupIds) {
+			boolean found = false;
+			for (IdcUserGroup ref : refs) {
+				if (docGroupId.equals(ref.getIdcGroupId())) {
+					refs_unprocessed.remove(ref);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				// add new one
+				IdcUserGroup ref = mapIdcUserGroup(userIn.getId(), docGroupId, new IdcUserGroup());
+				refs.add(ref);
+			}
+		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (IdcUserGroup ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);
+		}
+	}
+
+	/**
+	 * Remove the given group from the given user ! NOTICE: does NOT persist user !
+	 */
+	public void removeIdcUserGroup(long grpIdToRemove, IdcUser userIn) {
+		Set<IdcUserGroup> userGrps = userIn.getIdcUserGroups();
+		ArrayList<IdcUserGroup> userGrpsToRemove = new ArrayList<IdcUserGroup>();
+
+		for (IdcUserGroup userGrp : userGrps) {
+			if (grpIdToRemove == userGrp.getIdcGroupId()) {
+				userGrpsToRemove.add(userGrp);
+			}
+		}
+
+		// remove, will be deleted by hibernate (delete-orphan set in parent)
+		for (IdcUserGroup userGrpToRemove : userGrpsToRemove) {
+			userGrps.remove(userGrpToRemove);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(userGrpToRemove);
+		}
 	}
 
 	private PermissionObj mapPermissionObj(Long groupId,

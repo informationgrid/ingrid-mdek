@@ -418,7 +418,7 @@ class MdekExampleQSThread extends Thread {
 		IngridDocument grpQADoc = new IngridDocument();
 		grpQADoc.put(MdekKeys.NAME, "TEST Gruppe1 QA");
 		grpQADoc = supertool.createGroup(grpQADoc, true);
-		Long grpQAId = (Long) grpQADoc.get(MdekKeysSecurity.IDC_GROUP_ID);
+		Long grpQAId = (Long) grpQADoc.get(MdekKeysSecurity.ID);
 
 		System.out.println("\n--- Add Permissions to GROUP_QA -----");
 		supertool.addUserPermissionToGroupDoc(grpQADoc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
@@ -431,7 +431,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_QA' -----");
 		IngridDocument usrGrpQADoc = new IngridDocument();
 		usrGrpQADoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "38664584-B449-11D2-9A86-080000507261");
-		usrGrpQADoc.put(MdekKeysSecurity.IDC_GROUP_ID, grpQAId);
+		usrGrpQADoc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{ grpQAId });
 		usrGrpQADoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		usrGrpQADoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		usrGrpQADoc = supertool.createUser(usrGrpQADoc, true);
@@ -443,7 +443,7 @@ class MdekExampleQSThread extends Thread {
 		IngridDocument grpNoQADoc = new IngridDocument();
 		grpNoQADoc.put(MdekKeys.NAME, "TEST Gruppe2 NO QA");
 		grpNoQADoc = supertool.createGroup(grpNoQADoc, true);
-		Long grpNoQAId = (Long) grpNoQADoc.get(MdekKeysSecurity.IDC_GROUP_ID);
+		Long grpNoQAId = (Long) grpNoQADoc.get(MdekKeysSecurity.ID);
 
 		System.out.println("\n--- Add Permissions to GROUP_NO_QA -----");
 		supertool.addObjPermissionToGroupDoc(grpNoQADoc, topObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
@@ -455,7 +455,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_NO_QA' -----");
 		IngridDocument usrGrpNoQADoc = new IngridDocument();
 		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "10646604-D21F-11D2-BB32-006097FE70B1");
-		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_GROUP_ID, grpNoQAId);
+		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{ grpNoQAId });
 		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		usrGrpNoQADoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
 		usrGrpNoQADoc = supertool.createUser(usrGrpNoQADoc, true);

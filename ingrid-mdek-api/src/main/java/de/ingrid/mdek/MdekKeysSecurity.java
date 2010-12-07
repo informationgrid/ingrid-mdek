@@ -15,9 +15,8 @@ public class MdekKeysSecurity extends MdekKeys {
 
     /** Value: List of IngridDocs (Group Maps) */
     public final static String GROUPS = "groups";
-	/** Specifies the id of a idc group<br>
-	 *  Value: Long */
-	public final static String IDC_GROUP_ID = "idc-group-id";
+    /** Value: Long[] -> ids of groups connected with */
+	public final static String IDC_GROUP_IDS = "idc-group-ids";
     /** delete group also when users exist ? if false and user exist causes error<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_FORCE_DELETE_GROUP_WHEN_USERS = "requestinfo_forceDeleteGroupWhenUsers";

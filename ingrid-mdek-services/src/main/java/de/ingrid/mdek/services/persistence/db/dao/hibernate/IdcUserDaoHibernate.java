@@ -38,15 +38,21 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 
 	public List<IdcUser> getIdcUsersByGroupId(Long groupId) {
 		Session session = getSession();
-		return (List<IdcUser>)session.createQuery("from IdcUser u " +
-		"where u.idcGroupId = ?").setLong(0, groupId).list();
+		return (List<IdcUser>)session.createQuery("select distinct u " +
+				"from IdcUser u, IdcUserGroup uG " +
+				"where " +
+				"u.id = uG.idcUserId " +
+				"AND uG.idcGroupId = ?").setLong(0, groupId).list();
 	}
 
 	public List<IdcUser> getIdcUsersByGroupName(String groupName) {
 		Session session = getSession();
-		String query = "select distinct idcUser from IdcUser idcUser " +
-		"inner join fetch idcUser.idcGroup idcGroup " +
-		"where idcGroup.name = ?";
+		String query = "select distinct u " +
+				"from IdcUser u, IdcUserGroup uG, IdcGroup g " +
+				"where " +
+				"u.id = uG.idcUserId " +
+				"AND uG.idcGroupId = g.id " +
+				"AND g.name= ?";
 
 		return (List<IdcUser>)session.createQuery(query).setString(0, groupName).list();
 	}

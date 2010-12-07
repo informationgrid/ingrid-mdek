@@ -14,12 +14,11 @@ public class IdcUser implements IEntity {
 	private String createTime;
 	private String modTime;
 	private String modUuid;
-	private Long idcGroupId;
 	private Integer idcRole;
 
 	private AddressNode addressNode;
-	private IdcGroup idcGroup;
 	private Set idcUsers = new HashSet();
+	private Set idcUserGroups = new HashSet();
 
 	public IdcUser() {}
 
@@ -79,14 +78,6 @@ public class IdcUser implements IEntity {
 		this.modUuid = modUuid;
 	}
 
-	public Long getIdcGroupId() {
-		return idcGroupId;
-	}
-
-	public void setIdcGroupId(Long idcGroupId) {
-		this.idcGroupId = idcGroupId;
-	}
-
 	public Integer getIdcRole() {
 		return idcRole;
 	}
@@ -104,20 +95,20 @@ public class IdcUser implements IEntity {
 		this.addressNode = addressNode;
 	}
 
-	public IdcGroup getIdcGroup() {
-		return idcGroup;
-	}
-
-	public void setIdcGroup(IdcGroup idcGroup) {
-		this.idcGroup = idcGroup;
-	}
-
 	public Set getIdcUsers() {
 		return idcUsers;
 	}
 
 	public void setIdcUsers(Set idcUsers) {
 		this.idcUsers = idcUsers;
+	}
+
+	public Set getIdcUserGroups() {
+		return idcUserGroups;
+	}
+
+	public void setIdcUserGroups(Set idcUserGroups) {
+		this.idcUserGroups = idcUserGroups;
 	}
 
 }

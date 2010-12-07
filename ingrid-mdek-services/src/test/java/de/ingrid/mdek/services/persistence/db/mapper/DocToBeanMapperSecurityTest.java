@@ -1,5 +1,6 @@
 package de.ingrid.mdek.services.persistence.db.mapper;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -12,6 +13,7 @@ import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
+import de.ingrid.mdek.services.persistence.db.model.IdcUserGroup;
 import de.ingrid.utils.IngridDocument;
 
 public class DocToBeanMapperSecurityTest {
@@ -40,7 +42,7 @@ public class DocToBeanMapperSecurityTest {
 		IngridDocument inDoc = new IngridDocument();
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 		inDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "idc-user-addr-uuid");
-		inDoc.put(MdekKeysSecurity.IDC_GROUP_ID, new Long(123445453));
+		inDoc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{ 123445453L });
 		inDoc.put(MdekKeysSecurity.IDC_ROLE, new Integer(MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue()));
 		inDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, new Long(111111111));
 		inDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
@@ -52,7 +54,9 @@ public class DocToBeanMapperSecurityTest {
 		// TODO: How to get Dao Factory ?
 		DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
 		Assert.assertEquals(user.getAddrUuid(), "idc-user-addr-uuid");
-		Assert.assertEquals(user.getIdcGroupId().longValue(), 123445453);
+		ArrayList<IdcUserGroup> userGroups = new ArrayList<IdcUserGroup>(user.getIdcUserGroups());
+		Assert.assertEquals(userGroups.size(), 1);
+		Assert.assertEquals(userGroups.get(0).getIdcGroupId(), 123445453L);
 		Assert.assertEquals(user.getIdcRole().intValue(), MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue());
 		Assert.assertEquals(user.getParentId().longValue(), 111111111);
 		Assert.assertEquals(user.getCreateTime(), currentTime);
