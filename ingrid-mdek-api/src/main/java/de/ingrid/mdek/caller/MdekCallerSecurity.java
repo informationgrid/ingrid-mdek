@@ -132,9 +132,10 @@ public class MdekCallerSecurity extends MdekCaller implements IMdekCallerSecurit
 		return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);		
 	}
 
-	public IngridDocument getUserPermissions(String plugId, String userAddrUuid) {
+	public IngridDocument getUserPermissions(String plugId, String userAddrUuid, String userId) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.USER_ID, userAddrUuid);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        jobParams.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, userAddrUuid);
 		List jobMethods = setUpJobMethod("getUserPermissions", jobParams);
 		return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);		
 	}

@@ -420,7 +420,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			dao.beginTransaction();
 			dao.disableAutoFlush();
 
-			String userAddrUuid = getCurrentUserUuid(params);
+            String userAddrUuid = params.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
 			List<Permission> perms = permHandler.getUserPermissions(userAddrUuid);
 

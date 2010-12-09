@@ -331,7 +331,7 @@ public class MdekExampleSupertoolSecurity {
 
 		System.out.println("\n###### INVOKE getUserPermissions ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerSecurity.getUserPermissions(plugId, myUserUuid);
+		response = mdekCallerSecurity.getUserPermissions(plugId, myUserUuid, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

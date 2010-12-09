@@ -161,13 +161,14 @@ public interface IMdekCallerSecurity extends IMdekCaller {
 			boolean checkWorkflow);
 
 	/**
-	 * Get permissions of calling user ("create-root", "qa", ...).
-	 * @param plugId which mdek server (iplug)
-	 * @param userAddrUuid calling user
+     * Get the permissions of a user.
+     * @param plugId which mdek server (iplug)
+     * @param addrUuid uuid of the users address
+     * @param userId calling user
 	 * @return response containing result: map representation of permissions
 	 */
 	IngridDocument getUserPermissions(String plugId,
-			String userAddrUuid);
+			String addrUuid, String userId);
 
 	/**
 	 * Create new user.
