@@ -206,4 +206,49 @@ public class MdekCallerSecurity extends MdekCaller implements IMdekCallerSecurit
 		List jobMethods = setUpJobMethod("getUsersWithWritePermissionForAddress", jobParams);
 		return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
+
+    public IngridDocument getUsersWithTreePermissionForObject(String plugId, String objectUuid, String userId,
+            boolean checkWorkflow, boolean getDetailedPermissions) {
+        IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.UUID, objectUuid);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        jobParams.put(MdekKeys.REQUESTINFO_CHECK_WORKFLOW, checkWorkflow);
+        jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
+        List jobMethods = setUpJobMethod("getUsersWithTreePermissionForObject", jobParams);
+        return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+    }
+
+    public IngridDocument getUsersWithTreePermissionForAddress(String plugId, String addressUuid, String userId,
+            boolean checkWorkflow, boolean getDetailedPermissions) {
+        IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.UUID, addressUuid);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        jobParams.put(MdekKeys.REQUESTINFO_CHECK_WORKFLOW, checkWorkflow);
+        jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
+        List jobMethods = setUpJobMethod("getUsersWithTreePermissionForAddress", jobParams);
+        return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+    }
+
+    public IngridDocument getUsersWithPermissionForObject(String plugId, String objectUuid, String userId,
+            boolean checkWorkflow, boolean getDetailedPermissions) {
+        IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.UUID, objectUuid);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        jobParams.put(MdekKeys.REQUESTINFO_CHECK_WORKFLOW, checkWorkflow);
+        jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
+        List jobMethods = setUpJobMethod("getUsersWithPermissionForObject", jobParams);
+        return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+    }
+
+    public IngridDocument getUsersWithPermissionForAddress(String plugId, String addressUuid, String userId,
+            boolean checkWorkflow, boolean getDetailedPermissions) {
+        IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.UUID, addressUuid);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        jobParams.put(MdekKeys.REQUESTINFO_CHECK_WORKFLOW, checkWorkflow);
+        jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
+        List jobMethods = setUpJobMethod("getUsersWithPermissionForAddress", jobParams);
+        return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
+    }
+    
 }

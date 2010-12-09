@@ -70,6 +70,10 @@ public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 			dao.makePersistent(ep.getPermission());
 			ep = PermissionFactory.getTreeAddressPermissionTemplate("");
 			dao.makePersistent(ep.getPermission());
+            ep = PermissionFactory.getSubTreeAddressPermissionTemplate("");
+            dao.makePersistent(ep.getPermission());
+            ep = PermissionFactory.getSubTreeObjectPermissionTemplate("");
+            dao.makePersistent(ep.getPermission());
 			dao.makePersistent(PermissionFactory.getPermissionTemplateCreateRoot());
 			dao.makePersistent(PermissionFactory.getPermissionTemplateQA());
 			
@@ -207,6 +211,22 @@ public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 				.getSingleAddressPermissionTemplate("address-uuid-1"), null);
 		Assert.assertEquals(s.hasInheritedPermissionForAddress(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-3")), false);
+		
+		
+        s.grantAddressPermission(user.getAddrUuid(), PermissionFactory.getSubTreeAddressPermissionTemplate("address-uuid-1"), null);
+        s.grantObjectPermission(user.getAddrUuid(), PermissionFactory.getSubTreeObjectPermissionTemplate("object-uuid-1"), null);
+        
+        Assert.assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
+                .getSubTreeAddressPermissionTemplate("address-uuid-1")), true);
+        Assert.assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
+                .getSubTreeObjectPermissionTemplate("object-uuid-1")), true);
+        Assert.assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
+                .getSubTreeAddressPermissionTemplate("address-uuid-2")), false);
+        Assert.assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
+                .getSubTreeObjectPermissionTemplate("object-uuid-2")), false);
+        
+		
+		
 
 		s.grantUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot(), null);
 		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot()), true);

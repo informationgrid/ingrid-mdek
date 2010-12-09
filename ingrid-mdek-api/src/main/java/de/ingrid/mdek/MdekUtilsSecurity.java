@@ -58,9 +58,7 @@ public class MdekUtilsSecurity {
 		// Entity Permissions
 		WRITE_SINGLE("write", "Einzelberechtigung"),
 		WRITE_TREE("write-tree", "Teilbaumberechtigung"),
-		// NOT PERSISTABLE !!! used to tell frontend no write permission on entity, but on subtree ! 
-		// (e.g. user not QA but has write-tree permission on entity in state Q)  
-		DUMMY_WRITE_SUBTREE("write-subtree", "Unterbaumberechtigung"),
+		WRITE_SUBTREE("write-subtree", "Unterbaumberechtigung"),
 
 		// User Permissions (bound to group)
 		CREATE_ROOT("create-root", "Root anlegen"),
@@ -107,7 +105,7 @@ public class MdekUtilsSecurity {
 	}
 
 	/**
-	 * Checks whether permission list contains permission to manipulate tree
+	 * Checks whether permission list contains permission to manipulate tree, but not necessarily the entity itself.
 	 * @param idcPermissionsFromMap permission list delivered from backend
 	 * @return true=has permission
 	 */
@@ -118,6 +116,9 @@ public class MdekUtilsSecurity {
 				if (idcPerm == IdcPermission.WRITE_TREE) {
 					return true;
 				}
+                if (idcPerm == IdcPermission.WRITE_SUBTREE) {
+                    return true;
+                }
 			}
 		}
 

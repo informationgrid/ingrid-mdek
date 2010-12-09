@@ -33,6 +33,17 @@ public class PermissionFactory {
 		return new EntityPermission(p, uuid);
 	}
 
+    public static EntityPermission getSubTreeObjectPermissionTemplate(String uuid) {
+        Permission p = getPermissionTemplateSubTree();
+        return new EntityPermission(p, uuid);
+    }
+
+    public static EntityPermission getSubTreeAddressPermissionTemplate(String uuid) {
+        Permission p = getPermissionTemplateSubTree();
+        return new EntityPermission(p, uuid);
+    }
+	
+	
 	public static Permission getPermissionTemplateCreateRoot() {
 		Permission p = new Permission();
 		p.setClassName("IdcUserPermission");
@@ -65,11 +76,12 @@ public class PermissionFactory {
 		return p;
 	}
 
-	public static Permission getDummyPermissionSubTree() {
-		Permission p = new Permission();
-		p.setClassName("Dummy Permission for frontend");
-		p.setName("entity");
-		p.setAction("write-subtree");
-		return p;
-	}
+    public static Permission getPermissionTemplateSubTree() {
+        Permission p = new Permission();
+        p.setClassName("IdcEntityPermission");
+        p.setName("entity");
+        p.setAction("write-subtree");
+        return p;
+    }
+
 }

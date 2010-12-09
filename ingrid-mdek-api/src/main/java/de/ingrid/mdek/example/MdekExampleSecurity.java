@@ -388,6 +388,31 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
+        System.out.println("\n----- subtree below tree permission on OBJECT -> ERROR -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.storeGroup(newGroupDoc, true);
+
+        System.out.println("\n----- tree below subtree permission on OBJECT -> ERROR -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+        supertool.storeGroup(newGroupDoc, true);
+
+        System.out.println("\n----- single below subtree permission on OBJECT -> ERROR -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+        supertool.storeGroup(newGroupDoc, true);
+
+        System.out.println("\n----- single above subtree permission on OBJECT -> OK -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.storeGroup(newGroupDoc, true);
+        
+		
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- VALIDATE GROUP ADDRESS PERMISSION STRUCTURE -----");
 
@@ -415,6 +440,31 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
+        System.out.println("\n----- subtree below tree permission on ADDRESS -> ERROR -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.storeGroup(newGroupDoc, true);
+
+        System.out.println("\n----- tree below subtree permission on ADDRESS -> ERROR -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+        supertool.storeGroup(newGroupDoc, true);
+
+        System.out.println("\n----- single below subtree permission on ADDRESS -> ERROR -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+        supertool.storeGroup(newGroupDoc, true);
+
+        System.out.println("\n----- subtree below single permission on ADDRESS -> OK -----");
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.storeGroup(newGroupDoc, true);
+        
+		
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- clear all permissions ! -----");
 		clearPermissionsOfGroupDoc(newGroupDoc);

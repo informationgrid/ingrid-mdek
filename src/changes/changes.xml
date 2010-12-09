@@ -5,6 +5,9 @@
   </properties>
   <body>
 	<release version="2.3.1-SNAPSHOT" date="?" description="Release IGE multiple groups etc. ENFORCES UPDATE OF IGC Schema (2.3.1) AND PORTAL !">
+      <action type="add" dev="wemove" issue="INGRID23-46">
+        InGrid 2.3: Add new permission write-subtree which gives permission to create entities but not to change the original entity.
+      </action>
       <action type="add" dev="wemove" issue="INGRID23-48">
         Introduce MULTIPLE GROUPS per User (IGC Schema 2.3.1).
       </action>

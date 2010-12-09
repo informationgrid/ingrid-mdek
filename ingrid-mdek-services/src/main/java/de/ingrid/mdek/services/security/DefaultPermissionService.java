@@ -255,6 +255,8 @@ public class DefaultPermissionService implements IPermissionService {
 			pTemplate = PermissionFactory.getPermissionTemplateSingle();
 		} else if (IdcPermission.WRITE_TREE == pClientEnumConst) {
 			pTemplate = PermissionFactory.getPermissionTemplateTree();
+        } else if (IdcPermission.WRITE_SUBTREE == pClientEnumConst) {
+            pTemplate = PermissionFactory.getPermissionTemplateSubTree();
 		} else if (IdcPermission.CREATE_ROOT == pClientEnumConst) {
 			pTemplate = PermissionFactory.getPermissionTemplateCreateRoot();
 		} else if (IdcPermission.QUALITY_ASSURANCE == pClientEnumConst) {
@@ -274,8 +276,8 @@ public class DefaultPermissionService implements IPermissionService {
 			pIdClient = IdcPermission.CREATE_ROOT.getDbValue();
 		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateQA())) {
 			pIdClient = IdcPermission.QUALITY_ASSURANCE.getDbValue();
-		} else if (isEqualPermission(p, PermissionFactory.getDummyPermissionSubTree())) {
-			pIdClient = IdcPermission.DUMMY_WRITE_SUBTREE.getDbValue();
+		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+			pIdClient = IdcPermission.WRITE_SUBTREE.getDbValue();
 		}
 	
 		return pIdClient;

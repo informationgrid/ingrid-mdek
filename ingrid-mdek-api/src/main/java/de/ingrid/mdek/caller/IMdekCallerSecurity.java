@@ -279,4 +279,77 @@ public interface IMdekCallerSecurity extends IMdekCaller {
 			String userId,
 			boolean checkWorkflow,
 			boolean getDetailedPermissions);
+
+    /**
+     * Get all users who have tree permission (write-tree, write-subtree) for the given object.
+     * @param plugId which mdek server (iplug)
+     * @param objectUuid object to get "tree users" for
+     * @param userId calling user
+     * @param checkWorkflow false=workflow state is ignored, only check tree permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+     *      entity is in state "Q" and user is NOT QA !
+     * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
+     * false=only users are returned without detailed permissions
+     * @return response containing result: map containing basic representations of users
+     */
+    IngridDocument getUsersWithTreePermissionForObject(String plugId,
+            String objectUuid,
+            String userId,
+            boolean checkWorkflow,
+            boolean getDetailedPermissions);
+
+    /**
+     * Get all users who have tree permission (write-tree, write-subtree) for the given address.
+     * @param plugId which mdek server (iplug)
+     * @param addressUuid address to get "write users" for
+     * @param userId calling user
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+     *      entity is in state "Q" and user is NOT QA !
+     * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
+     * false=only users are returned without detailed permissions
+     * @return response containing result: map containing basic representations of users
+     */
+    IngridDocument getUsersWithTreePermissionForAddress(String plugId,
+            String addressUuid,
+            String userId,
+            boolean checkWorkflow,
+            boolean getDetailedPermissions);
+
+    /**
+     * Get all users who have any entity permission for the given object.
+     * @param plugId which mdek server (iplug)
+     * @param objectUuid object to get "tree users" for
+     * @param userId calling user
+     * @param checkWorkflow false=workflow state is ignored, only check tree permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+     *      entity is in state "Q" and user is NOT QA !
+     * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
+     * false=only users are returned without detailed permissions
+     * @return response containing result: map containing basic representations of users
+     */
+    IngridDocument getUsersWithPermissionForObject(String plugId,
+            String objectUuid,
+            String userId,
+            boolean checkWorkflow,
+            boolean getDetailedPermissions);
+
+    /**
+     * Get all users who have any permission for the given address.
+     * @param plugId which mdek server (iplug)
+     * @param addressUuid address to get "write users" for
+     * @param userId calling user
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
+     *      entity is in state "Q" and user is NOT QA !
+     * @param getDetailedPermissions true=every user contains his detailed permissions (write-tree, qa, ...)<br>
+     * false=only users are returned without detailed permissions
+     * @return response containing result: map containing basic representations of users
+     */
+    IngridDocument getUsersWithPermissionForAddress(String plugId,
+            String addressUuid,
+            String userId,
+            boolean checkWorkflow,
+            boolean getDetailedPermissions);
+    
 }

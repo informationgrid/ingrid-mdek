@@ -129,9 +129,11 @@ public class MdekPermissionHandler {
 			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
 				// check write tree independent from workflow
 				if (permService.hasInheritedPermissionForObject(userAddrUuid, 
-						PermissionFactory.getTreeObjectPermissionTemplate(objUuid))) {
+						PermissionFactory.getTreeObjectPermissionTemplate(objUuid)) ||
+					permService.hasPermissionForObject(userAddrUuid, 
+		                        PermissionFactory.getSubTreeObjectPermissionTemplate(objUuid))) {
 					// we have permission for subtree, return dummy permission informing frontend
-					perms.add(PermissionFactory.getDummyPermissionSubTree());
+					perms.add(PermissionFactory.getPermissionTemplateSubTree());
 				}
 
 				return perms;
@@ -154,6 +156,11 @@ public class MdekPermissionHandler {
 			{
 				perms.add(PermissionFactory.getPermissionTemplateTree());
 			}
+            if (permService.hasPermissionForObject(userAddrUuid, 
+                    PermissionFactory.getSubTreeObjectPermissionTemplate(objUuid)))
+                {
+                    perms.add(PermissionFactory.getPermissionTemplateSubTree());
+                }
 		}
 
 		return perms;
@@ -176,9 +183,11 @@ public class MdekPermissionHandler {
 			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
 				// check write tree independent from workflow
 				if (permService.hasInheritedPermissionForAddress(userAddrUuid, 
-						PermissionFactory.getTreeAddressPermissionTemplate(addrUuid))) {
+						PermissionFactory.getTreeAddressPermissionTemplate(addrUuid)) ||
+					permService.hasPermissionForAddress(userAddrUuid, 
+		                        PermissionFactory.getSubTreeAddressPermissionTemplate(addrUuid))	) {
 					// we have permission for subtree, return dummy permission informing frontend
-					perms.add(PermissionFactory.getDummyPermissionSubTree());
+					perms.add(PermissionFactory.getPermissionTemplateSubTree());
 				}
 
 				return perms;
@@ -202,6 +211,11 @@ public class MdekPermissionHandler {
 			{
 				perms.add(PermissionFactory.getPermissionTemplateTree());
 			}
+            if (permService.hasPermissionForAddress(userAddrUuid, 
+                    PermissionFactory.getSubTreeAddressPermissionTemplate(addrUuid)))
+            {
+                perms.add(PermissionFactory.getPermissionTemplateSubTree());
+            }
 		}
 		
 		return perms;
@@ -780,7 +794,7 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Check WRITE_TREE Permission of given user on given object and return "yes"/"no"
+	 * Check WRITE_TREE, WRITE_SUBTREE Permission of given user on given object and return "yes"/"no"
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 * @param objUuid
 	 * @param userAddrUuid
@@ -791,14 +805,30 @@ public class MdekPermissionHandler {
 	private boolean hasTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
 		for (Permission p : perms) {
-			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
+			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree()) ||
+		        permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())
+		    ) {
 				return true;
-			}
+            }
 		}
 		
 		return false;
 	}
 
+    /**
+     * Check any permission of given user on given object and return "yes"/"no"
+     * (CHECKS ALSO INHERITED PERMISSIONS)!
+     * @param objUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
+     * @return
+     */
+    private boolean hasPermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+        List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
+        return (perms.size() > 0);
+    }
+	
 	/**
 	 * Check Write Permission of given user on given address and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
@@ -822,7 +852,7 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Check WRITE_TREE Permission of given user on given address and return "yes"/"no" !
+	 * Check WRITE_TREE or WRITE_SUBTREE Permission of given user on given address and return "yes"/"no" !
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 * @param addrUuid
 	 * @param userAddrUuid
@@ -835,12 +865,29 @@ public class MdekPermissionHandler {
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
+			} else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+                return true;
 			}
 		}
 		
 		return false;
 	}
 
+    /**
+     * Check any permission of given user on given address and return "yes"/"no" !
+     * (CHECKS ALSO INHERITED PERMISSIONS)!
+     * @param addrUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
+     * @return
+     */
+    private boolean hasPermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+        List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid, checkWorkflow);       
+        return (perms.size() > 0);
+    }
+	
+	
 	/** Check whether user has given user permission and return "yes"/"no" ! */
 	public boolean hasUserPermission(Permission userPermission, String userAddrUuid) {
 		return permService.hasUserPermission(userAddrUuid, userPermission);			
@@ -882,6 +929,55 @@ public class MdekPermissionHandler {
 		return getUsersWithWritePermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS, checkWorkflow);
 	}
 
+    /** Get all users who have tree access (write-tree, write-subtree) for the given object. Pass list of ALL groups !
+     * We check every group for tree access (write-tree, write-subtree) via first user in group !!!
+     * @param objUuid the object
+     * @param allGroups list of ALL groups.
+     * @param checkWorkflow false=workflow state is ignored, only check of write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
+     * @return
+     */
+    public List<IdcUser> getUsersWithTreePermissionForObject(String objUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+        return getUsersWithTreePermissionForEntity(objUuid, allGroups, IdcEntityType.OBJECT, checkWorkflow);
+    }
+	
+    /** Get all users who have tree access (write-tree, write-subtree) for the given address. Pass list of ALL groups !
+     * We check every group for tree access (write-tree, write-subtree) via first user in group !!!
+     * @param addrUuid the address
+     * @param allGroups list of ALL groups.
+     * @param checkWorkflow false=workflow state is ignored, only check of write-tree permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
+     * @return
+     */
+    public List<IdcUser> getUsersWithTreePermissionForAddress(String addrUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+        return getUsersWithTreePermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS, checkWorkflow);
+    }
+	
+    /** Get all users who have any permission for the given object. Pass list of ALL groups !
+     * We check every group for permission via first user in group !!!
+     * @param objUuid the object
+     * @param allGroups list of ALL groups.
+     * @param checkWorkflow false=workflow state is ignored, only check of write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
+     * @return
+     */
+    public List<IdcUser> getUsersWithPermissionForObject(String objUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+        return getUsersWithPermissionForEntity(objUuid, allGroups, IdcEntityType.OBJECT, checkWorkflow);
+    }
+    
+    /** Get all users who have any permission for the given address. Pass list of ALL groups !
+     * We check every group for permission via first user in group !!!
+     * @param addrUuid the address
+     * @param allGroups list of ALL groups.
+     * @param checkWorkflow false=workflow state is ignored, only check of write-tree permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
+     * @return
+     */
+    public List<IdcUser> getUsersWithPermissionForAddress(String addrUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+        return getUsersWithPermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS, checkWorkflow);
+    }
+    
+    
 	private List<IdcUser> getUsersWithWritePermissionForEntity(String entityUuid,
 			List<IdcGroup> allGroups,
 			IdcEntityType entityType,
@@ -948,4 +1044,138 @@ public class MdekPermissionHandler {
 		
 		return retUsers;
 	}
+	
+    private List<IdcUser> getUsersWithTreePermissionForEntity(String entityUuid,
+            List<IdcGroup> allGroups,
+            IdcEntityType entityType,
+            boolean checkWorkflow) {
+
+        List<IdcUser> retUsers = new ArrayList<IdcUser>();
+
+        // get catAdmin to check whether a user is the catAdmin !
+        IdcUser catAdmin = permService.getCatalogAdminUser();
+        String catAdminUuid = catAdmin.getAddrUuid();
+
+        // check every group for write tree access (via first user in group) and add all users of group if so !
+        for (IdcGroup group : allGroups) {
+            List<IdcUser> gUsers = daoIdcUser.getIdcUsersByGroupId(group.getId());
+            boolean addGroupUsers = false;
+            
+            // as soon as a user (who is NOT catAdmin) has write tree access, we add all users of group !
+            for (IdcUser gUser : gUsers) {
+                // skip cat admin, has ALL PERMISSIONS !!!
+                if (gUser.getAddrUuid().equals(catAdminUuid)) {
+                    continue;
+                }
+                if (entityType == IdcEntityType.OBJECT) {
+                    if (hasTreePermissionForObject(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
+                        addGroupUsers = true;
+                        break;
+                    }
+                } else if (entityType == IdcEntityType.ADDRESS) {
+                    if (hasTreePermissionForAddress(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
+                        addGroupUsers = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (addGroupUsers) {
+                retUsers.addAll(gUsers);
+            }
+        }
+
+        // if catAdmin not added yet, add him !
+        boolean addCatAdmin = true;
+        for (IdcUser retUser : retUsers) {
+            if (retUser.getAddrUuid().equals(catAdminUuid)) {
+                addCatAdmin = false;
+                break;
+            }
+        }
+        if (addCatAdmin) {
+            retUsers.add(catAdmin);
+        }
+
+        // remove duplicate users ! user may have multiple groups, is present for every group
+        List<Long> userIds = new ArrayList<Long>();
+        Iterator<IdcUser> itr  = retUsers.iterator();
+        while(itr.hasNext()) {
+            IdcUser u = itr.next();
+            if (!userIds.contains(u.getId())) {
+                userIds.add(u.getId());
+            } else {
+                itr.remove();
+            }
+        }
+        
+        return retUsers;
+    }	
+    
+    private List<IdcUser> getUsersWithPermissionForEntity(String entityUuid,
+            List<IdcGroup> allGroups,
+            IdcEntityType entityType,
+            boolean checkWorkflow) {
+
+        List<IdcUser> retUsers = new ArrayList<IdcUser>();
+
+        // get catAdmin to check whether a user is the catAdmin !
+        IdcUser catAdmin = permService.getCatalogAdminUser();
+        String catAdminUuid = catAdmin.getAddrUuid();
+
+        // check every group for write tree access (via first user in group) and add all users of group if so !
+        for (IdcGroup group : allGroups) {
+            List<IdcUser> gUsers = daoIdcUser.getIdcUsersByGroupId(group.getId());
+            boolean addGroupUsers = false;
+            
+            // as soon as a user (who is NOT catAdmin) has write tree access, we add all users of group !
+            for (IdcUser gUser : gUsers) {
+                // skip cat admin, has ALL PERMISSIONS !!!
+                if (gUser.getAddrUuid().equals(catAdminUuid)) {
+                    continue;
+                }
+                if (entityType == IdcEntityType.OBJECT) {
+                    if (hasPermissionForObject(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
+                        addGroupUsers = true;
+                        break;
+                    }
+                } else if (entityType == IdcEntityType.ADDRESS) {
+                    if (hasPermissionForAddress(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
+                        addGroupUsers = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (addGroupUsers) {
+                retUsers.addAll(gUsers);
+            }
+        }
+
+        // if catAdmin not added yet, add him !
+        boolean addCatAdmin = true;
+        for (IdcUser retUser : retUsers) {
+            if (retUser.getAddrUuid().equals(catAdminUuid)) {
+                addCatAdmin = false;
+                break;
+            }
+        }
+        if (addCatAdmin) {
+            retUsers.add(catAdmin);
+        }
+
+        // remove duplicate users ! user may have multiple groups, is present for every group
+        List<Long> userIds = new ArrayList<Long>();
+        Iterator<IdcUser> itr  = retUsers.iterator();
+        while(itr.hasNext()) {
+            IdcUser u = itr.next();
+            if (!userIds.contains(u.getId())) {
+                userIds.add(u.getId());
+            } else {
+                itr.remove();
+            }
+        }
+        
+        return retUsers;
+    }       
 }
