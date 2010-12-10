@@ -1168,7 +1168,90 @@ class MdekExampleSecurityThread extends Thread {
 		if (copiedObjUuid != null) {
 			supertool.deleteObjectWorkingCopy(copiedObjUuid, true);			
 		}
+		clearPermissionsOfGroupDoc(newGroupDoc);
 
+// ===================================
+        
+        System.out.println("\n\n--------------------------------------------------------");
+        System.out.println("----- ADDRESS/OBJECT: \"CREATE\" SUBTREE PERMISSION -----");
+        System.out.println("--------------------------------------------------------");
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- add user permission WRITE_TREE on target parent -----");
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, newParentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, newParentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with WRITE_TREE permissions) -----");
+        supertool.setCallingUser(newMetaAuthor1Uuid);
+
+        System.out.println("\n----- verify permissions for object -----");
+        supertool.getObjectPermissions(newParentObjUuid, true);
+
+        System.out.println("\n----- verify permissions for address -----");
+        supertool.getAddressPermissions(newParentAddrUuid, true);
+        
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- store parent object -> NOT ALLOWED (WRITE_SUBTREE in parent!) -----");
+        doc = supertool.fetchObject(newParentObjUuid, FetchQuantity.EDITOR_ENTITY);
+        supertool.setFullOutput(true);
+        supertool.storeObject(doc, false);
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- store parent address -> NOT ALLOWED (WRITE_SUBTREE in parent!) -----");
+        doc = supertool.fetchAddress(newParentAddrUuid, FetchQuantity.EDITOR_ENTITY);
+        supertool.setFullOutput(true);
+        supertool.storeAddress(doc, false);
+        
+        
+        newAdrDoc = new IngridDocument();
+        newAdrDoc.put(MdekKeys.PARENT_UUID, newParentAddrUuid);
+        supertool.getInitialAddress(newAdrDoc);
+        // extend doc with own data !
+        newAdrDoc.put(MdekKeys.NAME, "testNAME");
+        newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME SUB_TREE");
+        newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION SUB_TREE");
+        newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
+        newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- create sub address -> ALLOWED -----");
+        newAdrDoc = supertool.storeAddress(newAdrDoc, false);
+        newAddrUuid = (String) newAdrDoc.get(MdekKeys.UUID);
+        
+        
+        newObjDoc = new IngridDocument();
+        newObjDoc.put(MdekKeys.PARENT_UUID, newParentObjUuid);
+        supertool.getInitialObject(newObjDoc);
+        // extend doc with own data !
+        newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT SUB TREE");
+        System.out.println("\n----- create sub object -> ALLOWED -----");
+        newObjDoc = supertool.storeObject(newObjDoc, false);
+        newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- copy object to new parent -> ALLOWED -----");
+        doc = supertool.copyObject(objUuid, newParentObjUuid, false);
+        copiedObjUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
+
+        System.out.println("\n----- copy address to new parent -> ALLOWED -----");
+        doc = supertool.copyAddress(addrUuid, newParentAddrUuid, false, false);
+        copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- and delete new sub entities -> ALLOWED (WRITE_SUBTREE in parent!) -----");
+        supertool.deleteAddressWorkingCopy(newAddrUuid, true);
+        supertool.deleteObjectWorkingCopy(newObjUuid, true);
+        if (copiedAddrUuid != null) {
+            supertool.deleteAddressWorkingCopy(copiedAddrUuid, true);           
+        }
+        if (copiedObjUuid != null) {
+            supertool.deleteObjectWorkingCopy(copiedObjUuid, true);         
+        }
+        
+        clearPermissionsOfGroupDoc(newGroupDoc);
+        
+		
 // ===================================
 		
 		System.out.println("\n------------------------------------------------");
