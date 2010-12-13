@@ -14,8 +14,11 @@
     </release>
 
 	<release version="2.3.0-SNAPSHOT (branch)" date="?" description="Release InGrid 2.3 static changes. ENFORCES UPDATE OF IGC Schema (2.3.0) AND PORTAL !">
+      <action type="add" dev="wemove" issue="INGRID23-52">
+        InGrid 2.3: Introduce input of INSPIRE Encoding (data format) (IGC Schema 2.3.0).
+      </action>
       <action type="add" dev="wemove" issue="INGRID23-31">
-        InGrid 2.3: Add INSPIRE Conformity when INSPIRE Theme selected. Introduce Data Quality input in "Geoinformation/Karte" (IGC Schema 2.3.0).
+        InGrid 2.3: Introduce input of Data Quality in "Geoinformation/Karte" (IGC Schema 2.3.0).
       </action>
       <action type="add" dev="wemove" issue="INGRID23-24">
         InGrid 2.3: Split object class "Dienst/Anwendung/Informationssystem" into classes "Geodatendienst" and "Informationssystem/Dienst/Anwendung" (IGC Schema 1.0.9).

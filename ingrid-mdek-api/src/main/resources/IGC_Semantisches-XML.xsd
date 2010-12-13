@@ -862,6 +862,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="use-constraint"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format-inspire"/>
         <xs:element minOccurs="0" ref="publication-condition"/>
         <xs:element minOccurs="0" ref="dataset-usage"/>
         <xs:element minOccurs="0" ref="ordering-instructions"/>
@@ -1011,6 +1012,23 @@
     Tabelle.Feld   : T0110_avail_format.file_decompression_technique
   -->
   <xs:element name="file-decompression-technique" type="xs:string"/>
+  <!--
+    Fachlicher Name: INSPIRE Datenformat (encoding)
+    Tabelle.Feld   : object_format_inspire
+  -->
+  <xs:element name="data-format-inspire">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="format-inspire-name"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Formatname (INSPIRE-Encoding)
+    Tabelle.Feld   : object_format_inspire.format_key
+    Tabelle.Feld   : object_format_inspire.format_value
+  -->
+  <xs:element name="format-inspire-name" type="id-string"/>
   <!--
     Fachlicher Name: Kommentar (Objekt-/Adress-Kommentar)
     Tabelle   : object_comment

@@ -208,17 +208,17 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
 		// add entries to OBJECT DQ
 		MdekSysList[] dqSyslists = new MdekSysList[] {
-				MdekSysList.DQ_CompletenessComission,
-				MdekSysList.DQ_CompletenessOmission,
-				MdekSysList.DQ_ConceptualConsistency,
-				MdekSysList.DQ_DomainConsistency,
-				MdekSysList.DQ_FormatConsistency,
-				MdekSysList.DQ_TopologicalConsistency,
-				MdekSysList.DQ_AbsoluteExternalPositionalAccuracy,
-				MdekSysList.DQ_TemporalConsistency,
-				MdekSysList.DQ_ThematicClassificationCorrectness,
-				MdekSysList.DQ_NonQuantitativeAttributeAccuracy,
-				MdekSysList.DQ_QuantitativeAttributeAccuracy };
+				MdekSysList.DQ_109_CompletenessComission,
+				MdekSysList.DQ_110_CompletenessOmission,
+				MdekSysList.DQ_112_ConceptualConsistency,
+				MdekSysList.DQ_113_DomainConsistency,
+				MdekSysList.DQ_114_FormatConsistency,
+				MdekSysList.DQ_115_TopologicalConsistency,
+				MdekSysList.DQ_117_AbsoluteExternalPositionalAccuracy,
+				MdekSysList.DQ_120_TemporalConsistency,
+				MdekSysList.DQ_125_ThematicClassificationCorrectness,
+				MdekSysList.DQ_126_NonQuantitativeAttributeAccuracy,
+				MdekSysList.DQ_127_QuantitativeAttributeAccuracy };
 		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.DATA_QUALITY_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		oMap.put(MdekKeys.DATA_QUALITY_LIST, docList);
@@ -235,6 +235,18 @@ class MdekExampleExportImportObjectThread extends Thread {
 				docList.add(testDoc);
 				key = key - 2;
 			}
+		}
+		// add entries to OBJECT FORMAT_INSPIRE
+		docList = (List<IngridDocument>) oMap.get(MdekKeys.FORMAT_INSPIRE_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		oMap.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
+		Integer[] formatInspireKeys = new Integer[] {
+				1, 2, 3, 4, 5, 6, -1 };
+		for (Integer formatInspireKey : formatInspireKeys) {
+			IngridDocument testDoc = new IngridDocument();
+			testDoc.put(MdekKeys.FORMAT_KEY, formatInspireKey);
+			testDoc.put(MdekKeys.FORMAT_VALUE, "Free FORMAT_VALUE !!!?");
+			docList.add(testDoc);
 		}
 		oMap = supertool.publishObject(oMap, true, false);
 
@@ -266,6 +278,11 @@ class MdekExampleExportImportObjectThread extends Thread {
 		docList = (List<IngridDocument>) oMap.get(MdekKeys.DATA_QUALITY_LIST);
 		for (int i=0; i < dqSyslists.length; i++) {
 			docList.remove(docList.size()-1);
+			docList.remove(docList.size()-1);
+		}
+		// remove all added test FORMAT_INSPIRE elements
+		docList = (List<IngridDocument>) oMap.get(MdekKeys.FORMAT_INSPIRE_LIST);
+		for (int i=0; i < formatInspireKeys.length; i++) {
 			docList.remove(docList.size()-1);
 		}
 		result = supertool.publishObject(oMap, true, false);

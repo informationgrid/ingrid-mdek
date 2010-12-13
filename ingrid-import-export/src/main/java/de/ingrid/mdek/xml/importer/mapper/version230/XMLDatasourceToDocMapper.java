@@ -153,6 +153,9 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_DATA_FORMAT_VERSION = "version/text()";
 	private static final String X_ADDITIONAL_DATA_FORMAT_SPECIFICATION = "specification/text()";
 	private static final String X_ADDITIONAL_DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE = "file-decompression-technique/text()";
+	private static final String X_ADDITIONAL_DATA_FORMAT_INSPIRE_LIST = "//data-source/additional-information/data-format-inspire";
+	private static final String X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME = "format-inspire-name/text()";
+	private static final String X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME_KEY = "format-inspire-name/@id";
 	private static final String X_ADDITIONAL_PUBLICATION_CONDITION = "//data-source/additional-information/publication-condition/text()";
 	private static final String X_ADDITIONAL_DATASET_USAGE = "//data-source/additional-information/dataset-usage/text()";
 	private static final String X_ADDITIONAL_ORDERING_INSTRUCTION = "//data-source/additional-information/ordering-instructions/text()";
@@ -606,6 +609,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapUseConstraints(source, target);
 		mapMediumOptions(source, target);
 		mapDataFormats(source, target);
+		mapDataFormatsInspire(source, target);
 		putInt(MdekKeys.PUBLICATION_CONDITION,
 				XPathUtils.getInt(source, X_ADDITIONAL_PUBLICATION_CONDITION), target);
 		putString(MdekKeys.DATASET_USAGE,
@@ -712,6 +716,22 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		}
 
 		putDocList(MdekKeys.DATA_FORMATS, dataFormatList, target);
+	}
+
+	private static void mapDataFormatsInspire(Document source, IngridDocument target) {
+		NodeList formats = XPathUtils.getNodeList(source, X_ADDITIONAL_DATA_FORMAT_INSPIRE_LIST);
+		List<IngridDocument> formatList = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < formats.getLength(); index++) {
+			Node format = formats.item(index);
+			IngridDocument formatDoc = new IngridDocument();
+			putString(MdekKeys.FORMAT_VALUE, XPathUtils.getString(format, X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME), formatDoc);
+			putInt(MdekKeys.FORMAT_KEY, XPathUtils.getInt(format, X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME_KEY), formatDoc);
+
+			formatList.add(formatDoc);
+		}
+
+		putDocList(MdekKeys.FORMAT_INSPIRE_LIST, formatList, target);
 	}
 
 	private static void mapComments(Document source, IngridDocument target) {

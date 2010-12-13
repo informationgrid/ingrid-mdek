@@ -53,6 +53,7 @@ public class T01Object implements IEntity {
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
 	private Set objectDataQualitys = new HashSet();
+	private Set objectFormatInspires = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set objectUses = new HashSet();
 	private Set searchtermObjs = new HashSet();
@@ -440,6 +441,14 @@ public class T01Object implements IEntity {
 
 	public void setObjectDataQualitys(Set objectDataQualitys) {
 		this.objectDataQualitys = objectDataQualitys;
+	}
+
+	public Set getObjectFormatInspires() {
+		return objectFormatInspires;
+	}
+
+	public void setObjectFormatInspires(Set objectFormatInspires) {
+		this.objectFormatInspires = objectFormatInspires;
 	}
 
 	public Set getObjectReferences() {

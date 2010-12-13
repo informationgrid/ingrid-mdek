@@ -30,6 +30,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
+import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
@@ -328,6 +329,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 			mapObjectUses(o.getObjectUses(), objectDoc);
 			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
+			mapObjectFormatInspires(o.getObjectFormatInspires(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -2006,6 +2008,33 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.NAME_OF_MEASURE_VALUE, ref.getNameOfMeasureValue());
 		refDoc.put(MdekKeys.RESULT_VALUE, ref.getResultValue());
 		refDoc.put(MdekKeys.MEASURE_DESCRIPTION, ref.getMeasureDescription());
+
+		return refDoc;
+	}
+
+	private IngridDocument mapObjectFormatInspires(Set<ObjectFormatInspire> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (ObjectFormatInspire ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapObjectFormatInspire(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.FORMAT_INSPIRE_LIST, refList);
+		
+		return objectDoc;
+	}
+
+	private IngridDocument mapObjectFormatInspire(ObjectFormatInspire ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.FORMAT_KEY, ref.getFormatKey());
+		refDoc.put(MdekKeys.FORMAT_VALUE, ref.getFormatValue());
 
 		return refDoc;
 	}

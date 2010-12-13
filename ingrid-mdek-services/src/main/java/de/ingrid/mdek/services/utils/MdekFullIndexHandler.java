@@ -23,6 +23,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
+import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
@@ -508,6 +509,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, objDQ.getNameOfMeasureValue());
 			extendFullData(data, objDQ.getResultValue());
 			extendFullData(data, objDQ.getMeasureDescription());
+		}
+		// ObjectFormatInspire
+		Set<ObjectFormatInspire> objFormatInspires = o.getObjectFormatInspires();
+		for (ObjectFormatInspire objFormatInspire : objFormatInspires) {
+			extendFullDataWithSysList(data, MdekSysList.OBJ_FORMAT_INSPIRE,
+					objFormatInspire.getFormatKey(), objFormatInspire.getFormatValue());				
 		}
 
 		// T01Object

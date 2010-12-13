@@ -1538,6 +1538,15 @@ class MdekExampleObjectThread extends Thread {
 			}
 		}
 
+		// add entry to OBJECT FORMAT_INSPIRE
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.FORMAT_INSPIRE_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check FORMAT_KEY -> FORMAT_VALUE is stored via syslist
+		testDoc.put(MdekKeys.FORMAT_KEY, 1);
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
+
 		// store
 		System.out.println("STORE");
 		result = supertool.storeObject(oDocIn, false);
@@ -1702,7 +1711,7 @@ class MdekExampleObjectThread extends Thread {
 				oRefetchedDoc.put(MdekKeys.USE_LIST, docList);
 			}
 
-			// OBJECT USE wieder wie vorher !
+			// OBJECT DQ wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_QUALITY_LIST);
 			if (docList != null && docList.size() > 0) {
 				// remove all added test dq elements
@@ -1710,6 +1719,13 @@ class MdekExampleObjectThread extends Thread {
 					docList.remove(docList.size()-1);
 					docList.remove(docList.size()-1);
 				}
+			}
+
+			// OBJECT FORMAT_INSPIRE wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.FORMAT_INSPIRE_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
 			}
 
 			// store

@@ -12,6 +12,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
+import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
@@ -66,7 +67,8 @@ public class MdekKeyValueHandler {
 		SearchtermValue.class,
 		T03Catalogue.class,
 		T01Object.class,
-		ObjectDataQuality.class
+		ObjectDataQuality.class,
+		ObjectFormatInspire.class
 	};
 
 	/** Get The Singleton */
@@ -138,6 +140,8 @@ public class MdekKeyValueHandler {
 			processKeyValueT01Object((T01Object) bean);
 		} else if (ObjectDataQuality.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectDataQuality((ObjectDataQuality) bean);
+		} else if (ObjectFormatInspire.class.isAssignableFrom(clazz)) {
+			processKeyValueObjectFormatInspire((ObjectFormatInspire) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -563,6 +567,19 @@ public class MdekKeyValueHandler {
 			}
 		}
 		
+		return bean;
+	}
+
+	private IEntity processKeyValueObjectFormatInspire(ObjectFormatInspire bean) {
+		Integer entryKey = bean.getFormatKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_FORMAT_INSPIRE.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setFormatValue(keyNameMap.get(entryKey));
+		}
+
 		return bean;
 	}
 }

@@ -77,6 +77,8 @@ public class XMLKeys {
 	public static final String SPECIFICATION = "specification";
 	public static final String VERSION = "version";
 	public static final String DATA_FORMAT = "data-format";
+	public static final String DATA_FORMAT_INSPIRE = "data-format-inspire";
+	public static final String FORMAT_INSPIRE_NAME = "format-inspire-name";
 	public static final String MEDIUM_NAME = "medium-name";
 	public static final String TRANSFER_SIZE = "transfer-size";
 	public static final String MEDIUM_NOTE = "medium-note";

@@ -96,6 +96,7 @@ public class MdekUtils {
 		/** INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)"),
 		COUNTRY(6200, "T03Catalogue, T02Address -> countryKey=entryId, countryValue=name"),
+		OBJ_FORMAT_INSPIRE(6300, "ObjectFormatInspire -> formatKey=entryId, formatValue=name"),
 		DQ_109_CompletenessComission(7109, "ObjectDataQuality -> " +
 			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=109"),
 		DQ_110_CompletenessOmission(7110, "ObjectDataQuality -> " +
