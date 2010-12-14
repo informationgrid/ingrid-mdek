@@ -20,6 +20,7 @@ public class EntityPermission extends Permission {
 	Permission permission;
 
 	public EntityPermission(Permission p, String uuid) {
+        super(p);
 		this.uuid = uuid;
 		this.permission = p;
 	}

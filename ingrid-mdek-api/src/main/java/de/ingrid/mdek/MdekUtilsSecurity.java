@@ -98,6 +98,9 @@ public class MdekUtilsSecurity {
 				if (idcPerm == IdcPermission.WRITE_TREE) {
 					return true;
 				}
+				if (idcPerm == IdcPermission.WRITE_SUBTREE && !idcPermDoc.getBoolean(MdekKeysSecurity.IS_INHERITING)) {
+				    return true;
+				}
 			}
 		}
 

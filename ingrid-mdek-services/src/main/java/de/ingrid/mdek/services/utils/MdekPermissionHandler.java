@@ -83,7 +83,7 @@ public class MdekPermissionHandler {
 
 		// user can store new object -> full access, we return "write-tree" permission
 		List<Permission> perms = new ArrayList<Permission>();
-		perms.add(PermissionFactory.getPermissionTemplateTree());
+		perms.add(PermissionFactory.getTreeObjectPermissionTemplate(null));
 		
 		return perms;
 	}
@@ -107,13 +107,15 @@ public class MdekPermissionHandler {
 
 		// user can store new address -> full access, we return "write-tree" permission
 		List<Permission> perms = new ArrayList<Permission>();
-		perms.add(PermissionFactory.getPermissionTemplateTree());
+		perms.add(PermissionFactory.getTreeAddressPermissionTemplate(null));
 		
 		return perms;
 	}
 
 	/**
-	 * Get "all" permissions of user for given object (ALSO INHERITED PERMISSIONS).
+	 * Get "all" permissions of user for given object (ALSO INHERITED PERMISSIONS). Inheriting permissions are 
+	 * returned as EntityPermissions to be able to detect inheriting entities.
+	 * 
 	 * @param objUuid uuid of Object Entity to check
 	 * @param userAddrUuid users address uuid
 	 * @param checkWorkflow false=workflow state is ignored<br>
@@ -122,16 +124,17 @@ public class MdekPermissionHandler {
 	 */
 	public List<Permission> getPermissionsForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
 		List<Permission> perms = new ArrayList<Permission>();
+        EntityPermission epSingle = PermissionFactory.getSingleAddressPermissionTemplate(objUuid);
+        EntityPermission epTree = PermissionFactory.getTreeAddressPermissionTemplate(objUuid);
+        EntityPermission epSubTree = PermissionFactory.getSubTreeAddressPermissionTemplate(objUuid);
 		
 		// check workflow permission before entity write permission
 		if (checkWorkflow) {
 			// if no write permission due to workflow, check if at least permission to write/create subnodes !
 			if (!workflowHandler.hasWorkflowPermissionForObject(objUuid, userAddrUuid)) {
 				// check write tree independent from workflow
-				if (permService.hasInheritedPermissionForObject(userAddrUuid, 
-						PermissionFactory.getTreeObjectPermissionTemplate(objUuid)) ||
-					permService.hasPermissionForObject(userAddrUuid, 
-		                        PermissionFactory.getSubTreeObjectPermissionTemplate(objUuid))) {
+				if (permService.hasInheritedPermissionForObject(userAddrUuid, epTree) ||
+					permService.hasInheritedPermissionForObject(userAddrUuid, epSubTree)) {
 					// we have permission for subtree, return dummy permission informing frontend
 					perms.add(PermissionFactory.getPermissionTemplateSubTree());
 				}
@@ -146,47 +149,53 @@ public class MdekPermissionHandler {
 
 		} else {
 			// we return BOTH WRITE PERMISSIONS if set ! SHOULD NOT HAPPEN !
-			if (permService.hasPermissionForObject(userAddrUuid, 
-				PermissionFactory.getSingleObjectPermissionTemplate(objUuid)))
-			{
+			if (permService.hasPermissionForObject(userAddrUuid, epSingle)) {
 				perms.add(PermissionFactory.getPermissionTemplateSingle());
 			}
-			if (permService.hasInheritedPermissionForObject(userAddrUuid, 
-				PermissionFactory.getTreeObjectPermissionTemplate(objUuid)))
-			{
+			if (permService.hasPermissionForObject(userAddrUuid, epTree)) {
+                // add EntityPermission instead of Permission to transport the uuid
+			    // of the inheriting entity. See BeanToDocMapperSecurity.mapPermission()
+			    perms.add(epTree);
+            } else if (permService.hasInheritedPermissionForObject(userAddrUuid,epTree)) {
 				perms.add(PermissionFactory.getPermissionTemplateTree());
 			}
-            if (permService.hasPermissionForObject(userAddrUuid, 
-                    PermissionFactory.getSubTreeObjectPermissionTemplate(objUuid)))
-                {
-                    perms.add(PermissionFactory.getPermissionTemplateSubTree());
-                }
+            if (permService.hasPermissionForObject(userAddrUuid, epSubTree)) {
+                // add EntityPermission instead of Permission to transport the uuid
+                // of the inheriting entity. See BeanToDocMapperSecurity.mapPermission()
+                perms.add(epSubTree);
+            } else if (permService.hasInheritedPermissionForObject(userAddrUuid, epSubTree)) {
+                perms.add(PermissionFactory.getPermissionTemplateSubTree());
+            }
 		}
 
 		return perms;
 	}
 
 	/**
-	 * Get "all" permissions of user for given address (ALSO INHERITED PERMISSIONS).
+     * Get "all" permissions of user for given address (ALSO INHERITED PERMISSIONS). Inheriting permissions are 
+     * returned as EntityPermissions to be able to detect inheriting entities.
+     * 
 	 * @param addrUuid uuid of Address Entity to check
 	 * @param userAddrUuid users address uuid
 	 * @param checkWorkflow false=workflow state is ignored<br>
 	 * 	true=also take workflow into account (IF ENABLED), e.g. return no write permission if entity is in state "Q" and user is NOT QA !
-	 * @return list of found permissions, may be inherited or directly set on address
+	 * @return list of found Permissions, may be inherited or directly set on address
 	 */
 	public List<Permission> getPermissionsForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
 		List<Permission> perms = new ArrayList<Permission>();
+        EntityPermission epSingle = PermissionFactory.getSingleAddressPermissionTemplate(addrUuid);
+		EntityPermission epTree = PermissionFactory.getTreeAddressPermissionTemplate(addrUuid);
+        EntityPermission epSubTree = PermissionFactory.getSubTreeAddressPermissionTemplate(addrUuid);
+		
 
 		// check workflow permission before entity write permission
 		if (checkWorkflow) {
 			// if no write permission due to workflow, check if at least permission to write/create subnodes !
 			if (!workflowHandler.hasWorkflowPermissionForAddress(addrUuid, userAddrUuid)) {
 				// check write tree independent from workflow
-				if (permService.hasInheritedPermissionForAddress(userAddrUuid, 
-						PermissionFactory.getTreeAddressPermissionTemplate(addrUuid)) ||
-					permService.hasPermissionForAddress(userAddrUuid, 
-		                        PermissionFactory.getSubTreeAddressPermissionTemplate(addrUuid))	) {
-					// we have permission for subtree, return dummy permission informing frontend
+				if (permService.hasInheritedPermissionForAddress(userAddrUuid, epTree) ||
+					permService.hasInheritedPermissionForAddress(userAddrUuid, epSubTree) ) {
+					// we have permission for subtree, return sub-tree permission informing frontend
 					perms.add(PermissionFactory.getPermissionTemplateSubTree());
 				}
 
@@ -194,29 +203,31 @@ public class MdekPermissionHandler {
 			}			
 		}
 
-		if (isCatalogAdmin(userAddrUuid)) {
-			// full access, we return "write-tree" permission
-			perms.add(PermissionFactory.getPermissionTemplateTree());
 
-		} else {
-			// we return BOTH WRITE PERMISSIONS if set ! SHOULD NOT HAPPEN !
-			if (permService.hasPermissionForAddress(userAddrUuid, 
-					PermissionFactory.getSingleAddressPermissionTemplate(addrUuid)))
-			{
-				perms.add(PermissionFactory.getPermissionTemplateSingle());
+        if (isCatalogAdmin(userAddrUuid)) {
+            // full access, we return "write-tree" permission
+            perms.add(PermissionFactory.getPermissionTemplateTree());
 
-			}
-			if (permService.hasInheritedPermissionForAddress(userAddrUuid, 
-					PermissionFactory.getTreeAddressPermissionTemplate(addrUuid)))
-			{
-				perms.add(PermissionFactory.getPermissionTemplateTree());
-			}
-            if (permService.hasPermissionForAddress(userAddrUuid, 
-                    PermissionFactory.getSubTreeAddressPermissionTemplate(addrUuid)))
-            {
+        } else {
+            // we return BOTH WRITE PERMISSIONS if set ! SHOULD NOT HAPPEN !
+            if (permService.hasPermissionForAddress(userAddrUuid, epSingle)) {
+                perms.add(PermissionFactory.getPermissionTemplateSingle());
+            }
+            if (permService.hasPermissionForAddress(userAddrUuid, epTree)) {
+                // add EntityPermission instead of Permission to transport the uuid
+                // of the inheriting entity. See BeanToDocMapperSecurity.mapPermission()
+                perms.add(epTree);
+            } else if (permService.hasInheritedPermissionForAddress(userAddrUuid,epTree)) {
+                perms.add(PermissionFactory.getPermissionTemplateTree());
+            }
+            if (permService.hasPermissionForAddress(userAddrUuid, epSubTree)) {
+                // add EntityPermission instead of Permission to transport the uuid
+                // of the inheriting entity. See BeanToDocMapperSecurity.mapPermission()
+                perms.add(epSubTree);
+            } else if (permService.hasInheritedPermissionForAddress(userAddrUuid, epSubTree)) {
                 perms.add(PermissionFactory.getPermissionTemplateSubTree());
             }
-		}
+        }		
 		
 		return perms;
 	}
@@ -463,7 +474,7 @@ public class MdekPermissionHandler {
 				checkCreateRootPermission(userUuid);					
 			} else {
 				// has permission to create sub node on parent ?					
-				checkTreePermissionForObject(parentUuid, userUuid, false);					
+				checkTreeOrSubTreePermissionForObject(parentUuid, userUuid, false);					
 			}
 		} else {
 			// has write permission ?					
@@ -488,7 +499,7 @@ public class MdekPermissionHandler {
 				checkCreateRootPermission(userUuid);
 			} else {
 				// has permission to create sub node on parent ?
-				checkTreePermissionForAddress(parentUuid, userUuid, false);
+				checkTreeOrSubTreePermissionForAddress(parentUuid, userUuid, false);
 			}
 		} else {
 			// has write permission ?
@@ -535,7 +546,7 @@ public class MdekPermissionHandler {
 			checkCreateRootPermission(userUuid);
 		} else {
 			// has permission to create sub node on parent ?					
-			checkTreePermissionForObject(toUuid, userUuid, false);					
+			checkTreeOrSubTreePermissionForObject(toUuid, userUuid, false);					
 		}
 	}
 
@@ -551,7 +562,7 @@ public class MdekPermissionHandler {
 			checkCreateRootPermission(userUuid);
 		} else {
 			// has permission to create sub node on parent ?					
-			checkTreePermissionForAddress(toUuid, userUuid, false);					
+			checkTreeOrSubTreePermissionForAddress(toUuid, userUuid, false);					
 		}
 	}
 
@@ -563,7 +574,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkPermissionsForMoveObject(String fromUuid, String toUuid, String userUuid) {
 		// has permission to remove from source (delete subnode) ?
-		checkTreePermissionForObject(fromUuid, userUuid, true);
+		checkTreeOrSubTreePermissionForObject(fromUuid, userUuid, true);
 		
 		// check permissions on target via copy check (are the same)
 		checkPermissionsForCopyObject(fromUuid, toUuid, userUuid);
@@ -585,7 +596,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkPermissionsForMoveAddress(String fromUuid, String toUuid, String userUuid) {
 		// has permission to remove from source (delete subnode) ?
-		checkTreePermissionForAddress(fromUuid, userUuid, true);
+		checkTreeOrSubTreePermissionForAddress(fromUuid, userUuid, true);
 		
 		// check permissions on target via copy check (are the same)
 		checkPermissionsForCopyAddress(fromUuid, toUuid, userUuid);
@@ -623,7 +634,7 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForDeleteObject(String uuid, String userUuid) {
-		checkTreePermissionForObject(uuid, userUuid, true);
+		checkTreeOrInheritedOnlySubTreePermissionForObject(uuid, userUuid, true);
 	}
 
 	/**
@@ -632,7 +643,7 @@ public class MdekPermissionHandler {
 	 * @param userUuid users address uuid
 	 */
 	public void checkPermissionsForDeleteAddress(String uuid, String userUuid) {
-		checkTreePermissionForAddress(uuid, userUuid, true);
+		checkTreeOrInheritedOnlySubTreePermissionForAddress(uuid, userUuid, true);
 	}
 
 	/**
@@ -649,16 +660,30 @@ public class MdekPermissionHandler {
 		}		
 	}
 
-	/**
-	 * Checks whether user has WRITE_TREE permission on given object AND THROWS EXCEPTION IF NOT !
-	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+    /**
+     * Checks whether user has WRITE_TREE or WRITE_SUBTREE permission on given object AND THROWS EXCEPTION IF NOT !
+     * (checks DIRECT/INHERITED PERMISSIONS for WITRE_TREE but ONLY INHERITED for WRITE_SUBTREE)!
+     * @param objUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
+     */
+    private void checkTreeOrSubTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+        if (!hasTreePermissionForObject(objUuid, userAddrUuid, checkWorkflow) && !hasSubTreePermissionForObject(objUuid, userAddrUuid, checkWorkflow)) {
+            throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
+        }       
+    }
+
+    /**
+	 * Checks whether user has WRITE_TREE or WRITE_SUBTREE (inherited only) permission on given object AND THROWS EXCEPTION IF NOT !
+	 * (checks DIRECT/INHERITED PERMISSIONS for WITRE_TREE but ONLY INHERITED for WRITE_SUBTREE)!
 	 * @param objUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
 	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 */
-	private void checkTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
-		if (!hasTreePermissionForObject(objUuid, userAddrUuid, checkWorkflow)) {
+	private void checkTreeOrInheritedOnlySubTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+		if (!hasTreePermissionForObject(objUuid, userAddrUuid, checkWorkflow) && !hasInheritedOnlySubTreePermissionForObject(objUuid, userAddrUuid, checkWorkflow)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
@@ -677,16 +702,30 @@ public class MdekPermissionHandler {
 		}		
 	}
 
-	/**
-	 * Checks whether user has WRITE_TREE permission on given address AND THROW EXCEPTION IF NOT !
-	 * (CHECKS ALSO INHERITED PERMISSIONS)!
+    /**
+     * Checks whether user has WRITE_TREE or WRITE_SUBTREE permission on given address AND THROW EXCEPTION IF NOT !
+     * (checks DIRECT/INHERITED PERMISSIONS for WITRE_TREE but ONLY INHERITED for WRITE_SUBTREE)!
+     * @param addrUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
+     */
+    private void checkTreeOrSubTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+        if (!hasTreePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow) && !hasSubTreePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow)) {
+            throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
+        }       
+    }
+
+    /**
+	 * Checks whether user has WRITE_TREE or WRITE_SUBTREE (inherited only) permission on given address AND THROW EXCEPTION IF NOT !
+     * (checks DIRECT/INHERITED PERMISSIONS for WITRE_TREE but ONLY INHERITED for WRITE_SUBTREE)!
 	 * @param addrUuid
 	 * @param userAddrUuid
 	 * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
 	 * 		true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
 	 */
-	private void checkTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
-		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow)) {
+	private void checkTreeOrInheritedOnlySubTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+		if (!hasTreePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow) && !hasInheritedOnlySubTreePermissionForAddress(addrUuid, userAddrUuid, checkWorkflow)) {
 			throw new MdekException(new MdekError(MdekErrorType.USER_HAS_NO_PERMISSION_ON_ENTITY));
 		}		
 	}
@@ -787,6 +826,12 @@ public class MdekPermissionHandler {
 				return true;
 			} else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
+            } else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+                // grant access only if the permission was NOT inherited
+                // per definition an user does not have write access to the entity with SUB_TREE permission directly attached 
+                if (!permService.hasPermissionForObject(userAddrUuid, new EntityPermission(PermissionFactory.getPermissionTemplateSubTree(), objUuid))) {
+                    return true;
+                }
 			}
 		}
 		
@@ -794,7 +839,7 @@ public class MdekPermissionHandler {
 	}
 
 	/**
-	 * Check WRITE_TREE, WRITE_SUBTREE Permission of given user on given object and return "yes"/"no"
+	 * Check WRITE_TREE Permission of given user on given object and return "yes"/"no"
 	 * (CHECKS ALSO INHERITED PERMISSIONS)!
 	 * @param objUuid
 	 * @param userAddrUuid
@@ -805,9 +850,7 @@ public class MdekPermissionHandler {
 	private boolean hasTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
 		List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
 		for (Permission p : perms) {
-			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree()) ||
-		        permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())
-		    ) {
+			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
             }
 		}
@@ -815,6 +858,48 @@ public class MdekPermissionHandler {
 		return false;
 	}
 
+    /**
+     * Check WRITE_SUBTREE Permission of given user on given object and return "yes"/"no"
+     * (CHECKS ALSO INHERITED PERMISSIONS)!
+     * @param objUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
+     * @return
+     */
+    private boolean hasSubTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+        List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
+        for (Permission p : perms) {
+            if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check for inherited only WRITE_SUBTREE Permission of given user on given object and return "yes"/"no".
+     * (CHECKS ONLY INHERITED PERMISSIONS)!
+     * @param objUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
+     * @return
+     */
+    private boolean hasInheritedOnlySubTreePermissionForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
+        List<Permission> perms = getPermissionsForObject(objUuid, userAddrUuid, checkWorkflow);
+        for (Permission p : perms) {
+            if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+                // check if the permission was NOT inherited
+                if (!permService.hasPermissionForObject(userAddrUuid, new EntityPermission(PermissionFactory.getPermissionTemplateSubTree(), objUuid))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     /**
      * Check any permission of given user on given object and return "yes"/"no"
      * (CHECKS ALSO INHERITED PERMISSIONS)!
@@ -845,6 +930,12 @@ public class MdekPermissionHandler {
 				return true;
 			} else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
+            } else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+                // grant access only if the permission was NOT inherited
+                // per definition an user does not have write access to the entity with SUB_TREE permission directly attached 
+                if (!permService.hasPermissionForAddress(userAddrUuid, new EntityPermission(PermissionFactory.getPermissionTemplateSubTree(), addrUuid))) {
+                    return true;
+                }
 			}
 		}
 		
@@ -865,14 +956,57 @@ public class MdekPermissionHandler {
 		for (Permission p : perms) {
 			if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateTree())) {
 				return true;
-			} else if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
-                return true;
 			}
 		}
 		
 		return false;
 	}
 
+    /**
+     * Check WRITE_SUBTREE Permission of given user on given address and return "yes"/"no" !
+     * (CHECKS ALSO INHERITED PERMISSIONS)!
+     * @param addrUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
+     * @return
+     */
+    private boolean hasSubTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+        List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid, checkWorkflow);       
+        for (Permission p : perms) {
+            if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    
+    /**
+     * Check for inherited only WRITE_SUBTREE Permission of given user on given address and return "yes"/"no".
+     * (CHECKS ONLY INHERITED PERMISSIONS)!
+     * @param addrUuid
+     * @param userAddrUuid
+     * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
+     *      true=also take workflow into account (IF ENABLED), e.g. return false if entity is in state "Q" and user is NOT QA !
+     * @return
+     */
+    private boolean hasInheritedOnlySubTreePermissionForAddress(String addrUuid, String userAddrUuid, boolean checkWorkflow) {
+        List<Permission> perms = getPermissionsForAddress(addrUuid, userAddrUuid, checkWorkflow);       
+        for (Permission p : perms) {
+            if (permService.isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
+                // check if the permission was NOT inherited
+                if (!permService.hasPermissionForAddress(userAddrUuid, new EntityPermission(PermissionFactory.getPermissionTemplateSubTree(), addrUuid))) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+	
+	
     /**
      * Check any permission of given user on given address and return "yes"/"no" !
      * (CHECKS ALSO INHERITED PERMISSIONS)!
@@ -937,8 +1071,8 @@ public class MdekPermissionHandler {
      *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
      * @return
      */
-    public List<IdcUser> getUsersWithTreePermissionForObject(String objUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
-        return getUsersWithTreePermissionForEntity(objUuid, allGroups, IdcEntityType.OBJECT, checkWorkflow);
+    public List<IdcUser> getUsersWithTreeOrSubTreePermissionForObject(String objUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+        return getUsersWithTreeOrSubTreePermissionForEntity(objUuid, allGroups, IdcEntityType.OBJECT, checkWorkflow);
     }
 	
     /** Get all users who have tree access (write-tree, write-subtree) for the given address. Pass list of ALL groups !
@@ -949,8 +1083,8 @@ public class MdekPermissionHandler {
      *      true=also take workflow into account (IF ENABLED), e.g. if entity is in state "Q" user has to be QA !
      * @return
      */
-    public List<IdcUser> getUsersWithTreePermissionForAddress(String addrUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
-        return getUsersWithTreePermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS, checkWorkflow);
+    public List<IdcUser> getUsersWithTreeOrSubTreePermissionForAddress(String addrUuid, List<IdcGroup> allGroups, boolean checkWorkflow) {
+        return getUsersWithTreeOrSubTreePermissionForEntity(addrUuid, allGroups, IdcEntityType.ADDRESS, checkWorkflow);
     }
 	
     /** Get all users who have any permission for the given object. Pass list of ALL groups !
@@ -1045,7 +1179,7 @@ public class MdekPermissionHandler {
 		return retUsers;
 	}
 	
-    private List<IdcUser> getUsersWithTreePermissionForEntity(String entityUuid,
+    private List<IdcUser> getUsersWithTreeOrSubTreePermissionForEntity(String entityUuid,
             List<IdcGroup> allGroups,
             IdcEntityType entityType,
             boolean checkWorkflow) {
@@ -1072,8 +1206,16 @@ public class MdekPermissionHandler {
                         addGroupUsers = true;
                         break;
                     }
+                    if (hasSubTreePermissionForObject(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
+                        addGroupUsers = true;
+                        break;
+                    }
                 } else if (entityType == IdcEntityType.ADDRESS) {
                     if (hasTreePermissionForAddress(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
+                        addGroupUsers = true;
+                        break;
+                    }
+                    if (hasSubTreePermissionForAddress(entityUuid, gUser.getAddrUuid(), checkWorkflow)) {
                         addGroupUsers = true;
                         break;
                     }

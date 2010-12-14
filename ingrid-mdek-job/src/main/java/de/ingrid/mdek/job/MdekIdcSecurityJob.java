@@ -37,6 +37,7 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
+import de.ingrid.mdek.services.security.EntityPermission;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
@@ -833,7 +834,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		}
 	}
 
-    public IngridDocument getUsersWithTreePermissionForObject(IngridDocument params) {
+    public IngridDocument getUsersWithTreeOrSubTreePermissionForObject(IngridDocument params) {
         try {
             daoIdcUser.beginTransaction();
             dao.disableAutoFlush();
@@ -845,7 +846,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
             // get all groups: search users via groups !
             List<IdcGroup> allGroups = daoIdcGroup.getGroups();
             // and search users with write access on object
-            List<IdcUser> users = permHandler.getUsersWithTreePermissionForObject(objUuid, allGroups, checkWorkflow);
+            List<IdcUser> users = permHandler.getUsersWithTreeOrSubTreePermissionForObject(objUuid, allGroups, checkWorkflow);
 
             ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
             for (IdcUser user : users) {
@@ -880,7 +881,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
      * @param params
      * @return
      */
-    public IngridDocument getUsersWithTreePermissionForAddress(IngridDocument params) {
+    public IngridDocument getUsersWithTreeOrSubTreePermissionForAddress(IngridDocument params) {
         try {
             daoIdcUser.beginTransaction();
             dao.disableAutoFlush();
@@ -892,7 +893,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
             // get all groups: search users via groups !
             List<IdcGroup> allGroups = daoIdcGroup.getGroups();
             // and search users with write access on address
-            List<IdcUser> users = permHandler.getUsersWithTreePermissionForAddress(addrUuid, allGroups, checkWorkflow);
+            List<IdcUser> users = permHandler.getUsersWithTreeOrSubTreePermissionForAddress(addrUuid, allGroups, checkWorkflow);
 
             ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
             for (IdcUser user : users) {
@@ -922,6 +923,53 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
     }	
     
     /**
+     * Get users with a any permission on an object.  
+     * 
+     * @param params
+     * @return
+     */
+    public IngridDocument getUsersWithPermissionForObject(IngridDocument params) {
+        try {
+            daoIdcUser.beginTransaction();
+            dao.disableAutoFlush();
+
+            String objUuid = (String) params.get(MdekKeys.UUID);
+            Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
+            Boolean getDetailedPermissions = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS);
+
+            // get all groups: search users via groups !
+            List<IdcGroup> allGroups = daoIdcGroup.getGroups();
+            // and search users with write access on object
+            List<IdcUser> users = permHandler.getUsersWithPermissionForObject(objUuid, allGroups, checkWorkflow);
+
+            ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
+            for (IdcUser user : users) {
+                IngridDocument uDoc = new IngridDocument();
+                beanToDocMapperSecurity.mapIdcUser(user, uDoc, MappingQuantity.TREE_ENTITY);
+
+                if (getDetailedPermissions) {
+                    List<Permission> perms = permHandler.getPermissionsForObject(objUuid, user.getAddrUuid(), checkWorkflow);
+                    List<Permission> permsUser = permHandler.getUserPermissions(user.getAddrUuid());
+                    perms.addAll(permsUser);
+                    beanToDocMapperSecurity.mapPermissionList(perms, uDoc);                 
+                }
+
+                resultList.add(uDoc);
+            }
+
+            IngridDocument result = new IngridDocument();
+            result.put(MdekKeysSecurity.IDC_USERS, resultList);
+
+            daoIdcUser.commitTransaction();
+            return result;
+
+        } catch (RuntimeException e) {
+            RuntimeException handledExc = handleException(e);
+            throw handledExc;
+        }
+    }
+    
+    /**
      * Get users with a any permission on an address.  
      * 
      * @param params
@@ -939,7 +987,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
             // get all groups: search users via groups !
             List<IdcGroup> allGroups = daoIdcGroup.getGroups();
             // and search users with write access on address
-            List<IdcUser> users = permHandler.getUsersWithTreePermissionForAddress(addrUuid, allGroups, checkWorkflow);
+            List<IdcUser> users = permHandler.getUsersWithPermissionForAddress(addrUuid, allGroups, checkWorkflow);
 
             ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
             for (IdcUser user : users) {

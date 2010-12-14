@@ -15,6 +15,13 @@ public class Permission implements IEntity {
 
 
 	public Permission() {}
+	
+	public Permission(Permission p) {
+	    this.id = p.getId();
+	    this.className = p.getClassName();
+	    this.name = p.getName();
+	    this.action = p.getAction();
+	}
 
 	public Long getId() {
 		return id;

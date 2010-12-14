@@ -207,25 +207,25 @@ public class MdekCallerSecurity extends MdekCaller implements IMdekCallerSecurit
 		return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
 	}
 
-    public IngridDocument getUsersWithTreePermissionForObject(String plugId, String objectUuid, String userId,
+    public IngridDocument getUsersWithTreeOrSubTreePermissionForObject(String plugId, String objectUuid, String userId,
             boolean checkWorkflow, boolean getDetailedPermissions) {
         IngridDocument jobParams = new IngridDocument();
         jobParams.put(MdekKeys.UUID, objectUuid);
         jobParams.put(MdekKeys.USER_ID, userId);
         jobParams.put(MdekKeys.REQUESTINFO_CHECK_WORKFLOW, checkWorkflow);
         jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
-        List jobMethods = setUpJobMethod("getUsersWithTreePermissionForObject", jobParams);
+        List jobMethods = setUpJobMethod("getUsersWithTreeOrSubTreePermissionForObject", jobParams);
         return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
     }
 
-    public IngridDocument getUsersWithTreePermissionForAddress(String plugId, String addressUuid, String userId,
+    public IngridDocument getUsersWithTreeOrSubTreePermissionForAddress(String plugId, String addressUuid, String userId,
             boolean checkWorkflow, boolean getDetailedPermissions) {
         IngridDocument jobParams = new IngridDocument();
         jobParams.put(MdekKeys.UUID, addressUuid);
         jobParams.put(MdekKeys.USER_ID, userId);
         jobParams.put(MdekKeys.REQUESTINFO_CHECK_WORKFLOW, checkWorkflow);
         jobParams.put(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS, getDetailedPermissions);
-        List jobMethods = setUpJobMethod("getUsersWithTreePermissionForAddress", jobParams);
+        List jobMethods = setUpJobMethod("getUsersWithTreeOrSubTreePermissionForAddress", jobParams);
         return callJob(plugId, MDEK_IDC_SECURITY_JOB_ID, jobMethods);
     }
 

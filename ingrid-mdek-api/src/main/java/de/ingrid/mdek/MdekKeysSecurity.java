@@ -60,4 +60,9 @@ public class MdekKeysSecurity extends MdekKeys {
     /** Specifies a permission via client side permission id, e.g. "write-tree" (defined in Enumeration, see "Utils")<br>
 	 *  Value: String */
 	public final static String IDC_PERMISSION = "idc-permission";
+
+    /**
+     * Specifies if the entity is inheriting the permission to her children. (contains boolean)
+     */
+    public static final String IS_INHERITING = "is-inheriting";
 }

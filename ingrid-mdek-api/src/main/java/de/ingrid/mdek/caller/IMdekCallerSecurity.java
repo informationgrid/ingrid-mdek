@@ -292,7 +292,7 @@ public interface IMdekCallerSecurity extends IMdekCaller {
      * false=only users are returned without detailed permissions
      * @return response containing result: map containing basic representations of users
      */
-    IngridDocument getUsersWithTreePermissionForObject(String plugId,
+    IngridDocument getUsersWithTreeOrSubTreePermissionForObject(String plugId,
             String objectUuid,
             String userId,
             boolean checkWorkflow,
@@ -300,6 +300,7 @@ public interface IMdekCallerSecurity extends IMdekCaller {
 
     /**
      * Get all users who have tree permission (write-tree, write-subtree) for the given address.
+     * 
      * @param plugId which mdek server (iplug)
      * @param addressUuid address to get "write users" for
      * @param userId calling user
@@ -310,7 +311,7 @@ public interface IMdekCallerSecurity extends IMdekCaller {
      * false=only users are returned without detailed permissions
      * @return response containing result: map containing basic representations of users
      */
-    IngridDocument getUsersWithTreePermissionForAddress(String plugId,
+    IngridDocument getUsersWithTreeOrSubTreePermissionForAddress(String plugId,
             String addressUuid,
             String userId,
             boolean checkWorkflow,
