@@ -321,7 +321,9 @@ public class MdekObjectService {
 		fullIndexHandler.updateObjectIndex(oNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (!calledByImporter && isNewObject) {
+        // ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
+		boolean isRootNode = (parentUuid == null);
+		if (!calledByImporter && isNewObject && isRootNode) {
 			permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId, true);
 		}
 
@@ -498,7 +500,9 @@ public class MdekObjectService {
 		fullIndexHandler.updateObjectIndex(oNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (!calledByImporter && isNewObject) {
+		// ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
+        boolean isRootNode = (parentUuid == null);
+        if (!calledByImporter && isNewObject && isRootNode) {
 			permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId, true);
 		}
 

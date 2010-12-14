@@ -124,9 +124,9 @@ public class MdekPermissionHandler {
 	 */
 	public List<Permission> getPermissionsForObject(String objUuid, String userAddrUuid, boolean checkWorkflow) {
 		List<Permission> perms = new ArrayList<Permission>();
-        EntityPermission epSingle = PermissionFactory.getSingleAddressPermissionTemplate(objUuid);
-        EntityPermission epTree = PermissionFactory.getTreeAddressPermissionTemplate(objUuid);
-        EntityPermission epSubTree = PermissionFactory.getSubTreeAddressPermissionTemplate(objUuid);
+        EntityPermission epSingle = PermissionFactory.getSingleObjectPermissionTemplate(objUuid);
+        EntityPermission epTree = PermissionFactory.getTreeObjectPermissionTemplate(objUuid);
+        EntityPermission epSubTree = PermissionFactory.getSubTreeObjectPermissionTemplate(objUuid);
 		
 		// check workflow permission before entity write permission
 		if (checkWorkflow) {
@@ -574,7 +574,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkPermissionsForMoveObject(String fromUuid, String toUuid, String userUuid) {
 		// has permission to remove from source (delete subnode) ?
-		checkTreeOrSubTreePermissionForObject(fromUuid, userUuid, true);
+		checkTreeOrInheritedOnlySubTreePermissionForObject(fromUuid, userUuid, true);
 		
 		// check permissions on target via copy check (are the same)
 		checkPermissionsForCopyObject(fromUuid, toUuid, userUuid);
@@ -596,7 +596,7 @@ public class MdekPermissionHandler {
 	 */
 	public void checkPermissionsForMoveAddress(String fromUuid, String toUuid, String userUuid) {
 		// has permission to remove from source (delete subnode) ?
-		checkTreeOrSubTreePermissionForAddress(fromUuid, userUuid, true);
+		checkTreeOrInheritedOnlySubTreePermissionForAddress(fromUuid, userUuid, true);
 		
 		// check permissions on target via copy check (are the same)
 		checkPermissionsForCopyAddress(fromUuid, toUuid, userUuid);

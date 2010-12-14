@@ -128,6 +128,27 @@ public class MdekUtilsSecurity {
 		return false;
 	}
 
+    /**
+     * Checks whether permission list contains permission to move node.
+     * @param idcPermissionsFromMap permission list delivered from backend
+     * @return true=has permission
+     */
+    public static boolean hasMovePermission(List<IngridDocument> idcPermissionsFromMap) {
+        if (idcPermissionsFromMap != null) {
+            for (IngridDocument idcPermDoc : idcPermissionsFromMap) {
+                IdcPermission idcPerm = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, idcPermDoc.get(MdekKeysSecurity.IDC_PERMISSION));
+                if (idcPerm == IdcPermission.WRITE_TREE) {
+                    return true;
+                }
+                if (idcPerm == IdcPermission.WRITE_SUBTREE && !idcPermDoc.getBoolean(MdekKeysSecurity.IS_INHERITING)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+	
 	/**
 	 * Checks whether permission list contains permission to manipulate single entity (NO tree)
 	 * @param idcPermissionsFromMap permission list delivered from backend

@@ -339,7 +339,9 @@ public class MdekAddressService {
 		fullIndexHandler.updateAddressIndex(aNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (!calledByImporter && isNewAddress) {
+        // ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
+        boolean isRootNode = (parentUuid == null);
+        if (!calledByImporter && isNewAddress && isRootNode) {
 			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId, true);
 		}
 		
@@ -490,7 +492,9 @@ public class MdekAddressService {
 		fullIndexHandler.updateAddressIndex(aNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (!calledByImporter && isNewAddress) {
+        // ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
+        boolean isRootNode = (parentUuid == null);
+        if (!calledByImporter && isNewAddress && isRootNode) {
 			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId, true);
 		}
 
