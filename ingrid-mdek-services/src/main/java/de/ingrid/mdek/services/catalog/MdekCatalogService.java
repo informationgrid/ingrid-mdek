@@ -370,6 +370,7 @@ public class MdekCatalogService {
 			  	if (daoT01Object.hasAddressRelation(obj.getObjUuid(), newAddressUuid, objAdr.getType())) {
             // new relation would be a duplicate, mark for removal of the dataset
 			  	  objAdrsToRemove.add(objAdr);
+		            objChanged = true;
           } else {
             // update old address with new address
             objAdr.setAdrUuid(newAddressUuid);
