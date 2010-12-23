@@ -4,16 +4,25 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-	<release version="2.3.1-SNAPSHOT" date="?" description="Release IGE multiple groups etc. ENFORCES UPDATE OF IGC Schema (2.3.1) AND PORTAL !">
+	<release version="2.3.1-SNAPSHOT" date="?" description="Release IGE multiple groups, new permission etc. ENFORCES UPDATE OF IGC Schema (2.3.1) AND PORTAL !">
       <action type="add" dev="wemove" issue="INGRID23-46">
-        InGrid 2.3: Add new permission write-subtree which gives permission to create entities but not to change the original entity.
+        InGrid 2.3 NI: Add new permission write-subnode which gives permission to create direct subnodes and then nodes underneath created subnode.
       </action>
       <action type="add" dev="wemove" issue="INGRID23-48">
         Introduce MULTIPLE GROUPS per User (IGC Schema 2.3.1).
       </action>
+      <action type="fix" dev="wemove">
+        Fix move of unpublished address under unpublished parent (before parent always had to be published).
+      </action>
     </release>
 
-	<release version="2.3.0-SNAPSHOT (branch)" date="?" description="Release InGrid 2.3 static changes. ENFORCES UPDATE OF IGC Schema (2.3.0) AND PORTAL !">
+	<release version="2.3.0.1" date="2010-12-22" description="Bugfix Release InGrid 2.3.0">
+      <action type="fix" dev="wemove" issue="INGRID23-47">
+        Fix bug with removing duplicates from object address relations during address replacement.
+      </action>
+    </release>
+
+	<release version="2.3.0" date="2010-12-14" description="Release InGrid 2.3 static changes (version adapted to InGrid version). ENFORCES UPDATE OF IGC Schema (2.3.0) AND PORTAL !">
       <action type="add" dev="wemove" issue="INGRID23-52">
         InGrid 2.3: Introduce input of INSPIRE Encoding (data format) (IGC Schema 2.3.0).
       </action>
