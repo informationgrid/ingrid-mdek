@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 
 /**
@@ -55,6 +56,18 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				"AND g.name= ?";
 
 		return (List<IdcUser>)session.createQuery(query).setString(0, groupName).list();
+	}
+
+	public List<IdcGroup> getGroupsOfUser(String userUuid) {
+		Session session = getSession();
+		String query = "select distinct g " +
+				"from IdcUser u, IdcUserGroup uG, IdcGroup g " +
+				"where " +
+				"u.id = uG.idcUserId " +
+				"AND uG.idcGroupId = g.id " +
+				"AND u.addrUuid= ?";
+
+		return (List<IdcGroup>)session.createQuery(query).setString(0, userUuid).list();
 	}
 
 	public List<IdcUser> getSubUsers(Long parentIdcUserId) {

@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.List;
 
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
+import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 
 /**
@@ -23,6 +24,9 @@ public interface IIdcUserDao extends IGenericDao<IdcUser> {
 
 	/** Returns all users belonging to a group defined by groupName. */
 	List<IdcUser> getIdcUsersByGroupName(String groupName);
+
+	/** Returns all groups belonging to a user. */
+	List<IdcGroup> getGroupsOfUser(String userUuid);
 
 	/** Returns all subusers of user with given userId. */
 	List<IdcUser> getSubUsers(Long parentIdcUserId);

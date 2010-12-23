@@ -271,7 +271,137 @@ public class MdekExampleSupertoolSecurity {
 		
 		return result;
 	}
+	
+	public IngridDocument getResponsibleUsersForNewObject(String objUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
 
+		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
+		System.out.println("\n###### INVOKE getResponsibleUsersForNewObject " + infoDetailedPermissions + " ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getResponsibleUsersForNewObject(plugId, objUuid, myUserUuid,
+				checkWorkflow, getDetailedPermissions);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerSecurity.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				supertoolGeneric.debugUserDoc((IngridDocument)o);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getResponsibleUsersForNewAddress(String addrUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
+		System.out.println("\n###### INVOKE getResponsibleUsersForNewAddress " + infoDetailedPermissions + " ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getResponsibleUsersForNewAddress(plugId, addrUuid, myUserUuid,
+				checkWorkflow, getDetailedPermissions);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerSecurity.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				supertoolGeneric.debugUserDoc((IngridDocument)o);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+	
+	public IngridDocument getUsersWithPermissionForObject(String objUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
+		System.out.println("\n###### INVOKE getUsersWithPermissionForObject " + infoDetailedPermissions + " ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUsersWithPermissionForObject(plugId, objUuid, myUserUuid,
+				checkWorkflow,
+				getDetailedPermissions);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerSecurity.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				supertoolGeneric.debugUserDoc((IngridDocument)o);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+
+	public IngridDocument getUsersWithPermissionForAddress(String addrUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		String infoDetailedPermissions = (getDetailedPermissions) ? "WITH detailed permissions" : "WITHOUT detailed permissions";
+		System.out.println("\n###### INVOKE getUsersWithPermissionForAddress " + infoDetailedPermissions + " ######");
+		System.out.println("  checkWorkflow: " + checkWorkflow);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUsersWithPermissionForAddress(plugId, addrUuid, myUserUuid,
+				checkWorkflow,
+				getDetailedPermissions);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerSecurity.getResultFromResponse(response);
+		if (result != null) {
+			List l = (List) result.get(MdekKeysSecurity.IDC_USERS);
+			System.out.println("SUCCESS: " + l.size() + " Entities");
+			for (Object o : l) {
+				supertoolGeneric.debugUserDoc((IngridDocument)o);
+			}
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
+	
 	public IngridDocument getObjectPermissions(String objUuid, boolean checkWorkflow) {
 		long startTime;
 		long endTime;
@@ -478,6 +608,30 @@ public class MdekExampleSupertoolSecurity {
 
 		return result;
 	}	
+
+	public IngridDocument getUserDetails() {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE getUserDetails ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerSecurity.getUserDetails(plugId, myUserUuid, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerSecurity.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			supertoolGeneric.debugUserDoc(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
 
 	public IngridDocument deleteUser(Long idcUserId) {
 		if (idcUserId == null) {

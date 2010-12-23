@@ -43,6 +43,7 @@ import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -339,12 +340,18 @@ public class MdekAddressService {
 		fullIndexHandler.updateAddressIndex(aNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-        // ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
-        boolean isRootNode = (parentUuid == null);
-        if (!calledByImporter && isNewAddress && isRootNode) {
-			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId, true);
+		if (!calledByImporter && isNewAddress) {
+			if (parentUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);				
+			} else if (permissionHandler.hasSubNodePermissionForAddress(parentUuid, userId, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_ADDRESS, parentUuid);				
+			}
 		}
-		
+
 		return uuid;
 	}
 
@@ -491,12 +498,19 @@ public class MdekAddressService {
 		// UPDATE FULL INDEX !!!
 		fullIndexHandler.updateAddressIndex(aNode);
 
-		// grant write tree permission if not set yet (e.g. new root node)
-        // ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
-        boolean isRootNode = (parentUuid == null);
-        if (!calledByImporter && isNewAddress && isRootNode) {
-			permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId, true);
+        // grant write tree permission if not set yet (e.g. new root node)
+		if (!calledByImporter && isNewAddress) {
+			if (parentUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);
+			} else if (permissionHandler.hasSubNodePermissionForAddress(parentUuid, userId, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_ADDRESS, parentUuid);				
+			}
 		}
+
 
 		return uuid;
 	}
@@ -526,8 +540,6 @@ public class MdekAddressService {
 	 */
 	public IngridDocument moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress,
 			String userId, boolean calledByImporter) {
-		boolean isNewRootNode = (toUuid == null) ? true : false;
-
 		// PERFORM CHECKS
 
 		// check permissions !
@@ -543,9 +555,17 @@ public class MdekAddressService {
 		// process all moved nodes including top node (e.g. change tree path or date and mod_uuid) !
 		IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, moveToFreeAddress, userId);
 
-		// grant write tree permission if new root node
-		if (!calledByImporter && isNewRootNode) {
-			permissionHandler.grantTreePermissionForAddress(fromUuid, userId, true);
+		// grant write tree permission (e.g. if new root node)
+		if (!calledByImporter) {
+			if (toUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForAddress(fromUuid, userId,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);
+			} else if (permissionHandler.hasSubNodePermissionForAddress(toUuid, userId, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForAddress(fromUuid, userId,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_ADDRESS, toUuid);				
+			}
 		}
 
 		return resultDoc;
@@ -1056,17 +1076,21 @@ public class MdekAddressService {
 				throw new MdekException(new MdekError(MdekErrorType.TO_UUID_NOT_FOUND));
 			}		
 
-			// new parent has to be published ! -> not possible to move published nodes under unpublished parent
-			T02Address toAddrPub = toNode.getT02AddressPublished();
-			if (toAddrPub == null) {
-				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
-			}
-
 			// is target subnode ?
 			if (daoAddressNode.isSubNode(toUuid, fromUuid)) {
 				throw new MdekException(new MdekError(MdekErrorType.TARGET_IS_SUBNODE_OF_SOURCE));				
 			}
 
+			// from address published ? then check compatibility !
+			boolean isFromPublished = (fromNode.getT02AddressPublished() != null);
+			if (isFromPublished) {
+				// new parent has to be published ! -> not possible to move published nodes under unpublished parent
+				T02Address toAddrPub = toNode.getT02AddressPublished();
+				if (toAddrPub == null) {
+					throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
+				}
+			}		
+			
 			T02Address toAddrWork = toNode.getT02AddressWork();
 			toTypeWork = EnumUtil.mapDatabaseToEnumConst(AddressType.class, toAddrWork.getAdrType());
 

@@ -145,7 +145,7 @@ public class MdekWorkflowHandler {
 			return true;
 		}
 
-		return permService.hasUserPermission(userAddrUuid, PermissionFactory.getPermissionTemplateQA());			
+		return permService.hasUserPermission(userAddrUuid, PermissionFactory.getPermissionTemplateQA(), null);			
 	}
 
 	/** Process the given client side representation of an entity according to the operation. */

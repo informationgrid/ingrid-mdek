@@ -58,7 +58,10 @@ public class MdekUtilsSecurity {
 		// Entity Permissions
 		WRITE_SINGLE("write", "Einzelberechtigung"),
 		WRITE_TREE("write-tree", "Teilbaumberechtigung"),
-		WRITE_SUBTREE("write-subtree", "Unterbaumberechtigung"),
+		WRITE_SUBNODE("write-subnode", "Unterknotenberechtigung"),
+		// NOT PERSISTABLE !!! used to tell frontend no write permission on entity, but on subtree ! 
+		// (e.g. user not QA but has write-tree permission on entity in state Q)  
+		DUMMY_WRITE_SUBTREE("write-subtree", "Unterbaumberechtigung"),
 
 		// User Permissions (bound to group)
 		CREATE_ROOT("create-root", "Root anlegen"),
@@ -89,64 +92,36 @@ public class MdekUtilsSecurity {
 	 * @return true=has permission
 	 */
 	public static boolean hasWritePermission(List<IngridDocument> idcPermissionsFromMap) {
-		if (idcPermissionsFromMap != null) {
-			for (IngridDocument idcPermDoc : idcPermissionsFromMap) {
-				IdcPermission idcPerm = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, idcPermDoc.get(MdekKeysSecurity.IDC_PERMISSION));
-				if (idcPerm == IdcPermission.WRITE_SINGLE) {
-					return true;
-				}
-				if (idcPerm == IdcPermission.WRITE_TREE) {
-					return true;
-				}
-				if (idcPerm == IdcPermission.WRITE_SUBTREE && !idcPermDoc.getBoolean(MdekKeysSecurity.IS_INHERITING)) {
-				    return true;
-				}
-			}
-		}
-
-		return false;
+		return hasOneOfPermissions(idcPermissionsFromMap, new IdcPermission[]{
+				IdcPermission.WRITE_SINGLE,
+				IdcPermission.WRITE_TREE});
 	}
 
 	/**
-	 * Checks whether permission list contains permission to manipulate tree, but not necessarily the entity itself.
+	 * Checks whether permission list contains permission to manipulate tree
 	 * @param idcPermissionsFromMap permission list delivered from backend
 	 * @return true=has permission
 	 */
 	public static boolean hasWriteTreePermission(List<IngridDocument> idcPermissionsFromMap) {
-		if (idcPermissionsFromMap != null) {
-			for (IngridDocument idcPermDoc : idcPermissionsFromMap) {
-				IdcPermission idcPerm = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, idcPermDoc.get(MdekKeysSecurity.IDC_PERMISSION));
-				if (idcPerm == IdcPermission.WRITE_TREE) {
-					return true;
-				}
-                if (idcPerm == IdcPermission.WRITE_SUBTREE) {
-                    return true;
-                }
-			}
-		}
+		return hasOneOfPermissions(idcPermissionsFromMap, new IdcPermission[]{IdcPermission.WRITE_TREE});
+	}
 
-		return false;
+	/**
+	 * Checks whether permission list contains permission to create a subnode
+	 * @param idcPermissionsFromMap permission list delivered from backend
+	 * @return true=has permission
+	 */
+	public static boolean hasWriteSubNodePermission(List<IngridDocument> idcPermissionsFromMap) {
+		return hasOneOfPermissions(idcPermissionsFromMap, new IdcPermission[]{IdcPermission.WRITE_SUBNODE});
 	}
 
     /**
-     * Checks whether permission list contains permission to move node.
+     * Checks whether permission list contains permission to move a node.
      * @param idcPermissionsFromMap permission list delivered from backend
      * @return true=has permission
      */
     public static boolean hasMovePermission(List<IngridDocument> idcPermissionsFromMap) {
-        if (idcPermissionsFromMap != null) {
-            for (IngridDocument idcPermDoc : idcPermissionsFromMap) {
-                IdcPermission idcPerm = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, idcPermDoc.get(MdekKeysSecurity.IDC_PERMISSION));
-                if (idcPerm == IdcPermission.WRITE_TREE) {
-                    return true;
-                }
-                if (idcPerm == IdcPermission.WRITE_SUBTREE && !idcPermDoc.getBoolean(MdekKeysSecurity.IS_INHERITING)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+		return hasOneOfPermissions(idcPermissionsFromMap, new IdcPermission[]{IdcPermission.WRITE_TREE});
     }
 	
 	/**
@@ -155,11 +130,26 @@ public class MdekUtilsSecurity {
 	 * @return true=has permission
 	 */
 	public static boolean hasWriteSinglePermission(List<IngridDocument> idcPermissionsFromMap) {
+		return hasOneOfPermissions(idcPermissionsFromMap, new IdcPermission[]{IdcPermission.WRITE_SINGLE});
+	}
+	
+	/**
+	 * Checks whether permission list contains permission to manipulate a SUB tree (due to root node is QA)
+	 * @param idcPermissionsFromMap permission list delivered from backend
+	 * @return true=has permission
+	 */
+	public static boolean hasWriteSubTreePermission(List<IngridDocument> idcPermissionsFromMap) {
+		return hasOneOfPermissions(idcPermissionsFromMap, new IdcPermission[]{IdcPermission.DUMMY_WRITE_SUBTREE});
+	}
+	
+	private static boolean hasOneOfPermissions(List<IngridDocument> idcPermissionsFromMap, IdcPermission[] permissionsToHaveOne) {
 		if (idcPermissionsFromMap != null) {
 			for (IngridDocument idcPermDoc : idcPermissionsFromMap) {
 				IdcPermission idcPerm = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, idcPermDoc.get(MdekKeysSecurity.IDC_PERMISSION));
-				if (idcPerm == IdcPermission.WRITE_SINGLE) {
-					return true;
+				for (IdcPermission permToHaveOne : permissionsToHaveOne) {
+					if (idcPerm == permToHaveOne) {
+						return true;
+					}					
 				}
 			}			
 		}

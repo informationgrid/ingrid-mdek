@@ -21,36 +21,51 @@ public interface IPermissionService {
 	/**
 	 * Checks whether the user has a "direct" permission on an object.
 	 * NO CHECK OF INHERITED PERMISSIONS !!!
+	 * @param userUuid uuid of user
+	 * @param ep permission on object to search for
+	 * @param groupId only search in this group. Pass null if  all groups should be taken into account !
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasPermissionForObject(String userUuid, EntityPermission ep);
+	boolean hasPermissionForObject(String userUuid, EntityPermission ep, Long groupId);
 
 	/**
 	 * Checks whether the user has a "direct" permission on an address.
 	 * NO CHECK OF INHERITED PERMISSIONS !!!
+	 * @param userUuid uuid of user
+	 * @param ep permission on address to search for
+	 * @param groupId only search in this group. Pass null if  all groups should be taken into account !
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasPermissionForAddress(String userUuid, EntityPermission ep);
+	boolean hasPermissionForAddress(String userUuid, EntityPermission ep, Long groupId);
 
 	/**
 	 * Checks whether the user has a "direct" or "inherited" permission on an object.
 	 * ALSO CHECKS INHERITED PERMISSIONS !!!
+	 * @param userUuid uuid of user
+	 * @param ep permission on object to search for
+	 * @param groupId only search in this group. Pass null if  all groups should be taken into account !
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasInheritedPermissionForObject(String userUuid, EntityPermission ep);
+	boolean hasInheritedPermissionForObject(String userUuid, EntityPermission ep, Long groupId);
 
 	/**
 	 * Checks whether the user has a "direct" or "inherited" permission on an address.
 	 * ALSO CHECKS INHERITED PERMISSIONS !!!
+	 * @param userUuid uuid of user
+	 * @param ep permission on address to search for
+	 * @param groupId only search in this group. Pass null if  all groups should be taken into account !
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep);
+	boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep, Long groupId);
 
 	/**
 	 * Checks whether a user has the given UserPermission.
+	 * @param userUuid uuid of user
+	 * @param p user permission to search for
+	 * @param groupId only search in this group. Pass null if  all groups should be taken into account !
 	 * @return True if the permission exists, false if not.
 	 */
-	boolean hasUserPermission(String userUuid, Permission p);
+	boolean hasUserPermission(String userUuid, Permission p, Long groupId);
 
 	/**
 	 * Grants a specific object EntityPermission for user (better groups).
@@ -126,11 +141,27 @@ public interface IPermissionService {
 
 	/**
 	 * Get ids of groups containing the given user permission connected to given user.  
-	 * @param userUuid
+	 * @param userUuid user the groups are connected to
 	 * @param p Permission Template
-	 * @return
+	 * @return ids of groups or empty list
 	 */
 	public List<Long> getGroupIdsContainingUserPermission(String userUuid, Permission p);
+
+	/**
+	 * Get ids of groups (of given user) containing the given object entity permission.  
+	 * @param userUuid user the groups are connected to
+	 * @param ep object permission the group contains
+	 * @return ids of groups or empty list
+	 */
+	public List<Long> getGroupIdsContainingObjectPermission(String userUuid, EntityPermission ep);
+
+	/**
+	 * Get ids of groups (of given user) containing the given address entity permission.  
+	 * @param userUuid user the groups are connected to
+	 * @param ep address permission the group contains
+	 * @return ids of groups or empty list
+	 */
+	public List<Long> getGroupIdsContainingAddressPermission(String userUuid, EntityPermission ep);
 
 	/**
 	 * Loads a Permission from database identified by its identification used by client.

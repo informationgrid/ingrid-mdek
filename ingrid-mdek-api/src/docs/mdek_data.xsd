@@ -720,8 +720,6 @@
 		<xs:sequence>
 			<!-- permission (client side id string from enumeration) -->
 			<xs:element name="idc-permission" type="xs:string"/>
-            <!-- specifies if the permission will be inherited -->
-            <xs:element name="is-inheriting" type="xs:boolean"/>
 		</xs:sequence>
 	</xs:complexType>	
 	<xs:complexType name="IDC_USER_LIST">

@@ -281,9 +281,12 @@ public interface IMdekCallerSecurity extends IMdekCaller {
 			boolean getDetailedPermissions);
 
     /**
-     * Get all users who have tree permission (write-tree, write-subtree) for the given object.
+     * Get all users who have write-tree permission on new object. If object is created underneath parent with
+     * write-subnode, then all users in write-subnode group OF CALLING USER are added. 
+     * The group with the write-subnode permission will receive an additional write-tree permission on the new node !
+     * This is called when a NEW node is created under the given object for determining responsible users.
      * @param plugId which mdek server (iplug)
-     * @param objectUuid object to get "tree users" for
+     * @param parentObjectUuid object where new object is created underneath = object to get "write users" for
      * @param userId calling user
      * @param checkWorkflow false=workflow state is ignored, only check tree permissions on entity<br>
      *      true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
@@ -292,17 +295,19 @@ public interface IMdekCallerSecurity extends IMdekCaller {
      * false=only users are returned without detailed permissions
      * @return response containing result: map containing basic representations of users
      */
-    IngridDocument getUsersWithTreeOrSubTreePermissionForObject(String plugId,
-            String objectUuid,
+    IngridDocument getResponsibleUsersForNewObject(String plugId,
+            String parentObjectUuid,
             String userId,
             boolean checkWorkflow,
             boolean getDetailedPermissions);
 
     /**
-     * Get all users who have tree permission (write-tree, write-subtree) for the given address.
-     * 
+     * Get all users who have write-tree permission on new address. If address is created underneath parent with
+     * write-subnode, then all users in write-subnode group of calling user are added. 
+     * The group with the write-subnode permission will receive an additional write-tree permission on the new node !
+     * This is called when a NEW node is created under the given address for determining responsible users.
      * @param plugId which mdek server (iplug)
-     * @param addressUuid address to get "write users" for
+     * @param parentAddressUuid address where new address is created underneath = address to get "write users" for
      * @param userId calling user
      * @param checkWorkflow false=workflow state is ignored, only check write permissions on entity<br>
      *      true=also take workflow into account (IF ENABLED), e.g. return no write permission if 
@@ -311,8 +316,8 @@ public interface IMdekCallerSecurity extends IMdekCaller {
      * false=only users are returned without detailed permissions
      * @return response containing result: map containing basic representations of users
      */
-    IngridDocument getUsersWithTreeOrSubTreePermissionForAddress(String plugId,
-            String addressUuid,
+    IngridDocument getResponsibleUsersForNewAddress(String plugId,
+            String parentAddressUuid,
             String userId,
             boolean checkWorkflow,
             boolean getDetailedPermissions);

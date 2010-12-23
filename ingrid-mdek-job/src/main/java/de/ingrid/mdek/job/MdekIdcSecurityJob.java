@@ -37,7 +37,6 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.security.EntityPermission;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.security.PermissionFactory;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
@@ -834,19 +833,21 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		}
 	}
 
-    public IngridDocument getUsersWithTreeOrSubTreePermissionForObject(IngridDocument params) {
+    public IngridDocument getResponsibleUsersForNewObject(IngridDocument params) {
         try {
             daoIdcUser.beginTransaction();
             dao.disableAutoFlush();
 
             String objUuid = (String) params.get(MdekKeys.UUID);
+    		String userUuid = getCurrentUserUuid(params);
             Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
             Boolean getDetailedPermissions = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS);
 
             // get all groups: search users via groups !
             List<IdcGroup> allGroups = daoIdcGroup.getGroups();
             // and search users with write access on object
-            List<IdcUser> users = permHandler.getUsersWithTreeOrSubTreePermissionForObject(objUuid, allGroups, checkWorkflow);
+            List<IdcUser> users =
+            	permHandler.getResponsibleUsersForNewObject(objUuid, allGroups, checkWorkflow, userUuid);
 
             ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
             for (IdcUser user : users) {
@@ -875,25 +876,25 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
         }
     }	
 	
-    /**
-     * Get users with a tree permission (write-tree or write-subtree) on a certain address.  
-     * 
+    /** Get all users who can be responsible user for a new address created in frontend.
      * @param params
      * @return
      */
-    public IngridDocument getUsersWithTreeOrSubTreePermissionForAddress(IngridDocument params) {
+    public IngridDocument getResponsibleUsersForNewAddress(IngridDocument params) {
         try {
             daoIdcUser.beginTransaction();
             dao.disableAutoFlush();
 
             String addrUuid = (String) params.get(MdekKeys.UUID);
+    		String userUuid = getCurrentUserUuid(params);
             Boolean checkWorkflow = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_CHECK_WORKFLOW);
             Boolean getDetailedPermissions = (Boolean) params.get(MdekKeysSecurity.REQUESTINFO_GET_DETAILED_PERMISSIONS);
 
             // get all groups: search users via groups !
             List<IdcGroup> allGroups = daoIdcGroup.getGroups();
             // and search users with write access on address
-            List<IdcUser> users = permHandler.getUsersWithTreeOrSubTreePermissionForAddress(addrUuid, allGroups, checkWorkflow);
+            List<IdcUser> users =
+            	permHandler.getResponsibleUsersForNewAddress(addrUuid, allGroups, checkWorkflow, userUuid);
 
             ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(users.size());
             for (IdcUser user : users) {
@@ -1175,7 +1176,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/**
 	 * Validate whether the assigned OBJECT permissions of the given group are ok or whether there are
-	 * conflicts (e.g. "write" underneath "write-tree" or write-subtree under write-tree). THROWS EXCEPTION IF A CONFLICT OCCURS
+	 * conflicts (e.g. "write" underneath "write-tree" or write-subnode under write-tree). THROWS EXCEPTION IF A CONFLICT OCCURS
 	 * WITH DETAILED DATA ABOUT CONFLICT.
 	 * @param grp group to validate
 	 */
@@ -1185,7 +1186,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		// permission templates for checking
 		Permission pTemplateSingle = PermissionFactory.getPermissionTemplateSingle();
 		Permission pTemplateTree = PermissionFactory.getPermissionTemplateTree();
-        Permission pTemplateSubTree = PermissionFactory.getPermissionTemplateSubTree();
+        Permission pTemplateSubNode = PermissionFactory.getPermissionTemplateSubNode();
 
 		// separate uuids by permission types
 		ArrayList<String> uuidsSingle = new ArrayList<String>();
@@ -1203,8 +1204,10 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// separate uuids by permission type
 			if (permService.isEqualPermission(p, pTemplateSingle)) {
 				uuidsSingle.add(oUuid);
-			} else if (permService.isEqualPermission(p, pTemplateTree) || permService.isEqualPermission(p, pTemplateSubTree)) {
+			} else if (permService.isEqualPermission(p, pTemplateTree)) {
 				uuidsTree.add(oUuid);
+			} else if (permService.isEqualPermission(p, pTemplateSubNode)) {
+				uuidsSingle.add(oUuid);
 			}
 		}
 		
@@ -1250,7 +1253,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/**
 	 * Validate whether the assigned ADDRESS permissions of the given group are ok or whether there are
-	 * conflicts (e.g. "write" underneath "write-tree" or write-subtree under write-tree). THROWS EXCEPTION IF A CONFLICT OCCURS
+	 * conflicts (e.g. "write" underneath "write-tree" or write-subnode under write-tree). THROWS EXCEPTION IF A CONFLICT OCCURS
 	 * WITH DETAILED DATA ABOUT CONFLICT.
 	 * @param grp group to validate
 	 */
@@ -1260,7 +1263,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		// permission templates for checking
 		Permission pTemplateSingle = PermissionFactory.getPermissionTemplateSingle();
 		Permission pTemplateTree = PermissionFactory.getPermissionTemplateTree();
-        Permission pTemplateSubTree = PermissionFactory.getPermissionTemplateSubTree();
+        Permission pTemplateSubNode = PermissionFactory.getPermissionTemplateSubNode();
 
 		// separate uuids by permission types
 		ArrayList<String> uuidsSingle = new ArrayList<String>();
@@ -1278,8 +1281,10 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// separate uuids by permission type
 			if (permService.isEqualPermission(p, pTemplateSingle)) {
 				uuidsSingle.add(aUuid);
-			} else if (permService.isEqualPermission(p, pTemplateTree) || permService.isEqualPermission(p, pTemplateSubTree)) {
+			} else if (permService.isEqualPermission(p, pTemplateTree)) {
 				uuidsTree.add(aUuid);
+			} else if (permService.isEqualPermission(p, pTemplateSubNode)) {
+				uuidsSingle.add(aUuid);
 			}
 		}
 		

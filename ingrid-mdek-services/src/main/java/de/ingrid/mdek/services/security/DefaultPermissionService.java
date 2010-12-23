@@ -63,9 +63,9 @@ public class DefaultPermissionService implements IPermissionService {
 		addressNodeDao = daoFactory.getAddressNodeDao();
 	}
 
-	public boolean hasPermissionForAddress(String userUuid, EntityPermission ep) {
+	public boolean hasPermissionForAddress(String userUuid, EntityPermission ep, Long groupId) {
 		List<Permission> l;
-		l = permissionDao.getAddressPermissions(userUuid, ep.getUuid());
+		l = permissionDao.getAddressPermissions(userUuid, ep.getUuid(), groupId);
 		for (Permission p : l) {
 			if (isEqualPermission(p, ep.getPermission())) {
 				return true;
@@ -74,11 +74,11 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	public boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep) {
+	public boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep, Long groupId) {
 		EntityPermission localPermission = new EntityPermission(ep.permission, ep.getUuid());
 		AddressNode addressNode;
 		do {
-			if (hasPermissionForAddress(userUuid, localPermission)) {
+			if (hasPermissionForAddress(userUuid, localPermission, groupId)) {
 				return true;
 			}
 			addressNode = addressNodeDao.loadByUuid(localPermission.getUuid(), null);
@@ -90,9 +90,9 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	public boolean hasPermissionForObject(String userUuid, EntityPermission ep) {
+	public boolean hasPermissionForObject(String userUuid, EntityPermission ep, Long groupId) {
 		List<Permission> l;
-		l = permissionDao.getObjectPermissions(userUuid, ep.getUuid());
+		l = permissionDao.getObjectPermissions(userUuid, ep.getUuid(), groupId);
 		for (Permission p : l) {
 			if (isEqualPermission(p, ep.getPermission())) {
 				return true;
@@ -101,11 +101,11 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	public boolean hasInheritedPermissionForObject(String userUuid, EntityPermission ep) {
+	public boolean hasInheritedPermissionForObject(String userUuid, EntityPermission ep, Long groupId) {
 		EntityPermission localPermission = new EntityPermission(ep.getPermission(), ep.getUuid());
 		ObjectNode objectNode;
 		do {
-			if (hasPermissionForObject(userUuid, localPermission)) {
+			if (hasPermissionForObject(userUuid, localPermission, groupId)) {
 				return true;
 			}
 			objectNode = objectNodeDao.loadByUuid(localPermission.getUuid(), null);
@@ -117,8 +117,8 @@ public class DefaultPermissionService implements IPermissionService {
 		return false;
 	}
 
-	public boolean hasUserPermission(String userUuid, Permission pIn) {
-		List<Permission> l = permissionDao.getUserPermissions(userUuid);
+	public boolean hasUserPermission(String userUuid, Permission pIn, Long groupId) {
+		List<Permission> l = permissionDao.getUserPermissions(userUuid, groupId);
 		for (Permission p : l) {
 			if (isEqualPermission(p, pIn)) {
 				return true;
@@ -248,6 +248,18 @@ public class DefaultPermissionService implements IPermissionService {
 		return idcGroupDao.getGroupIdsContainingUserPermission(userUuid, permission.getId());
 	}
 	
+	public List<Long> getGroupIdsContainingObjectPermission(String userUuid, EntityPermission ep) {
+		Permission permission = findUniquePermissionByExample(ep.getPermission());
+		
+		return idcGroupDao.getGroupIdsContainingObjectPermission(userUuid, permission.getId(), ep.getUuid());
+	}
+	
+	public List<Long> getGroupIdsContainingAddressPermission(String userUuid, EntityPermission ep) {
+		Permission permission = findUniquePermissionByExample(ep.getPermission());
+		
+		return idcGroupDao.getGroupIdsContainingAddressPermission(userUuid, permission.getId(), ep.getUuid());
+	}
+	
 	public Permission getPermissionByPermIdClient(String permIdClient) {
 		IdcPermission pClientEnumConst = EnumUtil.mapDatabaseToEnumConst(IdcPermission.class, permIdClient);
 		Permission pTemplate = null;
@@ -255,8 +267,8 @@ public class DefaultPermissionService implements IPermissionService {
 			pTemplate = PermissionFactory.getPermissionTemplateSingle();
 		} else if (IdcPermission.WRITE_TREE == pClientEnumConst) {
 			pTemplate = PermissionFactory.getPermissionTemplateTree();
-        } else if (IdcPermission.WRITE_SUBTREE == pClientEnumConst) {
-            pTemplate = PermissionFactory.getPermissionTemplateSubTree();
+        } else if (IdcPermission.WRITE_SUBNODE == pClientEnumConst) {
+            pTemplate = PermissionFactory.getPermissionTemplateSubNode();
 		} else if (IdcPermission.CREATE_ROOT == pClientEnumConst) {
 			pTemplate = PermissionFactory.getPermissionTemplateCreateRoot();
 		} else if (IdcPermission.QUALITY_ASSURANCE == pClientEnumConst) {
@@ -276,8 +288,8 @@ public class DefaultPermissionService implements IPermissionService {
 			pIdClient = IdcPermission.CREATE_ROOT.getDbValue();
 		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateQA())) {
 			pIdClient = IdcPermission.QUALITY_ASSURANCE.getDbValue();
-		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateSubTree())) {
-			pIdClient = IdcPermission.WRITE_SUBTREE.getDbValue();
+		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateSubNode())) {
+			pIdClient = IdcPermission.WRITE_SUBNODE.getDbValue();
 		}
 	
 		return pIdClient;

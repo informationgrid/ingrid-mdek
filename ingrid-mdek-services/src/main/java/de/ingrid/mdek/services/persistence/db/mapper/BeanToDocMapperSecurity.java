@@ -16,9 +16,7 @@ import de.ingrid.mdek.services.persistence.db.model.IdcUserPermission;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
-import de.ingrid.mdek.services.security.EntityPermission;
 import de.ingrid.mdek.services.security.IPermissionService;
-import de.ingrid.mdek.services.security.PermissionFactory;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -222,19 +220,6 @@ public class BeanToDocMapperSecurity implements IMapper {
 		}
 
 		inDoc.put(MdekKeysSecurity.IDC_PERMISSION, permService.getPermIdClientByPermission(inRef));
-        boolean isInheriting = false;
-		// check for inheriting permissions and mark them
-		// see MdekPermissionHandler
-		if (inRef instanceof EntityPermission) {
-            EntityPermission ep = (EntityPermission)inRef;
-            if (permService.isEqualPermission(ep.getPermission(), PermissionFactory.getPermissionTemplateSubTree())) {
-                isInheriting = true;
-            }
-            if (permService.isEqualPermission(ep.getPermission(), PermissionFactory.getPermissionTemplateTree())) {
-                isInheriting = true;
-            }
-        }
-        inDoc.putBoolean(MdekKeysSecurity.IS_INHERITING, isInheriting);
 
 		return inDoc;
 	}

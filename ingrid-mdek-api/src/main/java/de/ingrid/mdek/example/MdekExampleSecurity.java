@@ -388,28 +388,28 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- subtree below tree permission on OBJECT -> ERROR -----");
+        System.out.println("\n----- subnode below tree permission on OBJECT -> ERROR -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
         supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
-        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- tree below subtree permission on OBJECT -> ERROR -----");
+        System.out.println("\n----- tree below subnode permission on OBJECT -> OK -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
-        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
         supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- single below subtree permission on OBJECT -> ERROR -----");
+        System.out.println("\n----- single below subnode permission on OBJECT -> OK -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
-        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
         supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- single above subtree permission on OBJECT -> OK -----");
+        System.out.println("\n----- single above subnode permission on OBJECT -> OK -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
         supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
-        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.storeGroup(newGroupDoc, true);
         
 		
@@ -440,28 +440,28 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- subtree below tree permission on ADDRESS -> ERROR -----");
+        System.out.println("\n----- subnode below tree permission on ADDRESS -> ERROR -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
         supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
-        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- tree below subtree permission on ADDRESS -> ERROR -----");
+        System.out.println("\n----- tree below subnode permission on ADDRESS -> OK -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
-        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
         supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- single below subtree permission on ADDRESS -> ERROR -----");
+        System.out.println("\n----- single below subnode permission on ADDRESS -> OK -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
-        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
         supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- subtree below single permission on ADDRESS -> OK -----");
+        System.out.println("\n----- subnode below single permission on ADDRESS -> OK -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
         supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
-        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         supertool.storeGroup(newGroupDoc, true);
         
 		
@@ -650,7 +650,7 @@ class MdekExampleSecurityThread extends Thread {
 		catAdminDoc = supertool.storeUser(catAdminDoc, true);		
 
 		System.out.println("\n----- store MD_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
-		newMetaAdmin1Doc = supertool.storeUser(newMetaAdmin1Doc, true);		
+		supertool.storeUser(newMetaAdmin1Doc, true);		
 
 		System.out.println("\n----- store MD_AUTHOR -> ERROR: USER_HAS_WRONG_ROLE -----");
 		supertool.storeUser(newMetaAuthor1Doc, true);		
@@ -1326,13 +1326,12 @@ class MdekExampleSecurityThread extends Thread {
 // ===================================
 
         System.out.println("\n\n--------------------------------------------------------");
-        System.out.println("----- ADDRESS/OBJECT: \"CREATE\" SUBTREE PERMISSION -----");
+        System.out.println("----- ADDRESS/OBJECT: \"CREATE\" SUBNODE PERMISSION -----");
         System.out.println("--------------------------------------------------------");
 		
         System.out.println("\n-------------------------------------");
         System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
         supertool.setCallingUser(catalogAdminUuid);
-
 		
         System.out.println("\n-------------------------------------");
         System.out.println("----- create top address -> ALLOWED (CATADMIN) -----");
@@ -1341,9 +1340,9 @@ class MdekExampleSecurityThread extends Thread {
         newAdrDoc.put(MdekKeys.PARENT_UUID, null);
         supertool.getInitialAddress(newAdrDoc);
         // extend doc with own data !
-        newAdrDoc.put(MdekKeys.NAME, "testNAME SUBTREE");
-        newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME SUBTREE");
-        newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION SUBTREE");
+        newAdrDoc.put(MdekKeys.NAME, "testNAME ADDRESS PARENT write-subnode");
+        newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME ADDRESS PARENT write-subnode");
+        newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION ADDRESS PARENT write-subnode");
         newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
         newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
         System.out.println("\n----- try to store own document -> ALLOWED (CATADMIN) -----");
@@ -1357,72 +1356,135 @@ class MdekExampleSecurityThread extends Thread {
         newObjDoc.put(MdekKeys.PARENT_UUID, null);
         supertool.getInitialObject(newObjDoc);
         // extend doc with own data !
-        newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT SUBTREE");
+        newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT PARENT write-subnode");
         System.out.println("\n----- try to store own document -> ALLOWED (CATADMIN) -----");
         newObjDoc = supertool.storeObject(newObjDoc, false);
         newParentObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
         
         
         System.out.println("\n-------------------------------------");
-        System.out.println("----- add user permission WRITE_SUBTREE on target parent -----");
+        System.out.println("----- add permission WRITE_SUBNODE on new top nodes in group " + nameNewGrp + " -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
-        supertool.addObjPermissionToGroupDoc(newGroupDoc, newParentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
-        supertool.addAddrPermissionToGroupDoc(newGroupDoc, newParentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBTREE);
+        supertool.addObjPermissionToGroupDoc(newGroupDoc, newParentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
+        supertool.addAddrPermissionToGroupDoc(newGroupDoc, newParentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
         newGroupDoc = supertool.storeGroup(newGroupDoc, true);
+        clearPermissionsOfGroupDoc(newAdditionalGroupDoc);
+        newAdditionalGroupDoc = supertool.storeGroup(newAdditionalGroupDoc, true);
+
+		System.out.println("\n----- create new group -----");
+		String nameSubnodeGrp = "neue TEST-Gruppe Subnode recht";
+		IngridDocument subnodeGrpDoc = new IngridDocument();
+		subnodeGrpDoc.put(MdekKeys.NAME, nameSubnodeGrp);
+		subnodeGrpDoc = supertool.createGroup(subnodeGrpDoc, true);
+		Long subnodeGrpId = (Long) subnodeGrpDoc.get(MdekKeysSecurity.ID);
 
         System.out.println("\n-------------------------------------");
-        System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with WRITE_SUBTREE permissions on new parent entities) -----");
+        System.out.println("----- add permission WRITE_SUBNODE on new top nodes in group " + nameSubnodeGrp + " -----");
+        supertool.addObjPermissionToGroupDoc(subnodeGrpDoc, newParentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
+        supertool.addAddrPermissionToGroupDoc(subnodeGrpDoc, newParentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
+        subnodeGrpDoc = supertool.storeGroup(subnodeGrpDoc, true);
+
+		System.out.println("\n----- remove user 'MD_ADMINISTRATOR 1' from group with write-subnode, add to 2. subnode group -----");
+		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newAdditionalGroupId, subnodeGrpId});
+		newMetaAdmin1Doc = supertool.storeUser(newMetaAdmin1Doc, true);
+
+
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (now with WRITE_SUBNODE permissions on new parent entities) -----");
         supertool.setCallingUser(newMetaAuthor1Uuid);
+        supertool.getUserDetails();
+		supertool.getUsersOfGroup(nameNewGrp);
+        supertool.getUsersOfGroup(nameNewAdditionalGrp);
+        supertool.getUsersOfGroup(nameSubnodeGrp);
 
         System.out.println("\n----- verify permissions for object -----");
         supertool.getObjectPermissions(newParentObjUuid, true);
+        supertool.getUsersWithWritePermissionForObject(newParentObjUuid, true, true);
+        supertool.getResponsibleUsersForNewObject(newParentObjUuid, true, true);
+        supertool.getUsersWithPermissionForObject(newParentObjUuid, true, true);
 
         System.out.println("\n----- verify permissions for address -----");
         supertool.getAddressPermissions(newParentAddrUuid, true);
+        supertool.getUsersWithWritePermissionForAddress(newParentAddrUuid, true, true);
+        supertool.getResponsibleUsersForNewAddress(newParentAddrUuid, true, true);
+        supertool.getUsersWithPermissionForAddress(newParentAddrUuid, true, true);
+
         
         System.out.println("\n-------------------------------------");
-        System.out.println("----- store parent object -> NOT ALLOWED (WRITE_SUBTREE in parent!) -----");
+        System.out.println("----- store parent object -> NOT ALLOWED (WRITE_SUBNODE in parent!) -----");
         doc = supertool.fetchObject(newParentObjUuid, FetchQuantity.EDITOR_ENTITY);
         supertool.setFullOutput(true);
         supertool.storeObject(doc, false);
 
         System.out.println("\n-------------------------------------");
-        System.out.println("----- store parent address -> NOT ALLOWED (WRITE_SUBTREE in parent!) -----");
+        System.out.println("----- store parent address -> NOT ALLOWED (WRITE_SUBNODE in parent!) -----");
         doc = supertool.fetchAddress(newParentAddrUuid, FetchQuantity.EDITOR_ENTITY);
         supertool.setFullOutput(true);
         supertool.storeAddress(doc, false);
         
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- create sub address -> ALLOWED ! + write-tree added on group with SUBNODE permission !!! -----");
         newAdrDoc = new IngridDocument();
         newAdrDoc.put(MdekKeys.PARENT_UUID, newParentAddrUuid);
         supertool.getInitialAddress(newAdrDoc);
         // extend doc with own data !
-        newAdrDoc.put(MdekKeys.NAME, "testNAME");
-        newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME SUB_TREE");
-        newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION SUB_TREE");
+        newAdrDoc.put(MdekKeys.NAME, "testNAME ADDRESS SUBNODE");
+        newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME ADDRESS SUBNODE");
+        newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION ADDRESS SUBNODE");
         newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
         newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
-        System.out.println("\n-------------------------------------");
-        System.out.println("----- create sub address -> ALLOWED -----");
         newAdrDoc = supertool.storeAddress(newAdrDoc, false);
         newAddrUuid = (String) newAdrDoc.get(MdekKeys.UUID);
-        
-        
+
+        System.out.println("\n----- verify permissions of new address -----");
+        supertool.getAddressPermissions(newAddrUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- verify granted WRITE_TREE permissions on subnode -> ONLY IN GROUP of User with write-subnode permission -----");
+		supertool.getGroupDetails(nameNewGrp);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- OTHER GROUP has NO WRITE_TREE permissions -> ONLY IN GROUP of User with write-subnode permission -----");
+		supertool.getGroupDetails(nameNewAdditionalGrp);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- OTHER GROUP with write-subnode has NO WRITE_TREE permissions -> ONLY IN write-subnode GROUP of User -----");
+		supertool.getGroupDetails(nameSubnodeGrp);
+
+
+        System.out.println("\n----- create sub object -> ALLOWED ! + write-tree added on group with SUBNODE permission !!! -----");
         newObjDoc = new IngridDocument();
         newObjDoc.put(MdekKeys.PARENT_UUID, newParentObjUuid);
         supertool.getInitialObject(newObjDoc);
         // extend doc with own data !
-        newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT SUB TREE");
-        System.out.println("\n----- create sub object -> ALLOWED -----");
+        newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT SUBNODE");
         newObjDoc = supertool.storeObject(newObjDoc, false);
         newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
-        
+        System.out.println("\n----- verify permissions of new object -----");
+        supertool.getObjectPermissions(newObjUuid, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- verify granted WRITE_TREE permissions on subnode -> ONLY IN GROUP of User with write-subnode permission -----");
+		supertool.getGroupDetails(nameNewGrp);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- OTHER GROUP has NO WRITE_TREE permissions -> ONLY IN GROUP of User with write-subnode permission -----");
+		supertool.getGroupDetails(nameNewAdditionalGrp);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- OTHER GROUP with write-subnode has NO WRITE_TREE permissions -> ONLY IN write-subnode GROUP of User -----");
+		supertool.getGroupDetails(nameSubnodeGrp);
+
+
         System.out.println("\n-------------------------------------");
         System.out.println("----- move new parent object -> NOT ALLOWED -----");
         supertool.moveObject(newParentObjUuid, objUuid, false);
 
         System.out.println("\n----- move new parent address -> NOT ALLOWED -----");
         doc = supertool.moveAddress(newParentAddrUuid, addrUuid, false);
+
         
         System.out.println("\n-------------------------------------");
         System.out.println("----- copy object to new parent -> ALLOWED -----");
@@ -1433,42 +1495,83 @@ class MdekExampleSecurityThread extends Thread {
         doc = supertool.copyAddress(addrUuid, newParentAddrUuid, false, false);
         copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- verify granted WRITE_TREE permissions on subnode -> ONLY IN GROUP of User with write-subnode permission -----");
+		supertool.getGroupDetails(nameNewGrp);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- OTHER GROUP has NO WRITE_TREE permissions -> ONLY IN GROUP of User with write-subnode permission -----");
+		supertool.getGroupDetails(nameNewAdditionalGrp);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- OTHER GROUP with write-subnode has NO WRITE_TREE permissions -> ONLY IN write-subnode GROUP of User -----");
+		supertool.getGroupDetails(nameSubnodeGrp);
+
+		
         System.out.println("\n-------------------------------------");
-        System.out.println("----- move copy to child node address -> ALLOWED -----");
+        System.out.println("----- move copy to child node object -> ALLOWED DUE TO CHILD NODE HAS write-tree added in SUBNODE GROUP !-----");
         supertool.moveObject(copiedObjUuid, newObjUuid, false);
 
-        System.out.println("\n----- move new parent address -> NOT ALLOWED (PARENT_NOT_PUBLISHED) -----");
-        doc = supertool.moveAddress(copiedAddrUuid, newAddrUuid, false);
+//        System.out.println("\n----- move copy to child node address -> ALLOWED DUE TO CHILD NODE HAS write-tree added in SUBNODE GROUP !-----");
+//        doc = supertool.moveAddress(copiedAddrUuid, newAddrUuid, false);
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- and delete children of sub object -> ALLOWED (write-tree in parent!) -----");
+        supertool.deleteAddressWorkingCopy(copiedAddrUuid, true);           
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- and delete direct sub address of write-subnode parent -> ALLOWED (write-subnode in parent!) -----");
+        supertool.deleteObjectWorkingCopy(copiedObjUuid, true);
+
+
         
         System.out.println("\n-------------------------------------");
-        System.out.println("----- and delete copied sub entities -> ALLOWED (WRITE_SUBTREE in parent!) -----");
-        
-        System.out.println("\n----- verify permissions for copied object -----");
-        supertool.getObjectPermissions(copiedObjUuid, true);
+        System.out.println("----- !!! SWITCH \"CALLING USER\" TO newMetaAdmin1 WITH 2. write-subnode group -----");
+        supertool.setCallingUser(newMetaAdmin1Uuid);
 
-        System.out.println("\n----- verify permissions for copied address -----");
-        supertool.getAddressPermissions(copiedAddrUuid, true);
-
-        supertool.deleteAddressWorkingCopy(copiedAddrUuid, true);           
-        supertool.deleteObjectWorkingCopy(copiedObjUuid, true);         
-
-        
-        System.out.println("\n----- verify permissions for new object -----");
+        System.out.println("\n-------------------------------------");
+        System.out.println("\n----- verify permissions for new object and address, NO PERMISSIONS -----");
         supertool.getObjectPermissions(newObjUuid, true);
-
-        System.out.println("\n----- verify permissions for new address -----");
         supertool.getAddressPermissions(newAddrUuid, true);
         
-        
-        System.out.println("\n-------------------------------------");
-        System.out.println("----- and delete new sub entities -> ALLOWED (WRITE_SUBTREE in parent!) -----");
+        System.out.println("----- and delete new object and address -> NOT ALLOWED -----");
         supertool.deleteAddressWorkingCopy(newAddrUuid, true);
         supertool.deleteObjectWorkingCopy(newObjUuid, true);
 
         System.out.println("\n-------------------------------------");
-        System.out.println("----- and delete new parent entities -> NOT ALLOWED (WRITE_SUBTREE) -----");
+        System.out.println("\n----- verify permissions for new parent entities, only WRITE_SUBNODE -----");
+        supertool.getObjectPermissions(newParentObjUuid, true);
+        supertool.getAddressPermissions(newParentAddrUuid, true);
+        
+        System.out.println("----- and delete new parent entities -> NOT ALLOWED (only WRITE_SUBNODE) -----");
         supertool.deleteObject(newParentObjUuid, true);
         supertool.deleteAddress(newParentAddrUuid, true);
+
+
+        
+        System.out.println("\n-------------------------------------");
+        System.out.println("----- !!! SWITCH \"CALLING USER\" BACK TO NEW META AUTHOR WITH permissions -----");
+        supertool.setCallingUser(newMetaAuthor1Uuid);
+        
+        System.out.println("\n-------------------------------------");
+        System.out.println("\n----- verify permissions for new object and address, has PERMISSIONS -----");
+        supertool.getObjectPermissions(newObjUuid, true);
+        supertool.getAddressPermissions(newAddrUuid, true);       
+        
+        System.out.println("----- and delete new object and address -> ALLOWED (write-tree) -----");
+        supertool.deleteAddressWorkingCopy(newAddrUuid, true);
+        supertool.deleteObjectWorkingCopy(newObjUuid, true);
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("\n----- verify permissions for new parent entities, only WRITE_SUBNODE -----");
+        supertool.getObjectPermissions(newParentObjUuid, true);
+        supertool.getAddressPermissions(newParentAddrUuid, true);
+        
+        System.out.println("----- and delete new parent entities -> NOT ALLOWED (WRITE_SUBNODE) -----");
+        supertool.deleteObject(newParentObjUuid, true);
+        supertool.deleteAddress(newParentAddrUuid, true);
+
+
 
         System.out.println("\n-------------------------------------");
         System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
@@ -1479,10 +1582,10 @@ class MdekExampleSecurityThread extends Thread {
         supertool.deleteObject(newParentObjUuid, true);
         supertool.deleteAddress(newParentAddrUuid, true);
         
-        
+		System.out.println("\n----- delete 2. write-subnode group, WITH FORCE DELETE WHEN HAVING USERS -> returns 'groupless' users of deleted group -----");
+		supertool.deleteGroup(subnodeGrpId, true);
+
 // ===================================
-      		
-		
 		
 		System.out.println("\n----------------------------");
 		System.out.println("----- CLEAN UP -----");

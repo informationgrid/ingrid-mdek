@@ -40,6 +40,7 @@ import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -321,10 +322,16 @@ public class MdekObjectService {
 		fullIndexHandler.updateObjectIndex(oNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-        // ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
-		boolean isRootNode = (parentUuid == null);
-		if (!calledByImporter && isNewObject && isRootNode) {
-			permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId, true);
+		if (!calledByImporter && isNewObject) {
+			if (parentUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);				
+			} else if (permissionHandler.hasSubNodePermissionForObject(parentUuid, userId, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_OBJECT, parentUuid);				
+			}
 		}
 
 		return uuid;
@@ -500,10 +507,16 @@ public class MdekObjectService {
 		fullIndexHandler.updateObjectIndex(oNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		// ONLY GRANT IF NEW ROOT NODE. In all other cases node already has permission ! 
-        boolean isRootNode = (parentUuid == null);
-        if (!calledByImporter && isNewObject && isRootNode) {
-			permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId, true);
+		if (!calledByImporter && isNewObject) {
+			if (parentUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);
+			} else if (permissionHandler.hasSubNodePermissionForObject(parentUuid, userId, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForObject(oNode.getObjUuid(), userId,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_OBJECT, parentUuid);				
+			}
 		}
 
 		return uuid;
@@ -533,8 +546,6 @@ public class MdekObjectService {
 	 */
 	public IngridDocument moveObject(String fromUuid, String toUuid, boolean forcePubCondition,
 			String userId, boolean calledByImporter) {
-		boolean isNewRootNode = (toUuid == null) ? true : false;
-
 		// PERFORM CHECKS
 
 		// check permissions !
@@ -550,9 +561,17 @@ public class MdekObjectService {
 		// process all moved nodes including top node (e.g. change tree path or date and mod_uuid) !
 		IngridDocument resultDoc = processMovedNodes(fromNode, toUuid, userId);
 
-		// grant write tree permission if new root node
-		if (!calledByImporter && isNewRootNode) {
-			permissionHandler.grantTreePermissionForObject(fromUuid, userId, true);
+		// grant write tree permission (e.g. if new root node)
+		if (!calledByImporter) {
+			if (toUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForObject(fromUuid, userId,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);
+			} else if (permissionHandler.hasSubNodePermissionForObject(toUuid, userId, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForObject(fromUuid, userId,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_OBJECT, toUuid);				
+			}
 		}
 
 		return resultDoc;		

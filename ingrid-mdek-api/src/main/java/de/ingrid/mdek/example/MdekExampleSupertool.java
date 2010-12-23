@@ -254,6 +254,26 @@ public class MdekExampleSupertool {
 			boolean getDetailedPermissions) {
 		return supertoolSecurity.getUsersWithWritePermissionForAddress(addrUuid, checkWorkflow, getDetailedPermissions);
 	}
+	public IngridDocument getResponsibleUsersForNewObject(String objUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		return supertoolSecurity.getResponsibleUsersForNewObject(objUuid, checkWorkflow, getDetailedPermissions);
+	}
+	public IngridDocument getResponsibleUsersForNewAddress(String addrUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		return supertoolSecurity.getResponsibleUsersForNewAddress(addrUuid, checkWorkflow, getDetailedPermissions);
+	}
+	public IngridDocument getUsersWithPermissionForObject(String objUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		return supertoolSecurity.getUsersWithPermissionForObject(objUuid, checkWorkflow, getDetailedPermissions);
+	}
+	public IngridDocument getUsersWithPermissionForAddress(String addrUuid,
+			boolean checkWorkflow,
+			boolean getDetailedPermissions) {
+		return supertoolSecurity.getUsersWithPermissionForAddress(addrUuid, checkWorkflow, getDetailedPermissions);
+	}
 	public IngridDocument getObjectPermissions(String objUuid, boolean checkWorkflow) {
 		return supertoolSecurity.getObjectPermissions(objUuid, checkWorkflow);
 	}
@@ -284,6 +304,9 @@ public class MdekExampleSupertool {
 	public IngridDocument storeUser(IngridDocument docIn,
 			boolean refetch) {
 		return supertoolSecurity.storeUser(docIn, refetch);
+	}	
+	public IngridDocument getUserDetails() {
+		return supertoolSecurity.getUserDetails();
 	}	
 	public IngridDocument deleteUser(Long idcUserId) {
 		return supertoolSecurity.deleteUser(idcUserId);

@@ -37,6 +37,7 @@ import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -723,7 +724,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
-			boolean isNewRootNode = (toUuid == null) ? true : false;
 			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
 			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
 
@@ -750,10 +750,17 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			List<IngridDocument> pathList = daoAddressNode.getAddressPathOrganisation(fromNodeCopy.getAddrUuid(), false);
 			resultDoc.put(MdekKeys.PATH_ORGANISATIONS, pathList);
 
-			// grant write tree permission if new root node
-			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userUuid, true);
+			// grant write tree permission (e.g. if new root node)
+			if (toUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userUuid,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);
+			} else if (permissionHandler.hasSubNodePermissionForAddress(toUuid, userUuid, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForAddress(fromNodeCopy.getAddrUuid(), userUuid,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_ADDRESS, toUuid);				
 			}
+
 
 			// add permissions to result
 			List<Permission> perms = permissionHandler.getPermissionsForAddress(fromNodeCopy.getAddrUuid(), userUuid, true);

@@ -616,10 +616,13 @@ class MdekExampleAddressThread extends Thread {
 		// uuid created !
 		String newTopAddrUuid = (String) newTopAddrDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n\n----- move new address to NEW TOP ADDRESS -> ERROR (new parent not published) -----");
+		System.out.println("\n\n----- move new address to NEW TOP ADDRESS -> BOTH NOT PUBLISHED, OK !!! -----");
 		String oldParentUuid = parentUuid;
 		String newParentUuid = newTopAddrUuid;
 		supertool.moveAddress(newAddrUuid, newParentUuid, false);
+		System.out.println("\n\n----- move back -----");
+		supertool.moveAddress(newAddrUuid, oldParentUuid, false);
+
 		System.out.println("\n----- publish NEW TOP ADDRESS -----");
 		supertool.publishAddress(newTopAddrDoc, true);
 		System.out.println("\n\n----- move new address again -> SUCCESS (new parent published) -----");

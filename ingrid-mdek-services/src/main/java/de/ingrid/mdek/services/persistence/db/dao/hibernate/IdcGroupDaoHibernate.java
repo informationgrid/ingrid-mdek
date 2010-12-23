@@ -193,6 +193,35 @@ public class IdcGroupDaoHibernate
 			"AND uP.permissionId=" + permId + "";
 
 		return (List<Long>)session.createQuery(qString).list();
+	}
 
+	public List<Long> getGroupIdsContainingObjectPermission(String userUuid, Long permId, String objUuid) {
+		Session session = getSession();
+
+		String qString = "select distinct uG.idcGroupId" +
+			" from IdcUser u, IdcUserGroup uG, PermissionObj oP" +
+			" where" +
+			" u.id = uG.idcUserId" +
+			" AND uG.idcGroupId = oP.idcGroupId" +
+			" AND u.addrUuid='" + userUuid + "'" +
+			" AND oP.permissionId=" + permId +
+			" AND oP.uuid='" + objUuid + "'";
+
+		return (List<Long>)session.createQuery(qString).list();
+	}
+
+	public List<Long> getGroupIdsContainingAddressPermission(String userUuid, Long permId, String addrUuid) {
+		Session session = getSession();
+
+		String qString = "select distinct uG.idcGroupId" +
+			" from IdcUser u, IdcUserGroup uG, PermissionAddr aP" +
+			" where" +
+			" u.id = uG.idcUserId" +
+			" AND uG.idcGroupId = aP.idcGroupId" +
+			" AND u.addrUuid='" + userUuid + "'" +
+			" AND aP.permissionId=" + permId +
+			" AND aP.uuid='" + addrUuid + "'";
+
+		return (List<Long>)session.createQuery(qString).list();
 	}
 }

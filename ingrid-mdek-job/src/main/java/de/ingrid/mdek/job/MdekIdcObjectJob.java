@@ -38,6 +38,7 @@ import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -877,7 +878,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
-			boolean isNewRootNode = (toUuid == null) ? true : false;
 			Boolean copySubtree = (Boolean) params.get(MdekKeys.REQUESTINFO_COPY_SUBTREE);
 
 			// check permissions !
@@ -914,9 +914,15 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// and additional info
 			resultDoc.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numCopiedObjects);
 
-			// grant write tree permission if new root node
-			if (isNewRootNode) {
-				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userUuid, true);
+			// grant write tree permission (e.g. if new root node)
+			if (toUuid == null) {
+		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
+				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userUuid,
+						GroupType.ONLY_GROUPS_WITH_CREATE_ROOT_PERMISSION, null);
+			} else if (permissionHandler.hasSubNodePermissionForObject(toUuid, userUuid, false)) {  
+		        // NEW NODE UNDER PARENT WITH SUBNODE PERMISSION: grant write-tree permission only for special group ! 
+				permissionHandler.grantTreePermissionForObject(fromNodeCopy.getObjUuid(), userUuid,
+						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_OBJECT, toUuid);				
 			}
 
 			// add permissions to result
