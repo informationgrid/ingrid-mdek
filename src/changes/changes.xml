@@ -4,12 +4,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-	<release version="2.3.1-SNAPSHOT" date="?" description="Release multiple groups per user, new write permission ... ENFORCES UPDATE OF IGC Schema (2.3.1) AND PORTAL !">
+	<release version="2.3.1-SNAPSHOT" date="?" description="Release multiple groups per user, new write permission ... ENFORCES UPDATE OF IGC Schema (2.3.1.1) AND PORTAL !">
       <action type="add" dev="wemove" issue="INGRID23-46">
-        Add new permission "write-subnode" for creating direct subnode and then nodes underneath created subnode (IGC Schema 2.3.1).
+        Add new permission "write-subnode" for creating direct subnode and then nodes underneath created subnode (IGC Schema 2.3.1.1).
       </action>
       <action type="add" dev="wemove" issue="INGRID23-48">
-        Introduce MULTIPLE GROUPS per User (IGC Schema 2.3.1).
+        Introduce MULTIPLE GROUPS per User (IGC Schema 2.3.1.1).
       </action>
       <action type="fix" dev="wemove">
         Fix move of unpublished address under unpublished parent (before parent always had to be published).
