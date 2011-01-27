@@ -72,14 +72,21 @@
             <xs:element ref="localizedLabel" minOccurs="0" maxOccurs="unbounded"/>
             <!-- Help only relevant if not core rubric -->
             <xs:element ref="localizedHelp" minOccurs="0" maxOccurs="unbounded"/>
-            <!-- core controls always before additional controls -->
-            <xs:element ref="legacyControl" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="textControl"/>
-                <xs:element ref="numberControl"/>
-                <xs:element ref="dateControl"/>
-                <xs:element ref="tableControl"/>
-            </xs:choice>
+            <!-- All controls encapsulated in this tag -->
+            <xs:element name="controls">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- core controls always before additional controls -->
+                        <xs:element ref="legacyControl" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element ref="textControl"/>
+                            <xs:element ref="numberControl"/>
+                            <xs:element ref="dateControl"/>
+                            <xs:element ref="tableControl"/>
+                        </xs:choice>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
         <!-- Rubric part of core model (true) or not (false) -->
         <xs:attribute name="isLegacy" type="xs:boolean"/>
@@ -171,7 +178,7 @@
             <xs:element name="items" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="item" type="xs:string" maxOccurs="unbounded"/>
+                        <xs:element name="item" type="StringWithId" maxOccurs="unbounded"/>
                     </xs:sequence>
                     <xs:attribute name="lang" type="xs:string" use="required"/>
                 </xs:complexType>
@@ -201,4 +208,13 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <!-- Id String: STRING element mit id-Attribut -->
+    <xs:complexType name="StringWithId">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="xs:string" use="required"/>
+            </xs:extension>     
+        </xs:simpleContent>
+    </xs:complexType>
+    
 </xs:schema>
