@@ -20,6 +20,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="name"/>
+                <xs:element ref="supportedLanguages"/>
                 <xs:element ref="layoutRubric" maxOccurs="unbounded"/>
             </xs:sequence>
             <xs:attributeGroup ref="attributes.profile"/>
@@ -40,6 +41,7 @@
         "simple" elements
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <xs:element name="name" type="xs:string"/>
+    <xs:element name="supportedLanguages" type="xs:string"/>
     <xs:element name="id" type="xs:string"/>
     <xs:element name="localizedLabel" type="LocalizedString"/>
     <xs:element name="localizedLabelPostfix" type="LocalizedString"/>
@@ -49,8 +51,10 @@
     <!-- script contains validation (e.g. mandatory, URL, number type ... ), visibility dependent from INSPIRE theme (including deletion of database content when hidden),
         visibility dependent from object class (including deletion of database content when hidden ?) etc. -->
     <xs:element name="scriptedProperties" type="xs:string"/>
-    <!-- visibility of optional elements NOT scripted to be integrated in existing gui mechanism ("Katalogverwaltung/Feldeinstellungen") -->
-    <xs:element name="isVisible" type="xs:boolean" default="true"/>
+    <!-- mandatory NOT scripted to be integrated in profile GUI (check box). Field is always shown if "true", "isVisible" then is irrelevant. -->
+    <xs:element name="isMandatory" type="xs:boolean" default="false"/>
+    <!-- visibility NOT scripted to be integrated in profile GUI (radio buttons). Only relevant if "isMandatory" is false. -->
+    <xs:element name="isVisible" type="isVisibleType" default="optional"/>
     <xs:element name="indexName" type="xs:string"/>
     <xs:element name="selectionList" type="SelectionList"/>
     <xs:element name="layoutWidth" type="Percent" default="100"/>
@@ -96,6 +100,7 @@
     <xs:complexType name="AbstractControl" abstract="true">
         <xs:sequence>
             <xs:element ref="id"/>
+            <xs:element ref="isMandatory" minOccurs="0"/>
             <xs:element ref="isVisible" minOccurs="0"/>
             <xs:element ref="scriptedProperties" minOccurs="0"/>
         </xs:sequence>
@@ -216,5 +221,16 @@
             </xs:extension>     
         </xs:simpleContent>
     </xs:complexType>
+
+    <!--
+        Datentyp: Enumeration for element "isVisible"
+    -->
+    <xs:simpleType name="isVisibleType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="optional"/>
+            <xs:enumeration value="show"/>
+            <xs:enumeration value="hide"/>
+        </xs:restriction>
+    </xs:simpleType>
     
 </xs:schema>

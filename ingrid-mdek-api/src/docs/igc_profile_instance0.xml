@@ -3,6 +3,7 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.portalu.de/igc-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/docs/igc_profile.xsd" version="1.0.0">
     <name>name0</name>
+    <supportedLanguages>supportedLanguages0</supportedLanguages>
     <layoutRubric isLegacy="false">
         <id>id0</id>
         <localizedLabel lang="lang1">localizedLabel0</localizedLabel>
@@ -10,12 +11,14 @@
         <controls>
             <legacyControl>
                 <id>id1</id>
-                <isVisible>true</isVisible>
+                <isMandatory>false</isMandatory>
+                <isVisible>optional</isVisible>
                 <scriptedProperties>scriptedProperties0</scriptedProperties>
             </legacyControl>
                 <textControl>
                             <id>id2</id>
-                            <isVisible>true</isVisible>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
                             <scriptedProperties>scriptedProperties1</scriptedProperties>
                             <localizedLabel lang="lang5">localizedLabel1</localizedLabel>
                             <localizedLabelPostfix lang="lang7">localizedLabelPostfix0</localizedLabelPostfix>
@@ -32,7 +35,8 @@
                 </textControl>
 <!--                <numberControl>
                         <id>id3</id>
-                        <isVisible>true</isVisible>
+                        <isMandatory>false</isMandatory>
+                        <isVisible>optional</isVisible>
                         <scriptedProperties>scriptedProperties2</scriptedProperties>
                         <localizedLabel lang="lang13">localizedLabel2</localizedLabel>
                         <localizedLabelPostfix lang="lang15">localizedLabelPostfix1</localizedLabelPostfix>
@@ -43,7 +47,8 @@
                 </numberControl>-->
 <!--                <dateControl>
                         <id>id4</id>
-                        <isVisible>true</isVisible>
+                        <isMandatory>false</isMandatory>
+                        <isVisible>optional</isVisible>
                         <scriptedProperties>scriptedProperties3</scriptedProperties>
                         <localizedLabel lang="lang19">localizedLabel3</localizedLabel>
                         <localizedLabelPostfix lang="lang21">localizedLabelPostfix2</localizedLabelPostfix>
@@ -54,7 +59,8 @@
                 </dateControl>-->
 <!--                <tableControl>
                             <id>id5</id>
-                            <isVisible>true</isVisible>
+                            <isMandatory>false</isMandatory>
+                            <isVisible>optional</isVisible>
                             <scriptedProperties>scriptedProperties4</scriptedProperties>
                             <localizedLabel lang="lang25">localizedLabel4</localizedLabel>
                             <localizedLabelPostfix lang="lang27">localizedLabelPostfix3</localizedLabelPostfix>
@@ -66,7 +72,8 @@
                         <columns>
                             <textControl>
                                         <id>id6</id>
-                                        <isVisible>true</isVisible>
+                                        <isMandatory>false</isMandatory>
+                                        <isVisible>optional</isVisible>
                                         <scriptedProperties>scriptedProperties5</scriptedProperties>
                                         <localizedLabel lang="lang31">localizedLabel5</localizedLabel>
                                         <localizedLabelPostfix lang="lang33">localizedLabelPostfix4</localizedLabelPostfix>
@@ -83,7 +90,8 @@
                             </textControl>
 <!--                            <numberControl>
                                     <id>id7</id>
-                                    <isVisible>true</isVisible>
+                                    <isMandatory>false</isMandatory>
+                                    <isVisible>optional</isVisible>
                                     <scriptedProperties>scriptedProperties6</scriptedProperties>
                                     <localizedLabel lang="lang39">localizedLabel6</localizedLabel>
                                     <localizedLabelPostfix lang="lang41">localizedLabelPostfix5</localizedLabelPostfix>
@@ -94,7 +102,8 @@
                             </numberControl>-->
 <!--                            <dateControl>
                                     <id>id8</id>
-                                    <isVisible>true</isVisible>
+                                    <isMandatory>false</isMandatory>
+                                    <isVisible>optional</isVisible>
                                     <scriptedProperties>scriptedProperties7</scriptedProperties>
                                     <localizedLabel lang="lang45">localizedLabel7</localizedLabel>
                                     <localizedLabelPostfix lang="lang47">localizedLabelPostfix6</localizedLabelPostfix>
