@@ -45,6 +45,7 @@
     <xs:element name="id" type="xs:string"/>
     <xs:element name="localizedLabel" type="LocalizedString"/>
     <xs:element name="localizedLabelPostfix" type="LocalizedString"/>
+    <!-- Help text contains TITLE, TEXT, and EXAMPLE and should be sparated by ## e.g. "TITLE##TEXT##EXAMPLE" -->
     <xs:element name="localizedHelp" type="LocalizedString"/>
     <!-- script contains mapping to csw -->
     <xs:element name="scriptedCswMapping" type="xs:string"/>
