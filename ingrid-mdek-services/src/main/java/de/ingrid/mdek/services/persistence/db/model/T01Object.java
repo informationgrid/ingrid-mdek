@@ -49,6 +49,7 @@ public class T01Object implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 
+	private Set additionalFieldDatas = new HashSet();
 	private Set objectAccesss = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
@@ -78,7 +79,6 @@ public class T01Object implements IEntity {
 	private AddressNode addressNodeResponsible;
 	private AddressNode addressNodeMod;
 	private ObjectMetadata objectMetadata;
-	private Set t08Attrs = new HashSet();
 
 	public T01Object() {}
 
@@ -411,6 +411,14 @@ public class T01Object implements IEntity {
 	}
 
 
+	public Set getAdditionalFieldDatas() {
+		return additionalFieldDatas;
+	}
+
+	public void setAdditionalFieldDatas(Set additionalFieldDatas) {
+		this.additionalFieldDatas = additionalFieldDatas;
+	}
+
 	public Set getObjectAccesss() {
 		return objectAccesss;
 	}
@@ -641,14 +649,6 @@ public class T01Object implements IEntity {
 
 	public void setObjectMetadata(ObjectMetadata objectMetadata) {
 		this.objectMetadata = objectMetadata;
-	}
-
-	public Set getT08Attrs() {
-		return t08Attrs;
-	}
-
-	public void setT08Attrs(Set t08Attrs) {
-		this.t08Attrs = t08Attrs;
 	}
 
 }

@@ -123,8 +123,8 @@
                 <xs:sequence>
                     <xs:element ref="localizedLabel" maxOccurs="unbounded"/>
                     <xs:element ref="localizedLabelPostfix" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element ref="localizedHelp" maxOccurs="unbounded"/>
-                    <xs:element ref="scriptedCswMapping"/>
+                    <xs:element ref="localizedHelp" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element ref="scriptedCswMapping" minOccurs="0"/>
                     <xs:element ref="indexName" minOccurs="0"/>
                     <xs:element ref="layoutWidth" minOccurs="0"/>
                 </xs:sequence>
