@@ -32,6 +32,7 @@
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <xs:element name="layoutRubric" type="LayoutRubric"/>
     <xs:element name="textControl" type="TextControl"/>
+    <xs:element name="selectControl" type="SelectControl"/>
     <xs:element name="numberControl" type="NumberControl"/>    
     <xs:element name="dateControl" type="DateControl"/>
     <xs:element name="tableControl" type="TableControl"/>
@@ -85,6 +86,7 @@
                         <xs:element ref="legacyControl" minOccurs="0" maxOccurs="unbounded"/>
                         <xs:choice minOccurs="0" maxOccurs="unbounded">
                             <xs:element ref="textControl"/>
+                            <xs:element ref="selectControl"/>
                             <xs:element ref="numberControl"/>
                             <xs:element ref="dateControl"/>
                             <xs:element ref="tableControl"/>
@@ -136,7 +138,17 @@
             <xs:extension base="AbstractAdditionalControl">
                 <xs:sequence>
                     <xs:element ref="layoutNumLines" minOccurs="0"/>
-                    <xs:element ref="selectionList" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <!-- SelectControl: additional selection list Control -->
+    <xs:complexType name="SelectControl">
+        <xs:complexContent>
+            <xs:extension base="AbstractAdditionalControl">
+                <xs:sequence>
+                    <xs:element ref="selectionList"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -173,6 +185,7 @@
     <xs:complexType name="Columns">
         <xs:choice maxOccurs="unbounded">
             <xs:element ref="textControl"/>
+            <xs:element ref="selectControl"/>
             <xs:element ref="numberControl"/>
             <xs:element ref="dateControl"/>
         </xs:choice>
