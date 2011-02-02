@@ -150,6 +150,8 @@
                 <xs:sequence>
                     <xs:element ref="selectionList"/>
                 </xs:sequence>
+                <!-- also free entry of text possible (true) or not (false) -->
+                <xs:attribute name="isExtendable" type="xs:boolean" default="false"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -191,7 +193,7 @@
         </xs:choice>
     </xs:complexType>
     
-    <!-- SelectionList: Additional selection list for textfield (may be extendable) -->
+    <!-- SelectionList: encapsulates localized items -->
     <xs:complexType name="SelectionList">
             <xs:sequence>
             <xs:element name="items" maxOccurs="unbounded">
@@ -203,8 +205,6 @@
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <!-- also free entry of text possible (true) or not (false) -->
-        <xs:attribute name="isExtendable" type="xs:boolean" default="false"/>
     </xs:complexType>
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   

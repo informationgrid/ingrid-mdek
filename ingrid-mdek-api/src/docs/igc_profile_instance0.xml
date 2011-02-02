@@ -28,7 +28,7 @@
                             <layoutWidth>100</layoutWidth>
                         <layoutNumLines>1</layoutNumLines>
                 </textControl>
-<!--                <selectControl>
+<!--                <selectControl isExtendable="false">
                             <id>id3</id>
                             <isMandatory>false</isMandatory>
                             <isVisible>optional</isVisible>
@@ -39,7 +39,7 @@
                             <scriptedCswMapping>scriptedCswMapping1</scriptedCswMapping>
                             <indexName>indexName1</indexName>
                             <layoutWidth>100</layoutWidth>
-                        <selectionList isExtendable="false">
+                        <selectionList>
                             <items lang="lang17">
                                 <item id="id1">item0</item>
                             </items>
@@ -95,7 +95,7 @@
                                         <layoutWidth>100</layoutWidth>
                                     <layoutNumLines>1</layoutNumLines>
                             </textControl>
-<!--                            <selectControl>
+<!--                            <selectControl isExtendable="false">
                                         <id>id8</id>
                                         <isMandatory>false</isMandatory>
                                         <isVisible>optional</isVisible>
@@ -106,7 +106,7 @@
                                         <scriptedCswMapping>scriptedCswMapping6</scriptedCswMapping>
                                         <indexName>indexName6</indexName>
                                         <layoutWidth>100</layoutWidth>
-                                    <selectionList isExtendable="false">
+                                    <selectionList>
                                         <items lang="lang49">
                                             <item id="id3">item1</item>
                                         </items>
