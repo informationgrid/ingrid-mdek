@@ -13,7 +13,6 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils.AdditionalFieldType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
@@ -26,7 +25,7 @@ import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
-import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
+import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -84,9 +83,6 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
-import de.ingrid.mdek.services.persistence.db.model.T08Attr;
-import de.ingrid.mdek.services.persistence.db.model.T08AttrList;
-import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -105,7 +101,6 @@ public class DocToBeanMapper implements IMapper {
 	private ISpatialRefValueDao daoSpatialRefValue;
 	private ISearchtermSnsDao daoSearchtermSns;
 	private ISearchtermValueDao daoSearchtermValue;
-	private IT08AttrTypeDao daoT08AttrType;
 
 	/** Generic dao for class unspecific operations !!! */
 	private IGenericDao<IEntity> dao;
@@ -125,7 +120,6 @@ public class DocToBeanMapper implements IMapper {
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
 		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
-		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 
 		dao = daoFactory.getDao(IEntity.class);
 
@@ -423,7 +417,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjData(oDocIn, oIn);
 
 			// additional fields
-			updateT08Attrs(oDocIn, oIn);
+			updateAdditionalFieldDatas(oDocIn, oIn);
 
 			// comments
 			updateObjectComments(oDocIn, oIn);
@@ -2332,139 +2326,107 @@ public class DocToBeanMapper implements IMapper {
 		return ref;
 	}
 
-	public void updateT08Attrs(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> attrDocs = (List) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
-		if (attrDocs == null) {
-			attrDocs = new ArrayList<IngridDocument>(0);
+	private AdditionalFieldData mapAdditionalFieldData(T01Object oFrom,
+			IngridDocument doc,
+			AdditionalFieldData bean,
+			int line,
+			Long parentBeanId)
+	{
+		bean.setFieldKey(doc.getString(MdekKeys.ADDITIONAL_FIELD_KEY));
+		if (oFrom != null) {
+			bean.setObjId(oFrom.getId());			
+		}
+		if (doc.get(MdekKeys.ADDITIONAL_FIELD_DATA) != null) {
+			bean.setData(doc.getString(MdekKeys.ADDITIONAL_FIELD_DATA));			
+		}
+		if (doc.get(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID) != null) {
+			bean.setListItemId(doc.getString(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID));			
+		}
+		bean.setParentFieldId(parentBeanId);			
+		bean.setSort(line);
+
+		keyValueService.processKeyValue(bean);
+
+		if (doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
+			// guarantee, that this bean, including the rows, has an id to be set in "subbeans"
+			if (bean.getId() == null) {
+				// no id, we have to store, to get an id !
+				dao.makePersistent(bean);
+			}
+			updateAdditionalFieldDatas(bean,
+				(List<List<IngridDocument>>) doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS));
 		}
 
-		Set<T08Attr> attrs = oIn.getT08Attrs();
-		ArrayList<T08Attr> attrs_unprocessed = new ArrayList<T08Attr>(attrs);
+		return bean;
+	}
+	private void updateAdditionalFieldDatas(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> docs = (List) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (docs == null) {
+			docs = new ArrayList<IngridDocument>(0);
+		}
 
-		for (IngridDocument attrDoc : attrDocs) {
+		Set<AdditionalFieldData> beans = oIn.getAdditionalFieldDatas();
+		ArrayList<AdditionalFieldData> beansUnprocessed = new ArrayList<AdditionalFieldData>(beans);
+
+		int sort = 0;
+		for (IngridDocument doc : docs) {
 			boolean found = false;
-			Long attrDoc_typeId = (Long) attrDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
-			String attrDoc_data = attrDoc.getString(MdekKeys.ADDITIONAL_FIELD_VALUE);
-			for (T08Attr attr : attrs) {
-				if (attr.getAttrTypeId().equals(attrDoc_typeId)) {
+			// always sort = 0 ! No multiple lines in first level !
+//			sort++;
+			String docFieldKey = doc.getString(MdekKeys.ADDITIONAL_FIELD_KEY);
+			for (AdditionalFieldData bean : beans) {
+				if (bean.getFieldKey().equals(docFieldKey)) {
 					found = true;
-					attr.setData(attrDoc_data);
-					attrs_unprocessed.remove(attr);
+					mapAdditionalFieldData(oIn, doc, bean, sort, null);
+					beansUnprocessed.remove(bean);
 					break;
 				}
 			}
 			if (!found) {
-				T08Attr attr = new T08Attr();
-				attr.setObjId(oIn.getId());
-				attr.setAttrTypeId(attrDoc_typeId);			
-				attr.setData(attrDoc_data);
-				attrs.add(attr);
+				AdditionalFieldData bean = new AdditionalFieldData();
+				mapAdditionalFieldData(oIn, doc, bean, sort, null);
+				beans.add(bean);
 			}
 		}
 		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
-		for (T08Attr attr : attrs_unprocessed) {
-			attrs.remove(attr);
+		for (AdditionalFieldData bean : beansUnprocessed) {
+			beans.remove(bean);
 			// delete-orphan doesn't work !!!?????
-			dao.makeTransient(attr);
+			dao.makeTransient(bean);
 		}		
 	}
+	private void updateAdditionalFieldDatas(AdditionalFieldData inBean, List<List<IngridDocument>> rowsList) {
+		Set<AdditionalFieldData> beans = inBean.getAdditionalFieldDatas();
+		ArrayList<AdditionalFieldData> beansUnprocessed = new ArrayList<AdditionalFieldData>(beans);
 
-	/**
-	 * Add/Update/Delete additional fields and PERSIST.
-	 * @param fieldDocs ALL additional fields -> state to save
-	 * @param fields ALL former additional fields to update/delete 
-	 * @return list of IDs of stored additional fields (new ids if new fields !)
-	 */
-	public List<Long> updateT08AttrTypes(List<IngridDocument> fieldDocs, List<T08AttrType> fields) {
-		if (fieldDocs == null) {
-			fieldDocs = new ArrayList<IngridDocument>(0);
-		}
-		List<Long> retIds = new ArrayList<Long>(fieldDocs.size()); 
-
-		ArrayList<T08AttrType> fields_unprocessed = new ArrayList<T08AttrType>(fields);
-
-		for (IngridDocument fieldDoc : fieldDocs) {
-			Long docFieldId = (Long) fieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER);
-			T08AttrType foundField = null;
-			if (docFieldId != null) {
-				for (T08AttrType field : fields) {
-					if (field.getId().equals(docFieldId)) {
-						foundField = field;
-						fields_unprocessed.remove(foundField);
+		Integer rowNumber = 0;
+		for (List<IngridDocument> colList : rowsList) {
+			rowNumber++;
+			for (IngridDocument doc : colList) {
+				boolean found = false;
+				String docFieldKey = doc.getString(MdekKeys.ADDITIONAL_FIELD_KEY);
+				for (AdditionalFieldData bean : beans) {
+					if (bean.getFieldKey().equals(docFieldKey) &&
+							rowNumber.equals(bean.getSort())) {
+						found = true;
+						mapAdditionalFieldData(null, doc, bean, rowNumber, inBean.getId());
+						beansUnprocessed.remove(bean);
 						break;
 					}
 				}
-			}
-			if (foundField == null) {
-				foundField = new T08AttrType();
-				// save the object and get ID from database (cascading insert do not work??)
-				dao.makePersistent(foundField);
-				fields.add(foundField);
-			}
-			foundField.setName(fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME));
-			foundField.setLength((Integer)fieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH));
-			foundField.setType(fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE));
-
-			// update list entries (if field is of type list)
-			updateT08AttrList(fieldDoc, foundField);
-
-			dao.makePersistent(foundField);
-			
-			retIds.add(foundField.getId());
-		}
-
-		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
-		for (T08AttrType field_unprocessed : fields_unprocessed) {
-			fields.remove(field_unprocessed);
-			// delete-orphan doesn't work !!!?????
-			dao.makeTransient(field_unprocessed);
-
-			// also delete according data entries of field (connected to objects)
-			Long deletedFieldId = field_unprocessed.getId();
-			List<T08Attr> dataEntries = daoT08AttrType.getT08Attr(deletedFieldId);
-			for (T08Attr dataEntry : dataEntries) {
-				dao.makeTransient(dataEntry);
-			}
-		}
-		
-		return retIds;
-	}
-	private void updateT08AttrList(IngridDocument fieldDoc, T08AttrType additField) {
-		Set<T08AttrList> refs = additField.getT08AttrLists();
-		ArrayList<T08AttrList> refs_unprocessed = new ArrayList<T08AttrList>(refs);
-
-		// remove all !
-		for (T08AttrList ref : refs_unprocessed) {
-			refs.remove(ref);
-			// delete-orphan doesn't work !!!?????
-			dao.makeTransient(ref);			
-		}		
-
-		// and add all "new" ones (if LIST field)
-		AdditionalFieldType fieldType =
-			EnumUtil.mapDatabaseToEnumConst(AdditionalFieldType.class, fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE));
-		if (fieldType == AdditionalFieldType.LIST) {
-			// type of list ?
-			String listType = fieldDoc.getString(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_TYPE);
-
-			// add entries for all languages (if set)
-			for (String language : MdekUtils.LANGUAGES_SHORTCUTS) {
-				String[] listItemNames = (String[]) fieldDoc.get(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + language);
-				if (listItemNames != null) {
-					int line = 1;
-					for (String listItemName : listItemNames) {
-						T08AttrList ref = new T08AttrList();
-						ref.setAttrTypeId(additField.getId());
-						ref.setType(listType);
-						ref.setLangCode(language);
-						ref.setListitemValue(listItemName);
-						ref.setListitemLine(line);
-						refs.add(ref);
-						line++;
-					}
+				if (!found) {
+					AdditionalFieldData bean = new AdditionalFieldData();
+					mapAdditionalFieldData(null, doc, bean, rowNumber, inBean.getId());
+					beans.add(bean);
 				}
 			}
 		}
+		// remove the ones not processed, will be deleted by hibernate (delete-orphan set in parent)
+		for (AdditionalFieldData bean : beansUnprocessed) {
+			beans.remove(bean);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(bean);
+		}		
 	}
 
 	private ObjectConformity mapObjectConformity(T01Object oFrom,

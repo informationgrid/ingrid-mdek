@@ -7,15 +7,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
@@ -31,7 +28,6 @@ public class XMLImporter implements IImporter {
 	private IngridXMLStreamReader streamReader;	
 
 	private String currentUserUuid;
-	private IngridDocument additionalFields;
 
 	private int importObjectCount = 0;
 	private int importAddressCount = 0;
@@ -77,7 +73,6 @@ public class XMLImporter implements IImporter {
 
 			InputStream in = new GZIPInputStream(new ByteArrayInputStream(importData));
 			streamReader = new IngridXMLStreamReader(in, importerCallback, currentUserUuid);
-			readAdditionalFieldDefinition();
 			// addresses before objects, so object-address relations won't get lost !
 			importAddresses();
 			importObjects();
@@ -86,21 +81,10 @@ public class XMLImporter implements IImporter {
 			log.error("Error reading file version.", ex);
 			importerCallback.writeImportInfoMessage("Error reading file version.", currentUserUuid);
 
-		} catch (SAXException ex) {
-			log.error("Error reading additional fields.", ex);
-			importerCallback.writeImportInfoMessage("Error reading additional fields.", currentUserUuid);
 		} catch (IOException ex) {
 			log.error("Error importing entities.", ex);
 			importerCallback.writeImportInfoMessage("Error importing entities.", currentUserUuid);
 		}
-	}
-
-	private void readAdditionalFieldDefinition() throws SAXException, IOException {
-		Document document = streamReader.getDomForAdditionalFieldDefinitions();
-		if (mapper == null) {
-			log.error("Oops! mapper should not be null!");
-		}
-		additionalFields = mapper.mapAdditionalFields(document);
 	}
 
 	private void importObjects() {
@@ -130,16 +114,9 @@ public class XMLImporter implements IImporter {
 		IngridDocument dataSource = getObject(objUuid);
 
 		if (dataSource != null) {
-			addAdditionalFieldDefinitionsToObject(dataSource);
 			importerCallback.writeObject(dataSource, currentUserUuid);
 			importObjectCount++;
 			importerCallback.writeImportInfo(IdcEntityType.OBJECT, importObjectCount, totalNumObjects, currentUserUuid);
-		}
-	}
-
-	private void addAdditionalFieldDefinitionsToObject(IngridDocument obj) {
-		for (Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>) additionalFields.entrySet()) {
-			obj.put(entry.getKey(), entry.getValue());
 		}
 	}
 

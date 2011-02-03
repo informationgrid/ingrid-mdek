@@ -54,10 +54,6 @@ public class IngridXMLStreamWriter {
 		writeStartElementWithIndentation(XMLKeys.DATA_MODEL_EXTENSIONS);
 	}
 
-	public void writeAdditionalField(IngridDocument additionalField) throws XMLStreamException {
-		writeElement(IngridXMLBuilder.createXMLForAdditionalField(additionalField));
-	}
-
 	public void writeEndAdditionalFields() throws XMLStreamException {
 		writeEndElementWithIndentation();
 	}

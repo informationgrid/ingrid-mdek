@@ -181,14 +181,6 @@ public class MdekExportService implements IExporterCallback {
 		return uuids;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getSysAdditionalFields(java.lang.Long[])
-	 */
-	public IngridDocument getSysAdditionalFields(Long[] fieldIds) {
-		return catalogService.getSysAdditionalFields(fieldIds, null);
-	}
-
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#writeExportInfo(de.ingrid.mdek.MdekUtils.IdcEntityType, int, int, java.lang.String)
 	 */

@@ -2,11 +2,8 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -23,6 +20,7 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
+import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -80,9 +78,6 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
-import de.ingrid.mdek.services.persistence.db.model.T08Attr;
-import de.ingrid.mdek.services.persistence.db.model.T08AttrList;
-import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -324,7 +319,7 @@ public class BeanToDocMapper implements IMapper {
 			// object comments
 			mapObjectComments(o.getObjectComments(), objectDoc);
 			// additional fields
-			mapT08Attrs(o.getT08Attrs(), objectDoc);
+			mapAdditionalFieldDatas(o.getAdditionalFieldDatas(), objectDoc);
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 			mapObjectUses(o.getObjectUses(), objectDoc);
@@ -569,76 +564,78 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
-	public IngridDocument mapT08Attrs(Set<T08Attr> refs, IngridDocument objectDoc) {
+	public IngridDocument mapAdditionalFieldData(AdditionalFieldData ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, ref.getFieldKey());
+		if (ref.getData() != null) {
+			refDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, ref.getData());				
+		}
+		if (ref.getListItemId() != null) {
+			refDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, ref.getListItemId());				
+		}
+		if (ref.getAdditionalFieldDatas() != null) {
+			List<List<IngridDocument>> rows =
+				mapAdditionalFieldDatas(ref.getAdditionalFieldDatas());
+			refDoc.put(MdekKeys.ADDITIONAL_FIELD_ROWS, rows);
+		}
+
+		return refDoc;
+	}
+	public IngridDocument mapAdditionalFieldDatas(Set<AdditionalFieldData> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
 		}
 		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
-		for (T08Attr ref : refs) {
+		for (AdditionalFieldData ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
-			refDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, ref.getAttrTypeId());
-			refDoc.put(MdekKeys.ADDITIONAL_FIELD_VALUE, ref.getData());
-			
-			T08AttrType attrType = ref.getT08AttrType();
-			if (attrType != null) {
-				refDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, attrType.getName());
-			}
-
+			mapAdditionalFieldData(ref, refDoc);
 			docList.add(refDoc);					
 		}
+		
 		objectDoc.put(MdekKeys.ADDITIONAL_FIELDS, docList);
-		return objectDoc;
+		return objectDoc;			
 	}
+	
+	/** Return rows as List of List<Columns> */ 
+	public List<List<IngridDocument>> mapAdditionalFieldDatas(Set<AdditionalFieldData> refs) {
+		ArrayList<List<IngridDocument>> rowList = new ArrayList<List<IngridDocument>>();
 
-	/** Maps additional field DEFINITIONS to doc */
-	public IngridDocument mapT08AttrTypes(List<T08AttrType> additionalFields, IngridDocument inDoc) {
-		if (additionalFields == null) {
-			return inDoc;
-		}
-		for (T08AttrType additionalField : additionalFields) {
-			IngridDocument additionalFieldDoc = new IngridDocument();
-			Long fieldId = additionalField.getId();
-			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, fieldId);
-			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, additionalField.getName());
-			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LENGTH, additionalField.getLength());
-			additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_TYPE, additionalField.getType());
+		int currentRow = -1;
+		// List of columns in row !
+		ArrayList<IngridDocument> row = null;
+		for (AdditionalFieldData ref : refs) {
+			int nextRow = ref.getSort();
+
+			// check whether all data of a row is read !
+			boolean rowChange = false;
+			if (currentRow != -1 && currentRow != nextRow) {
+				// row changed, process finished row
+				rowChange = true;
+				rowList.add(row);
+			}
+
+			if (currentRow == -1 || rowChange) {
+				// set up next row
+				currentRow = nextRow;
+				row = new ArrayList<IngridDocument>();
+			}
 			
-			// map list items if fetched. NOTICE: are ordered via Hibernate mapping
-			Set<T08AttrList> listItems = additionalField.getT08AttrLists();
-			HashMap langListsMap = new HashMap();
-			String langCode;
-			List<String> langList;
-			String listType = null;
-			for (T08AttrList listItem : listItems) {
-				if (listType == null) {
-					listType = listItem.getType();
-					additionalFieldDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_TYPE, listType);					
-				}
-				langCode = listItem.getLangCode();
-				langList = (List<String>) langListsMap.get(langCode);
-				if (langList == null) {
-					langList = new ArrayList<String>();
-					langListsMap.put(langCode, langList);
-				}
-				langList.add(listItem.getListitemValue());
-			}
-			if (!langListsMap.isEmpty()) {
-				Set entries = langListsMap.entrySet();
-			    Iterator it = entries.iterator();
-			    while (it.hasNext()) {
-			      Map.Entry entry = (Map.Entry) it.next();
-			      langCode = (String) entry.getKey();
-			      langList = (List<String>) entry.getValue();
-			      additionalFieldDoc.put(
-			    		  MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX + langCode, 
-			    		  (String[]) langList.toArray(new String[0]));
-			    }
-			}
-			inDoc.put(MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + fieldId, additionalFieldDoc);
+			// add column to row
+			IngridDocument refDoc = new IngridDocument();
+			mapAdditionalFieldData(ref, refDoc);
+			row.add(refDoc);
 		}
-
-		return inDoc;
+		// also add last row ! not done in loop due to end of loop !
+		if (row != null) {
+			rowList.add(row);
+		}
+		
+		return rowList;
 	}
+
 
 	public IngridDocument mapAddressComments(Set<AddressComment> refs, IngridDocument addressDoc) {
 		if (refs == null) {

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
+   <class name="AdditionalFieldData" table="additional_field_data">
+      <id name="id" type="long" column="id">
+         <generator class="hilo"/>
+      </id>
+      <version name="version" type="integer" column="version"/>
+      <property name="objId" type="long" column="obj_id"/>
+      <property name="sort" type="integer" column="sort"/>
+      <property name="fieldKey" type="string" column="field_key"/>
+      <property name="listItemId" type="string" column="list_item_id"/>
+      <property name="data" type="string" column="data"/>
+      <property name="parentFieldId" type="long" column="parent_field_id"/>
+
+      <set name="additionalFieldDatas" order-by="sort" table="additional_field_data"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="parent_field_id"/>
+         <one-to-many class="AdditionalFieldData" not-found="ignore"/>
+      </set>
+   </class>
+
+</hibernate-mapping>

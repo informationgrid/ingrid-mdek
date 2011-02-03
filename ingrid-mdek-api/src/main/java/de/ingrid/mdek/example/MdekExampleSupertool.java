@@ -139,12 +139,6 @@ public class MdekExampleSupertool {
 		return supertoolCatalog.storeSysList(listId, maintainable, defaultEntryIndex,
 				entryIds, entryNames_de, entryNames_en);
 	}
-	public IngridDocument getSysAdditionalFields(Long[] fieldIds, String languageCode) {
-		return supertoolCatalog.getSysAdditionalFields(fieldIds, languageCode);
-	}
-	public IngridDocument storeAllSysAdditionalFields(List<IngridDocument> allAddFields) {
-		return supertoolCatalog.storeAllSysAdditionalFields(allAddFields);
-	}
 	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot) {
 		return supertoolCatalog.exportObjectBranch(rootUuid, exportOnlyRoot);
 	}
@@ -817,55 +811,55 @@ public class MdekExampleSupertool {
 		}
 	}
 	
-	public void debugObjectDoc(IngridDocument o) {
-		System.out.println("Object: " + o.get(MdekKeys.ID) 
-			+ ", " + o.get(MdekKeys.UUID)
-			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(ObjectType.class, o.get(MdekKeys.CLASS))
-			+ ", " + o.get(MdekKeys.TITLE)
-			+ ", marked deleted: " + o.get(MdekKeys.MARK_DELETED)
+	public void debugObjectDoc(IngridDocument oDoc) {
+		System.out.println("Object: " + oDoc.get(MdekKeys.ID) 
+			+ ", " + oDoc.get(MdekKeys.UUID)
+			+ ", class: " + EnumUtil.mapDatabaseToEnumConst(ObjectType.class, oDoc.get(MdekKeys.CLASS))
+			+ ", " + oDoc.get(MdekKeys.TITLE)
+			+ ", marked deleted: " + oDoc.get(MdekKeys.MARK_DELETED)
 		);
 		System.out.println("        "
-			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, o.get(MdekKeys.WORK_STATE))
-			+ ", modUser: " + extractUserData((IngridDocument)o.get(MdekKeys.MOD_USER))
-			+ ", respUser: " + extractUserData((IngridDocument)o.get(MdekKeys.RESPONSIBLE_USER))
-			+ ", assignerUser: " + extractUserData((IngridDocument)o.get(MdekKeys.ASSIGNER_USER))
-			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
-			+ ", created: " + MdekUtils.timestampToDisplayDate((String)o.get(MdekKeys.DATE_OF_CREATION))
-			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.get(MdekKeys.PUBLICATION_CONDITION))
+			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, oDoc.get(MdekKeys.WORK_STATE))
+			+ ", modUser: " + extractUserData((IngridDocument)oDoc.get(MdekKeys.MOD_USER))
+			+ ", respUser: " + extractUserData((IngridDocument)oDoc.get(MdekKeys.RESPONSIBLE_USER))
+			+ ", assignerUser: " + extractUserData((IngridDocument)oDoc.get(MdekKeys.ASSIGNER_USER))
+			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)oDoc.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
+			+ ", created: " + MdekUtils.timestampToDisplayDate((String)oDoc.get(MdekKeys.DATE_OF_CREATION))
+			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, oDoc.get(MdekKeys.PUBLICATION_CONDITION))
 //			+ ", cat_id: " + o.get(MdekKeys.CATALOGUE_IDENTIFIER)
 		);
 
-		System.out.println("  " + o);
+		System.out.println("  " + oDoc);
 
 		if (!doFullOutput) {
 			return;
 		}
 
-		debugPermissionsDoc(o, "  ");
+		debugPermissionsDoc(oDoc, "  ");
 
 		IngridDocument myDoc;
-		List<IngridDocument> docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_TO);
+		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.OBJ_REFERENCES_TO);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects TO (Querverweise): " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc.get(MdekKeys.UUID) + ": " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.OBJ_REFERENCES_FROM);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects FROM (Querverweise): " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc.get(MdekKeys.UUID) + ": " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Objects FROM (Querverweise) ONLY PUBLISHED !!!: " + docList.size() + " Entities");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc.get(MdekKeys.UUID) + ": " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.ADR_REFERENCES_TO);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Addresses TO: " + docList.size() + " Entities");
 			for (IngridDocument a : docList) {
@@ -879,82 +873,82 @@ public class MdekExampleSupertool {
 				}
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.LOCATIONS);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.LOCATIONS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Locations (Spatial References): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.SUBJECT_TERMS);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.SUBJECT_TERMS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Subject terms (Searchterms): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.SUBJECT_TERMS_INSPIRE);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.SUBJECT_TERMS_INSPIRE);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  INSPIRE Searchterms (Themen): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.LINKAGES);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.LINKAGES);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  URL References: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.DATASET_REFERENCES);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATASET_REFERENCES);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Dataset References: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		List<String> strList = (List<String>) o.get(MdekKeys.EXPORT_CRITERIA);
+		List<String> strList = (List<String>) oDoc.get(MdekKeys.EXPORT_CRITERIA);
 		if (strList != null && strList.size() > 0) {
 			System.out.println("  Exports: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
-		strList = (List<String>) o.get(MdekKeys.LEGISLATIONS);
+		strList = (List<String>) oDoc.get(MdekKeys.LEGISLATIONS);
 		if (strList != null && strList.size() > 0) {
 			System.out.println("  Legislations: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_FORMATS);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATA_FORMATS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Data Formats: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.MEDIUM_OPTIONS);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.MEDIUM_OPTIONS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Medium Options: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		strList = (List<String>) o.get(MdekKeys.ENV_CATEGORIES);
+		strList = (List<String>) oDoc.get(MdekKeys.ENV_CATEGORIES);
 		if (strList != null && strList.size() > 0) {
 			System.out.println("  Env Categories: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
-		strList = (List<String>) o.get(MdekKeys.ENV_TOPICS);
+		strList = (List<String>) oDoc.get(MdekKeys.ENV_TOPICS);
 		if (strList != null && strList.size() > 0) {
 			System.out.println("  Env Topics: " + strList.size() + " entries");
 			System.out.println("   " + strList);
 		}
-		List<Integer> intList = (List<Integer>) o.get(MdekKeys.TOPIC_CATEGORIES);
+		List<Integer> intList = (List<Integer>) oDoc.get(MdekKeys.TOPIC_CATEGORIES);
 		if (intList != null && intList.size() > 0) {
 			System.out.println("  Topic Categories: " + intList.size() + " entries");
 			System.out.println("   " + intList);
 		}
 
-		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
+		myDoc = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
 		if (myDoc != null) {
 			System.out.println("  technical domain MAP:");
 			System.out.println("    " + myDoc);								
@@ -1001,13 +995,13 @@ public class MdekExampleSupertool {
 				}			
 			}
 		}
-		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
+		myDoc = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_DOCUMENT);
 		if (myDoc != null) {
 			System.out.println("  technical domain DOCUMENT:");
 			System.out.println("    " + myDoc);								
 		}
 
-		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+		myDoc = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
 		if (myDoc != null) {
 			System.out.println("  technical domain SERVICE:");
 			System.out.println("    " + myDoc);
@@ -1069,17 +1063,17 @@ public class MdekExampleSupertool {
 				}
 			}
 		}
-		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
+		myDoc = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_PROJECT);
 		if (myDoc != null) {
 			System.out.println("  technical domain PROJECT:");
 			System.out.println("    " + myDoc);								
 		}
-		myDoc = (IngridDocument) o.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
+		myDoc = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 		if (myDoc != null) {
 			System.out.println("  technical domain DATASET:");
 			System.out.println("    " + myDoc);								
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.COMMENT_LIST);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.COMMENT_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object comments: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
@@ -1087,50 +1081,68 @@ public class MdekExampleSupertool {
 				System.out.println("    created by user: " + doc.get(MdekKeys.CREATE_USER));
 			}
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.ADDITIONAL_FIELDS);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADDITIONAL_FIELDS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Additional Fields: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);								
 			}			
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.CONFORMITY_LIST);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.CONFORMITY_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object conformity (INSPIRE): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.ACCESS_LIST);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.ACCESS_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object access constraints (INSPIRE): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.USE_LIST);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object use constraints (INSPIRE): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.DATA_QUALITY_LIST);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATA_QUALITY_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object data quality (INSPIRE): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}
 		}
-		docList = (List<IngridDocument>) o.get(MdekKeys.FORMAT_INSPIRE_LIST);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.FORMAT_INSPIRE_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object INSPIRE format list: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}
 		}
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("    Object - Additional Fields: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("      " + doc.get(MdekKeys.ADDITIONAL_FIELD_KEY) + ": " + doc);
+				if (doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
+					List<List<IngridDocument>> rows = (List<List<IngridDocument>>) doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS);
+					int rowNum = 0;
+					for (List<IngridDocument> row : rows) {
+						rowNum++;
+						System.out.println("        Row " + rowNum);
+						for (IngridDocument col : row) {
+							System.out.println("          Col: " + col);
+						}
+					}
+				}
+			}
+		}
 
-		myDoc = (IngridDocument) o.get(MdekKeys.PARENT_INFO);
+		myDoc = (IngridDocument) oDoc.get(MdekKeys.PARENT_INFO);
 		if (myDoc != null) {
 			System.out.println("  parent info:");
 			System.out.println("    " + myDoc);								

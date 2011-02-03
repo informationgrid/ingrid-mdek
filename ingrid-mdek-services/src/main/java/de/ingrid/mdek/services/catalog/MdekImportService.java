@@ -1,7 +1,6 @@
 package de.ingrid.mdek.services.catalog;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -910,7 +909,9 @@ public class MdekImportService implements IImporterCallback {
 	 */
 	private boolean processAdditionalFields(IngridDocument objDoc, String userUuid) {
 		boolean allFieldsOk = true;
-
+		
+		// TODO MM
+/*
 		// create object tag for messages !
 		String objTag = createEntityTag(IdcEntityType.OBJECT, objDoc);
 
@@ -957,6 +958,7 @@ public class MdekImportService implements IImporterCallback {
 							// WE DO NOT COMPARE VALUE OF SELECTION LIST BECAUSE OF COMBOBOX in GUI (FREE TEXT ENTRY POSSIBLE !!!) !!!
 							// so we take over all values if name and type of field is ok !
 							fieldOk = true;
+*/
 /*							
 							// field equals field in catalog, check whether field has selection list and compare value !
 							if (MdekUtils.AdditionalFieldType.LIST.getDbValue().equals(sysFieldType)) {
@@ -981,6 +983,7 @@ public class MdekImportService implements IImporterCallback {
 								fieldOk = true;
 							}
 */
+/*
 						} else {
 							updateImportJobInfoMessages(MSG_WARN + objTag +
 								"Additional field DEFINITION found, but differs ! DATA \"" + inFieldValue +
@@ -1006,7 +1009,7 @@ public class MdekImportService implements IImporterCallback {
 				i.remove();
 			}
 		}
-		
+*/
 		return allFieldsOk;
 	}
 	

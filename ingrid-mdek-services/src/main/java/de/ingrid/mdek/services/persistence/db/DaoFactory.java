@@ -22,7 +22,6 @@ import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
-import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.AddressNodeDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.ConsistencyCheckerDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.HQLDaoHibernate;
@@ -40,7 +39,7 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysJobInfoDaoHiberna
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysListDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T02AddressDaoHibernate;
-import de.ingrid.mdek.services.persistence.db.dao.hibernate.T08AttrTypeDaoHibernate;
+import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
@@ -150,10 +149,6 @@ public class DaoFactory implements IDaoFactory {
 
     public ISysGenericKeyDao getSysGenericKeyDao() {
         return new SysGenericKeyDaoHibernate(_sessionFactory);
-    }
-
-    public IT08AttrTypeDao getT08AttrTypeDao() {
-        return new T08AttrTypeDaoHibernate(_sessionFactory);
     }
 
     public ISysJobInfoDao getSysJobInfoDao() {
@@ -290,6 +285,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<ObjectDataQuality>(_sessionFactory, ObjectDataQuality.class);
 		} else if (clazz.isAssignableFrom(ObjectFormatInspire.class)) {
 			dao = new GenericHibernateDao<ObjectFormatInspire>(_sessionFactory, ObjectFormatInspire.class);
+		} else if (clazz.isAssignableFrom(AdditionalFieldData.class)) {
+			dao = new GenericHibernateDao<AdditionalFieldData>(_sessionFactory, AdditionalFieldData.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

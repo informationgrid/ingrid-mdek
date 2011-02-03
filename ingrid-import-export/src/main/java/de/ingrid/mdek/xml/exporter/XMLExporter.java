@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -136,7 +135,6 @@ public class XMLExporter implements IExporter {
 			setupZipOutputStream();
 			setupWriter();
 			writeObjects(rootUuids, includeSubnodes);
-			writeAdditionalFields();
 			finalizeWriter();
 
 		} catch (IOException ex) {
@@ -217,26 +215,6 @@ public class XMLExporter implements IExporter {
 			writeObjectWithChildren(objUuid);
 		}
 	}
-
-	private void writeAdditionalFields() throws XMLStreamException {
-		writeBeginAdditionalFields();
-		IngridDocument additionalFields = exporterCallback.getSysAdditionalFields(null);
-
-		for (IngridDocument additionalField : (Collection<IngridDocument>) additionalFields.values()) {
-			writer.writeAdditionalField(additionalField);
-		}
-
-		writeEndAdditionalFields();
-	}
-
-	private void writeBeginAdditionalFields() throws XMLStreamException {
-		writer.writeStartAdditionalFields();
-	}
-
-	private void writeEndAdditionalFields() throws XMLStreamException {
-		writer.writeEndAdditionalFields();
-	}
-
 
 	private void closeOutputStream() {
 		try {

@@ -9,6 +9,7 @@ import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
+import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
@@ -68,7 +69,8 @@ public class MdekKeyValueHandler {
 		T03Catalogue.class,
 		T01Object.class,
 		ObjectDataQuality.class,
-		ObjectFormatInspire.class
+		ObjectFormatInspire.class,
+		AdditionalFieldData.class,
 	};
 
 	/** Get The Singleton */
@@ -142,6 +144,8 @@ public class MdekKeyValueHandler {
 			processKeyValueObjectDataQuality((ObjectDataQuality) bean);
 		} else if (ObjectFormatInspire.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectFormatInspire((ObjectFormatInspire) bean);
+		} else if (AdditionalFieldData.class.isAssignableFrom(clazz)) {
+			processKeyValueAdditionalFieldData((AdditionalFieldData) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -578,6 +582,21 @@ public class MdekKeyValueHandler {
 				catalogService.getCatalogLanguage());
 
 			bean.setFormatValue(keyNameMap.get(entryKey));
+		}
+
+		return bean;
+	}
+
+	private IEntity processKeyValueAdditionalFieldData(AdditionalFieldData bean) {
+		String entryKey = bean.getListItemId();
+		if (entryKey != null && !entryKey.trim().isEmpty() &&
+				!entryKey.trim().equals("-1")) {
+			Map<String, String> keyNameMap = catalogService.getAdditionalFieldListKeyNameMap(
+				bean.getFieldKey(),
+				catalogService.getCatalogLanguage());
+
+			// TODO MM (wieder rein nehmen !)
+			// bean.setData(keyNameMap.get(entryKey));
 		}
 
 		return bean;

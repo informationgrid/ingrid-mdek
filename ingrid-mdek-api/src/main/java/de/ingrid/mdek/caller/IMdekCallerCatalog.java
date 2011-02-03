@@ -91,28 +91,6 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 			String userId);
 
 	/**
-	 * Returns a map containing definitions of additional fields.
-	 * @param plugId which mdek server (iplug)
-	 * @param fieldIds which fields, pass identifiers
-	 * @param languageShortcut in which language, e.g. "de", "en". Pass null
-	 * 		if all languages (language of fields selection list if present)
-	 * @param userId calling user
-	 * @return response containing result: map with definitions of additional fields
-	 */
-	IngridDocument getSysAdditionalFields(String plugId, Long[] fieldIds, String languageShortcut,
-			String userId);
-
-	/** Store ALL additional Fields. NOTICE: DELETES existing additional fields not contained in
-	 * passed list !
-	 * @param plugId which mdek server (iplug)
-	 * @param allAddFields update/create these additional fields. All other existing fields are deleted !
-	 * @param userId calling user
-	 * @return response containing result: ids of stored additional fields (may be new ones)
-	 */
-	IngridDocument storeAllSysAdditionalFields(String plugId, List<IngridDocument> allAddFields,
-			String userId);
-
-	/**
 	 * Fetch The catalog object, represented by an CATALOG_MAP type in xsd.
 	 * @param plugId which mdek server (iplug)
 	 * @return response containing result: map representation of the catalog object

@@ -113,11 +113,15 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createGeneralAdditionalValue(IngridDocument context) {
 		XMLElement generalAdditionalValue = new XMLElement(GENERAL_ADDITIONAL_VALUE);
+		
+		// TODO MM
+/*
 		generalAdditionalValue.addAttribute(ID, getLongForKey(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, context));
 		generalAdditionalValue.addChild(
 				new XMLElement(FIELD_NAME, getStringForKey(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, context)));
 		generalAdditionalValue.addChild(
 				new XMLElement(FIELD_VALUE, getStringForKey(MdekKeys.ADDITIONAL_FIELD_VALUE, context)));
+*/
 		return generalAdditionalValue;
 	}
 

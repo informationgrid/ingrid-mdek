@@ -1,6 +1,5 @@
 package de.ingrid.mdek.xml.util;
 
-import de.ingrid.mdek.xml.exporter.mapper.AdditionalFieldDocToXMLMapper;
 import de.ingrid.mdek.xml.exporter.mapper.AddressDocToXMLMapper;
 import de.ingrid.mdek.xml.exporter.mapper.DatasourceDocToXMLMapper;
 import de.ingrid.utils.IngridDocument;
@@ -16,10 +15,5 @@ public class IngridXMLBuilder {
 	public static XMLElement createXMLForAddress(IngridDocument addressRoot) {
 		AddressDocToXMLMapper mapper = new AddressDocToXMLMapper(addressRoot);
 		return mapper.createAddress();
-	}
-
-	public static XMLElement createXMLForAdditionalField(IngridDocument additionalField) {
-		AdditionalFieldDocToXMLMapper mapper = new AdditionalFieldDocToXMLMapper(additionalField);
-		return mapper.createAdditionalFieldDefinition();
 	}
 }

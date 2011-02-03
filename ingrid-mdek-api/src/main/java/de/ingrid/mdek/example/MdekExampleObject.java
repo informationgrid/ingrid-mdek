@@ -1547,6 +1547,51 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
 
+		// add entry to OBJECT ADDITIONAL_FIELDS
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (docList == null) {
+			docList = new ArrayList<IngridDocument>();
+			oDocIn.put(MdekKeys.ADDITIONAL_FIELDS, docList);
+		}
+		// add single field
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY SINGLE");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA");
+		// TODO MM
+		// check ADDITIONAL_FIELD_LIST_ITEM_ID -> ADDITIONAL_FIELD_DATA is stored via list in additional field
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, "ADDITIONAL_FIELD_LIST_ITEM_ID");
+		docList.add(testDoc);
+		// add table
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY TABLE");
+		List<List<IngridDocument>> rowsList = new ArrayList<List<IngridDocument>>();
+		List<IngridDocument> row1List = new ArrayList<IngridDocument>();
+		rowsList.add(row1List);
+		List<IngridDocument> row2List = new ArrayList<IngridDocument>();
+		rowsList.add(row2List);
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_ROWS, rowsList);
+		docList.add(testDoc);
+		// add columns to rows
+		// row 1
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW1 COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL1");
+		row1List.add(testDoc);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW1 COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL2");
+		row1List.add(testDoc);
+		// row 2
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW2 COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL1");
+		row2List.add(testDoc);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW2 COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL2");
+		row2List.add(testDoc);
+
+
 		// store
 		System.out.println("STORE");
 		result = supertool.storeObject(oDocIn, false);
@@ -1726,6 +1771,13 @@ class MdekExampleObjectThread extends Thread {
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
+			}
+
+			// OBJECT ADDITIONAL_FIELDS wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADDITIONAL_FIELDS);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				docList.remove(docList.size()-1);
 			}
 
 			// store

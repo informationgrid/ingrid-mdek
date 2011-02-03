@@ -15,6 +15,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
+import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
 import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
@@ -55,8 +56,6 @@ import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.persistence.db.model.T08Attr;
-import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 
 
 /**
@@ -475,16 +474,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullDataWithSysList(data, MdekSysList.URL_REF_DATATYPE,
 					oUrlRef.getDatatypeKey(), oUrlRef.getDatatypeValue());				
 		}
-		// T08Attr
-		Set<T08Attr> objAttrs = o.getT08Attrs();
-		for (T08Attr objAttr : objAttrs) {
-			extendFullData(data, objAttr.getData());
-			// also write label !
-			T08AttrType attrType = objAttr.getT08AttrType();
-			if (attrType != null) {
-				extendFullData(data, attrType.getName());
-			}
-		}
 		// ObjectConformity
 		Set<ObjectConformity> objConforms = o.getObjectConformitys();
 		for (ObjectConformity objConform : objConforms) {
@@ -516,6 +505,8 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullDataWithSysList(data, MdekSysList.OBJ_FORMAT_INSPIRE,
 					objFormatInspire.getFormatKey(), objFormatInspire.getFormatValue());				
 		}
+		// AdditionalFieldData
+		extendFullData(data, o.getAdditionalFieldDatas());
 
 		// T01Object
 		extendFullData(data, o.getObjUuid());
@@ -567,7 +558,19 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 
 		return data.toString();
 	}	
-	
+
+	private void extendFullData(StringBuffer fullData, Set<AdditionalFieldData> fieldDatas) {
+		if (fieldDatas == null) {
+			return;
+		}
+		for (AdditionalFieldData fieldData : fieldDatas) {
+			extendFullData(fullData, fieldData.getData());
+			if (fieldData.getAdditionalFieldDatas() != null) {
+				extendFullData(fullData, fieldData.getAdditionalFieldDatas());
+			}
+		}
+	}
+
 	/** Append a value to full data. also adds pre-separator
 	 * @param fullData full data where value is appended
 	 * @param dataToAppend the value to append. ONLY APPENDED IF NOT NULL !

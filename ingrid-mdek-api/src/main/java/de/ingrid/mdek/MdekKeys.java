@@ -357,37 +357,6 @@ public class MdekKeys {
      * Also used for returning database Version of IGC (schema) to frontend ("about info"). */
     public final static String SYS_GENERIC_KEY_VALUES = "sys-generic-key-values";
 
-    // SYS ADDITIONAL FIELDS (Definition)
-    // ---------------------
-    // REQUEST
-    /** All additional fields to store.<br>
-     *  Value: List< IngridDocument > */
-    public final static String SYS_ADDITIONAL_FIELD_LIST = "sys-additional-field-list";
-    // RESULT
-    /** Prefix for all sys-additional-fields in result, e.g. sys-additional-field-1100<br>
-     * Value: IngridDocument */
-    public final static String SYS_ADDITIONAL_FIELD_KEY_PREFIX = "sys-additional-field-";
-    // REQUEST/RESULT
-    /** All ids of additional-fields to fetch / returned ids of stored additional fields<br>
-     * Value: Long[] */
-    public final static String SYS_ADDITIONAL_FIELD_IDS = "sys-additional-field-ids";
-
-    // SYS_ADDITIONAL_FIELD_MAP
-    /** Value: Long  */
-    public final static String SYS_ADDITIONAL_FIELD_IDENTIFIER = "sys-additional-field-identifier";
-    /** Value: String  */
-    public final static String SYS_ADDITIONAL_FIELD_NAME = "sys-additional-field-name";
-    /** Value: Integer  */
-    public final static String SYS_ADDITIONAL_FIELD_LENGTH = "sys-additional-field-length";
-    /** Value: String  */
-    public final static String SYS_ADDITIONAL_FIELD_TYPE = "sys-additional-field-type";
-    /** Value: String  */
-    public final static String SYS_ADDITIONAL_FIELD_LIST_TYPE = "sys-additional-field-list-type";
-    /** Prefix for every selection list of a specific language in result, e.g. sys-additional-field-list-items-de<br>
-     * Value: String[] -> all item names of a language ordered by line */
-    public final static String SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX = "sys-additional-field-list-items-";
-
-
     // Top Result Lists
     // ----------------
 
@@ -1015,8 +984,14 @@ public class MdekKeys {
     /** Value: List< IngridDocument > */
     public final static String ADDITIONAL_FIELDS = "additional-fields";
     /** Value: String  */
-    public final static String ADDITIONAL_FIELD_VALUE = "additional-field-value";
-    
+    public final static String ADDITIONAL_FIELD_KEY = "additional-field-key";
+    /** Value: String  */
+    public final static String ADDITIONAL_FIELD_DATA = "additional-field-data";
+    /** Value: String  */
+    public final static String ADDITIONAL_FIELD_LIST_ITEM_ID = "additional-field-list-item-id";
+    /** Value: List< List< IngridDocument > > encapsulates list of columns */
+    public final static String ADDITIONAL_FIELD_ROWS = "additional-field-rows";
+
     // CATALOG DATA
     /** Value: String */
     public final static String CATALOG_NAME = "catalog-name";

@@ -10,7 +10,6 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.IMdekCallerObject;
-import de.ingrid.mdek.caller.IMdekCallerQuery;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekCallerAddress;
@@ -28,7 +27,6 @@ public class RemoteExporterCallback implements IExporterCallback {
 	private IMdekClientCaller mdekClientCaller;
 	private IMdekCallerObject mdekCallerObject;
 	private IMdekCallerAddress mdekCallerAddress;
-	private IMdekCallerQuery mdekCallerQuery;
 	private IMdekCallerCatalog mdekCallerCatalog;
 
 	private String plugId;
@@ -90,12 +88,6 @@ public class RemoteExporterCallback implements IExporterCallback {
 	}
 
 	@Override
-	public IngridDocument getSysAdditionalFields(Long[] fieldIds) {
-		IngridDocument additionalFieldsResponse = mdekCallerCatalog.getSysAdditionalFields(plugId, null, null, "admin");
-		return mdekClientCaller.getResultFromResponse(additionalFieldsResponse);
-	}
-
-	@Override
 	public void writeExportInfo(IdcEntityType whichType, int numExported,
 			int totalNum, String userUuid) {
 		System.out.println("Exporting '"+whichType+"'. Count: "+numExported);
@@ -118,7 +110,6 @@ public class RemoteExporterCallback implements IExporterCallback {
 
 		mdekCallerObject = MdekCallerObject.getInstance();
 		mdekCallerAddress = MdekCallerAddress.getInstance();
-		mdekCallerQuery = MdekCallerQuery.getInstance();
 		mdekCallerCatalog = MdekCallerCatalog.getInstance();
 
 		waitForConnection();

@@ -3,7 +3,6 @@ package de.ingrid.mdek.xml.importer.mapper.version108;
 import org.w3c.dom.Document;
 
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
-import de.ingrid.mdek.xml.importer.mapper.XMLAdditionalFieldsToDocMapper;
 import de.ingrid.mdek.xml.importer.mapper.version105.XMLAddressToDocMapper;
 import de.ingrid.utils.IngridDocument;
 
@@ -17,11 +16,6 @@ public class IngridXMLMapperImpl implements IngridXMLMapper {
 	@Override
 	public IngridDocument mapDataSource(Document document) {
 		return XMLDatasourceToDocMapper.map(document);
-	}
-
-	@Override
-	public IngridDocument mapAdditionalFields(Document document) {
-		return XMLAdditionalFieldsToDocMapper.map(document);
 	}
 
 	@Override

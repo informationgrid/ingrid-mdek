@@ -65,14 +65,6 @@ public interface IExporterCallback {
 	 */
 	List<String> getSubAddresses(String parentUuid, String userUuid);
 
-	/** 
-	 * Get doc representations of DEFINITIONS of additional fields of given ids.
-	 * @param fieldIds ids of additional field definitions
-	 * @return field definitions encapsulated in doc (access with 
-	 * 		MdekKeys.SYS_ADDITIONAL_FIELD_KEY_PREFIX + fieldId)
-	 */
-	IngridDocument getSysAdditionalFields(Long[] fieldIds);
-
 	/**
 	 * Update basic information of export process.
 	 * @param whichType address or object info ?

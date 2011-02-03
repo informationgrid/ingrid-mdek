@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.List;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -177,24 +176,6 @@ public class TestMapper {
 			}
 		}
 		writer.writeEndIngridAddresses();
-
-		long endTime = System.currentTimeMillis();
-		System.out.format("Address Mapping took %d milliseconds.\n", endTime - startTime);
-	}
-
-	@Test
-	public void testWriteAdditionalFields() throws XMLStreamException {
-
-		IngridDocument additionalFieldsResponse = mdekCallerCatalog.getSysAdditionalFields(plugId, null, null, userId);
-		IngridDocument additionalFields = mdekClientCaller.getResultFromResponse(additionalFieldsResponse);
-
-		long startTime = System.currentTimeMillis();
-
-		writer.writeStartAdditionalFields();
-		for (IngridDocument additionalField : (Collection<IngridDocument>) additionalFields.values()) {
-			writer.writeAdditionalField(additionalField);
-		}
-		writer.writeEndAdditionalFields();
 
 		long endTime = System.currentTimeMillis();
 		System.out.format("Address Mapping took %d milliseconds.\n", endTime - startTime);

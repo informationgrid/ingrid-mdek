@@ -32,7 +32,6 @@ public class IngridXMLStreamReader {
 	private final FileFragmentLoader fileFragmentLoader;
 	private final Map<String, FileIndex> objectIndexMap;
 	private final Map<String, FileIndex> addressIndexMap;
-	private final FileIndex additionalFieldsIndex;
 	private final DocumentBuilder documentBuilder;
 	
 	private IImporterCallback importerCallback;
@@ -48,7 +47,6 @@ public class IngridXMLStreamReader {
 		FileIndexer fileIndexer = new FileIndexer(temporaryFile.getFile(), importerCallback, userUuid);
 		objectIndexMap 			= fileIndexer.getObjectIndexMap();
 		addressIndexMap 		= fileIndexer.getAddressIndexMap();
-		additionalFieldsIndex 	= fileIndexer.getAdditionalFieldsIndex();
 
 		documentBuilder 		= createDocumentBuilder();
 	}
@@ -88,16 +86,6 @@ public class IngridXMLStreamReader {
 		String addressString = fileFragmentLoader.getStringUTF(fileIndex);
 
 		return documentBuilder.parse(new InputSource(new StringReader(addressString)));
-	}
-
-	public Document getDomForAdditionalFieldDefinitions() throws IOException, SAXException {
-		if (null != additionalFieldsIndex) {
-			String additionalFieldsString = fileFragmentLoader.getStringUTF(additionalFieldsIndex);
-			return documentBuilder.parse(new InputSource(new StringReader(additionalFieldsString)));
-
-		} else {
-			return documentBuilder.newDocument();
-		}
 	}
 
 	public List<String> getObjectWriteSequence() throws IOException, SAXException {

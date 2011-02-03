@@ -41,7 +41,6 @@ import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
-import de.ingrid.mdek.services.persistence.db.dao.IT08AttrTypeDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
@@ -63,7 +62,6 @@ import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
-import de.ingrid.mdek.services.persistence.db.model.T08AttrType;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
@@ -89,7 +87,6 @@ public class MdekCatalogService {
 	private ISysListDao daoSysList;
 	private ISysGuiDao daoSysGui;
 	private ISysGenericKeyDao daoSysGenericKey;
-	private IT08AttrTypeDao daoT08AttrType;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
 	private ISearchtermValueDao daoSearchtermValue;
@@ -121,7 +118,6 @@ public class MdekCatalogService {
 		daoSysList = daoFactory.getSysListDao();
 		daoSysGui = daoFactory.getSysGuiDao();
 		daoSysGenericKey = daoFactory.getSysGenericKeyDao();
-		daoT08AttrType = daoFactory.getT08AttrTypeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
@@ -253,6 +249,44 @@ public class MdekCatalogService {
 		return map;
 	}
 
+	/** Get syslist entries of syslist with given id and language IN MAP. USES CACHE !<br>
+	 * entry_key is Key to Map and delivers entry_name. */
+	public Map<String, String> getAdditionalFieldListKeyNameMap(String FieldKey, String language) {
+		
+		// TODO MM
+
+		// ALWAYS USE CACHE !
+		boolean useCache = true;
+
+		// get map from cache if requested !
+		// Map<String, String> map = null;
+		Map<String, String> map = new HashMap<String, String>();
+/*
+		Element elem = null;
+		if (useCache) {
+			elem = syslistMapCache.get(listId);
+			if (elem != null) {
+				map = (Map<Integer, String>) elem.getObjectValue();
+			}
+		}
+		
+		// create map if not cached !
+		if (map == null) {
+			map = new HashMap<Integer, String>();
+			List<SysList> entries = daoSysList.getSysList(listId, language);
+			for (SysList entry : entries) {
+				map.put(entry.getEntryId(), entry.getName());
+			}			
+		}
+
+		// add to cache if cache used !
+		if (useCache && elem == null) {
+			syslistMapCache.put(new Element(listId, map));
+		}
+*/
+		return map;
+	}
+
 	public String getSysListEntryName(int listId, int entryId) {
 		String entryName = null;
 		
@@ -313,26 +347,6 @@ public class MdekCatalogService {
 				") with IGE iPlug (needed version=" + Versioning.NEEDED_IGC_VERSION + ") !", exc);
 			throw exc;
 		}
-	}
-
-	/** Get Doc representation of DEFINITIONS of additional fields of given IDS and language (for items in selection list if present). */
-	public IngridDocument getSysAdditionalFields(Long[] fieldIds, String language) {
-		List<T08AttrType> fields = daoT08AttrType.getT08AttrTypes(fieldIds, language);
-
-		IngridDocument result = new IngridDocument();
-		beanToDocMapper.mapT08AttrTypes(fields, result);
-
-		return result;
-	}
-
-	/** Get Doc representation of DEFINITIONS of additional fields of given NAMES and language (for items in selection list if present). */
-	public IngridDocument getSysAdditionalFieldsByName(String[] fieldNames, String language) {
-		List<T08AttrType> fields = daoT08AttrType.getT08AttrTypesByName(fieldNames, language);
-
-		IngridDocument result = new IngridDocument();
-		beanToDocMapper.mapT08AttrTypes(fields, result);
-
-		return result;
 	}
 
 	/**

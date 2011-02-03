@@ -57,36 +57,6 @@ public class FileIndexer {
 		return addressIndexMap;
 	}
 
-	public FileIndex getAdditionalFieldsIndex() {
-		if (additionalFieldsIndex == null) {
-			additionalFieldsIndex = createAdditionalFieldsIndex();
-		}
-
-		return additionalFieldsIndex;
-	}
-
-	private FileIndex createAdditionalFieldsIndex() {
-		FileIndex additionalFieldsIndex;
-		try {
-			reader = new PushbackReader(new BufferedReader(new InputStreamReader(new FileInputStream(file), XML_ENCODING)));
-			charsRead = 0;
-			additionalFieldsIndex = createAdditionalFieldsIndexOrThrow();
-		} catch (Exception e) {
-			// Exception while creating the index. Return null
-			additionalFieldsIndex = null;
-			log.error("Error creating AdditionalFields index map from file.", e);
-			importerCallback.writeImportInfoMessage(e.toString() + "(AdditionalFields)", currentUserUuid);
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				// Ignore the IOException. If close fails, we can't really do much about it.
-			}
-		}
-
-		return additionalFieldsIndex;
-	}
-
 	private Map<String, FileIndex> createObjectIndexMap() {
 		Map<String, FileIndex> fileIndexMap;
 		try {
@@ -200,26 +170,6 @@ public class FileIndexer {
 		return fileIndex;
 	}
 
-	private FileIndex createAdditionalFieldsIndexOrThrow() throws IOException {
-		FileIndex fileIndex = null;
-
-		try {
-			skipToNext("<data-model-extensions>");
-		} catch (IOException e) {
-			// NO ADDITIONAL FIELDS in import file
-			return fileIndex;
-		}
-
-		long beginIndex = charsRead - "<data-model-extensions>".length();
-		skipToNext("</data-model-extensions>");
-		long endIndex = charsRead;
-		fileIndex = new FileIndex(beginIndex, endIndex);
-
-		reader.close();
-		return fileIndex;
-	}
-
-	
 	private String readTagText() throws IOException {
 		StringBuilder stringBuilder = new StringBuilder();
 
