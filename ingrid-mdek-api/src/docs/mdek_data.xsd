@@ -290,13 +290,8 @@
 			<!-- request / WRITE sys-generic-keys -->
 			<xs:element name="sys-generic-key-names" type="STRING_ARRAY"/>
 			<xs:element name="sys-generic-key-values" type="STRING_ARRAY"/>
-			<!-- request specific sys-additional-fields -->
-			<xs:element ref="sys-additional-field-ids"/>
-			<!-- WRITE ALL sys-additional-fields -->
-			<xs:element name="sys-additional-field-list" type="SYS_ADDITIONAL_FIELD_LIST"/>
 		</xs:choice>
 	</xs:complexType>	
-	<xs:element name="sys-additional-field-ids" type="LONG_ARRAY"/>
 	<xs:complexType name="REQUEST_SEARCH_MAP">
 		<xs:all>
 			<xs:element name="search-start-hit" type="xs:integer"/>
@@ -750,18 +745,36 @@
 	</xs:complexType>
 	<xs:complexType name="ADDITIONAL_FIELD_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="ADDITIONAL_FIELD_MAP" type="ADDITIONAL_FIELD_MAP"/>
+			<xs:choice>
+				<xs:element name="ADDITIONAL_FIELD_MAP" type="ADDITIONAL_FIELD_MAP"/>
+				<xs:element name="ADDITIONAL_FIELD_TABLE_MAP" type="ADDITIONAL_FIELD_TABLE_MAP"/>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ADDITIONAL_FIELD_MAP">
 		<xs:sequence>
-			<xs:element ref="sys-additional-field-identifier"/>
-			<xs:element ref="sys-additional-field-name"/>
-			<xs:element name="additional-field-value" type="xs:string"/>
+			<xs:element ref="additional-field-key"/>
+			<xs:element name="additional-field-data" type="xs:string"/>
+			<xs:element name="additional-field-list-item-id" minOccurs="0" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:element name="sys-additional-field-identifier" type="xs:long"/>
-	<xs:element name="sys-additional-field-name" type="xs:string"/>
+	<xs:element name="additional-field-key" type="xs:string"/>
+	<xs:complexType name="ADDITIONAL_FIELD_TABLE_MAP">
+		<xs:sequence>
+			<xs:element ref="additional-field-key"/>
+			<xs:element name="additional-field-rows" type="ADDITIONAL_FIELD_TABLE_ROW_LIST"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ADDITIONAL_FIELD_TABLE_ROW_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ADDITIONAL_FIELD_TABLE_COLUMN_LIST" type="ADDITIONAL_FIELD_TABLE_COLUMN_LIST"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ADDITIONAL_FIELD_TABLE_COLUMN_LIST">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="ADDITIONAL_FIELD_MAP" type="ADDITIONAL_FIELD_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="RESULT_RUNNING_JOBS_MAP">
 		<xs:all>
 			<!-- database value of job type -->
@@ -779,7 +792,6 @@
 			<xs:element name="RESULT_SYS_LIST_MAP" type="RESULT_SYS_LIST_MAP"/>
 			<xs:element name="RESULT_SYS_GUI_MAP" type="RESULT_SYS_GUI_MAP"/>
 			<xs:element name="RESULT_SYS_GENERIC_KEY_MAP" type="RESULT_SYS_GENERIC_KEY_MAP"/>
-			<xs:element name="RESULT_SYS_ADDITIONAL_FIELDS_MAP" type="RESULT_SYS_ADDITIONAL_FIELDS_MAP"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="RESULT_SYS_LIST_MAP">
@@ -829,33 +841,6 @@
 			<xs:element name="SYS_GENERIC_KEY_NAME1" type="xs:string"/>
 			<xs:element name="SYS_GENERIC_KEY_NAME2...." type="xs:string"/>
 		</xs:all>
-	</xs:complexType>
-	<xs:complexType name="RESULT_SYS_ADDITIONAL_FIELDS_MAP">
-		<xs:sequence>
-			<!-- SYS ADDITIONAL FIELD EXAMPLE ! field ids are passed in request ! keys start with "sys-additional-field-" -->
-			<xs:element name="sys-additional-field-1100" type="SYS_ADDITIONAL_FIELD_MAP"/>
-			<xs:element name="sys-additional-field-...." type="SYS_ADDITIONAL_FIELD_MAP"/>
-			<!-- ids of stored additional fields (may be new ones if new field) -->
-			<xs:element ref="sys-additional-field-ids"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SYS_ADDITIONAL_FIELD_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="SYS_ADDITIONAL_FIELD_MAP" type="SYS_ADDITIONAL_FIELD_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SYS_ADDITIONAL_FIELD_MAP">
-		<xs:sequence>
-			<xs:element ref="sys-additional-field-identifier"/>
-			<xs:element ref="sys-additional-field-name"/>
-			<xs:element name="sys-additional-field-length" type="xs:integer"/>
-			<xs:element name="sys-additional-field-type"  type="xs:string"/>
-			<xs:element minOccurs="0" name="sys-additional-field-list-type"  type="xs:string"/>
-			<!-- SYS ADDITIONAL FIELD LIST ITEMS EXAMPLE ! multiple languages ! keys start with "sys-additional-field-list-items-" -->
-			<xs:element name="sys-additional-field-list-items-de" type="STRING_ARRAY"/>
-			<xs:element name="sys-additional-field-list-items-en" type="STRING_ARRAY"/>
-			<xs:element name="sys-additional-field-list-items-.." type="STRING_ARRAY"/>
-		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJECT_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
