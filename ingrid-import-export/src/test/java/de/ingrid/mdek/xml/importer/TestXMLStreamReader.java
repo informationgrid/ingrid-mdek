@@ -415,19 +415,15 @@ public class TestXMLStreamReader {
 	}
 
 	public static boolean additionalFieldEquals(IngridDocument expectedField, IngridDocument actualField) {
-		
-		// TODO MM
-		return true;
-/*
-		if (expectedField.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER).equals(actualField.get(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER)) &&
-				expectedField.get(MdekKeys.SYS_ADDITIONAL_FIELD_NAME).equals(actualField.get(MdekKeys.SYS_ADDITIONAL_FIELD_NAME)) &&
-				expectedField.get(MdekKeys.ADDITIONAL_FIELD_VALUE).equals(actualField.get(MdekKeys.ADDITIONAL_FIELD_VALUE))) {
+		if (expectedField.get(MdekKeys.ADDITIONAL_FIELD_KEY).equals(actualField.get(MdekKeys.ADDITIONAL_FIELD_KEY))
+//				&& expectedField.get(MdekKeys.ADD).equals(actualField.get(MdekKeys.SYS_ADDITIONAL_FIELD_NAME)) &&
+//				expectedField.get(MdekKeys.ADDITIONAL_FIELD_VALUE).equals(actualField.get(MdekKeys.ADDITIONAL_FIELD_VALUE))
+				) {
 			return true;
 
 		} else {
 			return false;
 		}
-*/
 	}
 
 	public static void compareModUser(IngridDocument expected, IngridDocument actual) {

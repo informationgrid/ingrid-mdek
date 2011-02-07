@@ -105,23 +105,55 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createGeneralAdditionalValues() {
 		XMLElement generalAdditionalValues = new XMLElement(GENERAL_ADDITIONAL_VALUES);
 		List<IngridDocument> additionalFields = getIngridDocumentListForKey(MdekKeys.ADDITIONAL_FIELDS);
-		for (IngridDocument additionalField : additionalFields) {
-			generalAdditionalValues.addChild(createGeneralAdditionalValue(additionalField));
-		}
+		createAdditionalValues(generalAdditionalValues, additionalFields, null);
 		return generalAdditionalValues;
 	}
 
-	private XMLElement createGeneralAdditionalValue(IngridDocument context) {
+	private XMLElement createAdditionalValues(XMLElement parent, List<IngridDocument> additionalFields, Integer line) {
+		for (IngridDocument additionalField : additionalFields) {
+			if (additionalField.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
+				String tableKey = getStringForKey(MdekKeys.ADDITIONAL_FIELD_KEY, additionalField);
+
+				List<List<IngridDocument>> rows =
+					(List<List<IngridDocument>>) additionalField.get(MdekKeys.ADDITIONAL_FIELD_ROWS);
+				int rowNum = 0;
+				for (List<IngridDocument> row : rows) {
+					rowNum++;
+					for (IngridDocument col : row) {
+						parent.addChild(createGeneralAdditionalValue(col, rowNum, tableKey));
+					}
+				}
+
+			} else {
+				parent.addChild(createGeneralAdditionalValue(additionalField, line, null));
+			}
+		}
+		return parent;
+	}
+
+	private XMLElement createGeneralAdditionalValue(IngridDocument context, Integer line, String parentKey) {
 		XMLElement generalAdditionalValue = new XMLElement(GENERAL_ADDITIONAL_VALUE);
-		
-		// TODO MM
-/*
-		generalAdditionalValue.addAttribute(ID, getLongForKey(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, context));
+		if (line != null) {
+			generalAdditionalValue.addAttribute(LINE, line.toString());
+		}
+
 		generalAdditionalValue.addChild(
-				new XMLElement(FIELD_NAME, getStringForKey(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, context)));
-		generalAdditionalValue.addChild(
-				new XMLElement(FIELD_VALUE, getStringForKey(MdekKeys.ADDITIONAL_FIELD_VALUE, context)));
-*/
+				new XMLElement(FIELD_KEY, getStringForKey(MdekKeys.ADDITIONAL_FIELD_KEY, context)));
+
+		String data = getStringForKey(MdekKeys.ADDITIONAL_FIELD_DATA, context);
+		String listItemId = getStringForKey(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, context);
+		if (data != null || listItemId != null) {
+			XMLElement generalAdditionalData = new XMLElement(FIELD_DATA, data);
+			if (listItemId != null) {
+				generalAdditionalData.addAttribute(ID, listItemId);
+			}
+			generalAdditionalValue.addChild(generalAdditionalData);
+		}
+
+		if (parentKey != null) {
+			generalAdditionalValue.addChild(new XMLElement(FIELD_KEY_PARENT, parentKey));
+		}
+
 		return generalAdditionalValue;
 	}
 

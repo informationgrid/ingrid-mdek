@@ -180,11 +180,13 @@ public class XMLKeys {
 	public static final String METADATA_STANDARD_VERSION = "metadata-standard-version";
 	public static final String METADATA_STANDARD_NAME = "metadata-standard-name";
 	public static final String METADATA = "metadata";
+	public static final String GENERAL_ADDITIONAL_VALUES = "general-additional-values";
 	public static final String GENERAL_ADDITIONAL_VALUE = "general-additional-value";
 	public static final String ID = "id";
-	public static final String FIELD_VALUE = "field-value";
-	public static final String FIELD_NAME = "field-name";
-	public static final String GENERAL_ADDITIONAL_VALUES = "general-additional-values";
+	public static final String LINE = "line";
+	public static final String FIELD_KEY = "field-key";
+	public static final String FIELD_DATA = "field-data";
+	public static final String FIELD_KEY_PARENT = "field-key-parent";
 	public static final String ORIGINAL_CONTROL_IDENTIFIER = "original-control-identifier";
 	public static final String DATE_OF_CREATION = "date-of-creation";
 	public static final String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";

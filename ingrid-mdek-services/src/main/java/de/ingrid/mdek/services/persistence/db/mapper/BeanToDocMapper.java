@@ -576,7 +576,8 @@ public class BeanToDocMapper implements IMapper {
 		if (ref.getListItemId() != null) {
 			refDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, ref.getListItemId());				
 		}
-		if (ref.getAdditionalFieldDatas() != null) {
+		if (ref.getAdditionalFieldDatas() != null &&
+				ref.getAdditionalFieldDatas().size() > 0) {
 			List<List<IngridDocument>> rows =
 				mapAdditionalFieldDatas(ref.getAdditionalFieldDatas());
 			refDoc.put(MdekKeys.ADDITIONAL_FIELD_ROWS, rows);

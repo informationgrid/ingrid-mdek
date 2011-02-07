@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <igc xmlns="http://www.portalu.de/igc-import"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/igc-import file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/branches/ingrid-mdek-2.3.0-SNAPSHOT/ingrid-mdek-api/src/main/resources/IGC_Semantisches-XML.xsd" exchange-format="2.3.0">
+ xsi:schemaLocation="http://www.portalu.de/igc-import file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/main/resources/IGC_Semantisches-XML.xsd" exchange-format="3.0.0">
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
@@ -45,9 +45,10 @@
                 <date-of-creation>date-of-creation1</date-of-creation>
                 <original-control-identifier>original-control-identifier0</original-control-identifier>
                 <general-additional-values>
-                    <general-additional-value id="id11">
-                        <field-name>field-name0</field-name>
-                        <field-value>field-value0</field-value>
+                    <general-additional-value line="line1">
+                        <field-key>field-key0</field-key>
+                        <field-data id="id11">field-data0</field-data>
+                        <field-key-parent>field-key-parent0</field-key-parent>
                     </general-additional-value>
                 </general-additional-values>
                 <metadata>
@@ -325,16 +326,4 @@
             </parent-address>
         </address>
     </addresses>
-    <data-model-extensions>
-        <general-additional-field-definition>
-            <field-identifier>field-identifier0</field-identifier>
-            <field-name>field-name1</field-name>
-            <field-length>field-length0</field-length>
-            <field-type>field-type0</field-type>
-            <field-list-type>field-list-type0</field-list-type>
-            <field-list-items language-code="language-code1">
-                <field-list-item>field-list-item0</field-list-item>
-            </field-list-items>
-        </general-additional-field-definition>
-    </data-model-extensions>
 </igc>

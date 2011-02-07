@@ -13,7 +13,6 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
@@ -197,6 +196,100 @@ class MdekExampleExportImportObjectThread extends Thread {
 // ====================
 // test single stuff
 // -----------------------------------
+/*
+		// Test EXPORT / IMPORT new Exchange Format 3.0.0
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- object details -----");
+		IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+
+		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+		// add entries to OBJECT ADDITIONAL_FIELDS
+		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (docList == null) {
+			docList = new ArrayList<IngridDocument>();
+			oDoc.put(MdekKeys.ADDITIONAL_FIELDS, docList);
+		}
+		// add single field
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY SINGLE");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, "ADDITIONAL_FIELD_LIST_ITEM_ID");
+		docList.add(testDoc);
+		// add table
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY TABLE");
+		List<List<IngridDocument>> rowsList = new ArrayList<List<IngridDocument>>();
+		List<IngridDocument> row1List = new ArrayList<IngridDocument>();
+		rowsList.add(row1List);
+		List<IngridDocument> row2List = new ArrayList<IngridDocument>();
+		rowsList.add(row2List);
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_ROWS, rowsList);
+		docList.add(testDoc);
+		// add columns to rows
+		// row 1
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW1 COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL1");
+		row1List.add(testDoc);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW1 COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL2");
+		row1List.add(testDoc);
+		// row 2
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW2 COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL1");
+		row2List.add(testDoc);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW2 COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL2");
+		row2List.add(testDoc);
+
+		oDoc = supertool.publishObject(oDoc, true, false);
+
+		System.out.println("\n----- export object -----");
+		supertool.exportObjectBranch(objUuid, true);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import object as WORKING VERSION -----");
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- discard changes -> remove former change -----");
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADDITIONAL_FIELDS);
+		if (docList != null && docList.size() > 0) {
+			docList.remove(docList.size()-1);
+			docList.remove(docList.size()-1);
+		}
+
+		result = supertool.publishObject(oDoc, true, false);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
 /*
 		// Test EXPORT / IMPORT new Exchange Format 2.0.3
 		// --------------------------

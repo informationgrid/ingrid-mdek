@@ -1,10 +1,19 @@
-package de.ingrid.mdek.xml.importer.mapper.version1_0;
+package de.ingrid.mdek.xml.importer.mapper.version300;
 
-import static de.ingrid.mdek.xml.util.IngridDocUtils.*;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.getOrCreateNew;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putDocList;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putDouble;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putInt;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putIntList;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putLong;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putString;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putStringList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -30,8 +39,10 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ORIGINAL_CONTROL_IDENTIFIER = "//data-source/general/original-control-identifier/text()";
 	private static final String X_GENERAL_ADDITIONAL_VALUE_LIST = "//data-source/general/general-additional-values/general-additional-value";
 	private static final String X_GENERAL_ADDITIONAL_VALUE_ID = "@id";
-	private static final String X_GENERAL_ADDITIONAL_VALUE_FIELD_NAME = "field-name";
-	private static final String X_GENERAL_ADDITIONAL_VALUE_FIELD_VALUE = "field-value";
+	private static final String X_GENERAL_ADDITIONAL_VALUE_LINE = "@line";
+	private static final String X_GENERAL_ADDITIONAL_VALUE_FIELD_KEY = "field-key";
+	private static final String X_GENERAL_ADDITIONAL_VALUE_FIELD_DATA = "field-data";
+	private static final String X_GENERAL_ADDITIONAL_VALUE_FIELD_KEY_PARENT = "field-key-parent";
 	private static final String X_METADATA_STANDARD_NAME = "//data-source/general/metadata/metadata-standard-name/text()";
 	private static final String X_METADATA_STANDARD_VERSION = "//data-source/general/metadata/metadata-standard-version/text()";
 	private static final String X_METADATA_CHARACTER_SET = "//data-source/general/metadata/metadata-character-set/@iso-code";
@@ -51,9 +62,9 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_DATASET_PARAMETER_PARAMETER = "parameter";
 	private static final String X_DATASET_PARAMETER_SUPPLEMENTARY_INFORMATION = "supplementary-information";
 	private static final String X_DATASET_METHOD = "method";
-	private static final String X_SERVICE_CLASSIFICATION_KEY = "service-classification/@id";
-	private static final String X_SERVICE_CLASSIFICATION = "service-classification/text()";
-	private static final String X_SERVICE_TYPE_LIST = "service-type";
+	private static final String X_SERVICE_TYPE_KEY = "service-type/@id";
+	private static final String X_SERVICE_TYPE = "service-type/text()";
+	private static final String X_SERVICE_CLASSIFICATION_LIST = "service-classification";
 	private static final String X_PUBLICATION_SCALE_LIST = "publication-scale";
 	private static final String X_PUBLICATION_SCALE_SCALE = "scale";
 	private static final String X_PUBLICATION_SCALE_RES_GROUND = "resolution-ground";
@@ -76,6 +87,11 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_SERVICE_OPERATION_PARAMETER_DIRECTION = "direction/text()";
 	private static final String X_SERVICE_OPERATION_PARAMETER_DESCRIPTION_OF_PARAMETER = "description-of-parameter/text()";
 	private static final String X_SERVICE_DEPENDS_ON_LIST = "depends-on";
+	private static final String X_SERVICE_HAS_ACCESS_CONSTRAINT = "has-access-constraint/text()";
+	private static final String X_SERVICE_NAME = "name/text()";
+	private static final String X_SERVICE_URL_LIST = "service-url";
+	private static final String X_SERVICE_URL = "url/text()";
+	private static final String X_SERVICE_URL_DESCRIPTION = "description/text()";
 	private static final String X_DOCUMENT_PUBLISHER = "publisher/text()";
 	private static final String X_DOCUMENT_PUBLISHING_PLACE = "publishing-place/text()";
 	private static final String X_DOCUMENT_YEAR = "year/text()";
@@ -119,15 +135,18 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_DATASOURCE_IDENTIFICATOR = "datasource-identificator/text()";
 	private static final String X_PROJECT_MEMBER_DESCRIPTION = "member-description/text()";
 	private static final String X_PROJECT_LEADER_DESCRIPTION = "leader-description/text()";
-	private static final String X_ADDITIONAL_DATA_LANGUAGE = "//data-source/additional-information/data-language/@iso-code";
-	private static final String X_ADDITIONAL_METADATA_LANGUAGE = "//data-source/additional-information/metadata-language/@iso-code";
+	private static final String X_ADDITIONAL_DATA_LANGUAGE = "//data-source/additional-information/data-language/text()";
+	private static final String X_ADDITIONAL_DATA_LANGUAGE_KEY = "//data-source/additional-information/data-language/@id";
+	private static final String X_ADDITIONAL_METADATA_LANGUAGE = "//data-source/additional-information/metadata-language/text()";
+	private static final String X_ADDITIONAL_METADATA_LANGUAGE_KEY = "//data-source/additional-information/metadata-language/@id";
 	private static final String X_ADDITIONAL_EXPORT_TO_LIST = "//data-source/additional-information/export-to";
 	private static final String X_ADDITIONAL_LEGISLATION_LIST = "//data-source/additional-information/legislation";
 	private static final String X_ADDITIONAL_DATASET_INTENTIONS = "//data-source/additional-information/dataset-intentions/text()";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_LIST = "//data-source/additional-information/access-constraint";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION = "restriction/text()";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION_KEY = "restriction/@id";
-	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_TERMS_OF_USE = "terms-of-use";
+	private static final String X_ADDITIONAL_USE_CONSTRAINT_LIST = "//data-source/additional-information/use-constraint";
+	private static final String X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE = "terms-of-use";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_LIST = "//data-source/additional-information/medium-option";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NAME = "medium-name/@iso-code";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NOTE = "medium-note/text()";
@@ -138,6 +157,9 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_DATA_FORMAT_VERSION = "version/text()";
 	private static final String X_ADDITIONAL_DATA_FORMAT_SPECIFICATION = "specification/text()";
 	private static final String X_ADDITIONAL_DATA_FORMAT_FILE_DECOMPRESSION_TECHNIQUE = "file-decompression-technique/text()";
+	private static final String X_ADDITIONAL_DATA_FORMAT_INSPIRE_LIST = "//data-source/additional-information/data-format-inspire";
+	private static final String X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME = "format-inspire-name/text()";
+	private static final String X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME_KEY = "format-inspire-name/@id";
 	private static final String X_ADDITIONAL_PUBLICATION_CONDITION = "//data-source/additional-information/publication-condition/text()";
 	private static final String X_ADDITIONAL_DATASET_USAGE = "//data-source/additional-information/dataset-usage/text()";
 	private static final String X_ADDITIONAL_ORDERING_INSTRUCTION = "//data-source/additional-information/ordering-instructions/text()";
@@ -150,6 +172,12 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE = "conformity-degree/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE_KEY = "conformity-degree/@id";
 	private static final String X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE = "conformity-publication-date/text()";
+	private static final String X_ADDITIONAL_DQ_LIST = "//data-source/additional-information/data-quality";
+	private static final String X_ADDITIONAL_DQ_ELEMENT_ID = "dq-element-id/text()";
+	private static final String X_ADDITIONAL_DQ_NAME_OF_MEASURE_KEY = "dq-name-of-measure/@id";
+	private static final String X_ADDITIONAL_DQ_NAME_OF_MEASURE_VALUE = "dq-name-of-measure/text()";
+	private static final String X_ADDITIONAL_DQ_RESULT_VALUE = "dq-result-value/text()";
+	private static final String X_ADDITIONAL_DQ_MEASURE_DESCRIPTION = "dq-measure-description/text()";
 	private static final String X_SPATIAL_DESCRIPTION = "//data-source/spatial-domain/description-of-spatial-domain/text()";
 	private static final String X_SPATIAL_VERTICAL_EXTENT_MINIMUM = "//data-source/spatial-domain/vertical-extent/vertical-extent-minimum/text()";
 	private static final String X_SPATIAL_VERTICAL_EXTENT_MAXIMUM = "//data-source/spatial-domain/vertical-extent/vertical-extent-maximum/text()";
@@ -247,19 +275,47 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static void mapGeneralAdditionalValues(Document source, IngridDocument target) {
 		NodeList additionalValues = XPathUtils.getNodeList(source, X_GENERAL_ADDITIONAL_VALUE_LIST);
 		List<IngridDocument> additionalValuesList = new ArrayList<IngridDocument>();
-		
-		// TODO
-/*
+
+		Map<String, IngridDocument> fieldKeyToDocMap = new HashMap<String, IngridDocument>();
 		for (int index = 0; index < additionalValues.getLength(); ++index) {
 			Node additionalValue = additionalValues.item(index);
-			IngridDocument additionalValueDoc = new IngridDocument();
-			putLong(MdekKeys.SYS_ADDITIONAL_FIELD_IDENTIFIER, XPathUtils.getLong(additionalValue, X_GENERAL_ADDITIONAL_VALUE_ID), additionalValueDoc);
-			putString(MdekKeys.SYS_ADDITIONAL_FIELD_NAME, XPathUtils.getString(additionalValue, X_GENERAL_ADDITIONAL_VALUE_FIELD_NAME), additionalValueDoc);
-			putString(MdekKeys.ADDITIONAL_FIELD_VALUE, XPathUtils.getString(additionalValue, X_GENERAL_ADDITIONAL_VALUE_FIELD_VALUE), additionalValueDoc);
-			additionalValuesList.add(additionalValueDoc);
+			addAdditionalValue(additionalValue, additionalValuesList, fieldKeyToDocMap);
 		}
-*/
+
 		putDocList(MdekKeys.ADDITIONAL_FIELDS, additionalValuesList, target);
+	}
+
+	private static void addAdditionalValue(Node additionalValue, List<IngridDocument> additionalValuesTopList, Map<String, IngridDocument> fieldKeyToDocMap) {
+		IngridDocument additionalValueDoc = new IngridDocument();
+		putString(MdekKeys.ADDITIONAL_FIELD_KEY, XPathUtils.getString(additionalValue, X_GENERAL_ADDITIONAL_VALUE_FIELD_KEY), additionalValueDoc);
+		Node dataNode = XPathUtils.getNode(additionalValue, X_GENERAL_ADDITIONAL_VALUE_FIELD_DATA);
+		if (dataNode != null) {
+			putString(MdekKeys.ADDITIONAL_FIELD_DATA, XPathUtils.getString(additionalValue, X_GENERAL_ADDITIONAL_VALUE_FIELD_DATA), additionalValueDoc);
+			putString(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, XPathUtils.getString(dataNode, X_GENERAL_ADDITIONAL_VALUE_ID), additionalValueDoc);
+		}
+
+		String parentKey = XPathUtils.getString(additionalValue, X_GENERAL_ADDITIONAL_VALUE_FIELD_KEY_PARENT);
+		if (parentKey != null) {
+			IngridDocument tableDoc = fieldKeyToDocMap.get(parentKey);
+			if (tableDoc == null) {
+				tableDoc = new IngridDocument();
+				tableDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, parentKey);
+				List<List<IngridDocument>> rowList = new ArrayList<List<IngridDocument>>();
+				tableDoc.put(MdekKeys.ADDITIONAL_FIELD_ROWS, rowList);
+				fieldKeyToDocMap.put(parentKey, tableDoc);
+				// also add to top list if not present (no table in table)
+				additionalValuesTopList.add(tableDoc);
+			}
+			Integer line = XPathUtils.getInt(additionalValue, X_GENERAL_ADDITIONAL_VALUE_LINE);
+			List<List<IngridDocument>> rowList = (List<List<IngridDocument>>) tableDoc.get(MdekKeys.ADDITIONAL_FIELD_ROWS);
+			while (rowList.size() < line) {
+				rowList.add(new ArrayList<IngridDocument>());
+			}
+			List<IngridDocument> colList = rowList.get(line-1);
+			colList.add(additionalValueDoc);
+		} else {
+			additionalValuesTopList.add(additionalValueDoc);
+		}
 	}
 
 	private static void mapTopicCategories(Document source, IngridDocument target) {
@@ -326,10 +382,10 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.DESCRIPTION_OF_TECH_DOMAIN},
 				XPathUtils.getString(service, X_TECHNICAL_DOMAIN_DESCRIPTION_OF_TECH_DOMAIN), target);
 		putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_TYPE_KEY},
-				XPathUtils.getInt(service, X_SERVICE_CLASSIFICATION_KEY), target);
+				XPathUtils.getInt(service, X_SERVICE_TYPE_KEY), target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_TYPE},
-				XPathUtils.getString(service, X_SERVICE_CLASSIFICATION), target);
-		mapServiceTypes(source, target);
+				XPathUtils.getString(service, X_SERVICE_TYPE), target);
+		mapServiceClassifications(source, target);
 		mapPublicationScales(service, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE));
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SYSTEM_HISTORY},
 				XPathUtils.getString(service, X_SERVICE_SYSTEM_HISTORY), target);
@@ -340,22 +396,26 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapStringList(service, X_SERVICE_VERSION_LIST, target,
 				new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_VERSION_LIST});
 		mapServiceOperations(source, target);
+
+		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.HAS_ACCESS_CONSTRAINT},
+				XPathUtils.getString(service, X_SERVICE_HAS_ACCESS_CONSTRAINT), target);
+		mapServiceUrls(service, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE));
 	}
 
-	private static void mapServiceTypes(Document source, IngridDocument target) {
+	private static void mapServiceClassifications(Document source, IngridDocument target) {
 		Node service = XPathUtils.getNode(source, X_TECHNICAL_DOMAIN_SERVICE);
-		NodeList serviceTypeNodeList = XPathUtils.getNodeList(service, X_SERVICE_TYPE_LIST);
-		List<IngridDocument> serviceTypes = new ArrayList<IngridDocument>();
+		NodeList serviceClassificNodeList = XPathUtils.getNodeList(service, X_SERVICE_CLASSIFICATION_LIST);
+		List<IngridDocument> serviceClassificDocs = new ArrayList<IngridDocument>();
 
-		for (int index = 0; index < serviceTypeNodeList.getLength(); index++) {
-			Node serviceType = serviceTypeNodeList.item(index);
-			IngridDocument serviceTypeDoc = new IngridDocument();
-			putInt(MdekKeys.SERVICE_TYPE2_KEY, XPathUtils.getInt(serviceType, X_ATTRIBUTE_ID), serviceTypeDoc);
-			putString(MdekKeys.SERVICE_TYPE2_VALUE, serviceType.getTextContent(), serviceTypeDoc);
-			serviceTypes.add(serviceTypeDoc);
+		for (int index = 0; index < serviceClassificNodeList.getLength(); index++) {
+			Node serviceClassific = serviceClassificNodeList.item(index);
+			IngridDocument serviceClassificDoc = new IngridDocument();
+			putInt(MdekKeys.SERVICE_TYPE2_KEY, XPathUtils.getInt(serviceClassific, X_ATTRIBUTE_ID), serviceClassificDoc);
+			putString(MdekKeys.SERVICE_TYPE2_VALUE, serviceClassific.getTextContent(), serviceClassificDoc);
+			serviceClassificDocs.add(serviceClassificDoc);
 		}
 
-		putDocList(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_TYPE2_LIST}, serviceTypes, target);
+		putDocList(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_TYPE2_LIST}, serviceClassificDocs, target);
 	}
 
 	private static void mapPublicationScales(Node context, IngridDocument target) {
@@ -412,6 +472,22 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		}
 
 		putDocList(MdekKeys.PARAMETER_LIST, parameterList, operationDoc);
+	}
+
+	private static void mapServiceUrls(Node context, IngridDocument target) {
+		NodeList serviceUrlNodeList = XPathUtils.getNodeList(context, X_SERVICE_URL_LIST);
+		List<IngridDocument> serviceUrlDocs = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < serviceUrlNodeList.getLength(); index++) {
+			Node serviceUrl = serviceUrlNodeList.item(index);
+			IngridDocument serviceUrlDoc = new IngridDocument();
+			putString(MdekKeys.NAME, XPathUtils.getString(serviceUrl, X_SERVICE_NAME), serviceUrlDoc);
+			putString(MdekKeys.URL, XPathUtils.getString(serviceUrl, X_SERVICE_URL), serviceUrlDoc);
+			putString(MdekKeys.DESCRIPTION, XPathUtils.getString(serviceUrl, X_SERVICE_URL_DESCRIPTION), serviceUrlDoc);
+			serviceUrlDocs.add(serviceUrlDoc);
+		}
+
+		putDocList(MdekKeys.URL_LIST, serviceUrlDocs, target);
 	}
 
 	private static void mapDocument(Document source, IngridDocument target) {
@@ -551,17 +627,23 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	}
 
 	private static void mapAdditionalInformation(Document source, IngridDocument target) {
-		// TODO: REMOVED IN VERSION 1.0.5. !!! Fix if import of older formats needed !
-//		putString(MdekKeys.DATA_LANGUAGE, XPathUtils.getString(source, X_ADDITIONAL_DATA_LANGUAGE), target);
-//		putString(MdekKeys.METADATA_LANGUAGE, XPathUtils.getString(source, X_ADDITIONAL_METADATA_LANGUAGE), target);
-
+		putString(MdekKeys.DATA_LANGUAGE_NAME,
+				XPathUtils.getString(source, X_ADDITIONAL_DATA_LANGUAGE), target);
+		putInt(MdekKeys.DATA_LANGUAGE_CODE,
+				XPathUtils.getInt(source, X_ADDITIONAL_DATA_LANGUAGE_KEY), target);
+		putString(MdekKeys.METADATA_LANGUAGE_NAME,
+				XPathUtils.getString(source, X_ADDITIONAL_METADATA_LANGUAGE), target);
+		putInt(MdekKeys.METADATA_LANGUAGE_CODE,
+				XPathUtils.getInt(source, X_ADDITIONAL_METADATA_LANGUAGE_KEY), target);
 		mapExportTos(source, target);
 		mapLegislations(source, target);
 		putString(MdekKeys.DATASET_INTENTIONS,
 				XPathUtils.getString(source, X_ADDITIONAL_DATASET_INTENTIONS), target);
 		mapAccessConstraints(source, target);
+		mapUseConstraints(source, target);
 		mapMediumOptions(source, target);
 		mapDataFormats(source, target);
+		mapDataFormatsInspire(source, target);
 		putInt(MdekKeys.PUBLICATION_CONDITION,
 				XPathUtils.getInt(source, X_ADDITIONAL_PUBLICATION_CONDITION), target);
 		putString(MdekKeys.DATASET_USAGE,
@@ -570,6 +652,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getString(source, X_ADDITIONAL_ORDERING_INSTRUCTION), target);
 		mapComments(source, target);
 		mapConformities(source, target);
+		mapDQs(source, target);
 	}
 
 	private static void mapExportTos(Document source, IngridDocument target) {
@@ -611,13 +694,26 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			IngridDocument accessConstraintDoc = new IngridDocument();
 			putString(MdekKeys.ACCESS_RESTRICTION_VALUE, XPathUtils.getString(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION), accessConstraintDoc);
 			putInt(MdekKeys.ACCESS_RESTRICTION_KEY, XPathUtils.getInt(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION_KEY), accessConstraintDoc);
-			// TODO: REMOVED IN VERSION 1.0.8. !!! Fix if import of older formats needed !
-//			putString(MdekKeys.ACCESS_TERMS_OF_USE, XPathUtils.getString(accessConstraint, X_ADDITIONAL_ACCESS_CONSTRAINT_TERMS_OF_USE), accessConstraintDoc);
 
 			accessConstraintList.add(accessConstraintDoc);
 		}
 
 		putDocList(MdekKeys.ACCESS_LIST, accessConstraintList, target);
+	}
+
+	private static void mapUseConstraints(Document source, IngridDocument target) {
+		NodeList useConstraints = XPathUtils.getNodeList(source, X_ADDITIONAL_USE_CONSTRAINT_LIST);
+		List<IngridDocument> useConstraintList = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < useConstraints.getLength(); index++) {
+			Node useConstraint = useConstraints.item(index);
+			IngridDocument useConstraintDoc = new IngridDocument();
+			putString(MdekKeys.USE_TERMS_OF_USE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE), useConstraintDoc);
+
+			useConstraintList.add(useConstraintDoc);
+		}
+
+		putDocList(MdekKeys.USE_LIST, useConstraintList, target);
 	}
 
 	private static void mapMediumOptions(Document source, IngridDocument target) {
@@ -656,6 +752,22 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putDocList(MdekKeys.DATA_FORMATS, dataFormatList, target);
 	}
 
+	private static void mapDataFormatsInspire(Document source, IngridDocument target) {
+		NodeList formats = XPathUtils.getNodeList(source, X_ADDITIONAL_DATA_FORMAT_INSPIRE_LIST);
+		List<IngridDocument> formatList = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < formats.getLength(); index++) {
+			Node format = formats.item(index);
+			IngridDocument formatDoc = new IngridDocument();
+			putString(MdekKeys.FORMAT_VALUE, XPathUtils.getString(format, X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME), formatDoc);
+			putInt(MdekKeys.FORMAT_KEY, XPathUtils.getInt(format, X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME_KEY), formatDoc);
+
+			formatList.add(formatDoc);
+		}
+
+		putDocList(MdekKeys.FORMAT_INSPIRE_LIST, formatList, target);
+	}
+
 	private static void mapComments(Document source, IngridDocument target) {
 		NodeList comments = XPathUtils.getNodeList(source, X_ADDITIONAL_COMMENT_LIST);
 		List<IngridDocument> commentList = new ArrayList<IngridDocument>();
@@ -689,6 +801,25 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		}
 
 		putDocList(MdekKeys.CONFORMITY_LIST, conformityList, target);
+	}
+
+	private static void mapDQs(Document source, IngridDocument target) {
+		NodeList nodeList = XPathUtils.getNodeList(source, X_ADDITIONAL_DQ_LIST);
+		List<IngridDocument> dqList = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < nodeList.getLength(); index++) {
+			Node node = nodeList.item(index);
+			IngridDocument dqDoc = new IngridDocument();
+			putInt(MdekKeys.DQ_ELEMENT_ID, XPathUtils.getInt(node, X_ADDITIONAL_DQ_ELEMENT_ID), dqDoc);
+			putInt(MdekKeys.NAME_OF_MEASURE_KEY, XPathUtils.getInt(node, X_ADDITIONAL_DQ_NAME_OF_MEASURE_KEY), dqDoc);
+			putString(MdekKeys.NAME_OF_MEASURE_VALUE, XPathUtils.getString(node, X_ADDITIONAL_DQ_NAME_OF_MEASURE_VALUE), dqDoc);
+			putString(MdekKeys.RESULT_VALUE, XPathUtils.getString(node, X_ADDITIONAL_DQ_RESULT_VALUE), dqDoc);
+			putString(MdekKeys.MEASURE_DESCRIPTION, XPathUtils.getString(node, X_ADDITIONAL_DQ_MEASURE_DESCRIPTION), dqDoc);
+
+			dqList.add(dqDoc);
+		}
+
+		putDocList(MdekKeys.DATA_QUALITY_LIST, dqList, target);
 	}
 
 	private static void mapSpatialDomain(Document source, IngridDocument target) {

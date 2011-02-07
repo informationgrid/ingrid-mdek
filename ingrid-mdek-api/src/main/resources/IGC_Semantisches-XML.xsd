@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="2.3.0"/>
+    <xs:attribute name="exchange-format" default="3.0.0"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -12,7 +12,6 @@
         <xs:element minOccurs="0" ref="catalogue"/>
         <xs:element minOccurs="0" ref="data-sources"/>
         <xs:element minOccurs="0" ref="addresses"/>
-        <xs:element minOccurs="0" ref="data-model-extensions"/>
       </xs:sequence>
       <xs:attributeGroup ref="attlist.igc"/>
     </xs:complexType>
@@ -185,7 +184,7 @@
   <xs:element name="original-control-identifier" type="xs:string"/>
   <!--
     Fachlicher Name: Zusatzfelder
-    Tabelle   : t08_attr*
+    Tabelle   :additional_field_data*
   -->
   <xs:element name="general-additional-values">
     <xs:complexType>
@@ -195,29 +194,39 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Zusatzfeld (generische Attribute)
-    Tabelle.Feld   : t08_attr_type.id
-    Tabelle   : t08_attr_type, t08_attr
+    Fachlicher Name: Zusatzfeld Inhalte
+    Tabelle.Feld   : additional_field_data.sort
+    Tabelle.Feld   : additional_field_data.field_key
+    Tabelle.Feld   : additional_field_data.list_item_id
+    Tabelle.Feld   : additional_field_data.data
+    Tabelle.Feld   : additional_field_data.parent_field_id (als parent_field_key aufgelöst !)
   -->
   <xs:element name="general-additional-value">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="field-name"/>
-        <xs:element ref="field-value"/>
-      </xs:sequence>
-      <xs:attributeGroup ref="attlist.id"/>
+        <xs:sequence>
+        <xs:element ref="field-key"/>
+        <xs:element ref="field-data"/>
+        <xs:element ref="field-key-parent"/>
+        </xs:sequence>
+      <xs:attributeGroup ref="attlist.line"/>
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Attributname
-    Tabelle.Feld   : t08_attr_type.name
+    Fachlicher Name: Zusatzfeld Identifikation (Key)
+    Tabelle.Feld   : additional_field_data.field_key
   -->
-  <xs:element name="field-name" type="xs:string"/>
+  <xs:element name="field-key" type="xs:string"/>
   <!--
-    Fachlicher Name: Attributwert
-    Tabelle.Feld   : t08_attr.data
+    Fachlicher Name: Zusatzfeld Wert (auch Id von Listeneintrag, wenn Liste)
+    Tabelle.Feld   : additional_field_data.list_item_id
+    Tabelle.Feld   : additional_field_data.data
   -->
-  <xs:element name="field-value" type="xs:string"/>
+  <xs:element name="field-data" type="id-string"/>
+  <!--
+    Fachlicher Name: Zusatzfeld Identifikation zugehoerige Tabelle (Key)
+    Tabelle.Feld   : additional_field_data.parent_field_id (als parent_field_key aufgelöst !)
+  -->
+  <xs:element name="field-key-parent" type="xs:string"/>
   <!-- Neu in T01_object, Elemente von general -->
   <xs:element name="metadata">
     <xs:complexType>
@@ -1659,71 +1668,6 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Zusatzfelder
-  -->
-  <xs:element name="data-model-extensions">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="general-additional-field-definition"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <!--
-    Fachlicher Name: Zusatzfeld
-    Tabelle   : t08_attr_type
-    Tabelle   : t08_attr_list
-  -->
-  <xs:element name="general-additional-field-definition">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="field-identifier"/>
-        <xs:element ref="field-name"/>
-        <xs:element ref="field-length"/>
-        <xs:element ref="field-type"/>
-        <xs:element minOccurs="0" ref="field-list-type"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="field-list-items"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <!--
-    Fachlicher Name: Zusatzfeld ID
-    Tabelle.Feld   : t08_attr_type.id
-  -->
-  <xs:element name="field-identifier" type="xs:string"/>
-  <!--
-    Fachlicher Name: Zusatzfeld Länge
-    Tabelle.Feld   : t08_attr_type.length
-  -->
-  <xs:element name="field-length" type="xs:string"/>
-  <!--
-    Fachlicher Name: Zusatzfeld Typ
-    Tabelle.Feld   : t08_attr_type.type
-  -->
-  <xs:element name="field-type" type="xs:string"/>
-  <!--
-    Fachlicher Name: Typ der Zusatzfeld Auswahlliste
-    Tabelle.Feld   : t08_attr_list.type
-  -->
-  <xs:element name="field-list-type" type="xs:string"/>
-  <!--
-    Fachlicher Name: Zusatzfeld Auswahlliste items
-    Tabelle   : t08_attr_list
-    Tabelle.Feld   : t08_attr_list.lang_code
-  -->
-  <xs:element name="field-list-items">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="field-list-item"/>
-      </xs:sequence>
-      <xs:attributeGroup ref="attlist.language-code"/>
-    </xs:complexType>
-  </xs:element>
-  <!--
-    Fachlicher Name: Zusatzfeld Auswahllisten Item
-    Tabelle.Feld   : t08_attr_list.listitem_value
-  -->
-  <xs:element name="field-list-item" type="xs:string"/>
-  <!--
     Fachlicher Name: IGC Boolean Repraesentation
   -->
   <xs:simpleType name="igc-boolean">
@@ -1809,6 +1753,12 @@
     <!-- list-id nur wenn kein freier Eintrag -->
     <xs:attribute name="list-id"/>
     <xs:attribute name="entry-id" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: line=
+  -->
+  <xs:attributeGroup name="attlist.line">
+    <xs:attribute name="line" use="optional"/>
   </xs:attributeGroup>
 </xs:schema>
 

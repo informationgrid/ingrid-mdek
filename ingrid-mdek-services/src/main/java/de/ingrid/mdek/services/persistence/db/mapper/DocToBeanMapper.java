@@ -2347,7 +2347,8 @@ public class DocToBeanMapper implements IMapper {
 
 		keyValueService.processKeyValue(bean);
 
-		if (doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
+		List<List<IngridDocument>> rows = (List<List<IngridDocument>>) doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS);
+		if (rows != null && rows.size() > 0) {
 			// guarantee, that this bean, including the rows, has an id to be set in "subbeans"
 			if (bean.getId() == null) {
 				// no id, we have to store, to get an id !

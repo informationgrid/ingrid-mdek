@@ -72,7 +72,7 @@ public class XPathUtils {
 
 		} catch (XPathExpressionException ex) {
 			// Log the exception and continue.
-			log.error("Error evaluating xpath expression: '"+xpathExpression+"'", ex);
+			log.warn("Error evaluating xpath expression: '"+xpathExpression+"'", ex);
 		}
 
 		// Source document was null. Return false
@@ -91,7 +91,7 @@ public class XPathUtils {
 
 		} catch (XPathExpressionException ex) {
 			// Log the exception and continue.
-			log.error("Error evaluating xpath expression: '"+xpathExpression+"'", ex);
+			log.warn("Error evaluating xpath expression: '"+xpathExpression+"'", ex);
 		}
 
 		// Something went wrong. Either the source document was null or the string for xpathExpression could not be found
@@ -109,7 +109,7 @@ public class XPathUtils {
 
 		} catch (XPathExpressionException ex) {
 			// Log the exception and continue.
-			log.error("Error evaluating xpath expression: '"+xpathExpression+"'", ex);
+			log.warn("Error evaluating xpath expression: '"+xpathExpression+"'", ex);
 		}
 
 		// Something went wrong. Either the source document was null or the xpathExpression could not be found

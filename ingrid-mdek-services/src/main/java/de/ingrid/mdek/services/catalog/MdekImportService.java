@@ -155,8 +155,8 @@ public class MdekImportService implements IImporterCallback {
 				// process all relations (to objects and addresses) !
 				processRelationsOfObject(inDoc, userUuid);
 
-				// verify additional fields
-				processAdditionalFields(inDoc, userUuid);
+				// verify whether additional fields definitions match
+//				processAdditionalFields(inDoc, userUuid);
 
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				// transform FREE address to PERSON UNDER IMPORT NODE !
@@ -194,12 +194,12 @@ public class MdekImportService implements IImporterCallback {
 			// entity type specific stuff
 			if (whichType == IdcEntityType.OBJECT) {
 				// process all relations (to objects and addresses) !
-				processRelationsOfObject(inDoc, userUuid);				
+				processRelationsOfObject(inDoc, userUuid);
 
-				// verify additional fields. if problems, store working version !
-				if (!processAdditionalFields(inDoc, userUuid)) {
-					storeWorkingVersion = true;				
-				}
+				// verify whether additional fields definitions match
+//				if (!processAdditionalFields(inDoc, userUuid)) {
+//					storeWorkingVersion = true;				
+//				}
 			}
 
 			// MOVE EXISTING ENTITY ?
@@ -899,7 +899,7 @@ public class MdekImportService implements IImporterCallback {
 	}
 	
 	/**
-	 * Process all additional field values and remove a value if the according additional field
+	 * Process all additional field values and remove a value if the according additional field definition
 	 * is not found or differs from the one in catalog. Returns whether problems occured.
 	 * @param objDoc the object to import represented by its doc (containing all relations).
 	 * 		NOTICE: may be manipulated (additional field value removed if field not found !)
@@ -907,11 +907,10 @@ public class MdekImportService implements IImporterCallback {
 	 * @return true=all fields ok, NO data changed<br>
 	 * 		false=problems with additional fields, data was removed
 	 */
+/*
 	private boolean processAdditionalFields(IngridDocument objDoc, String userUuid) {
 		boolean allFieldsOk = true;
-		
-		// TODO MM
-/*
+
 		// create object tag for messages !
 		String objTag = createEntityTag(IdcEntityType.OBJECT, objDoc);
 
@@ -958,32 +957,30 @@ public class MdekImportService implements IImporterCallback {
 							// WE DO NOT COMPARE VALUE OF SELECTION LIST BECAUSE OF COMBOBOX in GUI (FREE TEXT ENTRY POSSIBLE !!!) !!!
 							// so we take over all values if name and type of field is ok !
 							fieldOk = true;
-*/
-/*							
+							
 							// field equals field in catalog, check whether field has selection list and compare value !
-							if (MdekUtils.AdditionalFieldType.LIST.getDbValue().equals(sysFieldType)) {
+//							if (MdekUtils.AdditionalFieldType.LIST.getDbValue().equals(sysFieldType)) {
 								// Is selection list, so restricted entry values ! we fetch all selection lists and compare value
-								for (Iterator<String> j = sysFieldDoc.keySet().iterator(); j.hasNext();) {
-									String sysFieldKey = j.next();
-									if (sysFieldKey.startsWith(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX)) {
-										String[] entries = (String[]) sysFieldDoc.get(sysFieldKey);
-										if (Arrays.asList(entries).contains(inFieldValue)) {
-											fieldOk = true;
-											break;
-										}
-									}
-								}
-								if (!fieldOk) {
-									updateImportJobInfoMessages(MSG_WARN + objTag +
-										"Additional field DATA \"" + inFieldValue + "\" NOT FOUND in defined SELECTION_LIST " +
-										"(Field-Name:" + inFieldName + ", Field-Type:" + inFieldType + ")", userUuid);
-								}
-							} else {
+//								for (Iterator<String> j = sysFieldDoc.keySet().iterator(); j.hasNext();) {
+//									String sysFieldKey = j.next();
+//									if (sysFieldKey.startsWith(MdekKeys.SYS_ADDITIONAL_FIELD_LIST_ITEMS_KEY_PREFIX)) {
+//										String[] entries = (String[]) sysFieldDoc.get(sysFieldKey);
+//										if (Arrays.asList(entries).contains(inFieldValue)) {
+//											fieldOk = true;
+//											break;
+//										}
+//									}
+//								}
+//								if (!fieldOk) {
+//									updateImportJobInfoMessages(MSG_WARN + objTag +
+//										"Additional field DATA \"" + inFieldValue + "\" NOT FOUND in defined SELECTION_LIST " +
+//										"(Field-Name:" + inFieldName + ", Field-Type:" + inFieldType + ")", userUuid);
+//								}
+//							} else {
 								// No selection list, so any text value is ok !
-								fieldOk = true;
-							}
-*/
-/*
+//								fieldOk = true;
+//							}
+
 						} else {
 							updateImportJobInfoMessages(MSG_WARN + objTag +
 								"Additional field DEFINITION found, but differs ! DATA \"" + inFieldValue +
@@ -1009,10 +1006,10 @@ public class MdekImportService implements IImporterCallback {
 				i.remove();
 			}
 		}
-*/
+
 		return allFieldsOk;
 	}
-	
+*/
 	/** Store the given object-object relations in running job info for later access !
 	 * @param fromUuid source object
 	 * @param toObjRefs list of target objects and relation details as stored in import doc !

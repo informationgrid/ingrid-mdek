@@ -257,7 +257,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		NodeList additionalValues = XPathUtils.getNodeList(source, X_GENERAL_ADDITIONAL_VALUE_LIST);
 		List<IngridDocument> additionalValuesList = new ArrayList<IngridDocument>();
 
-		// TODO MM
+		// TODO
 /*
 		for (int index = 0; index < additionalValues.getLength(); ++index) {
 			Node additionalValue = additionalValues.item(index);
