@@ -1455,7 +1455,6 @@ public class ObjectNodeDaoHibernate
 //			"left join fetch o.t014InfoImparts " +
 //			"left join fetch o.t015Legists " +
 //			"left join fetch o.t017UrlRefs " +
-			"left join fetch o.t08Attrs " +
 //			"left join fetch o.objectConformitys " +
 //			"left join fetch o.objectAccesss " +
 			"where oNode.objUuid = ?";

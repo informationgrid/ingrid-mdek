@@ -144,21 +144,6 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Type of Additional Field (t08_attr_type.type) */
-	public enum AdditionalFieldType implements IMdekEnum {
-		TEXT("0"),
-		LIST("1");
-
-		AdditionalFieldType(String dbValue) {
-			this.dbValue = dbValue;
-		}
-		/** returns syslist ID */
-		public String getDbValue() {
-			return dbValue;
-		}
-		String dbValue;
-	}
-
 	/** Behaviour (visibility) of input fields (sys_gui.behaviour) */
 	public enum SysGuiBehaviour implements IMdekEnum {
 		DEFAULT(-1),

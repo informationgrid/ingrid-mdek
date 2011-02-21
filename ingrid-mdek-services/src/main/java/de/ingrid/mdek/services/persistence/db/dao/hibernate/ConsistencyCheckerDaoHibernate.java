@@ -79,7 +79,7 @@ public class ConsistencyCheckerDaoHibernate
 		tableList.add(new QueryParameter("T014InfoImpart", "objId", "T01Object", new String[]{"id"}));
 		tableList.add(new QueryParameter("T015Legist", "objId", "T01Object", new String[]{"id"}));
 		tableList.add(new QueryParameter("T017UrlRef", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T08Attr", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter("AdditionalFieldData", "objId", "T01Object", new String[]{"id"}));
 		
 		tableList.add(new QueryParameter("FullIndexAddr", "addrNodeId", "AddressNode", new String[]{"id"}));
 		tableList.add(new QueryParameter("PermissionAddr", "uuid", "AddressNode", new String[]{"addrUuid"}));
@@ -89,8 +89,6 @@ public class ConsistencyCheckerDaoHibernate
 		tableList.add(new QueryParameter("AddressMetadata", "id", "T02Address", new String[]{"addrMetadataId"}));
 		tableList.add(new QueryParameter("SearchtermAdr", "adrId", "T02Address", new String[]{"id"}));
 		tableList.add(new QueryParameter("T021Communication", "adrId", "T02Address", new String[]{"id"}));
-		
-		tableList.add(new QueryParameter("T08AttrList", "attrTypeId", "T08AttrType", new String[]{"id"}));
 		
 		tableList.add(new QueryParameter("T011ObjGeoKeyc", "objGeoId", "T011ObjGeo", new String[]{"id"}));
 		tableList.add(new QueryParameter("T011ObjGeoSymc", "objGeoId", "T011ObjGeo", new String[]{"id"}));
