@@ -290,6 +290,8 @@ public class DefaultPermissionService implements IPermissionService {
 			pIdClient = IdcPermission.QUALITY_ASSURANCE.getDbValue();
 		} else if (isEqualPermission(p, PermissionFactory.getPermissionTemplateSubNode())) {
 			pIdClient = IdcPermission.WRITE_SUBNODE.getDbValue();
+		} else if (isEqualPermission(p, PermissionFactory.getDummyPermissionSubTree())) {
+			pIdClient = IdcPermission.DUMMY_WRITE_SUBTREE.getDbValue();
 		}
 	
 		return pIdClient;
