@@ -1069,6 +1069,7 @@
 			<xs:element name="pos-accuracy-vertical" type="xs:double"/>
 			<xs:element name="keyc-incl-w-dataset" type="xs:integer"/>
 			<xs:element name="datasource-uuid" type="xs:string"/>
+			<xs:element name="is-inspire-relevant" type="xs:string"/>
 			<xs:element name="key-catalog-list" type="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_LIST"/>
 			<xs:element name="publication-scale-list" type="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_LIST"/>
 			<xs:element name="symbol-catalog-list" type="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_LIST"/>
@@ -1142,6 +1143,8 @@
 			<xs:element name="publication-scale-list" type="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_LIST"/>
 			<!-- InGrid 2.3: hinzugekommen bei neuer Klasse "Geodatendienst" -->
 			<xs:element name="has-access-constraint" type="xs:string"/>
+			<!-- InGrid 3.0.0 -->
+			<xs:element name="is-inspire-relevant" type="xs:string"/>
 			<!-- InGrid 2.3: hinzugekommen bei neuer Klasse "Informationssystem/Dienst/Anwendung" -->
 			<xs:element name="url-list" type="TECHNICAL_DOMAIN_SERVICE_URL_LIST" maxOccurs="unbounded" minOccurs="0"/>
 		</xs:sequence>

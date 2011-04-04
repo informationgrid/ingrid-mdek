@@ -1291,6 +1291,7 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.POS_ACCURACY_VERTICAL, new Double(1.5));
 		technicalDomain.put(MdekKeys.KEYC_INCL_W_DATASET, new Integer(8));
 		technicalDomain.put(MdekKeys.DATASOURCE_UUID, "TEST_DATASOURCE_UUID:" + oDocIn.get(MdekKeys.UUID));
+		technicalDomain.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_MAP, technicalDomain);
 		// add TECHNICAL DOMAIN MAP - key catalog
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
@@ -1370,6 +1371,7 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.DATABASE_OF_SYSTEM, "TEST DATABASE_OF_SYSTEM");
 		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST DESCRIPTION_OF_TECH_DOMAIN");
 		technicalDomain.put(MdekKeys.HAS_ACCESS_CONSTRAINT, "Y");
+		technicalDomain.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
 		// add TECHNICAL DOMAIN SERVICE - versions
 		strList = (List<String>) technicalDomain.get(MdekKeys.SERVICE_VERSION_LIST);

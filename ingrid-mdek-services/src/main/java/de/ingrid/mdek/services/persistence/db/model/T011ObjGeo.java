@@ -22,6 +22,7 @@ public class T011ObjGeo implements IEntity {
 	private Double posAccuracyVertical;
 	private Integer keycInclWDataset;
 	private String datasourceUuid;
+	private String isInspireRelevant;
 
 	private Set t011ObjGeoKeycs = new HashSet();
 	private Set t011ObjGeoScales = new HashSet();
@@ -150,6 +151,14 @@ public class T011ObjGeo implements IEntity {
 
 	public void setDatasourceUuid(String datasourceUuid) {
 		this.datasourceUuid = datasourceUuid;
+	}
+
+	public String getIsInspireRelevant() {
+		return isInspireRelevant;
+	}
+
+	public void setIsInspireRelevant(String isInspireRelevant) {
+		this.isInspireRelevant = isInspireRelevant;
 	}
 
 

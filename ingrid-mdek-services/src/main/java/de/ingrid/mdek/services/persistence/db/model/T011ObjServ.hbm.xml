@@ -15,6 +15,7 @@
       <property name="base" type="string" column="base"/>
       <property name="description" type="string" column="description"/>
       <property name="hasAccessConstraint" type="string" column="has_access_constraint"/>
+      <property name="isInspireRelevant" type="string" column="is_inspire_relevant"/>
 
       <set name="t011ObjServOperations" order-by="line" table="t011_obj_serv_operation"
            inverse="true"
