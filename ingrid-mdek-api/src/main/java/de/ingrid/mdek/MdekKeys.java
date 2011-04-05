@@ -626,6 +626,8 @@ public class MdekKeys {
     public final static String ORDERING_INSTRUCTIONS = "ordering-instructions";
     /** Value: String */
     public final static String IS_CATALOG_DATA = "is-catalog-data";
+    /** Value: String  */
+    public final static String IS_INSPIRE_RELEVANT = "is-inspire-relevant";
 
     // DATA REFERENCE
     /** Value: List< IngridDocument > */
@@ -674,8 +676,6 @@ public class MdekKeys {
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
     /** Value: String  */
     public final static String DATASOURCE_UUID = "datasource-uuid";
-    /** Value: String  */
-    public final static String IS_INSPIRE_RELEVANT = "is-inspire-relevant";
     
     // TECHNICAL DOMAIN MAP - KEY CATALOG
     /** Value: List< IngridDocument >  */
@@ -780,7 +780,6 @@ public class MdekKeys {
 // DESCRIPTION_OF_TECH_DOMAIN already defined, also used here in subdocument !
     /** Value: String */
     public final static String HAS_ACCESS_CONSTRAINT = "has-access-constraint";
-// IS_INSPIRE_RELEVANT already defined, also used here in subdocument !
 // NAME already defined, also used here in subdocument !
     // TECHNICAL DOMAIN SERVICE - VERSIONS
     /** Value: List< String >  */

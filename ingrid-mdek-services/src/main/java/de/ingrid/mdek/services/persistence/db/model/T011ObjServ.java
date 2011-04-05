@@ -17,7 +17,6 @@ public class T011ObjServ implements IEntity {
 	private String base;
 	private String description;
 	private String hasAccessConstraint;
-	private String isInspireRelevant;
 
 	private Set t011ObjServOperations = new HashSet();
 	private Set t011ObjServScales = new HashSet();
@@ -105,14 +104,6 @@ public class T011ObjServ implements IEntity {
 
 	public void setHasAccessConstraint(String hasAccessConstraint) {
 		this.hasAccessConstraint = hasAccessConstraint;
-	}
-
-	public String getIsInspireRelevant() {
-		return isInspireRelevant;
-	}
-
-	public void setIsInspireRelevant(String isInspireRelevant) {
-		this.isInspireRelevant = isInspireRelevant;
 	}
 
 

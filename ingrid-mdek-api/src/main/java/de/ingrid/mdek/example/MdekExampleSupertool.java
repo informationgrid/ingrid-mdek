@@ -828,6 +828,8 @@ public class MdekExampleSupertool {
 			return;
 		}
 
+		System.out.println("  IS_INSPIRE_RELEVANT: " + oDoc.get(MdekKeys.IS_INSPIRE_RELEVANT));
+
 		debugPermissionsDoc(oDoc, "  ");
 
 		IngridDocument myDoc;
@@ -945,7 +947,6 @@ public class MdekExampleSupertool {
 		if (myDoc != null) {
 			System.out.println("  technical domain MAP:");
 			System.out.println("    " + myDoc);								
-			System.out.println("    IS_INSPIRE_RELEVANT: " + myDoc.get(MdekKeys.IS_INSPIRE_RELEVANT));
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.KEY_CATALOG_LIST);
 			if (docList != null && docList.size() > 0) {
 				System.out.println("    MAP - key catalogs: " + docList.size() + " entries");
@@ -1001,7 +1002,6 @@ public class MdekExampleSupertool {
 			System.out.println("    " + myDoc);
 			System.out.println("    SERVICE type: " + myDoc.get(MdekKeys.SERVICE_TYPE_KEY) + "=" + myDoc.get(MdekKeys.SERVICE_TYPE));
 			System.out.println("    SERVICE HAS_ACCESS_CONSTRAINT: " + myDoc.get(MdekKeys.HAS_ACCESS_CONSTRAINT));
-			System.out.println("    SERVICE IS_INSPIRE_RELEVANT: " + myDoc.get(MdekKeys.IS_INSPIRE_RELEVANT));
 			strList = (List<String>) myDoc.get(MdekKeys.SERVICE_VERSION_LIST);
 			if (strList != null && strList.size() > 0) {
 				System.out.println("    SERVICE - versions: " + strList.size() + " entries");

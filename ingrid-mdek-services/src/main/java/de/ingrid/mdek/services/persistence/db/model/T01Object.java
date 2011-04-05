@@ -42,6 +42,7 @@ public class T01Object implements IEntity {
 	private Integer verticalExtentVdatum;
 	private String orderingInstructions;
 	private String isCatalogData;
+	private String isInspireRelevant;
 	private String workState;
 	private String createTime;
 	private Long objMetadataId;
@@ -360,6 +361,14 @@ public class T01Object implements IEntity {
 
 	public void setIsCatalogData(String isCatalogData) {
 		this.isCatalogData = isCatalogData;
+	}
+
+	public String getIsInspireRelevant() {
+		return isInspireRelevant;
+	}
+
+	public void setIsInspireRelevant(String isInspireRelevant) {
+		this.isInspireRelevant = isInspireRelevant;
 	}
 
 	public String getWorkState() {

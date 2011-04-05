@@ -1163,6 +1163,7 @@ class MdekExampleObjectThread extends Thread {
 		oDocIn.put(MdekKeys.DATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		Integer origMetadataLanguageCode = (Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE);
 		oDocIn.put(MdekKeys.METADATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
+		oDocIn.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
 
 		// remove first address !
 		List<IngridDocument> docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ADR_REFERENCES_TO);
@@ -1291,7 +1292,6 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.POS_ACCURACY_VERTICAL, new Double(1.5));
 		technicalDomain.put(MdekKeys.KEYC_INCL_W_DATASET, new Integer(8));
 		technicalDomain.put(MdekKeys.DATASOURCE_UUID, "TEST_DATASOURCE_UUID:" + oDocIn.get(MdekKeys.UUID));
-		technicalDomain.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_MAP, technicalDomain);
 		// add TECHNICAL DOMAIN MAP - key catalog
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
@@ -1371,7 +1371,6 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.DATABASE_OF_SYSTEM, "TEST DATABASE_OF_SYSTEM");
 		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST DESCRIPTION_OF_TECH_DOMAIN");
 		technicalDomain.put(MdekKeys.HAS_ACCESS_CONSTRAINT, "Y");
-		technicalDomain.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
 		// add TECHNICAL DOMAIN SERVICE - versions
 		strList = (List<String>) technicalDomain.get(MdekKeys.SERVICE_VERSION_LIST);
@@ -1610,6 +1609,7 @@ class MdekExampleObjectThread extends Thread {
 
 			oRefetchedDoc.put(MdekKeys.DATA_LANGUAGE_CODE, origDataLanguageCode);
 			oRefetchedDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, origMetadataLanguageCode);
+			oRefetchedDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, "N");
 
 			if (aRemoved != null) {
 				docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADR_REFERENCES_TO);

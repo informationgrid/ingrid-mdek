@@ -361,6 +361,7 @@ public class DocToBeanMapper implements IMapper {
 
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
+			oIn.setIsInspireRelevant(oDocIn.getString(MdekKeys.IS_INSPIRE_RELEVANT));
 
 			oIn.setModUuid(extractModUserUuid(oDocIn));
 			oIn.setResponsibleUuid(extractResponsibleUserUuid(oDocIn));
@@ -1148,7 +1149,6 @@ public class DocToBeanMapper implements IMapper {
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
 			ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
-			ref.setIsInspireRelevant(refDoc.getString(MdekKeys.IS_INSPIRE_RELEVANT));
 			ref.setReferencesystemKey((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
 			ref.setReferencesystemValue(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
 			keyValueService.processKeyValue(ref);
@@ -1980,7 +1980,6 @@ public class DocToBeanMapper implements IMapper {
 		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
 		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
 		ref.setHasAccessConstraint(refDoc.getString(MdekKeys.HAS_ACCESS_CONSTRAINT));
-		ref.setIsInspireRelevant(refDoc.getString(MdekKeys.IS_INSPIRE_RELEVANT));
 		keyValueService.processKeyValueT011ObjServ(ref, oFrom);
 
 		return ref;
