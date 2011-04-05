@@ -5,6 +5,12 @@
   </properties>
   <body>
 	<release version="3.0.0-SNAPSHOT" date="????-??-??" description="?">
+      <action type="add" dev="wemove" issue="INGRID23-138">
+        New checkbox "INSPIRE-relevanter Datensatz" for GEOINFORMATION/KARTE(class 1)) and GEODATENDIENST(class 3).
+      </action>
+      <action type="add" dev="wemove">
+        InGrid 3.0.0: Introduce flexible datamodel and IGC Profile.
+      </action>
       <action type="fix" dev="wemove">
         Fix write-subtree permission (DUMMY_WRITE_SUBTREE) passed to frontend if write-tree not possible due to missing QA permission on entity.
       </action>
