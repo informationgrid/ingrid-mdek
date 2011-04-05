@@ -283,10 +283,6 @@
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
 			<!-- WRITE syslist -->
 			<xs:element name="SYS_LIST_MAP" type="SYS_LIST_MAP"/>
-			<!-- request specific sys-guis -->
-			<xs:element name="sys-gui-ids" type="STRING_ARRAY"/>
-			<!-- WRITE sysguis -->
-			<xs:element name="sys-gui-list" type="SYS_GUI_ELEMENT_LIST"/>
 			<!-- request / WRITE sys-generic-keys -->
 			<xs:element name="sys-generic-key-names" type="STRING_ARRAY"/>
 			<xs:element name="sys-generic-key-values" type="STRING_ARRAY"/>
@@ -790,7 +786,6 @@
 	<xs:complexType name="RESULT_SYS_MAP">
 		<xs:choice>
 			<xs:element name="RESULT_SYS_LIST_MAP" type="RESULT_SYS_LIST_MAP"/>
-			<xs:element name="RESULT_SYS_GUI_MAP" type="RESULT_SYS_GUI_MAP"/>
 			<xs:element name="RESULT_SYS_GENERIC_KEY_MAP" type="RESULT_SYS_GENERIC_KEY_MAP"/>
 		</xs:choice>
 	</xs:complexType>	
@@ -815,24 +810,6 @@
 			<xs:element name="lst-entry-ids" type="INTEGER_ARRAY"/>
 			<xs:element name="lst-entry-names-de" type="STRING_ARRAY"/>
 			<xs:element name="lst-entry-names-en" type="STRING_ARRAY"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="RESULT_SYS_GUI_MAP">
-		<xs:all>
-			<!-- Example of returned GUI elements ! id of gui element is KEY into map -->
-			<xs:element name="GUI_ELEMENT1_ID" type="SYS_GUI_ELEMENT_MAP"/>
-			<xs:element name="GUI_ELEMENT2...." type="SYS_GUI_ELEMENT_MAP"/>
-		</xs:all>
-	</xs:complexType>
-	<xs:complexType name="SYS_GUI_ELEMENT_LIST">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="SYS_GUI_ELEMENT_MAP" type="SYS_GUI_ELEMENT_MAP"/>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SYS_GUI_ELEMENT_MAP">
-		<xs:sequence>
-			<xs:element name="sys-gui-id" type="xs:string"/>
-			<xs:element name="sys-gui-behaviour" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SYS_GENERIC_KEY_MAP">

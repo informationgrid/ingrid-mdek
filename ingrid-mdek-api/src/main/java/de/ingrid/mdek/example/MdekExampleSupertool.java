@@ -118,13 +118,6 @@ public class MdekExampleSupertool {
 			boolean refetchCatalog) {
 		return supertoolCatalog.storeCatalog(catDocIn, refetchCatalog);
 	}
-	public IngridDocument getSysGuis(String[] guiIds) {
-		return supertoolCatalog.getSysGuis(guiIds);
-	}
-	public IngridDocument storeSysGuis(List<IngridDocument> sysGuis,
-			boolean refetch) {
-		return supertoolCatalog.storeSysGuis(sysGuis, refetch);
-	}
 	public IngridDocument getSysGenericKeys(String[] keyNames) {
 		return supertoolCatalog.getSysGenericKeys(keyNames);
 	}

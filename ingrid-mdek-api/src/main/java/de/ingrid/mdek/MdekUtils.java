@@ -144,21 +144,6 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Behaviour (visibility) of input fields (sys_gui.behaviour) */
-	public enum SysGuiBehaviour implements IMdekEnum {
-		DEFAULT(-1),
-		REMOVED(0),
-		MANDATORY(1);
-
-		SysGuiBehaviour(Integer dbValue) {
-			this.dbValue = dbValue;
-		}
-		public Integer getDbValue() {
-			return dbValue;
-		}
-		Integer dbValue;
-	}
-
 	/** Type of entities. NOT STORED IN DATABASE !
 	 * But implemented as IMdekEnum so we can use String (for arbitrary entities) and Enum for checking ! */
 	public enum IdcEntityType implements IMdekEnum  {

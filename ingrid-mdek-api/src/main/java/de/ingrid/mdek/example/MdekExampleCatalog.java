@@ -402,31 +402,6 @@ class MdekExampleCatalogThread extends Thread {
 
 // -----------------------------------
 
-		System.out.println("\n\n=========================");
-		System.out.println("SYSGUIS");
-		System.out.println("=========================");
-
-		System.out.println("\n----- get ALL SYSGUI Elements -----");
-		supertool.getSysGuis(null);
-
-		System.out.println("\n----- store specific SYSGUI Element and refetch -----");
-		IngridDocument[] sysGuis = new IngridDocument[2];
-		sysGuis[0] = new IngridDocument();
-		sysGuis[0].put(MdekKeys.SYS_GUI_ID, "TEST GUI_ID 1");
-		sysGuis[0].put(MdekKeys.SYS_GUI_BEHAVIOUR, MdekUtils.SysGuiBehaviour.MANDATORY.getDbValue());
-		sysGuis[1] = new IngridDocument();
-		sysGuis[1].put(MdekKeys.SYS_GUI_ID,  "TEST GUI_ID 2");
-		sysGuis[1].put(MdekKeys.SYS_GUI_BEHAVIOUR, MdekUtils.SysGuiBehaviour.REMOVED.getDbValue());
-		supertool.storeSysGuis(Arrays.asList(sysGuis), true);
-
-		System.out.println("\n----- get SPECIFIC SYSGUI Element -----");
-		supertool.getSysGuis(new String[] { "TEST GUI_ID 2" });
-
-		System.out.println("\n----- get ALL SYSGUI Elements -----");
-		supertool.getSysGuis(null);
-
-// -----------------------------------
-
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");

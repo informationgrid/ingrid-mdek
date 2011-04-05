@@ -44,7 +44,6 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
-import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
@@ -268,84 +267,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// return something (not null !)
 			IngridDocument result = new IngridDocument();
-			return result;
-
-		} catch (RuntimeException e) {
-			RuntimeException handledExc = handleException(e);
-			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
-		    throw handledExc;
-		} finally {
-			if (removeRunningJob) {
-				removeRunningJob(userId);				
-			}
-		}
-	}
-
-	public IngridDocument getSysGuis(IngridDocument params) {
-		try {
-			String[] guiIds = (String[]) params.get(MdekKeys.SYS_GUI_IDS);
-
-			genericDao.beginTransaction();
-			daoObjectNode.disableAutoFlush();
-
-			IngridDocument result = getSysGuis(guiIds);
-
-			genericDao.commitTransaction();
-
-			return result;
-
-		} catch (RuntimeException e) {
-			RuntimeException handledExc = handleException(e);
-		    throw handledExc;
-		}
-	}	
-
-	private IngridDocument getSysGuis(String[] guiIds) {
-		IngridDocument result = new IngridDocument();
-		
-		List<SysGui> sysGuiList = catalogService.getSysGuis(guiIds);
-		beanToDocMapper.mapSysGuis(sysGuiList, result);
-		
-		return result;
-	}
-
-	public IngridDocument storeSysGuis(IngridDocument docIn) {
-		String userId = getCurrentUserUuid(docIn);
-		boolean removeRunningJob = true;
-		try {
-			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
-
-			Boolean refetchAfterStore = (Boolean) docIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
-			List<IngridDocument> sysGuis = (List<IngridDocument>) docIn.get(MdekKeys.SYS_GUI_LIST);
-			
-			String[] guiIds = new String[sysGuis.size()];
-			for (int i=0; i < sysGuis.size(); i++) {
-				guiIds[i] = sysGuis.get(i).getString(MdekKeys.SYS_GUI_ID);
-			}
-
-			genericDao.beginTransaction();
-
-			// check permissions !
-			permissionHandler.checkIsCatalogAdmin(userId);
-
-			// get according sysGuis
-			// transfer new data AND MAKE PERSISTENT !
-			List<SysGui> sysGuiList = catalogService.getSysGuis(guiIds);
-			docToBeanMapper.updateSysGuis(sysGuis, sysGuiList);
-
-			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
-			genericDao.commitTransaction();
-
-			// return something (not null !)
-			IngridDocument result = new IngridDocument();
-
-			if (refetchAfterStore) {
-				genericDao.beginTransaction();
-				result = getSysGuis(guiIds);
-				genericDao.commitTransaction();
-			}
-			
 			return result;
 
 		} catch (RuntimeException e) {

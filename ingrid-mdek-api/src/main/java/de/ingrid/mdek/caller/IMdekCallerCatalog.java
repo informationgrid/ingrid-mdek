@@ -47,30 +47,6 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 			String userId);
 
 	/**
-	 * Returns a map containing details of the gui elements with the given ids.
-	 * Pass null if all gui elements are requested.
-	 * @param plugId which mdek server (iplug)
-	 * @param guiIds which gui elements, PASS NULL IF ALL ELEMENTS REQUESTED
-	 * @param userId calling user
-	 * @return response containing result: map with requested gui elements.
-	 * 		gui ids are keys into map extracting detailed map.
-	 */
-	IngridDocument getSysGuis(String plugId, String[] guiIds, String userId);
-
-	/**
-	 * Change details of gui elements. NOTICE: also stores non existent sysGuis ! 
-	 * @param plugId which mdek server (iplug)
-	 * @param sysGuis list of gui elements as maps.
-	 * @param refetchAfterStore immediately refetch gui elements after store (true)
-	 * 		or just store without refetching (false)
-	 * @return response containing result: map with updated elements when refetching,
-	 * 		otherwise just a map. NOTICE: result is null if problems occured
-	 */
-	IngridDocument storeSysGuis(String plugId, List<IngridDocument> sysGuis,
-			boolean refetchAfterStore,
-			String userId);
-
-	/**
 	 * Returns a map containing values of given generic keys.
 	 * Pass null if all generic keys are requested.
 	 * @param plugId which mdek server (iplug)

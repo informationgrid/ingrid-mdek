@@ -338,17 +338,6 @@ public class MdekKeys {
      * Value: String[] */
     public final static String LST_FREE_ENTRY_NAMES = "lst-free-entry-names";
 
-    // SYS GUI
-    // ---------
-    /** Value: String[] -> all ids of sysgui elements to fetch */
-    public final static String SYS_GUI_IDS = "sys-gui-ids";
-    /** Value: List< IngridDocument > */
-    public final static String SYS_GUI_LIST = "sys-gui-list";
-    /** Value: String */
-    public final static String SYS_GUI_ID = "sys-gui-id";
-    /** Value: Integer */
-    public final static String SYS_GUI_BEHAVIOUR = "sys-gui-behaviour";
-
     // SYS GENERIC KEY
     // ---------------
     /** Value: String[] -> all names of generic keys to fetch or store */

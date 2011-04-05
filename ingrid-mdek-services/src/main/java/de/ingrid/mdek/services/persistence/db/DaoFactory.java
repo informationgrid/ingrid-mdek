@@ -17,7 +17,6 @@ import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
@@ -34,7 +33,6 @@ import de.ingrid.mdek.services.persistence.db.dao.hibernate.SearchtermValueDaoHi
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefSnsDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SpatialRefValueDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysGenericKeyDaoHibernate;
-import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysGuiDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysJobInfoDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.SysListDaoHibernate;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.T01ObjectDaoHibernate;
@@ -141,10 +139,6 @@ public class DaoFactory implements IDaoFactory {
 
     public ISysListDao getSysListDao() {
         return new SysListDaoHibernate(_sessionFactory);
-    }
-
-    public ISysGuiDao getSysGuiDao() {
-        return new SysGuiDaoHibernate(_sessionFactory);
     }
 
     public ISysGenericKeyDao getSysGenericKeyDao() {

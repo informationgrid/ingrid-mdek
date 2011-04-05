@@ -46,7 +46,6 @@ import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
-import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
@@ -257,28 +256,6 @@ public class DocToBeanMapper implements IMapper {
 			sysListEntries.remove(entryUnprocessed);
 			dao.makeTransient(entryUnprocessed);
 		}		
-	}
-	
-	public void updateSysGuis(List<IngridDocument> sysGuiDocs, List<SysGui> sysGuis) {
-		// Currently we don't DELETE SYS GUIS !
-		for (IngridDocument sysGuiDoc : sysGuiDocs) {
-			String docSysGuiId = sysGuiDoc.getString(MdekKeys.SYS_GUI_ID);
-			SysGui foundSysGui = null;
-			for (SysGui sysGui : sysGuis) {
-				if (sysGui.getGuiId().equals(docSysGuiId)) {
-					foundSysGui = sysGui;
-					break;
-				}
-			}
-			if (foundSysGui == null) {
-				// add new one
-				foundSysGui = new SysGui();
-				foundSysGui.setGuiId(docSysGuiId);
-				sysGuis.add(foundSysGui);
-			}
-			foundSysGui.setBehaviour((Integer) sysGuiDoc.get(MdekKeys.SYS_GUI_BEHAVIOUR));
-			dao.makePersistent(foundSysGui);
-		}
 	}
 	
 	public void updateSysGenericKeys(IngridDocument inDoc, List<SysGenericKey> sysKeys) {

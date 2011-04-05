@@ -37,7 +37,6 @@ import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISysGuiDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
@@ -53,7 +52,6 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
-import de.ingrid.mdek.services.persistence.db.model.SysGui;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
@@ -85,7 +83,6 @@ public class MdekCatalogService {
 
 	private IGenericDao<IEntity> daoT03Catalogue;
 	private ISysListDao daoSysList;
-	private ISysGuiDao daoSysGui;
 	private ISysGenericKeyDao daoSysGenericKey;
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
@@ -116,7 +113,6 @@ public class MdekCatalogService {
 
 		daoT03Catalogue = daoFactory.getDao(T03Catalogue.class);
 		daoSysList = daoFactory.getSysListDao();
-		daoSysGui = daoFactory.getSysGuiDao();
 		daoSysGenericKey = daoFactory.getSysGenericKeyDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
@@ -249,11 +245,14 @@ public class MdekCatalogService {
 		return map;
 	}
 
-	/** Get syslist entries of syslist with given id and language IN MAP. USES CACHE !<br>
-	 * entry_key is Key to Map and delivers entry_name. */
+	/** Get syslist of additional field in Profile as MAP. USES CACHE !
+	 * @param FieldKey unique key of field !
+	 * @param language language 
+	 * @return Map with list items in requested language or empty map !
+	 */
 	public Map<String, String> getAdditionalFieldListKeyNameMap(String FieldKey, String language) {
 		
-		// TODO MM
+		// TODO MM !!!
 
 		// ALWAYS USE CACHE !
 		boolean useCache = true;
@@ -297,13 +296,6 @@ public class MdekCatalogService {
 		}
 		
 		return entryName;
-	}
-
-	/** Get sysgui elements with given ids AS LIST OF BEANS. */
-	public List<SysGui> getSysGuis(String[] guiIds) {
-		List<SysGui> list = daoSysGui.getSysGuis(guiIds);
-		
-		return list;
 	}
 
 	/** Get generic keys of given names AS LIST OF BEANS. PASS null if all generic keys ! */
