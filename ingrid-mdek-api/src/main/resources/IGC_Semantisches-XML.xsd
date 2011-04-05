@@ -148,6 +148,7 @@
         <xs:element minOccurs="0" ref="dataset-character-set"/>
         <xs:element ref="topic-categories"/>
         <xs:element minOccurs="0" ref="env-information"/>
+        <xs:element minOccurs="0" ref="is-inspire-relevant"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -296,6 +297,11 @@
     Tabelle.Feld   : T01_object.is_catalog_data
   -->
   <xs:element name="is-catalog" default="N" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: "INSPIRE-relevanter Datensatz" (checkbox)
+    Tabelle.Feld   : T01_object.is_inspire_relevant
+  -->
+  <xs:element name="is-inspire-relevant" default="N" type="igc-boolean"/>
   <!--
     Fachlicher Name: Umweltthema Schlüssel (Katalogseite)
     Tabelle.Feld   : T0114_env_topic.topic_key

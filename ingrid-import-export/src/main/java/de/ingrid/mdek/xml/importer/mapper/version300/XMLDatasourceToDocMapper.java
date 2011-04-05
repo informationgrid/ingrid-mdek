@@ -52,6 +52,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_IS_CATALOG = "//data-source/general/env-information/is-catalog/text()";
 	private static final String X_ENV_TOPICS = "//data-source/general/env-information/env-topic/@id";
 	private static final String X_ENV_CATEGORIES = "//data-source/general/env-information/env-category/@id";
+	private static final String X_IS_INSPIRE_RELEVANT = "//data-source/general/is-inspire-relevant/text()";
 	private static final String X_TECHNICAL_DOMAIN_DATASET = "//data-source/technical-domain/dataset";
 	private static final String X_TECHNICAL_DOMAIN_SERVICE = "//data-source/technical-domain/service";
 	private static final String X_TECHNICAL_DOMAIN_DOCUMENT = "//data-source/technical-domain/document";
@@ -268,6 +269,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putInt(MdekKeys.DATASET_CHARACTER_SET, XPathUtils.getInt(source, X_DATASET_CHARACTER_SET), target);
 		mapTopicCategories(source, target);
 		putString(MdekKeys.IS_CATALOG_DATA, XPathUtils.getString(source, X_IS_CATALOG), target);
+		putString(MdekKeys.IS_INSPIRE_RELEVANT, XPathUtils.getString(source, X_IS_INSPIRE_RELEVANT), target);
 		mapEnvTopics(source, target);
 		mapEnvCategories(source, target);
 	}

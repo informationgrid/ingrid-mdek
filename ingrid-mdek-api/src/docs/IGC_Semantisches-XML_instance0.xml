@@ -66,6 +66,7 @@
                     <env-topic id="id15"/>
                     <env-category id="id17"/>
                 </env-information>
+                <is-inspire-relevant>N</is-inspire-relevant>
             </general>
             <technical-domain>
                 <dataset>

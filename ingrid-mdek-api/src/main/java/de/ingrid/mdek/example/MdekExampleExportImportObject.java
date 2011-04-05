@@ -205,6 +205,11 @@ class MdekExampleExportImportObjectThread extends Thread {
 		IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
 
 		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+
+		// set IS_INSPIRE_RELEVANT
+		String origIsInspireRelevant = oDoc.getString(MdekKeys.IS_INSPIRE_RELEVANT);
+		oDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
+
 		// add entries to OBJECT ADDITIONAL_FIELDS
 		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADDITIONAL_FIELDS);
 		if (docList == null) {
@@ -278,6 +283,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 			docList.remove(docList.size()-1);
 			docList.remove(docList.size()-1);
 		}
+		oDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, origIsInspireRelevant);
 
 		result = supertool.publishObject(oDoc, true, false);
 
