@@ -14,6 +14,9 @@
       <action type="update" dev="wemove">
         More robust reading special characters during import ("unescaping" of xml text due to "escaping" in IDF Format).
       </action>
+      <action type="fix" dev="wemove" issue="INGRID23-128">
+        When publishing object all referenced addresses now have to be published !
+      </action>
       <action type="fix" dev="wemove">
         Fix write-subtree permission (DUMMY_WRITE_SUBTREE) passed to frontend if write-tree not possible due to missing QA permission on entity.
       </action>
