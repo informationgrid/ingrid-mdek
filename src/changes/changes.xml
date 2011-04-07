@@ -11,6 +11,9 @@
       <action type="add" dev="wemove">
         InGrid 3.0.0: Introduce flexible datamodel and IGC Profile.
       </action>
+      <action type="update" dev="wemove">
+        More robust reading special characters during import ("unescaping" of xml text due to "escaping" in IDF Format).
+      </action>
       <action type="fix" dev="wemove">
         Fix write-subtree permission (DUMMY_WRITE_SUBTREE) passed to frontend if write-tree not possible due to missing QA permission on entity.
       </action>
