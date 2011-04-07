@@ -1322,14 +1322,18 @@ public class MdekExampleSupertool {
 		doFullOutput = false;
 		for (MdekError err : errors) {
 			IngridDocument info = err.getErrorInfo();
+			String mdekErrorMsg = err.getErrorMessage();
+			if (mdekErrorMsg != null) {
+				System.out.println("    MdekError -> ErrorMessage: " + mdekErrorMsg);
+			}
 
 			if (err.getErrorType().equals(MdekErrorType.ENTITY_REFERENCED_BY_OBJ)) {
 				// referenced entity (object or address)
 				if (info.get(MdekKeys.TITLE) != null) {
-					System.out.println("    referenced Object:");
+					System.out.println("    referenced Object: ");
 					debugObjectDoc(info);
 				} else {
-					System.out.println("    referenced Address:");
+					System.out.println("    referenced Address: ");
 					debugAddressDoc(info);
 				}
 				// objects referencing
@@ -1338,6 +1342,16 @@ public class MdekExampleSupertool {
 					System.out.println("    Referencing objects: " + oDocs.size() + " objects!");
 					for (IngridDocument oDoc : oDocs) {
 						debugObjectDoc(oDoc);
+					}
+				}
+
+			} else if (err.getErrorType().equals(MdekErrorType.REFERENCED_ADDRESSES_NOT_PUBLISHED)) {
+				// addresses referencing
+				List<IngridDocument> aDocs = (List<IngridDocument>) info.get(MdekKeys.ADR_ENTITIES);
+				if (aDocs != null) {
+					System.out.println("    Referenced unpublished address(es): " + aDocs.size() + " addresses!");
+					for (IngridDocument aDoc : aDocs) {
+						debugAddressDoc(aDoc);
 					}
 				}
 

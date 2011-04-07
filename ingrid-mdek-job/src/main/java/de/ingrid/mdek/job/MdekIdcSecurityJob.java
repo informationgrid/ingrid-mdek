@@ -1046,7 +1046,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		for (PermissionObj removedPerm : removedPerms) {
 			String objUuid = removedPerm.getUuid();
 			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), objUuid);
+				IngridDocument errInfo = objectService.setupErrorInfoObj(new IngridDocument(), objUuid);
 				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_REMOVE_OBJECT_PERMISSION, errInfo));
 			}
 		}
@@ -1066,7 +1066,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		for (PermissionAddr removedPerm : removedPerms) {
 			String addrUuid = removedPerm.getUuid();
 			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), addrUuid);
+				IngridDocument errInfo = addressService.setupErrorInfoAddr(new IngridDocument(), addrUuid);
 				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION, errInfo));
 			}
 		}
@@ -1119,7 +1119,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		for (PermissionObj addedPerm : addedPerms) {
 			String objUuid = addedPerm.getUuid();
 			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), objUuid);
+				IngridDocument errInfo = objectService.setupErrorInfoObj(new IngridDocument(), objUuid);
 				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_ADD_OBJECT_PERMISSION, errInfo));
 			}
 		}
@@ -1139,7 +1139,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 		for (PermissionAddr addedPerm : addedPerms) {
 			String addrUuid = addedPerm.getUuid();
 			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), addrUuid);
+				IngridDocument errInfo = addressService.setupErrorInfoAddr(new IngridDocument(), addrUuid);
 				throw new MdekException(new MdekError(MdekErrorType.NO_RIGHT_TO_ADD_ADDRESS_PERMISSION, errInfo));
 			}
 		}
@@ -1197,7 +1197,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// check whether "double" permissions !
 			if (uuidsSingle.contains(oUuid) || uuidsTree.contains(oUuid)) {
-				IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), oUuid);
+				IngridDocument errInfo = objectService.setupErrorInfoObj(new IngridDocument(), oUuid);
 				throw new MdekException(new MdekError(MdekErrorType.MULTIPLE_PERMISSIONS_ON_OBJECT, errInfo));
 			}
 
@@ -1223,12 +1223,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				List<String> path2 = daoObjectNode.getObjectPath(uuid2);
 				// order of uuids determines parent/child !
 				if (path1.contains(uuid2)) {
-					IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), uuid2);
-					errInfo = setupErrorInfoObj(errInfo, uuid1);
+					IngridDocument errInfo = objectService.setupErrorInfoObj(new IngridDocument(), uuid2);
+					errInfo = objectService.setupErrorInfoObj(errInfo, uuid1);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
 				} else if  (path2.contains(uuid1)) {
-					IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), uuid1);
-					errInfo = setupErrorInfoObj(errInfo, uuid2);
+					IngridDocument errInfo = objectService.setupErrorInfoObj(new IngridDocument(), uuid1);
+					errInfo = objectService.setupErrorInfoObj(errInfo, uuid2);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
 					
 				}
@@ -1243,8 +1243,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				String uuidTree = uuidsTree.get(j);
 				// order of uuids determines parent/child !
 				if (pathSingle.contains(uuidTree)) {
-					IngridDocument errInfo = setupErrorInfoObj(new IngridDocument(), uuidTree);
-					errInfo = setupErrorInfoObj(errInfo, uuidSingle);
+					IngridDocument errInfo = objectService.setupErrorInfoObj(new IngridDocument(), uuidTree);
+					errInfo = objectService.setupErrorInfoObj(errInfo, uuidSingle);
 					throw new MdekException(new MdekError(MdekErrorType.SINGLE_BELOW_TREE_OBJECT_PERMISSION, errInfo));					
 				}
 			}
@@ -1274,7 +1274,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// check whether "double" permissions !
 			if (uuidsSingle.contains(aUuid) || uuidsTree.contains(aUuid)) {
-				IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), aUuid);
+				IngridDocument errInfo = addressService.setupErrorInfoAddr(new IngridDocument(), aUuid);
 				throw new MdekException(new MdekError(MdekErrorType.MULTIPLE_PERMISSIONS_ON_ADDRESS, errInfo));
 			}
 
@@ -1300,12 +1300,12 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				List<String> path2 = daoAddressNode.getAddressPath(uuid2);
 				// order of uuids determines parent/child !
 				if (path1.contains(uuid2)) {
-					IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), uuid2);
-					errInfo = setupErrorInfoAddr(errInfo, uuid1);
+					IngridDocument errInfo = addressService.setupErrorInfoAddr(new IngridDocument(), uuid2);
+					errInfo = addressService.setupErrorInfoAddr(errInfo, uuid1);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
 				} else if  (path2.contains(uuid1)) {
-					IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), uuid1);
-					errInfo = setupErrorInfoAddr(errInfo, uuid2);
+					IngridDocument errInfo = addressService.setupErrorInfoAddr(new IngridDocument(), uuid1);
+					errInfo = addressService.setupErrorInfoAddr(errInfo, uuid2);
 					throw new MdekException(new MdekError(MdekErrorType.TREE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
 					
 				}
@@ -1320,8 +1320,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				String uuidTree = uuidsTree.get(j);
 				// order of uuids determines parent/child !
 				if (pathSingle.contains(uuidTree)) {
-					IngridDocument errInfo = setupErrorInfoAddr(new IngridDocument(), uuidTree);
-					errInfo = setupErrorInfoAddr(errInfo, uuidSingle);
+					IngridDocument errInfo = addressService.setupErrorInfoAddr(new IngridDocument(), uuidTree);
+					errInfo = addressService.setupErrorInfoAddr(errInfo, uuidSingle);
 					throw new MdekException(new MdekError(MdekErrorType.SINGLE_BELOW_TREE_ADDRESS_PERMISSION, errInfo));					
 				}
 			}
@@ -1356,8 +1356,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String objUuid = (String) objUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
-				errInfo = setupErrorInfoObj(errInfo, objUuid);
+				IngridDocument errInfo = addressService.setupErrorInfoUserAddress(new IngridDocument(), userUuid);
+				errInfo = objectService.setupErrorInfoObj(errInfo, objUuid);
 				throw new MdekException(new MdekError(MdekErrorType.USER_EDITING_OBJECT_PERMISSION_MISSING, errInfo));
 			}
 		}
@@ -1377,8 +1377,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String objUuid = (String) objUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForObject(objUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
-				errInfo = setupErrorInfoObj(errInfo, objUuid);
+				IngridDocument errInfo = addressService.setupErrorInfoUserAddress(new IngridDocument(), userUuid);
+				errInfo = objectService.setupErrorInfoObj(errInfo, objUuid);
 				throw new MdekException(new MdekError(MdekErrorType.USER_RESPONSIBLE_FOR_OBJECT_PERMISSION_MISSING, errInfo));
 			}
 		}
@@ -1398,8 +1398,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String addrUuid = (String) addrUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
-				errInfo = setupErrorInfoAddr(errInfo, addrUuid);
+				IngridDocument errInfo = addressService.setupErrorInfoUserAddress(new IngridDocument(), userUuid);
+				errInfo = addressService.setupErrorInfoAddr(errInfo, addrUuid);
 				throw new MdekException(new MdekError(MdekErrorType.USER_EDITING_ADDRESS_PERMISSION_MISSING, errInfo));
 			}
 		}
@@ -1419,8 +1419,8 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String addrUuid = (String) addrUserMap.get(daoIdcGroup.KEY_ENTITY_UUID);
 			
 			if (!permHandler.hasWritePermissionForAddress(addrUuid, userUuid, false)) {
-				IngridDocument errInfo = setupErrorInfoUserAddress(new IngridDocument(), userUuid);
-				errInfo = setupErrorInfoAddr(errInfo, addrUuid);
+				IngridDocument errInfo = addressService.setupErrorInfoUserAddress(new IngridDocument(), userUuid);
+				errInfo = addressService.setupErrorInfoAddr(errInfo, addrUuid);
 				throw new MdekException(new MdekError(MdekErrorType.USER_RESPONSIBLE_FOR_ADDRESS_PERMISSION_MISSING, errInfo));
 			}
 		}
@@ -1437,56 +1437,5 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			docToBeanMapperSecurity.removeIdcUserGroup(grp.getId(), user);
 			daoIdcUser.makePersistent(user);
 		}
-	}
-
-	private IngridDocument setupErrorInfoObj(IngridDocument errInfo, String objUuid) {
-		if (errInfo == null) {
-			errInfo = new IngridDocument();			
-		}
-		IngridDocument oDoc = 
-			beanToDocMapper.mapT01Object(
-					objectService.loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION).getT01ObjectWork(),
-					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-		List<IngridDocument> oList = (List<IngridDocument>) errInfo.get(MdekKeys.OBJ_ENTITIES);
-		if (oList == null) {
-			oList = new ArrayList<IngridDocument>();
-			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
-		}
-		oList.add(oDoc);
-		
-		return errInfo;
-	}
-	private IngridDocument setupErrorInfoAddr(IngridDocument errInfo, String addrUuid) {
-		if (errInfo == null) {
-			errInfo = new IngridDocument();			
-		}
-		IngridDocument aDoc = beanToDocMapper.mapT02Address(
-				addressService.loadByUuid(addrUuid, IdcEntityVersion.WORKING_VERSION).getT02AddressWork(),
-				new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-		List<IngridDocument> aList = (List<IngridDocument>) errInfo.get(MdekKeys.ADR_ENTITIES);
-		if (aList == null) {
-			aList = new ArrayList<IngridDocument>();
-			errInfo.put(MdekKeys.ADR_ENTITIES, aList);
-		}
-		aList.add(aDoc);
-		
-		return errInfo;
-	}
-
-	private IngridDocument setupErrorInfoUserAddress(IngridDocument errInfo, String userUuid) {
-		if (errInfo == null) {
-			errInfo = new IngridDocument();			
-		}
-		IngridDocument uDoc = beanToDocMapper.mapT02Address(
-				addressService.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION).getT02AddressWork(),
-				new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-		List<IngridDocument> uList = (List<IngridDocument>) errInfo.get(MdekKeysSecurity.USER_ADDRESSES);
-		if (uList == null) {
-			uList = new ArrayList<IngridDocument>();
-			errInfo.put(MdekKeysSecurity.USER_ADDRESSES, uList);
-		}
-		uList.add(uDoc);
-
-		return errInfo;
 	}
 }

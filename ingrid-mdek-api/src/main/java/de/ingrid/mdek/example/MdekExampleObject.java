@@ -769,6 +769,38 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- verify new subobject -> load parent subobjects -----");
 		supertool.fetchSubObjects(objUuid);
 
+		
+		System.out.println("\n\n----- add UNPUBLISHED Address reference and publish ! -> Error REFERENCED_ADDRESSES_NOT_PUBLISHED -----");
+
+		System.out.println("\n----- create new TOP ADDRESS -----");
+		IngridDocument newTopAddrDoc = new IngridDocument();
+		newTopAddrDoc = supertool.getInitialAddress(newTopAddrDoc);
+		newTopAddrDoc.put(MdekKeys.ORGANISATION, "TEST TOP ADDRESS");
+		newTopAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
+		// email has to exist !
+		List<IngridDocument> docList = (List<IngridDocument>) newTopAddrDoc.get(MdekKeys.COMMUNICATION);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newTopAddrDoc.put(MdekKeys.COMMUNICATION, docList);
+		newTopAddrDoc = supertool.storeAddress(newTopAddrDoc, true);
+		String newAddrUuid = (String) newTopAddrDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- add to object and publish -> Error REFERENCED_ADDRESSES_NOT_PUBLISHED -----");
+		List<IngridDocument> refAddressList = (List<IngridDocument>) newObjDoc.get(MdekKeys.ADR_REFERENCES_TO);
+		newTopAddrDoc.put(MdekKeys.RELATION_TYPE_ID, 1); // ANBIETER
+		refAddressList.add(newTopAddrDoc);
+		supertool.publishObject(newObjDoc, false,false);
+		
+		System.out.println("\n----- Clean Up: delete NEW TOP ADDRESS -----");
+		supertool.deleteAddress(newAddrUuid, false);
+		System.out.println("\n----- Clean Up: refetch object -----");
+		newObjDoc = supertool.fetchObject(newObjUuid, FetchQuantity.EDITOR_ENTITY);
+
+
 		// -----------------------------------
 		// tree: copy object sub tree
 		System.out.println("\n\n=========================");
@@ -863,9 +895,9 @@ class MdekExampleObjectThread extends Thread {
 			supertool.fetchObject(uuid, FetchQuantity.EDITOR_ENTITY);
 		}
 
-		System.out.println("\n----- verify old parent subaddresses (cut) -----");
+		System.out.println("\n----- verify old parent subobjects (cut) -----");
 		supertool.fetchSubObjects(oldParentUuid);
-		System.out.println("\n----- verify new parent subaddresses (added) -----");
+		System.out.println("\n----- verify new parent subobjects (added) -----");
 		supertool.fetchSubObjects(newParentUuid);
 
 		System.out.println("\n\n----- delete subtree of new Object -----");
@@ -873,7 +905,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n\n----- move new object again to new parent -----");
 		newParentUuid = parentUuid;
 		supertool.moveObject(newObjUuid, newParentUuid, false);
-		System.out.println("\n----- delete NEW TOP ADDRESS -----");
+		System.out.println("\n----- delete NEW TOP OBJECT -----");
 		supertool.deleteObject(newTopObjUuid, true);
 
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");

@@ -57,6 +57,7 @@ public class MdekObjectService {
 	private IGenericDao<IEntity> daoObjectReference;
 
 	private MdekCatalogService catalogService;
+	private MdekAddressService addressService;
 	private MdekTreePathHandler pathHandler;
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
@@ -81,6 +82,7 @@ public class MdekObjectService {
 		daoObjectReference = daoFactory.getDao(ObjectReference.class);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 		pathHandler = MdekTreePathHandler.getInstance(daoFactory);
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
@@ -405,6 +407,8 @@ public class MdekObjectService {
 		if (!hasAuskunftAddress(oDocIn)) {
 			throw new MdekException(new MdekError(MdekErrorType.AUSKUNFT_ADDRESS_NOT_SET));
 		}
+		// all referenced addresses published ?
+		checkReferencedAddressesForPublish(oDocIn);
 		// all parents published ?
 		checkObjectPathForPublish(parentUuid, uuid);
 		// publication condition of parent fits to object ?
@@ -699,6 +703,28 @@ public class MdekObjectService {
 			if (typeOk && listOk) {
 				return true;
 			}
+		}
+		
+		return false;
+	}
+
+	/** Check all referenced Addresses whether published. Throws Exception if not ! */
+	private boolean checkReferencedAddressesForPublish(IngridDocument oDoc) {
+		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
+		if (oAs == null) {
+			oAs = new ArrayList<IngridDocument>();
+		}
+
+		IngridDocument errInfo = new IngridDocument();
+		for (IngridDocument oA : oAs) {
+			String addrUuid = oA.getString(MdekKeys.UUID);
+			if (!addressService.hasPublishedVersion(addressService.loadByUuid(addrUuid, null))) {
+				addressService.setupErrorInfoAddr(errInfo, addrUuid);
+			}
+		}
+		
+		if (!errInfo.isEmpty()) {
+			throw new MdekException(new MdekError(MdekErrorType.REFERENCED_ADDRESSES_NOT_PUBLISHED, errInfo));			
 		}
 		
 		return false;
@@ -1134,5 +1160,28 @@ public class MdekObjectService {
 		for (IEntity objRef : objRefs) {
 			daoObjectReference.makeTransient(objRef);
 		}
+	}
+
+	/** Add data of object with given uuid to the given additional Info of an error.
+	 * @param errInfo additional info transferred with error
+	 * @param objUuid uuid of object to be added
+	 * @return again the passed errInfo
+	 */
+	public IngridDocument setupErrorInfoObj(IngridDocument errInfo, String objUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument oDoc = 
+			beanToDocMapper.mapT01Object(
+					loadByUuid(objUuid, IdcEntityVersion.WORKING_VERSION).getT01ObjectWork(),
+					new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> oList = (List<IngridDocument>) errInfo.get(MdekKeys.OBJ_ENTITIES);
+		if (oList == null) {
+			oList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
+		}
+		oList.add(oDoc);
+		
+		return errInfo;
 	}
 }

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
@@ -1215,5 +1216,49 @@ public class MdekAddressService {
 			}
 			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_AUSKUNFT, errInfo));
 		}
+	}
+
+	/** Add data of address with given uuid to the given additional Info of an error.
+	 * @param errInfo additional info transferred with error
+	 * @param addrUuid uuid of address to be added
+	 * @return again the passed errInfo
+	 */
+	public IngridDocument setupErrorInfoAddr(IngridDocument errInfo, String addrUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument aDoc = beanToDocMapper.mapT02Address(
+				loadByUuid(addrUuid, IdcEntityVersion.WORKING_VERSION).getT02AddressWork(),
+				new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> aList = (List<IngridDocument>) errInfo.get(MdekKeys.ADR_ENTITIES);
+		if (aList == null) {
+			aList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeys.ADR_ENTITIES, aList);
+		}
+		aList.add(aDoc);
+		
+		return errInfo;
+	}
+
+	/** Add data of address with given uuid as USER ADDRESS to the given additional Info of an error.
+	 * @param errInfo additional info transferred with error
+	 * @param addrUuid uuid of address to be added as USER ADDRESS
+	 * @return again the passed errInfo
+	 */
+	public IngridDocument setupErrorInfoUserAddress(IngridDocument errInfo, String userUuid) {
+		if (errInfo == null) {
+			errInfo = new IngridDocument();			
+		}
+		IngridDocument uDoc = beanToDocMapper.mapT02Address(
+				loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION).getT02AddressWork(),
+				new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+		List<IngridDocument> uList = (List<IngridDocument>) errInfo.get(MdekKeysSecurity.USER_ADDRESSES);
+		if (uList == null) {
+			uList = new ArrayList<IngridDocument>();
+			errInfo.put(MdekKeysSecurity.USER_ADDRESSES, uList);
+		}
+		uList.add(uDoc);
+
+		return errInfo;
 	}
 }

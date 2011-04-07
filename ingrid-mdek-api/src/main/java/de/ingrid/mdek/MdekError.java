@@ -5,7 +5,7 @@ import java.io.Serializable;
 import de.ingrid.utils.IngridDocument;
 
 /**
- * Class describing a known mdek error. 
+ * Class describing a known mdek error.
  * 
  * @author Martin
  */
@@ -43,6 +43,8 @@ public class MdekError implements Serializable {
 		ENTITY_NOT_PUBLISHED("21"),
 		/** e.g. publish object without auskunft address set */
 		AUSKUNFT_ADDRESS_NOT_SET("25"),
+		/** publish object with referenced unpublished addresses */
+		REFERENCED_ADDRESSES_NOT_PUBLISHED("27"),
 
 		/** e.g. move of tree node to subnode not allowed */
 		TARGET_IS_SUBNODE_OF_SOURCE("30"),
@@ -168,6 +170,9 @@ public class MdekError implements Serializable {
 	}
 
 	protected MdekErrorType errorType;
+	/** Various additional info. NOTICE: can be set up via methods in Services
+	 * e.g. MdekAddressService.setupErrorInfoAddr(...) 
+	 */
 	protected IngridDocument errorInfo;
 	protected String errorMessage;
 
@@ -177,15 +182,27 @@ public class MdekError implements Serializable {
     public MdekError(MdekErrorType errorType) {
     	this(errorType, null, null);
     }
-	/** Constructs an error of the given type containing detailed error information. */
+    /** Constructs an error of the given type containing detailed error information.
+     * @param errorType defined Error type
+     * @param errorInfo defined additional Info. NOTICE: can be set up via methods in Services
+	 * 			e.g. MdekAddressService.setupErrorInfoAddr(...)
+     */
     public MdekError(MdekErrorType errorType, IngridDocument errorInfo) {
     	this(errorType, null, errorInfo);
     }
-	/** Constructs an error of the given type containing additional error message. */
+    /** Constructs an error of the given type containing additional error message.
+     * @param errorType defined Error type
+     * @param errorMessage arbitrary additional message
+     */
     public MdekError(MdekErrorType errorType, String errorMessage) {
     	this(errorType, errorMessage, null);
     }
-	/** Constructs an error of the given type containing additional error message and detailed information. */
+    /** Constructs an error of the given type containing additional error message and detailed information.
+     * @param errorType defined Error type
+     * @param errorMessage arbitrary additional message
+     * @param errorInfo defined additional Info. NOTICE: can be set up via methods in Services
+	 * 			e.g. MdekAddressService.setupErrorInfoAddr(...)
+     */
     public MdekError(MdekErrorType errorType, String errorMessage, IngridDocument errorInfo) {
     	this.errorType = errorType;
     	this.errorMessage = errorMessage;
