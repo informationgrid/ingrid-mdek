@@ -5,6 +5,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -85,7 +86,12 @@ public class XPathUtils {
 				XPath xpath = getXPathInstance();
 				Node node = (Node) xpath.evaluate(xpathExpression, source, XPathConstants.NODE);
 				if (node != null) {
-					return node.getTextContent();
+					String content = node.getTextContent();
+					if (content != null) {
+						// in IDF content is escaped ! We unescape to import correct values into database (e.g. "ö" instead of "&amp;#246;")
+						content = StringEscapeUtils.unescapeXml(content);
+					}
+					return content;
 				}
 			}
 
