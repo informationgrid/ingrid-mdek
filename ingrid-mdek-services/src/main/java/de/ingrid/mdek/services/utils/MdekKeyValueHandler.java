@@ -591,12 +591,11 @@ public class MdekKeyValueHandler {
 		String entryKey = bean.getListItemId();
 		if (entryKey != null && !entryKey.trim().isEmpty() &&
 				!entryKey.trim().equals("-1")) {
-			Map<String, String> keyNameMap = catalogService.getAdditionalFieldListKeyNameMap(
+			Map<String, String> keyNameMap = catalogService.getProfileFieldListKeyNameMap(
 				bean.getFieldKey(),
 				catalogService.getCatalogLanguage());
 
-			// TODO MM (wieder rein nehmen !)
-			// bean.setData(keyNameMap.get(entryKey));
+			bean.setData(keyNameMap.get(entryKey));
 		}
 
 		return bean;

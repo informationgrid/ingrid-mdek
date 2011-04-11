@@ -63,6 +63,7 @@ import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
+import de.ingrid.mdek.services.utils.MdekIgcProfileHandler;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
@@ -75,7 +76,7 @@ public class MdekCatalogService {
 
 	private static MdekCatalogService myInstance;
 
-	private static String CACHE_CONFIG_FILE = "/ehcache-services.xml";
+	public static String CACHE_CONFIG_FILE = "/ehcache-services.xml";
 	private static String CACHE_SYS_LIST_MAP = "services-SysListMap";
 	private static String CACHE_CATALOG = "services-Catalog";
 
@@ -93,6 +94,7 @@ public class MdekCatalogService {
 	private IGenericDao<IEntity> dao;
 
 	private MdekJobHandler jobHandler;
+	private MdekIgcProfileHandler profileHandler;
 
 	private BeanToDocMapper beanToDocMapper;
 
@@ -123,6 +125,7 @@ public class MdekCatalogService {
 		dao = daoFactory.getDao(IEntity.class);
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
+		profileHandler = MdekIgcProfileHandler.getInstance(daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 
@@ -245,45 +248,13 @@ public class MdekCatalogService {
 		return map;
 	}
 
-	/** Get syslist of additional field in Profile as MAP. USES CACHE !
+	/** Get selection list of given field from profile as MAP.
 	 * @param FieldKey unique key of field !
 	 * @param language language 
 	 * @return Map with list items in requested language or empty map !
 	 */
-	public Map<String, String> getAdditionalFieldListKeyNameMap(String FieldKey, String language) {
-		
-		// TODO MM !!!
-
-		// ALWAYS USE CACHE !
-		boolean useCache = true;
-
-		// get map from cache if requested !
-		// Map<String, String> map = null;
-		Map<String, String> map = new HashMap<String, String>();
-/*
-		Element elem = null;
-		if (useCache) {
-			elem = syslistMapCache.get(listId);
-			if (elem != null) {
-				map = (Map<Integer, String>) elem.getObjectValue();
-			}
-		}
-		
-		// create map if not cached !
-		if (map == null) {
-			map = new HashMap<Integer, String>();
-			List<SysList> entries = daoSysList.getSysList(listId, language);
-			for (SysList entry : entries) {
-				map.put(entry.getEntryId(), entry.getName());
-			}			
-		}
-
-		// add to cache if cache used !
-		if (useCache && elem == null) {
-			syslistMapCache.put(new Element(listId, map));
-		}
-*/
-		return map;
+	public Map<String, String> getProfileFieldListKeyNameMap(String fieldKey, String language) {
+		return profileHandler.getFieldSelectionListMap(fieldKey, language);
 	}
 
 	public String getSysListEntryName(int listId, int entryId) {

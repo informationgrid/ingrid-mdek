@@ -29,6 +29,16 @@
         timeToLiveSeconds="600"
         overflowToDisk="true"
         diskPersistent="false"
+        />
+
+<!-- cache igc profile -->
+    <cache name="services-IGCProfile"
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="60"
+        timeToLiveSeconds="120"
+        overflowToDisk="true"
+        diskPersistent="false"
         /> 
 
 </ehcache>

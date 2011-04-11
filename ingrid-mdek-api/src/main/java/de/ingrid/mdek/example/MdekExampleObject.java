@@ -157,6 +157,25 @@ class MdekExampleObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+
+		// Updating selection list values from Profile selection list (Reindex selection lists)
+		// ------------------
+		System.out.println("\n----- object details -----");
+		oMap = supertool.fetchObject("3892B136-D1F3-4E45-9E5F-E1CEF117AA74", FetchQuantity.EDITOR_ENTITY);
+
+		System.out.println("\n----- change and store existing object -> working copy ! -----");
+		oMap = supertool.storeObject(oMap, true);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objUuid, false);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+
+// -----------------------------------
+
 		// Test / Fehler beim Laden Objekt ?
 		
 		supertool.setFullOutput(true);
