@@ -782,6 +782,11 @@ public class DocToBeanMapper implements IMapper {
 	 * false=spRefValue entity is different from locationDoc and was NOT updated
 	 */
 	private boolean updateSpatialRefValueViaDoc(IngridDocument locationDoc, SpatialRefValue spRefValue) {
+		// Further checks: NPE was thrown, see https://dev.wemove.com/jira/browse/INGRID-1911
+		if (locationDoc == null || spRefValue == null) {
+			return false;
+		}
+
 		SpatialRefSns spRefSns = spRefValue.getSpatialRefSns();
 
 		// to be more robust compare data dependent from type !!!!!!!
@@ -807,7 +812,8 @@ public class DocToBeanMapper implements IMapper {
 
 			} else if (MdekUtils.SpatialReferenceType.GEO_THESAURUS.getDbValue().equals(spRefValue.getType())) {
 				// SNS Spatial Ref
-				if (MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_SNS_ID), spRefSns.getSnsId())) {
+				if (spRefSns != null && 
+					MdekUtils.isEqual(locationDoc.getString(MdekKeys.LOCATION_SNS_ID), spRefSns.getSnsId())) {
 					doUpdate = true;
 				}
 			}
