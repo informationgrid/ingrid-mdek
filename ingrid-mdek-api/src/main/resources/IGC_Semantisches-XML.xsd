@@ -395,14 +395,14 @@
   </xs:element>
   <!--
     Fachlicher Name: Service-Klassifikation (INSPIRE)
-    Tabelle.Feld   : T011_obj_serv.type_key
-    Tabelle.Feld   : T011_obj_serv.type_value
+    Tabelle.Feld   : T011_obj_serv_type.serv_type_key
+    Tabelle.Feld   : T011_obj_serv_type.serv_type_value
   -->
   <xs:element name="service-classification" type="id-string"/>
   <!--
-    Fachlicher Name: Service-Typ (INSPIRE Classification of spatial data services)
-    Tabelle.Feld   : T011_obj_serv_type.serv_type_key
-    Tabelle.Feld   : T011_obj_serv_type.serv_type_value
+    Fachlicher Name: Art des Dienstes
+    Tabelle.Feld   : T011_obj_serv.type_key
+    Tabelle.Feld   :T011_obj_serv.type_value
   -->
   <xs:element name="service-type" type="id-string"/>
   <!--

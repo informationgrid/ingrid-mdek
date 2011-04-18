@@ -767,9 +767,9 @@ public class MdekKeys {
     // with different content !
     /** Value: IngridDocument encapsulating all SERVICE data */
     public final static String TECHNICAL_DOMAIN_SERVICE = "technical-domain-service";
-    /** Value: String */
+    /** Art des Dienstes, Value: String */
     public final static String SERVICE_TYPE = "service-type";
-    /** Value: Integer */
+    /** Art des Dienstes, Value: Integer */
     public final static String SERVICE_TYPE_KEY = "service-type-key";
     /** Value: String */
     public final static String SYSTEM_HISTORY = "system-history";
@@ -818,11 +818,11 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String REPEATABILITY = "repeatability";
     // TECHNICAL DOMAIN SERVICE - TYPES ("subtypes")
-    /** Value: List< IngridDocument >  */
+    /** Klassifikation des Dienstes, , Value: List< IngridDocument >  */
     public final static String SERVICE_TYPE2_LIST = "service-type2-list";
-    /** Value: Integer */
+    /** Klassifikation des Dienstes, Value: Integer */
     public final static String SERVICE_TYPE2_KEY = "service-type2-key";
-    /** Value: String */
+    /** Klassifikation des Dienstes, Value: String */
     public final static String SERVICE_TYPE2_VALUE = "service-type2-value";
     // TECHNICAL DOMAIN SERVICE (for class "APPLICATION") - URLs
     /** Value: List< IngridDocument >  */
