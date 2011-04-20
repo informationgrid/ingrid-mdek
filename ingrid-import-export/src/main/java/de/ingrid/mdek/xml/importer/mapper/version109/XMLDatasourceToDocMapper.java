@@ -753,8 +753,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getDouble(source, X_SPATIAL_VERTICAL_EXTENT_MINIMUM), target);
 		putInt(MdekKeys.VERTICAL_EXTENT_UNIT,
 				XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_UNIT), target);
-		putInt(MdekKeys.VERTICAL_EXTENT_VDATUM,
-				XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_VDATUM), target);
+		// TODO: REMOVED IN VERSION 3.0.0. !!! Fix if import of older formats needed !
+//		putInt(MdekKeys.VERTICAL_EXTENT_VDATUM, XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_VDATUM), target);
 		mapGeoLocations(source, target);
 	}
 

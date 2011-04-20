@@ -521,6 +521,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		extendFullData(data, o.getMetadataStandardName());
 		extendFullData(data, o.getMetadataStandardVersion());
 		extendFullData(data, o.getOrderingInstructions());
+		extendFullData(data, o.getVerticalExtentVdatumValue());
 
 		return data.toString();
 	}

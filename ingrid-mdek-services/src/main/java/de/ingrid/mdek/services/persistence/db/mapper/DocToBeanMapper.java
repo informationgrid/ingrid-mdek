@@ -338,7 +338,8 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setVerticalExtentMinimum((Double) oDocIn.get(MdekKeys.VERTICAL_EXTENT_MINIMUM));
 			oIn.setVerticalExtentMaximum((Double) oDocIn.get(MdekKeys.VERTICAL_EXTENT_MAXIMUM));
 			oIn.setVerticalExtentUnit((Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_UNIT));
-			oIn.setVerticalExtentVdatum((Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_VDATUM));
+			oIn.setVerticalExtentVdatumKey((Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY));
+			oIn.setVerticalExtentVdatumValue(oDocIn.getString(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE));
 			oIn.setLocDescr((String) oDocIn.get(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN));
 
 			oIn.setTimeType((String) oDocIn.get(MdekKeys.TIME_TYPE));

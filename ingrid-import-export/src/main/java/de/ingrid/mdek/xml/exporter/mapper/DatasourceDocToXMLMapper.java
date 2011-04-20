@@ -878,8 +878,8 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 	
 	private XMLElement createVerticalExtentVDatum() {
-		XMLElement verticalExtentVDatum = new XMLElement(VERTICAL_EXTENT_VDATUM);
-		verticalExtentVDatum.addAttribute(ID, getIntegerForKey(MdekKeys.VERTICAL_EXTENT_VDATUM));
+		XMLElement verticalExtentVDatum = new XMLElement(VERTICAL_EXTENT_VDATUM, getStringForKey(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE));
+		verticalExtentVDatum.addAttribute(ID, getIntegerForKey(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY));
 		return verticalExtentVDatum;
 	}
 

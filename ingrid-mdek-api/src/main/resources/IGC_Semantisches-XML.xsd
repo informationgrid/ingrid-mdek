@@ -1147,7 +1147,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Zus㳺liche Beschreibung zum Raumbezug
+    Fachlicher Name: Zusaetzliche Beschreibung zum Raumbezug
     Tabelle.Feld   : T01_object.loc_descr
   -->
   <xs:element name="description-of-spatial-domain" type="xs:string"/>
@@ -1166,25 +1166,26 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: H� Minumum
+    Fachlicher Name: Hoehe Minumum
     Tabelle.Feld   : T01_object.vertical_extent_minimum
   -->
   <xs:element name="vertical-extent-minimum" type="xs:string"/>
   <!--
-    Fachlicher Name: H� Maximum
+    Fachlicher Name: Hoehe Maximum
     Tabelle.Feld   : T01_object.vertical_extent_maximum
   -->
   <xs:element name="vertical-extent-maximum" type="xs:string"/>
   <!--
-    Fachlicher Name: H� Ma޳tab
+    Fachlicher Name: Hoehe Masseinheit
     Tabelle.Feld   : T01_object.vertical_extent_unit
   -->
   <xs:element name="vertical-extent-unit" type="id"/>
   <!--
-    Fachlicher Name: H� Vertikal Datum
-    Tabelle.Feld   : T01_object.vertical_extent_vdatum
+    Fachlicher Name: Hoehe Vertikal Datum
+    Tabelle.Feld   : T01_object.vertical_extent_vdatum_key
+    Tabelle.Feld   : T01_object.vertical_extent_vdatum_value
   -->
-  <xs:element name="vertical-extent-vdatum" type="id"/>
+  <xs:element name="vertical-extent-vdatum" type="id-string"/>
   <!--
     Fachlicher Name: Raumbezug
     Tabelle   : spatial_ref_value

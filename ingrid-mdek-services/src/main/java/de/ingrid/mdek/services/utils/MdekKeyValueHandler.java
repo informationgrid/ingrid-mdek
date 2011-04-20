@@ -509,6 +509,14 @@ public class MdekKeyValueHandler {
 			bean.setMetadataLanguageValue(keyNameMap.get(entryKey));
 		}
 		
+		entryKey = bean.getVerticalExtentVdatumKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.VERTICAL_EXTENT_VDATUM.getDbValue(),
+				catalogService.getCatalogLanguage());
+			bean.setVerticalExtentVdatumValue(keyNameMap.get(entryKey));
+		}
+		
 		return bean;
 	}
 

@@ -829,6 +829,8 @@ public class MdekExampleSupertool {
 		}
 
 		System.out.println("  IS_INSPIRE_RELEVANT: " + oDoc.get(MdekKeys.IS_INSPIRE_RELEVANT));
+		System.out.println("  VERTICAL_EXTENT_VDATUM_KEY/VALUE: " + oDoc.get(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY) +  "/" +
+				oDoc.get(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE));
 
 		debugPermissionsDoc(oDoc, "  ");
 

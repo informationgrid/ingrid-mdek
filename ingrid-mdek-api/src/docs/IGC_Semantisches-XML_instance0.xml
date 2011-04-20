@@ -223,7 +223,7 @@
                     <vertical-extent-minimum>vertical-extent-minimum0</vertical-extent-minimum>
                     <vertical-extent-maximum>vertical-extent-maximum0</vertical-extent-maximum>
                     <vertical-extent-unit id="id51"/>
-                    <vertical-extent-vdatum id="id53"/>
+                    <vertical-extent-vdatum id="id53">vertical-extent-vdatum0</vertical-extent-vdatum>
                 </vertical-extent>
                 <geo-location>
                         <controlled-location>

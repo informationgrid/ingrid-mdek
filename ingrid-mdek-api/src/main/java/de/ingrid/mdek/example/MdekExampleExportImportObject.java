@@ -210,6 +210,11 @@ class MdekExampleExportImportObjectThread extends Thread {
 		String origIsInspireRelevant = oDoc.getString(MdekKeys.IS_INSPIRE_RELEVANT);
 		oDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
 
+		// set VERTICAL_EXTENT_VDATUM_KEY
+		Integer origVerticalExtentVdatumKey = (Integer) oDoc.get(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY);
+		String origVerticalExtentVdatumValue = oDoc.getString(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE);
+		oDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY, new Integer(5129));
+
 		// add entries to OBJECT ADDITIONAL_FIELDS
 		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADDITIONAL_FIELDS);
 		if (docList == null) {
@@ -284,6 +289,8 @@ class MdekExampleExportImportObjectThread extends Thread {
 			docList.remove(docList.size()-1);
 		}
 		oDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, origIsInspireRelevant);
+		oDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY, origVerticalExtentVdatumKey);
+		oDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE, origVerticalExtentVdatumValue);
 
 		result = supertool.publishObject(oDoc, true, false);
 

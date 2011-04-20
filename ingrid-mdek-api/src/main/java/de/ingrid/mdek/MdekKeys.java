@@ -514,7 +514,9 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String VERTICAL_EXTENT_UNIT = "vertical-extent-unit";
     /** Value: Integer */
-    public final static String VERTICAL_EXTENT_VDATUM = "vertical-extent-vdatum";
+    public final static String VERTICAL_EXTENT_VDATUM_KEY = "vertical-extent-vdatum-key";
+    /** Value: String */
+    public final static String VERTICAL_EXTENT_VDATUM_VALUE = "vertical-extent-vdatum-value";
     /** Value: String */
     public final static String DESCRIPTION_OF_SPATIAL_DOMAIN = "description-of-spatial-domain";
 

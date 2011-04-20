@@ -64,6 +64,8 @@ public class MdekUtils {
 	public enum MdekSysList implements IMdekEnum {
 		FREE_ENTRY(-1, ""),
 		OBJ_ADR_TYPE(505, "T012ObjAdr -> type=entryId, specialName=name + specialRef='505'"),
+		VERTICAL_EXTENT_VDATUM(101, "T01Object -> verticalExtentVdatumKey=entryId, verticalExtentVdatumValue=name"),
+//		VERTICAL_EXTENT_UNIT(102, "T01Object -> verticalExtentUnit=entryId"),
 //		CHARACTER_SET(510, "T01Object -> datasetCharacterSet=entryId, metadataCharacterSet=entryId"),
 //		HIERARCHY_LEVEL(525, "T011ObjGeo -> hierarchyLevel=entryId"),
 //		VECTOR_TOPOLOGY_LEVEL(528, "T011ObjGeo -> vectorTopologyLevel=entryId"),

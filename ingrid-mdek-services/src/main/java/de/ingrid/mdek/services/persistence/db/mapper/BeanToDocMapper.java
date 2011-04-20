@@ -263,7 +263,8 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.VERTICAL_EXTENT_MINIMUM, o.getVerticalExtentMinimum());
 			objectDoc.put(MdekKeys.VERTICAL_EXTENT_MAXIMUM, o.getVerticalExtentMaximum());
 			objectDoc.put(MdekKeys.VERTICAL_EXTENT_UNIT, o.getVerticalExtentUnit());
-			objectDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM, o.getVerticalExtentVdatum());
+			objectDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY, o.getVerticalExtentVdatumKey());
+			objectDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE, o.getVerticalExtentVdatumValue());
 			objectDoc.put(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN, o.getLocDescr());
 
 			objectDoc.put(MdekKeys.TIME_TYPE, o.getTimeType());

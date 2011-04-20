@@ -866,7 +866,8 @@
 			<xs:element name="vertical-extent-minimum" type="xs:double"/>
 			<xs:element name="vertical-extent-maximum" type="xs:double"/>
 			<xs:element name="vertical-extent-unit" type="xs:integer"/>
-			<xs:element name="vertical-extent-vdatum" type="xs:integer"/>
+			<xs:element name="vertical-extent-vdatum-key" type="xs:integer"/>
+			<xs:element name="vertical-extent-vdatum-value" type="xs:string"/>
 			<xs:element name="description-of-spatial-domain" type="xs:string"/>
 			<xs:element name="locations" type="LOCATION_LIST"/>
 		</xs:sequence>

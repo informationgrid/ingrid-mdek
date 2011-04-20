@@ -39,7 +39,8 @@ public class T01Object implements IEntity {
 	private Double verticalExtentMinimum;
 	private Double verticalExtentMaximum;
 	private Integer verticalExtentUnit;
-	private Integer verticalExtentVdatum;
+	private Integer verticalExtentVdatumKey;
+	private String verticalExtentVdatumValue;
 	private String orderingInstructions;
 	private String isCatalogData;
 	private String isInspireRelevant;
@@ -339,12 +340,20 @@ public class T01Object implements IEntity {
 		this.verticalExtentUnit = verticalExtentUnit;
 	}
 
-	public Integer getVerticalExtentVdatum() {
-		return verticalExtentVdatum;
+	public Integer getVerticalExtentVdatumKey() {
+		return verticalExtentVdatumKey;
 	}
 
-	public void setVerticalExtentVdatum(Integer verticalExtentVdatum) {
-		this.verticalExtentVdatum = verticalExtentVdatum;
+	public void setVerticalExtentVdatumKey(Integer verticalExtentVdatumKey) {
+		this.verticalExtentVdatumKey = verticalExtentVdatumKey;
+	}
+
+	public String getVerticalExtentVdatumValue() {
+		return verticalExtentVdatumValue;
+	}
+
+	public void setVerticalExtentVdatumValue(String verticalExtentVdatumValue) {
+		this.verticalExtentVdatumValue = verticalExtentVdatumValue;
 	}
 
 	public String getOrderingInstructions() {

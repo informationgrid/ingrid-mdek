@@ -183,7 +183,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_SPATIAL_VERTICAL_EXTENT_MINIMUM = "//data-source/spatial-domain/vertical-extent/vertical-extent-minimum/text()";
 	private static final String X_SPATIAL_VERTICAL_EXTENT_MAXIMUM = "//data-source/spatial-domain/vertical-extent/vertical-extent-maximum/text()";
 	private static final String X_SPATIAL_VERTICAL_EXTENT_UNIT = "//data-source/spatial-domain/vertical-extent/vertical-extent-unit/@id";
-	private static final String X_SPATIAL_VERTICAL_EXTENT_VDATUM = "//data-source/spatial-domain/vertical-extent/vertical-extent-vdatum/@id";
+	private static final String X_SPATIAL_VERTICAL_EXTENT_VDATUM_VALUE = "//data-source/spatial-domain/vertical-extent/vertical-extent-vdatum/text()";
+	private static final String X_SPATIAL_VERTICAL_EXTENT_VDATUM_KEY = "//data-source/spatial-domain/vertical-extent/vertical-extent-vdatum/@id";
 	private static final String X_SPATIAL_GEO_LIST = "//data-source/spatial-domain/geo-location";
 	private static final String X_SPATIAL_GEO_CONTROLLED = "controlled-location";
 	private static final String X_SPATIAL_GEO_UNCONTROLLED = "uncontrolled-location";
@@ -825,16 +826,12 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	}
 
 	private static void mapSpatialDomain(Document source, IngridDocument target) {
-		putString(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN,
-				XPathUtils.getString(source, X_SPATIAL_DESCRIPTION), target);
-		putDouble(MdekKeys.VERTICAL_EXTENT_MAXIMUM,
-				XPathUtils.getDouble(source, X_SPATIAL_VERTICAL_EXTENT_MAXIMUM), target);
-		putDouble(MdekKeys.VERTICAL_EXTENT_MINIMUM,
-				XPathUtils.getDouble(source, X_SPATIAL_VERTICAL_EXTENT_MINIMUM), target);
-		putInt(MdekKeys.VERTICAL_EXTENT_UNIT,
-				XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_UNIT), target);
-		putInt(MdekKeys.VERTICAL_EXTENT_VDATUM,
-				XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_VDATUM), target);
+		putString(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN, XPathUtils.getString(source, X_SPATIAL_DESCRIPTION), target);
+		putDouble(MdekKeys.VERTICAL_EXTENT_MAXIMUM, XPathUtils.getDouble(source, X_SPATIAL_VERTICAL_EXTENT_MAXIMUM), target);
+		putDouble(MdekKeys.VERTICAL_EXTENT_MINIMUM, XPathUtils.getDouble(source, X_SPATIAL_VERTICAL_EXTENT_MINIMUM), target);
+		putInt(MdekKeys.VERTICAL_EXTENT_UNIT, XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_UNIT), target);
+		putString(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE, XPathUtils.getString(source, X_SPATIAL_VERTICAL_EXTENT_VDATUM_VALUE), target);
+		putInt(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY, XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_VDATUM_KEY), target);
 		mapGeoLocations(source, target);
 	}
 

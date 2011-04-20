@@ -37,7 +37,10 @@
       <property name="verticalExtentMinimum" type="double" column="vertical_extent_minimum"/>
       <property name="verticalExtentMaximum" type="double" column="vertical_extent_maximum"/>
       <property name="verticalExtentUnit" type="integer" column="vertical_extent_unit"/>
-      <property name="verticalExtentVdatum" type="integer" column="vertical_extent_vdatum"/>
+      <property name="verticalExtentVdatumKey" type="integer"
+                column="vertical_extent_vdatum_key"/>
+      <property name="verticalExtentVdatumValue" type="string"
+                column="vertical_extent_vdatum_value"/>
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
       <property name="isCatalogData" type="string" column="is_catalog_data"/>
       <property name="isInspireRelevant" type="string" column="is_inspire_relevant"/>
