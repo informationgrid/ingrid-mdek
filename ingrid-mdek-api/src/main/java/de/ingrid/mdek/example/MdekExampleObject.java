@@ -1629,24 +1629,68 @@ class MdekExampleObjectThread extends Thread {
 		// add columns to rows
 		// row 1
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW1 COL1");
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, "-1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL1 LIST FREE ENTRY");
 		row1List.add(testDoc);
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW1 COL2");
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL2 TEXT");
 		row1List.add(testDoc);
 		// row 2
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW2 COL1");
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, "2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL1");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL1 LISTITEM 2");
 		row2List.add(testDoc);
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY ROW2 COL2");
-		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL2");
+		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL2 TEXT");
 		row2List.add(testDoc);
 
-
+/*
+	// PROFILE XML FOR TESTING SELECTIONLIST FETCH FROM PROFILE !!!
+<tableControl>
+<id>TEST ADDITIONAL_FIELD_KEY TABLE</id>
+<isMandatory>false</isMandatory>
+<isVisible>optional</isVisible>
+<scriptedProperties/>
+<localizedLabel lang="de">Figuren im Metadatensatz</localizedLabel>
+<localizedLabel lang="en">Figures in the Metadata Objekt.</localizedLabel>
+<localizedHelp lang="de">Geben Sie die Figuren, welche im Metadatensatz genannt werden, an.</localizedHelp>
+<localizedHelp lang="en">Name the figures that appear in the Metadata objekt.</localizedHelp>
+<scriptedCswMapping><![CDATA[IDF.addAdditionalData(sourceRecord, idfDoc, igcProfileControlNode);]]></scriptedCswMapping>
+<indexName/>
+<layoutWidth>80</layoutWidth>
+<layoutNumLines>4</layoutNumLines>
+<columns>
+<selectControl isExtendable="true">
+<id>TEST ADDITIONAL_FIELD_KEY COL1</id>
+<localizedLabel lang="de">Name der Figur</localizedLabel>
+<localizedLabel lang="en"/>
+<indexName>Figur_Name</indexName>
+<layoutWidth>100</layoutWidth>
+<selectionList>
+<items lang="de">
+<item id="1">Sams</item>
+<item id="2">Taschenbier</item>
+</items>
+<items lang="en">
+<item id="1">?</item>
+<item id="2">?</item>
+</items>
+</selectionList>
+</selectControl>
+<textControl isExtendable="false">
+<id>TEST ADDITIONAL_FIELD_KEY COL2</id>
+<localizedLabel lang="de">Beschreibung</localizedLabel>
+<localizedLabel lang="en"/>
+<indexName>figur_beschreibung</indexName>
+<layoutWidth>180</layoutWidth>
+</textControl>
+</columns>
+</tableControl> 
+ */
 		// store
 		System.out.println("STORE");
 		result = supertool.storeObject(oDocIn, false);
