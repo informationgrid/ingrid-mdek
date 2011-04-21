@@ -1620,14 +1620,12 @@ class MdekExampleObjectThread extends Thread {
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY TABLE");
 		List<List<IngridDocument>> rowsList = new ArrayList<List<IngridDocument>>();
-		List<IngridDocument> row1List = new ArrayList<IngridDocument>();
-		rowsList.add(row1List);
-		List<IngridDocument> row2List = new ArrayList<IngridDocument>();
-		rowsList.add(row2List);
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_ROWS, rowsList);
 		docList.add(testDoc);
 		// add columns to rows
 		// row 1
+		List<IngridDocument> row1List = new ArrayList<IngridDocument>();
+		rowsList.add(row1List);
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, "-1");
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL1");
@@ -1638,15 +1636,31 @@ class MdekExampleObjectThread extends Thread {
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW1 COL2 TEXT");
 		row1List.add(testDoc);
 		// row 2
+		List<IngridDocument> row2List = new ArrayList<IngridDocument>();
+		rowsList.add(row2List);
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, "2");
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL1");
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL1 LISTITEM 2");
 		row2List.add(testDoc);
+		// EMPTY COLUMN 2 in row 2
+//		testDoc = new IngridDocument();
+//		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL2");
+//		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL2 TEXT");
+//		row2List.add(testDoc);
+		// row 3
+		List<IngridDocument> row3List = new ArrayList<IngridDocument>();
+		rowsList.add(row3List);
+		// EMPTY COLUMN 1 in row 3
+//		testDoc = new IngridDocument();
+//		testDoc.put(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID, "1");
+//		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL1");
+//		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL1 LISTITEM 2");
+//		row3List.add(testDoc);
 		testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, "TEST ADDITIONAL_FIELD_KEY COL2");
 		testDoc.put(MdekKeys.ADDITIONAL_FIELD_DATA, "TEST ADDITIONAL_FIELD_DATA ROW2 COL2 TEXT");
-		row2List.add(testDoc);
+		row3List.add(testDoc);
 
 /*
 	// PROFILE XML FOR TESTING SELECTIONLIST FETCH FROM PROFILE !!!
