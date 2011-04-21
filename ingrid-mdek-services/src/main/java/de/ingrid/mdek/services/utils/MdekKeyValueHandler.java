@@ -603,7 +603,11 @@ public class MdekKeyValueHandler {
 				bean.getFieldKey(),
 				catalogService.getCatalogLanguage());
 
-			bean.setData(keyNameMap.get(entryKey));
+			String listValue = keyNameMap.get(entryKey);
+			// Keep old value if selection list not found !
+			if (listValue != null) {
+				bean.setData(listValue);				
+			}
 		}
 
 		return bean;

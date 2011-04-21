@@ -97,7 +97,7 @@ public class MdekIgcProfileHandler {
 		
 		try {
 			Document profile = getProfileDOM();
-	        Node idNode = XPathUtils.getNode(profile, "//igcp:controls/*/igcp:id[.='" + fieldKey + "']");
+	        Node idNode = XPathUtils.getNode(profile, "//igcp:controls//igcp:id[text()='" + fieldKey + "']");
 	        Node controlNode = idNode.getParentNode();
             NodeList listItems = XPathUtils.getNodeList(controlNode, "igcp:selectionList/igcp:items[@lang='" + language + "']/igcp:item");
             for (int i = 0; i < listItems.getLength(); i++) {
