@@ -11,7 +11,7 @@ Beschreibung des Austauschformats (Map Struktur von IngridDocument) zwischen IGE
 Beschreibung Mapping Austauschformat (IngridDocument) auf Frontend Felder (IGE)
 
 - mdek_examples_remember.txt
-Beschreibung Details von IGE Abläufen (Verhalten bei copy, move etc.)
+Beschreibung Details von IGE Ablï¿½ufen (Verhalten bei copy, move etc.)
 
 
 IGE IMPORT/EXPORT
@@ -29,7 +29,7 @@ Aus .xsd generierte Beispiel-Instanz zur besseren Nachvollziehbarkeit
 InGrid 3.0
 ==========
 
-- igc_profile.xsd
+- src/main/resources/igc_profile.xsd
 Katalog Profil, zur flexiblen Anpassung der Felder / des Datenmodells.
 
 - igc_profile_instance0.xml
