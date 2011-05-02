@@ -70,7 +70,7 @@
             displayText ="Benötigte Installationsoptionen">
         <directory
                 property        ="installDir"
-                defaultValue    ="/usr/local/${project.artifactId}-${project.version}"
+                defaultValue    ="/opt/ingrid/${project.artifactId}-${project.version}"
                 defaultValueWin ="${env.ProgramFiles}\${project.build.finalName}"
                 displayText     ="Installationsverzeichnis"
                 create          ="true"/>
