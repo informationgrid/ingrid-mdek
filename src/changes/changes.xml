@@ -4,7 +4,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-	<release version="3.0.0-SNAPSHOT" date="????-??-??" description="?">
+	<release version="3.0.0" date="2011-05-06" description="Release InGrid 3.0">
       <action type="add" dev="wemove" issue="INGRID23-59">
         Allow free entries in fields "Zugangsbeschränkungen", "Höhe Vertikaldatum", "Raumbezugssystem" and "Kodierungsschema der geographischen Daten".
       </action>
