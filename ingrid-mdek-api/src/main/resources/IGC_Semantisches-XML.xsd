@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="3.0.0"/>
+    <xs:attribute name="exchange-format" default="3.0.1"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -637,7 +637,6 @@
         <xs:element minOccurs="0" ref="description-of-tech-domain"/>
         <xs:element minOccurs="0" ref="data"/>
         <xs:element minOccurs="0" ref="resolution"/>
-        <xs:element minOccurs="0" ref="coordinate-system"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="publication-scale"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="key-catalogue"/>
         <xs:element minOccurs="0" ref="degree-of-record"/>
@@ -1140,6 +1139,7 @@
   <xs:element name="spatial-domain">
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="0" ref="coordinate-system"/>
         <xs:element minOccurs="0" ref="description-of-spatial-domain"/>
         <xs:element minOccurs="0" ref="vertical-extent"/>
         <xs:element maxOccurs="unbounded" ref="geo-location"/>

@@ -197,6 +197,51 @@ class MdekExampleExportImportObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		// Test EXPORT / IMPORT new Exchange Format 3.0.1
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- object details -----");
+		// already published and has "Raumbezugssystem" ("coordinate-system" now moved to "spatial-domain" !)
+		IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+
+		System.out.println("\n----- export object -----");
+		supertool.exportObjectBranch(objUuid, true);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import object as WORKING VERSION -----");
+		// OVERWRITE !!!
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- discard changes (working copy) -----");
+		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+/*
 		// Test EXPORT / IMPORT new Exchange Format 3.0.0
 		// --------------------------
 		supertool.setFullOutput(true);

@@ -462,7 +462,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		map.addChild(new XMLElement(DESCRIPTION_OF_TECH_DOMAIN, getStringForKey(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, mapContext)));
 		map.addChild(new XMLElement(DATA, getStringForKey(MdekKeys.DATA, mapContext)));
 		map.addChild(new XMLElement(RESOLUTION, getDoubleForKey(MdekKeys.RESOLUTION, mapContext)));
-		map.addChild(createCoordinateSystem(mapContext));
 		map.addChildren(createPublicationScales(mapContext));
 		map.addChildren(createKeyCatalogues(mapContext));
 		map.addChild(new XMLElement(DEGREE_OF_RECORD, getDoubleForKey(MdekKeys.DEGREE_OF_RECORD, mapContext)));
@@ -484,12 +483,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return hierarchyLevel;
 	}
 
-	private XMLElement createCoordinateSystem(IngridDocument mapContext) {
-		XMLElement coordinateSystem = new XMLElement(COORDINATE_SYSTEM, getStringForKey(MdekKeys.COORDINATE_SYSTEM, mapContext));
-		coordinateSystem.addAttribute(ID, getIntegerForKey(MdekKeys.REFERENCESYSTEM_ID, mapContext));
-		return coordinateSystem;
-	}
-	
 	private List<XMLElement> createKeyCatalogues(IngridDocument mapContext) {
 		List<XMLElement> keyCatalogues = new ArrayList<XMLElement>();
 		List<IngridDocument> keyCatalogueList = getIngridDocumentListForKey(MdekKeys.KEY_CATALOG_LIST, mapContext);
@@ -852,12 +845,19 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createSpatialDomain() {
 		XMLElement spatialDomain = new XMLElement(SPATIAL_DOMAIN);
+		spatialDomain.addChild(createCoordinateSystem(getIngridDocumentForKey(MdekKeys.TECHNICAL_DOMAIN_MAP)));
 		spatialDomain.addChild(createDescriptionOfSpatialDomain());
 		spatialDomain.addChild(createVerticalExtent());
 		spatialDomain.addChildren(createGeoLocations());
 		return spatialDomain;
 	}
 
+	private XMLElement createCoordinateSystem(IngridDocument mapContext) {
+		XMLElement coordinateSystem = new XMLElement(COORDINATE_SYSTEM, getStringForKey(MdekKeys.COORDINATE_SYSTEM, mapContext));
+		coordinateSystem.addAttribute(ID, getIntegerForKey(MdekKeys.REFERENCESYSTEM_ID, mapContext));
+		return coordinateSystem;
+	}
+	
 	private XMLElement createDescriptionOfSpatialDomain() {
 		return new XMLElement(DESCRIPTION_OF_SPATIAL_DOMAIN, getStringForKey(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN));
 	}

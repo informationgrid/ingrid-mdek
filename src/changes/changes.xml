@@ -4,6 +4,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+	<release version="3.0.1-SNAPSHOT" date="2011-?-?" description="Bugfix Release for InGrid 3.0.0">
+      <action type="fix" dev="wemove" issue="INGRID23-231">
+        Import/Export: Fix handling of "Raumbezugssystem", now exported/imported for all classes and moved to "spatial-domain" in Import/Export format (new format 3.0.1).
+      </action>
+    </release>
+
 	<release version="3.0.0" date="2011-05-06" description="Release InGrid 3.0">
       <action type="add" dev="wemove" issue="INGRID23-59">
         Allow free entries in fields "Zugangsbeschränkungen", "Höhe Vertikaldatum", "Raumbezugssystem" and "Kodierungsschema der geographischen Daten".
