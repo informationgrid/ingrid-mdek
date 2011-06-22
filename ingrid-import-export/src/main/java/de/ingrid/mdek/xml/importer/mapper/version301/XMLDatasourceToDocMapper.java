@@ -69,7 +69,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_PUBLICATION_SCALE_LIST = "publication-scale";
 	private static final String X_PUBLICATION_SCALE_SCALE = "scale";
 	private static final String X_PUBLICATION_SCALE_RES_GROUND = "resolution-ground";
-	private static final String X_PUBLICATION_SCALE_RES_SCAN = "resolution-scale";
+	private static final String X_PUBLICATION_SCALE_RES_SCAN = "resolution-scan";
 	private static final String X_SERVICE_SYSTEM_HISTORY = "system-history/text()";
 	private static final String X_SERVICE_DATABASE_OF_SYSTEM = "database-of-system/text()";
 	private static final String X_SERVICE_SYSTEM_ENVIRONMENT = "system-environment/text()";
