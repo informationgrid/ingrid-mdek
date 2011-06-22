@@ -660,8 +660,6 @@ public class MdekKeys {
     public final static String DATA = "data";
     /** Value: String  */
     public final static String METHOD_OF_PRODUCTION = "method-of-production";
-    /** Value: String  */
-    public final static String COORDINATE_SYSTEM = "coordinate-system";
     /** Value: Double  */
     public final static String RESOLUTION = "resolution";
     /** Value: Double  */
@@ -670,8 +668,6 @@ public class MdekKeys {
     public final static String HIERARCHY_LEVEL = "hierarchy-level";
     /** Value: Integer  */
     public final static String VECTOR_TOPOLOGY_LEVEL = "vector-topology-level";
-    /** Value: Integer  */
-    public final static String REFERENCESYSTEM_ID = "referencesystem-id";
     /** Value: Double  */
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
     /** Value: Integer  */
@@ -1101,4 +1097,12 @@ public class MdekKeys {
     public final static String FORMAT_KEY = "format-key";
     /** Value: String */
     public final static String FORMAT_VALUE = "format-value";
+
+    // SPATIAL SYSTEMS
+    /** Value: List< IngridDocument >  */
+    public final static String SPATIAL_SYSTEM_LIST = "spatial-system-list";
+    /** Value: Integer  */
+    public final static String REFERENCESYSTEM_ID = "referencesystem-id";
+    /** Value: String  */
+    public final static String COORDINATE_SYSTEM = "coordinate-system";
 }

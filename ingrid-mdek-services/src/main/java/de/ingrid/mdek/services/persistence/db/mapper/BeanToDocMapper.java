@@ -40,6 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
@@ -326,6 +327,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectUses(o.getObjectUses(), objectDoc);
 			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
 			mapObjectFormatInspires(o.getObjectFormatInspires(), objectDoc);
+			mapSpatialSystems(o.getSpatialSystems(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -1041,12 +1043,10 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.TECHNICAL_BASE, ref.getSpecialBase());
 		refDoc.put(MdekKeys.DATA, ref.getDataBase());
 		refDoc.put(MdekKeys.METHOD_OF_PRODUCTION, ref.getMethod());
-		refDoc.put(MdekKeys.COORDINATE_SYSTEM, ref.getReferencesystemValue());
 		refDoc.put(MdekKeys.RESOLUTION, ref.getRecExact());
 		refDoc.put(MdekKeys.DEGREE_OF_RECORD, ref.getRecGrade());
 		refDoc.put(MdekKeys.HIERARCHY_LEVEL, ref.getHierarchyLevel());
 		refDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, ref.getVectorTopologyLevel());
-		refDoc.put(MdekKeys.REFERENCESYSTEM_ID, ref.getReferencesystemKey());
 		refDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, ref.getPosAccuracyVertical());
 		refDoc.put(MdekKeys.KEYC_INCL_W_DATASET, ref.getKeycInclWDataset());
 		refDoc.put(MdekKeys.DATASOURCE_UUID, ref.getDatasourceUuid());
@@ -2001,7 +2001,6 @@ public class BeanToDocMapper implements IMapper {
 		
 		return objectDoc;
 	}
-
 	private IngridDocument mapObjectFormatInspire(ObjectFormatInspire ref, IngridDocument refDoc) {
 		if (ref == null) {
 			return refDoc;
@@ -2012,6 +2011,33 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
+
+	private IngridDocument mapSpatialSystems(Set<SpatialSystem> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (SpatialSystem ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapSpatialSystem(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.SPATIAL_SYSTEM_LIST, refList);
+		
+		return objectDoc;
+	}
+	private IngridDocument mapSpatialSystem(SpatialSystem ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.REFERENCESYSTEM_ID, ref.getReferencesystemKey());
+		refDoc.put(MdekKeys.COORDINATE_SYSTEM, ref.getReferencesystemValue());
+
+		return refDoc;
+	}
+
 
 	public IngridDocument mapObjectMetadata(ObjectMetadata ref, IngridDocument refDoc,
 			MappingQuantity howMuch) {

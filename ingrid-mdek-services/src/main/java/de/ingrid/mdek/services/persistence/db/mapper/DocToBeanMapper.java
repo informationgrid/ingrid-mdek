@@ -45,6 +45,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
@@ -405,6 +406,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectUses(oDocIn, oIn);
 			updateObjectDataQualitys(oDocIn, oIn);
 			updateObjectFormatInspires(oDocIn, oIn);
+			updateSpatialSystems(oDocIn, oIn);
 			updateObjectMetadata(oDocIn, oIn);
 		}
 
@@ -1156,9 +1158,6 @@ public class DocToBeanMapper implements IMapper {
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
 			ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
-			ref.setReferencesystemKey((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
-			ref.setReferencesystemValue(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
-			keyValueService.processKeyValue(ref);
 
 			// save the object and get ID from database (cascading insert do not work??)
 			dao.makePersistent(ref);
@@ -2612,6 +2611,42 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
 			ObjectFormatInspire ref = mapObjectFormatInspire(oIn, refDoc, new ObjectFormatInspire(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+	private SpatialSystem mapSpatialSystem(T01Object oFrom,
+			IngridDocument refDoc,
+			SpatialSystem ref, 
+			int line)
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setReferencesystemKey((Integer)refDoc.get(MdekKeys.REFERENCESYSTEM_ID));
+		ref.setReferencesystemValue(refDoc.getString(MdekKeys.COORDINATE_SYSTEM));
+		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
+
+		return ref;
+	}
+	private void updateSpatialSystems(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.SPATIAL_SYSTEM_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<SpatialSystem> refs = oIn.getSpatialSystems();
+		ArrayList<SpatialSystem> refs_unprocessed = new ArrayList<SpatialSystem>(refs);
+		// remove all !
+		for (SpatialSystem ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			SpatialSystem ref = mapSpatialSystem(oIn, refDoc, new SpatialSystem(), line);
 			refs.add(ref);
 			line++;
 		}

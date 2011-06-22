@@ -1337,12 +1337,10 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.TECHNICAL_BASE, "technical-base");
 		technicalDomain.put(MdekKeys.DATA, "data");
 		technicalDomain.put(MdekKeys.METHOD_OF_PRODUCTION, "method-of-production");
-		technicalDomain.put(MdekKeys.COORDINATE_SYSTEM, "coordinate-system");
 		technicalDomain.put(MdekKeys.RESOLUTION, new Double(1.1));
 		technicalDomain.put(MdekKeys.DEGREE_OF_RECORD, new Double(1.2));
 		technicalDomain.put(MdekKeys.HIERARCHY_LEVEL, new Integer(5));
 		technicalDomain.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, new Integer(6));
-		technicalDomain.put(MdekKeys.REFERENCESYSTEM_ID, new Integer(7));
 		technicalDomain.put(MdekKeys.POS_ACCURACY_VERTICAL, new Double(1.5));
 		technicalDomain.put(MdekKeys.KEYC_INCL_W_DATASET, new Integer(8));
 		technicalDomain.put(MdekKeys.DATASOURCE_UUID, "TEST_DATASOURCE_UUID:" + oDocIn.get(MdekKeys.UUID));
@@ -1601,6 +1599,16 @@ class MdekExampleObjectThread extends Thread {
 		testDoc.put(MdekKeys.FORMAT_KEY, 1);
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
+
+		// add entry to SPATIAL SYSTEM
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.SPATIAL_SYSTEM_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check REFERENCESYSTEM_ID -> COORDINATE_SYSTEM is stored via syslist
+		testDoc.put(MdekKeys.REFERENCESYSTEM_ID, 3068);
+		testDoc.put(MdekKeys.COORDINATE_SYSTEM, "coordinate-system");
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.SPATIAL_SYSTEM_LIST, docList);
 
 		// add entry to OBJECT ADDITIONAL_FIELDS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
@@ -1887,6 +1895,13 @@ class MdekExampleObjectThread extends Thread {
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
+			}
+
+			// SPATIAL_SYSTEM wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.SPATIAL_SYSTEM_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.SPATIAL_SYSTEM_LIST, docList);
 			}
 
 			// OBJECT ADDITIONAL_FIELDS wieder wie vorher !

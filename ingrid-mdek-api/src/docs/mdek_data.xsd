@@ -159,6 +159,8 @@
 			<xs:element name="use_list" type="USE_LIST"/>
 			<xs:element name="data-quality-list" type="DATA_QUALITY_LIST"/>
 			<xs:element name="format_inspire_list" type="FORMAT_INSPIRE_LIST"/>
+
+			<xs:element name="spatial-system-list" type="SPATIAL_SYSTEM_LIST"/>
 			
 		</xs:all>
 	</xs:complexType>
@@ -1040,12 +1042,10 @@
 			<xs:element name="technical-base" type="xs:string"/>
 			<xs:element name="data" type="xs:string"/>
 			<xs:element name="method-of-production" type="xs:string"/>
-			<xs:element name="coordinate-system" type="xs:string"/>
 			<xs:element name="resolution" type="xs:double"/>
 			<xs:element name="degree-of-record" type="xs:double"/>
 			<xs:element name="hierarchy-level" type="xs:integer"/>
 			<xs:element name="vector-topology-level" type="xs:integer"/>
-			<xs:element name="referencesystem-id" type="xs:integer"/>
 			<xs:element name="pos-accuracy-vertical" type="xs:double"/>
 			<xs:element name="keyc-incl-w-dataset" type="xs:integer"/>
 			<xs:element name="datasource-uuid" type="xs:string"/>
@@ -1294,6 +1294,17 @@
 		<xs:sequence>
 			<xs:element name="format-key" type="xs:integer"/>
 			<xs:element name="format-value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SPATIAL_SYSTEM_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="SPATIAL_SYSTEM_MAP" type="SPATIAL_SYSTEM_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SPATIAL_SYSTEM_MAP">
+		<xs:sequence>
+			<xs:element name="referencesystem-id" type="xs:integer"/>
+			<xs:element name="coordinate-system" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_PARENT_INFO_MAP">

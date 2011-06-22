@@ -43,6 +43,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefSns.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefValue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialReference.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SpatialSystem.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysGenericKey.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysJobInfo.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysList.hbm.xml</value>
@@ -109,6 +110,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialRefSns">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialRefValue">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialReference">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.SpatialSystem">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0112MediaOption">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference">read-write</prop>
@@ -171,6 +173,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.objectReferences">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.searchtermObjs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.spatialReferences">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.spatialSystems">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0110AvailFormats">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0112MediaOptions">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0113DatasetReferences">read-write</prop>

@@ -106,6 +106,11 @@
          <key column="obj_id"/>
          <one-to-many class="SpatialReference" not-found="ignore"/>
       </set>
+      <set name="spatialSystems" order-by="line" table="spatial_system" inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="SpatialSystem" not-found="ignore"/>
+      </set>
       <set name="t0110AvailFormats" order-by="line" table="t0110_avail_format"
            inverse="true"
            cascade="all-delete-orphan">

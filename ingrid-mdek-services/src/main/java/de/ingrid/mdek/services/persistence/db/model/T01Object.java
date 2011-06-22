@@ -61,6 +61,7 @@ public class T01Object implements IEntity {
 	private Set objectUses = new HashSet();
 	private Set searchtermObjs = new HashSet();
 	private Set spatialReferences = new HashSet();
+	private Set spatialSystems = new HashSet();
 	private Set t0110AvailFormats = new HashSet();
 	private Set t0112MediaOptions = new HashSet();
 	private Set t0113DatasetReferences = new HashSet();
@@ -507,6 +508,14 @@ public class T01Object implements IEntity {
 
 	public void setSpatialReferences(Set spatialReferences) {
 		this.spatialReferences = spatialReferences;
+	}
+
+	public Set getSpatialSystems() {
+		return spatialSystems;
+	}
+
+	public void setSpatialSystems(Set spatialSystems) {
+		this.spatialSystems = spatialSystems;
 	}
 
 	public Set getT0110AvailFormats() {

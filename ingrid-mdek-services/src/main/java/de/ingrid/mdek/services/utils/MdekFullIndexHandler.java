@@ -32,6 +32,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
@@ -333,8 +334,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oGeo.getSpecialBase());
 			extendFullData(data, oGeo.getDataBase());
 			extendFullData(data, oGeo.getMethod());
-			extendFullDataWithSysList(data, MdekSysList.OBJ_GEO_REFERENCESYSTEM,
-					oGeo.getReferencesystemKey(), oGeo.getReferencesystemValue());
 			Set<T011ObjGeoKeyc> oGeoKeycs = oGeo.getT011ObjGeoKeycs();
 			for (T011ObjGeoKeyc oGeoKeyc : oGeoKeycs) {
 				extendFullData(data, MdekUtils.timestampToDisplayDate(oGeoKeyc.getKeyDate()));
@@ -504,6 +503,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		for (ObjectFormatInspire objFormatInspire : objFormatInspires) {
 			extendFullDataWithSysList(data, MdekSysList.OBJ_FORMAT_INSPIRE,
 					objFormatInspire.getFormatKey(), objFormatInspire.getFormatValue());				
+		}
+		// SpatialSystem
+		Set<SpatialSystem> spatialSystems = o.getSpatialSystems();
+		for (SpatialSystem spatialSystem : spatialSystems) {
+			extendFullDataWithSysList(data, MdekSysList.OBJ_GEO_REFERENCESYSTEM,
+					spatialSystem.getReferencesystemKey(), spatialSystem.getReferencesystemValue());
 		}
 		// AdditionalFieldData
 		extendFullData(data, o.getAdditionalFieldDatas());

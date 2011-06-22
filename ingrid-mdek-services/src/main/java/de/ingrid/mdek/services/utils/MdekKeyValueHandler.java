@@ -17,8 +17,8 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
+import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
@@ -49,7 +49,6 @@ public class MdekKeyValueHandler {
 	private static Class[] keyValueClasses = new Class[] {
 		T011ObjServ.class,
 		T011ObjServOperation.class,
-		T011ObjGeo.class,
 		T011ObjGeoSymc.class,
 		T011ObjGeoKeyc.class,
 		T017UrlRef.class,
@@ -71,6 +70,7 @@ public class MdekKeyValueHandler {
 		ObjectDataQuality.class,
 		ObjectFormatInspire.class,
 		AdditionalFieldData.class,
+		SpatialSystem.class,
 	};
 
 	/** Get The Singleton */
@@ -102,8 +102,6 @@ public class MdekKeyValueHandler {
 		} else if (T011ObjServOperation.class.isAssignableFrom(clazz)) {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName() +
 				" -> Process with separate method 'processKeyValueT011ObjServOperation(...)' !!!");
-		} else if (T011ObjGeo.class.isAssignableFrom(clazz)) {
-			processKeyValueT011ObjGeo((T011ObjGeo) bean);
 		} else if (T011ObjGeoSymc.class.isAssignableFrom(clazz)) {
 			processKeyValueT011ObjGeoSymc((T011ObjGeoSymc) bean);
 		} else if (T011ObjGeoKeyc.class.isAssignableFrom(clazz)) {
@@ -146,6 +144,8 @@ public class MdekKeyValueHandler {
 			processKeyValueObjectFormatInspire((ObjectFormatInspire) bean);
 		} else if (AdditionalFieldData.class.isAssignableFrom(clazz)) {
 			processKeyValueAdditionalFieldData((AdditionalFieldData) bean);
+		} else if (SpatialSystem.class.isAssignableFrom(clazz)) {
+			processKeyValueSpatialSystem((SpatialSystem) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -210,19 +210,6 @@ public class MdekKeyValueHandler {
 		}
 		
 		return objServ;
-	}
-
-	private IEntity processKeyValueT011ObjGeo(T011ObjGeo bean) {
-		Integer entryKey = bean.getReferencesystemKey();
-		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.OBJ_GEO_REFERENCESYSTEM.getDbValue(),
-				catalogService.getCatalogLanguage());
-
-			bean.setReferencesystemValue(keyNameMap.get(entryKey));
-		}
-		
-		return bean;
 	}
 
 	private IEntity processKeyValueT011ObjGeoSymc(T011ObjGeoSymc bean) {
@@ -610,6 +597,19 @@ public class MdekKeyValueHandler {
 			}
 		}
 
+		return bean;
+	}
+
+	private IEntity processKeyValueSpatialSystem(SpatialSystem bean) {
+		Integer entryKey = bean.getReferencesystemKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_GEO_REFERENCESYSTEM.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setReferencesystemValue(keyNameMap.get(entryKey));
+		}
+		
 		return bean;
 	}
 }

@@ -13,8 +13,6 @@ public class T011ObjGeo implements IEntity {
 	private String specialBase;
 	private String dataBase;
 	private String method;
-	private String referencesystemValue;
-	private Integer referencesystemKey;
 	private Double recExact;
 	private Double recGrade;
 	private Integer hierarchyLevel;
@@ -78,22 +76,6 @@ public class T011ObjGeo implements IEntity {
 
 	public void setMethod(String method) {
 		this.method = method;
-	}
-
-	public String getReferencesystemValue() {
-		return referencesystemValue;
-	}
-
-	public void setReferencesystemValue(String referencesystemValue) {
-		this.referencesystemValue = referencesystemValue;
-	}
-
-	public Integer getReferencesystemKey() {
-		return referencesystemKey;
-	}
-
-	public void setReferencesystemKey(Integer referencesystemKey) {
-		this.referencesystemKey = referencesystemKey;
 	}
 
 	public Double getRecExact() {

@@ -59,6 +59,7 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
@@ -281,6 +282,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<ObjectFormatInspire>(_sessionFactory, ObjectFormatInspire.class);
 		} else if (clazz.isAssignableFrom(AdditionalFieldData.class)) {
 			dao = new GenericHibernateDao<AdditionalFieldData>(_sessionFactory, AdditionalFieldData.class);
+		} else if (clazz.isAssignableFrom(SpatialSystem.class)) {
+			dao = new GenericHibernateDao<SpatialSystem>(_sessionFactory, SpatialSystem.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

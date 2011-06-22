@@ -11,8 +11,6 @@
       <property name="specialBase" type="string" column="special_base"/>
       <property name="dataBase" type="string" column="data_base"/>
       <property name="method" type="string" column="method"/>
-      <property name="referencesystemValue" type="string" column="referencesystem_value"/>
-      <property name="referencesystemKey" type="integer" column="referencesystem_key"/>
       <property name="recExact" type="double" column="rec_exact"/>
       <property name="recGrade" type="double" column="rec_grade"/>
       <property name="hierarchyLevel" type="integer" column="hierarchy_level"/>
