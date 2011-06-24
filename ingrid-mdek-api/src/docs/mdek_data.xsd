@@ -159,8 +159,6 @@
 			<xs:element name="use_list" type="USE_LIST"/>
 			<xs:element name="data-quality-list" type="DATA_QUALITY_LIST"/>
 			<xs:element name="format_inspire_list" type="FORMAT_INSPIRE_LIST"/>
-
-			<xs:element name="spatial-system-list" type="SPATIAL_SYSTEM_LIST"/>
 			
 		</xs:all>
 	</xs:complexType>
@@ -872,6 +870,7 @@
 			<xs:element name="vertical-extent-vdatum-value" type="xs:string"/>
 			<xs:element name="description-of-spatial-domain" type="xs:string"/>
 			<xs:element name="locations" type="LOCATION_LIST"/>
+			<xs:element name="spatial-system-list" type="SPATIAL_SYSTEM_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="LOCATION_LIST">

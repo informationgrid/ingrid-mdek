@@ -204,6 +204,17 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- object details -----");
 		// already published and has "Raumbezugssystem" ("coordinate-system" now moved to "spatial-domain" !)
 		IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+		
+		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+		// further additional change in ImportMapper 3011, now LIST of SpatialSystems (1:n !!!)
+		// we add new one and publish !
+		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.SPATIAL_SYSTEM_LIST);
+		// add second spatial system from Syslist ! Name should be overwritten with name from syslist ! 
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.REFERENCESYSTEM_ID, 3068);
+		testDoc.put(MdekKeys.COORDINATE_SYSTEM, "TEST COORDINATE_SYSTEM");
+		docList.add(testDoc);
+		oDoc = supertool.publishObject(oDoc, true, false);
 
 		System.out.println("\n----- export object -----");
 		supertool.exportObjectBranch(objUuid, true);
@@ -229,8 +240,13 @@ class MdekExampleExportImportObjectThread extends Thread {
 		supertool.getJobInfo(JobType.IMPORT);
 		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
-		System.out.println("\n----- discard changes (working copy) -----");
-		supertool.deleteObjectWorkingCopy(objUuid, true);
+//		System.out.println("\n----- discard changes (working copy) -----");
+//		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- discard changes -> remove former change -----");
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.SPATIAL_SYSTEM_LIST);
+		docList.remove(docList.size()-1);
+		result = supertool.publishObject(oDoc, true, false);
 
 		System.out.println("----- DELETE Import Top Nodes -----");
 		supertool.deleteObject(objImpNodeUuid, true);

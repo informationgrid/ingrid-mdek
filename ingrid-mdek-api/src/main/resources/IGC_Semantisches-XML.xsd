@@ -664,8 +664,8 @@
   <xs:element name="resolution" type="xs:string"/>
   <!--
     Fachlicher Name: Raum-Bezugssystem, Koordinatensystem der Geoinformation / Karte
-    Tabelle.Feld   : T011_obj_geo.referencesystem_key
-    Tabelle.Feld   : T011_obj_geo.referencesystem_value
+    Tabelle.Feld   : spatial_system.referencesystem_key
+    Tabelle.Feld   : spatial_system.referencesystem_value
   -->
   <xs:element name="coordinate-system" type="id-string"/>
   <!--
@@ -1139,7 +1139,7 @@
   <xs:element name="spatial-domain">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" ref="coordinate-system"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="coordinate-system"/>
         <xs:element minOccurs="0" ref="description-of-spatial-domain"/>
         <xs:element minOccurs="0" ref="vertical-extent"/>
         <xs:element maxOccurs="unbounded" ref="geo-location"/>

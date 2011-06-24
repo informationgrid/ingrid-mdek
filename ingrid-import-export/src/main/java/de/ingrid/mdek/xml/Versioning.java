@@ -9,5 +9,5 @@ public class Versioning extends de.ingrid.mdek.Versioning {
 
 	/** Current Mapper for importing current format ! */
 	public static final Class CURRENT_IMPORT_MAPPER_CLASS =
-		de.ingrid.mdek.xml.importer.mapper.version301.IngridXMLMapperImpl.class;
+		de.ingrid.mdek.xml.importer.mapper.version3011.IngridXMLMapperImpl.class;
 }

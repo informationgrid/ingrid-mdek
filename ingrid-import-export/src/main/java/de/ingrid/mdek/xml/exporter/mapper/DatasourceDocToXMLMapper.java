@@ -845,16 +845,25 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createSpatialDomain() {
 		XMLElement spatialDomain = new XMLElement(SPATIAL_DOMAIN);
-		spatialDomain.addChild(createCoordinateSystem(getIngridDocumentForKey(MdekKeys.TECHNICAL_DOMAIN_MAP)));
+		spatialDomain.addChildren(createCoordinateSystems());
 		spatialDomain.addChild(createDescriptionOfSpatialDomain());
 		spatialDomain.addChild(createVerticalExtent());
 		spatialDomain.addChildren(createGeoLocations());
 		return spatialDomain;
 	}
 
-	private XMLElement createCoordinateSystem(IngridDocument mapContext) {
-		XMLElement coordinateSystem = new XMLElement(COORDINATE_SYSTEM, getStringForKey(MdekKeys.COORDINATE_SYSTEM, mapContext));
-		coordinateSystem.addAttribute(ID, getIntegerForKey(MdekKeys.REFERENCESYSTEM_ID, mapContext));
+	private List<XMLElement> createCoordinateSystems() {
+		List<XMLElement> elements = new ArrayList<XMLElement>();
+		List<IngridDocument> docs = getIngridDocumentListForKey(MdekKeys.SPATIAL_SYSTEM_LIST);
+		for (IngridDocument doc : docs) {
+			elements.add(createCoordinateSystem(doc));
+		}
+		return elements;
+	}
+
+	private XMLElement createCoordinateSystem(IngridDocument coordDoc) {
+		XMLElement coordinateSystem = new XMLElement(COORDINATE_SYSTEM, getStringForKey(MdekKeys.COORDINATE_SYSTEM, coordDoc));
+		coordinateSystem.addAttribute(ID, getIntegerForKey(MdekKeys.REFERENCESYSTEM_ID, coordDoc));
 		return coordinateSystem;
 	}
 	
