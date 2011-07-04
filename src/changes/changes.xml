@@ -4,12 +4,15 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-	<release version="3.0.1-SNAPSHOT" date="2011-?-?" description="Add-Ons + Bugfixes for InGrid 3.0">
+    <release version="3.0.1" date="2011-07-04" description="Add-Ons + Bugfixes for InGrid 3.0">
       <action type="add" dev="wemove" issue="INGRID23-60">
         Allow multiple spatial systems ("Raumbezugssystem"), now 1:n association.
       </action>
       <action type="fix" dev="wemove" issue="INGRID23-231">
         Import/Export: Fix handling of "Raumbezugssystem", now exported/imported for all classes and moved to "spatial-domain" in Import/Export format (new format 3.0.1).
+      </action>
+      <action type="fix" dev="wemove">
+        Import: Fix import of resolution-scan.
       </action>
     </release>
 
