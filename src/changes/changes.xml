@@ -4,6 +4,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="3.0.1.1" date="2011-08-02" description="Bugfixes for InGrid 3.0.1">
+      <action type="fix" dev="wemove">
+        Fix fetching of sys_generic_key value from ORACLE database.
+      </action>
+    </release>
+
     <release version="3.0.1" date="2011-07-04" description="Add-Ons + Bugfixes for InGrid 3.0">
       <action type="add" dev="wemove" issue="INGRID23-60">
         Allow multiple spatial systems ("Raumbezugssystem"), now 1:n association.

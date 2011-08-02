@@ -33,7 +33,7 @@ public class SysGenericKeyDaoHibernate
 			selectKeys = true;
 		}
 
-		String sql = "select distinct genericKey from SysGenericKey genericKey";
+		String sql = "select genericKey from SysGenericKey genericKey";
 		if (selectKeys) {
 			sql += " where genericKey.keyName in (:keyNameList)";
 		}
