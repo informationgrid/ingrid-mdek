@@ -4,9 +4,9 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="3.0.1.1" date="2011-08-02" description="Bugfixes for InGrid 3.0.1">
+    <release version="3.0.1.1" date="2011-08-??" description="Bugfix Release for InGrid 3.0.1">
       <action type="fix" dev="wemove">
-        Fix fetching of sys_generic_key value from ORACLE database.
+        ORACLE fixes: Fix fetching of sys_generic_key value (no distinct).
       </action>
     </release>
 
