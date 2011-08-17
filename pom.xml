@@ -29,7 +29,8 @@
     <module>ingrid-mdek-job</module>
     <module>ingrid-mdek-services</module>
     <module>ingrid-import-export</module>
-    <module>distribution</module>
+    <!-- assembly should be done in separate module, but conflicts with current release plugin configuration -->
+    <!--<module>distribution</module>-->
   </modules>
   <dependencyManagement>
     <dependencies>
@@ -79,21 +80,6 @@
     <finalName>${name}-${version}</finalName>
     
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <inherited>false</inherited>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <inherited>false</inherited>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changes-plugin</artifactId>
-        <inherited>false</inherited>
-      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>

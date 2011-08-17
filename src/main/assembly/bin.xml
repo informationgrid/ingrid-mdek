@@ -9,8 +9,8 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <moduleSets>
     <moduleSet>
-      <!-- Enable access to all projects in the current multimodule build! -->
-      <useAllReactorProjects>true</useAllReactorProjects>
+      <!-- Enable access to all projects in the current multimodule build! Needs Assembly Plugn 2.2.1! -->
+      <!--<useAllReactorProjects>true</useAllReactorProjects>-->
       
       <includes>
         <include>de.ingrid.mdek:ingrid-mdek-job</include>
@@ -31,28 +31,28 @@
   </moduleSets>
   <fileSets>
     <fileSet>
-      <directory>../ingrid-mdek-job/src/main/release/conf</directory>
+      <directory>ingrid-mdek-job/src/main/release/conf</directory>
       <outputDirectory>${project.build.finalName}/conf</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>../ingrid-mdek-job/src/main/release/scripts</directory>
+      <directory>ingrid-mdek-job/src/main/release/scripts</directory>
       <outputDirectory>${project.build.finalName}/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>../ingrid-mdek-services/src/main/release/conf</directory>
+      <directory>ingrid-mdek-services/src/main/release/conf</directory>
       <outputDirectory>${project.build.finalName}/conf</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>../src/main/release/ant-installer</directory>
+      <directory>src/main/release/ant-installer</directory>
       <outputDirectory>/</outputDirectory>
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
-      <directory>../target/installer</directory>
+      <directory>target/installer</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>../target/site</directory>
+      <directory>target/site</directory>
       <outputDirectory>${project.build.finalName}/doc</outputDirectory>
     </fileSet>
   </fileSets>

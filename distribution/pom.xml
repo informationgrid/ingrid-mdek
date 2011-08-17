@@ -47,10 +47,12 @@
           <executions>
             <execution>
               <id>distro-assembly</id>
-              <phase>deploy</phase>
+              <phase>package</phase>
               <goals>
                 <goal>single</goal>
               </goals>
+              </execution>
+          </executions>
               <configuration>
                 <appendAssemblyId>true</appendAssemblyId>
                 <archive>
@@ -70,8 +72,6 @@
                   <descriptor>src/main/assembly/bin.xml</descriptor>
                 </descriptors>
               </configuration>
-            </execution>
-          </executions>
         </plugin>
     </plugins>
   </build>
