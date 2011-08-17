@@ -155,4 +155,24 @@
       </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <!-- This profile is only used for deploying the installer into the repository during a normal build!
+           Used in Hudson! -->
+      <id>noRelease</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>wagon-maven-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <!-- NOTICE: REDEFINE directory on distribution server -->
+              <url>file:///srv/www/htdocs/ingrid/maven2/de/ingrid/mdek/${project.name}/${project.version}</url>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
