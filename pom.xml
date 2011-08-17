@@ -29,6 +29,7 @@
     <module>ingrid-mdek-job</module>
     <module>ingrid-mdek-services</module>
     <module>ingrid-import-export</module>
+    <module>distribution</module>
   </modules>
   <dependencyManagement>
     <dependencies>
@@ -76,7 +77,23 @@
   </dependencies>
   <build>
     <finalName>${name}-${version}</finalName>
+    
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>false</inherited>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>false</inherited>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-changes-plugin</artifactId>
+        <inherited>false</inherited>
+      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
@@ -93,18 +110,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <inherited>false</inherited>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <inherited>false</inherited>
-			<!-- Add Type of Component to Manifest of Installer for Upgrade Server -->
-			<configuration>
-				<archive>
-				  <manifestEntries>
-					  <ingridComponentType>IPLUG_IGE</ingridComponentType>
-				</manifestEntries>
-				</archive>
-			</configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
