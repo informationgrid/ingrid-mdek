@@ -1291,14 +1291,8 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.LEGISLATIONS, docList);
 
-		// add entry to ENV_CATEGORIES
-		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.ENV_CATEGORIES);
-		intList = (intList == null) ? new ArrayList<Integer>() : intList;
-		intList.add(new Integer(1234));
-		oDocIn.put(MdekKeys.ENV_CATEGORIES, intList);
-
 		// add entry to ENV_TOPICS
-		intList = (List<Integer>) oDocIn.get(MdekKeys.ENV_TOPICS);
+		List<Integer> intList = (List<Integer>) oDocIn.get(MdekKeys.ENV_TOPICS);
 		intList = (intList == null) ? new ArrayList<Integer>() : intList;
 		intList.add(new Integer(122));
 		oDocIn.put(MdekKeys.ENV_TOPICS, intList);
@@ -1814,13 +1808,6 @@ class MdekExampleObjectThread extends Thread {
 			if (docList != null && docList.size() > 0) {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.MEDIUM_OPTIONS, docList);				
-			}
-
-			// ENV_CATEGORIES wieder wie vorher !
-			intList = (List<Integer>) oRefetchedDoc.get(MdekKeys.ENV_CATEGORIES);
-			if (intList != null && intList.size() > 0) {
-				intList.remove(intList.size()-1);
-				oRefetchedDoc.put(MdekKeys.ENV_CATEGORIES, intList);				
 			}
 
 			// ENV_TOPICS wieder wie vorher !

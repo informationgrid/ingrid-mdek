@@ -1,4 +1,4 @@
-package de.ingrid.mdek.xml.importer.mapper.version300;
+package de.ingrid.mdek.xml.importer.mapper.version311;
 
 import static de.ingrid.mdek.xml.util.IngridDocUtils.getOrCreateNew;
 import static de.ingrid.mdek.xml.util.IngridDocUtils.putDocList;
@@ -51,7 +51,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_TOPIC_CATEGORIES = "//data-source/general/topic-categories/topic-category/@id";
 	private static final String X_IS_CATALOG = "//data-source/general/env-information/is-catalog/text()";
 	private static final String X_ENV_TOPICS = "//data-source/general/env-information/env-topic/@id";
-	private static final String X_ENV_CATEGORIES = "//data-source/general/env-information/env-category/@id";
 	private static final String X_IS_INSPIRE_RELEVANT = "//data-source/general/is-inspire-relevant/text()";
 	private static final String X_TECHNICAL_DOMAIN_DATASET = "//data-source/technical-domain/dataset";
 	private static final String X_TECHNICAL_DOMAIN_SERVICE = "//data-source/technical-domain/service";
@@ -69,7 +68,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_PUBLICATION_SCALE_LIST = "publication-scale";
 	private static final String X_PUBLICATION_SCALE_SCALE = "scale";
 	private static final String X_PUBLICATION_SCALE_RES_GROUND = "resolution-ground";
-	private static final String X_PUBLICATION_SCALE_RES_SCAN = "resolution-scale";
+	private static final String X_PUBLICATION_SCALE_RES_SCAN = "resolution-scan";
 	private static final String X_SERVICE_SYSTEM_HISTORY = "system-history/text()";
 	private static final String X_SERVICE_DATABASE_OF_SYSTEM = "database-of-system/text()";
 	private static final String X_SERVICE_SYSTEM_ENVIRONMENT = "system-environment/text()";
@@ -110,8 +109,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_HIERARCHY_LEVEL = "hierarchy-level/@iso-code";
 	private static final String X_MAP_DATA = "data/text()";
 	private static final String X_MAP_RESOLUTION = "resolution/text()";
-	private static final String X_MAP_COORDINATE_SYSTEM = "coordinate-system/text()";
-	private static final String X_MAP_COORDINATE_SYSTEM_KEY = "coordinate-system/@id";
 	private static final String X_MAP_KEY_CATALOGUE_LIST = "key-catalogue";
 	private static final String X_MAP_KEY_CATALOGUE = "key-cat/text()";
 	private static final String X_MAP_KEY_CATALOGUE_KEY = "key-cat/@id";
@@ -179,6 +176,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_DQ_NAME_OF_MEASURE_VALUE = "dq-name-of-measure/text()";
 	private static final String X_ADDITIONAL_DQ_RESULT_VALUE = "dq-result-value/text()";
 	private static final String X_ADDITIONAL_DQ_MEASURE_DESCRIPTION = "dq-measure-description/text()";
+	private static final String X_SPATIAL_COORDINATE_SYSTEM_LIST = "//data-source/spatial-domain/coordinate-system";
 	private static final String X_SPATIAL_DESCRIPTION = "//data-source/spatial-domain/description-of-spatial-domain/text()";
 	private static final String X_SPATIAL_VERTICAL_EXTENT_MINIMUM = "//data-source/spatial-domain/vertical-extent/vertical-extent-minimum/text()";
 	private static final String X_SPATIAL_VERTICAL_EXTENT_MAXIMUM = "//data-source/spatial-domain/vertical-extent/vertical-extent-maximum/text()";
@@ -192,7 +190,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_SPATIAL_GEO_LOCATION_NAME_KEY = "location-name/@id";
 	private static final String X_SPATIAL_GEO_TOPIC_TYPE = "topic-type/text()";
 	private static final String X_SPATIAL_GEO_LOCATION_CODE = "location-code/text()";
-	private static final String X_SPATIAL_GEO_SNS_TOPIC_TYPE = "sns-topic-type/text()";
 	private static final String X_SPATIAL_GEO_BOUND_WEST = "bounding-coordinates/west-bounding-coordinate/text()";
 	private static final String X_SPATIAL_GEO_BOUND_EAST = "bounding-coordinates/east-bounding-coordinate/text()";
 	private static final String X_SPATIAL_GEO_BOUND_NORTH = "bounding-coordinates/north-bounding-coordinate/text()";
@@ -272,7 +269,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putString(MdekKeys.IS_CATALOG_DATA, XPathUtils.getString(source, X_IS_CATALOG), target);
 		putString(MdekKeys.IS_INSPIRE_RELEVANT, XPathUtils.getString(source, X_IS_INSPIRE_RELEVANT), target);
 		mapEnvTopics(source, target);
-		mapEnvCategories(source, target);
 	}
 
 	private static void mapGeneralAdditionalValues(Document source, IngridDocument target) {
@@ -327,11 +323,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapEnvTopics(Document source, IngridDocument target) {
 		mapIntList(source, X_ENV_TOPICS, target, MdekKeys.ENV_TOPICS);
-	}
-
-	private static void mapEnvCategories(Document source, IngridDocument target) {
-		// TODO: ENV_CATEGORIES removed with version 311 
-//		mapIntList(source, X_ENV_CATEGORIES, target, MdekKeys.ENV_CATEGORIES);
 	}
 
 	private static void mapTechnicalDomain(Document source, IngridDocument target) {
@@ -540,10 +531,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getString(map, X_MAP_DATA), target);
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.RESOLUTION},
 				XPathUtils.getDouble(map, X_MAP_RESOLUTION), target);
-		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.COORDINATE_SYSTEM},
-				XPathUtils.getString(map, X_MAP_COORDINATE_SYSTEM), target);
-		putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.REFERENCESYSTEM_ID},
-				XPathUtils.getInt(map, X_MAP_COORDINATE_SYSTEM_KEY), target);
 		mapPublicationScales(map, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_MAP));
 		mapKeyCatalogue(map, target);
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DEGREE_OF_RECORD},
@@ -827,6 +814,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	}
 
 	private static void mapSpatialDomain(Document source, IngridDocument target) {
+		mapCoordinateSystems(source, target);
 		putString(MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN, XPathUtils.getString(source, X_SPATIAL_DESCRIPTION), target);
 		putDouble(MdekKeys.VERTICAL_EXTENT_MAXIMUM, XPathUtils.getDouble(source, X_SPATIAL_VERTICAL_EXTENT_MAXIMUM), target);
 		putDouble(MdekKeys.VERTICAL_EXTENT_MINIMUM, XPathUtils.getDouble(source, X_SPATIAL_VERTICAL_EXTENT_MINIMUM), target);
@@ -834,6 +822,21 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putString(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE, XPathUtils.getString(source, X_SPATIAL_VERTICAL_EXTENT_VDATUM_VALUE), target);
 		putInt(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY, XPathUtils.getInt(source, X_SPATIAL_VERTICAL_EXTENT_VDATUM_KEY), target);
 		mapGeoLocations(source, target);
+	}
+
+	private static void mapCoordinateSystems(Document source, IngridDocument target) {
+		NodeList coordSystemNodes = XPathUtils.getNodeList(source, X_SPATIAL_COORDINATE_SYSTEM_LIST);
+		List<IngridDocument> docList = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < coordSystemNodes.getLength(); index++) {
+			Node coordSystemNode = coordSystemNodes.item(index);
+			IngridDocument doc = new IngridDocument();
+			putString(MdekKeys.COORDINATE_SYSTEM, coordSystemNode.getTextContent(), doc);
+			putInt(MdekKeys.REFERENCESYSTEM_ID, XPathUtils.getInt(coordSystemNode, X_ATTRIBUTE_ID), doc);
+			docList.add(doc);
+		}
+
+		putDocList(MdekKeys.SPATIAL_SYSTEM_LIST, docList, target);
 	}
 
 	private static void mapGeoLocations(Document source, IngridDocument target) {

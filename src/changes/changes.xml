@@ -4,6 +4,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
+      <action type="update" issue="INGRID31-22">
+        Remove environmental categories from catalog (t0114_env_category + syslist 1400). Categorization now only via environmental topics.
+      </action>
+    </release>
+
     <release version="3.1.0" date="2011-09-15" description="Release InGrid 3.1">
       <action type="fix" dev="wemove">
         ORACLE fixes: Fix fetching of sys_generic_key value (no distinct).

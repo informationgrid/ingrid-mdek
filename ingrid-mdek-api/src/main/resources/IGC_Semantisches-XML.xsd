@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="3.0.1"/>
+    <xs:attribute name="exchange-format" default="3.1.1"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -281,14 +281,13 @@
   <xs:element name="topic-category" type="id"/>
   <!--
     Fachlicher Name: Katalog Umweltthemen Infos (Katalogseite)
-    Tabellen   : T01_object, T0114_env_topic, T0114_env_category
+    Tabellen   : T01_object, T0114_env_topic
   -->
   <xs:element name="env-information">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="is-catalog"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="env-topic"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="env-category"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -307,11 +306,6 @@
     Tabelle.Feld   : T0114_env_topic.topic_key
   -->
   <xs:element name="env-topic" type="id"/>
-  <!--
-    Fachlicher Name: Umweltkategorie Schlüssel (Katalogseite)
-    Tabelle.Feld   : t0114_env_category.cat_key
-  -->
-  <xs:element name="env-category" type="id"/>
   <!--
     Fachlicher Name: Objektklassen
   -->

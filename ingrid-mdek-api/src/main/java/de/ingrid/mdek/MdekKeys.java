@@ -867,8 +867,6 @@ public class MdekKeys {
     
     // ENVIRONMENT-TOPICS / -CATEGORIES
     /** Value: List< Integer > */
-    public final static String ENV_CATEGORIES = "env-categories";
-    /** Value: List< Integer > */
     public final static String ENV_TOPICS = "env-topics";
 
     // TOPIC-CATEGORIES

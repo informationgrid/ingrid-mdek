@@ -66,7 +66,6 @@ public class ConsistencyCheckerDaoHibernate
 		tableList.add(new QueryParameter("T0110AvailFormat", "objId", "T01Object", new String[]{"id"}));
 		tableList.add(new QueryParameter("T0112MediaOption", "objId", "T01Object", new String[]{"id"}));
 		tableList.add(new QueryParameter("T0113DatasetReference", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T0114EnvCategory", "objId", "T01Object", new String[]{"id"}));
 		tableList.add(new QueryParameter("T0114EnvTopic", "objId", "T01Object", new String[]{"id"}));
 		tableList.add(new QueryParameter("T011ObjDataPara", "objId", "T01Object", new String[]{"id"}));
 		tableList.add(new QueryParameter("T011ObjData", "objId", "T01Object", new String[]{"id"}));

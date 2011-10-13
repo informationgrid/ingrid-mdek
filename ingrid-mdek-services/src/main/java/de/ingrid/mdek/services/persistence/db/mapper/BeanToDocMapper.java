@@ -9,9 +9,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.UserOperation;
@@ -46,7 +46,6 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
-import de.ingrid.mdek.services.persistence.db.model.T0114EnvCategory;
 import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
@@ -301,7 +300,6 @@ public class BeanToDocMapper implements IMapper {
 			mapT015Legists(o.getT015Legists(), objectDoc);
 			mapT0110AvailFormats(o.getT0110AvailFormats(), objectDoc);
 			mapT0112MediaOptions(o.getT0112MediaOptions(), objectDoc);
-			mapT0114EnvCategorys(o.getT0114EnvCategorys(), objectDoc);
 			mapT0114EnvTopics(o.getT0114EnvTopics(), objectDoc);
 			mapT011ObjTopicCats(o.getT011ObjTopicCats(), objectDoc);
 
@@ -1376,19 +1374,6 @@ public class BeanToDocMapper implements IMapper {
 	{
 		ArrayList<IEntity> termEntityRefs = new ArrayList<IEntity>(refs);
 		return mapSearchterms(IdcEntityType.ADDRESS, termEntityRefs, addressDoc, howMuch);
-	}
-
-	private IngridDocument mapT0114EnvCategorys(Set<T0114EnvCategory> refs, IngridDocument objectDoc) {
-		if (refs == null) {
-			return objectDoc;
-		}
-		ArrayList<Integer> refList = new ArrayList<Integer>(refs.size());
-		for (T0114EnvCategory ref : refs) {
-			refList.add(ref.getCatKey());				
-		}
-		objectDoc.put(MdekKeys.ENV_CATEGORIES, refList);
-		
-		return objectDoc;
 	}
 
 	private IngridDocument mapT0114EnvTopics(Set<T0114EnvTopic> refs, IngridDocument objectDoc) {

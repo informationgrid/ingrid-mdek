@@ -280,7 +280,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	}
 
 	private static void mapEnvCategories(Document source, IngridDocument target) {
-		mapIntList(source, X_ENV_CATEGORIES, target, MdekKeys.ENV_CATEGORIES);
+		// TODO: ENV_CATEGORIES removed with version 311 
+//		mapIntList(source, X_ENV_CATEGORIES, target, MdekKeys.ENV_CATEGORIES);
 	}
 
 	private static void mapTechnicalDomain(Document source, IngridDocument target) {

@@ -196,7 +196,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		XMLElement envInformation = new XMLElement(ENV_INFORMATION);
 		envInformation.addChild(new XMLElement(IS_CATALOG, getStringForKey(MdekKeys.IS_CATALOG_DATA)));
 		envInformation.addChildren(createEnvTopics());
-		envInformation.addChildren(createEnvCategories());
 		return envInformation;
 	}
 
@@ -216,18 +215,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return envTopics;
 	}
 	
-	private List<XMLElement> createEnvCategories() {
-		List<XMLElement> envCategories = new ArrayList<XMLElement>();
-		List<Integer> envCategoryIds = getIntegerListForKey(MdekKeys.ENV_CATEGORIES);
-
-		for (Integer envCategoryId : envCategoryIds) {
-			XMLElement envCategoryElement = new XMLElement(ENV_CATEGORY);
-			envCategoryElement.addAttribute(ID, envCategoryId);
-			envCategories.add(envCategoryElement);
-		}
-		return envCategories;
-	}
-
 	private XMLElement createTechnicalDomain() {
 		XMLElement technicalDomain = new XMLElement(TECHNICAL_DOMAIN);
 		technicalDomain.addChild(createDataset(getIngridDocumentForKey(MdekKeys.TECHNICAL_DOMAIN_DATASET)));

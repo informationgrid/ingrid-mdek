@@ -134,7 +134,6 @@
 			<xs:element name="medium-options" type="MEDIUM_OPTION_LIST"/>
 			<xs:element name="subject-terms" type="SUBJECT_TERM_LIST"/>
 			<xs:element name="subject-terms-inspire" type="SUBJECT_TERM_INSPIRE_LIST"/>
-			<xs:element name="env-categories" type="INTEGER_LIST"/>
 			<xs:element name="env-topics" type="INTEGER_LIST"/>
 			<xs:element name="topic-categories" type="INTEGER_LIST"/>
 			<xs:element name="comment_list" type="COMMENT_LIST"/>

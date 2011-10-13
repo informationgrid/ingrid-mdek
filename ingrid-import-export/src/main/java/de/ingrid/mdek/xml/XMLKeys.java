@@ -167,7 +167,6 @@ public class XMLKeys {
 	public static final String METHOD = "method";
 	public static final String DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
 	public static final String DATASET = "dataset";
-	public static final String ENV_CATEGORY = "env-category";
 	public static final String ENV_TOPIC = "env-topic";
 	public static final String IS_CATALOG = "is-catalog";
 	public static final String IS_INSPIRE_RELEVANT = "is-inspire-relevant";

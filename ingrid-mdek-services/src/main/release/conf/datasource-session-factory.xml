@@ -50,7 +50,6 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T0110AvailFormat.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0112MediaOption.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0113DatasetReference.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T0114EnvCategory.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0114EnvTopic.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjData.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjDataPara.hbm.xml</value>
@@ -114,7 +113,6 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0112MediaOption">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference">read-write</prop>
-            <prop key="de.ingrid.mdek.services.persistence.db.model.T0114EnvCategory">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjData">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara">read-write</prop>
@@ -177,7 +175,6 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0110AvailFormats">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0112MediaOptions">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0113DatasetReferences">read-write</prop>
-            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0114EnvCategorys">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t0114EnvTopics">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjDatas">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.t011ObjDataParas">read-write</prop>

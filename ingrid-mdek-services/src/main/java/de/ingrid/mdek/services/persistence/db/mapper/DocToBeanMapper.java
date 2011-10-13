@@ -10,9 +10,9 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
@@ -51,7 +51,6 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
 import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
-import de.ingrid.mdek.services.persistence.db.model.T0114EnvCategory;
 import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
@@ -379,7 +378,6 @@ public class DocToBeanMapper implements IMapper {
 			updateT015Legists(oDocIn, oIn);
 			updateT0110AvailFormats(oDocIn, oIn);
 			updateT0112MediaOptions(oDocIn, oIn);
-			updateT0114EnvCategorys(oDocIn, oIn);
 			updateT0114EnvTopics(oDocIn, oIn);
 			updateT011ObjTopicCats(oDocIn, oIn);
 
@@ -1741,39 +1739,6 @@ public class DocToBeanMapper implements IMapper {
 		}
 
 		return termValue;
-	}
-
-	private T0114EnvCategory mapT0114EnvCategory(T01Object oFrom,
-			Integer refValue,
-			T0114EnvCategory ref,
-			int line)
-	{
-		ref.setObjId(oFrom.getId());
-		ref.setCatKey(refValue);
-		ref.setLine(line);
-
-		return ref;
-	}
-	private void updateT0114EnvCategorys(IngridDocument oDocIn, T01Object oIn) {
-		List<Integer> refValues = (List) oDocIn.get(MdekKeys.ENV_CATEGORIES);
-		if (refValues == null) {
-			refValues = new ArrayList<Integer>(0);
-		}
-		Set<T0114EnvCategory> refs = oIn.getT0114EnvCategorys();
-		ArrayList<T0114EnvCategory> refs_unprocessed = new ArrayList<T0114EnvCategory>(refs);
-		// remove all !
-		for (T0114EnvCategory ref : refs_unprocessed) {
-			refs.remove(ref);
-			// delete-orphan doesn't work !!!?????
-			dao.makeTransient(ref);			
-		}		
-		// and add all new ones !
-		int line = 1;
-		for (Integer refVal : refValues) {
-			T0114EnvCategory ref = mapT0114EnvCategory(oIn, refVal, new T0114EnvCategory(), line);
-			refs.add(ref);
-			line++;
-		}
 	}
 
 	private T0114EnvTopic mapT0114EnvTopic(T01Object oFrom,

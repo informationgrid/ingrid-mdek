@@ -929,11 +929,6 @@ public class MdekExampleSupertool {
 				System.out.println("   " + doc);								
 			}			
 		}
-		strList = (List<String>) oDoc.get(MdekKeys.ENV_CATEGORIES);
-		if (strList != null && strList.size() > 0) {
-			System.out.println("  Env Categories: " + strList.size() + " entries");
-			System.out.println("   " + strList);
-		}
 		strList = (List<String>) oDoc.get(MdekKeys.ENV_TOPICS);
 		if (strList != null && strList.size() > 0) {
 			System.out.println("  Env Topics: " + strList.size() + " entries");

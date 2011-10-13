@@ -436,10 +436,10 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("DELETE ADDRESS (Gesamtkatalogmanagement)");
 		System.out.println("=========================");
 
-		System.out.println("\n----- STORE new 'Address to replace' (will be AUSKUNFT, RESPONSIBLE USER) -----");
+		System.out.println("\n----- PUBLISH new 'Address to replace' (will be AUSKUNFT, RESPONSIBLE USER) -----");
 		doc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		doc.put(MdekKeys.ORGANISATION, "testADDRESS_TO_REPLACE");
-		doc = supertool.storeAddress(doc, true);
+		doc = supertool.publishAddress(doc, true);
 		String uuidToReplace = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- STORE new SUB-ADDRESS of 'Address to replace' -----");
@@ -535,8 +535,10 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.replaceAddress(catalogAdminUuid, uuidToReplaceWith);
 		System.out.println("\n----- REPLACE with equal Addresses -> Error: FROM_UUID_EQUALS_TO_UUID -----");
 		supertool.replaceAddress(uuidToReplace, uuidToReplace);
-		System.out.println("\n----- REPLACE with UNPUBLISHED new Address -> Error: ENTITY_NOT_PUBLISHED -----");
-		supertool.replaceAddress(uuidToReplaceWith, uuidToReplace);
+
+		System.out.println("\n----- REPLACE PUBLISHED with UNPUBLISHED new Address -> Error: ENTITY_NOT_PUBLISHED -----");
+		supertool.replaceAddress(uuidToReplaceWith, uuidSubaddress);
+		
 		System.out.println("\n----- REPLACE address has subnodes -> Error: NODE_HAS_SUBNODES -----");
 		supertool.replaceAddress(uuidToReplace, uuidToReplaceWith);
 
