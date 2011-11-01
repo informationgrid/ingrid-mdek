@@ -476,8 +476,9 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		// ObjectConformity
 		Set<ObjectConformity> objConforms = o.getObjectConformitys();
 		for (ObjectConformity objConform : objConforms) {
-			extendFullData(data, objConform.getSpecification());
-			extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY,
+			extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY_SPECIFICATION,
+					objConform.getSpecificationKey(), objConform.getSpecificationValue());				
+			extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY_DEGREE,
 					objConform.getDegreeKey(), objConform.getDegreeValue());				
 		}
 		// ObjectAccess
@@ -489,7 +490,8 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		// ObjectUse
 		Set<ObjectUse> objUses = o.getObjectUses();
 		for (ObjectUse objUse : objUses) {
-			extendFullData(data, objUse.getTermsOfUse());
+			extendFullDataWithSysList(data, MdekSysList.OBJ_USE,
+					objUse.getTermsOfUseKey(), objUse.getTermsOfUseValue());				
 		}
 		// Data Quality
 		Set<ObjectDataQuality> objDQs = o.getObjectDataQualitys();

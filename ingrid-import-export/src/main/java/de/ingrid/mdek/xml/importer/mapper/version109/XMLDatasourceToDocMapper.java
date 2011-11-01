@@ -666,7 +666,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < useConstraints.getLength(); index++) {
 			Node useConstraint = useConstraints.item(index);
 			IngridDocument useConstraintDoc = new IngridDocument();
-			putString(MdekKeys.USE_TERMS_OF_USE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE), useConstraintDoc);
+			// TODO: CHANGED IN VERSION 3.2.0. !!! Fix if import of older formats needed !
+//			putString(MdekKeys.USE_TERMS_OF_USE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE), useConstraintDoc);
 
 			useConstraintList.add(useConstraintDoc);
 		}
@@ -734,10 +735,12 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < conformities.getLength(); index++) {
 			Node conformity = conformities.item(index);
 			IngridDocument conformityDoc = new IngridDocument();
-			putString(MdekKeys.CONFORMITY_SPECIFICATION, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION), conformityDoc);
+			// TODO: CHANGED IN VERSION 3.2.0. !!! Fix if import of older formats needed !
+//			putString(MdekKeys.CONFORMITY_SPECIFICATION, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION), conformityDoc);
 			putString(MdekKeys.CONFORMITY_DEGREE_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_DEGREE), conformityDoc);
 			putInt(MdekKeys.CONFORMITY_DEGREE_KEY, XPathUtils.getInt(conformity, X_ADDITIONAL_CONFORMITY_DEGREE_KEY), conformityDoc);
-			putString(MdekKeys.CONFORMITY_PUBLICATION_DATE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE), conformityDoc);
+			// TODO: REMOVED IN VERSION 3.2.0. !!! Fix if import of older formats needed !
+//			putString(MdekKeys.CONFORMITY_PUBLICATION_DATE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE), conformityDoc);
 
 			conformityList.add(conformityDoc);
 		}

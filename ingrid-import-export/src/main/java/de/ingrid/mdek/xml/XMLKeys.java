@@ -58,7 +58,6 @@ public class XMLKeys {
 	public static final String VERTICAL_EXTENT = "vertical-extent";
 	public static final String DESCRIPTION_OF_SPATIAL_DOMAIN = "description-of-spatial-domain";
 	public static final String CONFORMITY_DEGREE = "conformity-degree";
-	public static final String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
 	public static final String CONFORMITY_SPECIFICATION = "conformity-specification";
 	public static final String CONFORMITY = "conformity";
 	public static final String DATA_QUALITY = "data-quality";

@@ -197,6 +197,81 @@ class MdekExampleExportImportObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		// Test EXPORT / IMPORT new Exchange Format 3.2.0
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- object details -----");
+		IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+		
+		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+
+		// add entry to OBJECT USE, now key/value from new syslist
+		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		// check USE_TERMS_OF_USE_KEY -> USE_TERMS_OF_USE_VALUE is stored via syslist
+		testDoc.put(MdekKeys.USE_TERMS_OF_USE_KEY, 1);
+		docList.add(testDoc);
+		oDoc.put(MdekKeys.USE_LIST, docList);
+
+		// add entry to OBJECT CONFORMITY, specification now key/value from new syslist
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.CONFORMITY_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check CONFORMITY_SPECIFICATION_KEY -> CONFORMITY_SPECIFICATION_VALUE is stored via syslist
+		testDoc.put(MdekKeys.CONFORMITY_SPECIFICATION_KEY, 12);
+		// check CONFORMITY_DEGREE_KEY -> CONFORMITY_DEGREE_VALUE is stored via syslist
+		testDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, 1);
+		docList.add(testDoc);
+		oDoc.put(MdekKeys.CONFORMITY_LIST, docList);
+
+		oDoc = supertool.publishObject(oDoc, true, false);
+
+		System.out.println("\n----- export object -----");
+		supertool.exportObjectBranch(objUuid, true);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import object as WORKING VERSION -----");
+		// OVERWRITE !!!
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+//		System.out.println("\n----- discard changes (working copy) -----");
+//		supertool.deleteObjectWorkingCopy(objUuid, true);
+
+		System.out.println("\n----- discard changes -> remove former change and publish -----");
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_LIST);
+		docList.remove(docList.size()-1);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.CONFORMITY_LIST);
+		docList.remove(docList.size()-1);
+		result = supertool.publishObject(oDoc, true, false);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+/*
 		// Test EXPORT / IMPORT new Exchange Format 3.0.1
 		// --------------------------
 		supertool.setFullOutput(true);

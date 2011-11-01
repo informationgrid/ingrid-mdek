@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="3.1.1"/>
+    <xs:attribute name="exchange-format" default="3.2.0"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -939,9 +939,10 @@
   </xs:element>
   <!--
     Fachlicher Name: Nutzungsbedingungen
-    Tabelle.Feld   : object_access.terms_of_use
+    Tabelle.Feld   : object_use.terms_of_use_key
+    Tabelle.Feld   : object_use.terms_of_use_value
   -->
-  <xs:element name="terms-of-use" type="xs:string"/>
+  <xs:element name="terms-of-use" type="id-string"/>
   <!--
     Fachlicher Name: 
     Tabelle.Feld   : t0112_media_option
@@ -1072,26 +1073,21 @@
       <xs:sequence>
         <xs:element ref="conformity-specification"/>
         <xs:element ref="conformity-degree"/>
-        <xs:element ref="conformity-publication-date"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
     Fachlicher Name: Konformität -> Spezifikation
-    Tabelle.Feld   : object_conformity.specification
+    Tabelle.Feld   : object_conformity.specification_key
+    Tabelle.Feld   : object_conformity.specification_value
   -->
-  <xs:element name="conformity-specification" type="xs:string"/>
+  <xs:element name="conformity-specification" type="id-string"/>
   <!--
     Fachlicher Name: Grad der Konformität
     Tabelle.Feld   : object_conformity.degree_key
     Tabelle.Feld   : object_conformity.degree_value
   -->
   <xs:element name="conformity-degree" type="id-string"/>
-  <!--
-    Fachlicher Name: Konformität -> Veröffentlichungsdatum der Spezifikation
-    Tabelle.Feld   : object_conformity.publication_date
-  -->
-  <xs:element name="conformity-publication-date" type="xs:string"/>
   <!--
     Fachlicher Name: Objekt Datenqualität (INSPIRE)
     Tabelle   : object_data_quality

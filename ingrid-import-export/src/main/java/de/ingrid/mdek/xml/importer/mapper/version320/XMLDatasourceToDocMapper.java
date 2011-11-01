@@ -1,4 +1,4 @@
-package de.ingrid.mdek.xml.importer.mapper.version311;
+package de.ingrid.mdek.xml.importer.mapper.version320;
 
 import static de.ingrid.mdek.xml.util.IngridDocUtils.getOrCreateNew;
 import static de.ingrid.mdek.xml.util.IngridDocUtils.putDocList;
@@ -144,7 +144,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION = "restriction/text()";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION_KEY = "restriction/@id";
 	private static final String X_ADDITIONAL_USE_CONSTRAINT_LIST = "//data-source/additional-information/use-constraint";
-	private static final String X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE = "terms-of-use";
+	private static final String X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE = "terms-of-use/text()";
+	private static final String X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE_KEY = "terms-of-use/@id";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_LIST = "//data-source/additional-information/medium-option";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NAME = "medium-name/@iso-code";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NOTE = "medium-note/text()";
@@ -167,9 +168,9 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_COMMENT_DATE_OF_CREATION = "date-of-creation/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_LIST = "//data-source/additional-information/conformity";
 	private static final String X_ADDITIONAL_CONFORMITY_SPECIFICATION = "conformity-specification/text()";
+	private static final String X_ADDITIONAL_CONFORMITY_SPECIFICATION_KEY = "conformity-specification/@id";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE = "conformity-degree/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE_KEY = "conformity-degree/@id";
-	private static final String X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE = "conformity-publication-date/text()";
 	private static final String X_ADDITIONAL_DQ_LIST = "//data-source/additional-information/data-quality";
 	private static final String X_ADDITIONAL_DQ_ELEMENT_ID = "dq-element-id/text()";
 	private static final String X_ADDITIONAL_DQ_NAME_OF_MEASURE_KEY = "dq-name-of-measure/@id";
@@ -699,7 +700,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < useConstraints.getLength(); index++) {
 			Node useConstraint = useConstraints.item(index);
 			IngridDocument useConstraintDoc = new IngridDocument();
-			putString(MdekKeys.USE_TERMS_OF_USE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE), useConstraintDoc);
+			putString(MdekKeys.USE_TERMS_OF_USE_VALUE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE), useConstraintDoc);
+			putInt(MdekKeys.USE_TERMS_OF_USE_KEY, XPathUtils.getInt(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE_KEY), useConstraintDoc);
 
 			useConstraintList.add(useConstraintDoc);
 		}
@@ -783,10 +785,10 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < conformities.getLength(); index++) {
 			Node conformity = conformities.item(index);
 			IngridDocument conformityDoc = new IngridDocument();
-			putString(MdekKeys.CONFORMITY_SPECIFICATION, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION), conformityDoc);
+			putString(MdekKeys.CONFORMITY_SPECIFICATION_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION), conformityDoc);
+			putInt(MdekKeys.CONFORMITY_SPECIFICATION_KEY, XPathUtils.getInt(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION_KEY), conformityDoc);
 			putString(MdekKeys.CONFORMITY_DEGREE_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_DEGREE), conformityDoc);
 			putInt(MdekKeys.CONFORMITY_DEGREE_KEY, XPathUtils.getInt(conformity, X_ADDITIONAL_CONFORMITY_DEGREE_KEY), conformityDoc);
-			putString(MdekKeys.CONFORMITY_PUBLICATION_DATE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE), conformityDoc);
 
 			conformityList.add(conformityDoc);
 		}

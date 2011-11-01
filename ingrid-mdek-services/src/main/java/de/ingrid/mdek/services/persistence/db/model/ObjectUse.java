@@ -8,7 +8,8 @@ public class ObjectUse implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
-	private String termsOfUse;
+	private Integer termsOfUseKey;
+	private String termsOfUseValue;
 
 
 	public ObjectUse() {}
@@ -45,12 +46,20 @@ public class ObjectUse implements IEntity {
 		this.line = line;
 	}
 
-	public String getTermsOfUse() {
-		return termsOfUse;
+	public Integer getTermsOfUseKey() {
+		return termsOfUseKey;
 	}
 
-	public void setTermsOfUse(String termsOfUse) {
-		this.termsOfUse = termsOfUse;
+	public void setTermsOfUseKey(Integer termsOfUseKey) {
+		this.termsOfUseKey = termsOfUseKey;
+	}
+
+	public String getTermsOfUseValue() {
+		return termsOfUseValue;
+	}
+
+	public void setTermsOfUseValue(String termsOfUseValue) {
+		this.termsOfUseValue = termsOfUseValue;
 	}
 
 

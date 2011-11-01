@@ -15,6 +15,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
@@ -71,6 +72,7 @@ public class MdekKeyValueHandler {
 		ObjectFormatInspire.class,
 		AdditionalFieldData.class,
 		SpatialSystem.class,
+		ObjectUse.class,
 	};
 
 	/** Get The Singleton */
@@ -146,6 +148,8 @@ public class MdekKeyValueHandler {
 			processKeyValueAdditionalFieldData((AdditionalFieldData) bean);
 		} else if (SpatialSystem.class.isAssignableFrom(clazz)) {
 			processKeyValueSpatialSystem((SpatialSystem) bean);
+		} else if (ObjectUse.class.isAssignableFrom(clazz)) {
+			processKeyValueObjectUse((ObjectUse) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -410,10 +414,19 @@ public class MdekKeyValueHandler {
 		Integer entryKey = bean.getDegreeKey();
 		if (entryKey != null && entryKey > -1) {
 			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.OBJ_CONFORMITY.getDbValue(),
+				MdekSysList.OBJ_CONFORMITY_DEGREE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
 			bean.setDegreeValue(keyNameMap.get(entryKey));
+		}
+		
+		entryKey = bean.getSpecificationKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_CONFORMITY_SPECIFICATION.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setSpecificationValue(keyNameMap.get(entryKey));
 		}
 		
 		return bean;
@@ -608,6 +621,19 @@ public class MdekKeyValueHandler {
 				catalogService.getCatalogLanguage());
 
 			bean.setReferencesystemValue(keyNameMap.get(entryKey));
+		}
+		
+		return bean;
+	}
+
+	private IEntity processKeyValueObjectUse(ObjectUse bean) {
+		Integer entryKey = bean.getTermsOfUseKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_USE.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setTermsOfUseValue(keyNameMap.get(entryKey));
 		}
 		
 		return bean;

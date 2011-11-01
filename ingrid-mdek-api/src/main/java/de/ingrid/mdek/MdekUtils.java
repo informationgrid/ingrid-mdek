@@ -38,10 +38,10 @@ public class MdekUtils {
 	/** Entry ID of EMAIL in syslist COMM_TYPE (4430) */
 	public final static Integer COMM_TYPE_EMAIL = 3;
 
-	/** Entry ID "nicht evaluiert" in syslist OBJ_CONFORMITY (6000) */
+	/** Entry ID "nicht evaluiert" in syslist OBJ_CONFORMITY (6000), is default */
 	public final static Integer OBJ_CONFORMITY_NOT_EVALUATED = 3;
-	/** INSPIRE-"Specification" String in ObjectConformity entity */
-	public final static String OBJ_CONFORMITY_SPECIFICATION_INSPIRE = "INSPIRE-Richtlinie";
+	/** "INSPIRE Richtline"-"Specification" String in ObjectConformity entity, is default */
+	public final static Integer OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY = 13;
 
 
 	public final static String YES = "Y";
@@ -95,8 +95,10 @@ public class MdekUtils {
 		ADDRESS_VALUE(4300, "T02Address -> addressKey=entryId, addressValue=name"),
 		ADDRESS_TITLE(4305, "T02Address -> titleKey=entryId, titleValue=name"),
 		COMM_TYPE(4430, "T021Communication -> commtypeKey=entryId, commtypeValue=name"),
-		OBJ_CONFORMITY(6000, "ObjectConformity -> degreeKey=entryId, degreeValue=name"),
+		OBJ_CONFORMITY_DEGREE(6000, "ObjectConformity -> degreeKey=entryId, degreeValue=name"),
+		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity -> specificationKey=entryId, specificationValue=name"),
 		OBJ_ACCESS(6010, "ObjectAccess -> restrictionKey=entryId, restrictionValue=name"),
+		OBJ_USE(6020, "ObjectUse -> termsOfUseKey=entryId, termsOfUseValue=name"),
 		OBJ_TOPIC_CAT(527, "T011ObjTopicCat -> topicCategory=entryId"),
 		/** INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)"),

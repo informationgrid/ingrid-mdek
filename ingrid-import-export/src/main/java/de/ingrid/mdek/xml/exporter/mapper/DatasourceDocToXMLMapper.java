@@ -678,8 +678,14 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createUseConstraint(IngridDocument useConstraintContext) {
 		XMLElement useConstraint = new XMLElement(USE_CONSTRAINT);
-		useConstraint.addChild(new XMLElement(TERMS_OF_USE, getStringForKey(MdekKeys.USE_TERMS_OF_USE, useConstraintContext)));
+		useConstraint.addChild(createTermsOfUse(useConstraintContext));
 		return useConstraint;
+	}
+
+	private XMLElement createTermsOfUse(IngridDocument useConstraintContext) {
+		XMLElement termsOfUse = new XMLElement(TERMS_OF_USE, getStringForKey(MdekKeys.USE_TERMS_OF_USE_VALUE, useConstraintContext));
+		termsOfUse.addAttribute(ID, getIntegerForKey(MdekKeys.USE_TERMS_OF_USE_KEY, useConstraintContext));
+		return termsOfUse;
 	}
 
 	private List<XMLElement> createMediumOptions() {
@@ -793,10 +799,15 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createConformity(IngridDocument conformityContext) {
 		XMLElement conformity = new XMLElement(CONFORMITY);
-		conformity.addChild(new XMLElement(CONFORMITY_SPECIFICATION, getStringForKey(MdekKeys.CONFORMITY_SPECIFICATION, conformityContext)));
+		conformity.addChild(createConformitySpecification(conformityContext));
 		conformity.addChild(createConformityDegree(conformityContext));
-		conformity.addChild(new XMLElement(CONFORMITY_PUBLICATION_DATE, getStringForKey(MdekKeys.CONFORMITY_PUBLICATION_DATE, conformityContext)));
 		return conformity;
+	}
+
+	private XMLElement createConformitySpecification(IngridDocument conformityContext) {
+		XMLElement conformitySpecification = new XMLElement(CONFORMITY_SPECIFICATION, getStringForKey(MdekKeys.CONFORMITY_SPECIFICATION_VALUE, conformityContext));
+		conformitySpecification.addAttribute(ID, getIntegerForKey(MdekKeys.CONFORMITY_SPECIFICATION_KEY, conformityContext));
+		return conformitySpecification;
 	}
 
 	private XMLElement createConformityDegree(IngridDocument conformityContext) {

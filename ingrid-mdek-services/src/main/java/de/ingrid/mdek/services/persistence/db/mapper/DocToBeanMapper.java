@@ -125,17 +125,6 @@ public class DocToBeanMapper implements IMapper {
 		keyValueService = MdekKeyValueHandler.getInstance(daoFactory);
 	}
 	
-	private List<IngridDocument> createObjectConformityList(String specification, int degreeKey) {
-		List<IngridDocument> cDocList = new ArrayList<IngridDocument>();
-		IngridDocument cDoc = new IngridDocument();
-		cDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, specification);
-		cDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, degreeKey);
-		cDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, MdekUtils.dateToTimestamp(new Date()));
-		cDocList.add(cDoc);
-		
-		return cDocList;
-	}
-	
 	public T03Catalogue mapT03Catalog(IngridDocument inDoc, T03Catalogue cat) {
 		cat.setCatUuid(inDoc.getString(MdekKeys.UUID));
 		cat.setCatName(inDoc.getString(MdekKeys.CATALOG_NAME));
@@ -2385,15 +2374,24 @@ public class DocToBeanMapper implements IMapper {
 			int line)
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setSpecification(refDoc.getString(MdekKeys.CONFORMITY_SPECIFICATION));
-		ref.setPublicationDate(refDoc.getString(MdekKeys.CONFORMITY_PUBLICATION_DATE));
-		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
+		ref.setSpecificationKey((Integer)refDoc.get(MdekKeys.CONFORMITY_SPECIFICATION_KEY));
+		ref.setSpecificationValue(refDoc.getString(MdekKeys.CONFORMITY_SPECIFICATION_VALUE));
 		ref.setDegreeKey((Integer)refDoc.get(MdekKeys.CONFORMITY_DEGREE_KEY));
+		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}
+	private List<IngridDocument> createObjectConformityList(int specificationKey, int degreeKey) {
+		List<IngridDocument> cDocList = new ArrayList<IngridDocument>();
+		IngridDocument cDoc = new IngridDocument();
+		cDoc.put(MdekKeys.CONFORMITY_SPECIFICATION_KEY, specificationKey);
+		cDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, degreeKey);
+		cDocList.add(cDoc);
+		
+		return cDocList;
+	}	
 	private void updateObjectConformitys(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.CONFORMITY_LIST);
 		// NOTICE: objects conformities are only editable in special object types (classes) and have default
@@ -2405,15 +2403,15 @@ public class DocToBeanMapper implements IMapper {
 				oType == ObjectType.INFOSYSTEM_DIENST) {
 			// set default if not set, else keep set values. DISPLAYED in frontend.
 			if (refDocs == null) {
-				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);
+				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);
 			}			
 		} else {
 			// check whether correct default is set ! if not, set it. NOT displayed in frontend !
 			if (refDocs == null ||
 					refDocs.size() != 1 ||
-					!MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_SPECIFICATION)) ||
+					!MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_SPECIFICATION_KEY)) ||
 					!MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_DEGREE_KEY))) {
-				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);				
+				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);				
 			}
 		}
 
@@ -2477,8 +2475,10 @@ public class DocToBeanMapper implements IMapper {
 			int line)
 	{
 		ref.setObjId(oFrom.getId());
-		ref.setTermsOfUse(refDoc.getString(MdekKeys.USE_TERMS_OF_USE));
+		ref.setTermsOfUseKey((Integer)refDoc.get(MdekKeys.USE_TERMS_OF_USE_KEY));
+		ref.setTermsOfUseValue(refDoc.getString(MdekKeys.USE_TERMS_OF_USE_VALUE));
 		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}

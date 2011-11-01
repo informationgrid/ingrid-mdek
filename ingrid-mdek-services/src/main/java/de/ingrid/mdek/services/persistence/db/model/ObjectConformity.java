@@ -8,10 +8,10 @@ public class ObjectConformity implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
-	private String specification;
+	private Integer specificationKey;
+	private String specificationValue;
 	private Integer degreeKey;
 	private String degreeValue;
-	private String publicationDate;
 
 
 	public ObjectConformity() {}
@@ -48,12 +48,20 @@ public class ObjectConformity implements IEntity {
 		this.line = line;
 	}
 
-	public String getSpecification() {
-		return specification;
+	public Integer getSpecificationKey() {
+		return specificationKey;
 	}
 
-	public void setSpecification(String specification) {
-		this.specification = specification;
+	public void setSpecificationKey(Integer specificationKey) {
+		this.specificationKey = specificationKey;
+	}
+
+	public String getSpecificationValue() {
+		return specificationValue;
+	}
+
+	public void setSpecificationValue(String specificationValue) {
+		this.specificationValue = specificationValue;
 	}
 
 	public Integer getDegreeKey() {
@@ -70,14 +78,6 @@ public class ObjectConformity implements IEntity {
 
 	public void setDegreeValue(String degreeValue) {
 		this.degreeValue = degreeValue;
-	}
-
-	public String getPublicationDate() {
-		return publicationDate;
-	}
-
-	public void setPublicationDate(String publicationDate) {
-		this.publicationDate = publicationDate;
 	}
 
 

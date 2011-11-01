@@ -1530,8 +1530,8 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.CONFORMITY_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, "TEST CONFORMITY_SPECIFICATION");
-		testDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, MdekUtils.dateToTimestamp(new Date()));
+		// check CONFORMITY_SPECIFICATION_KEY -> CONFORMITY_SPECIFICATION_VALUE is stored via syslist
+		testDoc.put(MdekKeys.CONFORMITY_SPECIFICATION_KEY, 12);
 		// check CONFORMITY_DEGREE_KEY -> CONFORMITY_DEGREE_VALUE is stored via syslist
 		testDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, 1);
 		docList.add(testDoc);
@@ -1550,7 +1550,8 @@ class MdekExampleObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.USE_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
-		testDoc.put(MdekKeys.USE_TERMS_OF_USE, "TEST USE_TERMS_OF_USE");
+		// check USE_TERMS_OF_USE_KEY -> USE_TERMS_OF_USE_VALUE is stored via syslist
+		testDoc.put(MdekKeys.USE_TERMS_OF_USE_KEY, 1);
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.USE_LIST, docList);
 

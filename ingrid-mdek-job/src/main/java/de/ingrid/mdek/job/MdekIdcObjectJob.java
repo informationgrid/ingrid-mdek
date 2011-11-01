@@ -247,7 +247,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// INSPIRE: always add default values (will be displayed when new object is set to according class in frontend)
 			beanToDocMapper.mapObjectConformitys(
-					beanToDocMapper.createObjectConformitySet(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE,
+					beanToDocMapper.createObjectConformitySet(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY,
 							MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED),
 					oDocIn);
 

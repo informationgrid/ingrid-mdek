@@ -1055,10 +1055,10 @@ public class MdekKeys {
 
     /** Value: List< IngridDocument > */
     public final static String CONFORMITY_LIST = "conformity_list";
+    /** Value: Integer */
+    public final static String CONFORMITY_SPECIFICATION_KEY = "conformity-specification-key";
     /** Value: String */
-    public final static String CONFORMITY_SPECIFICATION = "conformity-specification";
-    /** Value: String */
-    public final static String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
+    public final static String CONFORMITY_SPECIFICATION_VALUE = "conformity-specification-value";
     /** Value: Integer */
     public final static String CONFORMITY_DEGREE_KEY = "conformity-degree-key";
     /** Value: String */
@@ -1073,8 +1073,10 @@ public class MdekKeys {
 
     /** Value: List< IngridDocument > */
     public final static String USE_LIST = "use_list";
+    /** Value: Integer */
+    public final static String USE_TERMS_OF_USE_KEY = "use-terms-of-use-key";
     /** Value: String */
-    public final static String USE_TERMS_OF_USE = "use-terms-of-use";
+    public final static String USE_TERMS_OF_USE_VALUE = "use-terms-of-use-value";
 
     /** Value: List< IngridDocument > */
     public final static String DATA_QUALITY_LIST = "data-quality-list";

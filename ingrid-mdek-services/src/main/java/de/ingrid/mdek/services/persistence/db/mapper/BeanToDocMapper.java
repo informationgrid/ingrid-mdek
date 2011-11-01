@@ -1,7 +1,6 @@
 package de.ingrid.mdek.services.persistence.db.mapper;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -1848,17 +1847,16 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 	/** Create default conformity set with passed conformity. e.g. To be mapped to doc. */
-	public Set<ObjectConformity> createObjectConformitySet(String specification, int degreeKey) {
+	public Set<ObjectConformity> createObjectConformitySet(int specifikationKey, int degreeKey) {
 		Set<ObjectConformity> oCs = new HashSet<ObjectConformity>();
 		ObjectConformity oC = new ObjectConformity();
-		oC.setSpecification(specification);
+		oC.setSpecificationKey(specifikationKey);
 		oC.setDegreeKey(degreeKey);
-		oC.setPublicationDate(MdekUtils.dateToTimestamp(new Date()));
 		oCs.add(oC);
 		
 		return oCs;
 	}
-	
+
 	public IngridDocument mapObjectConformitys(Set<ObjectConformity> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
@@ -1880,8 +1878,8 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
-		refDoc.put(MdekKeys.CONFORMITY_SPECIFICATION, ref.getSpecification());
-		refDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, ref.getPublicationDate());
+		refDoc.put(MdekKeys.CONFORMITY_SPECIFICATION_KEY, ref.getSpecificationKey());
+		refDoc.put(MdekKeys.CONFORMITY_SPECIFICATION_VALUE, ref.getSpecificationValue());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, ref.getDegreeKey());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
 
@@ -1936,7 +1934,8 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
-		refDoc.put(MdekKeys.USE_TERMS_OF_USE, ref.getTermsOfUse());
+		refDoc.put(MdekKeys.USE_TERMS_OF_USE_KEY, ref.getTermsOfUseKey());
+		refDoc.put(MdekKeys.USE_TERMS_OF_USE_VALUE, ref.getTermsOfUseValue());
 
 		return refDoc;
 	}

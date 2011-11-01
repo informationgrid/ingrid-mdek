@@ -1,4 +1,4 @@
-package de.ingrid.mdek.xml.importer.mapper.version311;
+package de.ingrid.mdek.xml.importer.mapper.version320;
 
 import org.w3c.dom.Document;
 
@@ -20,6 +20,6 @@ public class IngridXMLMapperImpl implements IngridXMLMapper {
 
 	@Override
 	public boolean canReadVersion(String version) {
-		return "3.1.1".equals(version);
+		return "3.2.0".equals(version);
 	}
 }

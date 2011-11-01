@@ -9,7 +9,8 @@
       <version name="version" type="integer" column="version"/>
       <property name="objId" type="long" column="obj_id"/>
       <property name="line" type="integer" column="line"/>
-      <property name="termsOfUse" type="string" column="terms_of_use"/>
+      <property name="termsOfUseKey" type="integer" column="terms_of_use_key"/>
+      <property name="termsOfUseValue" type="string" column="terms_of_use_value"/>
 
    </class>
 

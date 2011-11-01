@@ -51,6 +51,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
@@ -281,6 +282,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<AdditionalFieldData>(_sessionFactory, AdditionalFieldData.class);
 		} else if (clazz.isAssignableFrom(SpatialSystem.class)) {
 			dao = new GenericHibernateDao<SpatialSystem>(_sessionFactory, SpatialSystem.class);
+		} else if (clazz.isAssignableFrom(ObjectUse.class)) {
+			dao = new GenericHibernateDao<ObjectUse>(_sessionFactory, ObjectUse.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

@@ -1242,8 +1242,8 @@
 	</xs:complexType>
 	<xs:complexType name="CONFORMITY_MAP">
 		<xs:sequence>
-			<xs:element name="conformity-specification" type="xs:string"/>
-			<xs:element name="conformity-publication-date" type="xs:string"/>
+			<xs:element name="conformity-specification-key" type="xs:integer"/>
+			<xs:element name="conformity-specification-value" type="xs:string"/>
 			<xs:element name="conformity-degree-key" type="xs:integer"/>
 			<xs:element name="conformity-degree-value" type="xs:string"/>
 		</xs:sequence>
@@ -1266,7 +1266,8 @@
 	</xs:complexType>
 	<xs:complexType name="USE_MAP">
 		<xs:sequence>
-			<xs:element name="use-terms-of-use" type="xs:string"/>
+			<xs:element name="use-terms-of-use-key" type="xs:integer"/>
+			<xs:element name="use-terms-of-use-value" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="DATA_QUALITY_LIST">
