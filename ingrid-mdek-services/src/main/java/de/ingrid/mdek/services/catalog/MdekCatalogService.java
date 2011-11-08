@@ -1,5 +1,6 @@
 package de.ingrid.mdek.services.catalog;
 
+import java.beans.PropertyDescriptor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,20 +14,21 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.Versioning;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
-import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.Versioning;
 import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -56,14 +58,13 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
-import de.ingrid.mdek.services.persistence.db.model.T015Legist;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
+import de.ingrid.mdek.services.utils.MdekIgcProfileHandler;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
-import de.ingrid.mdek.services.utils.MdekIgcProfileHandler;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
@@ -441,18 +442,48 @@ public class MdekCatalogService {
 			MdekSysList sysLst, int sysLstEntryId, String sysLstEntryName) {
 
 		List<IEntity> entities = daoSysList.getEntitiesOfFreeListEntry(sysLst, freeEntry);
-		
+
 		int numReplaced = 0;
-		if (sysLst == MdekSysList.LEGIST) {
+
+		// set new data via reflection of setter methods defined by syslist
+		String[] listMetadata = sysLst.getMetadata();
+		if (listMetadata.length == 3) {
+			String beanClassName = listMetadata[0];
+			String keyProp = listMetadata[1];
+			String valueProp = listMetadata[2];			
+
+			// dynamically extract setter methods and set new values ! 
 			for (IEntity entity : entities) {
-				T015Legist legist = (T015Legist) entity;
-				legist.setLegistKey(sysLstEntryId);
-				legist.setLegistValue(sysLstEntryName);
-				dao.makePersistent(legist);
+				if (!entity.getClass().toString().contains(beanClassName)) {
+					LOG.warn("Found entity has wrong class ! entity:'" + entity.getClass() +
+							"', expected class:'" + beanClassName + "'");
+					continue;
+				}
+				PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(entity.getClass());			
+				for (PropertyDescriptor prop : props) {
+					Object[] valueToSet = null;
+					if (prop.getName().equals(keyProp)) {
+						valueToSet = new Object[]{ new Integer(sysLstEntryId) };
+					} else if (prop.getName().equals(valueProp)) {
+						valueToSet = new Object[]{ sysLstEntryName };
+					}
+					if (valueToSet != null) {
+						try {
+							prop.getWriteMethod().invoke(entity, valueToSet);
+						} catch (Exception ex) {
+							LOG.error("Problems setting IEntity value via reflection ! entity:'" +	entity +
+								"', method:'" + prop.getWriteMethod() + "', params:'" + valueToSet + "'", ex);
+						}
+					}
+				}
+
+				dao.makePersistent(entity);
 				numReplaced++;
 			}
+		} else {
+			LOG.error("Metadata of syslist " + sysLst.getDbValue() + " '" + sysLst + "' not set ! We cannot process free entries !");
 		}
-		
+
 		return numReplaced;
 	}
 

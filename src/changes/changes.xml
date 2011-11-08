@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
+      <action type="update" issue="INGRID32-28">
+        New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist.
+      </action>
       <action type="update" issue="INGRID31-22">
         Remove environmental categories from catalog (t0114_env_category + syslist 1400). Categorization now only via environmental topics.
       </action>

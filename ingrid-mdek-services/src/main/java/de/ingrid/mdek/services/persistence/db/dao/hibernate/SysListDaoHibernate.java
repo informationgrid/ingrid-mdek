@@ -3,6 +3,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -22,6 +23,8 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
 public class SysListDaoHibernate
 	extends GenericHibernateDao<SysList>
 	implements  ISysListDao {
+
+	private static final Logger LOG = Logger.getLogger(SysListDaoHibernate.class);
 
     public SysListDaoHibernate(SessionFactory factory) {
         super(factory, SysList.class);
@@ -53,15 +56,21 @@ public class SysListDaoHibernate
 	public List<String> getFreeListEntries(MdekSysList sysLst) {
 		Session session = getSession();
 
-		// return NULL if passed list not implemented yet !
-		List<String> freeEntries = null;
+		List<String> freeEntries = new ArrayList<String>();
 
-		if (sysLst == MdekSysList.LEGIST) {
-			String hql = "select distinct legistValue from T015Legist " +
-				"where legistKey = " + MdekSysList.FREE_ENTRY.getDbValue() +
-				" order by legistValue";
+		// extract table, key column and value column from description of syslist
+		String[] listMetadata = sysLst.getMetadata();
+		if (listMetadata.length == 3) {
+			String tableName = listMetadata[0];
+			String keyCol = listMetadata[1];
+			String valueCol = listMetadata[2];
 
+			String hql = "select distinct " + valueCol + " from " + tableName +
+					" where " + keyCol + " = " + MdekSysList.FREE_ENTRY.getDbValue() +
+					" order by " + valueCol;
 			freeEntries = session.createQuery(hql).list();
+		} else {
+			LOG.error("Metadata of syslist " + sysLst.getDbValue() + " '" + sysLst + "' not set ! We cannot process free entries !");
 		}
 		
 		return freeEntries;
@@ -72,12 +81,19 @@ public class SysListDaoHibernate
 
 		List<IEntity> entities = new ArrayList<IEntity>();
 
-		if (sysLst == MdekSysList.LEGIST) {
-			String hql = "from T015Legist " +
-				"where legistKey = " + MdekSysList.FREE_ENTRY.getDbValue() +
-				" and legistValue = '" + freeEntry + "'";
+		// extract table, key column and value column from description of syslist
+		String[] listMetadata = sysLst.getMetadata();
+		if (listMetadata.length == 3) {
+			String tableName = listMetadata[0];
+			String keyCol = listMetadata[1];
+			String valueCol = listMetadata[2];
 
+			String hql = "from " + tableName + 
+				" where " + keyCol + " = " + MdekSysList.FREE_ENTRY.getDbValue() +
+				" and " + valueCol + " = '" + freeEntry + "'";
 			entities = session.createQuery(hql).list();
+		} else {
+			LOG.error("Metadata of syslist " + sysLst.getDbValue() + " '" + sysLst + "' not set ! We cannot process free entries !");
 		}
 		
 		return entities;

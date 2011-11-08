@@ -60,73 +60,81 @@ public class MdekUtils {
 		DELETED;
 	}
 
-	/** Syslists (sys_list.lst_id) */
+	/** Syslists enum also encapsulating ID of syslist and metadata like bean class name and props of bean where syslist is applied ...) */
 	public enum MdekSysList implements IMdekEnum {
-		FREE_ENTRY(-1, ""),
-		OBJ_ADR_TYPE(505, "T012ObjAdr -> type=entryId, specialName=name + specialRef='505'"),
-		VERTICAL_EXTENT_VDATUM(101, "T01Object -> verticalExtentVdatumKey=entryId, verticalExtentVdatumValue=name"),
-//		VERTICAL_EXTENT_UNIT(102, "T01Object -> verticalExtentUnit=entryId"),
-//		CHARACTER_SET(510, "T01Object -> datasetCharacterSet=entryId, metadataCharacterSet=entryId"),
-//		HIERARCHY_LEVEL(525, "T011ObjGeo -> hierarchyLevel=entryId"),
-//		VECTOR_TOPOLOGY_LEVEL(528, "T011ObjGeo -> vectorTopologyLevel=entryId"),
-//		SPATIAL_REP(526, "T011ObjGeoSpatialRep -> type=entryId"),
-//		GEOMETRIC_OBJECT_TYPE(515, "T011ObjGeoVector -> geometricObjectType=entryId"),
-//		DATASET_REFERENCE(502, "T0113DatasetReference -> type=entryId"),
-		OBJ_ADR_TYPE_SPECIAL(2010, "T012ObjAdr -> type=entryId, specialName=name + specialRef='2010'"),
-		OBJ_REFERENCE(2000, "ObjectReference -> specialRef=entryId, specialName=name"),
-		OBJ_GEO_REFERENCESYSTEM(100, "SpatialSystem -> referencesystemKey=entryId, referencesystemValue=name"),
-		OBJ_GEO_KEYC(3535, "T011ObjGeoKeyc -> keycKey=entryId, keycValue=name"),
-		OBJ_GEO_SYMC(3555, "T011ObjGeoSymc -> symbolCatKey=entryId, symbolCatValue=name"),
-		OBJ_LITERATURE_TYPE(3385, "T011ObjLiterature -> typeKey=entryId, typeValue=name"),
-		OBJ_SERV_TYPE(5100, "T011ObjServ (class 3) -> typeKey=entryId, typeValue=name"),
-		OBJ_SERV_OPERATION_CSW(5105, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=1/CSW"),
-		OBJ_SERV_OPERATION_WMS(5110, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=2/WMS"),
-		OBJ_SERV_OPERATION_WFS(5120, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=3/WFS"),
-		OBJ_SERV_OPERATION_WCTS(5130, "T011ObjServOperation -> nameKey=entryId, nameValue=name + T011ObjServ.type*=4/WCTS"),
-		OBJ_SERV_TYPE2(5200, "T011ObjServType -> servTypeKey=entryId, servTypeValue=name"),
-		OBJ_SERV_TYPE_CLASS_6(5300, "T011ObjServ (class 6) -> typeKey=entryId, typeValue=name"),
-		INFO_IMPART(1370, "T014InfoImpart -> impartKey=entryId, impartValue=name"),
-		LEGIST(1350, "T015Legist -> legistKey=entryId, legistValue=name"),
-		URL_REF_SPECIAL(2000, "T017UrlRef -> specialRef=entryId, specialName=name"),
-		URL_REF_DATATYPE(2240, "T017UrlRef -> datatypeKey=entryId, datatypeValue=name"),
-		MEDIA_OPTION_MEDIUM(520, "T0112MediaOption -> mediumName=entryId"),
-		SPATIAL_REF_VALUE(1100, "SpatialRefValue -> nameKey=entryId, nameValue=name"),
-		AVAIL_FORMAT(1320, "T0110AvailFormat -> formatKey=entryId, formatValue=name"),
-		ADDRESS_VALUE(4300, "T02Address -> addressKey=entryId, addressValue=name"),
-		ADDRESS_TITLE(4305, "T02Address -> titleKey=entryId, titleValue=name"),
-		COMM_TYPE(4430, "T021Communication -> commtypeKey=entryId, commtypeValue=name"),
-		OBJ_CONFORMITY_DEGREE(6000, "ObjectConformity -> degreeKey=entryId, degreeValue=name"),
-		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity -> specificationKey=entryId, specificationValue=name"),
-		OBJ_ACCESS(6010, "ObjectAccess -> restrictionKey=entryId, restrictionValue=name"),
-		OBJ_USE(6020, "ObjectUse -> termsOfUseKey=entryId, termsOfUseValue=name"),
-		OBJ_TOPIC_CAT(527, "T011ObjTopicCat -> topicCategory=entryId"),
-		/** INSPIRE Themen zur Verschlagwortung */
-		INSPIRE_SEARCHTERM(6100, "SearchtermValue -> entryId=entryId, term=name + type='I'(INSPIRE)"),
-		COUNTRY(6200, "T03Catalogue, T02Address -> countryKey=entryId, countryValue=name"),
-		OBJ_FORMAT_INSPIRE(6300, "ObjectFormatInspire -> formatKey=entryId, formatValue=name"),
-		DQ_109_CompletenessComission(7109, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=109"),
-		DQ_110_CompletenessOmission(7110, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=110"),
-		DQ_112_ConceptualConsistency(7112, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=112"),
-		DQ_113_DomainConsistency(7113, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=113"),
-		DQ_114_FormatConsistency(7114, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=114"),
-		DQ_115_TopologicalConsistency(7115, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=115"),
-		DQ_117_AbsoluteExternalPositionalAccuracy(7117, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=117"),
-		DQ_120_TemporalConsistency(7120, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=120"),
-		DQ_125_ThematicClassificationCorrectness(7125, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=125"),
-		DQ_126_NonQuantitativeAttributeAccuracy(7126, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=126"),
-		DQ_127_QuantitativeAttributeAccuracy(7127, "ObjectDataQuality -> " +
-			"nameOfMeasureKey=entryId, nameOfMeasureValue=name + dqElementId=127"),
-		LANGUAGE(99999999, "T03Catalogue, T01Object -> *languageKey=entryId, *languageValue=name");
+		FREE_ENTRY(-1, "entry id if value is free entry"),
+		/** specialRef='505' */
+		OBJ_ADR_TYPE(505, "T012ObjAdr:type:specialName"),
+		VERTICAL_EXTENT_VDATUM(101, "T01Object:verticalExtentVdatumKey:verticalExtentVdatumValue"),
+//		VERTICAL_EXTENT_UNIT(102, "T01Object:verticalExtentUnit"),
+//		CHARACTER_SET(510, "T01Object:datasetCharacterSet:metadataCharacterSet"),
+//		HIERARCHY_LEVEL(525, "T011ObjGeo:hierarchyLevel"),
+//		VECTOR_TOPOLOGY_LEVEL(528, "T011ObjGeo:vectorTopologyLevel"),
+//		SPATIAL_REP(526, "T011ObjGeoSpatialRep:type"),
+//		GEOMETRIC_OBJECT_TYPE(515, "T011ObjGeoVector:geometricObjectType"),
+//		DATASET_REFERENCE(502, "T0113DatasetReference:type"),
+		/** specialRef='2010' */
+		OBJ_ADR_TYPE_SPECIAL(2010, "T012ObjAdr:type:specialName"),
+		OBJ_REFERENCE(2000, "ObjectReference:specialRef:specialName"),
+		OBJ_GEO_REFERENCESYSTEM(100, "SpatialSystem:referencesystemKey:referencesystemValue"),
+		OBJ_GEO_KEYC(3535, "T011ObjGeoKeyc:keycKey:keycValue"),
+		OBJ_GEO_SYMC(3555, "T011ObjGeoSymc:symbolCatKey:symbolCatValue"),
+		OBJ_LITERATURE_TYPE(3385, "T011ObjLiterature:typeKey:typeValue"),
+		/** T011ObjServ for class 3 ! */
+		OBJ_SERV_TYPE(5100, "T011ObjServ:typeKey:typeValue"),
+		/** T011ObjServ.type=1/CSW */
+		OBJ_SERV_OPERATION_CSW(5105, "T011ObjServOperation:nameKey:nameValue"),
+		/** T011ObjServ.type=2/WMS */
+		OBJ_SERV_OPERATION_WMS(5110, "T011ObjServOperation:nameKey:nameValue"),
+		/** T011ObjServ.type=3/WFS */
+		OBJ_SERV_OPERATION_WFS(5120, "T011ObjServOperation:nameKey:nameValue"),
+		/** T011ObjServ.type=4/WCTS */
+		OBJ_SERV_OPERATION_WCTS(5130, "T011ObjServOperation:nameKey:nameValue"),
+		OBJ_SERV_TYPE2(5200, "T011ObjServType:servTypeKey:servTypeValue"),
+		/** T011ObjServ for class 6 ! */
+		OBJ_SERV_TYPE_CLASS_6(5300, "T011ObjServ:typeKey:typeValue"),
+		INFO_IMPART(1370, "T014InfoImpart:impartKey:impartValue"),
+		LEGIST(1350, "T015Legist:legistKey:legistValue"),
+		URL_REF_SPECIAL(2000, "T017UrlRef:specialRef:specialName"),
+		URL_REF_DATATYPE(2240, "T017UrlRef:datatypeKey:datatypeValue"),
+		MEDIA_OPTION_MEDIUM(520, "T0112MediaOption:mediumName"),
+		SPATIAL_REF_VALUE(1100, "SpatialRefValue:nameKey:nameValue"),
+		AVAIL_FORMAT(1320, "T0110AvailFormat:formatKey:formatValue"),
+		ADDRESS_VALUE(4300, "T02Address:addressKey:addressValue"),
+		ADDRESS_TITLE(4305, "T02Address:titleKey:titleValue"),
+		COMM_TYPE(4430, "T021Communication:commtypeKey:commtypeValue"),
+		OBJ_CONFORMITY_DEGREE(6000, "ObjectConformity:degreeKey:degreeValue"),
+		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity:specificationKey:specificationValue"),
+		OBJ_ACCESS(6010, "ObjectAccess:restrictionKey:restrictionValue"),
+		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
+		OBJ_TOPIC_CAT(527, "T011ObjTopicCat:topicCategory"),
+		/** type='I'(INSPIRE) -> INSPIRE Themen zur Verschlagwortung */
+		INSPIRE_SEARCHTERM(6100, "SearchtermValue:entryId:term"),
+		COUNTRY(6200, "T03Catalogue, T02Address:countryKey:countryValue"),
+		OBJ_FORMAT_INSPIRE(6300, "ObjectFormatInspire:formatKey:formatValue"),
+		/** dqElementId=109 */
+		DQ_109_CompletenessComission(7109, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=110 */
+		DQ_110_CompletenessOmission(7110, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=112 */
+		DQ_112_ConceptualConsistency(7112, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=113 */
+		DQ_113_DomainConsistency(7113, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=114 */
+		DQ_114_FormatConsistency(7114, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=115 */
+		DQ_115_TopologicalConsistency(7115, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=117 */
+		DQ_117_AbsoluteExternalPositionalAccuracy(7117, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=120 */
+		DQ_120_TemporalConsistency(7120, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=125 */
+		DQ_125_ThematicClassificationCorrectness(7125, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=126 */
+		DQ_126_NonQuantitativeAttributeAccuracy(7126, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=127 */
+		DQ_127_QuantitativeAttributeAccuracy(7127, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		LANGUAGE(99999999, "T03Catalogue, T01Object:languageKey:languageValue");
 
 		MdekSysList(Integer dbValue, String description) {
 			this.dbValue = dbValue;
@@ -135,6 +143,13 @@ public class MdekUtils {
 		/** returns syslist ID */
 		public Integer getDbValue() {
 			return dbValue;
+		}
+		/** Get bean class name and props of bean where syslist is applied ..
+		 * NOTICE: Syslist metadata description in enum has to be set accordingly.
+		 * @return String[]: 0=bean class name, 1=name key column, 2=name value column
+		 */
+		public String[] getMetadata() {
+			return description.split(":");
 		}
 		/** returns ISO DQ_Element Id from Syslist Id (name of measure) */
 		public int getDqElementId() {
