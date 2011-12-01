@@ -1558,7 +1558,6 @@ class MdekExampleObjectThread extends Thread {
 		// add entries to OBJECT DATA QUALITY
 		MdekSysList[] dqSyslists = new MdekSysList[] {
 				MdekSysList.DQ_109_CompletenessComission,
-				MdekSysList.DQ_110_CompletenessOmission,
 				MdekSysList.DQ_112_ConceptualConsistency,
 				MdekSysList.DQ_113_DomainConsistency,
 				MdekSysList.DQ_114_FormatConsistency,

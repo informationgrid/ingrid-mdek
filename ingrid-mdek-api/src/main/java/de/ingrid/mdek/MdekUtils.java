@@ -114,8 +114,6 @@ public class MdekUtils {
 		OBJ_FORMAT_INSPIRE(6300, "ObjectFormatInspire:formatKey:formatValue"),
 		/** dqElementId=109 */
 		DQ_109_CompletenessComission(7109, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
-		/** dqElementId=110 */
-		DQ_110_CompletenessOmission(7110, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=112 */
 		DQ_112_ConceptualConsistency(7112, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=113 */

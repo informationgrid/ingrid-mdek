@@ -540,10 +540,6 @@ public class MdekKeyValueHandler {
 				keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.DQ_109_CompletenessComission.getDbValue(),
 						catalogService.getCatalogLanguage());				
-			} else if (dqElemId.equals(MdekSysList.DQ_110_CompletenessOmission.getDqElementId())) {
-				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_110_CompletenessOmission.getDbValue(),
-						catalogService.getCatalogLanguage());				
 			} else if (dqElemId.equals(MdekSysList.DQ_112_ConceptualConsistency.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.DQ_112_ConceptualConsistency.getDbValue(),
