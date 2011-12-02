@@ -5,8 +5,12 @@
   </properties>
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
-      <action type="update" issue="INGRID32-28">
-        New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist.
+      <action type="update" issue="INGRID32-48">
+        Remove syslist 7110 (Datendefizit "Art der Messung") becaus DQ Table was replaced by field.
+      </action>
+      <action type="update" issue="INGRID32-28, INGRID32-47">
+        New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist. 
+        Handle metadata in syslist entries (e.g. in syslist 6005 publication date at end of values only used for IDF mapping).
       </action>
       <action type="update" issue="INGRID31-22">
         Remove environmental categories from catalog (t0114_env_category + syslist 1400). Categorization now only via environmental topics.
