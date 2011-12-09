@@ -9,7 +9,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 
 /**
- * This class checks that every Object contains an address of type "Auskunft"
+ * This class checks that every Object contains an address of type "Verwalter"
  * @author Andre Wallat
  *
  */
@@ -51,13 +51,13 @@ public class InfoAddressChecker implements ConsistencyChecker {
 	}
 
 	private String generateSolution(String objUuid, String title) {
-		return "Bitte fügen Sie eine Auskunftsadresse im Objekt " + objUuid +
+		return "Bitte fuegen Sie eine Verwalteradresse im Objekt " + objUuid +
 			" (Titel: '"+title+"') ein!";
 	}
 
 	private String generateMessage(String objUuid, String title) {
 		return "Das Objekt mit der Uuid '"+objUuid+"' " +
-				"enthaelt keine Datenauskunftsadresse!";
+				"enthaelt keine Verwalteradresse!";
 	}
 	
 }

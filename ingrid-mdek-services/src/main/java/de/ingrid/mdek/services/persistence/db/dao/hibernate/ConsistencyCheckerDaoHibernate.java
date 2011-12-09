@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.TransactionService;
 import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
@@ -133,10 +134,11 @@ public class ConsistencyCheckerDaoHibernate
 				"from T01Object obj " +
 				"left outer join obj.t012ObjAdrs objAdr " +
 				"where objAdr = null " +
-				"or (objAdr.type != 7 " +
-				"AND objAdr.objId not in ( select objAdr.objId from objAdr " +
+				"or (objAdr.type != " + MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID +
+				" AND objAdr.objId not in ( select objAdr.objId from objAdr " +
 				// NOTICE: group by removed when porting to ORACLE !!!
-				"where objAdr.type = 7))";
+				"where objAdr.type = " + MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID +
+				"))";
 
 		List<T01Object> resultList = getSession().createQuery(hqlQuery)
 			.setResultTransformer(new DistinctRootEntityResultTransformer())

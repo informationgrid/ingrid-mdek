@@ -260,9 +260,9 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 	}
 
 	public IngridDocument getObjectsOfAddressByType(String plugId,
-			String auskunftAddressUuid, Integer referenceTypeId, Integer maxNum, String userId) {
+			String addressUuid, Integer referenceTypeId, Integer maxNum, String userId) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.UUID, auskunftAddressUuid);
+		jobParams.put(MdekKeys.UUID, addressUuid);
     jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, referenceTypeId);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);

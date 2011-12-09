@@ -351,8 +351,8 @@ class MdekExampleObjectThread extends Thread {
 		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		ArrayList<IngridDocument> addrs = new ArrayList<IngridDocument>();
 		IngridDocument addressDoc = new IngridDocument();
-		addressDoc.put(MdekKeys.RELATION_TYPE_ID, 7);
-		addressDoc.put(MdekKeys.RELATION_TYPE_NAME, "Auskunft");
+		addressDoc.put(MdekKeys.RELATION_TYPE_ID, 2);
+		addressDoc.put(MdekKeys.RELATION_TYPE_NAME, "Verwalter");
 		addressDoc.put(MdekKeys.RELATION_TYPE_REF, null);
 		addressDoc.put(MdekKeys.UUID, "6E04D073-BC3A-11D2-A63A-444553540000");
 		addrs.add(addressDoc);
@@ -777,11 +777,11 @@ class MdekExampleObjectThread extends Thread {
 		// uuid created !
 		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- check publish WITHOUT Auskunft Address ! -> Error AUSKUNFT_ADDRESS_NOT_SET -----");
+		System.out.println("\n----- check publish WITHOUT Verwalter Address ! -> Error VERWALTER_ADDRESS_NOT_SET -----");
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, null);
 		supertool.publishObject(newObjDoc, false,false);
 
-		System.out.println("\n----- set Auskunft address and store (no publish, due to possible tests afterwards) -----");
+		System.out.println("\n----- set Verwalter address and store (no publish, due to possible tests afterwards) -----");
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, initialAddressList);
 		newObjDoc = supertool.storeObject(newObjDoc, true);
 		

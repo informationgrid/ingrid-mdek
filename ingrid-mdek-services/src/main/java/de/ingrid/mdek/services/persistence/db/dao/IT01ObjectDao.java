@@ -28,7 +28,7 @@ public interface IT01ObjectDao
 	 * 
 	 * @param objectUuid The object UUID
 	 * @param addressUuid The address UUID.
-	 * @param referenceTypeId The address reference type ("Auskunft").
+	 * @param referenceTypeId the type of the relation from syslist
 	 * 
 	 * @return True if the object has a specific address reference, false if not.
 	 */

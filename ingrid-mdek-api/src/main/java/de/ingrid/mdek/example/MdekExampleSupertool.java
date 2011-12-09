@@ -167,8 +167,8 @@ public class MdekExampleSupertool {
 	public IngridDocument analyze() {
 		return supertoolCatalog.analyze();
 	}
-	public IngridDocument getObjectsOfAddressByType(String auskunftAddressUuid, Integer referenceTypeId, Integer maxNum) {
-		return supertoolCatalog.getObjectsOfAddressbyType(auskunftAddressUuid, referenceTypeId, maxNum);
+	public IngridDocument getObjectsOfAddressByType(String addressUuid, Integer referenceTypeId, Integer maxNum) {
+		return supertoolCatalog.getObjectsOfAddressbyType(addressUuid, referenceTypeId, maxNum);
 	}
 	public IngridDocument getObjectsOfResponsibleUser(String responsibleUserUuid, Integer maxNum) {
 		return supertoolCatalog.getObjectsOfResponsibleUser(responsibleUserUuid, maxNum);
@@ -1359,8 +1359,8 @@ public class MdekExampleSupertool {
 					}
 				}
 
-			} else if (err.getErrorType().equals(MdekErrorType.ADDRESS_IS_AUSKUNFT)) {
-				// objects referencing address as auskunft
+			} else if (err.getErrorType().equals(MdekErrorType.ADDRESS_IS_VERWALTER)) {
+				// objects referencing address as verwalter
 				List<IngridDocument> oDocs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
 				if (oDocs != null) {
 					System.out.println("    Referencing objects: " + oDocs.size() + " objects!");

@@ -228,10 +228,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				beanToDocMapper.mapT01Object(oParent, oDocIn, MappingQuantity.INITIAL_ENTITY);
 			}
 			
-			// "auskunft" address set ? set calling user as "Auskunft" if nothing set
-			if (!objectService.hasAuskunftAddress(oDocIn)) {
+			// "Verwalter" address set ? set calling user as "Verwalter" if nothing set
+			if (!objectService.hasVerwalterAddress(oDocIn)) {
 				AddressNode addrNode = addressService.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION);
-				addAuskunftAddress(oDocIn, addrNode);
+				addVerwalterAddress(oDocIn, addrNode);
 			}
 
 			// take over spatial reference from catalog
@@ -1097,11 +1097,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		return targetObj;
 	}
 
-	/** Add Auskunft address to given object document.
+	/** Add Verwalter address to given object document.
 	 * @param oDoc map representation of object
-	 * @param addrNode add this address as auskunft. Also basic address data is mapped.
+	 * @param addrNode add this address as verwalter. Also basic address data is mapped.
 	 */
-	private void addAuskunftAddress(IngridDocument oDoc, AddressNode addrNode) {
+	private void addVerwalterAddress(IngridDocument oDoc, AddressNode addrNode) {
 		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		if (oAs == null) {
 			oAs = new ArrayList<IngridDocument>();
@@ -1111,7 +1111,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// simulate entities and map them one by one.
 		// We can't map via "mapT012ObjAdrs" cause then entities have to be bound to database to fetch address node ...
 		T012ObjAdr oA = new T012ObjAdr();
-		oA.setType(MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+		oA.setType(MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
 		oA.setSpecialRef(MdekSysList.OBJ_ADR_TYPE.getDbValue());
 		IngridDocument oADoc = beanToDocMapper.mapT012ObjAdr(oA, new IngridDocument());
 		beanToDocMapper.mapT02Address(addrNode.getT02AddressWork(), oADoc, MappingQuantity.TABLE_ENTITY);

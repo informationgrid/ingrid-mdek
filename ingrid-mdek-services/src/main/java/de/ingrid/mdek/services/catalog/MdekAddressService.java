@@ -10,10 +10,10 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
@@ -42,9 +42,9 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -1139,9 +1139,9 @@ public class MdekAddressService {
 				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS, errInfo));
 			}
 
-			// check whether address is "auskunft" address. AUSKUNFT CANNOT BE DELETED
+			// check whether address is "verwalter" address. VERWALTER CANNOT BE DELETED
 			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
-			checkAddressIsAuskunft(subNode);
+			checkAddressIsVerwalter(subNode);
 
 			// check
 			checkAddressNodeObjectReferences(subNode, forceDeleteReferences);
@@ -1196,12 +1196,12 @@ public class MdekAddressService {
 		}
 	}
 
-	/** Checks whether given address is "auskunft" address in any object.
+	/** Checks whether given address is "verwalter" address in any object.
 	 * ONLY CHECKS WORKING VERSIONS OF OBJECTS !
-	 * Throws exception if address is auskunft ! */
-	private void checkAddressIsAuskunft(AddressNode addrNode) {
+	 * Throws exception if address is verwalter ! */
+	private void checkAddressIsVerwalter(AddressNode addrNode) {
 		List<ObjectNode> oNs =
-			daoAddressNode.getObjectReferencesByTypeId(addrNode.getAddrUuid(), MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID);
+			daoAddressNode.getObjectReferencesByTypeId(addrNode.getAddrUuid(), MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
 		if (oNs.size() > 0) {
 			// throw exception
 			// supply info about referencing objects in exception
@@ -1214,7 +1214,7 @@ public class MdekAddressService {
 							new IngridDocument(), MappingQuantity.BASIC_ENTITY);
 				oList.add(oDoc);
 			}
-			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_AUSKUNFT, errInfo));
+			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_VERWALTER, errInfo));
 		}
 	}
 

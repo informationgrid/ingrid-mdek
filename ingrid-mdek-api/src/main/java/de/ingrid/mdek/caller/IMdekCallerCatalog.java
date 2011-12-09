@@ -217,7 +217,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument analyze(String plugId, String userId);
 
 	/** Replace an address with another address. Not possible if address to replace is user address.
-	 * All auskunft addresses are replaced ! All responsible addresses are set to admin address.
+	 * All verwalter addresses are replaced ! All responsible addresses are set to admin address.
 	 * Modification addresses (mod user) are NOT replaced !
 	 * @param oldUuid address to replace
 	 * @param newUuid with this address
@@ -225,16 +225,16 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 */
 	IngridDocument replaceAddress(String plugId, String oldUuid, String newUuid, String userId);
 
-	/** Return all objects where given address uuid is from a specific address typ like "Auskunft".
+	/** Return all objects where given address uuid is referenced from with given type relation.
 	 * If the referenceTypeId is null, all objects that reference the address with any type will 
 	 * be returned.
-	 * @param auskunftAddressUuid address uuid of auskunft in objects 
-   * @param referenceTypeId Id of the object to address type (i.e. "Auskunft")
+	 * @param addressUuid uuid of address object is related to  
+   * @param referenceTypeId type of the relation from syslist
 	 * @param maxNum maximum number to fetch, pass null to fetch ALL objects
-	 * @return response containing result: list of objects where given uuid is auskunft address
+	 * @return response containing result: list of objects where given uuid is verwalter address
 	 */
 	IngridDocument getObjectsOfAddressByType(String plugId,
-			String auskunftAddressUuid, Integer referenceTypeId, Integer maxNum, String userId);
+			String addressUuid, Integer referenceTypeId, Integer maxNum, String userId);
 
 	/** Return all objects where given address uuid is responsible user.
 	 * @param responsibleUserUuid address uuid of responsible user

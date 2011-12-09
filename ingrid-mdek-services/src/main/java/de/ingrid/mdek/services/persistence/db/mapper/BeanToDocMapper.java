@@ -816,8 +816,8 @@ public class BeanToDocMapper implements IMapper {
 		for (T012ObjAdr oA : oAs) {
 			
 			if (howMuch == MappingQuantity.INITIAL_ENTITY) {
-				// only take over "Auskunft" addresses !
-				if (!MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(oA.getType())) {
+				// only take over "Verwalter" addresses !
+				if (!MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID.equals(oA.getType())) {
 					continue;
 				}
 			}

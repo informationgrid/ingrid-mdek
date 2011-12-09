@@ -714,22 +714,22 @@ class MdekExampleAddressThread extends Thread {
 		// uuid created !
 		String toAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
 		
-		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS as AUSKUNFT-----");
+		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS as VERWALTER-----");
 		IngridDocument fromObjDoc = new IngridDocument();
 		fromObjDoc = supertool.getInitialObject(fromObjDoc);
 		fromObjDoc.put(MdekKeys.TITLE, "TEST OBJECT -> referenziert");
 		ArrayList<IngridDocument> adrRefsList = new ArrayList<IngridDocument>(1);
-		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID); // AUSKUNFT
+		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID); // VERWALTER
 		adrRefsList.add(toAddrDoc);
 		fromObjDoc.put(MdekKeys.ADR_REFERENCES_TO, adrRefsList);
 		fromObjDoc = supertool.storeObject(fromObjDoc, true);
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- delete TOP ADDRESS (WORKING COPY) WITHOUT refs -> Error ADDRESS_IS_AUSKUNFT -----");
+		System.out.println("\n----- delete TOP ADDRESS (WORKING COPY) WITHOUT refs -> Error ADDRESS_IS_VERWALTER -----");
 		supertool.deleteAddressWorkingCopy(topAddrUuid, false);
 
-		System.out.println("\n----- change OBJECT REFERENCE to NOT AUSKUNFT -----");
+		System.out.println("\n----- change OBJECT REFERENCE to NOT VERWALTER -----");
 		adrRefsList = (ArrayList<IngridDocument>) fromObjDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		adrRefsList.get(0).put(MdekKeys.RELATION_TYPE_ID, -1); // free reference
 		fromObjDoc = supertool.storeObject(fromObjDoc, true);
@@ -745,9 +745,9 @@ class MdekExampleAddressThread extends Thread {
 		supertool.deleteObject(fromObjUuid, false);
 
 		// -----------------------------------
-		System.out.println("\n----- test delete of IDC AUSKUNFT address -----");
+		System.out.println("\n----- test delete of IDC VERWALTER address -----");
 
-		System.out.println("\n----- delete ADDRESS referenced as AUSKUNFT -> Error ADDRESS_IS_AUSKUNFT (for 486 objects !) -----");
+		System.out.println("\n----- delete ADDRESS referenced as VERWALTER -> Error ADDRESS_IS_VERWALTER (for 486 objects !) -----");
 		supertool.deleteAddress("BF1156BA-F74D-11D4-8868-0060084A6015", false);
 
 		// -----------------------------------

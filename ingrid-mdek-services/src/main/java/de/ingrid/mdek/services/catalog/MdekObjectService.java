@@ -403,9 +403,9 @@ public class MdekObjectService {
 			permissionHandler.checkPermissionsForPublishObject(uuid, parentUuid, userId);
 		}
 
-		// "auskunft" address set
-		if (!hasAuskunftAddress(oDocIn)) {
-			throw new MdekException(new MdekError(MdekErrorType.AUSKUNFT_ADDRESS_NOT_SET));
+		// "verwalter" address set
+		if (!hasVerwalterAddress(oDocIn)) {
+			throw new MdekException(new MdekError(MdekErrorType.VERWALTER_ADDRESS_NOT_SET));
 		}
 		// all referenced addresses published ?
 		checkReferencedAddressesForPublish(oDocIn);
@@ -690,15 +690,15 @@ public class MdekObjectService {
 		return storeWorkingCopy(oDocIn, userId, calledByImporter);
 	}
 
-	/** Checks whether given object document has an "Auskunft" address set. */
-	public boolean hasAuskunftAddress(IngridDocument oDoc) {
+	/** Checks whether given object document has an "Verwalter" address set. */
+	public boolean hasVerwalterAddress(IngridDocument oDoc) {
 		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		if (oAs == null) {
 			oAs = new ArrayList<IngridDocument>();
 		}
 
 		for (IngridDocument oA : oAs) {
-			boolean typeOk = MdekUtils.OBJ_ADR_TYPE_AUSKUNFT_ID.equals(oA.get(MdekKeys.RELATION_TYPE_ID));
+			boolean typeOk = MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID.equals(oA.get(MdekKeys.RELATION_TYPE_ID));
 			boolean listOk = MdekSysList.OBJ_ADR_TYPE.getDbValue().equals(oA.get(MdekKeys.RELATION_TYPE_REF));
 			if (typeOk && listOk) {
 				return true;
