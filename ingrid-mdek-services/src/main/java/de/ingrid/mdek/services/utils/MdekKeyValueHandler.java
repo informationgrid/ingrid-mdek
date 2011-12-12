@@ -532,11 +532,7 @@ public class MdekKeyValueHandler {
 				entryKey != null && entryKey > -1)
 		{
 			Map<Integer, String> keyNameMap = null;
-			if (dqElemId.equals(MdekSysList.DQ_117_AbsoluteExternalPositionalAccuracy.getDqElementId())) {
-				keyNameMap = catalogService.getSysListKeyNameMap(
-						MdekSysList.DQ_117_AbsoluteExternalPositionalAccuracy.getDbValue(),
-						catalogService.getCatalogLanguage());
-			} else if (dqElemId.equals(MdekSysList.DQ_109_CompletenessComission.getDqElementId())) {
+			if (dqElemId.equals(MdekSysList.DQ_109_CompletenessComission.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.DQ_109_CompletenessComission.getDbValue(),
 						catalogService.getCatalogLanguage());				

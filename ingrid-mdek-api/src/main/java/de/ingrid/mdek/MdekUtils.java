@@ -122,8 +122,6 @@ public class MdekUtils {
 		DQ_114_FormatConsistency(7114, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=115 */
 		DQ_115_TopologicalConsistency(7115, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
-		/** dqElementId=117 */
-		DQ_117_AbsoluteExternalPositionalAccuracy(7117, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=120 */
 		DQ_120_TemporalConsistency(7120, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=125 */

@@ -9,7 +9,7 @@
         Introduce new names for relation to address, instead of "Auskunft" "Verwalter" address is now mandatory.
       </action>
       <action type="update" issue="INGRID32-48">
-        Remove syslist 7110 (Datendefizit "Art der Messung") becaus DQ Table was replaced by field.
+        Remove DQ "Art der Messung" syslists 7110 (Datendefizit), 7117 (Absolute Positionsgenauigkeit) because DQ Tables were replaced by fields.
       </action>
       <action type="update" issue="INGRID32-28, INGRID32-47">
         New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist. 

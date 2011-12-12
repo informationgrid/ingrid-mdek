@@ -1562,7 +1562,6 @@ class MdekExampleObjectThread extends Thread {
 				MdekSysList.DQ_113_DomainConsistency,
 				MdekSysList.DQ_114_FormatConsistency,
 				MdekSysList.DQ_115_TopologicalConsistency,
-				MdekSysList.DQ_117_AbsoluteExternalPositionalAccuracy,
 				MdekSysList.DQ_120_TemporalConsistency,
 				MdekSysList.DQ_125_ThematicClassificationCorrectness,
 				MdekSysList.DQ_126_NonQuantitativeAttributeAccuracy,
