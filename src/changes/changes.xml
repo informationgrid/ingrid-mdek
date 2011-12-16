@@ -6,7 +6,7 @@
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
       <action type="add" issue="INGRID32-50">
-        Add new legacy control "Datensammlung/Datenbank - Fachbezug - Objektartenkatalog".
+        Add new legacy control "Datensammlung/Datenbank - Fachbezug - Objektartenkatalog". Synonym to "Geoinformation/Karte - Schlüsselkatalog" now both stored in the same new database table (object_types_catalogue).
       </action>
       <action type="update" issue="INGRID32-46">
         Introduce new names for relation to address, instead of "Auskunft" "Verwalter" address is now mandatory.

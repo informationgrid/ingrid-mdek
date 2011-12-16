@@ -55,7 +55,6 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjData.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjDataPara.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeo.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoKeyc.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoScale.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml</value>
@@ -119,7 +118,6 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjData">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo">read-write</prop>
-            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo">read-write</prop>
@@ -156,7 +154,6 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcGroup.permissionObjs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser.idcUsers">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.IdcUser.idcUserGroups">read-write</prop>
-            <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoKeycs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoScales">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoSpatialReps">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T011ObjGeo.t011ObjGeoSupplinfos">read-write</prop>

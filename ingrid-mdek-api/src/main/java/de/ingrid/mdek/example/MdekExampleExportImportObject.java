@@ -270,7 +270,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		strList.add("TEST feature type");
 		technicalDomain.put(MdekKeys.FEATURE_TYPE_LIST, strList);
 
-		oDoc = supertool.publishObject(oDoc, true, false);
+		supertool.publishObject(oDoc, true, false);
 
 		System.out.println("\n----- export object -----");
 		supertool.exportObjectBranch(objUuid, true);

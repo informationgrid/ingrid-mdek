@@ -50,7 +50,6 @@ import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo;
@@ -304,7 +303,7 @@ public class BeanToDocMapper implements IMapper {
 			mapT011ObjTopicCats(o.getT011ObjTopicCats(), objectDoc);
 
 			// technical domain map (class 1)
-			mapT011ObjGeo(o.getT011ObjGeos(), objectDoc);
+			mapT011ObjGeo(o, objectDoc);
 			// technical domain document (class 2)
 			mapT011ObjLiterature(o.getT011ObjLiteratures(), objectDoc);
 			// NOTICE: T011ObjServ is used for the object classes "Geodatendienst" (class 3) AND
@@ -1029,58 +1028,42 @@ public class BeanToDocMapper implements IMapper {
 		return refDoc;
 	}
 
-	private IngridDocument mapT011ObjGeo(Set<T011ObjGeo> refs, IngridDocument objectDoc) {
-		if (refs == null || refs.size() == 0) {
+	private IngridDocument mapT011ObjGeo(T01Object obj, IngridDocument objectDoc) {
+		Set<T011ObjGeo> objGeos = obj.getT011ObjGeos();
+
+		if (objGeos == null || objGeos.size() == 0) {
 			return objectDoc;
 		}
-		IngridDocument refDoc = new IngridDocument();
+		IngridDocument domainDoc = new IngridDocument();
 		
 		// there should only be one object in the set because of the 1:1 relation between tables 
 		// get first object from iterator
-		T011ObjGeo ref = refs.iterator().next();
-		refDoc.put(MdekKeys.TECHNICAL_BASE, ref.getSpecialBase());
-		refDoc.put(MdekKeys.DATA, ref.getDataBase());
-		refDoc.put(MdekKeys.METHOD_OF_PRODUCTION, ref.getMethod());
-		refDoc.put(MdekKeys.RESOLUTION, ref.getRecExact());
-		refDoc.put(MdekKeys.DEGREE_OF_RECORD, ref.getRecGrade());
-		refDoc.put(MdekKeys.HIERARCHY_LEVEL, ref.getHierarchyLevel());
-		refDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, ref.getVectorTopologyLevel());
-		refDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, ref.getPosAccuracyVertical());
-		refDoc.put(MdekKeys.KEYC_INCL_W_DATASET, ref.getKeycInclWDataset());
-		refDoc.put(MdekKeys.DATASOURCE_UUID, ref.getDatasourceUuid());
+		T011ObjGeo objGeo = objGeos.iterator().next();
+		domainDoc.put(MdekKeys.TECHNICAL_BASE, objGeo.getSpecialBase());
+		domainDoc.put(MdekKeys.DATA, objGeo.getDataBase());
+		domainDoc.put(MdekKeys.METHOD_OF_PRODUCTION, objGeo.getMethod());
+		domainDoc.put(MdekKeys.RESOLUTION, objGeo.getRecExact());
+		domainDoc.put(MdekKeys.DEGREE_OF_RECORD, objGeo.getRecGrade());
+		domainDoc.put(MdekKeys.HIERARCHY_LEVEL, objGeo.getHierarchyLevel());
+		domainDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, objGeo.getVectorTopologyLevel());
+		domainDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, objGeo.getPosAccuracyVertical());
+		domainDoc.put(MdekKeys.KEYC_INCL_W_DATASET, objGeo.getKeycInclWDataset());
+		domainDoc.put(MdekKeys.DATASOURCE_UUID, objGeo.getDatasourceUuid());
 
-		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAP, refDoc);
+		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAP, domainDoc);
 		
 		// add key catalogs
-		mapT011ObjGeoKeycs(ref.getT011ObjGeoKeycs(), refDoc);
+		mapObjectTypesCatalogues(obj.getObjectTypesCatalogues(), domainDoc);
 		// add publication scales
-		mapT011ObjGeoScales(ref.getT011ObjGeoScales(), refDoc);
+		mapT011ObjGeoScales(objGeo.getT011ObjGeoScales(), domainDoc);
 		// add symbol catalogs
-		mapT011ObjGeoSymcs(ref.getT011ObjGeoSymcs(), refDoc);
+		mapT011ObjGeoSymcs(objGeo.getT011ObjGeoSymcs(), domainDoc);
 		// add feature types
-		mapT011ObjGeoSupplinfos(ref.getT011ObjGeoSupplinfos(), refDoc);
+		mapT011ObjGeoSupplinfos(objGeo.getT011ObjGeoSupplinfos(), domainDoc);
 		// add vector formats geo vector list
-		mapT011ObjGeoVectors(ref.getT011ObjGeoVectors(), refDoc);
+		mapT011ObjGeoVectors(objGeo.getT011ObjGeoVectors(), domainDoc);
 		// add vector formats geo vector list
-		mapT011ObjGeoSpatialReps(ref.getT011ObjGeoSpatialReps(), refDoc);
-		
-		return objectDoc;
-	}
-
-	private IngridDocument mapT011ObjGeoKeycs(Set<T011ObjGeoKeyc> refs, IngridDocument objectDoc) {
-		if (refs == null) {
-			return objectDoc;
-		}
-		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
-		for (T011ObjGeoKeyc ref : refs) {
-			IngridDocument doc = new IngridDocument();
-			doc.put(MdekKeys.SUBJECT_CAT, ref.getKeycValue());
-			doc.put(MdekKeys.SUBJECT_CAT_KEY, ref.getKeycKey());
-			doc.put(MdekKeys.KEY_DATE, ref.getKeyDate());
-			doc.put(MdekKeys.EDITION, ref.getEdition());
-			locList.add(doc);					
-		}
-		objectDoc.put(MdekKeys.KEY_CATALOG_LIST, locList);
+		mapT011ObjGeoSpatialReps(objGeo.getT011ObjGeoSpatialReps(), domainDoc);
 		
 		return objectDoc;
 	}
@@ -1413,13 +1396,13 @@ public class BeanToDocMapper implements IMapper {
 		return refDoc;
 	}
 	private IngridDocument mapT011ObjData(T01Object obj, IngridDocument objectDoc) {
-		Set<T011ObjData> refs = obj.getT011ObjDatas();
-		if (refs == null || refs.size() == 0) {
+		Set<T011ObjData> objDatas = obj.getT011ObjDatas();
+		if (objDatas == null || objDatas.size() == 0) {
 			return objectDoc;
 		}
 
 		IngridDocument domainDoc = new IngridDocument();
-		mapT011ObjData(refs.iterator().next(), domainDoc);
+		mapT011ObjData(objDatas.iterator().next(), domainDoc);
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, domainDoc);
 
 		mapT011ObjDataParas(obj.getT011ObjDataParas(), domainDoc);

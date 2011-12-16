@@ -56,7 +56,6 @@ import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo;
@@ -383,6 +382,10 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjProject(oDocIn, oIn);
 			// technical domain dataset (class 5)
 			updateT011ObjData(oDocIn, oIn);
+
+			// connected to T01Object and NOT technical domains ! so call independent from technical domains !
+			updateT011ObjDataParas(oDocIn, oIn);
+			updateObjectTypesCatalogues(oDocIn, oIn);
 
 			// additional fields
 			updateAdditionalFieldDatas(oDocIn, oIn);
@@ -1151,7 +1154,6 @@ public class DocToBeanMapper implements IMapper {
 			dao.makePersistent(ref);
 			
 			// map 1:N relations
-			updateT011ObjGeoKeycs(refDoc, ref);
 			updateT011ObjGeoScales(refDoc, ref);
 			updateT011ObjGeoSymcs(refDoc, ref);
 			updateT011ObjGeoSupplinfos(refDoc, ref);
@@ -1162,36 +1164,6 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 	
-	private void updateT011ObjGeoKeycs(IngridDocument docIn, T011ObjGeo in) {
-		Set<T011ObjGeoKeyc> refs = in.getT011ObjGeoKeycs();
-		ArrayList<T011ObjGeoKeyc> refs_unprocessed = new ArrayList<T011ObjGeoKeyc>(refs);
-		// remove all !
-		for (T011ObjGeoKeyc ref : refs_unprocessed) {
-			refs.remove(ref);
-			// delete-orphan doesn't work !!!?????
-			dao.makeTransient(ref);			
-		}		
-		
-		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.KEY_CATALOG_LIST);
-		if (refDocs != null) {
-			// and add all new ones !
-			int line = 1;
-			for (IngridDocument refDoc : refDocs) {
-				// add all as new ones
-				T011ObjGeoKeyc ref = new T011ObjGeoKeyc();
-				ref.setObjGeoId(in.getId());
-				ref.setKeycValue(refDoc.getString(MdekKeys.SUBJECT_CAT));
-				ref.setKeycKey((Integer)refDoc.get(MdekKeys.SUBJECT_CAT_KEY));
-				ref.setKeyDate(refDoc.getString(MdekKeys.KEY_DATE));
-				ref.setEdition(refDoc.getString(MdekKeys.EDITION));
-				ref.setLine(line);
-				keyValueService.processKeyValue(ref);
-				refs.add(ref);
-				line++;
-			}
-		}
-	}
-
 	private void updateT011ObjGeoScales(IngridDocument docIn, T011ObjGeo in) {
 		Set<T011ObjGeoScale> refs = in.getT011ObjGeoScales();
 		ArrayList<T011ObjGeoScale> refs_unprocessed = new ArrayList<T011ObjGeoScale>(refs);
@@ -1822,9 +1794,6 @@ public class DocToBeanMapper implements IMapper {
 			T011ObjData ref = mapT011ObjData(oIn, domainDoc, new T011ObjData());
 			refs.add(ref);
 		}
-
-		updateT011ObjDataParas(oDocIn, oIn);
-		updateObjectTypesCatalogues(oDocIn, oIn);
 	}
 
 	private T011ObjDataPara mapT011ObjDataPara(T01Object oFrom,
@@ -1891,17 +1860,22 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			dao.makeTransient(ref);			
 		}		
-		
-		IngridDocument domainDoc = (IngridDocument) docIn.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
-		if (domainDoc != null) {
-			List<IngridDocument> refDocs = (List<IngridDocument>)domainDoc.get(MdekKeys.KEY_CATALOG_LIST);
-			if (refDocs != null) {
-				// and add all new ones !
-				int line = 1;
-				for (IngridDocument refDoc : refDocs) {
-					ObjectTypesCatalogue ref = mapObjectTypesCatalogue(oIn, refDoc, new ObjectTypesCatalogue(), line);
-					refs.add(ref);
-					line++;
+
+		// Used for data of multiple technical domains ! We map all possible domains (so our MdekExamples work :)
+		List<IngridDocument> domainDocs = new ArrayList<IngridDocument>();
+		domainDocs.add((IngridDocument) docIn.get(MdekKeys.TECHNICAL_DOMAIN_MAP));
+		domainDocs.add((IngridDocument) docIn.get(MdekKeys.TECHNICAL_DOMAIN_DATASET));
+		int line = 1;
+		for (IngridDocument domainDoc : domainDocs) {
+			if (domainDoc != null) {
+				List<IngridDocument> refDocs = (List<IngridDocument>)domainDoc.get(MdekKeys.KEY_CATALOG_LIST);
+				if (refDocs != null) {
+					// and add all new ones !
+					for (IngridDocument refDoc : refDocs) {
+						ObjectTypesCatalogue ref = mapObjectTypesCatalogue(oIn, refDoc, new ObjectTypesCatalogue(), line);
+						refs.add(ref);
+						line++;
+					}
 				}
 			}
 		}

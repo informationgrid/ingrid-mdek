@@ -77,7 +77,6 @@ public class MdekUtils {
 		OBJ_ADR_TYPE_SPECIAL(2010, "T012ObjAdr:type:specialName"),
 		OBJ_REFERENCE(2000, "ObjectReference:specialRef:specialName"),
 		OBJ_GEO_REFERENCESYSTEM(100, "SpatialSystem:referencesystemKey:referencesystemValue"),
-		OBJ_GEO_KEYC(3535, "T011ObjGeoKeyc:keycKey:keycValue"),
 		OBJ_TYPES_CATALOGUE(3535, "ObjectTypesCatalogue:titleKey:titleValue"),
 		OBJ_GEO_SYMC(3555, "T011ObjGeoSymc:symbolCatKey:symbolCatValue"),
 		OBJ_LITERATURE_TYPE(3385, "T011ObjLiterature:typeKey:typeValue"),

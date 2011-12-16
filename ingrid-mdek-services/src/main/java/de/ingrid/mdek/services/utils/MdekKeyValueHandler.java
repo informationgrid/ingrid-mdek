@@ -21,7 +21,6 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
 import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
@@ -53,7 +52,6 @@ public class MdekKeyValueHandler {
 		T011ObjServ.class,
 		T011ObjServOperation.class,
 		T011ObjGeoSymc.class,
-		T011ObjGeoKeyc.class,
 		T017UrlRef.class,
 		T015Legist.class,
 		T014InfoImpart.class,
@@ -109,8 +107,6 @@ public class MdekKeyValueHandler {
 				" -> Process with separate method 'processKeyValueT011ObjServOperation(...)' !!!");
 		} else if (T011ObjGeoSymc.class.isAssignableFrom(clazz)) {
 			processKeyValueT011ObjGeoSymc((T011ObjGeoSymc) bean);
-		} else if (T011ObjGeoKeyc.class.isAssignableFrom(clazz)) {
-			processKeyValueT011ObjGeoKeyc((T011ObjGeoKeyc) bean);
 		} else if (T017UrlRef.class.isAssignableFrom(clazz)) {
 			processKeyValueT017UrlRef((T017UrlRef) bean);
 		} else if (T015Legist.class.isAssignableFrom(clazz)) {
@@ -229,19 +225,6 @@ public class MdekKeyValueHandler {
 				catalogService.getCatalogLanguage());
 
 			bean.setSymbolCatValue(keyNameMap.get(entryKey));
-		}
-		
-		return bean;
-	}
-
-	private IEntity processKeyValueT011ObjGeoKeyc(T011ObjGeoKeyc bean) {
-		Integer entryKey = bean.getKeycKey();
-		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.OBJ_GEO_KEYC.getDbValue(),
-				catalogService.getCatalogLanguage());
-
-			bean.setKeycValue(keyNameMap.get(entryKey));
 		}
 		
 		return bean;

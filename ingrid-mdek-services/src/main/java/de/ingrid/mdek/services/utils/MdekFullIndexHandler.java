@@ -39,7 +39,6 @@ import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
@@ -342,13 +341,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oGeo.getSpecialBase());
 			extendFullData(data, oGeo.getDataBase());
 			extendFullData(data, oGeo.getMethod());
-			Set<T011ObjGeoKeyc> oGeoKeycs = oGeo.getT011ObjGeoKeycs();
-			for (T011ObjGeoKeyc oGeoKeyc : oGeoKeycs) {
-				extendFullData(data, MdekUtils.timestampToDisplayDate(oGeoKeyc.getKeyDate()));
-				extendFullData(data, oGeoKeyc.getEdition());
-				extendFullDataWithSysList(data, MdekSysList.OBJ_GEO_KEYC,
-						oGeoKeyc.getKeycKey(), oGeoKeyc.getKeycValue());
-			}
 			Set<T011ObjGeoSymc> oGeoSymcs = oGeo.getT011ObjGeoSymcs();
 			for (T011ObjGeoSymc oGeoSymc : oGeoSymcs) {
 				extendFullData(data, MdekUtils.timestampToDisplayDate(oGeoSymc.getSymbolDate()));

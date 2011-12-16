@@ -69,7 +69,6 @@ import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoKeyc;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo;
@@ -211,8 +210,6 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<T011ObjProject>(_sessionFactory, T011ObjProject.class);
 		} else if (clazz.isAssignableFrom(T011ObjLiterature.class)) {
 			dao = new GenericHibernateDao<T011ObjLiterature>(_sessionFactory, T011ObjLiterature.class);
-		} else if (clazz.isAssignableFrom(T011ObjGeoKeyc.class)) {
-			dao = new GenericHibernateDao<T011ObjGeoKeyc>(_sessionFactory, T011ObjGeoKeyc.class);
 		} else if (clazz.isAssignableFrom(T011ObjGeoScale.class)) {
 			dao = new GenericHibernateDao<T011ObjGeoScale>(_sessionFactory, T011ObjGeoScale.class);
 		} else if (clazz.isAssignableFrom(T011ObjGeoSymc.class)) {
