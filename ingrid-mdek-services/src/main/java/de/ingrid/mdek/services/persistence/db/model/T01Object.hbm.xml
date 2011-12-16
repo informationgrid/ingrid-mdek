@@ -90,6 +90,12 @@
          <key column="obj_from_id"/>
          <one-to-many class="ObjectReference" not-found="ignore"/>
       </set>
+      <set name="objectTypesCatalogues" order-by="line" table="object_types_catalogue"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="ObjectTypesCatalogue" not-found="ignore"/>
+      </set>
       <set name="objectUses" order-by="line" table="object_use" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_id"/>

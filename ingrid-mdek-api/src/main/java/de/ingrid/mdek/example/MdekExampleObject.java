@@ -1513,6 +1513,16 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.PARAMETERS, docList);
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, technicalDomain);
+		// add TECHNICAL DOMAIN DATASET - key catalog
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check SUBJECT_CAT_KEY -> SUBJECT_CAT is stored via syslist
+		testDoc.put(MdekKeys.SUBJECT_CAT_KEY, 1);
+		testDoc.put(MdekKeys.KEY_DATE, "TEST " + MdekKeys.KEY_DATE);
+		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.KEY_CATALOG_LIST, docList);
 
 		// add OBJECT COMMENT
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.COMMENT_LIST);

@@ -323,11 +323,13 @@
   <!--
     Fachlicher Name: Datensammlung /Datenbank
     Tabelle   : t011_obj_data*
+    Tabelle   : object_types_catalogue für key-catalogue
   -->
   <xs:element name="dataset">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="description-of-tech-domain"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="key-catalogue"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="dataset-parameter"/>
         <xs:element minOccurs="0" ref="method"/>
       </xs:sequence>
@@ -694,8 +696,9 @@
   -->
   <xs:element name="resolution-scan" type="xs:string"/>
   <!--
-    Fachlicher Name: Schlüsselkatalog
+    Fachlicher Name: Schlüsselkatalog bzw. Objektartenkatalog
     Tabelle   : t011_obj_geo_keyc
+    Tabelle   : object_types_catalogue
   -->
   <xs:element name="key-catalogue">
     <xs:complexType>

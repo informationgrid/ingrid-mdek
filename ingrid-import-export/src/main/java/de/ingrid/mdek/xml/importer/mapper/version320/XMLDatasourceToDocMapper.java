@@ -58,7 +58,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_TECHNICAL_DOMAIN_MAP = "//data-source/technical-domain/map";
 	private static final String X_TECHNICAL_DOMAIN_PROJECT = "//data-source/technical-domain/project";
 	private static final String X_TECHNICAL_DOMAIN_DESCRIPTION_OF_TECH_DOMAIN = "description-of-tech-domain";
-	private static final String X_DATASET_PARAMETER_LIST = "//data-source/technical-domain/dataset/dataset-parameter";
+	private static final String X_DATASET_PARAMETER_LIST = "dataset-parameter";
 	private static final String X_DATASET_PARAMETER_PARAMETER = "parameter";
 	private static final String X_DATASET_PARAMETER_SUPPLEMENTARY_INFORMATION = "supplementary-information";
 	private static final String X_DATASET_METHOD = "method";
@@ -109,11 +109,11 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_HIERARCHY_LEVEL = "hierarchy-level/@iso-code";
 	private static final String X_MAP_DATA = "data/text()";
 	private static final String X_MAP_RESOLUTION = "resolution/text()";
-	private static final String X_MAP_KEY_CATALOGUE_LIST = "key-catalogue";
-	private static final String X_MAP_KEY_CATALOGUE = "key-cat/text()";
-	private static final String X_MAP_KEY_CATALOGUE_KEY = "key-cat/@id";
-	private static final String X_MAP_KEY_CATALOGUE_DATE = "key-date/text()";
-	private static final String X_MAP_KEY_CATALOGUE_EDITION = "edition/text()";
+	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_LIST = "key-catalogue";
+	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE = "key-cat/text()";
+	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_KEY = "key-cat/@id";
+	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_DATE = "key-date/text()";
+	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_EDITION = "edition/text()";
 	private static final String X_MAP_DEGREE_OF_RECORD = "degree-of-record/text()";
 	private static final String X_MAP_METHOD_OF_PRODUCTION = "method-of-production/text()";
 	private static final String X_MAP_TECHNICAL_BASE = "technical-base/text()";
@@ -353,13 +353,14 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_DATASET, MdekKeys.DESCRIPTION_OF_TECH_DOMAIN},
 				XPathUtils.getString(dataset, X_TECHNICAL_DOMAIN_DESCRIPTION_OF_TECH_DOMAIN), target);
-		mapDatasetParameter(source, target);
+		mapKeyCatalogue(dataset, target, MdekKeys.TECHNICAL_DOMAIN_DATASET);
+		mapDatasetParameter(dataset, target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_DATASET, MdekKeys.METHOD},
 				XPathUtils.getString(dataset, X_DATASET_METHOD), target);
 	}
 
-	private static void mapDatasetParameter(Document source, IngridDocument target) {
-		NodeList parameterNodeList = XPathUtils.getNodeList(source, X_DATASET_PARAMETER_LIST);
+	private static void mapDatasetParameter(Node domainNode, IngridDocument target) {
+		NodeList parameterNodeList = XPathUtils.getNodeList(domainNode, X_DATASET_PARAMETER_LIST);
 		List<IngridDocument> parameters = new ArrayList<IngridDocument>();
 		for (int index = 0; index < parameterNodeList.getLength(); ++index) {
 			Node parameter = parameterNodeList.item(index);
@@ -533,7 +534,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.RESOLUTION},
 				XPathUtils.getDouble(map, X_MAP_RESOLUTION), target);
 		mapPublicationScales(map, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_MAP));
-		mapKeyCatalogue(map, target);
+		mapKeyCatalogue(map, target, MdekKeys.TECHNICAL_DOMAIN_MAP);
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DEGREE_OF_RECORD},
 				XPathUtils.getDouble(map, X_MAP_DEGREE_OF_RECORD), target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.METHOD_OF_PRODUCTION},
@@ -555,22 +556,22 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getString(map, X_MAP_DATASOURCE_IDENTIFICATOR), target);
 	}
 
-	private static void mapKeyCatalogue(Node mapContext, IngridDocument target) {
-		NodeList keyCatalogues = XPathUtils.getNodeList(mapContext, X_MAP_KEY_CATALOGUE_LIST);
+	private static void mapKeyCatalogue(Node domainNode, IngridDocument target, String keyOfTechnicalDomain) {
+		NodeList keyCatalogues = XPathUtils.getNodeList(domainNode, X_MAP_AND_DATASET_KEY_CATALOGUE_LIST);
 		List<IngridDocument> keyCatalogueList = new ArrayList<IngridDocument>();
 
 		for (int index = 0; index < keyCatalogues.getLength(); index++) {
 			Node keyCatalogue = keyCatalogues.item(index);
 			IngridDocument keyCatalogueDoc = new IngridDocument();
-			putString(MdekKeys.SUBJECT_CAT, XPathUtils.getString(keyCatalogue, X_MAP_KEY_CATALOGUE), keyCatalogueDoc);
-			putInt(MdekKeys.SUBJECT_CAT_KEY, XPathUtils.getInt(keyCatalogue, X_MAP_KEY_CATALOGUE_KEY), keyCatalogueDoc);
-			putString(MdekKeys.KEY_DATE, XPathUtils.getString(keyCatalogue, X_MAP_KEY_CATALOGUE_DATE), keyCatalogueDoc);
-			putString(MdekKeys.EDITION, XPathUtils.getString(keyCatalogue, X_MAP_KEY_CATALOGUE_EDITION), keyCatalogueDoc);
+			putString(MdekKeys.SUBJECT_CAT, XPathUtils.getString(keyCatalogue, X_MAP_AND_DATASET_KEY_CATALOGUE), keyCatalogueDoc);
+			putInt(MdekKeys.SUBJECT_CAT_KEY, XPathUtils.getInt(keyCatalogue, X_MAP_AND_DATASET_KEY_CATALOGUE_KEY), keyCatalogueDoc);
+			putString(MdekKeys.KEY_DATE, XPathUtils.getString(keyCatalogue, X_MAP_AND_DATASET_KEY_CATALOGUE_DATE), keyCatalogueDoc);
+			putString(MdekKeys.EDITION, XPathUtils.getString(keyCatalogue, X_MAP_AND_DATASET_KEY_CATALOGUE_EDITION), keyCatalogueDoc);
 
 			keyCatalogueList.add(keyCatalogueDoc);
 		}
 
-		putDocList(new String[]{MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.KEY_CATALOG_LIST}, keyCatalogueList, target);
+		putDocList(new String[]{keyOfTechnicalDomain, MdekKeys.KEY_CATALOG_LIST}, keyCatalogueList, target);
 	}
 
 	private static void mapSymbolCatalogue(Node mapContext, IngridDocument target) {

@@ -32,6 +32,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectTypesCatalogue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectUse.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
@@ -100,6 +101,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectMetadata">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectNode">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectReference">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectUse">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.Permission">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionAddr">read-write</prop>
@@ -169,6 +171,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.objectComments">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.objectFormatInspires">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.objectReferences">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.objectTypesCatalogues">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.searchtermObjs">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.spatialReferences">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.T01Object.spatialSystems">read-write</prop>

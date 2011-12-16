@@ -37,6 +37,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
@@ -1823,6 +1824,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 
 		updateT011ObjDataParas(oDocIn, oIn);
+		updateObjectTypesCatalogues(oDocIn, oIn);
 	}
 
 	private T011ObjDataPara mapT011ObjDataPara(T01Object oFrom,
@@ -1860,6 +1862,47 @@ public class DocToBeanMapper implements IMapper {
 				T011ObjDataPara ref = mapT011ObjDataPara(oIn, refDoc, new T011ObjDataPara(), line);
 				refs.add(ref);
 				line++;
+			}
+		}
+	}
+
+	private ObjectTypesCatalogue mapObjectTypesCatalogue(T01Object oFrom,
+			IngridDocument refDoc,
+			ObjectTypesCatalogue ref,
+			int line) {
+
+		ref.setObjId(oFrom.getId());
+		ref.setTitleKey((Integer)refDoc.get(MdekKeys.SUBJECT_CAT_KEY));
+		ref.setTitleValue(refDoc.getString(MdekKeys.SUBJECT_CAT));
+		ref.setTypeDate(refDoc.getString(MdekKeys.KEY_DATE));
+		ref.setTypeVersion(refDoc.getString(MdekKeys.EDITION));
+		ref.setLine(line);
+
+		keyValueService.processKeyValue(ref);
+
+		return ref;
+	}
+	private void updateObjectTypesCatalogues(IngridDocument docIn, T01Object oIn) {
+		Set<ObjectTypesCatalogue> refs = oIn.getObjectTypesCatalogues();
+		ArrayList<ObjectTypesCatalogue> refs_unprocessed = new ArrayList<ObjectTypesCatalogue>(refs);
+		// remove all !
+		for (ObjectTypesCatalogue ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		
+		IngridDocument domainDoc = (IngridDocument) docIn.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
+		if (domainDoc != null) {
+			List<IngridDocument> refDocs = (List<IngridDocument>)domainDoc.get(MdekKeys.KEY_CATALOG_LIST);
+			if (refDocs != null) {
+				// and add all new ones !
+				int line = 1;
+				for (IngridDocument refDoc : refDocs) {
+					ObjectTypesCatalogue ref = mapObjectTypesCatalogue(oIn, refDoc, new ObjectTypesCatalogue(), line);
+					refs.add(ref);
+					line++;
+				}
 			}
 		}
 	}

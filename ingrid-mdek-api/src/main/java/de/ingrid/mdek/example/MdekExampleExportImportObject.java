@@ -226,6 +226,50 @@ class MdekExampleExportImportObjectThread extends Thread {
 		docList.add(testDoc);
 		oDoc.put(MdekKeys.CONFORMITY_LIST, docList);
 
+		// Schlüsselkatalog/Objektartenkatalog now in technical domains MAP and(!) DATASET !
+
+		// add TECHNICAL DOMAIN DATASET
+		IngridDocument technicalDomain = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
+		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
+		oDoc.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, technicalDomain);
+		technicalDomain.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, "TEST DESCRIPTION_OF_TECH_DOMAIN");
+		// add TECHNICAL DOMAIN DATASET - key catalog
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check SUBJECT_CAT_KEY -> SUBJECT_CAT is stored via syslist
+		testDoc.put(MdekKeys.SUBJECT_CAT_KEY, 1);
+		testDoc.put(MdekKeys.KEY_DATE, "TEST " + MdekKeys.KEY_DATE);
+		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.KEY_CATALOG_LIST, docList);
+		// add TECHNICAL DOMAIN DATASET - dataset-parameter
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.PARAMETERS);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.PARAMETER, "TEST PARAMETER");
+		testDoc.put(MdekKeys.SUPPLEMENTARY_INFORMATION, "TEST SUPPLEMENTARY_INFORMATION");
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.PARAMETERS, docList);
+
+		// change TECHNICAL DOMAIN MAP
+		technicalDomain = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
+		// add TECHNICAL DOMAIN MAP - key catalog
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check SUBJECT_CAT_KEY -> SUBJECT_CAT is stored via syslist
+		testDoc.put(MdekKeys.SUBJECT_CAT_KEY, 1);
+		testDoc.put(MdekKeys.KEY_DATE, "TEST " + MdekKeys.KEY_DATE);
+		testDoc.put(MdekKeys.EDITION, "TEST " + MdekKeys.EDITION);
+		docList.add(testDoc);
+		technicalDomain.put(MdekKeys.KEY_CATALOG_LIST, docList);
+		// add TECHNICAL DOMAIN MAP - feature types
+		List<String> strList = (List<String>) technicalDomain.get(MdekKeys.FEATURE_TYPE_LIST);
+		strList = (strList == null) ? new ArrayList<String>() : strList;
+		strList.add("TEST feature type");
+		technicalDomain.put(MdekKeys.FEATURE_TYPE_LIST, strList);
+
 		oDoc = supertool.publishObject(oDoc, true, false);
 
 		System.out.println("\n----- export object -----");
@@ -259,6 +303,12 @@ class MdekExampleExportImportObjectThread extends Thread {
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_LIST);
 		docList.remove(docList.size()-1);
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.CONFORMITY_LIST);
+		docList.remove(docList.size()-1);
+		oDoc.remove(MdekKeys.TECHNICAL_DOMAIN_DATASET);
+		technicalDomain = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.KEY_CATALOG_LIST);
+		docList.remove(docList.size()-1);
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.FEATURE_TYPE_LIST);
 		docList.remove(docList.size()-1);
 		result = supertool.publishObject(oDoc, true, false);
 

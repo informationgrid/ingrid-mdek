@@ -31,6 +31,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
@@ -1422,6 +1423,7 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_DATASET, domainDoc);
 
 		mapT011ObjDataParas(obj.getT011ObjDataParas(), domainDoc);
+		mapObjectTypesCatalogues(obj.getObjectTypesCatalogues(), domainDoc);
 
 		return objectDoc;
 	}
@@ -1451,6 +1453,33 @@ public class BeanToDocMapper implements IMapper {
 		
 		return inDoc;
 	}
+	private IngridDocument mapObjectTypesCatalogue(ObjectTypesCatalogue ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.SUBJECT_CAT_KEY, ref.getTitleKey());
+		refDoc.put(MdekKeys.SUBJECT_CAT, ref.getTitleValue());
+		refDoc.put(MdekKeys.KEY_DATE, ref.getTypeDate());
+		refDoc.put(MdekKeys.EDITION, ref.getTypeVersion());
+
+		return refDoc;
+	}
+	private IngridDocument mapObjectTypesCatalogues(Set<ObjectTypesCatalogue> refs, IngridDocument inDoc) {
+		if (refs == null || refs.size() == 0) {
+			return inDoc;
+		}
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (ObjectTypesCatalogue ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapObjectTypesCatalogue(ref, refDoc);
+			refList.add(refDoc);
+		}
+		inDoc.put(MdekKeys.KEY_CATALOG_LIST, refList);
+		
+		return inDoc;
+	}
+
 
 	private IngridDocument mapT011ObjProject(T011ObjProject ref, IngridDocument refDoc) {
 		if (ref == null) {

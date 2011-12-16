@@ -26,6 +26,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
@@ -327,6 +328,13 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		for (T011ObjDataPara oDataPara : oDataParas) {
 			extendFullData(data, oDataPara.getParameter());
 			extendFullData(data, oDataPara.getUnit());
+		}
+		Set<ObjectTypesCatalogue> oTypesCats = o.getObjectTypesCatalogues();
+		for (ObjectTypesCatalogue oTypesCat : oTypesCats) {
+			extendFullData(data, MdekUtils.timestampToDisplayDate(oTypesCat.getTypeDate()));
+			extendFullData(data, oTypesCat.getTypeVersion());
+			extendFullDataWithSysList(data, MdekSysList.OBJ_TYPES_CATALOGUE,
+					oTypesCat.getTitleKey(), oTypesCat.getTitleValue());
 		}
 		// T011ObjGeo
 		Set<T011ObjGeo> oGeos = o.getT011ObjGeos();

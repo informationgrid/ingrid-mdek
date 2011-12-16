@@ -675,7 +675,7 @@ public class MdekKeys {
     /** Value: String  */
     public final static String DATASOURCE_UUID = "datasource-uuid";
     
-    // TECHNICAL DOMAIN MAP - KEY CATALOG
+    // TECHNICAL DOMAIN MAP AND DATASET(!) - KEY CATALOG
     /** Value: List< IngridDocument >  */
     public final static String KEY_CATALOG_LIST = "key-catalog-list";
     /** Value: String  */

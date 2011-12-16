@@ -15,6 +15,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
@@ -74,6 +75,7 @@ public class MdekKeyValueHandler {
 		AdditionalFieldData.class,
 		SpatialSystem.class,
 		ObjectUse.class,
+		ObjectTypesCatalogue.class,
 	};
 
 	/** Get The Singleton */
@@ -151,6 +153,8 @@ public class MdekKeyValueHandler {
 			processKeyValueSpatialSystem((SpatialSystem) bean);
 		} else if (ObjectUse.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectUse((ObjectUse) bean);
+		} else if (ObjectTypesCatalogue.class.isAssignableFrom(clazz)) {
+			processKeyValueObjectTypesCatalogue((ObjectTypesCatalogue) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -630,6 +634,19 @@ public class MdekKeyValueHandler {
 				catalogService.getCatalogLanguage());
 
 			bean.setTermsOfUseValue(keyNameMap.get(entryKey));
+		}
+		
+		return bean;
+	}
+
+	private IEntity processKeyValueObjectTypesCatalogue(ObjectTypesCatalogue bean) {
+		Integer entryKey = bean.getTitleKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_TYPES_CATALOGUE.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setTitleValue(keyNameMap.get(entryKey));
 		}
 		
 		return bean;

@@ -1047,7 +1047,7 @@
 			<xs:element name="pos-accuracy-vertical" type="xs:double"/>
 			<xs:element name="keyc-incl-w-dataset" type="xs:integer"/>
 			<xs:element name="datasource-uuid" type="xs:string"/>
-			<xs:element name="key-catalog-list" type="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_LIST"/>
+			<xs:element name="key-catalog-list" type="KEY_CATALOG_LIST"/>
 			<xs:element name="publication-scale-list" type="TECHNICAL_DOMAIN_GENERIC_PUBLICATION_SCALE_LIST"/>
 			<xs:element name="symbol-catalog-list" type="TECHNICAL_DOMAIN_MAP_SYMBOL_CATALOG_LIST"/>
 			<xs:element name="feature-type-list" type="STRING_LIST"/>
@@ -1066,12 +1066,12 @@
 			<xs:element name="geometric-object-count" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_LIST">
+	<xs:complexType name="KEY_CATALOG_LIST">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_MAP" type="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_MAP"/>
+			<xs:element name="KEY_CATALOG_MAP" type="KEY_CATALOG_MAP"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="TECHNICAL_DOMAIN_MAP_KEY_CATALOG_MAP">
+	<xs:complexType name="KEY_CATALOG_MAP">
 		<xs:sequence>
 			<xs:element name="subject-cat" type="xs:string"/>
 			<xs:element name="subject-cat-key" type="xs:integer"/>
@@ -1210,6 +1210,7 @@
 			<xs:element name="method" type="xs:string"/>
 			<xs:element name="description-of-tech-domain" type="xs:string"/>
 			<xs:element name="parameters" type="TECHNICAL_DOMAIN_DATASET_PARA_LIST"/>
+			<xs:element name="key-catalog-list" type="KEY_CATALOG_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_DATASET_PARA_LIST">

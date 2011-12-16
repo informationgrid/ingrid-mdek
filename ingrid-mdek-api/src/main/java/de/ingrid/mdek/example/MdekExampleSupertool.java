@@ -1063,7 +1063,14 @@ public class MdekExampleSupertool {
 		myDoc = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_DATASET);
 		if (myDoc != null) {
 			System.out.println("  technical domain DATASET:");
-			System.out.println("    " + myDoc);								
+			System.out.println("    " + myDoc);
+			docList = (List<IngridDocument>) myDoc.get(MdekKeys.KEY_CATALOG_LIST);
+			if (docList != null && docList.size() > 0) {
+				System.out.println("    DATASET - key catalogs: " + docList.size() + " entries");
+				for (IngridDocument doc : docList) {
+					System.out.println("     " + doc);								
+				}			
+			}
 		}
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.COMMENT_LIST);
 		if (docList != null && docList.size() > 0) {

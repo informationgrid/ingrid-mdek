@@ -227,9 +227,9 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createDataset(IngridDocument datasetContext) {
 		XMLElement dataset = new XMLElement(DATASET);
-		dataset.addChild(
-				new XMLElement(DESCRIPTION_OF_TECH_DOMAIN,
+		dataset.addChild(new XMLElement(DESCRIPTION_OF_TECH_DOMAIN,
 						getStringForKey(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, datasetContext)));
+		dataset.addChildren(createKeyCatalogues(datasetContext));
 		dataset.addChildren(createDatasetParameters(datasetContext));
 		dataset.addChild(new XMLElement(METHOD, getStringForKey(MdekKeys.METHOD, datasetContext)));
 
