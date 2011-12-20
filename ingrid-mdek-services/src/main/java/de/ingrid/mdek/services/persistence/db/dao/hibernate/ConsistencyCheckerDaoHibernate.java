@@ -10,10 +10,53 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.TransactionService;
 import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
+import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
+import de.ingrid.mdek.services.persistence.db.model.AddressComment;
+import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
+import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
+import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
+import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
+import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
+import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
+import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
+import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
+import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
+import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
+import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoVector;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpConnpoint;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServScale;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
+import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
+import de.ingrid.mdek.services.persistence.db.model.T015Legist;
+import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T021Communication;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -54,58 +97,67 @@ public class ConsistencyCheckerDaoHibernate
 	 * that contains an id which does not exist in the first table.
 	 */
 	private void initTablesToCheck() {
-		tableList.add(new QueryParameter("PermissionObj", "uuid", "ObjectNode", new String[]{"objUuid"}));
-		tableList.add(new QueryParameter("T01Object", "id", "ObjectNode", new String[]{"objId","objIdPublished"}));
+
+		// NOTICE: Extract names from Java Objects wherever possible to get compiler errors when database model changes !!!!!!!!!
+
+		String objectNode = ObjectNode.class.getSimpleName();
+		String t01Object = T01Object.class.getSimpleName();
+		tableList.add(new QueryParameter(PermissionObj.class.getSimpleName(), "uuid", objectNode, new String[]{"objUuid"}));
+		tableList.add(new QueryParameter(t01Object, "id", objectNode, new String[]{"objId","objIdPublished"}));
 		
-		tableList.add(new QueryParameter("ObjectAccess", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("ObjectComment", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("ObjectConformity", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("ObjectMetadata", "id", "T01Object", new String[]{"objMetadataId"}));
-		tableList.add(new QueryParameter("ObjectReference", "objFromId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("SearchtermObj", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("SpatialReference", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T0110AvailFormat", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T0112MediaOption", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T0113DatasetReference", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T0114EnvTopic", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjDataPara", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjData", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjGeo", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjLiterature", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjProject", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjServ", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjTopicCat", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T012ObjAdr", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T014InfoImpart", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T015Legist", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("T017UrlRef", "objId", "T01Object", new String[]{"id"}));
-		tableList.add(new QueryParameter("AdditionalFieldData", "objId", "T01Object", new String[]{"id"}));
+		tableList.add(new QueryParameter(ObjectAccess.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(ObjectComment.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(ObjectConformity.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(ObjectMetadata.class.getSimpleName(), "id", t01Object, new String[]{"objMetadataId"}));
+		tableList.add(new QueryParameter(ObjectReference.class.getSimpleName(), "objFromId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(SearchtermObj.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(SpatialReference.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T0110AvailFormat.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T0112MediaOption.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T0113DatasetReference.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T0114EnvTopic.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjDataPara.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjData.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjGeo.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjLiterature.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjProject.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjServ.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjTopicCat.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T012ObjAdr.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T014InfoImpart.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T015Legist.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T017UrlRef.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(AdditionalFieldData.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
 		
-		tableList.add(new QueryParameter("FullIndexAddr", "addrNodeId", "AddressNode", new String[]{"id"}));
-		tableList.add(new QueryParameter("PermissionAddr", "uuid", "AddressNode", new String[]{"addrUuid"}));
-		tableList.add(new QueryParameter("T02Address", "id", "AddressNode", new String[]{"addrId","addrIdPublished"}));
+		String addressNode = AddressNode.class.getSimpleName();
+		String t02Address = T02Address.class.getSimpleName();
+		tableList.add(new QueryParameter(FullIndexAddr.class.getSimpleName(), "addrNodeId", addressNode, new String[]{"id"}));
+		tableList.add(new QueryParameter(PermissionAddr.class.getSimpleName(), "uuid", addressNode, new String[]{"addrUuid"}));
+		tableList.add(new QueryParameter(t02Address, "id", addressNode, new String[]{"addrId","addrIdPublished"}));
 		
-		tableList.add(new QueryParameter("AddressComment", "addrId", "T02Address", new String[]{"id"}));
-		tableList.add(new QueryParameter("AddressMetadata", "id", "T02Address", new String[]{"addrMetadataId"}));
-		tableList.add(new QueryParameter("SearchtermAdr", "adrId", "T02Address", new String[]{"id"}));
-		tableList.add(new QueryParameter("T021Communication", "adrId", "T02Address", new String[]{"id"}));
+		tableList.add(new QueryParameter(AddressComment.class.getSimpleName(), "addrId", t02Address, new String[]{"id"}));
+		tableList.add(new QueryParameter(AddressMetadata.class.getSimpleName(), "id", t02Address, new String[]{"addrMetadataId"}));
+		tableList.add(new QueryParameter(SearchtermAdr.class.getSimpleName(), "adrId", t02Address, new String[]{"id"}));
+		tableList.add(new QueryParameter(T021Communication.class.getSimpleName(), "adrId", t02Address, new String[]{"id"}));
 		
-		tableList.add(new QueryParameter("T011ObjGeoKeyc", "objGeoId", "T011ObjGeo", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjGeoSymc", "objGeoId", "T011ObjGeo", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjGeoScale", "objGeoId", "T011ObjGeo", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjGeoSupplinfo", "objGeoId", "T011ObjGeo", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjGeoVector", "objGeoId", "T011ObjGeo", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjGeoSpatialRep", "objGeoId", "T011ObjGeo", new String[]{"id"}));
+		String t011ObjGeo = T011ObjGeo.class.getSimpleName();
+		tableList.add(new QueryParameter(ObjectTypesCatalogue.class.getSimpleName(), "objId", t01Object, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjGeoSymc.class.getSimpleName(), "objGeoId", t011ObjGeo, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjGeoScale.class.getSimpleName(), "objGeoId", t011ObjGeo, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjGeoSupplinfo.class.getSimpleName(), "objGeoId", t011ObjGeo, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjGeoVector.class.getSimpleName(), "objGeoId", t011ObjGeo, new String[]{"id"}));
 		
-		tableList.add(new QueryParameter("T011ObjServType", "objServId", "T011ObjServ", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjServVersion", "objServId", "T011ObjServ", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjServOperation", "objServId", "T011ObjServ", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjServScale", "objServId", "T011ObjServ", new String[]{"id"}));
+		String t011ObjServ = T011ObjServ.class.getSimpleName();
+		tableList.add(new QueryParameter(T011ObjServType.class.getSimpleName(), "objServId", t011ObjServ, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjServVersion.class.getSimpleName(), "objServId", t011ObjServ, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjServOperation.class.getSimpleName(), "objServId", t011ObjServ, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjServScale.class.getSimpleName(), "objServId", t011ObjServ, new String[]{"id"}));
 		
-		tableList.add(new QueryParameter("T011ObjServOpPlatform", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjServOpConnpoint", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjServOpPara", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
-		tableList.add(new QueryParameter("T011ObjServOpDepends", "objServOpId", "T011ObjServOperation", new String[]{"id"}));
+		String t011ObjServOperation = T011ObjServOperation.class.getSimpleName();
+		tableList.add(new QueryParameter(T011ObjServOpPlatform.class.getSimpleName(), "objServOpId", t011ObjServOperation, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjServOpConnpoint.class.getSimpleName(), "objServOpId", t011ObjServOperation, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjServOpPara.class.getSimpleName(), "objServOpId", t011ObjServOperation, new String[]{"id"}));
+		tableList.add(new QueryParameter(T011ObjServOpDepends.class.getSimpleName(), "objServOpId", t011ObjServOperation, new String[]{"id"}));
 	}
 
 	public List<AddressNode> checkAddressHierarchy() {

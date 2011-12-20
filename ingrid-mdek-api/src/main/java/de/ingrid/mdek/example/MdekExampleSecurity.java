@@ -246,37 +246,37 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO MD_ADMINISTRATOR GROUP 2 (NO permissions) -----");
 		supertool.setCallingUser(newMetaAdminGroup2Uuid);
 
-		System.out.println("\n----- REMOVE OBJECT permissions and store group -> NOT ALLOWED ! -----");
+		System.out.println("\n----- REMOVE OBJECT permissions and store group -> ERROR -----");
 		List<IngridDocument> permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
 		supertool.storeGroup(newGroup1Doc, true);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, permList);
 
-		System.out.println("\n----- REMOVE ADDRESS permissions and store group -> NOT ALLOWED ! -----");
+		System.out.println("\n----- REMOVE ADDRESS permissions and store group -> ERROR -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
 		supertool.storeGroup(newGroup1Doc, true);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, permList);
 
-		System.out.println("\n----- REMOVE USER permissions and store group -> NOT ALLOWED ! -----");
+		System.out.println("\n----- REMOVE USER permissions and store group -> ERROR -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, null);
 		supertool.storeGroup(newGroup1Doc, true);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, permList);
 
-		System.out.println("\n----- ADD OBJECT permission and store group -> NOT ALLOWED ! -----");
+		System.out.println("\n----- ADD OBJECT permission and store group -> ERROR -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		supertool.addObjPermissionToGroupDoc(newGroup1Doc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.storeGroup(newGroup1Doc, true);
 		permList.remove(permList.size()-1);
 
-		System.out.println("\n----- ADD ADDRESS permission and store group -> NOT ALLOWED ! -----");
+		System.out.println("\n----- ADD ADDRESS permission and store group -> ERROR -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		supertool.addAddrPermissionToGroupDoc(newGroup1Doc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.storeGroup(newGroup1Doc, true);
 		permList.remove(permList.size()-1);
 
-		System.out.println("\n----- ADD USER permission QUALITY_ASSURANCE and store group -> NOT ALLOWED IF OWN GROUP NOT QA (may be allowed here if granted ...) -----");
+		System.out.println("\n----- ADD USER permission QUALITY_ASSURANCE and store group -> ERROR IF OWN GROUP NOT QA (may be allowed here if granted ...) -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		supertool.addUserPermissionToGroupDoc(newGroup1Doc, MdekUtilsSecurity.IdcPermission.QUALITY_ASSURANCE);
 		supertool.storeGroup(newGroup1Doc, true);
@@ -835,7 +835,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
 		supertool.setCallingUser(newMetaAuthor1Uuid);
 
-		System.out.println("\n----- store catalog -> NOT ALLOWED -----");
+		System.out.println("\n----- store catalog -> ERROR -----");
 		supertool.storeCatalog(doc, false);
 
 
@@ -857,14 +857,14 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
 		supertool.setCallingUser(newMetaAuthor1Uuid);
 
-		System.out.println("\n----- delete address FULL -> NOT ALLOWED -----");
+		System.out.println("\n----- delete address FULL -> ERROR -----");
 		supertool.deleteAddress(addrUuid, true);
 
-		System.out.println("\n----- delete object FULL -> NOT ALLOWED -----");
+		System.out.println("\n----- delete object FULL -> ERROR -----");
 		supertool.deleteObject(objUuid, true);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- store address -> NOT ALLOWED -----");
+		System.out.println("----- store address -> ERROR -----");
 		System.out.println("-- first fetch address");
 		supertool.setFullOutput(false);
 		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
@@ -872,11 +872,11 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeAddress(doc, false);
 
-		System.out.println("\n----- publish address -> NOT ALLOWED -----");
+		System.out.println("\n----- publish address -> ERROR -----");
 		supertool.publishAddress(doc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("\n----- store object -> NOT ALLOWED -----");
+		System.out.println("\n----- store object -> ERROR -----");
 		System.out.println("-- first fetch object");
 		supertool.setFullOutput(false);
 		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
@@ -884,7 +884,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeObject(doc, false);
 
-		System.out.println("\n----- publish object -> NOT ALLOWED -----");
+		System.out.println("\n----- publish object -> ERROR -----");
 		supertool.publishObject(doc, false, false);
 
 		System.out.println("\n-------------------------------------");
@@ -913,10 +913,10 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.getAddressPermissions(addrUuid, true);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- delete address FULL -> NOT ALLOWED (no WRITE_TREE) -----");
+		System.out.println("----- delete address FULL -> ERROR (no WRITE_TREE) -----");
 		supertool.deleteAddress(addrUuid, true);
 
-		System.out.println("\n----- delete object FULL -> NOT ALLOWED (no WRITE_TREE) -----");
+		System.out.println("\n----- delete object FULL -> ERROR (no WRITE_TREE) -----");
 		supertool.deleteObject(objUuid, true);
 
 		System.out.println("\n-------------------------------------");
@@ -971,8 +971,8 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("------------------------------------------------");
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- create top address -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for top address -> NOT ALLOWED -----");
+		System.out.println("----- create top address -> ERROR -----");
+		System.out.println("----- first get initial data for top address -> ERROR -----");
 		IngridDocument newAdrDoc = new IngridDocument();
 		newAdrDoc.put(MdekKeys.PARENT_UUID, null);
 		supertool.getInitialAddress(newAdrDoc);
@@ -982,32 +982,32 @@ class MdekExampleSecurityThread extends Thread {
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
-		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> ERROR -----");
 		supertool.storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- move address to top -> NOT ALLOWED -----");
+		System.out.println("----- move address to top -> ERROR -----");
 		supertool.moveAddress(addrUuid, null, false);
 
-		System.out.println("\n----- copy address to top -> NOT ALLOWED -----");
+		System.out.println("\n----- copy address to top -> ERROR -----");
 		supertool.copyAddress(addrUuid, null, false, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- create top object -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for top object -> NOT ALLOWED -----");
+		System.out.println("----- create top object -> ERROR -----");
+		System.out.println("----- first get initial data for top object -> ERROR -----");
 		IngridDocument newObjDoc = new IngridDocument();
 		newObjDoc.put(MdekKeys.PARENT_UUID, null);
 		supertool.getInitialObject(newObjDoc);
 		// extend doc with own data !
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> ERROR -----");
 		supertool.storeObject(newObjDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- move object to top -> NOT ALLOWED -----");
+		System.out.println("----- move object to top -> ERROR -----");
 		supertool.moveObject(objUuid, null, false);
 
-		System.out.println("\n----- copy object to top -> NOT ALLOWED -----");
+		System.out.println("\n----- copy object to top -> ERROR -----");
 		supertool.copyObject(objUuid, null, false);
 
 		System.out.println("\n-------------------------------------");
@@ -1040,7 +1040,7 @@ class MdekExampleSecurityThread extends Thread {
 		doc = supertool.copyObject(objUuid, null, false);
 		String copiedObjUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
-		System.out.println("\n----- copy address to top -> ALLOWED BUT WRONG ADDRESS TYPE :) -----");
+		System.out.println("\n----- copy address to top -> ALLOWED BUT WRONG ADDRESS TYPE :) -> ERROR  -----");
 		doc = supertool.copyAddress(addrUuid, null, false, false);
 		String copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
@@ -1075,8 +1075,8 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("--------------------------------------------------------");
 
 		System.out.println("\n\n-------------------------------------");
-		System.out.println("----- create sub address -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for sub address -> NOT ALLOWED -----");
+		System.out.println("----- create sub address -> ERROR -----");
+		System.out.println("----- first get initial data for sub address -> ERROR -----");
 		String newParentAddrUuid = topAddrUuid;
 		newAdrDoc = new IngridDocument();
 		newAdrDoc.put(MdekKeys.PARENT_UUID, newParentAddrUuid);
@@ -1087,33 +1087,33 @@ class MdekExampleSecurityThread extends Thread {
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
-		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> ERROR -----");
 		supertool.storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- copy address to new parent -> NOT ALLOWED -----");
+		System.out.println("----- copy address to new parent -> ERROR -----");
 		supertool.copyAddress(addrUuid, newParentAddrUuid, false, false);
 
-		System.out.println("\n----- move address to new parent -> NOT ALLOWED -----");
+		System.out.println("\n----- move address to new parent -> ERROR -----");
 		supertool.moveAddress(addrUuid, newParentAddrUuid, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- create sub object -> NOT ALLOWED -----");
-		System.out.println("----- first get initial data for sub object -> NOT ALLOWED -----");
+		System.out.println("----- create sub object -> ERROR -----");
+		System.out.println("----- first get initial data for sub object -> ERROR -----");
 		String newParentObjUuid = topObjUuid;
 		newObjDoc = new IngridDocument();
 		newObjDoc.put(MdekKeys.PARENT_UUID, newParentObjUuid);
 		supertool.getInitialObject(newObjDoc);
 		// extend doc with own data !
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		System.out.println("\n----- try to store own document -> NOT ALLOWED -----");
+		System.out.println("\n----- try to store own document -> ERROR -----");
 		supertool.storeObject(newObjDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- copy object to new parent -> NOT ALLOWED -----");
+		System.out.println("----- copy object to new parent -> ERROR -----");
 		supertool.copyObject(objUuid, newParentObjUuid, false);
 
-		System.out.println("\n----- move object to new parent -> NOT ALLOWED -----");
+		System.out.println("\n----- move object to new parent -> ERROR -----");
 		supertool.moveObject(objUuid, newParentObjUuid, false);
 
 		System.out.println("\n-------------------------------------");
@@ -1155,10 +1155,10 @@ class MdekExampleSecurityThread extends Thread {
 		copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- move object to new parent -> NOT ALLOWED (no WRITE_TREE on object to move) -----");
+		System.out.println("----- move object to new parent -> ERROR (no WRITE_TREE on object to move) -----");
 		supertool.moveObject(objUuid, newParentObjUuid, false);
 
-		System.out.println("\n----- move address to new parent -> NOT ALLOWED (no WRITE_TREE on address to move) -----");
+		System.out.println("\n----- move address to new parent -> ERROR (no WRITE_TREE on address to move) -----");
 		supertool.moveAddress(addrUuid, newParentAddrUuid, false);
 
 		System.out.println("\n-------------------------------------");
@@ -1175,7 +1175,7 @@ class MdekExampleSecurityThread extends Thread {
 // ===================================
 
 		System.out.println("\n------------------------------------------------");
-		System.out.println("----- CHECK Delete of Address which is Address of IdcUser ! -> Not Allowed");
+		System.out.println("----- CHECK Delete of Address which is Address of IdcUser ! -> ERROR");
 		System.out.println("------------------------------------------------");
 
 		System.out.println("\n-------------------------------------");
@@ -1412,13 +1412,13 @@ class MdekExampleSecurityThread extends Thread {
 
         
         System.out.println("\n-------------------------------------");
-        System.out.println("----- store parent object -> NOT ALLOWED (WRITE_SUBNODE in parent!) -----");
+        System.out.println("----- store parent object -> ERROR (WRITE_SUBNODE in parent!) -----");
         doc = supertool.fetchObject(newParentObjUuid, FetchQuantity.EDITOR_ENTITY);
         supertool.setFullOutput(true);
         supertool.storeObject(doc, false);
 
         System.out.println("\n-------------------------------------");
-        System.out.println("----- store parent address -> NOT ALLOWED (WRITE_SUBNODE in parent!) -----");
+        System.out.println("----- store parent address -> ERROR (WRITE_SUBNODE in parent!) -----");
         doc = supertool.fetchAddress(newParentAddrUuid, FetchQuantity.EDITOR_ENTITY);
         supertool.setFullOutput(true);
         supertool.storeAddress(doc, false);
@@ -1479,10 +1479,10 @@ class MdekExampleSecurityThread extends Thread {
 
 
         System.out.println("\n-------------------------------------");
-        System.out.println("----- move new parent object -> NOT ALLOWED -----");
+        System.out.println("----- move new parent object -> ERROR -----");
         supertool.moveObject(newParentObjUuid, objUuid, false);
 
-        System.out.println("\n----- move new parent address -> NOT ALLOWED -----");
+        System.out.println("\n----- move new parent address -> ERROR -----");
         doc = supertool.moveAddress(newParentAddrUuid, addrUuid, false);
 
         
@@ -1534,7 +1534,7 @@ class MdekExampleSecurityThread extends Thread {
         supertool.getObjectPermissions(newObjUuid, true);
         supertool.getAddressPermissions(newAddrUuid, true);
         
-        System.out.println("----- and delete new object and address -> NOT ALLOWED -----");
+        System.out.println("----- and delete new object and address -> ERROR -----");
         supertool.deleteAddressWorkingCopy(newAddrUuid, true);
         supertool.deleteObjectWorkingCopy(newObjUuid, true);
 
@@ -1543,7 +1543,7 @@ class MdekExampleSecurityThread extends Thread {
         supertool.getObjectPermissions(newParentObjUuid, true);
         supertool.getAddressPermissions(newParentAddrUuid, true);
         
-        System.out.println("----- and delete new parent entities -> NOT ALLOWED (only WRITE_SUBNODE) -----");
+        System.out.println("----- and delete new parent entities -> ERROR (only WRITE_SUBNODE) -----");
         supertool.deleteObject(newParentObjUuid, true);
         supertool.deleteAddress(newParentAddrUuid, true);
 
@@ -1567,7 +1567,7 @@ class MdekExampleSecurityThread extends Thread {
         supertool.getObjectPermissions(newParentObjUuid, true);
         supertool.getAddressPermissions(newParentAddrUuid, true);
         
-        System.out.println("----- and delete new parent entities -> NOT ALLOWED (WRITE_SUBNODE) -----");
+        System.out.println("----- and delete new parent entities -> ERROR (WRITE_SUBNODE) -----");
         supertool.deleteObject(newParentObjUuid, true);
         supertool.deleteAddress(newParentAddrUuid, true);
 
