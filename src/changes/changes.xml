@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
+      <action type="add" issue="INGRID32-30">
+        Add new field catalog-namespace to catalog data.
+      </action>
       <action type="add" issue="INGRID32-50">
         Add new legacy control "Datensammlung/Datenbank - Fachbezug - Objektartenkatalog". Synonym to "Geoinformation/Karte - Schlüsselkatalog" now both stored in the same new database table (object_types_catalogue).
       </action>
@@ -12,7 +15,7 @@
         Introduce new names for relation to address, instead of "Auskunft" "Verwalter" address is now mandatory.
       </action>
       <action type="update" issue="INGRID32-48">
-        Remove DQ "Art der Messung" syslists 7110 (Datendefizit), 7117 (Absolute Positionsgenauigkeit) because DQ Tables were replaced by fields.
+        Remove DQ tables "Art der Messung" syslists 7110 (Datendefizit), 7117 (Absolute Positionsgenauigkeit) now replaced by fields.
       </action>
       <action type="update" issue="INGRID32-28, INGRID32-47">
         New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist. 
@@ -22,7 +25,7 @@
         Remove environmental categories from catalog (t0114_env_category + syslist 1400). Categorization now only via environmental topics.
       </action>
       <action type="update" dev="wemove" issue="INGRID-1885">
-        Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used, see https://dev.wemove.com/jira/browse/INGRID-1885
+        Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
       </action>	  
     </release>
 

@@ -11,6 +11,7 @@ public class T03Catalogue implements IEntity {
 	private int version;
 	private String catUuid;
 	private String catName;
+	private String catNamespace;
 	private String partnerName;
 	private String providerName;
 	private Integer countryKey;
@@ -58,6 +59,14 @@ public class T03Catalogue implements IEntity {
 
 	public void setCatName(String catName) {
 		this.catName = catName;
+	}
+
+	public String getCatNamespace() {
+		return catNamespace;
+	}
+
+	public void setCatNamespace(String catNamespace) {
+		this.catNamespace = catNamespace;
 	}
 
 	public String getPartnerName() {

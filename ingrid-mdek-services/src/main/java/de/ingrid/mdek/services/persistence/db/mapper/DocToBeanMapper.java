@@ -128,6 +128,7 @@ public class DocToBeanMapper implements IMapper {
 	public T03Catalogue mapT03Catalog(IngridDocument inDoc, T03Catalogue cat) {
 		cat.setCatUuid(inDoc.getString(MdekKeys.UUID));
 		cat.setCatName(inDoc.getString(MdekKeys.CATALOG_NAME));
+		cat.setCatNamespace(inDoc.getString(MdekKeys.CATALOG_NAMESPACE));
 		cat.setPartnerName(inDoc.getString(MdekKeys.PARTNER_NAME));
 		cat.setProviderName(inDoc.getString(MdekKeys.PROVIDER_NAME));
 		cat.setCountryKey((Integer)inDoc.get(MdekKeys.COUNTRY_CODE));

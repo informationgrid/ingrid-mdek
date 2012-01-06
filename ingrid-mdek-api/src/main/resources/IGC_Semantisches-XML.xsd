@@ -22,6 +22,7 @@
       <xs:sequence>
         <xs:element ref="catalogue-identifier"/>
         <xs:element ref="catalogue-name"/>
+        <xs:element ref="catalogue-namespace"/>
         <xs:element minOccurs="0" ref="partner-name"/>
         <xs:element minOccurs="0" ref="provider-name"/>
         <xs:element minOccurs="0" ref="country"/>
@@ -53,6 +54,11 @@
     Tabelle.Feld   : T03_catalogue.cat_name 
   -->
   <xs:element name="catalogue-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: Katalog Namespace
+    Tabelle.Feld   : T03_catalogue.cat_namespace 
+  -->
+  <xs:element name="catalogue-namespace" type="xs:string"/>
   <!--
     Fachlicher Name: Partner Name
     Tabelle.Feld   : T03_catalogue.partner_name

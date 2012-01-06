@@ -5,6 +5,7 @@
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
+        <catalogue-namespace>catalogue-namespace0</catalogue-namespace>
         <partner-name>partner-name0</partner-name>
         <provider-name>provider-name0</provider-name>
         <country id="id1">country0</country>

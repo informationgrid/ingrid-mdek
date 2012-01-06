@@ -9,6 +9,7 @@
       <version name="version" type="integer" column="version"/>
       <property name="catUuid" type="string" column="cat_uuid"/>
       <property name="catName" type="string" column="cat_name"/>
+      <property name="catNamespace" type="string" column="cat_namespace"/>
       <property name="partnerName" type="string" column="partner_name"/>
       <property name="providerName" type="string" column="provider_name"/>
       <property name="countryKey" type="integer" column="country_key"/>

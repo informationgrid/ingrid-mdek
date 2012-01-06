@@ -1752,6 +1752,7 @@ public class BeanToDocMapper implements IMapper {
 	public IngridDocument mapT03Catalog(T03Catalogue cat, IngridDocument resultDoc) {
 		resultDoc.put(MdekKeys.UUID, cat.getCatUuid());
 		resultDoc.put(MdekKeys.CATALOG_NAME, cat.getCatName());
+		resultDoc.put(MdekKeys.CATALOG_NAMESPACE, cat.getCatNamespace());
 		resultDoc.put(MdekKeys.PARTNER_NAME, cat.getPartnerName());
 		resultDoc.put(MdekKeys.PROVIDER_NAME, cat.getProviderName());
 		resultDoc.put(MdekKeys.COUNTRY_CODE, cat.getCountryKey());

@@ -691,7 +691,8 @@ public class MdekExampleSupertool {
 	}
 
 	public void debugCatalogDoc(IngridDocument c) {
-		System.out.println("Catalog: " + c.get(MdekKeysSecurity.CATALOG_NAME) 
+		System.out.println("Catalog: " + c.get(MdekKeys.CATALOG_NAME) 
+			+ ", namespace: " + c.get(MdekKeys.CATALOG_NAMESPACE)
 			+ ", partner: " + c.get(MdekKeys.PARTNER_NAME)
 			+ ", provider: " + c.get(MdekKeys.PROVIDER_NAME)
 			+ ", country: " + c.get(MdekKeys.COUNTRY_CODE) + "/" + c.get(MdekKeys.COUNTRY_NAME)

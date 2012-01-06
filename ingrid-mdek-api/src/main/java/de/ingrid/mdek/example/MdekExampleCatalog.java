@@ -246,11 +246,13 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("catalog language=" + catLangShortcut);
 
 		System.out.println("\n----- change CATALOG data -----");
-		System.out.println("- change Partner, Provider");
+		System.out.println("- change Partner, Provider ...");
+		String origNamespace = catDoc.getString(MdekKeys.CATALOG_NAMESPACE);
 		String origPartner = catDoc.getString(MdekKeys.PARTNER_NAME);
 		String origProvider = catDoc.getString(MdekKeys.PROVIDER_NAME);
 		Integer origCountryCode = (Integer) catDoc.get(MdekKeys.COUNTRY_CODE);
 		Integer origLanguageCode = (Integer) catDoc.get(MdekKeys.LANGUAGE_CODE);
+		catDoc.put(MdekKeys.CATALOG_NAMESPACE, "testNAMESPACE");
 		catDoc.put(MdekKeys.PARTNER_NAME, "testPARTNER");
 		catDoc.put(MdekKeys.PROVIDER_NAME, "testPROVIDER");
 		catDoc.put(MdekKeys.COUNTRY_CODE, UtilsCountryCodelist.getCodeFromShortcut2("GB"));
@@ -258,7 +260,8 @@ class MdekExampleCatalogThread extends Thread {
 		catDoc = supertool.storeCatalog(catDoc, true);
 
 		System.out.println("\n----- back to orig data of CATALOG -----");
-		System.out.println("- change Partner, Provider");
+		System.out.println("- change Partner, Provider ...");
+		catDoc.put(MdekKeys.CATALOG_NAMESPACE, origNamespace);
 		catDoc.put(MdekKeys.PARTNER_NAME, origPartner);
 		catDoc.put(MdekKeys.PROVIDER_NAME, origProvider);
 		catDoc.put(MdekKeys.COUNTRY_CODE, origCountryCode);

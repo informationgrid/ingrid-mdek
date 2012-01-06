@@ -1321,6 +1321,7 @@
 		<xs:sequence>
 			<xs:element ref="uuid"/>
 			<xs:element name="catalog-name" type="xs:string"/>
+			<xs:element name="catalog-namespace" type="xs:string"/>
 			<xs:element name="partner-name" type="xs:string"/>
 			<xs:element name="provider-name" type="xs:string"/>
 			<xs:element ref="country-code"/>
