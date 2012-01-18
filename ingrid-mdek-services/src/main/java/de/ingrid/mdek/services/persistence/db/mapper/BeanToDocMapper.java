@@ -949,11 +949,6 @@ public class BeanToDocMapper implements IMapper {
 		urlDoc.put(MdekKeys.LINKAGE_URL, url.getUrlLink());
 		urlDoc.put(MdekKeys.LINKAGE_REFERENCE_ID, url.getSpecialRef());
 		urlDoc.put(MdekKeys.LINKAGE_REFERENCE, url.getSpecialName());
-		urlDoc.put(MdekKeys.LINKAGE_DATATYPE, url.getDatatypeValue());
-		urlDoc.put(MdekKeys.LINKAGE_DATATYPE_KEY, url.getDatatypeKey());
-		urlDoc.put(MdekKeys.LINKAGE_VOLUME, url.getVolume());
-		urlDoc.put(MdekKeys.LINKAGE_ICON_URL, url.getIcon());
-		urlDoc.put(MdekKeys.LINKAGE_ICON_TEXT, url.getIconText());
 		urlDoc.put(MdekKeys.LINKAGE_DESCRIPTION, url.getDescr());
 		urlDoc.put(MdekKeys.LINKAGE_NAME, url.getContent());
 		urlDoc.put(MdekKeys.LINKAGE_URL_TYPE, url.getUrlType());

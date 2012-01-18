@@ -231,16 +231,7 @@ public class MdekKeyValueHandler {
 	}
 
 	private IEntity processKeyValueT017UrlRef(T017UrlRef bean) {
-		Integer entryKey = bean.getDatatypeKey();
-		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.URL_REF_DATATYPE.getDbValue(),
-				catalogService.getCatalogLanguage());
-
-			bean.setDatatypeValue(keyNameMap.get(entryKey));
-		}
-
-		entryKey = bean.getSpecialRef();
+		Integer entryKey = bean.getSpecialRef();
 		if (entryKey != null && entryKey > -1) {
 			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.URL_REF_SPECIAL.getDbValue(),

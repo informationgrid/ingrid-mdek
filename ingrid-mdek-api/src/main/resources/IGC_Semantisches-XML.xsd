@@ -1399,10 +1399,6 @@
         <xs:element ref="linkage-url-type"/>
         <xs:element minOccurs="0" ref="linkage-reference"/>
         <xs:element minOccurs="0" ref="linkage-description"/>
-        <xs:element minOccurs="0" ref="linkage-datatype"/>
-        <xs:element minOccurs="0" ref="linkage-volume"/>
-        <xs:element minOccurs="0" ref="linkage-icon-url"/>
-        <xs:element minOccurs="0" ref="linkage-icon-text"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1432,27 +1428,6 @@
     Tabelle.Feld   : t017_url_ref.descr
   -->
   <xs:element name="linkage-description" type="xs:string"/>
-  <!--
-    Fachlicher Name: URL-Verweis > Datentyp
-    Tabelle.Feld   : t017_url_ref.datatype_key
-    Tabelle.Feld   : t017_url_ref.datatype_value
-  -->
-  <xs:element name="linkage-datatype" type="id-string"/>
-  <!--
-    Fachlicher Name: URL-Verweis > Datenvolumen
-    Tabelle.Feld   : t017_url_ref.volume
-  -->
-  <xs:element name="linkage-volume" type="xs:string"/>
-  <!--
-    Fachlicher Name: URL-Verweis > URL für ein Icon
-    Tabelle.Feld   : t017_url_ref.icon
-  -->
-  <xs:element name="linkage-icon-url" type="xs:string"/>
-  <!--
-    Fachlicher Name: URL-Verweis > (Tooltip)Text für Icon
-    Tabelle.Feld   : t017_url_ref.icon_text
-  -->
-  <xs:element name="linkage-icon-text" type="xs:string"/>
   <!--
     Fachlicher Name: Adresse auf die von Objekt verwiesen wird (Objekt-Adress Verweis)
     Tabelle   : t012_obj_adr

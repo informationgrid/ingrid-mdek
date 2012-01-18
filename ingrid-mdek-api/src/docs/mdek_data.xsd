@@ -947,11 +947,6 @@
 			<xs:element name="linkage-url" type="xs:string"/>
 			<xs:element name="linkage-reference-id" type="xs:integer"/>
 			<xs:element name="linkage-reference" type="xs:string"/>
-			<xs:element name="linkage-datatype" type="xs:string"/>
-			<xs:element name="linkage-datatype-key" type="xs:integer"/>
-			<xs:element name="linkage-volume" type="xs:string"/>
-			<xs:element name="linkage-icon-url" type="xs:string"/>
-			<xs:element name="linkage-icon-text" type="xs:string"/>
 			<xs:element name="linkage-description" type="xs:string"/>
 			<xs:element name="linkage-name" type="xs:string"/>
 			<xs:element name="linkage-url-type" type="xs:integer"/>

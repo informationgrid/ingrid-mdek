@@ -270,10 +270,6 @@
                 <linkage-url-type>linkage-url-type0</linkage-url-type>
                 <linkage-reference id="id65">linkage-reference0</linkage-reference>
                 <linkage-description>linkage-description0</linkage-description>
-                <linkage-datatype id="id67">linkage-datatype0</linkage-datatype>
-                <linkage-volume>linkage-volume0</linkage-volume>
-                <linkage-icon-url>linkage-icon-url0</linkage-icon-url>
-                <linkage-icon-text>linkage-icon-text0</linkage-icon-text>
             </available-linkage>
             <parent-data-source>
                 <object-identifier>object-identifier1</object-identifier>
@@ -284,7 +280,7 @@
                 <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
             </related-address>
             <link-data-source>
-                <object-link-type id="id69">object-link-type0</object-link-type>
+                <object-link-type id="id67">object-link-type0</object-link-type>
                 <object-link-description>object-link-description0</object-link-description>
                 <object-identifier>object-identifier2</object-identifier>
             </link-data-source>
@@ -295,20 +291,20 @@
             <address-identifier>address-identifier1</address-identifier>
             <modificator-identifier>modificator-identifier2</modificator-identifier>
             <responsible-identifier>responsible-identifier1</responsible-identifier>
-            <type-of-address id="id71"/>
+            <type-of-address id="id69"/>
             <organisation>organisation0</organisation>
             <name>name2</name>
-            <name-form id="id73">name-form0</name-form>
-            <title-or-function id="id75">title-or-function0</title-or-function>
+            <name-form id="id71">name-form0</name-form>
+            <title-or-function id="id73">title-or-function0</title-or-function>
             <given-name>given-name0</given-name>
-            <country id="id77">country1</country>
+            <country id="id75">country1</country>
             <postal-code>postal-code0</postal-code>
             <street>street0</street>
             <city>city0</city>
             <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
             <post-box>post-box0</post-box>
             <communication>
-                <communication-medium id="id79">communication-medium0</communication-medium>
+                <communication-medium id="id77">communication-medium0</communication-medium>
                 <communication-value>communication-value0</communication-value>
                 <communication-description>communication-description0</communication-description>
             </communication>
@@ -316,7 +312,7 @@
             <function>function0</function>
             <address-description>address-description0</address-description>
             <subject-terms>
-                <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id81">controlled-term1</controlled-term>
+                <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id79">controlled-term1</controlled-term>
                 <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
             </subject-terms>
             <comment>

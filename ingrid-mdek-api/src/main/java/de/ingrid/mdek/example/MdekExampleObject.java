@@ -1771,9 +1771,6 @@ class MdekExampleObjectThread extends Thread {
 			if (urlRemoved != null) {
 				docList.add(urlRemoved);
 				System.out.println("ADD REMOVED URL AGAIN: " + urlRemoved);
-				// check LINKAGE_DATATYPE_KEY -> LINKAGE_DATATYPE is stored via syslist
-				System.out.println("CHANGE LINKAGE_DATATYPE_KEY OF URL");
-				urlRemoved.put(MdekKeys.LINKAGE_DATATYPE_KEY, 1);			
 				// check LINKAGE_REFERENCE_ID -> LINKAGE_REFERENCE is stored via syslist
 				System.out.println("CHANGE LINKAGE_REFERENCE_ID OF URL");
 				urlRemoved.put(MdekKeys.LINKAGE_REFERENCE_ID, 3100);			

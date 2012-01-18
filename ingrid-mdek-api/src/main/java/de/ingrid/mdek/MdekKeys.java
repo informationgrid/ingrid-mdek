@@ -907,16 +907,6 @@ public class MdekKeys {
     /** Value: String */
     public final static String LINKAGE_REFERENCE = "linkage-reference";
     /** Value: String */
-    public final static String LINKAGE_DATATYPE = "linkage-datatype";
-    /** Value: Integer */
-    public final static String LINKAGE_DATATYPE_KEY = "linkage-datatype-key";
-    /** Value: String */
-    public final static String LINKAGE_VOLUME = "linkage-volume";
-    /** Value: String */
-    public final static String LINKAGE_ICON_URL = "linkage-icon-url";
-    /** Value: String */
-    public final static String LINKAGE_ICON_TEXT = "linkage-icon-text";
-    /** Value: String */
     public final static String LINKAGE_DESCRIPTION = "linkage-description";
     /** Value: String */
     public final static String LINKAGE_NAME = "linkage-name";

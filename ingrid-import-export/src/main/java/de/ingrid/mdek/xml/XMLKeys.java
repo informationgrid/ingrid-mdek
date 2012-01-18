@@ -13,10 +13,6 @@ public class XMLKeys {
 	public static final String TYPE_OF_RELATION = "type-of-relation";
 	public static final String ADDRESS_IDENTIFIER = "address-identifier";
 	public static final String RELATED_ADDRESS = "related-address";
-	public static final String LINKAGE_DATATYPE = "linkage-datatype";
-	public static final String LINKAGE_ICON_TEXT = "linkage-icon-text";
-	public static final String LINKAGE_ICON_URL = "linkage-icon-url";
-	public static final String LINKAGE_VOLUME = "linkage-volume";
 	public static final String LINKAGE_DESCRIPTION = "linkage-description";
 	public static final String LINKAGE_REFERENCE = "linkage-reference";
 	public static final String LINKAGE_URL_TYPE = "linkage-url-type";

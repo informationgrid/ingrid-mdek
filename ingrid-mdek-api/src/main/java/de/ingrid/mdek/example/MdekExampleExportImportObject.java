@@ -270,6 +270,25 @@ class MdekExampleExportImportObjectThread extends Thread {
 		strList.add("TEST feature type");
 		technicalDomain.put(MdekKeys.FEATURE_TYPE_LIST, strList);
 
+		// add entry to LINKAGES, removed stuff from LINKAGE, see INGRID32-27
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.LINKAGES);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check USE_TERMS_OF_USE_KEY -> USE_TERMS_OF_USE_VALUE is stored via syslist
+		testDoc.put(MdekKeys.LINKAGE_URL, "http://LINKAGE_URL");
+		testDoc.put(MdekKeys.LINKAGE_REFERENCE_ID, 3100);
+		testDoc.put(MdekKeys.LINKAGE_REFERENCE, "Methode / Datengrundlage");
+		testDoc.put(MdekKeys.LINKAGE_DESCRIPTION, "LINKAGE_DESCRIPTION");
+		testDoc.put(MdekKeys.LINKAGE_NAME, "LINKAGE_NAME");
+		testDoc.put(MdekKeys.LINKAGE_URL_TYPE, 1);
+		testDoc.put("linkage-datatype-key", "REMOVED !!!!!!!");
+		testDoc.put("linkage-datatype", "REMOVED !!!!!!!");
+		testDoc.put("linkage-volume", "REMOVED !!!!!!!");
+		testDoc.put("linkage-icon-text", "REMOVED !!!!!!!");
+		testDoc.put("linkage-icon-url", "REMOVED !!!!!!!");
+		docList.add(testDoc);
+		oDoc.put(MdekKeys.LINKAGES, docList);
+
 		supertool.publishObject(oDoc, true, false);
 
 		System.out.println("\n----- export object -----");
@@ -310,6 +329,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 		docList.remove(docList.size()-1);
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.FEATURE_TYPE_LIST);
 		docList.remove(docList.size()-1);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.LINKAGES);
+		docList.remove(docList.size()-1);
+
 		result = supertool.publishObject(oDoc, true, false);
 
 		System.out.println("----- DELETE Import Top Nodes -----");
