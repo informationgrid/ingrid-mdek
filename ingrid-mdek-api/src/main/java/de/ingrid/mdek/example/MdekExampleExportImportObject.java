@@ -289,6 +289,40 @@ class MdekExampleExportImportObjectThread extends Thread {
 		docList.add(testDoc);
 		oDoc.put(MdekKeys.LINKAGES, docList);
 
+		// change TECHNICAL DOMAIN SERVICE
+		// add operation with platform key/value (now syslist), see INGRID32-26
+		technicalDomain = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
+		oDoc.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
+		technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, 2);
+		// add TECHNICAL DOMAIN SERVICE - operations
+		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_OPERATION_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
+		// check SERVICE_OPERATION_NAME_KEY -> SERVICE_OPERATION_NAME is stored via syslist
+		// NOTICE: "interacts" with SERVICE_TYPE_KEY
+		testDoc = new IngridDocument();
+		docList.add(testDoc);
+		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME_KEY, 1);
+		testDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, "TEST SERVICE_OPERATION_DESCRIPTION");
+		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
+		// add TECHNICAL DOMAIN SERVICE - connectPoints
+		strList = new ArrayList<String>();
+		testDoc.put(MdekKeys.CONNECT_POINT_LIST, strList);
+		strList.add("TEST CONNECT_POINT1");
+		strList.add("TEST CONNECT_POINT2");
+		// add TECHNICAL DOMAIN SERVICE - operation platforms
+		docList = new ArrayList<IngridDocument>();
+		testDoc.put(MdekKeys.PLATFORM_LIST, docList);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.PLATFORM_KEY, 1);
+		testDoc.put(MdekKeys.PLATFORM_VALUE, "TEST PLATFORM1");
+		docList.add(testDoc);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.PLATFORM_KEY, 2);
+		testDoc.put(MdekKeys.PLATFORM_VALUE, "TEST PLATFORM2");
+		docList.add(testDoc);
+
 		supertool.publishObject(oDoc, true, false);
 
 		System.out.println("\n----- export object -----");
@@ -331,6 +365,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		docList.remove(docList.size()-1);
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.LINKAGES);
 		docList.remove(docList.size()-1);
+		oDoc.remove(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
 
 		result = supertool.publishObject(oDoc, true, false);
 

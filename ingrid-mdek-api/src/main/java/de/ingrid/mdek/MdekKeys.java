@@ -787,15 +787,19 @@ public class MdekKeys {
     public final static String SERVICE_OPERATION_LIST = "service-operation-list";
     /** Value: String */
     public final static String SERVICE_OPERATION_NAME = "service-operation-name";
-    /** Value: String */
+    /** Value: Integer */
     public final static String SERVICE_OPERATION_NAME_KEY = "service-operation-name-key";
     /** Value: String */
     public final static String SERVICE_OPERATION_DESCRIPTION = "service-operation-description";
     /** Value: String */
     public final static String INVOCATION_NAME = "invocation-name";
     // TECHNICAL DOMAIN SERVICE OPERATION - PLATFORMS
-    /** Value: List< String >  */
+    /** Value: List< IngridDocument >  */
     public final static String PLATFORM_LIST = "platform-list";
+    /** Value: String */
+    public final static String PLATFORM_VALUE = "platform-value";
+    /** Value: Integer */
+    public final static String PLATFORM_KEY = "platform-key";
     // TECHNICAL DOMAIN SERVICE OPERATION - DEPENDS ONS
     /** Value: List< String >  */
     public final static String DEPENDS_ON_LIST = "depends-on-list";

@@ -2038,10 +2038,6 @@ public class DocToBeanMapper implements IMapper {
 		return ref;
 	}
 	private void updateT011ObjServOpPlatforms(IngridDocument oDocIn, T011ObjServOperation oIn) {
-		List<String> platforms = (List) oDocIn.get(MdekKeys.PLATFORM_LIST);
-		if (platforms == null) {
-			platforms = new ArrayList<String>(0);
-		}
 		Set<T011ObjServOpPlatform> refs = oIn.getT011ObjServOpPlatforms();
 		ArrayList<T011ObjServOpPlatform> refs_unprocessed = new ArrayList<T011ObjServOpPlatform>(refs);
 		// remove all !
@@ -2049,23 +2045,30 @@ public class DocToBeanMapper implements IMapper {
 			refs.remove(ref);
 			// delete-orphan doesn't work !!!?????
 			dao.makeTransient(ref);			
-		}		
+		}
+
 		// and add all new ones !
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.PLATFORM_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
 		int line = 1;
-		for (String platform : platforms) {
-			T011ObjServOpPlatform ref = mapT011ObjServOpPlatform(oIn, platform, new T011ObjServOpPlatform(), line);
+		for (IngridDocument refDoc : refDocs) {
+			T011ObjServOpPlatform ref = mapT011ObjServOpPlatform(oIn, refDoc, new T011ObjServOpPlatform(), line);
 			refs.add(ref);
 			line++;
 		}
 	}
 	private T011ObjServOpPlatform mapT011ObjServOpPlatform(T011ObjServOperation oFrom,
-			String platform,
+			IngridDocument refDoc,
 			T011ObjServOpPlatform ref,
 			int line)
 	{
 		ref.setObjServOpId(oFrom.getId());
-		ref.setPlatform(platform);
+		ref.setPlatformKey((Integer)refDoc.get(MdekKeys.PLATFORM_KEY));
+		ref.setPlatformValue(refDoc.getString(MdekKeys.PLATFORM_VALUE));
 		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
 
 		return ref;
 	}

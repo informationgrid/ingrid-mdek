@@ -410,7 +410,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			putInt(MdekKeys.SERVICE_OPERATION_NAME_KEY, XPathUtils.getInt(serviceOperation, X_SERVICE_OPERATION_NAME_KEY), serviceOperationDoc);
 			putString(MdekKeys.SERVICE_OPERATION_DESCRIPTION, XPathUtils.getString(serviceOperation, X_SERVICE_OPERATION_DESCRIPTION), serviceOperationDoc);
 			putString(MdekKeys.INVOCATION_NAME, XPathUtils.getString(serviceOperation, X_SERVICE_INVOCATION_NAME), serviceOperationDoc);
-			mapStringList(serviceOperation, X_SERVICE_PLATFORM_LIST, serviceOperationDoc, MdekKeys.PLATFORM_LIST);
+			// TODO: CHANGED IN VERSION 3.2.0. !!! Fix if import of older formats needed !
+//			mapStringList(serviceOperation, X_SERVICE_PLATFORM_LIST, serviceOperationDoc, MdekKeys.PLATFORM_LIST);
 			mapStringList(serviceOperation, X_SERVICE_CONNECTION_POINT_LIST, serviceOperationDoc, MdekKeys.CONNECT_POINT_LIST);
 			mapParametersOfOperation(serviceOperation, serviceOperationDoc);
 			mapStringList(serviceOperation, X_SERVICE_DEPENDS_ON_LIST, serviceOperationDoc, MdekKeys.DEPENDS_ON_LIST);

@@ -90,6 +90,7 @@ public class MdekUtils {
 		OBJ_SERV_OPERATION_WFS(5120, "T011ObjServOperation:nameKey:nameValue"),
 		/** T011ObjServ.type=4/WCTS */
 		OBJ_SERV_OPERATION_WCTS(5130, "T011ObjServOperation:nameKey:nameValue"),
+		OBJ_SERV_OPERATION_PLATFORM(5180, "T011ObjServOpPlatform:platformKey:platformValue"),
 		OBJ_SERV_TYPE2(5200, "T011ObjServType:servTypeKey:servTypeValue"),
 		/** T011ObjServ for class 6 ! */
 		OBJ_SERV_TYPE_CLASS_6(5300, "T011ObjServ:typeKey:typeValue"),

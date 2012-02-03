@@ -1024,10 +1024,12 @@ public class MdekExampleSupertool {
 				System.out.println("    SERVICE - operations: " + docList.size() + " entries");
 				for (IngridDocument doc : docList) {
 					System.out.println("      " + doc);								
-					strList = (List<String>) doc.get(MdekKeys.PLATFORM_LIST);
-					if (strList != null && strList.size() > 0) {
-						System.out.println("      SERVICE - operation - platforms: " + strList.size() + " entries");
-						System.out.println("        " + strList);
+					List<IngridDocument> docList2 = (List<IngridDocument>) doc.get(MdekKeys.PLATFORM_LIST);
+					if (docList2 != null && docList2.size() > 0) {
+						System.out.println("      SERVICE - operation - platforms: " + docList2.size() + " entries");
+						for (IngridDocument doc2 : docList2) {
+							System.out.println("        " + doc2);
+						}			
 					}
 					strList = (List<String>) doc.get(MdekKeys.DEPENDS_ON_LIST);
 					if (strList != null && strList.size() > 0) {
@@ -1039,7 +1041,7 @@ public class MdekExampleSupertool {
 						System.out.println("      SERVICE - operation - connectPoints: " + strList.size() + " entries");
 						System.out.println("        " + strList);
 					}
-					List<IngridDocument> docList2 = (List<IngridDocument>) doc.get(MdekKeys.PARAMETER_LIST);
+					docList2 = (List<IngridDocument>) doc.get(MdekKeys.PARAMETER_LIST);
 					if (docList2 != null) {
 						System.out.println("      SERVICE - operation - parameters: " + docList2.size() + " entries");
 						for (IngridDocument doc2 : docList2) {

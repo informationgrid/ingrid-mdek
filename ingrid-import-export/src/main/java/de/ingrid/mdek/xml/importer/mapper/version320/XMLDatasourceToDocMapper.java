@@ -79,6 +79,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_SERVICE_OPERATION_DESCRIPTION = "description-of-operation/text()";
 	private static final String X_SERVICE_INVOCATION_NAME = "invocation-name/text()";
 	private static final String X_SERVICE_PLATFORM_LIST = "platform";
+	private static final String X_SERVICE_PLATFORM = "text()";
+	private static final String X_SERVICE_PLATFORM_KEY = "@id";
 	private static final String X_SERVICE_CONNECTION_POINT_LIST = "connection-point";
 	private static final String X_SERVICE_OPERATION_PARAMETER_LIST = "parameter-of-operation";
 	private static final String X_SERVICE_OPERATION_PARAMETER_NAME = "name/text()";
@@ -438,7 +440,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			putInt(MdekKeys.SERVICE_OPERATION_NAME_KEY, XPathUtils.getInt(serviceOperation, X_SERVICE_OPERATION_NAME_KEY), serviceOperationDoc);
 			putString(MdekKeys.SERVICE_OPERATION_DESCRIPTION, XPathUtils.getString(serviceOperation, X_SERVICE_OPERATION_DESCRIPTION), serviceOperationDoc);
 			putString(MdekKeys.INVOCATION_NAME, XPathUtils.getString(serviceOperation, X_SERVICE_INVOCATION_NAME), serviceOperationDoc);
-			mapStringList(serviceOperation, X_SERVICE_PLATFORM_LIST, serviceOperationDoc, MdekKeys.PLATFORM_LIST);
+			mapPlatformsOfOperation(serviceOperation, serviceOperationDoc);
 			mapStringList(serviceOperation, X_SERVICE_CONNECTION_POINT_LIST, serviceOperationDoc, MdekKeys.CONNECT_POINT_LIST);
 			mapParametersOfOperation(serviceOperation, serviceOperationDoc);
 			mapStringList(serviceOperation, X_SERVICE_DEPENDS_ON_LIST, serviceOperationDoc, MdekKeys.DEPENDS_ON_LIST);
@@ -446,6 +448,21 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		}
 
 		putDocList(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_OPERATION_LIST}, serviceOperations, target);
+	}
+
+	private static void mapPlatformsOfOperation(Node operationContext, IngridDocument operationDoc) {
+		List<IngridDocument> platformsList = new ArrayList<IngridDocument>();
+		NodeList platformsOfOperation = XPathUtils.getNodeList(operationContext, X_SERVICE_PLATFORM_LIST);
+
+		for (int index = 0; index < platformsOfOperation.getLength(); index++) {
+			Node platform = platformsOfOperation.item(index);
+			IngridDocument platformDoc = new IngridDocument();
+			putString(MdekKeys.PLATFORM_VALUE, XPathUtils.getString(platform, X_SERVICE_PLATFORM), platformDoc);
+			putInt(MdekKeys.PLATFORM_KEY, XPathUtils.getInt(platform, X_SERVICE_PLATFORM_KEY), platformDoc);
+			platformsList.add(platformDoc);
+		}
+
+		putDocList(MdekKeys.PLATFORM_LIST, platformsList, operationDoc);
 	}
 
 	private static void mapParametersOfOperation(Node operationContext, IngridDocument operationDoc) {

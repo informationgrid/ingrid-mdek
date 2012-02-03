@@ -434,7 +434,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 				}
 				Set<T011ObjServOpPlatform> oServOpPlatfs = oServOp.getT011ObjServOpPlatforms();
 				for (T011ObjServOpPlatform oServOpPlatf : oServOpPlatfs) {
-					extendFullData(data, oServOpPlatf.getPlatform());
+					extendFullData(data, oServOpPlatf.getPlatformValue());
 				}
 			}
 			Set<T011ObjServVersion> oServVersions = oServ.getT011ObjServVersions();

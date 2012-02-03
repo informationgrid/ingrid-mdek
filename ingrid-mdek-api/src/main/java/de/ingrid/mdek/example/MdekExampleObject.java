@@ -1453,10 +1453,16 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
 		// add TECHNICAL DOMAIN SERVICE - operation platforms
-		strList = new ArrayList<String>();
-		strList.add("TEST PLATFORM1");
-		strList.add("TEST PLATFORM2");
-		testDoc.put(MdekKeys.PLATFORM_LIST, strList);
+		docList = new ArrayList<IngridDocument>();
+		testDoc.put(MdekKeys.PLATFORM_LIST, docList);
+		IngridDocument testDoc2 = new IngridDocument();
+		testDoc2.put(MdekKeys.PLATFORM_KEY, 1);
+		testDoc2.put(MdekKeys.PLATFORM_VALUE, "TEST PLATFORM1");
+		docList.add(testDoc2);
+		testDoc2 = new IngridDocument();
+		testDoc2.put(MdekKeys.PLATFORM_KEY, 2);
+		testDoc2.put(MdekKeys.PLATFORM_VALUE, "TEST PLATFORM2");
+		docList.add(testDoc2);
 		// add TECHNICAL DOMAIN SERVICE - dependsOns
 		strList = new ArrayList<String>();
 		strList.add("TEST DEPENDS_ON1");
@@ -1469,7 +1475,7 @@ class MdekExampleObjectThread extends Thread {
 		testDoc.put(MdekKeys.CONNECT_POINT_LIST, strList);
 		// add TECHNICAL DOMAIN SERVICE - params
 		List<IngridDocument> docList2 = new ArrayList<IngridDocument>();
-		IngridDocument testDoc2 = new IngridDocument();
+		testDoc2 = new IngridDocument();
 		testDoc2.put(MdekKeys.PARAMETER_NAME, "TEST PARAMETER_NAME");
 		testDoc2.put(MdekKeys.DIRECTION, "TEST DIRECTION");
 		testDoc2.put(MdekKeys.DESCRIPTION, "TEST DESCRIPTION");

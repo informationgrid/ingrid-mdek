@@ -1130,7 +1130,7 @@
 			<xs:element name="service-operation-name-key" type="xs:integer"/>
 			<xs:element name="service-operation-description" type="xs:string"/>
 			<xs:element name="invocation-name" type="xs:string"/>
-			<xs:element name="platform-list" type="STRING_LIST"/>
+			<xs:element name="platform-list" type="TECHNICAL_DOMAIN_SERVICE_OP_PLATFORM_LIST"/>
 			<xs:element name="depends-on-list" type="STRING_LIST"/>
 			<xs:element name="connect-point-list" type="STRING_LIST"/>
 			<xs:element name="parameter-list" type="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_LIST"/>
@@ -1145,6 +1145,17 @@
 		<xs:sequence>
 			<xs:element name="service-type2-key" type="xs:integer"/>
 			<xs:element name="service-type2-value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_PLATFORM_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="TECHNICAL_DOMAIN_SERVICE_OP_PLATFORM_MAP" type="TECHNICAL_DOMAIN_SERVICE_OP_PLATFORM_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_PLATFORM_MAP">
+		<xs:sequence>
+			<xs:element name="platform-key" type="xs:integer"/>
+			<xs:element name="platform-value" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TECHNICAL_DOMAIN_SERVICE_OP_PARAM_LIST">

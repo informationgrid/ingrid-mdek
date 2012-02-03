@@ -357,11 +357,16 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private List<XMLElement> createPlatforms(IngridDocument serviceOperationContext) {
 		List<XMLElement> resultList = new ArrayList<XMLElement>();
-		List<String> platformIds = getStringListForKey(MdekKeys.PLATFORM_LIST, serviceOperationContext);
-		for (String platformId : platformIds) {
-			resultList.add(new XMLElement(PLATFORM, platformId));
+		List<IngridDocument> platformList = getIngridDocumentListForKey(MdekKeys.PLATFORM_LIST, serviceOperationContext);
+		for (IngridDocument platformDoc : platformList) {
+			resultList.add(createPlatform(platformDoc));
 		}
 		return resultList;
+	}
+	private XMLElement createPlatform(IngridDocument platformDoc) {
+		XMLElement platformElem = new XMLElement(PLATFORM, getStringForKey(MdekKeys.PLATFORM_VALUE, platformDoc));
+		platformElem.addAttribute(ID, getIntegerForKey(MdekKeys.PLATFORM_KEY, platformDoc));
+		return platformElem;
 	}
 
 	private List<XMLElement> createConnectionPoints(IngridDocument serviceOperationContext) {

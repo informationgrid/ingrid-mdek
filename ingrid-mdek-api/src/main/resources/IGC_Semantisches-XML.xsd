@@ -490,9 +490,10 @@
   <xs:element name="invocation-name" type="xs:string"/>
   <!--
     Fachlicher Name: Platform
-    Tabelle.Feld   : T011_obj_serv_op_platform.platform
+    Tabelle.Feld   : T011_obj_serv_op_platform.platform_key
+    Tabelle.Feld   : T011_obj_serv_op_platform.platform_value
   -->
-  <xs:element name="platform" type="xs:string"/>
+  <xs:element name="platform" type="id-string"/>
   <!--
     Fachlicher Name: Parameter der Operation
     Tabelle   : T011_obj_serv_op_para

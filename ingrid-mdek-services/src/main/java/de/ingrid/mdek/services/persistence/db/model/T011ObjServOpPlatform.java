@@ -8,7 +8,8 @@ public class T011ObjServOpPlatform implements IEntity {
 	private int version;
 	private Long objServOpId;
 	private Integer line;
-	private String platform;
+	private Integer platformKey;
+	private String platformValue;
 
 
 	public T011ObjServOpPlatform() {}
@@ -45,12 +46,20 @@ public class T011ObjServOpPlatform implements IEntity {
 		this.line = line;
 	}
 
-	public String getPlatform() {
-		return platform;
+	public Integer getPlatformKey() {
+		return platformKey;
 	}
 
-	public void setPlatform(String platform) {
-		this.platform = platform;
+	public void setPlatformKey(Integer platformKey) {
+		this.platformKey = platformKey;
+	}
+
+	public String getPlatformValue() {
+		return platformValue;
+	}
+
+	public void setPlatformValue(String platformValue) {
+		this.platformValue = platformValue;
 	}
 
 
