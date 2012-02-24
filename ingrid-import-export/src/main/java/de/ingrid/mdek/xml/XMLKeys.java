@@ -223,6 +223,7 @@ public class XMLKeys {
 	public static final String NAME_FORM = "name-form";
 	public static final String ORGANISATION = "organisation";
 	public static final String TYPE_OF_ADDRESS = "type-of-address";
+	public static final String HIDE_ADDRESS = "hide-address";
 	public static final String ADDRESS = "address";
 	public static final String GENERAL_ADDITIONAL_FIELD_DEFINITION = "general-additional-field-definition";
 	public static final String FIELD_IDENTIFIER = "field-identifier";

@@ -1504,6 +1504,7 @@
         <xs:element ref="modificator-identifier"/>
         <xs:element ref="responsible-identifier"/>
         <xs:element ref="type-of-address"/>
+        <xs:element ref="hide-address"/>
         <xs:element minOccurs="0" ref="organisation"/>
         <xs:element minOccurs="0" ref="name"/>
         <xs:element minOccurs="0" ref="name-form"/>
@@ -1542,6 +1543,11 @@
     Tabelle.Feld   : t02_address.adr_type
   -->
   <xs:element name="type-of-address" type="id"/>
+  <!--
+    Fachlicher Name: Adresse verstecken
+    Tabelle.Feld   : t02_address.hide_address
+  -->
+  <xs:element name="hide-address" default="N" type="igc-boolean"/>
   <!--
     Fachlicher Name: Nachname (nur Person)
     Tabelle.Feld   : t02_address.lastname

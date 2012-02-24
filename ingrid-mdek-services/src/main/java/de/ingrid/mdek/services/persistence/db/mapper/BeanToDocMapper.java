@@ -396,6 +396,7 @@ public class BeanToDocMapper implements IMapper {
 		addressDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, a.getTitleKey());
 		addressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
 		addressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
+		addressDoc.put(MdekKeys.HIDE_ADDRESS, a.getHideAddress());
 
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||

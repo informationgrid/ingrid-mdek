@@ -997,6 +997,8 @@ public class MdekKeys {
     // ------------
 
     /** Value: String */
+    public final static String HIDE_ADDRESS = "hide-address";
+    /** Value: String */
     public final static String ORGANISATION = "organisation";
     /** Value: String */
     public final static String NAME = "name";

@@ -863,7 +863,7 @@ class MdekExampleAddressThread extends Thread {
 		// manipulate former loaded address !
 		System.out.println("MANIPULATE ADDRESS");
 
-		System.out.println("- change test ORGANISATION, GIVEN_NAME,NAME_FORM_KEY, TITLE_OR_FUNCTION_KEY");
+		System.out.println("- change test ORGANISATION, GIVEN_NAME,NAME_FORM_KEY, TITLE_OR_FUNCTION_KEY ...");
 		String origORGANISATION = aDocIn.getString(MdekKeys.ORGANISATION);
 		String origGIVEN_NAME = aDocIn.getString(MdekKeys.GIVEN_NAME);
 		aDocIn.put(MdekKeys.ORGANISATION, "TEST/" + origORGANISATION);
@@ -875,6 +875,7 @@ class MdekExampleAddressThread extends Thread {
 		aDocIn.put(MdekKeys.TITLE_OR_FUNCTION_KEY, 3);
 		Integer origCountryKey = (Integer) aDocIn.get(MdekKeys.COUNTRY_CODE);
 		aDocIn.put(MdekKeys.COUNTRY_CODE, 826);
+		aDocIn.put(MdekKeys.HIDE_ADDRESS, "Y");
 
 		// add entry to COMMUNICATION
 		System.out.println("- add test COMMUNICATION");
@@ -934,12 +935,13 @@ class MdekExampleAddressThread extends Thread {
 
 			System.out.println("MANIPULATE ADDRESS: back to origin");
 
-			System.out.println("- set original ORGANISATION, GIVEN_NAME");
+			System.out.println("- set original ORGANISATION, GIVEN_NAME ...");
 			aRefetchedDoc.put(MdekKeys.ORGANISATION, origORGANISATION);
 			aRefetchedDoc.put(MdekKeys.GIVEN_NAME, origGIVEN_NAME);
 			aRefetchedDoc.put(MdekKeys.NAME_FORM_KEY, origNameFormKey);
 			aRefetchedDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, origTitleKey);
 			aRefetchedDoc.put(MdekKeys.COUNTRY_CODE, origCountryKey);
+			aRefetchedDoc.put(MdekKeys.HIDE_ADDRESS, "N");
 
 			// COMMUNICATION wieder wie vorher !
 			System.out.println("- remove test COMMUNICATION");

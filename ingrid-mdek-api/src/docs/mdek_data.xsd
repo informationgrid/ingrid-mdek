@@ -172,6 +172,7 @@
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="work-state"/>
+			<xs:element name="hide-address" type="xs:string"/>
 			<xs:element ref="organisation"/>
 			<xs:element ref="name"/>
 			<xs:element ref="given-name"/>

@@ -292,6 +292,7 @@
             <modificator-identifier>modificator-identifier2</modificator-identifier>
             <responsible-identifier>responsible-identifier1</responsible-identifier>
             <type-of-address id="id71"/>
+            <hide-address>N</hide-address>
             <organisation>organisation0</organisation>
             <name>name2</name>
             <name-form id="id73">name-form0</name-form>

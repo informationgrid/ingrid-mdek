@@ -12,11 +12,11 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
@@ -143,6 +143,11 @@ class MdekExampleExportImportAddressThread extends Thread {
 		int startIndex;
 		int endIndex;
 		
+		IngridDocument objImpNodeDoc;
+		String objImpNodeUuid;
+		IngridDocument addrImpNodeDoc;
+		String addrImpNodeUuid;
+
 		// NI catalog
 
 		// OBJECTS
@@ -209,8 +214,52 @@ class MdekExampleExportImportAddressThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
-		// Test ...
-		// -----------------------
+		// Test EXPORT / IMPORT new Exchange Format 3.2.0
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- address details -----");
+		IngridDocument aDoc = supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EXPORT_ENTITY);
+		
+		System.out.println("\n----- change and publish existing address (only published are exported) ! -----");
+
+		// add entry to OBJECT USE, now key/value from new syslist
+		aDoc.put(MdekKeys.HIDE_ADDRESS, "Y");
+
+		supertool.publishAddress(aDoc, true);
+
+		System.out.println("\n----- export address -----");
+		supertool.exportAddressBranch(child1PersonAddrUuid, true, null);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import address as WORKING VERSION -----");
+		// OVERWRITE !!!
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- discard changes -> remove former change and publish -----");
+		aDoc.put(MdekKeys.HIDE_ADDRESS, "N");
+
+		supertool.publishAddress(aDoc, true);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
 
 		if (alwaysTrue) {
 			isRunning = false;
@@ -302,17 +351,17 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
-		IngridDocument objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc = supertool.newObjectDoc(null);
 		objImpNodeDoc.put(MdekKeys.TITLE, "EXAMPLE Import Objektknoten");
 		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
 		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
-		String objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
-		IngridDocument addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "EXAMPLE Import Adressknoten");
 		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
-		String addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
 
 // -----------------------------------
 

@@ -1177,6 +1177,9 @@ public class MdekExampleSupertool {
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)a.get(MdekKeys.DATE_OF_CREATION))
 		);
+		System.out.println("         "
+				+ ", hideAddress: " + a.get(MdekKeys.HIDE_ADDRESS)
+			);
 
 		System.out.println("  " + a);
 

@@ -439,6 +439,7 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setCreateTime(creationDate);				
 		}
 		aIn.setModTime((String) aDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+		aIn.setHideAddress((String) aDocIn.get(MdekKeys.HIDE_ADDRESS));
 
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 				howMuch == MappingQuantity.COPY_ENTITY)

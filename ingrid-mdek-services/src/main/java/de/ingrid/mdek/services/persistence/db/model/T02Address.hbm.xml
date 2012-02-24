@@ -32,6 +32,7 @@
       <property name="addrMetadataId" type="long" column="addr_metadata_id"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
+      <property name="hideAddress" type="string" column="hide_address"/>
 
       <set name="addressComments" order-by="line" table="address_comment" inverse="true"
            cascade="all-delete-orphan">
