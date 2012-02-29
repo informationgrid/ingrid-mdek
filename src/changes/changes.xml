@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
+      <action type="add" issue="INGRID32-31">
+        Add publication condition to tree nodes for display in frontend.
+      </action>
       <action type="add" issue="INGRID32-37">
         Add new field hide-address to address data. Also part of InGrid Import/Export Format.
       </action>

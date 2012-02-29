@@ -247,6 +247,7 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY) 
 		{
+			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 			// mark deleted also needed in "tree view"
 			mapObjectMetadata(o.getObjectMetadata(), objectDoc, MappingQuantity.INITIAL_ENTITY);			
 		}
@@ -279,7 +280,6 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.METADATA_LANGUAGE_NAME, o.getMetadataLanguageValue());
 			objectDoc.put(MdekKeys.DATA_LANGUAGE_CODE, o.getDataLanguageKey());
 			objectDoc.put(MdekKeys.DATA_LANGUAGE_NAME, o.getDataLanguageValue());
-			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 			objectDoc.put(MdekKeys.DATASET_INTENTIONS, o.getInfoNote());
 			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
 			objectDoc.put(MdekKeys.DATASET_CHARACTER_SET, o.getDatasetCharacterSet());
