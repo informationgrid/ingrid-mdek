@@ -1838,11 +1838,12 @@ public class BeanToDocMapper implements IMapper {
 	 * in the list. */
 	private void addEntryToList(String entry, List<String> list, int index) {
 		// initialize "leaks" in array 
-		if (index > list.size()) {
-			for (int i=list.size(); i < index; i++) {
+		if (index >= list.size()) {
+			for (int i=list.size(); i <= index; i++) {
 				list.add(i, null);
 			}
 		}
+		list.remove(index);
 		list.add(index, entry);
 	}
 
