@@ -185,12 +185,15 @@ public class ConsistencyCheckerDaoHibernate
 		String hqlQuery = "select obj " +
 				"from T01Object obj " +
 				"left outer join obj.t012ObjAdrs objAdr " +
-				"where objAdr = null " +
+				"where objAdr = null";
+		// DEPRECATED: NO CHECK OF VERWALTER ANYMORE, just any address needed, see INGRID32-46
+/*
 				"or (objAdr.type != " + MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID +
 				" AND objAdr.objId not in ( select objAdr.objId from objAdr " +
 				// NOTICE: group by removed when porting to ORACLE !!!
 				"where objAdr.type = " + MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID +
 				"))";
+*/
 
 		List<T01Object> resultList = getSession().createQuery(hqlQuery)
 			.setResultTransformer(new DistinctRootEntityResultTransformer())

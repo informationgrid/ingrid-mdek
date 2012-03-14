@@ -1070,8 +1070,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			IngridDocument result = new IngridDocument();
 			String hqlQuery = null;
 			
-			if (csvType == CsvRequestType.OBJECTS_OF_VERWALTER_ADDRESS) {
-				hqlQuery = daoT02Address.getCsvHQLObjectReferencesByTypeId(uuid, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
+			if (csvType == CsvRequestType.OBJECTS_OF_ADDRESS) {
+				hqlQuery = daoT02Address.getCsvHQLObjectReferencesByTypeId(uuid, null);
 				
 			} else if (csvType == CsvRequestType.OBJECTS_OF_RESPONSIBLE_USER) {
 				hqlQuery = daoT01Object.getCsvHQLAllObjectsOfResponsibleUser(uuid);

@@ -228,10 +228,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				beanToDocMapper.mapT01Object(oParent, oDocIn, MappingQuantity.INITIAL_ENTITY);
 			}
 			
-			// "Verwalter" address set ? set calling user as "Verwalter" if nothing set
-			if (!objectService.hasVerwalterAddress(oDocIn)) {
+			// Address set ? Set calling user as "Ansprechpartner" if nothing set, see INGRID32-46
+			if (!objectService.hasAddressReference(oDocIn)) {
 				AddressNode addrNode = addressService.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION);
-				addVerwalterAddress(oDocIn, addrNode);
+				addPointOfContactAddress(oDocIn, addrNode);
 			}
 
 			// take over spatial reference from catalog
@@ -1097,11 +1097,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		return targetObj;
 	}
 
-	/** Add Verwalter address to given object document.
+	/** Add Ansprechpartner address to given object document.
 	 * @param oDoc map representation of object
-	 * @param addrNode add this address as verwalter. Also basic address data is mapped.
+	 * @param addrNode add this address as Ansprechpartner. Also basic address data is mapped.
 	 */
-	private void addVerwalterAddress(IngridDocument oDoc, AddressNode addrNode) {
+	private void addPointOfContactAddress(IngridDocument oDoc, AddressNode addrNode) {
 		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		if (oAs == null) {
 			oAs = new ArrayList<IngridDocument>();
@@ -1111,8 +1111,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		// simulate entities and map them one by one.
 		// We can't map via "mapT012ObjAdrs" cause then entities have to be bound to database to fetch address node ...
 		T012ObjAdr oA = new T012ObjAdr();
-		oA.setType(MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
+		oA.setType(MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID);
 		oA.setSpecialRef(MdekSysList.OBJ_ADR_TYPE.getDbValue());
+		oA.setSpecialName("Ansprechpartner");
 		IngridDocument oADoc = beanToDocMapper.mapT012ObjAdr(oA, new IngridDocument());
 		beanToDocMapper.mapT02Address(addrNode.getT02AddressWork(), oADoc, MappingQuantity.TABLE_ENTITY);
 		oAs.add(oADoc);					

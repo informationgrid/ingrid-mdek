@@ -1673,11 +1673,18 @@ class MdekExampleExportImportObjectThread extends Thread {
 		endIndex = importUnzipped.indexOf("</publication-condition>");
 		importUnzipped = importUnzipped.substring(0, startIndex) + "12" + 
 			importUnzipped.substring(endIndex, importUnzipped.length());
-		// invalidate 1. VERWALTER ADDRESS
-		startIndex = importUnzipped.indexOf("<type-of-relation list-id=\"505\"") + 27;
-		endIndex = startIndex + 3;
-		importUnzipped = importUnzipped.substring(0, startIndex) + "2010" +
-			importUnzipped.substring(endIndex, importUnzipped.length());
+		// remove all referenced addresses
+		boolean doRemove = true;
+		while (doRemove) {
+			startIndex = importUnzipped.indexOf("<related-address>");
+			if (startIndex > 0) {
+				endIndex = importUnzipped.indexOf("</related-address>") + 18;
+				importUnzipped = importUnzipped.substring(0, startIndex) +
+						importUnzipped.substring(endIndex, importUnzipped.length());				
+			} else {
+				doRemove = false;
+			}
+		}
 		System.out.println(importUnzipped);
 		byte[] importExistObjBranchMissingMandatoryFields = new byte[0];
 		try {

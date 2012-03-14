@@ -439,7 +439,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("DELETE ADDRESS (Gesamtkatalogmanagement)");
 		System.out.println("=========================");
 
-		System.out.println("\n----- PUBLISH new 'Address to replace' (will be VERWALTER, RESPONSIBLE USER) -----");
+		System.out.println("\n----- PUBLISH new 'Address to replace' (will be Ansprechpartner, RESPONSIBLE USER) -----");
 		doc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		doc.put(MdekKeys.ORGANISATION, "testADDRESS_TO_REPLACE");
 		doc = supertool.publishAddress(doc, true);
@@ -460,25 +460,25 @@ class MdekExampleCatalogThread extends Thread {
 		doc = supertool.publishAddress(newDoc, true);
 		String uuidToReplaceWith = (String) doc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- STORE 1. new Object where 'Address to replace' is VERWALTER, ANBIETER and RESPONSIBLE USER -----");
-		System.out.println("----- !!! also add 'ADDRESS to replace with' as VERWALTER !!! to check whether same VERWALTER exists only ONCE !!! -----");
+		System.out.println("\n----- STORE 1. new Object where 'Address to replace' is Ansprechpartner, Ressourcenanbieter and RESPONSIBLE USER -----");
+		System.out.println("----- !!! also add 'ADDRESS to replace with' as Ansprechpartner !!! to check whether same Ansprechpartner exists only ONCE !!! -----");
 		newDoc = supertool.newObjectDoc(null);
 		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT STORED (NOT Published)");
 		List<IngridDocument> objAdrDocs = new ArrayList<IngridDocument>();
 		newDoc.put(MdekKeys.ADR_REFERENCES_TO, objAdrDocs);
-		// 'Address to replace'-Verwalter
+		// 'Address to replace'-Ansprechpartner
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
-		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
+		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID);
 		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
 		objAdrDocs.add(doc);
-		// 'Address to replace with'-Verwalter
+		// 'Address to replace with'-Ansprechpartner
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplaceWith);
-		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
+		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID);
 		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
 		objAdrDocs.add(doc);
-		// Anbieter
+		// Ressourcenanbieter
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		doc.put(MdekKeys.RELATION_TYPE_ID, 1);
@@ -491,18 +491,18 @@ class MdekExampleCatalogThread extends Thread {
 		doc = supertool.storeObject(newDoc, true);
 		newObjStoredUuid = (String) doc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- PUBLISH 2. new Object where 'Address to replace' is VERWALTER, ANBIETER and RESPONSIBLE USER -----");
+		System.out.println("\n----- PUBLISH 2. new Object where 'Address to replace' is Ansprechpartner, Ressourcenanbieter and RESPONSIBLE USER -----");
 		newDoc = supertool.newObjectDoc(null);
 		newDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT PUBLISHED");
 		objAdrDocs = new ArrayList<IngridDocument>();
 		newDoc.put(MdekKeys.ADR_REFERENCES_TO, objAdrDocs);
-		// 'Address to replace'-Verwalter
+		// 'Address to replace'-Ansprechpartner
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
-		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
+		doc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID);
 		doc.put(MdekKeys.RELATION_TYPE_REF, 505);
 		objAdrDocs.add(doc);
-		// Anbieter
+		// Ressourcenanbieter
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		doc.put(MdekKeys.RELATION_TYPE_ID, 1);
@@ -515,10 +515,10 @@ class MdekExampleCatalogThread extends Thread {
 		doc = supertool.publishObject(newDoc, true, false);
 		String newObjPublishedUuid = (String) doc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- getObjectsOfVerwalterAddress -> 2 Objects -----");
-		supertool.getObjectsOfAddressByType(uuidToReplace, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID, null);
+		System.out.println("\n----- getObjectsOf Ansprechpartner Address -> 2 Objects -----");
+		supertool.getObjectsOfAddressByType(uuidToReplace, MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID, null);
 		System.out.println("\n----- according CSV data -----");
-		supertool.getCsvData(CsvRequestType.OBJECTS_OF_VERWALTER_ADDRESS, uuidToReplace);
+		supertool.getCsvData(CsvRequestType.OBJECTS_OF_ADDRESS, uuidToReplace);
 		
 		System.out.println("\n----- getObjectsOfResponsibleUser -> 2 Objects -----");
 		supertool.getObjectsOfResponsibleUser(uuidToReplace, null);
@@ -530,7 +530,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- according CSV data -----");
 		supertool.getCsvData(CsvRequestType.ADDRESSES_OF_RESPONSIBLE_USER, uuidToReplace);
 		
-		System.out.println("\n----- DELETE Address to replace -> Error: ADDRESS_IS_VERWALTER -----");
+		System.out.println("\n----- DELETE Address to replace -> Error: ENTITY_REFERENCED_BY_OBJ -----");
 		supertool.deleteAddress(uuidToReplace, false);
 
 
@@ -550,13 +550,13 @@ class MdekExampleCatalogThread extends Thread {
 
 
 		System.out.println("\n\n----- REPLACE 'Address to replace' with 'Address to replace with' \n" +
-				"          -> all Verwalter are replaced, all References deleted, all responsible users set to catadmin -----");
+				"          -> all Addresses are replaced, all responsible users set to catadmin -----");
 		supertool.replaceAddress(uuidToReplace, uuidToReplaceWith);
 
-		System.out.println("\n----- getObjectsOfVerwalterAddress with OLD Verwalter-> 0 Objects -----");
-		supertool.getObjectsOfAddressByType(uuidToReplace, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID, null);
-		System.out.println("\n----- getObjectsOfVerwalterAddress with NEW Verwalter-> 2 Objects -----");
-		supertool.getObjectsOfAddressByType(uuidToReplaceWith, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID, null);
+		System.out.println("\n----- getObjectsOf Ansprechpartner Address with OLD Ansprechpartner-> 0 Objects -----");
+		supertool.getObjectsOfAddressByType(uuidToReplace, MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID, null);
+		System.out.println("\n----- getObjectsOf Ansprechpartner Address with NEW Ansprechpartner-> 2 Objects -----");
+		supertool.getObjectsOfAddressByType(uuidToReplaceWith, MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID, null);
 		
 		System.out.println("\n----- getObjectsOfResponsibleUser with OLD responsible User -> 0 Objects -----");
 		supertool.getObjectsOfResponsibleUser(uuidToReplace, null);
@@ -568,7 +568,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- getAddressesOfResponsibleUser with NEW responsible User (=catadmin) -> LOTs of addresses -----");
 		supertool.getAddressesOfResponsibleUser(catalogAdminUuid, 50);
 
-		System.out.println("\n----- verify: ONLY ONE NEW VERWALTER, further associations to 'Address to replace' removed ! -----");
+		System.out.println("\n----- verify: ONLY ONE NEW Ansprechpartner, 'Address to replace' in all associations replaced ! -----");
 		supertool.fetchObject(newObjStoredUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.fetchObject(newObjPublishedUuid, FetchQuantity.EDITOR_ENTITY);
 
@@ -576,7 +576,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.deleteObject(newObjStoredUuid, true);
 		supertool.deleteObject(newObjPublishedUuid, true);
 		supertool.deleteAddress(uuidToReplaceWith, true);
-		System.out.println("\n----- Verwalter may be already deleted -----");
+		System.out.println("\n----- 'Address to replace' may be already deleted -----");
 		supertool.deleteAddress(uuidToReplace, true);
 
 // -----------------------------------

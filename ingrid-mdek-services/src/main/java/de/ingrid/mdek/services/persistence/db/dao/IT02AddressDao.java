@@ -21,7 +21,11 @@ public interface IT02AddressDao
 	 * @return list of objects referencing the address in the given way (type)
 	 */
 	List<T01Object> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId, Integer maxNum);
-	/** Get according HQL Statement to fetch csv data !. */
+	/** Get according HQL Statement to fetch csv data !
+	 * @param addressUuid uuid of address to be referenced
+	 * @param referenceTypeId pass null if all reference types should be fetched
+	 * @return HQL for fetching objects
+	 */
 	String getCsvHQLObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId);
 
 	/** Get Addresses (also published ones) where given user is responsible user.

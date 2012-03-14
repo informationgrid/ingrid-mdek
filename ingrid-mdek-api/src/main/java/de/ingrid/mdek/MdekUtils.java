@@ -32,8 +32,8 @@ public class MdekUtils {
 	public final static Integer OBJ_SERV_TYPE_WFS = 3;
 	public final static Integer OBJ_SERV_TYPE_WCTS = 4;
 
-	/** Entry ID of VERWALTER (former 'Datenverantwortung') in syslist OBJ_ADR_TYPE (505) */
-	public final static Integer OBJ_ADR_TYPE_VERWALTER_ID = 2;
+	/** Entry ID of Ansprechpartner (former 'Auskunft') in syslist OBJ_ADR_TYPE (505) */
+	public final static Integer OBJ_ADR_TYPE_POINT_OF_CONTACT_ID = 7;
 
 	/** Entry ID of EMAIL in syslist COMM_TYPE (4430) */
 	public final static Integer COMM_TYPE_EMAIL = 3;
@@ -238,8 +238,8 @@ public class MdekUtils {
 	/**
 	 * Kind of csv data to fetch ? */
 	public enum CsvRequestType {
-		/** "Gesamtkatalog: Adresse loeschen" Tab 1 -> all Objects where address is verwalter ! */
-		OBJECTS_OF_VERWALTER_ADDRESS,
+		/** "Gesamtkatalog: Adresse loeschen" Tab 1 -> all Objects where address is referenced ! */
+		OBJECTS_OF_ADDRESS,
 		/** "Gesamtkatalog: Adresse loeschen" Tab 2 -> all Objects where address is responsible user ! */
 		OBJECTS_OF_RESPONSIBLE_USER,
 		/** "Gesamtkatalog: Adresse loeschen" Tab 3 -> all Addresses where address is responsible user ! */

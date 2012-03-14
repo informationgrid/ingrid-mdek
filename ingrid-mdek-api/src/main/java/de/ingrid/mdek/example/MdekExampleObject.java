@@ -777,11 +777,11 @@ class MdekExampleObjectThread extends Thread {
 		// uuid created !
 		newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- check publish WITHOUT Verwalter Address ! -> Error VERWALTER_ADDRESS_NOT_SET -----");
+		System.out.println("\n----- check publish WITHOUT Address ! -> Error REFERENCED_ADDRESS_NOT_SET -----");
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, null);
 		supertool.publishObject(newObjDoc, false,false);
 
-		System.out.println("\n----- set Verwalter address and store (no publish, due to possible tests afterwards) -----");
+		System.out.println("\n----- set address and store (no publish, due to possible tests afterwards) -----");
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, initialAddressList);
 		newObjDoc = supertool.storeObject(newObjDoc, true);
 		
@@ -927,7 +927,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- delete NEW TOP OBJECT -----");
 		supertool.deleteObject(newTopObjUuid, true);
 
-		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
+		System.out.println("\n----- do \"forbidden\" move (move to subnode) -> ERROR: TARGET_IS_SUBNODE_OF_SOURCE -----");
 		supertool.moveObject("3866463B-B449-11D2-9A86-080000507261", "15C69C20-FE15-11D2-AF34-0060084A4596", false);
 
 		// -----------------------------------

@@ -1139,9 +1139,11 @@ public class MdekAddressService {
 				throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_IDCUSER_ADDRESS, errInfo));
 			}
 
-			// check whether address is "verwalter" address. VERWALTER CANNOT BE DELETED
+			// DEPRECATED: check whether address is "verwalter" address. VERWALTER CANNOT BE DELETED
 			// ALWAYS CALL THIS ONE BEFORE CHECK BELOW WHICH MAY REMOVE ALL REFERENCES (forceDeleteReferences, see below)
-			checkAddressIsVerwalter(subNode);
+			// NO ! role of address does not matter anymore, see INGRID32-46
+			// method removed but commented here to document history !
+//			checkAddressIsVerwalter(subNode);
 
 			// check
 			checkAddressNodeObjectReferences(subNode, forceDeleteReferences);
@@ -1193,28 +1195,6 @@ public class MdekAddressService {
 		// delete references (querverweise)
 		for (IEntity addrRef : addrRefs) {
 			daoT012ObjAdr.makeTransient(addrRef);
-		}
-	}
-
-	/** Checks whether given address is "verwalter" address in any object.
-	 * ONLY CHECKS WORKING VERSIONS OF OBJECTS !
-	 * Throws exception if address is verwalter ! */
-	private void checkAddressIsVerwalter(AddressNode addrNode) {
-		List<ObjectNode> oNs =
-			daoAddressNode.getObjectReferencesByTypeId(addrNode.getAddrUuid(), MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID);
-		if (oNs.size() > 0) {
-			// throw exception
-			// supply info about referencing objects in exception
-			IngridDocument errInfo = new IngridDocument();			
-			List<IngridDocument> oList = new ArrayList<IngridDocument>();
-			errInfo.put(MdekKeys.OBJ_ENTITIES, oList);
-
-			for (ObjectNode oN : oNs) {
-				IngridDocument oDoc = beanToDocMapper.mapT01Object(oN.getT01ObjectWork(),
-							new IngridDocument(), MappingQuantity.BASIC_ENTITY);
-				oList.add(oDoc);
-			}
-			throw new MdekException(new MdekError(MdekErrorType.ADDRESS_IS_VERWALTER, errInfo));
 		}
 	}
 

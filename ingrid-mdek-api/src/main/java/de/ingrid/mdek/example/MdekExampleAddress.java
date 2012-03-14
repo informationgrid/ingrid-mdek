@@ -529,7 +529,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- verify new subaddress -> load parent subaddresses -----");
 		supertool.fetchSubAddresses(parentUuid);
 
-		System.out.println("\n----- do \"forbidden\" store -> \"free address\" WITH parent -----");
+		System.out.println("\n----- do \"forbidden\" store -> ERROR: FREE_ADDRESS_WITH_PARENT -----");
 		Integer origType = (Integer) aMapNew.get(MdekKeys.CLASS);
 		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.FREI.getDbValue());
 		supertool.storeAddress(aMapNew, false);
@@ -540,7 +540,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("COPY TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n\n----- copy PERSON address to FREE ADDRESS (WITH sub tree) -> ERROR -----");
+		System.out.println("\n\n----- copy PERSON address to FREE ADDRESS (WITH sub tree) -> ERROR: FREE_ADDRESS_WITH_SUBTREE -----");
 		String addressFrom = personUuid;
 		String addressTo = null;
 		aMap = supertool.copyAddress(addressFrom, addressTo, true, true);
@@ -645,7 +645,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- verify new parent subaddresses (added) -----");
 		supertool.fetchSubAddresses(newParentUuid);
 
-		System.out.println("\n----- move new Address to FREE Address ! -> ERROR: has subtree -----");
+		System.out.println("\n----- move new Address to FREE Address ! -> ERROR: FREE_ADDRESS_WITH_SUBTREE -----");
 		supertool.moveAddress(newAddrUuid, null, true);
 		System.out.println("\n\n----- delete subtree of new Address -----");
 		supertool.deleteAddress(subtreeCopyUuid, true);
@@ -669,9 +669,9 @@ class MdekExampleAddressThread extends Thread {
 		supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 
-		System.out.println("\n----- do \"forbidden\" move (move to subnode) -----");
+		System.out.println("\n----- do \"forbidden\" move (move to subnode) -> ERROR: TARGET_IS_SUBNODE_OF_SOURCE -----");
 		supertool.moveAddress(topUuid, parentUuid, false);
-		System.out.println("\n----- do \"forbidden\" move (institution to free address) -----");
+		System.out.println("\n----- do \"forbidden\" move (institution to free address) -> ERROR: FREE_ADDRESS_WITH_SUBTREE -----");
 		supertool.moveAddress(topUuid, null, true);
 
 		System.out.println("\n----- delete NEW TOP ADDRESS -----");
@@ -714,22 +714,22 @@ class MdekExampleAddressThread extends Thread {
 		// uuid created !
 		String toAddrUuid = (String) toAddrDoc.get(MdekKeys.UUID);
 		
-		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS as VERWALTER-----");
+		System.out.println("\n----- create new OBJECT REFERENCING ADDRESS as Ansprechpartner -----");
 		IngridDocument fromObjDoc = new IngridDocument();
 		fromObjDoc = supertool.getInitialObject(fromObjDoc);
 		fromObjDoc.put(MdekKeys.TITLE, "TEST OBJECT -> referenziert");
 		ArrayList<IngridDocument> adrRefsList = new ArrayList<IngridDocument>(1);
-		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID); // VERWALTER
+		toAddrDoc.put(MdekKeys.RELATION_TYPE_ID, MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID); // Ansprechpartner
 		adrRefsList.add(toAddrDoc);
 		fromObjDoc.put(MdekKeys.ADR_REFERENCES_TO, adrRefsList);
 		fromObjDoc = supertool.storeObject(fromObjDoc, true);
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- delete TOP ADDRESS (WORKING COPY) WITHOUT refs -> Error ADDRESS_IS_VERWALTER -----");
+		System.out.println("\n----- delete TOP ADDRESS (WORKING COPY) WITHOUT refs -> Error ENTITY_REFERENCED_BY_OBJ -----");
 		supertool.deleteAddressWorkingCopy(topAddrUuid, false);
 
-		System.out.println("\n----- change OBJECT REFERENCE to NOT VERWALTER -----");
+		System.out.println("\n----- change OBJECT REFERENCE to NOT Ansprechpartner -----");
 		adrRefsList = (ArrayList<IngridDocument>) fromObjDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		adrRefsList.get(0).put(MdekKeys.RELATION_TYPE_ID, -1); // free reference
 		fromObjDoc = supertool.storeObject(fromObjDoc, true);
@@ -745,9 +745,9 @@ class MdekExampleAddressThread extends Thread {
 		supertool.deleteObject(fromObjUuid, false);
 
 		// -----------------------------------
-		System.out.println("\n----- test delete of IDC VERWALTER address -----");
+		System.out.println("\n----- test delete of referenced address -----");
 
-		System.out.println("\n----- delete ADDRESS referenced as VERWALTER -> Error ADDRESS_IS_VERWALTER (for 486 objects !) -----");
+		System.out.println("\n----- delete referenced ADDRESS -> Error ENTITY_REFERENCED_BY_OBJ (for 486 objects !) -----");
 		supertool.deleteAddress("BF1156BA-F74D-11D4-8868-0060084A6015", false);
 
 		// -----------------------------------

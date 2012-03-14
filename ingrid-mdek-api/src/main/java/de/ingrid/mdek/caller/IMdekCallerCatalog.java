@@ -217,7 +217,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument analyze(String plugId, String userId);
 
 	/** Replace an address with another address. Not possible if address to replace is user address.
-	 * All verwalter addresses are replaced ! All responsible addresses are set to admin address.
+	 * All addresses are replaced ! All responsible addresses are set to admin address.
 	 * Modification addresses (mod user) are NOT replaced !
 	 * @param oldUuid address to replace
 	 * @param newUuid with this address
@@ -231,7 +231,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param addressUuid uuid of address object is related to  
    * @param referenceTypeId type of the relation from syslist
 	 * @param maxNum maximum number to fetch, pass null to fetch ALL objects
-	 * @return response containing result: list of objects where given uuid is verwalter address
+	 * @return response containing result: list of objects where given uuid is referenced address
 	 */
 	IngridDocument getObjectsOfAddressByType(String plugId,
 			String addressUuid, Integer referenceTypeId, Integer maxNum, String userId);

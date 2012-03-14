@@ -41,8 +41,8 @@ public class MdekError implements Serializable {
 		PARENT_NOT_PUBLISHED("20"),
 		/** e.g. move with unpublished node not allowed  */
 		ENTITY_NOT_PUBLISHED("21"),
-		/** e.g. publish object without verwalter address set */
-		VERWALTER_ADDRESS_NOT_SET("25"),
+		/** e.g. publish object without any address referenced (of any type, see INGRID32-46) */
+		REFERENCED_ADDRESS_NOT_SET("25"),
 		/** publish object with referenced unpublished addresses */
 		REFERENCED_ADDRESSES_NOT_PUBLISHED("27"),
 
@@ -65,8 +65,7 @@ public class MdekError implements Serializable {
 		ADDRESS_TYPE_CONFLICT("43"),
 		/** e.g. when address to delete is an address of an IdcUser */
 		ADDRESS_IS_IDCUSER_ADDRESS("45"),
-		/** e.g. when address to delete is a "verwalter" address.
-		 * ALSO DELIVERS ALL OBJECTS WHERE ADDRESS IS VERWALTER */
+		/** DEPRECATED: not used anymore ! no special handling of VERWALTER, see INGRID32-46 */
 		ADDRESS_IS_VERWALTER("46"),
 		/** when address is published without email */
 		ADDRESS_HAS_NO_EMAIL("47"),

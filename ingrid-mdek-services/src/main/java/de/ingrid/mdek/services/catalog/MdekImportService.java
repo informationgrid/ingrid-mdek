@@ -543,8 +543,8 @@ public class MdekImportService implements IImporterCallback {
 			if (EnumUtil.mapDatabaseToEnumConst(PublishType.class, inDoc.get(MdekKeys.PUBLICATION_CONDITION)) == null) {
 				MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.PUBLICATION_CONDITION);			
 			}
-			if (!objectService.hasVerwalterAddress(inDoc)) {
-				MdekUtils.appendWithSeparator(missingFields, separator, "verwalter-address");
+			if (!objectService.hasAddressReference(inDoc)) {
+				MdekUtils.appendWithSeparator(missingFields, separator, "referenced address");
 			}
 
 		} else if (whichType == IdcEntityType.ADDRESS) {

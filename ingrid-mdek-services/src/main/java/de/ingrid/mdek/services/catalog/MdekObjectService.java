@@ -9,13 +9,12 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
@@ -38,9 +37,9 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -403,9 +402,9 @@ public class MdekObjectService {
 			permissionHandler.checkPermissionsForPublishObject(uuid, parentUuid, userId);
 		}
 
-		// "verwalter" address set
-		if (!hasVerwalterAddress(oDocIn)) {
-			throw new MdekException(new MdekError(MdekErrorType.VERWALTER_ADDRESS_NOT_SET));
+		// no referenced address set
+		if (!hasAddressReference(oDocIn)) {
+			throw new MdekException(new MdekError(MdekErrorType.REFERENCED_ADDRESS_NOT_SET));
 		}
 		// all referenced addresses published ?
 		checkReferencedAddressesForPublish(oDocIn);
@@ -690,17 +689,23 @@ public class MdekObjectService {
 		return storeWorkingCopy(oDocIn, userId, calledByImporter);
 	}
 
-	/** Checks whether given object document has an "Verwalter" address set. */
-	public boolean hasVerwalterAddress(IngridDocument oDoc) {
+	/** Checks whether given object document has any address set, type of address reference (role) does NOT matter, see INGRID32-46. */
+	public boolean hasAddressReference(IngridDocument oDoc) {
 		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		if (oAs == null) {
 			oAs = new ArrayList<IngridDocument>();
 		}
 
 		for (IngridDocument oA : oAs) {
-			boolean typeOk = MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID.equals(oA.get(MdekKeys.RELATION_TYPE_ID));
-			boolean listOk = MdekSysList.OBJ_ADR_TYPE.getDbValue().equals(oA.get(MdekKeys.RELATION_TYPE_REF));
-			if (typeOk && listOk) {
+			// DEPRECATED: No special type check (Verwalter) anymore, instead just check whether address present and any relation type, see INGRID32-46
+			String addrUuid = oA.getString(MdekKeys.UUID);
+			String typeName = oA.getString(MdekKeys.RELATION_TYPE_NAME);
+			Integer typeKey = (Integer) oA.get(MdekKeys.RELATION_TYPE_ID);
+
+			boolean uuidOk = addrUuid != null && addrUuid.trim().length() > 0;
+			boolean typeNameOk = typeName != null && typeName.trim().length() > 0; // check for free value
+			boolean typeKeyOk = typeKey != null && typeKey > 0; // check for syslist value
+			if (uuidOk && (typeKeyOk || typeNameOk)) {
 				return true;
 			}
 		}
