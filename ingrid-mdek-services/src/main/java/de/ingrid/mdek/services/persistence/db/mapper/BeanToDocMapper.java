@@ -1802,8 +1802,7 @@ public class BeanToDocMapper implements IMapper {
 		listDoc.put(MdekKeys.LST_ID, listId);
 		
 		ArrayList<Integer> entryIds = new ArrayList<Integer>();
-		ArrayList<String> entryNames_de = new ArrayList<String>();
-		ArrayList<String> entryNames_en = new ArrayList<String>();
+		ArrayList<String> entryNames = new ArrayList<String>();
 		for (SysList entry : list) {
 			if (!listDoc.containsKey(MdekKeys.LST_MAINTAINABLE)) {
 				listDoc.put(MdekKeys.LST_MAINTAINABLE, entry.getMaintainable());
@@ -1818,18 +1817,11 @@ public class BeanToDocMapper implements IMapper {
 			if (MdekUtils.YES.equals(entry.getIsDefault())) {
 				listDoc.put(MdekKeys.LST_DEFAULT_ENTRY_INDEX, entryIndex);
 			}
-			if (MdekUtils.LANGUAGE_SHORTCUT_DE.equals(entry.getLangId())) {
-				addEntryToList(entry.getName(), entryNames_de, entryIndex);
-			} else if (MdekUtils.LANGUAGE_SHORTCUT_EN.equals(entry.getLangId())) {
-				addEntryToList(entry.getName(), entryNames_en, entryIndex);
-			}
+			addEntryToList(entry.getName(), entryNames, entryIndex);
 		}
 		listDoc.put(MdekKeys.LST_ENTRY_IDS, entryIds.toArray(new Integer[entryIds.size()]));
-		if (entryNames_de.size() > 0) {
-			listDoc.put(MdekKeys.LST_ENTRY_NAMES_DE, entryNames_de.toArray(new String[entryNames_de.size()]));				
-		}
-		if (entryNames_en.size() > 0) {
-			listDoc.put(MdekKeys.LST_ENTRY_NAMES_EN, entryNames_en.toArray(new String[entryNames_en.size()]));			
+		if (entryNames.size() > 0) {
+			listDoc.put(MdekKeys.LST_ENTRY_NAMES, entryNames.toArray(new String[entryNames.size()]));			
 		}
 
 		return listDoc;

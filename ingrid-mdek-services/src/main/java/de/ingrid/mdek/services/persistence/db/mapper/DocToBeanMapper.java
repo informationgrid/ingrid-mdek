@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -150,31 +151,116 @@ public class DocToBeanMapper implements IMapper {
 
 		return cat;
 	}
+	
+	/**
+     * Update syslist with new data and persist.
+     * @param docIn map containing new syslist data
+     * @param sysList current entries of list from DB ordered by entities ascending
+     */
+    public void updateSysList(IngridDocument docIn, List<SysList> sysListEntries) {
+
+        Integer inLstId = (Integer) docIn.get(MdekKeys.LST_ID);
+        Boolean tmpMaintainable = (Boolean) docIn.get(MdekKeys.LST_MAINTAINABLE);
+        int inMaintainable = tmpMaintainable ? MdekUtils.YES_INTEGER : MdekUtils.NO_INTEGER;
+        Integer tmpDefaultEntryIndex = (Integer) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_INDEX);
+        int inDefaultEntryIndex = (tmpDefaultEntryIndex == null) ? -1 : tmpDefaultEntryIndex;
+        Integer[] inEntryIds = (Integer[]) docIn.get(MdekKeys.LST_ENTRY_IDS);
+        String[] inNames_de = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_DE);
+        String[] inNames_en = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_EN);
+        boolean hasEnglishEntries = false;
+        if (inNames_en != null) {
+            for (String inName_en : inNames_en) {
+                if (inName_en != null && inName_en.trim().length() > 0) {
+                    hasEnglishEntries = true;
+                    break;
+                }
+            }
+        }
+
+        // determine max entry id of given syslist in database. If new syslist start at "0".
+        // will be increased for new entries.
+        int maxId = 0;
+        if (sysListEntries.size() > 0) {
+            maxId = sysListEntries.get(sysListEntries.size()-1).getEntryId();
+        }
+
+        // here the ones to delete will remain
+        ArrayList<SysList> entriesUnprocessed = new ArrayList<SysList>(sysListEntries);
+
+        // process passed data, update syslist entries, add new ones, delete removed ones ...
+        for (int i=0; i < inEntryIds.length; i++) {
+            Integer inEntryId = inEntryIds[i];
+
+            // process all languages one by one
+            for (String langId : MdekUtils.LANGUAGES_SHORTCUTS) {
+                String[] inNames;
+
+                if (langId.equals(MdekUtils.LANGUAGE_SHORTCUT_DE)) {
+                    inNames = inNames_de;
+                } else if (langId.equals(MdekUtils.LANGUAGE_SHORTCUT_EN)) {
+                    if (!hasEnglishEntries) {
+                        // skip english
+                        continue;
+                    }
+                    inNames = inNames_en;                   
+                } else {
+                    // UNKNOWN LANGUAGE ! skip it
+                    continue;
+                }
+
+                SysList foundEntry = null;
+                if (inEntryId != null) {
+                    for (SysList entry : sysListEntries) {
+                        if (inLstId.equals(entry.getLstId()) &&
+                                inEntryId.equals(entry.getEntryId()) &&
+                                langId.equals(entry.getLangId())) {
+                            foundEntry = entry;
+                            entriesUnprocessed.remove(foundEntry);
+                            break;
+                        }
+                    }               
+                } else {
+                    // new entry id is one above former max entry id !
+                    maxId++;
+                    inEntryId = maxId;
+                }
+                if (foundEntry == null) {
+                    // add new one
+                    foundEntry = new SysList();
+                    foundEntry.setLstId(inLstId);
+                    foundEntry.setEntryId(inEntryId);
+                    foundEntry.setLangId(langId);
+                    // TODO: order of syslist (line attribute) not stored !
+                    foundEntry.setLine(0);
+                    sysListEntries.add(foundEntry);
+                }
+                String isDefault = (i == inDefaultEntryIndex) ? MdekUtils.YES : MdekUtils.NO;
+                foundEntry.setIsDefault(isDefault);
+                String inName = (inNames[i] == null) ? "" : inNames[i];
+                foundEntry.setName(inName);
+                foundEntry.setMaintainable(inMaintainable);
+                dao.makePersistent(foundEntry);
+            }
+        }
+        // remove the ones not processed
+        for (SysList entryUnprocessed : entriesUnprocessed) {
+            sysListEntries.remove(entryUnprocessed);
+            dao.makeTransient(entryUnprocessed);
+        }       
+    }
 
 	/**
-	 * Update syslist with new data and persist.
+	 * Update a syslist with all available languages and persist.
 	 * @param docIn map containing new syslist data
 	 * @param sysList current entries of list from DB ordered by entities ascending
 	 */
-	public void updateSysList(IngridDocument docIn, List<SysList> sysListEntries) {
+	public void updateSysListAllLang(IngridDocument docIn, List<SysList> sysListEntries) {
 
 		Integer inLstId = (Integer) docIn.get(MdekKeys.LST_ID);
 		Boolean tmpMaintainable = (Boolean) docIn.get(MdekKeys.LST_MAINTAINABLE);
 		int inMaintainable = tmpMaintainable ? MdekUtils.YES_INTEGER : MdekUtils.NO_INTEGER;
-		Integer tmpDefaultEntryIndex = (Integer) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_INDEX);
+		Integer tmpDefaultEntryIndex = (Integer) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_ID);
 		int inDefaultEntryIndex = (tmpDefaultEntryIndex == null) ? -1 : tmpDefaultEntryIndex;
-		Integer[] inEntryIds = (Integer[]) docIn.get(MdekKeys.LST_ENTRY_IDS);
-		String[] inNames_de = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_DE);
-		String[] inNames_en = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_EN);
-		boolean hasEnglishEntries = false;
-		if (inNames_en != null) {
-			for (String inName_en : inNames_en) {
-				if (inName_en != null && inName_en.trim().length() > 0) {
-					hasEnglishEntries = true;
-					break;
-				}
-			}
-		}
 
 		// determine max entry id of given syslist in database. If new syslist start at "0".
 		// will be increased for new entries.
@@ -186,26 +272,15 @@ public class DocToBeanMapper implements IMapper {
 		// here the ones to delete will remain
 		ArrayList<SysList> entriesUnprocessed = new ArrayList<SysList>(sysListEntries);
 
+		IngridDocument[] entries = (IngridDocument[]) docIn.get(MdekKeys.LST_ENTRIES);
 		// process passed data, update syslist entries, add new ones, delete removed ones ...
-		for (int i=0; i < inEntryIds.length; i++) {
-			Integer inEntryId = inEntryIds[i];
+		for (int i=0; i < entries.length; i++) {
+			Integer inEntryId = entries[i].getInt(MdekKeys.LST_ENTRY_ID);
 
 			// process all languages one by one
-			for (String langId : MdekUtils.LANGUAGES_SHORTCUTS) {
-				String[] inNames;
-
-				if (langId.equals(MdekUtils.LANGUAGE_SHORTCUT_DE)) {
-					inNames = inNames_de;
-				} else if (langId.equals(MdekUtils.LANGUAGE_SHORTCUT_EN)) {
-					if (!hasEnglishEntries) {
-						// skip english
-						continue;
-					}
-					inNames = inNames_en;					
-				} else {
-					// UNKNOWN LANGUAGE ! skip it
-					continue;
-				}
+			IngridDocument locals = (IngridDocument) entries[i].get(MdekKeys.LST_LOCALISED_ENTRY_MAP);
+			for (String langId : ((Map<String,String>)locals).keySet()) {
+			    String inName = locals.getString(langId);
 
 				SysList foundEntry = null;
 				if (inEntryId != null) {
@@ -233,10 +308,11 @@ public class DocToBeanMapper implements IMapper {
 					foundEntry.setLine(0);
 					sysListEntries.add(foundEntry);
 				}
-				String isDefault = (i == inDefaultEntryIndex) ? MdekUtils.YES : MdekUtils.NO;
+				String isDefault = (inEntryId == inDefaultEntryIndex) ? MdekUtils.YES : MdekUtils.NO;
 				foundEntry.setIsDefault(isDefault);
-				String inName = (inNames[i] == null) ? "" : inNames[i];
+				//String inName = (inName == null) ? "" : inName;
 				foundEntry.setName(inName);
+				foundEntry.setDescription(entries[i].getString(MdekKeys.LST_ENTRY_DESCRIPTION));
 				foundEntry.setMaintainable(inMaintainable);
 				dao.makePersistent(foundEntry);
 			}

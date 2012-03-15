@@ -82,6 +82,20 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
+	/**
+	 * Return the names of the syslist(s).
+	 * Note: Not yet implemented since changes in database has to be made!
+	 */
+	public IngridDocument getSysListNames(String plugId, String language, String userId) {
+	    /*
+        jobParams.put(MdekKeys.LANGUAGE_SHORTCUT, language);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        List jobMethods = setUpJobMethod("getSysListNames", jobParams);
+        return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+        */
+	    return null;
+	}
+	
 	public IngridDocument storeSysList(String plugId,
 			int listId, boolean maintainable, Integer defaultEntryIndex,
 			Integer[] entryIds, String[] entryNames_de, String[] entryNames_en, 
@@ -316,7 +330,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.LST_FREE_ENTRY_NAMES, new String[]{freeEntry});
 		jobParams.put(MdekKeys.LST_ID, sysLst.getDbValue());
 		jobParams.put(MdekKeys.LST_ENTRY_IDS, new Integer[]{sysLstEntryId});
-		jobParams.put(MdekKeys.LST_ENTRY_NAMES_DE, new String[]{sysLstEntryName});
+		jobParams.put(MdekKeys.LST_ENTRY_NAMES, new String[]{sysLstEntryName});
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("replaceFreeEntryWithSyslistEntry", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
@@ -366,4 +380,14 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		List jobMethods = setUpJobMethod("updateSpatialReferences", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
+
+    
+	@Override
+    public IngridDocument storeSysLists(String plugId, List<IngridDocument> syslistDoc, String userId) {
+	    IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.LST_SYSLISTS, syslistDoc);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        List jobMethods = setUpJobMethod("storeSysLists", jobParams);
+        return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);    
+    }
 }

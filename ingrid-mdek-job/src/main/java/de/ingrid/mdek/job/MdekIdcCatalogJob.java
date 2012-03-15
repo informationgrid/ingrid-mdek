@@ -12,10 +12,10 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
@@ -241,6 +241,18 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		}
 	}
+	
+	/**
+	 * Return the names of the syslists.
+	 * Note: Not yet implemented since database has to be modified!
+	 */
+	public IngridDocument getSysListNames(IngridDocument params) {
+	    //String language = params.getString(MdekKeys.LANGUAGE_SHORTCUT);
+	    //IngridDocument result;
+	    //result = catalogService.getSysListNames(language);
+	    //return result;
+	    return null;
+	}
 
 	public IngridDocument storeSysList(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
@@ -280,6 +292,49 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument storeSysLists(IngridDocument docIn) {
+        String userId = getCurrentUserUuid(docIn);
+        boolean removeRunningJob = true;
+        try {
+            // first add basic running jobs info !
+            addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
+
+            genericDao.beginTransaction();
+
+            // check permissions !
+            permissionHandler.checkIsCatalogAdmin(userId);
+
+            // get according syslist and update
+            List<IngridDocument> codelists = (List<IngridDocument>) docIn.get(MdekKeys.LST_SYSLISTS);
+            for (IngridDocument codelist : codelists) {
+                // check if syslist already exists
+                List<SysList> sysListEntries = daoSysList.getSysList(Integer.valueOf(codelist.getInt(MdekKeys.LST_ID)), null);
+                
+                // TODO: is syslist locked then ignore updating it!
+                
+                docToBeanMapper.updateSysListAllLang(codelist, sysListEntries);
+            }
+
+            // clear all caches !
+            catalogService.clearCaches();
+
+            genericDao.commitTransaction();
+
+            // return something (not null !)
+            IngridDocument result = new IngridDocument();
+            return result;
+
+        } catch (RuntimeException e) {
+            RuntimeException handledExc = handleException(e);
+            removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+            throw handledExc;
+        } finally {
+            if (removeRunningJob) {
+                removeRunningJob(userId);               
+            }
+        }
+    }
+	
 	public IngridDocument getSysGenericKeys(IngridDocument params) {
 		try {
 			String[] keyNames = (String[]) params.get(MdekKeys.SYS_GENERIC_KEY_NAMES);
@@ -1130,7 +1185,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			Integer lstId = (Integer) docIn.get(MdekKeys.LST_ID);
 			MdekSysList sysLst = EnumUtil.mapDatabaseToEnumConst(MdekSysList.class, lstId);
 			Integer syslstEntryId = ((Integer[]) docIn.get(MdekKeys.LST_ENTRY_IDS))[0];
-			String syslstEntryName = ((String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_DE))[0];
+			String syslstEntryName = ((String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES))[0];
 	
 			genericDao.beginTransaction();
 

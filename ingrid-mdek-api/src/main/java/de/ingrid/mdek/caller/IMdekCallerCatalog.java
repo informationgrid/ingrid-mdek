@@ -47,6 +47,17 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 			String userId);
 
 	/**
+	 * Store all syslists synchronized with the codelist repository. This function normally
+	 * is called by a repeating job, which gets all connected iPlugs and its meta data
+	 * administrators for authentication.
+	 * @param plugId which mdek server (iplug)
+	 * @param syslistDoc contains the syslists to update
+	 * @param userId calling user
+	 * @return response containing result: empty IngridDocument on success
+	 */
+	IngridDocument storeSysLists(String plugId, List<IngridDocument> syslistDoc, String userId);
+	
+	/**
 	 * Returns a map containing values of given generic keys.
 	 * Pass null if all generic keys are requested.
 	 * @param plugId which mdek server (iplug)
