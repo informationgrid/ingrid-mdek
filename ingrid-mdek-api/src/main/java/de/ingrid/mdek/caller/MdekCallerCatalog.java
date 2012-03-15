@@ -86,15 +86,15 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 	 * Return the names of the syslist(s).
 	 * Note: Not yet implemented since changes in database has to be made!
 	 */
-	public IngridDocument getSysListNames(String plugId, String language, String userId) {
-	    /*
+	/*public IngridDocument getSysListNames(String plugId, String language, String userId) {
+	    
         jobParams.put(MdekKeys.LANGUAGE_SHORTCUT, language);
         jobParams.put(MdekKeys.USER_ID, userId);
         List jobMethods = setUpJobMethod("getSysListNames", jobParams);
         return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
-        */
+        
 	    return null;
-	}
+	}*/
 	
 	public IngridDocument storeSysList(String plugId,
 			int listId, boolean maintainable, Integer defaultEntryIndex,

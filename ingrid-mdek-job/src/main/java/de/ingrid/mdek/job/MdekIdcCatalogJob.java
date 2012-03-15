@@ -246,14 +246,21 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	 * Return the names of the syslists.
 	 * Note: Not yet implemented since database has to be modified!
 	 */
+	/*
 	public IngridDocument getSysListNames(IngridDocument params) {
 	    //String language = params.getString(MdekKeys.LANGUAGE_SHORTCUT);
 	    //IngridDocument result;
 	    //result = catalogService.getSysListNames(language);
 	    //return result;
 	    return null;
-	}
+	}*/
 
+	/**
+	 * This function updates a syslist in the database manipulated in the IGE 
+	 * frontend.
+	 * @param docIn contains the syslist
+	 * @return an empty IngridDocument on success
+	 */
 	public IngridDocument storeSysList(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
 		boolean removeRunningJob = true;
@@ -292,6 +299,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
+	/**
+	 * Overwrite all syslists coming from a repository, which shall not be
+	 * editor in the IGE frontend.
+	 * @param docIn contains the syslists from the repository
+	 * @return an empty IngridDocument on success
+	 */
 	public IngridDocument storeSysLists(IngridDocument docIn) {
         String userId = getCurrentUserUuid(docIn);
         boolean removeRunningJob = true;

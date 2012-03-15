@@ -219,6 +219,7 @@ public class MdekCatalogService {
 	 * Return the names of the syslists.
 	 * Note: Not yet implemented since database has to be modified!
 	 */
+	/*
 	public IngridDocument getSysListNames(String language) {
 	    IngridDocument result = new IngridDocument();
         
@@ -230,7 +231,7 @@ public class MdekCatalogService {
 //            result.put(MdekKeys.SYS_LIST_KEY_PREFIX + listId,  listDoc);
 
         return result;
-	}
+	}*/
 	
 	/** Get syslist entries of syslist with given id and language IN MAP. USES CACHE !<br>
 	 * entry_key is Key to Map and delivers entry_name. */
