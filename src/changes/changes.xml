@@ -40,6 +40,9 @@
         Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
       </action>	  
       <action type="fix" dev="wemove">
+        Make HQL query in research more robust, now ObjectNode and AddressNode in one query possible.
+      </action>
+      <action type="fix" dev="wemove">
         Fix export of syslist if syslist entries are ordered by line attribute in database.
       </action>
     </release>

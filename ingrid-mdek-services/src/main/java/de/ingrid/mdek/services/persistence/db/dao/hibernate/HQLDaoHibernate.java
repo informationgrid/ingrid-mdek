@@ -286,11 +286,21 @@ public class HQLDaoHibernate
 		}
 		Integer tmpFromStartIndex = hqlUPPERCASE.indexOf("FROM ADDRESSNODE");
 		if (tmpFromStartIndex != -1) {
+			boolean isAddressQuery = true;
 			if (entityType != null) {
-				throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
+				// also "FROM OBJECTNODE" in query
+				// DO NOT THROW Exception, instead use first FROM in select as entityType. Select may be inner select like:
+				// SELECT ... FROM ObjectNode oNode ... WHERE ... IN (SELECT ... FROM AddressNode aNode ...)
+				//throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
+				if (tmpFromStartIndex > fromStartIndex) {
+					isAddressQuery = false;
+				}
 			}
-			entityType = IdcEntityType.ADDRESS;
-			fromStartIndex = tmpFromStartIndex;
+			
+			if (isAddressQuery) {
+				entityType = IdcEntityType.ADDRESS;
+				fromStartIndex = tmpFromStartIndex;
+			}
 		}
 		// querying direct instances allowed ?
 		if (allowQueryDirectInstances) {
