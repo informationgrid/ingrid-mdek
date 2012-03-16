@@ -1,6 +1,5 @@
 package de.ingrid.mdek;
 
-import de.ingrid.utils.IngridDocument;
 
 /**
  * Class encapsulating static keys for accessing data in IngridDocument.
@@ -343,45 +342,40 @@ public class MdekKeys {
      * Value: String[] */
     public final static String LST_FREE_ENTRY_NAMES = "lst-free-entry-names";
     
+    // SYS_LIST_MAP for writing syslists from repo
+    // ---------------
     /**
      * All syslists.
      * Value: List<IngridDocument> */
     public final static String LST_SYSLISTS = "lst-syslists";
-    
     /**
      * The name of a codelist.
      * Value: String */
     public final static String LST_NAME = "lst-name";
-    
     /**
      * The description of a codelist.
      * Value: String */
     public final static String LST_DESCRIPTION = "lst-description";
-    
     /**
      * The default entry of a codelist, which to use if a new document is started.
-     * Value: String */
+     * Value: Integer */
     public final static String LST_DEFAULT_ENTRY_ID = "lst-default-entry-id";
-    
     /**
      * The entries of a codelist.
      * Value: IngridDocument[] */
     public final static String LST_ENTRIES = "lst-entries";
-    
     /**
      * The ID of an entry of a syslist.
-     * Value: String */
+     * Value: Integer */
     public final static String LST_ENTRY_ID = "lst-entry-id";
-    
     /**
      * The description of an entry of a syslist.
      * Value: String */
     public final static String LST_ENTRY_DESCRIPTION = "lst-entry-description";
-    
     /**
-     * The entries of a codelist.
+     * The localised names of one entry in a map. Key is the language code, e.g. "en" delivers the english name.
      * Value: IngridDocument */
-    public final static String LST_LOCALISED_ENTRY_MAP = "lst-localised-entry";
+    public final static String LST_LOCALISED_ENTRY_NAME_MAP = "lst-localised-entry-name-map";
 
     // SYS GENERIC KEY
     // ---------------

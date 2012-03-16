@@ -132,6 +132,9 @@ public class MdekExampleSupertool {
 		return supertoolCatalog.storeSysList(listId, maintainable, defaultEntryIndex,
 				entryIds, entryNames_de, entryNames_en);
 	}
+	public IngridDocument storeSysLists(List<IngridDocument> listDocs) {
+		return supertoolCatalog.storeSysLists(listDocs);
+	}
 	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot) {
 		return supertoolCatalog.exportObjectBranch(rootUuid, exportOnlyRoot);
 	}

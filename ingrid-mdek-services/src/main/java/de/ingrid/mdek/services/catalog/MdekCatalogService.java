@@ -202,7 +202,12 @@ public class MdekCatalogService {
 	/** Get Doc representation of syslists of given ids and language. */
 	public IngridDocument getSysLists(Integer[] listIds, String language) {
 		IngridDocument result = new IngridDocument();
-			
+
+		// use catalog language if null
+		if (language == null || language.trim().length() == 0) {
+			language = getCatalogLanguage();
+		}
+
 		for (int listId : listIds) {
 			List<SysList> list = daoSysList.getSysList(listId, language);
 			

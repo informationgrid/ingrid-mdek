@@ -177,11 +177,14 @@ public class DocToBeanMapper implements IMapper {
             }
         }
 
-        // determine max entry id of given syslist in database. If new syslist start at "0".
+        // determine max entry id of given syslist in database. If new syslist then start at "0".
         // will be increased for new entries.
+        // NOTICE: entries may be ordered by line, so we have to iterate all entries !
         int maxId = 0;
-        if (sysListEntries.size() > 0) {
-            maxId = sysListEntries.get(sysListEntries.size()-1).getEntryId();
+        for (SysList entry : sysListEntries) {
+        	if (entry.getEntryId() > maxId) {
+        		maxId = entry.getEntryId();
+        	}
         }
 
         // here the ones to delete will remain
@@ -259,15 +262,18 @@ public class DocToBeanMapper implements IMapper {
 		Integer inLstId = (Integer) docIn.get(MdekKeys.LST_ID);
 		Boolean tmpMaintainable = (Boolean) docIn.get(MdekKeys.LST_MAINTAINABLE);
 		int inMaintainable = tmpMaintainable ? MdekUtils.YES_INTEGER : MdekUtils.NO_INTEGER;
-		Integer tmpDefaultEntryIndex = (Integer) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_ID);
-		int inDefaultEntryIndex = (tmpDefaultEntryIndex == null) ? -1 : tmpDefaultEntryIndex;
+		Integer tmpDefaultEntryId = (Integer) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_ID);
+		int inDefaultEntryId = (tmpDefaultEntryId == null) ? -1 : tmpDefaultEntryId;
 
-		// determine max entry id of given syslist in database. If new syslist start at "0".
-		// will be increased for new entries.
-		int maxId = 0;
-		if (sysListEntries.size() > 0) {
-			maxId = sysListEntries.get(sysListEntries.size()-1).getEntryId();
-		}
+        // determine max entry id of given syslist in database. If new syslist then start at "0".
+        // will be increased for new entries.
+        // NOTICE: entries may be ordered by line, so we have to iterate all entries !
+        int maxId = 0;
+        for (SysList entry : sysListEntries) {
+        	if (entry.getEntryId() > maxId) {
+        		maxId = entry.getEntryId();
+        	}
+        }
 
 		// here the ones to delete will remain
 		ArrayList<SysList> entriesUnprocessed = new ArrayList<SysList>(sysListEntries);
@@ -278,9 +284,9 @@ public class DocToBeanMapper implements IMapper {
 			Integer inEntryId = entries[i].getInt(MdekKeys.LST_ENTRY_ID);
 
 			// process all languages one by one
-			IngridDocument locals = (IngridDocument) entries[i].get(MdekKeys.LST_LOCALISED_ENTRY_MAP);
-			for (String langId : ((Map<String,String>)locals).keySet()) {
-			    String inName = locals.getString(langId);
+			IngridDocument localNames = (IngridDocument) entries[i].get(MdekKeys.LST_LOCALISED_ENTRY_NAME_MAP);
+			for (String langId : ((Map<String,String>)localNames).keySet()) {
+			    String inName = localNames.getString(langId);
 
 				SysList foundEntry = null;
 				if (inEntryId != null) {
@@ -308,7 +314,7 @@ public class DocToBeanMapper implements IMapper {
 					foundEntry.setLine(0);
 					sysListEntries.add(foundEntry);
 				}
-				String isDefault = (inEntryId == inDefaultEntryIndex) ? MdekUtils.YES : MdekUtils.NO;
+				String isDefault = (inEntryId == inDefaultEntryId) ? MdekUtils.YES : MdekUtils.NO;
 				foundEntry.setIsDefault(isDefault);
 				//String inName = (inName == null) ? "" : inName;
 				foundEntry.setName(inName);

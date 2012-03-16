@@ -284,10 +284,15 @@
 			<!-- request specific sys-lists -->
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
 			<!-- WRITE syslist -->
-			<xs:element name="SYS_LIST_MAP" type="SYS_LIST_MAP"/>
+			<xs:element name="SYS_LIST_MAP" type="SYS_LIST_MAP_OLD"/>
+			<!-- WRITE all syslists from REPO -->
+			<xs:element name="lst-syslists" type="SYS_LIST_LIST"/>
 			<!-- request / WRITE sys-generic-keys -->
 			<xs:element name="sys-generic-key-names" type="STRING_ARRAY"/>
 			<xs:element name="sys-generic-key-values" type="STRING_ARRAY"/>
+			<!-- Replace free entry with syslist entry (replaceFreeEntryWithSyslistEntry) -->
+			<xs:element name="lst-free-entry-names" type="STRING_ARRAY"/>
+			<xs:element name="lst-entry-names" type="STRING_ARRAY"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_SEARCH_MAP">
@@ -796,22 +801,59 @@
 			<!-- all sys-list ids requested -->
 			<xs:element name="sys-list-ids" type="INTEGER_ARRAY"/>
 			<!-- SYS LIST EXAMPLE ! list ids are passed in request ! keys start with "sys-list-" -->
-			<xs:element name="sys-list-1100" type="SYS_LIST_MAP"/>
-			<xs:element name="sys-list-...." type="SYS_LIST_MAP"/>
-			<!-- requested free entries of sys-list -->
+			<xs:element name="sys-list-1100" type="SYS_LIST_MAP_OLD"/>
+			<xs:element name="sys-list-...." type="SYS_LIST_MAP_OLD"/>
+			<!-- return free entries of sys-list (meaning free entries in table where syslist is used !) -->
 			<xs:element name="lst-free-entry-names" type="STRING_ARRAY"/>
 			<!-- how many entities replaced free entry with syslist entry -->
 			<xs:element ref="resultinfo_numberOfProcessedEntities"/>
 		</xs:choice>
 	</xs:complexType>
-	<xs:complexType name="SYS_LIST_MAP">
+	<xs:complexType name="SYS_LIST_MAP_OLD">
 		<xs:sequence>
 			<xs:element name="lst-id" type="xs:integer"/>
 			<xs:element name="lst-maintainable" type="xs:boolean"/>
 			<xs:element name="lst-default-entry-index" type="xs:integer"/>
 			<xs:element name="lst-entry-ids" type="INTEGER_ARRAY"/>
+			<!-- Used in REQUEST, when syslist is passed from ige catalog codelist administration for update -->
 			<xs:element name="lst-entry-names-de" type="STRING_ARRAY"/>
 			<xs:element name="lst-entry-names-en" type="STRING_ARRAY"/>
+			<!-- Used in RESULT, when localized syslist is returned (language passed in request) -->
+			<xs:element name="lst-entry-names" type="STRING_ARRAY"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SYS_LIST_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="SYS_LIST_MAP_NEW" type="SYS_LIST_MAP_NEW"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SYS_LIST_MAP_NEW">
+		<xs:sequence>
+			<xs:element name="lst-id" type="xs:integer"/>
+			<xs:element name="lst-name" type="xs:string"/>
+			<xs:element name="lst-description" type="xs:string"/>
+			<xs:element name="lst-maintainable" type="xs:boolean"/>
+			<xs:element name="lst-default-entry-id" type="xs:integer"/>
+			<xs:element name="lst-entries" type="SYS_LIST_ENTRY_ARRAY"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SYS_LIST_ENTRY_ARRAY">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="SYS_LIST_ENTRY_MAP" type="SYS_LIST_ENTRY_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SYS_LIST_ENTRY_MAP">
+		<xs:sequence>
+			<xs:element name="lst-entry-id" type="xs:string"/>
+			<xs:element name="lst-localised-entry-name-map" type="LOCAL_TO_STRING_MAP"/>
+			<xs:element name="lst-entry-description" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LOCAL_TO_STRING_MAP">
+		<xs:sequence>
+			<xs:element name="de" type="xs:string"/>
+			<xs:element name="en" type="xs:string"/>
+			<xs:element name="xx..." type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="RESULT_SYS_GENERIC_KEY_MAP">

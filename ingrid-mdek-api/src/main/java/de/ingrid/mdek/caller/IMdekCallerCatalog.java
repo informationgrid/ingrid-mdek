@@ -18,11 +18,11 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 
 	/**
 	 * Returns a map containing the entries of lists with given ids.
-	 * Pass null as languageShortcut if it doesn't matter.
+	 * Pass null as languageShortcut if catalog language should be used.
 	 * Pass null as list ids if you just want to query ALL existing list ids !
 	 * @param plugId which mdek server (iplug)
 	 * @param listIds which lists. Pass NULL if querying all list ids.
-	 * @param languageShortcut which language, e.g. "de", "en"
+	 * @param languageShortcut which language, e.g. "de", "en", pass null if catalog language !
 	 * @param userId calling user
 	 * @return response containing result: map with list entries per list
 	 * 		or map with all list ids
@@ -30,7 +30,8 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument getSysLists(String plugId, Integer[] listIds, String languageShortcut,
 			String userId);
 
-	/** Store syslist. NOTICE: all arrays describing entries have to be of same length.
+	/** Store syslist THE OLD WAY (e.g. from catalog codelist admin page).
+	 * NOTICE: all arrays describing entries have to be of same length.
 	 * @param plugId which mdek server (iplug)
 	 * @param listId id of the list
 	 * @param maintainable is this list maintainable (true) or not (false=ISO Codelist)

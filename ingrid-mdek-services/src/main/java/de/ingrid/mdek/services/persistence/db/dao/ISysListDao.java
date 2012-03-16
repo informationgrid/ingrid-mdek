@@ -20,7 +20,7 @@ public interface ISysListDao
 	/** returns all syslist IDs ordered by id */
 	List<Integer> getSysListIds();
 	
-	/** returns all entries of the given list ordered by entry id.
+	/** returns all entries of the given list (ordered by LINE(!!!), entryId).
 	 * Pass NULL for language if all languages */
 	List<SysList> getSysList(int lstId, String language);
 	

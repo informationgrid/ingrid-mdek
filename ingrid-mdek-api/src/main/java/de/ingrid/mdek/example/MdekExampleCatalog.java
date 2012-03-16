@@ -283,30 +283,30 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- SysList Values language: " + catLangShortcut + " -----");
 		supertool.getSysLists(new Integer[] { 100, 1100, 1350, 3555}, catLangShortcut);
 
-		System.out.println("\n\n----- new Syslist id=0815 and load -----");
-		supertool.storeSysList(815, true, null,
+		System.out.println("\n\n----- new Syslist id=08150815 and load -----");
+		supertool.storeSysList(8150815, true, null,
 			new Integer[]{null, null, null},
 			new String[]{"name1_de", "name2_de", "name3_de"},
 			new String[]{null, null, null});
-		supertool.getSysLists(new Integer[] { 815 }, null);
+		supertool.getSysLists(new Integer[] { 8150815 }, null);
 
-		System.out.println("\n----- change Syslist id=0815 and load -----");
-		supertool.storeSysList(815, false, 1,
+		System.out.println("\n----- change Syslist id=08150815 and load -----");
+		supertool.storeSysList(8150815, false, 1,
 			new Integer[]{1, 2, 3, null},
 			new String[]{"NAME1_de", "NAME2_de", "NAME3_de", "NAME4_de"},
 			new String[]{"name1_en", "name2_en", null, "name4_en"});
-		supertool.getSysLists(new Integer[] { 815 }, null);
+		supertool.getSysLists(new Integer[] { 8150815 }, null);
 
-		System.out.println("\n----- change Syslist id=0815 (remove all) and load -----");
-		supertool.storeSysList(815, false, null,
+		System.out.println("\n----- change Syslist id=08150815 (remove all) and load -----");
+		supertool.storeSysList(8150815, false, null,
 			new Integer[]{},
 			new String[]{},
 			new String[]{});
-		supertool.getSysLists(new Integer[] { 815 }, null);
+		supertool.getSysLists(new Integer[] { 8150815 }, null);
 
 
 		System.out.println("\n\n=========================");
-		System.out.println("SYSLISTS REBUILD !");
+		System.out.println("SYSLISTS REBUILD FROM IGE CODELIST ADMINISTRATION !");
 		System.out.println("=========================");
 
 		System.out.println("\n----- STORE 1. new Object with syslist LEGIST(1350) entries -----");
@@ -330,10 +330,11 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- load, change and store Syslist LEGIST(1350) -----");
 		int syslistId = MdekUtils.MdekSysList.LEGIST.getDbValue();
+		// pass language null, then catalog language !
 		doc = supertool.getSysLists(new Integer[] { syslistId }, null);
 		IngridDocument syslistDoc = (IngridDocument) doc.get(MdekKeys.SYS_LIST_KEY_PREFIX + syslistId);
 		Integer[] entryIds = (Integer[]) syslistDoc.get(MdekKeys.LST_ENTRY_IDS);
-		String[] entryNames_de = (String[]) syslistDoc.get(MdekKeys.LST_ENTRY_NAMES_DE);
+		String[] entryNames_de = (String[]) syslistDoc.get(MdekKeys.LST_ENTRY_NAMES);
 
 		System.out.println("- remove entry 49");
 		ArrayList<Integer> idList = new ArrayList<Integer>(Arrays.asList(entryIds));
@@ -402,6 +403,63 @@ class MdekExampleCatalogThread extends Thread {
 				entryIds,
 				entryNames_de,
 				null);
+
+		System.out.println("\n\n=========================");
+		System.out.println("SYSLISTS REBUILD FROM REPO");
+		System.out.println("=========================");
+
+		System.out.println("\n\n----- store new Syslist id=08150815 (in structure from repo) and load different languages -----");
+		List<IngridDocument> newSyslists = new ArrayList<IngridDocument>();
+		IngridDocument newSyslist = new IngridDocument();
+		newSyslists.add(newSyslist);
+		newSyslist.put(MdekKeys.LST_ID, new Integer(8150815));
+		newSyslist.put(MdekKeys.LST_NAME, "syslist Test 08150815");
+		newSyslist.put(MdekKeys.LST_DESCRIPTION, "syslist Test 08150815 DESCRIPTION");
+		newSyslist.put(MdekKeys.LST_MAINTAINABLE, false);
+		newSyslist.put(MdekKeys.LST_DEFAULT_ENTRY_ID, 1);
+		IngridDocument[] entries = new IngridDocument[2];
+		entries[0] = new IngridDocument();
+		entries[0].put(MdekKeys.LST_ENTRY_ID, new Integer(1));
+		entries[0].put(MdekKeys.LST_ENTRY_DESCRIPTION, "111 entry description");
+		IngridDocument localNamesEntry1 = new IngridDocument();
+		entries[0].put(MdekKeys.LST_LOCALISED_ENTRY_NAME_MAP, localNamesEntry1);
+		localNamesEntry1.put("de", "111 Eintrag DE");
+		localNamesEntry1.put("en", "111 entry EN");
+		localNamesEntry1.put("es", "111 primero ES");
+		entries[1] = new IngridDocument();
+		entries[1].put(MdekKeys.LST_ENTRY_ID, new Integer(2));
+		entries[1].put(MdekKeys.LST_ENTRY_DESCRIPTION, "222 entry description");
+		IngridDocument localNamesEntry2 = new IngridDocument();
+		entries[1].put(MdekKeys.LST_LOCALISED_ENTRY_NAME_MAP, localNamesEntry2);
+		localNamesEntry2.put("de", "222 Eintrag DE");
+		localNamesEntry2.put("en", "222 entry EN");
+		localNamesEntry2.put("es", "222 segundo ES");
+		newSyslist.put(MdekKeys.LST_ENTRIES, entries);
+		supertool.storeSysLists(newSyslists);
+		supertool.getSysLists(new Integer[] { 8150815 }, "de");
+		supertool.getSysLists(new Integer[] { 8150815 }, "en");
+		supertool.getSysLists(new Integer[] { 8150815 }, "es");
+		System.out.println("\n\n----- load with non existing language -----");
+		supertool.getSysLists(new Integer[] { 8150815 }, "fr");
+		System.out.println("\n\n----- load with null language -> uses catalog language (\"de\") -----");
+		supertool.getSysLists(new Integer[] { 8150815 }, null);
+
+		System.out.println("\n\n----- store AGAIN with additional language \"fr\", remove language \"es\" (process existing and add new values) and load -----");
+		localNamesEntry1.put("fr", "111 un FR");
+		localNamesEntry1.remove("es");
+		localNamesEntry2.put("fr", "222 deuxieme FR");
+		localNamesEntry2.remove("es");
+		supertool.storeSysLists(newSyslists);
+		supertool.getSysLists(new Integer[] { 8150815 }, "de");
+		supertool.getSysLists(new Integer[] { 8150815 }, "en");
+		supertool.getSysLists(new Integer[] { 8150815 }, "es");
+		supertool.getSysLists(new Integer[] { 8150815 }, "fr");
+
+		System.out.println("\n----- Clean Up: Change Syslist id=08150815 (remove all) and load -----");
+		localNamesEntry1.clear();
+		localNamesEntry2.clear();
+		supertool.storeSysLists(newSyslists);
+		supertool.getSysLists(new Integer[] { 8150815 }, null);
 
 // -----------------------------------
 

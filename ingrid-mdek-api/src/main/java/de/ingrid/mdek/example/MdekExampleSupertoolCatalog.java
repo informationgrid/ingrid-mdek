@@ -178,13 +178,11 @@ public class MdekExampleSupertoolCatalog {
 					Integer[] entryIds = (Integer[]) syslstDoc.get(MdekKeys.LST_ENTRY_IDS);
 					Integer lstDefaultIndex = (Integer) syslstDoc.get(MdekKeys.LST_DEFAULT_ENTRY_INDEX);
 					int defaultIndex = (lstDefaultIndex==null) ? -1 : lstDefaultIndex;
-					String[] entryNames_de = (String[]) syslstDoc.get(MdekKeys.LST_ENTRY_NAMES_DE);
-					String[] entryNames_en = (String[]) syslstDoc.get(MdekKeys.LST_ENTRY_NAMES_EN);
+					String[] entryNames = (String[]) syslstDoc.get(MdekKeys.LST_ENTRY_NAMES);
 					System.out.println("  " + listKey + ": " + entryIds.length + " entries");
 					for (int i=0; i<entryIds.length; i++) {
 						System.out.println("    id:" + entryIds[i] + ", default:" + (i==defaultIndex) +
-							((entryNames_de != null) ? (", name_de:" + entryNames_de[i]) : "") +
-							((entryNames_en != null) ? (", name_en:" + entryNames_en[i]) : "") );
+							((entryNames != null) ? (", name:" + entryNames[i]) : "") );
 					}
 				}
 			} else {
@@ -220,6 +218,31 @@ public class MdekExampleSupertoolCatalog {
 				listId, maintainable, defaultEntryIndex,
 				entryIds, entryNames_de, entryNames_en,
 				myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerCatalog.getResultFromResponse(response);
+
+		if (result != null) {
+			System.out.println("SUCCESS: ");
+			System.out.println(result);
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+
+		return result;
+	}
+
+	public IngridDocument storeSysLists(List<IngridDocument> listDocs) {
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE storeSysLists ######");
+		startTime = System.currentTimeMillis();
+		response = mdekCallerCatalog.storeSysLists(plugId, listDocs, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
