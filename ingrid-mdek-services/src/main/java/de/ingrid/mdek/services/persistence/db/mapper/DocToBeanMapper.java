@@ -404,6 +404,7 @@ public class DocToBeanMapper implements IMapper {
 		if (howMuch == MappingQuantity.DETAIL_ENTITY ||
 				howMuch == MappingQuantity.COPY_ENTITY)
 		{
+			oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
 			oIn.setDatasetAlternateName((String) oDocIn.get(MdekKeys.DATASET_ALTERNATE_NAME));
 			oIn.setObjDescr((String) oDocIn.get(MdekKeys.ABSTRACT));
 
@@ -487,9 +488,6 @@ public class DocToBeanMapper implements IMapper {
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
 			// update only if set (so object keeps former values) ! NOT PASSED FROM CLIENT !!!
 			// BUT E.G. PASSED WHEN IMPORTING !!!
-			if (oDocIn.containsKey(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER)) {
-				oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
-			}
 			if (oDocIn.containsKey(MdekKeys.METADATA_CHARACTER_SET)) {
 				oIn.setMetadataCharacterSet((Integer) oDocIn.get(MdekKeys.METADATA_CHARACTER_SET));
 			}
