@@ -383,11 +383,30 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 
     
 	@Override
-    public IngridDocument storeSysLists(String plugId, List<IngridDocument> syslistDoc, String userId) {
+    public IngridDocument storeSysLists(String plugId, List<IngridDocument> syslistDoc, Long timestamp, String userId) {
 	    IngridDocument jobParams = new IngridDocument();
         jobParams.put(MdekKeys.LST_SYSLISTS, syslistDoc);
+        jobParams.put(MdekKeys.LST_LAST_MODIFIED, String.valueOf(timestamp));
         jobParams.put(MdekKeys.USER_ID, userId);
         List jobMethods = setUpJobMethod("storeSysLists", jobParams);
         return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);    
+    }
+
+    
+	@Override
+    public IngridDocument getLastModifiedTimestampOfSyslists(String plugId, String userId) {
+	    IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.USER_ID, userId);
+        List jobMethods = setUpJobMethod("getLastModifiedTimestampOfSyslists", jobParams);
+        return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+    }
+
+    
+	@Override
+    public IngridDocument setLastModifiedTimestampOfSyslists(String plugId, String userId) {
+	    IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.USER_ID, userId);
+        List jobMethods = setUpJobMethod("setLastModifiedTimestampOfSyslists", jobParams);
+        return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
     }
 }

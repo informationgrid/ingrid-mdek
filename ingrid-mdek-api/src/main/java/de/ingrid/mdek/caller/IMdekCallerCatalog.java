@@ -56,7 +56,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param userId calling user
 	 * @return response containing result: empty IngridDocument on success
 	 */
-	IngridDocument storeSysLists(String plugId, List<IngridDocument> syslistDoc, String userId);
+	IngridDocument storeSysLists(String plugId, List<IngridDocument> syslistDoc, Long timestamp, String userId);
 	
 	/**
 	 * Returns a map containing values of given generic keys.
@@ -333,4 +333,23 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument updateSpatialReferences(String plugId,
 			List<IngridDocument> oldSpatialRefs, List<IngridDocument> newSpatialRefs,
 			String userId);
+
+	/**
+	 * Get the timestamp of the most current syslist that has been changed (in the repository).
+	 * This timestamp is used for requesting newer syslists from the repository and to receive
+	 * only those syslists that have been changed since the last update.
+	 * @param plugId is the id of the iplug to request the timestamp from
+	 * @param userId is the user for authorization
+	 * @return response with the timestamp
+	 */
+	IngridDocument getLastModifiedTimestampOfSyslists(String plugId, String userId);
+	
+	/**
+	 * Set the timestamp when the last time the codelists were updated, using the timestamp of the
+	 * latest syslist change.
+	 * @param plugId is the id of the iplug to request the timestamp from
+     * @param userId is the user for authorization
+     * @return response with success or error
+	 */
+	IngridDocument setLastModifiedTimestampOfSyslists(String plugId, String userId);
 }

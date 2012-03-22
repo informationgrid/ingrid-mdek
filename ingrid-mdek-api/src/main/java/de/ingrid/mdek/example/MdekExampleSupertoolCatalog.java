@@ -242,7 +242,7 @@ public class MdekExampleSupertoolCatalog {
 
 		System.out.println("\n###### INVOKE storeSysLists ######");
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.storeSysLists(plugId, listDocs, myUserUuid);
+		response = mdekCallerCatalog.storeSysLists(plugId, listDocs, -1L, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

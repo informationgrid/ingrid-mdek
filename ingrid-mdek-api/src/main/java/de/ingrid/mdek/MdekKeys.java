@@ -376,7 +376,12 @@ public class MdekKeys {
      * The localised names of one entry in a map. Key is the language code, e.g. "en" delivers the english name.
      * Value: IngridDocument */
     public final static String LST_LOCALISED_ENTRY_NAME_MAP = "lst-localised-entry-name-map";
-
+    /**
+     * The timestamp of the last modification of a syslist.
+     * Value: String
+     */
+    public final static String LST_LAST_MODIFIED = "lst-last-modified";
+    
     // SYS GENERIC KEY
     // ---------------
     /** Value: String[] -> all names of generic keys to fetch or store */
