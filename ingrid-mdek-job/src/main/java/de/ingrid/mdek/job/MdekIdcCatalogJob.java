@@ -233,7 +233,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				
 			} else {
 				result = new IngridDocument();
-				result.put(MdekKeys.SYS_LIST_IDS, catalogService.getSysListIds());
+				result.put(MdekKeys.LST_SYSLISTS, catalogService.getSysListInfos());
 			}
 			
 			genericDao.commitTransaction();

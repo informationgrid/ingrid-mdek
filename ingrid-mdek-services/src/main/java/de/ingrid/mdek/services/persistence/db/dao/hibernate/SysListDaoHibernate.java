@@ -2,6 +2,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -30,10 +31,10 @@ public class SysListDaoHibernate
         super(factory, SysList.class);
     }
 
-	public List<Integer> getSysListIds() {
+	public List<Object[]> getSysListInfos() {
 		Session session = getSession();
 
-		String qString = "select distinct lstId from SysList order by lstId";
+		String qString = "select distinct lstId, maintainable from SysList order by lstId";
 
 		return session.createQuery(qString).list();
 	}

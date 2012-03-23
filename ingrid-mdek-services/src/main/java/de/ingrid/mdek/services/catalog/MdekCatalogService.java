@@ -192,11 +192,19 @@ public class MdekCatalogService {
 		return MdekUtils.YES.equals(getCatalog().getWorkflowControl());
 	}
 
-	/** Get all available syslist ids. */
-	public Integer[] getSysListIds() {
-		List<Integer> idList = daoSysList.getSysListIds();
-
-		return idList.toArray(new Integer[idList.size()]);
+	/** Get all available syslist infos. */
+	public List<IngridDocument> getSysListInfos() {
+		List<Object[]> sysLists = daoSysList.getSysListInfos();
+		
+		List<IngridDocument> result = new ArrayList<IngridDocument>();
+        for (Object[] row : sysLists) {
+            IngridDocument retMap = new IngridDocument();
+            retMap.put(MdekKeys.LST_ID, (Integer) row[0]);
+            retMap.put(MdekKeys.LST_MAINTAINABLE, (Integer) row[1]);
+            result.add(retMap);
+        }
+		
+		return result;
 	}
 
 	/** Get Doc representation of syslists of given ids and language. */

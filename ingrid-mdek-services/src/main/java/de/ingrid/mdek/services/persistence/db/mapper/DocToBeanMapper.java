@@ -264,7 +264,8 @@ public class DocToBeanMapper implements IMapper {
 		int inMaintainable = tmpMaintainable ? MdekUtils.YES_INTEGER : MdekUtils.NO_INTEGER;
 		Integer tmpDefaultEntryId = (Integer) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_ID);
 		int inDefaultEntryId = (tmpDefaultEntryId == null) ? -1 : tmpDefaultEntryId;
-
+		//Map defaultEntryIds = (Map) docIn.get(MdekKeys.LST_DEFAULT_ENTRY_ID);
+		
         // determine max entry id of given syslist in database. If new syslist then start at "0".
         // will be increased for new entries.
         // NOTICE: entries may be ordered by line, so we have to iterate all entries !
@@ -315,6 +316,7 @@ public class DocToBeanMapper implements IMapper {
 					sysListEntries.add(foundEntry);
 				}
 				String isDefault = (inEntryId == inDefaultEntryId) ? MdekUtils.YES : MdekUtils.NO;
+				//String isDefault = (inEntryId == defaultEntryIds.get(langId)) ? MdekUtils.YES : MdekUtils.NO;
 				foundEntry.setIsDefault(isDefault);
 				//String inName = (inName == null) ? "" : inName;
 				foundEntry.setName(inName);
