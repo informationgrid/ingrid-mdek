@@ -344,12 +344,4 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 */
 	IngridDocument getLastModifiedTimestampOfSyslists(String plugId, String userId);
 	
-	/**
-	 * Set the timestamp when the last time the codelists were updated, using the timestamp of the
-	 * latest syslist change.
-	 * @param plugId is the id of the iplug to request the timestamp from
-     * @param userId is the user for authorization
-     * @return response with success or error
-	 */
-	IngridDocument setLastModifiedTimestampOfSyslists(String plugId, String userId);
 }

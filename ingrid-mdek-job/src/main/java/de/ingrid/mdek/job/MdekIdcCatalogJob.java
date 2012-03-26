@@ -36,7 +36,6 @@ import de.ingrid.mdek.services.persistence.db.dao.IIdcUserDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT01ObjectDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
@@ -82,7 +81,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private IHQLDao daoHQL;
 	private ISearchtermValueDao daoSearchtermValue;
 	private ISpatialRefValueDao daoSpatialRefValue;
-    private ISysGenericKeyDao daoSysGenericKey;
 
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
@@ -106,7 +104,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoHQL = daoFactory.getHQLDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
-		daoSysGenericKey = daoFactory.getSysGenericKeyDao();
 	}
 
 	public IngridDocument getVersion(IngridDocument params) {
@@ -330,10 +327,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
                 
                 docToBeanMapper.updateSysListAllLang(codelist, sysListEntries);
             }
-            
-            String[] keys = {"lastModifiedSyslist"};
-            List<SysGenericKey> genericKeysValues = daoSysGenericKey.getSysGenericKeys(keys);
-            genericKeysValues.get(0).setValueString((String)docIn.get(MdekKeys.LST_LAST_MODIFIED));
+
+            // store last modified timestamp from codelists
+            String[] keyNames = {"lastModifiedSyslist"};
+            String[] keyValues = {(String)docIn.get(MdekKeys.LST_LAST_MODIFIED)};
+            List<SysGenericKey> sysGenericKeys = catalogService.getSysGenericKeys(keyNames);
+            IngridDocument docSyskeys = new IngridDocument();
+            docSyskeys.put(MdekKeys.SYS_GENERIC_KEY_NAMES, keyNames);
+            docSyskeys.put(MdekKeys.SYS_GENERIC_KEY_VALUES, keyValues);
+            docToBeanMapper.updateSysGenericKeys(docSyskeys, sysGenericKeys);
 
             // clear all caches !
             catalogService.clearCaches();
@@ -1471,9 +1473,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
             // get all locations of passed type(s)
             String[] keys = {"lastModifiedSyslist"};
-            List<SysGenericKey> genericKeysValues = daoSysGenericKey.getSysGenericKeys(keys);
+            List<SysGenericKey> genericKeysValues = catalogService.getSysGenericKeys(keys);
             
-            Long timestamp = 0L;
+            Long timestamp = -1L;
             if (genericKeysValues.size() != 0) { 
                 timestamp = Long.valueOf(genericKeysValues.get(0).getValueString());
             }
@@ -1490,26 +1492,4 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
             throw handledExc;
         }
 	}
-	
-	public IngridDocument setLastModifiedTimestampOfSyslists(IngridDocument docIn) {
-	    try {
-            genericDao.beginTransaction();
-            genericDao.disableAutoFlush();
-            
-            String[] keys = {"lastModifiedSyslist"};
-            List<SysGenericKey> genericKeysValues = daoSysGenericKey.getSysGenericKeys(keys);
-            
-            genericKeysValues.get(0).setValueString((String)docIn.get(MdekKeys.LST_LAST_MODIFIED));
-
-            IngridDocument result = new IngridDocument();
-            
-            genericDao.commitTransaction();
-
-            return result;
-
-        } catch (RuntimeException e) {
-            RuntimeException handledExc = handleException(e);
-            throw handledExc;
-        }
-    }
 }
