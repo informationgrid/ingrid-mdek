@@ -372,7 +372,7 @@ class MdekExampleCatalogThread extends Thread {
 
 		System.out.println("\n----- start REBUILD job -----");
 		System.out.println("NO TAKES TOOOO LONG !!! UNCOMMENT IF NEEDED !!!!!");
-/*
+
 		try {
 			// causes timeout
 			supertool.rebuildSyslistData();
@@ -385,7 +385,7 @@ class MdekExampleCatalogThread extends Thread {
 				supertool.sleep(3000);
 			}
 		}
-*/
+
 		System.out.println("\n----- verify: query Index FORMER syslist VALUES ! -> NOT THERE OR entities with DIFFERENT syslist entry with same content (+ §42) -----");
 		supertool.queryObjectsFullText(removedName, 0, 5);
 		supertool.queryObjectsFullText(changedNameOrig, 0, 5);
