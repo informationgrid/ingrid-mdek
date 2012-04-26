@@ -35,8 +35,12 @@ public class MdekUtils {
 	/** Entry ID of Ansprechpartner (former 'Auskunft') in syslist OBJ_ADR_TYPE (505) */
 	public final static Integer OBJ_ADR_TYPE_POINT_OF_CONTACT_ID = 7;
 
+	/** Entry ID of PHONE in syslist COMM_TYPE (4430) */
+	public final static Integer COMM_TYPE_PHONE = 1;
 	/** Entry ID of EMAIL in syslist COMM_TYPE (4430) */
 	public final static Integer COMM_TYPE_EMAIL = 3;
+	/** Free Entry VALUE of EMAIL for point of contact. Stored with key -1 in communication table ! */
+	public final static String COMM_VALUE_EMAIL_POINT_OF_CONTACT = "emailPointOfContact";
 
 	/** Entry ID "nicht evaluiert" in syslist OBJ_CONFORMITY (6000), is default */
 	public final static Integer OBJ_CONFORMITY_NOT_EVALUATED = 3;
@@ -402,7 +406,8 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Type of addresses (address class) (t02_address.adr_type) */
+	/** Type of VISIBLE addresses (address class) (t02_address.adr_type) 
+	 * ATTENTION: There are hidden address types, e.g. IGEUser with type 100, see AddressType.getHiddenAddressTypeIGEUser() */
 	public enum AddressType implements IMdekEnum {
 		INSTITUTION(0, "Institution"),
 		EINHEIT(1, "Einheit"),
@@ -418,6 +423,32 @@ public class MdekUtils {
 		}
 		public String toString() {
 			return description;
+		}
+		/** The address type stored for IGE users. These addresses will not be visible when editing, ... !
+		 * NOTICE: DO NOT ADD AS ENUM VALUE ! All enumeration values are iterated in statistics !
+		 */
+		public static Integer getHiddenAddressTypeIGEUser() {
+			return 100;
+		}
+		/** The virtual parent UUID of all IGE users stored in AddressNode.fk_addr_uuid !
+		 * Thus we avoid interpretation as real top node (where parent is null) and mark user nodes ! */
+		public static String getIGEUserParentUuid() {
+			return "IGE_USER";
+		}
+		/** Return the HQL to add into where clause if the AddressNode should NOT query IGE USERS !
+		 * Pass alias of AddressNode used in query.<br>
+		 * NOTICE: contains space at front and end ! */
+		public static String getHQLExcludeIGEUsersViaNode(String aliasAddressNode) {
+			String columnToCheck = aliasAddressNode + ".fkAddrUuid";
+			return " (" + columnToCheck + " IS NULL OR " +
+				columnToCheck + " != '" + AddressType.getIGEUserParentUuid() + "') ";
+		}
+		/** Return the HQL to add into where clause if the T02Address should NOT query IGE USERS !
+		 * Pass alias of T02Address used in query.<br>
+		 * NOTICE: contains space at front and end ! */
+		public static String getHQLExcludeIGEUsersViaAddress(String aliasT02Address) {
+			String columnToCheck = aliasT02Address + ".adrType";
+			return " " + columnToCheck + " != " + AddressType.getHiddenAddressTypeIGEUser() + " ";
 		}
 		Integer dbValue;
 		String description;

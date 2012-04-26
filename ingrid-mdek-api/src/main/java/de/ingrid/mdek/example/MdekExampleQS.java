@@ -1054,7 +1054,9 @@ class MdekExampleQSThread extends Thread {
 			"inner join aRespNode.t02AddressPublished aResp " +
 			"inner join aResp.t021Communications comm " +
 		"where " +
-			"aMeta.expiryState = " + ExpiryState.INITIAL.getDbValue() +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND aMeta.expiryState = " + ExpiryState.INITIAL.getDbValue() +
 			" and a.responsibleUuid = aRespNode.addrUuid " +
 			" and comm.commtypeKey = " + MdekUtils.COMM_TYPE_EMAIL;
 		doc = supertool.queryHQLToMap(hqlQuery, 10);
