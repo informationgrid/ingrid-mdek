@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
-import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.TransactionService;
 import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
@@ -163,7 +163,10 @@ public class ConsistencyCheckerDaoHibernate
 	public List<AddressNode> checkAddressHierarchy() {
 		String hqlQuery = "" +
 				"from AddressNode adrNode " +
-				"where adrNode.fkAddrUuid " +
+				"where " +
+				// exclude hidden user addresses !
+				AddressType.getHQLExcludeIGEUsersViaNode("adrNode") +
+				" AND adrNode.fkAddrUuid " +
 				"not in ( select adrNode.addrUuid from adrNode )";
 		
 		List<AddressNode> resultList = getSession().createQuery(hqlQuery).list();

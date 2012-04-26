@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
@@ -90,11 +91,18 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 
 	/** Updates data of given address in index. */
 	public void updateAddressIndex(AddressNode aNode) {
+		// CHECK WHETHER ADDRESS IS HIDDEN USER ADDRESS !
+		// WE DO NOT INDEX USERS !
+		if (AddressType.getIGEUserParentUuid().equals(aNode.getFkAddrUuid())) {
+			LOG.error("IGE USER address " + aNode.getAddrUuid() + " passed to Address Index !!! This should not happen, we skip !");
+			return;
+		}
+
 		// we write data of working version into index !!!
 		T02Address a = aNode.getT02AddressWork();
 		if (a == null) {
 			// this should never happen, so log this!
-			LOG.warn("Address for building index is null. Writing empty index !!!");
+			LOG.error("Address for building index is null. Writing empty index !!!");
 		}
 
 		// update FULL data

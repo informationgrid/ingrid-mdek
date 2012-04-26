@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
+      <action type="add" issue="INGRID32-36">
+        Handle migrated user addresses to separate hidden addresses not visible in IGE (adapt Queries/HQL).
+      </action>
       <action type="add" issue="INGRID32-31">
         Add publication condition to tree nodes for display in frontend.
       </action>

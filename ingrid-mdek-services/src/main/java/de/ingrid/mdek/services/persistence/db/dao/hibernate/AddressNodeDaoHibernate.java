@@ -68,6 +68,7 @@ public class AddressNodeDaoHibernate
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch aNode.t02AddressPublished ";			
 		}
+		// DO NOT EXCLUDE HIDDEN ADDRESSES (IGE Users), these ones are also fetched (e.g. in User management)
 		qString += "where aNode.addrUuid = ?";
 
 		AddressNode aN = (AddressNode) session.createQuery(qString)
@@ -140,6 +141,7 @@ public class AddressNodeDaoHibernate
 		if (fetchSubNodesChildren) {
 			q += "left join fetch aNode.addressNodeChildren aChildren ";
 		}
+		// THIS ALSO EXCLUDES HIDDEN IGE USER ADDRESSES !
 		q += "where aNode.fkAddrUuid is null ";
 
 		if (onlyFreeAddresses) {
@@ -292,6 +294,7 @@ public class AddressNodeDaoHibernate
 		}
 		q += "left join fetch a.t021Communications aComm " +
 		// TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
+		// DO NOT EXCLUDE HIDDEN ADDRESSES (IGE Users), these ones are also fetched with details (e.g. in User management)
 			"where aNode.addrUuid = ?";
  
 		// fetch all at once (one select with outer joins)
@@ -566,8 +569,8 @@ public class AddressNodeDaoHibernate
 		String qString = "from AddressNode aNode " +
 			"inner join aNode.t02AddressWork addr " +
 			"where " +
-			// dummy, so we can start with "and"
-			"aNode.id IS NOT NULL ";
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
 
 		if (institution != null) {
 			qString += "and addr.institution LIKE '%" + institution + "%' ";
@@ -643,7 +646,9 @@ public class AddressNodeDaoHibernate
 			"inner join termAdrs.searchtermValue termVal " +
 			"inner join termVal.searchtermSns termSns " +
 			"where " +
-			"termSns.snsId = '" + termSnsId + "'";
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND termSns.snsId = '" + termSnsId + "'";
 		
 		return qString;
 	}
@@ -750,7 +755,9 @@ public class AddressNodeDaoHibernate
 			"inner join aNode.t02AddressWork addr " +
 			"inner join aNode.fullIndexAddrs fidx " +
 			"where " +
-			"fidx.idxName = '" + IDX_NAME_FULLTEXT + "' " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND fidx.idxName = '" + IDX_NAME_FULLTEXT + "' " +
 			"and fidx.idxValue like '%" + searchTerm + "%'";
 		
 		return qString;
@@ -789,7 +796,9 @@ public class AddressNodeDaoHibernate
 
 		// selection criteria
 		String qCriteria = " where " +
-			"a.responsibleUuid = '"+ userUuid +"' " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND a.responsibleUuid = '"+ userUuid +"' " +
 			"and aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
 
 		// query string for counting -> without fetch (fetching not possible)
@@ -864,7 +873,9 @@ public class AddressNodeDaoHibernate
 
 		// selection criteria
 		String qCriteria = " where " +
-			"a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' " +
 			"and (a.modUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
 
 		// query string for counting -> without fetch (fetching not possible)
@@ -936,12 +947,18 @@ public class AddressNodeDaoHibernate
 		// selection criteria
 		String qCriteriaUser = "and (aMeta.assignerUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
 		String qCriteria = " where " +
-			"(a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND (a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
 				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " + qCriteriaUser;
 		String qCriteriaAssigned = " where " +
-			"a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
 		String qCriteriaReassigned = " where " +
-			"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(aNode) " +
@@ -1024,7 +1041,9 @@ public class AddressNodeDaoHibernate
 
 		// selection criteria
 		String qCriteria = " where " +
-			"(a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND (a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
 				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
 			"and (aMeta.assignerUuid = '" + userUuid + "' or a.modUuid = '" + userUuid + "') ";
 
@@ -1214,35 +1233,26 @@ public class AddressNodeDaoHibernate
 		qStringSelect += "inner join fetch aNodeUser.t02AddressWork aUser ";
 
 		// selection criteria
+		String qStringCriteria = " where " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+
 		if (whichWorkState != null || selectionType != null ||
 				addrUuidsWriteSingle != null || addrUuidsWriteTree != null) {
-			String qStringCriteria = " where ";
-
-			boolean addAnd = false;
-
 			if (whichWorkState != null) {
-				qStringCriteria += "a.workState = '" + whichWorkState.getDbValue() + "'";
-				addAnd = true;
+				qStringCriteria += " AND a.workState = '" + whichWorkState.getDbValue() + "'";
 			}
 
 			if (selectionType != null) {
-				if (addAnd) {
-					qStringCriteria += " and ";
-				}
 				if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
-					qStringCriteria += "aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
+					qStringCriteria += " AND aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
 				} else {
 					// QASelectionType not handled ? return nothing !
 					return result;
 				}
-				addAnd = true;
 			}
 			
 			if (addrUuidsWriteSingle != null || addrUuidsWriteTree != null) {
-				if (addAnd) {
-					qStringCriteria += " and ( ";
-				}
-
 				// WRITE SINGLE 
 				// add all write tree nodes to single nodes
 				// -> top nodes of branch have to be selected in same way as write single objects
@@ -1253,7 +1263,7 @@ public class AddressNodeDaoHibernate
 					addrUuidsWriteSingle.addAll(addrUuidsWriteTree);
 				}
 
-				qStringCriteria += " aNode.addrUuid in (:singleUuidList) ";
+				qStringCriteria += " AND (aNode.addrUuid in (:singleUuidList) ";
 
 				// WRITE TREE 
 				if (addrUuidsWriteTree != null) {
@@ -1270,16 +1280,12 @@ public class AddressNodeDaoHibernate
 					}
 					qStringCriteria += " ) ";
 				}
-				
-				if (addAnd) {
-					qStringCriteria += " ) ";
-				}
-				addAnd = true;
+				qStringCriteria += " ) ";
 			}
-			
-			qStringCount += qStringCriteria;
-			qStringSelect += qStringCriteria;
 		}
+
+		qStringCount += qStringCriteria;
+		qStringSelect += qStringCriteria;
 
 		// order by: default is date
 		String qOrderBy = " order by a.modTime ";
@@ -1364,7 +1370,9 @@ public class AddressNodeDaoHibernate
 			"from " +
 				"AddressNode aNode " +
 				"inner join aNode.t02AddressWork addr " +
-			"where ";
+			"where " +
+				// exclude hidden user addresses !
+				AddressType.getHQLExcludeIGEUsersViaNode("aNode");
 
 		// which classes to evaluate
 		Object[] addrClasses;
@@ -1375,9 +1383,8 @@ public class AddressNodeDaoHibernate
 			// node token in path !
 			String parentUuidToken = "|" +  parentUuid + "|";
 			// NOTICE: tree path in node doesn't contain node itself
-     			qString += "(aNode.treePath like '%" + parentUuidToken + "%' " +
-				"OR aNode.addrUuid = '" + parentUuid + "') " +
-				"AND ";
+     			qString += " AND (aNode.treePath like '%" + parentUuidToken + "%' " +
+				"OR aNode.addrUuid = '" + parentUuid + "') ";
 		} else {
 			if (onlyFreeAddresses) {
 				// only free addresses
@@ -1395,7 +1402,7 @@ public class AddressNodeDaoHibernate
 			IngridDocument classMap = new IngridDocument();
 
 			// get total number of entities of given class underneath parent
-			String qStringClass = qString +	" addr.adrType = " + addrClass;
+			String qStringClass = qString +	" AND addr.adrType = " + addrClass;
 			totalNum = (Long) session.createQuery(qStringClass).uniqueResult();
 			
 			classMap.put(MdekKeys.TOTAL_NUM, totalNum);
@@ -1430,11 +1437,14 @@ public class AddressNodeDaoHibernate
 				"inner join aNode.t02AddressWork addr " +
 				"inner join addr.searchtermAdrs searchtAddr " +
 				"inner join searchtAddr.searchtermValue searchtVal " +
-			"where ";
+				"where " +
+				// exclude hidden user addresses !
+				AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+
 		if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE) {
-			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
+			qStringFromWhere += " AND searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
 		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
-			qStringFromWhere += " (searchtVal.type = '" + SearchtermType.UMTHES.getDbValue() + "' " +
+			qStringFromWhere += " AND (searchtVal.type = '" + SearchtermType.UMTHES.getDbValue() + "' " +
 				"OR searchtVal.type = '" + SearchtermType.GEMET.getDbValue() + "') ";
 		}
 
@@ -1494,7 +1504,10 @@ public class AddressNodeDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct addrUuid " +
-			"from AddressNode";
+			"from AddressNode aNode " +
+			"where " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
 		
 		List<String> uuids = session.createQuery(q)
 				.list();
@@ -1518,7 +1531,10 @@ public class AddressNodeDaoHibernate
 			"left join fetch termVal.searchtermSns " +
 
 			"left join fetch a.t021Communications " +
-			"where aNode.addrUuid = ?";
+			"where " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			" AND aNode.addrUuid = ?";
 		
 		// fetch all at once (one select with outer joins)
 		AddressNode aN = (AddressNode) session.createQuery(q)

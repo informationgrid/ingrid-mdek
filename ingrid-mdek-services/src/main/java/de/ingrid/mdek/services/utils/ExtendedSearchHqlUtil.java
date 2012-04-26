@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.query.ClauseQuery;
@@ -264,7 +265,8 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		}
 		
 		StringBuilder fromString = new StringBuilder("from AddressNode aNode inner join aNode.t02AddressWork addr");
-		StringBuilder whereString = new StringBuilder("");
+		// exclude hidden user addresses !
+		StringBuilder whereString = new StringBuilder(AddressType.getHQLExcludeIGEUsersViaNode("aNode"));
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
 		Integer relation = (Integer)searchParams.get(MdekKeys.RELATION);
@@ -275,9 +277,9 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		if (searchTerms.length > 0) {
 			fromString.append(" inner join aNode.fullIndexAddrs fidx");
 			if (searchRange == null || searchRange == 0) {
-				whereString.append(" fidx.idxName = '").append(IDX_NAME_FULLTEXT).append("' and (");
+				whereString.append(" AND fidx.idxName = '").append(IDX_NAME_FULLTEXT).append("' and (");
 			} else {
-				whereString.append(" fidx.idxName = '").append(IDX_NAME_PARTIAL).append("' and (");
+				whereString.append(" AND fidx.idxName = '").append(IDX_NAME_PARTIAL).append("' and (");
 			}
 			String op;
 			if (relation == null || relation == 0) {
@@ -324,7 +326,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		if (whereString.length() == 0) {
 			return fromString.toString();
 		} else {
-			return fromString.append(" where").append(whereString).toString();
+			return fromString.append(" where ").append(whereString).toString();
 		}
 		
 	}

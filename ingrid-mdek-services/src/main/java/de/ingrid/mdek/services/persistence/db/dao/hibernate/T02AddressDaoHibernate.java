@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
+import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
@@ -67,7 +68,10 @@ public class T02AddressDaoHibernate
 
 		String hql = "select a " +
 			"from T02Address a " +
-			"where a.responsibleUuid = ?";
+			"where " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaAddress("a") +
+			" AND a.responsibleUuid = ?";
 		
 		Query q = session.createQuery(hql)
 			.setString(0, responsibleUserUuid);
@@ -81,7 +85,10 @@ public class T02AddressDaoHibernate
 	public String getCsvHQLAllAddressesOfResponsibleUser(String responsibleUserUuid) {
 		String hql = "select distinct a.adrUuid, a.institution, a.lastname, a.firstname, a.workState " +
 			"from T02Address a " +
-			"where a.responsibleUuid = '" + responsibleUserUuid + "'";
+			"where " +
+			// exclude hidden user addresses !
+			AddressType.getHQLExcludeIGEUsersViaAddress("a") +
+			" AND a.responsibleUuid = '" + responsibleUserUuid + "'";
 
 		return hql;
 	}
