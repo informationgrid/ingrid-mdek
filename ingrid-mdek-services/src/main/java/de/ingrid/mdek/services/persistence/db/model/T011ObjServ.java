@@ -17,6 +17,7 @@ public class T011ObjServ implements IEntity {
 	private String base;
 	private String description;
 	private String hasAccessConstraint;
+	private String couplingType;
 
 	private Set t011ObjServOperations = new HashSet();
 	private Set t011ObjServScales = new HashSet();
@@ -146,5 +147,15 @@ public class T011ObjServ implements IEntity {
 	public void setT011ObjServVersions(Set t011ObjServVersions) {
 		this.t011ObjServVersions = t011ObjServVersions;
 	}
+
+   
+	public void setCouplingType(String couplingType) {
+        this.couplingType = couplingType;
+    }
+
+    
+	public String getCouplingType() {
+        return couplingType;
+    }
 
 }

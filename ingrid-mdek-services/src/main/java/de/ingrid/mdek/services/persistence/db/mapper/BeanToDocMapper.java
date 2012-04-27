@@ -1521,6 +1521,7 @@ public class BeanToDocMapper implements IMapper {
 
 		refDoc.put(MdekKeys.SERVICE_TYPE, ref.getTypeValue());
 		refDoc.put(MdekKeys.SERVICE_TYPE_KEY, ref.getTypeKey());
+		refDoc.put(MdekKeys.COUPLING_TYPE, ref.getCouplingType());
 		refDoc.put(MdekKeys.SYSTEM_HISTORY, ref.getHistory());
 		refDoc.put(MdekKeys.SYSTEM_ENVIRONMENT, ref.getEnvironment());
 		refDoc.put(MdekKeys.DATABASE_OF_SYSTEM, ref.getBase());

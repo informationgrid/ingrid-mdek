@@ -813,6 +813,8 @@ public class MdekKeys {
     public final static String SERVICE_TYPE = "service-type";
     /** Art des Dienstes, Value: Integer */
     public final static String SERVICE_TYPE_KEY = "service-type-key";
+    /** Art der Kopplung, Value: String */
+    public final static String COUPLING_TYPE = "coupling-type";
     /** Value: String */
     public final static String SYSTEM_HISTORY = "system-history";
     /** Value: String */

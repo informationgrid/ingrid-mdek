@@ -321,6 +321,10 @@ public class MdekObjectService {
 
 		// UPDATE FULL INDEX !!!
 		fullIndexHandler.updateObjectIndex(oNode);
+		
+		// check for changes made in "linksFrom" table due to bidirectional connection
+		// of class 1 and 3! -> NOT DONE SINCE WE DECIDED TO USE ONE-WAY ONLY!
+		//updateChangesToObjectReferences(oWork, (List<IngridDocument>) oDocIn.get(MdekKeys.OBJ_REFERENCES_FROM)); // and oPub?!
 
 		// grant write tree permission if not set yet (e.g. new root node)
 		if (!calledByImporter && isNewObject) {
@@ -338,7 +342,80 @@ public class MdekObjectService {
 		return uuid;
 	}
 
-	/**
+	// -> NOT DONE SINCE WE DECIDED TO USE ONE-WAY ONLY! THEREFORE NO CHANGE IN BACKEND!
+	/*
+	private void updateChangesToObjectReferences(T01Object oWork, List<IngridDocument> newFromList) {
+	    // only do this for object classes 1 and 3!
+	    if (oWork.getObjClass() == 1 || oWork.getObjClass() == 3) {
+	        // in case there are no fromLinks
+	        if (newFromList == null) newFromList = new ArrayList<IngridDocument>();
+	        
+    	    // get original list of incoming links
+    	    List<ObjectNode>[] fromLists = daoObjectNode.getObjectReferencesFrom(oWork.getObjUuid());
+    	    // FIXME: does not really need conversion I guess!
+    	    IngridDocument resultDoc = new IngridDocument();
+    	    beanToDocMapper.mapObjectReferencesFrom(fromLists, null, null, IdcEntityType.OBJECT, oWork.getObjUuid(), resultDoc, MappingQuantity.TABLE_ENTITY);
+            
+    	    // compare both lists for changes
+    	    // 1) There cannot be a new one in 'newFromList'!
+    	    // 2) The same reference exists in both lists but has changed -> 'update' neccessary values!
+    	    // 3) A reference is missing in 'newFromList' -> remove it from the source reference!
+    	    for (IngridDocument objRef : (List<IngridDocument>)resultDoc.get(MdekKeys.OBJ_REFERENCES_FROM)) {
+    	        T01Object t01Object = null;
+    	        boolean found = false;
+                for (IngridDocument newObjRef : newFromList) {
+                    // check for changes in from-reference table
+                    if (objRef.get(MdekKeys.UUID).equals(newObjRef.get(MdekKeys.UUID))) {
+                        t01Object = updateChangesInReference(objRef, newObjRef);
+                        found = true;
+                    }
+                }
+                // remove from source if not found
+                if (!found) {
+                    t01Object = removeReferenceFromObject(oWork, objRef);
+                }
+                // if changed were found
+                if (t01Object != null) {
+                    daoT01Object.makePersistent(t01Object);
+                }
+            }
+	    }
+    }
+	*/
+	
+    /**
+     * If the from object is only available as published version then we have to create a working copy and
+     * do the changes there!
+     * 
+     * @param oWork
+     * @param objRef
+     * @return
+     */
+    /*
+    private T01Object removeReferenceFromObject(T01Object oWork, IngridDocument objRef) {
+        T01Object t01Object = null;
+        ObjectNode oNode = loadByUuid(String.valueOf(objRef.get(MdekKeys.UUID)), null);
+        if (oNode.getObjId() == objRef.getLong(MdekKeys.ID)) {
+            t01Object = oNode.getT01ObjectWork();
+//        } else if (oNode.getObjIdPublished() == objRef.getLong(MdekKeys.ID)) { // we always get the current version with getObjId()!!!
+//            t01Object = oNode.getT01ObjectPublished();
+        } else {
+            LOG.error("objId not found: " + objRef.getLong(MdekKeys.ID) + " in " + objRef.get(MdekKeys.UUID));
+            return null;
+        }
+        
+        ObjectReference[] t01ObjectRefs = (ObjectReference[]) t01Object.getObjectReferences().toArray(new ObjectReference[0]);
+        for (ObjectReference objectReference : t01ObjectRefs) {
+            if (objectReference.getObjToUuid().equals(oWork.getObjUuid())) {
+                t01Object.getObjectReferences().remove(objectReference);
+                break;
+            }
+        }
+        return t01Object;
+    }
+    */
+    
+    /**
 	 * Publish the object represented by the passed doc. Called By IGE !  
 	 * @see #publishObject(IngridDocument oDocIn, boolean forcePubCondition, String userId,
 	 * 		boolean calledByImporter=false)
