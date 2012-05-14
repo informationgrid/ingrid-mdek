@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
+      <action type="add" dev="wemove" issue="INGRID32-81">
+        Add coupling type for service objects.
+      </action>
       <action type="add" issue="INGRID32-36">
         Handle migrated user addresses to separate hidden addresses not visible in IGE (adapt Queries/HQL).
       </action>
