@@ -64,6 +64,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_DATASET_METHOD = "method";
 	private static final String X_SERVICE_TYPE_KEY = "service-type/@id";
 	private static final String X_SERVICE_TYPE = "service-type/text()";
+	private static final String X_COUPLING_TYPE = "coupling-type/text()";
 	private static final String X_SERVICE_CLASSIFICATION_LIST = "service-classification";
 	private static final String X_PUBLICATION_SCALE_LIST = "publication-scale";
 	private static final String X_PUBLICATION_SCALE_SCALE = "scale";
@@ -379,6 +380,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getInt(service, X_SERVICE_TYPE_KEY), target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_TYPE},
 				XPathUtils.getString(service, X_SERVICE_TYPE), target);
+		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.COUPLING_TYPE},
+		        XPathUtils.getString(service, X_COUPLING_TYPE), target);
 		mapServiceClassifications(source, target);
 		mapPublicationScales(service, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE));
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SYSTEM_HISTORY},

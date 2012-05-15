@@ -295,6 +295,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
 		oDoc.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
 		technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, 2);
+		technicalDomain.put(MdekKeys.COUPLING_TYPE, "tight");
 		// add TECHNICAL DOMAIN SERVICE - operations
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_OPERATION_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;

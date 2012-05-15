@@ -150,6 +150,7 @@ public class XMLKeys {
 	public static final String SYSTEM_HISTORY = "system-history";
 	public static final String SERVICE_IDENTIFICATION = "service-identification";
 	public static final String SERVICE_TYPE = "service-type";
+	public static final String COUPLING_TYPE = "coupling-type";
 	public static final String SERVICE_CLASSIFICATION = "service-classification";
 	public static final String SERVICE = "service";
 	public static final String HAS_ACCESS_CONSTRAINT = "has-access-constraint";

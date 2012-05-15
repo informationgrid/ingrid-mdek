@@ -382,6 +382,7 @@
       <xs:sequence>
         <xs:element ref="description-of-tech-domain"/>
         <xs:element ref="service-type"/>
+        <xs:element ref="coupling-type"/>
         <!-- minOccurs=0 da nicht vorhanden in "Informationssystem/Dienst/Anwendung", aber Pflicht in "Geodatendienst"  -->
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-classification"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="publication-scale"/>
@@ -407,6 +408,11 @@
     Tabelle.Feld   :T011_obj_serv.type_value
   -->
   <xs:element name="service-type" type="id-string"/>
+  <!--
+    Fachlicher Name: Kopplungstyp
+    Tabelle.Feld   : T011_obj_serv.coupling_type
+  -->
+  <xs:element name="coupling-type" type="xs:string"/>
   <!--
     Fachlicher Name: Historie
     Tabelle.Feld   : T011_obj_serv.history

@@ -260,6 +260,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 				new XMLElement(DESCRIPTION_OF_TECH_DOMAIN,
 						getStringForKey(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, serviceContext)));
 		service.addChild(createServiceType(serviceContext));
+		service.addChild(createCouplingType(serviceContext));
 		service.addChildren(createServiceClassifications(serviceContext));
 		service.addChildren(createPublicationScales(serviceContext));
 		service.addChild(
@@ -286,6 +287,12 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		serviceType.addAttribute(ID, getIntegerForKey(MdekKeys.SERVICE_TYPE_KEY, serviceContext));
 		return serviceType;
 	}
+	
+	private XMLElement createCouplingType(IngridDocument serviceContext) {
+        XMLElement serviceType = new XMLElement(COUPLING_TYPE, getStringForKey(MdekKeys.COUPLING_TYPE, serviceContext));
+        //serviceType.addAttribute(ID, getIntegerForKey(MdekKeys.COUPLING_TYPE, serviceContext));
+        return serviceType;
+    }
 
 	private List<XMLElement> createServiceClassifications(IngridDocument serviceContext) {
 		List<XMLElement> serviceClassifications = new ArrayList<XMLElement>();
