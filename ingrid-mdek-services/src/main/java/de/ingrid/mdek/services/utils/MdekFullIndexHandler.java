@@ -94,7 +94,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		// CHECK WHETHER ADDRESS IS HIDDEN USER ADDRESS !
 		// WE DO NOT INDEX USERS !
 		if (AddressType.getIGEUserParentUuid().equals(aNode.getFkAddrUuid())) {
-			LOG.error("IGE USER address " + aNode.getAddrUuid() + " passed to Address Index !!! This should not happen, we skip !");
+			LOG.info("IGE USER address " + aNode.getAddrUuid() + " passed to Address Index !!! Newly created ? We do NOT add to index !");
 			return;
 		}
 

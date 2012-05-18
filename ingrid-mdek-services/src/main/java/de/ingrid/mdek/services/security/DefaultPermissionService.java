@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -75,6 +76,11 @@ public class DefaultPermissionService implements IPermissionService {
 	}
 
 	public boolean hasInheritedPermissionForAddress(String userUuid, EntityPermission ep, Long groupId) {
+		// NOTICE: Also virtual parent of all IGE users may be passed ! Then we return NO permissions !
+		if (MdekUtils.AddressType.getIGEUserParentUuid().equals(ep.getUuid())) {
+			return false;
+		}
+
 		EntityPermission localPermission = new EntityPermission(ep.permission, ep.getUuid());
 		AddressNode addressNode;
 		do {
@@ -86,7 +92,7 @@ public class DefaultPermissionService implements IPermissionService {
 				throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));
 			}
 			localPermission.setUuid(addressNode.getFkAddrUuid());
-		} while (localPermission.getUuid() != null);
+		} while (MdekUtils.isValidUuid(localPermission.getUuid()));
 		return false;
 	}
 

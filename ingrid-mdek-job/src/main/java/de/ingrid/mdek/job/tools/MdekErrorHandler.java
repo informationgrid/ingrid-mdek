@@ -55,7 +55,8 @@ public class MdekErrorHandler {
 		RuntimeException retExc = excIn;
 
 		if (excIn instanceof MdekException) {
-			// do nothing, we already have an identified error !
+			// log with info, we already have an identified error !
+			LOG.info("Identified MdekException: " + excIn);
 			
 		} else  {
 			LOG.error("EXCEPTION: " + excIn);

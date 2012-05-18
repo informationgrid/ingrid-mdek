@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Set;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
@@ -484,7 +484,11 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			daoIdcUser.beginTransaction();
 
 			String currentTime = MdekUtils.dateToTimestamp(new Date());
+			// address uuid should not be passed anymore, instead full address data, see INGRID32-36
 			String newUserAddrUuid = uDocIn.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+			if (newUserAddrUuid != null) {
+				throw new MdekException("Address Uuid passed to createUser ! But should not have IGC address yet !");				
+			}
 			Integer newUserRole = (Integer) uDocIn.get(MdekKeysSecurity.IDC_ROLE);
 			Long newUserParentId = (Long) uDocIn.get(MdekKeysSecurity.PARENT_IDC_USER_ID); 
 			Boolean refetchAfterStore = (Boolean) uDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
@@ -494,11 +498,6 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			uDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 			beanToDocMapper.mapModUser(userId, uDocIn, MappingQuantity.INITIAL_ENTITY);
 			
-			// exception if user already exists
-			if (daoIdcUser.getIdcUserByAddrUuid(newUserAddrUuid) != null) {
-				throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS));
-			}
-
 			IdcUser callingUser = userHandler.getCurrentUser(userId);
 
 			// check role of calling user above role of new user ?
@@ -510,6 +509,17 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			if (!userHandler.isUser1AboveOrEqualUser2(callingUser.getId(), newUserParentId)) {
 				throw new MdekException(new MdekError(MdekErrorType.USER_HIERARCHY_WRONG));
 			}				
+
+			// NEW: separation of user addresses, also create address with new address data from user administration, see INGRID32-36
+			// NOTICE: address data is part of user doc !
+			processUserDocWithAddressData(uDocIn);
+			newUserAddrUuid = addressService.storeWorkingCopy(uDocIn, userId);
+			uDocIn.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newUserAddrUuid);
+
+			// exception if user already exists
+			if (daoIdcUser.getIdcUserByAddrUuid(newUserAddrUuid) != null) {
+				throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS));
+			}
 
 			// create new user and save it (to generate id !). ID NEEDED FOR MAPPING OF ASSOCIATIONS !
 			IdcUser newUser = new IdcUser();
@@ -524,6 +534,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			// return basic data
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeysSecurity.IDC_USER_ID, newUser.getId());
+			result.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newUserAddrUuid);
 
 			if (refetchAfterStore) {
 				daoIdcUser.beginTransaction();
@@ -613,6 +624,11 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			docToBeanMapperSecurity.mapIdcUser(uDocIn, userToUpdate);
 			daoIdcUser.makePersistent(userToUpdate);
 
+			// NEW: separation of user addresses, also update address with new address data from user administration, see INGRID32-36
+			// NOTICE: address data is part of user doc !
+			processUserDocWithAddressData(uDocIn);
+			addressService.storeWorkingCopy(uDocIn, userId);
+
 			// address uuid changed ?
 			// then update all entities, where old uuid is responsible user with new address uuid.
 			if (userAddressChanged) {
@@ -643,6 +659,20 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
+	}
+
+	/** Prepare userDoc to be also saved as address. User address now separated
+	 * from normal addresses and part of userDoc (entered in user admin gui), see INGRID32-36. 
+	 */
+	private IngridDocument processUserDocWithAddressData(IngridDocument userDoc) {
+		// We have to supply address uuid in normal address format ! 
+		userDoc.put(MdekKeys.UUID, userDoc.get(MdekKeysSecurity.IDC_USER_ADDR_UUID));
+		// user address type !
+		userDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.getHiddenAddressTypeIGEUser());
+		// user parent !
+		userDoc.put(MdekKeys.PARENT_UUID, MdekUtils.AddressType.getIGEUserParentUuid());
+		
+		return userDoc;
 	}
 
 	public void deleteUser(IngridDocument uDocIn) {
@@ -686,6 +716,10 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 
 			// finally delete the user !
 			daoIdcUser.makeTransient(userToDelete);
+
+			// NEW: separation of user addresses, also delete address, see INGRID32-36
+			addressService.deleteAddressFull(userToDelete.getAddrUuid(), false, userId);
+
 			daoIdcUser.commitTransaction();
 
 		} catch (RuntimeException e) {

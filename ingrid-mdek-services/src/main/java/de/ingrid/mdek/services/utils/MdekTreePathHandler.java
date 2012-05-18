@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
@@ -77,7 +78,7 @@ public class MdekTreePathHandler {
 	/** Set tree path in node according to passed parent uuid. Returns new path. */
 	public String setTreePath(AddressNode node, String newParentUuid) {
 		AddressNode newParentNode = null;
-		if (newParentUuid != null) {
+		if (MdekUtils.isValidUuid(newParentUuid)) {
 			newParentNode = daoAddressNode.loadByUuid(newParentUuid, null);
 			if (newParentNode == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));

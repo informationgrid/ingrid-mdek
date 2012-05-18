@@ -460,7 +460,7 @@ public class AddressNodeDaoHibernate
 	public AddressNode getParent(String uuid) {
 		AddressNode parentNode = null;
 		AddressNode aN = loadByUuid(uuid, null);
-		if (aN != null && aN.getFkAddrUuid() != null) {
+		if (aN != null && MdekUtils.isValidUuid(aN.getFkAddrUuid())) {
 			parentNode = loadByUuid(aN.getFkAddrUuid(), null);
 		}
 		
@@ -469,7 +469,7 @@ public class AddressNodeDaoHibernate
 
 	public List<String> getAddressPath(String uuid) {
 		ArrayList<String> uuidList = new ArrayList<String>();
-		while(uuid != null) {
+		while(MdekUtils.isValidUuid(uuid)) {
 			AddressNode aN = loadByUuid(uuid, null);
 			if (aN == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
@@ -485,7 +485,7 @@ public class AddressNodeDaoHibernate
 	public List<IngridDocument> getAddressPathOrganisation(String inUuid, boolean includeEndNode) {
 		ArrayList<IngridDocument> pathList = new ArrayList<IngridDocument>();
 		String uuid = inUuid;
-		while(uuid != null) {
+		while(MdekUtils.isValidUuid(uuid)) {
 			AddressNode aN = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
 			if (aN == null) {
 				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));

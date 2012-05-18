@@ -6,6 +6,7 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
@@ -133,7 +134,9 @@ public class IdcGroupDaoHibernate
 			"from AddressNode aNode " +
 			"inner join aNode.t02AddressWork a " +
 			"where " +
-			"a.workState != '" + addrWorkState.getDbValue() + "' " +
+			// we do NOT check IGE USER ADDRESSES ! 
+			MdekUtils.AddressType.getHQLExcludeIGEUsersViaAddress("a") +
+			"and a.workState != '" + addrWorkState.getDbValue() + "' " +
 			"and a.modUuid in (" +
 				getHQLUserUuidsOfGroup(groupName) +
 			")";
@@ -172,7 +175,9 @@ public class IdcGroupDaoHibernate
 			"from AddressNode aNode " +
 			"inner join aNode.t02AddressWork a " +
 			"where " +
-			"a.responsibleUuid in (" +
+			// we do NOT check IGE USER ADDRESSES ! 
+			MdekUtils.AddressType.getHQLExcludeIGEUsersViaAddress("a") +
+			"and a.responsibleUuid in (" +
 				getHQLUserUuidsOfGroup(groupName) +
 			")";
 

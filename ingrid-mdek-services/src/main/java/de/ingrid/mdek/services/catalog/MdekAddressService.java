@@ -231,6 +231,10 @@ public class MdekAddressService {
 
 		// WHEN CALLED BY IGE: parentUuid only passed if new address !?
 		String parentUuid = (String) aDocIn.get(MdekKeys.PARENT_UUID);
+		// Do we store a hidden USER ADDRESS (identified by virtual parent for all IGE USERS) ? see INGRID32-36
+		// Then NO PERMISSION CHECKS ! Instead only user hierarchy checks in storeUser() !
+		boolean isIGEUserAddress = MdekUtils.AddressType.getIGEUserParentUuid().equals(parentUuid); 
+
 		// WHEN CALLED BY IMPORTER: parentUuid always passed. we SIMULATE IGE call (so all checks work !)
 		String importerParentUuid = parentUuid;
 		if (calledByImporter) {
@@ -265,7 +269,7 @@ public class MdekAddressService {
 		}
 
 		// check permissions !
-		if (!calledByImporter) {
+		if (!calledByImporter && !isIGEUserAddress) {
 			permissionHandler.checkPermissionsForStoreAddress(uuid, parentUuid, userId);
 		}
 
@@ -341,7 +345,7 @@ public class MdekAddressService {
 		fullIndexHandler.updateAddressIndex(aNode);
 
 		// grant write tree permission if not set yet (e.g. new root node)
-		if (!calledByImporter && isNewAddress) {
+		if (!calledByImporter && isNewAddress && !isIGEUserAddress) {
 			if (parentUuid == null) {
 		        // NEW ROOT NODE: grant write-tree permission, no permission yet ! 
 				permissionHandler.grantTreePermissionForAddress(aNode.getAddrUuid(), userId,
@@ -596,7 +600,7 @@ public class MdekAddressService {
 
 		// if we have NO published version -> delete complete node !
 		if (!hasPublishedVersion(aNode)) {
-			result = deleteAddress(uuid, forceDeleteReferences, userId);
+			result = deleteAddress(aNode, forceDeleteReferences, userId);
 
 		} else {
 			// delete working copy only 
@@ -645,9 +649,19 @@ public class MdekAddressService {
 	public IngridDocument deleteAddressFull(String uuid, boolean forceDeleteReferences,
 			String userId) {
 		IngridDocument result;
-		// NOTICE: Always returns true if workflow disabled !
-		if (permissionHandler.hasQAPermission(userId)) {
-			result = deleteAddress(uuid, forceDeleteReferences, userId);
+
+		// check User Permissions
+		// Do we store a hidden USER ADDRESS (identified by virtual parent for all IGE USERS) ? see INGRID32-36
+		// Then NO PERMISSION CHECKS ! Instead only user hierarchy checks in storeUser() !
+		AddressNode aNode = loadByUuid(uuid, null);
+		if (aNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+		boolean isIGEUserAddress = MdekUtils.AddressType.getIGEUserParentUuid().equals(aNode.getFkAddrUuid());
+
+		// NOTICE: hasQAPermission always returns true if workflow disabled !
+		if (isIGEUserAddress || permissionHandler.hasQAPermission(userId)) {
+			result = deleteAddress(aNode, forceDeleteReferences, userId);
 		} else {
 			result = markDeletedAddress(uuid, forceDeleteReferences, userId);
 		}
@@ -681,15 +695,15 @@ public class MdekAddressService {
 	}
 
 	/** FULL DELETE ! MAKE TRANSIENT ! */
-	private IngridDocument deleteAddress(String uuid, boolean forceDeleteReferences,
+	private IngridDocument deleteAddress(AddressNode aNode, boolean forceDeleteReferences,
 			String userUuid) {
-		// first check User Permissions
-		permissionHandler.checkPermissionsForDeleteAddress(uuid, userUuid);
 
-		// NOTICE: this one also contains Parent Association !
-		AddressNode aNode = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
-		if (aNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		// check User Permissions
+		// Do we store a hidden USER ADDRESS (identified by virtual parent for all IGE USERS) ? see INGRID32-36
+		// Then NO PERMISSION CHECKS ! Instead only user hierarchy checks in storeUser() !
+		boolean isIGEUserAddress = MdekUtils.AddressType.getIGEUserParentUuid().equals(aNode.getFkAddrUuid());
+		if (!isIGEUserAddress) {
+			permissionHandler.checkPermissionsForDeleteAddress(aNode.getAddrUuid(), userUuid);
 		}
 
 		// check whether topnode/subnodes are referenced (also user address, responsible ...)
@@ -725,7 +739,7 @@ public class MdekAddressService {
 
 		// FULL DELETE IF NOT PUBLISHED !
 		if (!hasPublishedVersion(aNode)) {
-			result = deleteAddress(uuid, forceDeleteReferences, userUuid);
+			result = deleteAddress(aNode, forceDeleteReferences, userUuid);
 		} else {
 			// IS PUBLISHED -> mark deleted
 			// now load details (prefetch data) for faster mapping (less selects !) 

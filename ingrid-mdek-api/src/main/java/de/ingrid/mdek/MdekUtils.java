@@ -467,6 +467,20 @@ public class MdekUtils {
 	private MdekUtils() {}
 */
 
+	/** Check whether the UUID is a "normal" object/address uuid.
+	 * Returns false if uuid is null or a special placeholder 
+	 * (e.g. parent uuid of IGE USER, see AddressType.getIGEUserParentUuid)
+	 */
+	public static boolean isValidUuid(String uuid) {
+		if (uuid == null ||
+			AddressType.getIGEUserParentUuid().equals(uuid))
+		{
+			return false;
+		}
+		
+		return true;
+	}
+
 	/** Format database timestamp to display date. */
 	public static String timestampToDisplayDate(String yyyyMMddHHmmssSSS) {
 		try {
