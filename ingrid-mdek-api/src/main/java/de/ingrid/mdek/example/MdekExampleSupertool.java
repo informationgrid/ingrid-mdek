@@ -1505,6 +1505,16 @@ public class MdekExampleSupertool {
 		entityDoc.put(MdekKeys.COMMENT_LIST, docList);
 	}
 	
+	/** Passed address has to be published ! */
+	public void addPointOfContactAddress(IngridDocument entityDoc, String addrUuid) {
+		IngridDocument addrMap = fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		addrMap.put(MdekKeys.RELATION_TYPE_ID, 7);			
+		addrMap.put(MdekKeys.RELATION_TYPE_REF, 505);			
+		List<IngridDocument> refAddressList = new ArrayList<IngridDocument>(1);
+		refAddressList.add(addrMap);
+		entityDoc.put(MdekKeys.ADR_REFERENCES_TO, refAddressList);
+	}
+	
 	public void setResponsibleUser(IngridDocument entityDoc, String userUuid) {
 		IngridDocument userDoc = (IngridDocument) entityDoc.get(MdekKeys.RESPONSIBLE_USER);
 		if (userDoc == null) {

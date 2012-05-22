@@ -970,7 +970,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("----- SEPARATE Import: UPDATE EXISTING OBJECTS (UUID) -----");
 		System.out.println("-------------------------------------");
 
-		System.out.println("\n----- do SEPARATE IMPORT AND PUBLISH -> ERROR -----");
+		System.out.println("\n----- do SEPARATE IMPORT AND PUBLISH -> ERROR: IMPORT_PROBLEM, Publishing underneath Import Nodes not possible -----");
 		supertool.importEntities(importExistingObjBranch, objImpNodeUuid, addrImpNodeUuid, true, true);
 
 		System.out.println("\n----- separate import existing TOP NODE -> underneath import node, NEW uuid -----");
@@ -1053,7 +1053,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- import NEW TOP NODE as PUBLISHED -> underneath import node as working version -----");
 		supertool.importEntities(importNewTopObj, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objImpNodeUuid);
-		System.out.println("\n----- NO PUBLISHED_VERSION -----");
+		System.out.println("\n----- NO PUBLISHED_VERSION -> ERROR: ENTITY_NOT_FOUND -----");
 		supertool.fetchObject(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteObject(newUuidTop, true);
 
@@ -1086,10 +1086,10 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- import NEW object branch with NON EXISTING parent as PUBLISHED -> underneath import node as working version -----");
 		supertool.importEntities(importNewObjBranchNonExistentParent, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objImpNodeUuid);
-		System.out.println("\n----- NO PUBLISHED_VERSION -----");
+		System.out.println("\n----- NO PUBLISHED_VERSION -> ERROR: ENTITY_NOT_FOUND -----");
 		supertool.fetchObject(newUuid1, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.fetchSubObjects(newUuid1);
-		System.out.println("\n----- NO PUBLISHED_VERSION -----");
+		System.out.println("\n----- NO PUBLISHED_VERSION -> ERROR: ENTITY_NOT_FOUND -----");
 		supertool.fetchObject(newUuid2, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteObject(newUuid1, true);
 
@@ -1354,7 +1354,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		doc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		doc = supertool.publishObject(doc, true, false);
 
-		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error (Intranet) -> branch keeps position, branch root stored as WORKING version, subnodes PUBLISHED ! -----");
+		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error (SUBTREE_HAS_LARGER_PUBLICATION_CONDITION) -> branch keeps position, branch root stored as WORKING version, subnodes PUBLISHED ! -----");
 		supertool.importEntities(importBranchMoveObj, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubObjects(objParentUuid);
 		supertool.fetchSubObjects(topObjUuid5);
@@ -1465,7 +1465,7 @@ class MdekExampleExportImportObjectThread extends Thread {
 		supertool.setFullOutput(false);
 		supertool.deleteObject(newUuid1, true);
 
-		System.out.println("\n\n----- import NEW branch with RELATION Parent(INTRANET) > Child(INTERNET) as PUBLISHED (causes error, Child is stored as WORKING VERSION)! -----");
+		System.out.println("\n\n----- import NEW branch with RELATION Parent(INTRANET) > Child(INTERNET) as PUBLISHED (causes error PARENT_HAS_SMALLER_PUBLICATION_CONDITION, Child is stored as WORKING VERSION)! -----");
 		System.out.println("-----  -> relation REMOVED ! source published, target not published ! -----");
 		supertool.importEntities(importNewObjBranchRelationTargetIntranet, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.setFullOutput(true);

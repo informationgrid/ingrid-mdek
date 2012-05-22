@@ -11,10 +11,10 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcRole;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleSecurity {
@@ -194,7 +194,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR GROUP 1' -----");
 		IngridDocument newMetaAdminGroup1Doc = new IngridDocument();
-		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "38664584-B449-11D2-9A86-080000507261");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.NAME, "MD_ADMINISTRATOR GROUP 1 name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.GIVEN_NAME, "MD_ADMINISTRATOR GROUP 1 given_name");
 		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroup1Id});
 		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdminGroup1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
@@ -211,7 +212,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR GROUP 2' -----");
 		IngridDocument newMetaAdminGroup2Doc = new IngridDocument();
-		newMetaAdminGroup2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "10646604-D21F-11D2-BB32-006097FE70B1");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.NAME, "MD_ADMINISTRATOR GROUP 2 name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.GIVEN_NAME, "MD_ADMINISTRATOR GROUP 2 given_name");
 		newMetaAdminGroup2Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroup2Id});
 		newMetaAdminGroup2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdminGroup2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
@@ -246,31 +248,31 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO MD_ADMINISTRATOR GROUP 2 (NO permissions) -----");
 		supertool.setCallingUser(newMetaAdminGroup2Uuid);
 
-		System.out.println("\n----- REMOVE OBJECT permissions and store group -> ERROR -----");
+		System.out.println("\n----- REMOVE OBJECT permissions and store group -> ERROR: NO_RIGHT_TO_REMOVE_OBJECT_PERMISSION -----");
 		List<IngridDocument> permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, null);
 		supertool.storeGroup(newGroup1Doc, true);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS, permList);
 
-		System.out.println("\n----- REMOVE ADDRESS permissions and store group -> ERROR -----");
+		System.out.println("\n----- REMOVE ADDRESS permissions and store group -> ERROR: NO_RIGHT_TO_REMOVE_ADDRESS_PERMISSION -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, null);
 		supertool.storeGroup(newGroup1Doc, true);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS, permList);
 
-		System.out.println("\n----- REMOVE USER permissions and store group -> ERROR -----");
+		System.out.println("\n----- REMOVE USER permissions and store group -> ERROR: NO_RIGHT_TO_REMOVE_USER_PERMISSION -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_USER_PERMISSIONS);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, null);
 		supertool.storeGroup(newGroup1Doc, true);
 		newGroup1Doc.put(MdekKeysSecurity.IDC_USER_PERMISSIONS, permList);
 
-		System.out.println("\n----- ADD OBJECT permission and store group -> ERROR -----");
+		System.out.println("\n----- ADD OBJECT permission and store group -> ERROR: NO_RIGHT_TO_ADD_OBJECT_PERMISSION -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_OBJECT_PERMISSIONS);
 		supertool.addObjPermissionToGroupDoc(newGroup1Doc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.storeGroup(newGroup1Doc, true);
 		permList.remove(permList.size()-1);
 
-		System.out.println("\n----- ADD ADDRESS permission and store group -> ERROR -----");
+		System.out.println("\n----- ADD ADDRESS permission and store group -> ERROR: NO_RIGHT_TO_ADD_ADDRESS_PERMISSION -----");
 		permList = (List<IngridDocument>) newGroup1Doc.get(MdekKeysSecurity.IDC_ADDRESS_PERMISSIONS);
 		supertool.addAddrPermissionToGroupDoc(newGroup1Doc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.storeGroup(newGroup1Doc, true);
@@ -365,18 +367,18 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- VALIDATE GROUP OBJECT PERMISSION STRUCTURE -----");
 
-		System.out.println("\n----- double permission on OBJECT -> ERROR -----");
+		System.out.println("\n----- double permission on OBJECT -> ERROR: MULTIPLE_PERMISSIONS_ON_OBJECT -----");
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- tree below tree permission on OBJECT -> ERROR -----");
+		System.out.println("\n----- tree below tree permission on OBJECT -> ERROR: TREE_BELOW_TREE_OBJECT_PERMISSION -----");
 		clearPermissionsOfGroupDoc(newGroupDoc);
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- single below tree permission on OBJECT -> ERROR -----");
+		System.out.println("\n----- single below tree permission on OBJECT -> ERROR: SINGLE_BELOW_TREE_OBJECT_PERMISSION -----");
 		clearPermissionsOfGroupDoc(newGroupDoc);
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
@@ -388,7 +390,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- subnode below tree permission on OBJECT -> ERROR -----");
+        System.out.println("\n----- subnode below tree permission on OBJECT -> ERROR: SINGLE_BELOW_TREE_OBJECT_PERMISSION -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
         supertool.addObjPermissionToGroupDoc(newGroupDoc, parentObjUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
         supertool.addObjPermissionToGroupDoc(newGroupDoc, objUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
@@ -416,19 +418,19 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- VALIDATE GROUP ADDRESS PERMISSION STRUCTURE -----");
 
-		System.out.println("\n----- double permission on ADDRESS -> ERROR -----");
+		System.out.println("\n----- double permission on ADDRESS -> ERROR: MULTIPLE_PERMISSIONS_ON_ADDRESS -----");
 		clearPermissionsOfGroupDoc(newGroupDoc);
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- tree below tree permission on ADDRESS -> ERROR -----");
+		System.out.println("\n----- tree below tree permission on ADDRESS -> ERROR: TREE_BELOW_TREE_ADDRESS_PERMISSION -----");
 		clearPermissionsOfGroupDoc(newGroupDoc);
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-		System.out.println("\n----- single below tree permission on ADDRESS -> ERROR -----");
+		System.out.println("\n----- single below tree permission on ADDRESS -> ERROR: SINGLE_BELOW_TREE_ADDRESS_PERMISSION -----");
 		clearPermissionsOfGroupDoc(newGroupDoc);
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SINGLE);
@@ -440,7 +442,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
 		supertool.storeGroup(newGroupDoc, true);
 
-        System.out.println("\n----- subnode below tree permission on ADDRESS -> ERROR -----");
+        System.out.println("\n----- subnode below tree permission on ADDRESS -> ERROR: SINGLE_BELOW_TREE_ADDRESS_PERMISSION -----");
         clearPermissionsOfGroupDoc(newGroupDoc);
         supertool.addAddrPermissionToGroupDoc(newGroupDoc, parentAddrUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
         supertool.addAddrPermissionToGroupDoc(newGroupDoc, addrUuid, MdekUtilsSecurity.IdcPermission.WRITE_SUBNODE);
@@ -483,10 +485,10 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n---------------------------------------------------");
 		System.out.println("----- CREATE USER AS CATALOG_ADMIN -> ALL ALLOWED, EXCEPT CREATE NEW CATALOG ADMIN ! -----");
 
-		System.out.println("\n----- create new 2ND CAT_ADMIN -> ERROR -----");
-		String addrUuidNotUsedForUser = "ADEED0B6-545F-11D3-AE6F-00104B57C66D";
+		System.out.println("\n----- create new 2ND CAT_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
 		IngridDocument secondCatAdminDoc = new IngridDocument();
-		secondCatAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.NAME, "2ND CAT_ADMIN name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.GIVEN_NAME, "2ND CAT_ADMIN given_name");
 		secondCatAdminDoc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		secondCatAdminDoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue());
 		secondCatAdminDoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, null);
@@ -494,7 +496,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR 1' with MULTIPLE GROUPS ! -> ALLOWED -----");
 		IngridDocument newMetaAdmin1Doc = new IngridDocument();
-		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.NAME, "MD_ADMINISTRATOR 1 MULTIPLE GROUPS name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.GIVEN_NAME, "MD_ADMINISTRATOR 1 MULTIPLE GROUPS given_name");
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId, newAdditionalGroupId});
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdmin1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
@@ -504,7 +507,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- create new user 'MD_AUTHOR 1' with MULTIPLE GROUPS ! -> ALLOWED -----");
 		IngridDocument newMetaAuthor1Doc = new IngridDocument();
-		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "386645BC-B449-11D2-9A86-080000507261");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.NAME, "MD_AUTHOR 1 MULTIPLE GROUPS name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.GIVEN_NAME, "MD_AUTHOR 1 MULTIPLE GROUPS given_name");
 		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId, newAdditionalGroupId});
 		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
 		newMetaAuthor1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin1Id);
@@ -514,7 +518,8 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n----- create 2ND new user 'MD_ADMINISTRATOR 2' -> ALLOWED -----");
 		IngridDocument newMetaAdmin2Doc = new IngridDocument();
-		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE4-FE15-11D2-AF34-0060084A4596");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.NAME, "MD_ADMINISTRATOR 2 name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.GIVEN_NAME, "MD_ADMINISTRATOR 2 given_name");
 		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		newMetaAdmin2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		newMetaAdmin2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
@@ -522,9 +527,9 @@ class MdekExampleSecurityThread extends Thread {
 		Long newMetaAdmin2Id = (Long) newMetaAdmin2Doc.get(MdekKeysSecurity.IDC_USER_ID);
 		String newMetaAdmin2Uuid = newMetaAdmin2Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
-		System.out.println("\n----- create new user WITH SAME ADDRESS -> ERROR: ENTITY_ALREADY_EXISTS -----");
+		System.out.println("\n----- create new user WITH ADDRESS UUID passed ! -> ERROR: 'Address Uuid passed to createUser ! But should not have IGC address yet !' -----");
 		doc = new IngridDocument();
-		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE4-FE15-11D2-AF34-0060084A4596");
+		doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newMetaAdmin2Uuid);
 		doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
@@ -542,16 +547,16 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(newMetaAdmin1Uuid);
 
 		System.out.println("\n----- create new 2ND CAT_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
-		secondCatAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
 		supertool.createUser(secondCatAdminDoc, true);
 
 		System.out.println("\n----- create new user MD_ADMINISTRATOR -> ERROR: USER_HAS_WRONG_ROLE -----");
-		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		newMetaAdmin1Doc.remove(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		supertool.createUser(newMetaAdmin1Doc, true);
 		
 		System.out.println("\n----- create new user 'MD_AUTHOR 2' UNDER 'MD_ADMINISTRATOR 2' = not subuser !!! -> ERROR: USER_HIERARCHY_WRONG (calling user not parent) -----");
 		IngridDocument newMetaAuthor2Doc = new IngridDocument();
-		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "0C2EA4F9-18DE-11D3-AF47-0060084A4596");
+		newMetaAuthor2Doc.put(MdekKeysSecurity.NAME, "MD_AUTHOR 2 name");
+		newMetaAuthor2Doc.put(MdekKeysSecurity.GIVEN_NAME, "MD_AUTHOR 2 given_name");
 		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroupId});
 		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_AUTHOR.getDbValue());
 		newMetaAuthor2Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin2Id);
@@ -563,6 +568,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- create new user 'MD_AUTHOR 2' UNDER 'MD_ADMINISTRATOR 2' = subuser !!! -> ALLOWED (calling user is parent 'MD_ADMINISTRATOR 2') -----");
 		newMetaAuthor2Doc = supertool.createUser(newMetaAuthor2Doc, true);
 		Long newMetaAuthor2Id = (Long) newMetaAuthor2Doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String newMetaAuthor2Uuid = newMetaAuthor2Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
 		System.out.println("\n---------------------------------------------------");
 		System.out.println("----- CREATE USER AS MD_AUTHOR -> ERROR ! -----");
@@ -571,16 +577,17 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(newMetaAuthor1Uuid);
 
 		System.out.println("\n----- create new 2ND CAT_ADMIN -> ERROR: USER_HAS_WRONG_ROLE -----");
-		secondCatAdminDoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
 		supertool.createUser(secondCatAdminDoc, true);
 
 		System.out.println("\n----- create new user MD_ADMINISTRATOR -> ERROR: USER_HAS_WRONG_ROLE -----");
-		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		newMetaAdmin1Doc.remove(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		supertool.createUser(newMetaAdmin1Doc, true);
 		
 		System.out.println("\n----- create new user MD_AUTHOR -> ERROR: USER_HAS_WRONG_ROLE -----");
-		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, addrUuidNotUsedForUser);
+		newMetaAuthor2Doc.remove(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		supertool.createUser(newMetaAuthor2Doc, true);
+		// restore doc
+		newMetaAuthor2Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newMetaAuthor2Uuid);
 
 // ===================================
 
@@ -604,22 +611,19 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("\n----- store MD_ADMIN WITH CHANGED ROLE -> ERROR: USER_HAS_WRONG_ROLE (Change of Role NOT ALLOWED) -----");
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, IdcRole.METADATA_AUTHOR.getDbValue());
 		supertool.storeUser(newMetaAdmin1Doc, false);
-		// reset doc
+		// restore doc
 		newMetaAdmin1Doc.put(MdekKeysSecurity.IDC_ROLE, IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 
-		System.out.println("\n----- store MD_AUTHOR WITH CHANGED ADDRESS OF OTHER USER -> ERROR: ENTITY_ALREADY_EXISTS -----");
-		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "15C69BE6-FE15-11D2-AF34-0060084A4596");
+		// ADDRESS UUID CHANGE NOT POSSIBLE ANYMORE ! NO UUID INPUT IN FRONTEND, see INGRID32-36 
+		System.out.println("\n----- store MD_AUTHOR WITH CHANGED ADDRESS UUID -> ERROR: Address Uuid changed in storeUser ! But should always keep same Address ! -----");
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newMetaAdmin1Uuid);
 		supertool.storeUser(newMetaAuthor1Doc, true);		
-
-		System.out.println("\n----- store MD_AUTHOR (change addr_uuid to no user address) -> ALLOWED -----");
-		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "6C6A3485-59E0-11D3-AE74-00104B57C66D");
-		newMetaAuthor1Doc = supertool.storeUser(newMetaAuthor1Doc, true);		
-		newMetaAuthor1Uuid = newMetaAuthor1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newMetaAuthor1Uuid);
 
 		System.out.println("\n----- store MD_AUTHOR WITH NEW PARENT -> ERROR: USER_HIERARCHY_WRONG (change of parent NOT ALLOWED) -----");
 		newMetaAuthor1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin2Id);
 		supertool.storeUser(newMetaAuthor1Doc, false);
-		// reset doc
+		// restore doc
 		newMetaAuthor1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, newMetaAdmin1Id);
 
 		System.out.println("\n---------------------------------------------------");
@@ -706,10 +710,12 @@ class MdekExampleSecurityThread extends Thread {
 // ===================================
 
 		System.out.println("\n\n----------------------------");
-		System.out.println("----- TEST RESPONSIBLE USER UPDATE IN ENTITY ON CHANGE OF ADDRESS IN USER");
-		System.out.println("----- !!! is also updated IN PUBLISHED Entities !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		System.out.println("----- TEST RESPONSIBLE USER UPDATE IN ENTITY ON CHANGE OF ADDRESS UUID IN USER");
+		System.out.println("----- (is also updated IN PUBLISHED Entities)");
+		System.out.println("----- !!!  NOOOOOOO ! ADDRESS UUID CHANGE NOT POSSIBLE ANYMORE ! NO UUID INPUT IN FRONTEND ANYMORE, see INGRID32-36"); 
 		System.out.println("----------------------------");
-		
+
+/*		
 		System.out.println("\n----------------------------");
 		System.out.println("----- set 'MD_ADMIN 2' as responsible user in OBJECT ! -----");
 
@@ -739,6 +745,7 @@ class MdekExampleSecurityThread extends Thread {
 		setResponsibleUuidInDoc(newMetaAdmin2Uuid, doc);
 		supertool.storeAddress(doc, false);
 
+// ADDRESS UUID CHANGE NOT POSSIBLE ANYMORE ! NO UUID INPUT IN FRONTEND, see INGRID32-36 
 		System.out.println("\n----------------------------");
 		System.out.println("----- change Address of 'MD_ADMIN 2' (= ResponsibleUser) -> Address of ResponsibleUser in Object/Address adapted -----");
 		System.out.println("\n\n----- !!! NEW ResponsibleUser = " + addrUuidNotUsedForUser);
@@ -767,7 +774,7 @@ class MdekExampleSecurityThread extends Thread {
 		if (!respUuid.equals(addrUuidNotUsedForUser)) {
 			throw new RuntimeException("ERROR: Address ResponsibleUser NOT ADAPTED on User Address change");
 		}
-
+*/
 // ===================================
 		
 		System.out.println("\n\n----------------------------");
@@ -788,7 +795,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setFullOutput(false);
 		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
-		respUuid = getResponsibleUuidFromDoc(doc);
+		String respUuid = getResponsibleUuidFromDoc(doc);
 		System.out.println("----- !!! NEW Object ResponsibleUser = " + respUuid);
 		if (!respUuid.equals(catalogAdminUuid)) {
 			throw new RuntimeException("ERROR: Object ResponsibleUser NOT ADAPTED on User DELETE");
@@ -835,7 +842,7 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
 		supertool.setCallingUser(newMetaAuthor1Uuid);
 
-		System.out.println("\n----- store catalog -> ERROR -----");
+		System.out.println("\n----- store catalog -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.storeCatalog(doc, false);
 
 
@@ -857,14 +864,14 @@ class MdekExampleSecurityThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR (no permissions) -----");
 		supertool.setCallingUser(newMetaAuthor1Uuid);
 
-		System.out.println("\n----- delete address FULL -> ERROR -----");
+		System.out.println("\n----- delete address FULL -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.deleteAddress(addrUuid, true);
 
-		System.out.println("\n----- delete object FULL -> ERROR -----");
+		System.out.println("\n----- delete object FULL -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.deleteObject(objUuid, true);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- store address -> ERROR -----");
+		System.out.println("----- store address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		System.out.println("-- first fetch address");
 		supertool.setFullOutput(false);
 		doc = supertool.fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY);
@@ -872,11 +879,11 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeAddress(doc, false);
 
-		System.out.println("\n----- publish address -> ERROR -----");
+		System.out.println("\n----- publish address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.publishAddress(doc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("\n----- store object -> ERROR -----");
+		System.out.println("\n----- store object -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		System.out.println("-- first fetch object");
 		supertool.setFullOutput(false);
 		doc = supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY);
@@ -884,7 +891,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.debugPermissionsDocBoolean(doc);
 		supertool.storeObject(doc, false);
 
-		System.out.println("\n----- publish object -> ERROR -----");
+		System.out.println("\n----- publish object -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.publishObject(doc, false, false);
 
 		System.out.println("\n-------------------------------------");
@@ -913,10 +920,10 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.getAddressPermissions(addrUuid, true);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- delete address FULL -> ERROR (no WRITE_TREE) -----");
+		System.out.println("----- delete address FULL -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (no WRITE_TREE) -----");
 		supertool.deleteAddress(addrUuid, true);
 
-		System.out.println("\n----- delete object FULL -> ERROR (no WRITE_TREE) -----");
+		System.out.println("\n----- delete object FULL -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (no WRITE_TREE) -----");
 		supertool.deleteObject(objUuid, true);
 
 		System.out.println("\n-------------------------------------");
@@ -972,7 +979,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create top address -> ERROR -----");
-		System.out.println("----- first get initial data for top address -> ERROR -----");
+		System.out.println("----- first get initial data for top address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		IngridDocument newAdrDoc = new IngridDocument();
 		newAdrDoc.put(MdekKeys.PARENT_UUID, null);
 		supertool.getInitialAddress(newAdrDoc);
@@ -982,32 +989,32 @@ class MdekExampleSecurityThread extends Thread {
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
-		System.out.println("\n----- try to store own document -> ERROR -----");
+		System.out.println("\n----- try to store own document -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- move address to top -> ERROR -----");
+		System.out.println("----- move address to top -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.moveAddress(addrUuid, null, false);
 
-		System.out.println("\n----- copy address to top -> ERROR -----");
+		System.out.println("\n----- copy address to top -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.copyAddress(addrUuid, null, false, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create top object -> ERROR -----");
-		System.out.println("----- first get initial data for top object -> ERROR -----");
+		System.out.println("----- first get initial data for top object -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		IngridDocument newObjDoc = new IngridDocument();
 		newObjDoc.put(MdekKeys.PARENT_UUID, null);
 		supertool.getInitialObject(newObjDoc);
 		// extend doc with own data !
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		System.out.println("\n----- try to store own document -> ERROR -----");
+		System.out.println("\n----- try to store own document -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.storeObject(newObjDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- move object to top -> ERROR -----");
+		System.out.println("----- move object to top -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.moveObject(objUuid, null, false);
 
-		System.out.println("\n----- copy object to top -> ERROR -----");
+		System.out.println("\n----- copy object to top -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.copyObject(objUuid, null, false);
 
 		System.out.println("\n-------------------------------------");
@@ -1040,7 +1047,7 @@ class MdekExampleSecurityThread extends Thread {
 		doc = supertool.copyObject(objUuid, null, false);
 		String copiedObjUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
-		System.out.println("\n----- copy address to top -> ALLOWED BUT WRONG ADDRESS TYPE :) -> ERROR  -----");
+		System.out.println("\n----- copy address to top -> ALLOWED BUT WRONG ADDRESS TYPE :) -> ERROR: ADDRESS_TYPE_CONFLICT -----");
 		doc = supertool.copyAddress(addrUuid, null, false, false);
 		String copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
@@ -1076,7 +1083,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- create sub address -> ERROR -----");
-		System.out.println("----- first get initial data for sub address -> ERROR -----");
+		System.out.println("----- first get initial data for sub address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		String newParentAddrUuid = topAddrUuid;
 		newAdrDoc = new IngridDocument();
 		newAdrDoc.put(MdekKeys.PARENT_UUID, newParentAddrUuid);
@@ -1087,33 +1094,33 @@ class MdekExampleSecurityThread extends Thread {
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newAdrDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
-		System.out.println("\n----- try to store own document -> ERROR -----");
+		System.out.println("\n----- try to store own document -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.storeAddress(newAdrDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- copy address to new parent -> ERROR -----");
+		System.out.println("----- copy address to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.copyAddress(addrUuid, newParentAddrUuid, false, false);
 
-		System.out.println("\n----- move address to new parent -> ERROR -----");
+		System.out.println("\n----- move address to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.moveAddress(addrUuid, newParentAddrUuid, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create sub object -> ERROR -----");
-		System.out.println("----- first get initial data for sub object -> ERROR -----");
+		System.out.println("----- first get initial data for sub object -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		String newParentObjUuid = topObjUuid;
 		newObjDoc = new IngridDocument();
 		newObjDoc.put(MdekKeys.PARENT_UUID, newParentObjUuid);
 		supertool.getInitialObject(newObjDoc);
 		// extend doc with own data !
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
-		System.out.println("\n----- try to store own document -> ERROR -----");
+		System.out.println("\n----- try to store own document -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.storeObject(newObjDoc, false);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- copy object to new parent -> ERROR -----");
+		System.out.println("----- copy object to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.copyObject(objUuid, newParentObjUuid, false);
 
-		System.out.println("\n----- move object to new parent -> ERROR -----");
+		System.out.println("\n----- move object to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.moveObject(objUuid, newParentObjUuid, false);
 
 		System.out.println("\n-------------------------------------");
@@ -1155,10 +1162,10 @@ class MdekExampleSecurityThread extends Thread {
 		copiedAddrUuid = (doc == null) ? null : doc.getString(MdekKeys.UUID);
 
 		System.out.println("\n-------------------------------------");
-		System.out.println("----- move object to new parent -> ERROR (no WRITE_TREE on object to move) -----");
+		System.out.println("----- move object to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (no WRITE_TREE on object to move) -----");
 		supertool.moveObject(objUuid, newParentObjUuid, false);
 
-		System.out.println("\n----- move address to new parent -> ERROR (no WRITE_TREE on address to move) -----");
+		System.out.println("\n----- move address to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (no WRITE_TREE on address to move) -----");
 		supertool.moveAddress(addrUuid, newParentAddrUuid, false);
 
 		System.out.println("\n-------------------------------------");
@@ -1183,15 +1190,19 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setCallingUser(catalogAdminUuid);
 
 		System.out.println("\n----- create new user MD_AUTHOR with Address to delete -----");
-		newMetaAuthor1Doc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, newParentAddrUuid);
+		newMetaAuthor1Doc.remove(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 		doc = supertool.createUser(newMetaAuthor1Doc, true);
 		Long tmpUserId = (Long) doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String tmpUserUuid = doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
 
 		System.out.println("\n----- delete Address of User -> ERROR: ADDRESS_IS_IDCUSER_ADDRESS -----");
-		supertool.deleteAddress(newParentAddrUuid, true);
+		supertool.deleteAddress(tmpUserUuid, true);
 
 		System.out.println("\n----- delete user  -----");
 		supertool.deleteUser(tmpUserId);
+
+		System.out.println("\n----- delete Address of User -> ERROR: UUID_NOT_FOUND (already deleted with user !) -----");
+		supertool.deleteAddress(tmpUserUuid, true);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO NEW META AUTHOR -----");
@@ -1412,13 +1423,13 @@ class MdekExampleSecurityThread extends Thread {
 
         
         System.out.println("\n-------------------------------------");
-        System.out.println("----- store parent object -> ERROR (WRITE_SUBNODE in parent!) -----");
+        System.out.println("----- store parent object -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (WRITE_SUBNODE in parent!) -----");
         doc = supertool.fetchObject(newParentObjUuid, FetchQuantity.EDITOR_ENTITY);
         supertool.setFullOutput(true);
         supertool.storeObject(doc, false);
 
         System.out.println("\n-------------------------------------");
-        System.out.println("----- store parent address -> ERROR (WRITE_SUBNODE in parent!) -----");
+        System.out.println("----- store parent address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (WRITE_SUBNODE in parent!) -----");
         doc = supertool.fetchAddress(newParentAddrUuid, FetchQuantity.EDITOR_ENTITY);
         supertool.setFullOutput(true);
         supertool.storeAddress(doc, false);
@@ -1479,10 +1490,10 @@ class MdekExampleSecurityThread extends Thread {
 
 
         System.out.println("\n-------------------------------------");
-        System.out.println("----- move new parent object -> ERROR -----");
+        System.out.println("----- move new parent object -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
         supertool.moveObject(newParentObjUuid, objUuid, false);
 
-        System.out.println("\n----- move new parent address -> ERROR -----");
+        System.out.println("\n----- move new parent address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
         doc = supertool.moveAddress(newParentAddrUuid, addrUuid, false);
 
         
@@ -1534,7 +1545,7 @@ class MdekExampleSecurityThread extends Thread {
         supertool.getObjectPermissions(newObjUuid, true);
         supertool.getAddressPermissions(newAddrUuid, true);
         
-        System.out.println("----- and delete new object and address -> ERROR -----");
+        System.out.println("----- and delete new object and address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
         supertool.deleteAddressWorkingCopy(newAddrUuid, true);
         supertool.deleteObjectWorkingCopy(newObjUuid, true);
 
@@ -1543,7 +1554,7 @@ class MdekExampleSecurityThread extends Thread {
         supertool.getObjectPermissions(newParentObjUuid, true);
         supertool.getAddressPermissions(newParentAddrUuid, true);
         
-        System.out.println("----- and delete new parent entities -> ERROR (only WRITE_SUBNODE) -----");
+        System.out.println("----- and delete new parent entities -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (only WRITE_SUBNODE) -----");
         supertool.deleteObject(newParentObjUuid, true);
         supertool.deleteAddress(newParentAddrUuid, true);
 
@@ -1567,7 +1578,7 @@ class MdekExampleSecurityThread extends Thread {
         supertool.getObjectPermissions(newParentObjUuid, true);
         supertool.getAddressPermissions(newParentAddrUuid, true);
         
-        System.out.println("----- and delete new parent entities -> ERROR (WRITE_SUBNODE) -----");
+        System.out.println("----- and delete new parent entities -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (WRITE_SUBNODE) -----");
         supertool.deleteObject(newParentObjUuid, true);
         supertool.deleteAddress(newParentAddrUuid, true);
 

@@ -228,12 +228,14 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				beanToDocMapper.mapT01Object(oParent, oDocIn, MappingQuantity.INITIAL_ENTITY);
 			}
 			
+/*
 			// Address set ? Set calling user as "Ansprechpartner" if nothing set, see INGRID32-46
+			// NO !!! calling user is now hidden address ! cannot be set as reference, see INGRID32-36
 			if (!objectService.hasAddressReference(oDocIn)) {
 				AddressNode addrNode = addressService.loadByUuid(userUuid, IdcEntityVersion.WORKING_VERSION);
 				addPointOfContactAddress(oDocIn, addrNode);
 			}
-
+*/
 			// take over spatial reference from catalog
 			T03Catalogue catalog = catalogService.getCatalog();
 			IngridDocument catalogDoc = new IngridDocument();

@@ -430,7 +430,8 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_QA' -----");
 		IngridDocument usrGrpQADoc = new IngridDocument();
-		usrGrpQADoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "38664584-B449-11D2-9A86-080000507261");
+		usrGrpQADoc.put(MdekKeysSecurity.NAME, "MD_ADMINISTRATOR GROUP_QA name");
+		usrGrpQADoc.put(MdekKeysSecurity.GIVEN_NAME, "MD_ADMINISTRATOR GROUP_QA given_name");
 		usrGrpQADoc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{ grpQAId });
 		usrGrpQADoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		usrGrpQADoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
@@ -454,7 +455,8 @@ class MdekExampleQSThread extends Thread {
 
 		System.out.println("\n----- create new user 'MD_ADMINISTRATOR' in 'GROUP_NO_QA' -----");
 		IngridDocument usrGrpNoQADoc = new IngridDocument();
-		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_USER_ADDR_UUID, "10646604-D21F-11D2-BB32-006097FE70B1");
+		usrGrpNoQADoc.put(MdekKeysSecurity.NAME, "MD_ADMINISTRATOR GROUP_NO_QA name");
+		usrGrpNoQADoc.put(MdekKeysSecurity.GIVEN_NAME, "MD_ADMINISTRATOR GROUP_NO_QA given_name");
 		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{ grpNoQAId });
 		usrGrpNoQADoc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
 		usrGrpNoQADoc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
@@ -947,13 +949,13 @@ class MdekExampleQSThread extends Thread {
 		newDoc = supertool.newObjectDoc(objUuid);
 		doc = supertool.storeObject(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
-		System.out.println("\n----- try to publish -> ERROR: not QA -----");
+		System.out.println("\n----- try to publish -> ERROR: USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY (not QA) -----");
 		supertool.publishObject(doc, true, true);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- QA ASSIGNED OBJECT CANNOT BE DELETED as NON QA -----");
 
-		System.out.println("\n----- assign to QA (still not published) and try to delete -> ERROR: not QA (Permission error) -----");
+		System.out.println("\n----- assign to QA (still not published) and try to delete -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY not QA (Permission error) -----");
 		doc = supertool.assignObjectToQA(doc, true);
 		supertool.deleteObjectWorkingCopy(newUuid, false);
 		supertool.deleteObject(newUuid, false);
@@ -1484,13 +1486,13 @@ class MdekExampleQSThread extends Thread {
 		newDoc = supertool.newAddressDoc(parentAddrUuid, AddressType.EINHEIT);
 		doc = supertool.storeAddress(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
-		System.out.println("\n----- try to publish -> ERROR: not QA -----");
+		System.out.println("\n----- try to publish -> ERROR: USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY (not QA) -----");
 		supertool.publishAddress(doc, true);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- QA ASSIGNED ADDRESS CANNOT BE DELETED as NON QA -----");
 
-		System.out.println("\n----- assign to QA (still not published) and try to delete -> ERROR: not QA (Permission error) -----");
+		System.out.println("\n----- assign to QA (still not published) and try to delete -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY not QA (Permission error) -----");
 		doc = supertool.assignAddressToQA(doc, true);
 		supertool.deleteAddressWorkingCopy(newUuid, false);
 		supertool.deleteAddress(newUuid, false);

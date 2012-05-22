@@ -137,7 +137,9 @@ class MdekExampleObjectThread extends Thread {
 //		String objUuid = "43D34D1A-55BA-11D6-8840-0000F4ABB4D8";
 		// Spatial Refs + URL Refs + 180 kids !
 //		String objUuid = "15C69C29-FE15-11D2-AF34-0060084A4596";
-		
+
+		String addrUuidPublished = "10646604-D21F-11D2-BB32-006097FE70B1";
+
 		IngridDocument oMap;
 		IngridDocument newObjDoc;
 		String newObjUuid;
@@ -864,10 +866,12 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("=========================");
 
 		System.out.println("\n----- create NEW TOP OBJECT (parent to move to) = INTRANET -----");
+		System.out.println("----- Also add referenced address to be publishable ! -----");
 		IngridDocument newTopObjDoc = new IngridDocument();
 		newTopObjDoc = supertool.getInitialObject(newTopObjDoc);
 		newTopObjDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT");
 		newTopObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		supertool.addPointOfContactAddress(newTopObjDoc, addrUuidPublished);
 		newTopObjDoc = supertool.storeObject(newTopObjDoc, true);
 		// uuid created !
 		String newTopObjUuid = (String) newTopObjDoc.get(MdekKeys.UUID);
@@ -888,13 +892,13 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- create work version -> change title (pub=INTERNET, work=INTERNET) -----");
 		newObjDoc.put(MdekKeys.TITLE, "TEST CHANGED!!! TITLE");
 		newObjDoc = supertool.storeObject(newObjDoc, true);
-		System.out.println("\n\n----- move new object to TOP INTRANET -> ERROR (pub=INTERNET) -----");
+		System.out.println("\n\n----- move new object to TOP INTRANET -> ERROR: SUBTREE_HAS_LARGER_PUBLICATION_CONDITION (pub=INTERNET) -----");
 		supertool.moveObject(newObjUuid, newParentUuid, false);
 		System.out.println("\n\n----- move new object again with forcePubCondition -> SUCCESS: but only pubVersion was adapted (pub=INTRANET, work=INTERNET !) -----");
 		supertool.moveObject(newObjUuid, newParentUuid, true);
 		System.out.println("\n\n----- verify moved object (work=INTERNET although parent=INTRANET) -----");
 		newObjDoc = supertool.fetchObject(newObjUuid, FetchQuantity.EDITOR_ENTITY);
-		System.out.println("\n\n----- publish moved object -> ERROR: parent INTRANET -----");
+		System.out.println("\n\n----- publish moved object -> ERROR: PARENT_HAS_SMALLER_PUBLICATION_CONDITION (parent INTRANET) -----");
 		supertool.publishObject(newObjDoc, true, false);
 		System.out.println("\n----- change moved object to INTRANET and store -----");
 		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
@@ -940,7 +944,7 @@ class MdekExampleObjectThread extends Thread {
 		supertool.deleteObjectWorkingCopy(newObjUuid, false);
 		System.out.println("\n----- delete new object (FULL) -> full delete -----");
 		supertool.deleteObject(newObjUuid, true);
-		System.out.println("\n----- verify deletion of new object -----");
+		System.out.println("\n----- verify deletion of new object -> ERROR: UUID_NOT_FOUND -----");
 		supertool.fetchObject(newObjUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subobjects -----");
 		supertool.fetchSubObjects(newParentUuid);
@@ -977,9 +981,9 @@ class MdekExampleObjectThread extends Thread {
 		// uuid created !
 		String fromObjUuid = (String) fromObjDoc.get(MdekKeys.UUID);
 
-		System.out.println("\n----- delete TOP OBJECT (WORKING COPY) WITHOUT refs -> Error (Subtree has references) -----");
+		System.out.println("\n----- delete TOP OBJECT (WORKING COPY) WITHOUT refs -> ERROR: ENTITY_REFERENCED_BY_OBJ (Subtree has references) -----");
 		supertool.deleteObjectWorkingCopy(topObjUuid, false);
-		System.out.println("\n----- delete TOP OBJECT (FULL) WITHOUT refs -> Error (Subtree has references) -----");
+		System.out.println("\n----- delete TOP OBJECT (FULL) WITHOUT refs -> ERROR: ENTITY_REFERENCED_BY_OBJ (Subtree has references) -----");
 		supertool.deleteObject(topObjUuid, false);
 		System.out.println("\n----- delete TOP OBJECT (FULL) WITH refs -> OK -----");
 		supertool.deleteObject(topObjUuid, true);
@@ -994,14 +998,16 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n----- publish NEW TOP OBJECT immediately -----");
 		System.out.println("----- first get initial top object -----");
+		System.out.println("----- Also add referenced address to be publishable ! -----");
 		IngridDocument newTopDoc = new IngridDocument();
 		newTopDoc = supertool.getInitialObject(newTopDoc);
 		newTopDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT DIREKT PUBLISH");
 		newTopDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		supertool.addPointOfContactAddress(newTopDoc, addrUuidPublished);
 		System.out.println("----- then publish -----");
 		oMap = supertool.publishObject(newTopDoc, true, false);
 		// uuid created !
-		String newTopUuid = (String)oMap.get(MdekKeys.UUID);
+		String newTopUuid = (String) oMap.get(MdekKeys.UUID);
 
 		System.out.println("\n----- delete NEW TOP OBJECT (FULL) -----");
 		supertool.deleteObject(newTopUuid, true);
@@ -1013,12 +1019,14 @@ class MdekExampleObjectThread extends Thread {
 		// uuid created !
 		String pub1Uuid = (String)oMap.get(MdekKeys.UUID);
 
-		System.out.println("\n----- publish NEW SUB OBJECT immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
+		System.out.println("\n----- publish NEW SUB OBJECT immediately -> ERROR: PARENT_NOT_PUBLISHED ! -----");
 		System.out.println("----- first get initial top object -----");
+		System.out.println("----- Also add referenced address to be publishable ! -----");
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc = supertool.getInitialObject(newPubDoc);
 		newPubDoc.put(MdekKeys.TITLE, "TEST NEUES SUB OBJEKT DIREKT PUBLISH");
 		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		supertool.addPointOfContactAddress(newPubDoc, addrUuidPublished);
 		// sub object of unpublished parent !!!
 		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
 		System.out.println("----- then publish -----");
@@ -1070,7 +1078,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- fetch child -----");
 		IngridDocument oMapChild = supertool.fetchObject(childUuid, FetchQuantity.EDITOR_ENTITY);
 		
-		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> ERROR -----");
+		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> ERROR: SUBTREE_HAS_LARGER_PUBLICATION_CONDITION -----");
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		supertool.publishObject(oMapParent, false, false);
 
@@ -1082,7 +1090,7 @@ class MdekExampleObjectThread extends Thread {
 		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		supertool.publishObject(oMapParent, true, false);
 
-		System.out.println("\n----- change child to INTERNET -> ERROR -----");
+		System.out.println("\n----- change child to INTERNET -> ERROR: PARENT_HAS_SMALLER_PUBLICATION_CONDITION -----");
 		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
 		supertool.publishObject(oMapChild, false, false);
 
@@ -1118,16 +1126,16 @@ class MdekExampleObjectThread extends Thread {
 		supertool.fetchObject(moveChild1Uuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.fetchObject(moveChild2Uuid, FetchQuantity.EDITOR_ENTITY);
 		
-		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> ERROR -----");
+		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> ERROR: SUBTREE_HAS_LARGER_PUBLICATION_CONDITION -----");
 		supertool.moveObject(moveUuid, parentUuid, false);
 
-		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> SUCCESS -----");
+		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent with FORCE -> SUCCESS -----");
 		supertool.moveObject(moveUuid, parentUuid, true);
 
 		System.out.println("\n----- verify -> all moved nodes INTRANET ! -----");
-		IngridDocument oMapMoved1 = supertool.fetchObject(moveUuid, FetchQuantity.EDITOR_ENTITY);
-		IngridDocument oMapMoved2 = supertool.fetchObject(moveChild1Uuid, FetchQuantity.EDITOR_ENTITY);
-		IngridDocument oMapMoved3 = supertool.fetchObject(moveChild2Uuid, FetchQuantity.EDITOR_ENTITY);
+		IngridDocument oMapMoved1 = supertool.fetchObject(moveUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		IngridDocument oMapMoved2 = supertool.fetchObject(moveChild1Uuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		IngridDocument oMapMoved3 = supertool.fetchObject(moveChild2Uuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		
 		System.out.println("\n===== Clean Up ! back to old state of DB ! =====");

@@ -648,7 +648,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("\n----- import NEW TOP NODE as PUBLISHED -> underneath import node as working version -----");
 		supertool.importEntities(importNewTopAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
-		System.out.println("\n----- NO PUBLISHED_VERSION -----");
+		System.out.println("\n----- NO PUBLISHED_VERSION -> ERROR: ENTITY_NOT_FOUND -----");
 		supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteAddress(newUuidTop, true);
 
@@ -661,7 +661,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("\n----- import NEW FREE NODE as PUBLISHED -> underneath import node as working version, CLASS Person instead of FREE ! -----");
 		supertool.importEntities(importNewFreeAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
-		System.out.println("\n----- NO PUBLISHED_VERSION -----");
+		System.out.println("\n----- NO PUBLISHED_VERSION -> ERROR: ENTITY_NOT_FOUND -----");
 		supertool.fetchAddress(newUuidFree, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.deleteAddress(newUuidFree, true);
 
@@ -997,7 +997,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.moveAddress(parentAddrUuid, topAddrUuid, false);
 
 
-		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error (to FREE ADDRESS) ->  branch keeps position, root stored as WORKING version, subnodes PUBLISHED !-----");
+		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error ADDRESS_TYPE_CONFLICT (to FREE ADDRESS) ->  branch keeps position, root stored as WORKING version, subnodes PUBLISHED !-----");
 		supertool.importEntities(importBranchMoveBranchToFree, objImpNodeUuid, addrImpNodeUuid, true, false);
 		supertool.fetchSubAddresses(topAddrUuid);
 		supertool.fetchSubAddresses(freeAddrUuid);

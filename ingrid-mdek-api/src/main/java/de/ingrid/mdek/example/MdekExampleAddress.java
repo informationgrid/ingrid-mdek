@@ -649,7 +649,7 @@ class MdekExampleAddressThread extends Thread {
 		supertool.moveAddress(newAddrUuid, null, true);
 		System.out.println("\n\n----- delete subtree of new Address -----");
 		supertool.deleteAddress(subtreeCopyUuid, true);
-		System.out.println("\n----- move new Address to FREE Address ! -> ERROR (type conflicts -> EINHEIT) -----");
+		System.out.println("\n----- move new Address to FREE Address ! -> ERROR: ADDRESS_TYPE_CONFLICT (type conflicts -> EINHEIT) -----");
 		supertool.moveAddress(newAddrUuid, null, true);
 		System.out.println("\n----- publish new Address as PERSON -----");
 		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.PERSON.getDbValue());
@@ -686,7 +686,7 @@ class MdekExampleAddressThread extends Thread {
 		supertool.deleteAddressWorkingCopy(newAddrUuid, true);
 		System.out.println("\n----- delete new address (FULL) -> full delete -----");
 		supertool.deleteAddress(newAddrUuid, true);
-		System.out.println("\n----- verify deletion of new address -----");
+		System.out.println("\n----- verify deletion of new address -> ERROR: UUID_NOT_FOUND -----");
 		supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- verify \"deletion of parent association\" -> load parent subaddresses -----");
 		supertool.fetchSubAddresses(newParentUuid);

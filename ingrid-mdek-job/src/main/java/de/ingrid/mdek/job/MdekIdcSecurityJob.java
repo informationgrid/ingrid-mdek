@@ -582,11 +582,9 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 			String oldAddrUuid = userToUpdate.getAddrUuid();
 			boolean userAddressChanged = !oldAddrUuid.equals(newAddrUuid);
 
-			// check if new address is already idcuser address !
+			// check whether address uuid changed ! NOT POSSIBLE ANYMORE, no UUID input in frontend, see INGRID32-36
 			if (userAddressChanged) {
-				if (daoIdcUser.getIdcUserByAddrUuid(newAddrUuid) != null) {
-					throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS));			
-				}
+				throw new MdekException("Address Uuid changed in storeUser ! But should always keep same Address !");				
 			}
 
 			// check role of updated user changed ? NOT POSSIBLE !
