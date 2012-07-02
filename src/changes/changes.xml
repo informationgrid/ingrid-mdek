@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.?.?-SNAPSHOT" date="2011-??-??" description="?">
+      <action type="add" issue="INGRID-2124">
+        Prototype: added new object class "Open Data" (7) for demonstrating reduced data input (HH).
+      </action>
       <action type="add" dev="wemove" issue="INGRID32-81">
         Add coupling type for service objects.
       </action>

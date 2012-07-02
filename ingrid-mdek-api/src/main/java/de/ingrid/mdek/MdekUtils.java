@@ -390,7 +390,8 @@ public class MdekUtils {
 		GEO_DIENST(3, "Geodatendienst"),
 		VORHABEN(4, "Vorhaben/Projekt/Programm"),
 		DATENSAMMLUNG(5, "Datensammlung/Datenbank"),
-		INFOSYSTEM_DIENST(6, "Informationssystem/Dienst/Anwendung");
+		INFOSYSTEM_DIENST(6, "Informationssystem/Dienst/Anwendung"),
+		OPEN_DATA(7, "Open Data");
 
 		ObjectType(Integer dbValue, String description) {
 			this.dbValue = dbValue;
