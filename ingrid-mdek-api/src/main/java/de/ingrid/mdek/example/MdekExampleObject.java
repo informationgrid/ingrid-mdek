@@ -1132,9 +1132,9 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent with FORCE -> SUCCESS -----");
 		supertool.moveObject(moveUuid, parentUuid, true);
 
-		System.out.println("\n----- verify -> all moved nodes INTRANET ! -----");
+		System.out.println("\n----- verify -> all moved nodes INTRANET ! ONLY IN PUBLISHED_VERSIONS !!! WORKING_VERSION NOT CHANGED (still Internet) -----");
 		IngridDocument oMapMoved1 = supertool.fetchObject(moveUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
-		IngridDocument oMapMoved2 = supertool.fetchObject(moveChild1Uuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		IngridDocument oMapMoved2 = supertool.fetchObject(moveChild1Uuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 		IngridDocument oMapMoved3 = supertool.fetchObject(moveChild2Uuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		
