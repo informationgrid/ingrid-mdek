@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE installer PUBLIC "-//tp23 //DTD Ant Installer Config//EN" "http://antinstaller.sf.net/dtd/antinstall-config-0.8.dtd">
 <installer
-            ui			            ="swing,text,swing-auto,text-auto"
+            ui			        ="swing,text,swing-auto,text-auto"
             loadDefaults        ="prompt"
             verbose             ="true"
             debug               ="true"
@@ -12,62 +12,83 @@
             minJavaVersion      ="1.6"
             version             ="1.0">
             
-    <!--  The target "extract" must be called first, so it is defined on the first page -->
     <page
             type        ="input"
             name        ="intro"
-            displayText ="Willkommen zur iPlug-IGE Installation"
-            target      ="extract">
-            <comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs."/>
+            displayText ="Willkommen zur iPlug-IGE Installation">
+            <comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs. Dazu gehört die Anbindung an eine Datenbank (IGC Katalog) sowie die Verbindung mit dem iBus."/>
             <comment displayText="Hinweis: " bold="true"/>
-            <comment displayText="" explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gelichen Verzeichnis auszuführen."/>
+            <comment displayText="" explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gleichen Verzeichnis auszuführen."/>
+        <target-select
+            property      ="updateOrNew"
+            displayText   ="Neuinstallation oder Update"
+            defaultValue  ="true">
+            <option value="setUpdateProperty" text="Update (Einstellungen bleiben erhalten)"/>
+            <option value="setInstallProperty" text="Neuinstallation"/>
+        </target-select>
     </page>
 
     <page
+            ifProperty  ="${updateOrNew}==setInstallProperty"
             type        ="input"
-            name        ="iPlugOptions"
-            displayText ="Einstellungen fuer den IGE-iBus">
-            
-            <comment displayText="" explanatoryText="Die Client-ID muss eindeutig sein, da es sonst zu Kommunikationsproblemen zum IGE-iBus führen kann."/>
-            
-            <text property="clientName" displayText="Client ID:" defaultValue="/ingrid-group:ige-iplug-'Ihr-Name'"/>
+            name        ="mysqlOptions"
+            displayText ="Einstellungen für die MySQL-Datenbank (IGC Katalog)"
+            target      ="setMySqlProperty">
+        <comment bold="true" displayText="" explanatoryText="Falls eine andere Datenbank als MySQL zum Einsatz kommt, müssen die Anpassungen an der Datei conf/default-datasource.properties manuell vorgenommen werden." />
+        <text property="dbUser" displayText="MySQL Benutzername:" defaultValue="root"/>
+        <text property="dbPassword" displayText="MySQL Benutzer-Passwort:" defaultValue=""/>
+        <text property="dbUrl" displayText="MySQL Datenbank-URL (IGC):" defaultValue="jdbc:mysql://localhost/igc_???"/>
+
+        <comment displayText="" bold="true" explanatoryText="Für das Erstellen der Datenbank wird ein Administrator benötigt! Bitte geben Sie diesen hier an."/>
+        <text property="adminUser"         displayText="MySQL Administrator:"           defaultValue="root"/>
+        <text property="adminPassword"     displayText="MySQL Administrator-Passwort:"  defaultValue=""/>
     </page>
-    
+
     <page
+            ifProperty  ="${updateOrNew}==setInstallProperty"
+            type        ="input"
+            name        ="igcOptions"
+            displayText ="Einstellungen für neuen IGC">
+        <text property="igcName" displayText="Name des Katalogs:" defaultValue="Katalog Name"/>
+        <select
+            property     ="igcLanguage"
+            displayText  ="Sprache des Katalogs"
+            defaultValue ="true">
+            <option text ="Deutsch" value="de"/>
+            <option text ="Englisch" value="en"/>
+        </select>
+        <validated property="igcEmail" displayText="Email des Katalog Administrators:" defaultValue="" regex="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"/>
+        <text property="igcPartner" displayText="Name des Partners:" defaultValue="Partner Name"/>
+        <text property="igcProvider" displayText="Name des Anbieters:" defaultValue="Anbieter Name"/>
+        <text property="igcCountry" displayText="Ländercode (ISO 3166 2 letter):" defaultValue="de"/>
+        <file
+                property        ="igcUdkFile"
+                defaultValue    =""
+                defaultValueWin =""
+                displayText     ="Optional: Import UDK Daten (zip):"
+                checkExists     ="false"/>
+    </page>
+
+    <page
+            ifProperty  ="${updateOrNew}==setInstallProperty"
             type        ="input"
             name        ="iBusOptions"
-            displayText ="Einstellungen fuer den IGE-iBus"
-            target      ="communication">
+            displayText ="Einstellungen für den IGE-iBus">
             
-            <comment displayText="" explanatoryText="Die Server-IP ist die Adresse des PORTAL Rechners. Auf diesem laeuft der IGE-iBus und kann ueber den Server-Port angesprochen werden."/>
-            
+            <comment displayText="" explanatoryText="Die Client-ID muss eindeutig sein, da es sonst zu Kommunikationsproblemen zum IGE-iBus führen kann. Die Server-IP ist die Adresse des PORTAL Rechners. Auf diesem läuft der IGE-iBus und kann über den Server-Port angesprochen werden."/>
+
+            <text property="clientName" displayText="Client ID:" defaultValue="/ingrid-group:ige-iplug-'Ihr-Name'"/>
             <!--text property="serverName" displayText="Server ID:" defaultValue="/ingrid-group:ige-ibus"/-->
             <text property="serverIp"   displayText="Server IP:"   defaultValue="127.0.0.1"/>
             <text property="serverPort" displayText="Server Port:" defaultValue="11000"/>
     </page>
     
     <page
-            type        ="input"
-            name        ="mysqlOptions"
-            displayText ="Einstellungen fuer die MySQL-Datenbank"
-            target      ="database">
- 
-        <comment bold="false" displayText="" explanatoryText="Diese Daten werden für den Zugriff auf den InGridCatalog (IGC) benötigt." />
-        <comment bold="true" displayText="" explanatoryText="Falls eine andere Datenbank als MySQL zum Einsatz kommt, müssen die Anpassungen an der Datei conf/default-datasource.properties manuell vorgenommen werden." />
-        
-        <text property="dbUser" displayText="MySQL Benutzername:" defaultValue="root"/>
-        <text property="dbPassword" displayText="MySQL Benutzer-Passwort:" defaultValue=""/>
-        <text property="dbAlias" displayText="MySQL Datenbank-Alias (IGC):" defaultValue="//localhost/igc_???"/>
-
-        
-    </page>
-    
-    
-    <!--  type="input" shows a list of editable options for the installer -->
-    <page
+            ifProperty  ="${updateOrNew}==setInstallProperty"
             type        ="input"
             name        ="properties"
-            displayText ="Benötigte Installationsoptionen">
+            displayText ="Benötigte Installationsoptionen"
+            target      ="StartInstallation">
         <directory
                 property        ="installDir"
                 defaultValue    ="/opt/ingrid/${project.artifactId}-${project.version}"
@@ -75,13 +96,28 @@
                 displayText     ="Installationsverzeichnis"
                 create          ="true"/>
     </page>
-
+    
+    <page
+            ifProperty  ="${updateOrNew}==setUpdateProperty"
+            type        ="input"
+            name        ="properties"
+            displayText ="Benötigte Installationsoptionen"
+            target      ="StartInstallation">
+        <directory
+            property            ="installDir"
+            defaultValue        ="/opt/ingrid/${project.artifactId}-${project.version}"
+            defaultValueWin     ="${env.ProgramFiles}\${project.build.finalName}"
+            displayText         ="Altes Installationsverzeichnis"
+            create              ="false"
+            checkExists         ="true" />
+    </page>
+    
     <page
             type        ="progress"
             name        ="progress"
             displayText ="Installationsfortschritt"
             showTargets ="true"
-            target      ="startIPlug">
+            target      ="cleanuptarget">
     </page>
 </installer>
 

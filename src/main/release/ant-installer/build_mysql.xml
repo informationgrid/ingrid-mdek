@@ -1,0 +1,101 @@
+<project name="MySql Configuration">
+    <description>
+        MySql Configuration Build Script
+    </description>
+
+    <!-- =============================================
+         = PROPERTIES                                =
+         ============================================= -->
+    <!-- All properties set in calling script -->
+
+    <!-- =============================================
+         = IGC DATABASE                           =
+         ============================================= -->
+
+    <target name="CheckDbs" depends="checkIGCDb" if="${useMysql}">
+        <echo>DBs checked for existence and version
+        </echo>
+        <echo>IGC DB not exists       : ${igc.db.not.exists}</echo>
+        <echo>IGC DB version not found: ${igc.db.version.not.supported}</echo>
+        <echo>IGC Version             : ${found.igc.version}</echo>
+    </target>
+
+    <target name="checkIGCDb" depends="tryCreateIGCDb">
+        <sql    driver   ="${mySqlDriverClass}"
+                classpath ="${mySqlDbDriver}"
+                url       ="${_dbUrl}?useUnicode=true&amp;characterEncoding=UTF-8"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                encoding  ="UTF-8"
+                onerror   ="continue" 
+                errorproperty="igc.db.not.exists"
+                failOnConnectionError="true"
+                >
+            <![CDATA[
+            SELECT * FROM object_node;
+            ]]>
+        </sql>
+
+        <sql driver   ="${mySqlDriverClass}"
+                classpath ="${mySqlDbDriver}"
+                url       ="${_dbUrl}?useUnicode=true&amp;characterEncoding=UTF-8"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                encoding  ="UTF-8"
+                print     ="yes"
+                output    ="version.properties"
+                expandProperties="true" showheaders="false" showtrailers="false"
+                onerror   ="continue" 
+                errorproperty="igc.db.version.not.supported"
+                failOnConnectionError="false"
+                >
+            <![CDATA[
+            SELECT 'found.igc.version=', value_string FROM sys_generic_key WHERE key_name="IDC_VERSION";
+            ]]>
+        </sql>
+        
+        <property file="version.properties" />
+    </target>
+
+    <target name="tryCreateIGCDb" if="${installProcedure}" description="Create IGC mySQL database.">
+        <echo>MySQL-IGC-Datenbank erstellen (${_dbUrl})
+        </echo>
+
+        <basename property="dbName" file="${_dbUrl}"/>
+
+        <sql    driver    ="${mySqlDriverClass}"
+                classpath ="${mySqlDbDriver}"
+                url       ="jdbc:mysql://localhost/mysql"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                >
+            <transaction>
+                <!-- Create new one if not already exists-->
+                CREATE DATABASE IF NOT EXISTS `${dbName}` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
+            </transaction>
+            <transaction>
+                <!-- Give rights to user to access the new database -->
+                GRANT ALL PRIVILEGES ON `${dbName}`.* TO '${dbUser}'@'localhost' WITH GRANT OPTION
+            </transaction>
+        </sql>
+    </target>
+
+    <target name="importInitialSchema" if="${installProcedure}" description="Import the initial IGC schema.">
+        <echo>IGC Katalog initiales Schema importieren
+        </echo>
+
+        <!-- Import data to database -->
+        <sql    driver    ="${mySqlDriverClass}"
+                classpath ="${mySqlDbDriver}"
+                url       ="${_dbUrl}?useUnicode=true&amp;characterEncoding=UTF-8"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                encoding  ="UTF-8"
+                >
+
+            <!-- use default-character-set=utf8 -->
+            <transaction src="${igcInitialSchema.sql}"/>
+        </sql>
+    </target>
+    
+</project>

@@ -23,6 +23,7 @@
             <scope>runtime</scope>
             <excludes>
               <exclude>de.ingrid:ingrid-installer</exclude>
+              <exclude>de.ingrid:ingrid-udk-importer</exclude>
             </excludes>
           </dependencySet>
         </dependencySets>
@@ -56,4 +57,14 @@
       <outputDirectory>${project.build.finalName}/doc</outputDirectory>
     </fileSet>
   </fileSets>
+  <dependencySets>
+    <!-- Add for installer to setup/update IGC database -->
+    <dependencySet>
+      <outputDirectory>.</outputDirectory>
+      <scope>provided</scope>
+      <includes>
+        <include>de.ingrid:ingrid-udk-importer</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
 </assembly>
