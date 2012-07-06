@@ -79,7 +79,7 @@
     </target>
 
     <target name="UnzipInstaller" if="${installProcedure}">
-        <unzip src="${antinstaller.jar}" dest="${basedir}">
+        <unzip src="${antinstaller.jar}" dest=".">
             <patternset>
                 <include name="${iPlugName}/**/*.*"/>
                 <include name="${importerName}-installer.jar"/>
@@ -90,7 +90,7 @@
     </target>
     
     <target name="UnzipInstallerForUpdate" if="${updateProcedure}">
-        <unzip src="${antinstaller.jar}" dest="${basedir}">
+        <unzip src="${antinstaller.jar}" dest=".">
             <patternset>
                 <include name="${iPlugName}/**/*.*"/>
                 <exclude name="${iPlugName}/conf/communication.xml" />
@@ -104,18 +104,21 @@
 
     <target name="proceedAfterUnzipInstaller">
         <!-- Our database driver executable -->
-        <copy file="${basedir}/${iPlugName}/lib/${mySqlDriver.jar}" todir="${basedir}"/>
-        <property name="mySqlDbDriver" location="${basedir}/${mySqlDriver.jar}"/>
+        <copy file="./${iPlugName}/lib/${mySqlDriver.jar}" todir="."/>
+        <property name="mySqlDbDriver" location="./${mySqlDriver.jar}"/>
 
         <!-- unzip udk-importer-installer to base-directory used for set up/update of IGC database -->
-        <unzip src="${basedir}/${importerName}-installer.jar" dest="${basedir}">
+        <unzip src="./${importerName}-installer.jar" dest=".">
             <patternset>
                 <include name="${importerName}/**/*.*"/>
             </patternset>
         </unzip>
-        <delete file="${basedir}/${importerName}-installer.jar"/>
+        <delete file="./${importerName}-installer.jar"/>
 
-        <property name="importerDir" location="${basedir}/${importerName}"/>
+        <!-- executable rights are needed under linux! -->
+        <chmod dir="./${importerName}" perm="755" includes="**/*.jar"/>
+        
+        <property name="importerDir" location="./${importerName}"/>
         <property name="importer.jar" location="${importerDir}/${importerName}-with-dependencies.jar"/>
         <property name="igcInitialSchema.sql" location="${importerDir}/ingrid-igc-schema_102.sql"/>
         
@@ -153,7 +156,7 @@
          ============================================= -->
     <target name="MoveFiles">
     	<move toDir="${installDir}">
-            <fileset dir="${basedir}/${iPlugName}"/>
+            <fileset dir="./${iPlugName}"/>
         </move>
         
         <chmod dir="${installDir}" perm="755" includes="**/*.sh"/>
@@ -189,6 +192,43 @@
         </if>
 
         <exec   executable="java"
+                osfamily="unix"
+                dir="${importerDir}"
+                failonerror="true"
+                >
+            <arg value="-Xmx1024M"/>
+            <arg line="-jar"/>
+            <arg value="${importer.jar}"/>
+            <arg value="-c"/>
+            <arg value="${importerDir}/descriptor.properties"/>
+            <!-- database stuff -->
+            <arg value="-u"/>
+            <arg value="${_adminUser}"/>
+            <arg value="-p"/>
+            <arg value="${_adminPassword}"/>
+            <arg value="-dburl"/>
+            <arg value="${_dbUrl}"/>
+            <arg line="-dbdriver ${mySqlDriverClass}"/>
+            <!-- catalog stuff -->
+            <arg line="-v ${NEW_IGC_DB_VERSION}"/>
+            <arg value="-l"/>
+            <arg value="${igcLanguage}"/>
+            <arg value="-email"/>
+            <arg value="${igcEmail}"/>
+            <arg value="-partner"/>
+            <arg value="${igcPartner}"/>
+            <arg value="-provider"/>
+            <arg value="${igcProvider}"/>
+            <arg value="-name"/>
+            <arg value="${igcName}"/>
+            <arg value="-country"/>
+            <arg value="${igcCountry}"/>
+            <!-- udk data to import -->
+            <arg value="${igcUdkFile}"/>
+        </exec>
+        
+        <exec   executable="java"
+                osfamily="windows"
                 dir="${importerDir}"
                 failonerror="true"
                 >
@@ -244,7 +284,7 @@
         <property name="importerLog_name" value="importer_${DSTAMP}${TSTAMP}_log.log"/>
         <property name="v320UpdateScript_name" value="importer_${DSTAMP}${TSTAMP}_igc3.2.0_UpdateMdek*.sql"/>
     </target>
-
+    
     <target name="cleanuptarget">
         <delete dir="${importerDir}"/>
         <!-- Driver still has handle from ant installer, not possible to delete -->
