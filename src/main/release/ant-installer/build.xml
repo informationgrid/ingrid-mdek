@@ -161,6 +161,7 @@
         
         <chmod dir="${installDir}" perm="755" includes="**/*.sh"/>
         <mkdir dir="${installDir}/logs"/>
+        <mkdir dir="${installDir}/serializable"/>
     </target>
 
     <target name="configurePlug" if="${installProcedure}">

@@ -16,7 +16,7 @@
             type        ="input"
             name        ="intro"
             displayText ="Willkommen zur iPlug-IGE Installation">
-            <comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs. Dazu gehört die Anbindung an eine Datenbank (IGC Katalog) sowie die Verbindung mit dem iBus."/>
+            <comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation/Konfiguration des iPlugs. Dazu gehört die Erzeugung/Aktualisierung eines IGC Katalogs auf MySQL. Eine Oracle Katalog muß separat mit dem UDK-Importer/Updater erzeugt/aktualisiert werden."/>
             <comment displayText="Hinweis: " bold="true"/>
             <comment displayText="" explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gleichen Verzeichnis auszuführen."/>
         <target-select
@@ -34,7 +34,7 @@
             name        ="mysqlOptions"
             displayText ="Einstellungen für die MySQL-Datenbank (IGC Katalog)"
             target      ="setMySqlProperty">
-        <comment bold="true" displayText="" explanatoryText="Falls eine andere Datenbank als MySQL zum Einsatz kommt, müssen die Anpassungen an der Datei conf/default-datasource.properties manuell vorgenommen werden." />
+        <comment bold="true" displayText="" explanatoryText="Im Moment wird nur MySQL unterstützt. Erzeugung Oracle Katalog bitte separat mit UDK-Importer/Updater vornehmen." />
         <text property="dbUser" displayText="MySQL Benutzername:" defaultValue="root"/>
         <text property="dbPassword" displayText="MySQL Benutzer-Passwort:" defaultValue=""/>
         <text property="dbUrl" displayText="MySQL Datenbank-URL (IGC):" defaultValue="jdbc:mysql://localhost/igc_???"/>
