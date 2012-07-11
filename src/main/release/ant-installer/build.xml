@@ -23,6 +23,8 @@
     <property name="mySqlDriverClass"   value="com.mysql.jdbc.Driver"/>
     <property name="mySqlDriver.jar"    value="mysql-connector-java-5.1.6.jar"/>
 
+    <property name="oracleDriverClass"  value="oracle.jdbc.OracleDriver"/>
+
     <!-- =============================================
          = CONFIGURATIONS                            =
          ============================================= -->
@@ -133,8 +135,18 @@
 
     <target name="StartInstallation" depends="UnzipInstaller, UnzipInstallerForUpdate, configureProperties, configurePropertiesFromFiles">
         <runtarget target="MoveFiles" />
-        <runtarget target="mysql.CheckDbs" />
-        
+
+        <if>
+            <equals arg1="${useOracle}" arg2="true" />
+            <then>
+                <property name="myDbDriverClass" value="${oracleDriverClass}"/>
+            </then>
+            <else>
+                <runtarget target="mysql.CheckDbs" />
+                <property name="myDbDriverClass" value="${mySqlDriverClass}"/>
+            </else>
+        </if>
+
         <if>
             <equals arg1="${installProcedure}" arg2="true" />
             <then>
@@ -212,7 +224,7 @@
             <arg value="${_adminPassword}"/>
             <arg value="-dburl"/>
             <arg value="${_dbUrl}"/>
-            <arg line="-dbdriver ${mySqlDriverClass}"/>
+            <arg line="-dbdriver ${myDbDriverClass}"/>
             <!-- catalog stuff -->
             <arg line="-v ${NEW_IGC_DB_VERSION}"/>
             <arg value="-l"/>
@@ -248,7 +260,7 @@
             <arg value="${_adminPassword}" prefix="&quot;" suffix="&quot;"/>
             <arg value="-dburl"/>
             <arg value="${_dbUrl}" prefix="&quot;" suffix="&quot;"/>
-            <arg line="-dbdriver ${mySqlDriverClass}"/>
+            <arg line="-dbdriver ${myDbDriverClass}"/>
             <!-- catalog stuff -->
             <arg line="-v ${NEW_IGC_DB_VERSION}"/>
             <arg value="-l"/>
