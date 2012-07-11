@@ -99,6 +99,9 @@
             </patternset>
         </unzip>
 
+        <!-- remove old libs -->
+        <delete dir="${installDir}/lib"/>
+        
         <runtarget target="proceedAfterUnzipInstaller"/>
     </target>
 
