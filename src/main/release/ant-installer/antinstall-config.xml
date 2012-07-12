@@ -16,9 +16,9 @@
             type        ="input"
             name        ="intro"
             displayText ="Willkommen zur iPlug-IGE Installation">
-            <comment displayText="" bold="true" explanatoryText="Dieser Assistent hilft Ihnen bei der Installation/Konfiguration des iPlugs. Dazu gehört die Erzeugung/Aktualisierung eines IGC Katalogs auf MySQL. Eine Oracle Katalog muß separat mit dem UDK-Importer/Updater erzeugt/aktualisiert werden."/>
-            <comment displayText="Hinweis: " bold="true"/>
-            <comment displayText="" explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gleichen Verzeichnis auszuführen."/>
+        <comment explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs. Bei einer Neuinstallation wird die Erzeugung eines neuen IGC Katalogs nur auf MySQL unterstützt. Ein neuer Oracle Katalog muß separat mit dem UDK-Importer angelegt werden."/>
+        <comment displayText="Hinweis: " bold="true"/>
+        <comment explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gleichen Verzeichnis auszuführen."/>
         <target-select
             property      ="updateOrNew"
             displayText   ="Neuinstallation oder Update"
@@ -31,21 +31,51 @@
     <page
             ifProperty  ="${updateOrNew}==setInstallProperty"
             type        ="input"
+            name        ="database"
+            displayText ="Auswahl der Datenbank">
+        <comment explanatoryText="Bitte wählen Sie hier die Datenbank des IGC Katalogs aus." />
+        <comment displayText="Hinweis: " bold="true"/>
+        <comment explanatoryText="Die Erzeugung eines neuen IGC Katalogs wird nur auf MySQL unterstützt. Ein neuer IGC Katalog auf Oracle muß separat mit dem UDK-Importer erzeugt werden." />
+        <target-select
+            property     ="dbChoice"
+            displayText  ="Datenbank"
+            defaultValue ="true">
+            <option text ="MySQL"  value="setMySqlProperty"/>
+            <option text ="Oracle" value="setOracleProperty"/>
+        </target-select>
+    </page>
+
+    <page
+            ifProperty  ="(${updateOrNew}==setInstallProperty) AND (${dbChoice}==setMySqlProperty)"
+            type        ="input"
             name        ="mysqlOptions"
-            displayText ="Einstellungen für die MySQL-Datenbank (IGC Katalog)"
-            target      ="setMySqlProperty">
-        <comment bold="true" displayText="" explanatoryText="Im Moment wird nur MySQL unterstützt. Erzeugung Oracle Katalog bitte separat mit UDK-Importer/Updater vornehmen." />
+            displayText ="Einstellungen für die MySQL-Datenbank (IGC Katalog)">
+        <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
+        <comment explanatoryText="Ist der hier angegebene IGC Katalog schon vorhanden, so wird dieser auf die neue Version aktualisiert und sollte vorher per BACKUP gesichert werden !"/>
+        <comment explanatoryText="Die Einstellungen hier können auch in der Datei conf/default-datasource.properties manuell vorgenommen werden." />
         <text property="dbUser" displayText="MySQL Benutzername:" defaultValue="root"/>
         <text property="dbPassword" displayText="MySQL Benutzer-Passwort:" defaultValue=""/>
         <text property="dbUrl" displayText="MySQL Datenbank-URL (IGC):" defaultValue="jdbc:mysql://localhost/igc_???"/>
 
-        <comment displayText="" bold="true" explanatoryText="Für das Erstellen der Datenbank wird ein Administrator benötigt! Bitte geben Sie diesen hier an."/>
+        <comment explanatoryText="Für das Erstellen eines neuen Katalogs wird ein Administrator benötigt! Bitte geben Sie diesen hier an."/>
         <text property="adminUser"         displayText="MySQL Administrator:"           defaultValue="root"/>
         <text property="adminPassword"     displayText="MySQL Administrator-Passwort:"  defaultValue=""/>
     </page>
 
     <page
-            ifProperty  ="${updateOrNew}==setInstallProperty"
+            ifProperty  ="(${updateOrNew}==setInstallProperty) AND (${dbChoice}==setOracleProperty)"
+            type        ="input"
+            name        ="oracleOptions"
+            displayText ="Einstellungen für die Oracle-Datenbank (IGC Katalog)">
+        <comment explanatoryText="Diese Daten werden für den Zugriff auf den BEREITS VORLIEGENDEN InGridCatalog (IGC) benötigt. Ein neuer IGC Katalog kann mit dem UDK-Importer erzeugt oder aktualisiert werden." />
+        <comment explanatoryText="Die Einstellungen hier können auch in der Datei conf/default-datasource.properties manuell vorgenommen werden." />
+        <text property="dbUser" displayText="Oracle Benutzername:" defaultValue="IGC_USER"/>
+        <text property="dbPassword" displayText="Oracle Benutzer-Passwort:" defaultValue="IGC_PASSWORD"/>
+        <text property="dbUrl" displayText="Oracle Datenbank-URL (IGC):" defaultValue="jdbc:oracle:thin:IGC_USER/IGC_PASSWORD@localhost:1521:XE"/>
+    </page>
+
+    <page
+            ifProperty  ="(${updateOrNew}==setInstallProperty) AND (${dbChoice}==setMySqlProperty)"
             type        ="input"
             name        ="igcOptions"
             displayText ="Einstellungen für neuen IGC">
@@ -53,7 +83,7 @@
         <select
             property     ="igcLanguage"
             displayText  ="Sprache des Katalogs"
-            defaultValue ="true">
+            defaultValue ="de">
             <option text ="Deutsch" value="de"/>
             <option text ="Englisch" value="en"/>
         </select>
@@ -75,7 +105,7 @@
             name        ="iBusOptions"
             displayText ="Einstellungen für den IGE-iBus">
             
-            <comment displayText="" explanatoryText="Die Client-ID muss eindeutig sein, da es sonst zu Kommunikationsproblemen zum IGE-iBus führen kann. Die Server-IP ist die Adresse des PORTAL Rechners. Auf diesem läuft der IGE-iBus und kann über den Server-Port angesprochen werden."/>
+            <comment explanatoryText="Die Client-ID muss eindeutig sein, da es sonst zu Kommunikationsproblemen zum IGE-iBus führen kann. Die Server-IP ist die Adresse des PORTAL Rechners. Auf diesem läuft der IGE-iBus und kann über den Server-Port angesprochen werden."/>
 
             <text property="clientName" displayText="Client ID:" defaultValue="/ingrid-group:ige-iplug-'Ihr-Name'"/>
             <!--text property="serverName" displayText="Server ID:" defaultValue="/ingrid-group:ige-ibus"/-->
@@ -89,6 +119,9 @@
             name        ="properties"
             displayText ="Benötigte Installationsoptionen"
             target      ="StartInstallation">
+        <comment bold="true" displayText="ACHTUNG: MySQL IGC Katalog sichern !"/>
+        <comment explanatoryText="Auf MySQL wird ein bestehender IGC Katalog mit der Installation des iPlugs unmittelbar auf die neue Version aktualisiert ! Zur Sicherheit sollte vorher ein BACKUP des Katalogs gezogen werden ! Die Ausgabe der Aktualisierung sollte in der 'Detailanzeige' hier verfolgt werden. Ein ausführliches LOG findet sich im angegebenen Installationsverzeichnis (importer_TIMESTAMP*.log)."/>
+        <comment explanatoryText="Auf Oracle kann ein bestehender Katalog nach der iPlug Installation mit der 'Update' Funktionalität dieses Installers aktualisiert werden."/>
         <directory
                 property        ="installDir"
                 defaultValue    ="/opt/ingrid/${project.artifactId}-${project.version}"
@@ -103,6 +136,9 @@
             name        ="properties"
             displayText ="Benötigte Installationsoptionen"
             target      ="StartInstallation">
+        <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
+        <comment explanatoryText="Der IGC Katalog wird aus der bestehenden Installation ermittelt und auf die neue Version aktualisiert ! Zur Sicherheit sollte vorher ein BACKUP des Katalogs gezogen werden !"/>
+        <comment explanatoryText="Die Ausgabe der Aktualisierung sollte in der 'Detailanzeige' hier verfolgt werden. Ein ausführliches LOG findet sich nach Ausfuehrung im angegebenen Installationsverzeichnis (importer_TIMESTAMP*.log)."/>
         <directory
             property            ="installDir"
             defaultValue        ="/opt/ingrid/${project.artifactId}-${project.version}"

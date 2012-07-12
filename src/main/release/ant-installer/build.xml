@@ -20,10 +20,12 @@
     <property name="iPlugName"          value="${project.build.finalName}"/>
     <property name="importerName"       value="ingrid-udk-importer-${ingrid-udk-importer.version}"/>
 
-    <property name="mySqlDriverClass"   value="com.mysql.jdbc.Driver"/>
-    <property name="mySqlDriver.jar"    value="mysql-connector-java-5.1.6.jar"/>
+    <property name="mySqlDriverClass"       value="com.mysql.jdbc.Driver"/>
+    <property name="mySqlDriver.jar"        value="mysql-connector-java-5.1.6.jar"/>
+    <property name="mySqlHibernateDialect"  value="org.hibernate.dialect.MySQLInnoDBDialect"/>
 
-    <property name="oracleDriverClass"  value="oracle.jdbc.OracleDriver"/>
+    <property name="oracleDriverClass"      value="oracle.jdbc.OracleDriver"/>
+    <property name="oracleHibernateDialect" value="org.hibernate.dialect.Oracle10gDialect"/>
 
     <!-- =============================================
          = CONFIGURATIONS                            =
@@ -137,30 +139,26 @@
         <runtarget target="MoveFiles" />
 
         <if>
-            <equals arg1="${useOracle}" arg2="true" />
-            <then>
-                <property name="myDbDriverClass" value="${oracleDriverClass}"/>
-            </then>
-            <else>
-                <runtarget target="mysql.CheckDbs" />
-                <property name="myDbDriverClass" value="${mySqlDriverClass}"/>
-            </else>
-        </if>
-
-        <if>
             <equals arg1="${installProcedure}" arg2="true" />
             <then>
-                <echo message="Complete" />
                 <runtarget target="configurePlug"/>
-                <runtarget target="updateIGCDb"/>
              </then>
-            <elseif>
-                <equals arg1="${updateProcedure}" arg2="true" />
-                <then>
-                    <echo message="Update" />
-                    <runtarget target="updateIGCDb"/>
-                 </then>
-            </elseif>
+        </if>
+
+        <condition property="doRunDatabaseStuff">
+            <not>
+                <and>
+                    <istrue value="${useOracle}"/>
+                    <istrue value="${installProcedure}"/>
+                </and>
+            </not>
+        </condition>
+
+        <if>
+            <equals arg1="${doRunDatabaseStuff}" arg2="true" />
+            <then>
+                <runtarget target="runDatabaseStuff"/>
+            </then>
         </if>
     </target>
 
@@ -191,9 +189,36 @@
 
         <echo>Schreiben der DB-Konfiguration in default-datasource.properties
         </echo>
+
+        <if>
+            <equals arg1="${useOracle}" arg2="true" />
+            <then>
+                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_DRIVER_CLASS@" value="${oracleDriverClass}" />
+                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_HIBERNATE_DIALECT@" value="${oracleHibernateDialect}" />
+            </then>
+            <else>
+                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_DRIVER_CLASS@" value="${mySqlDriverClass}" />
+                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_HIBERNATE_DIALECT@" value="${mySqlHibernateDialect}" />
+            </else>
+        </if>
         <replace file="${installDir}/conf/default-datasource.properties" token="@DB_USER@" value="${_dbUser}" />
         <replace file="${installDir}/conf/default-datasource.properties" token="@DB_PASSWORD@" value="${_dbPassword}" />
         <replace file="${installDir}/conf/default-datasource.properties" token="@DB_ALIAS@" value="${_dbUrl}" />
+    </target>
+
+    <target name="runDatabaseStuff" if="${doRunDatabaseStuff}">
+        <if>
+            <equals arg1="${useOracle}" arg2="true" />
+            <then>
+                <property name="myDbDriverClass" value="${oracleDriverClass}"/>
+            </then>
+            <else>
+                <runtarget target="mysql.CheckDbs" />
+                <property name="myDbDriverClass" value="${mySqlDriverClass}"/>
+            </else>
+        </if>
+
+        <runtarget target="updateIGCDb"/>
     </target>
 
     <target name="updateIGCDb">
