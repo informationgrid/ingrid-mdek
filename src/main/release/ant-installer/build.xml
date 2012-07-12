@@ -145,21 +145,7 @@
              </then>
         </if>
 
-        <condition property="doRunDatabaseStuff">
-            <not>
-                <and>
-                    <istrue value="${useOracle}"/>
-                    <istrue value="${installProcedure}"/>
-                </and>
-            </not>
-        </condition>
-
-        <if>
-            <equals arg1="${doRunDatabaseStuff}" arg2="true" />
-            <then>
-                <runtarget target="runDatabaseStuff"/>
-            </then>
-        </if>
+        <runtarget target="runDatabaseStuff"/>
     </target>
 
 
@@ -206,7 +192,7 @@
         <replace file="${installDir}/conf/default-datasource.properties" token="@DB_ALIAS@" value="${_dbUrl}" />
     </target>
 
-    <target name="runDatabaseStuff" if="${doRunDatabaseStuff}">
+    <target name="runDatabaseStuff">
         <if>
             <equals arg1="${useOracle}" arg2="true" />
             <then>
