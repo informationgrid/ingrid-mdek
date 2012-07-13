@@ -3,6 +3,7 @@ package de.ingrid.mdek;
 import java.io.Serializable;
 
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.IMdekEnum;
 
 /**
  * Class describing a known mdek error.
@@ -160,7 +161,7 @@ public class MdekError implements Serializable {
 			this.errorCode = errorCode;
 		}
 		/** represents the error code of this enumeration constant.
-		 * @see de.ingrid.mdek.IMdekEnum#getDbValue()
+		 * @see de.ingrid.utils.ige.IMdekEnum#getDbValue()
 		 */
 		public String getDbValue() {
 			return errorCode;

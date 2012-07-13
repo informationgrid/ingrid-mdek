@@ -7,11 +7,11 @@ import java.util.Map;
 
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.IdcStatisticsSelectionType;
 
 public class MdekExampleStatistics {
 

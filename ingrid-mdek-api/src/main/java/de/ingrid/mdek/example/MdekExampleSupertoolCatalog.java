@@ -5,16 +5,16 @@ import java.util.Map;
 import java.util.Set;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
-import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.MdekSysList;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
+import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 
 /**
  * Encapsulates Catalog example methods ...

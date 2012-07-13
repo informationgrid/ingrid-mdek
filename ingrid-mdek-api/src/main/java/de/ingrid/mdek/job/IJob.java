@@ -1,7 +1,7 @@
 package de.ingrid.mdek.job;
 
-import de.ingrid.mdek.IMdekEnum;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.IMdekEnum;
 
 public interface IJob {
 

@@ -9,20 +9,20 @@ import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
-import de.ingrid.mdek.MdekUtils.AddressType;
-import de.ingrid.mdek.MdekUtils.ExpiryState;
-import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
-import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
-import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.AddressType;
+import de.ingrid.utils.ige.MdekUtils.ExpiryState;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityOrderBy;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
+import de.ingrid.utils.ige.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.utils.ige.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 public class MdekExampleQS {
 

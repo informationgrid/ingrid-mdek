@@ -5,12 +5,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils.CsvRequestType;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
-import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.CsvRequestType;
+import de.ingrid.utils.ige.MdekUtils.MdekSysList;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
+import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 
 
 /**

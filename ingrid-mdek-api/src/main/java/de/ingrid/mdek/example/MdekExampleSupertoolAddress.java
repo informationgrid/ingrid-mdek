@@ -3,17 +3,17 @@ package de.ingrid.mdek.example;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
-import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
-import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
-import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.MdekCallerAddress;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityOrderBy;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
+import de.ingrid.utils.ige.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.utils.ige.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.utils.ige.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 /**
  * Encapsulates Address example methods ...

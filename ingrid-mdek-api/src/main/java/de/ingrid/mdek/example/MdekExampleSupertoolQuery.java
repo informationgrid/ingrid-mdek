@@ -3,13 +3,13 @@ package de.ingrid.mdek.example;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.caller.IMdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 /**
  * Encapsulates Query example methods ...

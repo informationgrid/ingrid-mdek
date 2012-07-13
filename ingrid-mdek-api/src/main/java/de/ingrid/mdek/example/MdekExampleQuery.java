@@ -10,12 +10,12 @@ import java.util.Map;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.AddressType;
 
 public class MdekExampleQuery {
 
@@ -329,12 +329,12 @@ class MdekExampleQueryThread extends Thread {
 	"AddressNode as modUserNode " +
 		"inner join modUserNode.t02AddressWork modUserAddr " +
 "where " +
-	"oMeta.expiryState <= " + de.ingrid.mdek.MdekUtils.ExpiryState.INITIAL.getDbValue() +
+	"oMeta.expiryState <= " + de.ingrid.utils.ige.MdekUtils.ExpiryState.INITIAL.getDbValue() +
 	" and obj.responsibleUuid = responsibleUserNode.addrUuid " +
-	" and comm.commtypeKey = " + de.ingrid.mdek.MdekUtils.COMM_TYPE_EMAIL +
-	" and obj.modTime <= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date()) +
+	" and comm.commtypeKey = " + de.ingrid.utils.ige.MdekUtils.COMM_TYPE_EMAIL +
+	" and obj.modTime <= " + de.ingrid.utils.ige.MdekUtils.dateToTimestamp(new Date()) +
 	" and modUserNode.addrUuid = obj.modUuid" +
-	" and obj.modTime >= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date()) +
+	" and obj.modTime >= " + de.ingrid.utils.ige.MdekUtils.dateToTimestamp(new Date()) +
 	" order by obj.objClass, obj.objName";
 		supertool.queryHQLToMap(qString, 10);
 
@@ -354,12 +354,12 @@ class MdekExampleQueryThread extends Thread {
 "where " +
 	// exclude hidden user addresses !
 	AddressType.getHQLExcludeIGEUsersViaNode("addrNode") +
-	" AND aMeta.expiryState <= " + de.ingrid.mdek.MdekUtils.ExpiryState.INITIAL.getDbValue() +
+	" AND aMeta.expiryState <= " + de.ingrid.utils.ige.MdekUtils.ExpiryState.INITIAL.getDbValue() +
 	" and adr.responsibleUuid = responsibleUserNode.addrUuid " +
-	" and comm.commtypeKey = " + de.ingrid.mdek.MdekUtils.COMM_TYPE_EMAIL +
-	" and adr.modTime <= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date()) +
+	" and comm.commtypeKey = " + de.ingrid.utils.ige.MdekUtils.COMM_TYPE_EMAIL +
+	" and adr.modTime <= " + de.ingrid.utils.ige.MdekUtils.dateToTimestamp(new Date()) +
 	" and modUserNode.addrUuid = adr.modUuid" +
-	" and adr.modTime >= " + de.ingrid.mdek.MdekUtils.dateToTimestamp(new Date());
+	" and adr.modTime >= " + de.ingrid.utils.ige.MdekUtils.dateToTimestamp(new Date());
 		supertool.queryHQLToMap(qString, 10);
 		
 		// MdekEmailUtils.getAssignUserUuid(MdekDataBean)
@@ -396,7 +396,7 @@ class MdekExampleQueryThread extends Thread {
 			" T021Communication comm " +
 		"where " +
 			" aNode.addrId = comm.adrId " +
-			" and comm.commtypeKey = " + de.ingrid.mdek.MdekUtils.COMM_TYPE_EMAIL;
+			" and comm.commtypeKey = " + de.ingrid.utils.ige.MdekUtils.COMM_TYPE_EMAIL;
 		qString += " and (aNode.addrUuid = '"+adrUuid+"')";
 		supertool.queryHQLToMap(qString, null);
 
