@@ -11,10 +11,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.xml.util.XPathUtils;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
 
 abstract public class AbstractXMLToDocMapper {
 

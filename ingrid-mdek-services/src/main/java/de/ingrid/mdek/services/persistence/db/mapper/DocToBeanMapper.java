@@ -13,11 +13,6 @@ import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.ObjectType;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
-import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -85,6 +80,11 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
+import de.ingrid.utils.ige.MdekUtils.ObjectType;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
+import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 
 /**
  * Singleton encapsulating methods for mapping ingrid documents to hibernate beans.

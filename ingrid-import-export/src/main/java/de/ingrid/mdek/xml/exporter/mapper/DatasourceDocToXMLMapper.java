@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.xml.util.XMLElement;
 import de.ingrid.mdek.xml.util.XMLTreeCleaner;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
 
 public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 

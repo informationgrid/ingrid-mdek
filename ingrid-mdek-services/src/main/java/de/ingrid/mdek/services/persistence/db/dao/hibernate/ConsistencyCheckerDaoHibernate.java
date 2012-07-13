@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
-import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.TransactionService;
 import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
@@ -58,6 +57,7 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.AddressType;
 
 /**
  * Generic HQL operations.

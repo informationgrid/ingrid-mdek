@@ -2,13 +2,13 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
 
 
 

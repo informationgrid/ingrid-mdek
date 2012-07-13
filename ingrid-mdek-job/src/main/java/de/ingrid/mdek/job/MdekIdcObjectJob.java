@@ -7,15 +7,7 @@ import java.util.Stack;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
-import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
-import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
-import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
@@ -40,6 +32,14 @@ import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityOrderBy;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
+import de.ingrid.utils.ige.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.utils.ige.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.utils.ige.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.utils.ige.MdekUtils.MdekSysList;
+import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 /**
  * Encapsulates all Job functionality concerning OBJECTS. 

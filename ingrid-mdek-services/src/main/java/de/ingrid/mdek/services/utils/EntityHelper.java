@@ -5,11 +5,11 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 /**
  * Singleton encapsulating Utility Methods concerning IGC Entities (Objects, Addresses ...).

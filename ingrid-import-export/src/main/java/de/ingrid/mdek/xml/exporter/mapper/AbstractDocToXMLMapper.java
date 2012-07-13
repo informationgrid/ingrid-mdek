@@ -7,10 +7,10 @@ import java.util.List;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.xml.util.IngridDocUtils;
 import de.ingrid.mdek.xml.util.XMLElement;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
 
 abstract public class AbstractDocToXMLMapper {
 

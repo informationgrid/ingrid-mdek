@@ -11,7 +11,6 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
@@ -19,6 +18,7 @@ import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 
 /**
  * Hibernate-specific implementation of the <tt>SpatialRefValue</tt>

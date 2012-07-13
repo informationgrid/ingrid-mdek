@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -16,6 +15,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 /**
  * Encapsulates all Job functionality concerning QUERYING (inquiry of entities). 

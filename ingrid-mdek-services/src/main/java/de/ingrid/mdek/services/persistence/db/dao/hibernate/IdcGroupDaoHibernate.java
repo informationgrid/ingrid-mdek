@@ -6,11 +6,11 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IIdcGroupDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 /**
  * Hibernate-specific implementation of the <tt>IIdcGroupDao</tt> non-CRUD

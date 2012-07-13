@@ -8,13 +8,13 @@ import org.junit.Test;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 import de.ingrid.mdek.services.persistence.db.model.IdcUserGroup;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
 
 public class DocToBeanMapperSecurityTest {
 

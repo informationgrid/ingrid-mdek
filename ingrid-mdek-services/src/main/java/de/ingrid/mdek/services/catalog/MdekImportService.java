@@ -11,13 +11,7 @@ import org.apache.log4j.Logger;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils.AddressType;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.ObjectType;
-import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -35,6 +29,12 @@ import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.xml.importer.IImporterCallback;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.AddressType;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
+import de.ingrid.utils.ige.MdekUtils.ObjectType;
+import de.ingrid.utils.ige.MdekUtils.PublishType;
 
 /**
  * Callbacks for importer.

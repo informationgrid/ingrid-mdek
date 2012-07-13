@@ -2,10 +2,10 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
-import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
+import de.ingrid.utils.ige.MdekUtils.MdekSysList;
 
 
 

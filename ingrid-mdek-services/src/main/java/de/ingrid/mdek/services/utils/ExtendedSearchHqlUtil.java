@@ -10,9 +10,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.AddressType;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;

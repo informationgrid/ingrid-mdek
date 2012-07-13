@@ -21,11 +21,6 @@ import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
-import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.Versioning;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.job.MdekException;
@@ -66,6 +61,11 @@ import de.ingrid.mdek.services.utils.MdekIgcProfileHandler;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
+import de.ingrid.utils.ige.MdekUtils.MdekSysList;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
+import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
 /**

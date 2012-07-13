@@ -2,12 +2,12 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
-import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 
 
 

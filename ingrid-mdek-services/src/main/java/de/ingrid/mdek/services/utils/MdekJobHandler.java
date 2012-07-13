@@ -12,15 +12,15 @@ import com.thoughtworks.xstream.XStream;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 
 /**

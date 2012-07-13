@@ -12,8 +12,8 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.log4j.Logger;
 
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 public class XMLExporter implements IExporter {
 

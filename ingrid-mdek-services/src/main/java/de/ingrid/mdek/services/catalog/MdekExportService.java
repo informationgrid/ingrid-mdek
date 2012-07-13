@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.IJob.JobType;
@@ -26,6 +23,9 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.xml.exporter.IExporterCallback;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
 
 /**
  * Callbacks for exporter.

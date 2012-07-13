@@ -15,13 +15,6 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.CsvRequestType;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
-import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
@@ -56,6 +49,13 @@ import de.ingrid.mdek.xml.exporter.XMLExporter;
 import de.ingrid.mdek.xml.importer.IImporter;
 import de.ingrid.mdek.xml.importer.XMLImporter;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.CsvRequestType;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
+import de.ingrid.utils.ige.MdekUtils.MdekSysList;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
+import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 
 /**
  * Encapsulates all Catalog functionality concerning access, syslists etc. 

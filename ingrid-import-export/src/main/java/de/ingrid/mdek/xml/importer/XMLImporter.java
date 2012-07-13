@@ -14,11 +14,11 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
 import de.ingrid.mdek.xml.util.IngridXMLUtils;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 public class XMLImporter implements IImporter {
 

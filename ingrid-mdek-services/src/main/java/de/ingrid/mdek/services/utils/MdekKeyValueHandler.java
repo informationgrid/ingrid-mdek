@@ -2,10 +2,6 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.Map;
 
-import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
-import de.ingrid.mdek.MdekUtils.ObjectType;
-import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -35,6 +31,10 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
+import de.ingrid.utils.ige.MdekUtils;
+import de.ingrid.utils.ige.MdekUtils.MdekSysList;
+import de.ingrid.utils.ige.MdekUtils.ObjectType;
+import de.ingrid.utils.ige.MdekUtils.SearchtermType;
 import de.ingrid.utils.udk.UtilsUDKCodeLists;
 
 
