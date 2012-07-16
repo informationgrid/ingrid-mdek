@@ -297,14 +297,20 @@
             <arg value="${_igcUdkFile}" prefix="&quot;" suffix="&quot;"/>
         </exec>
 
-        <!-- check for mdek update script and set property to true if so -->
-        <pathconvert property="v320UpdateScript" setonempty="false" pathsep=" ">
+        <!-- check for mdek update script and set property if so -->
+        <pathconvert property="v320UpdateScript_written" setonempty="false" pathsep=" ">
             <path>
                 <fileset dir="${importerDir}" includes="igc3.2.0_UpdateMdek*" />
             </path>
         </pathconvert>
-        <condition property="v320UpdateScript_present" else="false">
-            <isset property="v320UpdateScript"/>
+        <!-- set property for showing message if mdek update script was written and no new IGC -->
+        <condition property="showMdekUpdateMessage" else="false">
+            <and>
+                <isset property="v320UpdateScript_written"/>
+                <not>
+                    <isset property="igc.db.not.exists"/>
+                </not>
+            </and>
         </condition>
 
         <!-- copy output of updater (SQL Script for update mdek database, logs ...) to installation directory -->
@@ -330,17 +336,17 @@ Weiteres Vorgehen
 
         </echo>
         <if>
-            <equals arg1="${v320UpdateScript_present}" arg2="true" />
+            <equals arg1="${showMdekUpdateMessage}" arg2="true" />
             <then>
                 <echo>
 ==================================
 Der InGrid Katalog (IGC) wurde auf die Version ${NEW_IGC_DB_VERSION} aktualisiert.
-Dabei wurden die Benutzer auf neue UUIDs abgebildet.
+Dabei wurden die Benutzer auf neue Adress-UUIDs abgebildet.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 BITTE DAS SKRIPT IN ${installDir}
 ${v320UpdateScript_name}
-AUF DER MDEK DATENBANK AUSFUEHREN.
+AUF DER MDEK DATENBANK AUSFUEHREN, UM DIE LOGINS AUF DIE NEUEN ADRESS-UUIDS ZU MIGRIEREN.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Log Datei der Aktualisierung:
