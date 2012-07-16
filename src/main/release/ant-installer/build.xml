@@ -218,6 +218,13 @@
             </then>
         </if>
 
+        <!-- On Unix the directory of the installer is passed !? We check whether zip present ! -->
+        <echo>Importer UDK Data File from input: ${igcUdkFile}</echo>
+        <condition property="_igcUdkFile" value="${igcUdkFile}" else="">
+            <contains string="${igcUdkFile}" substring=".zip" />
+        </condition>
+        <echo>Importer UDK Data File passed: ${_igcUdkFile}</echo>
+
         <exec   executable="java"
                 osfamily="unix"
                 dir="${importerDir}"
@@ -251,7 +258,7 @@
             <arg value="-country"/>
             <arg value="${igcCountry}"/>
             <!-- udk data to import -->
-            <arg value="${igcUdkFile}"/>
+            <arg value="${_igcUdkFile}"/>
         </exec>
         
         <exec   executable="java"
@@ -287,7 +294,7 @@
             <arg value="-country"/>
             <arg value="${igcCountry}" prefix="&quot;" suffix="&quot;"/>
             <!-- udk data to import -->
-            <arg value="${igcUdkFile}" prefix="&quot;" suffix="&quot;"/>
+            <arg value="${_igcUdkFile}" prefix="&quot;" suffix="&quot;"/>
         </exec>
 
         <!-- check for mdek update script and set property to true if so -->
