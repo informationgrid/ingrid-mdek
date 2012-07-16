@@ -2,18 +2,18 @@ package de.ingrid.mdek.services.persistence.db.dao;
 
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.PublishType;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils.IdcChildrenSelectionType;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityOrderBy;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
-import de.ingrid.utils.ige.MdekUtils.IdcQAEntitiesSelectionType;
-import de.ingrid.utils.ige.MdekUtils.IdcStatisticsSelectionType;
-import de.ingrid.utils.ige.MdekUtils.IdcWorkEntitiesSelectionType;
-import de.ingrid.utils.ige.MdekUtils.PublishType;
-import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 
 

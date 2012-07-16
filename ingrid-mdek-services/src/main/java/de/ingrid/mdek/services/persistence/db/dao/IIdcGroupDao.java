@@ -3,9 +3,9 @@ package de.ingrid.mdek.services.persistence.db.dao;
 import java.util.List;
 import java.util.Map;
 
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
-import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 /**
  * Business DAO operations related to the <tt>IdcGroup</tt> entity.

@@ -10,8 +10,8 @@ import java.util.zip.GZIPOutputStream;
 
 import org.junit.Test;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 public class LocalTestXMLImporter {
 

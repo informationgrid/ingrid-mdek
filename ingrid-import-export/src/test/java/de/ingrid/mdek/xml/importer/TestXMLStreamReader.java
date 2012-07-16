@@ -21,6 +21,8 @@ import org.xml.sax.SAXException;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerObject;
 import de.ingrid.mdek.caller.IMdekClientCaller;
@@ -34,8 +36,6 @@ import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
 import de.ingrid.mdek.xml.util.IngridXMLUtils;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
 
 public class TestXMLStreamReader {
 

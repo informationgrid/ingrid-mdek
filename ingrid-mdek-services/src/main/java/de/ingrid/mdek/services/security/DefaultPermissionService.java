@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -32,7 +33,6 @@ import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
 import de.ingrid.mdek.services.persistence.hdd.HddPersistenceService;
-import de.ingrid.utils.ige.MdekUtils;
 
 /**
  * @author Administrator

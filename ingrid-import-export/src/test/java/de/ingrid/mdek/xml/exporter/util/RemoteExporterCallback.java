@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.IMdekCallerObject;
@@ -17,10 +18,9 @@ import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.mdek.caller.MdekClientCaller;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.xml.exporter.IExporterCallback;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
 
 public class RemoteExporterCallback implements IExporterCallback {
 

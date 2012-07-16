@@ -1,7 +1,7 @@
 package de.ingrid.mdek.xml.importer;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 
 /**

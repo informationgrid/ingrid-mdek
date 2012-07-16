@@ -2,8 +2,8 @@ package de.ingrid.mdek.xml.exporter;
 
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 
 /**

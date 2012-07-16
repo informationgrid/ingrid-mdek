@@ -3,7 +3,6 @@ package de.ingrid.mdek;
 import java.util.List;
 
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.IMdekEnum;
 
 
 

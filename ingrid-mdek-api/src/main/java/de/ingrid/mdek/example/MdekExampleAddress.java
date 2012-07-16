@@ -10,14 +10,14 @@ import java.util.Map;
 import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
+import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils;
-import de.ingrid.utils.ige.MdekUtils.AddressType;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
 
 public class MdekExampleAddress {
 

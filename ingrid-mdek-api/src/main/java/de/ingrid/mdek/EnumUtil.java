@@ -1,7 +1,5 @@
 package de.ingrid.mdek;
 
-import de.ingrid.utils.ige.IMdekEnum;
-
 /**
  * Class with static Utility methods handling Enumerations !
  * 

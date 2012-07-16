@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.services.catalog.dbconsistency.AddressHierarchyChecker;
 import de.ingrid.mdek.services.catalog.dbconsistency.AddressReferencesChecker;
@@ -22,7 +23,6 @@ import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils;
 
 /**
  * Encapsulates functions needed for database consistency checks

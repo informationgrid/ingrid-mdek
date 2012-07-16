@@ -5,13 +5,13 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityOrderBy;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
-import de.ingrid.utils.ige.MdekUtils.IdcQAEntitiesSelectionType;
-import de.ingrid.utils.ige.MdekUtils.IdcStatisticsSelectionType;
-import de.ingrid.utils.ige.MdekUtils.IdcWorkEntitiesSelectionType;
-import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 
 /**

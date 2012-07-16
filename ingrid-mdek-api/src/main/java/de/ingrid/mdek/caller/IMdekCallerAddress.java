@@ -1,13 +1,13 @@
 package de.ingrid.mdek.caller;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
+import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityOrderBy;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityVersion;
-import de.ingrid.utils.ige.MdekUtils.IdcQAEntitiesSelectionType;
-import de.ingrid.utils.ige.MdekUtils.IdcStatisticsSelectionType;
-import de.ingrid.utils.ige.MdekUtils.IdcWorkEntitiesSelectionType;
-import de.ingrid.utils.ige.MdekUtils.WorkState;
 
 
 /**

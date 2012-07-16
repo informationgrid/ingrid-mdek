@@ -9,11 +9,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
-import de.ingrid.utils.ige.MdekUtils.MdekSysList;
 
 /**
  * Hibernate-specific implementation of the <tt>ISysListDao</tt>

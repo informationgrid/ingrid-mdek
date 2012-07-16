@@ -16,15 +16,15 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.TransactionService;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.utils.csv.ExcelCSVPrinter;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils;
-import de.ingrid.utils.ige.MdekUtils.IdcEntityType;
 
 /**
  * Generic HQL operations.

@@ -2,12 +2,12 @@ package de.ingrid.mdek.caller;
 
 import java.util.List;
 
+import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.MdekUtils.SearchtermType;
+import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.ige.MdekUtils;
-import de.ingrid.utils.ige.MdekUtils.MdekSysList;
-import de.ingrid.utils.ige.MdekUtils.SearchtermType;
-import de.ingrid.utils.ige.MdekUtils.SpatialReferenceType;
 
 
 /**
