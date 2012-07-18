@@ -95,6 +95,18 @@
           <skip>true</skip>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <inherited>false</inherited>
+			<!-- Add Type of Component to Manifest of Installer for Upgrade Server -->
+			<configuration>
+				<archive>
+				  <manifestEntries>
+					  <ingridComponentType>IPLUG_IGE</ingridComponentType>
+				</manifestEntries>
+				</archive>
+			</configuration>
+      </plugin>
       <!-- DISABLE RELEASE / ASSEMBLY STUFF FOR SUBMODULES ! RELEASE/BUNDLE ONLY IN TOP MODULE !!! -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
