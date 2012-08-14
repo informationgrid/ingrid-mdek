@@ -286,6 +286,18 @@ public class DocToBeanMapper implements IMapper {
 
 			// process all languages one by one
 			IngridDocument localNames = (IngridDocument) entries[i].get(MdekKeys.LST_LOCALISED_ENTRY_NAME_MAP);
+        	// check umlaute !
+/*
+            if (LOG.isDebugEnabled()) {
+            	if ((new Integer(100)).equals(inLstId) && (new Integer(28462)).equals(inEntryId)) {
+            		LOG.debug("Checking Umlaut of syslist/entry " + inLstId + "/" + inEntryId);                    		
+        			for (String langId : ((Map<String,String>)localNames).keySet()) {
+                    	LOG.debug(localNames.getString(langId));
+                		LOG.debug("Contains ü: " + (localNames.getString(langId).indexOf("ü") != -1));                    		
+                    }
+            	}
+            }
+*/
 			for (String langId : ((Map<String,String>)localNames).keySet()) {
 			    String inName = localNames.getString(langId);
 
