@@ -4,51 +4,57 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="3.2.?" date="??" description="Bugfix Release InGrid 3.2">
+      <action type="fix" dev="wemove" issue="INGRID33-2">
+        Fix multiple references to same object.
+      </action>
+    </release>
+
     <release version="3.2.0" date="2012-07-18" description="Release InGrid 3.2">
-      <action type="add" issue="INGRID-2120">
+      <action type="add" dev="wemove" issue="INGRID-2120">
         Added functionality for creating/updating IGC catalog via installer (udk-importer integrated) !
       </action>
-      <action type="add" issue="INGRID-2124">
+      <action type="add" dev="wemove" issue="INGRID-2124">
         Prototype: added new object class "Open Data" (7) for demonstrating reduced data input (HH).
       </action>
       <action type="add" dev="wemove" issue="INGRID32-81">
         Add coupling type for service objects.
       </action>
-      <action type="add" issue="INGRID32-36">
+      <action type="add" dev="wemove" issue="INGRID32-36">
         Handle migrated user addresses to separate hidden addresses not visible in IGE (adapt Queries/HQL).
       </action>
-      <action type="add" issue="INGRID32-31">
+      <action type="add" dev="wemove" issue="INGRID32-31">
         Add publication condition to tree nodes for display in frontend.
       </action>
-      <action type="add" issue="INGRID32-37">
+      <action type="add" dev="wemove" issue="INGRID32-37">
         Add new field hide-address to address data. Also part of InGrid Import/Export Format.
       </action>
-      <action type="add" issue="INGRID32-30">
+      <action type="add" dev="wemove" issue="INGRID32-30">
         Add new field catalog-namespace to catalog data.
       </action>
-      <action type="add" issue="INGRID32-50">
+      <action type="add" dev="wemove" issue="INGRID32-50">
         Add new legacy control "Datensammlung/Datenbank - Fachbezug - Objektartenkatalog". Synonym to "Geoinformation/Karte - Schlüsselkatalog" now both stored in the same new database table (object_types_catalogue).
       </action>
-      <action type="update" issue="INGRID-2103">
+      <action type="update" dev="wemove" issue="INGRID-2103">
         Original object identifier now transfered to frontend to show in detail/compare view.
       </action>
-      <action type="update" issue="INGRID32-26">
+      <action type="update" dev="wemove" issue="INGRID32-26">
         Rework of "Add/Edit Operation" dialog: Add syslist for operation platforms.
       </action>
-      <action type="update" issue="INGRID32-27">
+      <action type="update" dev="wemove" issue="INGRID32-27">
         Rework of "Add/Edit Link" dialog: Remove columns from t017_url_ref, remove syslist 2240 (url datatype).
       </action>
-      <action type="update" issue="INGRID32-46">
+      <action type="update" dev="wemove" issue="INGRID32-46">
         Introduce new names for relation to address. Also change behaviour: only one referenced address necessary, no matter which reference type.
       </action>
-      <action type="update" issue="INGRID32-48">
+      <action type="update" dev="wemove" issue="INGRID32-48">
         Remove DQ tables "Art der Messung" syslists 7110 (Datendefizit), 7117 (Absolute Positionsgenauigkeit) now replaced by fields.
       </action>
-      <action type="update" issue="INGRID32-28, INGRID32-47">
+      <action type="update" dev="wemove" issue="INGRID32-28, INGRID32-47">
         New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist. 
         Handle metadata in syslist entries (e.g. in syslist 6005 publication date at end of values only used for IDF mapping).
       </action>
-      <action type="update" issue="INGRID31-22">
+      <action type="update" dev="wemove" issue="INGRID31-22">
         Remove environmental categories from catalog (t0114_env_category + syslist 1400). Categorization now only via environmental topics.
       </action>
       <action type="update" dev="wemove" issue="INGRID-1885">
@@ -66,7 +72,7 @@
       <action type="fix" dev="wemove">
         ORACLE fixes: Fix fetching of sys_generic_key value (no distinct).
       </action>
-      <action type="fix" issue="INGRID-1992">
+      <action type="fix" dev="wemove" issue="INGRID-1992">
         Changed logging behavior, so that not so many files will be created.
       </action>
     </release>
@@ -162,67 +168,67 @@
     </release>
 
 	<release version="1.3.0" date="2010-07-21" description="Oracle Release. ENFORCES UPDATE OF IGC Schema to 1.0.7">
-      <action type="add">
+      <action type="add" dev="wemove">
         Neueste Projektabhängigkeiten, Einbindung in Upgrade Server.
       </action>
-      <action type="add">
+      <action type="add" dev="wemove">
         Oracle support added. NOTICE: Schema of IGC has to be updated to 1.0.7 (via UDK Importer/Updater Strategy 1.0.7)
       </action>
-      <action type="update">
+      <action type="update" dev="wemove">
         IGE Import: Better info when tags are missing. Better Info about Exceptions in JobProtocol.
       </action>
     </release>
 
     <release version="1.2.2" date="2009-09-22" description="Bugfix Release">
-      <action type="fix">
+      <action type="fix" dev="wemove">
         Gesamtkatalogmanagement/Codelistenpflege/Reindexierung funktioniert wieder, generisches T01Object Dao hat gefehlt (noetig nachdem Sprach/Laenderlisten in Objekt integriert wurden)
       </action>
     </release>
 
     <release version="1.2.1" date="2009-07-22" description="Release Maven2 + Installer">
-      <action type="add">
+      <action type="add" dev="wemove">
         Installationsassistent und Maven2 Kompatibilität, IGC version 1.0.5 / Export Format 1.0.5
       </action>
-      <action type="add">
+      <action type="add" dev="wemove">
         Import-Export als Submodul integriert
       </action>
     </release>
 
     <release version="1.2.0" date="2009-06-05" description="1st Release">
-      <action type="update">
+      <action type="update" dev="wemove">
         erste Distribution des IGE-iPlug basierend auf IGC version 1.0.5 / Export Format 1.0.5
       </action>
-      <action type="add">
+      <action type="add" dev="wemove">
         Integration Codelisten für Länder und Sprachen
       </action>
-      <action type="add">
+      <action type="add" dev="wemove">
         SNS Update: Raumbezüge werden jetzt auch auf Name, etc. verglichen und ändern evtl. Topic-ID
       </action>
-      <action type="fix">
+      <action type="fix" dev="wemove">
         Freier Raumbezug aus Sysliste nicht wiederholt speicherbar (verursachte NPE)
       </action>
-      <action type="fix">
+      <action type="fix" dev="wemove">
         Export schreibt leere Export-Info wenn keine Objekte gefunden
       </action>
-      <action type="fix">
+      <action type="fix" dev="wemove">
         Änderung Namensgebung in communication (Gruppe, iBus, iBus-Client)
       </action>
-      <action type="fix">
+      <action type="fix" dev="wemove">
         Freie Raumbezüge/Freie Suchbegriffe: Speichervorgang robuster (exakter Namensvergleich, typenspezifisch etc.)
       </action>
-      <action type="fix">
+      <action type="fix" dev="wemove">
         "Adresse löschen" berücksichtigt jetzt auch Mehrfachzuweisung von gleicher Adresse
       </action>
     </release>
 
     <release version="1.1.1" date="2009-04-02" description="2nd Kst-Release">
-      <action type="update">
+      <action type="update" dev="wemove">
         erste Release Installation des IGE iPlug (MDEK) basierend auf IGC Katalog version 1.0.4 (Installation auf Kst-Servern, KEINE Distribution)
       </action>
     </release>
 
     <release version="1.1.0" date="2008-11-05" description="Initial Kst-Release">
-      <action type="add">
+      <action type="add" dev="wemove">
         Initial installation of IGE iPlug (MDEK) covering IGC version 1.0.3 (INSPIRE etc.)
       </action>
     </release>

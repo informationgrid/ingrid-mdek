@@ -630,7 +630,9 @@ public class DocToBeanMapper implements IMapper {
 			String oToUuid = (String) oDocTo.get(MdekKeys.UUID);
 			boolean found = false;
 			for (ObjectReference oRef : oRefs) {
-				if (oRef.getObjToUuid().equals(oToUuid)) {
+				// compare UUID and REFERENCE TYPE ! 
+				if (oRef.getObjToUuid().equals(oToUuid) &&
+					MdekUtils.isEqual(oRef.getSpecialRef(), (Integer) oDocTo.get(MdekKeys.RELATION_TYPE_REF))) {
 					mapObjectReference(oIn, oDocTo, oRef, line);
 					oRefs_unprocessed.remove(oRef);
 					found = true;
