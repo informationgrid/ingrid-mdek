@@ -167,6 +167,7 @@ public class DocToBeanMapper implements IMapper {
         Integer[] inEntryIds = (Integer[]) docIn.get(MdekKeys.LST_ENTRY_IDS);
         String[] inNames_de = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_DE);
         String[] inNames_en = (String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES_EN);
+        String[] data = (String[]) docIn.get(MdekKeys.LST_ENTRY_DATA);
         boolean hasEnglishEntries = false;
         if (inNames_en != null) {
             for (String inName_en : inNames_en) {
@@ -242,6 +243,7 @@ public class DocToBeanMapper implements IMapper {
                 String inName = (inNames[i] == null) ? "" : inNames[i];
                 foundEntry.setName(inName);
                 foundEntry.setMaintainable(inMaintainable);
+                foundEntry.setData(data[i]);
                 dao.makePersistent(foundEntry);
             }
         }

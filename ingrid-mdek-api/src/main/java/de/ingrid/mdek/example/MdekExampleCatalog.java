@@ -287,6 +287,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.storeSysList(8150815, true, null,
 			new Integer[]{null, null, null},
 			new String[]{"name1_de", "name2_de", "name3_de"},
+			new String[]{null, null, null},
 			new String[]{null, null, null});
 		supertool.getSysLists(new Integer[] { 8150815 }, null);
 
@@ -294,12 +295,14 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.storeSysList(8150815, false, 1,
 			new Integer[]{1, 2, 3, null},
 			new String[]{"NAME1_de", "NAME2_de", "NAME3_de", "NAME4_de"},
-			new String[]{"name1_en", "name2_en", null, "name4_en"});
+			new String[]{"name1_en", "name2_en", null, "name4_en"},
+			new String[]{null, null, null});
 		supertool.getSysLists(new Integer[] { 8150815 }, null);
 
 		System.out.println("\n----- change Syslist id=08150815 (remove all) and load -----");
 		supertool.storeSysList(8150815, false, null,
 			new Integer[]{},
+			new String[]{},
 			new String[]{},
 			new String[]{});
 		supertool.getSysLists(new Integer[] { 8150815 }, null);
@@ -351,6 +354,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.storeSysList(syslistId, true, null,
 				idList.toArray(new Integer[idList.size()]),
 				nameList_de.toArray(new String[nameList_de.size()]),
+				null,
 				null);
 
 		System.out.println("\n----- verify: changed Syslist LEGIST(1350) -----");
@@ -402,6 +406,7 @@ class MdekExampleCatalogThread extends Thread {
 		supertool.storeSysList(syslistId, true, null,
 				entryIds,
 				entryNames_de,
+				null,
 				null);
 
 		System.out.println("\n\n=========================");

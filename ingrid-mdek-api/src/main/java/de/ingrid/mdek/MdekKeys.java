@@ -337,6 +337,9 @@ public class MdekKeys {
     /** Entry names in english. If name in array is null, then no english name.<br>
      * Value: String[] */
     public final static String LST_ENTRY_NAMES_EN = "lst-entry-names-en";
+    /** Data which can contain extra information (see INGRID33-5).<br>
+     * Value: String */
+    public final static String LST_ENTRY_DATA = "lst-entry-data";
 
     /** Free entries in entity of syslist, e.g. free entries in T015Legist if LEGIST syslist<br>
      * Value: String[] */

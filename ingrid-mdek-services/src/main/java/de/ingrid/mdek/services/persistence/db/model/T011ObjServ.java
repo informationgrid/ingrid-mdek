@@ -107,6 +107,14 @@ public class T011ObjServ implements IEntity {
 		this.hasAccessConstraint = hasAccessConstraint;
 	}
 
+	public String getCouplingType() {
+		return couplingType;
+	}
+
+	public void setCouplingType(String couplingType) {
+		this.couplingType = couplingType;
+	}
+
 
 	public Set getT011ObjServOperations() {
 		return t011ObjServOperations;
@@ -147,15 +155,5 @@ public class T011ObjServ implements IEntity {
 	public void setT011ObjServVersions(Set t011ObjServVersions) {
 		this.t011ObjServVersions = t011ObjServVersions;
 	}
-
-   
-	public void setCouplingType(String couplingType) {
-        this.couplingType = couplingType;
-    }
-
-    
-	public String getCouplingType() {
-        return couplingType;
-    }
 
 }

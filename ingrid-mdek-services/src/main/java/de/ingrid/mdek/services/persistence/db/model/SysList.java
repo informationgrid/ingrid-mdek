@@ -11,6 +11,7 @@ public class SysList implements IEntity {
 	private String langId;
 	private String name;
 	private String description;
+	private String data;
 	private Integer maintainable;
 	private String isDefault;
 	private Integer line;
@@ -72,6 +73,14 @@ public class SysList implements IEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 
 	public Integer getMaintainable() {

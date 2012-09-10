@@ -1799,8 +1799,9 @@ public class BeanToDocMapper implements IMapper {
 
 		listDoc.put(MdekKeys.LST_ID, listId);
 		
-		ArrayList<Integer> entryIds = new ArrayList<Integer>();
+		ArrayList<Integer> entryIds  = new ArrayList<Integer>();
 		ArrayList<String> entryNames = new ArrayList<String>();
+		ArrayList<String> entryData  = new ArrayList<String>();
 		for (SysList entry : list) {
 			if (!listDoc.containsKey(MdekKeys.LST_MAINTAINABLE)) {
 				listDoc.put(MdekKeys.LST_MAINTAINABLE, entry.getMaintainable());
@@ -1815,12 +1816,15 @@ public class BeanToDocMapper implements IMapper {
 			if (MdekUtils.YES.equals(entry.getIsDefault())) {
 				listDoc.put(MdekKeys.LST_DEFAULT_ENTRY_INDEX, entryIndex);
 			}
+			
 			addEntryToList(entry.getName(), entryNames, entryIndex);
+			addEntryToList(entry.getData(), entryData, entryIndex);
 		}
 		listDoc.put(MdekKeys.LST_ENTRY_IDS, entryIds.toArray(new Integer[entryIds.size()]));
 		if (entryNames.size() > 0) {
 			listDoc.put(MdekKeys.LST_ENTRY_NAMES, entryNames.toArray(new String[entryNames.size()]));			
 		}
+		listDoc.put(MdekKeys.LST_ENTRY_DATA, entryData.toArray(new String[entryData.size()]));
 
 		return listDoc;
 	}

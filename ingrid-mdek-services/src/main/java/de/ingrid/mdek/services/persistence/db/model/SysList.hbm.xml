@@ -12,6 +12,7 @@
       <property name="langId" type="string" column="lang_id"/>
       <property name="name" type="string" column="name"/>
       <property name="description" type="string" column="description"/>
+      <property name="data" type="string" column="data"/>
       <property name="maintainable" type="integer" column="maintainable"/>
       <property name="isDefault" type="string" column="is_default"/>
       <property name="line" type="integer" column="line"/>

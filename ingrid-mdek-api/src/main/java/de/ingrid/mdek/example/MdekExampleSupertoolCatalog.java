@@ -199,7 +199,7 @@ public class MdekExampleSupertoolCatalog {
 	}
 
 	public IngridDocument storeSysList(int listId, boolean maintainable, Integer defaultEntryIndex,
-			Integer[] entryIds, String[] entryNames_de, String[] entryNames_en) {
+			Integer[] entryIds, String[] entryNames_de, String[] entryNames_en, String[] data) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -217,7 +217,7 @@ public class MdekExampleSupertoolCatalog {
 		response = mdekCallerCatalog.storeSysList(plugId,
 				listId, maintainable, defaultEntryIndex,
 				entryIds, entryNames_de, entryNames_en,
-				myUserUuid);
+				data, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

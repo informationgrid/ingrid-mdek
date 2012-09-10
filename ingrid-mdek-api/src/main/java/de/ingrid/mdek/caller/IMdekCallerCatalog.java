@@ -45,7 +45,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	IngridDocument storeSysList(String plugId,
 			int listId, boolean maintainable, Integer defaultEntryIndex,
 			Integer[] entryIds, String[] entryNames_de, String[] entryNames_en, 
-			String userId);
+			String[] data, String userId);
 
 	/**
 	 * Store all syslists synchronized with the codelist repository. This function normally
