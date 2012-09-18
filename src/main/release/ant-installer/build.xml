@@ -313,7 +313,7 @@
             </and>
         </condition>
 
-        <!-- copy output of updater (SQL Script for update mdek database, logs ...) to installation directory -->
+        <!-- copy output of updater (SQL Script for update mdek database, logs ...) to installation directory WITH TIMESTAMP PREFIX ! -->
         <copy todir="${installDir}">
             <fileset dir="${importerDir}">
                 <include name="**/igc3.2.0_UpdateMdek*"/>
@@ -323,6 +323,13 @@
         </copy>
         <property name="importerLog_name" value="importer_${DSTAMP}${TSTAMP}_log.log"/>
         <property name="v320UpdateScript_name" value="importer_${DSTAMP}${TSTAMP}_igc3.2.0_UpdateMdek*.sql"/>
+
+        <!-- copy other stuff from importer to installation directory -->
+        <copy todir="${installDir}">
+            <fileset dir="${importerDir}">
+                <include name="migration_mysql2oracle/**"/>
+            </fileset>
+        </copy>
     </target>
     
     <target name="cleanuptarget">
