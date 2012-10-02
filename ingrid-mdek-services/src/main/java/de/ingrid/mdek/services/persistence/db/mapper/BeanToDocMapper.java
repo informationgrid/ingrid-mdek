@@ -228,6 +228,7 @@ public class BeanToDocMapper implements IMapper {
 			// map associations
 			mapSearchtermObjs(o.getSearchtermObjs(), objectDoc, howMuch);
 			mapT012ObjAdrs(o.getT012ObjAdrs(), objectDoc, howMuch);
+			mapT011ObjTopicCats(o.getT011ObjTopicCats(), objectDoc); // INGRID33-6
 
 			return objectDoc;
 		}
