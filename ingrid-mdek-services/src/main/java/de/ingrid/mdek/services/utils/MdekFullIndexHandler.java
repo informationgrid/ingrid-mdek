@@ -223,7 +223,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		extendFullData(data, a.getPostboxPc());
 		extendFullData(data, a.getCity());
 		extendFullData(data, a.getJob());
-		extendFullData(data, a.getDescr());
 
 		return data.toString();
 	}
@@ -262,7 +261,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		extendFullData(data, a.getInstitution());
 		extendFullData(data, a.getLastname());
 		extendFullData(data, a.getFirstname());
-		extendFullData(data, a.getDescr());
 
 		return data.toString();
 	}	

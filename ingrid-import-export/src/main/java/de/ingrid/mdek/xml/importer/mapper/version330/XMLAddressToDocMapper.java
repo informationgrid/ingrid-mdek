@@ -1,4 +1,4 @@
-package de.ingrid.mdek.xml.importer.mapper.version1_0;
+package de.ingrid.mdek.xml.importer.mapper.version330;
 
 import static de.ingrid.mdek.xml.util.IngridDocUtils.*;
 
@@ -20,6 +20,7 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 	private final static String X_MODIFICATOR_IDENTIFIER = "//address/modificator-identifier/text()";
 	private final static String X_RESPONSIBLE_IDENTIFIER = "//address/responsible-identifier/text()";
 	private final static String X_TYPE_OF_ADDRESS = "//address/type-of-address/@id";
+	private final static String X_HIDE_ADDRESS = "//address/hide-address/text()";
 	private final static String X_ORGANISATION = "//address/organisation/text()";
 	private final static String X_NAME = "//address/name/text()";
 	private final static String X_NAME_FORM = "//address/name-form/text()";
@@ -27,7 +28,8 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 	private final static String X_TITLE_OR_FUNCTION = "//address/title-or-function/text()";
 	private final static String X_TITLE_OR_FUNCTION_KEY = "//address/title-or-function/@id";
 	private final static String X_GIVEN_NAME = "//address/given-name/text()";
-	private final static String X_POSTAL_CODE_COUNTRY = "//address/postal-code-of-country/@iso-code";
+	private final static String X_COUNTRY = "//address/country/text()";
+	private final static String X_COUNTRY_KEY = "//address/country/@id";
 	private final static String X_POSTAL_CODE = "//address/postal-code/text()";
 	private final static String X_STREET = "//address/street/text()";
 	private final static String X_CITY = "//address/city/text()";
@@ -40,7 +42,6 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 	private final static String X_COMMUNICATION_DESCRIPTION = "communication-description/text()";
 	private final static String X_ORIGINAL_ADDRESS_IDENTIFIER = "//address/original-address-identifier/text()";
 	private final static String X_FUNCTION = "//address/function/text()";
-	private final static String X_ADDRESS_DESCRIPTION = "//address/address-description/text()";
 	private static final String X_SUBJECT_TERMS = "//address/subject-terms";
 	private static final String X_COMMENT_LIST = "//address/comment";
 	private static final String X_COMMENT_CONTENT = "comment-content/text()";
@@ -57,6 +58,7 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 		putString(new String[] {MdekKeys.MOD_USER, MdekKeys.UUID}, XPathUtils.getString(source, X_MODIFICATOR_IDENTIFIER), address);
 		putString(new String[] {MdekKeys.RESPONSIBLE_USER, MdekKeys.UUID}, XPathUtils.getString(source, X_RESPONSIBLE_IDENTIFIER), address);
 		putInt(MdekKeys.CLASS, XPathUtils.getInt(source, X_TYPE_OF_ADDRESS), address);
+		putString(MdekKeys.HIDE_ADDRESS, XPathUtils.getString(source, X_HIDE_ADDRESS), address);
 		putString(MdekKeys.ORGANISATION, XPathUtils.getString(source, X_ORGANISATION), address);
 		putString(MdekKeys.NAME, XPathUtils.getString(source, X_NAME), address);
 		putString(MdekKeys.NAME_FORM, XPathUtils.getString(source, X_NAME_FORM), address);
@@ -64,10 +66,8 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 		putString(MdekKeys.TITLE_OR_FUNCTION, XPathUtils.getString(source, X_TITLE_OR_FUNCTION), address);
 		putInt(MdekKeys.TITLE_OR_FUNCTION_KEY, XPathUtils.getInt(source, X_TITLE_OR_FUNCTION_KEY), address);
 		putString(MdekKeys.GIVEN_NAME, XPathUtils.getString(source, X_GIVEN_NAME), address);
-		
-		// TODO: REMOVED IN VERSION 1.0.5. !!! Fix if import of older formats needed !
-//		putString(MdekKeys.POSTAL_CODE_OF_COUNTRY, XPathUtils.getString(source, X_POSTAL_CODE_COUNTRY), address);
-
+		putString(MdekKeys.COUNTRY_NAME, XPathUtils.getString(source, X_COUNTRY), address);
+		putInt(MdekKeys.COUNTRY_CODE, XPathUtils.getInt(source, X_COUNTRY_KEY), address);
 		putString(MdekKeys.POSTAL_CODE, XPathUtils.getString(source, X_POSTAL_CODE), address);
 		putString(MdekKeys.STREET, XPathUtils.getString(source, X_STREET), address);
 		putString(MdekKeys.CITY, XPathUtils.getString(source, X_CITY), address);
@@ -76,8 +76,6 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 		mapCommunications(source, address);
 		putString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, XPathUtils.getString(source, X_ORIGINAL_ADDRESS_IDENTIFIER), address);
 		putString(MdekKeys.FUNCTION, XPathUtils.getString(source, X_FUNCTION), address);
-		// TODO: ADDRESS_DESCRIPTION removed with version 330 
-//		putString(MdekKeys.ADDRESS_DESCRIPTION, XPathUtils.getString(source, X_ADDRESS_DESCRIPTION), address);
 		mapSubjectTerms(source, address);
 		mapComments(source, address);
 		putString(MdekKeys.DATE_OF_LAST_MODIFICATION, XPathUtils.getString(source, X_DATE_OF_LAST_MODIFICATION), address);

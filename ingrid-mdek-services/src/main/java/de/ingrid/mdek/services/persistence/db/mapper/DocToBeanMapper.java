@@ -243,7 +243,9 @@ public class DocToBeanMapper implements IMapper {
                 String inName = (inNames[i] == null) ? "" : inNames[i];
                 foundEntry.setName(inName);
                 foundEntry.setMaintainable(inMaintainable);
-                foundEntry.setData(data[i]);
+                if (data != null && i < data.length) {
+                    foundEntry.setData(data[i]);
+                }
                 dao.makePersistent(foundEntry);
             }
         }
@@ -552,7 +554,6 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setJob(aDocIn.getString(MdekKeys.FUNCTION));
 			aIn.setAddressValue(aDocIn.getString(MdekKeys.NAME_FORM));
 			aIn.setAddressKey((Integer)aDocIn.get(MdekKeys.NAME_FORM_KEY));
-			aIn.setDescr(aDocIn.getString(MdekKeys.ADDRESS_DESCRIPTION));
 
 			aIn.setModUuid(extractModUserUuid(aDocIn));
 			aIn.setResponsibleUuid(extractResponsibleUserUuid(aDocIn));

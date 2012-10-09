@@ -37,7 +37,6 @@ public class AddressDocToXMLMapper extends AbstractDocToXMLMapper {
 		address.addChildren(createCommunications());
 		address.addChild(new XMLElement(ORIGINAL_ADDRESS_IDENTIFIER, getStringForKey(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER)));
 		address.addChild(new XMLElement(FUNCTION, getStringForKey(MdekKeys.FUNCTION)));
-		address.addChild(new XMLElement(ADDRESS_DESCRIPTION, getStringForKey(MdekKeys.ADDRESS_DESCRIPTION)));
 		address.addChild(createSubjectTerms());
 		address.addChildren(createComments());
 		address.addChild(new XMLElement(DATE_OF_LAST_MODIFICATION, getStringForKey(MdekKeys.DATE_OF_LAST_MODIFICATION)));

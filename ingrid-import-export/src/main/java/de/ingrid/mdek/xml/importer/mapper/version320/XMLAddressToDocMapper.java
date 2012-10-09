@@ -77,7 +77,8 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 		mapCommunications(source, address);
 		putString(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, XPathUtils.getString(source, X_ORIGINAL_ADDRESS_IDENTIFIER), address);
 		putString(MdekKeys.FUNCTION, XPathUtils.getString(source, X_FUNCTION), address);
-		putString(MdekKeys.ADDRESS_DESCRIPTION, XPathUtils.getString(source, X_ADDRESS_DESCRIPTION), address);
+		// TODO: ADDRESS_DESCRIPTION removed with version 330 
+//		putString(MdekKeys.ADDRESS_DESCRIPTION, XPathUtils.getString(source, X_ADDRESS_DESCRIPTION), address);
 		mapSubjectTerms(source, address);
 		mapComments(source, address);
 		putString(MdekKeys.DATE_OF_LAST_MODIFICATION, XPathUtils.getString(source, X_DATE_OF_LAST_MODIFICATION), address);

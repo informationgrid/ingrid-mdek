@@ -296,6 +296,7 @@ class MdekExampleCatalogThread extends Thread {
 			new Integer[]{1, 2, 3, null},
 			new String[]{"NAME1_de", "NAME2_de", "NAME3_de", "NAME4_de"},
 			new String[]{"name1_en", "name2_en", null, "name4_en"},
+			// NOTICE: Wrong number of data in array ! Is handled in Backend !
 			new String[]{null, null, null});
 		supertool.getSysLists(new Integer[] { 8150815 }, null);
 
@@ -407,6 +408,7 @@ class MdekExampleCatalogThread extends Thread {
 				entryIds,
 				entryNames_de,
 				null,
+				// NOTICE: null Data ! Is handled in Backend !
 				null);
 
 		System.out.println("\n\n=========================");

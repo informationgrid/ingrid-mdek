@@ -25,7 +25,6 @@
       <property name="countryKey" type="integer" column="country_key"/>
       <property name="countryValue" type="string" column="country_value"/>
       <property name="job" type="string" column="job"/>
-      <property name="descr" type="string" column="descr"/>
       <property name="workState" type="string" column="work_state"/>
       <property name="createTime" type="string" column="create_time"/>
       <property name="modTime" type="string" column="mod_time"/>

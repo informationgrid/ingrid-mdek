@@ -27,7 +27,6 @@ public class T02Address implements IEntity {
 	private Integer countryKey;
 	private String countryValue;
 	private String job;
-	private String descr;
 	private String workState;
 	private String createTime;
 	private String modTime;
@@ -203,14 +202,6 @@ public class T02Address implements IEntity {
 
 	public void setJob(String job) {
 		this.job = job;
-	}
-
-	public String getDescr() {
-		return descr;
-	}
-
-	public void setDescr(String descr) {
-		this.descr = descr;
 	}
 
 	public String getWorkState() {

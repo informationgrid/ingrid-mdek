@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="3.2.0"/>
+    <xs:attribute name="exchange-format" default="3.3.0"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -1525,7 +1525,6 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="communication"/>
         <xs:element minOccurs="0" ref="original-address-identifier"/>
         <xs:element minOccurs="0" ref="function"/>
-        <xs:element minOccurs="0" ref="address-description"/>
         <xs:element minOccurs="0" ref="subject-terms"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="comment"/>
         <xs:element minOccurs="0" ref="date-of-last-modification"/>
@@ -1616,11 +1615,6 @@
     Tabelle.Feld   : t02_address.job
   -->
   <xs:element name="function" type="xs:string"/>
-  <!--
-    Fachlicher Name: Beschreibung der Adresse (Notizen)
-    Tabelle.Feld   : t02_address.descr
-  -->
-  <xs:element name="address-description" type="xs:string"/>
   <!--
     Fachlicher Name: Adresse Kommunikationsdaten 
     Tabelle   : t021_communication

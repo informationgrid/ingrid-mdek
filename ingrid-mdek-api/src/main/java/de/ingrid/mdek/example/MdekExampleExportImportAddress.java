@@ -214,6 +214,61 @@ class MdekExampleExportImportAddressThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		// Test EXPORT / IMPORT new Exchange Format 3.3.0
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- address details -----");
+		IngridDocument aDoc = supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EXPORT_ENTITY);
+		
+		System.out.println("\n----- publish existing address (only published are exported) ! -----");
+//		System.out.println("\n----- change and publish existing address (only published are exported) ! -----");
+
+		// Add here changes in new format to verify
+//		aDoc.put(MdekKeys.HIDE_ADDRESS, "Y");
+
+		supertool.publishAddress(aDoc, true);
+
+		System.out.println("\n----- export address -----");
+		supertool.exportAddressBranch(child1PersonAddrUuid, true, null);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import address as WORKING VERSION -----");
+		// OVERWRITE !!!
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- publish again (NO working version) -----");
+//		System.out.println("\n----- discard changes -> remove former change and publish -----");
+//		aDoc.put(MdekKeys.HIDE_ADDRESS, "N");
+
+		supertool.publishAddress(aDoc, true);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+/*
 		// Test EXPORT / IMPORT new Exchange Format 3.2.0
 		// --------------------------
 		supertool.setFullOutput(true);

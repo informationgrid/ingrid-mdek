@@ -188,7 +188,6 @@
 			<xs:element name="post-box-postal-code" type="xs:string"/>
 			<xs:element name="post-box" type="xs:string"/>
 			<xs:element name="function" type="xs:string"/>
-			<xs:element name="address-description" type="xs:string"/>
 			<xs:element name="original-address-identifier" type="xs:string"/>
 
 			<xs:element name="lastexport-time" type="TIMESTAMP"/>

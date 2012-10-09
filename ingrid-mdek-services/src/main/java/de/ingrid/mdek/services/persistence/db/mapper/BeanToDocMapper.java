@@ -430,7 +430,6 @@ public class BeanToDocMapper implements IMapper {
 			addressDoc.put(MdekKeys.FUNCTION, a.getJob());			
 			addressDoc.put(MdekKeys.NAME_FORM, a.getAddressValue());
 			addressDoc.put(MdekKeys.NAME_FORM_KEY, a.getAddressKey());
-			addressDoc.put(MdekKeys.ADDRESS_DESCRIPTION, a.getDescr());			
 
 			// map associations
 			mapSearchtermAdrs(a.getSearchtermAdrs(), addressDoc, howMuch);
