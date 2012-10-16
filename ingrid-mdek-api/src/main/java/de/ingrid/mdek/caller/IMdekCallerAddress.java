@@ -225,8 +225,8 @@ public interface IMdekCallerAddress extends IMdekCaller {
 	/**
 	 * Merge address data to sub addresses.
 	 * NOTICE: Data is always merged into working instance (which equals published instance if no working version).
-	 * Address is then stored as working version if in work state or published if in published state (? then may be
-	 * passed to QS if no QS permission ? currently not, throws exception if not QS !).
+	 * Address is then stored as working version if in work state or published if in published state (or assigned
+	 * to QS if no QS permission).
 	 * @param plugId which mdek server (iplug)
 	 * @param parentUuid top address containing data to merge into sub addresses
 	 * @param userId calling user

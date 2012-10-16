@@ -1240,7 +1240,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/**
 	 * Merge data of parent to its subnodes.
-	 * Subnodes are stored as working version (if in work state) or published (if in published state) !
+	 * Subnodes are stored as working version (if in work state) or published (if in published state and QA)
+	 * or assigned to QA (if in published state and NOT QA) !
 	 * @param mergeSourceUuid uuid of parent node to merge into subnodes
 	 * @param userUuid current user address uuid needed to update running jobs
 	 * @return doc containing additional info (number merged nodes)
@@ -1303,7 +1304,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	/**
 	 * Merges data of given sourceAddr into given target address node. Already Persisted !
-	 * State of target node determines whether address is published or stored as working version !
+	 * State of target node determines whether address is stored as working version or published (or assigned to QA if no QA) !
 	 */
 	private void mergeT02Address(T02Address sourceAddr, AddressNode targetAddrNode, String userUuid) {
 		// execute merge
@@ -1324,11 +1325,25 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				log.debug("Node has working copy -> STORE merged address '" + targetAddrNode.getAddrUuid() + "' as working copy.");
 			}
 			addressService.storeWorkingCopy(targetAddrDoc, userUuid);
-		} else {			
-			if (log.isDebugEnabled()) {
-				log.debug("Node has NO working copy -> PUBLISH merged address '" + targetAddrNode.getAddrUuid() + "'.");
+		} else {
+			// do we have permission to publish (e.g. no permission if workflow enabled and not QA) ? Execute in catch block !
+			try {
+				// publish
+				addressService.publishAddress(targetAddrDoc, userUuid);
+				if (log.isDebugEnabled()) {
+					log.debug("Node has NO working copy and \"QA\" valid -> PUBLISHed merged address '" + targetAddrNode.getAddrUuid() + "'.");
+				}
+			} catch (MdekException ex) {
+				if (ex.getMdekError().getErrorType() == MdekErrorType.USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY) {
+					// no right to publish, ASSIGN TO QA
+					addressService.assignAddressToQA(targetAddrDoc, userUuid);
+					if (log.isDebugEnabled()) {
+						log.debug("Node has NO working copy and \"QA\" NOT valid -> ASSIGNed merged address '" + targetAddrNode.getAddrUuid() + "' TO QA.");
+					}
+				} else {
+					throw ex;
+				}
 			}
-			addressService.publishAddress(targetAddrDoc, userUuid);
 		}
 	}
 }

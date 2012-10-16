@@ -643,14 +643,14 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("----- !!! SWITCH \"CALLING USER\" TO user NO QS -----");
 		supertool.setCallingUser(newMetaAdminGroup1Uuid);
 
-		System.out.println("\n\n----- Perform Merge ! try to publish -> ERROR: USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY (not QA) -----");
+		System.out.println("\n\n----- Perform Merge ! try to publish sub address -> NON QA -> ASSIGNED TO QA ! -----");
 		supertool.mergeAddressToSubAddresses(mergeParentUuid);
 		
-		System.out.println("\n\n----- Check merged data in sub addresses, NOTHING MERGED ! -----");
-		System.out.println("\n----- load 1. child, TEST merge data ! WORKING VERSION ! -----");
+		System.out.println("\n\n----- Check merged data in sub addresses, same as parent, work state WORKING VERSION or ASSIGNED TO QA -----");
+		System.out.println("\n----- load 1. child, parent merge data ! WORKING VERSION ! -----");
 		doc = supertool.fetchAddress(mergeChild1Uuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.debugAddressDocMergeData(doc);
-		System.out.println("\n----- load 2. child, TEST merge data ! PUBLISHED -----");
+		System.out.println("\n----- load 2. child, parent merge data ! ASSIGNED TO QA ! -----");
 		doc = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.debugAddressDocMergeData(doc);
 
