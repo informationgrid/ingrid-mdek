@@ -5,8 +5,11 @@
   </properties>
   <body>
     <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
-      <action type="fix" dev="wemove" issue="INGRID33-10">
-        Remove field "note" from addresses (t02_address.descr), changes Export/Import format to version 3.3.0.
+      <action type="add" dev="wemove" issue="INGRID33-11">
+        Now possible to merge address data of parent address to all subnodes.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID33-10">
+        Remove field "note" from addresses (t02_address.descr), contents moved to address comments -> NEW version 3.3.0 of Export/Import format !
       </action>
     </release>
 

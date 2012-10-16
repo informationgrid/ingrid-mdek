@@ -11,12 +11,13 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleAddress {
@@ -534,6 +535,147 @@ class MdekExampleAddressThread extends Thread {
 		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.FREI.getDbValue());
 		supertool.storeAddress(aMapNew, false);
 		aMapNew.put(MdekKeys.CLASS, origType);
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("MERGE TEST");
+		System.out.println("=========================");
+
+		// Test data: parent with 2 children !
+		String mergeParentUuid = "38664489-B449-11D2-9A86-080000507261";
+		String mergeChild1Uuid = "38664594-B449-11D2-9A86-080000507261";
+		String mergeChild2Uuid = "38664595-B449-11D2-9A86-080000507261";
+		boolean oldDoFullOutput = supertool.doFullOutput;
+		supertool.doFullOutput = false;
+
+		System.out.println("\n\n----- check details of parent, will be merged to subaddresses ! -----");
+		doc = supertool.fetchAddress(mergeParentUuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n\n----- Manipulate sub addresses where data is merged to ! -----");
+
+		System.out.println("\n\n----- STORE 1. child as working copy with changed merge data -----");
+		System.out.println("\n----- load 1. child FOR ORIGINAL DATA (used to discard changes) -----");
+		IngridDocument origDocChild1 = supertool.fetchAddress(mergeChild1Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.debugAddressDocMergeData(origDocChild1);
+		System.out.println("\n----- load 1. child again, MANIPULATE AND STORE AS WORKING VERSION -----");
+		doc = supertool.fetchAddress(mergeChild1Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.manipulateAddressDocMergeData(doc, "MM1_");
+		doc = supertool.storeAddress(doc, true);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n\n----- PUBLISH 2. child with changed merge data -----");
+		System.out.println("\n----- load 2. child FOR ORIGINAL DATA (used to discard changes) -----");
+		IngridDocument origDocChild2 = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.debugAddressDocMergeData(origDocChild2);
+		System.out.println("\n----- load 2. child again, MANIPULATE AND PUBLISH -----");
+		doc = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.manipulateAddressDocMergeData(doc, "MM2_");
+		doc = supertool.publishAddress(doc, true);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n\n----- Perform Merge ! -----");
+		supertool.mergeAddressToSubAddresses(mergeParentUuid);
+		
+		System.out.println("\n\n----- Check merged data in sub addresses, same as parent, work state NOT CHANGED ! -----");
+		System.out.println("\n----- load 1. child, parent merge data ! WORKING VERSION ! -----");
+		doc = supertool.fetchAddress(mergeChild1Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.debugAddressDocMergeData(doc);
+		System.out.println("\n----- load 2. child, parent merge data ! PUBLISHED ! -----");
+		doc = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n----- discard changes -> back to original versions -----");
+		doc = supertool.publishAddress(origDocChild1, true);
+		supertool.debugAddressDocMergeData(doc);
+		doc = supertool.publishAddress(origDocChild2, true);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n\n=========================");
+		System.out.println("MERGE TEST WITH WORKFLOW");
+		System.out.println("=========================");
+
+		System.out.println("\n\n----- First Manipulate sub addresses where data is merged to ! -----");
+
+		System.out.println("\n\n----- STORE 1. child as working copy with changed merge data -----");
+		System.out.println("\n----- load 1. child, MANIPULATE AND STORE AS WORKING VERSION -----");
+		doc = supertool.fetchAddress(mergeChild1Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.manipulateAddressDocMergeData(doc, "MM1_");
+		doc = supertool.storeAddress(doc, true);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n\n----- PUBLISH 2. child with changed merge data -----");
+		System.out.println("\n----- load 2. child, MANIPULATE AND PUBLISH -----");
+		doc = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.manipulateAddressDocMergeData(doc, "MM2_");
+		doc = supertool.publishAddress(doc, true);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n\n----- create new group1 -----");
+		IngridDocument newGroup1Doc = new IngridDocument();
+		newGroup1Doc.put(MdekKeys.NAME, "TEST Gruppe1");
+		newGroup1Doc = supertool.createGroup(newGroup1Doc, true);
+		Long newGroup1Id = (Long) newGroup1Doc.get(MdekKeysSecurity.ID);
+
+		System.out.println("\n----- create new user of group -----");
+		IngridDocument newMetaAdminGroup1Doc = new IngridDocument();
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.NAME, "MD_ADMINISTRATOR GROUP 1 name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.GIVEN_NAME, "MD_ADMINISTRATOR GROUP 1 given_name");
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_GROUP_IDS, new Long[]{newGroup1Id});
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.IDC_ROLE, MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue());
+		newMetaAdminGroup1Doc.put(MdekKeysSecurity.PARENT_IDC_USER_ID, catalogAdminId);
+		newMetaAdminGroup1Doc = supertool.createUser(newMetaAdminGroup1Doc, true);
+		Long newMetaAdminGroup1Id = (Long) newMetaAdminGroup1Doc.get(MdekKeysSecurity.IDC_USER_ID);
+		String newMetaAdminGroup1Uuid = newMetaAdminGroup1Doc.getString(MdekKeysSecurity.IDC_USER_ADDR_UUID);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("--- Add Permissions to group -> NO QS ! -----");
+		System.out.println("----- add parent address WRITE_TREE permissions to group 1 -----");
+		supertool.addAddrPermissionToGroupDoc(newGroup1Doc, mergeParentUuid, MdekUtilsSecurity.IdcPermission.WRITE_TREE);
+		newGroup1Doc = supertool.storeGroup(newGroup1Doc, true, false);
+
+		System.out.println("\n----- !!! ENABLE WORKFLOW in catalog !!! -----");
+		IngridDocument catDoc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO user NO QS -----");
+		supertool.setCallingUser(newMetaAdminGroup1Uuid);
+
+		System.out.println("\n\n----- Perform Merge ! try to publish -> ERROR: USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY (not QA) -----");
+		supertool.mergeAddressToSubAddresses(mergeParentUuid);
+		
+		System.out.println("\n\n----- Check merged data in sub addresses, NOTHING MERGED ! -----");
+		System.out.println("\n----- load 1. child, TEST merge data ! WORKING VERSION ! -----");
+		doc = supertool.fetchAddress(mergeChild1Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.debugAddressDocMergeData(doc);
+		System.out.println("\n----- load 2. child, TEST merge data ! PUBLISHED -----");
+		doc = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.debugAddressDocMergeData(doc);
+
+		System.out.println("\n-------------------------------------");
+		System.out.println("----- !!! SWITCH \"CALLING USER\" TO CATALOG ADMIN (all permissions) -----");
+		supertool.setCallingUser(catalogAdminUuid);
+
+		System.out.println("\n----- DISABLE WORKFLOW in catalog -----");
+		catDoc = supertool.getCatalog();
+		catDoc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.NO);
+		catDoc = supertool.storeCatalog(catDoc, true);
+
+		System.out.println("\n----- delete user  -----");
+		supertool.deleteUser(newMetaAdminGroup1Id);
+
+		System.out.println("\n----- delete group -----");
+		supertool.deleteGroup(newGroup1Id, false);
+
+		System.out.println("\n----- discard changes -> back to original versions -----");
+		doc = supertool.publishAddress(origDocChild1, true);
+		supertool.debugAddressDocMergeData(doc);
+		doc = supertool.publishAddress(origDocChild2, true);
+		supertool.debugAddressDocMergeData(doc);
+
+		supertool.doFullOutput = oldDoFullOutput;
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");

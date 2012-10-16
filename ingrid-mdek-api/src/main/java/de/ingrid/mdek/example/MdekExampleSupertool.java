@@ -7,11 +7,10 @@ import java.util.Map;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtilsSecurity;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
@@ -25,12 +24,13 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
@@ -488,6 +488,9 @@ public class MdekExampleSupertool {
 			boolean copySubtree, boolean copyToFreeAddress) {
 		return supertoolAddress.copyAddress(fromUuid, toUuid,
 				copySubtree, copyToFreeAddress);
+	}
+	public IngridDocument mergeAddressToSubAddresses(String parentUuid) {
+		return supertoolAddress.mergeAddressToSubAddresses(parentUuid);
 	}
 	public IngridDocument deleteAddressWorkingCopy(String uuid,
 			boolean forceDeleteReferences) {
@@ -1159,6 +1162,24 @@ public class MdekExampleSupertool {
 			System.out.println("  parent info:");
 			System.out.println("    " + myDoc);								
 		}
+	}
+
+
+	public void debugAddressDocMergeData(IngridDocument doc) {
+		System.out.println("Address MERGE DATA: " + doc.get(MdekKeys.STREET)
+				+ ", " + doc.get(MdekKeys.POSTAL_CODE) + " " + doc.get(MdekKeys.CITY)
+				+ ", " + doc.get(MdekKeys.COUNTRY_CODE) + " " + doc.get(MdekKeys.COUNTRY_NAME)
+				+ ", " + doc.get(MdekKeys.POST_BOX_POSTAL_CODE) + " " + doc.get(MdekKeys.POST_BOX));		
+	}
+
+	public void manipulateAddressDocMergeData(IngridDocument doc, String prefix) {
+		doc.put(MdekKeys.STREET, prefix + doc.get(MdekKeys.STREET));
+		doc.put(MdekKeys.POSTAL_CODE, prefix + doc.get(MdekKeys.POSTAL_CODE));
+		doc.put(MdekKeys.CITY, prefix + doc.get(MdekKeys.CITY));
+		doc.put(MdekKeys.COUNTRY_CODE, null);
+		doc.put(MdekKeys.COUNTRY_NAME, prefix + doc.get(MdekKeys.COUNTRY_NAME));
+		doc.put(MdekKeys.POST_BOX_POSTAL_CODE, prefix + doc.get(MdekKeys.POST_BOX_POSTAL_CODE));
+		doc.put(MdekKeys.POST_BOX, prefix + doc.get(MdekKeys.POST_BOX));
 	}
 
 	public void debugAddressDoc(IngridDocument a) {

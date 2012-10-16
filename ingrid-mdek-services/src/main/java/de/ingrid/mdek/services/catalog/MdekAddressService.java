@@ -783,7 +783,7 @@ public class MdekAddressService {
 	 * @return true=address has different working copy OR not published yet<br>
 	 * 	false=no working copy, working version is same as published version (OR no working version at all, should not happen)
 	 */
-	private boolean hasWorkingCopy(AddressNode node) {
+	public boolean hasWorkingCopy(AddressNode node) {
 		Long workId = node.getAddrId(); 
 		Long pubId = node.getAddrIdPublished(); 
 		if (workId == null || workId.equals(pubId)) {

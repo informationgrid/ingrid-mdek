@@ -223,6 +223,20 @@ public interface IMdekCallerAddress extends IMdekCaller {
 			String userId);
 
 	/**
+	 * Merge address data to sub addresses.
+	 * NOTICE: Data is always merged into working instance (which equals published instance if no working version).
+	 * Address is then stored as working version if in work state or published if in published state (? then may be
+	 * passed to QS if no QS permission ? currently not, throws exception if not QS !).
+	 * @param plugId which mdek server (iplug)
+	 * @param parentUuid top address containing data to merge into sub addresses
+	 * @param userId calling user
+	 * @return response containing result: map containing additional info (number of sub addresses merged)
+	 */
+	IngridDocument mergeAddressToSubAddresses(String plugId,
+			String parentUuid,
+			String userId);
+
+	/**
 	 * Move an address with its subtree to another parent.
 	 * @param plugId which mdek server (iplug)
 	 * @param fromUuid uuid of node to move (this one will be removed from its parent)

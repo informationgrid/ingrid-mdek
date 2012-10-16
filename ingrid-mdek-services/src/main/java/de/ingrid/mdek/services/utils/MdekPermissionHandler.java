@@ -8,8 +8,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
-import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekError.MdekErrorType;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -596,6 +596,16 @@ public class MdekPermissionHandler {
 			// has permission to create sub node on parent ?					
 			checkTreeOrSubNodePermissionForAddress(toUuid, userUuid, false);					
 		}
+	}
+
+	/**
+	 * Checks whether user has permissions to perform the MERGE operation AND THROWS EXCEPTION IF NOT !
+	 * @param parentUuid uuid of parent of sub nodes to merge to
+	 * @param userUuid users address uuid
+	 */
+	public void checkPermissionsForMergeAddressToSubAddresses(String parentUuid, String userUuid) {
+		// has permission to write on sub nodes of parent ?					
+		checkTreeOrSubNodePermissionForAddress(parentUuid, userUuid, false);					
 	}
 
 	/**

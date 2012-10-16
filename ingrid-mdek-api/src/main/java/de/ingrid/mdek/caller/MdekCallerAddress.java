@@ -179,6 +179,17 @@ public class MdekCallerAddress extends MdekCaller implements IMdekCallerAddress 
 		return callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument mergeAddressToSubAddresses(String plugId,
+			String parentUuid,
+			String userId) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, parentUuid);
+		jobParams.put(MdekKeys.USER_ID, userId);
+		List jobMethods = setUpJobMethod("mergeAddressToSubAddresses", jobParams);
+
+		return callJob(plugId, MDEK_IDC_ADDRESS_JOB_ID, jobMethods);		
+	}
+
 	public IngridDocument getAddressPath(String plugId, String uuid,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();

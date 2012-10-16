@@ -464,6 +464,19 @@ public class BeanToDocMapper implements IMapper {
 		return addrDocs;
 	}
 
+	/** Transfer data to merge from given T02Address to given IngridDoc. */
+	public IngridDocument mergeT02Address(T02Address mergeSource, IngridDocument mergeTargetDoc) {
+		mergeTargetDoc.put(MdekKeys.STREET, mergeSource.getStreet());
+		mergeTargetDoc.put(MdekKeys.COUNTRY_CODE, mergeSource.getCountryKey());
+		mergeTargetDoc.put(MdekKeys.COUNTRY_NAME, mergeSource.getCountryValue());
+		mergeTargetDoc.put(MdekKeys.POSTAL_CODE, mergeSource.getPostcode());
+		mergeTargetDoc.put(MdekKeys.CITY, mergeSource.getCity());
+		mergeTargetDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, mergeSource.getPostboxPc());
+		mergeTargetDoc.put(MdekKeys.POST_BOX, mergeSource.getPostbox());
+
+		return mergeTargetDoc;
+	}
+
 	/** Set passed user as mod user in passed doc.
 	 * Quantity determines how much (only uuid or address data). */
 	public IngridDocument mapModUser(String userAddrUuid, IngridDocument inDoc,

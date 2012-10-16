@@ -8,9 +8,9 @@ import java.util.Stack;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -35,9 +35,9 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -666,6 +666,44 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		return new IngridDocument();
 	}
 
+	/** Merge address data to sub addresses. */
+	public IngridDocument mergeAddressToSubAddresses(IngridDocument params) {
+		String userUuid = getCurrentUserUuid(params);
+		boolean removeRunningJob = true;
+		try {
+			// first add basic running jobs info !
+			addRunningJob(userUuid, createRunningJobDescription(JobType.STORE, 0, 0, false));
+
+			daoAddressNode.beginTransaction();
+
+			String parentUuid = (String) params.get(MdekKeys.UUID);
+
+			// check permissions !
+			permissionHandler.checkPermissionsForMergeAddressToSubAddresses(parentUuid, userUuid);
+
+			// merge !
+			IngridDocument mergeResult = mergeAddressNodeToSubNodes(parentUuid, userUuid);
+			Integer numMergedAddresses = (Integer) mergeResult.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES);
+
+			// success
+			IngridDocument resultDoc = new IngridDocument();
+			// additional info
+			resultDoc.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numMergedAddresses);
+
+			daoAddressNode.commitTransaction();
+			return resultDoc;		
+		
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
+		    throw handledExc;
+		} finally {
+			if (removeRunningJob) {
+				removeRunningJob(userUuid);				
+			}
+		}
+	}
+
 	public IngridDocument publishAddress(IngridDocument aDocIn) {
 		String userId = getCurrentUserUuid(aDocIn);
 		boolean removeRunningJob = true;
@@ -1198,5 +1236,99 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		// check address type conflicts !
 		addressService.checkAddressTypes(toType, fromType, copyToFreeAddress, false);
+	}
+
+	/**
+	 * Merge data of parent to its subnodes.
+	 * Subnodes are stored as working version (if in work state) or published (if in published state) !
+	 * @param mergeSourceUuid uuid of parent node to merge into subnodes
+	 * @param userUuid current user address uuid needed to update running jobs
+	 * @return doc containing additional info (number merged nodes)
+	 */
+	private IngridDocument mergeAddressNodeToSubNodes(String mergeSourceUuid, String userUuid)
+	{
+		// merge source exists ?
+		AddressNode mergeSourceNode = addressService.loadByUuid(mergeSourceUuid, IdcEntityVersion.WORKING_VERSION);
+		if (mergeSourceNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		// refine running jobs info
+		// total num to merge: sub addresses
+		int totalNumMerged =
+			daoAddressNode.countAllSubAddresses(mergeSourceUuid, IdcEntityVersion.ALL_VERSIONS);
+		updateRunningJob(userUuid, createRunningJobDescription(JobType.STORE, 0, totalNumMerged, false));				
+
+		// merge iteratively via stack to avoid recursive stack overflow
+		Stack<AddressNode> stack = new Stack<AddressNode>();
+		// push null value to indicate start !
+		stack.push(null);
+
+		int numberOfMergedAddr = 0;
+		while (!stack.isEmpty()) {
+			AddressNode mergeTargetNode = stack.pop();
+			
+			if (mergeTargetNode == null) {
+				// start ! do not merge, but fetch children from top node !
+				mergeTargetNode = mergeSourceNode;
+			} else {
+				// do merge !
+				mergeT02Address(mergeSourceNode.getT02AddressWork(), mergeTargetNode, userUuid);				
+				numberOfMergedAddr++;
+
+				// update our job information ! may be polled from client !
+				// NOTICE: also checks whether job was canceled !
+				updateRunningJob(userUuid, createRunningJobDescription(
+						JobType.STORE, numberOfMergedAddr, totalNumMerged, false));
+			}
+
+			// get subtree of merged address
+			List<AddressNode> subNodes = daoAddressNode.getSubAddresses(
+					mergeTargetNode.getAddrUuid(),
+					IdcEntityVersion.WORKING_VERSION, false);
+			for (AddressNode subNode : subNodes) {					
+				// add to stack, will be merged into
+				stack.push(subNode);
+			}
+		}
+		
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numberOfMergedAddr);
+		if (log.isDebugEnabled()) {
+			log.debug("Number of merged addresses: " + numberOfMergedAddr);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Merges data of given sourceAddr into given target address node. Already Persisted !
+	 * State of target node determines whether address is published or stored as working version !
+	 */
+	private void mergeT02Address(T02Address sourceAddr, AddressNode targetAddrNode, String userUuid) {
+		// execute merge
+		if (log.isDebugEnabled()) {
+			log.debug("Merging address '" + sourceAddr.getAdrUuid() + "' to address '" + targetAddrNode.getAddrUuid() + "'");
+		}
+		
+		// first map working instance (always set, equals published instance if no working version !)
+		IngridDocument targetAddrDoc =
+			beanToDocMapper.mapT02Address(targetAddrNode.getT02AddressWork(), new IngridDocument(), MappingQuantity.COPY_DATA);
+		
+		// transfer changes (merge) !
+		beanToDocMapper.mergeT02Address(sourceAddr, targetAddrDoc);
+
+		// determine whether to store or to publish
+		if (addressService.hasWorkingCopy(targetAddrNode)) {
+			if (log.isDebugEnabled()) {
+				log.debug("Node has working copy -> STORE merged address '" + targetAddrNode.getAddrUuid() + "' as working copy.");
+			}
+			addressService.storeWorkingCopy(targetAddrDoc, userUuid);
+		} else {			
+			if (log.isDebugEnabled()) {
+				log.debug("Node has NO working copy -> PUBLISH merged address '" + targetAddrNode.getAddrUuid() + "'.");
+			}
+			addressService.publishAddress(targetAddrDoc, userUuid);
+		}
 	}
 }

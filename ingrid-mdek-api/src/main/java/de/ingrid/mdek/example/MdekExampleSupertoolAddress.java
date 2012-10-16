@@ -9,10 +9,10 @@ import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.MdekCallerAddress;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -537,6 +537,31 @@ public class MdekExampleSupertoolAddress {
 			
 			return result;
 		}
+
+	public IngridDocument mergeAddressToSubAddresses(String parentUuid)
+	{
+		long startTime;
+		long endTime;
+		long neededTime;
+		IngridDocument response;
+		IngridDocument result;
+
+		System.out.println("\n###### INVOKE mergeAddressToSubAddresses ######");
+		System.out.println("- parent of merge: " + parentUuid);
+		startTime = System.currentTimeMillis();
+		response = mdekCallerAddress.mergeAddressToSubAddresses(plugId, parentUuid, myUserUuid);
+		endTime = System.currentTimeMillis();
+		neededTime = endTime - startTime;
+		System.out.println("EXECUTION TIME: " + neededTime + " ms");
+		result = mdekCallerAddress.getResultFromResponse(response);
+		if (result != null) {
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " subnodes merged !");
+		} else {
+			supertoolGeneric.handleError(response);
+		}
+		
+		return result;
+	}
 
 	public IngridDocument deleteAddressWorkingCopy(String uuid,
 			boolean forceDeleteReferences) {
