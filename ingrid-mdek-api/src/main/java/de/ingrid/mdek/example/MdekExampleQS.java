@@ -10,7 +10,6 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
@@ -18,10 +17,11 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.MdekUtilsSecurity;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQS {
@@ -650,14 +650,18 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- CATADMIN: get PORTAL_QUICKLIST Objects -----");
 		supertool.setCallingUser(catalogAdminUuid);
-
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
+		System.out.println("\n----- CATADMIN: get PORTAL_QUICKLIST_ALL_USERS Objects, now WITH PERMISSIONS -----");
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS, null, true, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- MDADMIN: get PORTAL_QUICKLIST Objects -----");
 		supertool.setCallingUser(usrGrpQAUuid);
-
 		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
+		System.out.println("\n----- MDADMIN: get PORTAL_QUICKLIST_ALL_USERS Objects, now WITH PERMISSIONS -----");
+		supertool.getWorkObjects(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS, null, true, 0, maxNum);
 
 
 		System.out.println("\n\n---------------------------------------------");
@@ -1199,14 +1203,18 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- CATADMIN: get PORTAL_QUICKLIST Addresses -----");
 		supertool.setCallingUser(catalogAdminUuid);
-
 		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
+		System.out.println("\n----- CATADMIN: get PORTAL_QUICKLIST_ALL_USERS Addresses, now WITH PERMISSIONS -----");
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS, null, true, 0, maxNum);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- MDADMIN: get PORTAL_QUICKLIST Addresses -----");
 		supertool.setCallingUser(usrGrpQAUuid);
-
 		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST, null, true, 0, maxNum);
+
+		System.out.println("\n----- MDADMIN: get PORTAL_QUICKLIST_ALL_USERS Addresses, now WITH PERMISSIONS -----");
+		supertool.getWorkAddresses(IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS, null, true, 0, maxNum);
 
 
 		System.out.println("\n\n---------------------------------------------");

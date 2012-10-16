@@ -12,9 +12,9 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
@@ -779,8 +779,9 @@ public class AddressNodeDaoHibernate
 			return getWorkAddressesModified(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
 			return getWorkAddressesInQAWorkflow(userUuid, orderBy, orderAsc, startHit, numHits);
-		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
-			return getWorkAddressesPortalQuicklist(userUuid, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST ||
+				selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+			return getWorkAddressesPortalQuicklist(userUuid, startHit, numHits, selectionType);
 		}
 
 		return defaultResult;
@@ -1034,7 +1035,8 @@ public class AddressNodeDaoHibernate
 	}
 
 	private IngridDocument getWorkAddressesPortalQuicklist(String userUuid,
-			int startHit, int numHits) {
+			int startHit, int numHits,
+			IdcWorkEntitiesSelectionType selectionType) {
 		Session session = getSession();
 
 		// prepare queries
@@ -1042,21 +1044,39 @@ public class AddressNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
-			" AND (a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
-				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
-			"and (aMeta.assignerUuid = '" + userUuid + "' or a.modUuid = '" + userUuid + "') ";
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			// user specific
+			qCriteria = qCriteria +
+				" AND (a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
+					"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
+				"and (aMeta.assignerUuid = '" + userUuid + "' or a.modUuid = '" + userUuid + "') ";
+		} else if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+			// all users, also assigned to QA
+			qCriteria = qCriteria +
+				" AND (a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
+					"a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
+					"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') ";
+		}
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(aNode) " +
 			"from AddressNode aNode " +
-				"inner join aNode.t02AddressWork a " +
-				"inner join a.addressMetadata aMeta " + qCriteria;
+				"inner join aNode.t02AddressWork a ";
+		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			qStringCount = qStringCount +
+				"inner join a.addressMetadata aMeta ";
+		}
+		qStringCount = qStringCount + qCriteria;
 
 		// query string for fetching results ! 
 		String qStringSelect = "from AddressNode aNode " +
-			"inner join fetch aNode.t02AddressWork a " +
-			"inner join fetch a.addressMetadata aMeta " + qCriteria;
+				"inner join fetch aNode.t02AddressWork a ";
+		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			qStringSelect = qStringSelect +
+				"inner join fetch a.addressMetadata aMeta ";
+		}
+		qStringSelect = qStringSelect + qCriteria;
 
 		// always order by date
 		String qOrderBy = " order by a.modTime desc";

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Stack;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
@@ -36,9 +36,9 @@ import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
+import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -329,6 +329,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {
 					// map assigner user !
 					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				}
+				if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+					// add permissions the user has on given object !
+					List<Permission> perms = 
+						permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid, true);
+					beanToDocMapperSecurity.mapPermissionList(perms, objDoc);				
 				}
 
 				oNDocs.add(objDoc);

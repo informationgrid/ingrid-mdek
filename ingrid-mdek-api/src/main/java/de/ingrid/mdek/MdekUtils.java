@@ -199,6 +199,8 @@ public class MdekUtils {
 		SPATIAL_REF_EXPIRED,
 		/** PORTAL QUICKLIST -> MODIFIED or REASSIGNED entities where user is MOD-User or Assigner */
 		PORTAL_QUICKLIST,
+		/** PORTAL QUICKLIST -> MODIFIED or REASSIGNED entities of ALL USERS with permissions for current user */
+		PORTAL_QUICKLIST_ALL_USERS,
 	}
 
 	/** QA PAGE:: Entities where user is QA. Which entities to fetch ? */

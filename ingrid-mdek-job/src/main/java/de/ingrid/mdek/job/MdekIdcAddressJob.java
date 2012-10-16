@@ -346,6 +346,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 					// map assigner user !
 					beanToDocMapper.mapAddressMetadata(a.getAddressMetadata(), addrDoc, MappingQuantity.DETAIL_ENTITY);
 				}
+				if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+					// add permissions the user has on given address !
+					List<Permission> perms =
+						permissionHandler.getPermissionsForAddress(aN.getAddrUuid(), userUuid, true);
+					beanToDocMapperSecurity.mapPermissionList(perms, addrDoc);				
+				}
 
 				aNDocs.add(addrDoc);
 			}

@@ -11,9 +11,9 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
 import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
@@ -606,8 +606,9 @@ public class ObjectNodeDaoHibernate
 			return getWorkObjectsInQAWorkflow(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
 			return getWorkObjectsSpatialRefExpired(userUuid, orderBy, orderAsc, startHit, numHits);
-		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
-			return getWorkObjectsPortalQuicklist(userUuid, startHit, numHits);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST ||
+				selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+			return getWorkObjectsPortalQuicklist(userUuid, startHit, numHits, selectionType);
 		}
 
 		return defaultResult;
@@ -916,27 +917,46 @@ public class ObjectNodeDaoHibernate
 	}
 
 	private IngridDocument getWorkObjectsPortalQuicklist(String userUuid,
-			int startHit, int numHits) {
+			int startHit, int numHits,
+			IdcWorkEntitiesSelectionType selectionType) {
 		Session session = getSession();
 
 		// prepare queries
 
 		// selection criteria
-		String qCriteria = " where " +
-			"(o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
-				"o.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
-			"and (oMeta.assignerUuid = '" + userUuid + "' or o.modUuid = '" + userUuid + "') ";
+		String qCriteria = " where ";
+		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			// user specific
+			qCriteria = qCriteria +
+				"(o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
+					"o.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " +
+				"and (oMeta.assignerUuid = '" + userUuid + "' or o.modUuid = '" + userUuid + "') ";
+		} else if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+			// all users, also assigned to QA
+			qCriteria = qCriteria +
+				"(o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
+					"o.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
+					"o.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') ";
+		}
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(oNode) " +
 			"from ObjectNode oNode " +
-				"inner join oNode.t01ObjectWork o " +
-				"inner join o.objectMetadata oMeta " + qCriteria;
+				"inner join oNode.t01ObjectWork o ";
+		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			qStringCount = qStringCount +
+				"inner join o.objectMetadata oMeta ";
+		}
+		qStringCount = qStringCount + qCriteria;
 
 		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
-				"inner join fetch oNode.t01ObjectWork o " +
-				"inner join fetch o.objectMetadata oMeta " + qCriteria;
+				"inner join fetch oNode.t01ObjectWork o ";
+		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+			qStringSelect = qStringSelect +
+				"inner join fetch o.objectMetadata oMeta ";
+		}
+		qStringSelect = qStringSelect + qCriteria;
 
 		// always order by date
 		String qOrderBy = " order by o.modTime desc";
