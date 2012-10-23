@@ -507,7 +507,7 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("\n----- PUBLISH new 'Address to replace' (will be Ansprechpartner, RESPONSIBLE USER) -----");
 		doc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
 		doc.put(MdekKeys.ORGANISATION, "testADDRESS_TO_REPLACE");
-		doc = supertool.publishAddress(doc, true);
+		doc = supertool.publishAddress(doc, true, false);
 		String uuidToReplace = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- STORE new SUB-ADDRESS of 'Address to replace' -----");
@@ -522,7 +522,7 @@ class MdekExampleCatalogThread extends Thread {
 		doc = new IngridDocument();
 		doc.put(MdekKeys.UUID, uuidToReplace);
 		newDoc.put(MdekKeys.RESPONSIBLE_USER, doc);
-		doc = supertool.publishAddress(newDoc, true);
+		doc = supertool.publishAddress(newDoc, true, false);
 		String uuidToReplaceWith = (String) doc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- STORE 1. new Object where 'Address to replace' is Ansprechpartner, Ressourcenanbieter and RESPONSIBLE USER -----");

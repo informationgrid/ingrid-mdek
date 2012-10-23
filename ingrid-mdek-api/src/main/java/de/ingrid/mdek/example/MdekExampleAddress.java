@@ -11,9 +11,9 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
@@ -133,6 +133,8 @@ class MdekExampleAddressThread extends Thread {
 		String freeUuid = "9B1A4FF6-8643-11D5-987F-00D0B70EFC19";
 
 		IngridDocument aMap;
+		IngridDocument newAddrDoc;
+		String newAddrUuid;
 
 		boolean alwaysTrue = true;
 
@@ -402,7 +404,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- store address with refetch (same paging params when refetching) -----");
 		supertool.storeAddress(aMap, true, 0, 1);
 		System.out.println("\n----- publish address with refetch (same paging params when refetching) -----");
-		supertool.publishAddress(aMap, true, 0, 1);
+		supertool.publishAddress(aMap, true, false, 0, 1);
 		System.out.println("\n----- load details of referenced address, fetch all objRefs -> all obj references there, 1 reference from published, all from working included -----");
 		supertool.fetchAddress(addrReferenced, FetchQuantity.EDITOR_ENTITY);
 
@@ -493,48 +495,50 @@ class MdekExampleAddressThread extends Thread {
 
 		System.out.println("\n----- check load initial data for TOP ADDRESS -----");
 		// set no parent
-		IngridDocument newAdrDoc = new IngridDocument();
-		supertool.getInitialAddress(newAdrDoc);
+		newAddrDoc = new IngridDocument();
+		supertool.getInitialAddress(newAddrDoc);
 
 		System.out.println("\n----- check load initial data (from " + personUuid + ") -----");
 		// initial data from person address (to test take over of SUBJECT_TERMS)
-		newAdrDoc = new IngridDocument();
+		newAddrDoc = new IngridDocument();
 		// supply parent uuid !
-		newAdrDoc.put(MdekKeys.PARENT_UUID, personUuid);
-		newAdrDoc = supertool.getInitialAddress(newAdrDoc);
+		newAddrDoc.put(MdekKeys.PARENT_UUID, personUuid);
+		newAddrDoc = supertool.getInitialAddress(newAddrDoc);
 
 		System.out.println("\n----- extend initial address and store -----");
 
 		// extend initial address with own data !
 		System.out.println("- add NAME, GIVEN_NAME, CLASS");
-		newAdrDoc.put(MdekKeys.NAME, "testNAME");
-		newAdrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
-		newAdrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+		newAddrDoc.put(MdekKeys.NAME, "testNAME");
+		newAddrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+		newAddrDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
 		// email has to exist !
-		docList = (List<IngridDocument>) newAdrDoc.get(MdekKeys.COMMUNICATION);
+		docList = (List<IngridDocument>) newAddrDoc.get(MdekKeys.COMMUNICATION);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
 		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
 		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
 		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
 		docList.add(testDoc);
-		newAdrDoc.put(MdekKeys.COMMUNICATION, docList);
+		newAddrDoc.put(MdekKeys.COMMUNICATION, docList);
 
 		// new parent
 		System.out.println("- store under parent: " + parentUuid);
-		newAdrDoc.put(MdekKeys.PARENT_UUID, parentUuid);
-		IngridDocument aMapNew = storeAddressWithManipulation(newAdrDoc);
+		newAddrDoc.put(MdekKeys.PARENT_UUID, parentUuid);
+		newAddrDoc = storeAddressWithManipulation(newAddrDoc);
 		// uuid created !
-		String newAddrUuid = (String) aMapNew.get(MdekKeys.UUID);
+		newAddrUuid = (String) newAddrDoc.get(MdekKeys.UUID);
 
 		System.out.println("\n----- verify new subaddress -> load parent subaddresses -----");
 		supertool.fetchSubAddresses(parentUuid);
 
 		System.out.println("\n----- do \"forbidden\" store -> ERROR: FREE_ADDRESS_WITH_PARENT -----");
-		Integer origType = (Integer) aMapNew.get(MdekKeys.CLASS);
-		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.FREI.getDbValue());
-		supertool.storeAddress(aMapNew, false);
-		aMapNew.put(MdekKeys.CLASS, origType);
+		newAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.FREI.getDbValue());
+		supertool.storeAddress(newAddrDoc, false);
+
+		System.out.println("\n----- Clean Up: refetch new address -----");
+		newAddrDoc = supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");
@@ -571,7 +575,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- load 2. child again, MANIPULATE AND PUBLISH -----");
 		doc = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.manipulateAddressDocMergeData(doc, "MM2_");
-		doc = supertool.publishAddress(doc, true);
+		doc = supertool.publishAddress(doc, true, false);
 		supertool.debugAddressDocMergeData(doc);
 
 		System.out.println("\n\n----- Perform Merge ! -----");
@@ -586,9 +590,9 @@ class MdekExampleAddressThread extends Thread {
 		supertool.debugAddressDocMergeData(doc);
 
 		System.out.println("\n----- discard changes -> back to original versions -----");
-		doc = supertool.publishAddress(origDocChild1, true);
+		doc = supertool.publishAddress(origDocChild1, true, false);
 		supertool.debugAddressDocMergeData(doc);
-		doc = supertool.publishAddress(origDocChild2, true);
+		doc = supertool.publishAddress(origDocChild2, true, false);
 		supertool.debugAddressDocMergeData(doc);
 
 		System.out.println("\n\n=========================");
@@ -608,7 +612,7 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n----- load 2. child, MANIPULATE AND PUBLISH -----");
 		doc = supertool.fetchAddress(mergeChild2Uuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.manipulateAddressDocMergeData(doc, "MM2_");
-		doc = supertool.publishAddress(doc, true);
+		doc = supertool.publishAddress(doc, true, false);
 		supertool.debugAddressDocMergeData(doc);
 
 		System.out.println("\n\n----- create new group1 -----");
@@ -670,9 +674,9 @@ class MdekExampleAddressThread extends Thread {
 		supertool.deleteGroup(newGroup1Id, false);
 
 		System.out.println("\n----- discard changes -> back to original versions -----");
-		doc = supertool.publishAddress(origDocChild1, true);
+		doc = supertool.publishAddress(origDocChild1, true, false);
 		supertool.debugAddressDocMergeData(doc);
-		doc = supertool.publishAddress(origDocChild2, true);
+		doc = supertool.publishAddress(origDocChild2, true, false);
 		supertool.debugAddressDocMergeData(doc);
 
 		supertool.doFullOutput = oldDoFullOutput;
@@ -703,9 +707,9 @@ class MdekExampleAddressThread extends Thread {
 		aMap = supertool.copyAddress(addressFrom, addressTo, true, false);
 		String copy2Uuid = aMap.getString(MdekKeys.UUID);
 		System.out.println("\n\n----- verify copy  -----");
-		System.out.println("----- load original one -----");
+		System.out.println("----- load original one -> free address with ORGANISATION and NAME -----");
 		supertool.fetchAddress(addressFrom, FetchQuantity.EDITOR_ENTITY);
-		System.out.println("\n----- then load copy -----");
+		System.out.println("\n----- then load copy -> PERSON, NO ORGANISATION but NAME -----");
 		supertool.fetchAddress(copy2Uuid, FetchQuantity.EDITOR_ENTITY);
 		System.out.println("\n----- verify children -> new child -----");
 		supertool.fetchSubAddresses(addressTo);
@@ -739,11 +743,12 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("MOVE TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n----- create NEW TOP ADDRESS -----");
+		System.out.println("\n----- create NEW TOP ADDRESS (parent to move to) = INTRANET -----");
 		IngridDocument newTopAddrDoc = new IngridDocument();
 		newTopAddrDoc = supertool.getInitialAddress(newTopAddrDoc);
 		newTopAddrDoc.put(MdekKeys.ORGANISATION, "TEST TOP ADDRESS");
 		newTopAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.INSTITUTION.getDbValue());
+		newTopAddrDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		// email has to exist !
 		docList = (List<IngridDocument>) newTopAddrDoc.get(MdekKeys.COMMUNICATION);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
@@ -761,14 +766,32 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("\n\n----- move new address to NEW TOP ADDRESS -> BOTH NOT PUBLISHED, OK !!! -----");
 		String oldParentUuid = parentUuid;
 		String newParentUuid = newTopAddrUuid;
-		supertool.moveAddress(newAddrUuid, newParentUuid, false);
+		supertool.moveAddress(newAddrUuid, newParentUuid, false, true);
 		System.out.println("\n\n----- move back -----");
-		supertool.moveAddress(newAddrUuid, oldParentUuid, false);
+		supertool.moveAddress(newAddrUuid, oldParentUuid, false, true);
 
 		System.out.println("\n----- publish NEW TOP ADDRESS -----");
-		supertool.publishAddress(newTopAddrDoc, true);
-		System.out.println("\n\n----- move new address again -> SUCCESS (new parent published) -----");
-		supertool.moveAddress(newAddrUuid, newParentUuid, false);
+		supertool.publishAddress(newTopAddrDoc, true, true);
+		System.out.println("\n----- set new address (the one to move) to INTERNET and publish (pub=work=INTERNET) -----");
+		newAddrDoc = supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
+		newAddrDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		newAddrDoc = supertool.publishAddress(newAddrDoc, true, false);
+		System.out.println("\n----- create work version -> change title (pub=INTERNET, work=INTERNET) -----");
+		newAddrDoc.put(MdekKeys.TITLE, "TEST CHANGED!!! TITLE");
+		newAddrDoc = supertool.storeAddress(newAddrDoc, true);
+		System.out.println("\n\n----- move new address to TOP INTRANET -> ERROR: SUBTREE_HAS_LARGER_PUBLICATION_CONDITION (pub=INTERNET) -----");
+		supertool.moveAddress(newAddrUuid, newParentUuid, false, false);
+		System.out.println("\n\n----- move new address again with forcePubCondition -> SUCCESS: but only pubVersion was adapted (pub=INTRANET, work=INTERNET !) -----");
+		supertool.moveAddress(newAddrUuid, newParentUuid, false, true);
+		System.out.println("\n\n----- verify moved address (work=INTERNET although parent=INTRANET) -----");
+		newAddrDoc = supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
+		System.out.println("\n\n----- publish moved address -> ERROR: PARENT_HAS_SMALLER_PUBLICATION_CONDITION (parent INTRANET) -----");
+		supertool.publishAddress(newAddrDoc, true, false);
+		System.out.println("\n----- change moved address to INTRANET and store -----");
+		newAddrDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		newAddrDoc = supertool.storeAddress(newAddrDoc, true);
+		System.out.println("\n\n----- publish again -> SUCCESS (pub=work=INTRANET) ALTHOUGH subNodes are INTERNET, but these are NOT published yet !!! -----");
+		supertool.publishAddress(newAddrDoc, true, false);
 		System.out.println("\n----- check new address subtree (was also moved) -> has working copies (were copied above) -----");
 		supertool.checkAddressSubTree(newAddrUuid);
 		System.out.println("\n----- fetch subaddresses of new address (was moved) -----");
@@ -788,33 +811,33 @@ class MdekExampleAddressThread extends Thread {
 		supertool.fetchSubAddresses(newParentUuid);
 
 		System.out.println("\n----- move new Address to FREE Address ! -> ERROR: FREE_ADDRESS_WITH_SUBTREE -----");
-		supertool.moveAddress(newAddrUuid, null, true);
+		supertool.moveAddress(newAddrUuid, null, true, false);
 		System.out.println("\n\n----- delete subtree of new Address -----");
 		supertool.deleteAddress(subtreeCopyUuid, true);
 		System.out.println("\n----- move new Address to FREE Address ! -> ERROR: ADDRESS_TYPE_CONFLICT (type conflicts -> EINHEIT) -----");
-		supertool.moveAddress(newAddrUuid, null, true);
+		supertool.moveAddress(newAddrUuid, null, true, false);
 		System.out.println("\n----- publish new Address as PERSON -----");
-		aMapNew.put(MdekKeys.CLASS, MdekUtils.AddressType.PERSON.getDbValue());
-		supertool.publishAddress(aMapNew, true);
+		newAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.PERSON.getDbValue());
+		supertool.publishAddress(newAddrDoc, true, false);
 		System.out.println("\n----- store changed working copy of new Address -----");
-		aMapNew.put(MdekKeys.GIVEN_NAME, "changed!!!!!!!!");
-		supertool.storeAddress(aMapNew, true);
+		newAddrDoc.put(MdekKeys.GIVEN_NAME, "changed!!!!!!!!");
+		supertool.storeAddress(newAddrDoc, true);
 		System.out.println("\n----- move new Address to FREE Address ! -> SUCCESS -----");
-		supertool.moveAddress(newAddrUuid, null, true);
+		supertool.moveAddress(newAddrUuid, null, true, false);
 		supertool.setFullOutput(false);
 		supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 		System.out.println("\n----- move new FREE Address to NOT FREE Address ! -> SUCCESS -----");
 		newParentUuid = topUuid;
-		supertool.moveAddress(newAddrUuid, newParentUuid, false);
+		supertool.moveAddress(newAddrUuid, newParentUuid, false, false);
 		supertool.setFullOutput(false);
 		supertool.fetchAddress(newAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.setFullOutput(true);
 
 		System.out.println("\n----- do \"forbidden\" move (move to subnode) -> ERROR: TARGET_IS_SUBNODE_OF_SOURCE -----");
-		supertool.moveAddress(topUuid, parentUuid, false);
+		supertool.moveAddress(topUuid, parentUuid, false, false);
 		System.out.println("\n----- do \"forbidden\" move (institution to free address) -> ERROR: FREE_ADDRESS_WITH_SUBTREE -----");
-		supertool.moveAddress(topUuid, null, true);
+		supertool.moveAddress(topUuid, null, true, false);
 
 		System.out.println("\n----- delete NEW TOP ADDRESS -----");
 		supertool.deleteAddress(newTopAddrUuid, true);
@@ -897,11 +920,12 @@ class MdekExampleAddressThread extends Thread {
 		System.out.println("PUBLISH TEST");
 		System.out.println("=========================");
 
-		System.out.println("\n----- publish NEW TOP ADDRESS immediately -> ERROR ADDRESS_HAS_NO_EMAIL -----");
+		System.out.println("\n----- publish NEW TOP ADDRESS immediately -> ERROR: ADDRESS_HAS_NO_EMAIL -----");
 		IngridDocument newTopDoc = new IngridDocument();
 		newTopDoc.put(MdekKeys.ORGANISATION, "TEST NEW TOP ADDRESS DIRECT PUBLISH");
 		newTopDoc.put(MdekKeys.CLASS, AddressType.INSTITUTION.getDbValue());
-		aMap = supertool.publishAddress(newTopDoc, true);
+		newTopDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		aMap = supertool.publishAddress(newTopDoc, true, false);
 
 		System.out.println("\n----- add email and publish -> SUCCESS -----");
 		docList = new ArrayList<IngridDocument>();
@@ -911,20 +935,22 @@ class MdekExampleAddressThread extends Thread {
 		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
 		docList.add(testDoc);
 		newTopDoc.put(MdekKeys.COMMUNICATION, docList);
-		aMap = supertool.publishAddress(newTopDoc, true);
+		aMap = supertool.publishAddress(newTopDoc, true, false);
 		// uuid created !
 		String newTopUuid = (String)aMap.get(MdekKeys.UUID);
 
 		System.out.println("\n----- delete NEW TOP ADDRESS (FULL) -----");
 		supertool.deleteAddress(newTopUuid, true);
 
-		System.out.println("\n----- copy address (without subnodes) -> returns only \"TREE Data\" of copied address -----");
+		System.out.println("\n----- PUBLISH NEW ADDRESS WITH VARIOUS CHECKS ! -----");
+		
+		System.out.println("\n----- copy address (without subnodes) to be parent of address to publish -> returns only \"TREE Data\" of copied address -----");
 		addressFrom = newParentUuid;
 		addressTo = topUuid;
 		aMap = supertool.copyAddress(addressFrom, addressTo, false, false);
-		String pub1Uuid = aMap.getString(MdekKeys.UUID);
+		String pubParentUuid = aMap.getString(MdekKeys.UUID);
 
-		System.out.println("\n----- publish NEW SUB ADDRESS immediately -> ERROR, PARENT NOT PUBLISHED ! -----");
+		System.out.println("\n----- publish NEW SUB ADDRESS immediately (INTERNET) -> ERROR: PARENT NOT PUBLISHED ! -----");
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc.put(MdekKeys.ORGANISATION, "TEST NEW SUB ADDRESS DIRECT PUBLISH");
 		newPubDoc.put(MdekKeys.NAME, "testNAME");
@@ -934,6 +960,7 @@ class MdekExampleAddressThread extends Thread {
 		newPubDoc.put(MdekKeys.TITLE_OR_FUNCTION, "testTITLE_OR_FUNCTION");
 		newPubDoc.put(MdekKeys.TITLE_OR_FUNCTION_KEY, new Integer(-1));
 		newPubDoc.put(MdekKeys.CLASS, AddressType.PERSON.getDbValue());
+		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
 		// email has to exist !
 		docList = new ArrayList<IngridDocument>();
 		testDoc = new IngridDocument();
@@ -943,29 +970,162 @@ class MdekExampleAddressThread extends Thread {
 		docList.add(testDoc);
 		newPubDoc.put(MdekKeys.COMMUNICATION, docList);
 		// sub address of unpublished parent !!!
-		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
-		supertool.publishAddress(newPubDoc, true);
+		newPubDoc.put(MdekKeys.PARENT_UUID, pubParentUuid);
+		supertool.publishAddress(newPubDoc, true, false);
 
 		System.out.println("\n----- refetch FULL PARENT, UNPUBLISHED !  -----");
-		aMap = supertool.fetchAddress(pub1Uuid, FetchQuantity.EDITOR_ENTITY);
+		aMap = supertool.fetchAddress(pubParentUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n----- change organization and publish PARENT -> create pub version/\"delete\" work version -----");
 		aMap.put(MdekKeys.ORGANISATION, "COPIED, Orga CHANGED and PUBLISHED: " + aMap.get(MdekKeys.ORGANISATION));	
-		supertool.publishAddress(aMap, true);
+		supertool.publishAddress(aMap, true, false);
 
 		System.out.println("\n----- NOW CREATE AND PUBLISH OF NEW CHILD POSSIBLE -> create pub version, set also as work version -----");
-		aMap = supertool.publishAddress(newPubDoc, true);
+		newPubDoc = supertool.publishAddress(newPubDoc, true, false);
 		// uuid created !
-		String pub2Uuid = aMap.getString(MdekKeys.UUID);
+		String pubChildUuid = newPubDoc.getString(MdekKeys.UUID);
 
-		System.out.println("\n----- verify -> load sub addresses of parent of copy -----");
-		supertool.fetchSubAddresses(addressTo);
-		System.out.println("\n----- delete 1. published copy = sub-address (WORKING COPY) -> NO DELETE -----");
-		supertool.deleteAddressWorkingCopy(pub1Uuid, true);
-		System.out.println("\n----- delete 2. published copy = sub-sub-address (FULL) -----");
-		supertool.deleteAddress(pub2Uuid, true);
-		System.out.println("\n----- delete 1. published copy = sub-address (FULL) -----");
-		supertool.deleteAddress(pub1Uuid, true);
+		System.out.println("\n----- publish NEW TOP OBJECT as INTERNET referencing new address -----");
+		System.out.println("----- first get initial top object -----");
+		IngridDocument newObjDoc = new IngridDocument();
+		newObjDoc = supertool.getInitialObject(newObjDoc);
+		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT INTERNET");
+		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		System.out.println("\n----- add published new address as point of contact -----");
+		supertool.addPointOfContactAddress(newObjDoc, pubChildUuid);
+		newObjDoc.put(MdekKeys.PARENT_UUID, null);
+		System.out.println("\n----- then publish new INTERNET top object referencing new INTERNET address (obj.INTERNET -> addr.INTERNET) -----");
+		newObjDoc = supertool.publishObject(newObjDoc, true, false);
+		String newObjUuid = (String) newObjDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- Publish referenced address as AMTSINTERN -> ERROR: REFERENCING_OBJECTS_HAVE_LARGER_PUBLICATION_CONDITION (obj.INTERNET -> addr.AMTSINTERN) ! -----");
+		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		supertool.publishAddress(newPubDoc, true, false);
+
+		System.out.println("\n----- publish new object referencing address as AMTSINTERN -----");
+		newObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		newObjDoc = supertool.publishObject(newObjDoc, true, false);
+
+		System.out.println("\n----- Now publish referenced address as AMTSINTERN possible (obj.AMTSINTERN -> addr.AMTSINTERN) ! -----");
+		newPubDoc = supertool.publishAddress(newPubDoc, true, false);
+
+		System.out.println("\n----- delete new object (FULL) -----");
+		supertool.deleteObject(newObjUuid, true);
+		System.out.println("\n----- delete parent published copy (WORKING COPY) -> NO DELETE -----");
+		supertool.deleteAddressWorkingCopy(pubParentUuid, true);
+		System.out.println("\n----- delete child published copy (FULL) -----");
+		supertool.deleteAddress(pubChildUuid, true);
+		System.out.println("\n----- delete parent published copy (FULL) -----");
+		supertool.deleteAddress(pubParentUuid, true);
+
+		// -----------------------------------
+		System.out.println("\n\n=========================");
+		System.out.println("PUBLICATION CONDITION TEST");
+		System.out.println("=========================");
+
+		supertool.setFullOutput(false);
+
+		System.out.println("\n\n===== TEST simple change of publication condition in hierarchy  =====");
+
+		// institution parent with 1 child !
+		parentUuid = "3866449C-B449-11D2-9A86-080000507261";
+		String childUuid = "FAEFC65F-0B53-11D6-97D2-000476105676";
+
+		System.out.println("\n----- fetch parent -----");
+		IngridDocument oMapParent = supertool.fetchAddress(parentUuid, FetchQuantity.EDITOR_ENTITY);
+
+		System.out.println("\n----- sub addresses -----");
+		supertool.fetchSubAddresses(parentUuid);
+
+		System.out.println("\n----- fetch child -----");
+		IngridDocument oMapChild = supertool.fetchAddress(childUuid, FetchQuantity.EDITOR_ENTITY);
+		
+		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> ERROR: SUBTREE_HAS_LARGER_PUBLICATION_CONDITION -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		supertool.publishAddress(oMapParent, false, false);
+
+		System.out.println("\n----- change child to INTRANET -> SUCCESS -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		supertool.publishAddress(oMapChild, true, false);
+
+		System.out.println("\n----- change parent to INTRANET (NO forced publication condition) -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		supertool.publishAddress(oMapParent, true, false);
+
+		System.out.println("\n----- change child to INTERNET -> ERROR: PARENT_HAS_SMALLER_PUBLICATION_CONDITION -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapChild, false, false);
+
+		System.out.println("\n----- change parent to INTERNET (FORCED publication condition) -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapParent, true, true);
+
+		System.out.println("\n----- refetch child -> STILL INTRANET -----");
+		oMapChild = supertool.fetchAddress(childUuid, FetchQuantity.EDITOR_ENTITY);
+
+		System.out.println("\n----- change child to INTERNET -> SUCCESS -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapChild, true, false);
+
+		System.out.println("\n----- change parent to INTRANET (FORCED publication condition) -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		supertool.publishAddress(oMapParent, true, true);
+
+		System.out.println("\n----- refetch child -> NOW INTRANET -----");
+		oMapChild = supertool.fetchAddress(childUuid, FetchQuantity.EDITOR_ENTITY);
+
+
+		System.out.println("\n\n===== TEST change of publication condition VIA MOVE ! =====");
+		
+		System.out.println("\n----- verify INTERNET parent and children to MOVE -----");
+
+		// NOTICE: UUid to move is TOP ADDRESS (institution) !
+		String moveUuid = "38664482-B449-11D2-9A86-080000507261";
+		String moveChild1Uuid = "38664591-B449-11D2-9A86-080000507261";
+		String moveChild2Uuid = "38664592-B449-11D2-9A86-080000507261";
+		supertool.fetchAddress(moveUuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.fetchSubAddresses(moveUuid);
+		IngridDocument child1Doc = supertool.fetchAddress(moveChild1Uuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.fetchAddress(moveChild2Uuid, FetchQuantity.EDITOR_ENTITY);
+		
+		System.out.println("\n----- Store 1. child to have WORKING VERSION where pub condition is NOT manipulated when moving (Internet) -----");
+		supertool.storeAddress(child1Doc, true);
+
+		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent -> ERROR: SUBTREE_HAS_LARGER_PUBLICATION_CONDITION -----");
+		supertool.moveAddress(moveUuid, parentUuid, false, false);
+
+		System.out.println("\n----- test MOVE INTERNET node to INTRANET parent with FORCE -> SUCCESS -----");
+		supertool.moveAddress(moveUuid, parentUuid, false, true);
+
+		System.out.println("\n----- verify -> all moved nodes INTRANET ! ONLY IN PUBLISHED_VERSIONS !!! WORKING_VERSION child1 NOT CHANGED (still Internet) !!! -----");
+		IngridDocument oMapMoved1 = supertool.fetchAddress(moveUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		IngridDocument oMapMoved2 = supertool.fetchAddress(moveChild1Uuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		IngridDocument oMapMoved3 = supertool.fetchAddress(moveChild2Uuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+
+		
+		System.out.println("\n===== Clean Up ! back to old state of DB ! =====");
+		
+		System.out.println("\n----- move node back to top -----");
+		supertool.moveAddress(moveUuid, null, false, true);
+		oMapMoved1.put(MdekKeys.PARENT_UUID, null);
+
+		System.out.println("\n----- and change all moved nodes back to INTERNET -> SUCCESS -----");
+		oMapMoved1.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapMoved1, true, true);
+		oMapMoved2.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapMoved2, true, true);
+		oMapMoved3.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapMoved3, true, true);
+
+		System.out.println("\n----- change parent back to INTERNET -> SUCCESS -----");
+		oMapParent.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapParent, true, true);
+
+		System.out.println("\n----- change child back to INTERNET -> SUCCESS -----");
+		oMapChild.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
+		supertool.publishAddress(oMapChild, true, true);
+
+		supertool.setFullOutput(true);
 
 		// -----------------------------------
 		System.out.println("\n\n=========================");

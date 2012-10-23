@@ -54,8 +54,20 @@ public class MdekError implements Serializable {
 		SUBTREE_HAS_LARGER_PUBLICATION_CONDITION("32"),
 		/** e.g. when object is published and publication condition doesn't fit to parent */
 		PARENT_HAS_SMALLER_PUBLICATION_CONDITION("33"),
+		/** e.g. when address is published and its publication condition doesn't fit to objects referencing the address.
+		 * contains detailed error info about referenced address and referencing objects:<br>
+		 * <b>errorInfo-Map</b> = address map (of address referenced by objects)<br>
+		 * <b>errorInfo-Map.OBJ_ENTITIES</b> = List of object maps (referencing objects causing error)
+		 */
+		REFERENCING_OBJECTS_HAVE_LARGER_PUBLICATION_CONDITION("34"),
+		/** e.g. when object is published and its publication condition doesn't fit to referenced addresses.
+		 * contains detailed error info about object and referenced addresses:<br>
+		 * <b>errorInfo-Map</b> = object map (of object referencing addresses)<br>
+		 * <b>errorInfo-Map.ADR_ENTITIES</b> = List of address maps (referenced addresses causing error)
+		 */
+		REFERENCED_ADDRESSES_HAVE_SMALLER_PUBLICATION_CONDITION("35"),
 		/** e.g. when address is replaced (Gesamtkatalogmanagement), not possible if subnodes */
-		NODE_HAS_SUBNODES("35"),
+		NODE_HAS_SUBNODES("37"),
 
 		/** when free address is NOT a root node */
 		FREE_ADDRESS_WITH_PARENT("41"),

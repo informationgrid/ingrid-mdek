@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
+      <action type="add" dev="wemove" issue="INGRID33-12">
+        Add new field "publication condition" for addresses.
+      </action>
       <action type="add" dev="wemove" issue="INGRID33-18">
         Dashboard: Show edited objects/addresses of ALL USERS (also with permissions).
       </action>

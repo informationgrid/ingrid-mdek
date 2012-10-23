@@ -1495,7 +1495,7 @@ class MdekExampleQSThread extends Thread {
 		doc = supertool.storeAddress(newDoc, true);
 		newUuid = doc.getString(MdekKeys.UUID);
 		System.out.println("\n----- try to publish -> ERROR: USER_HAS_NO_WORKFLOW_PERMISSION_ON_ENTITY (not QA) -----");
-		supertool.publishAddress(doc, true);
+		supertool.publishAddress(doc, true, false);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- QA ASSIGNED ADDRESS CANNOT BE DELETED as NON QA -----");
@@ -1511,7 +1511,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 		System.out.println("\n----- publish -> OK as QA user ! -----");
-		doc = supertool.publishAddress(doc, true);
+		doc = supertool.publishAddress(doc, true, false);
 		
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- DELETE PUBLISHED ADDRESS as NON QA -> mark deleted and assigned to QA -----");
@@ -1548,7 +1548,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("\n----- !!! SWITCH \"CALLING USER\" TO QA user -----");
 		supertool.setCallingUser(usrGrpQAUuid);
 		System.out.println("\n----- publish as QA -> all changes published, NOT MARKED DELETED ! -----");
-		doc = supertool.publishAddress(doc, true);
+		doc = supertool.publishAddress(doc, true, false);
 
 		System.out.println("\n---------------------------------------------");
 		System.out.println("----- DELETE published address as non QA and COPY it as QA -> mark deleted gone in result -----");
@@ -1571,7 +1571,7 @@ class MdekExampleQSThread extends Thread {
 		System.out.println("----- MOVE assigned address as QA -> STILL mark deleted -----");
 
 		System.out.println("\n----- MOVE as QA -> STILL MARKED DELETED ! -----");
-		doc = supertool.moveAddress(newUuid, parentAddrUuid, false);
+		doc = supertool.moveAddress(newUuid, parentAddrUuid, false, false);
 		supertool.fetchAddress(newUuid, FetchQuantity.EDITOR_ENTITY);
 
 		System.out.println("\n---------------------------------------------");

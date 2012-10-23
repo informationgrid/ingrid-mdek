@@ -13,10 +13,10 @@ import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
 
@@ -139,6 +139,10 @@ class MdekExampleObjectThread extends Thread {
 //		String objUuid = "15C69C29-FE15-11D2-AF34-0060084A4596";
 
 		String addrUuidPublished = "10646604-D21F-11D2-BB32-006097FE70B1";
+		// PARENT ADDRESS (sub address of topUuid)
+		String parentAddressUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
+		// PERSON ADDRESS (sub address of parentUuid)
+		String personAddressUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
 
 		IngridDocument oMap;
 		IngridDocument newObjDoc;
@@ -747,7 +751,7 @@ class MdekExampleObjectThread extends Thread {
 		// -----------------------------------
 		// object: store NEW object and verify associations
 		System.out.println("\n\n=========================");
-		System.out.println("STORE TEST new object");
+		System.out.println("STORE TEST new object + PUBLISH CHECKS");
 		System.out.println("=========================");
 
 		System.out.println("\n----- check load initial data for TOP OBJECT -----");
@@ -791,7 +795,7 @@ class MdekExampleObjectThread extends Thread {
 		supertool.fetchSubObjects(objUuid);
 
 		
-		System.out.println("\n\n----- add UNPUBLISHED Address reference and publish ! -> Error REFERENCED_ADDRESSES_NOT_PUBLISHED -----");
+		System.out.println("\n\n----- add UNPUBLISHED Address reference and publish ! -----");
 
 		System.out.println("\n----- create new TOP ADDRESS -----");
 		IngridDocument newTopAddrDoc = new IngridDocument();
@@ -991,7 +995,6 @@ class MdekExampleObjectThread extends Thread {
 		supertool.deleteObject(fromObjUuid, false);
 
 		// -----------------------------------
-		// copy object and publish ! create new object and publish !
 		System.out.println("\n\n=========================");
 		System.out.println("PUBLISH TEST");
 		System.out.println("=========================");
@@ -1012,48 +1015,69 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("\n----- delete NEW TOP OBJECT (FULL) -----");
 		supertool.deleteObject(newTopUuid, true);
 
-		System.out.println("\n----- copy object (without subnodes) -> returns only TREE Data of object -----");
+		System.out.println("\n----- PUBLISH NEW OBJECT WITH VARIOUS CHECKS ! -----");
+		
+		System.out.println("\n----- copy object (without subnodes) to be parent of object to publish -> returns only TREE Data of object -----");
 		objectFrom = newParentUuid;
 		objectTo = null;
 		oMap = supertool.copyObject(objectFrom, objectTo, false);
 		// uuid created !
-		String pub1Uuid = (String)oMap.get(MdekKeys.UUID);
+		String pubParentUuid = (String)oMap.get(MdekKeys.UUID);
 
-		System.out.println("\n----- publish NEW SUB OBJECT immediately -> ERROR: PARENT_NOT_PUBLISHED ! -----");
-		System.out.println("----- first get initial top object -----");
-		System.out.println("----- Also add referenced address to be publishable ! -----");
+		System.out.println("\n----- copy and fetch person address to be added as UNPUBLISHED AMTSINTERN address reference -----");
+		IngridDocument addrMap = supertool.copyAddress(personAddressUuid, parentAddressUuid, false, false);
+		String addrCopyUuid = (String) addrMap.get(MdekKeys.UUID);
+		addrMap = supertool.fetchAddress(addrCopyUuid, FetchQuantity.EDITOR_ENTITY);
+		addrMap.put(MdekKeys.RELATION_TYPE_ID, 5);
+		addrMap.put(MdekKeys.RELATION_TYPE_REF, 505);
+		addrMap.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+
+		System.out.println("\n----- publish NEW SUB OBJECT immediately as INTRANET ! -----");
+		System.out.println("----- first get initial top object as template for sub object to publish -----");
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc = supertool.getInitialObject(newPubDoc);
 		newPubDoc.put(MdekKeys.TITLE, "TEST NEUES SUB OBJEKT DIREKT PUBLISH");
-		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
+		System.out.println("\n----- Also add published point of contact to be publishable ! -----");
+		System.out.println("----- BUT also reference to unpublished address ! -----");
 		supertool.addPointOfContactAddress(newPubDoc, addrUuidPublished);
+		((List<IngridDocument>)newPubDoc.get(MdekKeys.ADR_REFERENCES_TO)).add(addrMap);
 		// sub object of unpublished parent !!!
-		newPubDoc.put(MdekKeys.PARENT_UUID, pub1Uuid);
-		System.out.println("----- then publish -----");
+		newPubDoc.put(MdekKeys.PARENT_UUID, pubParentUuid);
+
+		System.out.println("\n----- then publish -> ERROR: REFERENCED_ADDRESSES_NOT_PUBLISHED ! -----");
+		supertool.publishObject(newPubDoc, true, false);
+
+		System.out.println("\n----- Publish referenced address as AMTSINTERN -----");
+		addrMap = supertool.publishAddress(addrMap, true, false);
+
+		System.out.println("\n----- publish object again -> ERROR: REFERENCED_ADDRESSES_HAVE_SMALLER_PUBLICATION_CONDITION (obj.INTRANET -> addr.AMTSINTERN) ! -----");
+		oMap = supertool.publishObject(newPubDoc, true, false);
+
+		System.out.println("\n----- REMOVE AMTSINTERN address reference, publish object again -> ERROR: PARENT_NOT_PUBLISHED ! -----");
+		((List<IngridDocument>)newPubDoc.get(MdekKeys.ADR_REFERENCES_TO)).remove(1);
 		supertool.publishObject(newPubDoc, true, false);
 
 		System.out.println("\n----- refetch FULL PARENT and change title, IS UNPUBLISHED !!! -----");
-		oMap = supertool.fetchObject(pub1Uuid, FetchQuantity.EDITOR_ENTITY);
+		oMap = supertool.fetchObject(pubParentUuid, FetchQuantity.EDITOR_ENTITY);
 		oMap.put(MdekKeys.TITLE, "COPIED, Title CHANGED and PUBLISHED: " + oMap.get(MdekKeys.TITLE));	
 
 		System.out.println("\n----- and publish PARENT -> create pub version/delete work version -----");
 		supertool.publishObject(oMap, true, false);
 
-		System.out.println("\n----- NOW CREATE AND PUBLISH OF NEW CHILD POSSIBLE -> create pub version, set also as work version -----");
+		System.out.println("\n----- NOW PUBLISH OF sub object POSSIBLE -> create pub version, set also as work version -----");
 		oMap = supertool.publishObject(newPubDoc, true, false);
 		// uuid created !
-		String pub2Uuid = (String) oMap.get(MdekKeys.UUID);
+		String pubChildUuid = (String) oMap.get(MdekKeys.UUID);
 
-		System.out.println("\n----- verify -> load top objects -----");
-		supertool.fetchTopObjects();
-		System.out.println("\n----- delete 1. published copy (WORKING COPY) -> NO DELETE -----");
-		supertool.deleteObjectWorkingCopy(pub1Uuid, true);
-		System.out.println("\n----- delete 2. published copy (FULL) -----");
-		supertool.deleteObject(pub2Uuid, true);
-//		System.out.println("\n----- verify -> load top objects -----");
-//		fetchTopObjects();
-		System.out.println("\n----- delete 1. published copy (FULL) -----");
-		supertool.deleteObject(pub1Uuid, true);
+		System.out.println("\n----- delete parent published copy (WORKING COPY) -> NO DELETE -----");
+		supertool.deleteObjectWorkingCopy(pubParentUuid, true);
+		System.out.println("\n----- delete child published copy (FULL) -----");
+		supertool.deleteObject(pubChildUuid, true);
+		System.out.println("\n----- delete parent published copy (FULL) -----");
+		supertool.deleteObject(pubParentUuid, true);
+		System.out.println("\n----- delete copied referenced address (FULL) -----");
+		supertool.deleteAddress(addrCopyUuid, true);
 
 		// -----------------------------------
 		// copy object and publish ! create new object and publish !

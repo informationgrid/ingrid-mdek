@@ -10,16 +10,16 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
-import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -1116,7 +1116,7 @@ public class MdekImportService implements IImporterCallback {
 				if (whichType == IdcEntityType.OBJECT) {
 					objectService.moveObject(uuidToMove, newParentUuid, false, userUuid, true);				
 				} else if (whichType == IdcEntityType.ADDRESS) {
-					addressService.moveAddress(uuidToMove, newParentUuid, false, userUuid, true);				
+					addressService.moveAddress(uuidToMove, newParentUuid, false, false, userUuid, true);				
 				}
 
 				updateImportJobInfoMessages(tag + "Moved to new parent " + newParentUuid, userUuid);
@@ -1194,7 +1194,7 @@ public class MdekImportService implements IImporterCallback {
 				// we DON'T force publication condition ! if error, we store working version !
 				objectService.publishObject(inDoc, false, userUuid, true);
 			} else if (whichType == IdcEntityType.ADDRESS) {
-				addressService.publishAddress(inDoc, userUuid, true);
+				addressService.publishAddress(inDoc, false, userUuid, true);
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);

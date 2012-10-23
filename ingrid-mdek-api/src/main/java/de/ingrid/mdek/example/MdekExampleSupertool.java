@@ -472,17 +472,20 @@ public class MdekExampleSupertool {
 	}
 	/** Don't "page" object references to address instead fetch first 50 ones ! */
 	public IngridDocument publishAddress(IngridDocument aDocIn,
-			boolean refetchAddress) {
-		return publishAddress(aDocIn, refetchAddress, 0, 50);
+			boolean refetchAddress, boolean forcePublicationCondition) {
+		return publishAddress(aDocIn, refetchAddress, forcePublicationCondition, 0, 50);
 	}
 	public IngridDocument publishAddress(IngridDocument aDocIn,
-			boolean withRefetch, int objRefsStartIndex, int objRefsMaxNum) {
-		return supertoolAddress.publishAddress(aDocIn, withRefetch,
+			boolean withRefetch,
+			boolean forcePublicationCondition,
+			int objRefsStartIndex, int objRefsMaxNum) {
+		return supertoolAddress.publishAddress(aDocIn, withRefetch, forcePublicationCondition,
 				objRefsStartIndex, objRefsMaxNum);
 	}
 	public IngridDocument moveAddress(String fromUuid, String toUuid,
-			boolean moveToFreeAddress) {
-		return supertoolAddress.moveAddress(fromUuid, toUuid, moveToFreeAddress);
+			boolean moveToFreeAddress,
+			boolean forcePublicationCondition) {
+		return supertoolAddress.moveAddress(fromUuid, toUuid, moveToFreeAddress, forcePublicationCondition);
 	}
 	public IngridDocument copyAddress(String fromUuid, String toUuid,
 			boolean copySubtree, boolean copyToFreeAddress) {
@@ -820,12 +823,12 @@ public class MdekExampleSupertool {
 		);
 		System.out.println("        "
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, oDoc.get(MdekKeys.WORK_STATE))
+			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, oDoc.get(MdekKeys.PUBLICATION_CONDITION))
 			+ ", modUser: " + extractUserData((IngridDocument)oDoc.get(MdekKeys.MOD_USER))
 			+ ", respUser: " + extractUserData((IngridDocument)oDoc.get(MdekKeys.RESPONSIBLE_USER))
 			+ ", assignerUser: " + extractUserData((IngridDocument)oDoc.get(MdekKeys.ASSIGNER_USER))
 			+ ", modified: " + MdekUtils.timestampToDisplayDate((String)oDoc.get(MdekKeys.DATE_OF_LAST_MODIFICATION))
 			+ ", created: " + MdekUtils.timestampToDisplayDate((String)oDoc.get(MdekKeys.DATE_OF_CREATION))
-			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, oDoc.get(MdekKeys.PUBLICATION_CONDITION))
 //			+ ", cat_id: " + o.get(MdekKeys.CATALOGUE_IDENTIFIER)
 		);
 
@@ -1195,6 +1198,7 @@ public class MdekExampleSupertool {
 		);
 		System.out.println("         "
 			+ ", status: " + EnumUtil.mapDatabaseToEnumConst(WorkState.class, a.get(MdekKeys.WORK_STATE))
+			+ ", publication condition: " + EnumUtil.mapDatabaseToEnumConst(PublishType.class, a.get(MdekKeys.PUBLICATION_CONDITION))
 			+ ", modUser: " + extractUserData((IngridDocument)a.get(MdekKeys.MOD_USER))
 			+ ", respUser: " + extractUserData((IngridDocument)a.get(MdekKeys.RESPONSIBLE_USER))
 			+ ", assignerUser: " + extractUserData((IngridDocument)a.get(MdekKeys.ASSIGNER_USER))
@@ -1386,11 +1390,12 @@ public class MdekExampleSupertool {
 					}
 				}
 
-			} else if (err.getErrorType().equals(MdekErrorType.REFERENCED_ADDRESSES_NOT_PUBLISHED)) {
+			} else if (err.getErrorType().equals(MdekErrorType.REFERENCED_ADDRESSES_NOT_PUBLISHED) ||
+					err.getErrorType().equals(MdekErrorType.REFERENCED_ADDRESSES_HAVE_SMALLER_PUBLICATION_CONDITION)) {
 				// addresses referencing
 				List<IngridDocument> aDocs = (List<IngridDocument>) info.get(MdekKeys.ADR_ENTITIES);
 				if (aDocs != null) {
-					System.out.println("    Referenced unpublished address(es): " + aDocs.size() + " addresses!");
+					System.out.println("    Referenced address(es): " + aDocs.size() + " addresses!");
 					for (IngridDocument aDoc : aDocs) {
 						debugAddressDoc(aDoc);
 					}
@@ -1529,8 +1534,8 @@ public class MdekExampleSupertool {
 	/** Passed address has to be published ! */
 	public void addPointOfContactAddress(IngridDocument entityDoc, String addrUuid) {
 		IngridDocument addrMap = fetchAddress(addrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
-		addrMap.put(MdekKeys.RELATION_TYPE_ID, 7);			
-		addrMap.put(MdekKeys.RELATION_TYPE_REF, 505);			
+		addrMap.put(MdekKeys.RELATION_TYPE_ID, 7);
+		addrMap.put(MdekKeys.RELATION_TYPE_REF, 505);
 		List<IngridDocument> refAddressList = new ArrayList<IngridDocument>(1);
 		refAddressList.add(addrMap);
 		entityDoc.put(MdekKeys.ADR_REFERENCES_TO, refAddressList);

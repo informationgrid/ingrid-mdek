@@ -23,6 +23,7 @@ public class AddressDocToXMLMapper extends AbstractDocToXMLMapper {
 		address.addChild(createResponsibleIdentifier());
 		address.addChild(createTypeOfAddress());
 		address.addChild(new XMLElement(HIDE_ADDRESS, getStringForKey(MdekKeys.HIDE_ADDRESS)));
+		address.addChild(new XMLElement(PUBLICATION_CONDITION, getIntegerForKey(MdekKeys.PUBLICATION_CONDITION)));
 		address.addChild(new XMLElement(ORGANISATION, getStringForKey(MdekKeys.ORGANISATION)));
 		address.addChild(new XMLElement(NAME, getStringForKey(MdekKeys.NAME)));
 		address.addChild(createNameForm());

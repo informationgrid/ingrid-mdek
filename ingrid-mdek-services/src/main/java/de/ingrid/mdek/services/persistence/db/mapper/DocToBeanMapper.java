@@ -555,6 +555,7 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setAddressValue(aDocIn.getString(MdekKeys.NAME_FORM));
 			aIn.setAddressKey((Integer)aDocIn.get(MdekKeys.NAME_FORM_KEY));
 
+			aIn.setPublishId((Integer) aDocIn.get(MdekKeys.PUBLICATION_CONDITION));
 			aIn.setModUuid(extractModUserUuid(aDocIn));
 			aIn.setResponsibleUuid(extractResponsibleUserUuid(aDocIn));
 

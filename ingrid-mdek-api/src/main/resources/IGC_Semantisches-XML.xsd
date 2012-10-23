@@ -990,8 +990,9 @@
   <!--
     Fachlicher Name: Ver�ntlichung, Klassifizierung des Ver�ntlichungslevels
     Tabelle.Feld   : T01_object.publish_id
+    Tabelle.Feld   : T02_address.publish_id
   -->
-  <xs:element name="publication-condition" type="xs:string"/>
+  <xs:element name="publication-condition" type="xs:integer"/>
   <!--
     Fachlicher Name: Eignung/Nutzung
     Tabelle.Feld   : T01_object.dataset_usage
@@ -1511,6 +1512,7 @@
         <xs:element ref="responsible-identifier"/>
         <xs:element ref="type-of-address"/>
         <xs:element ref="hide-address"/>
+        <xs:element minOccurs="0" ref="publication-condition"/>
         <xs:element minOccurs="0" ref="organisation"/>
         <xs:element minOccurs="0" ref="name"/>
         <xs:element minOccurs="0" ref="name-form"/>

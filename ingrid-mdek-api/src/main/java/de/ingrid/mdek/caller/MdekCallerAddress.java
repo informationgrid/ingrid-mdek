@@ -126,9 +126,12 @@ public class MdekCallerAddress extends MdekCaller implements IMdekCallerAddress 
 	}
 
 	public IngridDocument publishAddress(String plugId, IngridDocument addrDoc,
-			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
+			boolean refetchAfterStore,
+			boolean forcePublicationCondition,
+			int objRefsStartIndex, int objRefsMaxNum,
 			String userId) {
 		addrDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
+		addrDoc.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
 		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX, objRefsStartIndex);
 		addrDoc.put(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM, objRefsMaxNum);
 		addrDoc.put(MdekKeys.USER_ID, userId);
@@ -227,11 +230,13 @@ public class MdekCallerAddress extends MdekCaller implements IMdekCallerAddress 
 
 	public IngridDocument moveAddress(String plugId, String fromUuid, String toUuid,
 			boolean moveToFreeAddress,
+			boolean forcePublicationCondition,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.FROM_UUID, fromUuid);
 		jobParams.put(MdekKeys.TO_UUID, toUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS, moveToFreeAddress);
+		jobParams.put(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION, forcePublicationCondition);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("moveAddress", jobParams);
 

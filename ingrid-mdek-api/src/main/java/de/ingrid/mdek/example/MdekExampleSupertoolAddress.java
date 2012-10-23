@@ -436,12 +436,14 @@ public class MdekExampleSupertoolAddress {
 
 	/** Don't "page" object references to address instead fetch first 50 ones ! */
 	public IngridDocument publishAddress(IngridDocument aDocIn,
-			boolean refetchAddress) {
-		return publishAddress(aDocIn, refetchAddress, 0, 50);
+			boolean refetchAddress, boolean forcePublicationCondition) {
+		return publishAddress(aDocIn, refetchAddress, forcePublicationCondition, 0, 50);
 	}
 
 	public IngridDocument publishAddress(IngridDocument aDocIn,
-			boolean withRefetch, int objRefsStartIndex, int objRefsMaxNum) {
+			boolean withRefetch,
+			boolean forcePublicationCondition,
+			int objRefsStartIndex, int objRefsMaxNum) {
 		if (aDocIn == null) {
 			return null;
 		}
@@ -455,10 +457,11 @@ public class MdekExampleSupertoolAddress {
 		System.out.println("\n###### INVOKE publishAddress  ######");
 		System.out.println("- uuid (may be null if new object): " + aDocIn.get(MdekKeys.UUID));
 		System.out.println("- refetch: " + withRefetch);
+		System.out.println("- forcePublicationCondition: " + forcePublicationCondition);
 		System.out.println("- fetch objRefs start: " + objRefsStartIndex);
 		System.out.println("- fetch objRefs maxNum: " + objRefsMaxNum);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.publishAddress(plugId, aDocIn, withRefetch, objRefsStartIndex, objRefsMaxNum, myUserUuid);
+		response = mdekCallerAddress.publishAddress(plugId, aDocIn, withRefetch, forcePublicationCondition, objRefsStartIndex, objRefsMaxNum, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -479,7 +482,8 @@ public class MdekExampleSupertoolAddress {
 	}
 
 	public IngridDocument moveAddress(String fromUuid, String toUuid,
-			boolean moveToFreeAddress)
+			boolean moveToFreeAddress,
+			boolean forcePublicationCondition)
 	{
 		long startTime;
 		long endTime;
@@ -491,8 +495,9 @@ public class MdekExampleSupertoolAddress {
 		System.out.println("- from (node moved): " + fromUuid);
 		System.out.println("- to (new parent): " + toUuid);
 		System.out.println("- moveToFreeAddress: " + moveToFreeAddress);
+		System.out.println("- forcePublicationCondition: " + forcePublicationCondition);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, moveToFreeAddress, myUserUuid);
+		response = mdekCallerAddress.moveAddress(plugId, fromUuid, toUuid, moveToFreeAddress, forcePublicationCondition, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");

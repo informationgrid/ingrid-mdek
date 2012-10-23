@@ -34,6 +34,7 @@ public class T02Address implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 	private String hideAddress;
+	private Integer publishId;
 
 	private Set addressComments = new HashSet();
 	private Set searchtermAdrs = new HashSet();
@@ -258,6 +259,14 @@ public class T02Address implements IEntity {
 
 	public void setHideAddress(String hideAddress) {
 		this.hideAddress = hideAddress;
+	}
+
+	public Integer getPublishId() {
+		return publishId;
+	}
+
+	public void setPublishId(Integer publishId) {
+		this.publishId = publishId;
 	}
 
 

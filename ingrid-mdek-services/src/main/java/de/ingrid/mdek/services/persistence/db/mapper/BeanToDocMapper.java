@@ -242,13 +242,13 @@ public class BeanToDocMapper implements IMapper {
 		// needed when copying objects ! we always map to track in test suite !
 		objectDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, o.getCatId());
 		objectDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
+		objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
 			howMuch == MappingQuantity.COPY_DATA ||
 			howMuch == MappingQuantity.COPY_ENTITY) 
 		{
-			objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 			// mark deleted also needed in "tree view"
 			mapObjectMetadata(o.getObjectMetadata(), objectDoc, MappingQuantity.INITIAL_ENTITY);			
 		}
@@ -368,6 +368,7 @@ public class BeanToDocMapper implements IMapper {
 
 		// supply initial data when entity is created
 		if (howMuch == MappingQuantity.INITIAL_ENTITY) {
+			addressDoc.put(MdekKeys.PUBLICATION_CONDITION, a.getPublishId());
 			addressDoc.put(MdekKeys.STREET, a.getStreet());
 			addressDoc.put(MdekKeys.COUNTRY_CODE, a.getCountryKey());
 			addressDoc.put(MdekKeys.COUNTRY_NAME, a.getCountryValue());
@@ -395,6 +396,7 @@ public class BeanToDocMapper implements IMapper {
 		addressDoc.put(MdekKeys.WORK_STATE, a.getWorkState());
 		addressDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, a.getModTime());
 		addressDoc.put(MdekKeys.HIDE_ADDRESS, a.getHideAddress());
+		addressDoc.put(MdekKeys.PUBLICATION_CONDITION, a.getPublishId());
 
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
@@ -1761,6 +1763,7 @@ public class BeanToDocMapper implements IMapper {
 			return resultDoc;
 		}
 		IngridDocument refDoc = new IngridDocument();
+		refDoc.put(MdekKeys.PUBLICATION_CONDITION, parentAddress.getPublishId());
 		refDoc.put(MdekKeys.CLASS, parentAddress.getAdrType());
 		resultDoc.put(MdekKeys.PARENT_INFO, refDoc);
 		return resultDoc;

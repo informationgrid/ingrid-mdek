@@ -352,7 +352,7 @@ public class MdekUtils {
 		String description;
 	}
 
-	/** Publish condition (t01_object.publish_id) */
+	/** Publish condition (t01_object.publish_id, t02_address.publish_id) */
 	public enum PublishType implements IMdekEnum {
 		INTERNET(1, "Internet"),
 		INTRANET(2, "Intranet"),

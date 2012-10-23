@@ -15,8 +15,10 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
@@ -31,6 +33,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
+import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
@@ -364,20 +367,24 @@ public class MdekAddressService {
 	 * Publish the address represented by the passed doc. Called By IGE !  
 	 * @see #publishAddress(IngridDocument aDocIn, String userId, boolean calledByImporter=false)
 	 */
-	public String publishAddress(IngridDocument aDocIn, String userId) {
-		return publishAddress(aDocIn, userId, false);
+	public String publishAddress(IngridDocument aDocIn, boolean forcePubCondition,
+			String userId) {
+		return publishAddress(aDocIn, forcePubCondition, userId, false);
 	}
 
 	/**
 	 * Publish the address represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address
+	 * @param forcePublicationCondition apply restricted PubCondition to subnodes (true)
+	 * 		or receive Error when subnodes PubCondition conflicts (false)
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
 	 * @return uuid of published address, will be generated if new address (no uuid passed in doc)
 	 */
-	public String publishAddress(IngridDocument aDocIn, String userId,
+	public String publishAddress(IngridDocument aDocIn, boolean forcePubCondition,
+			String userId,
 			boolean calledByImporter) {
 		// HEN CALLED BY IGE: uuid is null when new address !
 		String uuid = (String) aDocIn.get(MdekKeys.UUID);
@@ -408,9 +415,31 @@ public class MdekAddressService {
 			}
 		}
 
+		Integer pubTypeIn = (Integer) aDocIn.get(MdekKeys.PUBLICATION_CONDITION);
+		String currentTime = MdekUtils.dateToTimestamp(new Date());
+
+		// PERFORM CHECKS
+		// NOTICE: passed address may NOT exist yet (new address published immediately)
+
+		// check permissions !
+		if (!calledByImporter) {
+			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);
+		}
+
+		// all parents published ?
+		checkAddressPathForPublish(parentUuid, uuid);
+		// publication condition of referencing objects fit to address ?
+		checkAddressPublicationConditionReferencingObjects(aDocIn);
+		// publication condition of parent fits to address ?
+		checkAddressPublicationConditionParent(parentUuid, uuid, pubTypeIn);
+		// publication conditions of sub nodes fit to address ?
+		checkAddressPublicationConditionSubTree(uuid, pubTypeIn, forcePubCondition, true,
+			currentTime, userId);
+
+		// CHECKS OK, proceed
+
 		// set common data to transfer
 		workflowHandler.processDocOnPublish(aDocIn);
-		String currentTime = MdekUtils.dateToTimestamp(new Date()); 
 		aDocIn.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
 		String modUuid = userId;
 		if (calledByImporter) {
@@ -426,11 +455,6 @@ public class MdekAddressService {
 		String respUserUuid = docToBeanMapper.extractResponsibleUserUuid(aDocIn);
 		if (respUserUuid == null) {
 			beanToDocMapper.mapResponsibleUser(userId, aDocIn, MappingQuantity.INITIAL_ENTITY);				
-		}
-
-		// check permissions !
-		if (!calledByImporter) {
-			permissionHandler.checkPermissionsForPublishAddress(uuid, parentUuid, userId);			
 		}
 
 		// End simulating IGE call when called by importer, see above ! now we use importer data !
@@ -497,7 +521,7 @@ public class MdekAddressService {
 		daoAddressNode.makePersistent(aNode);
 
 		// PERFORM CHECKS ON FINAL DATA BEFORE COMMITTING !!!
-		checkAddressNodeForPublish(aNode);			
+		checkAddressNodeContentForPublish(aNode);			
 		// checks ok !
 
 		// UPDATE FULL INDEX !!!
@@ -525,25 +549,29 @@ public class MdekAddressService {
 	 * @see #moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress, 
 	 * 			String userId, boolean calledByImporter=false)
 	 */
-	public IngridDocument moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress,
+	public IngridDocument moveAddress(String fromUuid, String toUuid,
+			boolean moveToFreeAddress,
+			boolean forcePubCondition,
 			String userId) {
-		return moveAddress(fromUuid, toUuid, moveToFreeAddress, userId, false);
+		return moveAddress(fromUuid, toUuid, moveToFreeAddress, forcePubCondition, userId, false);
 	}
 
 	/**
 	 * Move an address with its subtree to another parent.
 	 * @param fromUuid uuid of node to move (this one will be removed from its parent)
 	 * @param toUuid uuid of new parent, pass null if top node
-	 * @param moveToFreeAddress<br>
-	 * 		true=moved node is free address, parent has to be null<br>
-	 * 		false=moved node is NOT free address, parent can be set, when parent is null
-	 * 		copy is "normal" top address
+	 * @param moveToFreeAddress moved node will be a free address after move ?<br>
+	 * 		true=moved node will be free address, parent has to be null<br>
+	 * 		false=moved node will NOT be free address, parent can be set, when parent is null
+	 * 		moved node is "normal" top address
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param calledByImporter true=do specials e.g. DON'T check permissions<br>
 	 * 		false=default behaviour when called from IGE
 	 * @return map containing info (number of moved addresses)
 	 */
-	public IngridDocument moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress,
+	public IngridDocument moveAddress(String fromUuid, String toUuid,
+			boolean moveToFreeAddress,
+			boolean forcePubCondition,
 			String userId, boolean calledByImporter) {
 		// PERFORM CHECKS
 
@@ -553,7 +581,7 @@ public class MdekAddressService {
 		}
 
 		AddressNode fromNode = loadByUuid(fromUuid, IdcEntityVersion.WORKING_VERSION);
-		checkAddressNodesForMove(fromNode, toUuid, moveToFreeAddress);
+		checkAddressNodesForMove(fromNode, toUuid, moveToFreeAddress, forcePubCondition, userId);
 
 		// CHECKS OK, proceed
 
@@ -707,7 +735,7 @@ public class MdekAddressService {
 		}
 
 		// check whether topnode/subnodes are referenced (also user address, responsible ...)
-		checkAddressTreeReferences(aNode, forceDeleteReferences);
+		checkAddressTreeReferencesForDelete(aNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade (subnodes, permissions)
 		daoAddressNode.makeTransient(aNode);
@@ -925,11 +953,210 @@ public class MdekAddressService {
 		}
 	}
 
-	/** Check whether passed node is valid for publishing !
+	/**
+	 * Checks whether node has unpublished parents. Throws MdekException if so.
+	 * @param parentUuid is always null, if inUuid is NOT null because this method is called at
+	 * 		beginning of publish job, see there !
+	 * @param inUuid is null if new node is created then parent is set (or parent is null if top node)
+	 */
+	private void checkAddressPathForPublish(String parentUuid, String inUuid) {
+		// default
+		String endOfPath = inUuid;
+		boolean includeEndOfPath = false;
+
+		// new node (uuid not generated yet) ? parent should be passed !
+		if (inUuid == null) {
+			endOfPath = parentUuid;
+			includeEndOfPath = true;
+		}
+		
+		// no check if top node !
+		if (endOfPath == null) {
+			return;
+		}
+		
+		// check whether a parent is not published
+
+		List<String> pathUuids = daoAddressNode.getAddressPath(endOfPath);
+		for (String pathUuid : pathUuids) {
+			if (pathUuid.equals(endOfPath) && !includeEndOfPath) {
+				continue;
+			}
+			AddressNode pathNode = loadByUuid(pathUuid, null);
+			if (pathNode == null) {
+				throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+			}
+			
+			// check
+			if (!hasPublishedVersion(pathNode)) {
+				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
+			}
+		}
+	}
+
+	/** Check objects referencing the given address whether "compatible" with publication condition.
+	 * Throws Exception if not ! */
+	private void checkAddressPublicationConditionReferencingObjects(IngridDocument addrDoc) {
+		String addrUuid = addrDoc.getString(MdekKeys.UUID);
+		Integer pubTypeAddrDB = (Integer) addrDoc.get(MdekKeys.PUBLICATION_CONDITION);
+		PublishType pubTypeAddr = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeAddrDB);
+
+		// get objects referencing the given address
+		HashMap fromObjectsData = 
+			daoAddressNode.getObjectReferencesFrom(addrUuid, 0, Integer.MAX_VALUE);
+		List<ObjectNode>[] fromLists = (List<ObjectNode>[]) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM);
+
+		// check all published versions referencing the address !
+		List<IngridDocument> errObjList = new ArrayList<IngridDocument>();
+		for (List<ObjectNode> oNList : fromLists) {
+			for (ObjectNode oN : oNList) {
+				if (oN.getObjIdPublished() != null) {
+					// get referencing object and its publish type
+					T01Object o = oN.getT01ObjectPublished();
+					PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, o.getPublishId());
+					// error if publish type of address is smaller than the one in referencing object (e.g. obj.INTERNET -> addr.INTRANET)
+					if (!pubTypeAddr.includes(pubTypeObj)) {
+						IngridDocument oDoc = beanToDocMapper.mapT01Object(o, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+						errObjList.add(oDoc);
+					}
+				}
+			}
+		}
+
+		if (!errObjList.isEmpty()) {
+			addrDoc.put(MdekKeys.OBJ_ENTITIES, errObjList);
+			throw new MdekException(new MdekError(MdekErrorType.REFERENCING_OBJECTS_HAVE_LARGER_PUBLICATION_CONDITION, addrDoc));			
+		}
+	}
+
+	/**
+	 * Check whether publication condition of parent fits to publication condition of child.<br>
+	 * NOTICE: PublishedVersion of parent is checked !<br>
+	 * Throws Exception if not fitting.
+	 * @param parentUuid is always null, if inUuid is NOT null because this method is called at
+	 * 		beginning of publish job, see there !
+	 * @param childUuid is null if new node is created then parent is set (or parent is null if top node)
+	 * @param pubTypeChildDB publication condition of child database value
+	 */
+	private void checkAddressPublicationConditionParent(String parentUuid,
+			String childUuid,
+			Integer pubTypeChildDB) {
+
+		PublishType pubTypeChild = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeChildDB);
+
+		// Load Parent of child
+		// NOTICE: childUuid can be null if uuid not generated yet (new address)
+		if (parentUuid == null) {
+			// if childUuid is null then we have a new top address !
+			if (childUuid != null) {
+				parentUuid = loadByUuid(childUuid, null).getFkAddrUuid();				
+			}
+		}
+		// return if top node
+		if (parentUuid == null) {
+			return;
+		}
+		T02Address parentPub =
+			loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION).getT02AddressPublished();
+		if (parentPub == null) {
+			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
+		}
+		
+		// get publish type of parent
+		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentPub.getPublishId());
+
+		// check whether publish type of parent is smaller
+		if (!pubTypeParent.includes(pubTypeChild)) {
+			throw new MdekException(new MdekError(MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION));					
+		}
+	}
+
+	/** Checks whether a tree fits to a new publication condition.
+	 * !!! ALSO ADAPTS Publication Conditions IF REQUESTED !!!<br>
+	 * NOTICE: ONLY PUBLISHED versions of subnodes are checked and adapted !!!
+	 * @param rootUuid uuid of top node of tree
+	 * @param pubTypeTopDB new publication type (DataBase value !)
+	 * @param forcePubCondition force change of nodes (modification time, publicationType, ...)
+	 * @param skipRootNode check/change top node, e.g. when moving (true) or not, e.g. when publishing (false)
+	 * @param modTime modification time to store in modified nodes
+	 * @param modUuid user uuid to set as modification user
+	 */
+	private void checkAddressPublicationConditionSubTree(String rootUuid,
+			Integer pubTypeTopDB,
+			Boolean forcePubCondition,
+			boolean skipRootNode,
+			String modTime,
+			String modUuid) {
+
+		// no check if new node ! No children !
+		if (rootUuid == null) {
+			return;
+		}
+
+		// get current pub type. Should be set !!! (mandatory when publishing)
+		PublishType pubTypeNew = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeTopDB);		
+		AddressNode rootNode = loadByUuid(rootUuid, IdcEntityVersion.ALL_VERSIONS);
+		String topName = extractAddressName(rootNode.getT02AddressWork());
+
+		// avoid null !
+		if (!Boolean.TRUE.equals(forcePubCondition)) {
+			forcePubCondition = false;			
+		}
+		
+		// process subnodes where publication condition doesn't match
+
+		List<AddressNode> subNodes = daoAddressNode.getSelectedSubAddresses(
+				rootUuid,
+				IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC, pubTypeNew);
+		
+		// also process top node if requested !
+		if (!skipRootNode) {
+			subNodes.add(0, rootNode);			
+		}
+		for (AddressNode subNode : subNodes) {
+			// check "again" whether publication condition of node is "critical"
+			T02Address addrPub = subNode.getT02AddressPublished();
+			if (addrPub == null) {
+				// not published yet ! skip this one
+				continue;
+			}
+
+			PublishType subPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, addrPub.getPublishId());				
+			if (!pubTypeNew.includes(subPubType)) {
+				// throw "warning" for user when not adapting sub tree !
+				if (!forcePubCondition) {
+					throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION));					
+				}
+
+				// nodes should be adapted -> in PublishedVersion !
+				addrPub.setPublishId(pubTypeNew.getDbValue());
+				// set time and user
+				addrPub.setModTime(modTime);
+				addrPub.setModUuid(modUuid);
+
+				// add comment to SUB ADDRESS, document the automatic change of the publish condition
+				if (!subNode.equals(rootNode)) {
+					Set<AddressComment> commentSet = addrPub.getAddressComments();
+					AddressComment newComment = new AddressComment();
+					newComment.setAddrId(addrPub.getId());
+					newComment.setComment("Hinweis: Durch Änderung des Wertes des Feldes 'Veröffentlichung' in der " +
+						"übergeordneten Adresse '" + topName +
+						"' ist der Wert dieses Feldes für diese Adresse auf '" + pubTypeNew.toString() +
+						"' gesetzt worden.");
+					newComment.setCreateTime(addrPub.getModTime());
+					newComment.setCreateUuid(addrPub.getModUuid());
+					commentSet.add(newComment);
+					daoT02Address.makePersistent(addrPub);						
+				}
+			}
+		}
+	}
+
+	/** FURTHER Checks whether passed node is valid for publishing !
 	 * (e.g. check free address conditions ...). CHECKS PUBLISHED VERSION IN NODE !
 	 * Throws MdekException if not valid.
 	 */
-	private void checkAddressNodeForPublish(AddressNode node)
+	private void checkAddressNodeContentForPublish(AddressNode node)
 	{
 		if (node == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
@@ -964,24 +1191,9 @@ public class MdekAddressService {
 		}
 
 		// basic parent checks
-		AddressNode parentNode = null;
 		AddressType parentType = null;
 		if (parentUuid != null) {
-
-			// check whether a parent is not published !
-			List<String> pathUuids = daoAddressNode.getAddressPath(parentUuid);
-			
-			for (String pathUuid : pathUuids) {
-				AddressNode pathNode = loadByUuid(pathUuid, null);
-				if (pathNode == null) {
-					throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
-				}
-				if (!hasPublishedVersion(pathNode)) {
-					throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
-				}
-			}
-
-			parentNode = loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
+			AddressNode parentNode = loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
 			parentType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
 					parentNode.getT02AddressPublished().getAdrType());
 
@@ -1065,7 +1277,9 @@ public class MdekAddressService {
 	 * (e.g. move to subnode not allowed). Throws MdekException if not valid.
 	 */
 	private void checkAddressNodesForMove(AddressNode fromNode, String toUuid,
-		Boolean moveToFreeAddress)
+		Boolean moveToFreeAddress,
+		Boolean forcePubCondition,
+		String userId)
 	{
 		if (fromNode == null) {
 			throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_NOT_FOUND));
@@ -1104,7 +1318,15 @@ public class MdekAddressService {
 				if (toAddrPub == null) {
 					throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 				}
-			}		
+
+				// are pubTypes compatible ?
+				// we check and adapt ONLY PUBLISHED version !!!
+				Integer publicationTypeTo = toAddrPub.getPublishId();
+				// adapt all child nodes if requested !
+				String currentTime = MdekUtils.dateToTimestamp(new Date()); 
+				checkAddressPublicationConditionSubTree(fromUuid, publicationTypeTo, forcePubCondition, false,
+					currentTime, userId);
+			}
 			
 			T02Address toAddrWork = toNode.getT02AddressWork();
 			toTypeWork = EnumUtil.mapDatabaseToEnumConst(AddressType.class, toAddrWork.getAdrType());
@@ -1132,7 +1354,7 @@ public class MdekAddressService {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkAddressTreeReferences(AddressNode topNode, boolean forceDeleteReferences) {
+	private void checkAddressTreeReferencesForDelete(AddressNode topNode, boolean forceDeleteReferences) {
 		// process all subnodes INCLUDING top node
 
 		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(
@@ -1160,7 +1382,7 @@ public class MdekAddressService {
 //			checkAddressIsVerwalter(subNode);
 
 			// check
-			checkAddressNodeObjectReferences(subNode, forceDeleteReferences);
+			checkAddressNodeObjectReferencesForDelete(subNode, forceDeleteReferences);
 		}
 	}
 
@@ -1172,7 +1394,7 @@ public class MdekAddressService {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkAddressNodeObjectReferences(AddressNode aNode, boolean forceDeleteReferences) {
+	private void checkAddressNodeObjectReferencesForDelete(AddressNode aNode, boolean forceDeleteReferences) {
 		// handle references to address
 		String aUuid = aNode.getAddrUuid();
 		T012ObjAdr exampleRef = new T012ObjAdr();
@@ -1254,5 +1476,45 @@ public class MdekAddressService {
 		uList.add(uDoc);
 
 		return errInfo;
+	}
+
+	/** Extract Name from given address (Person name OR institution name).
+	 * @param addr
+	 * @return
+	 */
+	public String extractAddressName(T02Address addr) {
+		String name = "";
+
+		// PERSON and FREI has person name displayed in IGE tree !
+		if (AddressType.PERSON.getDbValue().equals(addr.getAdrType()) ||
+			AddressType.FREI.getDbValue().equals(addr.getAdrType()))
+		{
+			if (MdekUtils.hasContent(addr.getLastname())) {
+				name = name + addr.getLastname();
+			}
+			if (MdekUtils.hasContent(addr.getFirstname())) {
+				if (name.length() > 0) {
+					name = name + ", ";
+				}
+				name = name + addr.getFirstname();
+			}
+		}
+
+		// otherwise institution name (displayed in brackets if FREI)
+		if (AddressType.FREI.getDbValue().equals(addr.getAdrType()) ||
+			AddressType.EINHEIT.getDbValue().equals(addr.getAdrType()) ||
+			AddressType.INSTITUTION.getDbValue().equals(addr.getAdrType()))
+		{
+			if (MdekUtils.hasContent(addr.getInstitution())) {
+				boolean hasPersonName = name.length() > 0;
+				if (hasPersonName) {
+					name = name + " (" + addr.getInstitution() + ")";
+				} else {
+					name = addr.getInstitution();
+				}
+			}
+		}
+		
+		return name;
 	}
 }

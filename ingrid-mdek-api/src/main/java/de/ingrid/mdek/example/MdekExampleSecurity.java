@@ -880,7 +880,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.storeAddress(doc, false);
 
 		System.out.println("\n----- publish address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
-		supertool.publishAddress(doc, false);
+		supertool.publishAddress(doc, false, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("\n----- store object -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
@@ -940,7 +940,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.deleteAddressWorkingCopy(addrUuid, true);
 
 		System.out.println("\n----- publish address -> ALLOWED (WRITE_SINGLE) -----");
-		supertool.publishAddress(doc, false);
+		supertool.publishAddress(doc, false, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("\n----- write object -> ALLOWED (WRITE_SINGLE) -----");
@@ -994,7 +994,7 @@ class MdekExampleSecurityThread extends Thread {
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- move address to top -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
-		supertool.moveAddress(addrUuid, null, false);
+		supertool.moveAddress(addrUuid, null, false, false);
 
 		System.out.println("\n----- copy address to top -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
 		supertool.copyAddress(addrUuid, null, false, false);
@@ -1102,7 +1102,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.copyAddress(addrUuid, newParentAddrUuid, false, false);
 
 		System.out.println("\n----- move address to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
-		supertool.moveAddress(addrUuid, newParentAddrUuid, false);
+		supertool.moveAddress(addrUuid, newParentAddrUuid, false, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- create sub object -> ERROR -----");
@@ -1166,7 +1166,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.moveObject(objUuid, newParentObjUuid, false);
 
 		System.out.println("\n----- move address to new parent -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY (no WRITE_TREE on address to move) -----");
-		supertool.moveAddress(addrUuid, newParentAddrUuid, false);
+		supertool.moveAddress(addrUuid, newParentAddrUuid, false, false);
 
 		System.out.println("\n-------------------------------------");
 		System.out.println("----- and delete new sub entities -> ALLOWED (WRITE_TREE in parent!) -----");
@@ -1315,7 +1315,7 @@ class MdekExampleSecurityThread extends Thread {
 		supertool.setFullOutput(true);
 		origResponsibleUuid = getResponsibleUuidFromDoc(doc);
 		setResponsibleUuidInDoc(supertool.getCallingUserUuid(), doc);
-		supertool.publishAddress(doc, false);
+		supertool.publishAddress(doc, false, false);
 
 		System.out.println("\n----- store group KEEPING permission -> OK, group stored ! -----");
 		newGroupDoc = supertool.storeGroup(newGroupDoc, true);
@@ -1332,7 +1332,7 @@ class MdekExampleSecurityThread extends Thread {
 		
 		System.out.println("\n----- clean up: set responsible user back to former one -----");
 		setResponsibleUuidInDoc(origResponsibleUuid, doc);
-		supertool.publishAddress(doc, false);
+		supertool.publishAddress(doc, false, false);
 
 // ===================================
 
@@ -1494,7 +1494,7 @@ class MdekExampleSecurityThread extends Thread {
         supertool.moveObject(newParentObjUuid, objUuid, false);
 
         System.out.println("\n----- move new parent address -> ERROR: USER_HAS_NO_PERMISSION_ON_ENTITY -----");
-        doc = supertool.moveAddress(newParentAddrUuid, addrUuid, false);
+        doc = supertool.moveAddress(newParentAddrUuid, addrUuid, false, false);
 
         
         System.out.println("\n-------------------------------------");

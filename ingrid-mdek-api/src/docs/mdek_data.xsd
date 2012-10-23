@@ -189,6 +189,7 @@
 			<xs:element name="post-box" type="xs:string"/>
 			<xs:element name="function" type="xs:string"/>
 			<xs:element name="original-address-identifier" type="xs:string"/>
+			<xs:element name="publication-condition" type="xs:integer"/>
 
 			<xs:element name="lastexport-time" type="TIMESTAMP"/>
 			<xs:element name="expiry-state" type="xs:integer"/>
@@ -1364,6 +1365,7 @@
 	<xs:complexType name="ADDR_PARENT_INFO_MAP">
 		<xs:sequence>
 			<xs:element ref="class"/>
+			<xs:element name="publication-condition" type="xs:integer"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="RESULT_CATALOG_MAP">

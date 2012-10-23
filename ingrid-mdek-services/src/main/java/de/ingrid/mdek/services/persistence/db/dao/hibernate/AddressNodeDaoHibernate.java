@@ -17,11 +17,13 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.ExpiryState;
+import de.ingrid.mdek.MdekUtils.IdcChildrenSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
+import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.MdekUtilsSecurity.IdcPermission;
@@ -237,6 +239,27 @@ public class AddressNodeDaoHibernate
 					addrAlias + ".lastname, " +
 					addrAlias + ".firstname"; 
 			}
+		}
+		
+		List<AddressNode> aNodes = session.createQuery(q)
+			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.list();
+
+		return aNodes;
+	}
+
+	public List<AddressNode> getSelectedSubAddresses(String parentUuid,
+			IdcChildrenSelectionType whichChildren,
+			PublishType parentPubType) {
+		Session session = getSession();
+
+		String q = "select aNode from AddressNode aNode ";
+		if (whichChildren == IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC) {
+			q += "left join fetch aNode.t02AddressPublished a ";
+		}
+		q += "where aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%' ";
+		if (whichChildren == IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC) {
+			q += "and a.publishId < " + parentPubType.getDbValue();
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q)

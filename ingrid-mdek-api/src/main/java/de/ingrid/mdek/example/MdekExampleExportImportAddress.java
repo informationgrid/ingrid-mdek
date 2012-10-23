@@ -1041,7 +1041,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.fetchSubAddresses(topAddrUuid2);
 
 		System.out.println("\n----- Clean Up: move back to original position -----");
-		supertool.moveAddress(parentAddrUuid, topAddrUuid, false);
+		supertool.moveAddress(parentAddrUuid, topAddrUuid, false, false);
 
 		System.out.println("\n----- import existing branch with DIFFERENT parent as PUBLISHED -> move branch to new parent ! -----");
 		supertool.importEntities(importBranchMoveBranchToTop, objImpNodeUuid, addrImpNodeUuid, true, false);
@@ -1049,7 +1049,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.fetchSubAddresses(topAddrUuid2);
 
 		System.out.println("\n----- Clean Up: move back to original position -----");
-		supertool.moveAddress(parentAddrUuid, topAddrUuid, false);
+		supertool.moveAddress(parentAddrUuid, topAddrUuid, false, false);
 
 
 		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error ADDRESS_TYPE_CONFLICT (to FREE ADDRESS) ->  branch keeps position, root stored as WORKING version, subnodes PUBLISHED !-----");

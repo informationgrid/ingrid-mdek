@@ -28,11 +28,13 @@ import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapperSecurity;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
@@ -429,8 +431,8 @@ public class MdekObjectService {
 	 * Publish the object represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object
-	 * @param forcePublicationCondition apply restricted PubCondition to subobjects (true)
-	 * 		or receive Error when subobjects PubCondition conflicts (false)
+	 * @param forcePublicationCondition apply restricted PubCondition to subnodes (true)
+	 * 		or receive Error when subnodes PubCondition conflicts (false)
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
 	 * 		false=default behaviour when called from IGE e.g. mod user is calling user
@@ -790,26 +792,52 @@ public class MdekObjectService {
 		return false;
 	}
 
-	/** Check all referenced Addresses whether published. Throws Exception if not ! */
-	private boolean checkReferencedAddressesForPublish(IngridDocument oDoc) {
+	/** Check all referenced Addresses whether ok for object beeing published, e.g. addresses
+	 * have to be published and publication condition of address has to fit. 
+	 * Throws Exception if not ! */
+	private void checkReferencedAddressesForPublish(IngridDocument oDoc) {
 		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
 		if (oAs == null) {
 			oAs = new ArrayList<IngridDocument>();
 		}
 
-		IngridDocument errInfo = new IngridDocument();
+		// fetch all address nodes
+		List<AddressNode> aNodes = new ArrayList<AddressNode>(oAs.size());
 		for (IngridDocument oA : oAs) {
-			String addrUuid = oA.getString(MdekKeys.UUID);
-			if (!addressService.hasPublishedVersion(addressService.loadByUuid(addrUuid, null))) {
-				addressService.setupErrorInfoAddr(errInfo, addrUuid);
+			aNodes.add(addressService.loadByUuid(oA.getString(MdekKeys.UUID), IdcEntityVersion.PUBLISHED_VERSION));
+		}
+
+		// check for errors
+
+		// first check whether published
+		IngridDocument errInfo = new IngridDocument();
+		for (AddressNode aNode : aNodes) {
+			if (!addressService.hasPublishedVersion(aNode)) {
+				addressService.setupErrorInfoAddr(errInfo, aNode.getAddrUuid());
 			}
 		}
-		
 		if (!errInfo.isEmpty()) {
 			throw new MdekException(new MdekError(MdekErrorType.REFERENCED_ADDRESSES_NOT_PUBLISHED, errInfo));			
 		}
-		
-		return false;
+
+		// all published, so we check publication condition of addresses
+		Integer pubTypeObjDB = (Integer) oDoc.get(MdekKeys.PUBLICATION_CONDITION);
+		PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeObjDB);
+		List<IngridDocument> errAddrList = new ArrayList<IngridDocument>();
+		for (AddressNode aNode : aNodes) {
+			// get referenced address and its publish type
+			T02Address a = aNode.getT02AddressPublished();
+			PublishType pubTypeAddr = EnumUtil.mapDatabaseToEnumConst(PublishType.class, a.getPublishId());
+			// error if publish type of referenced address is smaller than the one in object (e.g. obj.INTERNET -> addr.INTRANET)
+			if (!pubTypeAddr.includes(pubTypeObj)) {
+				IngridDocument aDoc = beanToDocMapper.mapT02Address(a, new IngridDocument(), MappingQuantity.BASIC_ENTITY);
+				errAddrList.add(aDoc);
+			}
+		}
+		if (!errAddrList.isEmpty()) {
+			oDoc.put(MdekKeys.ADR_ENTITIES, errAddrList);
+			throw new MdekException(new MdekError(MdekErrorType.REFERENCED_ADDRESSES_HAVE_SMALLER_PUBLICATION_CONDITION, oDoc));			
+		}
 	}
 
 	/** FULL DELETE ! MAKE TRANSIENT ! */
@@ -824,7 +852,7 @@ public class MdekObjectService {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
 		}
 
-		checkObjectTreeReferences(oNode, forceDeleteReferences);
+		checkObjectTreeReferencesForDelete(oNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade (subnodes, permissions)
 		daoObjectNode.makeTransient(oNode);
@@ -975,7 +1003,12 @@ public class MdekObjectService {
 		return result;
 	}
 
-	/** Checks whether node has unpublished parents. Throws MdekException if so. */
+	/**
+	 * Checks whether node has unpublished parents. Throws MdekException if so.
+	 * @param parentUuid is always null, if inUuid is NOT null because this method is called at
+	 * beginning of publish job, see there !
+	 * @param inUuid is null if new node is created then parent is set (or parent is null if top node)
+	 */
 	private void checkObjectPathForPublish(String parentUuid, String inUuid) {
 		// default
 		String endOfPath = inUuid;
@@ -1011,9 +1044,15 @@ public class MdekObjectService {
 		}
 	}
 
-	/** Check whether publication condition of parent fits to publication condition of child.<br>
+	/**
+	 * Check whether publication condition of parent fits to publication condition of child.<br>
 	 * NOTICE: PublishedVersion of parent is checked !<br>
-	 * Throws Exception if not fitting */
+	 * Throws Exception if not fitting.
+	 * @param parentUuid is always null, if inUuid is NOT null because this method is called at
+	 * 		beginning of publish job, see there !
+	 * @param childUuid is null if new node is created then parent is set (or parent is null if top node)
+	 * @param pubTypeChildDB publication condition of child database value
+	 */
 	private void checkObjectPublicationConditionParent(String parentUuid,
 			String childUuid,
 			Integer pubTypeChildDB) {
@@ -1051,7 +1090,7 @@ public class MdekObjectService {
 	 * !!! ALSO ADAPTS Publication Conditions IF REQUESTED !!!<br>
 	 * NOTICE: ONLY PUBLISHED versions of subnodes are checked and adapted !!!
 	 * @param rootUuid uuid of top node of tree
-	 * @param pubTypeTopDB new publication type
+	 * @param pubTypeTopDB new publication type (DataBase value !)
 	 * @param forcePubCondition force change of nodes (modification time, publicationType, ...)
 	 * @param skipRootNode check/change top node, e.g. when moving (true) or not, e.g. when publishing (false)
 	 * @param modTime modification time to store in modified nodes
@@ -1097,8 +1136,8 @@ public class MdekObjectService {
 				continue;
 			}
 
-			PublishType objPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, objPub.getPublishId());				
-			if (!pubTypeNew.includes(objPubType)) {
+			PublishType subPubType = EnumUtil.mapDatabaseToEnumConst(PublishType.class, objPub.getPublishId());				
+			if (!pubTypeNew.includes(subPubType)) {
 				// throw "warning" for user when not adapting sub tree !
 				if (!forcePubCondition) {
 					throw new MdekException(new MdekError(MdekErrorType.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION));					
@@ -1182,7 +1221,7 @@ public class MdekObjectService {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkObjectTreeReferences(ObjectNode topNode, boolean forceDeleteReferences) {
+	private void checkObjectTreeReferencesForDelete(ObjectNode topNode, boolean forceDeleteReferences) {
 		// process all subnodes including top node
 
 		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(
@@ -1191,7 +1230,7 @@ public class MdekObjectService {
 
 		for (ObjectNode subNode : subNodes) {
 			// check
-			checkObjectNodeReferences(subNode, forceDeleteReferences);			
+			checkObjectNodeReferencesForDelete(subNode, forceDeleteReferences);			
 		}
 	}
 
@@ -1204,7 +1243,7 @@ public class MdekObjectService {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkObjectNodeReferences(ObjectNode oNode, boolean forceDeleteReferences) {
+	private void checkObjectNodeReferencesForDelete(ObjectNode oNode, boolean forceDeleteReferences) {
 		// handle references to object
 		String oUuid = oNode.getObjUuid();
 		ObjectReference exampleRef = new ObjectReference();

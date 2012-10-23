@@ -21,6 +21,7 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 	private final static String X_RESPONSIBLE_IDENTIFIER = "//address/responsible-identifier/text()";
 	private final static String X_TYPE_OF_ADDRESS = "//address/type-of-address/@id";
 	private final static String X_HIDE_ADDRESS = "//address/hide-address/text()";
+	private static final String X_PUBLICATION_CONDITION = "//address/publication-condition/text()";
 	private final static String X_ORGANISATION = "//address/organisation/text()";
 	private final static String X_NAME = "//address/name/text()";
 	private final static String X_NAME_FORM = "//address/name-form/text()";
@@ -59,6 +60,7 @@ public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 		putString(new String[] {MdekKeys.RESPONSIBLE_USER, MdekKeys.UUID}, XPathUtils.getString(source, X_RESPONSIBLE_IDENTIFIER), address);
 		putInt(MdekKeys.CLASS, XPathUtils.getInt(source, X_TYPE_OF_ADDRESS), address);
 		putString(MdekKeys.HIDE_ADDRESS, XPathUtils.getString(source, X_HIDE_ADDRESS), address);
+		putInt(MdekKeys.PUBLICATION_CONDITION, XPathUtils.getInt(source, X_PUBLICATION_CONDITION), address);
 		putString(MdekKeys.ORGANISATION, XPathUtils.getString(source, X_ORGANISATION), address);
 		putString(MdekKeys.NAME, XPathUtils.getString(source, X_NAME), address);
 		putString(MdekKeys.NAME_FORM, XPathUtils.getString(source, X_NAME_FORM), address);

@@ -718,12 +718,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JobType.PUBLISH, 0, 1, false));
 
 			Boolean refetchAfterStore = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_REFETCH_ENTITY);
+			Boolean forcePubCondition = (Boolean) aDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 			int objRefsStartIndex = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_START_INDEX);
 			int objRefsMaxNum = (Integer) aDocIn.get(MdekKeys.OBJ_REFERENCES_FROM_MAX_NUM);
 
 			daoAddressNode.beginTransaction();
 			
-			String uuid = addressService.publishAddress(aDocIn, userId);
+			String uuid = addressService.publishAddress(aDocIn, forcePubCondition, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
@@ -835,10 +836,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			String fromUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String toUuid = (String) params.get(MdekKeys.TO_UUID);
 			Boolean targetIsFreeAddress = (Boolean) params.get(MdekKeys.REQUESTINFO_TARGET_IS_FREE_ADDRESS);
+			Boolean forcePubCondition = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 
 			daoAddressNode.beginTransaction();
 
-			IngridDocument resultDoc = addressService.moveAddress(fromUuid, toUuid, targetIsFreeAddress,
+			IngridDocument resultDoc = addressService.moveAddress(fromUuid, toUuid,
+					targetIsFreeAddress,
+					forcePubCondition,
 					userUuid);
 
 			// add permissions to result
@@ -1335,7 +1339,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// do we have permission to publish (e.g. no permission if workflow enabled and not QA) ? Execute in catch block !
 			try {
 				// publish
-				addressService.publishAddress(targetAddrDoc, userUuid);
+				addressService.publishAddress(targetAddrDoc, false, userUuid);
 				if (log.isDebugEnabled()) {
 					log.debug("Node has NO working copy and \"QA\" valid -> PUBLISHed merged address '" + targetAddrNode.getAddrUuid() + "'.");
 				}

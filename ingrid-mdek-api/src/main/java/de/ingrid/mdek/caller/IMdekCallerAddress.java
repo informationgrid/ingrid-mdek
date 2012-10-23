@@ -146,6 +146,8 @@ public interface IMdekCallerAddress extends IMdekCaller {
 	 * @param addrDoc map representation of address.
 	 * 		If no id/uuid is set address will be created else updated.
 	 * @param refetchAfterStore true=fetch and return address after store, false=no fetch, just store
+	 * @param forcePublicationCondition apply restricted PubCondition to subaddresses (true)
+	 * 		or receive Error when subaddresses PubCondition conflicts (false)
 	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
 	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
 	 * @param userId
@@ -155,10 +157,14 @@ public interface IMdekCallerAddress extends IMdekCaller {
 	 * @throws MdekException group already exists (MdekErrorType.FREE_ADDRESS_WITH_PARENT).
 	 * @throws MdekException group already exists (MdekErrorType.FREE_ADDRESS_WITH_SUBTREE).
 	 * @throws MdekException group already exists (MdekErrorType.PARENT_NOT_PUBLISHED).
+	 * @throws MdekException group already exists (MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION).
+	 * @throws MdekException group already exists (MdekErrorType.SUBTREE_HAS_LARGER_PUBLICATION_CONDITION).
 	 * @throws MdekException group already exists (MdekErrorType.ADDRESS_TYPE_CONFLICT).
 	 */
 	IngridDocument publishAddress(String plugId, IngridDocument addrDoc,
-			boolean refetchAfterStore, int objRefsStartIndex, int objRefsMaxNum,
+			boolean refetchAfterStore,
+			boolean forcePublicationCondition,
+			int objRefsStartIndex, int objRefsMaxNum,
 			String userId);
 
 	/**
@@ -245,10 +251,13 @@ public interface IMdekCallerAddress extends IMdekCaller {
 	 * 		true=moved node is free address, parent has to be null<br>
 	 * 		false=moved node is NOT free address, parent can be set, when parent is null
 	 * 		copy is "normal" top address
+	 * @param forcePublicationCondition apply restricted PubCondition of new parent to
+	 * 		subaddresses (true) or receive Error when subaddresses PubCondition conflicts (false)
 	 * @return response containing result: map containing info (number of moved addresses, permissions on moved address, ...)
 	 */
 	IngridDocument moveAddress(String plugId, String fromUuid, String toUuid,
 			boolean moveToFreeAddress,
+			boolean forcePublicationCondition,
 			String userId);
 
 	/**

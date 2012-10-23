@@ -11,10 +11,10 @@ import de.ingrid.mdek.MdekClient;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils.AddressType;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class MdekExampleQuery {
@@ -448,12 +448,12 @@ class MdekExampleQueryThread extends Thread {
 		System.out.println("\n----- change organization to searchterm and PUBLISH -----");
 		String origOrganization = doc.getString(MdekKeys.ORGANISATION);
 		doc.put(MdekKeys.ORGANISATION, searchterm);
-		doc = supertool.publishAddress(doc, true);
+		doc = supertool.publishAddress(doc, true, false);
 		System.out.println("\n----- search again via full text -> RESULT (is published one, no separate working copy) -----");
 		supertool.queryAddressesFullText(searchterm, 0, 20);
 		System.out.println("\n----- clean up (set orig data and publish) -----");
 		doc.put(MdekKeys.ORGANISATION, origOrganization);
-		supertool.publishAddress(doc, true);
+		supertool.publishAddress(doc, true, false);
 
 		// -----------------------------------
 
