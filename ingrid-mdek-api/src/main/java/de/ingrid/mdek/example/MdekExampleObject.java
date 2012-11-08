@@ -389,46 +389,6 @@ class MdekExampleObjectThread extends Thread {
 
 // -----------------------------------
 
-		// Change Request 22, see INGRIDII-127
-		// deliver "from object references" from published versions which were deleted in working version
-		// ------------------
-		String objFrom = "BCB59E87-17A0-11D5-8835-0060084A4596";
-		String objTo = "05438065-16C3-11D5-8834-0060084A4596";
-
-		System.out.println("\n----- load object from -----");
-		oMap = supertool.fetchObject(objFrom, Quantity.DETAIL_ENTITY);
-		List<IngridDocument> docList = (List<IngridDocument>) oMap.get(MdekKeys.OBJ_REFERENCES_TO);
-		// find object to remove
-		IngridDocument docToRemove = null;
-		for (IngridDocument doc : docList) {
-			if (objTo.equals(doc.get(MdekKeys.UUID))) {
-				docToRemove = doc;
-				break;
-			}
-		}
-
-		System.out.println("\n----- remove reference to object / store working version -----");
-		if (docToRemove != null) {
-			docList.remove(docToRemove);
-		}
-		supertool.storeObject(oMap, true);
-
-		System.out.println("\n----- load referenced object -> has reference from published object only ! -----");
-		supertool.fetchObject(objTo, Quantity.DETAIL_ENTITY);
-
-		System.out.println("\n----- discard changes -> back to published version -----");
-		deleteObjectWorkingCopy(objFrom, true);
-
-		System.out.println("\n----- verify from object, no working version and references to object again ! -----");
-		supertool.fetchObject(objFrom, Quantity.DETAIL_ENTITY);
-
-		if (alwaysTrue) {
-			isRunning = false;
-			return;
-		}
-
-// -----------------------------------
-
 		// check object manipulation -> "create user" stored in comment
 
 		supertool.setFullOutput(true);
@@ -692,6 +652,68 @@ class MdekExampleObjectThread extends Thread {
 
 // ====================
 */
+		// Change Request 22, see INGRIDII-127
+		// deliver "from object references" from published versions which were deleted in working version
+		// + INGRID33-25
+		// Multiple references between source and target object, just different relation types ! ALL DELIVERED !
+		// ------------------
+		System.out.println("\n=========================");
+		System.out.println("INGRIDII-127: Deliver \"from object references\" from published versions which were deleted in working version");
+		System.out.println("=========================");
+
+		String objFrom = "BCB59E87-17A0-11D5-8835-0060084A4596";
+		String objTo = "05438065-16C3-11D5-8834-0060084A4596";
+
+		System.out.println("\n----- load object from -----");
+		oMap = supertool.fetchObject(objFrom, FetchQuantity.EDITOR_ENTITY);
+		List<IngridDocument> myRefDocList = (List<IngridDocument>) oMap.get(MdekKeys.OBJ_REFERENCES_TO);
+		// find object reference to remove
+		IngridDocument refDoc = null;
+		for (IngridDocument myRefDoc : myRefDocList) {
+			if (objTo.equals(myRefDoc.get(MdekKeys.UUID))) {
+				refDoc = myRefDoc;
+				break;
+			}
+		}
+
+		System.out.println("\n----- remove reference to object / store working version -----");
+		if (refDoc != null) {
+			myRefDocList.remove(refDoc);
+		}
+		supertool.storeObject(oMap, true);
+
+		System.out.println("\n----- load referenced object -> has reference from published object only (OBJ_REFERENCES_FROM_PUBLISHED_ONLY) ! -----");
+		supertool.fetchObject(objTo, FetchQuantity.EDITOR_ENTITY);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objFrom, true);
+
+		System.out.println("\n----- verify from object, no working version and references to object again ! -----");
+		oMap = supertool.fetchObject(objFrom, FetchQuantity.EDITOR_ENTITY);
+		
+		// INGRID33-25
+		// Multiple references between source and target object, just different relation types ! ALL DELIVERED !
+		// ------------------
+		System.out.println("\n=========================");
+		System.out.println("INGRID33-25: Multiple references between source and target object, just different relation types ! ALL DELIVERED !");
+		System.out.println("=========================");
+
+		System.out.println("\n----- add \"same\" object reference BUT DIFFERENT REFERENCE TYPE to object / store working version -----");
+		refDoc.put(MdekKeys.RELATION_TYPE_REF, -1);
+		refDoc.put(MdekKeys.RELATION_TYPE_NAME, "MM Freier Beziehungstyp !");
+		myRefDocList = (List<IngridDocument>) oMap.get(MdekKeys.OBJ_REFERENCES_TO);
+		myRefDocList.add(refDoc);
+		supertool.storeObject(oMap, true);
+
+		System.out.println("\n----- load referenced object -> has 2 reference from same object (BCB59E87-17A0-11D5-8835-0060084A4596) with different type ! -----");
+		supertool.fetchObject(objTo, FetchQuantity.EDITOR_ENTITY);
+
+		System.out.println("\n----- discard changes -> back to published version -----");
+		supertool.deleteObjectWorkingCopy(objFrom, true);
+
+
+		System.out.println("\n\n=========================");
+
 		// -----------------------------------
 		// tree: top objects
 

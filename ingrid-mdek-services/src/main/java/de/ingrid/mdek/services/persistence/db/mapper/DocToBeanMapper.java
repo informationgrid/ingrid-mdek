@@ -634,12 +634,17 @@ public class DocToBeanMapper implements IMapper {
 			String oToUuid = (String) oDocTo.get(MdekKeys.UUID);
 			boolean found = false;
 			for (ObjectReference oRef : oRefs) {
-				// compare UUID and REFERENCE TYPE ! 
-				if (oRef.getObjToUuid().equals(oToUuid) &&
-					MdekUtils.isEqual(oRef.getSpecialRef(), (Integer) oDocTo.get(MdekKeys.RELATION_TYPE_REF))) {
+				// check if same reference !
+				// UUID and relation key
+				Integer relationKey = (Integer) oDocTo.get(MdekKeys.RELATION_TYPE_REF);
+				found = oRef.getObjToUuid().equals(oToUuid) && MdekUtils.isEqual(oRef.getSpecialRef(), relationKey);
+				// relation name if relation key == -1 (free relation entry)
+				if (found && MdekUtils.isEqual(-1, relationKey)) {
+					found = found && MdekUtils.isEqual(oRef.getSpecialName(), (String) oDocTo.get(MdekKeys.RELATION_TYPE_NAME));					
+				}
+				if (found) {
 					mapObjectReference(oIn, oDocTo, oRef, line);
 					oRefs_unprocessed.remove(oRef);
-					found = true;
 					break;
 				}
 			}

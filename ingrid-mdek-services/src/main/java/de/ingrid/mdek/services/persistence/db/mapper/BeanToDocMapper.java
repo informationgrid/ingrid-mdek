@@ -764,10 +764,9 @@ public class BeanToDocMapper implements IMapper {
 		List<IngridDocument> docLists[] = new ArrayList[oNodesFrom.length];
 		for (int i=0; i < oNodesFrom.length; i++) {
 			List<ObjectNode> nodeList = oNodesFrom[i];
-			List<IngridDocument> docList = new ArrayList<IngridDocument>(nodeList.size());
+			List<IngridDocument> refDocList = new ArrayList<IngridDocument>(nodeList.size());
 			// map every node to IngridDoc
 			for (ObjectNode oN : nodeList) {
-				IngridDocument oFromDoc = new IngridDocument();
 				// map working or published version, dependent from list !
 				T01Object oFrom;
 				if (i == INDEX_REFS_PUBLISHED) {
@@ -775,20 +774,25 @@ public class BeanToDocMapper implements IMapper {
 				} else {
 					oFrom = oN.getT01ObjectWork();
 				}
-				mapT01Object(oFrom, oFromDoc, howMuch);
-				// also map relation info if object object relation
 				if (toEntityType == IdcEntityType.OBJECT) {
+					// for objects add EVERY reference and also map relation info !!!
 					Set<ObjectReference> oRefs = oFrom.getObjectReferences();
 					for (ObjectReference oRef : oRefs) {
 						if (toEntityUuid.equals(oRef.getObjToUuid())) {
+							IngridDocument oFromDoc = new IngridDocument();
+							mapT01Object(oFrom, oFromDoc, howMuch);
 							mapObjectReference(oRef, oFromDoc);
-							break;
+							refDocList.add(oFromDoc);
 						}
 					}					
+				} else {
+					// for addresses just deliver the from object, no additional info, no matter how often referencing !
+					IngridDocument oFromDoc = new IngridDocument();
+					mapT01Object(oFrom, oFromDoc, howMuch);
+					refDocList.add(oFromDoc);
 				}
-				docList.add(oFromDoc);
 			}
-			docLists[i] = docList;
+			docLists[i] = refDocList;
 		}
 
 		toEntityDoc.put(MdekKeys.OBJ_REFERENCES_FROM_PUBLISHED_ONLY, docLists[INDEX_REFS_PUBLISHED]);

@@ -563,6 +563,12 @@ public class MdekUtils {
 
 	/** Compares two strings and returns true if equal. Handles null (null equals null but not "") */
 	public static boolean isEqual(String string1, String string2) {
+		// first null checks !
+		if ((string1 == null && string2 != null) ||
+			(string1 != null && string2 == null))
+		{
+			return false;
+		}
 		String tmp1 = (string1 == null) ? "" : string1;
 		String tmp2 = (string2 == null) ? "" : string2;
 		
@@ -570,6 +576,12 @@ public class MdekUtils {
 	}
 	/** Compares two Integers and returns true if equal. Handles null -> null.equals(null) is true */
 	public static boolean isEqual(Integer int1, Integer int2) {
+		// first null checks !
+		if ((int1 == null && int2 != null) ||
+			(int1 != null && int2 == null))
+		{
+			return false;
+		}
 		Integer tmp1 = (int1 == null) ? -1 : int1;
 		Integer tmp2 = (int2 == null) ? -1 : int2;
 		
@@ -577,6 +589,12 @@ public class MdekUtils {
 	}
 	/** Compares two Doubles and returns true if equal. Handles null -> null.equals(null) is true */
 	public static boolean isEqual(Double val1, Double val2) {
+		// first null checks !
+		if ((val1 == null && val2 != null) ||
+			(val1 != null && val2 == null))
+		{
+			return false;
+		}
 		Double tmp1 = (val1 == null) ? 0.0 : val1;
 		Double tmp2 = (val2 == null) ? 0.0 : val2;
 		
