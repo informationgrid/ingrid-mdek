@@ -22,10 +22,6 @@ public class MdekUtils {
 
 	private static final Logger LOG = Logger.getLogger(MdekUtils.class);
 
-	private final static SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-	private final static SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
-	private final static SimpleDateFormat displayDateTimeFormatter = new SimpleDateFormat("dd.MM.yyyy/HH:mm");
-
 	/** Entry IDs in syslist OBJ_SERV_TYPE (5100) */
 	public final static Integer OBJ_SERV_TYPE_CSW = 1;
 	public final static Integer OBJ_SERV_TYPE_WMS = 2;
@@ -487,8 +483,8 @@ public class MdekUtils {
 	/** Format database timestamp to display date. */
 	public static String timestampToDisplayDate(String yyyyMMddHHmmssSSS) {
 		try {
-			Date in = timestampFormatter.parse(yyyyMMddHHmmssSSS);
-			String out = displayDateFormatter.format(in);
+			Date in = new SimpleDateFormat("yyyyMMddHHmmssSSS").parse(yyyyMMddHHmmssSSS);
+			String out = new SimpleDateFormat("dd.MM.yyyy").format(in);
 			return out;
 		} catch (Exception ex){
 			if (yyyyMMddHHmmssSSS != null && yyyyMMddHHmmssSSS.length() > 0) {
@@ -500,7 +496,7 @@ public class MdekUtils {
 	/** Format date to database timestamp. */
 	public static String dateToTimestamp(Date date) {
 		try {
-			String out = timestampFormatter.format(date);
+			String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(date);
 			return out;
 		} catch (Exception ex){
 			LOG.warn("Problems formating date to timestamp: " + date, ex);
@@ -511,7 +507,7 @@ public class MdekUtils {
 	public static String millisecToDisplayDateTime(String millisec) {
 		try {
 			Date in = new Date(Long.valueOf(millisec));
-			String out = displayDateTimeFormatter.format(in);
+			String out = new SimpleDateFormat("dd.MM.yyyy/HH:mm").format(in);
 			return out;
 		} catch (Exception ex){
 			if (millisec != null && millisec.length() > 0) {
