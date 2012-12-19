@@ -23,6 +23,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerObject;
 import de.ingrid.mdek.caller.IMdekClientCaller;
@@ -31,7 +32,6 @@ import de.ingrid.mdek.caller.MdekCallerAddress;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
 import de.ingrid.mdek.xml.util.IngridXMLUtils;
@@ -106,46 +106,54 @@ public class TestXMLStreamReader {
 	@Test
 	public void testXMLDatasourceImporter() throws IOException, SAXException {
 		for (String objUuid : objectUuids) {
-			Document doc = streamReader.getDomForObject(objUuid);
-			IngridDocument dataSource = mapper.mapDataSource(doc);
+			List<Document> docs = streamReader.getDomForObject(objUuid);
+			for (Document doc : docs) {
+				IngridDocument dataSource = mapper.mapDataSource(doc);
+			}
 		}
 	}
 
 	@Test
 	public void testXMLAddressImporter() throws IOException, SAXException  {
 		for (String adrUuid : addressUuids) {
-			Document doc = streamReader.getDomForAddress(adrUuid);
-			IngridDocument address = mapper.mapAddress(doc);
+			List<Document> docs = streamReader.getDomForAddress(adrUuid);
+			for (Document doc : docs) {
+				IngridDocument address = mapper.mapAddress(doc);
+			}
 		}
 	}
 
 	@Test
 	public void testXMLObjectImporterValidity() throws IOException, SAXException {
 		for (String objUuid : objectUuids) {
-			Document doc = streamReader.getDomForObject(objUuid);
-			IngridDocument importedDataSource = mapper.mapDataSource(doc);
-			IngridDocument originalDataSource = getDataSourceFromDB(objUuid);
+			List<Document> docs = streamReader.getDomForObject(objUuid);
+			for (Document doc : docs) {
+				IngridDocument importedDataSource = mapper.mapDataSource(doc);
+				IngridDocument originalDataSource = getDataSourceFromDB(objUuid);
 
-			System.out.println("original: "+originalDataSource);
-			System.out.println("imported: "+importedDataSource);
+				System.out.println("original: "+originalDataSource);
+				System.out.println("imported: "+importedDataSource);
 
-			compare(originalDataSource, importedDataSource);
-			compare(importedDataSource, originalDataSource);
+				compare(originalDataSource, importedDataSource);
+				compare(importedDataSource, originalDataSource);
+			}
 		}
 	}
 
 	@Test
 	public void testXMLAddressImporterValidity() throws IOException, SAXException {
 		for (String adrUuid : addressUuids) {
-			Document doc = streamReader.getDomForAddress(adrUuid);
-			IngridDocument importedAddress = mapper.mapAddress(doc);
-			IngridDocument originalAddress = getAddressFromDB(adrUuid);
+			List<Document> docs = streamReader.getDomForAddress(adrUuid);
+			for (Document doc : docs) {
+				IngridDocument importedAddress = mapper.mapAddress(doc);
+				IngridDocument originalAddress = getAddressFromDB(adrUuid);
 
-			System.out.println("original: "+originalAddress);
-			System.out.println("imported: "+importedAddress);
+				System.out.println("original: "+originalAddress);
+				System.out.println("imported: "+importedAddress);
 
-			compareAddress(originalAddress, importedAddress);
-			compareAddress(importedAddress, originalAddress);
+				compareAddress(originalAddress, importedAddress);
+				compareAddress(importedAddress, originalAddress);
+			}
 		}
 	}
 

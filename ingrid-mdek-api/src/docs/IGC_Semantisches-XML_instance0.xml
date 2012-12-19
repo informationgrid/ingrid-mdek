@@ -34,299 +34,303 @@
     </catalogue>
     <data-sources>
         <data-source>
-            <general>
-                <object-identifier>object-identifier0</object-identifier>
-                <catalogue-identifier>catalogue-identifier1</catalogue-identifier>
-                <modificator-identifier>modificator-identifier1</modificator-identifier>
-                <responsible-identifier>responsible-identifier0</responsible-identifier>
-                <object-class id="id9"/>
-                <title>title0</title>
-                <abstract>abstract0</abstract>
-                <date-of-last-modification>date-of-last-modification1</date-of-last-modification>
-                <date-of-creation>date-of-creation1</date-of-creation>
-                <original-control-identifier>original-control-identifier0</original-control-identifier>
-                <general-additional-values>
-                    <general-additional-value line="line1">
-                        <field-key>field-key0</field-key>
-                        <field-data id="id11">field-data0</field-data>
-                        <field-key-parent>field-key-parent0</field-key-parent>
-                    </general-additional-value>
-                </general-additional-values>
-                <metadata>
-                    <metadata-standard-name>ISO-19115</metadata-standard-name>
-                    <metadata-standard-version>1.0</metadata-standard-version>
-                    <metadata-character-set iso-code="iso-code1"/>
-                </metadata>
-                <dataset-alternate-name>dataset-alternate-name0</dataset-alternate-name>
-                <dataset-character-set iso-code="iso-code3"/>
-                <topic-categories>
-                    <topic-category id="id13"/>
-                </topic-categories>
-                <env-information>
-                    <is-catalog>N</is-catalog>
-                    <env-topic id="id15"/>
-                </env-information>
-                <is-inspire-relevant>N</is-inspire-relevant>
-            </general>
-            <technical-domain>
-                <dataset>
-                    <description-of-tech-domain>description-of-tech-domain0</description-of-tech-domain>
-                    <key-catalogue>
-                        <key-cat id="id17">key-cat0</key-cat>
-                        <key-date>key-date0</key-date>
-                        <edition>edition0</edition>
-                    </key-catalogue>
-                    <dataset-parameter>
-                        <parameter>parameter0</parameter>
-                        <supplementary-information>supplementary-information0</supplementary-information>
-                    </dataset-parameter>
-                    <method>method0</method>
-                </dataset>
-<!--                <service>
-                    <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
-                    <service-type id="id19">service-type0</service-type>
-                    <coupling-type>coupling-type0</coupling-type>
-                    <service-classification id="id21">service-classification0</service-classification>
-                    <publication-scale>
-                        <scale>scale0</scale>
-                        <resolution-ground>resolution-ground0</resolution-ground>
-                        <resolution-scan>resolution-scan0</resolution-scan>
-                    </publication-scale>
-                    <system-history>system-history0</system-history>
-                    <database-of-system>database-of-system0</database-of-system>
-                    <system-environment>system-environment0</system-environment>
-                    <service-version>service-version0</service-version>
-                    <service-operation>
-                        <operation-name id="id23">operation-name0</operation-name>
-                        <description-of-operation>description-of-operation0</description-of-operation>
-                        <invocation-name>invocation-name0</invocation-name>
-                        <platform id="id25">platform0</platform>
-                        <connection-point>connection-point0</connection-point>
-                        <parameter-of-operation>
-                            <name>name0</name>
-                            <optional>optional0</optional>
-                            <repeatability>repeatability0</repeatability>
-                            <direction>direction0</direction>
-                            <description-of-parameter>description-of-parameter0</description-of-parameter>
-                        </parameter-of-operation>
-                        <depends-on>depends-on0</depends-on>
-                    </service-operation>
-                    <has-access-constraint>N</has-access-constraint>
-                    <service-url>
-                        <name>name1</name>
-                        <url>url0</url>
-                        <description>description0</description>
-                    </service-url>
-                </service>-->
-<!--                <document>
-                    <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
-                    <publisher>publisher0</publisher>
-                    <publishing-place>publishing-place0</publishing-place>
-                    <year>year0</year>
-                    <isbn>isbn0</isbn>
-                    <source>source0</source>
-                    <type-of-document id="id27">type-of-document0</type-of-document>
-                    <editor>editor0</editor>
-                    <author>author0</author>
-                    <additional-bibliographic-info>additional-bibliographic-info0</additional-bibliographic-info>
-                    <location>location0</location>
-                    <pages>pages0</pages>
-                    <volume>volume0</volume>
-                    <published-in>published-in0</published-in>
-                </document>-->
-<!--                <map>
-                    <hierarchy-level iso-code="iso-code5"/>
-                    <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
-                    <data>data0</data>
-                    <resolution>resolution0</resolution>
-                    <publication-scale>
-                        <scale>scale1</scale>
-                        <resolution-ground>resolution-ground1</resolution-ground>
-                        <resolution-scan>resolution-scan1</resolution-scan>
-                    </publication-scale>
-                    <key-catalogue>
-                        <key-cat id="id29">key-cat1</key-cat>
-                        <key-date>key-date1</key-date>
-                        <edition>edition1</edition>
-                    </key-catalogue>
-                    <degree-of-record>degree-of-record0</degree-of-record>
-                    <method-of-production>method-of-production0</method-of-production>
-                    <technical-base>technical-base0</technical-base>
-                    <symbol-catalogue>
-                        <symbol-cat id="id31">symbol-cat0</symbol-cat>
-                        <symbol-date>symbol-date0</symbol-date>
-                        <edition>edition2</edition>
-                    </symbol-catalogue>
-                    <spatial-representation-type iso-code="iso-code7"/>
-                    <vector-format>
-                        <vector-topology-level iso-code="iso-code9"/>
-                        <geo-vector>
-                            <geometric-object-type iso-code="iso-code11"/>
-                            <geometric-object-count>geometric-object-count0</geometric-object-count>
-                        </geo-vector>
-                    </vector-format>
-                    <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
-                    <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
-                    <feature-type>feature-type0</feature-type>
-                    <datasource-identificator>datasource-identificator0</datasource-identificator>
-                </map>-->
-<!--                <project>
-                    <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
-                    <member-description>member-description0</member-description>
-                    <leader-description>leader-description0</leader-description>
-                </project>-->
-            </technical-domain>
-            <additional-information>
-                <data-language id="id33">data-language0</data-language>
-                <metadata-language id="id35">metadata-language0</metadata-language>
-                <export-to id="id37">export-to0</export-to>
-                <legislation id="id39">legislation0</legislation>
-                <dataset-intentions>dataset-intentions0</dataset-intentions>
-                <access-constraint>
-                    <restriction id="id41">restriction0</restriction>
-                </access-constraint>
-                <use-constraint>
-                    <terms-of-use id="id43">terms-of-use0</terms-of-use>
-                </use-constraint>
-                <medium-option>
-                    <medium-name iso-code="iso-code13"/>
-                    <medium-note>medium-note0</medium-note>
-                    <transfer-size>transfer-size0</transfer-size>
-                </medium-option>
-                <data-format>
-                    <format-name id="id45">format-name0</format-name>
-                    <version>version0</version>
-                    <specification>specification0</specification>
-                    <file-decompression-technique>file-decompression-technique0</file-decompression-technique>
-                </data-format>
-                <data-format-inspire>
-                    <format-inspire-name id="id47">format-inspire-name0</format-inspire-name>
-                </data-format-inspire>
-                <publication-condition>0</publication-condition>
-                <dataset-usage>dataset-usage0</dataset-usage>
-                <ordering-instructions>ordering-instructions0</ordering-instructions>
-                <comment>
-                    <comment-content>comment-content0</comment-content>
-                    <creator-identifier>creator-identifier0</creator-identifier>
-                    <date-of-creation>date-of-creation2</date-of-creation>
-                </comment>
-                <conformity>
-                    <conformity-specification id="id49">conformity-specification0</conformity-specification>
-                    <conformity-degree id="id51">conformity-degree0</conformity-degree>
-                </conformity>
-                <data-quality>
-                    <dq-element-id>0</dq-element-id>
-                    <dq-name-of-measure id="id53">dq-name-of-measure0</dq-name-of-measure>
-                    <dq-result-value>dq-result-value0</dq-result-value>
-                    <dq-measure-description>dq-measure-description0</dq-measure-description>
-                </data-quality>
-            </additional-information>
-            <spatial-domain>
-                <coordinate-system id="id55">coordinate-system0</coordinate-system>
-                <description-of-spatial-domain>description-of-spatial-domain0</description-of-spatial-domain>
-                <vertical-extent>
-                    <vertical-extent-minimum>vertical-extent-minimum0</vertical-extent-minimum>
-                    <vertical-extent-maximum>vertical-extent-maximum0</vertical-extent-maximum>
-                    <vertical-extent-unit id="id57"/>
-                    <vertical-extent-vdatum id="id59">vertical-extent-vdatum0</vertical-extent-vdatum>
-                </vertical-extent>
-                <geo-location>
-                        <controlled-location>
-                            <location-name id="id61">location-name2</location-name>
-                            <topic-type>topic-type1</topic-type>
-                            <location-code>location-code1</location-code>
-                        </controlled-location>
-<!--                        <uncontrolled-location>
-                            <location-name id="id63">location-name3</location-name>
-                        </uncontrolled-location>-->
-                    <bounding-coordinates>
-                        <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
-                        <east-bounding-coordinate>east-bounding-coordinate1</east-bounding-coordinate>
-                        <north-bounding-coordinate>north-bounding-coordinate1</north-bounding-coordinate>
-                        <south-bounding-coordinate>south-bounding-coordinate1</south-bounding-coordinate>
-                    </bounding-coordinates>
-                </geo-location>
-            </spatial-domain>
-            <temporal-domain>
-                <description-of-temporal-domain>description-of-temporal-domain0</description-of-temporal-domain>
-                <beginning-date>beginning-date0</beginning-date>
-                <ending-date>ending-date0</ending-date>
-                <time-step>time-step0</time-step>
-                <time-scale>time-scale0</time-scale>
-                <time-period iso-code="iso-code15"/>
-                <time-status iso-code="iso-code17"/>
-                <time-type>time-type0</time-type>
-                <dataset-reference>
-                    <dataset-reference-date>dataset-reference-date0</dataset-reference-date>
-                    <dataset-reference-type iso-code="iso-code19"/>
-                </dataset-reference>
-            </temporal-domain>
-            <subject-terms>
-                <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id65">controlled-term0</controlled-term>
-                <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
-            </subject-terms>
-            <available-linkage>
-                <linkage-name>linkage-name0</linkage-name>
-                <linkage-url>linkage-url0</linkage-url>
-                <linkage-url-type>linkage-url-type0</linkage-url-type>
-                <linkage-reference id="id67">linkage-reference0</linkage-reference>
-                <linkage-description>linkage-description0</linkage-description>
-            </available-linkage>
-            <parent-data-source>
-                <object-identifier>object-identifier1</object-identifier>
-            </parent-data-source>
-            <related-address>
-                <type-of-relation list-id="list-id1" entry-id="entry-id1">type-of-relation0</type-of-relation>
-                <address-identifier>address-identifier0</address-identifier>
-                <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
-            </related-address>
-            <link-data-source>
-                <object-link-type id="id69">object-link-type0</object-link-type>
-                <object-link-description>object-link-description0</object-link-description>
-                <object-identifier>object-identifier2</object-identifier>
-            </link-data-source>
+            <data-source-instance work-state="V">
+                <general>
+                    <object-identifier>object-identifier0</object-identifier>
+                    <catalogue-identifier>catalogue-identifier1</catalogue-identifier>
+                    <modificator-identifier>modificator-identifier1</modificator-identifier>
+                    <responsible-identifier>responsible-identifier0</responsible-identifier>
+                    <object-class id="id9"/>
+                    <title>title0</title>
+                    <abstract>abstract0</abstract>
+                    <date-of-last-modification>date-of-last-modification1</date-of-last-modification>
+                    <date-of-creation>date-of-creation1</date-of-creation>
+                    <original-control-identifier>original-control-identifier0</original-control-identifier>
+                    <general-additional-values>
+                        <general-additional-value line="line1">
+                            <field-key>field-key0</field-key>
+                            <field-data id="id11">field-data0</field-data>
+                            <field-key-parent>field-key-parent0</field-key-parent>
+                        </general-additional-value>
+                    </general-additional-values>
+                    <metadata>
+                        <metadata-standard-name>ISO-19115</metadata-standard-name>
+                        <metadata-standard-version>1.0</metadata-standard-version>
+                        <metadata-character-set iso-code="iso-code1"/>
+                    </metadata>
+                    <dataset-alternate-name>dataset-alternate-name0</dataset-alternate-name>
+                    <dataset-character-set iso-code="iso-code3"/>
+                    <topic-categories>
+                        <topic-category id="id13"/>
+                    </topic-categories>
+                    <env-information>
+                        <is-catalog>N</is-catalog>
+                        <env-topic id="id15"/>
+                    </env-information>
+                    <is-inspire-relevant>N</is-inspire-relevant>
+                </general>
+                <technical-domain>
+                    <dataset>
+                        <description-of-tech-domain>description-of-tech-domain0</description-of-tech-domain>
+                        <key-catalogue>
+                            <key-cat id="id17">key-cat0</key-cat>
+                            <key-date>key-date0</key-date>
+                            <edition>edition0</edition>
+                        </key-catalogue>
+                        <dataset-parameter>
+                            <parameter>parameter0</parameter>
+                            <supplementary-information>supplementary-information0</supplementary-information>
+                        </dataset-parameter>
+                        <method>method0</method>
+                    </dataset>
+<!--                    <service>
+                        <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
+                        <service-type id="id19">service-type0</service-type>
+                        <coupling-type>coupling-type0</coupling-type>
+                        <service-classification id="id21">service-classification0</service-classification>
+                        <publication-scale>
+                            <scale>scale0</scale>
+                            <resolution-ground>resolution-ground0</resolution-ground>
+                            <resolution-scan>resolution-scan0</resolution-scan>
+                        </publication-scale>
+                        <system-history>system-history0</system-history>
+                        <database-of-system>database-of-system0</database-of-system>
+                        <system-environment>system-environment0</system-environment>
+                        <service-version>service-version0</service-version>
+                        <service-operation>
+                            <operation-name id="id23">operation-name0</operation-name>
+                            <description-of-operation>description-of-operation0</description-of-operation>
+                            <invocation-name>invocation-name0</invocation-name>
+                            <platform id="id25">platform0</platform>
+                            <connection-point>connection-point0</connection-point>
+                            <parameter-of-operation>
+                                <name>name0</name>
+                                <optional>optional0</optional>
+                                <repeatability>repeatability0</repeatability>
+                                <direction>direction0</direction>
+                                <description-of-parameter>description-of-parameter0</description-of-parameter>
+                            </parameter-of-operation>
+                            <depends-on>depends-on0</depends-on>
+                        </service-operation>
+                        <has-access-constraint>N</has-access-constraint>
+                        <service-url>
+                            <name>name1</name>
+                            <url>url0</url>
+                            <description>description0</description>
+                        </service-url>
+                    </service>-->
+<!--                    <document>
+                        <description-of-tech-domain>description-of-tech-domain2</description-of-tech-domain>
+                        <publisher>publisher0</publisher>
+                        <publishing-place>publishing-place0</publishing-place>
+                        <year>year0</year>
+                        <isbn>isbn0</isbn>
+                        <source>source0</source>
+                        <type-of-document id="id27">type-of-document0</type-of-document>
+                        <editor>editor0</editor>
+                        <author>author0</author>
+                        <additional-bibliographic-info>additional-bibliographic-info0</additional-bibliographic-info>
+                        <location>location0</location>
+                        <pages>pages0</pages>
+                        <volume>volume0</volume>
+                        <published-in>published-in0</published-in>
+                    </document>-->
+<!--                    <map>
+                        <hierarchy-level iso-code="iso-code5"/>
+                        <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
+                        <data>data0</data>
+                        <resolution>resolution0</resolution>
+                        <publication-scale>
+                            <scale>scale1</scale>
+                            <resolution-ground>resolution-ground1</resolution-ground>
+                            <resolution-scan>resolution-scan1</resolution-scan>
+                        </publication-scale>
+                        <key-catalogue>
+                            <key-cat id="id29">key-cat1</key-cat>
+                            <key-date>key-date1</key-date>
+                            <edition>edition1</edition>
+                        </key-catalogue>
+                        <degree-of-record>degree-of-record0</degree-of-record>
+                        <method-of-production>method-of-production0</method-of-production>
+                        <technical-base>technical-base0</technical-base>
+                        <symbol-catalogue>
+                            <symbol-cat id="id31">symbol-cat0</symbol-cat>
+                            <symbol-date>symbol-date0</symbol-date>
+                            <edition>edition2</edition>
+                        </symbol-catalogue>
+                        <spatial-representation-type iso-code="iso-code7"/>
+                        <vector-format>
+                            <vector-topology-level iso-code="iso-code9"/>
+                            <geo-vector>
+                                <geometric-object-type iso-code="iso-code11"/>
+                                <geometric-object-count>geometric-object-count0</geometric-object-count>
+                            </geo-vector>
+                        </vector-format>
+                        <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
+                        <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
+                        <feature-type>feature-type0</feature-type>
+                        <datasource-identificator>datasource-identificator0</datasource-identificator>
+                    </map>-->
+<!--                    <project>
+                        <description-of-tech-domain>description-of-tech-domain4</description-of-tech-domain>
+                        <member-description>member-description0</member-description>
+                        <leader-description>leader-description0</leader-description>
+                    </project>-->
+                </technical-domain>
+                <additional-information>
+                    <data-language id="id33">data-language0</data-language>
+                    <metadata-language id="id35">metadata-language0</metadata-language>
+                    <export-to id="id37">export-to0</export-to>
+                    <legislation id="id39">legislation0</legislation>
+                    <dataset-intentions>dataset-intentions0</dataset-intentions>
+                    <access-constraint>
+                        <restriction id="id41">restriction0</restriction>
+                    </access-constraint>
+                    <use-constraint>
+                        <terms-of-use id="id43">terms-of-use0</terms-of-use>
+                    </use-constraint>
+                    <medium-option>
+                        <medium-name iso-code="iso-code13"/>
+                        <medium-note>medium-note0</medium-note>
+                        <transfer-size>transfer-size0</transfer-size>
+                    </medium-option>
+                    <data-format>
+                        <format-name id="id45">format-name0</format-name>
+                        <version>version0</version>
+                        <specification>specification0</specification>
+                        <file-decompression-technique>file-decompression-technique0</file-decompression-technique>
+                    </data-format>
+                    <data-format-inspire>
+                        <format-inspire-name id="id47">format-inspire-name0</format-inspire-name>
+                    </data-format-inspire>
+                    <publication-condition>0</publication-condition>
+                    <dataset-usage>dataset-usage0</dataset-usage>
+                    <ordering-instructions>ordering-instructions0</ordering-instructions>
+                    <comment>
+                        <comment-content>comment-content0</comment-content>
+                        <creator-identifier>creator-identifier0</creator-identifier>
+                        <date-of-creation>date-of-creation2</date-of-creation>
+                    </comment>
+                    <conformity>
+                        <conformity-specification id="id49">conformity-specification0</conformity-specification>
+                        <conformity-degree id="id51">conformity-degree0</conformity-degree>
+                    </conformity>
+                    <data-quality>
+                        <dq-element-id>0</dq-element-id>
+                        <dq-name-of-measure id="id53">dq-name-of-measure0</dq-name-of-measure>
+                        <dq-result-value>dq-result-value0</dq-result-value>
+                        <dq-measure-description>dq-measure-description0</dq-measure-description>
+                    </data-quality>
+                </additional-information>
+                <spatial-domain>
+                    <coordinate-system id="id55">coordinate-system0</coordinate-system>
+                    <description-of-spatial-domain>description-of-spatial-domain0</description-of-spatial-domain>
+                    <vertical-extent>
+                        <vertical-extent-minimum>vertical-extent-minimum0</vertical-extent-minimum>
+                        <vertical-extent-maximum>vertical-extent-maximum0</vertical-extent-maximum>
+                        <vertical-extent-unit id="id57"/>
+                        <vertical-extent-vdatum id="id59">vertical-extent-vdatum0</vertical-extent-vdatum>
+                    </vertical-extent>
+                    <geo-location>
+                            <controlled-location>
+                                <location-name id="id61">location-name2</location-name>
+                                <topic-type>topic-type1</topic-type>
+                                <location-code>location-code1</location-code>
+                            </controlled-location>
+<!--                            <uncontrolled-location>
+                                <location-name id="id63">location-name3</location-name>
+                            </uncontrolled-location>-->
+                        <bounding-coordinates>
+                            <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
+                            <east-bounding-coordinate>east-bounding-coordinate1</east-bounding-coordinate>
+                            <north-bounding-coordinate>north-bounding-coordinate1</north-bounding-coordinate>
+                            <south-bounding-coordinate>south-bounding-coordinate1</south-bounding-coordinate>
+                        </bounding-coordinates>
+                    </geo-location>
+                </spatial-domain>
+                <temporal-domain>
+                    <description-of-temporal-domain>description-of-temporal-domain0</description-of-temporal-domain>
+                    <beginning-date>beginning-date0</beginning-date>
+                    <ending-date>ending-date0</ending-date>
+                    <time-step>time-step0</time-step>
+                    <time-scale>time-scale0</time-scale>
+                    <time-period iso-code="iso-code15"/>
+                    <time-status iso-code="iso-code17"/>
+                    <time-type>time-type0</time-type>
+                    <dataset-reference>
+                        <dataset-reference-date>dataset-reference-date0</dataset-reference-date>
+                        <dataset-reference-type iso-code="iso-code19"/>
+                    </dataset-reference>
+                </temporal-domain>
+                <subject-terms>
+                    <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id65">controlled-term0</controlled-term>
+                    <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
+                </subject-terms>
+                <available-linkage>
+                    <linkage-name>linkage-name0</linkage-name>
+                    <linkage-url>linkage-url0</linkage-url>
+                    <linkage-url-type>linkage-url-type0</linkage-url-type>
+                    <linkage-reference id="id67">linkage-reference0</linkage-reference>
+                    <linkage-description>linkage-description0</linkage-description>
+                </available-linkage>
+                <parent-data-source>
+                    <object-identifier>object-identifier1</object-identifier>
+                </parent-data-source>
+                <related-address>
+                    <type-of-relation list-id="list-id1" entry-id="entry-id1">type-of-relation0</type-of-relation>
+                    <address-identifier>address-identifier0</address-identifier>
+                    <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
+                </related-address>
+                <link-data-source>
+                    <object-link-type id="id69">object-link-type0</object-link-type>
+                    <object-link-description>object-link-description0</object-link-description>
+                    <object-identifier>object-identifier2</object-identifier>
+                </link-data-source>
+            </data-source-instance>
         </data-source>
     </data-sources>
     <addresses>
         <address>
-            <address-identifier>address-identifier1</address-identifier>
-            <modificator-identifier>modificator-identifier2</modificator-identifier>
-            <responsible-identifier>responsible-identifier1</responsible-identifier>
-            <type-of-address id="id71"/>
-            <hide-address>N</hide-address>
-            <publication-condition>0</publication-condition>
-            <organisation>organisation0</organisation>
-            <name>name2</name>
-            <name-form id="id73">name-form0</name-form>
-            <title-or-function id="id75">title-or-function0</title-or-function>
-            <given-name>given-name0</given-name>
-            <country id="id77">country1</country>
-            <postal-code>postal-code0</postal-code>
-            <street>street0</street>
-            <city>city0</city>
-            <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
-            <post-box>post-box0</post-box>
-            <communication>
-                <communication-medium id="id79">communication-medium0</communication-medium>
-                <communication-value>communication-value0</communication-value>
-                <communication-description>communication-description0</communication-description>
-            </communication>
-            <original-address-identifier>original-address-identifier0</original-address-identifier>
-            <function>function0</function>
-            <subject-terms>
-                <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id81">controlled-term1</controlled-term>
-                <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
-            </subject-terms>
-            <comment>
-                <comment-content>comment-content1</comment-content>
-                <creator-identifier>creator-identifier1</creator-identifier>
-                <date-of-creation>date-of-creation3</date-of-creation>
-            </comment>
-            <date-of-last-modification>date-of-last-modification3</date-of-last-modification>
-            <date-of-creation>date-of-creation4</date-of-creation>
-            <parent-address>
-                <address-identifier>address-identifier2</address-identifier>
-            </parent-address>
+            <address-instance work-state="V">
+                <address-identifier>address-identifier1</address-identifier>
+                <modificator-identifier>modificator-identifier2</modificator-identifier>
+                <responsible-identifier>responsible-identifier1</responsible-identifier>
+                <type-of-address id="id71"/>
+                <hide-address>N</hide-address>
+                <publication-condition>0</publication-condition>
+                <organisation>organisation0</organisation>
+                <name>name2</name>
+                <name-form id="id73">name-form0</name-form>
+                <title-or-function id="id75">title-or-function0</title-or-function>
+                <given-name>given-name0</given-name>
+                <country id="id77">country1</country>
+                <postal-code>postal-code0</postal-code>
+                <street>street0</street>
+                <city>city0</city>
+                <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
+                <post-box>post-box0</post-box>
+                <communication>
+                    <communication-medium id="id79">communication-medium0</communication-medium>
+                    <communication-value>communication-value0</communication-value>
+                    <communication-description>communication-description0</communication-description>
+                </communication>
+                <original-address-identifier>original-address-identifier0</original-address-identifier>
+                <function>function0</function>
+                <subject-terms>
+                    <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id81">controlled-term1</controlled-term>
+                    <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
+                </subject-terms>
+                <comment>
+                    <comment-content>comment-content1</comment-content>
+                    <creator-identifier>creator-identifier1</creator-identifier>
+                    <date-of-creation>date-of-creation3</date-of-creation>
+                </comment>
+                <date-of-last-modification>date-of-last-modification3</date-of-last-modification>
+                <date-of-creation>date-of-creation4</date-of-creation>
+                <parent-address>
+                    <address-identifier>address-identifier2</address-identifier>
+                </parent-address>
+            </address-instance>
         </address>
     </addresses>
 </igc>

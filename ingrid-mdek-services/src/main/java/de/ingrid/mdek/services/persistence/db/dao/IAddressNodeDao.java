@@ -95,7 +95,8 @@ public interface IAddressNodeDao
 	 * @param versionOfSubAddressesToCount which subaddresses version should be counted e.g.:<br>
 	 * 		WORKING_VERSION: count only subaddresses where working version != published version<br>
 	 * 		PUBLISHED_VERSION: count only subaddresses where published version exists<br>
-	 * 		ALL_VERSIONS: count all subaddresses, no matter in which version
+	 * 		ALL_VERSIONS: count all subaddresses, no matter in which version. If different address
+	 * 			versions exist object is counted only once !
 	 * @return
 	 */
 	int countAllSubAddresses(String parentUuid, IdcEntityVersion versionOfSubAddressesToCount);

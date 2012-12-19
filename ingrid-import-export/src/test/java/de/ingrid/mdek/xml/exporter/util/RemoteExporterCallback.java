@@ -7,6 +7,8 @@ import java.util.List;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.MdekUtils.WorkState;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.IMdekCallerObject;
@@ -18,7 +20,6 @@ import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.xml.exporter.IExporterCallback;
 import de.ingrid.utils.IngridDocument;
 
@@ -42,47 +43,150 @@ public class RemoteExporterCallback implements IExporterCallback {
 	}
 
 	@Override
-	public IngridDocument getAddressDetails(String addrUuid, String userUuid) {
-		IngridDocument adrDocResponse = mdekCallerAddress.fetchAddress(plugId, addrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION, 0, 0, userUuid);
-		return mdekClientCaller.getResultFromResponse(adrDocResponse);
+	public List<IngridDocument> getAddressDetails(String addrUuid,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
+		List<IngridDocument> addrInstances = new ArrayList<IngridDocument>();
+		
+		if (whichVersion == IdcEntityVersion.ALL_VERSIONS) {
+			// always add WORKING_VERSION, may be PUBLISHED_VERSION if no working copy !
+			IngridDocument addrDocResponse = mdekCallerAddress.fetchAddress(plugId, addrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION, 0, 0, userUuid);
+			IngridDocument addrInstance = mdekClientCaller.getResultFromResponse(addrDocResponse);
+			long workingAddrId = -1L;
+			if (addrInstance != null) {
+				workingAddrId = (Long) addrInstance.get(MdekKeys.ID);
+				addrInstances.add(addrInstance);
+			}
+
+			// then add PUBLISHED_VERSION if different
+			addrDocResponse = mdekCallerAddress.fetchAddress(plugId, addrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION, 0, 0, userUuid);
+			addrInstance = mdekClientCaller.getResultFromResponse(addrDocResponse);
+			if (addrInstance != null && workingAddrId != (Long) addrInstance.get(MdekKeys.ID)) {
+				addrInstances.add(addrInstance);
+			}
+			
+		} else {
+			IngridDocument addrDocResponse = mdekCallerAddress.fetchAddress(plugId, addrUuid, FetchQuantity.EDITOR_ENTITY, whichVersion, 0, 0, userUuid);
+			IngridDocument addrInstance = mdekClientCaller.getResultFromResponse(addrDocResponse);
+			if (addrInstance != null) {
+				addrInstances.add(addrInstance);
+			}
+		}
+		return addrInstances;
 	}
 
 	@Override
-	public IngridDocument getObjectDetails(String objUuid, String userUuid) {
-		IngridDocument objDocResponse = mdekCallerObject.fetchObject(plugId, objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION, userUuid);
-		return mdekClientCaller.getResultFromResponse(objDocResponse);
+	public List<IngridDocument>  getObjectDetails(String objUuid,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
+		List<IngridDocument> objInstances = new ArrayList<IngridDocument>();
+		
+		if (whichVersion == IdcEntityVersion.ALL_VERSIONS) {
+			// always add WORKING_VERSION, may be PUBLISHED_VERSION if no working copy !
+			IngridDocument objDocResponse = mdekCallerObject.fetchObject(plugId, objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION, userUuid);
+			IngridDocument objInstance = mdekClientCaller.getResultFromResponse(objDocResponse);
+			long workingObjId = -1L;
+			if (objInstance != null) {
+				workingObjId = (Long) objInstance.get(MdekKeys.ID);
+				objInstances.add(objInstance);
+			}
+
+			// then add PUBLISHED_VERSION if different
+			objDocResponse = mdekCallerObject.fetchObject(plugId, objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION, userUuid);
+			objInstance = mdekClientCaller.getResultFromResponse(objDocResponse);
+			if (objInstance != null && workingObjId != (Long) objInstance.get(MdekKeys.ID)) {
+				objInstances.add(objInstance);
+			}
+
+			
+		} else {
+			IngridDocument objDocResponse = mdekCallerObject.fetchObject(plugId, objUuid, FetchQuantity.EDITOR_ENTITY, whichVersion, userUuid);
+			IngridDocument objInstance = mdekClientCaller.getResultFromResponse(objDocResponse);
+			if (objInstance != null) {
+				objInstances.add(objInstance);
+			}			
+		}
+		return objInstances;
 	}
 
 	@Override
-	public List<String> getSubAddresses(String addrUuid, String userUuid) {
+	public List<String> getSubAddresses(String addrUuid,
+			IdcEntityVersion whichVersion, String userUuid) {
 		IngridDocument doc = mdekCallerAddress.fetchSubAddresses(plugId, addrUuid, userUuid);
 		IngridDocument result = mdekClientCaller.getResultFromResponse(doc);
-		return extractAddressUuids(result);
+		return extractAddressUuids(result, whichVersion, userUuid);
 	}
 
-	private List<String> extractAddressUuids(IngridDocument result) {
+	private List<String> extractAddressUuids(IngridDocument result,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
 		List<IngridDocument> addressList = (List<IngridDocument>) result.get(MdekKeys.ADR_ENTITIES);
 		List<String> addressUuids = new ArrayList<String>();
 
 		for (IngridDocument address : addressList) {
-			addressUuids.add(address.getString(MdekKeys.UUID));
+			String addrUuid = address.getString(MdekKeys.UUID);
+			 
+			if (whichVersion == IdcEntityVersion.ALL_VERSIONS) {
+				addressUuids.add(addrUuid);
+
+			} else if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
+				// fetch WORKING_VERSION !
+				IngridDocument addrDocResponse = mdekCallerAddress.fetchAddress(plugId, addrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION, 0, 0, userUuid);
+				IngridDocument addrInstance = mdekClientCaller.getResultFromResponse(addrDocResponse);
+				String workState = addrInstance.getString(MdekKeys.WORK_STATE);
+				if (!WorkState.VEROEFFENTLICHT.getDbValue().equals(workState)) {
+					addressUuids.add(addrUuid);
+				}
+
+			} else if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+				// fetch PUBLISHED_VERSION !
+				IngridDocument addrDocResponse = mdekCallerAddress.fetchAddress(plugId, addrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION, 0, 0, userUuid);
+				IngridDocument addrInstance = mdekClientCaller.getResultFromResponse(addrDocResponse);
+				if (addrInstance != null) {
+					addressUuids.add(addrUuid);
+				}
+			}
 		}
 		return addressUuids;
 	}
 
 	@Override
-	public List<String> getSubObjects(String objUuid, String userUuid) {
+	public List<String> getSubObjects(String objUuid,
+			IdcEntityVersion whichVersion, String userUuid) {
 		IngridDocument doc = mdekCallerObject.fetchSubObjects(plugId, objUuid, userUuid);
 		IngridDocument result = mdekClientCaller.getResultFromResponse(doc);
-		return extractObjectUuids(result);
+		return extractObjectUuids(result, whichVersion, userUuid);
 	}
 
-	private List<String> extractObjectUuids(IngridDocument result) {
+	private List<String> extractObjectUuids(IngridDocument result,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
 		List<IngridDocument> objectList = (List<IngridDocument>) result.get(MdekKeys.OBJ_ENTITIES);
 		List<String> objectUuids = new ArrayList<String>();
 
 		for (IngridDocument object : objectList) {
-			objectUuids.add(object.getString(MdekKeys.UUID));
+			String objUuid = object.getString(MdekKeys.UUID);
+ 
+			if (whichVersion == IdcEntityVersion.ALL_VERSIONS) {
+				objectUuids.add(objUuid);
+
+			} else if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
+				// fetch WORKING_VERSION !
+				IngridDocument objDocResponse = mdekCallerObject.fetchObject(plugId, objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION, userUuid);
+				IngridDocument objInstance = mdekClientCaller.getResultFromResponse(objDocResponse);
+				String workState = objInstance.getString(MdekKeys.WORK_STATE);
+				if (!WorkState.VEROEFFENTLICHT.getDbValue().equals(workState)) {
+					objectUuids.add(objUuid);
+				}
+
+			} else if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+				// fetch PUBLISHED_VERSION !
+				IngridDocument objDocResponse = mdekCallerObject.fetchObject(plugId, objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION, userUuid);
+				IngridDocument objInstance = mdekClientCaller.getResultFromResponse(objDocResponse);
+				if (objInstance != null) {
+					objectUuids.add(objUuid);
+				}
+			}
 		}
 		return objectUuids;
 	}
@@ -138,6 +242,7 @@ public class RemoteExporterCallback implements IExporterCallback {
 
 	@Override
 	public int getTotalNumAddressesToExport(List<String> addrUuids,
+			IdcEntityVersion whichVersion,
 			boolean includeSubnodes, String userUuid) {
 		// TODO Auto-generated method stub
 		return 0;
@@ -145,6 +250,7 @@ public class RemoteExporterCallback implements IExporterCallback {
 
 	@Override
 	public int getTotalNumObjectsToExport(List<String> objUuids,
+			IdcEntityVersion whichVersion,
 			boolean includeSubnodes, String userUuid) {
 		// TODO Auto-generated method stub
 		return 0;

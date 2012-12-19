@@ -25,14 +25,14 @@ public class TestObjectDocToXMLMapper {
 
 	@Test
 	public void testCreateDataSourceRunsOnEmptyDoc() {
-		emptyDocMapper.createDataSource();
+		emptyDocMapper.createDataSourceInstance();
 	}
 
 	@Test
 	public void testEmptyDocMapsToEmptyRoot() {
-		XMLElement dataSourceRoot = emptyDocMapper.createDataSource();
+		XMLElement dataSourceRoot = emptyDocMapper.createDataSourceInstance();
 		assertTrue("Mapping an empty doc must result in an empty 'data-source' XMLElement.",
-				isEmptyXMLElement(dataSourceRoot) && XMLKeys.DATA_SOURCE.equals(dataSourceRoot.getName()));
+				isEmptyXMLElement(dataSourceRoot) && XMLKeys.DATA_SOURCE_INSTANCE.equals(dataSourceRoot.getName()));
 	}
 
 	private boolean isEmptyXMLElement(XMLElement element) {

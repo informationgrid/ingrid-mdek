@@ -1,5 +1,7 @@
 package de.ingrid.mdek.xml.importer;
 
+import java.util.List;
+
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.utils.IngridDocument;
 
@@ -11,17 +13,19 @@ public interface IImporterCallback {
 
 	/**
 	 * Write the given object meaning update existing object or create new one.
-	 * @param objDoc object details in doc
+	 * @param objDocs object details of all instances of obj.
+	 * 		If size of list > 1 then order is "Bearbeitungsinstanz", "veröffentlichte Instanz".
 	 * @param userUuid calling user
 	 */
-	void writeObject(IngridDocument objDoc, String userUuid);
+	void writeObject(List<IngridDocument> objDocs, String userUuid);
 
 	/**
 	 * Write the given address meaning update existing address or create new one.
-	 * @param addrDoc address details in doc
+	 * @param addrDocs address details of all instances of addr.
+	 * 		If size of list > 1 then order is "Bearbeitungsinstanz", "veröffentlichte Instanz".
 	 * @param userUuid calling user
 	 */
-	void writeAddress(IngridDocument addrDoc, String userUuid);
+	void writeAddress(List<IngridDocument> addrDocs, String userUuid);
 
 	/**
 	 * Update basic information of import process.

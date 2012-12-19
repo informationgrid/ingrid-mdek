@@ -13,7 +13,6 @@ import de.ingrid.utils.IngridDocument;
 public class TestAddressDocToXMLMapper {
 
 	private AddressDocToXMLMapper emptyDocMapper;
-	private AddressDocToXMLMapper fullDocMapper;
 	
 	@Before
 	public void setupIngridDocToXMLMapper() {
@@ -26,14 +25,14 @@ public class TestAddressDocToXMLMapper {
 
 	@Test
 	public void testCreateAddressRunsOnEmptyDoc() {
-		emptyDocMapper.createAddress();
+		emptyDocMapper.createAddressInstance();
 	}
 
 	@Test
 	public void testEmptyDocMapsToEmptyRoot() {
-		XMLElement addressRoot = emptyDocMapper.createAddress();
+		XMLElement addressRoot = emptyDocMapper.createAddressInstance();
 		assertTrue("Mapping an empty doc must result in an empty 'address' XMLElement.",
-				isEmptyXMLElement(addressRoot) && XMLKeys.ADDRESS.equals(addressRoot.getName()));
+				isEmptyXMLElement(addressRoot) && XMLKeys.ADDRESS_INSTANCE.equals(addressRoot.getName()));
 	}
 
 	private boolean isEmptyXMLElement(XMLElement element) {

@@ -135,10 +135,12 @@ public class MdekObjectService {
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
 			o = oNode.getT01ObjectPublished();
 		} else {
+			whichEntityVersion = IdcEntityVersion.WORKING_VERSION;
 			o = oNode.getT01ObjectWork();
 		}
 		if (o == null) {
-			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));			
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND,
+				"" + whichEntityVersion + " of object " + objUuid + " in node IS NULL !"));			
 		}
 
 		// how much to map from object ? default is DETAIL_ENTITY (called from IGE)
@@ -173,6 +175,39 @@ public class MdekObjectService {
 		}
 
 		return resultDoc;
+	}
+
+	/**
+	 * Fetch multiple object instances (versions) of object with given uuid.
+	 * @param objUuid object uuid
+	 * @param whichEntityVersion which object version should be fetched.
+	 * 		NOTICE: In published state working version == published version and it is the same object instance !
+	 * @param howMuch how much data to fetch from object
+	 * @return list of docs encapsulating requested versions ! WORK_STATE in each doc determines which version.
+	 * 		May be of length 0 if version not set.
+	 * 		Or length 2 if ALL_VERSIONS requested and working version differs from published version.
+	 * 		Then working version is delivered first !
+	 */
+	public List<IngridDocument> getObjectInstancesDetails(String objUuid,
+			IdcEntityVersion whichEntityVersion,
+			FetchQuantity howMuch,
+			String userId) {
+		List<IngridDocument> retList = new ArrayList<IngridDocument>(); 
+
+		ObjectNode oN = daoObjectNode.loadByUuid(objUuid, null);
+		if (whichEntityVersion.equals(IdcEntityVersion.ALL_VERSIONS)) {
+			if (hasWorkingCopy(oN)) {
+				retList.add(getObjectDetails(objUuid, IdcEntityVersion.WORKING_VERSION, howMuch, userId));				
+			}
+			if (hasPublishedVersion(oN)) {
+				retList.add(getObjectDetails(objUuid, IdcEntityVersion.PUBLISHED_VERSION, howMuch, userId));				
+			}
+			
+		} else {
+			retList.add(getObjectDetails(objUuid, whichEntityVersion, howMuch, userId));
+		}
+
+		return retList;
 	}
 
 	/**
@@ -903,6 +938,26 @@ public class MdekObjectService {
 		}
 
 		return result;
+	}
+
+	/** Checks whether given Object has the given version.
+	 * @param oNode object to check represented by node !
+	 * @param whichVersion which version to check:<br>
+	 * 		WORKING_VERSION: object has a working copy different from published version (or not published)?<br>
+	 * 		PUBLISHED_VERSION: object has a published version ?<br>
+	 * 		ALL_VERSIONS: object has any version (should always be true !)
+	 * @return true=object has the given version.<br>
+	 * 		false=object has NOT the given version, e.g. NOT published (PUBLISHED_VERSION) OR NO working copy (WORKING_VERSION).
+	 */
+	public boolean hasVersion(ObjectNode oNode, IdcEntityVersion whichVersion) {
+		if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
+			return hasWorkingCopy(oNode);
+		}
+		if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			return hasPublishedVersion(oNode);
+		}
+
+		return (hasWorkingCopy(oNode) || hasPublishedVersion(oNode));
 	}
 
 	/** Checks whether given Object has a published version.

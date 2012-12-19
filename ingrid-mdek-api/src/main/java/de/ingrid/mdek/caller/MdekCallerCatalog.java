@@ -134,19 +134,24 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 
 	public IngridDocument exportObjectBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
+			boolean includeWorkingCopies,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, rootUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT, exportOnlyRoot);
+		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES, includeWorkingCopies);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("exportObjectBranch", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument exportObjects(String plugId, String exportCriterion,
+	public IngridDocument exportObjects(String plugId,
+			String exportCriterion,
+			boolean includeWorkingCopies,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.EXPORT_CRITERION_VALUE, exportCriterion);
+		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES, includeWorkingCopies);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("exportObjects", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
@@ -155,11 +160,13 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 	public IngridDocument exportAddressBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
 			AddressArea addressArea,
+			boolean includeWorkingCopies,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.UUID, rootUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT, exportOnlyRoot);
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA, addressArea);
+		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES, includeWorkingCopies);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("exportAddressBranch", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
@@ -175,40 +182,12 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	/* (non-Javadoc)
-	 * DEPRECATED @see de.ingrid.mdek.caller.IMdekCallerCatalog#importEntities(java.lang.String, byte[], java.lang.String, java.lang.String, boolean, boolean, java.lang.String)
-	 */
-	public IngridDocument importEntities(String plugId, byte[] importData,
-			String targetObjectUuid, String targetAddressUuid,
-			boolean publishImmediately,
-			boolean doSeparateImport,
-			String userId) {
-		IngridDocument jobParams = setUpImportEntitiesJobParams(importData, 
-					targetObjectUuid, targetAddressUuid, 
-					publishImmediately, doSeparateImport, null, userId);
-		List jobMethods = setUpJobMethod("importEntities", jobParams);
-		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);		
-	}
-
 	public IngridDocument importEntities(String plugId, List<byte[]> importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,
+			boolean copyNodeIfPresent,
 			String frontendProtocol,
-			String userId) {
-		IngridDocument jobParams = setUpImportEntitiesJobParams(importData, 
-					targetObjectUuid, targetAddressUuid, 
-					publishImmediately, doSeparateImport, frontendProtocol, userId);
-		List jobMethods = setUpJobMethod("importEntities", jobParams);
-		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);		
-		
-	}
-	
-	private IngridDocument setUpImportEntitiesJobParams(Object importData,
-			String targetObjectUuid, String targetAddressUuid,
-			boolean publishImmediately,
-			boolean doSeparateImport,
-			String mappingProtocol,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DATA, importData);
@@ -216,10 +195,12 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, targetAddressUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, publishImmediately);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, doSeparateImport);
-		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, mappingProtocol);
+		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, copyNodeIfPresent);
+		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, frontendProtocol);
 		jobParams.put(MdekKeys.USER_ID, userId);
-
-		return jobParams;
+		List jobMethods = setUpJobMethod("importEntities", jobParams);
+		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+		
 	}
 
 	public IngridDocument getJobInfo(String plugId, JobType jobType, String userId) {

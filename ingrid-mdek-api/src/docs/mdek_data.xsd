@@ -391,6 +391,8 @@
 			<xs:element ref="uuid"/>
 			<!-- export only root, no subnodes ? -->
 			<xs:element name="requestinfo_exportOnlyRoot" type="xs:boolean"/>
+			<!-- export also working copies (+ published versions) or only published versions (then false) ? -->
+			<xs:element name="requestinfo_exportIncludeWorkingCopies" type="xs:boolean"/>
 			<!-- which addresses to export if virtual top node (no uuid) is selected, = IMdekCaller.AddressArea Enumeration const -->
 			<xs:element name="requestinfo_exportAddressArea" type="xs:integer"/>
 			<!-- export only objects marked with given criterion -->
@@ -409,6 +411,8 @@
 			<xs:element name="requestinfo_importPublishImmediately" type="xs:boolean"/>
 			<!-- separate all imported entities underneath of "import nodes" ? -->
 			<xs:element name="requestinfo_importDoSeparateImport" type="xs:boolean"/>
+			<!-- Generate new UUID if UUID already present ? Used in combination with requestinfo_importDoSeparateImport -->
+			<xs:element name="requestinfo_copyNodeIfPresent" type="xs:boolean"/>
 		</xs:choice>
 	</xs:complexType>	
 	<xs:complexType name="REQUEST_URL_MAP">

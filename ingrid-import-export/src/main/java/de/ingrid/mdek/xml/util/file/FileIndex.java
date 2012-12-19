@@ -1,5 +1,8 @@
 package de.ingrid.mdek.xml.util.file;
 
+/**
+ * Encapsulates begin and end index of an instance of an entity !
+ */
 public class FileIndex {
 
 	private final long beginIndex;

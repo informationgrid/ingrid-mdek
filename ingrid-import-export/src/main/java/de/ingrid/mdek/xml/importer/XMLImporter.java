@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -111,19 +112,26 @@ public class XMLImporter implements IImporter {
 	}
 
 	private void importObject(String objUuid) {
-		IngridDocument dataSource = getObject(objUuid);
+		List<IngridDocument> dataSource = getObject(objUuid);
 
-		if (dataSource != null) {
+		if (dataSource != null && dataSource.size() > 0) {
 			importerCallback.writeObject(dataSource, currentUserUuid);
 			importObjectCount++;
 			importerCallback.writeImportInfo(IdcEntityType.OBJECT, importObjectCount, totalNumObjects, currentUserUuid);
 		}
 	}
 
-	private IngridDocument getObject(String objUuid) {
+	/** Get IngridDocs of all object instances. If size of list > 1 then order is "Bearbeitungsinstanz", "veröffentlichte Instanz". */
+	private List<IngridDocument> getObject(String objUuid) {
 		try {
-			Document doc = streamReader.getDomForObject(objUuid);
-			return mapper.mapDataSource(doc);
+			List<IngridDocument> retList = new ArrayList<IngridDocument>(0); 
+
+			List<Document> docs = streamReader.getDomForObject(objUuid);
+			for (Document doc : docs) {
+				retList.add(mapper.mapDataSource(doc));
+			}
+
+			return retList;
 
 		} catch (Exception ex) {
 			log.error("Error reading/mapping object with uuid '"+objUuid+"'", ex);
@@ -156,19 +164,26 @@ public class XMLImporter implements IImporter {
 	}
 
 	private void importAddress(String adrUuid) {
-		IngridDocument address = getAddress(adrUuid);
+		List<IngridDocument> address = getAddress(adrUuid);
 
-		if (address != null) {
+		if (address != null && address.size() > 0) {
 			importerCallback.writeAddress(address, currentUserUuid);
 			importAddressCount++;
 			importerCallback.writeImportInfo(IdcEntityType.ADDRESS, importAddressCount, totalNumAddresses, currentUserUuid);
 		}
 	}
 
-	private IngridDocument getAddress(String adrUuid) {
+	/** Get IngridDocs of all address instances. If size of list > 1 then order is "Bearbeitungsinstanz", "veröffentlichte Instanz". */
+	private List<IngridDocument> getAddress(String adrUuid) {
 		try {
-			Document doc = streamReader.getDomForAddress(adrUuid);
-			return mapper.mapAddress(doc);
+			List<IngridDocument> retList = new ArrayList<IngridDocument>(0); 
+
+			List<Document> docs = streamReader.getDomForAddress(adrUuid);
+			for (Document doc : docs) {
+				retList.add(mapper.mapAddress(doc));
+			}
+
+			return retList;
 
 		} catch (Exception ex) {
 			log.error("Error reading/mapping address with uuid '"+adrUuid+"'", ex);

@@ -74,14 +74,22 @@ public class MdekExportService implements IExporterCallback {
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getTotalNumObjectsToExport(java.util.List, boolean, java.lang.String)
 	 */
 	public int getTotalNumObjectsToExport(List<String> objUuids,
+			IdcEntityVersion whichVersion,
 			boolean includeSubnodes,
 			String userUuid) {
-		int totalNum = objUuids.size();
+		int totalNum = 0;
 		
+		for (String objUuid : objUuids) {
+			// we fetch every node to guarantee requested version is there !
+			ObjectNode oN = daoObjectNode.loadByUuid(objUuid, null);
+			if (objectService.hasVersion(oN, whichVersion)) {
+				totalNum++;
+			}
+		}
 		if (includeSubnodes) {
 			for (String objUuid : objUuids) {
-				// count only published ones !
-				totalNum += daoObjectNode.countAllSubObjects(objUuid, IdcEntityVersion.PUBLISHED_VERSION);
+				// count only requested versions !
+				totalNum += daoObjectNode.countAllSubObjects(objUuid, whichVersion);
 			}
 		}
 
@@ -91,54 +99,70 @@ public class MdekExportService implements IExporterCallback {
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getObjectDetails(java.lang.String, java.lang.String)
 	 */
-	public IngridDocument getObjectDetails(String objUuid, String userUuid) {
-		IngridDocument details =  objectService.getObjectDetails(objUuid,
-				IdcEntityVersion.PUBLISHED_VERSION, FetchQuantity.EXPORT_ENTITY,
+	public List<IngridDocument> getObjectDetails(String objUuid,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
+		List<IngridDocument> docs = objectService.getObjectInstancesDetails(objUuid,
+				whichVersion, FetchQuantity.EXPORT_ENTITY,
 				userUuid);
 
 		// we write lastexport_time when fetching details for export !
 		// if something fails this one isn't written due to transaction rollback ...
 		// NOTICE: we don't flush before to assure most current data ! autoflush is disabled during export !
-		Long metadataId = (Long) details.get(MdekKeys.ENTITY_METADATA_ID);
-		ObjectMetadata metadata = (ObjectMetadata) daoObjectMetadata.getById(metadataId);
-		metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
-		daoObjectMetadata.makePersistent(metadata);
+		for (IngridDocument doc : docs) {
+			Long metadataId = (Long) doc.get(MdekKeys.ENTITY_METADATA_ID);
+			ObjectMetadata metadata = (ObjectMetadata) daoObjectMetadata.getById(metadataId);
+			metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
+			daoObjectMetadata.makePersistent(metadata);
+		}
 
-		return details;
+		return docs;
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getAddressDetails(java.lang.String, java.lang.String)
 	 */
-	public IngridDocument getAddressDetails(String addrUuid, String userUuid) {
-		IngridDocument details =  addressService.getAddressDetails(addrUuid,
-				IdcEntityVersion.PUBLISHED_VERSION, FetchQuantity.EXPORT_ENTITY,
+	public List<IngridDocument> getAddressDetails(String addrUuid,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
+		List<IngridDocument> docs = addressService.getAddressInstancesDetails(addrUuid,
+				whichVersion, FetchQuantity.EXPORT_ENTITY,
 				0, 0,
 				userUuid);
 
 		// we write lastexport_time when fetching details for export !
 		// if something fails this one isn't written due to transaction rollback ...
 		// NOTICE: we don't flush before to assure most current data ! autoflush is disabled during export !
-		Long metadataId = (Long) details.get(MdekKeys.ENTITY_METADATA_ID);
-		AddressMetadata metadata = (AddressMetadata) daoAddressMetadata.getById(metadataId);
-		metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
-		daoAddressMetadata.makePersistent(metadata);
+		for (IngridDocument doc : docs) {
+			Long metadataId = (Long) doc.get(MdekKeys.ENTITY_METADATA_ID);
+			AddressMetadata metadata = (AddressMetadata) daoAddressMetadata.getById(metadataId);
+			metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
+			daoAddressMetadata.makePersistent(metadata);
+		}
 
-		return details;
+		return docs;
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getTotalNumAddressesToExport(java.util.List, boolean, java.lang.String)
 	 */
 	public int getTotalNumAddressesToExport(List<String> addrUuids,
+			IdcEntityVersion whichVersion,
 			boolean includeSubnodes,
-			String userUuid) {		
-		int totalNum = addrUuids.size();
+			String userUuid) {
+		int totalNum = 0;
 		
+		for (String addrUuid : addrUuids) {
+			// we fetch every node to guarantee requested version is there !
+			AddressNode aN = daoAddressNode.loadByUuid(addrUuid, null);
+			if (addressService.hasVersion(aN, whichVersion)) {
+				totalNum++;
+			}
+		}
 		if (includeSubnodes) {
 			for (String addrUuid : addrUuids) {
-				// count only published ones !
-				totalNum += daoAddressNode.countAllSubAddresses(addrUuid, IdcEntityVersion.PUBLISHED_VERSION);
+				// count only requested versions !
+				totalNum += daoAddressNode.countAllSubAddresses(addrUuid, whichVersion);
 			}
 		}
 
@@ -148,14 +172,15 @@ public class MdekExportService implements IExporterCallback {
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getSubObjects(java.lang.String, java.lang.String)
 	 */
-	public List<String> getSubObjects(String parentUuid, String userUuid) {
+	public List<String> getSubObjects(String parentUuid,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
 		List<String> uuids = new ArrayList<String>();
 
-		List<ObjectNode> nodes = daoObjectNode.getSubObjects(parentUuid, null, false);
-		// only published ones !
+		List<ObjectNode> nodes = daoObjectNode.getSubObjects(parentUuid, whichVersion, false);
+		// only objects which have requested version(s) !
 		for (ObjectNode node : nodes) {
-			Long idPublished = node.getObjIdPublished();
-			if (idPublished != null) {
+			if (objectService.hasVersion(node, whichVersion)) {
 				uuids.add(node.getObjUuid());
 			}
 		}
@@ -166,14 +191,15 @@ public class MdekExportService implements IExporterCallback {
 	/* (non-Javadoc)
 	 * @see de.ingrid.mdek.xml.exporter.IExporterCallback#getSubAddresses(java.lang.String, java.lang.String)
 	 */
-	public List<String> getSubAddresses(String parentUuid, String userUuid) {
+	public List<String> getSubAddresses(String parentUuid,
+			IdcEntityVersion whichVersion,
+			String userUuid) {
 		List<String> uuids = new ArrayList<String>();
 
-		List<AddressNode> nodes = daoAddressNode.getSubAddresses(parentUuid, null, false);
-		// only published ones !
+		List<AddressNode> nodes = daoAddressNode.getSubAddresses(parentUuid, whichVersion, false);
+		// only addresses which have requested version(s) !
 		for (AddressNode node : nodes) {
-			Long idPublished = node.getAddrIdPublished();
-			if (idPublished != null) {
+			if (addressService.hasVersion(node, whichVersion)) {
 				uuids.add(node.getAddrUuid());
 			}
 		}

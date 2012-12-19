@@ -146,10 +146,12 @@ public class MdekAddressService {
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
 			a = aNode.getT02AddressPublished();
 		} else {
+			whichEntityVersion = IdcEntityVersion.WORKING_VERSION;
 			a = aNode.getT02AddressWork();
 		}
 		if (a == null) {
-			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND));			
+			throw new MdekException(new MdekError(MdekErrorType.ENTITY_NOT_FOUND,
+					"" + whichEntityVersion + " of address " + addrUuid + " in node IS NULL !"));
 		}
 
 		// how much to map from address ? default is DETAIL_ENTITY (called from IGE)
@@ -193,6 +195,45 @@ public class MdekAddressService {
 		}
 
 		return resultDoc;
+	}
+
+	/**
+	 * Fetch multiple address instances (versions) of address with given uuid.
+	 * @param addrUuid address uuid
+	 * @param whichEntityVersion which address version should be fetched.
+	 * 		NOTICE: In published state working version == published version and it is the same address instance !
+	 * @param howMuch how much data to fetch from address
+	 * @param objRefsStartIndex objects referencing the given address, object to start with (first object is 0)
+	 * @param objRefsMaxNum objects referencing the given address, maximum number to fetch starting at index
+	 * @return list of docs encapsulating requested versions ! WORK_STATE in each doc determines which version.
+	 * 		May be of length 0 if version not set.
+	 * 		Or length 2 if ALL_VERSIONS requested and working version differs from published version.
+	 * 		Then working version is delivered first !
+	 */
+	public List<IngridDocument> getAddressInstancesDetails(String addrUuid,
+			IdcEntityVersion whichEntityVersion,
+			FetchQuantity howMuch,
+			int objRefsStartIndex, int objRefsMaxNum,
+			String userId) {
+		List<IngridDocument> retList = new ArrayList<IngridDocument>(); 
+
+		AddressNode aN = daoAddressNode.loadByUuid(addrUuid, null);
+		if (whichEntityVersion.equals(IdcEntityVersion.ALL_VERSIONS)) {
+			if (hasWorkingCopy(aN)) {
+				retList.add(getAddressDetails(addrUuid, IdcEntityVersion.WORKING_VERSION, howMuch,
+						objRefsStartIndex, objRefsMaxNum, userId));				
+			}
+			if (hasPublishedVersion(aN)) {
+				retList.add(getAddressDetails(addrUuid, IdcEntityVersion.PUBLISHED_VERSION, howMuch,
+						objRefsStartIndex, objRefsMaxNum, userId));				
+			}
+			
+		} else {
+			retList.add(getAddressDetails(addrUuid, whichEntityVersion, howMuch,
+					objRefsStartIndex, objRefsMaxNum, userId));
+		}
+
+		return retList;
 	}
 
 	/**
@@ -791,6 +832,26 @@ public class MdekAddressService {
 	/** Returns true if given node has children. False if no children. */
 	private boolean hasChildren(AddressNode node) {
     	return (node.getAddressNodeChildren().size() > 0) ? true : false;
+	}
+
+	/** Checks whether given Address has the given version.
+	 * @param aNode address to check represented by node !
+	 * @param whichVersion which version to check:<br>
+	 * 		WORKING_VERSION: address has a working copy different from published version (or not published)?<br>
+	 * 		PUBLISHED_VERSION: address has a published version ?<br>
+	 * 		ALL_VERSIONS: address has any version (should always be true !)
+	 * @return true=address has the given version.<br>
+	 * 		false=address has NOT the given version, e.g. NOT published (PUBLISHED_VERSION) OR NO working copy (WORKING_VERSION).
+	 */
+	public boolean hasVersion(AddressNode aNode, IdcEntityVersion whichVersion) {
+		if (whichVersion == IdcEntityVersion.WORKING_VERSION) {
+			return hasWorkingCopy(aNode);
+		}
+		if (whichVersion == IdcEntityVersion.PUBLISHED_VERSION) {
+			return hasPublishedVersion(aNode);
+		}
+
+		return (hasWorkingCopy(aNode) || hasPublishedVersion(aNode));
 	}
 
 	/** Checks whether given Address has a published version.

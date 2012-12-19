@@ -16,8 +16,14 @@ public class AddressDocToXMLMapper extends AbstractDocToXMLMapper {
 		super(address);
 	}
 
-	public XMLElement createAddress() {
+	public static XMLElement createAddress() {
 		XMLElement address = new XMLElement(ADDRESS);
+		return address;
+	}
+
+	public XMLElement createAddressInstance() {
+		XMLElement address = new XMLElement(ADDRESS_INSTANCE);
+		address.addAttribute(WORK_STATE, getStringForKey(MdekKeys.WORK_STATE));
 		address.addChild(new XMLElement(ADDRESS_IDENTIFIER, getStringForKey(MdekKeys.UUID)));
 		address.addChild(createModificatorIdentifier());
 		address.addChild(createResponsibleIdentifier());

@@ -7,6 +7,7 @@ import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -106,11 +107,15 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param exportOnlyRoot export only the given node, NO sub nodes.
 	 * 		if virtual top node (no uuid) is selected, this determines whether ONLY TOP NODES (true)
 	 * 		or ALL NODES (false) are exported.
+	 * @param includeWorkingCopies false=only published versions are exported ! If no published version
+	 * 		object is skipped !<br>
+	 * 		true=published and working versions (if present) of an object are exported !
 	 * @param userId calling user
 	 * @return response containing result: map containing xml data and export info
 	 */
 	IngridDocument exportObjectBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
+			boolean includeWorkingCopies,
 			String userId);
 
 	/**
@@ -123,22 +128,31 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * 		if virtual top node (no uuid) is selected, this determines whether ONLY TOP NODES (true)
 	 * 		or ALL NODES (false) underneath selected virtual top node are exported.
 	 * @param addressArea only relevant if virtual top node (no uuid): determines which address "area" to export.
+	 * @param includeWorkingCopies false=only published versions are exported ! If no published version
+	 * 		object is skipped !<br>
+	 * 		true=published and working versions (if present) of an object are exported !
 	 * @param userId calling user
 	 * @return response containing result: map containing xml data and export info
 	 */
 	IngridDocument exportAddressBranch(String plugId, String rootUuid,
 			boolean exportOnlyRoot,
 			AddressArea addressArea,
+			boolean includeWorkingCopies,
 			String userId);
 
 	/**
 	 * Export all objects marked with the given criterion.
 	 * @param plugId which mdek server (iplug)
 	 * @param exportCriterion "tagged value". objects marked with this string are exported.
+	 * @param includeWorkingCopies false=only published versions are exported ! If no published version
+	 * 		object is skipped !<br>
+	 * 		true=published and working versions (if present) of an object are exported !
 	 * @param userId calling user
 	 * @return response containing result: map containing xml data and export info
 	 */
-	IngridDocument exportObjects(String plugId, String exportCriterion, String userId);
+	IngridDocument exportObjects(String plugId, String exportCriterion, 
+			boolean includeWorkingCopies,
+			String userId);
 
 	/** Returns information about the current/last export executed by the given user.
 	 * @param plugId which mdek server (iplug)
@@ -148,17 +162,6 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: map containing export information
 	 */
 	IngridDocument getExportInfo(String plugId, boolean includeExportData, String userId);
-
-	/**
-	 * @deprecated KEPT FOR COMPATIBILITY WITH OLD FRONTENDS, replaced by 
-	 * {@link #importEntities(String, List,...)}
-	 */
-	@Deprecated
-	IngridDocument importEntities(String plugId, byte[] importData,
-			String targetObjectUuid, String targetAddressUuid,
-			boolean publishImmediately,
-			boolean doSeparateImport,
-			String userId);
 
 	/**
 	 * Import the given MULTIPLE NUMBER OF FILES (import/export format) and update existing 
@@ -172,17 +175,24 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param publishImmediately publish imported data immediately<br>
 	 * 		NOTICE: if data is missing, entities are stored in working version ! 
 	 * @param doSeparateImport separate all imported entities underneath the "import nodes".
-	 * 		If an imported entity already exists in catalog, a new uuid is created, so it becomes
-	 * 		a NEW entity.
-	 * @param frontendProtocol the protocol from frontend to add to backend job info. Pass null or empty string if no Protocol.
+	 * 		Further behavior dependent from copyNodeIfPresent !
+	 * @param copyNodeIfPresent when doing separate import, should the node be copied, if
+	 * 		UUID already exists ?<br>
+	 * 		true = a new uuid is created, so it becomes a NEW entity.<br>
+	 * 		false = exception is thrown containing UUIDs already present
+	 * @param frontendMappingProtocol the protocol from frontend (e.g. mapping messages) to add to backend job info. Pass
+	 * 		null or empty string if no Protocol.
 	 * @param userId calling user
 	 * @return response containing result: map containing import information
+	 * @throws MdekException MdekErrorType.IMPORT_OBJECTS_ALREADY_EXIST: objects to import
+	 * 		already do exist and copy is NOT allowed, MdekError contains objects info 
 	 */
 	IngridDocument importEntities(String plugId, List<byte[]> importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,
-			String frontendProtocol,
+			boolean copyNodeIfPresent,
+			String frontendMappingProtocol,
 			String userId);
 
 	/** Returns DEFAULT information about the current/last job of given type executed by the given user.

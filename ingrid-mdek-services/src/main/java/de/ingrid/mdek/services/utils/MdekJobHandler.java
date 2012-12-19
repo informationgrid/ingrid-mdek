@@ -11,12 +11,12 @@ import com.thoughtworks.xstream.XStream;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.dao.ISysJobInfoDao;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
@@ -191,16 +191,28 @@ public class MdekJobHandler {
 
 		runningJobsMap.put(userId, jobInfo);
 	}
-	/** Add new message to current job information.<br> 
+	/** Add new protocol message to current job information.<br>
 	 * NOTICE: NO checks whether jobs are already running !
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
 	public void updateRunningJobMessages(String userId, String newMessage) {
+		updateRunningJobMessages(userId, MdekKeys.RUNNINGJOB_MESSAGES, newMessage);
+	}
+	/** Add new frontend message to current job information.<br>
+	 * NOTICE: NO checks whether jobs are already running !
+	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
+	public void updateRunningJobFrontendMessages(String userId, String newMessage) {
+		updateRunningJobMessages(userId, MdekKeys.RUNNINGJOB_FRONTEND_MESSAGES, newMessage);
+	}
+	/** Add new message to current job information.<br>
+	 * NOTICE: NO checks whether jobs are already running !
+	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
+	private void updateRunningJobMessages(String userId, String messageTypeKey, String newMessage) {
 		// throws exception if canceled !
 		checkRunningJobCanceledByUser(userId);
 
 		IngridDocument jobInfo = getRunningJobInfo(userId);
 
-		String currentMessages = jobInfo.getString(MdekKeys.RUNNINGJOB_MESSAGES);
+		String currentMessages = jobInfo.getString(messageTypeKey);
 		if (currentMessages == null) {
 			currentMessages = "";
 		} else if (!currentMessages.endsWith("\n")) {
@@ -208,7 +220,7 @@ public class MdekJobHandler {
 		}
 		currentMessages += newMessage;
 
-		jobInfo.put(MdekKeys.RUNNINGJOB_MESSAGES, currentMessages);
+		jobInfo.put(messageTypeKey, currentMessages);
 
 		runningJobsMap.put(userId, jobInfo);
 	}
@@ -362,6 +374,7 @@ public class MdekJobHandler {
         
         if (includeMessages) {
             jobDetails.put(MdekKeys.JOBINFO_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_MESSAGES));        	
+            jobDetails.put(MdekKeys.JOBINFO_FRONTEND_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_FRONTEND_MESSAGES));        	
         }
 		
 		return jobDetails;

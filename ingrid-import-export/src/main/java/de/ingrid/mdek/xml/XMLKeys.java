@@ -201,6 +201,8 @@ public class XMLKeys {
 	public static final String ADDITIONAL_INFORMATION = "additional-information";
 	public static final String TECHNICAL_DOMAIN = "technical-domain";
 	public static final String GENERAL = "general";
+	public static final String DATA_SOURCE_INSTANCE = "data-source-instance";
+	public static final String WORK_STATE = "work-state";
 	public static final String DATA_SOURCE = "data-source";
 	public static final String DATA_SOURCES = "data-sources";
 	public static final String PARENT_ADDRESS = "parent-address";
@@ -225,6 +227,7 @@ public class XMLKeys {
 	public static final String TYPE_OF_ADDRESS = "type-of-address";
 	public static final String HIDE_ADDRESS = "hide-address";
 	public static final String ADDRESS = "address";
+	public static final String ADDRESS_INSTANCE = "address-instance";
 	public static final String GENERAL_ADDITIONAL_FIELD_DEFINITION = "general-additional-field-definition";
 	public static final String FIELD_IDENTIFIER = "field-identifier";
 	public static final String FIELD_LENGTH = "field-length";

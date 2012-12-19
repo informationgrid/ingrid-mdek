@@ -117,7 +117,7 @@ public class MdekExampleSupertoolAddress {
 		IngridDocument response;
 		IngridDocument result;
 
-		String onlyFreeAddressesInfo = (onlyFreeAddresses) ? "ONLY FREE ADDRESSES" : "ONLY NO FREE ADDRESSES";
+		String onlyFreeAddressesInfo = (onlyFreeAddresses) ? "ONLY FREE ADDRESSES" : "ONLY NON FREE ADDRESSES";
 		System.out.println("\n###### INVOKE fetchTopAddresses " + onlyFreeAddressesInfo + " ######");
 		startTime = System.currentTimeMillis();
 		response = mdekCallerAddress.fetchTopAddresses(plugId, myUserUuid, onlyFreeAddresses);

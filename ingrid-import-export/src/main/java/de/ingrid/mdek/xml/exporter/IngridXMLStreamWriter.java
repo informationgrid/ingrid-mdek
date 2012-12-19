@@ -1,5 +1,6 @@
 package de.ingrid.mdek.xml.exporter;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
@@ -30,8 +31,12 @@ public class IngridXMLStreamWriter {
 		writeStartElementWithIndentation(XMLKeys.DATA_SOURCES);
 	}
 
-	public void writeIngridObject(IngridDocument document) throws XMLStreamException {
-		writeElement(IngridXMLBuilder.createXMLForObject(document));
+	/** Write different instances of object.
+	 * @param documents Pass instances, may also contain only one instance !
+	 * @throws XMLStreamException
+	 */
+	public void writeIngridObject(List<IngridDocument> documents) throws XMLStreamException {
+		writeElement(IngridXMLBuilder.createXMLForObject(documents));
 	}
 
 	public void writeEndIngridObjects() throws XMLStreamException {
@@ -42,8 +47,12 @@ public class IngridXMLStreamWriter {
 		writeStartElementWithIndentation(XMLKeys.ADDRESSES);
 	}
 
-	public void writeIngridAddress(IngridDocument document) throws XMLStreamException {
-		writeElement(IngridXMLBuilder.createXMLForAddress(document));
+	/** Write different instances of address.
+	 * @param documents Pass instances, may also contain only one instance !
+	 * @throws XMLStreamException
+	 */
+	public void writeIngridAddress(List<IngridDocument> documents) throws XMLStreamException {
+		writeElement(IngridXMLBuilder.createXMLForAddress(documents));
 	}
 
 	public void writeEndIngridAddresses() throws XMLStreamException {

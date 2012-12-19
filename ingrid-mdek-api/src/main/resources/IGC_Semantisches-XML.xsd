@@ -116,9 +116,19 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Objekt Metadatensatz 
+    Fachlicher Name: Objekt Metadatensatz
   -->
   <xs:element name="data-source">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="2" ref="data-source-instance"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Objekt Metadatensatz Instanz ("in Bearbeitung" oder "veröffentlicht")
+  -->
+  <xs:element name="data-source-instance">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="general"/>
@@ -133,6 +143,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="related-address"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="link-data-source"/>
       </xs:sequence>
+      <xs:attributeGroup ref="attlist.work-state"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="general">
@@ -887,7 +898,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format-inspire"/>
-        <xs:element minOccurs="0" ref="publication-condition"/>
+        <xs:element minOccurs="1" ref="publication-condition"/>
         <xs:element minOccurs="0" ref="dataset-usage"/>
         <xs:element minOccurs="0" ref="ordering-instructions"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="comment"/>
@@ -1507,12 +1518,22 @@
   <xs:element name="address">
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="2" ref="address-instance"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Adress Metadatensatz Instanz ("in Bearbeitung" oder "veröffentlicht")
+  -->
+  <xs:element name="address-instance">
+    <xs:complexType>
+      <xs:sequence>
         <xs:element ref="address-identifier"/>
         <xs:element ref="modificator-identifier"/>
         <xs:element ref="responsible-identifier"/>
         <xs:element ref="type-of-address"/>
         <xs:element ref="hide-address"/>
-        <xs:element minOccurs="0" ref="publication-condition"/>
+        <xs:element minOccurs="1" ref="publication-condition"/>
         <xs:element minOccurs="0" ref="organisation"/>
         <xs:element minOccurs="0" ref="name"/>
         <xs:element minOccurs="0" ref="name-form"/>
@@ -1533,6 +1554,7 @@
         <xs:element minOccurs="0" ref="date-of-creation"/>
         <xs:element minOccurs="0" ref="parent-address"/>
       </xs:sequence>
+      <xs:attributeGroup ref="attlist.work-state"/>
     </xs:complexType>
   </xs:element>
   <!--
@@ -1750,5 +1772,20 @@
   <xs:attributeGroup name="attlist.line">
     <xs:attribute name="line" use="optional"/>
   </xs:attributeGroup>
+<!--
+  Attribut-Gruppe: work-state=
+-->
+<xs:attributeGroup name="attlist.work-state">
+  <xs:attribute name="work-state" use="required">
+    <xs:simpleType>
+      <xs:restriction base="xs:token">
+        <xs:enumeration value="V"/>
+        <xs:enumeration value="B"/>
+        <xs:enumeration value="Q"/>
+        <xs:enumeration value="R"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:attribute>
+</xs:attributeGroup>
 </xs:schema>
 

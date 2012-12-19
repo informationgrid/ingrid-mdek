@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
+      <action type="update" dev="wemove" issue="INGRID33-16">
+        Rework of Export/Import, now also includes working copies to be used as backup tool. Changed import behaviour.
+      </action>
       <action type="add" dev="wemove" issue="INGRID33-12">
         Add new field "publication condition" for addresses.
       </action>

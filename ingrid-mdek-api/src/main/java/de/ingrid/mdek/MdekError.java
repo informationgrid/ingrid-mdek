@@ -166,6 +166,9 @@ public class MdekError implements Serializable {
 
 		/** a problem during import occured. delivers message describing problem. */
 		IMPORT_PROBLEM("4000"),
+		/** Objects to import already exist in catalog and COPY IS NOT ALLOWED.<br>
+		 * errorInfo: existing objects (in list), ALSO DELIVERS DATA OF OBJECTS */
+		IMPORT_OBJECTS_ALREADY_EXIST("4010"),
 		;
 
 		MdekErrorType(String errorCode) {

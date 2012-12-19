@@ -434,6 +434,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			String rootUuid = (String) docIn.get(MdekKeys.UUID);
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
+			Boolean includeWorkingCopies = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES);
+			
+			IdcEntityVersion whichObjectVersions = IdcEntityVersion.PUBLISHED_VERSION;
+			if (includeWorkingCopies) {
+				whichObjectVersions = IdcEntityVersion.ALL_VERSIONS;
+			}
 
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
@@ -454,7 +460,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			exportService.startExportJobInfo(IdcEntityType.OBJECT, 0, userId);
 
 			// export
-			byte[] expData = new XMLExporter(exportService).exportObjects(uuidsToExport, !exportOnlyRoot, userId);
+			byte[] expData = new XMLExporter(exportService).exportObjects(uuidsToExport, whichObjectVersions, !exportOnlyRoot, userId);
 
 			// finish export job info and fetch it
 			exportService.endExportJobInfo(expData, IdcEntityType.OBJECT, userId);
@@ -496,6 +502,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String rootUuid = (String) docIn.get(MdekKeys.UUID);
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
 			AddressArea addressArea = (AddressArea) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA);
+			Boolean includeWorkingCopies = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES);
+			
+			IdcEntityVersion whichAddrVersions = IdcEntityVersion.PUBLISHED_VERSION;
+			if (includeWorkingCopies) {
+				whichAddrVersions = IdcEntityVersion.ALL_VERSIONS;
+			}
 
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
@@ -516,7 +528,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			exportService.startExportJobInfo(IdcEntityType.ADDRESS, 0, userId);
 
 			// export
-			byte[] expData = new XMLExporter(exportService).exportAddresses(uuidsToExport, !exportOnlyRoot, userId);
+			byte[] expData = new XMLExporter(exportService).exportAddresses(uuidsToExport, whichAddrVersions, !exportOnlyRoot, userId);
 
 			// finish export job info and fetch it
 			exportService.endExportJobInfo(expData, IdcEntityType.ADDRESS, userId);
@@ -557,6 +569,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JobType.EXPORT, 0, 0, false));
 
 			String exportCriterion = (String) docIn.get(MdekKeys.EXPORT_CRITERION_VALUE);
+			Boolean includeWorkingCopies = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES);
+			
+			IdcEntityVersion whichObjectVersions = IdcEntityVersion.PUBLISHED_VERSION;
+			if (includeWorkingCopies) {
+				whichObjectVersions = IdcEntityVersion.ALL_VERSIONS;
+			}
 
 			genericDao.beginTransaction();
 			genericDao.disableAutoFlush();
@@ -575,7 +593,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			byte[] expData = new byte[0];
 			if (numToExport > 0) {
 				// export
-				expData = new XMLExporter(exportService).exportObjects(expUuids, false, userId);
+				expData = new XMLExporter(exportService).exportObjects(expUuids, whichObjectVersions, false, userId);
 			}
 
 			// finish export job info and fetch it
@@ -665,6 +683,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String defaultAddrParentUuid = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID);
 			Boolean publishImmediately = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY);
 			Boolean doSeparateImport = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT);
+			Boolean copyNodeIfPresent = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT);
 			String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
 
 			genericDao.beginTransaction();
@@ -684,7 +703,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// check top import nodes ! Adds messages to job info !
 			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid,
-					publishImmediately, doSeparateImport, userId);
+					publishImmediately, doSeparateImport, copyNodeIfPresent, userId);
 
 			// initialize import info in database
 			importService.startImportJobInfo(userId);
@@ -705,6 +724,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			} else {
 				xmlImporter.importEntities((byte[])importData, userId);
 			}
+			
+			// check whether "controlled problems" occured !
+			importService.checkImportEntities(userId);
 
 			// post process object relations (Querverweise) after importing of all entities
 			importService.postProcessRelationsOfImport(userId);

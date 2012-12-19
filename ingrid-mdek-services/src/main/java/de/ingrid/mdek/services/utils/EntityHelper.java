@@ -74,4 +74,43 @@ public class EntityHelper {
 		
 		return null;
 	}
+
+	/** Extract Name of entity from given doc. Pass Type of Entity. */
+	public static String getEntityNameFromDoc(IdcEntityType whichType, IngridDocument doc) {
+		String retValue = null;
+
+		if (whichType == IdcEntityType.OBJECT) {
+			retValue = doc.getString(MdekKeys.TITLE);
+		} else if (whichType == IdcEntityType.ADDRESS) {
+			String name = "";
+			if (doc.get(MdekKeys.GIVEN_NAME) != null) {
+				name += doc.get(MdekKeys.GIVEN_NAME);
+			}
+			if (doc.get(MdekKeys.NAME) != null) {
+				if (name.length() > 0) {
+					name += " ";
+				}
+				name += doc.get(MdekKeys.NAME);
+			}
+			if (doc.get(MdekKeys.ORGANISATION) != null) {
+				if (name.length() > 0) {
+					name += ", ";
+				}
+				name += doc.get(MdekKeys.ORGANISATION);
+			}
+			retValue = name;
+		}
+		
+		return retValue;
+	}
+
+	/** Extracts UUID from doc, if null then name of entity is returned ! */
+	public static String getEntityIdentifierFromDoc(IdcEntityType whichType, IngridDocument doc) {
+		String id = doc.getString(MdekKeys.UUID);
+		if (id == null) {
+			id = getEntityNameFromDoc(whichType, doc);
+		}
+		
+		return id;
+	}
 }

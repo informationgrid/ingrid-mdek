@@ -135,33 +135,41 @@ public class MdekExampleSupertool {
 	public IngridDocument storeSysLists(List<IngridDocument> listDocs) {
 		return supertoolCatalog.storeSysLists(listDocs);
 	}
-	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot) {
-		return supertoolCatalog.exportObjectBranch(rootUuid, exportOnlyRoot);
+	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot, boolean includeWorkingCopies) {
+		return supertoolCatalog.exportObjectBranch(rootUuid, exportOnlyRoot, includeWorkingCopies);
 	}
-	public IngridDocument exportObjects(String exportCriteria) {
-		return supertoolCatalog.exportObjects(exportCriteria);
+	public IngridDocument exportObjects(String exportCriteria, boolean includeWorkingCopies) {
+		return supertoolCatalog.exportObjects(exportCriteria, includeWorkingCopies);
 	}
 	public IngridDocument exportAddressBranch(String rootUuid,
-			boolean exportOnlyRoot, AddressArea addressArea) {
-		return supertoolCatalog.exportAddressBranch(rootUuid, exportOnlyRoot, addressArea);
+			boolean exportOnlyRoot, AddressArea addressArea, boolean includeWorkingCopies) {
+		return supertoolCatalog.exportAddressBranch(rootUuid, exportOnlyRoot, addressArea, includeWorkingCopies);
 	}
 	public IngridDocument getExportInfo(boolean includeExportData) {
 		return supertoolCatalog.getExportInfo(includeExportData);
 	}
 	public IngridDocument importEntities(byte[] importData,
 			String objectImportNodeUuid, String addressImportNodeUuid,
-			boolean publishImmediately, boolean doSeparateImport) {
-		return supertoolCatalog.importEntities(importData,
-				objectImportNodeUuid, addressImportNodeUuid,
-				publishImmediately, doSeparateImport);
+			boolean publishImmediately,
+			boolean doSeparateImport, boolean copyNodeIfPresent) {
+		List<byte[]> importList = new ArrayList<byte[]>();
+		importList.add(importData);
+		return importEntities(importList,
+			objectImportNodeUuid, addressImportNodeUuid,
+			publishImmediately,
+			doSeparateImport, copyNodeIfPresent,
+			null);
 	}
 	public IngridDocument importEntities(List<byte[]> importData,
 			String objectImportNodeUuid, String addressImportNodeUuid,
-			boolean publishImmediately, boolean doSeparateImport,
+			boolean publishImmediately,
+			boolean doSeparateImport,
+			boolean copyNodeIfPresent,
 			String frontendProtocol) {
 		return supertoolCatalog.importEntities(importData,
 				objectImportNodeUuid, addressImportNodeUuid,
-				publishImmediately, doSeparateImport,
+				publishImmediately,
+				doSeparateImport, copyNodeIfPresent,
 				frontendProtocol);
 	}
 	public IngridDocument getJobInfo(JobType jobType) {
@@ -1303,9 +1311,16 @@ public class MdekExampleSupertool {
 			printThrowable(jobExc);
 		}
 
+		String frontendMsgs = (String) jobInfoDoc.get(MdekKeys.JOBINFO_FRONTEND_MESSAGES);
+		if (frontendMsgs != null) {
+			System.out.println("\nJobInfo Frontend Messages:\n" + jobInfoDoc.get(MdekKeys.JOBINFO_FRONTEND_MESSAGES));			
+		}
+		
 		if (!doFullOutput) {
 			return;
 		}
+
+//		System.out.println("JobInfo Messages:\n" + jobInfoDoc.get(MdekKeys.JOBINFO_MESSAGES));
 
 		if (jobType == JobType.UPDATE_SEARCHTERMS) {
 			List<Map> msgs = (List<Map>) jobInfoDoc.get(MdekKeys.JOBINFO_TERMS_UPDATED);
@@ -1453,6 +1468,14 @@ public class MdekExampleSupertool {
 				System.out.println("    No right to add object: " + info.get(MdekKeys.OBJ_ENTITIES));
 			} else if (err.getErrorType().equals(MdekErrorType.NO_RIGHT_TO_ADD_ADDRESS_PERMISSION)) {
 				System.out.println("    No right to add address: " + info.get(MdekKeys.ADR_ENTITIES));
+			} else if (err.getErrorType().equals(MdekErrorType.IMPORT_OBJECTS_ALREADY_EXIST)) {
+				System.out.println("    Objects already exist, Copy not allowed:");
+				List<IngridDocument> oDocs = (List<IngridDocument>) info.get(MdekKeys.OBJ_ENTITIES);
+				if (oDocs != null) {
+					for (IngridDocument oDoc : oDocs) {
+						System.out.println("      " + oDoc);
+					}
+				}
 			}
 		}
 		doFullOutput = true;

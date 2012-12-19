@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import org.junit.Test;
@@ -20,12 +21,12 @@ public class LocalTestXMLImporter {
 		XMLImporter xmlImporter = new XMLImporter(new IImporterCallback() {
 
 			@Override
-			public void writeAddress(IngridDocument addrDoc, String userUuid) {
+			public void writeAddress(List<IngridDocument> addrDocs, String userUuid) {
 				System.out.println("writeAddress('...', "+userUuid+")");
 			}
 
 			@Override
-			public void writeObject(IngridDocument objDoc, String userUuid) {
+			public void writeObject(List<IngridDocument> objDocs, String userUuid) {
 				System.out.println("writeObject('...', "+userUuid+")");
 			}
 			

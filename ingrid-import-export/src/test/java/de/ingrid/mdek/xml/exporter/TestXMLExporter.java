@@ -13,6 +13,7 @@ import java.util.zip.GZIPInputStream;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.xml.exporter.util.RemoteExporterCallback;
 
 public class TestXMLExporter {
@@ -28,9 +29,22 @@ public class TestXMLExporter {
 	public void testXMLAddressExporter() throws IOException {
 		List<String> adrUuids = new ArrayList<String>();
 		adrUuids.add("15C69BD6-FE15-11D2-AF34-0060084A4596");
-		byte[] zippedResult = xmlExporter.exportAddresses(adrUuids, true, "admin");
-
+		System.out.println("Export PUBLISHED_VERSION ");
+		byte[] zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.PUBLISHED_VERSION, true, "admin");
+		System.out.println("Size of zipped result: "+((zippedResult.length) / 1024)+"KB");
 		String result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export ALL_VERSIONS ");
+		zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.ALL_VERSIONS, true, "admin");
+		System.out.println("Size of zipped result: "+((zippedResult.length) / 1024)+"KB");
+		result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export WORKING_VERSION ");
+		zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.WORKING_VERSION, true, "admin");
+		System.out.println("Size of zipped result: "+((zippedResult.length) / 1024)+"KB");
+		result = decompressZippedByteArray(zippedResult);
 		System.out.println(result);
 	}
 
@@ -38,9 +52,19 @@ public class TestXMLExporter {
 	public void testXMLAddressExporterWorksWithIllegalUuid() throws IOException {
 		List<String> adrUuids = new ArrayList<String>();
 		adrUuids.add("12345");
-		byte[] zippedResult = xmlExporter.exportAddresses(adrUuids, true, "admin");
-
+		System.out.println("Export PUBLISHED_VERSION ");
+		byte[] zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.PUBLISHED_VERSION, true, "admin");
 		String result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export ALL_VERSIONS ");
+		zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.ALL_VERSIONS, true, "admin");
+		result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export WORKING_VERSION ");
+		zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.WORKING_VERSION, true, "admin");
+		result = decompressZippedByteArray(zippedResult);
 		System.out.println(result);
 	}
 
@@ -50,11 +74,22 @@ public class TestXMLExporter {
 		objUuids.add("15C69C20-FE15-11D2-AF34-0060084A4596");
 		//objUuids.add("4EFBE5F6-C049-11D4-87DF-0060084A4596");
 		// Results in an error: subobjects(81171714-018E-11D5-87AF-00600852CACF)
-		byte[] zippedResult = xmlExporter.exportObjects(objUuids, true, "admin");
-
+		System.out.println("Export PUBLISHED_VERSION ");
+		byte[] zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.PUBLISHED_VERSION, true, "admin");
 		System.out.println("Size of zipped result: "+((zippedResult.length) / 1024)+"KB");
-
 		String result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export ALL_VERSIONS ");
+		zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.ALL_VERSIONS, true, "admin");
+		System.out.println("Size of zipped result: "+((zippedResult.length) / 1024)+"KB");
+		result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export WORKING_VERSION ");
+		zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.WORKING_VERSION, true, "admin");
+		System.out.println("Size of zipped result: "+((zippedResult.length) / 1024)+"KB");
+		result = decompressZippedByteArray(zippedResult);
 		System.out.println(result);
 	}
 
@@ -62,9 +97,19 @@ public class TestXMLExporter {
 	public void testXMLObjectExporterWorksWithIllegalUuid() throws IOException {
 		List<String> objUuids = new ArrayList<String>();
 		objUuids.add("12345");
-		byte[] zippedResult = xmlExporter.exportObjects(objUuids, true, "admin");
-
+		System.out.println("Export PUBLISHED_VERSION ");
+		byte[] zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.PUBLISHED_VERSION, true, "admin");
 		String result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export ALL_VERSIONS ");
+		zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.ALL_VERSIONS, true, "admin");
+		result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export WORKING_VERSION ");
+		zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.WORKING_VERSION, true, "admin");
+		result = decompressZippedByteArray(zippedResult);
 		System.out.println(result);
 	}
 
@@ -74,9 +119,19 @@ public class TestXMLExporter {
 		objUuids.add("15C69C01-FE15-11D2-AF34-0060084A4596");
 		objUuids.add("12345");
 		objUuids.add("0F5D7569-1F40-11D3-AF4F-0060084A4596");
-		byte[] zippedResult = xmlExporter.exportObjects(objUuids, false, "admin");
-
+		System.out.println("Export PUBLISHED_VERSION ");
+		byte[] zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.PUBLISHED_VERSION, false, "admin");
 		String result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export ALL_VERSIONS ");
+		zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.ALL_VERSIONS, true, "admin");
+		result = decompressZippedByteArray(zippedResult);
+		System.out.println(result);
+
+		System.out.println("Export WORKING_VERSION ");
+		zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.WORKING_VERSION, true, "admin");
+		result = decompressZippedByteArray(zippedResult);
 		System.out.println(result);
 	}
 

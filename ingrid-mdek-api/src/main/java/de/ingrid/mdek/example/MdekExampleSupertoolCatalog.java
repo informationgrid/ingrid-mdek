@@ -9,10 +9,10 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
+import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 
@@ -322,7 +322,9 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument exportObjectBranch(String rootUuid, boolean exportOnlyRoot) {
+	public IngridDocument exportObjectBranch(String rootUuid,
+			boolean exportOnlyRoot,
+			boolean includeWorkingCopies) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -332,8 +334,11 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("\n###### INVOKE exportObjectBranch ######");
 		System.out.println("- top node of branch: " + rootUuid);
 		System.out.println("- export only top node: " + exportOnlyRoot);
+		System.out.println("- include working copies: " + includeWorkingCopies);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.exportObjectBranch(plugId, rootUuid, exportOnlyRoot,
+		response = mdekCallerCatalog.exportObjectBranch(plugId, rootUuid,
+				exportOnlyRoot,
+				includeWorkingCopies,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
@@ -349,7 +354,8 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument exportObjects(String exportCriteria) {
+	public IngridDocument exportObjects(String exportCriteria,
+			boolean includeWorkingCopies) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -358,8 +364,9 @@ public class MdekExampleSupertoolCatalog {
 
 		System.out.println("\n###### INVOKE exportObjects ######");
 		System.out.println("- export tag: " + exportCriteria);
+		System.out.println("- include working copies: " + includeWorkingCopies);
 		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.exportObjects(plugId, exportCriteria, myUserUuid);
+		response = mdekCallerCatalog.exportObjects(plugId, exportCriteria, includeWorkingCopies, myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
@@ -376,7 +383,8 @@ public class MdekExampleSupertoolCatalog {
 
 	public IngridDocument exportAddressBranch(String rootUuid,
 			boolean exportOnlyRoot,
-			AddressArea addressArea) {
+			AddressArea addressArea,
+			boolean includeWorkingCopies) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -387,9 +395,11 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("- top node of branch: " + rootUuid);
 		System.out.println("- export only top node: " + exportOnlyRoot);
 		System.out.println("- addressArea (if top node NULL): " + addressArea);
+		System.out.println("- include working copies: " + includeWorkingCopies);
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.exportAddressBranch(plugId, rootUuid,
 				exportOnlyRoot, addressArea,
+				includeWorkingCopies,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;
@@ -446,51 +456,11 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument importEntities(byte[] importData,
-			String objectImportNodeUuid, String addressImportNodeUuid,
-			boolean publishImmediately, boolean doSeparateImport) {
-/*
-		List<byte[]> importList = new ArrayList<byte[]>();
-		importList.add(importData);
-		return importEntities(importList,
-			objectImportNodeUuid, addressImportNodeUuid,
-			publishImmediately, doSeparateImport,
-			null);
-*/
-		long startTime;
-		long endTime;
-		long neededTime;
-		IngridDocument response;
-		IngridDocument result;
-
-		System.out.println("\n###### INVOKE importEntities ######");
-		System.out.println("- object import node: " + objectImportNodeUuid);
-		System.out.println("- address import node: " + addressImportNodeUuid);
-		System.out.println("- publish immediately: " + publishImmediately);
-		System.out.println("- doSeparateImport: " + doSeparateImport);
-		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.importEntities(plugId, importData,
-				objectImportNodeUuid, addressImportNodeUuid,
-				publishImmediately, doSeparateImport,
-				myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCallerCatalog.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			supertoolGeneric.debugJobInfoDoc(result);
-		} else {
-			supertoolGeneric.handleError(response);
-		}
-		
-		return result;
-	}
-
 	public IngridDocument importEntities(List<byte[]> importData,
 			String objectImportNodeUuid, String addressImportNodeUuid,
-			boolean publishImmediately, boolean doSeparateImport,
-			String frontendProtocol) {
+			boolean publishImmediately,
+			boolean doSeparateImport, boolean copyNodeIfPresent,
+			String frontendMappingProtocol) {
 		long startTime;
 		long endTime;
 		long neededTime;
@@ -502,13 +472,14 @@ public class MdekExampleSupertoolCatalog {
 		System.out.println("- address import node: " + addressImportNodeUuid);
 		System.out.println("- publish immediately: " + publishImmediately);
 		System.out.println("- doSeparateImport: " + doSeparateImport);
+		System.out.println("- copyNodeIfPresent: " + copyNodeIfPresent);
 		System.out.println("- multiple import files ?: " + (importData.size() > 1));
-		System.out.println("- frontendProtocol included ?: " + (frontendProtocol != null && !frontendProtocol.isEmpty()));
+		System.out.println("- frontendMappingProtocol included ?: " + (frontendMappingProtocol != null && !frontendMappingProtocol.isEmpty()));
 		startTime = System.currentTimeMillis();
 		response = mdekCallerCatalog.importEntities(plugId, importData,
 				objectImportNodeUuid, addressImportNodeUuid,
-				publishImmediately, doSeparateImport,
-				frontendProtocol,
+				publishImmediately, doSeparateImport, copyNodeIfPresent,
+				frontendMappingProtocol,
 				myUserUuid);
 		endTime = System.currentTimeMillis();
 		neededTime = endTime - startTime;

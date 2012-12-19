@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -15,6 +16,7 @@ import org.junit.Test;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekCallerAddress;
 import de.ingrid.mdek.caller.IMdekCallerCatalog;
 import de.ingrid.mdek.caller.IMdekCallerObject;
@@ -28,7 +30,6 @@ import de.ingrid.mdek.caller.MdekCallerObject;
 import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.utils.IngridDocument;
 
 public class TestMapper {
@@ -144,7 +145,9 @@ public class TestMapper {
 
 			if (obj != null) {
 //				System.out.println("Mapping object with uuid '"+uuid+"': "+obj);
-				writer.writeIngridObject(obj);
+				List<IngridDocument> objInstances = new ArrayList<IngridDocument>(1);
+				objInstances.add(obj);
+				writer.writeIngridObject(objInstances);
 			}
 		}
 		writer.writeEndIngridObjects();
@@ -172,7 +175,9 @@ public class TestMapper {
 
 			if (adr != null) {
 //				System.out.println("Mapping address with uuid '"+uuid+"': "+adr);
-				writer.writeIngridAddress(adr);
+				List<IngridDocument> addrInstances = new ArrayList<IngridDocument>(1);
+				addrInstances.add(adr);
+				writer.writeIngridAddress(addrInstances);
 			}
 		}
 		writer.writeEndIngridAddresses();

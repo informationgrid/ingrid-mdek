@@ -170,6 +170,15 @@ public class MdekUtils {
 		public String getDbValue() {
 			return entityName;
 		}
+		/** Used in german messages for frontend when importing. */
+		public String toGerman() {
+			String retValue = "";
+			if (this.ordinal() == 0)
+				retValue = "Objekt";
+			else if (this.ordinal() == 1)
+				retValue = "Adresse";
+			return retValue;
+		}
 		String entityName;
 	}
 

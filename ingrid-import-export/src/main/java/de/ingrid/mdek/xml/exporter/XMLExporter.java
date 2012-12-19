@@ -13,6 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.utils.IngridDocument;
 
 public class XMLExporter implements IExporter {
@@ -38,15 +39,18 @@ public class XMLExporter implements IExporter {
 	}
 
 	@Override
-	public byte[] exportAddresses(List<String> rootUuids, boolean includeSubnodes, String userUuid) {
+	public byte[] exportAddresses(List<String> rootUuids,
+			IdcEntityVersion whichVersion,
+			boolean includeSubnodes,
+			String userUuid) {
 		this.currentUserUuid = userUuid;
 		this.exportCount = 0;
-		this.totalNumExport = exporterCallback.getTotalNumAddressesToExport(rootUuids, includeSubnodes, userUuid);
+		this.totalNumExport = exporterCallback.getTotalNumAddressesToExport(rootUuids, whichVersion, includeSubnodes, userUuid);
 
 		try {
 			setupZipOutputStream();
 			setupWriterForAddresses();
-			writeAddresses(rootUuids, includeSubnodes);
+			writeAddresses(rootUuids, whichVersion, includeSubnodes);
 			finalizeWriterForAddresses();
 
 		} catch (IOException ex) {
@@ -78,23 +82,27 @@ public class XMLExporter implements IExporter {
 		writer.writeStartIngridAddresses();
 	}
 
-	private void writeAddresses(List<String> rootUuids, boolean includeSubnodes) throws XMLStreamException {
+	private void writeAddresses(List<String> rootUuids,
+			IdcEntityVersion whichVersion,
+			boolean includeSubnodes) throws XMLStreamException {
 		if (includeSubnodes) {
-			writeAddressesWithChildren(rootUuids);
+			writeAddressesWithChildren(rootUuids, whichVersion);
 		} else {
-			writeAddresses(rootUuids);
+			writeAddresses(rootUuids, whichVersion);
 		}
 	}
 
-	private void writeAddresses(List<String> adrUuids) throws XMLStreamException {
+	private void writeAddresses(List<String> adrUuids,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
 		for (String adrUuid : adrUuids) {
-			writeSingleAddress(adrUuid);
+			writeSingleAddress(adrUuid, whichVersion);
 		}
 	}
 
-	private void writeSingleAddress(String adrUuid) throws XMLStreamException {
-		IngridDocument addressDetails = exporterCallback.getAddressDetails(adrUuid, currentUserUuid);
-		if (addressDetails != null) {
+	private void writeSingleAddress(String adrUuid,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
+		List<IngridDocument>  addressDetails = exporterCallback.getAddressDetails(adrUuid, whichVersion, currentUserUuid);
+		if (addressDetails != null && addressDetails.size() > 0) {
 			writer.writeIngridAddress(addressDetails);
 			exportCount++;
 			exporterCallback.writeExportInfo(IdcEntityType.ADDRESS, exportCount, totalNumExport, currentUserUuid);
@@ -104,14 +112,16 @@ public class XMLExporter implements IExporter {
 		}
 	}
 
-	private void writeAddressWithChildren(String adrUuid) throws XMLStreamException {
-		writeSingleAddress(adrUuid);
-		writeAddressesWithChildren(exporterCallback.getSubAddresses(adrUuid, currentUserUuid));
+	private void writeAddressWithChildren(String adrUuid,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
+		writeSingleAddress(adrUuid, whichVersion);
+		writeAddressesWithChildren(exporterCallback.getSubAddresses(adrUuid, whichVersion, currentUserUuid), whichVersion);
 	}
 
-	private void writeAddressesWithChildren(List<String> adrUuids) throws XMLStreamException {
+	private void writeAddressesWithChildren(List<String> adrUuids,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
 		for (String adrUuid : adrUuids) {
-			writeAddressWithChildren(adrUuid);
+			writeAddressWithChildren(adrUuid, whichVersion);
 		}
 	}
 
@@ -126,15 +136,15 @@ public class XMLExporter implements IExporter {
 		return baos.toByteArray();
 	}
 
-	public byte[] exportObjects(List<String> rootUuids, boolean includeSubnodes, String userUuid) {
+	public byte[] exportObjects(List<String> rootUuids, IdcEntityVersion whichVersion, boolean includeSubnodes, String userUuid) {
 		this.currentUserUuid = userUuid;
 		this.exportCount = 0;
-		this.totalNumExport = exporterCallback.getTotalNumObjectsToExport(rootUuids, includeSubnodes, userUuid);
+		this.totalNumExport = exporterCallback.getTotalNumObjectsToExport(rootUuids, whichVersion, includeSubnodes, userUuid);
 
 		try {
 			setupZipOutputStream();
 			setupWriter();
-			writeObjects(rootUuids, includeSubnodes);
+			writeObjects(rootUuids, whichVersion, includeSubnodes);
 			finalizeWriter();
 
 		} catch (IOException ex) {
@@ -174,28 +184,32 @@ public class XMLExporter implements IExporter {
 		writer.close();
 	}
 
-	private void writeObjects(List<String> rootUuids, boolean includeSubnodes) throws XMLStreamException {
+	private void writeObjects(List<String> rootUuids,
+			IdcEntityVersion whichVersion,
+			boolean includeSubnodes) throws XMLStreamException {
 		writeBeginObjects();
 
 		if (includeSubnodes) {
-			writeObjectsWithChildren(rootUuids);
+			writeObjectsWithChildren(rootUuids, whichVersion);
 
 		} else {
-			writeObjects(rootUuids);
+			writeObjects(rootUuids, whichVersion);
 		}
 
 		writeEndObjects();
 	}
 
-	private void writeObjects(List<String> objUuids) throws XMLStreamException {
+	private void writeObjects(List<String> objUuids,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
 		for (String objUuid : objUuids) {
-			writeSingleObject(objUuid);
+			writeSingleObject(objUuid, whichVersion);
 		}
 	}
 
-	private void writeSingleObject(String objUuid) throws XMLStreamException {
-		IngridDocument objectDetails = exporterCallback.getObjectDetails(objUuid, currentUserUuid);
-		if (objectDetails != null) {
+	private void writeSingleObject(String objUuid,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
+		List<IngridDocument> objectDetails = exporterCallback.getObjectDetails(objUuid, whichVersion, currentUserUuid);
+		if (objectDetails != null && objectDetails.size() > 0) {
 			writer.writeIngridObject(objectDetails);
 			exportCount++;
 			exporterCallback.writeExportInfo(IdcEntityType.OBJECT, exportCount, totalNumExport, currentUserUuid);
@@ -205,14 +219,16 @@ public class XMLExporter implements IExporter {
 		}
 	}
 
-	private void writeObjectWithChildren(String objUuid) throws XMLStreamException {
-		writeSingleObject(objUuid);
-		writeObjectsWithChildren(exporterCallback.getSubObjects(objUuid, currentUserUuid));
+	private void writeObjectWithChildren(String objUuid,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
+		writeSingleObject(objUuid, whichVersion);
+		writeObjectsWithChildren(exporterCallback.getSubObjects(objUuid, whichVersion, currentUserUuid), whichVersion);
 	}
 
-	private void writeObjectsWithChildren(List<String> objUuids) throws XMLStreamException {
+	private void writeObjectsWithChildren(List<String> objUuids,
+			IdcEntityVersion whichVersion) throws XMLStreamException {
 		for (String objUuid : objUuids) {
-			writeObjectWithChildren(objUuid);
+			writeObjectWithChildren(objUuid, whichVersion);
 		}
 	}
 

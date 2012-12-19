@@ -1,4 +1,4 @@
-package de.ingrid.mdek.job.tools;
+package de.ingrid.mdek.services.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +60,26 @@ public class MdekIdcUserHandler {
 		}
 
 		return user;
+	}
+
+	/**
+	 * Get IdcUser by its addrUuid. 
+	 * @param addrUuid addrUuid of user
+	 * @return IdcUser or null if user not found
+	 */
+	public IdcUser getUserByAddrUuid(String addrUuid) {
+		return daoIdcUser.getIdcUserByAddrUuid(addrUuid);
+	}
+
+	/** Is there a user with the given address uuid ?
+	 * @param userAddrUuid address uuid of user
+	 * @return true=user exists, false=no user with given addressuuid
+	 */
+	public boolean userExists(String userAddrUuid) {
+		if (getUserByAddrUuid(userAddrUuid) != null) {
+			return true;
+		}
+		return false;
 	}
 
 	/**

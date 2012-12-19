@@ -2,6 +2,7 @@ package de.ingrid.mdek.example;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -338,55 +339,195 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.getExportInfo(false);
 
 		System.out.println("\n----- export addresses TOP ADDRESS -----");
-		supertool.exportAddressBranch(topAddrUuid, true, null);
+
+		System.out.println("\n----- first fetch address and store a working version to test export of different instances ! -----");
+		doc = supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.storeAddress(doc, false);
+		
+		System.out.println("\n----- export ONLY TOP NODE, NO export of working version -----\n");
+		supertool.exportAddressBranch(topAddrUuid, true, null, false);
 		supertool.setFullOutput(true);
 		result = supertool.getExportInfo(true);
 		supertool.setFullOutput(false);
-		String exportTopAddrUnzipped = "";
+		String exportTopAddrUnzipped_onlyPublished = "";
 		try {
-			exportTopAddrUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+			exportTopAddrUnzipped_onlyPublished = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+		} catch(IOException ex) {
+			System.out.println(ex);
+		}
+
+		System.out.println("\n----- export ONLY TOP NODE, WITH export of working version -----\n");
+		supertool.exportAddressBranch(topAddrUuid, true, null, true);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+		String exportTopAddrUnzipped_workAndPublished = "";
+		try {
+			exportTopAddrUnzipped_workAndPublished = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+		} catch(IOException ex) {
+			System.out.println(ex);
+		}
+
+		System.out.println("\n----- Clean Up ! delete TOP NODE (WORKING COPY) -----");
+		supertool.deleteAddressWorkingCopy(topAddrUuid, false);
+
+		System.out.println("\n\n-----------------------------------------");
+		System.out.println("----- CHECK EXPORT TOP NODE / BRANCH WITH MISSING VERSIONS ! -----");
+
+		// PARENT ADDRESS (sub address of topUuid)
+		String parentUuid = "C5FEA801-6AB2-11D3-BB32-1C7607C10000";
+		// PERSON ADDRESS (sub address of parentUuid)
+		String personUuid = "012CBA17-87F6-11D4-89C7-C1AAE1E96727";
+
+		System.out.println("\n\n----- create NEW NODE only working version ! -----");
+
+		System.out.println("\n----- load initial data (from " + personUuid + ") -----");
+		// initial data from person address (to test take over of COMMUNICATION)
+		IngridDocument newAddrDoc = new IngridDocument();
+		// supply parent uuid !
+		newAddrDoc.put(MdekKeys.PARENT_UUID, personUuid);
+		newAddrDoc = supertool.getInitialAddress(newAddrDoc);
+
+		System.out.println("\n----- extend initial address and store -----");
+		// extend initial address with own data !
+		newAddrDoc.put(MdekKeys.NAME, "testNAME");
+		newAddrDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
+		newAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+		newAddrDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		// new parent
+		System.out.println("- store under parent: " + parentUuid);
+		newAddrDoc.put(MdekKeys.PARENT_UUID, parentUuid);
+		newAddrDoc = supertool.storeAddress(newAddrDoc, true);
+		// uuid created !
+		String newAddrUuid = (String) newAddrDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- export NEW NODE, PUBLISHED version -> Error ENTITY_NOT_FOUND -----");
+		System.out.println("----- EXCEPTION ONLY THROWN IF STARTING(!) ADDRESS VERSION NOT FOUND, NOT FOR SUBADDRESSES (subaddresses are just skipped) -----\n");
+		supertool.exportAddressBranch(newAddrUuid, true, null, false);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+
+		System.out.println("\n----- export NEW NODE, WITH export of working version, OK, export has just working version -----\n");
+		supertool.exportAddressBranch(newAddrUuid, true, null, true);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+
+		System.out.println("\n----- publish NEW ADDRESS to test export of published parent, unpublished 1. child, published 2. child -----");
+		supertool.publishAddress(newAddrDoc, true, false);
+
+		System.out.println("\n----- create NEW 1. SUB NODE only working version ! -----");
+		newAddrDoc = new IngridDocument();
+		newAddrDoc.put(MdekKeys.ORGANISATION, "TEST 1. NEUES SUB OBJEKT");
+		newAddrDoc.put(MdekKeys.NAME, "subobject1 testNAME");
+		newAddrDoc.put(MdekKeys.GIVEN_NAME, "subobject1 testGIVEN_NAME");
+		newAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+		newAddrDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		newAddrDoc.put(MdekKeys.PARENT_UUID, newAddrUuid);
+		newAddrDoc = supertool.storeAddress(newAddrDoc, true);
+
+		System.out.println("\n----- create NEW 2. SUB NODE published AND working version ! -----");
+		newAddrDoc = new IngridDocument();
+		newAddrDoc.put(MdekKeys.ORGANISATION, "TEST 2. NEUES SUB OBJEKT");
+		newAddrDoc.put(MdekKeys.NAME, "subobject2 testNAME");
+		newAddrDoc.put(MdekKeys.GIVEN_NAME, "subobject2 testGIVEN_NAME");
+		newAddrDoc.put(MdekKeys.CLASS, MdekUtils.AddressType.EINHEIT.getDbValue());
+		newAddrDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
+		newAddrDoc.put(MdekKeys.PARENT_UUID, newAddrUuid);
+		// email has to exist !
+		List<IngridDocument> docList = (List<IngridDocument>) newAddrDoc.get(MdekKeys.COMMUNICATION);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.COMMUNICATION_MEDIUM_KEY, MdekUtils.COMM_TYPE_EMAIL);
+		testDoc.put(MdekKeys.COMMUNICATION_VALUE, "example@example");
+		testDoc.put(MdekKeys.COMMUNICATION_DESCRIPTION, "TEST COMMUNICATION_DESCRIPTION");
+		docList.add(testDoc);
+		newAddrDoc.put(MdekKeys.COMMUNICATION, docList);
+		newAddrDoc = supertool.publishAddress(newAddrDoc, true, false);
+
+		System.out.println("\n----- store 2. child again to have working version ! -----\n");
+		supertool.storeAddress(newAddrDoc, true);
+
+		System.out.println("\n----- export NEW NODE branch, only PUBLISHED version -> OK, 2 nodes, first child skipped, working version of 2. child skipped ! -----");
+		System.out.println("----- NO EXCEPTION IF CHILD HAS NOT REQUESTED VERSION, CHILD JUST SKIPPED -----\n");
+		supertool.exportAddressBranch(newAddrUuid, false, null, false);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+
+		System.out.println("\n----- export NEW NODE branch, include WORKING version -> OK, 3 nodes + 2. child working version also included ! -----\n");
+		supertool.exportAddressBranch(newAddrUuid, false, null, true);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+
+		System.out.println("\n===== Clean Up ! back to old state of DB ! =====");
+
+		System.out.println("\n----- delete NEW ADDRESS (FULL) -----");
+		supertool.deleteAddress(newAddrUuid, false);
+
+
+		System.out.println("\n\n-----------------------------------------");
+		System.out.println("----- FURTHER EXPORTS -----");
+
+		System.out.println("\n----- export addresses FREE ADDRESS -----");
+
+		System.out.println("\n----- first fetch address and store a working version to test export of different instances ! -----");
+		doc = supertool.fetchAddress(freeAddrUuid, FetchQuantity.EDITOR_ENTITY);
+		supertool.storeAddress(doc, true);
+		
+		System.out.println("\n----- export FREE ADDRESS, NO export of working version -----\n");
+		supertool.exportAddressBranch(freeAddrUuid, true, null, false);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+		String exportFreeAddrUnzipped_onlyPublished = "";
+		try {
+			exportFreeAddrUnzipped_onlyPublished = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+		} catch(IOException ex) {
+			System.out.println(ex);
+		}
+
+		System.out.println("\n----- export FREE ADDRESS, WITH export of working version -----\n");
+		supertool.exportAddressBranch(freeAddrUuid, true, null, true);
+		supertool.setFullOutput(true);
+		result = supertool.getExportInfo(true);
+		supertool.setFullOutput(false);
+		String exportFreeAddrUnzipped_workAndPublished = "";
+		try {
+			exportFreeAddrUnzipped_workAndPublished = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
 		} catch(IOException ex) {
 			System.out.println(ex);
 		}
 		
-		System.out.println("\n----- export addresses FREE ADDRESS -----");
-		supertool.exportAddressBranch(freeAddrUuid, true, null);
-		supertool.setFullOutput(true);
-		result = supertool.getExportInfo(true);
-		supertool.setFullOutput(false);
-		String exportFreeAddrUnzipped = "";
-		try {
-			exportFreeAddrUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
-		} catch(IOException ex) {
-			System.out.println(ex);
-		}
-
+		
 		System.out.println("\n----- export addresses ONLY PARENT NODE -----");
-		supertool.exportAddressBranch(parentAddrUuid, true, null);
+		supertool.exportAddressBranch(parentAddrUuid, true, null, true);
 		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses FULL BRANCH UNDER PARENT -----");
-		supertool.exportAddressBranch(parentAddrUuid, false, null);
+		supertool.exportAddressBranch(parentAddrUuid, false, null, false);
 		supertool.setFullOutput(true);
 		result = supertool.getExportInfo(true);
 		supertool.setFullOutput(false);
-		String exportBranchUnzipped = "";
+		String exportBranchUnzipped_onlyPublished = "";
 		try {
-			exportBranchUnzipped = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
+			exportBranchUnzipped_onlyPublished = MdekUtils.decompressZippedByteArray((byte[]) result.get(MdekKeys.EXPORT_RESULT));
 		} catch(IOException ex) {
 			System.out.println(ex);
 		}
 
 		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES -----");
-		supertool.exportAddressBranch(null, true, AddressArea.ALL_NON_FREE_ADDRESSES);
+		supertool.exportAddressBranch(null, true, AddressArea.ALL_NON_FREE_ADDRESSES, true);
 		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses ALL FREE ADDRESSES -----");
-		supertool.exportAddressBranch(null, true, AddressArea.ALL_FREE_ADDRESSES);
+		supertool.exportAddressBranch(null, true, AddressArea.ALL_FREE_ADDRESSES, true);
 		supertool.getExportInfo(true);
 
 		System.out.println("\n----- export addresses ALL TOP NON FREE ADDRESSES and FREE ADDRESSES -----");
-		supertool.exportAddressBranch(null, true, AddressArea.ALL_ADDRESSES);
+		supertool.exportAddressBranch(null, true, AddressArea.ALL_ADDRESSES, true);
 		supertool.getExportInfo(true);
 /*
 		System.out.println("\n----- export addresses ALL NON FREE ADDRESSES (including subnodes) -----");
@@ -427,7 +568,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("\n----- export addresses ALL ADDRESSES -----");
 		try {
 			// can cause timeout
-			supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES);
+			supertool.exportAddressBranch(null, false, AddressArea.ALL_ADDRESSES, true);
 
 		} catch(Throwable t) {
 			// if timeout, track running job info (still exporting) !
@@ -451,10 +592,10 @@ class MdekExampleExportImportAddressThread extends Thread {
 		result = supertool.getExportInfo(true);
 		byte[] importAllAddresses = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
 
-		System.out.println("\n----- import addresses ALL ADDRESSES -----");
+		System.out.println("\n----- import addresses ALL ADDRESSES -> for every address frontend message \"schon vorhanden, wird ignoriert\" -----");
 		try {
 			// causes timeout
-			supertool.importEntities(importAllAddresses, objImpNodeUuid, addrImpNodeUuid, false, true);
+			supertool.importEntities(importAllAddresses, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 
 		} catch(Throwable t) {
 			// if timeout, track running job info (still importing) !
@@ -484,7 +625,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("----- Import: WRONG IMPORT FORMAT !!! -----");
 		System.out.println("-------------------------------------");
 
-		String importUnzipped = exportTopAddrUnzipped.replace("exchange-format=\"", "exchange-format=\"0.");
+		String importUnzipped = exportTopAddrUnzipped_onlyPublished.replace("exchange-format=\"", "exchange-format=\"0.");
 		byte[] importWrongFormat = new byte[0];
 		try {
 			importWrongFormat = MdekUtils.compressString(importUnzipped);						
@@ -493,57 +634,59 @@ class MdekExampleExportImportAddressThread extends Thread {
 		}
 
 		System.out.println("\n----- import Wrong Format -> ERROR -----");
-		supertool.importEntities(importWrongFormat, objImpNodeUuid, addrImpNodeUuid, false, false);
+		supertool.importEntities(importWrongFormat, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 
 
 // -----------------------------------
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: UPDATE EXISTING ADDRESSES (UUID) -----");
+		System.out.println("----- !!! NOT POSSIBLE ANYMORE !!! -----");
+		System.out.println("----- !!! for every address frontend message \"schon vorhanden, wird ignoriert\" !!! -----");
 		System.out.println("-------------------------------------");
 
 		// first change data to import
 
 		// set some stuff to simulate different catalog etc. will be replaced with correct data !
 		// different mod user
-		exportTopAddrUnzipped = exportTopAddrUnzipped.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
-		exportFreeAddrUnzipped = exportFreeAddrUnzipped.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
-		exportBranchUnzipped = exportBranchUnzipped.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
+		exportTopAddrUnzipped_onlyPublished = exportTopAddrUnzipped_onlyPublished.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
+		exportFreeAddrUnzipped_onlyPublished = exportFreeAddrUnzipped_onlyPublished.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
+		exportBranchUnzipped_onlyPublished = exportBranchUnzipped_onlyPublished.replace("<modificator-identifier>", "<modificator-identifier>MMMMM");
 		// different responsible user
-		exportTopAddrUnzipped = exportTopAddrUnzipped.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
-		exportFreeAddrUnzipped = exportFreeAddrUnzipped.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
-		exportBranchUnzipped = exportBranchUnzipped.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
+		exportTopAddrUnzipped_onlyPublished = exportTopAddrUnzipped_onlyPublished.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
+		exportFreeAddrUnzipped_onlyPublished = exportFreeAddrUnzipped_onlyPublished.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
+		exportBranchUnzipped_onlyPublished = exportBranchUnzipped_onlyPublished.replace("<responsible-identifier>", "<responsible-identifier>MMMMM");
 		// TODO: what else ?
 
 		// import data: single existing top node
-		importUnzipped = exportTopAddrUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportTopAddrUnzipped_onlyPublished.replace("<organisation>", "<organisation>MMImport: ");
 		// different country (germany to austria)
 		importUnzipped = importUnzipped.replace("<country id=\"276\">", "<country id=\"40\">");
-		byte[] importExistingTopAddr = new byte[0];
+		byte[] importExistingTopAddr_onlyPublished = new byte[0];
 		try {
-			importExistingTopAddr = MdekUtils.compressString(importUnzipped);						
+			importExistingTopAddr_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: single existing free node
-		importUnzipped = exportFreeAddrUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportFreeAddrUnzipped_onlyPublished.replace("<organisation>", "<organisation>MMImport: ");
 		// different country (germany to austria)
 		importUnzipped = importUnzipped.replace("<country id=\"276\">", "<country id=\"40\">");
-		byte[] importExistingFreeAddr = new byte[0];
+		byte[] importExistingFreeAddr_onlyPublished = new byte[0];
 		try {
-			importExistingFreeAddr = MdekUtils.compressString(importUnzipped);						
+			importExistingFreeAddr_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: existing sub nodes (branch)
-		importUnzipped = exportBranchUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportBranchUnzipped_onlyPublished.replace("<organisation>", "<organisation>MMImport: ");
 		// different country (germany to austria)
 		importUnzipped = importUnzipped.replace("<country id=\"276\">", "<country id=\"40\">");
-		byte[] importExistingAddrBranch = new byte[0];
+		byte[] importExistingAddrBranch_onlyPublished = new byte[0];
 		try {
-			importExistingAddrBranch = MdekUtils.compressString(importUnzipped);						
+			importExistingAddrBranch_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
@@ -552,24 +695,24 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.setFullOutput(false);
 		supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
-		System.out.println("\n----- import existing TOP NODE as WORKING VERSION -> check correct moduser, responsibleuser -----");
-		supertool.importEntities(importExistingTopAddr, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n----- import existing TOP NODE, publishImmediately=FALSE -> check correct moduser, responsibleuser -----");
+		supertool.importEntities(importExistingTopAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 		supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
-		System.out.println("\n----- import existing TOP NODE as PUBLISHED -> check correct moduser, responsibleuser -----");
-		supertool.importEntities(importExistingTopAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
+		System.out.println("\n----- import existing TOP NODE, publishImmediately=TRUE -> check correct moduser, responsibleuser -----");
+		supertool.importEntities(importExistingTopAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, true, false, false);
 		supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 
 		System.out.println("\n\n----- EXISTING FREE NODE BEFORE IMPORT !!! -----");
 		supertool.fetchAddress(freeAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
-		System.out.println("\n----- import existing FREE NODE as WORKING VERSION -> check correct moduser, responsibleuser -----");
-		supertool.importEntities(importExistingFreeAddr, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n----- import existing FREE NODE, publishImmediately=FALSE -> check correct moduser, responsibleuser -----");
+		supertool.importEntities(importExistingFreeAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 		supertool.fetchAddress(freeAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
-		System.out.println("\n----- import existing FREE NODE as PUBLISHED -> check correct moduser, responsibleuser -----");
-		supertool.importEntities(importExistingFreeAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
+		System.out.println("\n----- import existing FREE NODE, publishImmediately=TRUE -> check correct moduser, responsibleuser -----");
+		supertool.importEntities(importExistingFreeAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, true, false, false);
 		supertool.fetchAddress(freeAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 
 		
@@ -577,31 +720,33 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
-		System.out.println("\n\n\n----- import existing branch as WORKING VERSION -> check correct catalog id, moduser, responsibleuser -----");
-		supertool.importEntities(importExistingAddrBranch, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n\n\n----- import existing branch, publishImmediately=FALSE -> check correct catalog id, moduser, responsibleuser -----");
+		supertool.importEntities(importExistingAddrBranch_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY);
 		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
-		System.out.println("\n----- import existing branch as PUBLISHED -> check correct catalog id, moduser, responsibleuser -----");
-		supertool.importEntities(importExistingAddrBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
+		System.out.println("\n----- import existing branch, publishImmediately=TRUE -> check correct catalog id, moduser, responsibleuser -----");
+		supertool.importEntities(importExistingAddrBranch_onlyPublished, objImpNodeUuid, addrImpNodeUuid, true, false, false);
 		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
 		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY);
 
 		
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- SEPARATE Import: UPDATE EXISTING ADDRESSES (UUID) -----");
+		System.out.println("----- !!! NOT POSSIBLE ANYMORE !!! -----");
+		System.out.println("----- !!! for every address frontend message \"schon vorhanden, wird ignoriert\" !!! -----");
 		System.out.println("-------------------------------------");
 
 		System.out.println("\n----- separate import existing TOP NODE -> underneath import node, NEW uuid -----");
-		supertool.importEntities(importExistingTopAddr, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.importEntities(importExistingTopAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 
 		System.out.println("\n----- separate import existing FREE NODE -> underneath import node, NEW uuid, CLASS Person instead of FREE ! -----");
-		supertool.importEntities(importExistingFreeAddr, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.importEntities(importExistingFreeAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 
 		System.out.println("\n----- separate import existing branch -> underneath import node, NEW Uuid, KEEP STRUCTURE -----");
-		supertool.importEntities(importExistingAddrBranch, objImpNodeUuid, addrImpNodeUuid, false, true);
+		supertool.importEntities(importExistingAddrBranch_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 
 		System.out.println("\n----- Clean Up ImportNode -----");
@@ -612,6 +757,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: NEW ADDRESSES (UUID) -----");
+		System.out.println("----- !!! ONLY PUBLISHED IMPORT INSTANCE(s) !!! -----");
 		System.out.println("-------------------------------------");
 
 		String newUuidTop = "UUID01234567890123456789012345678TOP";
@@ -625,28 +771,28 @@ class MdekExampleExportImportAddressThread extends Thread {
 		String newUuidChild6 = "UUID01234567890123456789012345CHILD6";
 
 		// import data: single NEW top node
-		importUnzipped = exportTopAddrUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportTopAddrUnzipped_onlyPublished.replace("<organisation>", "<organisation>MMImport: ");
 		importUnzipped = importUnzipped.replace(topAddrUuid, newUuidTop);
-		byte[] importNewTopAddr = new byte[0];
+		byte[] importNewTopAddr_onlyPublished = new byte[0];
 		try {
-			importNewTopAddr = MdekUtils.compressString(importUnzipped);						
+			importNewTopAddr_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: single NEW free node
-		importUnzipped = exportFreeAddrUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportFreeAddrUnzipped_onlyPublished.replace("<organisation>", "<organisation>MMImport: ");
 		importUnzipped = importUnzipped.replace(freeAddrUuid, newUuidFree);
-		byte[] importNewFreeAddr = new byte[0];
+		byte[] importNewFreeAddr_onlyPublished = new byte[0];
 		try {
-			importNewFreeAddr = MdekUtils.compressString(importUnzipped);						
+			importNewFreeAddr_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: NEW branch with non existing parent !
 		// new uuids
-		importUnzipped = exportBranchUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportBranchUnzipped_onlyPublished.replace("<organisation>", "<organisation>MMImport: ");
 		importUnzipped = importUnzipped.replace("<name>", "<name>MMImport: ");
 		importUnzipped = importUnzipped.replace(parentAddrUuid, newUuidParent);
 		importUnzipped = importUnzipped.replace(child1PersonAddrUuid, newUuidChild1);
@@ -665,16 +811,16 @@ class MdekExampleExportImportAddressThread extends Thread {
 			importUnzipped.substring(endIndex, importUnzipped.length());
 */
 //		System.out.println(importUnzipped);
-		byte[] importNewBranchNonExistentParent = new byte[0];
+		byte[] importNewBranchNonExistentParent_onlyPublished = new byte[0];
 		try {
-			importNewBranchNonExistentParent = MdekUtils.compressString(importUnzipped);						
+			importNewBranchNonExistentParent_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: SAME NEW branch with existing parent !
 		// new uuids
-		importUnzipped = exportBranchUnzipped.replace("<organisation>", "<organisation>MMImport: ");
+		importUnzipped = exportBranchUnzipped_onlyPublished.replace("<organisation>", "<organisation>MMImport: ");
 		importUnzipped = importUnzipped.replace("<name>", "<name>MMImport: ");
 		importUnzipped = importUnzipped.replace(parentAddrUuid, newUuidParent);
 		importUnzipped = importUnzipped.replace(child1PersonAddrUuid, newUuidChild1);
@@ -686,62 +832,45 @@ class MdekExampleExportImportAddressThread extends Thread {
 		// existing parent
 		String existentParentUuid = topAddrUuid2;
 		importUnzipped = importUnzipped.replace(topAddrUuid, existentParentUuid);
-		byte[] importNewBranchExistentParent = new byte[0];
+		byte[] importNewBranchExistentParent_onlyPublished = new byte[0];
 		try {
-			importNewBranchExistentParent = MdekUtils.compressString(importUnzipped);						
+			importNewBranchExistentParent_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		supertool.setFullOutput(false);
 
-		System.out.println("\n----- import NEW TOP NODE as WORKING VERSION -> underneath import node -----");
-		supertool.importEntities(importNewTopAddr, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.fetchSubAddresses(addrImpNodeUuid);
+		System.out.println("\n\n----- TOP NON FREE NODES BEFORE IMPORT -----");
+		supertool.fetchTopAddresses(false);
+
+		System.out.println("\n----- import NEW TOP NODE -> ok, PUBLISHED ! -----");
+		supertool.importEntities(importNewTopAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
+		supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchTopAddresses(false);
 		supertool.deleteAddress(newUuidTop, true);
-
-		System.out.println("\n----- import NEW TOP NODE as PUBLISHED -> underneath import node as working version -----");
-		supertool.importEntities(importNewTopAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
-		supertool.fetchSubAddresses(addrImpNodeUuid);
-		System.out.println("\n----- NO PUBLISHED_VERSION -> ERROR: ENTITY_NOT_FOUND -----");
-		supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
-		supertool.deleteAddress(newUuidTop, true);
+		supertool.fetchTopAddresses(false);
 
 
-		System.out.println("\n\n----- import NEW FREE NODE as WORKING VERSION -> underneath import node, CLASS Person instead of FREE ! -----");
-		supertool.importEntities(importNewFreeAddr, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.fetchSubAddresses(addrImpNodeUuid);
-		supertool.deleteAddress(newUuidFree, true);
+		System.out.println("\n\n----- TOP FREE NODES BEFORE IMPORT -----");
+		supertool.fetchTopAddresses(true);
 
-		System.out.println("\n----- import NEW FREE NODE as PUBLISHED -> underneath import node as working version, CLASS Person instead of FREE ! -----");
-		supertool.importEntities(importNewFreeAddr, objImpNodeUuid, addrImpNodeUuid, true, false);
-		supertool.fetchSubAddresses(addrImpNodeUuid);
-		System.out.println("\n----- NO PUBLISHED_VERSION -> ERROR: ENTITY_NOT_FOUND -----");
-		supertool.fetchAddress(newUuidFree, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+		System.out.println("\n\n----- import NEW FREE NODE -> ok, PUBLISHED ! -----");
+		supertool.importEntities(importNewFreeAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
+		supertool.fetchAddress(newUuidFree, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		supertool.fetchTopAddresses(true);
 		supertool.deleteAddress(newUuidFree, true);
 
 
-		System.out.println("\n\n----- import NEW branch with EXISTING parent as WORKING VERSION -> underneath EXISTING PARENT -----");
-		supertool.importEntities(importNewBranchExistentParent, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n\n----- import NEW branch with EXISTING parent -> underneath EXISTING PARENT, PUBLISHED ! -----");
+		supertool.importEntities(importNewBranchExistentParent_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 		supertool.fetchSubAddresses(existentParentUuid);
 		supertool.fetchSubAddresses(newUuidParent);
 		supertool.deleteAddress(newUuidParent, true);
 
-		System.out.println("\n\n----- import NEW branch with EXISTING parent as PUBLISHED -> underneath EXISTING PARENT ! we keep this new branch ! -----");
-		supertool.importEntities(importNewBranchExistentParent, objImpNodeUuid, addrImpNodeUuid, true, false);
-		supertool.fetchSubAddresses(existentParentUuid);
-		supertool.fetchSubAddresses(newUuidParent);
-//		supertool.deleteAddress(newUuidParent, true);
 
-
-		System.out.println("\n\n----- import SAME NEW branch with NON EXISTING parent as WORKING VERSION -> KEEP OLD PARENT -----");
-		supertool.importEntities(importNewBranchNonExistentParent, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.fetchSubAddresses(existentParentUuid);
-		supertool.fetchSubAddresses(newUuidParent);
-		supertool.deleteAddress(newUuidParent, true);
-
-		System.out.println("\n----- import NEW branch with NON EXISTING parent as PUBLISHED -> underneath import node as working version -----");
-		supertool.importEntities(importNewBranchNonExistentParent, objImpNodeUuid, addrImpNodeUuid, true, false);
+		System.out.println("\n\n----- import NEW branch with NON EXISTING parent -> underneath import node, KEEP UUID, working version ! -----");
+		supertool.importEntities(importNewBranchNonExistentParent_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 		supertool.fetchSubAddresses(newUuidParent);
 		supertool.deleteAddress(newUuidParent, true);
@@ -749,26 +878,27 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- SEPARATE Import: NEW ADDRESSES (UUID) -----");
+		System.out.println("----- !!! ONLY PUBLISHED IMPORT INSTANCE(s) !!! -----");
 		System.out.println("-------------------------------------");
 
-		System.out.println("\n----- separate import NEW TOP NODE -> underneath import node, KEEP UUID -----");
-		supertool.importEntities(importNewTopAddr, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import NEW TOP NODE -> underneath import node, KEEP UUID, working version ! -----");
+		supertool.importEntities(importNewTopAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 		supertool.deleteAddress(newUuidTop, true);
 
-		System.out.println("\n----- separate import NEW FREE NODE -> underneath import node, KEEP UUID -----");
-		supertool.importEntities(importNewFreeAddr, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import NEW FREE NODE -> underneath import node, TRANSFORMED TO PERSON !, KEEP UUID, working version ! -----");
+		supertool.importEntities(importNewFreeAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 		supertool.deleteAddress(newUuidFree, true);
 
-		System.out.println("\n----- separate import NEW branch with EXISTING parent -> underneath import node, KEEP UUIDs -----");
-		supertool.importEntities(importNewBranchExistentParent, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import NEW branch with EXISTING parent -> underneath import node, KEEP UUIDs, working version ! -----");
+		supertool.importEntities(importNewBranchExistentParent_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 		supertool.fetchSubAddresses(newUuidParent);
 		supertool.deleteAddress(newUuidParent, true);
 
-		System.out.println("\n----- separate import NEW branch with NON EXISTING parent -> underneath import node, KEEP UUIDs -----");
-		supertool.importEntities(importNewBranchNonExistentParent, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import NEW branch with NON EXISTING parent -> underneath import node, KEEP UUIDs, working version ! -----");
+		supertool.importEntities(importNewBranchNonExistentParent_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 		supertool.fetchSubAddresses(newUuidParent);
 		supertool.deleteAddress(newUuidParent, true);
@@ -780,8 +910,79 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 // -----------------------------------
 
+				System.out.println("\n\n-------------------------------------");
+				System.out.println("----- Import: NEW ADDRESSES (UUID) -----");
+				System.out.println("----- !!! BOTH: PUBLISHED AND WORKING INSTANCE(s) !!! -----");
+				System.out.println("-------------------------------------");
+
+				// import data: single NEW top node
+				importUnzipped = exportTopAddrUnzipped_workAndPublished.replace("<organisation>", "<organisation>MMImport: ");
+				importUnzipped = importUnzipped.replace(topAddrUuid, newUuidTop);
+				byte[] importNewTopAddr_workAndPublished = new byte[0];
+				try {
+					importNewTopAddr_workAndPublished = MdekUtils.compressString(importUnzipped);						
+				} catch (Exception ex) {
+					System.out.println(ex);			
+				}
+
+				// import data: single NEW free node
+				importUnzipped = exportFreeAddrUnzipped_workAndPublished.replace("<organisation>", "<organisation>MMImport: ");
+				importUnzipped = importUnzipped.replace(freeAddrUuid, newUuidFree);
+				byte[] importNewFreeAddr_workAndPublished = new byte[0];
+				try {
+					importNewFreeAddr_workAndPublished = MdekUtils.compressString(importUnzipped);						
+				} catch (Exception ex) {
+					System.out.println(ex);			
+				}
+
+				supertool.setFullOutput(false);
+
+				System.out.println("\n\n----- TOP NON FREE NODES BEFORE IMPORT -----");
+				supertool.fetchTopAddresses(false);
+
+				System.out.println("\n----- import NEW TOP NODE -> saved PUBLISH + WORKING ! -----");
+				supertool.importEntities(importNewTopAddr_workAndPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
+				supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+				supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+				supertool.fetchTopAddresses(false);
+				supertool.deleteAddress(newUuidTop, true);
+
+
+				System.out.println("\n\n----- TOP FREE NODES BEFORE IMPORT -----");
+				supertool.fetchTopAddresses(true);
+
+				System.out.println("\n\n----- import NEW FREE NODE -> saved PUBLISH + WORKING ! -----");
+				supertool.importEntities(importNewFreeAddr_workAndPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
+				supertool.fetchAddress(newUuidFree, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+				supertool.fetchAddress(newUuidFree, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.PUBLISHED_VERSION);
+				supertool.fetchTopAddresses(true);
+				supertool.deleteAddress(newUuidFree, true);
+
+
+				System.out.println("\n\n-------------------------------------");
+				System.out.println("----- SEPARATE Import: NEW ADDRESSES (UUID) -----");
+				System.out.println("----- !!! BOTH: PUBLISHED AND WORKING INSTANCE(s) !!! -----");
+				System.out.println("-------------------------------------");
+
+				System.out.println("\n----- separate import NEW TOP NODE -> underneath import node, KEEP UUID, PUBLISHED AND WORKING STORED AS WORKING VERSION ! -----");
+				supertool.importEntities(importNewTopAddr_workAndPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
+				supertool.fetchSubAddresses(addrImpNodeUuid);
+				supertool.deleteAddress(newUuidTop, true);
+
+				System.out.println("\n----- separate import NEW FREE NODE -> underneath import node, TRANSFORMED TO PERSON !, KEEP UUID, PUBLISHED AND WORKING STORED AS WORKING VERSION ! -----");
+				supertool.importEntities(importNewFreeAddr_workAndPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
+				supertool.fetchSubAddresses(addrImpNodeUuid);
+				supertool.deleteAddress(newUuidFree, true);
+
+				System.out.println("\n----- Clean Up ImportNode -----");
+				supertool.deleteAddress(addrImpNodeUuid, true);
+				supertool.storeAddress(addrImpNodeDoc, false);
+
+// -----------------------------------
+
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: ORIG_IDS -----");
+		System.out.println("----- !!! for every EXISTING address frontend message \"schon vorhanden, wird ignoriert\" !!! -----");
 		System.out.println("-------------------------------------");
 
 		String origId1 = "ORIG_ID1";
@@ -789,35 +990,35 @@ class MdekExampleExportImportAddressThread extends Thread {
 		String newOrigId = "ORIG_ID_NEW";
 
 		// import data: existing TOP node with ORIG_ID1
-		importUnzipped = exportTopAddrUnzipped;
+		importUnzipped = exportTopAddrUnzipped_onlyPublished;
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</address-identifier>")+21;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			"\n<original-address-identifier>" + origId1 + "</original-address-identifier>" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
-		byte[] importExistingTopAddrOrigId1 = new byte[0];
+		byte[] importExistingTopAddrOrigId1_onlyPublished = new byte[0];
 		try {
-			importExistingTopAddrOrigId1 = MdekUtils.compressString(importUnzipped);						
+			importExistingTopAddrOrigId1_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: existing FREE node with ORIG_ID1
-		importUnzipped = exportFreeAddrUnzipped;
+		importUnzipped = exportFreeAddrUnzipped_onlyPublished;
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</address-identifier>")+21;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			"\n<original-address-identifier>" + origId1 + "</original-address-identifier>" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
-		byte[] importExistingFreeAddrOrigId1 = new byte[0];
+		byte[] importExistingFreeAddrOrigId1_onlyPublished = new byte[0];
 		try {
-			importExistingFreeAddrOrigId1 = MdekUtils.compressString(importUnzipped);						
+			importExistingFreeAddrOrigId1_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: existing branch with ORIG_ID1 and ORIG_ID2
-		importUnzipped = exportBranchUnzipped;
+		importUnzipped = exportBranchUnzipped_onlyPublished;
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</address-identifier>")+21;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
@@ -829,16 +1030,16 @@ class MdekExampleExportImportAddressThread extends Thread {
 			"\n<original-address-identifier>" + origId2 + "</original-address-identifier>" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
 //		System.out.println(importUnzipped);
-		byte[] importExistingBranchOrigIds1_2 = new byte[0];
+		byte[] importExistingBranchOrigIds1_2_onlyPublished = new byte[0];
 		try {
-			importExistingBranchOrigIds1_2 = MdekUtils.compressString(importUnzipped);						
+			importExistingBranchOrigIds1_2_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: NEW branch (non existing UUIDs) with ORIG_ID1 and ORIG_ID2
 		// new uuids
-		importUnzipped = exportBranchUnzipped;
+		importUnzipped = exportBranchUnzipped_onlyPublished;
 		importUnzipped = importUnzipped.replace(parentAddrUuid, newUuidParent);
 		importUnzipped = importUnzipped.replace(child1PersonAddrUuid, newUuidChild1);
 		importUnzipped = importUnzipped.replace(child2AddrUuid, newUuidChild2);
@@ -856,15 +1057,17 @@ class MdekExampleExportImportAddressThread extends Thread {
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			"\n<original-address-identifier>" + origId2 + "</original-address-identifier>" +
 			importUnzipped.substring(startIndex, importUnzipped.length());
-		byte[] importNewBranchOrigIds1_2 = new byte[0];
+		byte[] importNewBranchOrigIds1_2_onlyPublished = new byte[0];
 		try {
-			importNewBranchOrigIds1_2 = MdekUtils.compressString(importUnzipped);						
+			importNewBranchOrigIds1_2_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
 		// import data: NEW arcgis address (no UUID) with EXISTING and NON EXISTING ORIG_ID
-		importUnzipped = exportTopAddrUnzipped;
+		importUnzipped = exportTopAddrUnzipped_onlyPublished;
+		// remove work-state
+		importUnzipped = importUnzipped.replace(" work-state=\"V\"", "");
 		// add ORIG_ID1
 		startIndex = importUnzipped.indexOf("</address-identifier>")+21;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
@@ -876,23 +1079,23 @@ class MdekExampleExportImportAddressThread extends Thread {
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			importUnzipped.substring(endIndex, importUnzipped.length());
 		// import data: NEW arcgis address with EXISTING ORIG_ID
-		byte[] importArcGisExistingOrigId = new byte[0];
+		byte[] importArcGisExistingOrigId_onlyPublished = new byte[0];
 		try {
-			importArcGisExistingOrigId = MdekUtils.compressString(importUnzipped);						
+			importArcGisExistingOrigId_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 		// import data: NEW arcgis address with NEW ORIG_ID
 		importUnzipped = importUnzipped.replace(origId1, newOrigId);
-		byte[] importArcGisNewOrigId = new byte[0];
+		byte[] importArcGisNewOrigId_onlyPublished = new byte[0];
 		try {
-			importArcGisNewOrigId = MdekUtils.compressString(importUnzipped);						
+			importArcGisNewOrigId_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
-		System.out.println("\n\n----- import ORIG_ID1 into EXISTING top node WORKING VERSION -> NO update of ORIG_ID, keep null (check in DB) -----");
-		supertool.importEntities(importExistingTopAddrOrigId1, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n\n----- import ORIG_ID1 into EXISTING top node ->  -> SKIPPED -----");
+		supertool.importEntities(importExistingTopAddrOrigId1_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 
 		System.out.println("\n----- store ORIG_ID1 in top node WORKING VERSION  -----");
 		doc = supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY);
@@ -900,12 +1103,12 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.storeAddress(doc, false);
 
 		
-		System.out.println("\n\n----- import ORIG_ID1 into EXISTING FREE node WORKING VERSION -> NO update of ORIG_ID, keep null (check in DB) -----");
-		supertool.importEntities(importExistingFreeAddrOrigId1, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n\n----- import ORIG_ID1 into EXISTING FREE node ->  -> SKIPPED -----");
+		supertool.importEntities(importExistingFreeAddrOrigId1_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 
 		
-		System.out.println("\n\n----- import ORIG_ID1 + ORIG_ID2 into EXISTING branch WORKING VERSION ->  NO update of ORIG_ID, keep null (check in DB) -----");
-		supertool.importEntities(importExistingBranchOrigIds1_2, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n\n----- import ORIG_ID1 + ORIG_ID2 into EXISTING branch ->   -> SKIPPED -----");
+		supertool.importEntities(importExistingBranchOrigIds1_2_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 
 		System.out.println("\n----- store ORIG_ID1 / ORIG_ID2 in branch WORKING VERSION  -----");
 		doc = supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY);
@@ -916,19 +1119,23 @@ class MdekExampleExportImportAddressThread extends Thread {
 		supertool.storeAddress(doc, false);
 
 
-		System.out.println("\n\n----- import NEW branch with ORIG_ID1 (multiple !) and ORIG_ID2 (unique) -> update FIRST found ORIG_ID1 (top address) and found ORIG_ID2 ->  -----");
+		System.out.println("\n\n----- import NEW branch with ORIG_ID1 (multiple !) and ORIG_ID2 (unique) -> Import addresses with existing ORIG_ID1, ORIG_ID2 ARE SKIPPED ! ->  -----");
 		System.out.println("----- -> remaining children can't find their parent and are stored underneath import node -----");
-		System.out.println("----- !!! LOG WARNING: ORIG_ID1 not unique !!! -----");
-		supertool.importEntities(importNewBranchOrigIds1_2, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		System.out.println("----- !!! IGE IPLUG LOG WARNING: ORIG_ID1 not unique !!! -----");
+		supertool.importEntities(importNewBranchOrigIds1_2_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
+		supertool.fetchAddress(addrImpNodeUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
-		System.out.println("\n\n----- import ARCGIS address (no uuid) with EXISTING ORIG_ID as WORKING VERSION -> update existing node -----");
-		supertool.importEntities(importArcGisExistingOrigId, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.fetchAddress(topAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		System.out.println("\n\n----- import ARCGIS address (no uuid) with EXISTING ORIG_ID -> SKIPPED -----");
+		supertool.importEntities(importArcGisExistingOrigId_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 
-		System.out.println("\n----- import ARCGIS address (no uuid) with NEW ORIG_ID as PUBLISHED -> new node underneath import node -----");
-		supertool.importEntities(importArcGisNewOrigId, objImpNodeUuid, addrImpNodeUuid, true, false);
-		supertool.fetchSubAddresses(addrImpNodeUuid);
+		System.out.println("\n----- import ARCGIS address (no uuid) with NEW ORIG_ID, publishImmediately=TRUE -> NEW UUID, KEEP ORIG_ID, TOP NODE, PUBLISHED ! -----");
+		IngridDocument jobInfoDoc = supertool.importEntities(importArcGisNewOrigId_onlyPublished, objImpNodeUuid, addrImpNodeUuid, true, false, false);
+		// HACK !!!! extract generated UUID of new top address from messages
+		String[] tmpStrs = jobInfoDoc.getString(MdekKeys.JOBINFO_MESSAGES).split("create new ADDRESS UUID:");
+		if (tmpStrs.length > 1) {
+			String myUuid = tmpStrs[1].substring(0, 36);
+			supertool.deleteAddress(myUuid, true);
+		}
 
 		System.out.println("\n\n----- Clean Up -----");
 		supertool.deleteAddressWorkingCopy(topAddrUuid, true);
@@ -941,18 +1148,19 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- SEPARATE Import: ORIG_IDS -----");
+		System.out.println("----- !!! for every EXISTING address frontend message \"schon vorhanden, wird ignoriert\" !!! -----");
 		System.out.println("-------------------------------------");
 
-		System.out.println("\n----- separate import EXISTING top node with NEW ORIG_ID1 -> underneath import node, NEW UUID, KEEP ORIG_ID -----");
-		supertool.importEntities(importExistingTopAddrOrigId1, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import EXISTING top node with NEW ORIG_ID1 -> SKIPPED -----");
+		supertool.importEntities(importExistingTopAddrOrigId1_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteAddress(addrImpNodeUuid, true);
 		supertool.storeAddress(addrImpNodeDoc, false);
 
 
-		System.out.println("\n----- separate import EXISTING FREE node with NEW ORIG_ID1 -> underneath import node, NEW UUID, KEEP ORIG_ID -----");
-		supertool.importEntities(importExistingFreeAddrOrigId1, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import EXISTING FREE node with NEW ORIG_ID1 -> SKIPPED -----");
+		supertool.importEntities(importExistingFreeAddrOrigId1_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteAddress(addrImpNodeUuid, true);
@@ -964,8 +1172,8 @@ class MdekExampleExportImportAddressThread extends Thread {
 		doc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, origId1);
 		supertool.storeAddress(doc, false);
 
-		System.out.println("\n----- separate import EXISTING branch with ORIG_ID1 + ORIG_ID2 ->  underneath import node, NEW UUID, REMOVED ORIG_ID1, KEEP ORIG_ID2 -----");
-		supertool.importEntities(importExistingBranchOrigIds1_2, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import EXISTING branch with ORIG_ID1 + ORIG_ID2 ->  SKIPPED -----");
+		supertool.importEntities(importExistingBranchOrigIds1_2_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteAddress(addrImpNodeUuid, true);
@@ -980,19 +1188,20 @@ class MdekExampleExportImportAddressThread extends Thread {
 		doc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, origId2);
 		supertool.storeAddress(doc, false);
 
-		System.out.println("\n----- separate import NEW branch with ORIG_ID1 (multiple in catalog) and ORIG_ID2 (unique in catalog) -> underneath import node, NEW UUID, REMOVED ORIG_ID1, REMOVED ORIG_ID2 -----");
-		supertool.importEntities(importNewBranchOrigIds1_2, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n\n----- Separate import NEW branch with ORIG_ID1 (multiple !) and ORIG_ID2 (unique) -> Import addresses with existing ORIG_ID1, ORIG_ID2 ARE SKIPPED ! ->  -----");
+		System.out.println("----- -> remaining children can't find their parent and are stored underneath import node -----");
+		supertool.importEntities(importNewBranchOrigIds1_2_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 
 		System.out.println("\n----- Clean Up ImportNode -----");
 		supertool.deleteAddress(addrImpNodeUuid, true);
 		supertool.storeAddress(addrImpNodeDoc, false);
 
 
-		System.out.println("\n\n----- separate import ARCGIS address (no uuid) with EXISTING ORIG_ID -> underneath import node, NEW UUID, REMOVED ORIG_ID -----");
-		supertool.importEntities(importArcGisExistingOrigId, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n\n----- separate import ARCGIS address (no uuid) with EXISTING ORIG_ID -> SKIPPED -----");
+		supertool.importEntities(importArcGisExistingOrigId_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 
-		System.out.println("\n----- import ARCGIS address (no uuid) with NEW ORIG_ID -> underneath import node, NEW UUID, KEEP ORIG_ID -----");
-		supertool.importEntities(importArcGisNewOrigId, objImpNodeUuid, addrImpNodeUuid, false, true);
+		System.out.println("\n----- separate import ARCGIS address (no uuid) with NEW ORIG_ID, publishImmediately=FALSE -> underneath import node, NEW UUID, KEEP ORIG_ID, working version -----");
+		supertool.importEntities(importArcGisNewOrigId_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, true, true);
 		supertool.fetchSubAddresses(addrImpNodeUuid);
 
 		System.out.println("\n----- Clean Up -----");
@@ -1007,10 +1216,12 @@ class MdekExampleExportImportAddressThread extends Thread {
 
 		System.out.println("\n\n-------------------------------------");
 		System.out.println("----- Import: MOVE ADDRESS -----");
+		System.out.println("----- !!! NOT POSSIBLE ANYMORE !!! -----");
+		System.out.println("----- !!! for every EXISTING address frontend message \"schon vorhanden, wird ignoriert\" !!! -----");
 		System.out.println("-------------------------------------");
 
 		// import data: move branch under top address !
-		importUnzipped = exportBranchUnzipped.replace("<address-identifier>3761E246-69E7-11D3-BB32-1C7607C10000</address-identifier>",
+		importUnzipped = exportBranchUnzipped_onlyPublished.replace("<address-identifier>3761E246-69E7-11D3-BB32-1C7607C10000</address-identifier>",
 				"<address-identifier>" + topAddrUuid2 + "</address-identifier>");
 		byte[] importBranchMoveBranchToTop = new byte[0];
 		try {
@@ -1020,7 +1231,7 @@ class MdekExampleExportImportAddressThread extends Thread {
 		}
 
 		// import data: move branch under FREE address -> ERROR !
-		importUnzipped = exportBranchUnzipped.replace("<address-identifier>3761E246-69E7-11D3-BB32-1C7607C10000</address-identifier>",
+		importUnzipped = exportBranchUnzipped_onlyPublished.replace("<address-identifier>3761E246-69E7-11D3-BB32-1C7607C10000</address-identifier>",
 				"<address-identifier>" + freeAddrUuid + "</address-identifier>");
 		byte[] importBranchMoveBranchToFree = new byte[0];
 		try {
@@ -1035,25 +1246,16 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("\n----- TO -----");
 		supertool.fetchSubAddresses(topAddrUuid2);
 
-		System.out.println("\n\n----- import existing branch with DIFFERENT parent as WORKING VERSION -> move branch to new parent ! -----");
-		supertool.importEntities(importBranchMoveBranchToTop, objImpNodeUuid, addrImpNodeUuid, false, false);
+		System.out.println("\n\n----- import existing branch with DIFFERENT parent, only PUBLISHED instances -> move branch to new parent ! -----");
+		supertool.importEntities(importBranchMoveBranchToTop, objImpNodeUuid, addrImpNodeUuid, false, false, false);
 		supertool.fetchSubAddresses(topAddrUuid);
 		supertool.fetchSubAddresses(topAddrUuid2);
 
 		System.out.println("\n----- Clean Up: move back to original position -----");
 		supertool.moveAddress(parentAddrUuid, topAddrUuid, false, false);
-
-		System.out.println("\n----- import existing branch with DIFFERENT parent as PUBLISHED -> move branch to new parent ! -----");
-		supertool.importEntities(importBranchMoveBranchToTop, objImpNodeUuid, addrImpNodeUuid, true, false);
-		supertool.fetchSubAddresses(topAddrUuid);
-		supertool.fetchSubAddresses(topAddrUuid2);
-
-		System.out.println("\n----- Clean Up: move back to original position -----");
-		supertool.moveAddress(parentAddrUuid, topAddrUuid, false, false);
-
 
 		System.out.println("\n\n----- Import branch as PUBLISHED causes Move causes Error ADDRESS_TYPE_CONFLICT (to FREE ADDRESS) ->  branch keeps position, root stored as WORKING version, subnodes PUBLISHED !-----");
-		supertool.importEntities(importBranchMoveBranchToFree, objImpNodeUuid, addrImpNodeUuid, true, false);
+		supertool.importEntities(importBranchMoveBranchToFree, objImpNodeUuid, addrImpNodeUuid, true, false, false);
 		supertool.fetchSubAddresses(topAddrUuid);
 		supertool.fetchSubAddresses(freeAddrUuid);
 
@@ -1069,28 +1271,15 @@ class MdekExampleExportImportAddressThread extends Thread {
 		doc.put(MdekKeys.WORKFLOW_CONTROL, MdekUtils.YES);
 		doc = supertool.storeCatalog(doc, true);
 
-		System.out.println("\n----- state BEFORE import -----");
-		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
-		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
-
-		System.out.println("\n\n----- import branch as WORKING VERSION -> WORKING VERSION -----");
-		supertool.importEntities(importExistingAddrBranch, objImpNodeUuid, addrImpNodeUuid, false, false);
-		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
-		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
-
-		System.out.println("\n\n----- import branch as PUBLISHED -> ASSIGNED TO QA -----");
-		supertool.importEntities(importExistingAddrBranch, objImpNodeUuid, addrImpNodeUuid, true, false);
-		supertool.fetchAddress(parentAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
-		supertool.fetchAddress(child1PersonAddrUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+		System.out.println("\n---------------------------------------------");
+		System.out.println("----- IMPORT as CATADMIN (always !) -> QA Permissions -> PUBLISHED ! -----");
+		
+		System.out.println("\n\n----- import NEW branch, only PUBLISHED instances -> PUBLISHED cause QA Permission -----");
+		supertool.importEntities(importNewTopAddr_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
+		supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
 		System.out.println("\n\n----- Clean Up -----");
-		supertool.deleteAddressWorkingCopy(parentAddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child1PersonAddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child2AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child3AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child4AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child5AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child6AddrUuid, true);
+		supertool.deleteAddress(newUuidTop, true);
 
 		System.out.println("\n\n---------------------------------------------");
 		System.out.println("----- DISABLE WORKFLOW in catalog -----");
@@ -1104,8 +1293,9 @@ class MdekExampleExportImportAddressThread extends Thread {
 		System.out.println("----- Import: MANDATORY DATA -----");
 		System.out.println("-------------------------------------");
 
-		// import data: branch with root object missing all MANDATORY FIELDS ! 
-		importUnzipped = exportBranchUnzipped;		
+		// import data: NEW top address missing all MANDATORY FIELDS !
+		importUnzipped = exportTopAddrUnzipped_onlyPublished;
+		importUnzipped = importUnzipped.replace(topAddrUuid, newUuidTop);
 		// remove CLASS
 		startIndex = importUnzipped.indexOf("<type-of-address");
 		endIndex = importUnzipped.indexOf("/>", startIndex) + 2;
@@ -1116,27 +1306,19 @@ class MdekExampleExportImportAddressThread extends Thread {
 		endIndex = importUnzipped.indexOf("</responsible-identifier>") + 25;
 		importUnzipped = importUnzipped.substring(0, startIndex) +
 			importUnzipped.substring(endIndex, importUnzipped.length());
-		byte[] importExistBranchMissingMandatoryFields = new byte[0];
+		byte[] importNewTopAddrMissingMandatoryFields_onlyPublished = new byte[0];
 		try {
-			importExistBranchMissingMandatoryFields = MdekUtils.compressString(importUnzipped);						
+			importNewTopAddrMissingMandatoryFields_onlyPublished = MdekUtils.compressString(importUnzipped);						
 		} catch (Exception ex) {
 			System.out.println(ex);			
 		}
 
-		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA as WORKING VERSION -> no error, WORKING VERSION -----");
-		supertool.importEntities(importExistBranchMissingMandatoryFields, objImpNodeUuid, addrImpNodeUuid, false, false);
-
-		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA as PUBLISHED -> root misses data, is stored as WORKING VERSION -----");
-		supertool.importEntities(importExistBranchMissingMandatoryFields, objImpNodeUuid, addrImpNodeUuid, true, false);
+		System.out.println("\n\n----- import branch with MISSING MANDATORY DATA, only PUBLISHED instances -> node misses data, is stored as WORKING VERSION -----");
+		supertool.importEntities(importNewTopAddrMissingMandatoryFields_onlyPublished, objImpNodeUuid, addrImpNodeUuid, false, false, false);
+		supertool.fetchAddress(newUuidTop, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
 
 		System.out.println("\n----- Clean Up -----");
-		supertool.deleteAddressWorkingCopy(parentAddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child1PersonAddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child2AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child3AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child4AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child5AddrUuid, true);
-		supertool.deleteAddressWorkingCopy(child6AddrUuid, true);
+		supertool.deleteAddress(newUuidTop, true);
 
 // -----------------------------------
 

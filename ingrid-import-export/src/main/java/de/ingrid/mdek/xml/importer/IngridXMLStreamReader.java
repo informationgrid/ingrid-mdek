@@ -30,8 +30,8 @@ public class IngridXMLStreamReader {
 	private final static Logger log = Logger.getLogger(IngridXMLStreamReader.class);
 	
 	private final FileFragmentLoader fileFragmentLoader;
-	private final Map<String, FileIndex> objectIndexMap;
-	private final Map<String, FileIndex> addressIndexMap;
+	private final Map<String, List<FileIndex>> objectIndexMap;
+	private final Map<String, List<FileIndex>> addressIndexMap;
 	private final DocumentBuilder documentBuilder;
 	
 	private IImporterCallback importerCallback;
@@ -74,26 +74,38 @@ public class IngridXMLStreamReader {
 		return addressIndexMap.keySet();
 	}
 
-	public Document getDomForObject(String uuid) throws IOException, SAXException {
-		FileIndex fileIndex = objectIndexMap.get(uuid);
-		String objectString = fileFragmentLoader.getStringUTF(fileIndex);
+	/** Get DOM of all object instances. If size of list > 1 then order is "Bearbeitungsinstanz", "veröffentlichte Instanz". */
+	public List<Document> getDomForObject(String uuid) throws IOException, SAXException {
+		List<Document> retList = new ArrayList<Document>();
+		
+		List<FileIndex> fileIndexes = objectIndexMap.get(uuid);
+		for (FileIndex fileIndex : fileIndexes) {
+			String objectString = fileFragmentLoader.getStringUTF(fileIndex);
+			retList.add(documentBuilder.parse(new InputSource(new StringReader(objectString))));
+		}
 
-		return documentBuilder.parse(new InputSource(new StringReader(objectString)));
+		return retList;
 	}
 
-	public Document getDomForAddress(String uuid) throws IOException, SAXException {
-		FileIndex fileIndex = addressIndexMap.get(uuid);
-		String addressString = fileFragmentLoader.getStringUTF(fileIndex);
+	/** Get DOM of all address instances. If size of list > 1 then order is "Bearbeitungsinstanz", "veröffentlichte Instanz". */
+	public List<Document> getDomForAddress(String uuid) throws IOException, SAXException {
+		List<Document> retList = new ArrayList<Document>();
+		
+		List<FileIndex> fileIndexes = addressIndexMap.get(uuid);
+		for (FileIndex fileIndex : fileIndexes) {
+			String addressString = fileFragmentLoader.getStringUTF(fileIndex);
+			retList.add(documentBuilder.parse(new InputSource(new StringReader(addressString))));
+		}
 
-		return documentBuilder.parse(new InputSource(new StringReader(addressString)));
+		return retList;
 	}
 
 	public List<String> getObjectWriteSequence() throws IOException, SAXException {
 		Map<String, TreeNode> nodes = new HashMap<String, TreeNode>();
 
 		for (String uuid : getObjectUuids()) {
-			Document doc = getDomForObject(uuid);
-			String parentUuid = getParentObjectUuid(doc);
+			List<Document> docs = getDomForObject(uuid);
+			String parentUuid = getParentObjectUuid(docs.get(0));
 			nodes.put(uuid, new TreeNode(uuid, parentUuid));
 		}
 
@@ -107,8 +119,8 @@ public class IngridXMLStreamReader {
 		Map<String, TreeNode> nodes = new HashMap<String, TreeNode>();
 
 		for (String uuid : getAddressUuids()) {
-			Document doc = getDomForAddress(uuid);
-			String parentUuid = getParentAddressUuid(doc);
+			List<Document> docs = getDomForAddress(uuid);
+			String parentUuid = getParentAddressUuid(docs.get(0));
 			nodes.put(uuid, new TreeNode(uuid, parentUuid));
 		}
 

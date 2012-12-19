@@ -1,6 +1,8 @@
 package de.ingrid.mdek.xml.importer.mapper.version330;
 
-import static de.ingrid.mdek.xml.util.IngridDocUtils.*;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putDocList;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putInt;
+import static de.ingrid.mdek.xml.util.IngridDocUtils.putString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,44 +18,49 @@ import de.ingrid.utils.IngridDocument;
 
 public class XMLAddressToDocMapper extends AbstractXMLToDocMapper {
 
-	private final static String X_ADDRESS_IDENTIFIER = "//address/address-identifier/text()";
-	private final static String X_MODIFICATOR_IDENTIFIER = "//address/modificator-identifier/text()";
-	private final static String X_RESPONSIBLE_IDENTIFIER = "//address/responsible-identifier/text()";
-	private final static String X_TYPE_OF_ADDRESS = "//address/type-of-address/@id";
-	private final static String X_HIDE_ADDRESS = "//address/hide-address/text()";
-	private static final String X_PUBLICATION_CONDITION = "//address/publication-condition/text()";
-	private final static String X_ORGANISATION = "//address/organisation/text()";
-	private final static String X_NAME = "//address/name/text()";
-	private final static String X_NAME_FORM = "//address/name-form/text()";
-	private final static String X_NAME_FORM_KEY = "//address/name-form/@id";
-	private final static String X_TITLE_OR_FUNCTION = "//address/title-or-function/text()";
-	private final static String X_TITLE_OR_FUNCTION_KEY = "//address/title-or-function/@id";
-	private final static String X_GIVEN_NAME = "//address/given-name/text()";
-	private final static String X_COUNTRY = "//address/country/text()";
-	private final static String X_COUNTRY_KEY = "//address/country/@id";
-	private final static String X_POSTAL_CODE = "//address/postal-code/text()";
-	private final static String X_STREET = "//address/street/text()";
-	private final static String X_CITY = "//address/city/text()";
-	private final static String X_POST_BOX_POSTAL_CODE = "//address/post-box-postal-code/text()";
-	private final static String X_POST_BOX = "//address/post-box/text()";
-	private final static String X_COMMUNICATION_LIST = "//address/communication";
+	private static final String X_ADDRESS = "//address-instance";
+
+	private static final String X_WORK_STATE = X_ADDRESS + "/@work-state";
+	private final static String X_ADDRESS_IDENTIFIER = X_ADDRESS + "/address-identifier/text()";
+	private final static String X_MODIFICATOR_IDENTIFIER = X_ADDRESS + "/modificator-identifier/text()";
+	private final static String X_RESPONSIBLE_IDENTIFIER = X_ADDRESS + "/responsible-identifier/text()";
+	private final static String X_TYPE_OF_ADDRESS = X_ADDRESS + "/type-of-address/@id";
+	private final static String X_HIDE_ADDRESS = X_ADDRESS + "/hide-address/text()";
+	private static final String X_PUBLICATION_CONDITION = X_ADDRESS + "/publication-condition/text()";
+	private final static String X_ORGANISATION = X_ADDRESS + "/organisation/text()";
+	private final static String X_NAME = X_ADDRESS + "/name/text()";
+	private final static String X_NAME_FORM = X_ADDRESS + "/name-form/text()";
+	private final static String X_NAME_FORM_KEY = X_ADDRESS + "/name-form/@id";
+	private final static String X_TITLE_OR_FUNCTION = X_ADDRESS + "/title-or-function/text()";
+	private final static String X_TITLE_OR_FUNCTION_KEY = X_ADDRESS + "/title-or-function/@id";
+	private final static String X_GIVEN_NAME = X_ADDRESS + "/given-name/text()";
+	private final static String X_COUNTRY = X_ADDRESS + "/country/text()";
+	private final static String X_COUNTRY_KEY = X_ADDRESS + "/country/@id";
+	private final static String X_POSTAL_CODE = X_ADDRESS + "/postal-code/text()";
+	private final static String X_STREET = X_ADDRESS + "/street/text()";
+	private final static String X_CITY = X_ADDRESS + "/city/text()";
+	private final static String X_POST_BOX_POSTAL_CODE = X_ADDRESS + "/post-box-postal-code/text()";
+	private final static String X_POST_BOX = X_ADDRESS + "/post-box/text()";
+	private final static String X_COMMUNICATION_LIST = X_ADDRESS + "/communication";
 	private final static String X_COMMUNICATION_MEDIUM = "communication-medium/text()";
 	private final static String X_COMMUNICATION_MEDIUM_KEY = "communication-medium/@id";
 	private final static String X_COMMUNICATION_VALUE = "communication-value/text()";
 	private final static String X_COMMUNICATION_DESCRIPTION = "communication-description/text()";
-	private final static String X_ORIGINAL_ADDRESS_IDENTIFIER = "//address/original-address-identifier/text()";
-	private final static String X_FUNCTION = "//address/function/text()";
-	private static final String X_SUBJECT_TERMS = "//address/subject-terms";
-	private static final String X_COMMENT_LIST = "//address/comment";
+	private final static String X_ORIGINAL_ADDRESS_IDENTIFIER = X_ADDRESS + "/original-address-identifier/text()";
+	private final static String X_FUNCTION = X_ADDRESS + "/function/text()";
+	private static final String X_SUBJECT_TERMS = X_ADDRESS + "/subject-terms";
+	private static final String X_COMMENT_LIST = X_ADDRESS + "/comment";
 	private static final String X_COMMENT_CONTENT = "comment-content/text()";
 	private static final String X_COMMENT_CREATOR = "creator-identifier/text()";
 	private static final String X_COMMENT_DATE_OF_CREATION = "date-of-creation/text()";
-	private static final String X_DATE_OF_LAST_MODIFICATION = "//address/date-of-last-modification/text()";
-	private static final String X_DATE_OF_CREATION = "//address/date-of-creation/text()";
-	private static final String X_PARENT_ADDRESS = "//address/parent-address/address-identifier/text()";
+	private static final String X_DATE_OF_LAST_MODIFICATION = X_ADDRESS + "/date-of-last-modification/text()";
+	private static final String X_DATE_OF_CREATION = X_ADDRESS + "/date-of-creation/text()";
+	private static final String X_PARENT_ADDRESS = X_ADDRESS + "/parent-address/address-identifier/text()";
 
 	public static IngridDocument map(Document source) {
 		IngridDocument address = new IngridDocument();
+
+		putString(MdekKeys.WORK_STATE, XPathUtils.getString(source, X_WORK_STATE), address);
 
 		putString(MdekKeys.UUID, XPathUtils.getString(source, X_ADDRESS_IDENTIFIER), address);
 		putString(new String[] {MdekKeys.MOD_USER, MdekKeys.UUID}, XPathUtils.getString(source, X_MODIFICATOR_IDENTIFIER), address);

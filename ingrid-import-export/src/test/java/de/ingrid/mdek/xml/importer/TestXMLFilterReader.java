@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -44,6 +45,10 @@ public class TestXMLFilterReader {
 						"src/test/resources/test.xml")), callback, "");
 		long endTime = System.currentTimeMillis();
 		System.out.println("parsing document for uuids took "+(endTime - startTime)+" ms.");
+
+		if (xmlReader.getObjectUuids().size() == 0) {
+			throw new RuntimeException("!!! Problems reading UUIDs from test.xml !!! Wrong Import File Format ?!!!");
+		}
 	}
 
 	@Test
@@ -58,9 +63,11 @@ public class TestXMLFilterReader {
 		XPathExpression expression = xpath.compile("//data-source/general/object-identifier/text()");
 
 		for (String uuid : xmlReader.getObjectUuids()) {
-			Document doc = xmlReader.getDomForObject(uuid);
-			String objectUuid = expression.evaluate(doc);
-			assertEquals(uuid, objectUuid);
+			List<Document> docs = xmlReader.getDomForObject(uuid);
+			for (Document doc : docs) {
+				String objectUuid = expression.evaluate(doc);
+				assertEquals(uuid, objectUuid);
+			}
 		}
 	}
 
@@ -69,11 +76,13 @@ public class TestXMLFilterReader {
 			XPathExpressionException {
 
 		for (String uuid : xmlReader.getObjectUuids()) {
-			Document doc = xmlReader.getDomForObject(uuid);
-			Node node = doc.getElementsByTagName("general").item(0);
-			Node objUuidNode = getNodeWithName(node.getChildNodes(), "object-identifier");
-			assertNotNull(objUuidNode);
-			assertEquals(objUuidNode.getTextContent(), uuid);
+			List<Document> docs = xmlReader.getDomForObject(uuid);
+			for (Document doc : docs) {
+				Node node = doc.getElementsByTagName("general").item(0);
+				Node objUuidNode = getNodeWithName(node.getChildNodes(), "object-identifier");
+				assertNotNull(objUuidNode);
+				assertEquals(objUuidNode.getTextContent(), uuid);
+			}
 		}
 	}
 
@@ -85,9 +94,11 @@ public class TestXMLFilterReader {
 		XPathExpression expression = xpath.compile("//address/address-identifier/text()");
 
 		for (String uuid : xmlReader.getAddressUuids()) {
-			Document doc = xmlReader.getDomForAddress(uuid);
-			String addressUuid = expression.evaluate(doc);
-			assertEquals(uuid, addressUuid);
+			List<Document> docs = xmlReader.getDomForAddress(uuid);
+			for (Document doc : docs) {
+				String addressUuid = expression.evaluate(doc);
+				assertEquals(uuid, addressUuid);
+			}
 		}
 	}
 
@@ -96,10 +107,12 @@ public class TestXMLFilterReader {
 			XPathExpressionException {
 
 		for (String uuid : xmlReader.getAddressUuids()) {
-			Document doc = xmlReader.getDomForAddress(uuid);
-			Node adrUuidNode = doc.getElementsByTagName("address-identifier").item(0);
-			assertNotNull(adrUuidNode);
-			assertEquals(adrUuidNode.getTextContent(), uuid);
+			List<Document> docs = xmlReader.getDomForAddress(uuid);
+			for (Document doc : docs) {
+				Node adrUuidNode = doc.getElementsByTagName("address-identifier").item(0);
+				assertNotNull(adrUuidNode);
+				assertEquals(adrUuidNode.getTextContent(), uuid);
+			}
 		}
 	}
 

@@ -100,6 +100,9 @@ public class MdekKeys {
     /** Export only the root node of a branch ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_EXPORT_ONLY_ROOT = "requestinfo_exportOnlyRoot";
+    /** Also export working copies (true) or only published versions (false) ?<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES = "requestinfo_exportIncludeWorkingCopies";
     /** If virtual top address node is selected (no uuid), this determines which area to export ? (free addresses or ...)<br>
      *  Value: IMdekCaller.AddressArea Enumeration const */
     public final static String REQUESTINFO_EXPORT_ADDRESS_AREA = "requestinfo_exportAddressArea";
@@ -131,6 +134,8 @@ public class MdekKeys {
     public final static String JOBINFO_TOTAL_NUM_ENTITIES = "jobinfo-total-num-entities";
     /** Value: String */
     public final static String JOBINFO_MESSAGES = "jobinfo-messages";
+    /** Value: String */
+    public final static String JOBINFO_FRONTEND_MESSAGES = "jobinfo-frontend-messages";
     /** Value: Exception */
     public final static String JOBINFO_EXCEPTION = "jobinfo-exception";
 
@@ -174,6 +179,9 @@ public class MdekKeys {
     /** Separate all imported entities underneath of "import nodes" ?<br>
      *  Value: Boolean */
     public final static String REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT = "requestinfo_importDoSeparateImport";
+    /** Generate new UUID if UUID already present ? Used in combination with REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT<br>
+     *  Value: Boolean */
+    public final static String REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT = "requestinfo_copyNodeIfPresent";
     /** Protocol from frontend to be added to backend JobInfo. null or empty if no protocol !<br>
      *  Value: String */
     public final static String REQUESTINFO_IMPORT_FRONTEND_PROTOCOL = "requestinfo_importFrontendProtocol";
@@ -481,6 +489,9 @@ public class MdekKeys {
     /** Additional info: various messages separated by \n describing progress/problems of job<br>
      *  Value: String */
     public final static String RUNNINGJOB_MESSAGES = "runningjob-messages";
+    /** Additional info: various messages separated by \n for display in frontend after import<br>
+     *  Value: String */
+    public final static String RUNNINGJOB_FRONTEND_MESSAGES = "runningjob-frontend-messages";
     /** This String[] contains the keys for extracting BASIC info of the running job (job description)<br>
      *  Value: String[] */
 	public final static String[] RUNNINGJOB_BASIC_KEYS = new String[] {

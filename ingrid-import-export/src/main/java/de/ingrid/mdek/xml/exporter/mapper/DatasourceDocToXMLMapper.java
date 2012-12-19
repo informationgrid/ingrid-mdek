@@ -17,8 +17,14 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		super(document);
 	}
 
-	public XMLElement createDataSource() {
+	public static XMLElement createDataSource() {
 		XMLElement dataSource = new XMLElement(DATA_SOURCE);
+		return dataSource;
+	}
+
+	public XMLElement createDataSourceInstance() {
+		XMLElement dataSource = new XMLElement(DATA_SOURCE_INSTANCE);
+		dataSource.addAttribute(WORK_STATE, getStringForKey(MdekKeys.WORK_STATE));
 		dataSource.addChild(createGeneral());
 		dataSource.addChild(createTechnicalDomain());
 		dataSource.addChild(createAdditionalInformation());

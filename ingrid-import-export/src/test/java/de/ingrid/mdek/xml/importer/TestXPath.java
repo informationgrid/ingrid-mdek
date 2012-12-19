@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -19,13 +21,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import de.ingrid.mdek.xml.util.XPathUtils;
-import de.ingrid.utils.IngridDocument;
 
 public class TestXPath {
 
 	private static XPath xpath;
 	private static IngridXMLStreamReader xmlReader;
-	private static Document dataSource;
+	private static List<Document> dataSourceInstances;
 
 	@BeforeClass
 	public static void setupClass() throws IOException, SAXException {
@@ -46,32 +47,43 @@ public class TestXPath {
 	}
 
 	private static void setupDocument() throws IOException, SAXException {
-		String uuid = xmlReader.getObjectUuids().toArray(new String[0])[0];
-		dataSource = xmlReader.getDomForObject(uuid);
+		Set<String> uuids = xmlReader.getObjectUuids();
+		if (uuids.size() > 0) {
+			String uuid = uuids.toArray(new String[0])[0];
+			dataSourceInstances = xmlReader.getDomForObject(uuid);
+		} else {
+			throw new RuntimeException("!!! Problems reading UUIDs from test.xml !!! Wrong Import File Format ?!!!");
+		}
 	}
 
 	@Test
 	public void testXPathGetObjectIdentifier() throws XPathExpressionException, IOException, SAXException {
 		XPathExpression xpathObjectIdentifier = xpath.compile("//data-source/general/object-identifier/text()");
 
-		String objectIdentifier = xpathObjectIdentifier.evaluate(dataSource);
-		assertNotNull(objectIdentifier);
+		for (Document dataSource : dataSourceInstances) {
+			String objectIdentifier = xpathObjectIdentifier.evaluate(dataSource);
+			assertNotNull(objectIdentifier);
+		}
 	}
 
 	@Test
 	public void testXPathGetCatalogueIdentifier() throws XPathExpressionException, IOException, SAXException {
 		XPathExpression xpathCatalogueIdentifier = xpath.compile("//data-source/general/catalogue-identifier/text()");
 
-		String catalogueIdentifier = xpathCatalogueIdentifier.evaluate(dataSource);
-		assertNotNull(catalogueIdentifier);
+		for (Document dataSource : dataSourceInstances) {
+			String catalogueIdentifier = xpathCatalogueIdentifier.evaluate(dataSource);
+			assertNotNull(catalogueIdentifier);
+		}
 	}
 
 	@Test
 	public void testXPathGetObjectClass() throws XPathExpressionException, IOException, SAXException {
 		XPathExpression xpathObjectClass = xpath.compile("//data-source/general/object-class/@id");
 
-		String objectClass = xpathObjectClass.evaluate(dataSource);
-		assertNotNull(objectClass);
+		for (Document dataSource : dataSourceInstances) {
+			String objectClass = xpathObjectClass.evaluate(dataSource);
+			assertNotNull(objectClass);
+		}
 	}
 
 	@Test
@@ -81,18 +93,20 @@ public class TestXPath {
 		XPathExpression xpathAdditionalValueFieldName = xpath.compile("field-name");
 		XPathExpression xpathAdditionalValueFieldValue = xpath.compile("field-value");
 
-		NodeList additionalValues = (NodeList) xpathAdditionalValues.evaluate(dataSource, XPathConstants.NODESET);
-		assertNotNull(additionalValues);
-		for (int index = 0; index < additionalValues.getLength(); ++index) {
-			Node additionalValue = additionalValues.item(index);
+		for (Document dataSource : dataSourceInstances) {
+			NodeList additionalValues = (NodeList) xpathAdditionalValues.evaluate(dataSource, XPathConstants.NODESET);
+			assertNotNull(additionalValues);
+			for (int index = 0; index < additionalValues.getLength(); ++index) {
+				Node additionalValue = additionalValues.item(index);
 
-			String additionalValueId = xpathAdditionalValueId.evaluate(additionalValue);
-			String additionalValueFieldName = xpathAdditionalValueFieldName.evaluate(additionalValue);
-			String additionalValueFieldValue = xpathAdditionalValueFieldValue.evaluate(additionalValue);
+				String additionalValueId = xpathAdditionalValueId.evaluate(additionalValue);
+				String additionalValueFieldName = xpathAdditionalValueFieldName.evaluate(additionalValue);
+				String additionalValueFieldValue = xpathAdditionalValueFieldValue.evaluate(additionalValue);
 
-			assertNotNull(additionalValueId);
-			assertNotNull(additionalValueFieldName);
-			assertNotNull(additionalValueFieldValue);
+				assertNotNull(additionalValueId);
+				assertNotNull(additionalValueFieldName);
+				assertNotNull(additionalValueFieldValue);
+			}
 		}
 	}
 
@@ -100,11 +114,13 @@ public class TestXPath {
 	public void testXPathGetTopicCategories() throws XPathExpressionException, IOException, SAXException {
 		XPathExpression xpathTopicCategories = xpath.compile("//data-source/general/topic-categories/topic-category/@id");
 
-		NodeList topicCategories = (NodeList) xpathTopicCategories.evaluate(dataSource, XPathConstants.NODESET);
-		assertNotNull(topicCategories);
-		for (int index = 0; index < topicCategories.getLength(); ++index) {
-			Node topicCategory = topicCategories.item(index);
-			assertNotNull(topicCategory.getTextContent());
+		for (Document dataSource : dataSourceInstances) {
+			NodeList topicCategories = (NodeList) xpathTopicCategories.evaluate(dataSource, XPathConstants.NODESET);
+			assertNotNull(topicCategories);
+			for (int index = 0; index < topicCategories.getLength(); ++index) {
+				Node topicCategory = topicCategories.item(index);
+				assertNotNull(topicCategory.getTextContent());
+			}
 		}
 	}
 
@@ -112,7 +128,9 @@ public class TestXPath {
 	public void testXPathNodeExists() throws XPathExpressionException, IOException, SAXException {
 		XPathExpression xpathExpression = xpath.compile("//data-source/technical-domain/project");
 
-		Boolean result = (Boolean) xpathExpression.evaluate(dataSource, XPathConstants.BOOLEAN);
-		assertNotNull(result);
+		for (Document dataSource : dataSourceInstances) {
+			Boolean result = (Boolean) xpathExpression.evaluate(dataSource, XPathConstants.BOOLEAN);
+			assertNotNull(result);
+		}
 	}
 }
