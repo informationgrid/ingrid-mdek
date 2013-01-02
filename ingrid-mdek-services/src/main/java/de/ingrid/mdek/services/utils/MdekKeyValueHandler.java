@@ -2,6 +2,8 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.ObjectType;
@@ -42,6 +44,8 @@ import de.ingrid.utils.udk.UtilsUDKCodeLists;
  * Encapsulates validation and mapping of key/value pairs in beans. -> syslists !
  */
 public class MdekKeyValueHandler {
+
+	private static final Logger LOG = Logger.getLogger(MdekKeyValueHandler.class);
 
 	private static MdekKeyValueHandler myInstance;
 
@@ -228,7 +232,15 @@ public class MdekKeyValueHandler {
 				MdekSysList.OBJ_GEO_SYMC.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setSymbolCatValue(keyNameMap.get(entryKey));
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setSymbolCatValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.OBJ_GEO_SYMC, entryKey, bean.getSymbolCatValue());
+				bean.setSymbolCatKey(-1);
+			}
 		}
 		
 		return bean;
@@ -254,7 +266,15 @@ public class MdekKeyValueHandler {
 				MdekSysList.LEGIST.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setLegistValue(keyNameMap.get(entryKey));
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setLegistValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.LEGIST, entryKey, bean.getLegistValue());
+				bean.setLegistKey(-1);
+			}
 		}
 		
 		return bean;
@@ -267,7 +287,15 @@ public class MdekKeyValueHandler {
 				MdekSysList.INFO_IMPART.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setImpartValue(keyNameMap.get(entryKey));
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setImpartValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.INFO_IMPART, entryKey, bean.getImpartValue());
+				bean.setImpartKey(-1);
+			}
 		}
 		
 		return bean;
@@ -319,7 +347,15 @@ public class MdekKeyValueHandler {
 				MdekSysList.SPATIAL_REF_VALUE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setNameValue(keyNameMap.get(entryKey));
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setNameValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.SPATIAL_REF_VALUE, entryKey, bean.getNameValue());
+				bean.setNameKey(-1);
+			}
 		}
 		
 		return bean;
@@ -425,7 +461,15 @@ public class MdekKeyValueHandler {
 				MdekSysList.OBJ_ACCESS.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setRestrictionValue(keyNameMap.get(entryKey));
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setRestrictionValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.OBJ_ACCESS, entryKey, bean.getRestrictionValue());
+				bean.setRestrictionKey(-1);
+			}
 		}
 
 		return bean;
@@ -611,7 +655,15 @@ public class MdekKeyValueHandler {
 				MdekSysList.OBJ_USE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setTermsOfUseValue(keyNameMap.get(entryKey));
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setTermsOfUseValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.OBJ_USE, entryKey, bean.getTermsOfUseValue());
+				bean.setTermsOfUseKey(-1);
+			}
 		}
 		
 		return bean;
@@ -624,7 +676,15 @@ public class MdekKeyValueHandler {
 				MdekSysList.OBJ_TYPES_CATALOGUE.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			bean.setTitleValue(keyNameMap.get(entryKey));
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setTitleValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.OBJ_TYPES_CATALOGUE, entryKey, bean.getTitleValue());
+				bean.setTitleKey(-1);
+			}
 		}
 		
 		return bean;
@@ -641,5 +701,11 @@ public class MdekKeyValueHandler {
 		}
 		
 		return bean;
+	}
+
+	private void logTransformToFreeEntry(MdekSysList list, Integer entryKey, String entryName) {
+		LOG.warn("Syslist Entry with key " + entryKey + " NOT found in Syslist " +
+				list + " (" + list.getDbValue() + ") !" +
+				" We transform to FREE ENTRY key/value = -1/\"" + entryName + "\"");
 	}
 }

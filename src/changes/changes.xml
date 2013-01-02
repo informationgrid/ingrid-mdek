@@ -20,6 +20,9 @@
       <action type="update" dev="wemove" issue="INGRID33-10">
         Remove field "note" from addresses (t02_address.descr), contents moved to address comments -> NEW version 3.3.0 of Export/Import format !
       </action>
+      <action type="fix" dev="wemove" issue="INGRID33-29">
+        Transform deleted entries of syslists to free entries when reindexing syslists.
+      </action>
       <action type="fix" dev="wemove" issue="INGRID33-25">
         Fix multiple references between same objects.
       </action>
