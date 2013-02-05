@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -12,6 +13,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.utils.IngridDocument;
@@ -32,6 +34,8 @@ public class XMLExporter implements IExporter {
 
 	private int exportCount;
 	private int totalNumExport;
+	private boolean doCountAdresses = true;
+	private List<String> objectAddresses;
 
 	public XMLExporter(IExporterCallback exporterCallback) {
 		this.exporterCallback = exporterCallback;
@@ -46,12 +50,13 @@ public class XMLExporter implements IExporter {
 		this.currentUserUuid = userUuid;
 		this.exportCount = 0;
 		this.totalNumExport = exporterCallback.getTotalNumAddressesToExport(rootUuids, whichVersion, includeSubnodes, userUuid);
-
+		this.doCountAdresses = true;
+		
 		try {
 			setupZipOutputStream();
-			setupWriterForAddresses();
+			setupWriter();
 			writeAddresses(rootUuids, whichVersion, includeSubnodes);
-			finalizeWriterForAddresses();
+			finalizeWriter();
 
 		} catch (IOException ex) {
 			// An IOException can occur while creating the output stream. If it happens,
@@ -76,20 +81,18 @@ public class XMLExporter implements IExporter {
 		out = new GZIPOutputStream(new BufferedOutputStream(baos));
 	}
 
-	private void setupWriterForAddresses() throws XMLStreamException {
-		writer = new IngridXMLStreamWriter(outputFactory.createXMLStreamWriter(out, XML_ENCODING)); 
-		writer.writeStartDocument();
-		writer.writeStartIngridAddresses();
-	}
-
 	private void writeAddresses(List<String> rootUuids,
 			IdcEntityVersion whichVersion,
 			boolean includeSubnodes) throws XMLStreamException {
+		writer.writeStartIngridAddresses();
+
 		if (includeSubnodes) {
 			writeAddressesWithChildren(rootUuids, whichVersion);
 		} else {
 			writeAddresses(rootUuids, whichVersion);
 		}
+
+		writer.writeEndIngridAddresses();
 	}
 
 	private void writeAddresses(List<String> adrUuids,
@@ -104,8 +107,10 @@ public class XMLExporter implements IExporter {
 		List<IngridDocument>  addressDetails = exporterCallback.getAddressDetails(adrUuid, whichVersion, currentUserUuid);
 		if (addressDetails != null && addressDetails.size() > 0) {
 			writer.writeIngridAddress(addressDetails);
-			exportCount++;
-			exporterCallback.writeExportInfo(IdcEntityType.ADDRESS, exportCount, totalNumExport, currentUserUuid);
+			if (this.doCountAdresses) {
+				exportCount++;
+				exporterCallback.writeExportInfo(IdcEntityType.ADDRESS, exportCount, totalNumExport, currentUserUuid);				
+			}
 
 		} else {
 			exporterCallback.writeExportInfoMessage("Could not export address with uuid "+adrUuid, currentUserUuid);
@@ -125,13 +130,6 @@ public class XMLExporter implements IExporter {
 		}
 	}
 
-	private void finalizeWriterForAddresses() throws XMLStreamException {
-		writer.writeEndIngridAddresses();
-		writer.writeEndDocument();
-		writer.flush();
-		writer.close();
-	}
-
 	private byte[] getResultAsByteArray() {
 		return baos.toByteArray();
 	}
@@ -140,11 +138,16 @@ public class XMLExporter implements IExporter {
 		this.currentUserUuid = userUuid;
 		this.exportCount = 0;
 		this.totalNumExport = exporterCallback.getTotalNumObjectsToExport(rootUuids, whichVersion, includeSubnodes, userUuid);
+		this.objectAddresses = new ArrayList<String>();
+		this.doCountAdresses = false;
 
 		try {
 			setupZipOutputStream();
 			setupWriter();
 			writeObjects(rootUuids, whichVersion, includeSubnodes);
+			if (objectAddresses.size() > 0) {
+				writeAddresses(this.objectAddresses, whichVersion, false);
+			}
 			finalizeWriter();
 
 		} catch (IOException ex) {
@@ -170,14 +173,6 @@ public class XMLExporter implements IExporter {
 		writer.writeStartDocument();
 	}
 
-	private void writeBeginObjects() throws XMLStreamException {
-		writer.writeStartIngridObjects();
-	}
-
-	private void writeEndObjects() throws XMLStreamException {
-		writer.writeEndIngridObjects();
-	}
-
 	private void finalizeWriter() throws XMLStreamException {
 		writer.writeEndDocument();
 		writer.flush();
@@ -187,7 +182,7 @@ public class XMLExporter implements IExporter {
 	private void writeObjects(List<String> rootUuids,
 			IdcEntityVersion whichVersion,
 			boolean includeSubnodes) throws XMLStreamException {
-		writeBeginObjects();
+		writer.writeStartIngridObjects();
 
 		if (includeSubnodes) {
 			writeObjectsWithChildren(rootUuids, whichVersion);
@@ -196,7 +191,7 @@ public class XMLExporter implements IExporter {
 			writeObjects(rootUuids, whichVersion);
 		}
 
-		writeEndObjects();
+		writer.writeEndIngridObjects();
 	}
 
 	private void writeObjects(List<String> objUuids,
@@ -213,9 +208,47 @@ public class XMLExporter implements IExporter {
 			writer.writeIngridObject(objectDetails);
 			exportCount++;
 			exporterCallback.writeExportInfo(IdcEntityType.OBJECT, exportCount, totalNumExport, currentUserUuid);
+			
+			// extract address references of object !
+			extractAddressReferences(objectDetails);
 
 		} else {
 			exporterCallback.writeExportInfoMessage("Could not export object with uuid "+objUuid, currentUserUuid);
+		}
+	}
+
+	private void extractAddressReferences(List<IngridDocument> objDocs) {
+		// we always add at same position, so parent is before child !
+		int pos = objectAddresses.size();
+		for (IngridDocument objDoc : objDocs) {
+			List<IngridDocument> addrDocs = (List<IngridDocument>) objDoc.get(MdekKeys.ADR_REFERENCES_TO);
+			if (addrDocs != null) {
+				for (IngridDocument addrDoc : addrDocs) {
+					String addrUuid = addrDoc.getString(MdekKeys.UUID);
+					if (addrUuid != null && !this.objectAddresses.contains(addrUuid)) {
+						objectAddresses.add(pos, addrUuid);
+						
+						// extract parent
+						addAddressParents(addrUuid, pos);
+					}
+				}
+			}
+		}
+	}
+
+	private void addAddressParents(String addrUuid, int posToAdd) {
+		// fetch only WORKING VERSION, parent has to be the same as in PUBLISHED one ...
+		List<IngridDocument>  addrDocs = exporterCallback.getAddressDetails(addrUuid, IdcEntityVersion.WORKING_VERSION, currentUserUuid);		
+		if (addrDocs != null) {
+			for (IngridDocument addrDoc : addrDocs) {
+				String parentUuid = addrDoc.getString(MdekKeys.PARENT_UUID);
+				if (parentUuid != null && !this.objectAddresses.contains(parentUuid)) {
+					objectAddresses.add(posToAdd, parentUuid);
+					
+					// extract parent of parent
+					addAddressParents(parentUuid, posToAdd);
+				}
+			}
 		}
 	}
 
