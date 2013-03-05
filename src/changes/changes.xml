@@ -4,10 +4,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="3.3.0-SNAPSHOT" date="??" description="Release InGrid 3.3">
-      <action type="update" dev="wemove" issue="INGRID33-16">
-        Rework of Export/Import, now also includes working copies to be used as backup tool. Changed import behaviour.
-      </action>
+    <release version="3.3.0" date="2013-03-05" description="Release InGrid 3.3">
       <action type="add" dev="wemove" issue="INGRID33-12">
         Add new field "publication condition" for addresses.
       </action>
@@ -15,10 +12,19 @@
         Dashboard: Show edited objects/addresses of ALL USERS (also with permissions).
       </action>
       <action type="add" dev="wemove" issue="INGRID33-11">
-        Now possible to merge address data of parent address to all subnodes.
+        Now possible to take over address data of parent address to all subnodes.
+      </action>
+      <action type="add" dev="wemove" issue="INGRID33-5">
+        Syslist table extended with data-column to store additional information.
+      </action>
+      <action type="update" dev="wemove" issue="INGRID33-16">
+        Rework of Export/Import, now also includes working copies to be used as backup tool. Changed import behaviour.
       </action>
       <action type="update" dev="wemove" issue="INGRID33-10">
         Remove field "note" from addresses (t02_address.descr), contents moved to address comments -> NEW version 3.3.0 of Export/Import format !
+      </action>
+      <action type="update" dev="wemove" issue="INGRID33-6">
+        Map ISO-topics from parent to new object.
       </action>
       <action type="fix" dev="wemove" issue="INGRID33-29">
         Transform deleted entries of syslists to free entries when reindexing syslists.

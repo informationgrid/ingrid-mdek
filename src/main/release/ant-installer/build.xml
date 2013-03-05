@@ -15,7 +15,7 @@
     	 ============================================= -->
     <!-- !!! From pom: the IGC Version the catalog should be updated to (used by udk-importer/updater) !!!!!!!!!! -->
     <!--<property name="NEW_IGC_DB_VERSION" value="${project.version}"/>-->
-    <property name="NEW_IGC_DB_VERSION" value="3.3.0_c"/>
+    <property name="NEW_IGC_DB_VERSION" value="3.3.0"/>
 
     <property name="iPlugName"          value="${project.build.finalName}"/>
     <property name="importerName"       value="ingrid-udk-importer-${ingrid-udk-importer.version}"/>
