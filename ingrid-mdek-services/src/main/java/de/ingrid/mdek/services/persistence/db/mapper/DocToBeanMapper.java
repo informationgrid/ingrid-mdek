@@ -287,6 +287,7 @@ public class DocToBeanMapper implements IMapper {
 		// process passed data, update syslist entries, add new ones, delete removed ones ...
 		for (int i=0; i < entries.length; i++) {
 			Integer inEntryId = entries[i].getInt(MdekKeys.LST_ENTRY_ID);
+			String data = entries[i].getString(MdekKeys.LST_ENTRY_DATA); 
 
 			// process all languages one by one
 			IngridDocument localNames = (IngridDocument) entries[i].get(MdekKeys.LST_LOCALISED_ENTRY_NAME_MAP);
@@ -337,6 +338,7 @@ public class DocToBeanMapper implements IMapper {
 				//String inName = (inName == null) ? "" : inName;
 				foundEntry.setName(inName);
 				foundEntry.setDescription(entries[i].getString(MdekKeys.LST_ENTRY_DESCRIPTION));
+				if (data != null) foundEntry.setData(data);
 				foundEntry.setMaintainable(inMaintainable);
 				dao.makePersistent(foundEntry);
 			}
