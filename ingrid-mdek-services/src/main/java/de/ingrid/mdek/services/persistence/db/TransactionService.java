@@ -22,6 +22,10 @@ public class TransactionService implements ITransactionService {
     public void commitTransaction() {
         Session currentSession = getSession();
         if (currentSession.getTransaction().isActive()) {
+        	// flush before commit since during tests sometimes errors occured
+        	// during save ("Duplicate entry '15925253' for key 'PRIMARY'")
+        	// Let's see if this helps!
+        	currentSession.flush();
         	currentSession.getTransaction().commit();
         }
     }
