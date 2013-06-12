@@ -1,4 +1,4 @@
-<project name="iPlug-IGE Installation">
+<project name="iPlug-IGE Installation" basedir=".">
     <description>
         iPlug-IGE Installation Script
     </description>
@@ -27,10 +27,20 @@
     <property name="oracleDriverClass"      value="oracle.jdbc.OracleDriver"/>
     <property name="oracleHibernateDialect" value="org.hibernate.dialect.Oracle10gDialect"/>
 
+    <!-- THIS PORPERTIES ARE NECESSARY FOR UPDATES -->
+    <property name="libraryDir"         value="lib" />
+    <property name="libraryIdent"       value="ingrid-mdek-api-" />
+    <!-- <property name="libraryIdent"       value="MANIFEST.MF" /> -->
+    <property name="versionsWithConfigurations"  value="3.3.0" />
+    <property name="minSupportedVersion" value="3.3.0" />
+
+    <import file="build-installer-utils.xml"  as="utils" />
+    <import file="build-patch.xml"            as="patch" />
+
     <!-- =============================================
          = CONFIGURATIONS                            =
          ============================================= -->
-    <target name="configureProperties" if="${installProcedure}">
+    <target name="configureProperties">
         <echo>Configure Properties
         </echo>
     	<property name="_adminUser"     value="${adminUser}" />
@@ -40,7 +50,7 @@
     	<property name="_dbUrl"         value="${dbUrl}" />
     </target>
 
-    <target name="configurePropertiesFromFiles" if="${updateProcedure}">
+    <target name="configurePropertiesFromFiles">
         <echo>Configure Properties from previous Installation
         </echo>
 
@@ -62,12 +72,12 @@
         </if>
     </target>
 
-    <target name="setUpdateProperty">
+    <target name="setUpdateProperty" depends="checkPreconditionsForUpdate, UnzipInstallerForUpdate, configurePropertiesFromFiles">
         <property name="updateProcedure" value="true" />
         <property name="installProcedure" value="false" />
     </target>
     
-    <target name="setInstallProperty">
+    <target name="setInstallProperty" depends="UnzipInstaller">
         <property name="installProcedure" value="true" />
         <property name="updateProcedure" value="false" />
     </target>
@@ -82,7 +92,7 @@
     	<property name="useMysql" value="false" />
     </target>
 
-    <target name="UnzipInstaller" if="${installProcedure}">
+    <target name="UnzipInstaller">
         <unzip src="${antinstaller.jar}" dest=".">
             <patternset>
                 <include name="${iPlugName}/**/*.*"/>
@@ -90,28 +100,36 @@
             </patternset>
         </unzip>
 
+        <copy file="./${iPlugName}/lib/${mySqlDriver.jar}" todir="."/>
+
         <runtarget target="proceedAfterUnzipInstaller"/>
     </target>
     
-    <target name="UnzipInstallerForUpdate" if="${updateProcedure}">
+    <target name="UnzipInstallerForUpdate">
         <unzip src="${antinstaller.jar}" dest=".">
             <patternset>
-                <include name="${iPlugName}/**/*.*"/>
+                <include name="**/*.*"/>
                 <exclude name="${iPlugName}/conf/communication.xml" />
                 <exclude name="${iPlugName}/conf/default-datasource.properties" />
                 <include name="${importerName}-installer.jar"/>
             </patternset>
         </unzip>
 
-        <!-- remove old libs -->
-        <delete dir="${installDir}/lib"/>
+        <copy file="./${iPlugName}/lib/${mySqlDriver.jar}" todir="."/>
         
+        <delete>
+            <fileset dir="${installDir}/lib" includes="**/*"/>
+        </delete>
+        
+        <move toDir="${installDir}">
+            <fileset dir="./${iPlugName}"/>
+        </move>
+
         <runtarget target="proceedAfterUnzipInstaller"/>
     </target>
 
     <target name="proceedAfterUnzipInstaller">
         <!-- Our database driver executable -->
-        <copy file="./${iPlugName}/lib/${mySqlDriver.jar}" todir="."/>
         <property name="mySqlDbDriver" location="./${mySqlDriver.jar}"/>
 
         <!-- unzip udk-importer-installer to base-directory used for set up/update of IGC database -->
@@ -135,7 +153,7 @@
          = MAIN TARGETS                              =
          ============================================= -->
 
-    <target name="StartInstallation" depends="UnzipInstaller, UnzipInstallerForUpdate, configureProperties, configurePropertiesFromFiles">
+    <target name="StartInstallation" depends="configureProperties">
         <runtarget target="MoveFiles" />
 
         <if>

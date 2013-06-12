@@ -1,0 +1,6 @@
+<project name="IGE-iPlug Patches">
+    <target name="patchFiles" depends="">
+    	<runtarget target="runDatabaseStuff"/>
+        <!-- patch order determined through depends-order -->
+    </target>
+</project>

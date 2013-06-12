@@ -4,7 +4,7 @@
             ui			        ="swing,text,swing-auto,text-auto"
             loadDefaults        ="prompt"
             verbose             ="true"
-            debug               ="true"
+            debug               ="false"
             lookAndFeel         ="org.tp23.jgoodies.plaf.plastic.PlasticXPLookAndFeel"
             name                ="iPlug-IGE Installation"
             windowIcon          ="/resources/icons/logoIcon.gif"
@@ -141,14 +141,15 @@
             type        ="input"
             name        ="properties"
             displayText ="Benötigte Installationsoptionen"
-            target      ="StartInstallation">
+            target      ="patchFiles"
+            postDisplayTarget = "antinstaller-determineVersion">
         <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
         <comment explanatoryText="Der IGC Katalog wird aus der bestehenden Installation ermittelt und auf die neue Version aktualisiert ! Zur Sicherheit sollte vorher ein BACKUP des Katalogs gezogen werden !"/>
         <comment explanatoryText="Die Ausgabe der Aktualisierung sollte in der 'Detailanzeige' hier verfolgt werden. Ein ausführliches LOG findet sich nach Ausfuehrung im angegebenen Installationsverzeichnis (importer_TIMESTAMP*.log)."/>
         <directory
             property            ="installDir"
             defaultValue        ="/opt/ingrid/${project.artifactId}-${project.version}"
-            defaultValueWin     ="${env.ProgramFiles}\${project.build.finalName}"
+            defaultValueWin     ="${env.ProgramFiles}\${project.artifactId}-${project.version}"
             displayText         ="Altes Installationsverzeichnis"
             create              ="false"
             checkExists         ="true" />
