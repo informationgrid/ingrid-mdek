@@ -46,6 +46,9 @@ import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysJobInfo;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpConnpoint;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
 import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
@@ -844,9 +847,11 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			permissionHandler.checkIsCatalogAdmin(userId);
 
 			List<Map<String, Object>> urlList = docIn.getArrayList(MdekKeys.URL_RESULT);
+			List<Map<String, Object>> capList = docIn.getArrayList(MdekKeys.CAP_RESULT);
 			String jobStartTime = docIn.getString(MdekKeys.JOBINFO_START_TIME);
 			HashMap<String, Object> data = new HashMap<String, Object>();
 			data.put(MdekKeys.URL_RESULT, urlList);
+			data.put(MdekKeys.CAP_RESULT, capList);
 			jobHandler.startJobInfoDB(
 					JobType.URL,
 					jobStartTime,
@@ -914,6 +919,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		String userId = getCurrentUserUuid(docIn);
 		List<IngridDocument> urlList = docIn.getArrayList(MdekKeys.REQUESTINFO_URL_LIST);
 		String targetUrl = docIn.getString(MdekKeys.REQUESTINFO_URL_TARGET);
+		String type = docIn.getString(MdekKeys.LINKAGE_URL_TYPE);
 
 		boolean removeRunningJob = true;
 		try {
@@ -938,11 +944,29 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				}
 
 				T01Object obj = oNode.getT01ObjectPublished();
-				Set<T017UrlRef> urlRefs = (Set<T017UrlRef>) obj.getT017UrlRefs();
-				for (T017UrlRef urlRef : urlRefs) {
-					if (urlRef.getUrlLink().equals(srcUrl)) {
-						urlRef.setUrlLink(targetUrl);
-					}
+				if ("capabilities".equals(type)) {
+    				Set<T011ObjServ> urlRefs = obj.getT011ObjServs();
+    				
+    				
+    				for (T011ObjServ urlRef : urlRefs) {
+    				    Set<T011ObjServOperation> operations = urlRef.getT011ObjServOperations();
+    				    for (T011ObjServOperation operation : operations) {
+					        Set<T011ObjServOpConnpoint> connections = operation.getT011ObjServOpConnpoints();
+					        for (T011ObjServOpConnpoint connection : connections) {
+					            if (connection.getConnectPoint().equals(srcUrl)) {
+					                connection.setConnectPoint(targetUrl);
+					            }
+					        }
+    					}
+    				}
+				} else {
+				    Set<T017UrlRef> urlRefs = (Set<T017UrlRef>) obj.getT017UrlRefs();
+				    for (T017UrlRef urlRef : urlRefs) {
+				        if (urlRef.getUrlLink().equals(srcUrl)) {
+				            urlRef.setUrlLink(targetUrl);
+				        }
+				    }
+				    
 				}
 			}
 

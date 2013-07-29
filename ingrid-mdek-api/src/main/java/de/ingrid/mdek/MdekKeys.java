@@ -200,6 +200,8 @@ public class MdekKeys {
     // SPECIFIC JOBINFO RESULT
     /** Value: IngridDocument encapsulating a list with the result */
     public final static String URL_RESULT = "url-result";
+    /** Value: IngridDocument encapsulating a list with the result */
+    public final static String CAP_RESULT = "capabilities-result";
     /** URL that was checked by the URL validator job
      * Value: String */
     public final static String URL_RESULT_URL = "url-result-url";

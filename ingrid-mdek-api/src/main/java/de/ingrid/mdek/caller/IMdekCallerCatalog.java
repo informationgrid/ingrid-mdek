@@ -227,9 +227,10 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @param urlList list containing urls and their corresponding object uuids
 	 * @param targetUrl the url which should replace the sourceURLs
 	 * @param userId calling user
+	 * @param type of the Urls (urls or capabilities)
 	 * @return response containing result: empty IngridDocument on success
 	 */
-	IngridDocument replaceURLs(String plugId, List<IngridDocument> urlList, String targetUrl, String userId);
+	IngridDocument replaceURLs(String plugId, List<IngridDocument> urlList, String targetUrl, String userId, String type);
 
 	/** starts the db consistency checker job
 	 * @param plugId which mdek server (iplug)

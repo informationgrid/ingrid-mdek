@@ -214,6 +214,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 	public IngridDocument setURLInfo(String plugId, IngridDocument urlInfo, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.URL_RESULT, urlInfo.get(MdekKeys.URL_RESULT));
+		jobParams.put(MdekKeys.CAP_RESULT, urlInfo.get(MdekKeys.CAP_RESULT));
 		jobParams.put(MdekKeys.JOBINFO_START_TIME, urlInfo.get(MdekKeys.JOBINFO_START_TIME));
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("setURLInfo", jobParams);
@@ -229,10 +230,11 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
-	public IngridDocument replaceURLs(String plugId, List<IngridDocument> urlList, String targetUrl, String userId) {
+	public IngridDocument replaceURLs(String plugId, List<IngridDocument> urlList, String targetUrl, String type, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_URL_LIST, urlList);
 		jobParams.put(MdekKeys.REQUESTINFO_URL_TARGET, targetUrl);
+		jobParams.put(MdekKeys.LINKAGE_URL_TYPE, type);
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("replaceURLs", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
