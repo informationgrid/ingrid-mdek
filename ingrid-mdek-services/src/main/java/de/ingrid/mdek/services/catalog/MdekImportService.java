@@ -1,5 +1,7 @@
 package de.ingrid.mdek.services.catalog;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1578,7 +1580,10 @@ public class MdekImportService implements IImporterCallback {
 				evictObjReferences(objUuid, userUuid);
 			}
 
-			throw createImportException(errorMsg + ex);			
+			// we throw MdekException (= RuntimeException) to avoid catch clause outside !
+			// NOTICE: MdekErrorHandler.handleException reacts to type of exception but should not matter,
+			// we already encapsulate exception info (full stack trace) ! 
+			throw createImportException(errorMsg + getStackTrace(ex));			
 		}
 	}
 
@@ -1642,5 +1647,11 @@ public class MdekImportService implements IImporterCallback {
 		}
 
 		return tag.toString();
+	}
+
+	private String getStackTrace(Throwable t) {
+		StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();		
 	}
 }

@@ -4,6 +4,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="3.4.0-SNAPSHOT" date="???" description="???">
+      <action type="update" dev="wemove" issue="INGRID-2300">
+        On import exception also pass full stack trace to frontend.
+      </action>
+    </release>
+    
     <release version="3.3.0" date="2013-03-05" description="Release InGrid 3.3">
       <action type="add" dev="wemove" issue="INGRID33-12">
         Add new field "publication condition" for addresses.

@@ -52,16 +52,27 @@ public class MdekException extends RuntimeException {
     }
 
 	public String toString() {
-		String retStr = getMessage();
-		if (retStr == null) {
-			retStr = "";
+		// if "Exception message" equals "Error message" output only once !
+
+		String msgStr = getMessage();
+		if (msgStr == null) {
+			msgStr = "";
+		}
+
+		String errStr = "";
+		for (MdekError err : errors) {
+			if (errStr.length() > 0) {
+				errStr += "\n";				
+			}
+			errStr += err; 
 		}
 		
-		for (MdekError err : errors) {
+		String retStr = msgStr;
+		if (!retStr.equals(errStr)) {
 			if (retStr.length() > 0) {
 				retStr += "\n";				
 			}
-			retStr += err;
+			retStr += errStr;
 		}
 		
 		return retStr;
