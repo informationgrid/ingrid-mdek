@@ -1093,6 +1093,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 		targetObjDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
 		targetObjDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		// REMOVE Original ID to avoid duplicate ! see INGRID-2299 
+		targetObjDoc.remove(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER);
 		beanToDocMapper.mapModUser(userUuid, targetObjDoc, MappingQuantity.INITIAL_ENTITY);
 		beanToDocMapper.mapResponsibleUser(userUuid, targetObjDoc, MappingQuantity.INITIAL_ENTITY);				
 		workflowHandler.processDocOnCopy(targetObjDoc);

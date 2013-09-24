@@ -1203,6 +1203,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		String currentTime = MdekUtils.dateToTimestamp(new Date());
 		targetAddrDoc.put(MdekKeys.DATE_OF_CREATION, currentTime);
 		targetAddrDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, currentTime);
+		// REMOVE Original ID to avoid duplicate ! see INGRID-2299 
+		targetAddrDoc.remove(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER);
 		beanToDocMapper.mapModUser(userUuid, targetAddrDoc, MappingQuantity.INITIAL_ENTITY);
 		beanToDocMapper.mapResponsibleUser(userUuid, targetAddrDoc, MappingQuantity.INITIAL_ENTITY);				
 		workflowHandler.processDocOnCopy(targetAddrDoc);
