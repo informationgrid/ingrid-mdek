@@ -710,6 +710,16 @@ public class MdekKeys {
      * Value: Integer  */
     public final static String EXPORT_CRITERION_VALUE = "export-criterion-value";
     
+    // OPEN DATA
+    /** Value: String  */
+    public final static String IS_OPEN_DATA = "is-open-data";
+    /** Value: List< IngridDocument > */
+    public final static String CATEGORIES_OPEN_DATA_LIST = "categories-open-data_list";
+    /** Value: Integer */
+    public final static String CATEGORIES_OPEN_DATA_KEY = "categories-open-data-key";
+    /** Value: String */
+    public final static String CATEGORIES_OPEN_DATA_VALUE = "categories-open-data-value";
+    
     // TECHNICAL DOMAIN MAP
     /** Value: IngridDocument encapsulating all MAP data */
     public final static String TECHNICAL_DOMAIN_MAP = "technical-domain-map";
