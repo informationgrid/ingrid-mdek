@@ -5,11 +5,17 @@
   </properties>
   <body>
     <release version="3.4.0-SNAPSHOT" date="???" description="???">
+      <action type="add" dev="wemove" issue="REDMINE-128">
+        Added "Open Data" checkbox indicating Open Data metadata.
+      </action>
       <action type="update" dev="wemove" issue="INGRID-2300">
         On import exception also pass full stack trace to frontend.
       </action>
+      <action type="fix" dev="wemove">
+        Export of object/address comments fixed, content and creation date was missing.
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2299">
-        Remove original id of object/address when copied.
+        Do NOT copy original id of object/address when performing copy.
       </action>
     </release>
     
