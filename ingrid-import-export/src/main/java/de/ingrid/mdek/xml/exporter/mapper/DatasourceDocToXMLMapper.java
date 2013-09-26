@@ -795,9 +795,9 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createComment(IngridDocument commentContext) {
 		XMLElement comment = new XMLElement(COMMENT);
-		comment.addChild(new XMLElement(COMMENT_CONTENT, getStringForKey(MdekKeys.COMMENT)));
+		comment.addChild(new XMLElement(COMMENT_CONTENT, getStringForKey(MdekKeys.COMMENT, commentContext)));
 		comment.addChild(createCreatorIdentifier(commentContext));
-		comment.addChild(new XMLElement(DATE_OF_CREATION, getStringForKey(MdekKeys.CREATE_TIME)));
+		comment.addChild(new XMLElement(DATE_OF_CREATION, getStringForKey(MdekKeys.CREATE_TIME, commentContext)));
 		return comment;
 	}
 
