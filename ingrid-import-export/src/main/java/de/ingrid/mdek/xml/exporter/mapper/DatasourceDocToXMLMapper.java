@@ -60,6 +60,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		general.addChild(createTopicCategories());
 		general.addChild(createEnvInformation());
 		general.addChild(createIsInspireRelevant());
+		general.addChild(createIsOpenData());
 		return general;
 	}
 
@@ -207,6 +208,10 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createIsInspireRelevant() {
 		return new XMLElement(IS_INSPIRE_RELEVANT, getStringForKey(MdekKeys.IS_INSPIRE_RELEVANT));
+	}
+	
+	private XMLElement createIsOpenData() {
+		return new XMLElement(IS_OPEN_DATA, getStringForKey(MdekKeys.IS_OPEN_DATA));
 	}
 	
 	private List<XMLElement> createEnvTopics() {

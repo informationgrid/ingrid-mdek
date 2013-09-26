@@ -456,6 +456,7 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
 			oIn.setIsInspireRelevant(oDocIn.getString(MdekKeys.IS_INSPIRE_RELEVANT));
+			oIn.setIsOpenData(oDocIn.getString(MdekKeys.IS_OPEN_DATA));
 
 			oIn.setModUuid(extractModUserUuid(oDocIn));
 			oIn.setResponsibleUuid(extractResponsibleUserUuid(oDocIn));

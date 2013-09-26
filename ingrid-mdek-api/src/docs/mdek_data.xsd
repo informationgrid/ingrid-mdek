@@ -108,7 +108,9 @@
 			<xs:element name="is-catalog-data" type="xs:string"/>
 			<!-- InGrid 3.0.0 -->
 			<xs:element name="is-inspire-relevant" type="xs:string"/>
-
+			<!-- InGrid 3.3.1, REDMINE-128 -->
+			<xs:element name="is-open-data" type="xs:string"/>
+			
 			<xs:element name="original-control-identifier" type="xs:string"/>
 			<xs:element name="catalogue-identifier" type="xs:long"/>
 			<xs:element name="dataset-character-set" type="xs:integer"/>

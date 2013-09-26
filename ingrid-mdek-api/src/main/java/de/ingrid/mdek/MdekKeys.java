@@ -714,11 +714,11 @@ public class MdekKeys {
     /** Value: String  */
     public final static String IS_OPEN_DATA = "is-open-data";
     /** Value: List< IngridDocument > */
-    public final static String CATEGORIES_OPEN_DATA_LIST = "categories-open-data_list";
+    public final static String OPEN_DATA_CATEGORY_LIST = "open-data-category_list";
     /** Value: Integer */
-    public final static String CATEGORIES_OPEN_DATA_KEY = "categories-open-data-key";
+    public final static String OPEN_DATA_CATEGORY_KEY = "open-data-category-key";
     /** Value: String */
-    public final static String CATEGORIES_OPEN_DATA_VALUE = "categories-open-data-value";
+    public final static String OPEN_DATA_CATEGORY_VALUE = "open-data-category-value";
     
     // TECHNICAL DOMAIN MAP
     /** Value: IngridDocument encapsulating all MAP data */

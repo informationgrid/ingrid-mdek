@@ -289,6 +289,7 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.ORDERING_INSTRUCTIONS, o.getOrderingInstructions());
 			objectDoc.put(MdekKeys.IS_CATALOG_DATA, o.getIsCatalogData());
 			objectDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, o.getIsInspireRelevant());
+			objectDoc.put(MdekKeys.IS_OPEN_DATA, o.getIsOpenData());
 
 			// map associations		
 			mapObjectReferences(o.getObjectReferences(), objectDoc);

@@ -44,6 +44,7 @@
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
       <property name="isCatalogData" type="string" column="is_catalog_data"/>
       <property name="isInspireRelevant" type="string" column="is_inspire_relevant"/>
+      <property name="isOpenData" type="string" column="is_open_data"/>
       <property name="workState" type="string" column="work_state"/>
       <property name="createTime" type="string" column="create_time"/>
       <property name="objMetadataId" type="long" column="obj_metadata_id"/>

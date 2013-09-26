@@ -44,6 +44,7 @@ public class T01Object implements IEntity {
 	private String orderingInstructions;
 	private String isCatalogData;
 	private String isInspireRelevant;
+	private String isOpenData;
 	private String workState;
 	private String createTime;
 	private Long objMetadataId;
@@ -379,6 +380,14 @@ public class T01Object implements IEntity {
 
 	public void setIsInspireRelevant(String isInspireRelevant) {
 		this.isInspireRelevant = isInspireRelevant;
+	}
+
+	public String getIsOpenData() {
+		return isOpenData;
+	}
+
+	public void setIsOpenData(String isOpenData) {
+		this.isOpenData = isOpenData;
 	}
 
 	public String getWorkState() {

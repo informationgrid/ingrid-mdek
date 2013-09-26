@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="3.3.0"/>
+    <xs:attribute name="exchange-format" default="3.3.1"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -166,6 +166,7 @@
         <xs:element ref="topic-categories"/>
         <xs:element minOccurs="0" ref="env-information"/>
         <xs:element minOccurs="0" ref="is-inspire-relevant"/>
+        <xs:element minOccurs="0" ref="is-open-data"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -318,6 +319,11 @@
     Tabelle.Feld   : T01_object.is_inspire_relevant
   -->
   <xs:element name="is-inspire-relevant" default="N" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: "Open Data Datensatz" (checkbox)
+    Tabelle.Feld   : T01_object.is_open_data
+  -->
+  <xs:element name="is-open-data" default="N" type="igc-boolean"/>
   <!--
     Fachlicher Name: Umweltthema Schlüssel (Katalogseite)
     Tabelle.Feld   : T0114_env_topic.topic_key

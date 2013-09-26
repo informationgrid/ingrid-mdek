@@ -1269,6 +1269,7 @@ class MdekExampleObjectThread extends Thread {
 		Integer origMetadataLanguageCode = (Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE);
 		oDocIn.put(MdekKeys.METADATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		oDocIn.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
+		oDocIn.put(MdekKeys.IS_OPEN_DATA, "Y");
 		Integer origVerticalExtentVdatumKey = (Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY);
 		String origVerticalExtentVdatumValue = oDocIn.getString(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE);
 		oDocIn.put(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY, new Integer(5129));
@@ -1794,6 +1795,7 @@ class MdekExampleObjectThread extends Thread {
 			oRefetchedDoc.put(MdekKeys.DATA_LANGUAGE_CODE, origDataLanguageCode);
 			oRefetchedDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, origMetadataLanguageCode);
 			oRefetchedDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, "N");
+			oRefetchedDoc.put(MdekKeys.IS_OPEN_DATA, "N");
 			oRefetchedDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY, origVerticalExtentVdatumKey);
 			oRefetchedDoc.put(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE, origVerticalExtentVdatumValue);
 
