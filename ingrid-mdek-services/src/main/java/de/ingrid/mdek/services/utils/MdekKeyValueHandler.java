@@ -16,6 +16,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
+import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
@@ -80,6 +81,7 @@ public class MdekKeyValueHandler {
 		ObjectUse.class,
 		ObjectTypesCatalogue.class,
 		T011ObjServOpPlatform.class,
+		ObjectOpenDataCategory.class,
 	};
 
 	/** Get The Singleton */
@@ -159,6 +161,8 @@ public class MdekKeyValueHandler {
 			processKeyValueObjectTypesCatalogue((ObjectTypesCatalogue) bean);
 		} else if (T011ObjServOpPlatform.class.isAssignableFrom(clazz)) {
 			processKeyValueT011ObjServOpPlatform((T011ObjServOpPlatform) bean);
+		} else if (ObjectOpenDataCategory.class.isAssignableFrom(clazz)) {
+			processKeyValueObjectOpenDataCategory((ObjectOpenDataCategory) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -698,6 +702,27 @@ public class MdekKeyValueHandler {
 				catalogService.getCatalogLanguage());
 
 			bean.setPlatformValue(keyNameMap.get(entryKey));
+		}
+		
+		return bean;
+	}
+
+	private IEntity processKeyValueObjectOpenDataCategory(ObjectOpenDataCategory bean) {
+		Integer entryKey = bean.getCategoryKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_OPEN_DATA_CATEGORY.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			if (keyNameMap.get(entryKey) != null) {
+				// entry found in syslist, set name !
+				bean.setCategoryValue(keyNameMap.get(entryKey));
+			} else {
+				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+				// see INGRID33-29
+				logTransformToFreeEntry(MdekSysList.OBJ_OPEN_DATA_CATEGORY, entryKey, bean.getCategoryValue());
+				bean.setCategoryKey(-1);
+			}
 		}
 		
 		return bean;

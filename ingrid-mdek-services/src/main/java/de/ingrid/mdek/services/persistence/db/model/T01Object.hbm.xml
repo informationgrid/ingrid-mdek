@@ -86,6 +86,13 @@
          <key column="obj_id"/>
          <one-to-many class="ObjectFormatInspire" not-found="ignore"/>
       </set>
+      <set name="objectOpenDataCategorys" order-by="line"
+           table="object_open_data_category"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="ObjectOpenDataCategory" not-found="ignore"/>
+      </set>
       <set name="objectReferences" order-by="line" table="object_reference" inverse="true"
            cascade="all-delete-orphan">
          <key column="obj_from_id"/>

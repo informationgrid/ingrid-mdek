@@ -31,6 +31,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectFormatInspire.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectOpenDataCategory.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectTypesCatalogue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectUse.hbm.xml</value>
@@ -99,6 +100,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectMetadata">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectNode">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectReference">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectUse">read-write</prop>

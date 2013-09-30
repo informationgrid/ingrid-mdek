@@ -107,6 +107,7 @@ public class MdekUtils {
 		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity:specificationKey:specificationValue"),
 		OBJ_ACCESS(6010, "ObjectAccess:restrictionKey:restrictionValue"),
 		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
+		OBJ_OPEN_DATA_CATEGORY(6400, "ObjectOpenDataCategory:categoryKey:categoryValue"),
 		OBJ_TOPIC_CAT(527, "T011ObjTopicCat:topicCategory"),
 		/** type='I'(INSPIRE) -> INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue:entryId:term"),

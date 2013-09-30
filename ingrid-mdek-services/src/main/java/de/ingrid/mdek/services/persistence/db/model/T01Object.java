@@ -58,6 +58,7 @@ public class T01Object implements IEntity {
 	private Set objectConformitys = new HashSet();
 	private Set objectDataQualitys = new HashSet();
 	private Set objectFormatInspires = new HashSet();
+	private Set objectOpenDataCategorys = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set objectTypesCatalogues = new HashSet();
 	private Set objectUses = new HashSet();
@@ -485,6 +486,14 @@ public class T01Object implements IEntity {
 
 	public void setObjectFormatInspires(Set objectFormatInspires) {
 		this.objectFormatInspires = objectFormatInspires;
+	}
+
+	public Set getObjectOpenDataCategorys() {
+		return objectOpenDataCategorys;
+	}
+
+	public void setObjectOpenDataCategorys(Set objectOpenDataCategorys) {
+		this.objectOpenDataCategorys = objectOpenDataCategorys;
 	}
 
 	public Set getObjectReferences() {

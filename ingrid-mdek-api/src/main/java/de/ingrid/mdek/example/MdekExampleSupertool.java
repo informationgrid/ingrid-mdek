@@ -958,6 +958,13 @@ public class MdekExampleSupertool {
 			System.out.println("  Topic Categories: " + intList.size() + " entries");
 			System.out.println("   " + intList);
 		}
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+		if (docList != null && docList.size() > 0) {
+			System.out.println("  Open Data Categories: " + docList.size() + " entries");
+			for (IngridDocument doc : docList) {
+				System.out.println("   " + doc);								
+			}			
+		}
 
 		myDoc = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
 		if (myDoc != null) {

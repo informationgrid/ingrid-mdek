@@ -167,6 +167,8 @@ public class XMLKeys {
 	public static final String IS_CATALOG = "is-catalog";
 	public static final String IS_INSPIRE_RELEVANT = "is-inspire-relevant";
 	public static final String IS_OPEN_DATA = "is-open-data";
+	public static final String OPEN_DATA_CATEGORIES = "open-data-categories";
+	public static final String OPEN_DATA_CATEGORY = "open-data-category";
 	public static final String ENV_INFORMATION = "env-information";
 	public static final String TOPIC_CATEGORY = "topic-category";
 	public static final String TOPIC_CATEGORIES = "topic-categories";

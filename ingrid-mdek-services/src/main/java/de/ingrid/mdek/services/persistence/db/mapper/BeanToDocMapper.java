@@ -30,6 +30,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
@@ -325,6 +326,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 			mapObjectUses(o.getObjectUses(), objectDoc);
+			mapObjectOpenDataCategorys(o.getObjectOpenDataCategorys(), objectDoc);
 			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
 			mapObjectFormatInspires(o.getObjectFormatInspires(), objectDoc);
 			mapSpatialSystems(o.getSpatialSystems(), objectDoc);
@@ -1971,6 +1973,32 @@ public class BeanToDocMapper implements IMapper {
 
 		refDoc.put(MdekKeys.USE_TERMS_OF_USE_KEY, ref.getTermsOfUseKey());
 		refDoc.put(MdekKeys.USE_TERMS_OF_USE_VALUE, ref.getTermsOfUseValue());
+
+		return refDoc;
+	}
+
+	private IngridDocument mapObjectOpenDataCategorys(Set<ObjectOpenDataCategory> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		for (ObjectOpenDataCategory ref : refs) {
+			IngridDocument refDoc = new IngridDocument();
+			mapObjectOpenDataCategory(ref, refDoc);
+			refList.add(refDoc);
+		}
+		objectDoc.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, refList);
+		
+		return objectDoc;
+	}
+	private IngridDocument mapObjectOpenDataCategory(ObjectOpenDataCategory ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.OPEN_DATA_CATEGORY_KEY, ref.getCategoryKey());
+		refDoc.put(MdekKeys.OPEN_DATA_CATEGORY_VALUE, ref.getCategoryValue());
 
 		return refDoc;
 	}

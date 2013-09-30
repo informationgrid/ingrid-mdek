@@ -167,6 +167,7 @@
         <xs:element minOccurs="0" ref="env-information"/>
         <xs:element minOccurs="0" ref="is-inspire-relevant"/>
         <xs:element minOccurs="0" ref="is-open-data"/>
+        <xs:element ref="open-data-categories"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -324,6 +325,23 @@
     Tabelle.Feld   : T01_object.is_open_data
   -->
   <xs:element name="is-open-data" default="N" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: Open Data Kategorien eines Objektes, see REDMINE-128
+    Tabelle.Feld   : object_open_data_category
+  -->
+  <xs:element name="open-data-categories">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="open-data-category"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Open Data Kategorie eines Objektes, see REDMINE-128
+    Tabelle.Feld   : object_open_data_category.category_key
+    Tabelle.Feld   : object_open_data_category.category_value
+  -->
+  <xs:element name="open-data-category" type="id-string"/>
   <!--
     Fachlicher Name: Umweltthema Schlüssel (Katalogseite)
     Tabelle.Feld   : T0114_env_topic.topic_key

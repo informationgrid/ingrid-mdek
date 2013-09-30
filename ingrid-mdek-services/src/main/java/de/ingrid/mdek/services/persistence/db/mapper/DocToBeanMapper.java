@@ -37,6 +37,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
@@ -501,6 +502,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectConformitys(oDocIn, oIn);
 			updateObjectAccesses(oDocIn, oIn);
 			updateObjectUses(oDocIn, oIn);
+			updateObjectOpenDataCategorys(oDocIn, oIn);
 			updateObjectDataQualitys(oDocIn, oIn);
 			updateObjectFormatInspires(oDocIn, oIn);
 			updateSpatialSystems(oDocIn, oIn);
@@ -2591,6 +2593,42 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
 			ObjectAccess ref = mapObjectAccess(oIn, refDoc, new ObjectAccess(), line);
+			refs.add(ref);
+			line++;
+		}
+	}
+
+	private ObjectOpenDataCategory mapObjectOpenDataCategory(T01Object oFrom,
+			IngridDocument refDoc,
+			ObjectOpenDataCategory ref, 
+			int line)
+	{
+		ref.setObjId(oFrom.getId());
+		ref.setCategoryKey((Integer)refDoc.get(MdekKeys.OPEN_DATA_CATEGORY_KEY));
+		ref.setCategoryValue(refDoc.getString(MdekKeys.OPEN_DATA_CATEGORY_VALUE));
+		ref.setLine(line);
+		keyValueService.processKeyValue(ref);
+
+		return ref;
+	}
+	private void updateObjectOpenDataCategorys(IngridDocument oDocIn, T01Object oIn) {
+		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+		if (refDocs == null) {
+			refDocs = new ArrayList<IngridDocument>(0);
+		}
+		Set<ObjectOpenDataCategory> refs = oIn.getObjectOpenDataCategorys();
+		ArrayList<ObjectOpenDataCategory> refs_unprocessed = new ArrayList<ObjectOpenDataCategory>(refs);
+		// remove all !
+		for (ObjectOpenDataCategory ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);			
+		}		
+		// and add all new ones !
+		int line = 1;
+		for (IngridDocument refDoc : refDocs) {
+			// add all as new ones
+			ObjectOpenDataCategory ref = mapObjectOpenDataCategory(oIn, refDoc, new ObjectOpenDataCategory(), line);
 			refs.add(ref);
 			line++;
 		}

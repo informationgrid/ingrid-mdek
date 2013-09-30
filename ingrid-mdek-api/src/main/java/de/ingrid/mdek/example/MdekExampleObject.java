@@ -1358,6 +1358,15 @@ class MdekExampleObjectThread extends Thread {
 		intList.add(1);
 		oDocIn.put(MdekKeys.TOPIC_CATEGORIES, intList);
 
+		// add entry to OPEN_DATA_CATEGORY_LIST
+		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check OPEN_DATA_CATEGORY_KEY -> OPEN_DATA_CATEGORY_VALUE is stored via syslist
+		testDoc.put(MdekKeys.OPEN_DATA_CATEGORY_KEY, 2);
+		docList.add(testDoc);
+		oDocIn.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, docList);
+
 		// add entry to DATA_FORMATS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_FORMATS);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
@@ -1891,6 +1900,13 @@ class MdekExampleObjectThread extends Thread {
 			if (intList != null && intList.size() > 0) {
 				intList.remove(intList.size()-1);
 				oRefetchedDoc.put(MdekKeys.TOPIC_CATEGORIES, intList);				
+			}
+
+			// OPEN_DATA_CATEGORY_LIST wieder wie vorher !
+			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+			if (docList != null && docList.size() > 0) {
+				docList.remove(docList.size()-1);
+				oRefetchedDoc.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, docList);				
 			}
 
 			// REMOVE TECHNICAL DOMAIN MAP

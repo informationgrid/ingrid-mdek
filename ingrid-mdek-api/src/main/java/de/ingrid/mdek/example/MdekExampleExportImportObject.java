@@ -210,6 +210,15 @@ class MdekExampleExportImportObjectThread extends Thread {
 		String origIsOpenData = oDoc.getString(MdekKeys.IS_OPEN_DATA);
 		oDoc.put(MdekKeys.IS_OPEN_DATA, "Y");
 
+		// add entry to OBJECT OPEN_DATA_CATEGORY_LIST
+		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		IngridDocument testDoc = new IngridDocument();
+		// check OPEN_DATA_CATEGORY_KEY -> OPEN_DATA_CATEGORY_VALUE is stored via syslist
+		testDoc.put(MdekKeys.OPEN_DATA_CATEGORY_KEY, 2);
+		docList.add(testDoc);
+		oDoc.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, docList);
+
 		oDoc = supertool.publishObject(oDoc, true, false);
 		
 		System.out.println("\n----- export object -----");
@@ -237,6 +246,8 @@ class MdekExampleExportImportObjectThread extends Thread {
 
 		System.out.println("\n----- discard changes -> remove former change -----");
 		oDoc.put(MdekKeys.IS_OPEN_DATA, origIsOpenData);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+		docList.remove(docList.size()-1);
 
 		result = supertool.publishObject(oDoc, true, false);
 

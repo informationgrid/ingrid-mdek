@@ -108,8 +108,6 @@
 			<xs:element name="is-catalog-data" type="xs:string"/>
 			<!-- InGrid 3.0.0 -->
 			<xs:element name="is-inspire-relevant" type="xs:string"/>
-			<!-- InGrid 3.3.1, REDMINE-128 -->
-			<xs:element name="is-open-data" type="xs:string"/>
 			
 			<xs:element name="original-control-identifier" type="xs:string"/>
 			<xs:element name="catalogue-identifier" type="xs:long"/>
@@ -160,7 +158,11 @@
 			<xs:element name="use_list" type="USE_LIST"/>
 			<xs:element name="data-quality-list" type="DATA_QUALITY_LIST"/>
 			<xs:element name="format_inspire_list" type="FORMAT_INSPIRE_LIST"/>
-			
+
+			<!-- OPEN DATA -->
+			<!-- InGrid 3.3.1, REDMINE-128 -->
+			<xs:element name="is-open-data" type="xs:string"/>
+			<xs:element name="open_data_category_list" type="OPEN_DATA_CATEGORY_LIST"/>
 		</xs:all>
 	</xs:complexType>
 	<xs:complexType name="ADDRESS_MAP">
@@ -1350,6 +1352,17 @@
 		<xs:sequence>
 			<xs:element name="format-key" type="xs:integer"/>
 			<xs:element name="format-value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OPEN_DATA_CATEGORY_LIST">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="OPEN_DATA_CATEGORY_MAP" type="OPEN_DATA_CATEGORY_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OPEN_DATA_CATEGORY_MAP">
+		<xs:sequence>
+			<xs:element name="open-data-category-key" type="xs:integer"/>
+			<xs:element name="open-data-category-value" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SPATIAL_SYSTEM_LIST">

@@ -27,6 +27,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
@@ -494,6 +495,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		for (ObjectUse objUse : objUses) {
 			extendFullDataWithSysList(data, MdekSysList.OBJ_USE,
 					objUse.getTermsOfUseKey(), objUse.getTermsOfUseValue());				
+		}
+		// ObjectOpenDataCategory
+		Set<ObjectOpenDataCategory> objOpenDataCats = o.getObjectOpenDataCategorys();
+		for (ObjectOpenDataCategory objOpenDataCat : objOpenDataCats) {
+			extendFullDataWithSysList(data, MdekSysList.OBJ_OPEN_DATA_CATEGORY,
+					objOpenDataCat.getCategoryKey(), objOpenDataCat.getCategoryValue());				
 		}
 		// Data Quality
 		Set<ObjectDataQuality> objDQs = o.getObjectDataQualitys();

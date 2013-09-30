@@ -61,6 +61,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		general.addChild(createEnvInformation());
 		general.addChild(createIsInspireRelevant());
 		general.addChild(createIsOpenData());
+		general.addChild(createOpenDataCategorys());
 		return general;
 	}
 
@@ -709,6 +710,21 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		XMLElement termsOfUse = new XMLElement(TERMS_OF_USE, getStringForKey(MdekKeys.USE_TERMS_OF_USE_VALUE, useConstraintContext));
 		termsOfUse.addAttribute(ID, getIntegerForKey(MdekKeys.USE_TERMS_OF_USE_KEY, useConstraintContext));
 		return termsOfUse;
+	}
+
+	private XMLElement createOpenDataCategorys() {
+		XMLElement openDataCategorys = new XMLElement(OPEN_DATA_CATEGORIES);
+
+		List<IngridDocument> openDataCategoryDocs = getIngridDocumentListForKey(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+		for (IngridDocument openDataCategoryDoc : openDataCategoryDocs) {
+			openDataCategorys.addChild(createOpenDataCategory(openDataCategoryDoc));
+		}
+		return openDataCategorys;
+	}
+	private XMLElement createOpenDataCategory(IngridDocument openDataCategoryContext) {
+		XMLElement openDataCategory = new XMLElement(OPEN_DATA_CATEGORY, getStringForKey(MdekKeys.OPEN_DATA_CATEGORY_VALUE, openDataCategoryContext));
+		openDataCategory.addAttribute(ID, getIntegerForKey(MdekKeys.OPEN_DATA_CATEGORY_KEY, openDataCategoryContext));
+		return openDataCategory;
 	}
 
 	private List<XMLElement> createMediumOptions() {

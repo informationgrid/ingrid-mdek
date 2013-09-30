@@ -56,6 +56,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ENV_TOPICS = X_DATA_SOURCE + "/general/env-information/env-topic/@id";
 	private static final String X_IS_INSPIRE_RELEVANT = X_DATA_SOURCE + "/general/is-inspire-relevant/text()";
 	private static final String X_IS_OPEN_DATA = X_DATA_SOURCE + "/general/is-open-data/text()";
+	private static final String X_OPEN_DATA_CATEGORIES = X_DATA_SOURCE + "/general/open-data-categories/open-data-category";
 	private static final String X_TECHNICAL_DOMAIN_DATASET = X_DATA_SOURCE + "/technical-domain/dataset";
 	private static final String X_TECHNICAL_DOMAIN_SERVICE = X_DATA_SOURCE + "/technical-domain/service";
 	private static final String X_TECHNICAL_DOMAIN_DOCUMENT = X_DATA_SOURCE + "/technical-domain/document";
@@ -274,6 +275,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putString(MdekKeys.IS_CATALOG_DATA, XPathUtils.getString(source, X_IS_CATALOG), target);
 		putString(MdekKeys.IS_INSPIRE_RELEVANT, XPathUtils.getString(source, X_IS_INSPIRE_RELEVANT), target);
 		putString(MdekKeys.IS_OPEN_DATA, XPathUtils.getString(source, X_IS_OPEN_DATA), target);
+		mapOpenDataCategories(source, target);
 		mapEnvTopics(source, target);
 	}
 
@@ -325,6 +327,21 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapTopicCategories(Document source, IngridDocument target) {
 		mapIntList(source, X_TOPIC_CATEGORIES, target, MdekKeys.TOPIC_CATEGORIES);
+	}
+
+	private static void mapOpenDataCategories(Document source, IngridDocument target) {
+		NodeList openDataCats = XPathUtils.getNodeList(source, X_OPEN_DATA_CATEGORIES);
+		List<IngridDocument> openDataCatList = new ArrayList<IngridDocument>();
+
+		for (int index = 0; index < openDataCats.getLength(); index++) {
+			Node openDataCat = openDataCats.item(index);
+			IngridDocument openDataCatDoc = new IngridDocument();
+			putString(MdekKeys.OPEN_DATA_CATEGORY_VALUE, openDataCat.getTextContent(), openDataCatDoc);
+			putInt(MdekKeys.OPEN_DATA_CATEGORY_KEY, XPathUtils.getInt(openDataCat, X_ATTRIBUTE_ID), openDataCatDoc);
+			openDataCatList.add(openDataCatDoc);
+		}
+
+		putDocList(MdekKeys.OPEN_DATA_CATEGORY_LIST, openDataCatList, target);
 	}
 
 	private static void mapEnvTopics(Document source, IngridDocument target) {
