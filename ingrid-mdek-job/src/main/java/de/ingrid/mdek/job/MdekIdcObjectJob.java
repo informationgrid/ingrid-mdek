@@ -18,7 +18,6 @@ import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
-import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.log.ILogService;
@@ -48,7 +47,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	private MdekCatalogService catalogService;
 	private MdekObjectService objectService;
-	private MdekAddressService addressService;
+//	private MdekAddressService addressService;
 
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
@@ -66,7 +65,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
 		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
-		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
+//		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
@@ -294,7 +293,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				ObjectNode oN = oNs.get(i);
 				T01Object o;
 				// EXPIRED queries PUBLISHED version !
-				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
+				// PORTAL_QUICKLIST_PUBLISHED queries PUBLISHED version !
+				if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED ||
+					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_PUBLISHED) {
 					o = oN.getT01ObjectPublished();
 				} else {
 					o = oN.getT01ObjectWork();
@@ -323,7 +324,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				}
 				if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED ||
 					selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW ||
-					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
+					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST ||
+					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_PUBLISHED) {
 					beanToDocMapper.mapUserOperation(oN, objDoc);
 				}
 				if (selectionType == IdcWorkEntitiesSelectionType.IN_QA_WORKFLOW) {

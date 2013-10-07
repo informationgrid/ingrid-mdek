@@ -177,7 +177,8 @@ public interface IObjectNodeDao
 
 	/**
 	 * WORK/RESPONSIBLE PAGE: Get ALL Objects matching given selection criteria. 
-	 * We return nodes, so we can evaluate whether published version exists ! 
+	 * We return nodes, so we can evaluate whether published version exists !
+	 * NOTICE: IdcWorkEntitiesSelectionType WAS EXPANDED TO ALSO SELECT published Objects (for dashboard), see enumeration !
 	 * @param selectionType selection criteria (see Enum)
 	 * @param orderBy how to order (see Enum)
 	 * @param orderAsc true=order ascending, false=order descending

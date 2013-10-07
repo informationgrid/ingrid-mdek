@@ -607,10 +607,12 @@ public class ObjectNodeDaoHibernate
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
 			return getWorkObjectsSpatialRefExpired(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST ||
-				selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
 			return getWorkObjectsPortalQuicklist(userUuid, startHit, numHits, selectionType);
+		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_PUBLISHED) {
+			return getPublishedObjectsPortalQuicklist(userUuid, startHit, numHits);
 		}
-
+		
 		return defaultResult;
 	}
 
@@ -916,6 +918,56 @@ public class ObjectNodeDaoHibernate
 		return result;
 	}
 
+	private IngridDocument getPublishedObjectsPortalQuicklist(String userUuid,
+			int startHit, int numHits) {
+		Session session = getSession();
+
+		// prepare queries
+
+		// selection criteria
+		// user specific and published !
+		String qCriteria = " where " +
+//			"oNode.objIdPublished is not null and " +
+			"o.modUuid = '" + userUuid + "' ";
+
+		// query string for counting -> without fetch (fetching not possible)
+		String qStringCount = "select count(oNode) " +
+			"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectPublished o ";
+		qStringCount = qStringCount + qCriteria;
+
+		// query string for fetching results ! 
+		String qStringSelect = "from ObjectNode oNode " +
+				"inner join fetch oNode.t01ObjectPublished o ";
+		qStringSelect = qStringSelect + qCriteria;
+
+		// always order by date
+		String qOrderBy = " order by o.modTime desc";
+		qStringSelect += qOrderBy;
+		
+		// first count total numbers
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Counting PUBLISHED objects: " + qStringCount);
+		}
+		Long totalNumPaging = (Long) session.createQuery(qStringCount).uniqueResult();
+
+		// then fetch requested entities
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("HQL Fetching PUBLISHED objects: " + qStringSelect);
+		}
+		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
+			.setFirstResult(startHit)
+			.setMaxResults(numHits)
+			.list();
+	
+		// return results
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
+		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
+		
+		return result;
+	}
+
 	private IngridDocument getWorkObjectsPortalQuicklist(String userUuid,
 			int startHit, int numHits,
 			IdcWorkEntitiesSelectionType selectionType) {
@@ -964,7 +1016,7 @@ public class ObjectNodeDaoHibernate
 		
 		// first count total numbers
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("HQL Counting WORK objects \"QA\": " + qStringCount);
+			LOG.debug("HQL Counting WORK objects: " + qStringCount);
 		}
 		Long totalNumPaging = (Long) session.createQuery(qStringCount).uniqueResult();
 

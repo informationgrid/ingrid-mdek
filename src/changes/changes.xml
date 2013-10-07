@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="3.4.0-SNAPSHOT" date="???" description="???">
+      <action type="add" dev="wemove" issue="REDMINE-115">
+        Added overview of published objects on user entry page (dashboard).
+      </action>
       <action type="add" dev="wemove" issue="REDMINE-128">
         Added "Open Data" checkbox indicating Open Data metadata + Open Data Categories + different syslist for use constraints.
       </action>

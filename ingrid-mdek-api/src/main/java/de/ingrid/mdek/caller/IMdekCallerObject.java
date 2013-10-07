@@ -203,7 +203,8 @@ public interface IMdekCallerObject extends IMdekCaller {
 			String userId);
 
 	/**
-	 * WORK/RESPONSIBLE PAGE: Get ALL Objects matching given selection criteria. 
+	 * WORK/RESPONSIBLE PAGE: Get ALL Objects matching given selection criteria.<br>
+	 * <b>NOTICE: Also queries <b>PUBLISHED</b> objects dependent from selectionType, see Enum and REDMINE-115!</b>
 	 * @param plugId which mdek server (iplug)
 	 * @param selectionType selection criteria (see Enum)
 	 * @param orderBy how to order (see Enum)
