@@ -1269,6 +1269,7 @@ class MdekExampleObjectThread extends Thread {
 		Integer origMetadataLanguageCode = (Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE);
 		oDocIn.put(MdekKeys.METADATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		oDocIn.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
+		// NOTICE: syslist for USE_LIST differs dependent from IS_OPEN_DATA set (syslist 6500) or not set (syslist 6020), see USE_LIST below
 		oDocIn.put(MdekKeys.IS_OPEN_DATA, "Y");
 		Integer origVerticalExtentVdatumKey = (Integer) oDocIn.get(MdekKeys.VERTICAL_EXTENT_VDATUM_KEY);
 		String origVerticalExtentVdatumValue = oDocIn.getString(MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE);
@@ -1632,6 +1633,7 @@ class MdekExampleObjectThread extends Thread {
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		testDoc = new IngridDocument();
 		// check USE_TERMS_OF_USE_KEY -> USE_TERMS_OF_USE_VALUE is stored via syslist
+		// NOTICE: Syslist differs dependent from IS_OPEN_DATA set (syslist 6500) or not set (syslist 6020)
 		testDoc.put(MdekKeys.USE_TERMS_OF_USE_KEY, 1);
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.USE_LIST, docList);

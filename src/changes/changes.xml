@@ -6,7 +6,7 @@
   <body>
     <release version="3.4.0-SNAPSHOT" date="???" description="???">
       <action type="add" dev="wemove" issue="REDMINE-128">
-        Added "Open Data" checkbox indicating Open Data metadata + Open Data Categories.
+        Added "Open Data" checkbox indicating Open Data metadata + Open Data Categories + different syslist for use constraints.
       </action>
       <action type="update" dev="wemove" issue="INGRID-2300">
         On import exception also pass full stack trace to frontend.

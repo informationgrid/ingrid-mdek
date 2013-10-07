@@ -2637,13 +2637,14 @@ public class DocToBeanMapper implements IMapper {
 	private ObjectUse mapObjectUse(T01Object oFrom,
 			IngridDocument refDoc,
 			ObjectUse ref, 
-			int line)
+			int line,
+			IngridDocument objDoc) // also pass object doc, needed for clarification in syslist mapping !
 	{
 		ref.setObjId(oFrom.getId());
 		ref.setTermsOfUseKey((Integer)refDoc.get(MdekKeys.USE_TERMS_OF_USE_KEY));
 		ref.setTermsOfUseValue(refDoc.getString(MdekKeys.USE_TERMS_OF_USE_VALUE));
 		ref.setLine(line);
-		keyValueService.processKeyValue(ref);
+		keyValueService.processKeyValue(ref, objDoc);
 
 		return ref;
 	}
@@ -2664,7 +2665,7 @@ public class DocToBeanMapper implements IMapper {
 		int line = 1;
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
-			ObjectUse ref = mapObjectUse(oIn, refDoc, new ObjectUse(), line);
+			ObjectUse ref = mapObjectUse(oIn, refDoc, new ObjectUse(), line, oDocIn);
 			refs.add(ref);
 			line++;
 		}
