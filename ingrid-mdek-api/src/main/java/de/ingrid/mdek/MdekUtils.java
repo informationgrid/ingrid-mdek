@@ -192,9 +192,10 @@ public class MdekUtils {
 	}
 
 	/**
-	 * Entities where user has write permission. Which entities to fetch ? Handles selection for the following pages !<br> 
-	 * - WORK/RESPONSIBLE PAGE: "modified" Entities.<br> 
-	 * - PORTAL QUICKLIST: quicklist to show in portal IGE entry page ! */
+	 * Entities where user has write permission. Which entities to fetch ? Handles selection for the following pages !<br>
+	 * - WORK/RESPONSIBLE PAGE: "modified" Entities.<br>
+	 * - PORTAL QUICKLIST: quicklist to show in portal IGE entry page !<br>
+	 * - <b>PORTAL QUICKLIST_PUBLISHED</b>: was introduced to show also <b>PUBLISHED (!!!)</b> objects in portal IGE entry page, see REDMINE-115 */
 	public enum IdcWorkEntitiesSelectionType {
 		/** WORK/RESPONSIBLE PAGE -> all expired entities where user is RESPONSIBLE. QUERIES PUBLISHED VERSION !!! */
 		EXPIRED,
@@ -208,6 +209,8 @@ public class MdekUtils {
 		PORTAL_QUICKLIST,
 		/** PORTAL QUICKLIST -> MODIFIED or REASSIGNED entities of ALL USERS with permissions for current user */
 		PORTAL_QUICKLIST_ALL_USERS,
+		/** PORTAL_QUICKLIST_PUBLISHED -> <b>PUBLISHED</b> entities where user is MOD-User, see REDMINE-115 */
+		PORTAL_QUICKLIST_PUBLISHED,
 	}
 
 	/** QA PAGE:: Entities where user is QA. Which entities to fetch ? */
