@@ -221,6 +221,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_LINK_URL_TYPE = "linkage-url-type/text()";
 	private static final String X_LINK_REFERENCE = "linkage-reference/text()";
 	private static final String X_LINK_REFERENCE_KEY = "linkage-reference/@id";
+	private static final String X_LINK_DATATYPE = "linkage-datatype/text()";
+	private static final String X_LINK_DATATYPE_KEY = "linkage-datatype/@id";
 	private static final String X_LINK_DESCRIPTION = "linkage-description/text()";
 	private static final String X_PARENT_IDENTIFIER = X_DATA_SOURCE + "/parent-data-source/object-identifier/text()";
 	private static final String X_RELATED_ADDRESS_LIST = X_DATA_SOURCE + "/related-address";
@@ -992,6 +994,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			putInt(MdekKeys.LINKAGE_URL_TYPE, XPathUtils.getInt(linkage, X_LINK_URL_TYPE), linkageDoc);
 			putString(MdekKeys.LINKAGE_REFERENCE, XPathUtils.getString(linkage, X_LINK_REFERENCE), linkageDoc);
 			putInt(MdekKeys.LINKAGE_REFERENCE_ID, XPathUtils.getInt(linkage, X_LINK_REFERENCE_KEY), linkageDoc);
+			putString(MdekKeys.LINKAGE_DATATYPE, XPathUtils.getString(linkage, X_LINK_DATATYPE), linkageDoc);
+			putInt(MdekKeys.LINKAGE_DATATYPE_KEY, XPathUtils.getInt(linkage, X_LINK_DATATYPE_KEY), linkageDoc);
 			putString(MdekKeys.LINKAGE_DESCRIPTION, XPathUtils.getString(linkage, X_LINK_DESCRIPTION), linkageDoc);
 
 			linkagesList.add(linkageDoc);

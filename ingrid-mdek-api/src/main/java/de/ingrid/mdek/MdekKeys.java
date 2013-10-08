@@ -983,6 +983,10 @@ public class MdekKeys {
     /** Value: String */
     public final static String LINKAGE_REFERENCE = "linkage-reference";
     /** Value: String */
+    public final static String LINKAGE_DATATYPE = "linkage-datatype";
+    /** Value: Integer */
+    public final static String LINKAGE_DATATYPE_KEY = "linkage-datatype-key";
+    /** Value: String */
     public final static String LINKAGE_DESCRIPTION = "linkage-description";
     /** Value: String */
     public final static String LINKAGE_NAME = "linkage-name";

@@ -1129,6 +1129,8 @@ public class DocToBeanMapper implements IMapper {
 		urlRef.setUrlLink((String) urlDoc.get(MdekKeys.LINKAGE_URL));
 		urlRef.setSpecialRef((Integer) urlDoc.get(MdekKeys.LINKAGE_REFERENCE_ID));
 		urlRef.setSpecialName((String) urlDoc.get(MdekKeys.LINKAGE_REFERENCE));
+		urlRef.setDatatypeKey((Integer)urlDoc.get(MdekKeys.LINKAGE_DATATYPE_KEY));
+		urlRef.setDatatypeValue((String) urlDoc.get(MdekKeys.LINKAGE_DATATYPE));
 		urlRef.setDescr((String) urlDoc.get(MdekKeys.LINKAGE_DESCRIPTION));
 		urlRef.setContent((String) urlDoc.get(MdekKeys.LINKAGE_NAME));
 		urlRef.setUrlType((Integer) urlDoc.get(MdekKeys.LINKAGE_URL_TYPE));		

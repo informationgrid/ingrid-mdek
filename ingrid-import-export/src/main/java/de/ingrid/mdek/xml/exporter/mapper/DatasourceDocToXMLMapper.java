@@ -1076,6 +1076,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		availableLinkage.addChild(new XMLElement(LINKAGE_URL, getStringForKey(MdekKeys.LINKAGE_URL, availableLinkageContext)));
 		availableLinkage.addChild(new XMLElement(LINKAGE_URL_TYPE, getIntegerForKey(MdekKeys.LINKAGE_URL_TYPE, availableLinkageContext)));
 		availableLinkage.addChild(createLinkageReference(availableLinkageContext));
+		availableLinkage.addChild(createLinkageDatatype(availableLinkageContext));
 		availableLinkage.addChild(new XMLElement(LINKAGE_DESCRIPTION, getStringForKey(MdekKeys.LINKAGE_DESCRIPTION, availableLinkageContext)));
 		return availableLinkage;
 	}
@@ -1084,6 +1085,12 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		XMLElement linkageReference = new XMLElement(LINKAGE_REFERENCE, getStringForKey(MdekKeys.LINKAGE_REFERENCE, linkageContext));
 		linkageReference.addAttribute(ID, getIntegerForKey(MdekKeys.LINKAGE_REFERENCE_ID, linkageContext));
 		return linkageReference;
+	}
+
+	private XMLElement createLinkageDatatype(IngridDocument linkageContext) {
+		XMLElement linkageDatatype = new XMLElement(LINKAGE_DATATYPE, getStringForKey(MdekKeys.LINKAGE_DATATYPE, linkageContext));
+		linkageDatatype.addAttribute(ID, getIntegerForKey(MdekKeys.LINKAGE_DATATYPE_KEY, linkageContext));
+		return linkageDatatype;
 	}
 
 	private XMLElement createParentDataSource() {

@@ -1848,6 +1848,9 @@ class MdekExampleObjectThread extends Thread {
 				// check LINKAGE_REFERENCE_ID -> LINKAGE_REFERENCE is stored via syslist
 				System.out.println("CHANGE LINKAGE_REFERENCE_ID OF URL");
 				urlRemoved.put(MdekKeys.LINKAGE_REFERENCE_ID, 3100);			
+				// check LINKAGE_DATATYPE_KEY -> LINKAGE_DATATYPE is stored via syslist
+				System.out.println("CHANGE LINKAGE_DATATYPE_KEY OF URL");
+				urlRemoved.put(MdekKeys.LINKAGE_DATATYPE_KEY, 1);			
 			}
 			// add new URL
 			IngridDocument newUrl = new IngridDocument();

@@ -206,11 +206,11 @@ class MdekExampleExportImportObjectThread extends Thread {
 
 		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
 
-		// set IS_OPEN_DATA
+		// set IS_OPEN_DATA, see , see REDMINE-128
 		String origIsOpenData = oDoc.getString(MdekKeys.IS_OPEN_DATA);
 		oDoc.put(MdekKeys.IS_OPEN_DATA, "Y");
 
-		// add entry to OBJECT OPEN_DATA_CATEGORY_LIST
+		// add entry to OBJECT OPEN_DATA_CATEGORY_LIST, see , see REDMINE-128
 		List<IngridDocument> docList = (List<IngridDocument>) oDoc.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		IngridDocument testDoc = new IngridDocument();
@@ -218,6 +218,23 @@ class MdekExampleExportImportObjectThread extends Thread {
 		testDoc.put(MdekKeys.OPEN_DATA_CATEGORY_KEY, 2);
 		docList.add(testDoc);
 		oDoc.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, docList);
+
+		// add entry to LINKAGES, added LINKAGE_DATATYPE, see REDMINE-118
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.LINKAGES);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		testDoc = new IngridDocument();
+		// check LINKAGE_REFERENCE_ID -> LINKAGE_REFERENCE is stored via syslist
+		// check LINKAGE_DATATYPE_KEY -> LINKAGE_DATATYPE is stored via syslist
+		testDoc.put(MdekKeys.LINKAGE_URL, "http://LINKAGE_URL");
+		testDoc.put(MdekKeys.LINKAGE_REFERENCE_ID, 3100);
+//		testDoc.put(MdekKeys.LINKAGE_REFERENCE, "Methode / Datengrundlage");
+		testDoc.put(MdekKeys.LINKAGE_DESCRIPTION, "LINKAGE_DESCRIPTION");
+		testDoc.put(MdekKeys.LINKAGE_NAME, "LINKAGE_NAME");
+		testDoc.put(MdekKeys.LINKAGE_URL_TYPE, 1);
+		testDoc.put(MdekKeys.LINKAGE_DATATYPE_KEY, 1);
+//		testDoc.put(MdekKeys.LINKAGE_DATATYPE, "WinWord");
+		docList.add(testDoc);
+		oDoc.put(MdekKeys.LINKAGES, docList);
 
 		oDoc = supertool.publishObject(oDoc, true, false);
 		
@@ -247,6 +264,8 @@ class MdekExampleExportImportObjectThread extends Thread {
 		System.out.println("\n----- discard changes -> remove former change -----");
 		oDoc.put(MdekKeys.IS_OPEN_DATA, origIsOpenData);
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.OPEN_DATA_CATEGORY_LIST);
+		docList.remove(docList.size()-1);
+		docList = (List<IngridDocument>) oDoc.get(MdekKeys.LINKAGES);
 		docList.remove(docList.size()-1);
 
 		result = supertool.publishObject(oDoc, true, false);

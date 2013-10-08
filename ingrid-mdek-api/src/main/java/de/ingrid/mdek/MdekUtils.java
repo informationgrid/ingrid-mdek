@@ -97,6 +97,7 @@ public class MdekUtils {
 		INFO_IMPART(1370, "T014InfoImpart:impartKey:impartValue"),
 		LEGIST(1350, "T015Legist:legistKey:legistValue"),
 		URL_REF_SPECIAL(2000, "T017UrlRef:specialRef:specialName"),
+		URL_REF_DATATYPE(1320, "T017UrlRef:datatypeKey:datatypeValue"),
 		MEDIA_OPTION_MEDIUM(520, "T0112MediaOption:mediumName"),
 		SPATIAL_REF_VALUE(1100, "SpatialRefValue:nameKey:nameValue"),
 		AVAIL_FORMAT(1320, "T0110AvailFormat:formatKey:formatValue"),

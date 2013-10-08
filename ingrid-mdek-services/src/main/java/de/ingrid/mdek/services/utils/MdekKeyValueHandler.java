@@ -267,6 +267,15 @@ public class MdekKeyValueHandler {
 			bean.setSpecialName(keyNameMap.get(entryKey));
 		}
 		
+		entryKey = bean.getDatatypeKey();
+		if (entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.URL_REF_DATATYPE.getDbValue(),
+				catalogService.getCatalogLanguage());
+
+			bean.setDatatypeValue(keyNameMap.get(entryKey));
+		}
+		
 		return bean;
 	}
 

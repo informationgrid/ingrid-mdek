@@ -15,6 +15,7 @@ public class XMLKeys {
 	public static final String RELATED_ADDRESS = "related-address";
 	public static final String LINKAGE_DESCRIPTION = "linkage-description";
 	public static final String LINKAGE_REFERENCE = "linkage-reference";
+	public static final String LINKAGE_DATATYPE = "linkage-datatype";
 	public static final String LINKAGE_URL_TYPE = "linkage-url-type";
 	public static final String LINKAGE_URL = "linkage-url";
 	public static final String LINKAGE_NAME = "linkage-name";

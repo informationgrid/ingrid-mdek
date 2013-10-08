@@ -13,6 +13,8 @@
       <property name="specialRef" type="integer" column="special_ref"/>
       <property name="specialName" type="string" column="special_name"/>
       <property name="content" type="string" column="content"/>
+      <property name="datatypeKey" type="integer" column="datatype_key"/>
+      <property name="datatypeValue" type="string" column="datatype_value"/>
       <property name="descr" type="string" column="descr"/>
       <property name="urlType" type="integer" column="url_type"/>
 

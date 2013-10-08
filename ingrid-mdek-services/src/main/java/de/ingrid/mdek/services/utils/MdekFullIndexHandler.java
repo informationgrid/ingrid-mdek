@@ -475,6 +475,8 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oUrlRef.getDescr());
 			extendFullDataWithSysList(data, MdekSysList.URL_REF_SPECIAL,
 					oUrlRef.getSpecialRef(), oUrlRef.getSpecialName());				
+			extendFullDataWithSysList(data, MdekSysList.URL_REF_DATATYPE,
+					oUrlRef.getDatatypeKey(), oUrlRef.getDatatypeValue());				
 		}
 		// ObjectConformity
 		Set<ObjectConformity> objConforms = o.getObjectConformitys();

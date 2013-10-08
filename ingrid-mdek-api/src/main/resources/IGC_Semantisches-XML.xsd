@@ -1441,6 +1441,7 @@
         <xs:element ref="linkage-url"/>
         <xs:element ref="linkage-url-type"/>
         <xs:element minOccurs="0" ref="linkage-reference"/>
+        <xs:element minOccurs="0" ref="linkage-datatype"/>
         <xs:element minOccurs="0" ref="linkage-description"/>
       </xs:sequence>
     </xs:complexType>
@@ -1466,6 +1467,12 @@
     Tabelle.Feld   : t017_url_ref.special_name
   -->
   <xs:element name="linkage-reference" type="id-string"/>
+  <!--
+    Fachlicher Name: URL-Verweis > Dateiformat
+    Tabelle.Feld   : t017_url_ref.datatype_key
+    Tabelle.Feld   : t017_url_ref.datatype_value
+  -->
+  <xs:element name="linkage-datatype" type="id-string"/>
   <!--
     Fachlicher Name: Erläuterung zum Verweis
     Tabelle.Feld   : t017_url_ref.descr
