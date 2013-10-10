@@ -1145,11 +1145,6 @@ public class MdekKeys {
 
     /** Value: List< IngridDocument > */
     public final static String USE_LIST = "use_list";
-    
-    /** This key is only used to distinguish between the codelist to use depending on
-     *  open data checkbox. (REDMINE-128)   
-     * Value: Integer */
-    public final static String USE_TERMS_OF_LICENCE_KEY = "use-terms-of-licence-key";
     /** Value: Integer */
     public final static String USE_TERMS_OF_USE_KEY = "use-terms-of-use-key";
     /** Value: String */
