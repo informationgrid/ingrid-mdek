@@ -5,6 +5,12 @@
   </properties>
   <body>
     <release version="3.4.0-SNAPSHOT" date="???" description="???">
+      <action type="add" dev="wemove" issue="REDMINE-130">
+        Check for invalid getCapabilities and possibility to replace them.
+      </action>
+    </release>
+    
+    <release version="3.3.1" date="2013-10-30" description="Release InGrid 3.3.1">
       <action type="add" dev="wemove" issue="REDMINE-118">
         Added datatype for url references.
       </action>
