@@ -10,9 +10,9 @@
       </action>
     </release>
     
-    <release version="3.2.0-SNAPSHOT" date="???" description="???">
+    <release version="3.3.2-SNAPSHOT" date="???" description="???">
       <action type="add" dev="wemove" issue="REDMINE-230">
-        Add ATOM Download service functionality.
+        Added ATOM Download service functionality.
       </action>
     </release>
     
