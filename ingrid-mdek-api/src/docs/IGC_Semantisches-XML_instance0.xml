@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <igc xmlns="http://www.portalu.de/igc-import"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/igc-import file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/main/resources/IGC_Semantisches-XML.xsd" exchange-format="3.3.1">
+ xsi:schemaLocation="http://www.portalu.de/igc-import file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/main/resources/IGC_Semantisches-XML.xsd" exchange-format="3.3.2">
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
@@ -117,6 +117,7 @@
                             <depends-on>depends-on0</depends-on>
                         </service-operation>
                         <has-access-constraint>N</has-access-constraint>
+                        <has-atom-download>N</has-atom-download>
                         <service-url>
                             <name>name1</name>
                             <url>url0</url>

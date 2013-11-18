@@ -131,6 +131,7 @@ public class DocToBeanMapper implements IMapper {
 		cat.setCatUuid(inDoc.getString(MdekKeys.UUID));
 		cat.setCatName(inDoc.getString(MdekKeys.CATALOG_NAME));
 		cat.setCatNamespace(inDoc.getString(MdekKeys.CATALOG_NAMESPACE));
+		cat.setAtomDownloadUrl(inDoc.getString(MdekKeys.CATALOG_ATOM_URL));
 		cat.setPartnerName(inDoc.getString(MdekKeys.PARTNER_NAME));
 		cat.setProviderName(inDoc.getString(MdekKeys.PROVIDER_NAME));
 		cat.setCountryKey((Integer)inDoc.get(MdekKeys.COUNTRY_CODE));
@@ -2068,6 +2069,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setBase(refDoc.getString(MdekKeys.DATABASE_OF_SYSTEM));
 		ref.setDescription(refDoc.getString(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN));
 		ref.setHasAccessConstraint(refDoc.getString(MdekKeys.HAS_ACCESS_CONSTRAINT));
+		ref.setHasAtomDownload(refDoc.getString(MdekKeys.HAS_ATOM_DOWNLOAD));
 		keyValueService.processKeyValueT011ObjServ(ref, oFrom);
 
 		return ref;

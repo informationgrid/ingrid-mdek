@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="3.3.1"/>
+    <xs:attribute name="exchange-format" default="3.3.2"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -427,6 +427,7 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-version"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-operation"/>
         <xs:element minOccurs="0" ref="has-access-constraint"/>
+        <xs:element minOccurs="0" ref="has-atom-download"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="service-url"/>
       </xs:sequence>
     </xs:complexType>
@@ -468,6 +469,11 @@
     Tabelle.Feld   : T011_obj_serv.has_access_constraint
   -->
   <xs:element name="has-access-constraint" default="N" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: Als ATOM-Download Dienst bereitstellen
+    Tabelle.Feld   : T011_obj_serv.has_atom_download
+  -->
+  <xs:element name="has-atom-download" default="N" type="igc-boolean"/>
   <!--
     Fachlicher Name: URLs von "Informationssystem/Dienst/Anwendung"
     Tabelle   : t011_obj_serv_url

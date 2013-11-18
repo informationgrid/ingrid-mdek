@@ -197,6 +197,92 @@ class MdekExampleExportImportObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+		// Test EXPORT / IMPORT new Exchange Format 3.3.2
+		// --------------------------
+		supertool.setFullOutput(true);
+
+		System.out.println("\n----- object details -----");
+		IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+
+		System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+
+		// change TECHNICAL DOMAIN SERVICE
+		// set HAS_ATOM_DOWNLOAD, see REDMINE-230
+		IngridDocument technicalDomain = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
+		oDoc.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
+		technicalDomain.put(MdekKeys.HAS_ATOM_DOWNLOAD, "Y");
+		// needed for publishing !
+		technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, 2);
+		technicalDomain.put(MdekKeys.COUPLING_TYPE, "tight");
+		// add TECHNICAL DOMAIN SERVICE - operations
+		List<IngridDocument> docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_OPERATION_LIST);
+		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+		technicalDomain.put(MdekKeys.SERVICE_OPERATION_LIST, docList);
+		// check SERVICE_OPERATION_NAME_KEY -> SERVICE_OPERATION_NAME is stored via syslist
+		// NOTICE: "interacts" with SERVICE_TYPE_KEY
+		IngridDocument testDoc = new IngridDocument();
+		docList.add(testDoc);
+		testDoc.put(MdekKeys.SERVICE_OPERATION_NAME_KEY, 1);
+		testDoc.put(MdekKeys.SERVICE_OPERATION_DESCRIPTION, "TEST SERVICE_OPERATION_DESCRIPTION");
+		testDoc.put(MdekKeys.INVOCATION_NAME, "TEST INVOCATION_NAME");
+		// add TECHNICAL DOMAIN SERVICE - connectPoints
+		List<String> strList = new ArrayList<String>();
+		testDoc.put(MdekKeys.CONNECT_POINT_LIST, strList);
+		strList.add("TEST CONNECT_POINT1");
+		strList.add("TEST CONNECT_POINT2");
+		// add TECHNICAL DOMAIN SERVICE - operation platforms
+		docList = new ArrayList<IngridDocument>();
+		testDoc.put(MdekKeys.PLATFORM_LIST, docList);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.PLATFORM_KEY, 1);
+		testDoc.put(MdekKeys.PLATFORM_VALUE, "TEST PLATFORM1");
+		docList.add(testDoc);
+		testDoc = new IngridDocument();
+		testDoc.put(MdekKeys.PLATFORM_KEY, 2);
+		testDoc.put(MdekKeys.PLATFORM_VALUE, "TEST PLATFORM2");
+		docList.add(testDoc);
+
+		oDoc = supertool.publishObject(oDoc, true, false);
+		
+		System.out.println("\n----- export object -----");
+		supertool.exportObjectBranch(objUuid, true, false);
+		result = supertool.getExportInfo(true);
+		byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+		System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+		objImpNodeDoc = supertool.newObjectDoc(null);
+		objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+		objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+		objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+		objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+		addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+		addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+		addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+		addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+		System.out.println("\n----- import object OVERWRITE ! -----");
+		supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false, true);
+		supertool.getJobInfo(JobType.IMPORT);
+		supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+		System.out.println("\n----- discard changes -> remove former change -----");
+		oDoc.remove(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+
+		result = supertool.publishObject(oDoc, true, false);
+
+		System.out.println("----- DELETE Import Top Nodes -----");
+		supertool.deleteObject(objImpNodeUuid, true);
+		supertool.deleteAddress(addrImpNodeUuid, true);
+
+		if (alwaysTrue) {
+			isRunning = false;
+			return;
+		}
+*/
+/*
 		// Test EXPORT / IMPORT new Exchange Format 3.3.1
 		// --------------------------
 		supertool.setFullOutput(true);

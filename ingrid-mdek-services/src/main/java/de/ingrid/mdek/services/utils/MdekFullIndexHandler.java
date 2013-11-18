@@ -389,6 +389,11 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oServ.getEnvironment());
 			extendFullData(data, oServ.getBase());
 			extendFullData(data, oServ.getDescription());
+			extendFullData(data, oServ.getCouplingType());
+			if (MdekUtils.YES.equals(oServ.getHasAtomDownload())) {
+				extendFullData(data, IDX_VALUE_HAS_ATOM_DOWNLOAD);
+			}
+
 			Integer oServTypeKey = oServ.getTypeKey();
 
 			// ServType syslist is dependent from class of object !

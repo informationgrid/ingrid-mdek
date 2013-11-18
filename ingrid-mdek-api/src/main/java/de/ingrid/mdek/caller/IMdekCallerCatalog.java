@@ -172,8 +172,10 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * 		("object import node").
 	 * @param targetAddressUuid address node (institution !) where new addresses are 
 	 * 		created underneath  ("address import node").<br>
-	 * @param publishImmediately publish imported data immediately<br>
-	 * 		NOTICE: if data is missing, entities are stored in working version ! 
+	 * @param publishImmediately if NO work state is set in the object to import then publish
+	 * 		imported object ? ONLY taken into account if work state is missing in import data,
+	 * 		otherwise object is handled according to work state !<br>
+	 * 		NOTICE: if object data for publishing is missing, entities are stored in working version ! 
 	 * @param doSeparateImport separate all imported entities underneath the "import nodes".
 	 * 		Further behavior dependent from copyNodeIfPresent !
 	 * @param copyNodeIfPresent when doing separate import, should the node be copied, if

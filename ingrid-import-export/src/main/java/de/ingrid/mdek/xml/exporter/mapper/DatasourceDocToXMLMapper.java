@@ -289,6 +289,8 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 		service.addChild(new XMLElement(HAS_ACCESS_CONSTRAINT,
 			getStringForKey(MdekKeys.HAS_ACCESS_CONSTRAINT, serviceContext)));
+		service.addChild(new XMLElement(HAS_ATOM_DOWNLOAD,
+				getStringForKey(MdekKeys.HAS_ATOM_DOWNLOAD, serviceContext)));
 		service.addChildren(createServiceUrls(serviceContext));
 
 		return service;

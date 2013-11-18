@@ -21,6 +21,7 @@ public class T03Catalogue implements IEntity {
 	private Long spatialRefId;
 	private String workflowControl;
 	private Integer expiryDuration;
+	private String atomDownloadUrl;
 	private String createTime;
 	private String modUuid;
 	private String modTime;
@@ -139,6 +140,14 @@ public class T03Catalogue implements IEntity {
 
 	public void setExpiryDuration(Integer expiryDuration) {
 		this.expiryDuration = expiryDuration;
+	}
+
+	public String getAtomDownloadUrl() {
+		return atomDownloadUrl;
+	}
+
+	public void setAtomDownloadUrl(String atomDownloadUrl) {
+		this.atomDownloadUrl = atomDownloadUrl;
 	}
 
 	public String getCreateTime() {

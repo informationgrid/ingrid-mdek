@@ -1158,6 +1158,7 @@
 		<xs:sequence>
 			<xs:element name="service-type" type="xs:string"/>
 			<xs:element name="service-type-key" type="xs:integer"/>
+			<xs:element name="has-atom-download" type="xs:string"/>
 			<xs:element name="coupling-type" type="xs:string"/>
 			<xs:element name="system-history" type="xs:string"/>
 			<xs:element name="system-environment" type="xs:string"/>
@@ -1403,6 +1404,7 @@
 			<xs:element name="workflow-control" type="xs:string"/>
 			<xs:element name="expiry-duration" type="xs:integer"/>
 			<xs:element name="catalog-location" type="LOCATION_MAP"/>
+			<xs:element name="catalog-atom-url" type="xs:string"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="mod-user"/>
 			<xs:element ref="date-of-last-modification"/>

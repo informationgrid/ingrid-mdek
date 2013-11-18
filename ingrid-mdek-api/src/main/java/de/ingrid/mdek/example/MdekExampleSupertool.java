@@ -1025,6 +1025,7 @@ public class MdekExampleSupertool {
 			System.out.println("    " + myDoc);
 			System.out.println("    SERVICE type: " + myDoc.get(MdekKeys.SERVICE_TYPE_KEY) + "=" + myDoc.get(MdekKeys.SERVICE_TYPE));
 			System.out.println("    SERVICE HAS_ACCESS_CONSTRAINT: " + myDoc.get(MdekKeys.HAS_ACCESS_CONSTRAINT));
+			System.out.println("    SERVICE HAS_ATOM_DOWNLOAD: " + myDoc.get(MdekKeys.HAS_ATOM_DOWNLOAD));
 			strList = (List<String>) myDoc.get(MdekKeys.SERVICE_VERSION_LIST);
 			if (strList != null && strList.size() > 0) {
 				System.out.println("    SERVICE - versions: " + strList.size() + " entries");

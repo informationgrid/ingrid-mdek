@@ -19,6 +19,7 @@
       <property name="spatialRefId" type="long" column="spatial_ref_id"/>
       <property name="workflowControl" type="string" column="workflow_control"/>
       <property name="expiryDuration" type="integer" column="expiry_duration"/>
+      <property name="atomDownloadUrl" type="string" column="atom_download_url"/>
       <property name="createTime" type="string" column="create_time"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="modTime" type="string" column="mod_time"/>

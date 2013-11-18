@@ -839,6 +839,8 @@ public class MdekKeys {
     public final static String SERVICE_TYPE = "service-type";
     /** Art des Dienstes, Value: Integer */
     public final static String SERVICE_TYPE_KEY = "service-type-key";
+    /** Als ATOM-Download Dienst bereitstellen, Value: String  (Y/N) */
+    public final static String HAS_ATOM_DOWNLOAD = "has-atom-download";
     /** Art der Kopplung, Value: String */
     public final static String COUPLING_TYPE = "coupling-type";
     /** Value: String */
@@ -1068,7 +1070,9 @@ public class MdekKeys {
     public final static String LANGUAGE_CODE = "language-code";
     /** Value: String */
     public final static String LANGUAGE_NAME = "language-name";
-    
+    /** ATOM-Downloadservice-URL, Value: String */
+    public final static String CATALOG_ATOM_URL = "catalog-atom-url";
+
     // ADDRESS DATA
     // ------------
 

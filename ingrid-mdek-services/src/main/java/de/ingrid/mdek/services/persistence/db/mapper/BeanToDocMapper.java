@@ -1551,6 +1551,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.DATABASE_OF_SYSTEM, ref.getBase());
 		refDoc.put(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, ref.getDescription());
 		refDoc.put(MdekKeys.HAS_ACCESS_CONSTRAINT, ref.getHasAccessConstraint());
+		refDoc.put(MdekKeys.HAS_ATOM_DOWNLOAD, ref.getHasAtomDownload());
 
 		return refDoc;
 	}
@@ -1782,6 +1783,7 @@ public class BeanToDocMapper implements IMapper {
 		resultDoc.put(MdekKeys.UUID, cat.getCatUuid());
 		resultDoc.put(MdekKeys.CATALOG_NAME, cat.getCatName());
 		resultDoc.put(MdekKeys.CATALOG_NAMESPACE, cat.getCatNamespace());
+		resultDoc.put(MdekKeys.CATALOG_ATOM_URL, cat.getAtomDownloadUrl());
 		resultDoc.put(MdekKeys.PARTNER_NAME, cat.getPartnerName());
 		resultDoc.put(MdekKeys.PROVIDER_NAME, cat.getProviderName());
 		resultDoc.put(MdekKeys.COUNTRY_CODE, cat.getCountryKey());

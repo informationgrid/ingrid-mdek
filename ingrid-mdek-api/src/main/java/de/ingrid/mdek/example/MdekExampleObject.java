@@ -1477,6 +1477,7 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
 		// check SERVICE_TYPE_KEY -> SERVICE_TYPE is stored via syslist
 		technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, 2);
+		technicalDomain.put(MdekKeys.HAS_ATOM_DOWNLOAD, "Y");
 		technicalDomain.put(MdekKeys.COUPLING_TYPE, "tight");
 		technicalDomain.put(MdekKeys.SYSTEM_HISTORY, "TEST SYSTEM_HISTORY");
 		technicalDomain.put(MdekKeys.SYSTEM_ENVIRONMENT, "TEST SYSTEM_ENVIRONMENT");

@@ -18,6 +18,7 @@ public class T011ObjServ implements IEntity {
 	private String description;
 	private String hasAccessConstraint;
 	private String couplingType;
+	private String hasAtomDownload;
 
 	private Set t011ObjServOperations = new HashSet();
 	private Set t011ObjServScales = new HashSet();
@@ -113,6 +114,14 @@ public class T011ObjServ implements IEntity {
 
 	public void setCouplingType(String couplingType) {
 		this.couplingType = couplingType;
+	}
+
+	public String getHasAtomDownload() {
+		return hasAtomDownload;
+	}
+
+	public void setHasAtomDownload(String hasAtomDownload) {
+		this.hasAtomDownload = hasAtomDownload;
 	}
 
 
