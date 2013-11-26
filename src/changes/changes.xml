@@ -8,8 +8,11 @@
       <action type="add" dev="wemove" issue="REDMINE-130">
         Check for invalid getCapabilities and possibility to replace them.
       </action>
+      <action type="update" dev="wemove" issue="INGRID-2300">
+        Increase database size of "Zugangsbeschränkungen".
+      </action>
     </release>
-    
+
     <release version="3.3.2-SNAPSHOT" date="???" description="???">
       <action type="add" dev="wemove" issue="REDMINE-230">
         Added ATOM Download service functionality.
