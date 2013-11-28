@@ -11,6 +11,13 @@
   <packaging>pom</packaging>
   <version>3.4.0-SNAPSHOT</version>
   <name>ingrid-iplug-ige</name>
+
+  <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
+<!--
+  <properties>
+    <ingrid-udk-importer.version>3.3.2</ingrid-udk-importer.version>
+  </properties>
+-->
   <scm>
     <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk</connection>
     <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk</developerConnection>
@@ -68,9 +75,9 @@
     </dependency>
     <dependency>
       <!-- Needed for assembly of installer to setup/update IGC database -->
-      <!-- Does NOT (!) work with dependency management, KEEP VERSION HERE ! -->
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-udk-importer</artifactId>
+      <!-- NOTICE: REDEFINE THIS VERSION IN THIS POM (see above) IF DIFFERENT FROM BASE POM ! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
       <version>${ingrid-udk-importer.version}</version>
       <classifier>installer</classifier>
       <scope>provided</scope>
