@@ -68,6 +68,7 @@
     </dependency>
     <dependency>
       <!-- Needed for assembly of installer to setup/update IGC database -->
+      <!-- Does NOT (!) work with dependency management, KEEP VERSION HERE ! -->
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-udk-importer</artifactId>
       <version>${ingrid-udk-importer.version}</version>
