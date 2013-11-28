@@ -13,7 +13,7 @@
       </action>
     </release>
 
-    <release version="3.3.2-SNAPSHOT" date="???" description="???">
+    <release version="3.3.2" date="2013-11-28" description="Release InGrid 3.3.2">
       <action type="add" dev="wemove" issue="REDMINE-230">
         Added ATOM Download service functionality.
       </action>
