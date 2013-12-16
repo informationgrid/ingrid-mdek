@@ -9,7 +9,7 @@
         Check for invalid getCapabilities and possibility to replace them.
       </action>
       <action type="update" dev="wemove" issue="INGRID-2300">
-        Increase database size of "Zugangsbeschr‰nkungen".
+        Increase database size of "Zugangsbeschr√§nkungen".
       </action>
     </release>
 
