@@ -2648,7 +2648,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setTermsOfUseKey((Integer)refDoc.get(MdekKeys.USE_TERMS_OF_USE_KEY));
 		ref.setTermsOfUseValue(refDoc.getString(MdekKeys.USE_TERMS_OF_USE_VALUE));
 		ref.setLine(line);
-		keyValueService.processKeyValue(ref, objDoc);
+		keyValueService.processKeyValueObjectUse(ref, oFrom);
 
 		return ref;
 	}

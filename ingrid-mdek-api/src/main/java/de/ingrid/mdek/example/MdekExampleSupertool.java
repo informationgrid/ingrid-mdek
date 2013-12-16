@@ -1603,6 +1603,7 @@ public class MdekExampleSupertool {
 		newDoc.put(MdekKeys.GIVEN_NAME, "testGIVEN_NAME");
 		newDoc.put(MdekKeys.ORGANISATION, "testORGANISATION");
 		newDoc.put(MdekKeys.CLASS, whichType.getDbValue());
+		newDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTERNET.getDbValue());
 		// email has to exist !
 		List<IngridDocument> docList = (List<IngridDocument>) newDoc.get(MdekKeys.COMMUNICATION);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;

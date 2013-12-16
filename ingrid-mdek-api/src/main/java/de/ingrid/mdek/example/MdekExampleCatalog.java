@@ -496,7 +496,18 @@ class MdekExampleCatalogThread extends Thread {
 		System.out.println("ANALYZE DB (Consistency Check)");
 		System.out.println("=========================");
 
-		supertool.analyze();
+		try {
+			// may cause timeout
+			supertool.analyze();
+
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.ANALYZE);
+				supertool.sleep(3000);
+			}
+		}
 
 // -----------------------------------
 		

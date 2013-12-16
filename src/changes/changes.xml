@@ -9,13 +9,16 @@
         Check for invalid getCapabilities and possibility to replace them.
       </action>
       <action type="update" dev="wemove" issue="INGRID-2300">
-        Increase database size of "Zugangsbeschr√§nkungen".
+        Increase database size of "Zugangsbeschr‰nkungen".
       </action>
     </release>
 
-    <release version="3.3.2" date="2013-11-28" description="Release InGrid 3.3.2">
+    <release version="3.3.2" date="2013-12-16" description="Release InGrid 3.3.2">
       <action type="add" dev="wemove" issue="REDMINE-230">
         Added ATOM Download service functionality.
+      </action>
+      <action type="fix" dev="wemove">
+        Fixed bug when reindexing catalog contents, caused error.
       </action>
     </release>
     

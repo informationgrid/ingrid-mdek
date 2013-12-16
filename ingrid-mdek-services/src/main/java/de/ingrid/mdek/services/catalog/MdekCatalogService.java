@@ -47,6 +47,7 @@ import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
@@ -665,8 +666,14 @@ public class MdekCatalogService {
 					T011ObjServOperation objServOp = (T011ObjServOperation) entity;
 					T011ObjServ objServ = (T011ObjServ) daoT011ObjServ.loadById(objServOp.getObjServId());
 					keyValueHandler.processKeyValueT011ObjServOperation(objServOp, objServ);
+				} else if (entityClass.equals(ObjectUse.class)) {
+					// special handling if ObjectUse !
+					// fetch according T01Object, determines syslist !
+					ObjectUse objUse = (ObjectUse) entity;
+					T01Object obj = (T01Object) daoT01Object.loadById(objUse.getObjId());
+					keyValueHandler.processKeyValueObjectUse(objUse, obj);
 				} else {
-					keyValueHandler.processKeyValue(entity);					
+					keyValueHandler.processKeyValue(entity);
 				}
 				dao.makePersistent(entity);
 
