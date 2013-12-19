@@ -529,9 +529,33 @@ class MdekExampleQueryThread extends Thread {
 		supertool.queryHQL(hqlQueryAddr1, 0, 10);
 		supertool.queryHQL(hqlQueryAddr2, 0, 10);
 
+		System.out.println("\n----- search Address with given last-/firstname and email by hql query -----");
+		String hqlQueryAddr =
+				"select aNode " +
+				"from AddressNode aNode " +
+				"inner join aNode.t02AddressWork addr " +
+				"inner join addr.t021Communications comm " +
+				"where " +
+				// exclude hidden user addresses !
+				AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+				" AND addr.lastname = 'Dahlmann' " +
+				" AND addr.firstname = 'Irene' " +
+				" AND comm.commtypeKey = 3 " +
+				" AND comm.commValue = 'Irene.Dahlmann@nloe.niedersachsen.de'";
+		supertool.queryHQL(hqlQueryAddr, 0, 1);
+
 		System.out.println("\n----- search objects by hql query -----");
 		supertool.queryHQL(hqlQueryObj1, 0, 10);
 		supertool.queryHQL(hqlQueryObj2, 0, 10);
+
+		System.out.println("\n----- search Geo-Dataset objects with given datasourceUuid by hql query -----");
+		String hqlQueryObj = "select oNode " +
+				"from ObjectNode oNode " +
+				"inner join oNode.t01ObjectWork obj " +
+				"inner join obj.t011ObjGeos oGeo " +
+				"where " +
+				"oGeo.datasourceUuid = 'Niedersachsen:01FE8B67-F8EA-11D4-87AD-00600852CACF'";
+		supertool.queryHQL(hqlQueryObj, 0, 1);
 
 		// -----------------------------------
 
