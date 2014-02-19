@@ -269,6 +269,7 @@
   <xs:element name="metadata-standard-version" type="xs:string" default="1.0"/>
   <!--
     Fachlicher Name: Zeichensatz des Metadatensatzes
+    Aus IGE Frontend entfernt, s. INGRID-2340
     Tabelle.Feld   : T01_object.metadata_character_set
   -->
   <xs:element name="metadata-character-set" type="iso-code"/>
@@ -1811,6 +1812,8 @@
   </xs:attributeGroup>
 <!--
   Attribut-Gruppe: work-state=
+  Tabelle.Feld   : T01_object.work_state
+  Tabelle.Feld   : T02_address.work_state
 -->
 <xs:attributeGroup name="attlist.work-state">
   <xs:attribute name="work-state" use="required">
