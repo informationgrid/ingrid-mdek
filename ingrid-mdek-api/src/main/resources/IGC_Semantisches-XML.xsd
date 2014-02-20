@@ -1238,6 +1238,7 @@
   <!--
     Fachlicher Name: Raumbezug
     Tabelle   : spatial_ref_value
+    Tabelle   : t03_catalogue.spatial_ref_id
     (Tabelle   : t011_town_loc_town)
   -->
   <xs:element name="geo-location">
