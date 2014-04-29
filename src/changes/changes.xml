@@ -4,6 +4,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="3.5.0-SNAPSHOT" date="???" description="Release InGrid ???">
+      <action type="add" dev="wemove" issue="REDMINE-309">
+        New behaviour when updating SNS spatial references, can be split now into multiple successors.
+      </action>
+    </release>
+
     <release version="3.4.0" date="2014-02-25" description="Release InGrid 3.4.0">
       <action type="add" dev="wemove" issue="REDMINE-130">
         Check for invalid getCapabilities and possibility to replace them.

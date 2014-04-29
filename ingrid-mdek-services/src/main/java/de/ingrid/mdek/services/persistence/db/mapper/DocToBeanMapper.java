@@ -772,6 +772,27 @@ public class DocToBeanMapper implements IMapper {
 
 		return spRef;
 	}
+	/** Add the given location to the given object ! No check whether location is already contained in object.<br>
+	 * <b>All data persisted !</b>
+	 * @param oFrom object to add location to
+	 * @param spRefValue location to add
+	 * @return the new spatial reference added
+	 */
+	public SpatialReference addSpatialReference(T01Object oFrom,
+			SpatialRefValue spRefValue) 
+	{
+		Set<SpatialReference> spatialRefs = oFrom.getSpatialReferences();
+		int line = spatialRefs.size() + 1;
+
+		SpatialReference spRef = new SpatialReference();
+		mapSpatialReference(oFrom, spRefValue, spRef, line);
+		dao.makePersistent(spRef);
+
+		spatialRefs.add(spRef);
+		dao.makePersistent(oFrom);
+
+		return spRef;
+	}
 	public SpatialRefValue mapSpatialRefValue(SpatialRefSns spRefSns,
 		IngridDocument locDoc,
 		SpatialRefValue spRefValue) 

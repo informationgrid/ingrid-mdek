@@ -935,12 +935,15 @@
 			<xs:element name="location-type" type="xs:string"/>
 			<xs:element ref="location-code"/>
 			<xs:element name="location-sns-id" type="xs:string"/>
-			<xs:element name="location-expired-at" type="xs:string"/>
 			<xs:element name="west-bounding-coordinate" type="xs:double"/>
 			<xs:element name="east-bounding-coordinate" type="xs:double"/>
 			<xs:element name="north-bounding-coordinate" type="xs:double"/>
 			<xs:element name="south-bounding-coordinate" type="xs:double"/>
 			<xs:element name="sns-topic-type" type="xs:string"/>
+			<!-- If location expired then this is NOT NULL ! Rest of map may be empty, new locations in successors -->
+			<xs:element name="expired-at" type="xs:string"/>
+			<!-- Needed when SNS is updated, contains new locations if old one is expired and has more than one successor ! -->
+			<xs:element name="successors" type="LOCATION_LIST"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:element name="location-name" type="xs:string"/>

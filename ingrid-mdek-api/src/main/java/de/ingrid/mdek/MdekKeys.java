@@ -594,7 +594,8 @@ public class MdekKeys {
     public final static String LOCATION_CODE = "location-code";
     /** Value: String */
     public final static String LOCATION_SNS_ID = "location-sns-id";
-    /** Value: String */
+    /** Used for locations from SNS when expired !<br>
+     * Value: String (Date, use MdekUtils.dateToTimestamp) */
     public final static String LOCATION_EXPIRED_AT = "location-expired-at";
     /** Value: Double */
     public final static String WEST_BOUNDING_COORDINATE = "west-bounding-coordinate";
@@ -607,7 +608,11 @@ public class MdekKeys {
     /** Value: String */
     public final static String SNS_TOPIC_TYPE = "sns-topic-type";
 
-    // SPATIAL REFERENCES (SNS)
+    /** Successors for a location (e.g. if expired)<br>
+     * Value: List< IngridDocument > */
+    public final static String SUCCESSORS = "successors";
+
+    // SPATIAL REFERENCES UPDATE (SNS)
     /** OLD spatial references before update<br>
      * Value: List< IngridDocument > */
     public final static String LOCATIONS_OLD = "locations-old";

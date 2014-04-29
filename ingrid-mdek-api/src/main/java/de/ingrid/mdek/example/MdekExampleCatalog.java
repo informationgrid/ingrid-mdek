@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +19,10 @@ import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
+import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.caller.IMdekClientCaller;
 import de.ingrid.mdek.caller.MdekCaller;
 import de.ingrid.mdek.caller.MdekClientCaller;
-import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.udk.UtilsCountryCodelist;
@@ -697,8 +698,9 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to THESAURUS, SAME SNS-ID -----");
+		System.out.println("----- SNS SpatialReferences UPDATE: GEOTHESAURUS to GEOTHESAURUS, SAME SNS-ID -----");
 		System.out.println("----- = Keep all records, Update data -----");
+		System.out.println("\n----- WITHOUT ADDITIONAL LOCATIONS IN NEW LOCATION ! (NO SUCCESSORS!!!) -----");
 		
 		// set up changed list from former mixed list !
 		List<IngridDocument> locationDocsChanged = new ArrayList<IngridDocument>(locationDocsMixed.size());
@@ -729,8 +731,9 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to THESAURUS, DIFFERENT SNS-ID -----");
+		System.out.println("----- SNS SpatialReferences UPDATE: GEOTHESAURUS to GEOTHESAURUS, DIFFERENT SNS-ID -----");
 		System.out.println("----- = Delete SpatialRef, Use New/Existing one -----");
+		System.out.println("\n----- WITHOUT ADDITIONAL LOCATIONS IN NEW LOCATION ! (NO SUCCESSORS!!!) -----");
 		
 		// set up changed list from former mixed list !
 		List<IngridDocument> locationDocsIdChanged = new ArrayList<IngridDocument>(locationDocsMixed.size());
@@ -760,13 +763,155 @@ class MdekExampleCatalogThread extends Thread {
 		// -----------------------------------
 
 		System.out.println("\n\n=========================");
-		System.out.println("----- SNS SpatialReferences UPDATE: THESAURUS to EXPIRED -----");
+		System.out.println("----- SNS SpatialReferences UPDATE: GEOTHESAURUS to EXPIRED -----");
+		System.out.println("\n----- WITHOUT ADDITIONAL LOCATIONS IN NEW LOCATION ! (NO SUCCESSORS!!!) -----");
+		System.out.println("----- OLD LOCATIONS WILL BE EXPIRED (due to no successors) ! -----");
 
 		// new spatial refs are all null !
 		List<IngridDocument> locationDocsNull = Collections.nCopies(locationDocsMixed.size(), null);
 		try {
 			// causes timeout ?
 			supertool.updateSpatialReferences(locationDocsIdChanged, locationDocsNull);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+
+		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object (now expired !) -----");
+		supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS SpatialReferences UPDATE: GEOTHESAURUS to GEOTHESAURUS, SAME SNS-ID -----");
+		System.out.println("----- = Keep all records, Update data -----");
+		System.out.println("\n----- WITH ADDITIONAL LOCATIONS IN NEW LOCATION ! (SUCCESSORS!!!) -----");
+		System.out.println("----- OLD LOCATIONS WILL BE UPDATED AND SUCCESSORS ARE ADDED ! -----");
+
+		// set up changed list WITH SUCCESSORS !
+		List<IngridDocument> locationDocsWithSuccessors = new ArrayList<IngridDocument>(locationDocsIdChanged.size());
+		for (int i=0; i < locationDocsIdChanged.size(); i++) {
+			IngridDocument locationDocWithSucc = new IngridDocument();
+			locationDocWithSucc.putAll(locationDocsIdChanged.get(i));
+
+			List<IngridDocument> successorList = new ArrayList<IngridDocument>(2);
+			IngridDocument successorDoc = new IngridDocument();
+			successorDoc.putAll(locationDocsMixed.get(i));
+			successorDoc.put(MdekKeys.LOCATION_NAME, "SAMESNSID_loc" + i + "_SUCCESSOR1_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_NAME));
+			successorDoc.put(MdekKeys.LOCATION_SNS_ID, "SAMESNSID_loc" + i + "_SUCCESSOR1_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_SNS_ID));
+			successorList.add(successorDoc);
+			successorDoc = new IngridDocument();
+			successorDoc.putAll(locationDocsMixed.get(i));
+			successorDoc.put(MdekKeys.LOCATION_NAME, "SAMESNSID_loc" + i + "_SUCCESSOR2_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_NAME));
+			successorDoc.put(MdekKeys.LOCATION_SNS_ID, "SAMESNSID_loc" + i + "_SUCCESSOR2_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_SNS_ID));
+			successorList.add(successorDoc);
+
+			locationDocWithSucc.put(MdekKeys.SUCCESSORS, successorList);
+			locationDocsWithSuccessors.add(locationDocWithSucc);
+		}
+		try {
+			// causes timeout ?
+			supertool.updateSpatialReferences(locationDocsIdChanged, locationDocsWithSuccessors);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+
+		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object -----");
+		supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS SpatialReferences UPDATE: GEOTHESAURUS to GEOTHESAURUS, DIFFERENT SNS-ID -----");
+		System.out.println("----- = Delete SpatialRef, Create new one -----");
+		System.out.println("\n----- WITH ADDITIONAL LOCATIONS IN NEW LOCATION ! (SUCCESSORS!!!) -----");
+		System.out.println("----- OLD LOCATIONS WILL BE DELETED, NEW ONES CREATED AND SUCCESSORS ARE ADDED ! -----");
+		
+		// set up changed list WITH SUCCESSORS !
+		List<IngridDocument> locationDocsWithSuccessors2 = new ArrayList<IngridDocument>(locationDocsMixed.size());
+		for (int i=0; i < locationDocsMixed.size(); i++) {
+			IngridDocument locationDocWithSucc = new IngridDocument();
+			locationDocWithSucc.putAll(locationDocsIdChanged.get(i));
+			locationDocWithSucc.put(MdekKeys.LOCATION_SNS_ID, "NEWSNSID_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_SNS_ID));
+
+			List<IngridDocument> successorList = new ArrayList<IngridDocument>(2);
+			IngridDocument successorDoc = new IngridDocument();
+			successorDoc.putAll(locationDocsMixed.get(i));
+			successorDoc.put(MdekKeys.LOCATION_NAME, "NEWSNSID_loc" + i + "_SUCCESSOR1_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_NAME));
+			successorDoc.put(MdekKeys.LOCATION_SNS_ID, "NEWSNSID_loc" + i + "_SUCCESSOR1_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_SNS_ID));
+			successorList.add(successorDoc);
+			successorDoc = new IngridDocument();
+			successorDoc.putAll(locationDocsMixed.get(i));
+			successorDoc.put(MdekKeys.LOCATION_NAME, "NEWSNSID_loc" + i + "_SUCCESSOR2_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_NAME));
+			successorDoc.put(MdekKeys.LOCATION_SNS_ID, "NEWSNSID_loc" + i + "_SUCCESSOR2_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_SNS_ID));
+			successorList.add(successorDoc);
+
+			locationDocWithSucc.put(MdekKeys.SUCCESSORS, successorList);
+			locationDocsWithSuccessors2.add(locationDocWithSucc);
+		}
+
+		try {
+			// causes timeout ?
+			supertool.updateSpatialReferences(locationDocsWithSuccessors, locationDocsWithSuccessors2);
+		} catch(Exception ex) {
+			// track job info if still running !
+			while (supertool.hasRunningJob()) {
+				// extracted from running job info if still running
+				supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+				supertool.sleep(4000);
+			}
+		}
+		System.out.println("\n----- after SNS UPDATE: get JobInfo -----");
+		supertool.getJobInfo(JobType.UPDATE_SPATIAL_REFERENCES);
+
+		System.out.println("\n----- after SNS UPDATE: validate spatial refs of object -----");
+		supertool.fetchObject(objUuidWithSpatRefs, FetchQuantity.EDITOR_ENTITY);
+
+		// -----------------------------------
+
+		System.out.println("\n\n=========================");
+		System.out.println("----- SNS SpatialReferences UPDATE: GEOTHESAURUS to EXPIRED -----");
+		System.out.println("\n----- WITH ADDITIONAL LOCATIONS IN NEW LOCATION ! (SUCCESSORS!!!) -----");
+		System.out.println("----- OLD LOCATIONS (expired ones) WILL BE DELETED DUE TO SUCCESSORS (NO EXPIRED) ! SUCCESSORS ARE ADDED ! -----");
+
+		// set up expired list WITH SUCCESSORS !
+		List<IngridDocument> locationDocsExpiredWithSuccessors = new ArrayList<IngridDocument>(locationDocsMixed.size());
+		for (int i=0; i < locationDocsMixed.size(); i++) {
+			IngridDocument locationDocWithSucc = new IngridDocument();
+			locationDocWithSucc.put(MdekKeys.LOCATION_EXPIRED_AT, MdekUtils.dateToTimestamp(new Date()));
+
+			List<IngridDocument> successorList = new ArrayList<IngridDocument>(2);
+			IngridDocument successorDoc = new IngridDocument();
+			successorDoc.putAll(locationDocsMixed.get(i));
+			successorDoc.put(MdekKeys.LOCATION_NAME, "EXPIRED__loc" + i + "_SUCCESSOR1_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_NAME));
+			successorDoc.put(MdekKeys.LOCATION_SNS_ID, "EXPIRED_loc" + i + "_SUCCESSOR1_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_SNS_ID));
+			successorList.add(successorDoc);
+			successorDoc = new IngridDocument();
+			successorDoc.putAll(locationDocsMixed.get(i));
+			successorDoc.put(MdekKeys.LOCATION_NAME, "EXPIRED_loc" + i + "_SUCCESSOR2_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_NAME));
+			successorDoc.put(MdekKeys.LOCATION_SNS_ID, "EXPIRED_loc" + i + "_SUCCESSOR2_" + locationDocsMixed.get(i).getString(MdekKeys.LOCATION_SNS_ID));
+			successorList.add(successorDoc);
+
+			locationDocWithSucc.put(MdekKeys.SUCCESSORS, successorList);
+			locationDocsExpiredWithSuccessors.add(locationDocWithSucc);
+		}
+
+		try {
+			// causes timeout ?
+			supertool.updateSpatialReferences(locationDocsWithSuccessors2, locationDocsExpiredWithSuccessors);
 		} catch(Exception ex) {
 			// track job info if still running !
 			while (supertool.hasRunningJob()) {

@@ -1190,7 +1190,7 @@ public class MdekCatalogService {
 		}
 	}
 
-	/** Flushes after every processed term. */
+	/** Flushes after every processed location. */
 	public void updateSpatialReferences(List<IngridDocument> spRefsOld, List<IngridDocument> spRefsNew,
 			String userUuid) {
 
@@ -1217,19 +1217,40 @@ public class MdekCatalogService {
 			} else {
 				
 				// process
-				if (newDoc == null) {
-					updateSpatialRefToExpired(tmpOldSpRef, userUuid);
+
+				// Is the location expired ?
+				boolean isExpired = newDoc == null || newDoc.get(MdekKeys.LOCATION_EXPIRED_AT) != null;
+				// Do we have successors ?
+				boolean hasSuccessors = newDoc != null && newDoc.get(MdekKeys.SUCCESSORS) != null;
+				// should the old location and all references to it should be deleted ?
+				boolean deleteOldLocation = false;
+
+				// first process new location document, not the successors !
+
+				// is location expired
+				if (isExpired) {
+					// EXPIRED
+
+					// Only set expired if NO successors.
+					if (!hasSuccessors) {
+						updateSpatialRefToExpired(tmpOldSpRef, userUuid);						
+					} else {
+						// if successors then old location should be deleted (see below) !
+						deleteOldLocation = true;						
+					}
 
 				} else {
+					// NOT expired !
+
 					// map new doc to bean for better handling
 					SpatialRefValue tmpNewSpRef = 
 						docToBeanMapper.mapHelperSpatialRefValue(newDoc, new SpatialRefValue());
 
-					// check type of new term
+					// check type of new location
 					SpatialReferenceType newType =
 						EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, tmpNewSpRef.getType());
 					if (!SpatialReferenceType.isThesaurusType(newType)) {
-						LOG.warn("SNS Update: New type of spatial reference is NOT \"Thesaurus\", we skip this one ! " +
+						LOG.warn("SNS Update: New type of spatial reference is NOT \"Geo-Thesaurus\", we skip this one ! " +
 							"type/term: " + newType + "/" + tmpNewSpRef.getNameValue());
 					}
 
@@ -1239,18 +1260,33 @@ public class MdekCatalogService {
 						updateSpatialRefValueSameSnsId(tmpOldSpRef, newDoc, userUuid);
 
 					} else {
-						updateSpatialRefValueNewSnsId(tmpOldSpRef, newDoc, userUuid);
+						// add new location and delete the old one !
+						updateSpatialRefValueNewSnsId(tmpOldSpRef, newDoc, true, userUuid);
+					}
+				}
+
+				// then process successors ! deleteOldLocation determines whether old location should be deleted !
+				if (hasSuccessors) {
+					List<IngridDocument> successors = (List<IngridDocument>) newDoc.get(MdekKeys.SUCCESSORS);
+
+					// we have successors of a location, process them !
+					for (IngridDocument successorDoc : successors) {
+						updateSpatialRefValueNewSnsId(tmpOldSpRef, successorDoc, deleteOldLocation, userUuid);
 					}
 				}
 			}
-			
+
 			updateJobInfo(JobType.UPDATE_SPATIAL_REFERENCES, "SpatialRefValue", ++numUpdated, totalNum, userUuid);
 			// flush per spatial reference
 			dao.flush();
 		}
 	}
+	/** Set given location to expired !
+	 * @param inRefOld location to be expired
+	 * @param userUuid user needed for update of job info
+	 */
 	private void updateSpatialRefToExpired(SpatialRefValue inRefOld, String userUuid) {
-		// get all database beans !
+		// get all database beans ! should be only one !
 		List<SpatialRefValue> spRefValues = daoSpatialRefValue.getSpatialRefValues(
 				EnumUtil.mapDatabaseToEnumConst(SpatialReferenceType.class, inRefOld.getType()),
 				inRefOld.getNameValue(),
@@ -1267,9 +1303,14 @@ public class MdekCatalogService {
 			List<T01Object> objs = daoSpatialRefValue.getObjectsOfSpatialRefValue(spRefValue.getId());
 
 			updateJobInfoNewUpdatedSpatialRef(spRefValue.getNameValue(), spRefValue.getNativekey(), 
-				"entfällt", objs.size(), objs, userUuid);
+				"entfällt (expired)", objs.size(), objs, userUuid);
 		}
 	}
+	/** Update old location with new data ! Database structures are kept and data updated !
+	 * @param inRefOld old location
+	 * @param inRefNewDoc new location as doc
+	 * @param userUuid user needed for update of job info
+	 */
 	private void updateSpatialRefValueSameSnsId(SpatialRefValue inRefOld, IngridDocument inRefNewDoc,
 			String userUuid) {
 		DocToBeanMapper docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
@@ -1300,7 +1341,15 @@ public class MdekCatalogService {
 			updateJobInfoNewUpdatedSpatialRef(oldName, oldCode, msg, (int)numObj, null, userUuid);
 		}
 	}
+	/** Creates a new location (new database structures !) and adds it to all objects containing the old location.
+	 * @param inRefOld old location
+	 * @param inRefNewDoc new location as doc
+	 * @param deleteOldLocation true=Old location and all references are deleted from objects,
+	 * 		false=old location and references are maintained !
+	 * @param userUuid user needed for update of job info
+	 */
 	private void updateSpatialRefValueNewSnsId(SpatialRefValue inRefOld, IngridDocument inRefNewDoc,
+			boolean deleteOldLocation,
 			String userUuid) {
 
 		// load/create NEW sns spRefValue, may already exist ! else create it (including spRefSns) !
@@ -1324,19 +1373,23 @@ public class MdekCatalogService {
 			List<SpatialReference> oldSpRefs = daoSpatialRefValue.getSpatialReferences(oldSpRefValue.getId());
 			int numProcessedObj = 0;
 			for (SpatialReference oldSpRef : oldSpRefs) {
-				// first check whether new spRef already connected to object !
-				if (objIdsOfNewSpRef.contains(oldSpRef.getObjId())) {
-					// new spRef already connected
-					// delete all old references 
+				Long objId = oldSpRef.getObjId();
+				T01Object obj = (T01Object) daoT01Object.loadById(objId);
+
+				// delete reference to old location
+				if (deleteOldLocation) {
+					// remove from set in object before making transient to avoid exception !
+					obj.getSpatialReferences().remove(oldSpRef);
 					dao.makeTransient(oldSpRef);
-				} else {
-					// new spRef NOT connected
-					// connect spRefValue to Object, use old connection
-					oldSpRef.setSpatialRefId(newSpRefValue.getId());
-					oldSpRef.setSpatialRefValue(newSpRefValue);
-					dao.makePersistent(oldSpRef);
-					objIdsOfNewSpRef.add(oldSpRef.getObjId());
 				}
+
+				// add new location if not present yet !
+				if (! objIdsOfNewSpRef.contains(objId)) {
+					// add location, already persisted !
+					docToBeanMapper.addSpatialReference(obj, newSpRefValue);
+					objIdsOfNewSpRef.add(objId);
+				}
+
 				numProcessedObj++;
 			}
 
@@ -1349,8 +1402,10 @@ public class MdekCatalogService {
 
 			// DELETE OLD STUFF !!! NO EXPIRED, we replaced spatial ref
 			// NOTICE: SpatialRefSns may be null if already deleted (when multiple SpatialRefValues)
-			dao.makeTransient(oldSpRefValue.getSpatialRefSns());
-			dao.makeTransient(oldSpRefValue);
+			if (deleteOldLocation) {
+				dao.makeTransient(oldSpRefValue.getSpatialRefSns());
+				dao.makeTransient(oldSpRefValue);				
+			}
 
 			updateJobInfoNewUpdatedSpatialRef(oldName, oldCode, msg, numProcessedObj, null, userUuid);
 		}
