@@ -1367,6 +1367,8 @@ public class MdekCatalogService {
 				inRefOld.getNameValue(),
 				inRefOld.getSpatialRefSns().getSnsId());
 		
+		T03Catalogue catalog = getCatalog();
+		
 		// and process
 		for (SpatialRefValue oldSpRefValue : oldSpRefValues) {
 			// get all object refs and check whether objects already have NEW sns spRef ! 
@@ -1408,6 +1410,14 @@ public class MdekCatalogService {
 			}
 
 			updateJobInfoNewUpdatedSpatialRef(oldName, oldCode, msg, numProcessedObj, null, userUuid);
+			
+			// Update id for spatial reference in catalog!!!
+            if (catalog.getSpatialRefId().equals( oldSpRefValue.getId() )) {
+                catalog.setSpatialRefId( newSpRefValue.getId() );
+                catalog.setSpatialRefValue(newSpRefValue);
+                daoT03Catalogue.makePersistent( catalog );
+            }
+			
 		}
 	}
 	private String getSpatialRefChangesMsg(SpatialRefValue spRefValueOld, SpatialRefValue spRefValueNew) {
