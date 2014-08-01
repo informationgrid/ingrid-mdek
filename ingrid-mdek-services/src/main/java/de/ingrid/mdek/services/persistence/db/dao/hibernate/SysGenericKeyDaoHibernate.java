@@ -1,12 +1,13 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.StringType;
 
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
@@ -35,13 +36,10 @@ public class SysGenericKeyDaoHibernate
 
 		String sql = "select genericKey from SysGenericKey genericKey";
 		if (selectKeys) {
-			sql += " where genericKey.keyName in (:keyNameList)";
+			sql += " where " + MdekUtils.createSplittedSqlQuery( "genericKey.keyName", Arrays.asList( keyNames ), 500 );
 		}
 		
 		Query q = session.createQuery(sql);
-		if (selectKeys) {
-			q.setParameterList("keyNameList", keyNames, new StringType());
-		}
 		
 		return q.list();
 	}

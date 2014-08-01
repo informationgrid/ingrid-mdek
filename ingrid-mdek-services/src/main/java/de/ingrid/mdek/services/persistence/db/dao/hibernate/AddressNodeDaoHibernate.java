@@ -426,12 +426,11 @@ public class AddressNodeDaoHibernate
 		// fetch all needed "nodes with only publish references"
 		List<ObjectNode> nodesPubOnly = new ArrayList<ObjectNode>();
 		if (nodeIdsPubOnly.size() > 0) {
-			nodesPubOnly = session.createQuery(
-					"select oNode from ObjectNode oNode " +
-					"left join fetch oNode.t01ObjectPublished oPub " +
-					"where oNode.id in (:idList) " +
-					"order by oPub.objName")
-					.setParameterList("idList", nodeIdsPubOnly)
+			String query = "select oNode from ObjectNode oNode " +
+					"left join fetch oNode.t01ObjectPublished oPub WHERE ";
+			query += MdekUtils.createSplittedSqlQuery( "oNode.id", nodeIdsPubOnly, 500 );
+			query += " order by oPub.objName";
+			nodesPubOnly = session.createQuery(query)
 					.setResultTransformer(new DistinctRootEntityResultTransformer())
 					.list();			
 		}
@@ -439,12 +438,11 @@ public class AddressNodeDaoHibernate
 		// fetch all needed "nodes with work references"
 		List<ObjectNode> nodesWork = new ArrayList<ObjectNode>();
 		if (nodeIdsWork.size() > 0) {
-			nodesWork = session.createQuery(
-					"select oNode from ObjectNode oNode " +
-					"left join fetch oNode.t01ObjectWork oWork " +
-					"where oNode.id in (:idList) " +
-					"order by oWork.objName")
-					.setParameterList("idList", nodeIdsWork)
+			String query = "select oNode from ObjectNode oNode " +
+					"left join fetch oNode.t01ObjectWork oWork WHERE ";
+			query += MdekUtils.createSplittedSqlQuery( "oNode.id", nodeIdsWork, 500 );
+			query += " order by oWork.objName";
+			nodesWork = session.createQuery(query)
 					.setResultTransformer(new DistinctRootEntityResultTransformer())
 					.list();			
 		}
@@ -1306,7 +1304,7 @@ public class AddressNodeDaoHibernate
 					addrUuidsWriteSingle.addAll(addrUuidsWriteTree);
 				}
 
-				qStringCriteria += " AND (aNode.addrUuid in (:singleUuidList) ";
+				qStringCriteria += " AND (" + MdekUtils.createSplittedSqlQuery( "aNode.addrUuid", addrUuidsWriteSingle, 500 );
 
 				// WRITE TREE 
 				if (addrUuidsWriteTree != null) {
@@ -1360,10 +1358,6 @@ public class AddressNodeDaoHibernate
 		// set query parameters 
 		Query qCount = session.createQuery(qStringCount);
 		Query qSelect = session.createQuery(qStringSelect);
-		if (addrUuidsWriteSingle != null) {
-			qCount.setParameterList("singleUuidList", addrUuidsWriteSingle);
-			qSelect.setParameterList("singleUuidList", addrUuidsWriteSingle);
-		}
 
 		// first count total number
 		if (LOG.isDebugEnabled()) {

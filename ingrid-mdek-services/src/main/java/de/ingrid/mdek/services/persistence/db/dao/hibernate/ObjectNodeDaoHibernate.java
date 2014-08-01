@@ -359,6 +359,8 @@ public class ObjectNodeDaoHibernate
 		// then remove all published references also contained in working references.
 		// we get the ones only in published version, meaning they were deleted in the
 		// working copies !
+		// So nodeIdsPubOnly contains all published objects that have a new working copy
+		// where the reference to the object with this uuid has been deleted.
 		List<Long> nodeIdsPubOnly = new ArrayList<Long>();
 		for (Long idPub : nodeIdsPub) {
 			if (!nodeIdsWork.contains(idPub)) {
@@ -371,25 +373,30 @@ public class ObjectNodeDaoHibernate
 		if (nodeIdsWork.size() > 0) {
 			nodesWork = session.createQuery(
 					"select oNode from ObjectNode oNode " +
-					"left join fetch oNode.t01ObjectWork oWork " +
-					"where oNode.id in (:idList)")
-					.setParameterList("idList", nodeIdsWork)
+							"left join fetch oNode.t01ObjectWork oWork " +
+					"where oNode.id in (" +
+						"select distinct oNode2.id from ObjectNode oNode2 " +
+						"left join oNode2.t01ObjectWork oWork2 " +
+						"left join oWork2.objectReferences oRef " +
+						"where oRef.objToUuid = ?" +
+					")")
+					.setString(0, uuid)
 					.setResultTransformer(new DistinctRootEntityResultTransformer())
 					.list();
+
 		}
 
 		// fetch all "nodes with only publish references"
 		List<ObjectNode> nodesPubOnly = new ArrayList<ObjectNode>();
 		if (nodeIdsPubOnly.size() > 0) {
-			nodesPubOnly = session.createQuery(
-					"select oNode from ObjectNode oNode " +
-					"left join fetch oNode.t01ObjectPublished oPub " +
-					"where oNode.id in (:idList)")
-					.setParameterList("idList", nodeIdsPubOnly)
+			String query = "SELECT oNode FROM ObjectNode oNode " +
+					"LEFT JOIN FETCH oNode.t01ObjectPublished oPub WHERE ";
+			query += MdekUtils.createSplittedSqlQuery( "oNode.id", nodeIdsPubOnly, 500 );
+			nodesPubOnly = session.createQuery(query)
 					.setResultTransformer(new DistinctRootEntityResultTransformer())
-					.list();			
+					.list();
 		}
-		
+
 		List<ObjectNode>[] retObjects = new List[] {
 			nodesPubOnly,
 			nodesWork
@@ -1238,7 +1245,7 @@ public class ObjectNodeDaoHibernate
 					objUuidsWriteSingle.addAll(objUuidsWriteTree);
 				}
 
-				qStringCriteria += " oNode.objUuid in (:singleUuidList) ";
+				qStringCriteria += MdekUtils.createSplittedSqlQuery( "oNode.objUuid", objUuidsWriteSingle, 500 );
 
 				// WRITE TREE 
 				if (objUuidsWriteTree != null) {
@@ -1292,10 +1299,6 @@ public class ObjectNodeDaoHibernate
 		// set query parameters 
 		Query qCount = session.createQuery(qStringCount);
 		Query qSelect = session.createQuery(qStringSelect);
-		if (objUuidsWriteSingle != null) {
-			qCount.setParameterList("singleUuidList", objUuidsWriteSingle);
-			qSelect.setParameterList("singleUuidList", objUuidsWriteSingle);
-		}
 
 		// first count total number
 		if (LOG.isDebugEnabled()) {

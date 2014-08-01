@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -613,7 +615,7 @@ public class MdekUtils {
 	}
 
 
-	/** Deompress zipped byte array to String. */
+	/** Decompress zipped byte array to String. */
 	public static String decompressZippedByteArray(byte[] zippedData) throws IOException {
 		ByteArrayOutputStream baos = decompress(new ByteArrayInputStream(zippedData));
 		return baos.toString("UTF-8");
@@ -657,5 +659,32 @@ public class MdekUtils {
 
 		gzout.close();
 		return baout;
+	}
+	
+	/**
+	 * For SQL queries which contain searches with 'IN', the list must not be larger than
+	 * 1000 entries for Oracle at least! Therefore we have to split the list and connect the 'IN'
+	 * clauses with 'OR'.
+	 * 
+	 * For example the result would be:
+	 * oNode.id IN (1,2,...,500) OR oNode.id IN (501,502,...,1000) OR ... 
+	 * 
+	 * @param column is the column to check values of the list
+	 * @param list countains all the values to be matched against the column
+	 * @param segmentSize is the size the query shall be splitted into several IN-clauses
+	 * @return a segmented query
+	 */
+	public static String createSplittedSqlQuery(String column, List list, int segmentSize) {
+		int length = list.size();
+		int counter = 0;
+		String query = "";
+		while (length > segmentSize) {
+			query += column + " IN ('"+StringUtils.join( list.subList( counter, counter + segmentSize ), "','" )+"') OR ";
+			counter += segmentSize;
+			length -= segmentSize;
+		}
+		query += column + " IN ('"+StringUtils.join( list.subList( counter, counter + length ), "','" )+"')";
+		
+		return query;
 	}
 }
