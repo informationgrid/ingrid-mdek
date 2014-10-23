@@ -111,9 +111,14 @@ public class MdekExportService implements IExporterCallback {
 		// NOTICE: we don't flush before to assure most current data ! autoflush is disabled during export !
 		for (IngridDocument doc : docs) {
 			Long metadataId = (Long) doc.get(MdekKeys.ENTITY_METADATA_ID);
-			ObjectMetadata metadata = (ObjectMetadata) daoObjectMetadata.getById(metadataId);
-			metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
-			daoObjectMetadata.makePersistent(metadata);
+
+			// may be null ??? was the case in TH catalog (INGRID-2360). Metadata is generated if not present when address/object is saved !
+			// see DocToBeanMapper.updateObjectMetadata()
+			if (metadataId != null) {
+				ObjectMetadata metadata = (ObjectMetadata) daoObjectMetadata.getById(metadataId);
+				metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
+				daoObjectMetadata.makePersistent(metadata);				
+			}
 		}
 
 		return docs;
@@ -135,9 +140,14 @@ public class MdekExportService implements IExporterCallback {
 		// NOTICE: we don't flush before to assure most current data ! autoflush is disabled during export !
 		for (IngridDocument doc : docs) {
 			Long metadataId = (Long) doc.get(MdekKeys.ENTITY_METADATA_ID);
-			AddressMetadata metadata = (AddressMetadata) daoAddressMetadata.getById(metadataId);
-			metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
-			daoAddressMetadata.makePersistent(metadata);
+
+			// may be null ??? was the case in TH catalog (INGRID-2360). Metadata is generated if not present when address/object is saved !
+			// see DocToBeanMapper.updateAddressMetadata()
+			if (metadataId != null) {
+				AddressMetadata metadata = (AddressMetadata) daoAddressMetadata.getById(metadataId);
+				metadata.setLastexportTime(MdekUtils.dateToTimestamp(new Date()));
+				daoAddressMetadata.makePersistent(metadata);
+			}
 		}
 
 		return docs;
