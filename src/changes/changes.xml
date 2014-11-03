@@ -8,6 +8,9 @@
       <action type="add" dev="wemove" issue="REDMINE-309">
         New behaviour when updating SNS spatial references, can be split now into multiple successors.
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-305">
+        Compatibility wth Java 8.
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2360">
         Fix Export if metadata to object/address is missing ("missing" content in catalog).
       </action>
