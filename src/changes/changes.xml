@@ -11,6 +11,9 @@
       <action type="update" dev="wemove" issue="REDMINE-305">
         Compatibility wth Java 8.
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-508">
+        Increase size of operation url in catalog (t011_obj_serv_op_connpoint.connect_point).
+      </action>
       <action type="fix" dev="wemove" issue="INGRID-2360">
         Fix Export if metadata to object/address is missing ("missing" content in catalog).
       </action>
