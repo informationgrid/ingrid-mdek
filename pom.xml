@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>3.4.0</version>
+    <version>3.5.0-SNAPSHOT-R304</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
@@ -13,11 +13,11 @@
   <name>ingrid-iplug-ige</name>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
-<!--
+
   <properties>
-    <ingrid-udk-importer.version>3.3.2</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>3.5.0-SNAPSHOT</ingrid-udk-importer.version>
   </properties>
--->
+
   <scm>
     <connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk</connection>
     <developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-mdek/trunk</developerConnection>
@@ -60,6 +60,30 @@
         <groupId>de.ingrid.mdek</groupId>
         <artifactId>ingrid-import-export</artifactId>
         <version>${project.version}</version>
+      </dependency>
+<!-- Use new spring because of Java 8 compatibility -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>4.0.0.RELEASE</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>4.0.0.RELEASE</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>4.0.0.RELEASE</version>
+      </dependency>
+<!-- Then import our default dependency versions ! Only versions not defined yet will be used ! -->
+      <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-import-pom</artifactId>
+        <version>3.5.0-SNAPSHOT-R304</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
