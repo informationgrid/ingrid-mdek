@@ -120,7 +120,7 @@
   </dependencies>
   <build>
     <finalName>${name}-${version}</finalName>
-    
+
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -168,6 +168,17 @@
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <inherited>false</inherited>
+      </plugin>
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <configuration>
+              <excludes>
+                  <exclude>**/*.apt</exclude>
+                  <exclude>**/*.sql</exclude>
+                  <exclude>**/log4j.properties</exclude>
+              </excludes>
+          </configuration>
       </plugin>
     </plugins>
     <resources>
