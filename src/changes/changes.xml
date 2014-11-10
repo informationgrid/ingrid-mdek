@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  **************************************************-
+  ingrid-iplug-ige
+  ==================================================
+  Copyright (C) 2014 wemove digital solutions GmbH
+  ==================================================
+  Licensed under the EUPL, Version 1.1 or – as soon they will be
+  approved by the European Commission - subsequent versions of the
+  EUPL (the "Licence");
+
+  You may not use this work except in compliance with the Licence.
+  You may obtain a copy of the Licence at:
+
+  http://ec.europa.eu/idabc/eupl5
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the Licence is distributed on an "AS IS" basis,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the Licence for the specific language governing permissions and
+  limitations under the Licence.
+  **************************************************#
+  -->
+
 <document>
   <properties>
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
     <release version="3.5.0-SNAPSHOT" date="???" description="Release InGrid ???">
+      <action type="add" dev="wemove" issue="REDMINE-524">
+        Added license header to all source files for Open Source migration.
+      </action>
       <action type="add" dev="wemove" issue="REDMINE-309">
         New behaviour when updating SNS spatial references, can be split now into multiple successors.
       </action>
@@ -36,7 +62,7 @@
         Fixed bug when reindexing catalog contents, caused error.
       </action>
     </release>
-    
+
     <release version="3.3.1" date="2013-10-30" description="Release InGrid 3.3.1">
       <action type="add" dev="wemove" issue="REDMINE-118">
         Added datatype for url references.
@@ -57,7 +83,7 @@
         Do NOT copy original id of object/address when performing copy.
       </action>
     </release>
-    
+
     <release version="3.3.0" date="2013-03-05" description="Release InGrid 3.3">
       <action type="add" dev="wemove" issue="INGRID33-12">
         Add new field "publication condition" for addresses.
@@ -135,7 +161,7 @@
         Remove DQ tables "Art der Messung" syslists 7110 (Datendefizit), 7117 (Absolute Positionsgenauigkeit) now replaced by fields.
       </action>
       <action type="update" dev="wemove" issue="INGRID32-28, INGRID32-47">
-        New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist. 
+        New comboboxes / syslists for "Availability - Usage Limitations" and "Conformity - Specification of Conformity", free entries can be converted to syslist.
         Handle metadata in syslist entries (e.g. in syslist 6005 publication date at end of values only used for IDF mapping).
       </action>
       <action type="update" dev="wemove" issue="INGRID31-22">
@@ -143,7 +169,7 @@
       </action>
       <action type="update" dev="wemove" issue="INGRID-1885">
         Updated start.sh, which had an issue when being batch-invoked, deleted RSYNC which is no longer used.
-      </action>	  
+      </action>
       <action type="fix" dev="wemove">
         Make HQL query in research more robust, now ObjectNode and AddressNode in one query possible.
       </action>
