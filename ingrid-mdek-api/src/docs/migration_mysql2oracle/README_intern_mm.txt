@@ -4,6 +4,8 @@ Migration PortalU MV Katalog nach Oracle
 Issue: https://redmine.wemove.com/issues/376
 
 Vorgehen:
+(Auch bei erneuter Migration von gleichem Katalog gleiches Vorgehen, im Migrations Repo lediglich anderen Projektnamen angegeben, z.B. "Migration mySQL igc_mv 20141105".
+Dann schon vorhandenen Oracle igc_mv Katalog genommen ! Geht, es wird aktuelles Schema/Daten übernommen).
 
 [0. MySQL dumpen und lokal einspielen
 -------------------------------------
@@ -114,8 +116,8 @@ s. Doku: 2.1.1 Migrating Using the Migration Wizard:
         - Dann via Migrationsprojekt Daten zu neuem Schema migrieren, wie oben außer:
             - Ziel: ingrid_portal_mv (= Verbindung zu neuem Schema/Benutzer)
 
-2.5 oracle dumps ausführen ?
-----------------------------
+2.5 oracle dumps ausführen (z.B. um INITIAL Migrationszustand fest zu halten)
+-----------------------------------------------------------------------------
 - Zunächst den migrierten "User/Schemata" alle rechte zuweisen, sonst ORA-39145: directory object parameter must be specified and non-null
 auf Redmond:
 sqlplus (User system/Pwd s. groupware)
