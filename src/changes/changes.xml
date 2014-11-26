@@ -34,6 +34,9 @@
       <action type="add" dev="wemove" issue="REDMINE-309">
         New behaviour when updating SNS spatial references, can be split now into multiple successors.
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-557">
+        Added new iso entries to syslists accessConstraints (List-ID 6010) + useConstraints (List-ID 6020).
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-305">
         Compatibility wth Java 8.
       </action>

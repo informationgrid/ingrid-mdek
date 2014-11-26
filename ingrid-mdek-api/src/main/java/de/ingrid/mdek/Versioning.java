@@ -28,7 +28,7 @@ package de.ingrid.mdek;
  */
 public class Versioning {
 	/** Version of IGC catalogue needed (Schema) */
-	public static final String NEEDED_IGC_VERSION = "3.4.1_a";
+	public static final String NEEDED_IGC_VERSION = "3.4.1_b";
 
 	/** Key for fetching IGC Version from backend from SysGenericKey table */
 	public static final String BACKEND_IGC_VERSION_KEY = "IDC_VERSION";
