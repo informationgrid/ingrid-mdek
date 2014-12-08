@@ -10,7 +10,7 @@
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
   <version>3.5.0-SNAPSHOT</version>
-  <name>InGrid iPlug-IGE</name>
+  <name>ingrid-iplug-ige</name>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
