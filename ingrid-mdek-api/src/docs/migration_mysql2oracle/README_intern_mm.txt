@@ -119,7 +119,7 @@ s. Doku: 2.1.1 Migrating Using the Migration Wizard:
 2.5 oracle dumps ausführen (z.B. um INITIAL Migrationszustand fest zu halten)
 -----------------------------------------------------------------------------
 - Zunächst den migrierten "User/Schemata" alle rechte zuweisen, sonst ORA-39145: directory object parameter must be specified and non-null
-auf Redmond:
+auf Redmond (bzw. über "redmond system" connection):
 sqlplus (User system/Pwd s. groupware)
 grant exp_full_database to igc_mv;
 grant imp_full_database to igc_mv;
