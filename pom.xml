@@ -119,7 +119,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>${project.name}-${project.version}</finalName>
+    <finalName>${project.artifactId}-${project.version}</finalName>
 
     <plugins>
       <plugin>
@@ -168,7 +168,11 @@
       </plugin>
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
-        <inherited>false</inherited>
+        <version>2.5.1</version>
+        <configuration>
+          <preparationGoals>clean verify changes:changes-report deploy wagon:upload -Dlicense.failOnMissingHeader=true -Dlicense.failOnNotUptodateHeader=true -Dproject.url=</preparationGoals>
+          <goals>changes:announcement-mail -Dproject.url= --non-recursive</goals>
+        </configuration>
       </plugin>
       <plugin>
           <groupId>org.codehaus.mojo</groupId>

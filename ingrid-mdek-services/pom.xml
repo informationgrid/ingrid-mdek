@@ -84,6 +84,7 @@
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>

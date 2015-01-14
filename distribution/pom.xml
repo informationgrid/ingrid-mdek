@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>de.ingrid.mdek</groupId>
+    <artifactId>ingrid-mdek</artifactId>
+    <version>3.5.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>ingrid-iplug-ige</artifactId>
+  <packaging>pom</packaging>
+  <name>InGrid IGE Distribution</name>
+  <scm>
+    <connection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/distribution</connection>
+    <developerConnection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/distribution</developerConnection>
+  </scm>
+  <repositories>
+    <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
+    <repository>
+      <id>de.ingrid.all</id>
+      <name>Maven Repo InGrid</name>
+      <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>de.ingrid.mdek</groupId>
+      <artifactId>ingrid-mdek-job</artifactId>
+      <version>3.5.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}-${project.version}</finalName>
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.5.3</version>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>make-installer</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>true</appendAssemblyId>
+              <descriptors>
+                <descriptor>assembly/bin.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>wagon-maven-plugin</artifactId>
+        <inherited>false</inherited>
+        <configuration>
+<!-- NOTICE: REDEFINE directory on distribution server -->
+          <url>file:///opt/ingrid/distributions/${project.artifactId}/${project.version}</url>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
