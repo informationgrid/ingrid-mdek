@@ -37,7 +37,7 @@
     <module>ingrid-mdek-services</module>
     <module>ingrid-import-export</module>
     <!-- assembly should be done in separate module, but conflicts with current release plugin configuration -->
-    <!--<module>distribution</module>-->
+    <module>distribution</module>
   </modules>
   <dependencyManagement>
     <dependencies>
@@ -119,7 +119,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>${name}-${version}</finalName>
+    <finalName>${project.name}-${project.version}</finalName>
 
     <plugins>
       <plugin>
@@ -130,15 +130,16 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <inherited>false</inherited>
-			<!-- Add Type of Component to Manifest of Installer for Upgrade Server -->
-			<configuration>
-				<archive>
-				  <manifestEntries>
-					  <ingridComponentType>IPLUG_IGE</ingridComponentType>
-				</manifestEntries>
-				</archive>
-			</configuration>
+        <version>2.5.3</version>
+        <inherited>true</inherited>
+			  <!-- Add Type of Component to Manifest of Installer for Upgrade Server -->
+  			<configuration>
+  				<archive>
+  				  <manifestEntries>
+  					  <ingridComponentType>IPLUG_IGE</ingridComponentType>
+  				</manifestEntries>
+  				</archive>
+  			</configuration>
       </plugin>
       <!-- DISABLE RELEASE / ASSEMBLY STUFF FOR SUBMODULES ! RELEASE/BUNDLE ONLY IN TOP MODULE !!! -->
       <plugin>
@@ -159,7 +160,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>wagon-maven-plugin</artifactId>
-        <inherited>false</inherited>
+        <inherited>true</inherited>
         <configuration>
 <!-- NOTICE: REDEFINE directory on distribution server -->
           <url>file:///opt/ingrid/distributions/${project.name}/${project.version}</url>
