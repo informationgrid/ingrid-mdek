@@ -1,7 +1,7 @@
-iPlug MDEK
-==========
+iPlug IGE
+=========
 
-This software is part of the InGrid software package. The iPlug MDEK (Metadaten Erfassungs Komponente) or iPlug IGE (InGrid Editor) manages all database operations to an InGrid Catalog (IGC) database and provides all interfaces to edit and maintain an InGrid Catalog. It is connected via TCP to an InGrid Editor frontend instance which supplies the user interface for triggering the actions on the iPlug.
+This software is part of the InGrid software package. The iPlug IGE (InGrid Editor) formerly also known as MDEK (Metadaten Erfassungs Komponente) manages all database operations to an InGrid Catalog database (IGC) and provides all interfaces to edit and maintain an InGrid Catalog. It is connected via TCP to an InGrid Editor frontend instance which supplies the user interface for triggering the actions on the iPlug.
 
 
 Features
