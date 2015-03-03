@@ -19,7 +19,7 @@ Requirements
 Installation
 ------------
 
-Download from https://dev.informationgrid.eu/ingrid-distributions/ingrid-mdek/
+Download from https://dev.informationgrid.eu/ingrid-distributions/ingrid-iplug-ige/
  
 or
 
