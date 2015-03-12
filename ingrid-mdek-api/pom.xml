@@ -26,6 +26,7 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
+      <version>1.4.1</version>
     </dependency>
   </dependencies>
   <build>

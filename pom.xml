@@ -78,14 +78,7 @@
         <artifactId>spring-core</artifactId>
         <version>4.0.0.RELEASE</version>
       </dependency>
-<!-- Then import our default dependency versions ! Only versions not defined yet will be used ! -->
-      <dependency>
-        <groupId>de.ingrid</groupId>
-        <artifactId>ingrid-import-pom</artifactId>
-        <version>3.5.0</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+<!-- Then import our ingrid dependency versions ! Only versions not defined yet will be used ! -->
       <dependency>
         <groupId>de.ingrid</groupId>
         <artifactId>ingrid-version-management-pom</artifactId>
@@ -118,6 +111,7 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
+        <version>1.2.14</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
