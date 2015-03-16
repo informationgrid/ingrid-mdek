@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
@@ -503,6 +505,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
+		    log.error( ExceptionUtils.getStackTrace( e ) );
 			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
