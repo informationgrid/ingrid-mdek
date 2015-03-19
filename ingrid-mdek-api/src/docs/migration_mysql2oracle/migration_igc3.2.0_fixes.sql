@@ -137,6 +137,22 @@ UPDATE t011_obj_project SET member2 = member;
 ALTER TABLE t011_obj_project DROP COLUMN member;
 ALTER TABLE t011_obj_project RENAME COLUMN member2 TO member;
 
+-- Alter all URL columns to VARCHAR. CLOB does not work with "URL-Pflege" in IGE.
+-- ORA-00932: inconsistent datatypes: expected - got CLOB
+
+-- was changed manually in bb catalog to TEXT (MySQL) so was converted to CLOB
+PROMPT ! Change t011_obj_serv_op_connpoint.connect_point from CLOB to VARCHAR2(4000 CHAR) ...
+ALTER TABLE t011_obj_serv_op_connpoint ADD connect_point2 VARCHAR2(4000 CHAR);
+UPDATE t011_obj_serv_op_connpoint SET connect_point2 = connect_point;
+ALTER TABLE t011_obj_serv_op_connpoint DROP COLUMN connect_point;
+ALTER TABLE t011_obj_serv_op_connpoint RENAME COLUMN connect_point2 TO connect_point;
+
+PROMPT ! Change t017_url_ref.url_link from CLOB to VARCHAR2(4000 CHAR) ...
+ALTER TABLE t017_url_ref ADD url_link2 VARCHAR2(4000 CHAR);
+UPDATE t017_url_ref SET url_link2 = url_link;
+ALTER TABLE t017_url_ref DROP COLUMN url_link;
+ALTER TABLE t017_url_ref RENAME COLUMN url_link2 TO url_link;
+
 commit;
 
 PROMPT ! CHANGE COLUMN DATA TYPES IGC AFTER MIGRATION VIA SQL DEVELOPER !
