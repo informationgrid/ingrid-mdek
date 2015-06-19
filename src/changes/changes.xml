@@ -27,7 +27,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="3.6.0-SNAPSHOT" date="?" description="?">
+    <release version="3.6.0" date="2015-06-19" description="Release 3.6.0">
       <action type="fix" dev="wemove" issue="REDMINE-42">
         Fix MySQL to Oracle migration script (change datatype of URLs so IGE url check works).
       </action>
