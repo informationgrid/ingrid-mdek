@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>3.6.0</version>
+    <version>3.6.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-job</artifactId>
@@ -12,7 +12,7 @@
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-mdek-job</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-mdek-job</developerConnection>
-    <tag>ingrid-mdek-3.6.0</tag>
+    <tag>HEAD</tag>
   </scm>
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
