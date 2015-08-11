@@ -22,6 +22,7 @@
  */
 package de.ingrid.mdek.xml.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -66,7 +67,12 @@ public class IngridDocUtils {
 
 	public static List<String> getStringListForKey(String key, IngridDocument context) {
 		if (context != null && context.getArrayList(key) != null) {
-			return context.getArrayList(key);
+            List<Object> myList = context.getArrayList(key);
+            List<String> result = new ArrayList<String>(myList.size());
+            for (Object myEntry : myList) {
+                result.add((String) myEntry);
+            }
+            return result;
 		} else {
 			return Collections.EMPTY_LIST;
 		}
@@ -74,7 +80,12 @@ public class IngridDocUtils {
 
 	public static List<Integer> getIntegerListForKey(String key, IngridDocument context) {
 		if (context != null && context.getArrayList(key) != null) {
-			return context.getArrayList(key);
+            List<Object> myList = context.getArrayList(key);
+            List<Integer> result = new ArrayList<Integer>(myList.size());
+            for (Object myEntry : myList) {
+                result.add((Integer) myEntry);
+            }
+            return result;
 		} else {
 			return Collections.EMPTY_LIST;
 		}
@@ -82,7 +93,12 @@ public class IngridDocUtils {
 
 	public static List<IngridDocument> getIngridDocumentListForKey(String key, IngridDocument context) {
 		if (context != null && context.getArrayList(key) != null) {
-			return context.getArrayList(key);
+		    List<Object> myList = context.getArrayList(key);
+		    List<IngridDocument> result = new ArrayList<IngridDocument>(myList.size());
+		    for (Object myEntry : myList) {
+		        result.add((IngridDocument) myEntry);
+		    }
+			return result;
 		} else {
 			return Collections.EMPTY_LIST;
 		}

@@ -219,6 +219,78 @@ class MdekExampleExportImportObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+        // Test EXPORT / IMPORT new Exchange Format 3.6.1
+        // --------------------------
+        supertool.setFullOutput(true);
+
+        System.out.println("\n----- object details -----");
+        IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+
+        System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+
+        // change TECHNICAL DOMAIN SERVICE
+        // add version with key/value (now syslist), see https://dev.informationgrid.eu/redmine/issues/47
+        IngridDocument technicalDomain = (IngridDocument) oDoc.get(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+        technicalDomain = (technicalDomain == null) ? new IngridDocument() : technicalDomain;
+        oDoc.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
+        // needed for publishing !
+        technicalDomain.put(MdekKeys.SERVICE_TYPE_KEY, 2);
+        technicalDomain.put(MdekKeys.COUPLING_TYPE, "tight");
+        // add TECHNICAL DOMAIN SERVICE - versions
+        List<IngridDocument> docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_VERSION_LIST);
+        docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+        technicalDomain.put(MdekKeys.SERVICE_VERSION_LIST, docList);
+        // check SERVICE_VERSION_KEY -> SERVICE_VERSION_VALUE is stored via syslist
+        // NOTICE: "interacts" with SERVICE_TYPE_KEY
+        IngridDocument testDoc = new IngridDocument();
+        docList.add(testDoc);
+        testDoc.put(MdekKeys.SERVICE_VERSION_KEY, 1);
+        testDoc.put(MdekKeys.SERVICE_VERSION_VALUE, "TEST VERSION 1 IS OVERWRITTEN");
+        testDoc = new IngridDocument();
+        docList.add(testDoc);
+        testDoc.put(MdekKeys.SERVICE_VERSION_KEY, 2);
+        testDoc.put(MdekKeys.SERVICE_VERSION_VALUE, "TEST VERSION 2 IS OVERWRITTEN");
+
+        oDoc = supertool.publishObject(oDoc, true, false);
+        
+        System.out.println("\n----- export object -----");
+        supertool.exportObjectBranch(objUuid, true, false);
+        result = supertool.getExportInfo(true);
+        byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+        System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+        objImpNodeDoc = supertool.newObjectDoc(null);
+        objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+        objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+        objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+        objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+        System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+        addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+        addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+        addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+        addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+        System.out.println("\n----- import object OVERWRITE ! -----");
+        supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false, true);
+        supertool.getJobInfo(JobType.IMPORT);
+        supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+        System.out.println("\n----- discard changes -> remove former change -----");
+        oDoc.remove(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+
+        result = supertool.publishObject(oDoc, true, false);
+
+        System.out.println("----- DELETE Import Top Nodes -----");
+        supertool.deleteObject(objImpNodeUuid, true);
+        supertool.deleteAddress(addrImpNodeUuid, true);
+
+        if (alwaysTrue) {
+            isRunning = false;
+            return;
+        }
+*/
+/*
 		// Test EXPORT / IMPORT new Exchange Format 3.3.2
 		// --------------------------
 		supertool.setFullOutput(true);

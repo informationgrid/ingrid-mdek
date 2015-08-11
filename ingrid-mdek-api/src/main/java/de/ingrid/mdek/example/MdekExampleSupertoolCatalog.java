@@ -97,7 +97,7 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			System.out.println("All entries in Map: ");
-			Set<Map.Entry> entries = result.entrySet();
+			Set<Map.Entry<Object, Object>> entries = result.entrySet();
 			for (Map.Entry entry : entries) {
 				System.out.println("  " + entry);
 			}
@@ -193,9 +193,10 @@ public class MdekExampleSupertoolCatalog {
 		result = mdekCallerCatalog.getResultFromResponse(response);
 		if (result != null) {
 			if (listIds != null) {
-				Set<String> listKeys = result.keySet();
+				Set<Object> listKeys = result.keySet();
 				System.out.println("SUCCESS: " + listKeys.size() + " sys-lists");
-				for (String listKey : listKeys) {
+				for (Object myListKey : listKeys) {
+				    String listKey = (String) myListKey;
 					IngridDocument syslstDoc = (IngridDocument) result.get(listKey);
 					Integer[] entryIds = (Integer[]) syslstDoc.get(MdekKeys.LST_ENTRY_IDS);
 					Integer lstDefaultIndex = (Integer) syslstDoc.get(MdekKeys.LST_DEFAULT_ENTRY_INDEX);

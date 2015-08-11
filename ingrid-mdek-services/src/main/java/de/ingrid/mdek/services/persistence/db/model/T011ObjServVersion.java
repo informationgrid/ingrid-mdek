@@ -30,7 +30,8 @@ public class T011ObjServVersion implements IEntity {
 	private int version;
 	private Long objServId;
 	private Integer line;
-	private String servVersion;
+	private Integer versionKey;
+	private String versionValue;
 
 
 	public T011ObjServVersion() {}
@@ -67,12 +68,20 @@ public class T011ObjServVersion implements IEntity {
 		this.line = line;
 	}
 
-	public String getServVersion() {
-		return servVersion;
+	public Integer getVersionKey() {
+		return versionKey;
 	}
 
-	public void setServVersion(String servVersion) {
-		this.servVersion = servVersion;
+	public void setVersionKey(Integer versionKey) {
+		this.versionKey = versionKey;
+	}
+
+	public String getVersionValue() {
+		return versionValue;
+	}
+
+	public void setVersionValue(String versionValue) {
+		this.versionValue = versionValue;
 	}
 
 

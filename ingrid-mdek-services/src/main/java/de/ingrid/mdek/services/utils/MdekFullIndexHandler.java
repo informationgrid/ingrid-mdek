@@ -473,7 +473,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			}
 			Set<T011ObjServVersion> oServVersions = oServ.getT011ObjServVersions();
 			for (T011ObjServVersion oServVersion : oServVersions) {
-				extendFullData(data, oServVersion.getServVersion());
+				extendFullData(data, oServVersion.getVersionValue());
 			}
 			Set<T011ObjServUrl> oServUrls = oServ.getT011ObjServUrls();
 			for (T011ObjServUrl oServUrl : oServUrls) {

@@ -881,8 +881,12 @@ public class MdekKeys {
     public final static String HAS_ACCESS_CONSTRAINT = "has-access-constraint";
 // NAME already defined, also used here in subdocument !
     // TECHNICAL DOMAIN SERVICE - VERSIONS
-    /** Value: List< String >  */
+    /** Value: List< IngridDocument >  */
     public final static String SERVICE_VERSION_LIST = "service-version-list";
+    /** Value: String */
+    public final static String SERVICE_VERSION_VALUE = "service-version-value";
+    /** Value: Integer */
+    public final static String SERVICE_VERSION_KEY = "service-version-key";
     // TECHNICAL DOMAIN SERVICE - OPERATIONS
     /** Value: List< IngridDocument >  */
     public final static String SERVICE_OPERATION_LIST = "service-operation-list";

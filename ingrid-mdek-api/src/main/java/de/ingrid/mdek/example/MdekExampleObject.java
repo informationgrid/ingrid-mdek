@@ -1508,11 +1508,13 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.HAS_ACCESS_CONSTRAINT, "Y");
 		oDocIn.put(MdekKeys.TECHNICAL_DOMAIN_SERVICE, technicalDomain);
 		// add TECHNICAL DOMAIN SERVICE - versions
-		strList = (List<String>) technicalDomain.get(MdekKeys.SERVICE_VERSION_LIST);
-		strList = (strList == null) ? new ArrayList<String>() : strList;
-		strList.add("TEST SERVICE_VERSION1");
-		strList.add("TEST SERVICE_VERSION2");
-		technicalDomain.put(MdekKeys.SERVICE_VERSION_LIST, strList);
+        docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_VERSION_LIST);
+        docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+        testDoc = new IngridDocument();
+        testDoc.put(MdekKeys.SERVICE_VERSION_KEY, new Integer(1));
+        testDoc.put(MdekKeys.SERVICE_VERSION_VALUE, "ERROR, should be overwritten with true value !");
+        docList.add(testDoc);
+        technicalDomain.put(MdekKeys.SERVICE_VERSION_LIST, docList);
 		// add TECHNICAL DOMAIN SERVICE - types
 		docList = (List<IngridDocument>) technicalDomain.get(MdekKeys.SERVICE_TYPE2_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;

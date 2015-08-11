@@ -1578,17 +1578,27 @@ public class BeanToDocMapper implements IMapper {
 		return refDoc;
 	}
 	private IngridDocument mapT011ObjServVersions(Set<T011ObjServVersion> refs, IngridDocument inDoc) {
-		if (refs == null) {
+		if (refs == null || refs.size() == 0) {
 			return inDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
 		for (T011ObjServVersion ref : refs) {
-			refList.add(ref.getServVersion());				
+            IngridDocument refDoc = new IngridDocument();
+            mapT011ObjServVersion(ref, refDoc);
+            refList.add(refDoc);
 		}
 		inDoc.put(MdekKeys.SERVICE_VERSION_LIST, refList);
 		
 		return inDoc;
 	}
+    private IngridDocument mapT011ObjServVersion(T011ObjServVersion ref, IngridDocument refDoc) {
+        if (ref == null) {
+            return refDoc;
+        }
+        refDoc.put(MdekKeys.SERVICE_VERSION_KEY, ref.getVersionKey());
+        refDoc.put(MdekKeys.SERVICE_VERSION_VALUE, ref.getVersionValue());
+        return refDoc;
+    }
 	private IngridDocument mapT011ObjServOperations(Set<T011ObjServOperation> refs, IngridDocument inDoc) {
 		if (refs == null || refs.size() == 0) {
 			return inDoc;

@@ -80,6 +80,7 @@ import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
 import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
+import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
@@ -688,6 +689,10 @@ public class MdekCatalogService {
 					T011ObjServOperation objServOp = (T011ObjServOperation) entity;
 					T011ObjServ objServ = (T011ObjServ) daoT011ObjServ.loadById(objServOp.getObjServId());
 					keyValueHandler.processKeyValueT011ObjServOperation(objServOp, objServ);
+                } else if (entityClass.equals(T011ObjServVersion.class)) {
+                    T011ObjServVersion objServVersion = (T011ObjServVersion) entity;
+                    T011ObjServ objServ = (T011ObjServ) daoT011ObjServ.loadById(objServVersion.getObjServId());
+                    keyValueHandler.processKeyValueT011ObjServVersion(objServVersion, objServ);
 				} else if (entityClass.equals(ObjectUse.class)) {
 					// special handling if ObjectUse !
 					// fetch according T01Object, determines syslist !

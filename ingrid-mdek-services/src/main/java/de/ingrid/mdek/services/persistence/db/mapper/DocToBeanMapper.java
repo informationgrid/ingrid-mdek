@@ -327,7 +327,8 @@ public class DocToBeanMapper implements IMapper {
             	}
             }
 */
-			for (String langId : ((Map<String,String>)localNames).keySet()) {
+			for (Object myLangId : localNames.keySet()) {
+			    String langId = (String) myLangId;
 			    String inName = localNames.getString(langId);
 
 				SysList foundEntry = null;
@@ -2118,10 +2119,6 @@ public class DocToBeanMapper implements IMapper {
 		return ref;
 	}
 	private void updateT011ObjServVersions(IngridDocument oDocIn, T011ObjServ oIn) {
-		List<String> versions = (List) oDocIn.get(MdekKeys.SERVICE_VERSION_LIST);
-		if (versions == null) {
-			versions = new ArrayList<String>(0);
-		}
 		Set<T011ObjServVersion> refs = oIn.getT011ObjServVersions();
 		ArrayList<T011ObjServVersion> refs_unprocessed = new ArrayList<T011ObjServVersion>(refs);
 		// remove all !
@@ -2131,21 +2128,27 @@ public class DocToBeanMapper implements IMapper {
 			dao.makeTransient(ref);			
 		}		
 		// and add all new ones !
+        List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.SERVICE_VERSION_LIST);
+        if (refDocs == null) {
+            refDocs = new ArrayList<IngridDocument>(0);
+        }
 		int line = 1;
-		for (String version : versions) {
-			T011ObjServVersion ref = mapT011ObjServVersion(oIn, version, new T011ObjServVersion(), line);
+        for (IngridDocument refDoc : refDocs) {
+			T011ObjServVersion ref = mapT011ObjServVersion(oIn, refDoc, new T011ObjServVersion(), line);
 			refs.add(ref);
 			line++;
 		}
 	}
 	private T011ObjServVersion mapT011ObjServVersion(T011ObjServ oFrom,
-			String version,
+            IngridDocument refDoc,
 			T011ObjServVersion ref,
 			int line)
 	{
 		ref.setObjServId(oFrom.getId());
-		ref.setServVersion(version);
+        ref.setVersionKey((Integer)refDoc.get(MdekKeys.SERVICE_VERSION_KEY));
+        ref.setVersionValue(refDoc.getString(MdekKeys.SERVICE_VERSION_VALUE));
 		ref.setLine(line);
+        keyValueService.processKeyValueT011ObjServVersion(ref, oFrom);
 
 		return ref;
 	}

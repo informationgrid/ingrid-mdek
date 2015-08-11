@@ -363,13 +363,19 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createServiceVersions(IngridDocument serviceContext) {
-		List<XMLElement> serviceVersions = new ArrayList<XMLElement>();
-		List<String> serviceVersionIds = getStringListForKey(MdekKeys.SERVICE_VERSION_LIST, serviceContext);
-		for (String serviceVersion : serviceVersionIds) {
-			serviceVersions.add(new XMLElement(SERVICE_VERSION, serviceVersion));
+		List<XMLElement> resultList = new ArrayList<XMLElement>();
+		List<IngridDocument> serviceVersionList = getIngridDocumentListForKey(MdekKeys.SERVICE_VERSION_LIST, serviceContext);
+		for (IngridDocument serviceDoc : serviceVersionList) {
+            resultList.add(createServiceVersion(serviceDoc));
 		}
-		return serviceVersions;
+		return resultList;
 	}
+    private XMLElement createServiceVersion(IngridDocument serviceDoc) {
+        XMLElement serviceVersionElem = new XMLElement(SERVICE_VERSION, getStringForKey(MdekKeys.SERVICE_VERSION_VALUE, serviceDoc));
+        serviceVersionElem.addAttribute(ID, getIntegerForKey(MdekKeys.SERVICE_VERSION_KEY, serviceDoc));
+        return serviceVersionElem;
+    }
+
 
 	private List<XMLElement> createServiceOperations(IngridDocument serviceContext) {
 		List<XMLElement> serviceOperations = new ArrayList<XMLElement>();

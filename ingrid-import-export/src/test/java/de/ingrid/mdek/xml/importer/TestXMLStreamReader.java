@@ -180,8 +180,8 @@ public class TestXMLStreamReader {
 	}
 
 	public static void compareAdditionalFields(IngridDocument expected, IngridDocument actual) {
-		for (Map.Entry<String, Object> entry : (Set<Map.Entry>) expected.entrySet()) {
-			String key = entry.getKey();
+		for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) expected.entrySet()) {
+			String key = (String) entry.getKey();
 			Object expectedValue = entry.getValue();
 			Object actualValue = actual.get(key);
 
@@ -206,8 +206,8 @@ public class TestXMLStreamReader {
 	}
 
 	public static void compareAddress(IngridDocument expected, IngridDocument actual) {
-		for (Map.Entry<String, Object> entry : (Set<Map.Entry>) expected.entrySet()) {
-			String key = entry.getKey();
+		for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) expected.entrySet()) {
+			String key = (String) entry.getKey();
 			Object expectedValue = entry.getValue();
 			Object actualValue = actual.get(key);
 
@@ -240,8 +240,8 @@ public class TestXMLStreamReader {
 	}
 
 	public static void compare(IngridDocument expected, IngridDocument actual) {
-		for (Map.Entry<String, Object> entry : (Set<Map.Entry>) expected.entrySet()) {
-			String key = entry.getKey();
+		for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>) expected.entrySet()) {
+			String key = (String) entry.getKey();
 			Object expectedValue = entry.getValue();
 			Object actualValue = actual.get(key);
 

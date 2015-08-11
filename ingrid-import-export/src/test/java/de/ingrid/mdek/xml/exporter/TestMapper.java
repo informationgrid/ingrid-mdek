@@ -156,13 +156,13 @@ public class TestMapper {
 		IngridDocument objectNodesResponse = mdekCallerQuery.queryHQL(plugId, hqlQuery, startHit, numHits, userId);
 		IngridDocument objectNodes = mdekClientCaller.getResultFromResponse(objectNodesResponse);
 
-		List<IngridDocument> objEntities = objectNodes.getArrayList(MdekKeys.OBJ_ENTITIES);
+		List<Object> objEntities = objectNodes.getArrayList(MdekKeys.OBJ_ENTITIES);
 
 		long startTime = System.currentTimeMillis();
 
 		writer.writeStartIngridObjects();
-		for (IngridDocument objEntity : objEntities) {
-			String uuid = objEntity.getString(MdekKeys.UUID);
+		for (Object objEntity : objEntities) {
+			String uuid = ((IngridDocument) objEntity).getString(MdekKeys.UUID);
 			IngridDocument obj = getObject(uuid);
 
 			if (obj != null) {
@@ -186,13 +186,13 @@ public class TestMapper {
 		IngridDocument addressNodesResponse = mdekCallerQuery.queryHQL(plugId, hqlQuery, startHit, numHits, userId);
 		IngridDocument addressNodes = mdekClientCaller.getResultFromResponse(addressNodesResponse);
 
-		List<IngridDocument> adrEntities = addressNodes.getArrayList(MdekKeys.ADR_ENTITIES);
+		List<Object> adrEntities = addressNodes.getArrayList(MdekKeys.ADR_ENTITIES);
 
 		long startTime = System.currentTimeMillis();
 
 		writer.writeStartIngridAddresses();
-		for (IngridDocument adrEntity : adrEntities) {
-			String uuid = adrEntity.getString(MdekKeys.UUID);
+		for (Object adrEntity : adrEntities) {
+			String uuid = ((IngridDocument) adrEntity).getString(MdekKeys.UUID);
 			IngridDocument adr = getAddress(uuid);
 
 			if (adr != null) {
