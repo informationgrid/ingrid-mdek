@@ -38,7 +38,7 @@ public class IngridXMLStreamWriter {
 
 	public final static String XML_ENCODING = "UTF-8";
 	public final static String XML_VERSION = "1.0";
-	public final static String XMLNS = "http://www.portalu.de/igc-import";
+	public final static String XMLNS = "http://informationgrid.eu/igc-import";
 	public final static String EXCHANGE_FORMAT_VERSION = Versioning.CURRENT_IMPORT_EXPORT_VERSION;
 
 	private final XMLStreamWriter xmlStreamWriter;

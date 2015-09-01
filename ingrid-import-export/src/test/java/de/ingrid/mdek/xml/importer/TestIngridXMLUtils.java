@@ -51,14 +51,14 @@ public class TestIngridXMLUtils {
 
 	@Test
 	public void testGetVersionReturnsCorrectValue() throws XMLStreamException, IOException {
-		Reader reader = new StringReader("<igc xmlns='http://www.portalu.de/igc-import' exchange-format='1.0'>bla</igc>");
+		Reader reader = new StringReader("<igc xmlns='http://informationgrid.eu/igc-import' exchange-format='1.0'>bla</igc>");
 		String version = IngridXMLUtils.getVersion(reader);
 		assertEquals("1.0", version);
 	}
 
 	@Test
 	public void testGetVersionReturnsEmptyAttributeIfNotFound() throws XMLStreamException, IOException {
-		Reader reader = new StringReader("<igc xmlns='http://www.portalu.de/igc-import'>bla</igc>");
+		Reader reader = new StringReader("<igc xmlns='http://informationgrid.eu/igc-import'>bla</igc>");
 		String version = IngridXMLUtils.getVersion(reader);
 		assertNull(version);
 	}
