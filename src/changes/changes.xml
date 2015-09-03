@@ -34,6 +34,9 @@
       <action type="update" dev="wemove" issue="REDMINE-131">
         Make iPlug work without internet connection, remove reference to external DTD from spring files.
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-13">
+        Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#".
+      </action>
     </release>
 
     <release version="3.6.0" date="2015-06-19" description="Release 3.6.0">
