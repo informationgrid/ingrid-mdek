@@ -160,6 +160,10 @@ public class MdekKeys {
     public final static String JOBINFO_FRONTEND_MESSAGES = "jobinfo-frontend-messages";
     /** Value: Exception */
     public final static String JOBINFO_EXCEPTION = "jobinfo-exception";
+    /** Value: Boolean **/
+    public final static String JOBINFO_IS_UPDATE = "isUpdate";
+    /** Value: Boolean **/
+    public final static String JOBINFO_IS_FINISHED= "isFinished";
 
     // SPECIFIC JOBINFO RESULT
     /** Export: exported zip file<br>
