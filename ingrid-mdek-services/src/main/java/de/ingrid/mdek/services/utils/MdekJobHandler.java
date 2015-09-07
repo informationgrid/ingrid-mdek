@@ -448,6 +448,11 @@ public class MdekJobHandler {
 		daoSysJobInfo.flush();
 		return daoSysJobInfo.getJobInfo(whichJob, userUuid);
 	}
+	public HashMap getJobDetailsAsHashMap(JobType whichJob, String userUuid) {
+	    // auto flushing may be disabled ! we flush before query so database is up to date !
+	    daoSysJobInfo.flush();
+	    return deformatJobDetailsFromDB( daoSysJobInfo.getJobInfo(whichJob, userUuid).getJobDetails() );
+	}
 	/** Map given jobInfo to Map */
 	public HashMap mapJobInfoDB(SysJobInfo jobInfo) {
         HashMap resultMap = new HashMap();

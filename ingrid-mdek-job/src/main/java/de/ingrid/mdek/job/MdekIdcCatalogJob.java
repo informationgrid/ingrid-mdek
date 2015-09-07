@@ -871,15 +871,30 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			List<Object> urlList = docIn.getArrayList(MdekKeys.URL_RESULT);
 			List<Object> capList = docIn.getArrayList(MdekKeys.CAP_RESULT);
 			String jobStartTime = docIn.getString(MdekKeys.JOBINFO_START_TIME);
+			boolean isUpdate = docIn.getBoolean(MdekKeys.JOBINFO_IS_UPDATE);
+			boolean isFinished = docIn.getBoolean(MdekKeys.JOBINFO_IS_FINISHED);
 			HashMap<String, Object> data = new HashMap<String, Object>();
-			data.put(MdekKeys.URL_RESULT, urlList);
-			data.put(MdekKeys.CAP_RESULT, capList);
-			jobHandler.startJobInfoDB(
-					JobType.URL,
-					jobStartTime,
-					data, userId);
+			if (isUpdate) {
+			    HashMap detail = jobHandler.getJobDetailsAsHashMap( JobType.URL, userId );
+			    urlList.addAll( (List<Object>) detail.get( MdekKeys.URL_RESULT ) );
+			    capList.addAll( (List<Object>) detail.get( MdekKeys.CAP_RESULT ) );
+			    data.put(MdekKeys.URL_RESULT, urlList);
+			    data.put(MdekKeys.CAP_RESULT, capList);
+			    jobHandler.updateJobInfoDB(
+			            JobType.URL,
+			            data, userId);
+			} else {
+			    data.put(MdekKeys.URL_RESULT, urlList);
+			    data.put(MdekKeys.CAP_RESULT, capList);
+			    jobHandler.startJobInfoDB(
+			            JobType.URL,
+			            jobStartTime,
+			            data, userId);
+			}
+			if (isFinished) {
+			    jobHandler.endJobInfoDB(JobType.URL, userId);
+			}
 
-			jobHandler.endJobInfoDB(JobType.URL, userId);
 			genericDao.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
