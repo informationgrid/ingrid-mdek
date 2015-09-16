@@ -31,6 +31,9 @@
       <action type="update" dev="wemove" issue="REDMINE-131">
         Make iPlug work without internet connection, remove reference to external DTD from spring files.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-141">
+        Receive URL analysis as packages to prevent error due to too big message size in communication.
+      </action>
     </release>
     
     <release version="3.6.0" date="2015-06-19" description="Release 3.6.0">
