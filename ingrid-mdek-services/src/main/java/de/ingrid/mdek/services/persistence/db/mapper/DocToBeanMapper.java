@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -327,7 +326,8 @@ public class DocToBeanMapper implements IMapper {
             	}
             }
 */
-			for (String langId : ((Map<String,String>)localNames).keySet()) {
+			for (Object myLangId : localNames.keySet()) {
+			    String langId = (String) myLangId;
 			    String inName = localNames.getString(langId);
 
 				SysList foundEntry = null;
