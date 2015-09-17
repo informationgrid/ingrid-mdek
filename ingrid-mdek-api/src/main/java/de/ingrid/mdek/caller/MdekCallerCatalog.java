@@ -238,6 +238,8 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.URL_RESULT, urlInfo.get(MdekKeys.URL_RESULT));
 		jobParams.put(MdekKeys.CAP_RESULT, urlInfo.get(MdekKeys.CAP_RESULT));
 		jobParams.put(MdekKeys.JOBINFO_START_TIME, urlInfo.get(MdekKeys.JOBINFO_START_TIME));
+		jobParams.putBoolean(MdekKeys.JOBINFO_IS_UPDATE, urlInfo.getBoolean(MdekKeys.JOBINFO_IS_UPDATE));
+		jobParams.putBoolean(MdekKeys.JOBINFO_IS_FINISHED, urlInfo.getBoolean(MdekKeys.JOBINFO_IS_FINISHED));
 		jobParams.put(MdekKeys.USER_ID, userId);
 		List jobMethods = setUpJobMethod("setURLInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);

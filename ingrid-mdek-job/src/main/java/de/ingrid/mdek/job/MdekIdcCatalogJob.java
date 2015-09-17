@@ -868,18 +868,33 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
 
-			List<Map<String, Object>> urlList = docIn.getArrayList(MdekKeys.URL_RESULT);
-			List<Map<String, Object>> capList = docIn.getArrayList(MdekKeys.CAP_RESULT);
+			List<Object> urlList = docIn.getArrayList(MdekKeys.URL_RESULT);
+			List<Object> capList = docIn.getArrayList(MdekKeys.CAP_RESULT);
 			String jobStartTime = docIn.getString(MdekKeys.JOBINFO_START_TIME);
+			boolean isUpdate = docIn.getBoolean(MdekKeys.JOBINFO_IS_UPDATE);
+			boolean isFinished = docIn.getBoolean(MdekKeys.JOBINFO_IS_FINISHED);
 			HashMap<String, Object> data = new HashMap<String, Object>();
-			data.put(MdekKeys.URL_RESULT, urlList);
-			data.put(MdekKeys.CAP_RESULT, capList);
-			jobHandler.startJobInfoDB(
-					JobType.URL,
-					jobStartTime,
-					data, userId);
+			if (isUpdate) {
+			    HashMap detail = jobHandler.getJobDetailsAsHashMap( JobType.URL, userId );
+			    urlList.addAll( (List<Object>) detail.get( MdekKeys.URL_RESULT ) );
+			    capList.addAll( (List<Object>) detail.get( MdekKeys.CAP_RESULT ) );
+			    data.put(MdekKeys.URL_RESULT, urlList);
+			    data.put(MdekKeys.CAP_RESULT, capList);
+			    jobHandler.updateJobInfoDB(
+			            JobType.URL,
+			            data, userId);
+			} else {
+			    data.put(MdekKeys.URL_RESULT, urlList);
+			    data.put(MdekKeys.CAP_RESULT, capList);
+			    jobHandler.startJobInfoDB(
+			            JobType.URL,
+			            jobStartTime,
+			            data, userId);
+			}
+			if (isFinished) {
+			    jobHandler.endJobInfoDB(JobType.URL, userId);
+			}
 
-			jobHandler.endJobInfoDB(JobType.URL, userId);
 			genericDao.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
@@ -894,7 +909,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument updateURLInfo(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
 		// The IngridDocument objects in sourceUrls consist of a UUID and LINKAGE_URL
-		List<IngridDocument> sourceUrls = docIn.getArrayList(MdekKeys.REQUESTINFO_URL_LIST);
+		List<Object> sourceUrls = docIn.getArrayList(MdekKeys.REQUESTINFO_URL_LIST);
 		String targetUrl = docIn.getString(MdekKeys.REQUESTINFO_URL_TARGET);
 		try {
 			genericDao.beginTransaction();
@@ -908,7 +923,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			List<Map<String, Object>> urlList = (List<Map<String,Object>>) jobDetails.get(MdekKeys.URL_RESULT);
 
 			// Iterate over all sourceUrl objects and locate them in the job detail
-			for (IngridDocument sourceUrl : sourceUrls) {
+			for (Object sourceUrlObject : sourceUrls) {
+			    IngridDocument sourceUrl = (IngridDocument) sourceUrlObject;
 				String objUuid = sourceUrl.getString(MdekKeys.URL_RESULT_OBJECT_UUID);
 				String url = sourceUrl.getString(MdekKeys.URL_RESULT_URL);
 				String state = sourceUrl.getString(MdekKeys.URL_RESULT_STATE);
@@ -939,7 +955,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 	public IngridDocument replaceURLs(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
-		List<IngridDocument> urlList = docIn.getArrayList(MdekKeys.REQUESTINFO_URL_LIST);
+		List<Object> urlList = docIn.getArrayList(MdekKeys.REQUESTINFO_URL_LIST);
 		String targetUrl = docIn.getString(MdekKeys.REQUESTINFO_URL_TARGET);
 		String type = docIn.getString(MdekKeys.LINKAGE_URL_TYPE);
 
@@ -955,7 +971,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			IdcEntityVersion whichEntityVersion = IdcEntityVersion.PUBLISHED_VERSION;
 
-			for (IngridDocument urlRefDoc : urlList) {
+			for (Object urlRefDocObject : urlList) {
+			    IngridDocument urlRefDoc = (IngridDocument) urlRefDocObject;
 				String uuid = (String) urlRefDoc.get(MdekKeys.URL_RESULT_OBJECT_UUID);
 				String srcUrl = (String) urlRefDoc.get(MdekKeys.URL_RESULT_URL);
 

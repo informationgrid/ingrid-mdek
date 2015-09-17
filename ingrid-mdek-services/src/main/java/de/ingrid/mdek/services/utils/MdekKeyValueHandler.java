@@ -481,10 +481,7 @@ public class MdekKeyValueHandler {
 				MdekSysList.OBJ_CONFORMITY_SPECIFICATION.getDbValue(),
 				catalogService.getCatalogLanguage());
 
-			// Notice: syslist entries contain metadata, we transform to the displayed value in IGE.
-			bean.setSpecificationValue(
-				UtilsUDKCodeLists.parseCodeListEntryName(
-					keyNameMap.get(entryKey), UtilsUDKCodeLists.ParseType.DATE_AT_END)[0]);
+			bean.setSpecificationValue(keyNameMap.get(entryKey));
 		}
 		
 		return bean;
