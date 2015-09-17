@@ -923,8 +923,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			List<Map<String, Object>> urlList = (List<Map<String,Object>>) jobDetails.get(MdekKeys.URL_RESULT);
 
 			// Iterate over all sourceUrl objects and locate them in the job detail
-			for (Object mySourceUrl : sourceUrls) {
-			    IngridDocument sourceUrl = (IngridDocument) mySourceUrl;
+			for (Object sourceUrlObject : sourceUrls) {
+			    IngridDocument sourceUrl = (IngridDocument) sourceUrlObject;
 				String objUuid = sourceUrl.getString(MdekKeys.URL_RESULT_OBJECT_UUID);
 				String url = sourceUrl.getString(MdekKeys.URL_RESULT_URL);
 				String state = sourceUrl.getString(MdekKeys.URL_RESULT_STATE);
@@ -971,8 +971,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			IdcEntityVersion whichEntityVersion = IdcEntityVersion.PUBLISHED_VERSION;
 
-			for (Object myUrlRefDoc : urlList) {
-			    IngridDocument urlRefDoc = (IngridDocument) myUrlRefDoc;
+			for (Object urlRefDocObject : urlList) {
+			    IngridDocument urlRefDoc = (IngridDocument) urlRefDocObject;
 				String uuid = (String) urlRefDoc.get(MdekKeys.URL_RESULT_OBJECT_UUID);
 				String srcUrl = (String) urlRefDoc.get(MdekKeys.URL_RESULT_URL);
 

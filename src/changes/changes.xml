@@ -31,11 +31,17 @@
       <action type="add" dev="wemove" issue="REDMINE-47">
         Edit service version via new syslists (according to GDI-DE content).
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-13">
+        Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#".
+      </action>
+    </release>
+
+    <release version="3.6.0.3" date="2015-09-16" description="Bugfix-Release 3.6.0.3">
       <action type="update" dev="wemove" issue="REDMINE-131">
         Make iPlug work without internet connection, remove reference to external DTD from spring files.
       </action>
-      <action type="update" dev="wemove" issue="REDMINE-13">
-        Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#".
+      <action type="fix" dev="wemove" issue="REDMINE-141">
+        Receive URL analysis as packages to prevent error due to too big message size in communication.
       </action>
     </release>
 
