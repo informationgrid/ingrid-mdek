@@ -40,15 +40,6 @@
           </excludes>
         </configuration>
       </plugin>
-      <!-- "DISABLE" WAGON PLUGIN TO AVOID EMPTY UPLOAD DIRECTORIES FROM SUBMODULES -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>wagon-maven-plugin</artifactId>
-        <configuration>
-          <fromDir>NOT_EXISITING_DIRECTORY</fromDir>
-          <url>/dev/null</url>
-        </configuration>
-      </plugin>
     </plugins>
     <resources>
       <resource>
