@@ -156,28 +156,6 @@
         <inherited>false</inherited>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changes-plugin</artifactId>
-        <inherited>false</inherited>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>wagon-maven-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-<!-- NOTICE: REDEFINE directory on distribution server -->
-          <url>file:///opt/ingrid/distributions/${project.name}/${project.version}</url>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <preparationGoals>clean verify changes:changes-report deploy wagon:upload -Dlicense.failOnMissingHeader=true -Dlicense.failOnNotUptodateHeader=true -Dproject.url=</preparationGoals>
-          <goals>changes:announcement-mail -Dproject.url= --non-recursive</goals>
-        </configuration>
-      </plugin>
-      <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <configuration>
@@ -241,4 +219,22 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <configuration>
+              <failOnMissingHeader>true</failOnMissingHeader>
+              <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
