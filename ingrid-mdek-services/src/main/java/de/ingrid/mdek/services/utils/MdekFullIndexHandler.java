@@ -52,6 +52,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
@@ -522,9 +523,14 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		// ObjectUse
 		Set<ObjectUse> objUses = o.getObjectUses();
 		for (ObjectUse objUse : objUses) {
-			extendFullDataWithSysList(data, MdekSysList.OBJ_USE,
-					objUse.getTermsOfUseKey(), objUse.getTermsOfUseValue());				
+            extendFullData(data, objUse.getTermsOfUseValue());
 		}
+        // ObjectUseConstraint
+        Set<ObjectUseConstraint> objUseConstraints = o.getObjectUseConstraints();
+        for (ObjectUseConstraint objUseConstraint : objUseConstraints) {
+            extendFullDataWithSysList(data, MdekSysList.OBJ_USE_LICENCE,
+                    objUseConstraint.getLicenseKey(), objUseConstraint.getLicenseValue());                
+        }
 		// ObjectOpenDataCategory
 		Set<ObjectOpenDataCategory> objOpenDataCats = o.getObjectOpenDataCategorys();
 		for (ObjectOpenDataCategory objOpenDataCat : objOpenDataCats) {

@@ -84,6 +84,7 @@ public class T01Object implements IEntity {
 	private Set objectReferences = new HashSet();
 	private Set objectTypesCatalogues = new HashSet();
 	private Set objectUses = new HashSet();
+	private Set objectUseConstraints = new HashSet();
 	private Set searchtermObjs = new HashSet();
 	private Set spatialReferences = new HashSet();
 	private Set spatialSystems = new HashSet();
@@ -540,6 +541,14 @@ public class T01Object implements IEntity {
 
 	public void setObjectUses(Set objectUses) {
 		this.objectUses = objectUses;
+	}
+
+	public Set getObjectUseConstraints() {
+		return objectUseConstraints;
+	}
+
+	public void setObjectUseConstraints(Set objectUseConstraints) {
+		this.objectUseConstraints = objectUseConstraints;
 	}
 
 	public Set getSearchtermObjs() {

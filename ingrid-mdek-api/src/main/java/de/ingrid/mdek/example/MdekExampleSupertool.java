@@ -1156,11 +1156,18 @@ public class MdekExampleSupertool {
 		}
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_LIST);
 		if (docList != null && docList.size() > 0) {
-			System.out.println("  Object use constraints (INSPIRE): " + docList.size() + " entries");
+			System.out.println("  Object useLimitation (INSPIRE): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}
 		}
+        docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_CONSTRAINTS);
+        if (docList != null && docList.size() > 0) {
+            System.out.println("  Object useConstraints (INSPIRE): " + docList.size() + " entries");
+            for (IngridDocument doc : docList) {
+                System.out.println("   " + doc);
+            }
+        }
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATA_QUALITY_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object data quality (INSPIRE): " + docList.size() + " entries");

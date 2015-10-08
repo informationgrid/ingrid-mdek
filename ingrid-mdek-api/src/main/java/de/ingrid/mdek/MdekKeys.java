@@ -1190,6 +1190,13 @@ public class MdekKeys {
     public final static String USE_TERMS_OF_USE_VALUE = "use-terms-of-use-value";
 
     /** Value: List< IngridDocument > */
+    public final static String USE_CONSTRAINTS = "use-constraints";
+    /** Value: Integer */
+    public final static String USE_LICENSE_KEY = "use-license-key";
+    /** Value: String */
+    public final static String USE_LICENSE_VALUE = "use-license-value";
+
+    /** Value: List< IngridDocument > */
     public final static String DATA_QUALITY_LIST = "data-quality-list";
     /** Value: Integer */
     public final static String DQ_ELEMENT_ID = "dq-element-id";

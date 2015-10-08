@@ -76,6 +76,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
@@ -309,6 +310,8 @@ public class DaoFactory implements IDaoFactory {
 			dao = new GenericHibernateDao<ObjectTypesCatalogue>(_sessionFactory, ObjectTypesCatalogue.class);
 		} else if (clazz.isAssignableFrom(ObjectOpenDataCategory.class)) {
 			dao = new GenericHibernateDao<ObjectOpenDataCategory>(_sessionFactory, ObjectOpenDataCategory.class);
+        } else if (clazz.isAssignableFrom(ObjectUseConstraint.class)) {
+            dao = new GenericHibernateDao<ObjectUseConstraint>(_sessionFactory, ObjectUseConstraint.class);
 		} else {
 			throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
 		}

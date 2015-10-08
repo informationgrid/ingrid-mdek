@@ -31,6 +31,9 @@
       <action type="add" dev="wemove" issue="REDMINE-47">
         Edit service version via new syslists (according to GDI-DE content).
       </action>
+      <action type="add" dev="wemove" issue="REDMINE-13">
+        Add separate table for adding ISO useConstraints (Nutzungsbeschränkungen).
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-13">
         Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#".
       </action>
