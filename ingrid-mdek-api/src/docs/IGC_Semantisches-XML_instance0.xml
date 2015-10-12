@@ -191,8 +191,11 @@
                     <access-constraint>
                         <restriction id="id45">restriction0</restriction>
                     </access-constraint>
-                    <use-constraint>
+                    <use-limitation>
                         <terms-of-use id="id47">terms-of-use0</terms-of-use>
+                    </use-limitation>
+                    <use-constraint>
+                        <license id="id49">license0</license>
                     </use-constraint>
                     <medium-option>
                         <medium-name iso-code="iso-code13"/>
@@ -200,13 +203,13 @@
                         <transfer-size>transfer-size0</transfer-size>
                     </medium-option>
                     <data-format>
-                        <format-name id="id49">format-name0</format-name>
+                        <format-name id="id51">format-name0</format-name>
                         <version>version0</version>
                         <specification>specification0</specification>
                         <file-decompression-technique>file-decompression-technique0</file-decompression-technique>
                     </data-format>
                     <data-format-inspire>
-                        <format-inspire-name id="id51">format-inspire-name0</format-inspire-name>
+                        <format-inspire-name id="id53">format-inspire-name0</format-inspire-name>
                     </data-format-inspire>
                     <publication-condition>0</publication-condition>
                     <dataset-usage>dataset-usage0</dataset-usage>
@@ -217,33 +220,33 @@
                         <date-of-creation>date-of-creation2</date-of-creation>
                     </comment>
                     <conformity>
-                        <conformity-specification id="id53">conformity-specification0</conformity-specification>
-                        <conformity-degree id="id55">conformity-degree0</conformity-degree>
+                        <conformity-specification id="id55">conformity-specification0</conformity-specification>
+                        <conformity-degree id="id57">conformity-degree0</conformity-degree>
                     </conformity>
                     <data-quality>
                         <dq-element-id>0</dq-element-id>
-                        <dq-name-of-measure id="id57">dq-name-of-measure0</dq-name-of-measure>
+                        <dq-name-of-measure id="id59">dq-name-of-measure0</dq-name-of-measure>
                         <dq-result-value>dq-result-value0</dq-result-value>
                         <dq-measure-description>dq-measure-description0</dq-measure-description>
                     </data-quality>
                 </additional-information>
                 <spatial-domain>
-                    <coordinate-system id="id59">coordinate-system0</coordinate-system>
+                    <coordinate-system id="id61">coordinate-system0</coordinate-system>
                     <description-of-spatial-domain>description-of-spatial-domain0</description-of-spatial-domain>
                     <vertical-extent>
                         <vertical-extent-minimum>vertical-extent-minimum0</vertical-extent-minimum>
                         <vertical-extent-maximum>vertical-extent-maximum0</vertical-extent-maximum>
-                        <vertical-extent-unit id="id61"/>
-                        <vertical-extent-vdatum id="id63">vertical-extent-vdatum0</vertical-extent-vdatum>
+                        <vertical-extent-unit id="id63"/>
+                        <vertical-extent-vdatum id="id65">vertical-extent-vdatum0</vertical-extent-vdatum>
                     </vertical-extent>
                     <geo-location>
                             <controlled-location>
-                                <location-name id="id65">location-name2</location-name>
+                                <location-name id="id67">location-name2</location-name>
                                 <topic-type>topic-type1</topic-type>
                                 <location-code>location-code1</location-code>
                             </controlled-location>
 <!--                            <uncontrolled-location>
-                                <location-name id="id67">location-name3</location-name>
+                                <location-name id="id69">location-name3</location-name>
                             </uncontrolled-location>-->
                         <bounding-coordinates>
                             <west-bounding-coordinate>west-bounding-coordinate1</west-bounding-coordinate>
@@ -268,15 +271,15 @@
                     </dataset-reference>
                 </temporal-domain>
                 <subject-terms>
-                    <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id69">controlled-term0</controlled-term>
+                    <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id71">controlled-term0</controlled-term>
                     <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
                 </subject-terms>
                 <available-linkage>
                     <linkage-name>linkage-name0</linkage-name>
                     <linkage-url>linkage-url0</linkage-url>
                     <linkage-url-type>linkage-url-type0</linkage-url-type>
-                    <linkage-reference id="id71">linkage-reference0</linkage-reference>
-                    <linkage-datatype id="id73">linkage-datatype0</linkage-datatype>
+                    <linkage-reference id="id73">linkage-reference0</linkage-reference>
+                    <linkage-datatype id="id75">linkage-datatype0</linkage-datatype>
                     <linkage-description>linkage-description0</linkage-description>
                 </available-linkage>
                 <parent-data-source>
@@ -288,7 +291,7 @@
                     <date-of-last-modification>date-of-last-modification2</date-of-last-modification>
                 </related-address>
                 <link-data-source>
-                    <object-link-type id="id75">object-link-type0</object-link-type>
+                    <object-link-type id="id77">object-link-type0</object-link-type>
                     <object-link-description>object-link-description0</object-link-description>
                     <object-identifier>object-identifier2</object-identifier>
                 </link-data-source>
@@ -301,29 +304,29 @@
                 <address-identifier>address-identifier1</address-identifier>
                 <modificator-identifier>modificator-identifier2</modificator-identifier>
                 <responsible-identifier>responsible-identifier1</responsible-identifier>
-                <type-of-address id="id77"/>
+                <type-of-address id="id79"/>
                 <hide-address>N</hide-address>
                 <publication-condition>0</publication-condition>
                 <organisation>organisation0</organisation>
                 <name>name2</name>
-                <name-form id="id79">name-form0</name-form>
-                <title-or-function id="id81">title-or-function0</title-or-function>
+                <name-form id="id81">name-form0</name-form>
+                <title-or-function id="id83">title-or-function0</title-or-function>
                 <given-name>given-name0</given-name>
-                <country id="id83">country1</country>
+                <country id="id85">country1</country>
                 <postal-code>postal-code0</postal-code>
                 <street>street0</street>
                 <city>city0</city>
                 <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
                 <post-box>post-box0</post-box>
                 <communication>
-                    <communication-medium id="id85">communication-medium0</communication-medium>
+                    <communication-medium id="id87">communication-medium0</communication-medium>
                     <communication-value>communication-value0</communication-value>
                     <communication-description>communication-description0</communication-description>
                 </communication>
                 <original-address-identifier>original-address-identifier0</original-address-identifier>
                 <function>function0</function>
                 <subject-terms>
-                    <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id87">controlled-term1</controlled-term>
+                    <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id89">controlled-term1</controlled-term>
                     <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
                 </subject-terms>
                 <comment>

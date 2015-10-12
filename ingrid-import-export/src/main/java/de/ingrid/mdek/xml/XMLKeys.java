@@ -101,10 +101,12 @@ public class XMLKeys {
 	public static final String TRANSFER_SIZE = "transfer-size";
 	public static final String MEDIUM_NOTE = "medium-note";
 	public static final String MEDIUM_OPTION = "medium-option";
-	public static final String RESTRICTION = "restriction";
-	public static final String TERMS_OF_USE = "terms-of-use";
 	public static final String ACCESS_CONSTRAINT = "access-constraint";
+    public static final String RESTRICTION = "restriction";
+    public static final String USE_LIMITATION = "use-limitation";
+    public static final String TERMS_OF_USE = "terms-of-use";
 	public static final String USE_CONSTRAINT = "use-constraint";
+    public static final String LICENSE = "license";
 	public static final String DATASET_INTENTIONS = "dataset-intentions";
 	public static final String LEGISLATION = "legislation";
 	public static final String EXPORT_TO = "export-to";

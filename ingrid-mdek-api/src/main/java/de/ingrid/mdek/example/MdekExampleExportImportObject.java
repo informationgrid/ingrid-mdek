@@ -221,6 +221,9 @@ class MdekExampleExportImportObjectThread extends Thread {
 /*
         // Test EXPORT / IMPORT new Exchange Format 3.6.1
         // --------------------------
+		// "Version des Dienstes" wird zu Syslist s. dev.informationgrid.eu/redmine/issues/47
+		// useConstraints / useLimitation trennen ... s. dev.informationgrid.eu/redmine/issues/13
+
         supertool.setFullOutput(true);
 
         System.out.println("\n----- object details -----");
@@ -251,6 +254,36 @@ class MdekExampleExportImportObjectThread extends Thread {
         testDoc.put(MdekKeys.SERVICE_VERSION_KEY, 2);
         testDoc.put(MdekKeys.SERVICE_VERSION_VALUE, "TEST VERSION 2 IS OVERWRITTEN");
 
+        // see https://dev.informationgrid.eu/redmine/issues/13 2.)
+
+        // change useLimitation
+        docList = (List) oDoc.get(MdekKeys.USE_LIST);
+        docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+        oDoc.put(MdekKeys.USE_LIST, docList);
+        // useLimitation now ALWAYS free value (-1) but does not matter, we set to 1 for testing
+        testDoc = new IngridDocument();
+        docList.add(testDoc);
+        testDoc.put(MdekKeys.USE_TERMS_OF_USE_KEY, -1);
+        testDoc.put(MdekKeys.USE_TERMS_OF_USE_VALUE, "TEST USE_TERMS_OF_USE_VALUE always free value now with KEY -1 !");
+        testDoc = new IngridDocument();
+        docList.add(testDoc);
+        testDoc.put(MdekKeys.USE_TERMS_OF_USE_KEY, 1);
+        testDoc.put(MdekKeys.USE_TERMS_OF_USE_VALUE, "TEST Syslist USE_TERMS_OF_USE_VALUE with KEY 1 !");
+
+        // change useConstraints
+        docList = (List) oDoc.get(MdekKeys.USE_CONSTRAINTS);
+        docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+        oDoc.put(MdekKeys.USE_CONSTRAINTS, docList);
+        // new useConstraints handled via Syslists !
+        testDoc = new IngridDocument();
+        docList.add(testDoc);
+        testDoc.put(MdekKeys.USE_LICENSE_KEY, -1);
+        testDoc.put(MdekKeys.USE_LICENSE_VALUE, "Free License Key -1");
+        testDoc = new IngridDocument();
+        docList.add(testDoc);
+        testDoc.put(MdekKeys.USE_LICENSE_KEY, 1);
+        testDoc.put(MdekKeys.USE_LICENSE_VALUE, "TEST License IS OVERWRITTEN with Syslist value");
+
         oDoc = supertool.publishObject(oDoc, true, false);
         
         System.out.println("\n----- export object -----");
@@ -278,6 +311,14 @@ class MdekExampleExportImportObjectThread extends Thread {
 
         System.out.println("\n----- discard changes -> remove former change -----");
         oDoc.remove(MdekKeys.TECHNICAL_DOMAIN_SERVICE);
+        // OBJECT USE wieder wie vorher !
+        docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_LIST);
+        docList.remove(docList.size()-1);
+        docList.remove(docList.size()-1);
+        // USE_CONSTRAINTS USE wieder wie vorher !
+        docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_CONSTRAINTS);
+        docList.remove(docList.size()-1);
+        docList.remove(docList.size()-1);
 
         result = supertool.publishObject(oDoc, true, false);
 

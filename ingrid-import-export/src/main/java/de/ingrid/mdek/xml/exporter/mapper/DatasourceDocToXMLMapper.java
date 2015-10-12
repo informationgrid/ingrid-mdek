@@ -641,6 +641,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		additionalInformation.addChildren(createLegislations());
 		additionalInformation.addChild(createDatasetIntentions());
 		additionalInformation.addChildren(createAccessConstraints());
+        additionalInformation.addChildren(createUseLimitations());
 		additionalInformation.addChildren(createUseConstraints());
 		additionalInformation.addChildren(createMediumOptions());
 		additionalInformation.addChildren(createDataFormats());
@@ -721,9 +722,30 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return restriction;
 	}
 
+    private List<XMLElement> createUseLimitations() {
+        List<XMLElement> useLimitations = new ArrayList<XMLElement>();
+        List<IngridDocument> useLimitationList = getIngridDocumentListForKey(MdekKeys.USE_LIST);
+        for (IngridDocument useLimitation : useLimitationList) {
+            useLimitations.add(createUseLimitation(useLimitation));
+        }
+        return useLimitations;
+    }
+
+    private XMLElement createUseLimitation(IngridDocument useLimitationContext) {
+        XMLElement useLimitation = new XMLElement(USE_LIMITATION);
+        useLimitation.addChild(createTermsOfUse(useLimitationContext));
+        return useLimitation;
+    }
+    
+    private XMLElement createTermsOfUse(IngridDocument useLimitationContext) {
+        XMLElement termsOfUse = new XMLElement(TERMS_OF_USE, getStringForKey(MdekKeys.USE_TERMS_OF_USE_VALUE, useLimitationContext));
+        termsOfUse.addAttribute(ID, getIntegerForKey(MdekKeys.USE_TERMS_OF_USE_KEY, useLimitationContext));
+        return termsOfUse;
+    }
+
 	private List<XMLElement> createUseConstraints() {
 		List<XMLElement> useConstraints = new ArrayList<XMLElement>();
-		List<IngridDocument> useConstraintList = getIngridDocumentListForKey(MdekKeys.USE_LIST);
+		List<IngridDocument> useConstraintList = getIngridDocumentListForKey(MdekKeys.USE_CONSTRAINTS);
 		for (IngridDocument useConstraint : useConstraintList) {
 			useConstraints.add(createUseConstraint(useConstraint));
 		}
@@ -732,14 +754,14 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createUseConstraint(IngridDocument useConstraintContext) {
 		XMLElement useConstraint = new XMLElement(USE_CONSTRAINT);
-		useConstraint.addChild(createTermsOfUse(useConstraintContext));
+		useConstraint.addChild(createLicense(useConstraintContext));
 		return useConstraint;
 	}
 
-	private XMLElement createTermsOfUse(IngridDocument useConstraintContext) {
-		XMLElement termsOfUse = new XMLElement(TERMS_OF_USE, getStringForKey(MdekKeys.USE_TERMS_OF_USE_VALUE, useConstraintContext));
-		termsOfUse.addAttribute(ID, getIntegerForKey(MdekKeys.USE_TERMS_OF_USE_KEY, useConstraintContext));
-		return termsOfUse;
+	private XMLElement createLicense(IngridDocument useConstraintContext) {
+		XMLElement license = new XMLElement(LICENSE, getStringForKey(MdekKeys.USE_LICENSE_VALUE, useConstraintContext));
+		license.addAttribute(ID, getIntegerForKey(MdekKeys.USE_LICENSE_KEY, useConstraintContext));
+		return license;
 	}
 
 	private XMLElement createOpenDataCategorys() {
