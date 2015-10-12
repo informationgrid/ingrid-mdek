@@ -174,9 +174,12 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_LIST = X_DATA_SOURCE + "/additional-information/access-constraint";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION = "restriction/text()";
 	private static final String X_ADDITIONAL_ACCESS_CONSTRAINT_RESTRICTION_KEY = "restriction/@id";
-	private static final String X_ADDITIONAL_USE_CONSTRAINT_LIST = X_DATA_SOURCE + "/additional-information/use-constraint";
-	private static final String X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE = "terms-of-use/text()";
-	private static final String X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE_KEY = "terms-of-use/@id";
+	private static final String X_ADDITIONAL_USE_LIMITATION_LIST = X_DATA_SOURCE + "/additional-information/use-limitation";
+	private static final String X_ADDITIONAL_USE_LIMITATION_TERMS_OF_USE = "terms-of-use/text()";
+	private static final String X_ADDITIONAL_USE_LIMITATION_TERMS_OF_USE_KEY = "terms-of-use/@id";
+    private static final String X_ADDITIONAL_USE_CONSTRAINT_LIST = X_DATA_SOURCE + "/additional-information/use-constraint";
+    private static final String X_ADDITIONAL_USE_CONSTRAINT_LICENSE = "license/text()";
+    private static final String X_ADDITIONAL_USE_CONSTRAINT_LICENSE_KEY = "license/@id";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_LIST = X_DATA_SOURCE + "/additional-information/medium-option";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NAME = "medium-name/@iso-code";
 	private static final String X_ADDITIONAL_MEDIUM_OPTION_NOTE = "medium-note/text()";
@@ -711,6 +714,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putString(MdekKeys.DATASET_INTENTIONS,
 				XPathUtils.getString(source, X_ADDITIONAL_DATASET_INTENTIONS), target);
 		mapAccessConstraints(source, target);
+        mapUseLimitations(source, target);
 		mapUseConstraints(source, target);
 		mapMediumOptions(source, target);
 		mapDataFormats(source, target);
@@ -772,6 +776,22 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putDocList(MdekKeys.ACCESS_LIST, accessConstraintList, target);
 	}
 
+    private static void mapUseLimitations(Document source, IngridDocument target) {
+        NodeList useLimitations = XPathUtils.getNodeList(source, X_ADDITIONAL_USE_LIMITATION_LIST);
+        List<IngridDocument> useLimitationList = new ArrayList<IngridDocument>();
+
+        for (int index = 0; index < useLimitations.getLength(); index++) {
+            Node useLimitation = useLimitations.item(index);
+            IngridDocument useLimitationDoc = new IngridDocument();
+            putString(MdekKeys.USE_TERMS_OF_USE_VALUE, XPathUtils.getString(useLimitation, X_ADDITIONAL_USE_LIMITATION_TERMS_OF_USE), useLimitationDoc);
+            putInt(MdekKeys.USE_TERMS_OF_USE_KEY, XPathUtils.getInt(useLimitation, X_ADDITIONAL_USE_LIMITATION_TERMS_OF_USE_KEY), useLimitationDoc);
+
+            useLimitationList.add(useLimitationDoc);
+        }
+
+        putDocList(MdekKeys.USE_LIST, useLimitationList, target);
+    }
+
 	private static void mapUseConstraints(Document source, IngridDocument target) {
 		NodeList useConstraints = XPathUtils.getNodeList(source, X_ADDITIONAL_USE_CONSTRAINT_LIST);
 		List<IngridDocument> useConstraintList = new ArrayList<IngridDocument>();
@@ -779,13 +799,13 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < useConstraints.getLength(); index++) {
 			Node useConstraint = useConstraints.item(index);
 			IngridDocument useConstraintDoc = new IngridDocument();
-			putString(MdekKeys.USE_TERMS_OF_USE_VALUE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE), useConstraintDoc);
-			putInt(MdekKeys.USE_TERMS_OF_USE_KEY, XPathUtils.getInt(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_TERMS_OF_USE_KEY), useConstraintDoc);
+			putString(MdekKeys.USE_LICENSE_VALUE, XPathUtils.getString(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_LICENSE), useConstraintDoc);
+			putInt(MdekKeys.USE_LICENSE_KEY, XPathUtils.getInt(useConstraint, X_ADDITIONAL_USE_CONSTRAINT_LICENSE_KEY), useConstraintDoc);
 
 			useConstraintList.add(useConstraintDoc);
 		}
 
-		putDocList(MdekKeys.USE_LIST, useConstraintList, target);
+		putDocList(MdekKeys.USE_CONSTRAINTS, useConstraintList, target);
 	}
 
 	private static void mapMediumOptions(Document source, IngridDocument target) {

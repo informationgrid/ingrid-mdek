@@ -62,6 +62,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
@@ -525,6 +526,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectConformitys(oDocIn, oIn);
 			updateObjectAccesses(oDocIn, oIn);
 			updateObjectUses(oDocIn, oIn);
+            updateObjectUseConstraints(oDocIn, oIn);
 			updateObjectOpenDataCategorys(oDocIn, oIn);
 			updateObjectDataQualitys(oDocIn, oIn);
 			updateObjectFormatInspires(oDocIn, oIn);
@@ -2693,7 +2695,6 @@ public class DocToBeanMapper implements IMapper {
 		ref.setTermsOfUseKey((Integer)refDoc.get(MdekKeys.USE_TERMS_OF_USE_KEY));
 		ref.setTermsOfUseValue(refDoc.getString(MdekKeys.USE_TERMS_OF_USE_VALUE));
 		ref.setLine(line);
-		keyValueService.processKeyValueObjectUse(ref, oFrom);
 
 		return ref;
 	}
@@ -2719,6 +2720,43 @@ public class DocToBeanMapper implements IMapper {
 			line++;
 		}
 	}
+
+    private ObjectUseConstraint mapObjectUseConstraint(T01Object oFrom,
+            IngridDocument refDoc,
+            ObjectUseConstraint ref, 
+            int line,
+            IngridDocument objDoc) // also pass object doc, needed for clarification in syslist mapping !
+    {
+        ref.setObjId(oFrom.getId());
+        ref.setLicenseKey((Integer)refDoc.get(MdekKeys.USE_LICENSE_KEY));
+        ref.setLicenseValue(refDoc.getString(MdekKeys.USE_LICENSE_VALUE));
+        ref.setLine(line);
+        keyValueService.processKeyValue(ref);
+
+        return ref;
+    }
+    private void updateObjectUseConstraints(IngridDocument oDocIn, T01Object oIn) {
+        List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.USE_CONSTRAINTS);
+        if (refDocs == null) {
+            refDocs = new ArrayList<IngridDocument>(0);
+        }
+        Set<ObjectUseConstraint> refs = oIn.getObjectUseConstraints();
+        ArrayList<ObjectUseConstraint> refs_unprocessed = new ArrayList<ObjectUseConstraint>(refs);
+        // remove all !
+        for (ObjectUseConstraint ref : refs_unprocessed) {
+            refs.remove(ref);
+            // delete-orphan doesn't work !!!?????
+            dao.makeTransient(ref);         
+        }       
+        // and add all new ones !
+        int line = 1;
+        for (IngridDocument refDoc : refDocs) {
+            // add all as new ones
+            ObjectUseConstraint ref = mapObjectUseConstraint(oIn, refDoc, new ObjectUseConstraint(), line, oDocIn);
+            refs.add(ref);
+            line++;
+        }
+    }
 
 	private ObjectDataQuality mapObjectDataQuality(T01Object oFrom,
 			IngridDocument refDoc,

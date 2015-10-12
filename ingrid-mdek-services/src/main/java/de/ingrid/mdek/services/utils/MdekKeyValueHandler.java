@@ -41,7 +41,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
@@ -61,7 +61,6 @@ import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
-import de.ingrid.utils.udk.UtilsUDKCodeLists;
 
 
 /**
@@ -102,10 +101,10 @@ public class MdekKeyValueHandler {
 		ObjectFormatInspire.class,
 		AdditionalFieldData.class,
 		SpatialSystem.class,
-		ObjectUse.class,
 		ObjectTypesCatalogue.class,
 		T011ObjServOpPlatform.class,
 		ObjectOpenDataCategory.class,
+		ObjectUseConstraint.class,
 	};
 
 	/** Get The Singleton */
@@ -142,9 +141,6 @@ public class MdekKeyValueHandler {
         } else if (T011ObjServVersion.class.isAssignableFrom(clazz)) {
             throw new IllegalArgumentException("Unsupported class: " + clazz.getName() +
                 " -> Process with separate method 'processKeyValueT011ObjServVersion(...)' !!!");
-		} else if (ObjectUse.class.isAssignableFrom(clazz)) {
-			throw new IllegalArgumentException("Unsupported class: " + clazz.getName() +
-					" -> Process with separate method 'processKeyValueObjectUse(...)' !!!");
 		} else if (T011ObjGeoSymc.class.isAssignableFrom(clazz)) {
 			processKeyValueT011ObjGeoSymc((T011ObjGeoSymc) bean);
 		} else if (T017UrlRef.class.isAssignableFrom(clazz)) {
@@ -193,6 +189,8 @@ public class MdekKeyValueHandler {
 			processKeyValueT011ObjServOpPlatform((T011ObjServOpPlatform) bean);
 		} else if (ObjectOpenDataCategory.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectOpenDataCategory((ObjectOpenDataCategory) bean);
+        } else if (ObjectUseConstraint.class.isAssignableFrom(clazz)) {
+            processKeyValueObjectUseConstraint((ObjectUseConstraint) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -722,32 +720,6 @@ public class MdekKeyValueHandler {
 		return bean;
 	}
 
-	public IEntity processKeyValueObjectUse(ObjectUse bean, T01Object obj) {
-		MdekSysList syslist = MdekSysList.OBJ_USE;
-		if ("Y".equals(obj.getIsOpenData())) {
-			syslist = MdekSysList.OBJ_USE_LICENCE;
-		}
-
-		Integer entryKey = bean.getTermsOfUseKey();
-		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				syslist.getDbValue(),
-				catalogService.getCatalogLanguage());
-
-			if (keyNameMap.get(entryKey) != null) {
-				// entry found in syslist, set name !
-				bean.setTermsOfUseValue(keyNameMap.get(entryKey));
-			} else {
-				// entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
-				// see INGRID33-29
-				logTransformToFreeEntry(syslist, entryKey, bean.getTermsOfUseValue());
-				bean.setTermsOfUseKey(-1);
-			}
-		}
-		
-		return bean;
-	}
-
 	private IEntity processKeyValueObjectTypesCatalogue(ObjectTypesCatalogue bean) {
 		Integer entryKey = bean.getTitleKey();
 		if (entryKey != null && entryKey > -1) {
@@ -802,6 +774,26 @@ public class MdekKeyValueHandler {
 		
 		return bean;
 	}
+
+    private IEntity processKeyValueObjectUseConstraint(ObjectUseConstraint bean) {
+        Integer entryKey = bean.getLicenseKey();
+        if (entryKey != null && entryKey > -1) {
+            Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+                MdekSysList.OBJ_USE_LICENCE.getDbValue(),
+                catalogService.getCatalogLanguage());
+
+            if (keyNameMap.get(entryKey) != null) {
+                // entry found in syslist, set name !
+                bean.setLicenseValue(keyNameMap.get(entryKey));
+            } else {
+                // entry NOT found in syslist ! transform to free entry (so we keep value), ok ?
+                logTransformToFreeEntry(MdekSysList.OBJ_USE_LICENCE, entryKey, bean.getLicenseValue());
+                bean.setLicenseKey(-1);
+            }
+        }
+        
+        return bean;
+    }
 
 	private void logTransformToFreeEntry(MdekSysList list, Integer entryKey, String entryName) {
 		LOG.warn("Syslist Entry with key " + entryKey + " NOT found in Syslist " +

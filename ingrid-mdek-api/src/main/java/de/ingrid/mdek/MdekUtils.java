@@ -139,8 +139,9 @@ public class MdekUtils {
 		OBJ_CONFORMITY_DEGREE(6000, "ObjectConformity:degreeKey:degreeValue"),
 		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity:specificationKey:specificationValue"),
 		OBJ_ACCESS(6010, "ObjectAccess:restrictionKey:restrictionValue"),
-		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
-		OBJ_USE_LICENCE(6500, "ObjectUse:termsOfUseKey:termsOfUseValue"),
+		// NOT used anymore, see REDMINE-13 2)
+//		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
+		OBJ_USE_LICENCE(6500, "ObjectUseConstraint:licenseKey:licenseValue"),
 		OBJ_OPEN_DATA_CATEGORY(6400, "ObjectOpenDataCategory:categoryKey:categoryValue"),
 		OBJ_TOPIC_CAT(527, "T011ObjTopicCat:topicCategory"),
 		/** type='I'(INSPIRE) -> INSPIRE Themen zur Verschlagwortung */
