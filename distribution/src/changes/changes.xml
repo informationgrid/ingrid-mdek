@@ -35,6 +35,9 @@
         Add separate table for adding ISO useConstraints (Nutzungsbeschränkungen).
       </action>
       <action type="update" dev="wemove" issue="REDMINE-13">
+        Migrate INSPIRE themes searchterms due to update of according syslist (6100).
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-13">
         Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#".
       </action>
     </release>
