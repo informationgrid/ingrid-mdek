@@ -3,19 +3,19 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>3.6.0.3</version>
+    <version>3.6.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>3.6.0.3</version>
+  <version>3.6.1</version>
   <name>ingrid-iplug-ige</name>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>3.5.0</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>3.6.1</ingrid-udk-importer.version>
   </properties>
 
   <scm>
@@ -66,25 +66,17 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>4.0.0.RELEASE</version>
+        <version>4.1.6.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>4.0.0.RELEASE</version>
+        <version>4.1.6.RELEASE</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
-        <version>4.0.0.RELEASE</version>
-      </dependency>
-<!-- Then import our ingrid dependency versions ! Only versions not defined yet will be used ! -->
-      <dependency>
-        <groupId>de.ingrid</groupId>
-        <artifactId>ingrid-version-management-pom</artifactId>
-        <version>3.6.0</version>
-        <type>pom</type>
-        <scope>import</scope>
+        <version>4.1.6.RELEASE</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -105,6 +97,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
+      <version>3.5.0</version>
     </dependency>
     <dependency>
       <!-- Needed for assembly of installer to setup/update IGC database -->

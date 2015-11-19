@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="3.3.2"/>
+    <xs:attribute name="exchange-format" default="3.6.1"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -500,9 +500,10 @@
   <xs:element name="description" type="xs:string"/>
   <!--
     Fachlicher Name: Version des Service
-    Tabelle.Feld   : T011_obj_serv_version.version
+    Tabelle.Feld   : T011_obj_serv_version.version_key
+    Tabelle.Feld   : T011_obj_serv_version.version_value
   -->
-  <xs:element name="service-version" type="xs:string"/>
+  <xs:element name="service-version" type="id-string"/>
   <!--
     Fachlicher Name: Operation
     Tabelle   : T011_obj_serv_op*
@@ -924,7 +925,8 @@
         <xs:element minOccurs="0" ref="dataset-intentions"/>
         <!-- kein access-constraint in Klasse 0: Organisationseinheit/Fachaufgabe ->  minOccurs=0 -->
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="access-constraint"/>
-        <!-- kein use-constraint in Klasse 0: Organisationseinheit/Fachaufgabe ->  minOccurs=0 -->
+        <!-- kein use-limitation/-constraint in Klasse 0: Organisationseinheit/Fachaufgabe ->  minOccurs=0 -->
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="use-limitation"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="use-constraint"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format"/>
@@ -985,10 +987,10 @@
   -->
   <xs:element name="restriction" type="id-string"/>
   <!--
-    Fachlicher Name: Objekt Nutzungsbeschraenkung (INSPIRE)
+    Fachlicher Name: Objekt Nutzungsbedingungen
     Tabelle.Feld   : object_use
   -->
-  <xs:element name="use-constraint">
+  <xs:element name="use-limitation">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="terms-of-use"/>
@@ -1001,6 +1003,23 @@
     Tabelle.Feld   : object_use.terms_of_use_value
   -->
   <xs:element name="terms-of-use" type="id-string"/>
+  <!--
+    Fachlicher Name: Objekt Nutzungsbeschränkungen
+    Tabelle.Feld   : object_use_constraint
+  -->
+  <xs:element name="use-constraint">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="license"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: Nutzungsbeschränkungen
+    Tabelle.Feld   : object_use_constraint.license_key
+    Tabelle.Feld   : object_use_constraint.license_value
+  -->
+  <xs:element name="license" type="id-string"/>
   <!--
     Fachlicher Name: 
     Tabelle.Feld   : t0112_media_option

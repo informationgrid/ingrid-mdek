@@ -1,6 +1,6 @@
 /*
  * **************************************************-
- * ingrid-mdek-services
+ * InGrid mdek-services
  * ==================================================
  * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
  * ==================================================
@@ -24,17 +24,17 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class T011ObjServVersion implements IEntity {
+public class ObjectUseConstraint implements IEntity {
 
 	private Long id;
 	private int version;
-	private Long objServId;
+	private Long objId;
 	private Integer line;
-	private Integer versionKey;
-	private String versionValue;
+	private Integer licenseKey;
+	private String licenseValue;
 
 
-	public T011ObjServVersion() {}
+	public ObjectUseConstraint() {}
 
 	public Long getId() {
 		return id;
@@ -52,12 +52,12 @@ public class T011ObjServVersion implements IEntity {
 		this.version = version;
 	}
 
-	public Long getObjServId() {
-		return objServId;
+	public Long getObjId() {
+		return objId;
 	}
 
-	public void setObjServId(Long objServId) {
-		this.objServId = objServId;
+	public void setObjId(Long objId) {
+		this.objId = objId;
 	}
 
 	public Integer getLine() {
@@ -68,20 +68,20 @@ public class T011ObjServVersion implements IEntity {
 		this.line = line;
 	}
 
-	public Integer getVersionKey() {
-		return versionKey;
+	public Integer getLicenseKey() {
+		return licenseKey;
 	}
 
-	public void setVersionKey(Integer versionKey) {
-		this.versionKey = versionKey;
+	public void setLicenseKey(Integer licenseKey) {
+		this.licenseKey = licenseKey;
 	}
 
-	public String getVersionValue() {
-		return versionValue;
+	public String getLicenseValue() {
+		return licenseValue;
 	}
 
-	public void setVersionValue(String versionValue) {
-		this.versionValue = versionValue;
+	public void setLicenseValue(String licenseValue) {
+		this.licenseValue = licenseValue;
 	}
 
 

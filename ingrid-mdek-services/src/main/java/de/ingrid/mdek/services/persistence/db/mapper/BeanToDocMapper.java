@@ -56,6 +56,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
 import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
+import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
@@ -348,6 +349,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 			mapObjectUses(o.getObjectUses(), objectDoc);
+            mapObjectUseConstraints(o.getObjectUseConstraints(), objectDoc);
 			mapObjectOpenDataCategorys(o.getObjectOpenDataCategorys(), objectDoc);
 			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
 			mapObjectFormatInspires(o.getObjectFormatInspires(), objectDoc);
@@ -1578,17 +1580,27 @@ public class BeanToDocMapper implements IMapper {
 		return refDoc;
 	}
 	private IngridDocument mapT011ObjServVersions(Set<T011ObjServVersion> refs, IngridDocument inDoc) {
-		if (refs == null) {
+		if (refs == null || refs.size() == 0) {
 			return inDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
 		for (T011ObjServVersion ref : refs) {
-			refList.add(ref.getServVersion());				
+            IngridDocument refDoc = new IngridDocument();
+            mapT011ObjServVersion(ref, refDoc);
+            refList.add(refDoc);
 		}
 		inDoc.put(MdekKeys.SERVICE_VERSION_LIST, refList);
 		
 		return inDoc;
 	}
+    private IngridDocument mapT011ObjServVersion(T011ObjServVersion ref, IngridDocument refDoc) {
+        if (ref == null) {
+            return refDoc;
+        }
+        refDoc.put(MdekKeys.SERVICE_VERSION_KEY, ref.getVersionKey());
+        refDoc.put(MdekKeys.SERVICE_VERSION_VALUE, ref.getVersionValue());
+        return refDoc;
+    }
 	private IngridDocument mapT011ObjServOperations(Set<T011ObjServOperation> refs, IngridDocument inDoc) {
 		if (refs == null || refs.size() == 0) {
 			return inDoc;
@@ -2002,6 +2014,33 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
+
+    private IngridDocument mapObjectUseConstraints(Set<ObjectUseConstraint> refs, IngridDocument objectDoc) {
+        if (refs == null) {
+            return objectDoc;
+        }
+
+        ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+        for (ObjectUseConstraint ref : refs) {
+            IngridDocument refDoc = new IngridDocument();
+            mapObjectUseConstraint(ref, refDoc);
+            refList.add(refDoc);
+        }
+        objectDoc.put(MdekKeys.USE_CONSTRAINTS, refList);
+        
+        return objectDoc;
+    }
+
+    private IngridDocument mapObjectUseConstraint(ObjectUseConstraint ref, IngridDocument refDoc) {
+        if (ref == null) {
+            return refDoc;
+        }
+
+        refDoc.put(MdekKeys.USE_LICENSE_KEY, ref.getLicenseKey());
+        refDoc.put(MdekKeys.USE_LICENSE_VALUE, ref.getLicenseValue());
+
+        return refDoc;
+    }
 
 	private IngridDocument mapObjectOpenDataCategorys(Set<ObjectOpenDataCategory> refs, IngridDocument objectDoc) {
 		if (refs == null) {

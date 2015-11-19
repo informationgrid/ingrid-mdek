@@ -449,8 +449,8 @@ public class MdekJobHandler {
 		return daoSysJobInfo.getJobInfo(whichJob, userUuid);
 	}
 	public HashMap getJobDetailsAsHashMap(JobType whichJob, String userUuid) {
-	    SysJobInfo myJobInfo = getJobInfoDB(whichJob, userUuid);
-	    return deformatJobDetailsFromDB( myJobInfo.getJobDetails() );
+        SysJobInfo myJobInfo = getJobInfoDB(whichJob, userUuid);
+        return deformatJobDetailsFromDB( myJobInfo.getJobDetails() );
 	}
 	/** Map given jobInfo to Map */
 	public HashMap mapJobInfoDB(SysJobInfo jobInfo) {

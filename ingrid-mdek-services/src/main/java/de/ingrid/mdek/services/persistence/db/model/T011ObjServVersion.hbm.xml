@@ -32,7 +32,8 @@
       <version name="version" type="integer" column="version"/>
       <property name="objServId" type="long" column="obj_serv_id"/>
       <property name="line" type="integer" column="line"/>
-      <property name="servVersion" type="string" column="serv_version"/>
+      <property name="versionKey" type="integer" column="version_key"/>
+      <property name="versionValue" type="string" column="version_value"/>
 
    </class>
 

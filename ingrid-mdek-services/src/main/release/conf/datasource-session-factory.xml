@@ -58,6 +58,7 @@
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectTypesCatalogue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectUse.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectUseConstraint.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/PermissionObj.hbm.xml</value>
@@ -127,6 +128,7 @@
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectReference">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectUse">read-write</prop>
+            <prop key="de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.Permission">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionAddr">read-write</prop>
             <prop key="de.ingrid.mdek.services.persistence.db.model.PermissionObj">read-write</prop>

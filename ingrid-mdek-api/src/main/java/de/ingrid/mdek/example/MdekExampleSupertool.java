@@ -1048,11 +1048,13 @@ public class MdekExampleSupertool {
 			System.out.println("    SERVICE type: " + myDoc.get(MdekKeys.SERVICE_TYPE_KEY) + "=" + myDoc.get(MdekKeys.SERVICE_TYPE));
 			System.out.println("    SERVICE HAS_ACCESS_CONSTRAINT: " + myDoc.get(MdekKeys.HAS_ACCESS_CONSTRAINT));
 			System.out.println("    SERVICE HAS_ATOM_DOWNLOAD: " + myDoc.get(MdekKeys.HAS_ATOM_DOWNLOAD));
-			strList = (List<String>) myDoc.get(MdekKeys.SERVICE_VERSION_LIST);
-			if (strList != null && strList.size() > 0) {
-				System.out.println("    SERVICE - versions: " + strList.size() + " entries");
-				System.out.println("     " + strList);
-			}
+            docList = (List<IngridDocument>) myDoc.get(MdekKeys.SERVICE_VERSION_LIST);
+            if (docList != null && docList.size() > 0) {
+                System.out.println("      SERVICE - versions: " + docList.size() + " entries");
+                for (IngridDocument doc : docList) {
+                    System.out.println("        " + doc);
+                }           
+            }
 			docList = (List<IngridDocument>) myDoc.get(MdekKeys.SERVICE_TYPE2_LIST);
 			if (docList != null && docList.size() > 0) {
 				System.out.println("    SERVICE - classifications (INSPIRE): " + docList.size() + " entries");
@@ -1154,11 +1156,18 @@ public class MdekExampleSupertool {
 		}
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_LIST);
 		if (docList != null && docList.size() > 0) {
-			System.out.println("  Object use constraints (INSPIRE): " + docList.size() + " entries");
+			System.out.println("  Object useLimitation (INSPIRE): " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}
 		}
+        docList = (List<IngridDocument>) oDoc.get(MdekKeys.USE_CONSTRAINTS);
+        if (docList != null && docList.size() > 0) {
+            System.out.println("  Object useConstraints (INSPIRE): " + docList.size() + " entries");
+            for (IngridDocument doc : docList) {
+                System.out.println("   " + doc);
+            }
+        }
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATA_QUALITY_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object data quality (INSPIRE): " + docList.size() + " entries");

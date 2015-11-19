@@ -885,8 +885,12 @@ public class MdekKeys {
     public final static String HAS_ACCESS_CONSTRAINT = "has-access-constraint";
 // NAME already defined, also used here in subdocument !
     // TECHNICAL DOMAIN SERVICE - VERSIONS
-    /** Value: List< String >  */
+    /** Value: List< IngridDocument >  */
     public final static String SERVICE_VERSION_LIST = "service-version-list";
+    /** Value: String */
+    public final static String SERVICE_VERSION_VALUE = "service-version-value";
+    /** Value: Integer */
+    public final static String SERVICE_VERSION_KEY = "service-version-key";
     // TECHNICAL DOMAIN SERVICE - OPERATIONS
     /** Value: List< IngridDocument >  */
     public final static String SERVICE_OPERATION_LIST = "service-operation-list";
@@ -1184,6 +1188,13 @@ public class MdekKeys {
     public final static String USE_TERMS_OF_USE_KEY = "use-terms-of-use-key";
     /** Value: String */
     public final static String USE_TERMS_OF_USE_VALUE = "use-terms-of-use-value";
+
+    /** Value: List< IngridDocument > */
+    public final static String USE_CONSTRAINTS = "use-constraints";
+    /** Value: Integer */
+    public final static String USE_LICENSE_KEY = "use-license-key";
+    /** Value: String */
+    public final static String USE_LICENSE_VALUE = "use-license-value";
 
     /** Value: List< IngridDocument > */
     public final static String DATA_QUALITY_LIST = "data-quality-list";

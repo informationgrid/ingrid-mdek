@@ -41,7 +41,7 @@ public class IngridXMLUtils {
 	public static String getVersion(Reader reader) throws XMLStreamException {
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 		XMLEventReader xmlEventReader = inputFactory.createXMLEventReader(reader);
-		Attribute attribute = getElementAttribute(xmlEventReader, new QName("http://www.portalu.de/igc-import", XMLKeys.IGC), new QName(XMLKeys.EXCHANGE_FORMAT));
+		Attribute attribute = getElementAttribute(xmlEventReader, new QName("http://informationgrid.eu/igc-import", XMLKeys.IGC), new QName(XMLKeys.EXCHANGE_FORMAT));
 		xmlEventReader.close();
 		if (attribute != null) {
 			return attribute.getValue();

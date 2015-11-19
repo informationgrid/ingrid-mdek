@@ -104,18 +104,26 @@ public class MdekUtils {
 		OBJ_TYPES_CATALOGUE(3535, "ObjectTypesCatalogue:titleKey:titleValue"),
 		OBJ_GEO_SYMC(3555, "T011ObjGeoSymc:symbolCatKey:symbolCatValue"),
 		OBJ_LITERATURE_TYPE(3385, "T011ObjLiterature:typeKey:typeValue"),
+
 		/** T011ObjServ for class 3 ! */
 		OBJ_SERV_TYPE(5100, "T011ObjServ:typeKey:typeValue"),
+
 		/** T011ObjServ.type=1/CSW */
 		OBJ_SERV_OPERATION_CSW(5105, "T011ObjServOperation:nameKey:nameValue"),
+        OBJ_SERV_VERSION_CSW(5151, "T011ObjServVersion:servVersionKey:servVersionValue"),
 		/** T011ObjServ.type=2/WMS */
 		OBJ_SERV_OPERATION_WMS(5110, "T011ObjServOperation:nameKey:nameValue"),
+        OBJ_SERV_VERSION_WMS(5152, "T011ObjServVersion:servVersionKey:servVersionValue"),
 		/** T011ObjServ.type=3/WFS */
 		OBJ_SERV_OPERATION_WFS(5120, "T011ObjServOperation:nameKey:nameValue"),
+        OBJ_SERV_VERSION_WFS(5153, "T011ObjServVersion:servVersionKey:servVersionValue"),
 		/** T011ObjServ.type=4/WCTS */
 		OBJ_SERV_OPERATION_WCTS(5130, "T011ObjServOperation:nameKey:nameValue"),
+        OBJ_SERV_VERSION_WCTS(5154, "T011ObjServVersion:servVersionKey:servVersionValue"),
+
 		OBJ_SERV_OPERATION_PLATFORM(5180, "T011ObjServOpPlatform:platformKey:platformValue"),
 		OBJ_SERV_TYPE2(5200, "T011ObjServType:servTypeKey:servTypeValue"),
+
 		/** T011ObjServ for class 6 ! */
 		OBJ_SERV_TYPE_CLASS_6(5300, "T011ObjServ:typeKey:typeValue"),
 		INFO_IMPART(1370, "T014InfoImpart:impartKey:impartValue"),
@@ -131,8 +139,9 @@ public class MdekUtils {
 		OBJ_CONFORMITY_DEGREE(6000, "ObjectConformity:degreeKey:degreeValue"),
 		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity:specificationKey:specificationValue"),
 		OBJ_ACCESS(6010, "ObjectAccess:restrictionKey:restrictionValue"),
-		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
-		OBJ_USE_LICENCE(6500, "ObjectUse:termsOfUseKey:termsOfUseValue"),
+		// NOT used anymore, see REDMINE-13 2)
+//		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
+		OBJ_USE_LICENCE(6500, "ObjectUseConstraint:licenseKey:licenseValue"),
 		OBJ_OPEN_DATA_CATEGORY(6400, "ObjectOpenDataCategory:categoryKey:categoryValue"),
 		OBJ_TOPIC_CAT(527, "T011ObjTopicCat:topicCategory"),
 		/** type='I'(INSPIRE) -> INSPIRE Themen zur Verschlagwortung */
