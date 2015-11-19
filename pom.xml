@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>3.6.0.3</version>
+    <version>3.6.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
@@ -15,7 +15,7 @@
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>3.6.1-SNAPSHOT</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>3.6.1</ingrid-udk-importer.version>
   </properties>
 
   <scm>

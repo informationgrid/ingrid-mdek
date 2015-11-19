@@ -27,18 +27,21 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="3.6.1-SNAPSHOT" date="??" description="??">
+    <release version="3.6.1" date="2015-11-19" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-47">
-        Edit service version via new syslists (according to GDI-DE content).
+        Edit service version via selectbox and new syslist (according to GDI-DE content).
       </action>
-      <action type="add" dev="wemove" issue="REDMINE-13">
-        Add separate table for adding ISO useConstraints (Nutzungsbeschränkungen).
+      <action type="add" dev="wemove" issue="REDMINE-13 2.)">
+        Add separate table for adding ISO useConstraints ("Nutzungsbeschränkungen"). Migrate licenses from table "Nutzungsbedingungen".
       </action>
-      <action type="update" dev="wemove" issue="REDMINE-13">
-        Migrate INSPIRE themes searchterms due to update of according syslist (6100).
+      <action type="update" dev="wemove" issue="REDMINE-13 3.)">
+        Migrate INSPIRE themes searchterms due to update of according syslist (6100). Map INSPIRE themes to ISO Categories according to GDI-DE and add missing ISO categories to records.
       </action>
-      <action type="update" dev="wemove" issue="REDMINE-13">
+      <action type="update" dev="wemove" issue="REDMINE-13 1.)">
         Geo-Dataset/-Service: Separate namespace and resource identifier with "/" instead of "#".
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-16">
+        Remove PortalU-references during import/export.
       </action>
     </release>
 
