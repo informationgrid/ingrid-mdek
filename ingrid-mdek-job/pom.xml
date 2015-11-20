@@ -47,8 +47,44 @@
       <version>2.4.0</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-iplug-dsc</artifactId>
+        <version>3.6.1</version>
+    </dependency>
+    <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-base-webapp</artifactId>
+        <version>3.6.1</version>
+    </dependency>
   </dependencies>
   <build>
+    <plugins>
+        <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-base-webapp</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>de.ingrid</groupId>
+                  <artifactId>ingrid-base-webapp</artifactId>
+                  <classifier>res</classifier>
+                  <type>zip</type>
+                  <outputDirectory>${project.build.directory}/base-webapp</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
     <resources>
       <resource>
         <directory>src/main/resources</directory>

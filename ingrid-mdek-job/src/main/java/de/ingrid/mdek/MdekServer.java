@@ -38,6 +38,11 @@ import net.weta.components.communication.tcp.TcpCommunication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.tngtech.configbuilder.ConfigBuilder;
+
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.iplug.dsc.Configuration;
+import de.ingrid.iplug.dsc.DscSearchPlug;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.repository.IJobRepository;
@@ -56,6 +61,8 @@ public class MdekServer implements IMdekServer {
     private ICommunication _communication;
     
     private volatile boolean _shutdown = false;
+
+    private static Configuration conf;
 
     public MdekServer(File communicationProperties, IJobRepositoryFacade jobRepositoryFacade) {
         _communicationProperties = communicationProperties;
@@ -147,7 +154,7 @@ public class MdekServer implements IMdekServer {
         System.exit(0);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         Map map = readParameters(args);
         if (map.size() < 1 || map.size() > 2) {
             printUsage();
@@ -165,6 +172,11 @@ public class MdekServer implements IMdekServer {
         IJobRepositoryFacade jobRepositoryFacade = (IJobRepositoryFacade) context.getBean(IJobRepositoryFacade.class
                 .getName());
         MdekServer server = new MdekServer(new File(communicationFile), jobRepositoryFacade);
+        
+        // start the Webserver for admin-page and iplug initialization for search and index
+        conf = new ConfigBuilder<Configuration>(Configuration.class).build();
+        new JettyStarter( conf );
+            
         
         // call job checking Version of IGC in database !
         IngridDocument response = callJob(jobRepositoryFacade,
