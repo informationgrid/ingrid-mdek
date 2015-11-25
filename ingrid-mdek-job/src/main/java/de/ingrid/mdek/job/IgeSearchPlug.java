@@ -66,11 +66,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     public Record getRecord(IngridHit hit) throws Exception {
         ElasticDocument document = _indexSearcher.getDocById( hit.getDocumentId() );
         // TODO: choose between different mapping types
-        if (document.get( "t01_object.id" ) != null) {
-            return dscRecordProducer.get( 0 ).getRecord(document);
-        } else {
-            return dscRecordProducer.get( 1 ).getRecord(document);
+        if (document != null) {
+            if (document.get( "t01_object.id" ) != null) {
+                return dscRecordProducer.get( 0 ).getRecord(document);
+            } else {
+                return dscRecordProducer.get( 1 ).getRecord(document);
+            }
         }
+        return null;
     }
 
     /* (non-Javadoc)
