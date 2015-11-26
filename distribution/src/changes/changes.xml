@@ -27,6 +27,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="3.6.1.1-SNAPSHOT" date="??" description="?">
+      <action type="fix" dev="wemove" issue="REDMINE-225">
+        Add new field "Nutzungsbeschränkungen" to profile to appear in "additional fields".
+      </action>
+    </release>
+
     <release version="3.6.1" date="2015-11-19" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-47">
         Edit service version via selectbox and new syslist (according to GDI-DE content).
