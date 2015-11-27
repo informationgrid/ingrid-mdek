@@ -39,7 +39,7 @@ public class LogService implements ILogService {
 	private final File _logDirectory;
 
 	public LogService() {
-		_logDirectory = new File("log.log");
+		_logDirectory = new File("logs");
 	}
 
 	public Logger getLogger(Class clazz) {
