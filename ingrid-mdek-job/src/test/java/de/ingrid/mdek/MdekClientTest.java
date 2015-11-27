@@ -33,14 +33,14 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.weta.components.communication.tcp.TimeoutException;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import de.ingrid.mdek.job.DateJob;
+import de.ingrid.mdek.job.register.RegistrationService;
 import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
+import de.ingrid.mdek.job.repository.JobRepository;
 import de.ingrid.mdek.job.repository.JobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
@@ -51,8 +51,7 @@ public class MdekClientTest {
     public void testShutdown() throws Exception {
         MdekServer temp = null;
         try {
-            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-server.properties").toURI()),
-                    new JobRepositoryFacade(null));
+            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-server.properties").toURI()), new JobRepositoryFacade(null));
         } catch (URISyntaxException e1) {
             Assert.fail();
         }

@@ -28,6 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -65,6 +68,7 @@ import de.ingrid.utils.IngridDocument;
 /**
  * Encapsulates all Job functionality concerning ADDRESSES. 
  */
+@Service
 public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private MdekAddressService addressService;
@@ -78,6 +82,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 
+	@Autowired
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {
