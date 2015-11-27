@@ -39,8 +39,6 @@
         <property name="locations">
             <list>
                 <value>classpath:default-datasource.properties</value>
-                <!-- <value>classpath:default-job.properties</value>
-                <value>classpath:core-services.properties</value> -->
             </list>
         </property>
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
@@ -85,14 +83,6 @@
             </list>
         </property>
     </bean>
-    
-    
-    <!-- <bean id="de.ingrid.mdek.job.MdekIdcObjectJob" class="de.ingrid.mdek.job.MdekIdcObjectJob" >
-        <constructor-arg ref="de.ingrid.mdek.services.log.ILogService"/>
-        <constructor-arg ref="de.ingrid.mdek.services.persistence.db.IDaoFactory"/>
-        <constructor-arg ref="de.ingrid.mdek.services.security.IPermissionService"/>
-    </bean> -->
-    
     
     <bean id="sessionFactory"
          class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
@@ -237,8 +227,8 @@
     </util:map>
 
     <context:component-scan base-package="de.ingrid">
-        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
-        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/>
+        <!-- <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/> -->
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.SpringConfiguration*" />
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.DscSearchPlug" />
     </context:component-scan>
