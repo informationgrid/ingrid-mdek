@@ -30,8 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.tngtech.configbuilder.ConfigBuilder;
 
@@ -48,8 +50,8 @@ import net.weta.components.communication.reflect.ProxyService;
 import net.weta.components.communication.tcp.StartCommunication;
 import net.weta.components.communication.tcp.TcpCommunication;
 
-@Service
-public class MdekServer implements IMdekServer {
+@Component
+public class MdekServer {
 
     private static int _intervall = 30;
 
@@ -59,7 +61,7 @@ public class MdekServer implements IMdekServer {
 
     private ICommunication _communication;
     
-    private volatile boolean _shutdown = false;
+    private static volatile boolean _shutdown = false;
 
     private static Configuration conf;
 
@@ -70,41 +72,48 @@ public class MdekServer implements IMdekServer {
         IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
         // check response, throws Exception if wrong version !
         checkResponse(response);
-        run();
+    }
+    
+    @PostConstruct
+    public void runBackend() throws IOException {
+        new CommunicationThread().start();
     }
     
     // constructor used for tests
     public MdekServer(File communication, IJobRepositoryFacade jobRepositoryFacade) throws IOException {
         _communicationProperties = communication;
         _jobRepositoryFacade = jobRepositoryFacade;
-        //IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
-        // check response, throws Exception if wrong version !
-        //checkResponse(response);
-        //run();
     }
 
-    public void run() throws IOException {
-        _communication = initCommunication(_communicationProperties);
-        ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-        waitForConnection(_intervall);
-        while (!_shutdown) {
-            if (_communication instanceof TcpCommunication) {
-                TcpCommunication tcpCom = (TcpCommunication) _communication;
-                if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
-                    closeConnections();
-                    _communication = initCommunication(_communicationProperties);
-                    ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-                    waitForConnection(_intervall);
-                }
-
-                synchronized (MdekServer.class) {
-                    try {
-                        MdekServer.class.wait(10000);
-                    } catch (InterruptedException e) {
-                        closeConnections();
-                        throw new IOException(e.getMessage());
+    private class CommunicationThread extends Thread {
+        public void run() {
+            try {
+                _communication = initCommunication(_communicationProperties);
+            
+                ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
+                waitForConnection(_intervall);
+                while (!_shutdown) {
+                    if (_communication instanceof TcpCommunication) {
+                        TcpCommunication tcpCom = (TcpCommunication) _communication;
+                        if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
+                            closeConnections();
+                            _communication = initCommunication(_communicationProperties);
+                            ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
+                            waitForConnection(_intervall);
+                        }
+            
+                        synchronized (MdekServer.class) {
+                            try {
+                                MdekServer.class.wait(10000);
+                            } catch (InterruptedException e) {
+                                closeConnections();
+                                throw new IOException(e.getMessage());
+                            }
+                        }
                     }
                 }
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
     }
@@ -126,7 +135,7 @@ public class MdekServer implements IMdekServer {
         }        
     }
 
-    public void shutdown() {
+    public static void shutdown() {
         _shutdown = true;
         synchronized (MdekServer.class) {
             MdekServer.class.notifyAll();
@@ -185,6 +194,17 @@ public class MdekServer implements IMdekServer {
         // this also initializes all spring services and does autowiring
         conf = new ConfigBuilder<Configuration>(Configuration.class).build();
         new JettyStarter( conf );
+        
+        // shutdown the server normally
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try {
+                    shutdown();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private List<String> getRegisteredMdekServers() {
@@ -204,10 +224,8 @@ public class MdekServer implements IMdekServer {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, jobId);
 		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
-		
 		return response;
 	}
 
@@ -233,7 +251,7 @@ public class MdekServer implements IMdekServer {
 				}
 			}
 			
-			throw new MdekException(retMsg);
+			System.exit( -1 );
 		}
 	}
 }
