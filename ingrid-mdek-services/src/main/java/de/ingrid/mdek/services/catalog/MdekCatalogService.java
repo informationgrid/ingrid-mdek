@@ -147,7 +147,7 @@ public class MdekCatalogService {
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 
 		URL url = getClass().getResource(CACHE_CONFIG_FILE);
-		CacheManager.create(url);
+		cacheManager = new CacheManager(url);
 		syslistMapCache = cacheManager.getCache(CACHE_SYS_LIST_MAP);
 		catalogCache = cacheManager.getCache(CACHE_CATALOG);
 	}

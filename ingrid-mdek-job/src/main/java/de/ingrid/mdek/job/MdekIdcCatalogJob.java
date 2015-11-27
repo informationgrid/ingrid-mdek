@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -85,6 +87,7 @@ import de.ingrid.utils.IngridDocument;
 /**
  * Encapsulates all Catalog functionality concerning access, syslists etc. 
  */
+@Service
 public class MdekIdcCatalogJob extends MdekIdcJob {
 
 	private static final Logger LOG = Logger.getLogger(MdekIdcCatalogJob.class);
@@ -107,6 +110,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private ISearchtermValueDao daoSearchtermValue;
 	private ISpatialRefValueDao daoSpatialRefValue;
 
+	@Autowired
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {

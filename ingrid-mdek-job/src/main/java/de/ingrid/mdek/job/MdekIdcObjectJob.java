@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Stack;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -67,6 +69,7 @@ import de.ingrid.utils.IngridDocument;
 /**
  * Encapsulates all Job functionality concerning OBJECTS. 
  */
+@Service
 public class MdekIdcObjectJob extends MdekIdcJob {
 
 	private MdekCatalogService catalogService;
@@ -82,6 +85,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 
+	@Autowired
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {

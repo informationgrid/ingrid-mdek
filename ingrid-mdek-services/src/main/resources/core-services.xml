@@ -26,26 +26,26 @@
 	<import resource="configuration.xml"/>
 	<import resource="datasource-services.xml"/>
 	<import resource="datasource-session-factory.xml"/>
-	<bean class="de.ingrid.mdek.services.date.SimpleDateJob" id="de.ingrid.mdek.services.date.SimpleDateJob">
+	<!-- <bean class="de.ingrid.mdek.services.date.SimpleDateJob" id="de.ingrid.mdek.services.date.SimpleDateJob">
 		<constructor-arg ref="de.ingrid.mdek.services.log.ILogService"/>
-	</bean>
+	</bean> -->
 	<bean class="de.ingrid.mdek.services.persistence.hdd.HddPersistenceService" id="de.ingrid.mdek.services.persistence.hdd.IHddPersistence" init-method="deleteAllPersistentObjects">
 		<constructor-arg value="${serializable.store.folder}"/>
 	</bean>
-	<bean class="de.ingrid.mdek.services.persistence.db.DaoFactory" id="de.ingrid.mdek.services.persistence.db.IDaoFactory">
+	<!-- <bean class="de.ingrid.mdek.services.persistence.db.DaoFactory" id="de.ingrid.mdek.services.persistence.db.IDaoFactory">
 		<constructor-arg ref="sessionFactory"/>
-	</bean>
+	</bean> -->
 	<bean class="de.ingrid.mdek.services.persistence.db.HQLExecuter" id="de.ingrid.mdek.services.persistence.db.IHQLExecuter">
 		<constructor-arg ref="sessionFactory"/>
 	</bean>
-	<bean class="de.ingrid.mdek.services.persistence.db.AtomarModelPersister" id="de.ingrid.mdek.services.persistence.db.IAtomarModelPersister">
+	<!-- <bean class="de.ingrid.mdek.services.persistence.db.AtomarModelPersister" id="de.ingrid.mdek.services.persistence.db.IAtomarModelPersister">
 		<constructor-arg ref="de.ingrid.mdek.services.persistence.db.IDaoFactory"/>
-	</bean>
-	<bean class="de.ingrid.mdek.services.log.LogService" id="de.ingrid.mdek.services.log.ILogService">
+	</bean> -->
+	<!-- <bean class="de.ingrid.mdek.services.log.LogService" id="de.ingrid.mdek.services.log.ILogService">
 		<constructor-arg value="${job.log.dir}"/>
 		<constructor-arg value="true"/>
 	</bean>
 	<bean class="de.ingrid.mdek.services.security.DefaultPermissionService" id="de.ingrid.mdek.services.security.IPermissionService">
 		<constructor-arg ref="de.ingrid.mdek.services.persistence.db.IDaoFactory"/>
-	</bean>
+	</bean> -->
 </beans>
