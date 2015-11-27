@@ -75,8 +75,10 @@ public class MdekServer {
     }
     
     @PostConstruct
-    public void runBackend() throws IOException {
-        new CommunicationThread().start();
+    public Thread runBackend() throws IOException {
+        Thread thread = new CommunicationThread();
+        thread.start();
+        return thread;
     }
     
     // constructor used for tests

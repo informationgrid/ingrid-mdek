@@ -231,6 +231,7 @@
         <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/> -->
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.SpringConfiguration*" />
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.DscSearchPlug" />
+        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.object.*" />
     </context:component-scan>
     
     <mvc:annotation-driven/>
