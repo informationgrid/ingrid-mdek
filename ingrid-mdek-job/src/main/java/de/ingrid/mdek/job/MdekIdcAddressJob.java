@@ -261,9 +261,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 
 			// get objects referencing the given address
-			HashMap fromObjectsData = 
+			HashMap<?, ?> fromObjectsData = 
 				daoAddressNode.getObjectReferencesFrom(addrUuid, objRefsStartIndex, objRefsMaxNum);
-			List<ObjectNode>[] fromLists = (List<ObjectNode>[]) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM);
+			@SuppressWarnings("unchecked")
+            List<ObjectNode>[] fromLists = (List<ObjectNode>[]) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM);
 			Integer objRefsTotalNum = (Integer) fromObjectsData.get(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM);
 
 			// map the data to our result doc 
@@ -338,7 +339,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 					selectionType, orderBy, orderAsc,
 					startHit, numHits);
 
-			List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
+			@SuppressWarnings("unchecked")
+            List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			Long totalNumAssigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_ASSIGNED);
 			Long totalNumReassigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_REASSIGNED);
@@ -431,7 +433,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 						orderBy, orderAsc,
 						startHit, numHits);
 
-			List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
+			@SuppressWarnings("unchecked")
+            List<AddressNode> aNs = (List<AddressNode>) result.get(MdekKeys.ADR_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 
 			// map found addresses to docs
@@ -1036,6 +1039,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			IngridDocument result = addressService.deleteAddressFull(uuid, forceDeleteReferences, userId);
 
 			daoAddressNode.commitTransaction();
+			
+			// only remove from index if object was really removed and not just marked
+            if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
+                // TODO: find a way to just delete from the right index/type or from all at once
+                for (DscDocumentProducer producer : docProducer) {
+                    indexManager.delete( producer.getIndexInfo(), uuid );
+                }
+                indexManager.flush();
+            }
 
 			return result;
 
@@ -1102,7 +1114,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	 * @param userUuid current user id needed to update running jobs
 	 * @return doc containing additional info (copy of source node, number copied nodes ...)
 	 */
-	private IngridDocument createAddressNodeCopy(String sourceUuid, String newParentUuid,
+	@SuppressWarnings("unchecked")
+    private IngridDocument createAddressNodeCopy(String sourceUuid, String newParentUuid,
 			boolean copySubtree, boolean copyToFreeAddress, String userUuid)
 	{
 		// PERFORM CHECKS
