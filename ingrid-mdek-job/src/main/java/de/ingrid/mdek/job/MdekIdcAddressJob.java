@@ -31,6 +31,8 @@ import java.util.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -63,6 +65,7 @@ import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -82,10 +85,16 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 
+    private List<DscDocumentProducer> docProducer;
+
+    private IndexManager indexManager;
+
 	@Autowired
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory,
-			IPermissionService permissionService) {
+			IPermissionService permissionService,
+            List<DscDocumentProducer> docProducer,
+            IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
 		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
@@ -98,6 +107,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoT02Address = daoFactory.getT02AddressDao();
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
+		this.indexManager = indexManager;
+        this.docProducer = docProducer;
 	}
 
 	public IngridDocument getTopAddresses(IngridDocument params) {
@@ -770,6 +781,17 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 					}
 				}
 			}
+			
+			for (DscDocumentProducer producer : docProducer) {
+                ElasticDocument doc = null;
+                doc = producer.getById( result.get( "id" ).toString(), "id" );
+                if (doc != null && !doc.isEmpty()) {
+                    indexManager.addBasicFields( doc );
+                    indexManager.update( producer.getIndexInfo(), doc );
+                    indexManager.flush();
+                    break;
+                }
+            }
 			
 			return result;
 
