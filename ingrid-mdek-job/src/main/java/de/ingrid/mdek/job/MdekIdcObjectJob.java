@@ -31,6 +31,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
@@ -64,6 +66,7 @@ import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -74,7 +77,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	private MdekCatalogService catalogService;
 	private MdekObjectService objectService;
-//	private MdekAddressService addressService;
 
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
@@ -84,11 +86,15 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private IT01ObjectDao daoT01Object;
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
+    private IndexManager indexManager;
+    private List<DscDocumentProducer> docProducer;
 
 	@Autowired
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory,
-			IPermissionService permissionService) {
+			IPermissionService permissionService,
+			List<DscDocumentProducer> docProducer,
+			IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
@@ -101,6 +107,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
+		this.indexManager = indexManager;
+		this.docProducer = docProducer;
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 	}
@@ -718,6 +726,17 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					}
 				}
 			}
+			
+			for (DscDocumentProducer producer : docProducer) {
+			    ElasticDocument doc = null;
+			    doc = producer.getById( result.get( "id" ).toString(), "id" );
+			    if (doc != null && !doc.isEmpty()) {
+			        indexManager.addBasicFields( doc );
+			        indexManager.update( producer.getIndexInfo(), doc );
+			        indexManager.flush();
+			        break;
+			    }
+            }
 			
 			return result;
 
