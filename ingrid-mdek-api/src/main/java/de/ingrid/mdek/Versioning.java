@@ -27,8 +27,9 @@ package de.ingrid.mdek;
  * NOTICE: Subclassed by import-export jar defining Version of Import/Export Format and mapper class ...
  */
 public class Versioning {
-	/** Version of IGC catalogue needed (Schema) */
-	public static final String NEEDED_IGC_VERSION = "3.6.1.1_a";
+	/** Version of IGC catalogue needed. 
+	 * NOTICE: IGE frontend checks this version against backend when this mdek-api is used in frontend (portal). */
+	public static final String NEEDED_IGC_VERSION = "3.6.1.1";
 
 	/** Key for fetching IGC Version from backend from SysGenericKey table */
 	public static final String BACKEND_IGC_VERSION_KEY = "IDC_VERSION";

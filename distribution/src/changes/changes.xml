@@ -27,7 +27,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="3.6.1.1-SNAPSHOT" date="??" description="?">
+    <release version="3.6.1.1" date="2015-12-03" description="Bugfix Release InGrid 3.6.1.1">
       <action type="fix" dev="wemove" issue="REDMINE-225">
         Add new field "Nutzungsbeschränkungen" to profile to appear in "additional fields".
       </action>
