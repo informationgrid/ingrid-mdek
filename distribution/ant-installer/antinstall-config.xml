@@ -52,6 +52,16 @@
     </page>
 
     <page
+            ifTarget    ="setInstallProperty"
+            type        ="input"
+            name        ="componentOptions"
+            displayText ="Einstellungen fuer das iPlug-IGE">
+            
+            <comment displayText="" explanatoryText="Lokaler Port, unter dem die Administrationsoberfläche des IGE-iPlugs erreichbar sein soll."/>           
+            <text property="localServerPort" displayText="Port für Adminoberfläche:" defaultValue="9933"/>
+    </page>
+
+    <page
             ifProperty  ="${updateOrNew}==setInstallProperty"
             type        ="input"
             name        ="database"
