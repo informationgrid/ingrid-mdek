@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 import com.tngtech.configbuilder.ConfigBuilder;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.importer.udk.Importer;
 import de.ingrid.iplug.dsc.Configuration;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.job.MdekException;
@@ -63,13 +64,14 @@ public class MdekServer {
     
     private static volatile boolean _shutdown = false;
 
-    private static Configuration conf;
+    public static Configuration conf;
 
 
     @Autowired
     public MdekServer(IJobRepositoryFacade jobRepositoryFacade) throws IOException {
         _jobRepositoryFacade = jobRepositoryFacade;
         IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
+        _communicationProperties = new File("conf/communication-ige.xml");
         // check response, throws Exception if wrong version !
         checkResponse(response);
     }
@@ -183,7 +185,13 @@ public class MdekServer {
         if (map.size() < 1 || map.size() > 2) {
             printUsage();
         }
-
+        
+        // read configuration
+        conf = new ConfigBuilder<de.ingrid.mdek.job.Configuration>(de.ingrid.mdek.job.Configuration.class).build();
+        // start the Webserver for admin-page and iplug initialization for search and index
+        // this also initializes all spring services and does autowiring
+        new JettyStarter( conf );
+        
         String communicationFile = (String) map.get("--descriptor");
         _communicationProperties = new File(communicationFile);
         
@@ -192,10 +200,7 @@ public class MdekServer {
             _intervall = Integer.parseInt(intervall);
         }
         
-        // start the Webserver for admin-page and iplug initialization for search and index
-        // this also initializes all spring services and does autowiring
-        conf = new ConfigBuilder<Configuration>(Configuration.class).build();
-        new JettyStarter( conf );
+        
         
         // shutdown the server normally
         Runtime.getRuntime().addShutdownHook(new Thread() {

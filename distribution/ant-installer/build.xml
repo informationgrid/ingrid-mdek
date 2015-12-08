@@ -41,6 +41,7 @@
 
     <property name="iPlugName"          value="${project.build.finalName}"/>
     <property name="importerName"       value="ingrid-udk-importer-${ingrid-udk-importer.version}"/>
+    <property name="config"             value="${installDir}/conf/config.override.properties"/>
 
     <property name="mySqlDriverClass"       value="com.mysql.jdbc.Driver"/>
     <property name="mySqlDriver.jar"        value="mysql-connector-java-5.1.34.jar"/>
@@ -53,8 +54,8 @@
     <property name="libraryDir"         value="lib" />
     <property name="libraryIdent"       value="ingrid-mdek-api-" />
     <!-- <property name="libraryIdent"       value="MANIFEST.MF" /> -->
-    <property name="versionsWithConfigurations"  value="3.3.0" />
-    <property name="minSupportedVersion" value="3.3.0" />
+    <property name="versionsWithConfigurations"  value="" />
+    <property name="minSupportedVersion" value="3.6.2" />
 
     <import file="build-installer-utils.xml"  as="utils" />
     <import file="build-patch.xml"            as="patch" />
@@ -118,7 +119,6 @@
         <unzip src="${antinstaller.jar}" dest=".">
             <patternset>
                 <include name="${iPlugName}/**/*.*"/>
-                <include name="${importerName}-installer.jar"/>
             </patternset>
         </unzip>
 
@@ -133,7 +133,6 @@
                 <include name="**/*.*"/>
                 <exclude name="${iPlugName}/conf/communication.xml" />
                 <exclude name="${iPlugName}/conf/default-datasource.properties" />
-                <include name="${importerName}-installer.jar"/>
             </patternset>
         </unzip>
 
@@ -155,19 +154,12 @@
         <property name="mySqlDbDriver" location="./${mySqlDriver.jar}"/>
 
         <!-- unzip udk-importer-installer to base-directory used for set up/update of IGC database -->
-        <unzip src="./${importerName}-installer.jar" dest=".">
+        <unzip src="./${iPlugName}/lib/${importerName}.jar" dest=".">
             <patternset>
-                <include name="${importerName}/**/*.*"/>
+                <include name="**/ingrid-igc-schema_102.sql"/>
             </patternset>
         </unzip>
-        <delete file="./${importerName}-installer.jar"/>
-
-        <!-- executable rights are needed under linux! -->
-        <chmod dir="./${importerName}" perm="755" includes="**/*.jar"/>
-        
-        <property name="importerDir" location="./${importerName}"/>
-        <property name="importer.jar" location="${importerDir}/${importerName}-with-dependencies.jar"/>
-        <property name="igcInitialSchema.sql" location="${importerDir}/ingrid-igc-schema_102.sql"/>
+        <property name="igcInitialSchema.sql" location="./ingrid-igc-schema_102.sql"/>
         
     </target>
 
@@ -177,6 +169,19 @@
 
     <target name="StartInstallation" depends="configureProperties">
         <runtarget target="MoveFiles" />
+
+        <if>
+            <equals arg1="${useOracle}" arg2="true" />
+            <then>
+                <property name="myDbDriverClass" value="${oracleDriverClass}"/>
+                <property name="myDbDialect" value="${oracleHibernateDialect}"/>
+            </then>
+            <else>
+                <runtarget target="mysql.CheckDbs" />
+                <property name="myDbDriverClass" value="${mySqlDriverClass}"/>
+                <property name="myDbDialect" value="${mySqlHibernateDialect}"/>
+            </else>
+        </if>
 
         <if>
             <equals arg1="${installProcedure}" arg2="true" />
@@ -204,46 +209,29 @@
     </target>
 
     <target name="configurePlug" if="${installProcedure}">
-    	<echo>Schreibe IGE iBus Konfiguration in communication.xml
-        </echo>
-        
-        <xmlproperty  file="${installDir}/conf/communication.xml" prefix="ipaXML"/>
-        <replace      file="${installDir}/conf/communication.xml" token="${ipaXML.communication.client(name)}"                           value="${clientName}"/>
-        <replace      file="${installDir}/conf/communication.xml" token="${ipaXML.communication.client.connections.server(name)}"        value="/ingrid-group:ige-ibus"/>
-        <replace      file="${installDir}/conf/communication.xml" token="${ipaXML.communication.client.connections.server.socket(ip)}"   value="${serverIp}"/>
-        <replace      file="${installDir}/conf/communication.xml" token="${ipaXML.communication.client.connections.server.socket(port)}" value="${serverPort}"/>
-
-        <echo>Schreiben der DB-Konfiguration in default-datasource.properties
+        <echo>Schreiben der Konfiguration in die config.override.properties
         </echo>
 
-        <if>
-            <equals arg1="${useOracle}" arg2="true" />
-            <then>
-                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_DRIVER_CLASS@" value="${oracleDriverClass}" />
-                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_HIBERNATE_DIALECT@" value="${oracleHibernateDialect}" />
-            </then>
-            <else>
-                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_DRIVER_CLASS@" value="${mySqlDriverClass}" />
-                <replace file="${installDir}/conf/default-datasource.properties" token="@DB_HIBERNATE_DIALECT@" value="${mySqlHibernateDialect}" />
-            </else>
-        </if>
-        <replace file="${installDir}/conf/default-datasource.properties" token="@DB_USER@" value="${_dbUser}" />
-        <replace file="${installDir}/conf/default-datasource.properties" token="@DB_PASSWORD@" value="${_dbPassword}" />
-        <replace file="${installDir}/conf/default-datasource.properties" token="@DB_ALIAS@" value="${_dbUrl}" />
+        <touch file="${config}"/>
+        <propertyfile file="${config}">
+          <entry key="jetty.port" value="${localServerPort}" />
+          <entry key="communications.ige" value="/ingrid-group:ige-ibus,${serverIp},${serverPort}" />
+          <entry key="communications.ige.clientName" value="${clientName}" />
+          <entry key="iplug.database.username" value="${_dbUser}" />
+          <entry key="iplug.database.password" value="${_dbPassword}" />
+          <entry key="iplug.database.url" value="${_dbUrl}" />
+          <entry key="iplug.database.driver" value="${myDbDriverClass}" />
+          <entry key="iplug.database.dialect" value="${myDbDialect}" />
+          <entry key="igc.language" value="${igcLanguage}" />
+          <entry key="igc.email" value="${igcEmail}" />
+          <entry key="igc.partner" value="${igcPartner}" />
+          <entry key="igc.provider" value="${igcProvider}" />
+          <entry key="igc.name" value="${igcName}" />
+          <entry key="igc.country" value="${igcCountry}" />
+        </propertyfile>
     </target>
 
     <target name="runDatabaseStuff">
-        <if>
-            <equals arg1="${useOracle}" arg2="true" />
-            <then>
-                <property name="myDbDriverClass" value="${oracleDriverClass}"/>
-            </then>
-            <else>
-                <runtarget target="mysql.CheckDbs" />
-                <property name="myDbDriverClass" value="${mySqlDriverClass}"/>
-            </else>
-        </if>
-
         <runtarget target="updateIGCDb"/>
     </target>
 
@@ -258,103 +246,24 @@
             </then>
         </if>
 
-        <!-- On Unix the directory of the installer is passed !? We check whether zip present ! -->
-        <echo>Importer UDK Data File from input: ${igcUdkFile}</echo>
-        <condition property="_igcUdkFile" value="${igcUdkFile}" else="">
-            <contains string="${igcUdkFile}" substring=".zip" />
-        </condition>
-        <echo>Importer UDK Data File passed: ${_igcUdkFile}</echo>
-
-        <exec   executable="java"
-                osfamily="unix"
-                dir="${importerDir}"
-                failonerror="true"
-                >
-            <arg value="-Xmx1024M"/>
-            <arg line="-jar"/>
-            <arg value="${importer.jar}"/>
-            <arg value="-c"/>
-            <arg value="${importerDir}/descriptor.properties"/>
-            <!-- database stuff -->
-            <arg value="-u"/>
-            <arg value="${_adminUser}"/>
-            <arg value="-p"/>
-            <arg value="${_adminPassword}"/>
-            <arg value="-dburl"/>
-            <arg value="${_dbUrl}"/>
-            <arg line="-dbdriver ${myDbDriverClass}"/>
-            <!-- catalog stuff -->
-            <arg line="-v ${NEW_IGC_DB_VERSION}"/>
-            <arg value="-l"/>
-            <arg value="${igcLanguage}"/>
-            <arg value="-email"/>
-            <arg value="${igcEmail}"/>
-            <arg value="-partner"/>
-            <arg value="${igcPartner}"/>
-            <arg value="-provider"/>
-            <arg value="${igcProvider}"/>
-            <arg value="-name"/>
-            <arg value="${igcName}"/>
-            <arg value="-country"/>
-            <arg value="${igcCountry}"/>
-            <!-- udk data to import -->
-            <arg value="${_igcUdkFile}"/>
-        </exec>
-        
-        <exec   executable="java"
-                osfamily="windows"
-                dir="${importerDir}"
-                failonerror="true"
-                >
-            <arg value="-Xmx1024M"/>
-            <arg line="-jar"/>
-            <arg value="${importer.jar}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-c"/>
-            <arg value="${importerDir}/descriptor.properties" prefix="&quot;" suffix="&quot;"/>
-            <!-- database stuff -->
-            <arg value="-u"/>
-            <arg value="${_adminUser}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-p"/>
-            <arg value="${_adminPassword}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-dburl"/>
-            <arg value="${_dbUrl}" prefix="&quot;" suffix="&quot;"/>
-            <arg line="-dbdriver ${myDbDriverClass}"/>
-            <!-- catalog stuff -->
-            <arg line="-v ${NEW_IGC_DB_VERSION}"/>
-            <arg value="-l"/>
-            <arg value="${igcLanguage}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-email"/>
-            <arg value="${igcEmail}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-partner"/>
-            <arg value="${igcPartner}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-provider"/>
-            <arg value="${igcProvider}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-name"/>
-            <arg value="${igcName}" prefix="&quot;" suffix="&quot;"/>
-            <arg value="-country"/>
-            <arg value="${igcCountry}" prefix="&quot;" suffix="&quot;"/>
-            <!-- udk data to import -->
-            <arg value="${_igcUdkFile}" prefix="&quot;" suffix="&quot;"/>
-        </exec>
-
         <!-- check for mdek update script and set property if so -->
-        <pathconvert property="v320UpdateScript_written" setonempty="false" pathsep=" ">
+        <!--<pathconvert property="v320UpdateScript_written" setonempty="false" pathsep=" ">
             <path>
                 <fileset dir="${importerDir}" includes="igc3.2.0_UpdateMdek*" />
             </path>
-        </pathconvert>
+        </pathconvert>-->
         <!-- set property for showing message if mdek update script was written and no new IGC -->
-        <condition property="showMdekUpdateMessage" else="false">
+        <!--<condition property="showMdekUpdateMessage" else="false">
             <and>
                 <isset property="v320UpdateScript_written"/>
                 <not>
                     <isset property="igc.db.not.exists"/>
                 </not>
             </and>
-        </condition>
+        </condition>-->
 
         <!-- copy output of updater (SQL Script for update mdek database, logs ...) to installation directory WITH TIMESTAMP PREFIX ! -->
-        <copy todir="${installDir}">
+        <!--<copy todir="${installDir}">
             <fileset dir="${importerDir}">
                 <include name="**/igc3.2.0_UpdateMdek*"/>
                 <include name="**/log.log"/>
@@ -362,18 +271,18 @@
             <globmapper from="*" to="importer_${DSTAMP}${TSTAMP}_*"/>
         </copy>
         <property name="importerLog_name" value="importer_${DSTAMP}${TSTAMP}_log.log"/>
-        <property name="v320UpdateScript_name" value="importer_${DSTAMP}${TSTAMP}_igc3.2.0_UpdateMdek*.sql"/>
+        <property name="v320UpdateScript_name" value="importer_${DSTAMP}${TSTAMP}_igc3.2.0_UpdateMdek*.sql"/>-->
 
         <!-- copy other stuff from importer to installation directory -->
-        <copy todir="${installDir}">
+        <!--<copy todir="${installDir}">
             <fileset dir="${importerDir}">
                 <include name="migration_mysql2oracle/**"/>
             </fileset>
-        </copy>
+        </copy>-->
     </target>
     
     <target name="cleanuptarget">
-        <delete dir="${importerDir}"/>
+        <!--<delete dir="${importerDir}"/>-->
         <!-- Driver still has handle from ant installer, not possible to delete -->
         <!--<delete file="${mySqlDbDriver}"/>-->
         <echo>
