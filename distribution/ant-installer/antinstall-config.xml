@@ -59,6 +59,15 @@
             
             <comment displayText="" explanatoryText="Lokaler Port, unter dem die Administrationsoberfläche des IGE-iPlugs erreichbar sein soll."/>           
             <text property="localServerPort" displayText="Port für Adminoberfläche:" defaultValue="9933"/>
+
+            <comment displayText="" explanatoryText="Welche Daten sollen indexiert werden."/>           
+            <target-select
+                property      ="internetOrIntranet"
+                displayText   ="Internet oder Intranet"
+                defaultValue  ="true">
+                <option value="setInternet" text="Internet"/>
+                <option value="setIntranet" text="Intranet"/>
+            </target-select>
     </page>
 
     <page

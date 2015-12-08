@@ -33,8 +33,8 @@
     <tstamp/>
 
     <!-- =============================================
-    	 = PROPERTIES								 =
-    	 ============================================= -->
+         = PROPERTIES                                =
+         ============================================= -->
     <!-- !!! From pom: the IGC Version the catalog should be updated to (used by udk-importer/updater) !!!!!!!!!! -->
     <!--<property name="NEW_IGC_DB_VERSION" value="${project.version}"/>-->
     <property name="NEW_IGC_DB_VERSION" value="3.6.1"/>
@@ -66,11 +66,11 @@
     <target name="configureProperties">
         <echo>Configure Properties
         </echo>
-    	<property name="_adminUser"     value="${adminUser}" />
-    	<property name="_adminPassword" value="${adminPassword}" />
+        <property name="_adminUser"     value="${adminUser}" />
+        <property name="_adminPassword" value="${adminPassword}" />
         <property name="_dbUser"        value="${dbUser}" />
-    	<property name="_dbPassword"    value="${dbPassword}" />
-    	<property name="_dbUrl"         value="${dbUrl}" />
+        <property name="_dbPassword"    value="${dbPassword}" />
+        <property name="_dbUrl"         value="${dbUrl}" />
     </target>
 
     <target name="configurePropertiesFromFiles">
@@ -96,23 +96,33 @@
     </target>
 
     <target name="setUpdateProperty" depends="checkPreconditionsForUpdate, UnzipInstallerForUpdate, configurePropertiesFromFiles">
-        <property name="updateProcedure" value="true" />
+        <property name="updateProcedure"  value="true" />
         <property name="installProcedure" value="false" />
     </target>
     
     <target name="setInstallProperty" depends="UnzipInstaller">
         <property name="installProcedure" value="true" />
-        <property name="updateProcedure" value="false" />
+        <property name="updateProcedure"  value="false" />
+    </target>
+
+    <target name="setInternet">
+        <!-- do nothing ... is default configuration -->
+    </target>
+
+    <target name="setIntranet">
+        <!-- copy spring files with mapping to override directory -->
+        <copy file="./${iPlugName}/webapp/WEB-INF/presets/intranet_spring-mapper-object.xml"  todir="./${iPlugName}/webapp/WEB-INF/override" />
+        <copy file="./${iPlugName}/webapp/WEB-INF/presets/intranet_spring-mapper-address.xml" todir="./${iPlugName}/webapp/WEB-INF/override" />
     </target>
     
     <target name="setMySqlProperty">
-    	<property name="useMysql" value="true" />
-    	<property name="useOracle" value="false" />
+        <property name="useMysql"  value="true" />
+        <property name="useOracle" value="false" />
     </target>
 
     <target name="setOracleProperty">
-    	<property name="useOracle" value="true" />
-    	<property name="useMysql" value="false" />
+        <property name="useOracle" value="true" />
+        <property name="useMysql"  value="false" />
     </target>
 
     <target name="UnzipInstaller">
@@ -174,12 +184,12 @@
             <equals arg1="${useOracle}" arg2="true" />
             <then>
                 <property name="myDbDriverClass" value="${oracleDriverClass}"/>
-                <property name="myDbDialect" value="${oracleHibernateDialect}"/>
+                <property name="myDbDialect"     value="${oracleHibernateDialect}"/>
             </then>
             <else>
                 <runtarget target="mysql.CheckDbs" />
                 <property name="myDbDriverClass" value="${mySqlDriverClass}"/>
-                <property name="myDbDialect" value="${mySqlHibernateDialect}"/>
+                <property name="myDbDialect"     value="${mySqlHibernateDialect}"/>
             </else>
         </if>
 
@@ -199,13 +209,12 @@
          = WORKER                                    =
          ============================================= -->
     <target name="MoveFiles">
-    	<move toDir="${installDir}">
+        <move toDir="${installDir}">
             <fileset dir="./${iPlugName}"/>
         </move>
         
         <chmod dir="${installDir}" perm="755" includes="**/*.sh"/>
         <mkdir dir="${installDir}/logs"/>
-        <mkdir dir="${installDir}/serializable"/>
     </target>
 
     <target name="configurePlug" if="${installProcedure}">
@@ -246,73 +255,14 @@
             </then>
         </if>
 
-        <!-- check for mdek update script and set property if so -->
-        <!--<pathconvert property="v320UpdateScript_written" setonempty="false" pathsep=" ">
-            <path>
-                <fileset dir="${importerDir}" includes="igc3.2.0_UpdateMdek*" />
-            </path>
-        </pathconvert>-->
-        <!-- set property for showing message if mdek update script was written and no new IGC -->
-        <!--<condition property="showMdekUpdateMessage" else="false">
-            <and>
-                <isset property="v320UpdateScript_written"/>
-                <not>
-                    <isset property="igc.db.not.exists"/>
-                </not>
-            </and>
-        </condition>-->
-
-        <!-- copy output of updater (SQL Script for update mdek database, logs ...) to installation directory WITH TIMESTAMP PREFIX ! -->
-        <!--<copy todir="${installDir}">
-            <fileset dir="${importerDir}">
-                <include name="**/igc3.2.0_UpdateMdek*"/>
-                <include name="**/log.log"/>
-            </fileset>
-            <globmapper from="*" to="importer_${DSTAMP}${TSTAMP}_*"/>
-        </copy>
-        <property name="importerLog_name" value="importer_${DSTAMP}${TSTAMP}_log.log"/>
-        <property name="v320UpdateScript_name" value="importer_${DSTAMP}${TSTAMP}_igc3.2.0_UpdateMdek*.sql"/>-->
-
-        <!-- copy other stuff from importer to installation directory -->
-        <!--<copy todir="${installDir}">
-            <fileset dir="${importerDir}">
-                <include name="migration_mysql2oracle/**"/>
-            </fileset>
-        </copy>-->
     </target>
     
     <target name="cleanuptarget">
-        <!--<delete dir="${importerDir}"/>-->
-        <!-- Driver still has handle from ant installer, not possible to delete -->
-        <!--<delete file="${mySqlDbDriver}"/>-->
         <echo>
 =================
 Weiteres Vorgehen
 =================
 
-        </echo>
-        <if>
-            <equals arg1="${showMdekUpdateMessage}" arg2="true" />
-            <then>
-                <echo>
-==================================
-Der InGrid Katalog (IGC) wurde auf die Version ${NEW_IGC_DB_VERSION} aktualisiert.
-Dabei wurden die Benutzer auf neue Adress-UUIDs abgebildet.
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-BITTE DAS SKRIPT IN ${installDir}
-${v320UpdateScript_name}
-AUF DER MDEK DATENBANK AUSFUEHREN, UM DIE LOGINS AUF DIE NEUEN ADRESS-UUIDS ZU MIGRIEREN.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-Log Datei der Aktualisierung:
-${importerLog_name}
-==================================
-
-                </echo>
-            </then>
-        </if>
-        <echo>
 Gehen Sie ins Verzeichnis:
 ${installDir}
 und rufen Sie von der Kommandozeile "sh start.sh start"

@@ -48,6 +48,7 @@ import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.importer.udk.Importer;
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.mdek.Versioning;
 
 @PropertiesFiles( {"config"} )
@@ -172,6 +173,15 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public DatabaseConnection getDatabaseConnection() {
+        return new DatabaseConnection(
+                this.databaseDriver,
+                this.databaseUrl,
+                this.databaseUsername,
+                this.databasePassword,
+                this.databaseSchema);
     }
 
 }
