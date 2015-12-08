@@ -38,9 +38,8 @@ import org.springframework.stereotype.Component;
 import com.tngtech.configbuilder.ConfigBuilder;
 
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.importer.udk.Importer;
-import de.ingrid.iplug.dsc.Configuration;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
+import de.ingrid.mdek.job.Configuration;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
@@ -187,7 +186,7 @@ public class MdekServer {
         }
         
         // read configuration
-        conf = new ConfigBuilder<de.ingrid.mdek.job.Configuration>(de.ingrid.mdek.job.Configuration.class).build();
+        conf = new ConfigBuilder<Configuration>(Configuration.class).build();
         // start the Webserver for admin-page and iplug initialization for search and index
         // this also initializes all spring services and does autowiring
         new JettyStarter( conf );

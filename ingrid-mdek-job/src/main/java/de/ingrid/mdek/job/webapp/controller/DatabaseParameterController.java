@@ -55,18 +55,12 @@ public class DatabaseParameterController extends AbstractController {
         _validator = validator;
     }
 
-    @RequestMapping(value = { "/iplug-pages/welcome.html",
-            "/iplug-pages/dbParams.html" }, method = RequestMethod.GET)
+    @RequestMapping(value = { "/iplug-pages/welcome.html", "/iplug-pages/dbParams.html" }, method = RequestMethod.GET)
     public String getParameters(
             final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) {
 
-        DatabaseConnection dbConfig = (DatabaseConnection) commandObject
-                .getConnection();
-        // if no connection could be found, create a dummy object
-        if (dbConfig == null) {
-            dbConfig = new DatabaseConnection();
-        }
+        DatabaseConnection dbConfig = MdekServer.conf.getDatabaseConnection();
 
         // write object into session
         modelMap.addAttribute("dbConfig", dbConfig);
@@ -95,8 +89,7 @@ public class DatabaseParameterController extends AbstractController {
         return AdminViews.SAVE;
     }
 
-    private void mapParamsToPD(DatabaseConnection commandObject,
-            PlugdescriptionCommandObject pdCommandObject) {
+    private void mapParamsToPD(DatabaseConnection commandObject, PlugdescriptionCommandObject pdCommandObject) {
 
         pdCommandObject.setConnection(commandObject);
 
