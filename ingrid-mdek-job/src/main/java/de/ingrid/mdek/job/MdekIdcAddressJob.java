@@ -29,10 +29,14 @@ import java.util.List;
 import java.util.Stack;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -63,10 +67,15 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
+import de.ingrid.mdek.services.utils.MdekRecordUtils;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.IngridHit;
+import de.ingrid.utils.dsc.Record;
+import de.ingrid.utils.tool.XsltUtils;
+import de.ingrid.utils.xml.XMLUtils;
 
 /**
  * Encapsulates all Job functionality concerning ADDRESSES. 
@@ -85,7 +94,15 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 
-    private List<DscDocumentProducer> docProducer;
+	private XsltUtils xsltUtils;
+
+	@Autowired
+	@Qualifier("dscDocumentProducerAddress")
+	private DscDocumentProducer docProducer;
+    
+    @Autowired
+    @Qualifier("dscRecordCreatorAddress")
+    private DscRecordCreator dscRecordProducer;
 
     private IndexManager indexManager;
 
@@ -93,7 +110,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService,
-            List<DscDocumentProducer> docProducer,
             IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
@@ -108,7 +124,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		this.indexManager = indexManager;
-        this.docProducer = docProducer;
+        
+        xsltUtils = new XsltUtils();
 	}
 
 	public IngridDocument getTopAddresses(IngridDocument params) {
@@ -785,15 +802,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				}
 			}
 			
-			for (DscDocumentProducer producer : docProducer) {
-                ElasticDocument doc = null;
-                doc = producer.getById( result.get( "id" ).toString(), "id" );
-                if (doc != null && !doc.isEmpty()) {
-                    indexManager.addBasicFields( doc );
-                    indexManager.update( producer.getIndexInfo(), doc );
-                    indexManager.flush();
-                    break;
-                }
+            ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
+            if (doc != null && !doc.isEmpty()) {
+                indexManager.addBasicFields( doc );
+                indexManager.update( docProducer.getIndexInfo(), doc );
+                indexManager.flush();
             }
 			
 			return result;
@@ -1042,10 +1055,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			
 			// only remove from index if object was really removed and not just marked
             if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-                // TODO: find a way to just delete from the right index/type or from all at once
-                for (DscDocumentProducer producer : docProducer) {
-                    indexManager.delete( producer.getIndexInfo(), uuid );
-                }
+                indexManager.delete( docProducer.getIndexInfo(), uuid );
                 indexManager.flush();
             }
 
@@ -1100,6 +1110,40 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		    throw handledExc;
 		}
 	}
+	
+	/**
+     * Generate the IDF of the requested document.
+     * @param id is the ID of the document to be transformed
+     * @returns the document as XML
+     */
+    public IngridDocument getIsoXml(IngridDocument doc) {
+        String id = doc.getString( MdekKeys.UUID );
+        IngridDocument resultDoc = new IngridDocument();
+        final IngridHit hit = new IngridHit();
+        hit.setDocumentId( id );
+        Record record = null;
+        try {
+            daoAddressNode.beginTransaction();
+            Long objId = daoAddressNode.loadByUuid( id, null ).getAddrId();
+            ElasticDocument elasticDocument = new ElasticDocument();
+            elasticDocument.put( "t02_address.id", objId );
+            record = dscRecordProducer.getRecord( elasticDocument );
+            
+            //record = recordLoader.getRecord( hit );
+            Document nodeDoc = MdekRecordUtils.convertRecordToDocument( record );
+            String isoDocAsString = null;
+            if (nodeDoc != null) {
+                Node isoDoc = xsltUtils.transform(nodeDoc, MdekRecordUtils.XSL_IDF_TO_ISO_FULL);
+                isoDocAsString = XMLUtils.toString( (Document) isoDoc );
+            }
+            resultDoc.put( "record", isoDocAsString );
+        } catch (Exception e) {
+            log.error( "Could not get record with ID: " + id, e );
+        } finally {
+            daoAddressNode.commitTransaction();
+        }
+        return resultDoc;
+    }
 
 	/**
 	 * Creates a copy of the given AddressNode and adds it under the given parent.

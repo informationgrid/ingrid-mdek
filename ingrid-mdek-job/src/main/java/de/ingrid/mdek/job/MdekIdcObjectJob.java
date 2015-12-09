@@ -29,10 +29,14 @@ import java.util.Stack;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
@@ -62,10 +66,16 @@ import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
+import de.ingrid.mdek.services.utils.MdekRecordUtils;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
 import de.ingrid.utils.ElasticDocument;
+import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.IngridHit;
+import de.ingrid.utils.dsc.Record;
+import de.ingrid.utils.tool.XsltUtils;
+import de.ingrid.utils.xml.XMLUtils;
 
 /**
  * Encapsulates all Job functionality concerning OBJECTS. 
@@ -73,7 +83,7 @@ import de.ingrid.utils.IngridDocument;
 @Service
 public class MdekIdcObjectJob extends MdekIdcJob {
 
-	private MdekCatalogService catalogService;
+    private MdekCatalogService catalogService;
 	private MdekObjectService objectService;
 
 	private MdekPermissionHandler permissionHandler;
@@ -85,13 +95,25 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
     private IndexManager indexManager;
-    private List<DscDocumentProducer> docProducer;
+    
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private DscDocumentProducer docProducer;
+    
+    @Autowired
+    @Qualifier("dscRecordCreator")
+    private DscRecordCreator dscRecordProducer;
+    
+    @Autowired
+    @Qualifier("ige")
+    private IRecordLoader recordLoader;
+    
+    private XsltUtils xsltUtils;
 
 	@Autowired
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService,
-			List<DscDocumentProducer> docProducer,
 			IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
@@ -106,9 +128,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
 		this.indexManager = indexManager;
-		this.docProducer = docProducer;
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
+		
+		xsltUtils = new XsltUtils();
 	}
 
 	public IngridDocument getTopObjects(IngridDocument params) {
@@ -727,16 +750,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				}
 			}
 			
-			for (DscDocumentProducer producer : docProducer) {
-			    ElasticDocument doc = null;
-			    doc = producer.getById( result.get( "id" ).toString(), "id" );
-			    if (doc != null && !doc.isEmpty()) {
-			        indexManager.addBasicFields( doc );
-			        indexManager.update( producer.getIndexInfo(), doc );
-			        indexManager.flush();
-			        break;
-			    }
-            }
+		    ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
+		    if (doc != null && !doc.isEmpty()) {
+		        indexManager.addBasicFields( doc );
+		        indexManager.update( docProducer.getIndexInfo(), doc );
+		        indexManager.flush();
+		    }
 			
 			return result;
 
@@ -810,10 +829,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			
 			// only remove from index if object was really removed and not just marked
 			if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-			    // TODO: find a way to just delete from the right index/type or from all at once
-			    for (DscDocumentProducer producer : docProducer) {
-                    indexManager.delete( producer.getIndexInfo(), uuid );
-	            }
+                indexManager.delete( docProducer.getIndexInfo(), uuid );
 			    indexManager.flush();
 			}
 
@@ -1009,7 +1025,41 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 		}
 	}
-
+	
+	/**
+	 * Generate the IDF of the requested document.
+	 * @param id is the ID of the document to be transformed
+	 * @returns the document as XML
+	 */
+	public IngridDocument getIsoXml(IngridDocument doc) {
+	    String id = doc.getString( MdekKeys.UUID );
+	    IngridDocument resultDoc = new IngridDocument();
+	    final IngridHit hit = new IngridHit();
+        hit.setDocumentId( id );
+	    Record record = null;
+        try {
+            daoObjectNode.beginTransaction();
+            Long objId = objectService.loadByUuid( id, null ).getObjId();
+            ElasticDocument elasticDocument = new ElasticDocument();
+            elasticDocument.put( "t01_object.id", objId );
+            record = dscRecordProducer.getRecord( elasticDocument );
+            
+            //record = recordLoader.getRecord( hit );
+            Document nodeDoc = MdekRecordUtils.convertRecordToDocument( record );
+            String isoDocAsString = null;
+            if (nodeDoc != null) {
+                Node isoDoc = xsltUtils.transform(nodeDoc, MdekRecordUtils.XSL_IDF_TO_ISO_FULL);
+                isoDocAsString = XMLUtils.toString( (Document) isoDoc );
+            }
+            resultDoc.put( "record", isoDocAsString );
+        } catch (Exception e) {
+            log.error( "Could not get record with ID: " + id, e );
+        } finally {
+            daoObjectNode.commitTransaction();
+        }
+	    return resultDoc;
+	}
+	
 	/**
 	 * Creates a copy of the given ObjectNode and adds it under the given parent.
 	 * Copies ONLY working version and IGNORES published version !

@@ -23,11 +23,11 @@
 package de.ingrid.mdek.job;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.elasticsearch.IndexImpl;
@@ -46,12 +46,18 @@ import de.ingrid.utils.processor.IPostProcessor;
 import de.ingrid.utils.processor.IPreProcessor;
 import de.ingrid.utils.query.IngridQuery;
 
-@Service
+@Service("ige")
 public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     
     private static Log log = LogFactory.getLog(IgeSearchPlug.class);
     
-    private List<DscRecordCreator> dscRecordProducer = null;
+    @Autowired
+    @Qualifier("dscRecordCreator")
+    private DscRecordCreator dscRecordProducerObject = null;
+    
+    @Autowired
+    @Qualifier("dscRecordCreatorAddress")
+    private DscRecordCreator dscRecordProducerAddress = null;
     
     private final IndexImpl _indexSearcher; 
 
@@ -59,11 +65,10 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     public IgeSearchPlug(final IndexImpl indexSearcher,
             IPlugdescriptionFieldFilter[] fieldFilters,
             IMetadataInjector[] injector, IPreProcessor[] preProcessors,
-            IPostProcessor[] postProcessors, List<DscRecordCreator> recCreator) throws IOException {
+            IPostProcessor[] postProcessors) throws IOException {
         super(60000, new PlugDescriptionFieldFilters(fieldFilters), injector,
                 preProcessors, postProcessors);
         _indexSearcher = indexSearcher;
-        dscRecordProducer = recCreator;
     }
 
     /* (non-Javadoc)
@@ -90,9 +95,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         // TODO: choose between different mapping types
         if (document != null) {
             if (document.get( "t01_object.id" ) != null) {
-                return dscRecordProducer.get( 0 ).getRecord(document);
+                return dscRecordProducerObject.getRecord(document);
             } else {
-                return dscRecordProducer.get( 1 ).getRecord(document);
+                return dscRecordProducerAddress.getRecord(document);
             }
         }
         return null;
@@ -126,12 +131,4 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         return details;
     }
     
-    public List<DscRecordCreator> getDscRecordProducer() {
-        return dscRecordProducer;
-    }
-
-    public void setDscRecordProducer(List<DscRecordCreator> dscRecordProducer) {
-        this.dscRecordProducer = dscRecordProducer;
-    }
-
 }
