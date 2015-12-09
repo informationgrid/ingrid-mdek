@@ -281,4 +281,14 @@ public class MdekCallerObject extends MdekCaller implements IMdekCallerObject {
 
 		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
 	}
+
+    @Override
+    public IngridDocument getIsoXml(String plugId, String uuid, String userId) {
+        IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.UUID, uuid);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        List jobMethods = setUpJobMethod("getIsoXml", jobParams);
+
+        return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+    }
 }
