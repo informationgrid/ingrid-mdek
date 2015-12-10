@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -60,6 +62,7 @@ import de.ingrid.mdek.services.persistence.hdd.HddPersistenceService;
  * @author Administrator
  * 
  */
+@Service
 public class DefaultPermissionService implements IPermissionService {
 
 	private static final Logger LOG = Logger.getLogger(HddPersistenceService.class);
@@ -74,6 +77,7 @@ public class DefaultPermissionService implements IPermissionService {
 	protected IObjectNodeDao objectNodeDao;
 	protected IAddressNodeDao addressNodeDao;
 
+	@Autowired
 	public DefaultPermissionService(DaoFactory daoFactory) {
 		permissionDao = daoFactory.getPermissionDao();
 		permissionObjDao = daoFactory.getDao(PermissionObj.class);

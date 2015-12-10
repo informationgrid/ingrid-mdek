@@ -30,61 +30,93 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.weta.components.communication.ICommunication;
-import net.weta.components.communication.reflect.ProxyService;
-import net.weta.components.communication.tcp.StartCommunication;
-import net.weta.components.communication.tcp.TcpCommunication;
+import javax.annotation.PostConstruct;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import com.tngtech.configbuilder.ConfigBuilder;
+
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
+import de.ingrid.mdek.job.Configuration;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
+import net.weta.components.communication.ICommunication;
+import net.weta.components.communication.reflect.ProxyService;
+import net.weta.components.communication.tcp.StartCommunication;
+import net.weta.components.communication.tcp.TcpCommunication;
 
-public class MdekServer implements IMdekServer {
+@Component
+public class MdekServer {
 
     private static int _intervall = 30;
 
-    private final File _communicationProperties;
-
+    private static File _communicationProperties = null;
+ 
     private final IJobRepositoryFacade _jobRepositoryFacade;
 
     private ICommunication _communication;
     
-    private volatile boolean _shutdown = false;
+    private static volatile boolean _shutdown = false;
 
-    public MdekServer(File communicationProperties, IJobRepositoryFacade jobRepositoryFacade) {
-        _communicationProperties = communicationProperties;
+    public static Configuration conf;
+
+
+    @Autowired
+    public MdekServer(IJobRepositoryFacade jobRepositoryFacade) throws IOException {
         _jobRepositoryFacade = jobRepositoryFacade;
-
+        IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
+        _communicationProperties = new File("conf/communication-ige.xml");
+        // check response, throws Exception if wrong version !
+        checkResponse(response);
+    }
+    
+    @PostConstruct
+    public Thread runBackend() throws IOException {
+        Thread thread = new CommunicationThread();
+        thread.start();
+        return thread;
+    }
+    
+    // constructor used for tests
+    public MdekServer(File communication, IJobRepositoryFacade jobRepositoryFacade) throws IOException {
+        _communicationProperties = communication;
+        _jobRepositoryFacade = jobRepositoryFacade;
     }
 
-    public void run() throws IOException {
-        _communication = initCommunication(_communicationProperties);
-        ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-        waitForConnection(_intervall);
-        while (!_shutdown) {
-            if (_communication instanceof TcpCommunication) {
-                TcpCommunication tcpCom = (TcpCommunication) _communication;
-                if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
-                    closeConnections();
-                    _communication = initCommunication(_communicationProperties);
-                    ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
-                    waitForConnection(_intervall);
-                }
-
-                synchronized (MdekServer.class) {
-                    try {
-                        MdekServer.class.wait(10000);
-                    } catch (InterruptedException e) {
-                        closeConnections();
-                        throw new IOException(e.getMessage());
+    private class CommunicationThread extends Thread {
+        public void run() {
+            try {
+                _communication = initCommunication(_communicationProperties);
+            
+                ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
+                waitForConnection(_intervall);
+                while (!_shutdown) {
+                    if (_communication instanceof TcpCommunication) {
+                        TcpCommunication tcpCom = (TcpCommunication) _communication;
+                        if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
+                            closeConnections();
+                            _communication = initCommunication(_communicationProperties);
+                            ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
+                            waitForConnection(_intervall);
+                        }
+            
+                        synchronized (MdekServer.class) {
+                            try {
+                                MdekServer.class.wait(10000);
+                            } catch (InterruptedException e) {
+                                closeConnections();
+                                throw new IOException(e.getMessage());
+                            }
+                        }
                     }
                 }
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
     }
@@ -106,7 +138,7 @@ public class MdekServer implements IMdekServer {
         }        
     }
 
-    public void shutdown() {
+    public static void shutdown() {
         _shutdown = true;
         synchronized (MdekServer.class) {
             MdekServer.class.notifyAll();
@@ -115,9 +147,9 @@ public class MdekServer implements IMdekServer {
 
     private void closeConnections() {
         try {
-            List registeredMdekServers = getRegisteredMdekServers();
-            for (Object mdekServerName : registeredMdekServers) {
-                _communication.closeConnection((String) mdekServerName);
+            List<String> registeredMdekServers = getRegisteredMdekServers();
+            for (String mdekServerName : registeredMdekServers) {
+                _communication.closeConnection(mdekServerName);
             }
         } catch (Exception e) {
             // ignore this
@@ -134,7 +166,7 @@ public class MdekServer implements IMdekServer {
         return communication;
     }
 
-    private static Map readParameters(String[] args) {
+    private static Map<String, String> readParameters(String[] args) {
         Map<String, String> argumentMap = new HashMap<String, String>();
         for (int i = 0; i < args.length; i = i + 2) {
             argumentMap.put(args[i], args[i + 1]);
@@ -147,32 +179,38 @@ public class MdekServer implements IMdekServer {
         System.exit(0);
     }
 
-    public static void main(String[] args) throws IOException {
-        Map map = readParameters(args);
+    public static void main(String[] args) throws Exception {
+        Map<String, String> map = readParameters(args);
         if (map.size() < 1 || map.size() > 2) {
             printUsage();
         }
-
+        
+        // read configuration
+        conf = new ConfigBuilder<Configuration>(Configuration.class).build();
+        // start the Webserver for admin-page and iplug initialization for search and index
+        // this also initializes all spring services and does autowiring
+        new JettyStarter( conf );
+        
         String communicationFile = (String) map.get("--descriptor");
+        _communicationProperties = new File(communicationFile);
         
         if (map.containsKey("--reconnectIntervall")) {
             String intervall = (String) map.get("--reconnectIntervall");
             _intervall = Integer.parseInt(intervall);
         }
         
-
-        ApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "startup.xml" });
-        IJobRepositoryFacade jobRepositoryFacade = (IJobRepositoryFacade) context.getBean(IJobRepositoryFacade.class
-                .getName());
-        MdekServer server = new MdekServer(new File(communicationFile), jobRepositoryFacade);
         
-        // call job checking Version of IGC in database !
-        IngridDocument response = callJob(jobRepositoryFacade,
-        	MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
-        // check response, throws Exception if wrong version !
-        checkResponse(response);
-
-        server.run();
+        
+        // shutdown the server normally
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try {
+                    shutdown();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private List<String> getRegisteredMdekServers() {
@@ -192,10 +230,8 @@ public class MdekServer implements IMdekServer {
 		IngridDocument invokeDocument = new IngridDocument();
 		invokeDocument.put(IJobRepository.JOB_ID, jobId);
 		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
-//		invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true);
 
 		IngridDocument response = jobRepo.execute(invokeDocument);
-		
 		return response;
 	}
 
@@ -221,7 +257,7 @@ public class MdekServer implements IMdekServer {
 				}
 			}
 			
-			throw new MdekException(retMsg);
+			System.exit( -1 );
 		}
 	}
 }
