@@ -805,7 +805,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
             ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
             if (doc != null && !doc.isEmpty()) {
                 indexManager.addBasicFields( doc );
-                indexManager.update( docProducer.getIndexInfo(), doc );
+                indexManager.update( docProducer.getIndexInfo(), doc, true );
                 indexManager.flush();
             }
 			
@@ -1055,7 +1055,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			
 			// only remove from index if object was really removed and not just marked
             if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-                indexManager.delete( docProducer.getIndexInfo(), uuid );
+                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
                 indexManager.flush();
             }
 
