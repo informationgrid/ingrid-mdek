@@ -43,6 +43,7 @@
     <release version="3.6.1.1" date="2015-12-03" description="Bugfix Release InGrid 3.6.1.1">
       <action type="fix" dev="wemove" issue="REDMINE-225">
         Add new field "Nutzungsbeschränkungen" to profile to appear in "additional fields".
+      </action>
     </release>
     
     <release version="3.6.1" date="2015-11-19" description="Release InGrid 3.6.1">
