@@ -33,8 +33,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.weta.components.communication.tcp.TimeoutException;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,23 +49,14 @@ public class MdekClientTest {
     public void testShutdown() throws Exception {
         MdekServer temp = null;
         try {
-            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-server.properties").toURI()),
-                    new JobRepositoryFacade(null));
+            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-server.properties").toURI()), new JobRepositoryFacade(null));
         } catch (URISyntaxException e1) {
             Assert.fail();
         }
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
-        Thread server = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    mdekServer.run();
-                } catch (IOException e1) {
-                    Assert.fail();
-                }
-            }
-        });
-        server.start();
+        Thread server = mdekServer.runBackend();
+
         try {
             Thread.sleep(6000);
             new Socket("localhost", 56561);
@@ -94,9 +83,8 @@ public class MdekClientTest {
         Assert.assertNotNull(mdekClient);
         IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade("message-server");
         Assert.assertNotNull(jobRepositoryFacade);
-        mdekClient.shutdown();
 
-        temp.shutdown();
+        MdekServer.shutdown();
         Thread.sleep(6000);
     }
 
@@ -119,7 +107,7 @@ public class MdekClientTest {
         Thread server = new Thread(new Runnable() {
             public void run() {
                 try {
-                    mdekServer.run();
+                    mdekServer.runBackend();
                 } catch (IOException e1) {
                     // ignore
                 }
@@ -137,7 +125,7 @@ public class MdekClientTest {
         Assert.assertNotNull(jobRepositoryFacade);
         mdekClient.shutdown();
 
-        temp.shutdown();
+        MdekServer.shutdown();
         Thread.sleep(6000);
     }
 
@@ -159,16 +147,7 @@ public class MdekClientTest {
                 new JobRepositoryFacade(null));
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
-        Thread server = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    mdekServer.run();
-                } catch (IOException e1) {
-                    // ignore
-                }
-            }
-        });
-        server.start();
+        Thread server = mdekServer.runBackend();
         Thread.sleep(15000);
 
         mdekClient.shutdown();
@@ -178,7 +157,7 @@ public class MdekClientTest {
 
         Thread.sleep(10000);
 
-        temp.shutdown();
+        MdekServer.shutdown();
         Thread.sleep(6000);
     }
 
@@ -188,16 +167,7 @@ public class MdekClientTest {
                 new JobRepositoryFacade(null));
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
-        Thread server = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    mdekServer.run();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        });
-        server.start();
+        Thread server = mdekServer.runBackend();
         Thread.sleep(15000);
 
         MdekClient mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
@@ -226,7 +196,7 @@ public class MdekClientTest {
         mdekClient.shutdown();
         Thread.sleep(6000);
 
-        temp.shutdown();
+        MdekServer.shutdown();
         Thread.sleep(6000);
     }
 
@@ -236,16 +206,7 @@ public class MdekClientTest {
                 "/communication-server_WithSmallMessageSize.properties").toURI()), new JobRepositoryFacade(null));
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
-        Thread server = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    mdekServer.run();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        });
-        server.start();
+        Thread server = mdekServer.runBackend();
         Thread.sleep(15000);
 
         MdekClient mdekClient = null;

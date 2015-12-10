@@ -52,6 +52,24 @@
     </page>
 
     <page
+            ifTarget    ="setInstallProperty"
+            type        ="input"
+            name        ="componentOptions"
+            displayText ="Einstellungen fuer das iPlug-IGE">
+            
+            <comment displayText="" explanatoryText="Lokaler Port, unter dem die Administrationsoberfläche des IGE-iPlugs erreichbar sein soll."/>           
+            <text property="localServerPort" displayText="Port für Adminoberfläche:" defaultValue="9933"/>
+
+            <target-select
+                property      ="internetOrIntranet"
+                displayText   ="Indexierung der Daten"
+                defaultValue  ="true">
+                <option value="setInternet" text="Internet"/>
+                <option value="setIntranet" text="Intranet"/>
+            </target-select>
+    </page>
+
+    <page
             ifProperty  ="${updateOrNew}==setInstallProperty"
             type        ="input"
             name        ="database"
@@ -120,12 +138,7 @@
         <text property="igcPartner" displayText="Name des Partners:" defaultValue="Partner Name"/>
         <text property="igcProvider" displayText="Name des Anbieters:" defaultValue="Anbieter Name"/>
         <text property="igcCountry" displayText="Ländercode (ISO 3166 2 letter):" defaultValue="de"/>
-        <file
-                property        ="igcUdkFile"
-                defaultValue    =""
-                defaultValueWin =""
-                displayText     ="Optional: Import UDK Daten (zip):"
-                checkExists     ="false"/>
+        
     </page>
 
     <page

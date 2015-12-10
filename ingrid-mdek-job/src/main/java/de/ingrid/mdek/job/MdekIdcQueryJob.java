@@ -25,6 +25,9 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.log.ILogService;
@@ -42,6 +45,7 @@ import de.ingrid.utils.IngridDocument;
 /**
  * Encapsulates all Job functionality concerning QUERYING (inquiry of entities). 
  */
+@Service
 public class MdekIdcQueryJob extends MdekIdcJob {
 
 	private IAddressNodeDao daoAddressNode;
@@ -51,6 +55,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	/** Generic dao for class unspecific operations !!! */
 	private IGenericDao<IEntity> dao;
 
+	@Autowired
 	public MdekIdcQueryJob(ILogService logService,
 			DaoFactory daoFactory) {
 		super(logService.getLogger(MdekIdcQueryJob.class), daoFactory);

@@ -32,10 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
@@ -56,9 +52,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
@@ -90,6 +84,9 @@ import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * Encapsulates access to catalog data (syslists etc.).
@@ -112,9 +109,7 @@ public class MdekCatalogService {
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
 	private ISearchtermValueDao daoSearchtermValue;
-	private ISearchtermSnsDao daoSearchtermSns;
 	private ISpatialRefValueDao daoSpatialRefValue;
-	private ISpatialRefSnsDao daoSpatialRefSns;
 	private IGenericDao<IEntity> dao;
 
 	private MdekJobHandler jobHandler;
@@ -143,9 +138,7 @@ public class MdekCatalogService {
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
-		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
-		daoSpatialRefSns = daoFactory.getSpatialRefSnsDao();
 		dao = daoFactory.getDao(IEntity.class);
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
@@ -154,8 +147,7 @@ public class MdekCatalogService {
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 
 		URL url = getClass().getResource(CACHE_CONFIG_FILE);
-		CacheManager.create(url);
-		cacheManager = CacheManager.getInstance();
+		cacheManager = new CacheManager(url);
 		syslistMapCache = cacheManager.getCache(CACHE_SYS_LIST_MAP);
 		catalogCache = cacheManager.getCache(CACHE_CATALOG);
 	}
@@ -390,7 +382,8 @@ public class MdekCatalogService {
 
 		// process all objects
 		for (T01Object obj : objs) {
-			Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
+			@SuppressWarnings("unchecked")
+            Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
 
 			// then process associations
 			List<T012ObjAdr> objAdrsToRemove = new ArrayList<T012ObjAdr>();

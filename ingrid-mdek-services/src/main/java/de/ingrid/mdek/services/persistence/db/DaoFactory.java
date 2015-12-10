@@ -26,6 +26,8 @@
 package de.ingrid.mdek.services.persistence.db;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
@@ -118,10 +120,12 @@ import de.ingrid.mdek.services.persistence.db.model.T021Communication;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 
+@Service
 public class DaoFactory implements IDaoFactory {
 
     private final SessionFactory _sessionFactory;
 
+    @Autowired
     DaoFactory(SessionFactory sessionFactory) {
         _sessionFactory = sessionFactory;
     }
