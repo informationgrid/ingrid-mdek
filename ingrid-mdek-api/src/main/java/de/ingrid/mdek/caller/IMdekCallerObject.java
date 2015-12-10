@@ -281,5 +281,5 @@ public interface IMdekCallerObject extends IMdekCaller {
 	 * @param userId the id of the user who executes this command
 	 * @returns the xml representation of the given document
 	 */
-	IngridDocument getIsoXml(String plugId, String uuid, String userId);
+	IngridDocument getIsoXml(String plugId, String uuid, IdcEntityVersion version, String userId);
 }

@@ -1033,13 +1033,20 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	 */
 	public IngridDocument getIsoXml(IngridDocument doc) {
 	    String id = doc.getString( MdekKeys.UUID );
+	    IdcEntityVersion version = (IdcEntityVersion) doc.get( MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION );
 	    IngridDocument resultDoc = new IngridDocument();
 	    final IngridHit hit = new IngridHit();
         hit.setDocumentId( id );
 	    Record record = null;
         try {
             daoObjectNode.beginTransaction();
-            Long objId = objectService.loadByUuid( id, null ).getObjId();
+            ObjectNode objNode = objectService.loadByUuid( id, null );
+            Long objId = null;
+            if (version == IdcEntityVersion.WORKING_VERSION) {
+                objId = objNode.getObjId();
+            } else {
+                objId = objNode.getObjIdPublished();
+            }
             ElasticDocument elasticDocument = new ElasticDocument();
             elasticDocument.put( "t01_object.id", objId );
             record = dscRecordProducer.getRecord( elasticDocument );
