@@ -340,9 +340,10 @@ public class MdekCallerAddress extends MdekCaller implements IMdekCallerAddress 
 	}
 
     @Override
-    public IngridDocument getIsoXml(String plugId, String uuid, String userId) {
+    public IngridDocument getIsoXml(String plugId, String uuid, IdcEntityVersion version, String userId) {
         IngridDocument jobParams = new IngridDocument();
         jobParams.put(MdekKeys.UUID, uuid);
+        jobParams.put(MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION, version);
         jobParams.put(MdekKeys.USER_ID, userId);
         List jobMethods = setUpJobMethod("getIsoXml", jobParams);
 
