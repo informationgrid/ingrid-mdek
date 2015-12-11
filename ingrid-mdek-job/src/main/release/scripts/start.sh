@@ -185,7 +185,7 @@ startIplug()
   fi
 
   export CLASSPATH="$CLASSPATH"
-  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME"
+  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -XX:MaxPermSize=128M"
   CLASS=de.ingrid.mdek.MdekServer
 
   # run it
