@@ -30,23 +30,41 @@ import de.ingrid.utils.query.IngridQuery;
 @Service
 public class IndexTypePreProcessor implements IPreProcessor {
     
-    enum Type { OBJECT, ADDRESS };
+    enum Type { OBJECT, ADDRESS, ALL };
 
     @Override
     public void process(IngridQuery query) throws Exception {
         System.out.print( query.getPositiveDataTypes() );
         String[] types = query.getPositiveDataTypes();
-        Type t = Type.OBJECT;
+        Type selectedType = Type.OBJECT;
+        
+        // look for an address datatype -> only look for addresses
         for (String type : types) {
             if ("address".equals( type ) || "dsc_ecs_address".equals( type )) {
-                t = Type.ADDRESS;
+                selectedType = Type.ADDRESS;
                 break;
             }
         }
-        if (Type.OBJECT == t) {
+        
+        if (types.length == 0) {
+            selectedType = Type.ALL;
+        } else if(selectedType == Type.ADDRESS) {
+            // also check if other datatypes for objects are contained, so that we search in all indices
+            for (String type : types) {
+                if ("default".equals( type ) || "dsc_ecs".equals( type ) || "fis".equals( type ) || "metadata".equals( type ) || "topics".equals( type )) {
+                    selectedType = Type.ALL;
+                    break;
+                }
+            }
+        }
+        
+        // if no datatype is given
+        if (Type.OBJECT == selectedType) {
             query.setArray( "searchInInstances", new String[] { "object" } );
-        } else {
+        } else if (Type.ADDRESS == selectedType) {
             query.setArray( "searchInInstances", new String[] { "address" } );
+        } else {
+            // do nothing and search in all indices
         }
         
     }
