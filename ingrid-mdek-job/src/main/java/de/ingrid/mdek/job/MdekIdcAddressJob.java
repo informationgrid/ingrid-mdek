@@ -1118,15 +1118,22 @@ public class MdekIdcAddressJob extends MdekIdcJob {
      */
     public IngridDocument getIsoXml(IngridDocument doc) {
         String id = doc.getString( MdekKeys.UUID );
+        IdcEntityVersion version = (IdcEntityVersion) doc.get( MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION );
         IngridDocument resultDoc = new IngridDocument();
         final IngridHit hit = new IngridHit();
         hit.setDocumentId( id );
         Record record = null;
         try {
             daoAddressNode.beginTransaction();
-            Long objId = daoAddressNode.loadByUuid( id, null ).getAddrId();
+            AddressNode addrNode = daoAddressNode.loadByUuid( id, null );
+            Long addrId = null;
+            if (version == IdcEntityVersion.WORKING_VERSION) {
+                addrId = addrNode.getAddrId();
+            } else {
+                addrId = addrNode.getAddrIdPublished();
+            }
             ElasticDocument elasticDocument = new ElasticDocument();
-            elasticDocument.put( "t02_address.id", objId );
+            elasticDocument.put( "t02_address.id", addrId );
             record = dscRecordProducer.getRecord( elasticDocument );
             
             //record = recordLoader.getRecord( hit );
