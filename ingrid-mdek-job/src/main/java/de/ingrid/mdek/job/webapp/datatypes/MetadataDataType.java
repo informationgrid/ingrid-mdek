@@ -31,7 +31,7 @@ public class MetadataDataType extends AbstractDataType {
 
     public MetadataDataType() {
         super("metadata");
-        setForceActive( true );
+        //setForceActive( true );
     }
 
 }

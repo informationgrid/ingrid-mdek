@@ -31,7 +31,7 @@ public class IgcAdressDataType extends AbstractDataType {
 
     public IgcAdressDataType() {
         super("address");
-        setForceActive( true );
+        //setForceActive( true );
     }
 
 }

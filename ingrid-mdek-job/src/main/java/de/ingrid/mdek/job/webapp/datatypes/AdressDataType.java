@@ -30,8 +30,8 @@ import de.ingrid.admin.object.AbstractDataType;
 public class AdressDataType extends AbstractDataType {
 
     public AdressDataType() {
-        super("dsc_ecs_address", true);
-        setForceActive( true );
+        super("dsc_ecs_address");
+        //setForceActive( true );
     }
 
 }

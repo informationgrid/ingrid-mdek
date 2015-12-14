@@ -30,8 +30,8 @@ import de.ingrid.admin.object.AbstractDataType;
 public class DefaultDataType extends AbstractDataType {
 
     public DefaultDataType() {
-        super("default", true);
-        setForceActive( true );
+        super("default");
+        //setForceActive( true );
     }
 
 }
