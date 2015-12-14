@@ -804,7 +804,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			
             ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
             if (doc != null && !doc.isEmpty()) {
-                indexManager.addBasicFields( doc );
+                indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
                 indexManager.update( docProducer.getIndexInfo(), doc, true );
                 indexManager.flush();
             }

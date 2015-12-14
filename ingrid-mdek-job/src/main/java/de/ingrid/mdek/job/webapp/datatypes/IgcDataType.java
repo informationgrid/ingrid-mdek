@@ -31,7 +31,7 @@ public class IgcDataType extends AbstractDataType {
 
     public IgcDataType() {
         super("dsc_ecs");
-        setForceActive( true );
+        //setForceActive( true );
     }
 
 }
