@@ -29,6 +29,9 @@
   <body>
     
     <release version="3.6.2-SNAPSHOT" date="??" description="??">
+      <action type="update" dev="wemove" issue="REDMINE-246">
+        Create new object in index now synchronized to avoid duplicates.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-223">
         Fixes for GDI-DE conformity: When mapped to IDF add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints).
       </action>
