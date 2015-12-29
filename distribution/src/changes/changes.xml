@@ -29,6 +29,9 @@
   <body>
     
     <release version="3.6.2-SNAPSHOT" date="??" description="??">
+      <action type="fix" dev="wemove" issue="REDMINE-86">
+        Fix mapping of conformity to IDF according to GDI-DE.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-246">
         Create new object in index now synchronized to avoid duplicates.
       </action>

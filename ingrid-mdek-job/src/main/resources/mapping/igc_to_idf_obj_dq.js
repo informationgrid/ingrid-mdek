@@ -258,6 +258,9 @@ for (i=0; i<objRows.size(); i++) {
 
 // "nicht evaluiert"(3) leads to nilReason "unknown"
 function getDqConformanceResultElement(conformityRow) {
+
+// NO ! Map according to GDI-DE, see https://dev.informationgrid.eu/redmine/issues/86
+/*
     if (!hasValue(conformityRow.get("degree_key")) || conformityRow.get("degree_key").equals("3")) {
         // "not evaluated", we retuen null element indicating no "gmd:report" should be written
         // see https://dev.wemove.com/jira/browse/INGRID23-165
@@ -266,7 +269,7 @@ function getDqConformanceResultElement(conformityRow) {
         }
         return null;
     }
-
+*/
     var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
 
@@ -281,8 +284,7 @@ function getDqConformanceResultElement(conformityRow) {
         specification = conformityRow.get("specification_value");
     } else {
     	// INGRID-2270: get date from data field
-    	var dateFromDataField = TRANSF.getISOCodeListEntryData(6005, specification);
-        specificationDate = dateFromDataField;
+    	specificationDate = TRANSF.getISOCodeListEntryData(6005, specification);
     }
     if (hasValue(specification)) {
         ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
@@ -301,7 +303,15 @@ function getDqConformanceResultElement(conformityRow) {
         .addAttribute("codeListValue", "publication")
         .addText("publication");
     dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-    dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
+
+	// REDMINE-86: If conformity "not evaluated" then set "unknown" attribute according to GDI-DE !
+    if (conformityRow.get("degree_key").equals("3")) {
+    	// not evaluated
+        dqConformanceResult.addElement("gmd:pass").addAttribute("gco:nilReason", "unknown");
+    } else {
+    	// true or false
+        dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
+    }
     return dqConformanceResult;
 }
 
