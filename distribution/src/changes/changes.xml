@@ -29,6 +29,9 @@
   <body>
     
     <release version="3.6.2-SNAPSHOT" date="??" description="??">
+      <action type="fix" dev="wemove" issue="REDMINE-83">
+        IDF: Remove second identificationInfo element.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-85">
         IDF: Write distributionInfo/*/linkage now for all service types, not only for view services.
       </action>
