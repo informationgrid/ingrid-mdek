@@ -29,14 +29,17 @@
   <body>
     
     <release version="3.6.2-SNAPSHOT" date="??" description="??">
+      <action type="fix" dev="wemove" issue="REDMINE-85">
+        IDF: Write distributionInfo/*/linkage now for all service types, not only for view services.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-86">
-        Fix mapping of conformity to IDF according to GDI-DE.
+        IDF: Fix mapping of conformity according to GDI-DE.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-246">
         Create new object in index now synchronized to avoid duplicates.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-223">
-        Fixes for GDI-DE conformity: When mapped to IDF add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints).
+        IDF: Add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints) according to GDI-DE.
       </action>
       <action type="add" dev="wemove" issue="REDMINE-88">
         Added indexing of object and addresses as well as live updating index after publish.
