@@ -893,7 +893,8 @@ for (i=0; i<objRows.size(); i++) {
         
         // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
         // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
-        addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
+        // deprecated, see REDMINE-83
+        //addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
 
 
 // NICHT GEODATENDIENST(3)
@@ -2370,7 +2371,10 @@ function prepareGetCapabilitiesUrl(connUrl, opName) {
 }
 */
 
+
+/*
 // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
+// deprecated, see REDMINE-83
 function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
         var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
         if (svScaleRows.size() > 0 ||
@@ -2450,7 +2454,7 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
             }
         }
 }
-
+*/
 function getIdfObjectReference(objRow, elementName, direction, srvRow) {
     var idfObjectReference = DOM.createElement(elementName);
     idfObjectReference.addAttribute("uuid", objRow.get("obj_uuid"));
