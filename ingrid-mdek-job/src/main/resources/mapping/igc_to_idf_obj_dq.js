@@ -303,13 +303,13 @@ function getDqConformanceResultElement(conformityRow) {
         .addAttribute("codeListValue", "publication")
         .addText("publication");
     dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
-
-	// REDMINE-86: If conformity "not evaluated" then set "unknown" attribute according to GDI-DE !
+    
+    // REDMINE-86: If conformity "not evaluated" then set "unknown" attribute according to GDI-DE !
     if (conformityRow.get("degree_key").equals("3")) {
-    	// not evaluated
+        // not evaluated
         dqConformanceResult.addElement("gmd:pass").addAttribute("gco:nilReason", "unknown");
     } else {
-    	// true or false
+        // true or false
         dqConformanceResult.addElement("gmd:pass/gco:Boolean").addText(conformityRow.get("degree_key").equals("1"));
     }
     return dqConformanceResult;
