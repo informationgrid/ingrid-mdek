@@ -893,7 +893,8 @@ for (i=0; i<objRows.size(); i++) {
         
         // ---------- <gmd:identificationInfo/gmd:MD_DataIdentification> ----------
         // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
-        addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
+        // deprecated, see REDMINE-83
+        //addServiceAdditionalIdentification(mdMetadata, objServRow, objServId);
 
 
 // NICHT GEODATENDIENST(3)
@@ -2158,14 +2159,21 @@ function addDistributionInfo(mdMetadata, objId) {
             mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
         }
         
+        // write distributionInfo
+
         // all from links
         //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [objId, "5066"]);
         // the links should all come from service objects (class=3)
         if (objClass.equals("1"))
             rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, "3600", "3"]);
         else
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND type_key=2 AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3"]);
-          //rows = SQL.all("SELECT serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_from_id=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3210", "3"]);
+        	// Service Object
+        	// Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
+        	rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3"]);
+        	// formerly only services of type_key 2 (Darstellungsdienste)
+               //rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND type_key=2 AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3"]);
+        	// ???
+               //rows = SQL.all("SELECT serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_from_id=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3210", "3"]);
 
         for (i=0; i<rows.size(); i++) {
             if (hasValue(rows.get(i).get("connect_point"))) {
@@ -2363,7 +2371,10 @@ function prepareGetCapabilitiesUrl(connUrl, opName) {
 }
 */
 
+
+/*
 // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
+// deprecated, see REDMINE-83
 function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
         var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
         if (svScaleRows.size() > 0 ||
@@ -2443,7 +2454,7 @@ function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
             }
         }
 }
-
+*/
 function getIdfObjectReference(objRow, elementName, direction, srvRow) {
     var idfObjectReference = DOM.createElement(elementName);
     idfObjectReference.addAttribute("uuid", objRow.get("obj_uuid"));
