@@ -38,6 +38,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-86">
         IDF: Fix mapping of conformity according to GDI-DE.
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-250">
+        IDF: During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-246">
         Create new object in index now synchronized to avoid duplicates.
       </action>
