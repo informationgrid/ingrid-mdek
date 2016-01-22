@@ -41,9 +41,6 @@
       <action type="update" dev="wemove" issue="REDMINE-250">
         IDF: During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
       </action>
-      <action type="update" dev="wemove" issue="REDMINE-246">
-        Create new object in index now synchronized to avoid duplicates.
-      </action>
       <action type="update" dev="wemove" issue="REDMINE-223">
         IDF: Add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints) according to GDI-DE.
       </action>
@@ -55,7 +52,13 @@
       </action>
     </release>
     
-    <release version="3.6.1.1" date="2015-12-03" description="Bugfix Release InGrid 3.6.1.1">
+    <release version="3.6.1.2" date="2016-01-22" description="Release InGrid 3.6.1.2">
+      <action type="update" dev="wemove" issue="REDMINE-246">
+        Create new object in index now synchronized to avoid duplicates.
+      </action>
+    </release>
+    
+    <release version="3.6.1.1" date="2015-12-03" description="Release InGrid 3.6.1.1">
       <action type="fix" dev="wemove" issue="REDMINE-225">
         Add new field "Nutzungsbeschränkungen" to profile to appear in "additional fields".
       </action>
