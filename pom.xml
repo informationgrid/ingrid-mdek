@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>3.6.1.1</version>
+  <version>3.6.1.2</version>
   <name>ingrid-iplug-ige</name>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->

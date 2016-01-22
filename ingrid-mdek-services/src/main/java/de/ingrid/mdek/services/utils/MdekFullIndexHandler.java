@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -165,52 +165,48 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		T01Object o = oNode.getT01ObjectWork();
 		if (o == null) {
 			// this should never happen, so log this!
-			LOG.warn("Object for building index is null. Writing empty index !!!");
+			LOG.error("Object for building index is null. Writing empty index !!!");
 		}
 
 		// update FULL data
-
-		// template for accessing data in index
-		FullIndexObj template = new FullIndexObj();
-		template.setObjNodeId(oNode.getId());
-		template.setIdxName(IDX_NAME_FULLTEXT);
-		FullIndexObj idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);		
-		if (idxEntry == null) {
-			idxEntry = template;
-		}
-		String data = getFullData(o);
-		// end with final separator !!!
-		idxEntry.setIdxValue(data + IDX_SEPARATOR);
-		daoFullIndexObj.makePersistent(idxEntry);
+		updateObjectIndexEntry(oNode.getId(), IDX_NAME_FULLTEXT, getFullData(o));
 
 		// update THESAURUS data
-
-		template = new FullIndexObj();
-		template.setObjNodeId(oNode.getId());
-		template.setIdxName(IDX_NAME_THESAURUS);
-		idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);		
-		if (idxEntry == null) {
-			idxEntry = template;
-		}
-		data = getThesaurusData(o);
-		// end with final separator !!!
-		idxEntry.setIdxValue(data + IDX_SEPARATOR);
-		daoFullIndexObj.makePersistent(idxEntry);
+        updateObjectIndexEntry(oNode.getId(), IDX_NAME_THESAURUS, getThesaurusData(o));
 
 		// update GEO THESAURUS data
-
-		template = new FullIndexObj();
-		template.setObjNodeId(oNode.getId());
-		template.setIdxName(IDX_NAME_GEOTHESAURUS);
-		idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);		
-		if (idxEntry == null) {
-			idxEntry = template;
-		}
-		data = getGeothesaurusData(o);
-		// end with final separator !!!
-		idxEntry.setIdxValue(data + IDX_SEPARATOR);
-		daoFullIndexObj.makePersistent(idxEntry);
+        updateObjectIndexEntry(oNode.getId(), IDX_NAME_GEOTHESAURUS, getGeothesaurusData(o));
 	}
+	
+    /** Writes node data to index of given type */
+    private void updateObjectIndexEntry(Long nodeId, String whichIndex, String nodeData) {
+        FullIndexObj template = new FullIndexObj();
+        template.setObjNodeId(nodeId);
+        template.setIdxName(whichIndex);
+        
+        FullIndexObj idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);
+        if (idxEntry == null) {
+            // create new entry synchronized cause had problems with HH instance with multiple entries for same node !
+            createObjectIndexEntry(template, nodeData);
+        } else {
+            // end with final separator !!!
+            idxEntry.setIdxValue(nodeData + IDX_SEPARATOR);
+            daoFullIndexObj.makePersistent(idxEntry);            
+        }
+    }
+
+    /** Create new index entry SYNCHRONIZED !
+     * Cause had problems with HH instance with multiple entries for same node ! */
+    private synchronized void createObjectIndexEntry(FullIndexObj template, String nodeData) {
+        // First SELECT AGAIN to guarantee entry not there !!!
+        FullIndexObj idxEntry = (FullIndexObj) daoFullIndexObj.findUniqueByExample(template);       
+        if (idxEntry == null) {
+            idxEntry = template;
+        }
+        // end with final separator !!!
+        idxEntry.setIdxValue(nodeData + IDX_SEPARATOR);
+        daoFullIndexObj.makePersistent(idxEntry);
+    }
 
 	/** Get full data of given address for updating full text index. */
 	private String getFullData(T02Address a) {
