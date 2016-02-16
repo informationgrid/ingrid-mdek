@@ -35,8 +35,12 @@ import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
+import de.ingrid.mdek.job.csw.CswTransaction;
+import de.ingrid.mdek.job.csw.TransactionResponse;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IRecordLoader;
+import de.ingrid.utils.IngridCall;
+import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
@@ -59,6 +63,13 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     @Qualifier("dscRecordCreatorAddress")
     private DscRecordCreator dscRecordProducerAddress = null;
     
+    @Autowired
+    private CswTransaction cswTransaction = null;
+    
+    public void setCswTransaction(CswTransaction cswTransaction) {
+        this.cswTransaction = cswTransaction;
+    }
+
     private final IndexImpl _indexSearcher; 
 
     @Autowired
@@ -129,6 +140,28 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery query, String[] fields) throws Exception {
         final IngridHitDetail[] details = _indexSearcher.getDetails(hits, query, fields);
         return details;
+    }
+    
+    public IngridDocument call(IngridCall info) {
+        IngridDocument doc = null;
+        
+        switch (info.getMethod()) {
+        case "importCSWDoc":
+            doc = cswTransaction( (String) info.getParameter() );
+        }
+        
+        return doc;
+    }
+    
+    public IngridDocument cswTransaction(String xml) {
+        IngridDocument doc = new IngridDocument();
+        
+        TransactionResponse response = cswTransaction.execute( xml );
+        
+        doc.put( "result", response );
+        
+        doc.putBoolean( "success", true);
+        return doc;
     }
     
 }
