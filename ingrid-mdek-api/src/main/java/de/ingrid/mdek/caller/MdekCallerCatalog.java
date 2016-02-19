@@ -32,6 +32,7 @@ import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -81,7 +82,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 	public IngridDocument fetchCatalog(String plugId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getCatalog", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getCatalog", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -90,7 +91,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 			String userId) {
 		catalogDoc.put(MdekKeys.REQUESTINFO_REFETCH_ENTITY, refetchAfterStore);
 		catalogDoc.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("storeCatalog", catalogDoc);
+		List<Pair> jobMethods = setUpJobMethod("storeCatalog", catalogDoc);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -100,7 +101,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.SYS_LIST_IDS, listIds);
 		jobParams.put(MdekKeys.LANGUAGE_SHORTCUT, languageShortcut);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getSysLists", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getSysLists", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -131,7 +132,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.LST_ENTRY_NAMES_EN, entryNames_en);
 		jobParams.put(MdekKeys.LST_ENTRY_DATA, data);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("storeSysList", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("storeSysList", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);		
 	}
 
@@ -139,7 +140,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.SYS_GENERIC_KEY_NAMES, keyNames);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getSysGenericKeys", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getSysGenericKeys", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -150,7 +151,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.SYS_GENERIC_KEY_NAMES, keyNames );
 		jobParams.put(MdekKeys.SYS_GENERIC_KEY_VALUES, keyValues );
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("storeSysGenericKeys", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("storeSysGenericKeys", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -163,7 +164,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT, exportOnlyRoot);
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES, includeWorkingCopies);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("exportObjectBranch", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("exportObjectBranch", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -175,7 +176,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.EXPORT_CRITERION_VALUE, exportCriterion);
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES, includeWorkingCopies);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("exportObjects", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("exportObjects", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -190,7 +191,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA, addressArea);
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES, includeWorkingCopies);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("exportAddressBranch", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("exportAddressBranch", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -200,10 +201,32 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_EXPORT_INFO_INCLUDE_DATA, includeExportData);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getExportInfo", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getExportInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
+	public IngridDocument analyzeImportData(String plugId, byte[] importData,
+	        String targetObjectUuid, String targetAddressUuid,
+            boolean publishImmediately,
+            boolean doSeparateImport,
+            boolean copyNodeIfPresent,
+            String frontendProtocol,
+            boolean startNewAnalysis,
+            String userId) {
+	    IngridDocument jobParams = new IngridDocument();
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DATA, importData);
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, targetObjectUuid);
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, targetAddressUuid);
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, publishImmediately);
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, doSeparateImport);
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, copyNodeIfPresent);
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, frontendProtocol);
+        jobParams.put(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, startNewAnalysis);
+        jobParams.put(MdekKeys.USER_ID, userId);
+        List<Pair> jobMethods = setUpJobMethod("analyzeImportData", jobParams);
+        return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
+	}
+	
 	public IngridDocument importEntities(String plugId, List<byte[]> importData,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
@@ -220,7 +243,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, copyNodeIfPresent);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, frontendProtocol);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("importEntities", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("importEntities", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 		
 	}
@@ -229,7 +252,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_JOB_TYPE, jobType);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getJobInfo", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getJobInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -241,7 +264,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.putBoolean(MdekKeys.JOBINFO_IS_UPDATE, urlInfo.getBoolean(MdekKeys.JOBINFO_IS_UPDATE));
 		jobParams.putBoolean(MdekKeys.JOBINFO_IS_FINISHED, urlInfo.getBoolean(MdekKeys.JOBINFO_IS_FINISHED));
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("setURLInfo", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("setURLInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -250,7 +273,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_URL_LIST, urlList);
 		jobParams.put(MdekKeys.REQUESTINFO_URL_TARGET, targetUrl);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("updateURLInfo", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("updateURLInfo", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -260,14 +283,14 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_URL_TARGET, targetUrl);
 		jobParams.put(MdekKeys.LINKAGE_URL_TYPE, type);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("replaceURLs", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("replaceURLs", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument analyze(String plugId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("analyzeDBConsistency", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("analyzeDBConsistency", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -277,7 +300,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.FROM_UUID, oldUuid);
 		jobParams.put(MdekKeys.TO_UUID, newUuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("replaceAddress", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("replaceAddress", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -288,7 +311,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
     jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, referenceTypeId);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getObjectsOfAddressByType", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getObjectsOfAddressByType", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -298,7 +321,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.UUID, responsibleUserUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getObjectsOfResponsibleUser", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getObjectsOfResponsibleUser", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -308,7 +331,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.UUID, responsibleUserUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_NUM_HITS, maxNum);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getAddressesOfResponsibleUser", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getAddressesOfResponsibleUser", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -318,7 +341,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.REQUESTINFO_CSV_REQUEST_TYPE, csvType);
 		jobParams.put(MdekKeys.UUID, uuid);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getCsvData", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getCsvData", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -327,7 +350,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.LST_ID, sysLst.getDbValue());
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getFreeListEntries", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getFreeListEntries", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -340,14 +363,14 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.LST_ENTRY_IDS, new Integer[]{sysLstEntryId});
 		jobParams.put(MdekKeys.LST_ENTRY_NAMES, new String[]{sysLstEntryName});
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("replaceFreeEntryWithSyslistEntry", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("replaceFreeEntryWithSyslistEntry", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
 	public IngridDocument rebuildSyslistData(String plugId, String userId) {
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("rebuildSyslistData", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("rebuildSyslistData", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -355,7 +378,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, termTypes);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getSearchTerms", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getSearchTerms", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -366,7 +389,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.SUBJECT_TERMS_OLD, oldTerms);
 		jobParams.put(MdekKeys.SUBJECT_TERMS_NEW, newTerms);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("updateSearchTerms", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("updateSearchTerms", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -374,7 +397,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		IngridDocument jobParams = new IngridDocument();
 		jobParams.put(MdekKeys.REQUESTINFO_TYPES_OF_ENTITY, spatialRefTypes);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("getSpatialReferences", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("getSpatialReferences", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -385,7 +408,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 		jobParams.put(MdekKeys.LOCATIONS_OLD, oldSpatialRefs);
 		jobParams.put(MdekKeys.LOCATIONS_NEW, newSpatialRefs);
 		jobParams.put(MdekKeys.USER_ID, userId);
-		List jobMethods = setUpJobMethod("updateSpatialReferences", jobParams);
+		List<Pair> jobMethods = setUpJobMethod("updateSpatialReferences", jobParams);
 		return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 
@@ -396,7 +419,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
         jobParams.put(MdekKeys.LST_SYSLISTS, syslistDoc);
         jobParams.put(MdekKeys.LST_LAST_MODIFIED, String.valueOf(timestamp));
         jobParams.put(MdekKeys.USER_ID, userId);
-        List jobMethods = setUpJobMethod("storeSysLists", jobParams);
+        List<Pair> jobMethods = setUpJobMethod("storeSysLists", jobParams);
         return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);    
     }
 
@@ -405,7 +428,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
     public IngridDocument getLastModifiedTimestampOfSyslists(String plugId, String userId) {
 	    IngridDocument jobParams = new IngridDocument();
         jobParams.put(MdekKeys.USER_ID, userId);
-        List jobMethods = setUpJobMethod("getLastModifiedTimestampOfSyslists", jobParams);
+        List<Pair> jobMethods = setUpJobMethod("getLastModifiedTimestampOfSyslists", jobParams);
         return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
     }
 

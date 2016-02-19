@@ -211,6 +211,10 @@ public class MdekKeys {
     /** Protocol from frontend to be added to backend JobInfo. null or empty if no protocol !<br>
      *  Value: String */
     public final static String REQUESTINFO_IMPORT_FRONTEND_PROTOCOL = "requestinfo_importFrontendProtocol";
+    /**
+     * If value is true, then throw away all previously analyzed data from job info.
+     *  Value: Boolean */
+    public final static String REQUESTINFO_IMPORT_START_NEW_ANALYSIS = "requestinfo_importStartNewAnalysis";
 
 
     // URL

@@ -78,6 +78,11 @@
         <artifactId>spring-core</artifactId>
         <version>4.1.6.RELEASE</version>
       </dependency>
+      <dependency>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
+        <version>1.4.8</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

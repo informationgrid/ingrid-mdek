@@ -163,7 +163,7 @@ public class MdekClientTest {
 
     @Test
     public void testMdekServerAsComClientReconnection() throws Exception {
-        MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
+        MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.xml").toURI()),
                 new JobRepositoryFacade(null));
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
@@ -171,7 +171,7 @@ public class MdekClientTest {
         Thread.sleep(15000);
 
         MdekClient mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
-                "/communication-server.properties").toURI()));
+                "/communication-server.xml").toURI()));
         Thread.sleep(15000);
         Assert.assertNotNull(mdekClient);
         Thread.sleep(15000);
@@ -184,7 +184,7 @@ public class MdekClientTest {
         Thread.sleep(6000);
 
         mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
-                "/communication-server.properties").toURI()));
+                "/communication-server.xml").toURI()));
         Thread.sleep(6000);
         Assert.assertNotNull(mdekClient);
         Thread.sleep(15000);

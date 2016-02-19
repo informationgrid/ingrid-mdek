@@ -22,21 +22,32 @@
  */
 package de.ingrid.mdek.job;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import de.ingrid.admin.elasticsearch.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
-import de.ingrid.mdek.job.csw.CswTransaction;
-import de.ingrid.mdek.job.csw.TransactionResponse;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridCall;
@@ -49,6 +60,8 @@ import de.ingrid.utils.metadata.IMetadataInjector;
 import de.ingrid.utils.processor.IPostProcessor;
 import de.ingrid.utils.processor.IPreProcessor;
 import de.ingrid.utils.query.IngridQuery;
+import de.ingrid.utils.tool.GZipTool;
+import de.ingrid.utils.xml.XMLUtils;
 
 @Service("ige")
 public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
@@ -64,12 +77,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private DscRecordCreator dscRecordProducerAddress = null;
     
     @Autowired
-    private CswTransaction cswTransaction = null;
+    private MdekIdcCatalogJob catalogJob = null;
     
-    public void setCswTransaction(CswTransaction cswTransaction) {
-        this.cswTransaction = cswTransaction;
-    }
-
     private final IndexImpl _indexSearcher; 
 
     @Autowired
@@ -156,12 +165,51 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     public IngridDocument cswTransaction(String xml) {
         IngridDocument doc = new IngridDocument();
         
-        TransactionResponse response = cswTransaction.execute( xml );
+        DocumentBuilderFactory factory;
+        try {
+            factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            
+            Document xmlDoc = builder.parse(new InputSource(new StringReader(xml)));
+            NodeList insert = xmlDoc.getElementsByTagName( "csw:Insert" );
+            
+            Document singleInsertDocument = builder.newDocument();
+            Node importedNode = singleInsertDocument.importNode(insert.item( 0 ).getFirstChild().getNextSibling(), true);
+            singleInsertDocument.appendChild(importedNode);
+            String insertDoc = XMLUtils.toString( singleInsertDocument );
+            
+            IngridDocument docIn = new IngridDocument();
+            docIn.put(MdekKeys.USER_ID, "TEST_USER_ID");
+            //docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, GZipTool.gzip( insertDoc ).getBytes());
+            docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, catalogJob.compress( new ByteArrayInputStream(insertDoc.getBytes()) ).toByteArray());
+            docIn.put(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202");
+            docIn.putBoolean(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true);
+            
+            IngridDocument analyzerResult = catalogJob.analyzeImportData( docIn );
+            catalogJob.importEntities( docIn );
+            
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
-        doc.put( "result", response );
+        //doc.put( "result", response );
         
         doc.putBoolean( "success", true);
         return doc;
+    }
+
+    public void setCatalogJob(MdekIdcCatalogJob catalogJob) {
+        this.catalogJob = catalogJob;
     }
     
 }

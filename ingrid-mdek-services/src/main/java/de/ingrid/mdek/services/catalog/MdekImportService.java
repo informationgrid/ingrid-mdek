@@ -522,9 +522,6 @@ public class MdekImportService implements IImporterCallback {
 	 */
 	public void checkImportEntities(String userUuid)
 			throws MdekException {
-		// extract context
-		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
-
 		// check whether existing UUIDs have to be reported !
 		Set<String> existingUuids = getExistingUuidsToReport(userUuid);
 		if (existingUuids.size() > 0) {
