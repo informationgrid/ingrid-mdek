@@ -267,12 +267,13 @@ public class MdekCatalogService {
 	public Map<Integer, String> getSysListKeyNameMap(int listId, String language) {
 		// ALWAYS USE CACHE !
 		boolean useCache = true;
+		String cacheKey = listId + ":" + language;
 
 		// get map from cache if requested !
 		Map<Integer, String> map = null;
 		Element elem = null;
 		if (useCache) {
-			elem = syslistMapCache.get(listId);
+			elem = syslistMapCache.get(cacheKey);
 			if (elem != null) {
 				map = (Map<Integer, String>) elem.getObjectValue();
 			}
@@ -289,7 +290,7 @@ public class MdekCatalogService {
 
 		// add to cache if cache used !
 		if (useCache && elem == null) {
-			syslistMapCache.put(new Element(listId, map));
+			syslistMapCache.put(new Element(cacheKey, map));
 		}
 
 		return map;
