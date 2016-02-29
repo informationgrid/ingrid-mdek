@@ -544,6 +544,10 @@ var mappingDescription = {"mappings":[
 		    	         		}
 		    			  	] // service operation submappings
 		    			}		
+		        	},
+		        	{    
+		                "srcXpath":"//gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/srv:couplingType/srv:SV_CouplingType/@codeListValue",
+		                "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/service/coupling-type"
 		        	}
   			    ] // conditional submappings
   			}
@@ -786,10 +790,23 @@ var mappingDescription = {"mappings":[
 				"params":[102, "", "Could not map vertical-extent unit:"]
 			}						    					
   		},
+  		{	// same as rule before, but different path
+  		    "srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml:VerticalCRS/gml:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis/@gml:uom",
+  		    "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/vertical-extent/vertical-extent-unit",
+  		    "targetAttribute":"id",
+  		    "transform":{
+  		        "funct":transformToIgcDomainId,
+  		        "params":[102, "", "Could not map vertical-extent unit:"]
+  		    }						    					
+  		},
         {
             "execute":{
                 "funct":mapVerticalExtentVdatum
             }
+        },
+        {
+            "srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:description/gco:CharacterString",
+            "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/description-of-spatial-domain"
         },
   		{
   			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:geographicElement",
@@ -1331,7 +1348,7 @@ function mapReferenceSystemInfo(source, target) {
 			}
 			log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/spatial-domain/coordinate-system" + "' = '" + coordinateSystem + "' to target document.");
 			var node = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/spatial-domain/coordinate-system");
-			XMLUtils.createOrReplaceTextNode(node, coordinateSystem);
+			XMLUtils.createOrReplaceTextNode(node, code);
             
             // get syslist id
 			var coordinateSystemId = transformToIgcDomainId(code, 100, "");
@@ -1660,6 +1677,9 @@ function mapUncontrolledTerms(source, target) {
 	                if (term.equals("inspireidentifiziert")) {
 	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-inspire-relevant' = 'Y' to target document.");
 	                    XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-inspire-relevant"), "Y");
+	                } else if (term.equals("opendata")) {
+                        log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-open-data' = 'Y' to target document.");
+                        XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-open-data"), "Y");
 	                } else {
 	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term' = '" + term + "' to target document.");
 	                    XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term"), term);
@@ -1678,7 +1698,9 @@ function mapDistributionLinkages(source, target) {
             linkage.name = XPathUtils.getString(linkages.item(i), "./gmd:name/gco:CharacterString");
             linkage.url = XPathUtils.getString(linkages.item(i), "./gmd:linkage/gmd:URL");
             linkage.urlType = "1";
-            linkage.referenceId = "-1";
+            var isCoupled = XPathUtils.getString(linkages.item(i), "./gmd:applicationProfile/gco:CharacterString") === "coupled";
+            linkage.referenceId = isCoupled ? "3600" : "-1";
+            //referenceName = "";
             linkage.description = XPathUtils.getString(linkages.item(i), "./gmd:description/gco:CharacterString");
             addAvailableLinkage(linkage, target);
         }
