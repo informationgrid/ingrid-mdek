@@ -734,7 +734,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
                     InputStream mappedData = dataMapperFactory.getMapper(frontendProtocol).convert(in, protocolHandler);
                     mappedDataCompressed = compress(mappedData).toByteArray();
                 }
-    	    } catch( IOException ex ) {
+    	    } catch( Exception ex ) {
     	        result.put( "error", "There was an error during mapping." + ex.getMessage() );
     	    }
     	    

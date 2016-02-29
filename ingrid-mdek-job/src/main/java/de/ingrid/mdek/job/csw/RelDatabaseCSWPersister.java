@@ -12,7 +12,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.MdekIdcObjectJob;
 import de.ingrid.utils.IngridDocument;
 
-@Service
+//@Service
 public class RelDatabaseCSWPersister implements CSWPersister {
 
     @Autowired

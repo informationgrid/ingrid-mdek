@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @SuppressWarnings("deprecation")
-@Service
+//@Service
 public class CswTransaction {
 
     @Autowired
