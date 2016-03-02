@@ -40,6 +40,7 @@ import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.job.IgeSearchPlug;
 import de.ingrid.mdek.job.MdekIdcCatalogJob;
+import de.ingrid.mdek.job.MdekIdcObjectJob;
 import de.ingrid.mdek.job.mapping.DataMapperFactory;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
 import de.ingrid.mdek.job.mapping.ScriptImportDataMapper;
@@ -102,6 +103,12 @@ public class CSWImport {
     IGenericDao<IEntity> daoT03Catalogue;
 
     private MdekIdcCatalogJob catJob;
+    
+    @Mock
+    private MdekIdcCatalogJob catJobMock;
+    
+    @Mock
+    private MdekIdcObjectJob objectJobMock;
 
     private IngridXMLMapper importMapper;
 
@@ -114,11 +121,11 @@ public class CSWImport {
 
         Mockito.when( daoFactory.getDao( IEntity.class ) ).thenReturn( genericDao );
         HashMap<String, List<byte[]>> analyzedDataMap = new HashMap<String, List<byte[]>>();
-        analyzedDataMap.put( "analyzedData", new ArrayList<byte[]>() );
+        analyzedDataMap.put( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA, new ArrayList<byte[]>() );
         Mockito.when( jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, "TEST_USER_ID" ) ).thenReturn( analyzedDataMap );
 
         Mockito.when( daoFactory.getSysListDao() ).thenReturn( daoSysList );
-        
+
         mockSyslists();
 
         Mockito.when( daoFactory.getDao( T03Catalogue.class ) ).thenReturn( daoT03Catalogue );
@@ -139,42 +146,76 @@ public class CSWImport {
         catJob.setDataMapperFactory( dataMapperFactory );
         catJob.setJobHandler( jobHandler );
         // plug.setCswTransaction( trans );
-        plug.setCatalogJob( catJob );
+        //plug.setCatalogJob( catJob );
+        plug.setCatalogJob( catJobMock );
+        plug.setObjectJob( objectJobMock );
 
         importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "3.6.1" );
     }
 
     private void mockSyslists() {
-        List<SysList> syslist505 = new ArrayList<SysList>();
-        SysList entry1 = new SysList();
-        entry1.setLstId( 505 );
-        entry1.setEntryId( 7 );
-        entry1.setName( "pointOfContact" );
-        syslist505.add( entry1 );
-        List<SysList> syslist5200 = new ArrayList<SysList>();
-        SysList entry1a = new SysList();
-        entry1a.setLstId( 5200 );
-        entry1a.setEntryId( 211 );
-        entry1a.setName( "infoStandingOrderService" );
-        syslist5200.add( entry1a );
-        List<SysList> syslist100 = new ArrayList<SysList>();
-        SysList entry1b = new SysList();
-        entry1b.setLstId( 100 );
-        entry1b.setEntryId( 3068 );
-        entry1b.setName( "EPSG 3068: DHDN / Soldner Berlin" );
-        syslist100.add( entry1b );
-        List<SysList> syslist102 = new ArrayList<SysList>();
-        SysList entry1c = new SysList();
-        entry1c.setLstId( 102 );
-        entry1c.setEntryId( 9001 );
-        entry1c.setName( "Metre" );
-        syslist102.add( entry1c );
-        
-        
-        Mockito.when( daoSysList.getSysList( 505, "iso" ) ).thenReturn( syslist505 );
-        Mockito.when( daoSysList.getSysList( 5200, "iso" ) ).thenReturn( syslist5200 );
+        List<SysList> syslist100 = createSyslist( 100, 3068, "EPSG 3068: DHDN / Soldner Berlin" );
+        List<SysList> syslist101 = createSyslist( 101, 90008, "DE_DHHN92_NH" );
+        List<SysList> syslist102 = createSyslist( 102, 9001, "Metre" );
+        List<SysList> syslist502 = createSyslist( 502, 1, "creation" );
+        List<SysList> syslist505 = createSyslist( 505, 7, "pointOfContact" );
+        extendSyslist( syslist505, 1, "resourceProvider" );
+        extendSyslist( syslist505, 5, "distributor" );
+
+        List<SysList> syslist510 = createSyslist( 510, 4, "utf8" );
+        List<SysList> syslist518 = createSyslist( 518, 1, "continual" );
+        List<SysList> syslist520 = createSyslist( 520, 1, "cdRom" );
+        List<SysList> syslist523 = createSyslist( 523, 5, "planned" );
+        List<SysList> syslist524 = createSyslist( 524, 5, "license" );
+        List<SysList> syslist1320 = createSyslist( 1320, 3, "Excel" );
+        List<SysList> syslist1350 = createSyslist( 1350, 24, "Bundeswasserstraßengesetz (WaStrG)" );
+        List<SysList> syslist5120 = createSyslist( 5120, 1, "GetCapabilities" );
+        List<SysList> syslist5153 = createSyslist( 5153, 2, "OGC:WFS 2.0" );
+        List<SysList> syslist5200 = createSyslist( 5200, 211, "infoStandingOrderService" );
+        List<SysList> syslist6005 = createSyslist( 6005, 40, "Technical Guidance for the implementation of INSPIRE Download Services" );
+        List<SysList> syslist6010 = createSyslist( 6010, 1, "Es gelten keine Bedingungen" );
+        List<SysList> syslist6020 = createSyslist( 6020, 1, "Es gelten keine Bedingungen" );
+        List<SysList> syslist6100 = createSyslist( 6100, 317, "Biogeografische Regionen" );
+        extendSyslist( syslist6100, 302, "Gebäude" );
+
         Mockito.when( daoSysList.getSysList( 100, "iso" ) ).thenReturn( syslist100 );
+        Mockito.when( daoSysList.getSysList( 101, "iso" ) ).thenReturn( syslist101 );
         Mockito.when( daoSysList.getSysList( 102, "iso" ) ).thenReturn( syslist102 );
+        Mockito.when( daoSysList.getSysList( 502, "iso" ) ).thenReturn( syslist502 );
+        Mockito.when( daoSysList.getSysList( 505, "iso" ) ).thenReturn( syslist505 );
+        Mockito.when( daoSysList.getSysList( 505, "de" ) ).thenReturn( syslist505 );
+        Mockito.when( daoSysList.getSysList( 510, "iso" ) ).thenReturn( syslist510 );
+        Mockito.when( daoSysList.getSysList( 518, "iso" ) ).thenReturn( syslist518 );
+        Mockito.when( daoSysList.getSysList( 520, "iso" ) ).thenReturn( syslist520 );
+        Mockito.when( daoSysList.getSysList( 523, "iso" ) ).thenReturn( syslist523 );
+        Mockito.when( daoSysList.getSysList( 524, "iso" ) ).thenReturn( syslist524 );
+        Mockito.when( daoSysList.getSysList( 1320, "iso" ) ).thenReturn( syslist1320 );
+        Mockito.when( daoSysList.getSysList( 1350, "iso" ) ).thenReturn( syslist1350 );
+        Mockito.when( daoSysList.getSysList( 5120, "iso" ) ).thenReturn( syslist5120 );
+        Mockito.when( daoSysList.getSysList( 5153, "iso" ) ).thenReturn( syslist5153 );
+        Mockito.when( daoSysList.getSysList( 5200, "iso" ) ).thenReturn( syslist5200 );
+        Mockito.when( daoSysList.getSysList( 6005, "de" ) ).thenReturn( syslist6005 );
+        Mockito.when( daoSysList.getSysList( 6010, "iso" ) ).thenReturn( syslist6010 );
+        Mockito.when( daoSysList.getSysList( 6020, "iso" ) ).thenReturn( syslist6020 );
+        Mockito.when( daoSysList.getSysList( 6100, "iso" ) ).thenReturn( syslist6100 );
+    }
+
+    private List<SysList> createSyslist(int listId, int entryId, String value) {
+        List<SysList> syslist = new ArrayList<SysList>();
+        SysList entry = new SysList();
+        entry.setLstId( listId );
+        entry.setEntryId( entryId );
+        entry.setName( value );
+        syslist.add( entry );
+        return syslist;
+    }
+
+    private void extendSyslist(List<SysList> list, int entryId, String value) {
+        SysList entry = new SysList();
+        entry.setLstId( list.get( 0 ).getLstId() );
+        entry.setEntryId( entryId );
+        entry.setName( value );
+        list.add( entry );
     }
 
     @Test
@@ -192,7 +233,7 @@ public class CSWImport {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
                 Map doc = invocation.getArgumentAt( 1, Map.class );
-                List<byte[]> data = (List<byte[]>) doc.get( "analyzedData" );
+                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );
                 InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
@@ -229,7 +270,7 @@ public class CSWImport {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
                 Map doc = invocation.getArgumentAt( 1, Map.class );
-                List<byte[]> data = (List<byte[]>) doc.get( "analyzedData" );
+                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );
                 InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
@@ -268,7 +309,8 @@ public class CSWImport {
 
                     // open data
                     assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( "Y" ) );
-                    // not in keywords anymore after correct analyze: assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ), "opendata" );
+                    // not in keywords anymore after correct analyze: assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ),
+                    // "opendata" );
 
                     // INSPIRE-topics
                     assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 2 ) );
@@ -286,11 +328,10 @@ public class CSWImport {
                     IngridDocument serviceMap = (IngridDocument) docOut.get( MdekKeys.TECHNICAL_DOMAIN_SERVICE );
                     // check classification of service: Dauerauftragsdienst (211)
                     assertThat( serviceMap.getArrayList( MdekKeys.SERVICE_TYPE2_LIST ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument)serviceMap.getArrayList( MdekKeys.SERVICE_TYPE2_LIST ).get(0)).getInt(MdekKeys.SERVICE_TYPE2_KEY), is( 211 ) );
+                    assertThat( ((IngridDocument) serviceMap.getArrayList( MdekKeys.SERVICE_TYPE2_LIST ).get( 0 )).getInt( MdekKeys.SERVICE_TYPE2_KEY ), is( 211 ) );
 
                     // service version
-                    assertThat( ((IngridDocument) serviceMap.getArrayList( MdekKeys.SERVICE_VERSION_LIST ).get( 0 )).getString( MdekKeys.SERVICE_VERSION_VALUE ),
-                            is( "OGC:WFS 2.0" ) );
+                    assertThat( ((IngridDocument) serviceMap.getArrayList( MdekKeys.SERVICE_VERSION_LIST ).get( 0 )).getString( MdekKeys.SERVICE_VERSION_VALUE ), is( "OGC:WFS 2.0" ) );
 
                     // check type of service: Downloaddienst === 3?
                     assertThat( serviceMap.getInt( MdekKeys.SERVICE_TYPE_KEY ), is( 3 ) );
@@ -301,8 +342,8 @@ public class CSWImport {
 
                     // operations
                     assertThat( serviceMap.getArrayList( MdekKeys.SERVICE_OPERATION_LIST ).size(), is( 1 ) );
-                    assertOperation( serviceMap.getArrayList( MdekKeys.SERVICE_OPERATION_LIST ).get( 0 ), "GetCapabilities", "http://some.cap.com", "WebServices",
-                            "GetCap Beschreibung", "http://some.cap.com/hello?count=10" );
+                    assertOperation( serviceMap.getArrayList( MdekKeys.SERVICE_OPERATION_LIST ).get( 0 ), "GetCapabilities", "http://some.cap.com", "WebServices", "GetCap Beschreibung",
+                            "http://some.cap.com/hello?count=10" );
 
                     // scale
                     // NOT mapped in ISO!?
@@ -343,79 +384,94 @@ public class CSWImport {
                     // height
                     assertThat( (Double) docOut.get( MdekKeys.VERTICAL_EXTENT_MINIMUM ), is( 4.0 ) );
                     assertThat( (Double) docOut.get( MdekKeys.VERTICAL_EXTENT_MAXIMUM ), is( 6.0 ) );
-                    assertThat(docOut.getInt( MdekKeys.VERTICAL_EXTENT_UNIT ), is(9001)); // "Meter"
+                    assertThat( docOut.getInt( MdekKeys.VERTICAL_EXTENT_UNIT ), is( 9001 ) ); // "Meter"
                     assertThat( docOut.getString( MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE ), is( "DE_DHHN92_NH" ) );
 
                     // height explanation
                     assertThat( docOut.getString( MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN ), is( "nicht sehr hoch" ) );
 
                     // check creation: 17.03.2015
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.DATASET_REFERENCES ).get( 0 )).getString(MdekKeys.DATASET_REFERENCE_DATE), is( "20150317000000000" ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATASET_REFERENCES ).get( 0 )).getString( MdekKeys.DATASET_REFERENCE_DATE ), is( "20150317000000000" ) );
 
                     // time explanation
                     assertThat( docOut.getString( MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN ), is( "nicht sehr alt" ) );
 
                     // time range
                     assertThat( docOut.getString( MdekKeys.BEGINNING_DATE ), is( "20160209000000000" ) );
+                    assertThat( docOut.getString( MdekKeys.ENDING_DATE ), is( "20160209000000000" ) );
 
                     // periodity
-                    // TODO: assertThat( docOut.get( MdekKeys.TIME_PERIOD), is(  ) );
-                    
+                    assertThat( docOut.getInt( MdekKeys.TIME_PERIOD ), is( 1 ) );
+
                     // state
-                    // TODO: assertThat( docOut.get( MdekKeys.TIME_STATUS), is(  ) );
+                    assertThat( docOut.getInt( MdekKeys.TIME_STATUS ), is( 5 ) );
 
                     // interval
-                    // TODO: assertThat( docOut.get( MdekKeys.TIME_INTERSECT), is(  ) );
+                    // NOT mapped in ISO!?
+                    // TODO: assertThat( docOut.get( MdekKeys.TIME_INTERSECT), is( ) );
 
                     // check metadata language: Deutsch
-                    assertThat( docOut.getString( MdekKeys.METADATA_LANGUAGE_NAME), is( "Deutsch" ) );
+                    assertThat( docOut.getString( MdekKeys.METADATA_LANGUAGE_NAME ), is( "Deutsch" ) );
+
+                    // character set (utf8)
+                    assertThat( docOut.getInt( MdekKeys.METADATA_CHARACTER_SET ), is( 4 ) );
 
                     // check publication info: Internet
-                    assertThat( docOut.getInt( MdekKeys.PUBLICATION_CONDITION), is( 1 ) );
+                    assertThat( docOut.getInt( MdekKeys.PUBLICATION_CONDITION ), is( 1 ) );
 
                     // check conformity: Technical Guidance for the implementation of INSPIRE Download Services => konform
-                    assertThat( docOut.getArrayList( MdekKeys.CONFORMITY_LIST).size(), is( 1 ) );
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.CONFORMITY_LIST).get(0)).getString(MdekKeys.CONFORMITY_SPECIFICATION_VALUE), is( "Technical Guidance for the implementation of INSPIRE Download Services" ) );
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.CONFORMITY_LIST).get(0)).getString(MdekKeys.CONFORMITY_DEGREE_VALUE), is( "konform" ) );
+                    assertThat( docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).size(), is( 1 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).get( 0 )).getString( MdekKeys.CONFORMITY_SPECIFICATION_VALUE ),
+                            is( "Technical Guidance for the implementation of INSPIRE Download Services" ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).get( 0 )).getString( MdekKeys.CONFORMITY_DEGREE_VALUE ), is( "konform" ) );
 
                     // xml export criteria
+                    // NOT mapped in ISO!?
                     // TODO: assertThat( docOut.getArrayList( MdekKeys.EXPORT_CRITERIA).size(), is( 1 ) );
-                    // TODO: assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.EXPORT_CRITERIA).get(0)).get( MdekKeys.EXPORT_CRITERION_VALUE ), is( "CDS" ) );
+                    // TODO: assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.EXPORT_CRITERIA).get(0)).get(
+                    // MdekKeys.EXPORT_CRITERION_VALUE ), is( "CDS" ) );
 
                     // law basics
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.ACCESS_LIST).get(1)).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Bundeswasserstraßengesetz (WaStrG)" ) );
+                    assertThat( docOut.getArrayList( MdekKeys.LEGISLATIONS ).size(), is( 1 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.LEGISLATIONS ).get( 0 )).getInt( MdekKeys.LEGISLATION_KEY ), is( 24 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.LEGISLATIONS ).get( 0 )).getString( MdekKeys.LEGISLATION_VALUE ), is( "Bundeswasserstraßengesetz (WaStrG)" ) );
 
                     // purpose
-                    assertThat( docOut.getString( MdekKeys.DATASET_INTENTIONS), is( "kein Zweck" ) );
-                    
+                    assertThat( docOut.getString( MdekKeys.DATASET_INTENTIONS ), is( "kein Zweck" ) );
+
                     // usage
-                    // TODO: assertThat( docOut.get( MdekKeys.), is( "keine Nutzung" ) );
+                    assertThat( docOut.getString( MdekKeys.DATASET_USAGE ), is( "keine Nutzung" ) );
 
                     // check access constraints: Bedingungen unbekannt
+                    // assertThat( docOut.getArrayList( MdekKeys.USE_LIST ).size(), is( 1 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_LIST ).get( 0 )).getString( MdekKeys.USE_TERMS_OF_USE_VALUE ), is( "Es gelten keine Bedingungen" ) );
 
                     // check usage constraints:
-                    // TODO: why is size 2 with first one "license"? assertThat( docOut.getArrayList( MdekKeys.USE_CONSTRAINTS).size(), is( 1 ) );
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.USE_CONSTRAINTS).get( 1 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "Nutzungsbedingungen: eingeschränkte Geolizenz" ) );
+                    // TODO: why is size 2 with first one "license"? assertThat( docOut.getArrayList( MdekKeys.USE_CONSTRAINTS).size(), is(
+                    // 1 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).get( 1 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "eingeschränkte Geolizenz" ) );
 
                     // check usage condition: Es gelten keine Bedingungen
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.ACCESS_LIST).get(0)).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Es gelten keine Bedingungen" ) );
+                    assertThat( docOut.getArrayList( MdekKeys.ACCESS_LIST ).size(), is( 1 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 0 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Es gelten keine Bedingungen" ) );
 
                     // data format
-                    assertThat( docOut.getArrayList( MdekKeys.DATA_FORMATS).size(), is (1));
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.DATA_FORMATS).get(0)).getString( MdekKeys.FORMAT_NAME ), is("Excel"));
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.DATA_FORMATS).get(0)).getString( MdekKeys.FORMAT_VERSION), is("2"));
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.DATA_FORMATS).get(0)).getString( MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE ), is("zip"));
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.DATA_FORMATS).get(0)).getString( MdekKeys.FORMAT_SPECIFICATION), is("5"));
+                    assertThat( docOut.getArrayList( MdekKeys.DATA_FORMATS ).size(), is( 1 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_NAME ), is( "Excel" ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getInt( MdekKeys.FORMAT_NAME_KEY ), is( 3 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_VERSION ), is( "2" ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE ), is( "zip" ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_SPECIFICATION ), is( "5" ) );
 
                     // media
-                    assertThat( docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS).size(), is (1));
-                    // TODO: assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS).get(0)).getInt( MdekKeys.MEDIUM_NAME ), is(1));
-                    // TODO: assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS).get(0)).getString( MdekKeys.MEDIUM_TRANSFER_SIZE), is("700"));
-                    assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS).get(0)).getString( MdekKeys.MEDIUM_NOTE), is("c:/"));
+                    assertThat( docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).size(), is( 1 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).get( 0 )).getInt( MdekKeys.MEDIUM_NAME ), is( 1 ) );
+                    assertThat( (Double) ((IngridDocument) docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).get( 0 )).get( MdekKeys.MEDIUM_TRANSFER_SIZE ), is( 700.0 ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).get( 0 )).getString( MdekKeys.MEDIUM_NOTE ), is( "c:/" ) );
 
                     // order info
-                    assertThat( docOut.getString( MdekKeys.ORDERING_INSTRUCTIONS), is( "keine Bestellung" ) );
-                    
+                    assertThat( docOut.getString( MdekKeys.ORDERING_INSTRUCTIONS ), is( "keine Bestellung" ) );
+
                     // links to
 
                     // links from
@@ -426,9 +482,10 @@ public class CSWImport {
                     assertLink( links.get( 2 ), "Datensatz mit zwei Download Links",
                             "http://192.168.0.247/interface-csw?REQUEST=GetRecordById&SERVICE=CSW&VERSION=2.0.2&id=93BBCF92-BD74-47A2-9865-BE59ABC90C57&iplug=/ingrid-group:iplug-csw-dsc-test&elementSetName=full",
                             "http://portalu.de/igc_testNS#/b6fb5dab-036d-4c43-82da-98ffa2e9df76#**#93BBCF92-BD74-47A2-9865-BE59ABC90C57" );
-                    
-                    // Bounding Boxes are not bound to a name in ISO, so we cannot 
-                    // TODO: assertLocation( locs.get( 0 ), "Hannover (03241001)", 9.603732109069824, 9.919820785522461, 52.30428695678711, 52.454345703125 );
+
+                    // Bounding Boxes are not bound to a name in ISO, so we cannot correctly map it to our structure
+                    assertLocation( locs.get( 0 ), "Hannover (03241001)", null, null, null, null );
+                    assertLocation( locs.get( 1 ), "Raumbezug des Datensatzes", 9.603732109069824, 9.919820785522461, 52.30428695678711, 52.454345703125 );
 
                 } catch (Exception ex) {
                     throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
@@ -440,13 +497,16 @@ public class CSWImport {
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_service.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+        
+        Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) Mockito.any() );
+        
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
         ProtocolHandler protocol = (ProtocolHandler) analyzeImportData.get( "protocol" );
         assertThat( protocol.getProtocol( Type.ERROR ).size(), is( 0 ) );
-        assertThat( protocol.getProtocol( Type.WARN ).size(), is( 19 ) );
+        assertThat( protocol.getProtocol( Type.WARN ).size(), is( 2 ) );
         assertThat( protocol.getProtocol( Type.INFO ).size(), is( not( 0 ) ) );
     }
-    
+
     private void assertOperation(Object operation, String type, String url, String platform, String description, String invocationUrl) {
         IngridDocument doc = (IngridDocument) operation;
         assertThat( (String) doc.getArrayList( MdekKeys.CONNECT_POINT_LIST ).get( 0 ), is( url ) );
@@ -531,23 +591,53 @@ public class CSWImport {
     }
 
     @Test
-    public void handleDocumentUpdate() {
-        IngridDocument result = plug.cswTransaction( null );
+    public void handleDocumentUpdate() throws IOException {
+        ClassPathResource inputResource = new ClassPathResource( "csw/update_dataset.xml" );
+        File file = inputResource.getFile();
+        
+        Mockito.doAnswer( new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) throws Exception {
+                IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
+                assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ));
+                assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ));
+                assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ));
+                return null;                
+            }
+        }).when( objectJobMock ).storeObject( (IngridDocument) Mockito.any() );
+        
+        
+        String xml = FileUtils.readFileToString( file );
+        IngridDocument result = plug.cswTransaction( xml );
+        
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).storeObject( (IngridDocument) Mockito.any() );
 
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( result.getBoolean( "success" ), is( true ) );
-
-        fail( "Not yet implemented" );
     }
 
     @Test
-    public void handleDocumentDelete() {
-        IngridDocument result = plug.cswTransaction( null );
+    public void handleDocumentDelete() throws IOException {
+        ClassPathResource inputResource = new ClassPathResource( "csw/delete_dataset.xml" );
+        File file = inputResource.getFile();
+        
+        Mockito.doAnswer( new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) throws Exception {
+                IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
+                assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ));
+                assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ));
+                assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ));
+                return null;                
+            }
+        }).when( objectJobMock ).deleteObject( (IngridDocument) Mockito.any() );
+        
+        
+        String xml = FileUtils.readFileToString( file );
+        IngridDocument result = plug.cswTransaction( xml );
+        
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject( (IngridDocument) Mockito.any() );
 
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( result.getBoolean( "success" ), is( true ) );
-
-        fail( "Not yet implemented" );
     }
 
     private void checkXmlResponse(String xml, int inserted, int updated, int deleted) {
@@ -556,9 +646,9 @@ public class CSWImport {
         assertThat( xml, containsString( "<csw:totalDeleted>" + String.valueOf( deleted ) + "</csw:totalDeleted>" ) );
     }
 
-    private void assertLocation(Object location, String string, double longWest, double longEast, double latSouth, double latNorth) {
+    private void assertLocation(Object location, String name, Double longWest, Double longEast, Double latSouth, Double latNorth) {
         IngridDocument locationDoc = (IngridDocument) location;
-        assertThat( locationDoc.getString( MdekKeys.LOCATION_NAME ), is( "Hannover (03241001)" ) );
+        assertThat( locationDoc.getString( MdekKeys.LOCATION_NAME ), is( name ) );
         assertThat( (Double) locationDoc.get( MdekKeys.NORTH_BOUNDING_COORDINATE ), is( latNorth ) );
         assertThat( (Double) locationDoc.get( MdekKeys.SOUTH_BOUNDING_COORDINATE ), is( latSouth ) );
         assertThat( (Double) locationDoc.get( MdekKeys.EAST_BOUNDING_COORDINATE ), is( longEast ) );

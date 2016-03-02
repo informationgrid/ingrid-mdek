@@ -193,6 +193,9 @@ public class MdekKeys {
     /** The data to import (in zipped export/import format)<br>
      *  Value: byte[] */
     public final static String REQUESTINFO_IMPORT_DATA = "requestinfo_importData";
+    /** The analyzed data which was converted to the import format.
+     *  Value: byte[] */
+    public final static String REQUESTINFO_IMPORT_ANALYZED_DATA = "requestinfo_analyzedData";
     /** Object UUID where NEW imported objects are created underneath<br>
      *  Value: String */
     public final static String REQUESTINFO_IMPORT_OBJ_PARENT_UUID = "requestinfo_importObjParentUuid";

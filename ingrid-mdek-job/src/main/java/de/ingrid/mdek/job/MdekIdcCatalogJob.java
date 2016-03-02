@@ -724,7 +724,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 	    String userUuid = getCurrentUserUuid(docIn);
 	    try {
-            addRunningJob(userUuid , createRunningJobDescription(JobType.IMPORT_ANALYZE, 0, 0, false));
+            addRunningJob(userUuid, createRunningJobDescription(JobType.IMPORT_ANALYZE, 0, 0, false));
     	    
     	    genericDao.beginTransaction();
     
@@ -749,12 +749,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     	    } else {
         	    jobDetails = jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, userUuid );
         	    if (jobDetails == null) jobDetails = new HashMap<String, List<byte[]>>();
-        	    analyzedData = jobDetails.get( "analyzedData" );
+        	    analyzedData = jobDetails.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
     	    }
             
     	    if (startNewAnalysis || analyzedData == null) analyzedData = new ArrayList<byte[]>();
     	    analyzedData.add( mappedDataCompressed );
-    	    jobDetails.put( "analyzedData", analyzedData );
+    	    jobDetails.put( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA, analyzedData );
             jobHandler.updateJobInfoDB(JobType.IMPORT_ANALYZE, jobDetails, userUuid);
 	    } catch (Exception ex) {
 	        log.error( "Exception occurred during analysis", ex );
@@ -793,7 +793,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
 
 			HashMap<String, List<byte[]>> jobDetails = jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, userId );
-			Object importData = jobDetails.get( "analyzedData" );//docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+			Object importData = jobDetails.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
 			boolean multipleImportFiles = false;
 			if (List.class.isAssignableFrom(importData.getClass())) {
 				// multipleFiles !

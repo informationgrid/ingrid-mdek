@@ -360,14 +360,14 @@
                     <gmd:resourceConstraints>
                         <gmd:MD_LegalConstraints>
                             <gmd:useLimitation>
-                                <gco:CharacterString>Nutzungseinschränkungen: Es gelten keine Bedingungen</gco:CharacterString>
+                                <gco:CharacterString>Es gelten keine Bedingungen</gco:CharacterString>
                             </gmd:useLimitation>
                         </gmd:MD_LegalConstraints>
                     </gmd:resourceConstraints>
                     <gmd:resourceConstraints>
                         <gmd:MD_LegalConstraints>
                             <gmd:useLimitation>
-                                <gco:CharacterString>Nutzungsbedingungen: eingeschränkte Geolizenz</gco:CharacterString>
+                                <gco:CharacterString>eingeschränkte Geolizenz</gco:CharacterString>
                             </gmd:useLimitation>
                         </gmd:MD_LegalConstraints>
                     </gmd:resourceConstraints>
@@ -382,7 +382,7 @@
                                     codeListValue="otherRestrictions" />
                             </gmd:useConstraints>
                             <gmd:otherConstraints>
-                                <gco:CharacterString>Nutzungsbedingungen: eingeschränkte Geolizenz</gco:CharacterString>
+                                <gco:CharacterString>eingeschränkte Geolizenz</gco:CharacterString>
                             </gmd:otherConstraints>
                             <gmd:otherConstraints>
                                 <gco:CharacterString>{"id":"geolizenz-closed","name":"eingeschränkte Geolizenz","url":"","quelle":""}</gco:CharacterString>
