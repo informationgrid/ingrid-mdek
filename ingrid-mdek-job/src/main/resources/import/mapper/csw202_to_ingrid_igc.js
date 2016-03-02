@@ -514,7 +514,7 @@ var mappingDescription = {"mappings":[
 		    		    			  			"defaultValue":"1",
 		    		    		      			"transform":{
 			    				      				"funct":transformGeneric,
-			    				      				"params":[{"optional":"1", "mandatory":"0"}, false, "Could not map srv:optionality : "]
+			    				      				"params":[{"optional":"1", "mandatory":"0", "1":"1", "0":"0"}, false, "Could not map srv:optionality : "]
 			    				        		}
 		    		    			  		},
 		    		    	  				{
@@ -548,6 +548,10 @@ var mappingDescription = {"mappings":[
 		        	{    
 		                "srcXpath":"//gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/srv:couplingType/srv:SV_CouplingType/@codeListValue",
 		                "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/service/coupling-type"
+		        	},
+		        	{    
+		        	    "srcXpath":"//gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:resourceSpecificUsage/gmd:MD_Usage/gmd:specificUsage/gco:CharacterString",
+		        	    "targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/dataset-usage"
 		        	}
   			    ] // conditional submappings
   			}
@@ -646,7 +650,7 @@ var mappingDescription = {"mappings":[
 						}
 			  		},
 	  				{
-			  			"srcXpath":"../../gmd:transferSize/gco:CharacterString",
+			  			"srcXpath":"../../gmd:transferSize/gco:Real",
 			  			"targetNode":"transfer-size",
 			  			"transform":{
 							"funct":transformNumberStrToIGCNumber
@@ -1572,7 +1576,13 @@ function mapAccessConstraints(source, target) {
     if (hasValue(accConstraints)) {
         for (i=0; i<accConstraints.size(); i++ ) {
             var accConstraint = XPathUtils.getString(accConstraints.get(i), "./gco:CharacterString");
-            addAccessConstraint(accConstraint, target);
+            var idcCode = codeListService.getSysListEntryKey(1350, accConstraint, "", false);
+            log.debug("result from legal constraint: " + idcCode);
+            if (hasValue(idcCode)) {
+                addLegalConstraint(accConstraint, target);
+            } else {
+                addAccessConstraint(accConstraint, target);
+            }
         }
     }
 }
@@ -1584,6 +1594,19 @@ function addAccessConstraint(accConstraint, target) {
         node = XPathUtils.createElementFromXPath(node, "restriction");
         XMLUtils.createOrReplaceTextNode(node, accConstraint);
         var accConstraintId = transformToIgcDomainId(accConstraint, 6010, "", "Could not map access-constraint, use as free entry: ");
+        if (hasValue(accConstraintId)) {
+            XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);                 
+        }
+    }
+}
+
+function addLegalConstraint(accConstraint, target) {
+    if (hasValue(accConstraint)) {
+        log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/access-constraint/legislation" + "' = '" + accConstraint + "' to target document.");
+        var node = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/legislation");
+        //node = XPathUtils.createElementFromXPath(node, "restriction");
+        XMLUtils.createOrReplaceTextNode(node, accConstraint);
+        var accConstraintId = transformToIgcDomainId(accConstraint, 1350, "", "Could not map access-constraint, use as free entry: ");
         if (hasValue(accConstraintId)) {
             XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);                 
         }
