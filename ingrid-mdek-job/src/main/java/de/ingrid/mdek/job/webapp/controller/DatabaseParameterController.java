@@ -85,6 +85,12 @@ public class DatabaseParameterController extends AbstractController {
         if (!commandObject.getConnectionURL().equals( config.databaseUrl )) {
             pdCommandObject.putBoolean( "needsRestart", true );
         }
+        // save in config object
+        config.databaseDriver = commandObject.getDataBaseDriver();
+        config.databaseUrl = commandObject.getConnectionURL();
+        config.databaseUsername = commandObject.getUser();
+        config.databasePassword = commandObject.getPassword();
+        config.databaseSchema = commandObject.getSchema();
         
         return AdminViews.SAVE;
     }
