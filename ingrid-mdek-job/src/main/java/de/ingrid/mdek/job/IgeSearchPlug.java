@@ -194,9 +194,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String propName = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:Literal" );
                 
-                IngridDocument document = prepareImportDocument( builder, updateDocs.item( i ) );
-                IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
-                catalogJob.importEntities( document );
+                if ("uuid".equals( propName ) && propValue != null) {
+                    IngridDocument document = prepareImportDocument( builder, updateDocs.item( i ) );
+                    //document.put( MdekKeys.UUID, propValue );
+                    document.put( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
+                
+                    IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
+                    catalogJob.importEntities( document );
+                }
             }
             for (int i = 0; i < deleteDocs.getLength(); i++) {
                 Node item = deleteDocs.item( i );
