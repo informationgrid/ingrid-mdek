@@ -43,6 +43,7 @@
       </action>
       <action type="update" dev="wemove" issue="REDMINE-223">
         IDF: Add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints) according to GDI-DE.
+        Make "Anwendungseinschränkungen" (useLimitation) always optional.
       </action>
       <action type="add" dev="wemove" issue="REDMINE-88">
         Added indexing of object and addresses as well as live updating index after publish.

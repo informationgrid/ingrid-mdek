@@ -125,7 +125,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
             descriptor.setProperty( "idc.catalogue.country", igcCountry );
             descriptor.setProperty( "idc.catalogue.language", igcLanguage );
     //        descriptor.setProperty( "idc.profile.file", commandObject.getPassword() );
-            descriptor.setProperty( "idc.version", Versioning.NEEDED_IGC_VERSION );
+            descriptor.setProperty( "idc.version", Versioning.UPDATE_TO_IGC_VERSION );
             FileOutputStream os = new FileOutputStream( new File("conf/descriptor.properties") );
             descriptor.store( os, "" );
             is.close();

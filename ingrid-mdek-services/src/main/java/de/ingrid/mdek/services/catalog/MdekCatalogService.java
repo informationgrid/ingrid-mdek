@@ -348,7 +348,11 @@ public class MdekCatalogService {
 			LOG.info("IGE iPlug needed version=" + Versioning.NEEDED_IGC_VERSION);
 		}
 
-		if (!Versioning.NEEDED_IGC_VERSION.equals(databaseIgcVersion)) {
+        // introduce new comparison mechanism !
+        // versions do not have to be equal, instead version in database (catalog) has to start with version set in IGE iPlug !
+        // So IGE iPlug Version 3.6.2 and catalog version 3.6.2.2 match and IGE iPlug does not have to be updated !
+        // This way we can change catalog version, e.g. when profile is updated, which does not affect IGE iPlug !
+        if (!databaseIgcVersion.startsWith(Versioning.NEEDED_IGC_VERSION)) {
 			String errorMsg = "IGC catalogue (schema) in database has wrong version for IGE iPlug:\n" +
 				"Needed IGC version=" + Versioning.NEEDED_IGC_VERSION + " <-> current IGC Version in database=" + databaseIgcVersion;
 			MdekException exc = new MdekException(errorMsg);
