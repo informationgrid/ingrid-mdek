@@ -1688,4 +1688,11 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
             throw handledExc;
         }
 	}
+
+    public String getCatalogAdminUserUuid() {
+        genericDao.beginTransaction();
+        String addrUuid = permissionHandler.getCatalogAdminUser().getAddrUuid();
+        genericDao.commitTransaction();
+        return addrUuid;
+    }
 }

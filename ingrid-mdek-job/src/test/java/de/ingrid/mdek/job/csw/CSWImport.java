@@ -5,7 +5,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -584,10 +583,10 @@ public class CSWImport {
 
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( result.getBoolean( "success" ), is( true ) );
-        TransactionResponse resultXml = (TransactionResponse) result.get( "result" );
+        String resultXml = result.getString( "response" );
         assertThat( resultXml, is( not( nullValue() ) ) );
         // assertThat( resultXml.getActionResponses().size(), is( 1 ) );
-        checkXmlResponse( resultXml.getXmlResponse(), 1, 0, 0 );
+        checkXmlResponse( resultXml, 1, 0, 0 );
     }
 
     @Test
