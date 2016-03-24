@@ -28,7 +28,6 @@ import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +38,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import de.ingrid.admin.elasticsearch.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
@@ -85,6 +83,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private final IndexImpl _indexSearcher;
     
     private XPathUtils utils = new XPathUtils( new Csw202NamespaceContext() );
+
+    private String adminUserUUID;
 
     @Autowired
     public IgeSearchPlug(final IndexImpl indexSearcher, IPlugdescriptionFieldFilter[] fieldFilters, IMetadataInjector[] injector, IPreProcessor[] preProcessors, IPostProcessor[] postProcessors)
@@ -188,15 +188,19 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             NodeList updateDocs = xmlDoc.getElementsByTagName( "csw:Update" );
             NodeList deleteDocs = xmlDoc.getElementsByTagName( "csw:Delete" );
             
-
+            adminUserUUID = catalogJob.getCatalogAdminUserUuid();
+            
+            catalogJob.beginTransaction();
+                        
             /**
              * INSERT DOCS
              */
             for (int i = 0; i < insertDocs.getLength(); i++) {
-                IngridDocument document = prepareImportDocument( builder, insertDocs.item( i ) );
+                IngridDocument document = prepareImportAnalyzeDocument( builder, insertDocs.item( i ) );
+                document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
                 IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
-                resultInsert = catalogJob.importEntities( document );
             }
+            resultInsert = catalogJob.importEntities( prepareImportDocument() );
             
             /**
              * UPDATE DOCS
@@ -207,7 +211,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String propValue = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:Literal" );
                 
                 if ("uuid".equals( propName ) && propValue != null) {
-                    IngridDocument document = prepareImportDocument( builder, updateDocs.item( i ) );
+                    IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     //document.put( MdekKeys.UUID, propValue );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
                 
@@ -237,16 +241,13 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 }
             }
             
+            catalogJob.commitTransaction();
+            
             
             doc.putBoolean( "success", true );
 
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } catch (Exception e) {
+            catalogJob.rollbackTransaction();
             e.printStackTrace();
             doc.put( "error", e.getMessage() );
             doc.putBoolean( "success", false);
@@ -261,26 +262,33 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         return doc;
     }
 
-    private IngridDocument prepareImportDocument(DocumentBuilder builder, Node doc) throws Exception {
+    private IngridDocument prepareImportAnalyzeDocument(DocumentBuilder builder, Node doc) throws Exception {
         Document singleInsertDocument = builder.newDocument();
         Node importedNode = singleInsertDocument.importNode( doc.getFirstChild().getNextSibling(), true );
         singleInsertDocument.appendChild( importedNode );
         String insertDoc = XMLUtils.toString( singleInsertDocument );
 
         IngridDocument docIn = new IngridDocument();
-        docIn.put( MdekKeys.USER_ID, catalogJob.getCatalogAdminUserUuid() );
+        docIn.put( MdekKeys.USER_ID, adminUserUUID );
         // docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, GZipTool.gzip( insertDoc ).getBytes());
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, catalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
-        
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
+        return docIn;
+    }
+    
+    private IngridDocument prepareImportDocument() throws Exception {
+        IngridDocument docIn = new IngridDocument();
+        docIn.put( MdekKeys.USER_ID, adminUserUUID );
         // TODO: it should not be neccessary to provide an object and address node for the import!
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, "2768376B-EE24-4F34-969B-084C55B52278" );  // IMPORTKNOTEN
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, "BD33BC8E-519E-47F9-8A30-465C95CD0355" ); // IMPORTKNOTEN
         
-        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
-        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, false );
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );
         
         return docIn;
     }

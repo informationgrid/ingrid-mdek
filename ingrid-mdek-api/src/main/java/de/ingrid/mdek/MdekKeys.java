@@ -218,6 +218,7 @@ public class MdekKeys {
      * If value is true, then throw away all previously analyzed data from job info.
      *  Value: Boolean */
     public final static String REQUESTINFO_IMPORT_START_NEW_ANALYSIS = "requestinfo_importStartNewAnalysis";
+    public final static String REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
 
 
     // URL

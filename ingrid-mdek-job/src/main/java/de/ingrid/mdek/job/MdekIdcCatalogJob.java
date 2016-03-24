@@ -726,7 +726,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    try {
             addRunningJob(userUuid, createRunningJobDescription(JobType.IMPORT_ANALYZE, 0, 0, false));
     	    
-    	    genericDao.beginTransaction();
+//    	    genericDao.beginTransaction();
     
     	    try {
                 if (!"igc".equals( frontendProtocol )) {
@@ -765,7 +765,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         // add end info
         jobHandler.endJobInfoDB(JobType.IMPORT_ANALYZE, userUuid);
 	    
-	    genericDao.commitTransaction();
+//	    genericDao.commitTransaction();
 	    
         result.put("protocol", protocolHandler);
         
@@ -785,9 +785,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	 */
 	public IngridDocument importEntities(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
+		boolean transactionInProgress = (boolean) docIn.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
 		boolean removeRunningJob = true;
 		try {
-		    genericDao.beginTransaction();
+		    if (!transactionInProgress) {
+		        genericDao.beginTransaction();
+		    }
 		    
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
@@ -854,7 +857,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			importService.endImportJobInfo(userId);
 			HashMap importInfo = getJobInfo(JobType.IMPORT, userId, false, false);
 
-			genericDao.commitTransaction();
+			if (!transactionInProgress) {
+	            genericDao.commitTransaction();
+			}
 
 			IngridDocument result = new IngridDocument();
 			result.putAll(importInfo);
@@ -1694,5 +1699,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         String addrUuid = permissionHandler.getCatalogAdminUser().getAddrUuid();
         genericDao.commitTransaction();
         return addrUuid;
+    }
+    
+    public void beginTransaction() {
+        genericDao.beginTransaction();
+    }
+    
+    public void commitTransaction() {
+        genericDao.commitTransaction();
+    }
+    
+    public void rollbackTransaction() {
+        genericDao.rollbackTransaction();
     }
 }
