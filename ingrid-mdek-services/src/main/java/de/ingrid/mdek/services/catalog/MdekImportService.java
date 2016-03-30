@@ -221,7 +221,7 @@ public class MdekImportService implements IImporterCallback {
 
 	public void writeEntity(IdcEntityType whichType, IngridDocument inDoc, String userUuid) {
 		// extract context
-		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		HashMap<Object, Object> runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
 		boolean publishImmediately = (Boolean) runningJobInfo.get(KEY_PUBLISH_IMMEDIATELY);
 		boolean doSeparateImport = (Boolean) runningJobInfo.get(KEY_DO_SEPARATE_IMPORT);
 		boolean copyNodeIfPresent = (Boolean) runningJobInfo.get(KEY_COPY_NODE_IF_PRESENT);
@@ -229,9 +229,17 @@ public class MdekImportService implements IImporterCallback {
 		int numImportedAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES);
 		int totalNumObjects = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS);
 		int totalNumAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
+		boolean errorOnExistingUuid = (boolean) runningJobInfo.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false);
+		
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
-			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);			
+			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
+			if (errorOnExistingUuid) {
+			    ObjectNode objImportNode = objectService.loadByOrigId( inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), IdcEntityVersion.WORKING_VERSION);
+			    if (objImportNode != null) {
+			        throw createImportException("Object already exists with Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
+			    }
+			}
 		} else if (whichType == IdcEntityType.ADDRESS) {
 			importNode = (IEntity) runningJobInfo.get(KEY_ADDR_IMPORT_NODE);
 		}

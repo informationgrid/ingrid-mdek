@@ -719,6 +719,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
 	    //Boolean importAfterAnalyze = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_DATA_AFTER_ANALYZE);
 	    Boolean startNewAnalysis = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS);
+        boolean transactionInProgress = (boolean) docIn.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
 	    ProtocolHandler protocolHandler = new HashMapProtocolHandler();
 	    byte[] mappedDataCompressed = null;
 
@@ -726,12 +727,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    try {
             addRunningJob(userUuid, createRunningJobDescription(JobType.IMPORT_ANALYZE, 0, 0, false));
     	    
-//    	    genericDao.beginTransaction();
+            if (!transactionInProgress) {
+                genericDao.beginTransaction();
+            }
     
     	    try {
                 if (!"igc".equals( frontendProtocol )) {
                     InputStream in = new GZIPInputStream(new ByteArrayInputStream(importData));
                     InputStream mappedData = dataMapperFactory.getMapper(frontendProtocol).convert(in, protocolHandler);
+//                    System.out.println( "out: "+ IOUtils.toString( mappedData ) );
                     mappedDataCompressed = compress(mappedData).toByteArray();
                 }
     	    } catch( Exception ex ) {
@@ -765,7 +769,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         // add end info
         jobHandler.endJobInfoDB(JobType.IMPORT_ANALYZE, userUuid);
 	    
-//	    genericDao.commitTransaction();
+        if (!transactionInProgress) {
+            genericDao.commitTransaction();
+        }
 	    
         result.put("protocol", protocolHandler);
         
@@ -786,14 +792,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public IngridDocument importEntities(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
 		boolean transactionInProgress = (boolean) docIn.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+		boolean errorOnExisitingUuid = (boolean) docIn.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
 		boolean removeRunningJob = true;
 		try {
 		    if (!transactionInProgress) {
 		        genericDao.beginTransaction();
 		    }
 		    
-			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
+			IngridDocument jobDescr = createRunningJobDescription(JobType.IMPORT, 0, 0, false);
+			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, errorOnExisitingUuid );
+            // first add basic running jobs info !
+			addRunningJob(userId, jobDescr );
 
 			HashMap<String, List<byte[]>> jobDetails = jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, userId );
 			Object importData = jobDetails.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );

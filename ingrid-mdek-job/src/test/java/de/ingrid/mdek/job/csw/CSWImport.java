@@ -168,6 +168,7 @@ public class CSWImport {
         List<SysList> syslist524 = createSyslist( 524, 5, "license" );
         List<SysList> syslist1320 = createSyslist( 1320, 3, "Excel" );
         List<SysList> syslist1350 = createSyslist( 1350, 24, "Bundeswasserstraßengesetz (WaStrG)" );
+        List<SysList> syslist1410 = createSyslist( 1410, 6, "Energy" );
         List<SysList> syslist5120 = createSyslist( 5120, 1, "GetCapabilities" );
         List<SysList> syslist5153 = createSyslist( 5153, 2, "OGC:WFS 2.0" );
         List<SysList> syslist5200 = createSyslist( 5200, 211, "infoStandingOrderService" );
@@ -176,6 +177,8 @@ public class CSWImport {
         List<SysList> syslist6020 = createSyslist( 6020, 1, "Es gelten keine Bedingungen" );
         List<SysList> syslist6100 = createSyslist( 6100, 317, "Biogeografische Regionen" );
         extendSyslist( syslist6100, 302, "Gebäude" );
+        List<SysList> syslist6400 = createSyslist( 6400, 5, "Gesundheit" );
+        extendSyslist( syslist6400, 11, "Umwelt und Klima" );
 
         Mockito.when( daoSysList.getSysList( 100, "iso" ) ).thenReturn( syslist100 );
         Mockito.when( daoSysList.getSysList( 101, "iso" ) ).thenReturn( syslist101 );
@@ -190,6 +193,7 @@ public class CSWImport {
         Mockito.when( daoSysList.getSysList( 524, "iso" ) ).thenReturn( syslist524 );
         Mockito.when( daoSysList.getSysList( 1320, "iso" ) ).thenReturn( syslist1320 );
         Mockito.when( daoSysList.getSysList( 1350, "iso" ) ).thenReturn( syslist1350 );
+        Mockito.when( daoSysList.getSysList( 1410, "iso" ) ).thenReturn( syslist1410 );
         Mockito.when( daoSysList.getSysList( 5120, "iso" ) ).thenReturn( syslist5120 );
         Mockito.when( daoSysList.getSysList( 5153, "iso" ) ).thenReturn( syslist5153 );
         Mockito.when( daoSysList.getSysList( 5200, "iso" ) ).thenReturn( syslist5200 );
@@ -197,6 +201,7 @@ public class CSWImport {
         Mockito.when( daoSysList.getSysList( 6010, "iso" ) ).thenReturn( syslist6010 );
         Mockito.when( daoSysList.getSysList( 6020, "iso" ) ).thenReturn( syslist6020 );
         Mockito.when( daoSysList.getSysList( 6100, "iso" ) ).thenReturn( syslist6100 );
+        Mockito.when( daoSysList.getSysList( 6400, "de" ) ).thenReturn( syslist6400 );
     }
 
     private List<SysList> createSyslist(int listId, int entryId, String value) {
@@ -291,38 +296,50 @@ public class CSWImport {
                     assertThat( docOut.getString( MdekKeys.DATASET_ALTERNATE_NAME ), is( "Eine kurze Beschreibung" ) );
 
                     // check preview image
-                    // TODO: is encoded in linksToUrlTable: http://some.pic.com
+                    List<IngridDocument> links = (List<IngridDocument>) docOut.get(MdekKeys.LINKAGES);
+                    boolean found = false;
+                    for (IngridDocument link : links) {
+                        if (link.getInt( MdekKeys.LINKAGE_REFERENCE_ID ) == 9000 && "http://some.pic.com".equals( link.getString( MdekKeys.LINKAGE_URL ))) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    assertThat("Preview image was not found.", found, is(true));
 
                     // check abstract
                     assertThat( docOut.getString( MdekKeys.ABSTRACT ), is( "Dienst für den Test um externe gekoppelte Datensätze hinzuzufügen" ) );
 
                     // check address
                     List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
-                    // gets a new UUID!!!
-                    // assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "3E1B7F21-4E56-11D3-9A6B-0060971A0BF7" ) );
+                    // TODO: dataset gets a new UUID but keeps its origUUID!!!
+                    assertThat( addresses.size(), is( 3 ) );
                     assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
                     assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
+                    assertThat( addresses.get( 2 ).getString( MdekKeys.UUID ), is( "3E1B7F21-4E56-11D3-9A6B-0060971A0BF7" ) );
+                    assertThat( addresses.get( 2 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 1 ) );
+                    assertThat( addresses.get( 2 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
 
                     // inspire relevant
                     assertThat( docOut.getString( MdekKeys.IS_INSPIRE_RELEVANT ), is( "Y" ) );
 
                     // open data
                     assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( "Y" ) );
-                    // not in keywords anymore after correct analyze: assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ),
-                    // "opendata" );
+                    assertThat( docOut.getArrayList( MdekKeys.OPEN_DATA_CATEGORY_LIST ).size(), is( 2 ) );
+                    assertSubjectTerms( docOut.getArrayList( MdekKeys.OPEN_DATA_CATEGORY_LIST), "Umwelt und Klima", "Gesundheit" );
 
                     // INSPIRE-topics
                     assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 2 ) );
                     assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ), "Biogeografische Regionen", "Gebäude" );
 
                     // optional topics
-                    assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ).size(), is( 6 ) );
-                    assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ), "Adaptronik", "Umwelt und Klima", "Gesundheit", "Energy", "Kabal", "Erdsystem" );
+                    assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ).size(), is( 3 ) );
+                    assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ), "Adaptronik", "Kabal", "Erdsystem" );
 
                     // environment topics
                     // NOT mapped in ISO!?
                     // TODO: assertThat( docOut.getString( MdekKeys.IS_CATALOG_DATA ), is( "Y" ) );
-                    // TODO: assertThat( docOut.getString( MdekKeys.ENV_TOPICS ), is( nullValue() ) );
+                    assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).size(), is( 1 ) );
+                    assertThat( (int)docOut.getArrayList( MdekKeys.ENV_TOPICS ).get(0), is( 6 ) );
 
                     IngridDocument serviceMap = (IngridDocument) docOut.get( MdekKeys.TECHNICAL_DOMAIN_SERVICE );
                     // check classification of service: Dauerauftragsdienst (211)
@@ -345,10 +362,11 @@ public class CSWImport {
                             "http://some.cap.com/hello?count=10" );
 
                     // scale
-                    // NOT mapped in ISO!?
+                    // NOT mapped in ISO! -> only written into abstract
                     // TODO: assertThat( serviceMap.get( MdekKeys.PUBLICATION_SCALE_LIST ), is( nullValue() ) );
 
                     // system
+                    // NOT mapped in ISO! -> only written into abstract
                     // mapping problem since from source: LI_SOURCE has multiple entries, also DATABASE_OF_SYSTEM
                     // TODO: assertThat( serviceMap.get( MdekKeys.SYSTEM_ENVIRONMENT ), is( "Zeitgeschichte" ) );
 
@@ -370,11 +388,6 @@ public class CSWImport {
                     // access constraint
                     // NOT mapped in ISO!?
                     // TODO: assertThat( serviceMap.getString( MdekKeys.HAS_ACCESS_CONSTRAINT ), is( "Y" ) );
-
-                    // spatial ref
-                    // docOut.get( MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST )
-
-                    // free spatial ref
 
                     // check spatial ref: EPSG 3068: DHDN / Soldner Berlin
                     assertThat( docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).size(), is( 1 ) );
@@ -472,11 +485,14 @@ public class CSWImport {
                     assertThat( docOut.getString( MdekKeys.ORDERING_INSTRUCTIONS ), is( "keine Bestellung" ) );
 
                     // links to
-
+                    
                     // links from
 
+                    // spatial ref
+                    // docOut.get( MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST )
+
+                    // free spatial ref
                     List<Object> locs = docOut.getArrayList( MdekKeys.LOCATIONS );
-                    List<Object> links = docOut.getArrayList( MdekKeys.LINKAGES );
                     // assertThat( locs.size(), is( 1 ));
                     assertLink( links.get( 2 ), "Datensatz mit zwei Download Links",
                             "http://192.168.0.247/interface-csw?REQUEST=GetRecordById&SERVICE=CSW&VERSION=2.0.2&id=93BBCF92-BD74-47A2-9865-BE59ABC90C57&iplug=/ingrid-group:iplug-csw-dsc-test&elementSetName=full",
@@ -494,10 +510,10 @@ public class CSWImport {
 
         } ).when( jobHandler ).updateJobInfoDB( (JobType) Mockito.any(), (HashMap) Mockito.any(), Mockito.anyString() );
 
-        IngridDocument docIn = prepareInsertDocument( "csw/insert_service.xml" );
+        IngridDocument docIn = prepareInsertDocument( "csw/insert_class3_service.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
         
-        Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) Mockito.any() );
+        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) Mockito.any() );
         
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
         ProtocolHandler protocol = (ProtocolHandler) analyzeImportData.get( "protocol" );

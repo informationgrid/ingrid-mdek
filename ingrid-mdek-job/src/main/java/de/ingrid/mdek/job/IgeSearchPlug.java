@@ -197,10 +197,10 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < insertDocs.getLength(); i++) {
                 IngridDocument document = prepareImportAnalyzeDocument( builder, insertDocs.item( i ) );
-                document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
+                //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
                 IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
+                resultInsert = catalogJob.importEntities( prepareImportDocument() );
             }
-            resultInsert = catalogJob.importEntities( prepareImportDocument() );
             
             /**
              * UPDATE DOCS
@@ -212,8 +212,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
-                    //document.put( MdekKeys.UUID, propValue );
-                    document.put( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
                 
                     IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
@@ -256,6 +254,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             result.putInt( "inserts", resultInsert == null ? 0 : resultInsert.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
             result.putInt( "updates", resultUpdate == null ? 0 : resultUpdate.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
             result.putInt( "deletes", deletedObjects );
+            result.put( "resultInserts", resultInsert );
+            result.put( "resultUpdates", resultUpdate );
             doc.put( "result", result );
         }
 
@@ -270,10 +270,20 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
         IngridDocument docIn = new IngridDocument();
         docIn.put( MdekKeys.USER_ID, adminUserUUID );
+        
+        // TODO: it should not be neccessary to provide an object and address node for the import!
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, "2768376B-EE24-4F34-969B-084C55B52278" );  // IMPORTKNOTEN
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, "BD33BC8E-519E-47F9-8A30-465C95CD0355" ); // IMPORTKNOTEN
+        
         // docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, GZipTool.gzip( insertDoc ).getBytes());
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, catalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
         return docIn;
     }
     
@@ -289,6 +299,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, true );
         
         return docIn;
     }
