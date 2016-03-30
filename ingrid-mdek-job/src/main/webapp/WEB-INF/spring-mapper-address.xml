@@ -13,6 +13,7 @@
         <property name="recordMapperList">
             <list>
                 <ref bean="recordMapperAddress"/>
+                <ref bean="idfProducerIndexMapperAddress"/>
             </list>
         </property>
         <property name="indexInfo" ref="indexInfoAddress"></property>
@@ -37,6 +38,17 @@
         </property> 
         <property name="compile" value="true" />
     </bean>
+
+    <!-- 
+    
+      Creates an IDF document via a  de.ingrid.iplug.dsc.record.DscRecordCreator and adds it
+      to the index in field 'idf'. 
+    
+    -->
+    <bean id="idfProducerIndexMapperAddress" class="de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper">
+        <property name="dscRecordCreator" ref="dscRecordCreatorAddress" />
+    </bean>
+    
 
 <!--     <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
         <property name="dscRecordProducer" ref="dscRecordCreatorAddress" />

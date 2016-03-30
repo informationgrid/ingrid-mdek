@@ -14,6 +14,7 @@
             <list>
                 <ref bean="recordMapper"/>
                 <ref bean="recordProfileMapper"/>
+                <ref bean="idfProducerIndexMapper"/>
             </list>
         </property>
         <property name="indexInfo" ref="indexInfo"></property>
@@ -40,6 +41,16 @@
     </bean>
     <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper">
         <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
+    </bean>
+    
+    <!-- 
+    
+      Creates an IDF document via a  de.ingrid.iplug.dsc.record.DscRecordCreator and adds it
+      to the index in field 'idf'. 
+    
+    -->
+    <bean id="idfProducerIndexMapper" class="de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper">
+        <property name="dscRecordCreator" ref="dscRecordCreator" />
     </bean>
 
 
