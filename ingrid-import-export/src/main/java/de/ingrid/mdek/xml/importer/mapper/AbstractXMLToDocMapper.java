@@ -51,10 +51,14 @@ abstract public class AbstractXMLToDocMapper {
 	private static final String UMTHES = "UMTHES";
 	private static final String GEMET = "GEMET";
 	private static final String INSPIRE = "INSPIRE";
+	private static final String TOPIC = "Topic";
+	private static final String OPENDATA = "OpenData";
 
 	protected static void mapSubjectTerms(NodeList terms, IngridDocument target) {
 		List<IngridDocument> termList = new ArrayList<IngridDocument>();
 		List<IngridDocument> termInspireList = new ArrayList<IngridDocument>();
+		List<IngridDocument> openDataList = new ArrayList<IngridDocument>();
+		List<Integer> envTopicsList = new ArrayList<Integer>();
 
 		for (int index = 0; index < terms.getLength(); index++) {
 			Node term = terms.item(index);
@@ -80,7 +84,12 @@ abstract public class AbstractXMLToDocMapper {
 					putString(MdekKeys.TERM_TYPE, SearchtermType.INSPIRE.getDbValue(), termDoc);
 					putInt(MdekKeys.TERM_ENTRY_ID, XPathUtils.getInt(term, X_ATTRIBUTE_ID), termDoc);
 					termInspireList.add(termDoc);
-				}
+    			} else if (TOPIC.equals(type)) {
+    			    envTopicsList.add(XPathUtils.getInt(term, X_ATTRIBUTE_ID));
+    			} else if (OPENDATA.equals(type)) {
+    			    putInt(MdekKeys.OPEN_DATA_CATEGORY_KEY, XPathUtils.getInt(term, X_ATTRIBUTE_ID), termDoc);
+    			    openDataList.add(termDoc);
+    			}
 
 			} else if (UNCONTROLLED_TERM.equals(nodeName)) {
 				putString(MdekKeys.TERM_TYPE, MdekUtils.SearchtermType.FREI.getDbValue(), termDoc);
@@ -90,5 +99,7 @@ abstract public class AbstractXMLToDocMapper {
 
 		putDocList(MdekKeys.SUBJECT_TERMS, termList, target);
 		putDocList(MdekKeys.SUBJECT_TERMS_INSPIRE, termInspireList, target);
+		target.put(MdekKeys.ENV_TOPICS, envTopicsList);
+		target.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, openDataList);
 	}
 }

@@ -981,9 +981,65 @@ var mappingDescription = {"mappings":[
 			  			"targetAttribute":"source"
 			  		}
 			  	]
-			}		
-  		},		
-        {   
+			}
+  		},
+  		{
+  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString='German Environmental Classification - Topic, version 1.0']/gmd:keyword/gco:CharacterString",
+  		    "targetNode":"/igc/data-sources/data-source/data-source-instance/subject-terms",
+  		    "newNodeName":"controlled-term",
+  		    "subMappings":{
+  		        "mappings": [
+  		                     {
+  		                         "srcXpath":".",
+  		                         "targetNode":""
+  		                     },
+  		                     {
+  		                         "srcXpath":".",
+  		                         "targetNode":"",
+  		                         "targetAttribute":"id",
+  		                         "transform":{
+  		                             "funct":transformToIgcDomainId,
+  		                             // PASS "" as language to check all localized values !!!
+  		                             "params":[1410, "", "Could not map Topic:", true]
+  		                         }
+  		                     },
+  		                     {
+  		                         "defaultValue":"Topic",
+  		                         "targetNode":"",
+  		                         "targetAttribute":"source"
+  		                     }
+  		                     ]
+  		    }		
+  		},
+  		{
+  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString='OGDD-Kategorien']/gmd:keyword/gco:CharacterString",
+  		    "targetNode":"/igc/data-sources/data-source/data-source-instance/subject-terms",
+  		    "newNodeName":"controlled-term",
+  		    "subMappings":{
+  		        "mappings": [
+  		                     {
+  		                         "srcXpath":".",
+  		                         "targetNode":""
+  		                     },
+  		                     {
+  		                         "srcXpath":".",
+  		                         "targetNode":"",
+  		                         "targetAttribute":"id",
+  		                         "transform":{
+  		                             "funct":transformToIgcDomainId,
+  		                             // PASS "" as language to check all localized values !!!
+  		                             "params":[6400, "", "Could not map OpenData Category:", true]
+  		                         }
+  		                     },
+  		                     {
+  		                         "defaultValue":"OpenData",
+  		                         "targetNode":"",
+  		                         "targetAttribute":"source"
+  		                     }
+  		                     ]
+  		    }		
+  		},
+        {
             "execute":{
                 "funct":mapUncontrolledTerms
             }
@@ -1020,10 +1076,10 @@ var mappingDescription = {"mappings":[
 			  			"targetNode":"linkage-url-type"
 			  		},
 	  				{
-			  			"defaultValue":"-1",
+			  			"defaultValue":"9000",
 			  			"targetNode":"linkage-reference",
 			  			"targetAttribute":"id"
-			  		}
+          			}
 			  	]
 			}
   		},
@@ -1624,6 +1680,8 @@ function mapAddresses(source, target) {
         	var organisationName = XPathUtils.getString(isoAddressNode, "gmd:organisationName/gco:CharacterString");
         	var individualName = XPathUtils.getString(isoAddressNode, "gmd:individualName/gco:CharacterString");
         	var parentUuid;
+        	
+        	// first create parent address identified by the organisation and individual name
         	if (hasValue(organisationName) && hasValue(individualName)) {
         		var parentUuid = createUUIDFromString(organisationName.toString());
         		if (!hasValue(parentAddressList[parentUuid])) {
@@ -1639,6 +1697,8 @@ function mapAddresses(source, target) {
         			log.debug("Organization in individual address detected. Use existing address for organization '" + organisationName + "' with uuid=" + parentUuid + ".")        		
         		}
         	}
+        	
+        	// then create the actual address
         	var uuid = createUUIDFromAddress(isoAddressNode);
     		var igcAddressNode = XPathUtils.createElementFromXPathAsSibling(igcAdressNodes, "address/address-instance");
             XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "address-identifier"), uuid);
@@ -1683,7 +1743,7 @@ function mapAddresses(source, target) {
 }
 
 function mapUncontrolledTerms(source, target) {
-    var terms = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') ))]/gmd:keyword/gco:CharacterString");
+    var terms = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='OGDD-Kategorien') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') ))]/gmd:keyword/gco:CharacterString");
     if (hasValue(terms)) {
         for (i=0; i<terms.getLength(); i++ ) {
             var term = XPathUtils.getString(terms.item(i), ".");
@@ -2066,11 +2126,15 @@ function createUUIDFromAddress(source) {
 	}
 	
 	var uuid;
-	if (hasValue(idString) && (hasValue(email) || (hasValue(organisationName) && hasValue(individualName)))) {
-		uuid = createUUIDFromString(idString.toString());
-	} else if (hasValue(isoUuid)) {
-		uuid = isoUuid;
+	// first check for valid uuid to be used for address identification
+	if (hasValue(isoUuid)) {
+	    uuid = isoUuid;
+	} else if (hasValue(idString) && (hasValue(email) || (hasValue(organisationName) && hasValue(individualName)))) {
+	    // otherwise create a uuid from the content, to try to find an address
+	    // this should work if same address was referenced without a uuid
+	    uuid = createUUIDFromString(idString.toString());
 	} else {
+	    // if no content was given, create a completely new uuid
 		protocol(INFO, "Insufficient data for UUID creation (no 'email' or only one of 'individualName' or 'organisationName' has been set for this address: email='" + email + "', individualName='" + individualName + "', organisationName='" + organisationName + "'!)")
 		protocol(INFO, "A new random UUID will be created!")
 		log.info("Insufficient data for UUID creation (no 'email' or only one of 'individualName' or 'organisationName' has been set for this address: email='" + email + "', individualName='" + individualName + "', organisationName='" + organisationName + "'!)");
