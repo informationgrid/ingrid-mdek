@@ -33,6 +33,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import com.tngtech.configbuilder.ConfigBuilder;
@@ -174,16 +175,8 @@ public class MdekServer {
         return argumentMap;
     }
 
-    private static void printUsage() {
-        System.err.println("Usage: " + MdekServer.class.getName() + "--descriptor <communication.xml> --reconnectIntervall <seconds>");
-        System.exit(0);
-    }
-
     public static void main(String[] args) throws Exception {
         Map<String, String> map = readParameters(args);
-        if (map.size() < 1 || map.size() > 2) {
-            printUsage();
-        }
         
         // read configuration
         conf = new ConfigBuilder<Configuration>(Configuration.class).build();
@@ -191,8 +184,7 @@ public class MdekServer {
         // this also initializes all spring services and does autowiring
         new JettyStarter( conf );
         
-        String communicationFile = (String) map.get("--descriptor");
-        _communicationProperties = new File(communicationFile);
+        _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
         
         if (map.containsKey("--reconnectIntervall")) {
             String intervall = (String) map.get("--reconnectIntervall");
@@ -211,6 +203,20 @@ public class MdekServer {
                 }
             }
         });
+    }
+
+    private static File getCommunicationFile(String communicationFile) throws IOException {
+        File commFile = null;
+        if (communicationFile == null) {
+            if (new ClassPathResource( "communication-ige.xml" ).exists()) {
+                commFile = new ClassPathResource( "communication-ige.xml" ).getFile();
+            } else if ( new File("conf/communication-ige.xml").exists()) {
+                commFile = new File("conf/communication-ige.xml");
+            }
+        } else {
+            commFile = new File(communicationFile);
+        }
+        return commFile;
     }
 
     private List<String> getRegisteredMdekServers() {

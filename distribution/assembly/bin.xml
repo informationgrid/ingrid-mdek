@@ -59,17 +59,13 @@
   <fileSets>
     <fileSet>
       <directory>../ingrid-mdek-job/src/main/resources</directory>
-      <outputDirectory>${project.artifactId}-${project.version}/conf</outputDirectory>
+      <outputDirectory>${project.build.finalName}/conf</outputDirectory>
       <excludes>
         <exclude>mdek-job-version.properties</exclude>
       </excludes>
     </fileSet>
     <fileSet>
       <directory>../ingrid-mdek-job/src/main/release/conf</directory>
-      <outputDirectory>${project.build.finalName}/conf</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>../ingrid-mdek-services/src/main/release/conf</directory>
       <outputDirectory>${project.build.finalName}/conf</outputDirectory>
     </fileSet>
     <fileSet>
