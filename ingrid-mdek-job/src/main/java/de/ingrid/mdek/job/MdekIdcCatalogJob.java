@@ -719,7 +719,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
 	    //Boolean importAfterAnalyze = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_DATA_AFTER_ANALYZE);
 	    Boolean startNewAnalysis = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS);
-        boolean transactionInProgress = (boolean) docIn.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+        boolean transactionInProgress = (boolean) getOrDefault(docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
 	    ProtocolHandler protocolHandler = new HashMapProtocolHandler();
 	    byte[] mappedDataCompressed = null;
 
@@ -791,8 +791,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	 */
 	public IngridDocument importEntities(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
-		boolean transactionInProgress = (boolean) docIn.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
-		boolean errorOnExisitingUuid = (boolean) docIn.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
+		boolean transactionInProgress = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+		boolean errorOnExisitingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
 		boolean removeRunningJob = true;
 		try {
 		    if (!transactionInProgress) {
@@ -1710,6 +1710,14 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         return addrUuid;
     }
     
+    private Object getOrDefault(IngridDocument doc, String key, Object defaultValue) {
+        if (doc.containsKey( key )) {
+            return doc.get( key );
+        } else {
+            return defaultValue;
+        }
+    }
+    
     public void beginTransaction() {
         genericDao.beginTransaction();
     }
@@ -1720,5 +1728,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     
     public void rollbackTransaction() {
         genericDao.rollbackTransaction();
-    }
+    }  
+  
 }

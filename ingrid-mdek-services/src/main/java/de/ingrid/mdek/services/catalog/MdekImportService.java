@@ -229,7 +229,7 @@ public class MdekImportService implements IImporterCallback {
 		int numImportedAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_PROCESSED_ADDRESSES);
 		int totalNumObjects = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS);
 		int totalNumAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
-		boolean errorOnExistingUuid = (boolean) runningJobInfo.getOrDefault( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false);
+		boolean errorOnExistingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID) : false;
 		
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
