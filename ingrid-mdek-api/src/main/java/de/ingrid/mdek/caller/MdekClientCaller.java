@@ -175,7 +175,7 @@ public class MdekClientCaller implements IMdekClientCaller {
 	}
 */
 
-	public List setUpJobMethod(String methodName, IngridDocument methodParams) {
+	public List<Pair> setUpJobMethod(String methodName, IngridDocument methodParams) {
 		debugDocument("JobMethod: " + methodName + ", PARAMETERS:", methodParams);
 
 		ArrayList<Pair> methodList = new ArrayList<Pair>();

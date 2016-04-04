@@ -46,7 +46,11 @@ public abstract class MdekJob implements IJob {
 
 	protected MdekJobHandler jobHandler;
 
-	public MdekJob(Logger log, DaoFactory daoFactory) {
+	public void setJobHandler(MdekJobHandler jobHandler) {
+        this.jobHandler = jobHandler;
+    }
+
+    public MdekJob(Logger log, DaoFactory daoFactory) {
 		this.log = log;
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);

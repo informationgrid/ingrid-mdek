@@ -39,6 +39,7 @@ public interface IJob {
 		CHECK("CHECK"),
 		EXPORT("EXPORT"),
 		IMPORT("IMPORT"),
+		IMPORT_ANALYZE("IMPORT_ANALYZE"),
 		URL("URL"),
 		ANALYZE("ANALYZE"),
 		/** e.g. replace address ...*/

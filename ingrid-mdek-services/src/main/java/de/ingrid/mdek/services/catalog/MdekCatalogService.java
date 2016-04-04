@@ -25,6 +25,7 @@ package de.ingrid.mdek.services.catalog;
 import java.beans.PropertyDescriptor;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -266,12 +267,13 @@ public class MdekCatalogService {
 	public Map<Integer, String> getSysListKeyNameMap(int listId, String language) {
 		// ALWAYS USE CACHE !
 		boolean useCache = true;
+		String cacheKey = listId + ":" + language;
 
 		// get map from cache if requested !
 		Map<Integer, String> map = null;
 		Element elem = null;
 		if (useCache) {
-			elem = syslistMapCache.get(listId);
+			elem = syslistMapCache.get(cacheKey);
 			if (elem != null) {
 				map = (Map<Integer, String>) elem.getObjectValue();
 			}
@@ -288,7 +290,7 @@ public class MdekCatalogService {
 
 		// add to cache if cache used !
 		if (useCache && elem == null) {
-			syslistMapCache.put(new Element(listId, map));
+			syslistMapCache.put(new Element(cacheKey, map));
 		}
 
 		return map;
@@ -304,16 +306,117 @@ public class MdekCatalogService {
 	}
 
 	public String getSysListEntryName(int listId, int entryId) {
-		String entryName = null;
-		
 		String language = getCatalogLanguage();
-		Map<Integer, String> keyNameMap = getSysListKeyNameMap(listId, language);
-		if (keyNameMap != null) {
-			entryName = keyNameMap.get(entryId);
-		}
-		
-		return entryName;
+		return getSysListEntryName( listId, entryId, language );
 	}
+	
+	public String getSysListEntryName(int listId, int entryId, String language) {
+	    String entryName = null;
+	    
+	    Map<Integer, String> keyNameMap = getSysListKeyNameMap(listId, language);
+	    if (keyNameMap != null) {
+	        entryName = keyNameMap.get(entryId);
+	    }
+	    
+	    return entryName;
+	}
+	
+	public Integer getSysListEntryKey(int listId, String value, String language) {
+	    Integer entryId = null;
+	    
+	    Map<Integer, String> keyNameMap = getSysListKeyNameMap(listId, language);
+	    if (keyNameMap != null) {
+	        for (Integer key : keyNameMap.keySet()) {
+                if (value.equals( keyNameMap.get( key ) )) {
+                    entryId = key;
+                    break;
+                }
+            }
+	    }
+	    
+	    return entryId;
+	}
+	
+	public Integer getSysListEntryKey(int listId, String value, String language, Boolean doRobustComparison) {
+	    Integer entryId = null;
+	    
+	    // simplify syslist value
+	    if (doRobustComparison) {
+	        value = value.trim().replace("—", "").replace("-", "").replace(" ", "");
+	    }
+
+	    Collection<Map<Integer, String>> localisedEntryValues = new ArrayList<Map<Integer, String>>();
+	    if (language != null && language.length() > 0) {
+            localisedEntryValues.add(getSysListKeyNameMap(listId, language));
+        } else {
+            localisedEntryValues.add( getSysListKeyNameMap(listId, "de") );
+            localisedEntryValues.add( getSysListKeyNameMap(listId, "en") );
+            localisedEntryValues.add( getSysListKeyNameMap(listId, "iso") );
+        }
+	    
+	    for (Map<Integer, String> keyNameMap : localisedEntryValues) {
+            
+            if (keyNameMap != null) {
+                for (Integer key : keyNameMap.keySet()) {
+                    String compareValue = keyNameMap.get( key );
+                    if (doRobustComparison) {
+                        compareValue = compareValue.trim().replace("—", "").replace("-", "").replace(" ", ""); 
+                    }
+                    if (value.equals( compareValue )) {
+                        entryId = key;
+                        break;
+                    }
+                }
+            }
+	    }
+        
+        return entryId;
+    }
+	
+	public Integer getInitialKeyFromListId(Integer listId) {
+	    Integer entryKey = null;
+        
+        String language = getCatalogLanguage();
+        List<SysList> list = daoSysList.getSysList(listId, language);
+        
+        // special behavior if default language is read and not set ! Then return catalog language !
+        if (listId == 99999999) {
+            entryKey = getCatalog().getLanguageKey();
+        } else {
+            for (SysList entry : list) {
+                if ("Y".equals( entry.getIsDefault() )) {
+                    entryKey = entry.getEntryId();
+                    break;
+                }
+            }
+        }
+        
+        
+        return entryKey;
+	}
+	
+	public String getInitialValueFromListId(Integer listId) {
+	    String entryName = null;
+        
+        String language = getCatalogLanguage();
+        List<SysList> list = daoSysList.getSysList(listId, language);
+        
+        // special behavior if default language is read and not set ! Then return catalog language !
+        if (listId == 99999999) {
+            Integer initialKey = getInitialKeyFromListId(listId);
+            entryName = getSysListEntryName( listId, initialKey );
+        } else {
+            for (SysList entry : list) {
+                if ("Y".equals( entry.getIsDefault() )) {
+                    entryName = entry.getName();
+                    break;
+                }
+            }
+            
+        }
+        
+        return entryName;
+    }
 
 	/** Get generic keys of given names AS LIST OF BEANS. PASS null if all generic keys ! */
 	public List<SysGenericKey> getSysGenericKeys(String[] keyNames) {

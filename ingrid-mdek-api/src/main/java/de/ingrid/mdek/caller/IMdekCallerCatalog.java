@@ -184,6 +184,24 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @return response containing result: map containing export information
 	 */
 	IngridDocument getExportInfo(String plugId, boolean includeExportData, String userId);
+	
+	
+	/**
+	 * Analyzes the data to be imported and return a report.
+	 * @param plugId
+	 * @param importData
+	 * @param frontendProtocol
+	 * @param userId
+	 * @return
+	 */
+	public IngridDocument analyzeImportData(String plugId, byte[] importData,
+	        String targetObjectUuid, String targetAddressUuid,
+            boolean publishImmediately,
+            boolean doSeparateImport,
+            boolean copyNodeIfPresent,
+            String frontendMappingProtocol,
+            boolean importAfterAnalyze,
+            String userId);
 
 	/**
 	 * Import the given MULTIPLE NUMBER OF FILES (import/export format) and update existing 

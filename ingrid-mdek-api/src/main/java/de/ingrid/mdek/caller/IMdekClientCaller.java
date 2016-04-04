@@ -25,6 +25,7 @@ package de.ingrid.mdek.caller;
 import java.util.List;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -53,7 +54,7 @@ public interface IMdekClientCaller {
 	 * @param methodParams parameters of method
 	 * @return method structure ready to pass to backend
 	 */
-	List setUpJobMethod(String methodName, IngridDocument methodParams);
+	List<Pair> setUpJobMethod(String methodName, IngridDocument methodParams);
 
 	/**
 	 * Call method(s) in mdek job 

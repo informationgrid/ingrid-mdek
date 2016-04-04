@@ -22,6 +22,12 @@
  */
 package de.ingrid.mdek.job;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +55,9 @@ import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.caller.IMdekCaller.AddressArea;
+import de.ingrid.mdek.job.mapping.DataMapperFactory;
+import de.ingrid.mdek.job.protocol.HashMapProtocolHandler;
+import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.services.catalog.MdekAddressService;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekDBConsistencyService;
@@ -109,8 +120,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private IHQLDao daoHQL;
 	private ISearchtermValueDao daoSearchtermValue;
 	private ISpatialRefValueDao daoSpatialRefValue;
-
+	
 	@Autowired
+    private DataMapperFactory dataMapperFactory;
+
+	public void setDataMapperFactory(DataMapperFactory dataMapperFactory) {
+        this.dataMapperFactory = dataMapperFactory;
+    }
+
+    @Autowired
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {
@@ -695,14 +713,99 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
+	public IngridDocument analyzeImportData(IngridDocument docIn) {
+	    IngridDocument result = new IngridDocument();
+	    byte[] importData = (byte[])docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+	    String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
+	    //Boolean importAfterAnalyze = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_DATA_AFTER_ANALYZE);
+	    Boolean startNewAnalysis = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS);
+        boolean transactionInProgress = (boolean) getOrDefault(docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+	    ProtocolHandler protocolHandler = new HashMapProtocolHandler();
+	    byte[] mappedDataCompressed = null;
+
+	    String userUuid = getCurrentUserUuid(docIn);
+	    try {
+            addRunningJob(userUuid, createRunningJobDescription(JobType.IMPORT_ANALYZE, 0, 0, false));
+    	    
+            if (!transactionInProgress) {
+                genericDao.beginTransaction();
+            }
+    
+    	    try {
+                if (!"igc".equals( frontendProtocol )) {
+                    InputStream in = new GZIPInputStream(new ByteArrayInputStream(importData));
+                    InputStream mappedData = dataMapperFactory.getMapper(frontendProtocol).convert(in, protocolHandler);
+//                    System.out.println( "out: "+ IOUtils.toString( mappedData ) );
+                    mappedDataCompressed = compress(mappedData).toByteArray();
+                }
+    	    } catch( Exception ex ) {
+    	        result.put( "error", "There was an error during mapping." + ex.getMessage() );
+    	    }
+    	    
+    	    
+            // then update job info in database
+    	    SysJobInfo jobInfoDB = jobHandler.getJobInfoDB( JobType.IMPORT_ANALYZE, userUuid );
+    	    List<byte[]> analyzedData = null;
+    	    HashMap<String, List<byte[]>> jobDetails = null;
+    	    if (jobInfoDB == null) {
+    	        jobHandler.startJobInfoDB( JobType.IMPORT_ANALYZE, null, jobDetails, userUuid );
+    	        jobDetails = new HashMap<String, List<byte[]>>();
+    	    } else {
+        	    jobDetails = jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, userUuid );
+        	    if (jobDetails == null) jobDetails = new HashMap<String, List<byte[]>>();
+        	    analyzedData = jobDetails.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+    	    }
+            
+    	    if (startNewAnalysis || analyzedData == null) analyzedData = new ArrayList<byte[]>();
+    	    analyzedData.add( mappedDataCompressed );
+    	    jobDetails.put( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA, analyzedData );
+            jobHandler.updateJobInfoDB(JobType.IMPORT_ANALYZE, jobDetails, userUuid);
+	    } catch (Exception ex) {
+	        log.error( "Exception occurred during analysis", ex );
+	    }
+	    
+	    jobHandler.removeRunningJob( userUuid );
+	    
+        // add end info
+        jobHandler.endJobInfoDB(JobType.IMPORT_ANALYZE, userUuid);
+	    
+        if (!transactionInProgress) {
+            genericDao.commitTransaction();
+        }
+	    
+        result.put("protocol", protocolHandler);
+        
+//        if (importAfterAnalyze) {
+//            docIn.put(MdekKeys.REQUESTINFO_IMPORT_DATA, mappedDataCompressed);
+//            importEntities( docIn );
+//        }
+        
+        return result;
+	}
+	
+	/**
+	 * Make sure to call analyzeImportData-function first, since the result will be
+	 * stored inside the job info, which will be required here.
+	 * @param docIn
+	 * @return
+	 */
 	public IngridDocument importEntities(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
+		boolean transactionInProgress = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+		boolean errorOnExisitingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
 		boolean removeRunningJob = true;
 		try {
-			// first add basic running jobs info !
-			addRunningJob(userId, createRunningJobDescription(JobType.IMPORT, 0, 0, false));
+		    if (!transactionInProgress) {
+		        genericDao.beginTransaction();
+		    }
+		    
+			IngridDocument jobDescr = createRunningJobDescription(JobType.IMPORT, 0, 0, false);
+			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, errorOnExisitingUuid );
+            // first add basic running jobs info !
+			addRunningJob(userId, jobDescr );
 
-			Object importData = docIn.get(MdekKeys.REQUESTINFO_IMPORT_DATA);
+			HashMap<String, List<byte[]>> jobDetails = jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, userId );
+			Object importData = jobDetails.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
 			boolean multipleImportFiles = false;
 			if (List.class.isAssignableFrom(importData.getClass())) {
 				// multipleFiles !
@@ -714,8 +817,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			Boolean doSeparateImport = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT);
 			Boolean copyNodeIfPresent = (Boolean) docIn.get(MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT);
 			String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
-
-			genericDao.beginTransaction();
 
 			// CHECKS BEFORE START OF IMPORT
 
@@ -736,6 +837,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// initialize import info in database
 			importService.startImportJobInfo(userId);
+			
 
 			// import
 			IImporter xmlImporter = new XMLImporter(importService);
@@ -764,7 +866,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			importService.endImportJobInfo(userId);
 			HashMap importInfo = getJobInfo(JobType.IMPORT, userId, false, false);
 
-			genericDao.commitTransaction();
+			if (!transactionInProgress) {
+	            genericDao.commitTransaction();
+			}
 
 			IngridDocument result = new IngridDocument();
 			result.putAll(importInfo);
@@ -780,12 +884,29 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 
 		    throw handledExc;
-		} finally {
+        } finally {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
 			}
 		}
 	}
+	
+	// Compress (zip) any data on InputStream and write it to a ByteArrayOutputStream
+    public static ByteArrayOutputStream compress(InputStream is) throws IOException {
+        BufferedInputStream bin = new BufferedInputStream(is);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        GZIPOutputStream gzout = new GZIPOutputStream(new BufferedOutputStream(out));
+
+        final int BUFFER = 2048;
+        int count;
+        byte data[] = new byte[BUFFER];
+        while((count = bin.read(data, 0, BUFFER)) != -1) {
+           gzout.write(data, 0, count);
+        }
+
+        gzout.close();
+        return out;
+    }
 
 	/** Logs given Exception (opens transaction !) in database for access via JobInfo ! */
 	private void logImportException(RuntimeException e, String userId) {
@@ -1581,4 +1702,32 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
             throw handledExc;
         }
 	}
+
+    public String getCatalogAdminUserUuid() {
+        genericDao.beginTransaction();
+        String addrUuid = permissionHandler.getCatalogAdminUser().getAddrUuid();
+        genericDao.commitTransaction();
+        return addrUuid;
+    }
+    
+    private Object getOrDefault(IngridDocument doc, String key, Object defaultValue) {
+        if (doc.containsKey( key )) {
+            return doc.get( key );
+        } else {
+            return defaultValue;
+        }
+    }
+    
+    public void beginTransaction() {
+        genericDao.beginTransaction();
+    }
+    
+    public void commitTransaction() {
+        genericDao.commitTransaction();
+    }
+    
+    public void rollbackTransaction() {
+        genericDao.rollbackTransaction();
+    }  
+  
 }

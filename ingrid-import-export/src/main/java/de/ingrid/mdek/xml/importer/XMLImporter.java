@@ -86,8 +86,7 @@ public class XMLImporter implements IImporter {
 	}
 
 	@Override
-	public void importEntities(byte[] importData,
-			String userUuid) {
+	public void importEntities(byte[] importData, String userUuid) {
 		this.currentUserUuid = userUuid;
 
 		try {
