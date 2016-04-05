@@ -25,8 +25,10 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
@@ -53,10 +55,10 @@ public class DocToBeanMapperSecurityTest {
 		IdcGroup group = new IdcGroup();
 		// TODO: How to get Dao Factory ?
 		DocToBeanMapperSecurity.getInstance(null, null).mapIdcGroup(inDoc, group, MappingQuantity.BASIC_ENTITY);
-		Assert.assertEquals(group.getName(), "obj-name");
-		Assert.assertEquals(group.getCreateTime(), currentTime);
-		Assert.assertEquals(group.getModTime(), currentTime);
-		Assert.assertEquals(group.getModUuid(), "creating-user-id");
+		assertEquals(group.getName(), "obj-name");
+		assertEquals(group.getCreateTime(), currentTime);
+		assertEquals(group.getModTime(), currentTime);
+		assertEquals(group.getModUuid(), "creating-user-id");
 	}
 
 	@Test
@@ -75,27 +77,27 @@ public class DocToBeanMapperSecurityTest {
 		IdcUser user = new IdcUser();
 		// TODO: How to get Dao Factory ?
 		DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
-		Assert.assertEquals(user.getAddrUuid(), "idc-user-addr-uuid");
+		assertEquals(user.getAddrUuid(), "idc-user-addr-uuid");
 		ArrayList<IdcUserGroup> userGroups = new ArrayList<IdcUserGroup>(user.getIdcUserGroups());
-		Assert.assertEquals(userGroups.size(), 1);
-		Assert.assertEquals(userGroups.get(0).getIdcGroupId(), 123445453L);
-		Assert.assertEquals(user.getIdcRole().intValue(), MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue());
-		Assert.assertEquals(user.getParentId().longValue(), 111111111);
-		Assert.assertEquals(user.getCreateTime(), currentTime);
-		Assert.assertEquals(user.getModTime(), currentTime);
-		Assert.assertEquals(user.getModUuid(), "creating-user-id");
+		assertEquals(userGroups.size(), 1);
+		assertThat( userGroups.get(0).getIdcGroupId(), is(123445453L));
+		assertThat( user.getIdcRole().intValue(), is(MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue()));
+		assertEquals(user.getParentId().longValue(), 111111111);
+		assertEquals(user.getCreateTime(), currentTime);
+		assertEquals(user.getModTime(), currentTime);
+		assertEquals(user.getModUuid(), "creating-user-id");
 
 		inDoc.remove(MdekKeysSecurity.PARENT_IDC_USER_ID);
 		try {
 			DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
 		} catch (RuntimeException e) {
-			Assert.fail("Parent ID = null is allowed for role catalog administrator");
+			fail("Parent ID = null is allowed for role catalog administrator");
 		}
 
 		inDoc.put(MdekKeysSecurity.IDC_ROLE, new Integer(MdekUtilsSecurity.IdcRole.METADATA_ADMINISTRATOR.getDbValue()));
 		try {
 			DocToBeanMapperSecurity.getInstance(null, null).mapIdcUser(inDoc, user);
-			Assert.fail("Parent ID = null is NOT allowed for role meta data administrator");
+			fail("Parent ID = null is NOT allowed for role meta data administrator");
 		} catch (RuntimeException e) {
 		}
 	}
