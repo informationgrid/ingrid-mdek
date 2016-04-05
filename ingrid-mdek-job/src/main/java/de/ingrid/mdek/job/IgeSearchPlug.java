@@ -233,7 +233,11 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     params.put( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, false );
 
                     resultDelete = objectJob.deleteObject( params );
-                    deletedObjects++;
+                    if (resultDelete.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
+                        deletedObjects++;
+                    } else {
+                        throw new Exception("Object could not be deleted: " + propValue);
+                    }
                 } else {
                     log.warn( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }

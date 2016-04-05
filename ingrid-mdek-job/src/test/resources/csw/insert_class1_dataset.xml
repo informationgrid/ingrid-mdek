@@ -2,50 +2,30 @@
 <csw:Transaction service="CSW" version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-publication.xsd">
     <csw:Insert>
-        <gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml" xmlns:gts="http://www.isotc211.org/2005/gts"
-            xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.isotc211.org/2005/gmd http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd">
+        <gmd:MD_Metadata xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gml="http://www.opengis.net/gml" xmlns:gmd="http://www.isotc211.org/2005/gmd"
+            xmlns:gco="http://www.isotc211.org/2005/gco">
             <gmd:fileIdentifier>
-                <gco:CharacterString>7C1972D0-AB4B-4DC0-83EF-982674DBC0B3</gco:CharacterString>
+                <gco:CharacterString>4915275a-733a-47cd-b1a6-1a3f1e976948</gco:CharacterString>
             </gmd:fileIdentifier>
             <gmd:language>
-                <gmd:LanguageCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#LanguageCode"
+                <gmd:LanguageCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode"
                     codeListValue="ger">ger</gmd:LanguageCode>
             </gmd:language>
-            <gmd:characterSet>
-                <gmd:MD_CharacterSetCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_CharacterSetCode"
-                    codeListValue="utf8" />
-            </gmd:characterSet>
             <gmd:parentIdentifier>
-                <gco:CharacterString>6F493F93-FA70-416F-89AE-9177A44876E2</gco:CharacterString>
+                <gco:CharacterString>CBA54D12-110A-48BE-8BC9-66E5902F18F4</gco:CharacterString>
             </gmd:parentIdentifier>
             <gmd:hierarchyLevel>
-                <gmd:MD_ScopeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode"
-                    codeListValue="dataset">dataset</gmd:MD_ScopeCode>
+                <gmd:MD_ScopeCode codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#MD_ScopeCode" codeListValue="dataset">dataset</gmd:MD_ScopeCode>
             </gmd:hierarchyLevel>
             <gmd:contact>
-                <gmd:CI_ResponsibleParty uuid="FE8EDBF8-AC98-48AD-849F-8DC35D177481">
-                    <gmd:organisationName>
-                        <gco:CharacterString>KST PortalU</gco:CharacterString>
-                    </gmd:organisationName>
-                    <gmd:contactInfo>
-                        <gmd:CI_Contact>
-                            <gmd:address>
-                                <gmd:CI_Address>
-                                    <gmd:electronicMailAddress>
-                                        <gco:CharacterString>kst@portalu.de</gco:CharacterString>
-                                    </gmd:electronicMailAddress>
-                                </gmd:CI_Address>
-                            </gmd:address>
-                        </gmd:CI_Contact>
-                    </gmd:contactInfo>
+                <gmd:CI_ResponsibleParty uuid="110C6012-1713-44C0-9A33-4E2C24D06966">
                     <gmd:role>
-                        <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_RoleCode"
-                            codeListValue="pointOfContact" />
+                        <gmd:CI_RoleCode codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode" codeListValue="pointOfContact"></gmd:CI_RoleCode>
                     </gmd:role>
                 </gmd:CI_ResponsibleParty>
             </gmd:contact>
             <gmd:dateStamp>
-                <gco:Date>2016-02-23</gco:Date>
+                <gco:Date>20160301000000000</gco:Date>
             </gmd:dateStamp>
             <gmd:metadataStandardName>
                 <gco:CharacterString>ISO19115</gco:CharacterString>
@@ -58,7 +38,7 @@
                     <gmd:referenceSystemIdentifier>
                         <gmd:RS_Identifier>
                             <gmd:code>
-                                <gco:CharacterString>EPSG 4326: WGS 84 / geographisch</gco:CharacterString>
+                                <gco:CharacterString>EPSG 25832: ETRS89 / UTM Zone 32N</gco:CharacterString>
                             </gmd:code>
                             <gmd:codeSpace>
                                 <gco:CharacterString>EPSG</gco:CharacterString>
@@ -68,135 +48,51 @@
                 </gmd:MD_ReferenceSystem>
             </gmd:referenceSystemInfo>
             <gmd:identificationInfo>
-                <gmd:MD_DataIdentification uuid="http://portalu.de/igc_testNS#/abcddefg">
+                <gmd:MD_DataIdentification uuid="4915275a-733a-47cd-b1a6-1a3f1e976948">
                     <gmd:citation>
                         <gmd:CI_Citation>
                             <gmd:title>
-                                <gco:CharacterString>Brutvogeldaten</gco:CharacterString>
+                                <gco:CharacterString>Bebauungsplan Barmbek-Nord 18 (1.Änderung) Hamburg</gco:CharacterString>
                             </gmd:title>
+                            <gmd:alternateTitle>
+                                <gco:CharacterString>BN 18 Ä Textänderungsverfahren</gco:CharacterString>
+                            </gmd:alternateTitle>
                             <gmd:date>
                                 <gmd:CI_Date>
                                     <gmd:date>
-                                        <gco:DateTime>2008-10-02T00:00:00</gco:DateTime>
+                                        <gco:DateTime>20160301000000000</gco:DateTime>
                                     </gmd:date>
                                     <gmd:dateType>
-                                        <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
-                                            codeListValue="revision" />
+                                        <gmd:CI_DateTypeCode codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication"></gmd:CI_DateTypeCode>
                                     </gmd:dateType>
                                 </gmd:CI_Date>
                             </gmd:date>
                             <gmd:identifier>
                                 <gmd:MD_Identifier>
                                     <gmd:code>
-                                        <gco:CharacterString>http://portalu.de/igc_testNS#/abcddefg</gco:CharacterString>
+                                        <gco:CharacterString>4915275a-733a-47cd-b1a6-1a3f1e976948</gco:CharacterString>
                                     </gmd:code>
                                 </gmd:MD_Identifier>
                             </gmd:identifier>
                         </gmd:CI_Citation>
                     </gmd:citation>
                     <gmd:abstract>
-                        <gco:CharacterString>Brutvogeldatensammlung 1999
-                            rhabarber brutvogel</gco:CharacterString>
+                        <gco:CharacterString>siehe Originalplan</gco:CharacterString>
                     </gmd:abstract>
                     <gmd:pointOfContact>
-                        <gmd:CI_ResponsibleParty uuid="7DD46AEF-DBAC-4D86-A1A5-CA9A4D2F87A7">
-                            <gmd:organisationName>
-                                <gco:CharacterString>Land Niedersachsen, Niedersächsisches Ministerium für Umwelt und Klimaschutz, Koordinierungsstelle PortalU</gco:CharacterString>
-                            </gmd:organisationName>
-                            <gmd:contactInfo>
-                                <gmd:CI_Contact>
-                                    <gmd:address>
-                                        <gmd:CI_Address>
-                                            <gmd:deliveryPoint>
-                                                <gco:CharacterString>Archivstr. 2</gco:CharacterString>
-                                            </gmd:deliveryPoint>
-                                            <gmd:city>
-                                                <gco:CharacterString>Hannover</gco:CharacterString>
-                                            </gmd:city>
-                                            <gmd:postalCode>
-                                                <gco:CharacterString>D-30169</gco:CharacterString>
-                                            </gmd:postalCode>
-                                            <gmd:country>
-                                                <gco:CharacterString>DEU</gco:CharacterString>
-                                            </gmd:country>
-                                            <gmd:electronicMailAddress>
-                                                <gco:CharacterString>kst@portalu.de</gco:CharacterString>
-                                            </gmd:electronicMailAddress>
-                                        </gmd:CI_Address>
-                                    </gmd:address>
-                                </gmd:CI_Contact>
-                            </gmd:contactInfo>
+                        <gmd:CI_ResponsibleParty uuid="DA64401A-2AFC-458D-A8AF-58D0A3C35AA9">
                             <gmd:role>
-                                <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_RoleCode"
-                                    codeListValue="pointOfContact" />
-                            </gmd:role>
-                        </gmd:CI_ResponsibleParty>
-                    </gmd:pointOfContact>
-                    <gmd:pointOfContact>
-                        <gmd:CI_ResponsibleParty uuid="CE9B9FE8-DA26-4966-9D1D-C484DBDD91AF">
-                            <gmd:individualName>
-                                <gco:CharacterString>Van Schink, Aristide, Herr</gco:CharacterString>
-                            </gmd:individualName>
-                            <gmd:organisationName>
-                                <gco:CharacterString>KST PortalU</gco:CharacterString>
-                            </gmd:organisationName>
-                            <gmd:contactInfo>
-                                <gmd:CI_Contact>
-                                    <gmd:phone>
-                                        <gmd:CI_Telephone>
-                                            <gmd:voice>
-                                                <gco:CharacterString>012345678</gco:CharacterString>
-                                            </gmd:voice>
-                                            <gmd:facsimile>
-                                                <gco:CharacterString>012345679</gco:CharacterString>
-                                            </gmd:facsimile>
-                                        </gmd:CI_Telephone>
-                                    </gmd:phone>
-                                    <gmd:address>
-                                        <gmd:CI_Address>
-                                            <gmd:deliveryPoint>
-                                                <gco:CharacterString>Postbox 123456,30101 HB</gco:CharacterString>
-                                            </gmd:deliveryPoint>
-                                            <gmd:deliveryPoint>
-                                                <gco:CharacterString>Archivarstr. 200</gco:CharacterString>
-                                            </gmd:deliveryPoint>
-                                            <gmd:city>
-                                                <gco:CharacterString>HB</gco:CharacterString>
-                                            </gmd:city>
-                                            <gmd:postalCode>
-                                                <gco:CharacterString>30100</gco:CharacterString>
-                                            </gmd:postalCode>
-                                            <gmd:country>
-                                                <gco:CharacterString>DEU</gco:CharacterString>
-                                            </gmd:country>
-                                            <gmd:electronicMailAddress>
-                                                <gco:CharacterString>kst@portalu.de</gco:CharacterString>
-                                            </gmd:electronicMailAddress>
-                                        </gmd:CI_Address>
-                                    </gmd:address>
-                                    <gmd:onlineResource>
-                                        <gmd:CI_OnlineResource>
-                                            <gmd:linkage>
-                                                <gmd:URL>http://vanschink.com</gmd:URL>
-                                            </gmd:linkage>
-                                        </gmd:CI_OnlineResource>
-                                    </gmd:onlineResource>
-                                </gmd:CI_Contact>
-                            </gmd:contactInfo>
-                            <gmd:role>
-                                <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_RoleCode"
-                                    codeListValue="custodian" />
+                                <gmd:CI_RoleCode codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#CI_RoleCode" codeListValue="pointOfContact"></gmd:CI_RoleCode>
                             </gmd:role>
                         </gmd:CI_ResponsibleParty>
                     </gmd:pointOfContact>
                     <gmd:descriptiveKeywords>
                         <gmd:MD_Keywords>
                             <gmd:keyword>
-                                <gco:CharacterString>Boden</gco:CharacterString>
+                                <gco:CharacterString>Land use</gco:CharacterString>
                             </gmd:keyword>
                             <gmd:type>
-                                <gmd:MD_KeywordTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_KeywordTypeCode"
-                                    codeListValue="theme" />
+                                <gmd:MD_KeywordTypeCode codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode" codeListValue="theme"></gmd:MD_KeywordTypeCode>
                             </gmd:type>
                             <gmd:thesaurusName>
                                 <gmd:CI_Citation>
@@ -209,8 +105,7 @@
                                                 <gco:Date>2008-06-01</gco:Date>
                                             </gmd:date>
                                             <gmd:dateType>
-                                                <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
-                                                    codeListValue="publication" />
+                                                <gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication"></gmd:CI_DateTypeCode>
                                             </gmd:dateType>
                                         </gmd:CI_Date>
                                     </gmd:date>
@@ -221,23 +116,19 @@
                     <gmd:descriptiveKeywords>
                         <gmd:MD_Keywords>
                             <gmd:keyword>
-                                <gco:CharacterString>Umweltinformation</gco:CharacterString>
+                                <gco:CharacterString>Raumbezogene Information</gco:CharacterString>
                             </gmd:keyword>
                             <gmd:keyword>
-                                <gco:CharacterString>Umweltinformationsgesetz</gco:CharacterString>
+                                <gco:CharacterString>Bauleitplanung</gco:CharacterString>
                             </gmd:keyword>
                             <gmd:keyword>
-                                <gco:CharacterString>Umweltinformationsrichtlinie</gco:CharacterString>
-                            </gmd:keyword>
-                            <gmd:keyword>
-                                <gco:CharacterString>Geodaten</gco:CharacterString>
+                                <gco:CharacterString>Bebauungsplan</gco:CharacterString>
                             </gmd:keyword>
                             <gmd:keyword>
                                 <gco:CharacterString>Geoinformation</gco:CharacterString>
                             </gmd:keyword>
                             <gmd:type>
-                                <gmd:MD_KeywordTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_KeywordTypeCode"
-                                    codeListValue="theme" />
+                                <gmd:MD_KeywordTypeCode codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode" codeListValue="theme"></gmd:MD_KeywordTypeCode>
                             </gmd:type>
                             <gmd:thesaurusName>
                                 <gmd:CI_Citation>
@@ -250,8 +141,7 @@
                                                 <gco:Date>2009-01-15</gco:Date>
                                             </gmd:date>
                                             <gmd:dateType>
-                                                <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
-                                                    codeListValue="publication" />
+                                                <gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication"></gmd:CI_DateTypeCode>
                                             </gmd:dateType>
                                         </gmd:CI_Date>
                                     </gmd:date>
@@ -259,44 +149,56 @@
                             </gmd:thesaurusName>
                         </gmd:MD_Keywords>
                     </gmd:descriptiveKeywords>
-                    <gmd:descriptiveKeywords>
-                        <gmd:MD_Keywords>
-                            <gmd:keyword>
-                                <gco:CharacterString>Öffentlichkeitsarbeit</gco:CharacterString>
-                            </gmd:keyword>
-                            <gmd:keyword>
-                                <gco:CharacterString>INSPIRE</gco:CharacterString>
-                            </gmd:keyword>
-                        </gmd:MD_Keywords>
-                    </gmd:descriptiveKeywords>
+                    <gmd:resourceConstraints>
+                        <gmd:MD_Constraints>
+                            <gmd:useLimitation>
+                                <gco:CharacterString>Datenlizenz Deutschland - Namensnennung - Version 2.0; &lt;a href="https://www.govdata.de/dl-de/by-2-0"&gt;https://www.govdata.de/dl-de/by-2-0&lt;/a&gt;; dl-de-by-2.0; Namensnennung: "Freie und Hansestadt Hamburg, Bezirksamt Nord, Fachamt Stadt- und Landschaftsplanung"</gco:CharacterString>
+                            </gmd:useLimitation>
+                        </gmd:MD_Constraints>
+                    </gmd:resourceConstraints>
                     <gmd:resourceConstraints>
                         <gmd:MD_LegalConstraints>
-                            <gmd:useLimitation>
-                                <gco:CharacterString>Nutzungseinschränkungen: unbekannte Nutzungsbedingungen</gco:CharacterString>
-                            </gmd:useLimitation>
+                            <gmd:accessConstraints>
+                                <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode"
+                                    codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
+                            </gmd:accessConstraints>
+                            <gmd:otherConstraints>
+                                <gco:CharacterString>keine</gco:CharacterString>
+                            </gmd:otherConstraints>
                         </gmd:MD_LegalConstraints>
                     </gmd:resourceConstraints>
                     <gmd:resourceConstraints>
                         <gmd:MD_LegalConstraints>
                             <gmd:accessConstraints>
-                                <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_RestrictionCode"
+                                <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode"
                                     codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
                             </gmd:accessConstraints>
                             <gmd:otherConstraints>
-                                <gco:CharacterString>Es gelten keine Bedingungen</gco:CharacterString>
+                                <gco:CharacterString>Baunutzungsverordnung (BauNVO)</gco:CharacterString>
                             </gmd:otherConstraints>
                         </gmd:MD_LegalConstraints>
                     </gmd:resourceConstraints>
+                    <gmd:resourceConstraints>
+                        <gmd:MD_LegalConstraints>
+                            <gmd:accessConstraints>
+                                <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode"
+                                    codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
+                            </gmd:accessConstraints>
+                            <gmd:otherConstraints>
+                                <gco:CharacterString>Baugesetzbuch (BauGB)</gco:CharacterString>
+                            </gmd:otherConstraints>
+                        </gmd:MD_LegalConstraints>
+                    </gmd:resourceConstraints>
+                    <gmd:spatialRepresentationType>
+                        <gmd:MD_SpatialRepresentationTypeCode codeList="http://www.tc211.org/ISO19115/resources/codeList.xml#MD_SpatialRepresentationTypeCode"
+                            codeListValue="vector"></gmd:MD_SpatialRepresentationTypeCode>
+                    </gmd:spatialRepresentationType>
                     <gmd:language>
-                        <gmd:LanguageCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#LanguageCode"
-                            codeListValue="ger" />
+                        <gmd:LanguageCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode"
+                            codeListValue="ger"></gmd:LanguageCode>
                     </gmd:language>
-                    <gmd:characterSet>
-                        <gmd:MD_CharacterSetCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_CharacterSetCode"
-                            codeListValue="8859part1" />
-                    </gmd:characterSet>
                     <gmd:topicCategory>
-                        <gmd:MD_TopicCategoryCode>environment</gmd:MD_TopicCategoryCode>
+                        <gmd:MD_TopicCategoryCode>planningCadastre</gmd:MD_TopicCategoryCode>
                     </gmd:topicCategory>
                     <gmd:extent>
                         <gmd:EX_Extent>
@@ -308,7 +210,7 @@
                                     <gmd:geographicIdentifier>
                                         <gmd:MD_Identifier>
                                             <gmd:code>
-                                                <gco:CharacterString>hache</gco:CharacterString>
+                                                <gco:CharacterString>Hamburg</gco:CharacterString>
                                             </gmd:code>
                                         </gmd:MD_Identifier>
                                     </gmd:geographicIdentifier>
@@ -320,118 +222,29 @@
                                         <gco:Boolean>true</gco:Boolean>
                                     </gmd:extentTypeCode>
                                     <gmd:westBoundLongitude>
-                                        <gco:Decimal>5.2</gco:Decimal>
+                                        <gco:Decimal>8.420551</gco:Decimal>
                                     </gmd:westBoundLongitude>
                                     <gmd:eastBoundLongitude>
-                                        <gco:Decimal>10.5</gco:Decimal>
+                                        <gco:Decimal>10.326304</gco:Decimal>
                                     </gmd:eastBoundLongitude>
                                     <gmd:southBoundLatitude>
-                                        <gco:Decimal>49.3</gco:Decimal>
+                                        <gco:Decimal>53.394985</gco:Decimal>
                                     </gmd:southBoundLatitude>
                                     <gmd:northBoundLatitude>
-                                        <gco:Decimal>51.2</gco:Decimal>
+                                        <gco:Decimal>53.964153</gco:Decimal>
                                     </gmd:northBoundLatitude>
                                 </gmd:EX_GeographicBoundingBox>
                             </gmd:geographicElement>
-                            <gmd:geographicElement>
-                                <gmd:EX_GeographicDescription>
-                                    <gmd:extentTypeCode>
-                                        <gco:Boolean>true</gco:Boolean>
-                                    </gmd:extentTypeCode>
-                                    <gmd:geographicIdentifier>
-                                        <gmd:MD_Identifier>
-                                            <gmd:code>
-                                                <gco:CharacterString>Nordrhein-Westfalen (05)</gco:CharacterString>
-                                            </gmd:code>
-                                        </gmd:MD_Identifier>
-                                    </gmd:geographicIdentifier>
-                                </gmd:EX_GeographicDescription>
-                            </gmd:geographicElement>
-                            <gmd:geographicElement>
-                                <gmd:EX_GeographicBoundingBox>
-                                    <gmd:extentTypeCode>
-                                        <gco:Boolean>true</gco:Boolean>
-                                    </gmd:extentTypeCode>
-                                    <gmd:westBoundLongitude>
-                                        <gco:Decimal>5.721963882446289</gco:Decimal>
-                                    </gmd:westBoundLongitude>
-                                    <gmd:eastBoundLongitude>
-                                        <gco:Decimal>9.493876457214355</gco:Decimal>
-                                    </gmd:eastBoundLongitude>
-                                    <gmd:southBoundLatitude>
-                                        <gco:Decimal>50.304744720458984</gco:Decimal>
-                                    </gmd:southBoundLatitude>
-                                    <gmd:northBoundLatitude>
-                                        <gco:Decimal>52.541133880615234</gco:Decimal>
-                                    </gmd:northBoundLatitude>
-                                </gmd:EX_GeographicBoundingBox>
-                            </gmd:geographicElement>
-                            <gmd:geographicElement>
-                                <gmd:EX_GeographicDescription>
-                                    <gmd:extentTypeCode>
-                                        <gco:Boolean>true</gco:Boolean>
-                                    </gmd:extentTypeCode>
-                                    <gmd:geographicIdentifier>
-                                        <gmd:MD_Identifier>
-                                            <gmd:code>
-                                                <gco:CharacterString>Nienburg (Weser) (03256)</gco:CharacterString>
-                                            </gmd:code>
-                                        </gmd:MD_Identifier>
-                                    </gmd:geographicIdentifier>
-                                </gmd:EX_GeographicDescription>
-                            </gmd:geographicElement>
-                            <gmd:geographicElement>
-                                <gmd:EX_GeographicBoundingBox>
-                                    <gmd:extentTypeCode>
-                                        <gco:Boolean>true</gco:Boolean>
-                                    </gmd:extentTypeCode>
-                                    <gmd:westBoundLongitude>
-                                        <gco:Decimal>8.681623458862305</gco:Decimal>
-                                    </gmd:westBoundLongitude>
-                                    <gmd:eastBoundLongitude>
-                                        <gco:Decimal>9.54379653930664</gco:Decimal>
-                                    </gmd:eastBoundLongitude>
-                                    <gmd:southBoundLatitude>
-                                        <gco:Decimal>52.387046813964844</gco:Decimal>
-                                    </gmd:southBoundLatitude>
-                                    <gmd:northBoundLatitude>
-                                        <gco:Decimal>52.91304016113281</gco:Decimal>
-                                    </gmd:northBoundLatitude>
-                                </gmd:EX_GeographicBoundingBox>
-                            </gmd:geographicElement>
-                            <gmd:geographicElement>
-                                <gmd:EX_GeographicDescription>
-                                    <gmd:extentTypeCode>
-                                        <gco:Boolean>true</gco:Boolean>
-                                    </gmd:extentTypeCode>
-                                    <gmd:geographicIdentifier>
-                                        <gmd:MD_Identifier>
-                                            <gmd:code>
-                                                <gco:CharacterString>Hämelhausen (03256009)</gco:CharacterString>
-                                            </gmd:code>
-                                        </gmd:MD_Identifier>
-                                    </gmd:geographicIdentifier>
-                                </gmd:EX_GeographicDescription>
-                            </gmd:geographicElement>
-                            <gmd:geographicElement>
-                                <gmd:EX_GeographicBoundingBox>
-                                    <gmd:extentTypeCode>
-                                        <gco:Boolean>true</gco:Boolean>
-                                    </gmd:extentTypeCode>
-                                    <gmd:westBoundLongitude>
-                                        <gco:Decimal>9.276893615722656</gco:Decimal>
-                                    </gmd:westBoundLongitude>
-                                    <gmd:eastBoundLongitude>
-                                        <gco:Decimal>9.276893615722656</gco:Decimal>
-                                    </gmd:eastBoundLongitude>
-                                    <gmd:southBoundLatitude>
-                                        <gco:Decimal>52.78443145751953</gco:Decimal>
-                                    </gmd:southBoundLatitude>
-                                    <gmd:northBoundLatitude>
-                                        <gco:Decimal>52.78443145751953</gco:Decimal>
-                                    </gmd:northBoundLatitude>
-                                </gmd:EX_GeographicBoundingBox>
-                            </gmd:geographicElement>
+                            <gmd:temporalElement>
+                                <gmd:EX_TemporalExtent>
+                                    <gmd:extent>
+                                        <gml:TimePeriod gml:id="timePeriod_ID_20160301000000000">
+                                            <gml:beginPosition>20160301000000000</gml:beginPosition>
+                                            <gml:endPosition></gml:endPosition>
+                                        </gml:TimePeriod>
+                                    </gmd:extent>
+                                </gmd:EX_TemporalExtent>
+                            </gmd:temporalElement>
                         </gmd:EX_Extent>
                     </gmd:extent>
                 </gmd:MD_DataIdentification>
@@ -443,12 +256,28 @@
                             <gmd:name>
                                 <gco:CharacterString>Geographic Markup Language (GML)</gco:CharacterString>
                             </gmd:name>
+                            <gmd:version gco:nilReason="unknown"></gmd:version>
+                            <gmd:specification gco:nilReason="unknown"></gmd:specification>
+                        </gmd:MD_Format>
+                    </gmd:distributionFormat>
+                    <gmd:distributionFormat>
+                        <gmd:MD_Format>
+                            <gmd:name>
+                                <gco:CharacterString>XPlanGML</gco:CharacterString>
+                            </gmd:name>
                             <gmd:version>
-                                <gco:CharacterString>GML, version 3.2.1</gco:CharacterString>
+                                <gco:CharacterString>4.1</gco:CharacterString>
                             </gmd:version>
-                            <gmd:specification>
-                                <gco:CharacterString>GML Specification</gco:CharacterString>
-                            </gmd:specification>
+                        </gmd:MD_Format>
+                    </gmd:distributionFormat>
+                    <gmd:distributionFormat>
+                        <gmd:MD_Format>
+                            <gmd:name>
+                                <gco:CharacterString>XPlanGML</gco:CharacterString>
+                            </gmd:name>
+                            <gmd:version>
+                                <gco:CharacterString>3.0</gco:CharacterString>
+                            </gmd:version>
                         </gmd:MD_Format>
                     </gmd:distributionFormat>
                     <gmd:transferOptions>
@@ -456,16 +285,53 @@
                             <gmd:onLine>
                                 <gmd:CI_OnlineResource>
                                     <gmd:linkage>
-                                        <gmd:URL>http://www.gmx.de</gmd:URL>
+                                        <gmd:URL>http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan/Barmbek-Nord18(1Aend).pdf</gmd:URL>
                                     </gmd:linkage>
                                     <gmd:name>
-                                        <gco:CharacterString>test</gco:CharacterString>
+                                        <gco:CharacterString>Bekanntmachung im HmbGVBl als PDF Datei</gco:CharacterString>
                                     </gmd:name>
-                                    <gmd:function>
-                                        <gmd:CI_OnLineFunctionCode
-                                            codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_OnLineFunctionCode"
-                                            codeListValue="Functional Base">Functional Base</gmd:CI_OnLineFunctionCode>
-                                    </gmd:function>
+                                </gmd:CI_OnlineResource>
+                            </gmd:onLine>
+                        </gmd:MD_DigitalTransferOptions>
+                    </gmd:transferOptions>
+                    <gmd:transferOptions>
+                        <gmd:MD_DigitalTransferOptions>
+                            <gmd:onLine>
+                                <gmd:CI_OnlineResource>
+                                    <gmd:linkage>
+                                        <gmd:URL>http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan/Barmbek-Nord18(1Aend).pdf</gmd:URL>
+                                    </gmd:linkage>
+                                    <gmd:name>
+                                        <gco:CharacterString>Festsetzungen (Planzeichnung / Verordnung) als PDF Datei</gco:CharacterString>
+                                    </gmd:name>
+                                </gmd:CI_OnlineResource>
+                            </gmd:onLine>
+                        </gmd:MD_DigitalTransferOptions>
+                    </gmd:transferOptions>
+                    <gmd:transferOptions>
+                        <gmd:MD_DigitalTransferOptions>
+                            <gmd:onLine>
+                                <gmd:CI_OnlineResource>
+                                    <gmd:linkage>
+                                        <gmd:URL>http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan_begr/Barmbek-Nord18(1Aend).pdf</gmd:URL>
+                                    </gmd:linkage>
+                                    <gmd:name>
+                                        <gco:CharacterString>Begründung des Bebauungsplans als PDF Datei</gco:CharacterString>
+                                    </gmd:name>
+                                </gmd:CI_OnlineResource>
+                            </gmd:onLine>
+                        </gmd:MD_DigitalTransferOptions>
+                    </gmd:transferOptions>
+                    <gmd:transferOptions>
+                        <gmd:MD_DigitalTransferOptions>
+                            <gmd:onLine>
+                                <gmd:CI_OnlineResource>
+                                    <gmd:linkage>
+                                        <gmd:URL>http://www.hamburg.de/bebauungsplaene-online.de</gmd:URL>
+                                    </gmd:linkage>
+                                    <gmd:name>
+                                        <gco:CharacterString>URL zu weiteren Informationen über den Datensatz</gco:CharacterString>
+                                    </gmd:name>
                                 </gmd:CI_OnlineResource>
                             </gmd:onLine>
                         </gmd:MD_DigitalTransferOptions>
@@ -477,8 +343,7 @@
                     <gmd:scope>
                         <gmd:DQ_Scope>
                             <gmd:level>
-                                <gmd:MD_ScopeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode"
-                                    codeListValue="dataset" />
+                                <gmd:MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode" codeListValue="dataset"></gmd:MD_ScopeCode>
                             </gmd:level>
                         </gmd:DQ_Scope>
                     </gmd:scope>
@@ -489,14 +354,16 @@
                                     <gmd:specification>
                                         <gmd:CI_Citation>
                                             <gmd:title>
-                                                <gco:CharacterString>INSPIRE-Richtlinie</gco:CharacterString>
+                                                <gco:CharacterString>INSPIRE Richtlinie</gco:CharacterString>
                                             </gmd:title>
                                             <gmd:date>
                                                 <gmd:CI_Date>
-                                                    <gmd:date gco:nilReason="unknown" />
+                                                    <gmd:date>
+                                                        <gco:Date>2007-03-14</gco:Date>
+                                                    </gmd:date>
                                                     <gmd:dateType>
                                                         <gmd:CI_DateTypeCode
-                                                            codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
+                                                            codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
                                                             codeListValue="publication">publication</gmd:CI_DateTypeCode>
                                                     </gmd:dateType>
                                                 </gmd:CI_Date>
@@ -504,9 +371,11 @@
                                         </gmd:CI_Citation>
                                     </gmd:specification>
                                     <gmd:explanation>
-                                        <gco:CharacterString />
+                                        <gco:CharacterString></gco:CharacterString>
                                     </gmd:explanation>
-                                    <gmd:pass gco:nilReason="unknown" />
+                                    <gmd:pass>
+                                        <gco:Boolean>false</gco:Boolean>
+                                    </gmd:pass>
                                 </gmd:DQ_ConformanceResult>
                             </gmd:result>
                         </gmd:DQ_DomainConsistency>
@@ -514,20 +383,20 @@
                     <gmd:lineage>
                         <gmd:LI_Lineage>
                             <gmd:statement>
-                                <gco:CharacterString>bla</gco:CharacterString>
+                                <gco:CharacterString>vergl. eGovernment Vorhaben "PLIS"</gco:CharacterString>
                             </gmd:statement>
+                            <gmd:processStep>
+                                <gmd:LI_ProcessStep>
+                                    <gmd:description>
+                                        <gco:CharacterString>Die in den Planwerken der verbindlichen Bauleitplanung dokumentierten Festsetzungen, Kennzeichnungen und Hinweise werden auf der Grundlage der aktuellen Örtlichkeit der Liegenschaftskarte (ALKIS) mit Hilfe von Fachapplikationen (AutoCAD + WS LANDCAD bzw. ArcGIS + GeoOffice) digitalisiert.
+                                        </gco:CharacterString>
+                                    </gmd:description>
+                                </gmd:LI_ProcessStep>
+                            </gmd:processStep>
                         </gmd:LI_Lineage>
                     </gmd:lineage>
                 </gmd:DQ_DataQuality>
             </gmd:dataQualityInfo>
         </gmd:MD_Metadata>
-        <csw:Constraint version="1.1.0">
-            <ogc:Filter>
-                <ogc:PropertyIsEqualTo>
-                    <ogc:PropertyName>uuid</ogc:PropertyName>
-                    <ogc:Literal>4321-8765-dsba-hgfe</ogc:Literal>
-                </ogc:PropertyIsEqualTo>
-            </ogc:Filter>
-        </csw:Constraint>
     </csw:Insert>
 </csw:Transaction>
