@@ -268,7 +268,7 @@ public class CSWImport {
     }
 
     @Test
-    public void analyzeCswDocumentInsert_service() throws Exception {
+    public void analyzeCswDocumentInsert_3_service() throws Exception {
 
         Mockito.doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -522,6 +522,43 @@ public class CSWImport {
         assertThat( protocol.getProtocol( Type.INFO ).size(), is( not( 0 ) ) );
     }
 
+    @Test
+    public void analyzeCSWDocumentInsert_1_dataset() throws Exception {
+        Mockito.doAnswer( new Answer<Void>() {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            public Void answer(InvocationOnMock invocation) throws Exception {
+                Map doc = invocation.getArgumentAt( 1, Map.class );
+                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+                assertThat( data, is( not( nullValue() ) ) );
+                assertThat( data.size(), is( 1 ) );
+                InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
+                IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
+                assertThat( reader.getObjectUuids().size(), is( 1 ) );
+                assertThat( reader.getObjectUuids().iterator().next(), is( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" ) );
+                List<Document> domForObject = reader.getDomForObject( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" );
+                try {
+                    IngridDocument docOut = importMapper.mapDataSource( domForObject.get( 0 ) );
+                    System.out.println( XMLUtils.toString( domForObject.get( 0 ) ) );
+                } catch (Exception ex) {
+                    throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
+                }
+                return null;
+            }
+
+        } ).when( jobHandler ).updateJobInfoDB( (JobType) Mockito.any(), (HashMap) Mockito.any(), Mockito.anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/insert_class1_dataset.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+        
+        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) Mockito.any() );
+        
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+        ProtocolHandler protocol = (ProtocolHandler) analyzeImportData.get( "protocol" );
+        assertThat( protocol.getProtocol( Type.ERROR ).size(), is( 0 ) );
+        assertThat( protocol.getProtocol( Type.WARN ).size(), is( 2 ) );
+        assertThat( protocol.getProtocol( Type.INFO ).size(), is( not( 0 ) ) );
+    }
+    
     private void assertOperation(Object operation, String type, String url, String platform, String description, String invocationUrl) {
         IngridDocument doc = (IngridDocument) operation;
         assertThat( (String) doc.getArrayList( MdekKeys.CONNECT_POINT_LIST ).get( 0 ), is( url ) );
