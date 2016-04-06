@@ -220,6 +220,7 @@ public class MdekKeys {
     public final static String REQUESTINFO_IMPORT_START_NEW_ANALYSIS = "requestinfo_importStartNewAnalysis";
     public final static String REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID = "requestinfo_importErrorWhenUuidExists";
+    public final static String REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION = "requestinfo_importErrorWhenException";
 
 
     // URL

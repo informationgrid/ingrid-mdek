@@ -230,6 +230,7 @@ public class MdekImportService implements IImporterCallback {
 		int totalNumObjects = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_OBJECTS);
 		int totalNumAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
 		boolean errorOnExistingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID) : false;
+		boolean errorOnException = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION) : false;
 		
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
@@ -344,6 +345,10 @@ public class MdekImportService implements IImporterCallback {
 						processPublish(whichType, inDoc, existingNode, numImportedAddresses, totalNumAddresses, userUuid);
 				
 				} catch (Exception ex) {
+				    if (errorOnException) {
+				        //throw new MdekException( ex.toString() );
+				        throw new RuntimeException( "Error during publishing: " + ex.toString(), ex );
+				    }
 					storeWorkingVersion = true;
 				}
 				
@@ -356,6 +361,9 @@ public class MdekImportService implements IImporterCallback {
 						processAssignToQA(whichType, inDoc, existingNode, numImportedAddresses, totalNumAddresses, userUuid);
 				
 				} catch (Exception ex) {
+				    if (errorOnException) {
+                        throw new MdekException( ex.toString() );
+                    }
 					storeWorkingVersion = true;
 				}
 			}
@@ -430,6 +438,8 @@ public class MdekImportService implements IImporterCallback {
 		// NO, only in memory and write at end because of performance issues !
 //		jobHandler.updateJobInfoDBMessages(JobType.IMPORT, newMessage, userUuid);
 	}
+	
+	
 	/** Add new Frontend Message to info of Import job IN MEMORY. */
 	public void updateImportJobInfoFrontendMessages(String newMessage, String userUuid) {
 		// first update in memory job state
@@ -1558,6 +1568,7 @@ public class MdekImportService implements IImporterCallback {
 			updateImportJobInfoFrontendMessages(
 				"Probleme beim Veröffentlichen von Import-" + whichType.toGerman() + " \"" + inDoc.get(TMP_ENTITY_IDENTIFIER) + "\".",
 				userUuid);
+			jobHandler.updateJobInfoDBException( JobType.IMPORT, ex, userUuid );
 
 			throw ex;
 		}

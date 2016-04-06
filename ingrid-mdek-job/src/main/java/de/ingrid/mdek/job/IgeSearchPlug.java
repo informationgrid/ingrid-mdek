@@ -25,6 +25,8 @@ package de.ingrid.mdek.job;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -177,6 +179,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         IngridDocument resultInsert = null;
         IngridDocument resultUpdate = null;
         IngridDocument resultDelete = null;
+        List<Exception> errors = new ArrayList<Exception>();
         int deletedObjects = 0;
         try {
             factory = DocumentBuilderFactory.newInstance();
@@ -200,6 +203,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
                 IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
                 resultInsert = catalogJob.importEntities( prepareImportDocument() );
+                Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
+                if (ex != null) errors.add( ex );
             }
             
             /**
@@ -246,24 +251,47 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             catalogJob.commitTransaction();
             
             
-            doc.putBoolean( "success", true );
-
-        } catch (Exception e) {
-            catalogJob.rollbackTransaction();
-            e.printStackTrace();
-            doc.put( "error", e.getMessage() );
-            doc.putBoolean( "success", false);
-        } finally {
             IngridDocument result = new IngridDocument();
             result.putInt( "inserts", resultInsert == null ? 0 : resultInsert.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
             result.putInt( "updates", resultUpdate == null ? 0 : resultUpdate.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
             result.putInt( "deletes", deletedObjects );
             result.put( "resultInserts", resultInsert );
             result.put( "resultUpdates", resultUpdate );
+            doc.putBoolean( "success", true );
             doc.put( "result", result );
+
+        } catch (Exception e) {
+            catalogJob.rollbackTransaction();
+            e.printStackTrace();
+            doc.put( "error", prepareException(e) );
+            doc.putBoolean( "success", false);
+        } finally {
+            
+//            String errorMsg = prepareExceptions( errors );
+//            if (errorMsg != null) {
+//                String e = (String) result.get("error");
+//                if (e != null) errorMsg += e;
+//                result.put( "error", errorMsg );
+//            }
+//            
         }
 
         return doc;
+    }
+
+    private String prepareException(Exception exception) {
+        String errorMsg = exception.toString();
+        Throwable cause = exception.getCause();
+        if (cause == null) {
+            cause = exception;
+        } else {
+            errorMsg = cause.toString();
+        }
+        
+        for (StackTraceElement stackTraceElement : cause.getStackTrace()) {
+            errorMsg += "\n" + stackTraceElement;
+        }
+        return errorMsg;
     }
 
     private IngridDocument prepareImportAnalyzeDocument(DocumentBuilder builder, Node doc) throws Exception {
@@ -304,6 +332,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, true );
         
         return docIn;
     }

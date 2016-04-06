@@ -1711,6 +1711,7 @@ function mapAddresses(source, target) {
             }
             XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "organisation"), organisationName);
             XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "name"), individualName);
+            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "publication-condition"), "1");
             var countryCode = UtilsCountryCodelist.getCodeFromShortcut3(XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
             if (hasValue(countryCode)) {
                 XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "country"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
