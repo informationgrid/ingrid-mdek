@@ -721,7 +721,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    Boolean startNewAnalysis = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS);
         boolean transactionInProgress = (boolean) getOrDefault(docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
 	    ProtocolHandler protocolHandler = new HashMapProtocolHandler();
-	    byte[] mappedDataCompressed = null;
+	    byte[] mappedDataCompressed = importData;
 
 	    String userUuid = getCurrentUserUuid(docIn);
 	    try {

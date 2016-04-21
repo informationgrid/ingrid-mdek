@@ -102,17 +102,6 @@
         </dependency>
 
         <!-- Geo Toolkit -->
-        <dependency>
-            <groupId>org.geotoolkit.pending</groupId>
-            <artifactId>geotk-client-csw</artifactId>
-            <version>${geotk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotoolkit</groupId>
-            <artifactId>geotk-logging-log4j</artifactId>
-            <version>${geotk.version}</version>
-            <scope>runtime</scope>
-        </dependency>
 <!--         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
