@@ -231,14 +231,17 @@ public class MdekImportService implements IImporterCallback {
 		int totalNumAddresses = (Integer) runningJobInfo.get(MdekKeys.RUNNINGJOB_NUMBER_TOTAL_ADDRESSES);
 		boolean errorOnExistingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID) : false;
 		boolean errorOnException = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION) : false;
+		boolean errorOnMissingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID) : false;
 		
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
 			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
-			if (errorOnExistingUuid) {
+            if (errorOnExistingUuid || errorOnMissingUuid) {
 			    ObjectNode objImportNode = objectService.loadByOrigId( inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), IdcEntityVersion.WORKING_VERSION);
-			    if (objImportNode != null) {
+			    if (errorOnExistingUuid && objImportNode != null) {
 			        throw createImportException("Object already exists with Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
+			    } else if (errorOnMissingUuid && objImportNode == null) {
+			        throw createImportException("Object does not exist with Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
 			    }
 			}
 		} else if (whichType == IdcEntityType.ADDRESS) {
@@ -482,12 +485,7 @@ public class MdekImportService implements IImporterCallback {
 	 * @param userUuid calling user
 	 * @throws MdekException encapsulates error message
 	 */
-	public void checkDefaultParents(String defaultObjectParentUuid, String defaultAddrParentUuid,
-			boolean publishImmediately,
-			boolean doSeparateImport,
-			boolean copyNodeIfPresent,
-			String userUuid)
-	throws MdekException {
+	public void checkDefaultParents(String defaultObjectParentUuid, String defaultAddrParentUuid, String userUuid) throws MdekException {
 		if (defaultObjectParentUuid == null) {
 			throw createImportException("Top Node for Import of Objects not set.");
 		}
@@ -526,12 +524,17 @@ public class MdekImportService implements IImporterCallback {
 		updateImportJobInfoMessages("ADDRESS Import Node = " + addrImportNode.getAddrUuid(), userUuid);
 
 		// all ok, we store data in running job info for later access !
-		HashMap runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+		HashMap<Object, Object> runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
 		runningJobInfo.put(KEY_OBJ_IMPORT_NODE, objImportNode);
 		runningJobInfo.put(KEY_ADDR_IMPORT_NODE, addrImportNode);
-		runningJobInfo.put(KEY_PUBLISH_IMMEDIATELY, publishImmediately);
-		runningJobInfo.put(KEY_DO_SEPARATE_IMPORT, doSeparateImport);
-		runningJobInfo.put(KEY_COPY_NODE_IF_PRESENT, copyNodeIfPresent);
+		
+	}
+	
+	public void setOptions(String userUuid, boolean publishImmediately, boolean doSeparateImport, boolean copyNodeIfPresent ) {
+	    HashMap<Object, Object> runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+	    runningJobInfo.put(KEY_PUBLISH_IMMEDIATELY, publishImmediately);
+        runningJobInfo.put(KEY_DO_SEPARATE_IMPORT, doSeparateImport);
+        runningJobInfo.put(KEY_COPY_NODE_IF_PRESENT, copyNodeIfPresent);
 	}
 
 	/** Check state after import of entities. May throw controlled exception if "controlled problem" occured !

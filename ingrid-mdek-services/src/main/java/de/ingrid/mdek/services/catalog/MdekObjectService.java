@@ -787,8 +787,7 @@ public class MdekObjectService {
 	 * 		false=error if references to this object exist
 	 * @return map containing info whether address was fully deleted, marked deleted ...
 	 */
-	public IngridDocument deleteObjectFull(String uuid, boolean forceDeleteReferences,
-			String userId) {
+	public IngridDocument deleteObjectFull(String uuid, boolean forceDeleteReferences, String userId) {
 		IngridDocument result;
 		// NOTICE: Always returns true if workflow disabled !
 		if (permissionHandler.hasQAPermission(userId)) {
@@ -798,6 +797,29 @@ public class MdekObjectService {
 		}
 
 		return result;
+	}
+	
+	public IngridDocument deleteObjectByOridId(String origId, String userId) {
+	    
+	    // NOTICE: this one also contains Parent Association !
+        ObjectNode oNode = loadByOrigId( origId, IdcEntityVersion.WORKING_VERSION);
+        if (oNode == null) {
+            throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+        }
+        
+        // first check User Permissions
+        permissionHandler.checkPermissionsForDeleteObject(oNode.getObjUuid(), userId);
+
+        checkObjectTreeReferencesForDelete(oNode, true);
+
+        // delete complete Node ! rest is deleted per cascade (subnodes, permissions)
+        daoObjectNode.makeTransient(oNode);
+
+        IngridDocument result = new IngridDocument();
+        result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
+        result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);          
+
+        return result;
 	}
 
 	/**

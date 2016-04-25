@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -861,6 +862,19 @@ public class CSWImport {
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( "The CSW-T transaction should not have succeeded.", result.getBoolean( "success" ), is( false ) );
     }
+    
+    @Test @Ignore
+    public void deleteFailsWhenOrigIdNotFound() {}
+    @Test @Ignore
+    public void deleteFailsWhenUuidNotFound() {}
+    @Test @Ignore
+    public void deleteSuccessWhenOrigIdFound() {}
+    @Test @Ignore
+    public void deleteSuccessWhenUuidFound() {}
+    @Test @Ignore
+    public void updateFailsWhenObjectNotExists() {}
+    @Test @Ignore
+    public void insertFailsWhenObjectExists() {}
 
     private void checkXmlResponse(String xml, int inserted, int updated, int deleted) {
         assertThat( xml, containsString( "<csw:totalInserted>" + String.valueOf( inserted ) + "</csw:totalInserted>" ) );

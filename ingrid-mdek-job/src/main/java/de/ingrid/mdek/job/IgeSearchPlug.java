@@ -217,6 +217,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
+                    document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
                 
                     IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
@@ -233,11 +234,18 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument params = new IngridDocument();
-                    params.put( MdekKeys.USER_ID, "TEST_USER_ID" );
+                    params.put( MdekKeys.USER_ID, adminUserUUID );
                     params.put( MdekKeys.UUID, propValue );
                     params.put( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, false );
+                    params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, true );
 
-                    resultDelete = objectJob.deleteObject( params );
+                    try {
+                        resultDelete = objectJob.deleteObject( params );
+                    } catch (MdekException ex) {
+                        // try to delete by UUID
+                        params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, false );
+                        resultDelete = objectJob.deleteObject( params );
+                    }
                     if (resultDelete.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
                         deletedObjects++;
                     } else {
@@ -265,15 +273,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             e.printStackTrace();
             doc.put( "error", prepareException(e) );
             doc.putBoolean( "success", false);
-        } finally {
-            
-//            String errorMsg = prepareExceptions( errors );
-//            if (errorMsg != null) {
-//                String e = (String) result.get("error");
-//                if (e != null) errorMsg += e;
-//                result.put( "error", errorMsg );
-//            }
-//            
         }
 
         return doc;
@@ -303,11 +302,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         IngridDocument docIn = new IngridDocument();
         docIn.put( MdekKeys.USER_ID, adminUserUUID );
         
-        // TODO: it should not be neccessary to provide an object and address node for the import!
-        docIn.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, "2768376B-EE24-4F34-969B-084C55B52278" );  // IMPORTKNOTEN
-        docIn.put( MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, "BD33BC8E-519E-47F9-8A30-465C95CD0355" ); // IMPORTKNOTEN
-        
-        // docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, GZipTool.gzip( insertDoc ).getBytes());
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, catalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
@@ -316,16 +310,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, true );
         return docIn;
     }
     
     private IngridDocument prepareImportDocument() throws Exception {
         IngridDocument docIn = new IngridDocument();
         docIn.put( MdekKeys.USER_ID, adminUserUUID );
-        // TODO: it should not be neccessary to provide an object and address node for the import!
-        docIn.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, "2768376B-EE24-4F34-969B-084C55B52278" );  // IMPORTKNOTEN
-        docIn.put( MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, "BD33BC8E-519E-47F9-8A30-465C95CD0355" ); // IMPORTKNOTEN
-        
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
@@ -333,6 +325,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, true );
         
         return docIn;
     }

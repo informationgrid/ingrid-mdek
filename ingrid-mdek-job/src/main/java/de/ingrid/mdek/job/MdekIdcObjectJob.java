@@ -820,10 +820,16 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
+			Boolean byOrigId = (Boolean) params.get(MdekKeys.REQUESTINFO_USE_ORIG_ID);
 
 			daoObjectNode.beginTransaction();
 
-			IngridDocument result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
+			IngridDocument result = null;
+			if (byOrigId == true) {
+			    result = objectService.deleteObjectByOridId( uuid, userId );
+			} else {
+			    result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
+			}
 
 			daoObjectNode.commitTransaction();
 			
