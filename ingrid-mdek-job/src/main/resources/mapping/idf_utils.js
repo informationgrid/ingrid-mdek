@@ -23,7 +23,9 @@
 // Return gco:Date OR gco:DateTime element dependent from passed date format.
 function getDateOrDateTime(dateValue) {
     var gcoElement;
-    if (dateValue.indexOf("T") > -1) {
+    if (dateValue == null) {
+        return "null"
+    } else if (dateValue.indexOf("T") > -1) {
         gcoElement = DOM.createElement("gco:DateTime");
     } else {
         gcoElement = DOM.createElement("gco:Date");

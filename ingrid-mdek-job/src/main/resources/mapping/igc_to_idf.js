@@ -153,7 +153,9 @@ for (i=0; i<objRows.size(); i++) {
         var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
         // do only return the date section, ignore the time part of the date
         // see CSW 2.0.2 AP ISO 1.0 (p.41)
-        mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
+        if (isoDate) {
+            mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
+        }
     }
     
     // ---------- <gmd:metadataStandardName> ----------
