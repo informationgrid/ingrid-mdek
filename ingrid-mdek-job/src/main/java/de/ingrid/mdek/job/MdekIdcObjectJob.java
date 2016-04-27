@@ -820,7 +820,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
-			Boolean byOrigId = (Boolean) params.get(MdekKeys.REQUESTINFO_USE_ORIG_ID);
+			Boolean byOrigId = params.containsKey( MdekKeys.REQUESTINFO_USE_ORIG_ID) ? (Boolean)params.get(MdekKeys.REQUESTINFO_USE_ORIG_ID) : false;
 
 			daoObjectNode.beginTransaction();
 
