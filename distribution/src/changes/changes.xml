@@ -32,6 +32,9 @@
       <action type="add" dev="wemove" issue="REDMINE-267">
         Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-299">
+        Index: Fix mapping of UUIDs in index, now all fields containing UUIDs are not analyzed.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-83">
         IDF: Remove second identificationInfo element.
       </action>
