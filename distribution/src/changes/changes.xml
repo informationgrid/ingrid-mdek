@@ -28,9 +28,25 @@
   </properties>
   <body>
     
-    <release version="3.6.2-SNAPSHOT" date="??" description="??">
+    <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">
+      <action type="add" dev="wemove" issue="REDMINE-113">
+        First version of CSW-T interface.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-88">
+        Added indexing of object and addresses as well as live updating index after publish.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-34">
+        Show detailed process during indexing.
+      </action>
       <action type="add" dev="wemove" issue="REDMINE-267">
-        Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
+        Index/IDF: Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-250">
+        IDF: During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-223">
+        IDF: Add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints) according to GDI-DE.
+        Make "Anwendungseinschränkungen" (useLimitation) always optional.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-299">
         Index: Fix mapping of UUIDs in index, now all fields containing UUIDs are not analyzed.
@@ -44,18 +60,17 @@
       <action type="fix" dev="wemove" issue="REDMINE-86">
         IDF: Fix mapping of conformity according to GDI-DE.
       </action>
-      <action type="update" dev="wemove" issue="REDMINE-250">
-        IDF: During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+      <action type="fix" dev="wemove" issue="REDMINE-269">
+        Fix redirect to welcome page.
       </action>
-      <action type="update" dev="wemove" issue="REDMINE-223">
-        IDF: Add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints) according to GDI-DE.
-        Make "Anwendungseinschränkungen" (useLimitation) always optional.
+      <action type="fix" dev="wemove" issue="REDMINE-305">
+        Admin-GUI: Correctly store database configuration.
       </action>
-      <action type="add" dev="wemove" issue="REDMINE-88">
-        Added indexing of object and addresses as well as live updating index after publish.
+      <action type="fix" dev="wemove" issue="REDMINE-306">
+        Fixed cache problem when requesting syslist depending on a language.
       </action>
-      <action type="add" dev="wemove" issue="REDMINE-34">
-        Show detailed process during indexing.
+      <action type="fix" dev="wemove" issue="REDMINE-307">
+        IDF: Fixed mapping of null date.
       </action>
     </release>
     
