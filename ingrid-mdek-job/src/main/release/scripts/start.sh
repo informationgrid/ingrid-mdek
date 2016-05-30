@@ -185,11 +185,11 @@ startIplug()
   fi
 
   export CLASSPATH="$CLASSPATH"
-  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME"
+  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -XX:MaxPermSize=128M"
   CLASS=de.ingrid.mdek.MdekServer
 
   # run it
-  exec nohup "$JAVA" $INGRID_OPTS $CLASS --descriptor conf/communication.xml > logs/console.log &
+  exec nohup "$JAVA" $INGRID_OPTS $CLASS --descriptor conf/communication-ige.xml > logs/console.log &
   
   echo "ingrid component ($INGRID_HOME) started."
   echo $! > $PID

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+    <!-- SEARCH / INDEX CONFIGURATION -->
+    <bean id="dscDocumentProducerAddress" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+        <property name="recordSetProducer" ref="recordSetProducerAddress" />
+        <property name="recordMapperList">
+            <list>
+                <ref bean="recordMapperAddress"/>
+                <ref bean="idfProducerIndexMapperAddress"/>
+            </list>
+        </property>
+        <property name="indexInfo" ref="indexInfoAddress"></property>
+    </bean>
+    
+    <bean id="indexInfoAddress" class="de.ingrid.admin.elasticsearch.IndexInfo">
+        <property name="toIndex" value="ige-test" />
+        <property name="toType" value="address" />
+        <property name="docIdField" value="t02_address.adr_id" />
+    </bean>
+
+    <bean id="recordSetProducerAddress" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
+        <property name="recordSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
+    </bean>
+
+    <bean id="recordMapperAddress" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_lucene_address.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="true" />
+    </bean>
+    
+    <!-- 
+    
+      Creates an IDF document via a  de.ingrid.iplug.dsc.record.DscRecordCreator and adds it
+      to the index in field 'idf'. 
+    
+    -->
+    <bean id="idfProducerIndexMapperAddress" class="de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper">
+        <property name="dscRecordCreator" ref="dscRecordCreatorAddress" />
+    </bean>
+    
+
+<!--     <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
+        <property name="dscRecordProducer" ref="dscRecordCreatorAddress" />
+    </bean> -->
+    
+    <bean id="dscRecordCreatorAddress" class="de.ingrid.iplug.dsc.record.DscRecordCreator">
+        <property name="recordProducer" ref="recordProducerAddress" />
+        <property name="record2IdfMapperList">
+            <list>
+                <ref bean="createIdfMapperAddress"/>
+                <ref bean="scriptedIdfMapperAddress"/>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="recordProducerAddress" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
+        <property name="indexFieldID" value="t02_address.id" />
+    </bean>
+    
+    <bean id="createIdfMapperAddress" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
+
+    <bean id="scriptedIdfMapperAddress" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_idf_address.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="true" />
+    </bean>
+
+
+</beans>

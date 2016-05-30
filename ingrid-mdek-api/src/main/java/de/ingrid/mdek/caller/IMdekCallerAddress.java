@@ -358,4 +358,13 @@ public interface IMdekCallerAddress extends IMdekCaller {
 			IdcStatisticsSelectionType selectionType,
 			int startHit, int numHits,
 			String userId);
+	
+	/**
+     * Get the ISO XML representation of the document.
+     * @param plugId which mdek server (iplug)
+     * @param uuid the id of the document
+     * @param userId the id of the user who executes this command
+     * @returns the xml representation of the given document
+     */
+    IngridDocument getIsoXml(String plugId, String uuid, IdcEntityVersion version, String userId);
 }

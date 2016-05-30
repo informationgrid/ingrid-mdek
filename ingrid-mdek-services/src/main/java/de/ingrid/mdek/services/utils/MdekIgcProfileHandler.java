@@ -31,9 +31,6 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -48,6 +45,8 @@ import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xml.XPathUtils;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 
 
 /**
@@ -79,8 +78,7 @@ public class MdekIgcProfileHandler {
 		daoSysGenericKey = daoFactory.getSysGenericKeyDao();
 
 		URL url = getClass().getResource(MdekCatalogService.CACHE_CONFIG_FILE);
-		CacheManager.create(url);
-		cacheManager = CacheManager.getInstance();
+		cacheManager = new CacheManager(url);
 		profileCache = cacheManager.getCache(CACHE_PROFILE);
 
 		// initialize XPath Util

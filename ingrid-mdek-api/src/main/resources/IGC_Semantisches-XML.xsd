@@ -1444,7 +1444,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: UMTHES/GEMET Thesaurus-Suchbegriff oder INSPIRE Thema
+    Fachlicher Name: UMTHES/GEMET Thesaurus-Suchbegriff oder INSPIRE Thema oder Topic oder OpenData
     Tabelle: searchterm_sns.sns_id  \\ bei UMTHES und GEMET term -> id Attribut
     Tabelle: searchterm_sns.gemet_id  \\ nur bei GEMET term 
     Tabelle: searchterm_value.entry_id  \\ nur bei INSPIRE Thema (syslist entry-id) -> id Attribut
@@ -1774,6 +1774,9 @@
               <xs:enumeration value="UMTHES"/>
               <xs:enumeration value="GEMET"/>
               <xs:enumeration value="INSPIRE"/>
+              <!-- Only written when ISO Import -->
+              <xs:enumeration value="Topic"/>
+              <xs:enumeration value="OpenData"/>
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>

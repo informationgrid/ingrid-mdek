@@ -32,14 +32,18 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
 
+@Service
 public class HQLExecuter extends TransactionService implements IHQLExecuter {
 
 	private static final Logger LOG = Logger.getLogger(HQLExecuter.class);
 
+	@Autowired
 	public HQLExecuter(SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
@@ -53,9 +57,7 @@ public class HQLExecuter extends TransactionService implements IHQLExecuter {
 		List<Pair> pairList = (List<Pair>) document.get(HQL_QUERIES);
 		beginTransaction();
 		Session session = getSession();
-		int i = 0;
 		for (Pair pair : pairList) {
-			i++;
 			String key = pair.getKey();
 			String hqlString = (String) pair.getValue();
 			try {

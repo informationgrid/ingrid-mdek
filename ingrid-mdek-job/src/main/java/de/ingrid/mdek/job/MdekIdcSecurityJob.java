@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
@@ -68,6 +71,7 @@ import de.ingrid.utils.IngridDocument;
  * Encapsulates all Job functionality concerning SECURITY / USER MANAGEMENT.
  
  */
+@Service
 public class MdekIdcSecurityJob extends MdekIdcJob {
 
 	/** service encapsulating security functionality */
@@ -89,6 +93,7 @@ public class MdekIdcSecurityJob extends MdekIdcJob {
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 	protected DocToBeanMapperSecurity docToBeanMapperSecurity;
 
+	@Autowired
 	public MdekIdcSecurityJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService) {

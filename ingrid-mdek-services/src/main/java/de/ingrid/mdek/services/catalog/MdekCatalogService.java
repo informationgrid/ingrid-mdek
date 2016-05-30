@@ -25,16 +25,13 @@ package de.ingrid.mdek.services.catalog;
 import java.beans.PropertyDescriptor;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -56,9 +53,7 @@ import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
@@ -90,6 +85,9 @@ import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.udk.UtilsLanguageCodelist;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * Encapsulates access to catalog data (syslists etc.).
@@ -112,9 +110,7 @@ public class MdekCatalogService {
 	private IT01ObjectDao daoT01Object;
 	private IT02AddressDao daoT02Address;
 	private ISearchtermValueDao daoSearchtermValue;
-	private ISearchtermSnsDao daoSearchtermSns;
 	private ISpatialRefValueDao daoSpatialRefValue;
-	private ISpatialRefSnsDao daoSpatialRefSns;
 	private IGenericDao<IEntity> dao;
 
 	private MdekJobHandler jobHandler;
@@ -143,9 +139,7 @@ public class MdekCatalogService {
 		daoT01Object = daoFactory.getT01ObjectDao();
 		daoT02Address = daoFactory.getT02AddressDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
-		daoSearchtermSns = daoFactory.getSearchtermSnsDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
-		daoSpatialRefSns = daoFactory.getSpatialRefSnsDao();
 		dao = daoFactory.getDao(IEntity.class);
 
 		jobHandler = MdekJobHandler.getInstance(daoFactory);
@@ -154,8 +148,7 @@ public class MdekCatalogService {
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 
 		URL url = getClass().getResource(CACHE_CONFIG_FILE);
-		CacheManager.create(url);
-		cacheManager = CacheManager.getInstance();
+		cacheManager = new CacheManager(url);
 		syslistMapCache = cacheManager.getCache(CACHE_SYS_LIST_MAP);
 		catalogCache = cacheManager.getCache(CACHE_CATALOG);
 	}
@@ -274,12 +267,13 @@ public class MdekCatalogService {
 	public Map<Integer, String> getSysListKeyNameMap(int listId, String language) {
 		// ALWAYS USE CACHE !
 		boolean useCache = true;
+		String cacheKey = listId + ":" + language;
 
 		// get map from cache if requested !
 		Map<Integer, String> map = null;
 		Element elem = null;
 		if (useCache) {
-			elem = syslistMapCache.get(listId);
+			elem = syslistMapCache.get(cacheKey);
 			if (elem != null) {
 				map = (Map<Integer, String>) elem.getObjectValue();
 			}
@@ -296,7 +290,7 @@ public class MdekCatalogService {
 
 		// add to cache if cache used !
 		if (useCache && elem == null) {
-			syslistMapCache.put(new Element(listId, map));
+			syslistMapCache.put(new Element(cacheKey, map));
 		}
 
 		return map;
@@ -312,16 +306,117 @@ public class MdekCatalogService {
 	}
 
 	public String getSysListEntryName(int listId, int entryId) {
-		String entryName = null;
-		
 		String language = getCatalogLanguage();
-		Map<Integer, String> keyNameMap = getSysListKeyNameMap(listId, language);
-		if (keyNameMap != null) {
-			entryName = keyNameMap.get(entryId);
-		}
-		
-		return entryName;
+		return getSysListEntryName( listId, entryId, language );
 	}
+	
+	public String getSysListEntryName(int listId, int entryId, String language) {
+	    String entryName = null;
+	    
+	    Map<Integer, String> keyNameMap = getSysListKeyNameMap(listId, language);
+	    if (keyNameMap != null) {
+	        entryName = keyNameMap.get(entryId);
+	    }
+	    
+	    return entryName;
+	}
+	
+	public Integer getSysListEntryKey(int listId, String value, String language) {
+	    Integer entryId = null;
+	    
+	    Map<Integer, String> keyNameMap = getSysListKeyNameMap(listId, language);
+	    if (keyNameMap != null) {
+	        for (Integer key : keyNameMap.keySet()) {
+                if (value.equals( keyNameMap.get( key ) )) {
+                    entryId = key;
+                    break;
+                }
+            }
+	    }
+	    
+	    return entryId;
+	}
+	
+	public Integer getSysListEntryKey(int listId, String value, String language, Boolean doRobustComparison) {
+	    Integer entryId = null;
+	    
+	    // simplify syslist value
+	    if (doRobustComparison) {
+	        value = value.trim().replace("—", "").replace("-", "").replace(" ", "");
+	    }
+
+	    Collection<Map<Integer, String>> localisedEntryValues = new ArrayList<Map<Integer, String>>();
+	    if (language != null && language.length() > 0) {
+            localisedEntryValues.add(getSysListKeyNameMap(listId, language));
+        } else {
+            localisedEntryValues.add( getSysListKeyNameMap(listId, "de") );
+            localisedEntryValues.add( getSysListKeyNameMap(listId, "en") );
+            localisedEntryValues.add( getSysListKeyNameMap(listId, "iso") );
+        }
+	    
+	    for (Map<Integer, String> keyNameMap : localisedEntryValues) {
+            
+            if (keyNameMap != null) {
+                for (Integer key : keyNameMap.keySet()) {
+                    String compareValue = keyNameMap.get( key );
+                    if (doRobustComparison) {
+                        compareValue = compareValue.trim().replace("—", "").replace("-", "").replace(" ", ""); 
+                    }
+                    if (value.equals( compareValue )) {
+                        entryId = key;
+                        break;
+                    }
+                }
+            }
+	    }
+        
+        return entryId;
+    }
+	
+	public Integer getInitialKeyFromListId(Integer listId) {
+	    Integer entryKey = null;
+        
+        String language = getCatalogLanguage();
+        List<SysList> list = daoSysList.getSysList(listId, language);
+        
+        // special behavior if default language is read and not set ! Then return catalog language !
+        if (listId == 99999999) {
+            entryKey = getCatalog().getLanguageKey();
+        } else {
+            for (SysList entry : list) {
+                if ("Y".equals( entry.getIsDefault() )) {
+                    entryKey = entry.getEntryId();
+                    break;
+                }
+            }
+        }
+        
+        
+        return entryKey;
+	}
+	
+	public String getInitialValueFromListId(Integer listId) {
+	    String entryName = null;
+        
+        String language = getCatalogLanguage();
+        List<SysList> list = daoSysList.getSysList(listId, language);
+        
+        // special behavior if default language is read and not set ! Then return catalog language !
+        if (listId == 99999999) {
+            Integer initialKey = getInitialKeyFromListId(listId);
+            entryName = getSysListEntryName( listId, initialKey );
+        } else {
+            for (SysList entry : list) {
+                if ("Y".equals( entry.getIsDefault() )) {
+                    entryName = entry.getName();
+                    break;
+                }
+            }
+            
+        }
+        
+        return entryName;
+    }
 
 	/** Get generic keys of given names AS LIST OF BEANS. PASS null if all generic keys ! */
 	public List<SysGenericKey> getSysGenericKeys(String[] keyNames) {
@@ -356,7 +451,11 @@ public class MdekCatalogService {
 			LOG.info("IGE iPlug needed version=" + Versioning.NEEDED_IGC_VERSION);
 		}
 
-		if (!Versioning.NEEDED_IGC_VERSION.equals(databaseIgcVersion)) {
+        // introduce new comparison mechanism !
+        // versions do not have to be equal, instead version in database (catalog) has to start with version set in IGE iPlug !
+        // So IGE iPlug Version 3.6.2 and catalog version 3.6.2.2 match and IGE iPlug does not have to be updated !
+        // This way we can change catalog version, e.g. when profile is updated, which does not affect IGE iPlug !
+        if (!databaseIgcVersion.startsWith(Versioning.NEEDED_IGC_VERSION)) {
 			String errorMsg = "IGC catalogue (schema) in database has wrong version for IGE iPlug:\n" +
 				"Needed IGC version=" + Versioning.NEEDED_IGC_VERSION + " <-> current IGC Version in database=" + databaseIgcVersion;
 			MdekException exc = new MdekException(errorMsg);
@@ -390,7 +489,8 @@ public class MdekCatalogService {
 
 		// process all objects
 		for (T01Object obj : objs) {
-			Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
+			@SuppressWarnings("unchecked")
+            Set<T012ObjAdr> objAdrs = obj.getT012ObjAdrs();
 
 			// then process associations
 			List<T012ObjAdr> objAdrsToRemove = new ArrayList<T012ObjAdr>();

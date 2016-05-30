@@ -28,8 +28,10 @@ import de.ingrid.mdek.job.IJob;
 
 public interface IRegistrationService {
 
+    @Deprecated
 	void register(String jobId, String xml, boolean persist) throws IOException;
 
+	@Deprecated
 	void deRegister(String jobId);
 
 	IJob getRegisteredJob(String jobId);

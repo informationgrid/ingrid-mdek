@@ -23,9 +23,12 @@
 package de.ingrid.mdek.job.repository;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.IngridDocument;
 
+@Service
 public class JobRepositoryFacade implements IJobRepositoryFacade {
 
 	private static final Logger LOG = Logger
@@ -33,6 +36,7 @@ public class JobRepositoryFacade implements IJobRepositoryFacade {
 
 	private final IJobRepository _jobRepository;
 
+	@Autowired
 	public JobRepositoryFacade(IJobRepository jobRepository) {
 		_jobRepository = jobRepository;
 	}

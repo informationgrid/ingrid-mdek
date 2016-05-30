@@ -27,6 +27,53 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    
+    <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">
+      <action type="add" dev="wemove" issue="REDMINE-113">
+        First version of CSW-T interface.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-88">
+        Added indexing of object and addresses as well as live updating index after publish.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-34">
+        Show detailed process during indexing.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-267">
+        Index/IDF: Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-250">
+        IDF: During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-223">
+        IDF: Add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints) according to GDI-DE.
+        Make "Anwendungseinschränkungen" (useLimitation) always optional.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-299">
+        Index: Fix mapping of UUIDs in index, now all fields containing UUIDs are not analyzed.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-83">
+        IDF: Remove second identificationInfo element.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-85">
+        IDF: Write distributionInfo/*/linkage now for all service types, not only for view services.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-86">
+        IDF: Fix mapping of conformity according to GDI-DE.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-269">
+        Fix redirect to welcome page.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-305">
+        Admin-GUI: Correctly store database configuration.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-306">
+        Fixed cache problem when requesting syslist depending on a language.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-307">
+        IDF: Fixed mapping of null date.
+      </action>
+    </release>
+    
     <release version="3.6.1.2" date="2016-01-22" description="Release InGrid 3.6.1.2">
       <action type="update" dev="wemove" issue="REDMINE-246">
         Create new object in index now synchronized to avoid duplicates.
@@ -38,7 +85,7 @@
         Add new field "Nutzungsbeschränkungen" to profile to appear in "additional fields".
       </action>
     </release>
-
+    
     <release version="3.6.1" date="2015-11-19" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-47">
         Edit service version via selectbox and new syslist (according to GDI-DE content).

@@ -58,11 +58,14 @@
   </moduleSets>
   <fileSets>
     <fileSet>
-      <directory>../ingrid-mdek-job/src/main/release/conf</directory>
+      <directory>../ingrid-mdek-job/src/main/resources</directory>
       <outputDirectory>${project.build.finalName}/conf</outputDirectory>
+      <excludes>
+        <exclude>mdek-job-version.properties</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
-      <directory>../ingrid-mdek-services/src/main/release/conf</directory>
+      <directory>../ingrid-mdek-job/src/main/release/conf</directory>
       <outputDirectory>${project.build.finalName}/conf</outputDirectory>
     </fileSet>
     <fileSet>
@@ -73,6 +76,21 @@
       <directory>ant-installer</directory>
       <outputDirectory>/</outputDirectory>
       <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
+      <directory>../ingrid-mdek-job/src/main/webapp</directory>
+      <outputDirectory>${project.build.finalName}/webapp</outputDirectory>
+      <excludes>
+        <exclude>**/WEB-INF/jetty-web.xml</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>../ingrid-mdek-job/target/base-webapp</directory>
+      <outputDirectory>${project.build.finalName}/webapp</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>../ingrid-mdek-job/src/main/release/jetty</directory>
+      <outputDirectory>${project.build.finalName}/webapp/WEB-INF</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>../target/installer</directory>
@@ -88,15 +106,15 @@
       <outputDirectory>${project.build.finalName}/doc</outputDirectory>
     </fileSet>
   </fileSets>
-  <dependencySets>
     <!-- Add for installer to setup/update IGC database -->
+  <!--<dependencySets>
     <dependencySet>
       <outputDirectory>.</outputDirectory>
       <scope>provided</scope>
       <includes>
         <include>de.ingrid:ingrid-udk-importer</include>
       </includes>
-      <outputFileNameMapping>${artifact.artifactId}-${ingrid-udk-importer.version}-installer.jar</outputFileNameMapping>
+      <outputFileNameMapping>${artifact.artifactId}-${ingrid-udk-importer.version}.jar</outputFileNameMapping>
     </dependencySet>
-  </dependencySets>
+  </dependencySets>-->
 </assembly>

@@ -27,9 +27,16 @@ package de.ingrid.mdek;
  * NOTICE: Subclassed by import-export jar defining Version of Import/Export Format and mapper class ...
  */
 public class Versioning {
-	/** Version of IGC catalogue needed. 
-	 * NOTICE: IGE frontend checks this version against backend when this mdek-api is used in frontend (portal). */
-	public static final String NEEDED_IGC_VERSION = "3.6.1.1";
+	/** The "major" version of the IGC catalog needed !<br>
+	 * The version in the catalog does not have to be equal to this version but has to "start" with this version !<br>
+	 * <b>E.g. if version set here is 3.6.2 and catalog version is 3.6.2_a the versions match.
+	 * But strictly set to 3.6.2_a here if you need that version due to changes in the data structure !</b><br>
+     * <b>NOTICE</b>: Also IGE frontend checks this version against IGE iPlug when this mdek-api is used in frontend (portal).
+     * BUT also only checks if IGE iPlug version starts with this version ! */
+	public static final String NEEDED_IGC_VERSION = "3.6.2";
+    /** This is the version the catalog has to be updated to when the iPlug is started !<br>
+     * This normally is the most current version of the catalog (the strategy of the udk importer executed). */
+    public static final String UPDATE_TO_IGC_VERSION = "3.6.2";
 
 	/** Key for fetching IGC Version from backend from SysGenericKey table */
 	public static final String BACKEND_IGC_VERSION_KEY = "IDC_VERSION";

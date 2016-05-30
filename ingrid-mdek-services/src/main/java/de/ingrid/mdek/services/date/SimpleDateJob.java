@@ -25,15 +25,19 @@ package de.ingrid.mdek.services.date;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.mdek.job.IJob;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.utils.IngridDocument;
 
+@Service
 public class SimpleDateJob implements IJob {
 
 	private Logger _logger;
 
+	@Autowired
 	public SimpleDateJob(ILogService logService) {
 		_logger = logService.getLogger(SimpleDateJob.class);
 	}

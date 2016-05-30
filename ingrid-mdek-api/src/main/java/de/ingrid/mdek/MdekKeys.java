@@ -96,6 +96,8 @@ public class MdekKeys {
      * Pass according Enumeration consts e.g. MdekUtils.SearchtermType or MdekUtils.SpatialReferenceType.
      *  Value: Array of Enumeration consts dependent from Entity (e.g. MdekUtils.SearchtermType for searchterms) */
     public final static String REQUESTINFO_TYPES_OF_ENTITY = "requestinfo_typesOfEntity";
+    
+    public final static String REQUESTINFO_USE_ORIG_ID = "requestinfo_useOrigId";
 
     /** Value: String */
     public final static String LANGUAGE_SHORTCUT = "language-shortcut";
@@ -193,6 +195,9 @@ public class MdekKeys {
     /** The data to import (in zipped export/import format)<br>
      *  Value: byte[] */
     public final static String REQUESTINFO_IMPORT_DATA = "requestinfo_importData";
+    /** The analyzed data which was converted to the import format.
+     *  Value: byte[] */
+    public final static String REQUESTINFO_IMPORT_ANALYZED_DATA = "requestinfo_analyzedData";
     /** Object UUID where NEW imported objects are created underneath<br>
      *  Value: String */
     public final static String REQUESTINFO_IMPORT_OBJ_PARENT_UUID = "requestinfo_importObjParentUuid";
@@ -211,6 +216,15 @@ public class MdekKeys {
     /** Protocol from frontend to be added to backend JobInfo. null or empty if no protocol !<br>
      *  Value: String */
     public final static String REQUESTINFO_IMPORT_FRONTEND_PROTOCOL = "requestinfo_importFrontendProtocol";
+    /**
+     * If value is true, then throw away all previously analyzed data from job info.
+     *  Value: Boolean */
+    public final static String REQUESTINFO_IMPORT_START_NEW_ANALYSIS = "requestinfo_importStartNewAnalysis";
+    public final static String REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
+    public final static String REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID = "requestinfo_importErrorWhenUuidExists";
+    public final static String REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID = "requestinfo_importErrorWhenUuidNotExists";
+    public final static String REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION = "requestinfo_importErrorWhenException";
+    public final static String REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE = "requestinfo_importIgnoreParentImportNode";
 
 
     // URL

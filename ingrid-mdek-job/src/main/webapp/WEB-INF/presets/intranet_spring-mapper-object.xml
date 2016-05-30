@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+    <!-- SEARCH / INDEX CONFIGURATION -->
+    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+        <property name="recordSetProducer" ref="recordSetProducer" />
+        <property name="recordMapperList">
+            <list>
+                <ref bean="recordMapper"/>
+                <ref bean="recordProfileMapper"/>
+                <ref bean="idfProducerIndexMapper"/>
+            </list>
+        </property>
+        <property name="indexInfo" ref="indexInfo"></property>
+    </bean>
+    
+    <bean id="indexInfo" class="de.ingrid.admin.elasticsearch.IndexInfo">
+        <property name="toIndex" value="ige-test" />
+        <property name="toType" value="object" />
+        <property name="docIdField" value="t01_object.obj_id" />
+    </bean>
+
+    <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
+        <property name="recordSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
+    </bean>
+
+    <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_lucene.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="true" />
+    </bean>
+    <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper">
+        <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
+    </bean>
+    
+    <!-- 
+    
+      Creates an IDF document via a  de.ingrid.iplug.dsc.record.DscRecordCreator and adds it
+      to the index in field 'idf'. 
+    
+    -->
+    <bean id="idfProducerIndexMapper" class="de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper">
+        <property name="dscRecordCreator" ref="dscRecordCreator" />
+    </bean>
+    
+
+
+    <!-- <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
+        <property name="dscRecordProducer" ref="dscRecordCreator" />
+    </bean> -->
+    
+    <bean id="dscRecordCreator" class="de.ingrid.iplug.dsc.record.DscRecordCreator">
+        <property name="recordProducer" ref="recordProducer" />
+        <property name="record2IdfMapperList">
+            <list>
+                <ref bean="createIdfMapper"/>
+                <ref bean="scriptedIdfMapper"/>
+                <ref bean="scriptedIdfMapperDQ"/>
+                <ref bean="igcProfileIdfMapper"/>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
+        <property name="indexFieldID" value="t01_object.id" />
+    </bean>
+    
+    <bean id="createIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>
+
+    <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/idf_utils.js</value>
+                <value>classpath:mapping/igc_to_idf.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="true" />
+    </bean>
+
+    <bean id="scriptedIdfMapperDQ" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/idf_utils.js</value>
+                <value>classpath:mapping/igc_to_idf_obj_dq.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="true" />
+    </bean>
+
+    <bean id="igcProfileIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper">
+        <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
+    </bean>
+
+
+</beans>

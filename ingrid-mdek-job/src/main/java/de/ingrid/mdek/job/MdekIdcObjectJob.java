@@ -28,7 +28,15 @@ import java.util.List;
 import java.util.Stack;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
@@ -38,7 +46,6 @@ import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.IdcQAEntitiesSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcStatisticsSelectionType;
 import de.ingrid.mdek.MdekUtils.IdcWorkEntitiesSelectionType;
-import de.ingrid.mdek.MdekUtils.MdekSysList;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
@@ -53,25 +60,31 @@ import de.ingrid.mdek.services.persistence.db.mapper.IMapper.MappingQuantity;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
-import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
+import de.ingrid.mdek.services.utils.MdekRecordUtils;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.utils.ElasticDocument;
+import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.IngridHit;
+import de.ingrid.utils.dsc.Record;
+import de.ingrid.utils.tool.XsltUtils;
+import de.ingrid.utils.xml.XMLUtils;
 
 /**
  * Encapsulates all Job functionality concerning OBJECTS. 
  */
+@Service
 public class MdekIdcObjectJob extends MdekIdcJob {
 
-	private MdekCatalogService catalogService;
+    private MdekCatalogService catalogService;
 	private MdekObjectService objectService;
-//	private MdekAddressService addressService;
 
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
@@ -81,10 +94,27 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private IT01ObjectDao daoT01Object;
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
+    private IndexManager indexManager;
+    
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private DscDocumentProducer docProducer;
+    
+    @Autowired
+    @Qualifier("dscRecordCreator")
+    private DscRecordCreator dscRecordProducer;
+    
+    @Autowired
+    @Qualifier("ige")
+    private IRecordLoader recordLoader;
+    
+    private XsltUtils xsltUtils;
 
+	@Autowired
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory,
-			IPermissionService permissionService) {
+			IPermissionService permissionService,
+			IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
@@ -97,8 +127,11 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
+		this.indexManager = indexManager;
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
+		
+		xsltUtils = new XsltUtils();
 	}
 
 	public IngridDocument getTopObjects(IngridDocument params) {
@@ -306,7 +339,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					selectionType, orderBy, orderAsc,
 					startHit, numHits);
 
-			List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
+			@SuppressWarnings("unchecked")
+            List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 			Long totalNumAssigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_ASSIGNED);
 			Long totalNumReassigned = (Long) result.get(MdekKeys.TOTAL_NUM_QA_REASSIGNED);
@@ -404,7 +438,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 						orderBy, orderAsc,
 						startHit, numHits);
 
-			List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
+			@SuppressWarnings("unchecked")
+            List<ObjectNode> oNs = (List<ObjectNode>) result.get(MdekKeys.OBJ_ENTITIES);
 			Long totalNumPaging = (Long) result.get(MdekKeys.TOTAL_NUM_PAGING);
 
 			// map found objects to docs
@@ -715,6 +750,13 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				}
 			}
 			
+		    ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
+		    if (doc != null && !doc.isEmpty()) {
+		        indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
+		        indexManager.update( docProducer.getIndexInfo(), doc, true );
+		        indexManager.flush();
+		    }
+			
 			return result;
 
 		} catch (RuntimeException e) {
@@ -778,12 +820,24 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
+			Boolean byOrigId = params.containsKey( MdekKeys.REQUESTINFO_USE_ORIG_ID) ? (Boolean)params.get(MdekKeys.REQUESTINFO_USE_ORIG_ID) : false;
 
 			daoObjectNode.beginTransaction();
 
-			IngridDocument result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
+			IngridDocument result = null;
+			if (byOrigId == true) {
+			    result = objectService.deleteObjectByOridId( uuid, userId );
+			} else {
+			    result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
+			}
 
 			daoObjectNode.commitTransaction();
+			
+			// only remove from index if object was really removed and not just marked
+			if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
+                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+			    indexManager.flush();
+			}
 
 			return result;
 
@@ -977,7 +1031,48 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 		}
 	}
-
+	
+	/**
+	 * Generate the IDF of the requested document.
+	 * @param id is the ID of the document to be transformed
+	 * @returns the document as XML
+	 */
+	public IngridDocument getIsoXml(IngridDocument doc) {
+	    String id = doc.getString( MdekKeys.UUID );
+	    IdcEntityVersion version = (IdcEntityVersion) doc.get( MdekKeys.REQUESTINFO_WHICH_ENTITY_VERSION );
+	    IngridDocument resultDoc = new IngridDocument();
+	    final IngridHit hit = new IngridHit();
+        hit.setDocumentId( id );
+	    Record record = null;
+        try {
+            daoObjectNode.beginTransaction();
+            ObjectNode objNode = objectService.loadByUuid( id, null );
+            Long objId = null;
+            if (version == IdcEntityVersion.WORKING_VERSION) {
+                objId = objNode.getObjId();
+            } else {
+                objId = objNode.getObjIdPublished();
+            }
+            ElasticDocument elasticDocument = new ElasticDocument();
+            elasticDocument.put( "t01_object.id", objId );
+            record = dscRecordProducer.getRecord( elasticDocument );
+            
+            //record = recordLoader.getRecord( hit );
+            Document nodeDoc = MdekRecordUtils.convertRecordToDocument( record );
+            String isoDocAsString = null;
+            if (nodeDoc != null) {
+                Node isoDoc = xsltUtils.transform(nodeDoc, MdekRecordUtils.XSL_IDF_TO_ISO_FULL);
+                isoDocAsString = XMLUtils.toString( (Document) isoDoc );
+            }
+            resultDoc.put( "record", isoDocAsString );
+        } catch (Exception e) {
+            log.error( "Could not get record with ID: " + id, e );
+        } finally {
+            daoObjectNode.commitTransaction();
+        }
+	    return resultDoc;
+	}
+	
 	/**
 	 * Creates a copy of the given ObjectNode and adds it under the given parent.
 	 * Copies ONLY working version and IGNORES published version !
@@ -990,7 +1085,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	 * @param userUuid current user id needed to update running jobs
 	 * @return doc containing additional info (copy of source node, number copied objects ...)
 	 */
-	private IngridDocument createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode,
+	@SuppressWarnings("unchecked")
+    private IngridDocument createObjectNodeCopy(ObjectNode sourceNode, ObjectNode newParentNode,
 			boolean copySubtree, String userUuid)
 	{
 		// refine running jobs info
@@ -1134,44 +1230,4 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		return targetObj;
 	}
 
-	/** Add Ansprechpartner address to given object document.
-	 * @param oDoc map representation of object
-	 * @param addrNode add this address as Ansprechpartner. Also basic address data is mapped.
-	 */
-	private void addPointOfContactAddress(IngridDocument oDoc, AddressNode addrNode) {
-		List<IngridDocument> oAs = (List<IngridDocument>) oDoc.get(MdekKeys.ADR_REFERENCES_TO);
-		if (oAs == null) {
-			oAs = new ArrayList<IngridDocument>();
-			oDoc.put(MdekKeys.ADR_REFERENCES_TO, oAs);
-		}
-
-		// simulate entities and map them one by one.
-		// We can't map via "mapT012ObjAdrs" cause then entities have to be bound to database to fetch address node ...
-		T012ObjAdr oA = new T012ObjAdr();
-		oA.setType(MdekUtils.OBJ_ADR_TYPE_POINT_OF_CONTACT_ID);
-		oA.setSpecialRef(MdekSysList.OBJ_ADR_TYPE.getDbValue());
-		oA.setSpecialName("Ansprechpartner");
-		IngridDocument oADoc = beanToDocMapper.mapT012ObjAdr(oA, new IngridDocument());
-		beanToDocMapper.mapT02Address(addrNode.getT02AddressWork(), oADoc, MappingQuantity.TABLE_ENTITY);
-		oAs.add(oADoc);					
-	}
-
-	/** Create Working Copy in given node, meaning the published object is copied and set "In Bearbeitung".<br>
-	 * NOTICE: published object has to exist, so don't use this method when generating a NEW Node !<br>
-	 * NOTICE: ALREADY PERSISTED (Node and T01Object !) */
-/*
-	private T01Object createWorkingCopyFromPublished(ObjectNode oNode) {
-		if (!hasWorkingCopy(oNode)) {
-			T01Object objWork = createT01ObjectCopy(oNode.getT01ObjectPublished(), oNode.getObjUuid());
-			// set in Bearbeitung !
-			objWork.setWorkState(WorkState.IN_BEARBEITUNG.getDbValue());
-			
-			oNode.setObjId(objWork.getId());
-			oNode.setT01ObjectWork(objWork);
-			daoObjectNode.makePersistent(oNode);			
-		}
-		
-		return oNode.getT01ObjectWork();
-	}
-*/
 }

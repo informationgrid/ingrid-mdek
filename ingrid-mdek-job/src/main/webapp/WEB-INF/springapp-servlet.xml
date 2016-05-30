@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  **************************************************-
+  InGrid-iPlug DSC
+  ==================================================
+  Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+  ==================================================
+  Licensed under the EUPL, Version 1.1 or – as soon they will be
+  approved by the European Commission - subsequent versions of the
+  EUPL (the "Licence");
+  
+  You may not use this work except in compliance with the Licence.
+  You may obtain a copy of the Licence at:
+  
+  http://ec.europa.eu/idabc/eupl5
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the Licence is distributed on an "AS IS" basis,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the Licence for the specific language governing permissions and
+  limitations under the Licence.
+  **************************************************#
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+    
+    <!-- import spring beans for the iPlug -->
+    <!-- <import resource="spring.xml"/>  -->
+    <import resource="spring-mappers.xml"/>
+    
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" id="configuration">
+        <property name="locations">
+            <list>
+                <value>classpath:default-datasource.properties</value>
+            </list>
+        </property>
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+    </bean>
+    
+    <!-- the application context definition for the springapp DispatcherServlet -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView">
+        </property>
+        <property name="prefix" value="/WEB-INF/jsp/">
+        </property>
+        <property name="suffix" value=".jsp">
+        </property>
+    </bean>
+    
+    <bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>classpath:messages</value>
+                <value>classpath:messages_base</value>
+            </list>
+        </property>
+        <property name="cacheSeconds" value="0" />
+        <property name="fallbackToSystemLocale" value="false">
+        </property>
+        <property name="defaultEncoding">
+            <value>UTF-8</value>
+        </property>
+    </bean>
+    
+    <!-- XML DEFINED BEANS WITH ACCORDING QUALIFIER TO BE AUTOWIRED VIA QUALIFIER ! -->
+    
+    <!-- Single parsers are injected explicitly (but created via annotation mechanism) -->
+    <!-- Adapt number, type and order of parsers dependent from iPlug -->
+    <bean id="queryConverter" class="de.ingrid.admin.elasticsearch.converter.QueryConverter">
+        <property name="queryParsers">
+            <list>
+                <ref bean="defaultFieldsQueryConverter" />
+                <ref bean="datatypePartnerProviderQueryConverter" />
+                <ref bean="fieldQueryIGCConverter" />
+                <ref bean="rangeQueryConverter" />
+                <ref bean="wildcardQueryConverter" />
+                <ref bean="wildcardFieldQueryConverter" />
+                <ref bean="matchAllQueryConverter" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="sessionFactory"
+         class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <property name="dataSource">
+            <ref bean="dataSource"/>
+        </property>
+        <property name="hibernateProperties">
+            <ref bean="hibernateProperties"/>
+        </property>
+        <property name="exposeTransactionAwareSessionFactory" value="false"/>
+        <property name="mappingResources">
+            <list>
+                <value>de/ingrid/mdek/services/persistence/db/model/AdditionalFieldData.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/AddressMetadata.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/FullIndexAddr.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/FullIndexObj.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/IdcGroup.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/IdcUser.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/IdcUserGroup.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/IdcUserPermission.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataQuality.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectFormatInspire.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectOpenDataCategory.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectTypesCatalogue.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectUse.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectUseConstraint.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/PermissionObj.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SearchtermValue.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefSns.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefValue.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SpatialReference.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SpatialSystem.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SysGenericKey.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SysJobInfo.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/SysList.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T0110AvailFormat.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T0112MediaOption.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T0113DatasetReference.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T0114EnvTopic.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjData.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjDataPara.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeo.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoScale.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSymc.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoVector.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjLiterature.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjProject.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServ.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpConnpoint.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpDepends.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPara.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOpPlatform.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServOperation.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServScale.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServType.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServUrl.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjServVersion.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T011ObjTopicCat.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T012ObjAdr.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T014InfoImpart.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T015Legist.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T017UrlRef.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T01Object.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/T03Catalogue.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean class="com.mchange.v2.c3p0.ComboPooledDataSource" id="dataSource">
+        <property name="driverClass" value="${hibernate.driverClass}"/>
+        <property name="jdbcUrl" value="${hibernate.jdbcUrl}"/>
+        <property name="user" value="${hibernate.user}"/>
+        <property name="password" value="${hibernate.password}"/>
+        <property name="minPoolSize" value="5"/>
+        <property name="maxPoolSize" value="20"/>
+        <property name="acquireIncrement" value="5"/>
+        <property name="idleConnectionTestPeriod" value="300"/>
+        <property name="maxIdleTime" value="600"/>
+        <property name="maxStatements" value="0"/>
+        <property name="acquireRetryAttempts" value="30"/>
+        <property name="acquireRetryDelay" value="1000"/>
+    </bean>
+    <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" id="hibernateProperties">
+        <property name="properties">
+            <props>
+                <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.jdbc.batch_size">0</prop>
+                <prop key="hibernate.current_session_context_class">thread</prop>
+                <!--
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+-->
+                <prop key="hibernate.show_sql">false</prop>
+            </props>
+        </property>
+    </bean>
+    
+    
+    
+    
+    
+    
+    <!-- Defines a facet definition filter. Will be applied before a facet definition is analyzed. This construct is used in igc dsc iPlug to map incompatible queries to compatible. See also de.ingrid.iplug.dsc.IGCTopicsSearchPreProcessor.
+        This is IGC DB specific. Please comment for other databases. -->
+    <bean id="configurableFacetDefinitionProcessors"
+        class="de.ingrid.admin.elasticsearch.facets.ConfigurableFacetClassProcessor" >
+        <property name="facetFilterDefinitions">
+            <map>
+                <entry key="type:topic" value-ref="topicFilterDef"/>
+            </map>
+        </property>
+    </bean>
+    
+    <util:map id="topicFilterDef" key-type="java.lang.String">
+        <entry key="datatype:topics" value="t01_object.is_catalog_data:y" />
+    </util:map>
+    
+    <context:component-scan base-package="de.ingrid">
+        <!-- <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/> -->
+        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.SpringConfiguration*" />
+        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.DscSearchPlug" />
+        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.object.*" />
+        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.controller.DatabaseParameterController" />
+    </context:component-scan>
+    
+    <mvc:annotation-driven/>
+    <mvc:resources mapping="/css/**" location="/css/" />
+    <mvc:resources mapping="/img/**" location="/img/" />
+    
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="1000000"/>
+    </bean>
+    
+    
+    <bean id="dataMapperFactory" class="de.ingrid.mdek.job.mapping.DataMapperFactory">
+        <property name="mapperClasses">
+            <map>
+                <entry>
+                    <key>
+                        <value>igc</value>
+                    </key>
+                    <ref bean="dummyImportDataMapper" />
+                </entry>
+                <!-- <entry>
+                    <key>
+                        <value>arcgis1</value>
+                    </key>
+                    <ref bean="scriptImportDataMapper" />
+                </entry> -->
+                <entry>
+                    <key>
+                        <value>csw202</value>
+                    </key>
+                    <ref bean="csw202ScriptImportDataMapper" />
+                </entry>
+            </map>
+        </property>
+    </bean>
+    
+    <bean id="dummyImportDataMapper" class="de.ingrid.mdek.job.mapping.DummyImportDataMapper"></bean>
+    
+    <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
+        <property name="mapperScript" value="classpath:import/mapper/csw202_to_ingrid_igc.js" />
+        <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
+        <!-- <property name="dataProvider">
+            <ref bean="importDataProviderImpl" />
+        </property>
+        <property name="codeListService">
+            <ref bean="codeListService" />
+        </property> -->
+    </bean>
+    
+</beans>

@@ -28,19 +28,18 @@ import java.io.FileReader;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.Test;
 
 import de.ingrid.mdek.job.IJob;
 
 public class LogServiceTest {
 
-    @Test
+    //@Test
 	public void testGetLogger() throws Exception {
 		String property = System.getProperty("java.io.tmpdir");
 		File file = new File(property, LogServiceTest.class.getName() + "-"
 				+ System.currentTimeMillis());
 		file.mkdir();
-		LogService service = new LogService(file, false);
+		LogService service = new LogService();
 		Logger logger = service.getLogger(IJob.class);
 
 		logger.info("test");

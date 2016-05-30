@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
 
 
@@ -73,7 +74,7 @@ public abstract class MdekCaller implements IMdekCaller {
 		MdekClientCaller.shutdown();
 	}
 
-	protected List setUpJobMethod(String methodName, IngridDocument methodParams) {
+	protected List<Pair> setUpJobMethod(String methodName, IngridDocument methodParams) {
 		return mdekClientCaller.setUpJobMethod(methodName, methodParams);
 	}
 	protected IngridDocument callJob(String plugId, String jobId, List jobMethods) {
