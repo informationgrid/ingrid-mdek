@@ -512,7 +512,7 @@ function addT011ObjDataPara(row) {
 }
 function addT011ObjServ(row) {
     IDX.add("t011_obj_serv.type_key", row.get("type_key"));
-    IDX.add("t011_obj_serv.type", row.get("type_value"));
+    IDX.add("t011_obj_serv.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, row.get("type_key")));
     IDX.add("t011_obj_serv.history", row.get("history"));
     IDX.add("t011_obj_serv.environment", row.get("environment"));
     IDX.add("t011_obj_serv.base", row.get("base"));

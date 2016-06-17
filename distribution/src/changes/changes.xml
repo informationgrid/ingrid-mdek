@@ -28,6 +28,12 @@
   </properties>
   <body>
     
+    <release version="3.6.2.1-SNAPSHOT" date="2016-xx-xx" description="Release InGrid 3.6.2.1">
+      <action type="fix" dev="wemove" issue="REDMINE-330">
+        Fix index mapping: Use ISO codes for field 't011_obj_serv.type' instead of IGE display value.
+      </action>
+    </release>
+    
     <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">
       <action type="add" dev="wemove" issue="REDMINE-113">
         First version of CSW-T interface.
