@@ -837,7 +837,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 
 			// check top import nodes ! Adds messages to job info !
-			if (!ignoreParentNodes) {
+			if (ignoreParentNodes) {
+			    importService.handleObjectParent( defaultObjectParentUuid, userId);
+			} else {
     			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid, userId);
 			}
 			importService.setOptions(userId, publishImmediately, doSeparateImport, copyNodeIfPresent);

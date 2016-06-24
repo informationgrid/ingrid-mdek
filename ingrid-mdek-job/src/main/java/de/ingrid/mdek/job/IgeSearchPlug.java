@@ -199,10 +199,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              * INSERT DOCS
              */
             for (int i = 0; i < insertDocs.getLength(); i++) {
-                IngridDocument document = prepareImportAnalyzeDocument( builder, insertDocs.item( i ) );
+                Node item = insertDocs.item( i );
+                String parentUuid = utils.getString( item, "//gmd:parentIdentifier/gco:CharacterString" );
+                IngridDocument document = prepareImportAnalyzeDocument( builder, item );
                 //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
                 IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
-                resultInsert = catalogJob.importEntities( prepareImportDocument() );
+                IngridDocument importDoc = prepareImportDocument();
+                importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
+                resultInsert = catalogJob.importEntities( importDoc  );
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex != null) errors.add( ex );
             }

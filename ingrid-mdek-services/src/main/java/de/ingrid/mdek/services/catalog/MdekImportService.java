@@ -530,6 +530,26 @@ public class MdekImportService implements IImporterCallback {
 		
 	}
 	
+	public void handleObjectParent(String defaultObjectParentUuid, String userUuid) throws MdekException {
+        if (defaultObjectParentUuid == null) {
+            throw createImportException("Top Node for Import of Objects not set.");
+        }
+
+        // fetch and check nodes, ONLY WORKING VERSION !
+
+        ObjectNode objImportNode = objectService.loadByUuid(defaultObjectParentUuid, IdcEntityVersion.WORKING_VERSION);
+        // if parent node does not exist then add it to the top of the hierarchy
+        if (objImportNode == null) {
+            return;
+        }           
+
+        updateImportJobInfoMessages("OBJECT Import Node = " + objImportNode.getObjUuid(), userUuid);
+
+        // all ok, we store data in running job info for later access !
+        HashMap<Object, Object> runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
+        runningJobInfo.put(KEY_OBJ_IMPORT_NODE, objImportNode);
+    }
+	
 	public void setOptions(String userUuid, boolean publishImmediately, boolean doSeparateImport, boolean copyNodeIfPresent ) {
 	    HashMap<Object, Object> runningJobInfo = jobHandler.getRunningJobInfo(userUuid);
 	    runningJobInfo.put(KEY_PUBLISH_IMMEDIATELY, publishImmediately);
@@ -1167,6 +1187,11 @@ public class MdekImportService implements IImporterCallback {
 				// "work-state" OR "publishImmediately" setting determines how object is stored (published or working version)
 //				storeWorkingVersion = true;
 			}
+		}
+		
+		// use import node if no other parent node could be determined
+		if (newParentNode == null && importNode != null) {
+		    newParentNode = importNode;
 		}
 
 		String newParentUuid = null;
