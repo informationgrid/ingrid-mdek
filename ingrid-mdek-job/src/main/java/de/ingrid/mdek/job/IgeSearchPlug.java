@@ -216,13 +216,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < updateDocs.getLength(); i++) {
                 Node item = updateDocs.item( i );
+                String parentUuid = utils.getString( item, "//gmd:parentIdentifier/gco:CharacterString" );
                 String propName = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:Literal" );
                 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
-                
+                    document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
                     IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
                 }
