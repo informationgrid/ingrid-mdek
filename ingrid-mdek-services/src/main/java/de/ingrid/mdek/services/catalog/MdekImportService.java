@@ -531,8 +531,9 @@ public class MdekImportService implements IImporterCallback {
 	}
 	
 	public void handleObjectParent(String defaultObjectParentUuid, String userUuid) throws MdekException {
-        if (defaultObjectParentUuid == null) {
-            throw createImportException("Top Node for Import of Objects not set.");
+        // if no parent uuid was set, then the object will be inserted as top node
+	    if (defaultObjectParentUuid == null) {
+            return;
         }
 
         // fetch and check nodes, ONLY WORKING VERSION !
