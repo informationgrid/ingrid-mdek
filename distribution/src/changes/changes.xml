@@ -35,6 +35,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-336">
         An object could not be inserted under another object via CSW-T.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-891">
+        Give addresses a lower score when searching to priorize objects.
+      </action>
     </release>
     
     <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">

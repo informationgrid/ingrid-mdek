@@ -37,7 +37,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 //add default boost value
-IDX.addDocumentBoost(1.0);
+IDX.addDocumentBoost(0.1);
 
 // ---------- t02_address ----------
 var addrId = sourceRecord.get("id");
