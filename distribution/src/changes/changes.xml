@@ -35,7 +35,7 @@
       <action type="fix" dev="wemove" issue="REDMINE-336">
         An object could not be inserted under another object via CSW-T.
       </action>
-      <action type="fix" dev="wemove" issue="REDMINE-891">
+      <action type="fix" dev="wemove" issue="REDMINE-342">
         Give addresses a lower score when searching to priorize objects.
       </action>
     </release>
