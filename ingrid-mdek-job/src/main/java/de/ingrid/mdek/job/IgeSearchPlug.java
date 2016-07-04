@@ -200,7 +200,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < insertDocs.getLength(); i++) {
                 Node item = insertDocs.item( i );
-                String parentUuid = utils.getString( item, "//gmd:parentIdentifier/gco:CharacterString" );
+                String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 IngridDocument document = prepareImportAnalyzeDocument( builder, item );
                 //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
                 IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
@@ -216,9 +216,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < updateDocs.getLength(); i++) {
                 Node item = updateDocs.item( i );
-                String parentUuid = utils.getString( item, "//gmd:parentIdentifier/gco:CharacterString" );
-                String propName = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:PropertyName" );
-                String propValue = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:Literal" );
+                String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
+                String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
+                String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
                 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
@@ -234,8 +234,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < deleteDocs.getLength(); i++) {
                 Node item = deleteDocs.item( i );
-                String propName = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:PropertyName" );
-                String propValue = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:Literal" );
+                String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
+                String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument params = new IngridDocument();
