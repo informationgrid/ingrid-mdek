@@ -38,6 +38,12 @@
       <action type="fix" dev="wemove" issue="REDMINE-342">
         Give addresses a lower score when searching to priorize objects.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-360">
+        Deletion of multiple objects via CSW-T is not possible.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-361">
+        Show correct number of results in summary of CSW-Transaction.
+      </action>
     </release>
     
     <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">

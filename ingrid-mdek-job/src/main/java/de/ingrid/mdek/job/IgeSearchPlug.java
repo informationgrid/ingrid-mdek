@@ -180,6 +180,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         IngridDocument resultUpdate = null;
         IngridDocument resultDelete = null;
         List<Exception> errors = new ArrayList<Exception>();
+        int insertedObjects = 0;
+        int updatedObjects = 0;
         int deletedObjects = 0;
         try {
             factory = DocumentBuilderFactory.newInstance();
@@ -208,7 +210,11 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
                 resultInsert = catalogJob.importEntities( importDoc  );
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
-                if (ex != null) errors.add( ex );
+                if (ex == null) {
+                    insertedObjects++;
+                } else {
+                    errors.add( ex );
+                }
             }
             
             /**
@@ -226,6 +232,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
                     IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
+                    updatedObjects++;
                 }
             }
             
@@ -265,8 +272,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             
             
             IngridDocument result = new IngridDocument();
-            result.putInt( "inserts", resultInsert == null ? 0 : resultInsert.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
-            result.putInt( "updates", resultUpdate == null ? 0 : resultUpdate.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
+            result.putInt( "inserts", insertedObjects );
+            result.putInt( "updates", updatedObjects );
             result.putInt( "deletes", deletedObjects );
             result.put( "resultInserts", resultInsert );
             result.put( "resultUpdates", resultUpdate );
