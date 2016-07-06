@@ -44,6 +44,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-361">
         Show correct number of results in summary of CSW-Transaction.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-366">
+        Do not cache CSW-T-Requests.
+      </action>
     </release>
     
     <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">
