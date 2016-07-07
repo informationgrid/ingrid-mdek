@@ -804,7 +804,7 @@ public class MdekObjectService {
 	    // NOTICE: this one also contains Parent Association !
         ObjectNode oNode = loadByOrigId( origId, IdcEntityVersion.WORKING_VERSION);
         if (oNode == null) {
-            throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+            throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND, "Missing ORID_UUID: " + origId));
         }
         
         // first check User Permissions
@@ -928,7 +928,7 @@ public class MdekObjectService {
 		// NOTICE: this one also contains Parent Association !
 		ObjectNode oNode = loadByUuid(uuid, IdcEntityVersion.WORKING_VERSION);
 		if (oNode == null) {
-			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND, "Missing UUID: " + uuid));
 		}
 
 		checkObjectTreeReferencesForDelete(oNode, forceDeleteReferences);

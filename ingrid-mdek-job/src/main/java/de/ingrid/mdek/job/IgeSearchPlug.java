@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -67,6 +68,8 @@ import de.ingrid.utils.xpath.XPathUtils;
 public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     private static Log log = LogFactory.getLog( IgeSearchPlug.class );
+    
+    private static final String DATA_PARAMETER = "data";
 
     @Autowired
     @Qualifier("dscRecordCreator")
@@ -166,7 +169,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
         switch (info.getMethod()) {
         case "importCSWDoc":
-            doc = cswTransaction( (String) info.getParameter() );
+            @SuppressWarnings("unchecked")
+            Map<String, Object> map = (Map<String, Object>) info.getParameter();
+            doc = cswTransaction( (String) map.get( DATA_PARAMETER )  );
         }
 
         return doc;
@@ -180,6 +185,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         IngridDocument resultUpdate = null;
         IngridDocument resultDelete = null;
         List<Exception> errors = new ArrayList<Exception>();
+        int insertedObjects = 0;
+        int updatedObjects = 0;
         int deletedObjects = 0;
         try {
             factory = DocumentBuilderFactory.newInstance();
@@ -199,12 +206,20 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              * INSERT DOCS
              */
             for (int i = 0; i < insertDocs.getLength(); i++) {
-                IngridDocument document = prepareImportAnalyzeDocument( builder, insertDocs.item( i ) );
+                Node item = insertDocs.item( i );
+                String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
+                IngridDocument document = prepareImportAnalyzeDocument( builder, item );
                 //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
-                IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
-                resultInsert = catalogJob.importEntities( prepareImportDocument() );
+                catalogJob.analyzeImportData( document );
+                IngridDocument importDoc = prepareImportDocument();
+                importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
+                resultInsert = catalogJob.importEntities( importDoc  );
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
-                if (ex != null) errors.add( ex );
+                if (ex == null) {
+                    insertedObjects++;
+                } else {
+                    errors.add( ex );
+                }
             }
             
             /**
@@ -212,15 +227,17 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < updateDocs.getLength(); i++) {
                 Node item = updateDocs.item( i );
-                String propName = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:PropertyName" );
-                String propValue = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:Literal" );
+                String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
+                String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
+                String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
                 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
-                
-                    IngridDocument analyzerResult = catalogJob.analyzeImportData( document );
+                    document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
+                    catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
+                    updatedObjects++;
                 }
             }
             
@@ -229,8 +246,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < deleteDocs.getLength(); i++) {
                 Node item = deleteDocs.item( i );
-                String propName = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:PropertyName" );
-                String propValue = utils.getString( item, "//ogc:PropertyIsEqualTo/ogc:Literal" );
+                String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
+                String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
 
                 if ("uuid".equals( propName ) && propValue != null) {
                     IngridDocument params = new IngridDocument();
@@ -260,8 +277,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             
             
             IngridDocument result = new IngridDocument();
-            result.putInt( "inserts", resultInsert == null ? 0 : resultInsert.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
-            result.putInt( "updates", resultUpdate == null ? 0 : resultUpdate.getInt(MdekKeys.JOBINFO_NUM_OBJECTS) );
+            result.putInt( "inserts", insertedObjects );
+            result.putInt( "updates", updatedObjects );
             result.putInt( "deletes", deletedObjects );
             result.put( "resultInserts", resultInsert );
             result.put( "resultUpdates", resultUpdate );
@@ -302,7 +319,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         IngridDocument docIn = new IngridDocument();
         docIn.put( MdekKeys.USER_ID, adminUserUUID );
         
-        docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, catalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, MdekIdcCatalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );

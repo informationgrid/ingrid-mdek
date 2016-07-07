@@ -28,6 +28,27 @@
   </properties>
   <body>
     
+    <release version="3.6.2.1" date="2016-07-07" description="Release InGrid 3.6.2.1">
+      <action type="fix" dev="wemove" issue="REDMINE-330">
+        Fix index mapping: Use ISO codes for field 't011_obj_serv.type' instead of IGE display value.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-336">
+        An object could not be inserted under another object via CSW-T.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-342">
+        Give addresses a lower score when searching to priorize objects.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-360">
+        Deletion of multiple objects via CSW-T is not possible.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-361">
+        Show correct number of results in summary of CSW-Transaction.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-366">
+        Do not cache CSW-T-Requests.
+      </action>
+    </release>
+    
     <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">
       <action type="add" dev="wemove" issue="REDMINE-113">
         First version of CSW-T interface.
