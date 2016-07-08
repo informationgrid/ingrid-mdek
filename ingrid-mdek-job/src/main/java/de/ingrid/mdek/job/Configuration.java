@@ -137,6 +137,9 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         try {
             Properties descriptor = new Properties();
             File datasourceFile = getPropertyResource( "default-datasource.properties" ).getFile();
+            if (!datasourceFile.exists()) {
+                datasourceFile.createNewFile();
+            }
             FileInputStream is = new FileInputStream( datasourceFile );
             descriptor.load( is );
             descriptor.setProperty( "hibernate.driverClass", databaseDriver );
