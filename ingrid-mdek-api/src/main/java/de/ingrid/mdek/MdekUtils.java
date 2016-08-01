@@ -419,6 +419,9 @@ public class MdekUtils {
 		 * INTRANET.includes(INTERNET) -> false<br>
 		 */
 		public boolean includes(PublishType inType) {
+		    // TODO: should we return true or false if not defined?
+		    if (inType == null) return false;
+		    
 			if (this.getDbValue() <= inType.getDbValue()) {
 				return true;
 			}
