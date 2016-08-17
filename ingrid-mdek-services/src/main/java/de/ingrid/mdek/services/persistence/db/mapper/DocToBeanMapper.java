@@ -582,6 +582,7 @@ public class DocToBeanMapper implements IMapper {
 			aIn.setPostbox(aDocIn.getString(MdekKeys.POST_BOX));
 
 			aIn.setJob(aDocIn.getString(MdekKeys.FUNCTION));
+			aIn.setHoursOfService(aDocIn.getString(MdekKeys.HOURS_OF_SERVICE));
 			aIn.setAddressValue(aDocIn.getString(MdekKeys.NAME_FORM));
 			aIn.setAddressKey((Integer)aDocIn.get(MdekKeys.NAME_FORM_KEY));
 
