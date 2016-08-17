@@ -236,6 +236,7 @@ public class XMLKeys {
 	public static final String DATA_SOURCES = "data-sources";
 	public static final String PARENT_ADDRESS = "parent-address";
 	public static final String FUNCTION = "function";
+	public static final String HOURS_OF_SERVICE = "hours-of-service";
 	public static final String ORIGINAL_ADDRESS_IDENTIFIER = "original-address-identifier";
 	public static final String COMMUNICATION_MEDIUM = "communication-medium";
 	public static final String COMMUNICATION_DESCRIPTION = "communication-description";

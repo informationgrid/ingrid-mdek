@@ -150,6 +150,11 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     if (urls.length > 0) {
         ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
     }
+    
+    // add hours of service (REDMINE-380)
+    if (hasValue(addressRow.get("hours_of_service"))) {
+    	ciAddress.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+    }
 
     if (hasValue(role)) {
         idfResponsibleParty.addElement("gmd:role").addElement("gmd:CI_RoleCode")
