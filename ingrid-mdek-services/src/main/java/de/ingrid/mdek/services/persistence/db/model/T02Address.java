@@ -49,6 +49,7 @@ public class T02Address implements IEntity {
 	private Integer countryKey;
 	private String countryValue;
 	private String job;
+	private String hoursOfService;
 	private String workState;
 	private String createTime;
 	private String modTime;
@@ -339,5 +340,13 @@ public class T02Address implements IEntity {
 	public void setAddressNodeMod(AddressNode addressNodeMod) {
 		this.addressNodeMod = addressNodeMod;
 	}
+
+    public String getHoursOfService() {
+        return hoursOfService;
+    }
+
+    public void setHoursOfService(String hoursOfService) {
+        this.hoursOfService = hoursOfService;
+    }
 
 }

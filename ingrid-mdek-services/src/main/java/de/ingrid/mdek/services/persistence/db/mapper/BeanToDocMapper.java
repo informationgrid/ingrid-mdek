@@ -456,7 +456,8 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			addressDoc.put(MdekKeys.DATE_OF_CREATION, a.getCreateTime());
-			addressDoc.put(MdekKeys.FUNCTION, a.getJob());			
+			addressDoc.put(MdekKeys.FUNCTION, a.getJob());
+			addressDoc.put(MdekKeys.HOURS_OF_SERVICE, a.getHoursOfService());
 			addressDoc.put(MdekKeys.NAME_FORM, a.getAddressValue());
 			addressDoc.put(MdekKeys.NAME_FORM_KEY, a.getAddressKey());
 

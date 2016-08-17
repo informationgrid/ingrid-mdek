@@ -1430,6 +1430,11 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
         if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
         ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
     }
+    
+    // add hours of service (REDMINE-380)
+    if (hasValue(addressRow.get("hours_of_service"))) {
+    	ciAddress.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+    }
 
     if (!mapOnlyEmails) {
         // ISO only supports ONE url per contact
