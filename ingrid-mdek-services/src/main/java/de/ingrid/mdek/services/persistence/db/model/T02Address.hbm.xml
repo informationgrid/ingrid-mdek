@@ -48,7 +48,6 @@
       <property name="countryKey" type="integer" column="country_key"/>
       <property name="countryValue" type="string" column="country_value"/>
       <property name="job" type="string" column="job"/>
-      <property name="hoursOfService" type="string" column="hours_of_service"/>
       <property name="workState" type="string" column="work_state"/>
       <property name="createTime" type="string" column="create_time"/>
       <property name="modTime" type="string" column="mod_time"/>
@@ -57,6 +56,7 @@
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
       <property name="hideAddress" type="string" column="hide_address"/>
       <property name="publishId" type="integer" column="publish_id"/>
+      <property name="hoursOfService" type="string" column="hours_of_service"/>
 
       <set name="addressComments" order-by="line" table="address_comment" inverse="true"
            cascade="all-delete-orphan">
