@@ -419,6 +419,9 @@ public class MdekUtils {
 		 * INTRANET.includes(INTERNET) -> false<br>
 		 */
 		public boolean includes(PublishType inType) {
+		    // we have to return true in order to continue if no publication info was set
+		    if (inType == null) return true;
+		    
 			if (this.getDbValue() <= inType.getDbValue()) {
 				return true;
 			}

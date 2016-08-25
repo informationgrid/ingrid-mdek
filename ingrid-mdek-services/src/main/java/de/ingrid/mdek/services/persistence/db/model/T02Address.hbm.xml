@@ -56,6 +56,7 @@
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
       <property name="hideAddress" type="string" column="hide_address"/>
       <property name="publishId" type="integer" column="publish_id"/>
+      <property name="hoursOfService" type="string" column="hours_of_service"/>
 
       <set name="addressComments" order-by="line" table="address_comment" inverse="true"
            cascade="all-delete-orphan">

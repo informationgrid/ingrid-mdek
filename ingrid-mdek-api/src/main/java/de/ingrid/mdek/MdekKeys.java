@@ -1158,6 +1158,8 @@ public class MdekKeys {
     /** Value: String */
     public final static String FUNCTION = "function";
     /** Value: String */
+    public final static String HOURS_OF_SERVICE = "hours-of-service";
+    /** Value: String */
     public final static String ORIGINAL_ADDRESS_IDENTIFIER = "original-address-identifier";
 
     /** Value: List< IngridDocument > */

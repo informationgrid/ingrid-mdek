@@ -57,6 +57,7 @@ public class T02Address implements IEntity {
 	private String responsibleUuid;
 	private String hideAddress;
 	private Integer publishId;
+	private String hoursOfService;
 
 	private Set addressComments = new HashSet();
 	private Set searchtermAdrs = new HashSet();
@@ -289,6 +290,14 @@ public class T02Address implements IEntity {
 
 	public void setPublishId(Integer publishId) {
 		this.publishId = publishId;
+	}
+
+	public String getHoursOfService() {
+		return hoursOfService;
+	}
+
+	public void setHoursOfService(String hoursOfService) {
+		this.hoursOfService = hoursOfService;
 	}
 
 

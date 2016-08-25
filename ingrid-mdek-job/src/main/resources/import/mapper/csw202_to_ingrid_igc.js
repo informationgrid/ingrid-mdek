@@ -1722,6 +1722,7 @@ function mapAddresses(source, target) {
             XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "city"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
             mapCommunicationData(isoAddressNode, igcAddressNode);
             XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "function"), XPathUtils.getString(isoAddressNode, "gmd:positionName/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "hours-of-service"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:hoursOfService/gco:CharacterString"));
             if (hasValue(parentUuid)) {
             	XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "parent-address/address-identifier"), parentUuid);
             }
