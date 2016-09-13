@@ -66,6 +66,8 @@ public class T01Object implements IEntity {
 	private String orderingInstructions;
 	private String isCatalogData;
 	private String isInspireRelevant;
+	private String isInspireConform;
+	private String isAdvCompatible;
 	private String isOpenData;
 	private String workState;
 	private String createTime;
@@ -726,5 +728,21 @@ public class T01Object implements IEntity {
 	public void setObjectMetadata(ObjectMetadata objectMetadata) {
 		this.objectMetadata = objectMetadata;
 	}
+
+    public String getIsAdvCompatible() {
+        return isAdvCompatible;
+    }
+
+    public void setIsAdvCompatible(String isAdvCompatible) {
+        this.isAdvCompatible = isAdvCompatible;
+    }
+
+    public String getIsInspireConform() {
+        return isInspireConform;
+    }
+
+    public void setIsInspireConform(String isInspireConform) {
+        this.isInspireConform = isInspireConform;
+    }
 
 }

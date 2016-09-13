@@ -243,6 +243,9 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		extendFullData(data, a.getPostboxPc());
 		extendFullData(data, a.getCity());
 		extendFullData(data, a.getJob());
+		extendFullDataWithSysList(data, MdekSysList.COUNTRY, a.getCountryKey(), a.getCountryValue());
+		extendFullDataWithSysList(data, MdekSysList.ADMINISTRATIVE_AREA, a.getAdministrativeAreaKey(), a.getAdministrativeAreaValue());
+		extendFullData(data, a.getHoursOfService());
 
 		return data.toString();
 	}
@@ -574,6 +577,9 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		}
 		if (MdekUtils.YES.equals(o.getIsOpenData())) {
 			extendFullData(data, IDX_VALUE_IS_OPEN_DATA);
+		}
+		if (MdekUtils.YES.equals(o.getIsAdvCompatible())) {
+		    extendFullData(data, IDX_VALUE_IS_ADV_COMPATIBLE);
 		}
 
 		return data.toString();
