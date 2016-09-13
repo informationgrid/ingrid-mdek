@@ -58,6 +58,7 @@ public class AddressDocToXMLMapper extends AbstractDocToXMLMapper {
 		address.addChild(createTitleOrFunction());
 		address.addChild(new XMLElement(GIVEN_NAME, getStringForKey(MdekKeys.GIVEN_NAME)));
 		address.addChild(createCountry());
+		address.addChild(createAdministrativeArea());
 		address.addChild(new XMLElement(POSTAL_CODE, getStringForKey(MdekKeys.POSTAL_CODE)));
 		address.addChild(new XMLElement(STREET, getStringForKey(MdekKeys.STREET)));
 		address.addChild(new XMLElement(CITY, getStringForKey(MdekKeys.CITY)));
@@ -78,7 +79,13 @@ public class AddressDocToXMLMapper extends AbstractDocToXMLMapper {
 		return address;
 	}
 
-	private XMLElement createModificatorIdentifier() {
+	private XMLElement createAdministrativeArea() {
+	    XMLElement administrativeArea = new XMLElement(ADMINISTRATIVE_AREA, getStringForKey(MdekKeys.ADMINISTRATIVE_AREA_NAME));
+        administrativeArea.addAttribute(ID, getIntegerForKey(MdekKeys.ADMINISTRATIVE_AREA_CODE));
+        return administrativeArea;
+    }
+
+    private XMLElement createModificatorIdentifier() {
 		IngridDocument modUser = getIngridDocumentForKey(MdekKeys.MOD_USER);
 		String uuid = getStringForKey(MdekKeys.UUID, modUser);
 		return new XMLElement(MODIFICATOR_IDENTIFIER, uuid);
