@@ -635,6 +635,14 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
     
+    // IS_ADV_COMPATIBLE leads to specific keyword, default behavior unless changes (REDMINE-369)
+    value = objRow.get("is_adv_compatible");
+    if (hasValue(value) && value.equals('Y')) {
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("AdVMIS");
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+    
     
     // if open data is checked then also add categories to thesaurus
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want
