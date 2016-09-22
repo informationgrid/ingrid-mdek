@@ -283,6 +283,7 @@ public class BeanToDocMapper implements IMapper {
 		{
 			objectDoc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, o.getOrgObjId());
 			objectDoc.put(MdekKeys.DATASET_ALTERNATE_NAME, o.getDatasetAlternateName());
+			objectDoc.put(MdekKeys.PREVIEW_IMAGE_DESCRIPTION, o.getPreviewImageDescription());
 			objectDoc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			objectDoc.put(MdekKeys.DATE_OF_CREATION, o.getCreateTime());
 
