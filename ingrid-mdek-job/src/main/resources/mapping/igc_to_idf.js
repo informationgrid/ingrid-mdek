@@ -554,6 +554,10 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(row)) {
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
         graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
+        
+        if (hasValue(objRow.get("preview_image_description"))) {
+            graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(objRow.get("preview_image_description"));
+        }
     }
     
     // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------
