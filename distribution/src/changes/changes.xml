@@ -27,13 +27,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-
-    <release version="4.0.1-SNAPSHOT" date="2016-xx-xx" description="Release InGrid 4.0.1">
-      <action type="add" dev="wemove" issue="REDMINE-377">
-        Add new field/column to object "Dateibeschreibung".
-      </action>
-    </release>
-
+    
     <release version="4.0.0" date="2016-08-25" description="Release InGrid 4.0.0">
       <action type="add" dev="wemove" issue="REDMINE-380">
         Add new field/column to address "Hours of Service".

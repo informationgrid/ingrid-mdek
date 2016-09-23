@@ -49,7 +49,6 @@ public class T01Object implements IEntity {
 	private String timeType;
 	private Integer publishId;
 	private String datasetAlternateName;
-	private String previewImageDescription;
 	private Integer datasetCharacterSet;
 	private String datasetUsage;
 	private Integer dataLanguageKey;
@@ -727,13 +726,5 @@ public class T01Object implements IEntity {
 	public void setObjectMetadata(ObjectMetadata objectMetadata) {
 		this.objectMetadata = objectMetadata;
 	}
-
-    public String getPreviewImageDescription() {
-        return previewImageDescription;
-    }
-
-    public void setPreviewImageDescription(String previewImageDescription) {
-        this.previewImageDescription = previewImageDescription;
-    }
 
 }

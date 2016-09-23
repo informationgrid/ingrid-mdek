@@ -48,7 +48,6 @@
       <property name="timeType" type="string" column="time_type"/>
       <property name="publishId" type="integer" column="publish_id"/>
       <property name="datasetAlternateName" type="string" column="dataset_alternate_name"/>
-      <property name="previewImageDescription" type="string" column="preview_image_description"/>
       <property name="datasetCharacterSet" type="integer" column="dataset_character_set"/>
       <property name="datasetUsage" type="string" column="dataset_usage"/>
       <property name="dataLanguageKey" type="integer" column="data_language_key"/>

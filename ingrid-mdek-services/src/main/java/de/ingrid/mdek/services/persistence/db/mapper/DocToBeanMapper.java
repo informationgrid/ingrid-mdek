@@ -451,7 +451,6 @@ public class DocToBeanMapper implements IMapper {
 		{
 			oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
 			oIn.setDatasetAlternateName((String) oDocIn.get(MdekKeys.DATASET_ALTERNATE_NAME));
-			oIn.setPreviewImageDescription((String) oDocIn.get(MdekKeys.PREVIEW_IMAGE_DESCRIPTION));
 			oIn.setObjDescr((String) oDocIn.get(MdekKeys.ABSTRACT));
 
 			oIn.setVerticalExtentMinimum((Double) oDocIn.get(MdekKeys.VERTICAL_EXTENT_MINIMUM));
