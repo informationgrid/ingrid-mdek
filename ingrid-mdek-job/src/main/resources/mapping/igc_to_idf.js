@@ -550,13 +550,13 @@ for (i=0; i<objRows.size(); i++) {
     }
     
     // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
-    row = SQL.first("SELECT url_link FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
+    row = SQL.first("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
     if (hasValue(row)) {
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
         graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
-        
-        if (hasValue(objRow.get("preview_image_description"))) {
-            graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(objRow.get("preview_image_description"));
+        var description = row.get("descr");
+        if (hasValue(description)) {
+            graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(description);
         }
     }
     
