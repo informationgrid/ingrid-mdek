@@ -19,6 +19,7 @@
         <!-- Define the version that we want to use here, so we have a single line to change when upgrating. -->
         <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
         <geotk.version>4.0-M0</geotk.version>
+        <powermock.version>1.6.3</powermock.version>
     </properties>
 
     <repositories>
@@ -40,6 +41,16 @@
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-core</artifactId>
                 <version>1.3</version>
+            </dependency>
+            <dependency>
+              <groupId>org.javassist</groupId>
+              <artifactId>javassist</artifactId>
+              <version>3.20.0-GA</version>
+            </dependency>
+            <dependency>
+              <groupId>org.reflections</groupId>
+              <artifactId>reflections</artifactId>
+              <version>0.9.10</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -118,7 +129,19 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.0.44-beta</version>
+            <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
