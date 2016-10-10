@@ -834,7 +834,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.commitTransaction();
 			
 			// only remove from index if object was really removed and not just marked
+			if (log.isDebugEnabled()) log.debug( "Object deleted." );
 			if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
+			    if (log.isDebugEnabled()) log.debug( "Going to remove it from the index too: " + docProducer.getIndexInfo().getToIndex() );
                 indexManager.delete( docProducer.getIndexInfo(), uuid, true );
 			    indexManager.flush();
 			}
