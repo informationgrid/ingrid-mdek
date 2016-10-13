@@ -836,17 +836,27 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// only remove from index if object was really removed and not just marked
 			if (log.isDebugEnabled()) log.debug( "Object deleted." );
 			if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-			    if (log.isDebugEnabled()) log.debug( "Going to remove it from the index too: " + docProducer.getIndexInfo().getToIndex() );
-                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+			    if (byOrigId) {
+			        String uuidFromOrigId = result.getString( MdekKeys.UUID );
+			        if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using origId: " + uuidFromOrigId );
+                    indexManager.delete( docProducer.getIndexInfo(), uuidFromOrigId, true );
+			    } else {
+			        if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using uuId: " + uuid );
+			        indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+			    }
 			    indexManager.flush();
 			}
 
 			return result;
 
 		} catch (RuntimeException e) {
+		    log.error( "Error deleting object", e );
 			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
+		} catch (Exception e) {
+		    log.error( "Exception when deleting object", e );
+            throw new RuntimeException( e.getMessage() );
 		} finally {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
