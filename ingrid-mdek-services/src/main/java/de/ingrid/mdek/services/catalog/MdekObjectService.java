@@ -839,8 +839,10 @@ public class MdekObjectService {
             throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND, "Missing ORID_UUID: " + origId));
         }
         
+        String objectUuid = oNode.getObjUuid();
+        
         // first check User Permissions
-        permissionHandler.checkPermissionsForDeleteObject(oNode.getObjUuid(), userId);
+        permissionHandler.checkPermissionsForDeleteObject(objectUuid, userId);
 
         checkObjectTreeReferencesForDelete(oNode, true);
 
@@ -849,7 +851,8 @@ public class MdekObjectService {
 
         IngridDocument result = new IngridDocument();
         result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-        result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);          
+        result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
+        result.put(MdekKeys.UUID, objectUuid);
 
         return result;
 	}
