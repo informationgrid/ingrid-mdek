@@ -35,6 +35,9 @@
       <action type="add" dev="wemove" issue="REDMINE-377">
         Added description of preview image.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-439">
+        Fix wrong date in IDF if date is before introduction of daylight saving time.
+      </action>
     </release>
 
     <release version="4.0.0" date="2016-08-25" description="Release InGrid 4.0.0">
