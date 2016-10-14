@@ -1,3 +1,5 @@
 /target
 last_status.xml
 ingrid-mdek-job/logs/
+ingrid-mdek-services/bin/
+ingrid-import-export/bin/
