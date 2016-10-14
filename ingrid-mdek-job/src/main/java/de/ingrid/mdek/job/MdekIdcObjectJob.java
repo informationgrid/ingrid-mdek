@@ -96,10 +96,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
     private IndexManager indexManager;
     
-    @Autowired
-    @Qualifier("dscDocumentProducer")
     private DscDocumentProducer docProducer;
-    
+
     @Autowired
     @Qualifier("dscRecordCreator")
     private DscRecordCreator dscRecordProducer;
@@ -118,7 +116,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
-		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
+		objectService = MdekObjectService.getInstance(daoFactory, permissionService, indexManager);
 //		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
@@ -750,13 +748,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				}
 			}
 			
-		    ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
-		    if (doc != null && !doc.isEmpty()) {
-		        indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-		        indexManager.update( docProducer.getIndexInfo(), doc, true );
-		        indexManager.flush();
-		    }
-			
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1230,4 +1221,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		return targetObj;
 	}
 
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private void setDocProducer(DscDocumentProducer docProducer) {
+        this.docProducer = docProducer;
+        this.objectService.setDocProducer(docProducer);
+    }
 }
