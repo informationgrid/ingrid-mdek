@@ -96,8 +96,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private XsltUtils xsltUtils;
 
-	@Autowired
-	@Qualifier("dscDocumentProducerAddress")
 	private DscDocumentProducer docProducer;
     
     @Autowired
@@ -113,7 +111,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
             IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
-		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService, indexManager);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
@@ -802,13 +800,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				}
 			}
 			
-            ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
-            if (doc != null && !doc.isEmpty()) {
-                indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-                indexManager.update( docProducer.getIndexInfo(), doc, true );
-                indexManager.flush();
-            }
-			
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1471,4 +1462,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 		}
 	}
+	
+	@Autowired
+    @Qualifier("dscDocumentProducerAddress")
+    private void setDocProducer(DscDocumentProducer docProducer) {
+        this.docProducer = docProducer;
+        this.addressService.setDocProducer(docProducer);
+    }
 }
