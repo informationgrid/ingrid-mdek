@@ -28,11 +28,12 @@
   </properties>
   <body>
     
-    <release version="3.6.2.2" date="2016-10-14" description="Release InGrid 3.6.2.2">
+    <release version="3.6.2.3" date="2016-10-17" description="Release InGrid 3.6.2.3">
       <action type="fix" dev="wemove" issue="REDMINE-460">
         Fixed insert/delete from index after CSW-T operation.
       </action>
     </release>
+    
     <release version="3.6.2.1" date="2016-07-07" description="Release InGrid 3.6.2.1">
       <action type="fix" dev="wemove" issue="REDMINE-330">
         Fix index mapping: Use ISO codes for field 't011_obj_serv.type' instead of IGE display value.
