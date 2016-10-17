@@ -48,7 +48,16 @@
          Always write categories even if checkbox for open data is deselected (for LGV Hamburg).
       </action>
     </release>
-    
+
+    <release version="3.6.2.3" date="2016-10-17" description="Bugfix Release InGrid 3.6.2.3">
+      <action type="fix" dev="wemove" issue="REDMINE-460">
+        Fixed insert/delete from index after CSW-T operation.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-439">
+        Fix wrong date in IDF if date is before introduction of daylight saving time.
+      </action>
+    </release>
+
     <release version="3.6.2.1" date="2016-07-07" description="Release InGrid 3.6.2.1">
       <action type="fix" dev="wemove" issue="REDMINE-330">
         Fix index mapping: Use ISO codes for field 't011_obj_serv.type' instead of IGE display value.

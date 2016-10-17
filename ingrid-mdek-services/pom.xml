@@ -126,7 +126,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug-dsc</artifactId>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>${ingrid-iplug-dsc.version}</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>

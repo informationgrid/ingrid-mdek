@@ -16,6 +16,8 @@
 
   <properties>
     <ingrid-udk-importer.version>4.0.0</ingrid-udk-importer.version>
+    <ingrid-utils.version>3.6.2.3</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>3.6.2.3</ingrid-iplug-dsc.version>
   </properties>
 
   <scm>
@@ -94,11 +96,6 @@
       <version>5.1.34</version>
     </dependency>
 
-    <dependency>
-      <groupId>de.ingrid</groupId>
-      <artifactId>ingrid-utils</artifactId>
-      <version>3.6.2</version>
-    </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
