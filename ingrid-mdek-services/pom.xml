@@ -121,14 +121,12 @@
       <artifactId>ingrid-base-webapp</artifactId>
       <version>4.1.0-SNAPSHOT</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug-dsc</artifactId>
       <version>${ingrid-iplug-dsc.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
