@@ -118,12 +118,6 @@
     <!-- needed for IndexManager but provided by ingrid-mdek-job -->
     <dependency>
       <groupId>de.ingrid</groupId>
-      <artifactId>ingrid-base-webapp</artifactId>
-      <version>4.1.0-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug-dsc</artifactId>
       <version>${ingrid-iplug-dsc.version}</version>
       <type>jar</type>

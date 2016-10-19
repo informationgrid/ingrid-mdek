@@ -18,6 +18,8 @@
     <ingrid-udk-importer.version>4.0.0</ingrid-udk-importer.version>
     <ingrid-utils.version>3.6.2.3</ingrid-utils.version>
     <ingrid-iplug-dsc.version>3.6.2.3</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>4.1.0-SNAPSHOT</ingrid-base-webapp.version>
+    <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
   <scm>
@@ -64,21 +66,22 @@
         <artifactId>ingrid-import-export</artifactId>
         <version>${project.version}</version>
       </dependency>
-<!-- Use new spring because of Java 8 compatibility -->
+      <!-- Use new spring because of Java 8 compatibility -->
+      <!-- always use spring from base-webapp -->
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>4.1.6.RELEASE</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>4.1.6.RELEASE</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
-        <version>4.1.6.RELEASE</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
@@ -100,6 +103,12 @@
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
       <version>3.6.2</version>
+
+      <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-base-webapp</artifactId>
+        <version>${ingrid-base-webapp.version}</version>
+      </dependency>
     </dependency>
     <dependency>
       <!-- Needed for assembly of installer to setup/update IGC database -->
