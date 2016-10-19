@@ -103,13 +103,14 @@
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
       <version>3.6.2</version>
-
-      <dependency>
-        <groupId>de.ingrid</groupId>
-        <artifactId>ingrid-base-webapp</artifactId>
-        <version>${ingrid-base-webapp.version}</version>
-      </dependency>
     </dependency>
+    
+    <dependency>
+      <groupId>de.ingrid</groupId>
+      <artifactId>ingrid-base-webapp</artifactId>
+      <version>${ingrid-base-webapp.version}</version>
+    </dependency>
+    
     <dependency>
       <!-- Needed for assembly of installer to setup/update IGC database -->
       <groupId>de.ingrid</groupId>
