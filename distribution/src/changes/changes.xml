@@ -28,6 +28,12 @@
   </properties>
   <body>
     
+    <release version="3.6.2.4-SNAPSHOT" date="????-??-??" description="???">
+      <action type="fix" dev="wemove" issue="REDMINE-475">
+        Make database connection pooling more robust with upgrade of c3p0 library.
+      </action>
+    </release>
+
     <release version="3.6.2.3" date="2016-10-17" description="Bugfix Release InGrid 3.6.2.3">
       <action type="fix" dev="wemove" issue="REDMINE-460">
         Fixed insert/delete from index after CSW-T operation.
