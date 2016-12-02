@@ -47,6 +47,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-475">
         Make database connection pooling more robust with upgrade of c3p0 library.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-434">
+        Set correct iPlug class in plugdescription, which is needed to show correct version in ibus.
+      </action>
     </release>
 
     <release version="4.0.0" date="2016-08-25" description="Release InGrid 4.0.0">
