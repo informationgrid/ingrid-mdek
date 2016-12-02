@@ -37,8 +37,13 @@
  * @param source A org.w3c.dom.Document instance, that defines the input
  * @param target A org.w3c.dom.Document instance, that defines the output, based on the IGC import format template.
  * @param protocol A Protocol instance to add UI protocol messages.
- * @param log A Log instance
+ * @param codeListService An instance of MdekCatalogService for accessing the codelist repository.
+ * @param javaVersion A String with the java version.
+ * @param SQL An instance of de.ingrid.iplug.dsc.utils.SQLUtils
  * @param XPATH Utils for XPath
+ * @param TRANSF An instance of de.ingrid.iplug.dsc.utils.TransformationUtils
+ * @param DOM An instance of de.ingrid.iplug.dsc.utils.DOMUtils
+ * @param log A Log instance
  *
  *
  * Example to set debug message for protocol:
@@ -1673,29 +1678,10 @@ function mapAddresses(source, target) {
     var isoAddressNodes = XPATH.getNodeList(source, "//*/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
     if (hasValue(isoAddressNodes)) {
         var igcAdressNodes = XPATH.createElementFromXPath(target, "/igc/addresses");
-    	var parentAddressList = [];
         for (i=0; i<isoAddressNodes.getLength(); i++ ) {
         	var isoAddressNode = isoAddressNodes.item(i);
         	var organisationName = XPATH.getString(isoAddressNode, "gmd:organisationName/gco:CharacterString");
         	var individualName = XPATH.getString(isoAddressNode, "gmd:individualName/gco:CharacterString");
-        	var parentUuid;
-        	
-        	// first create parent address identified by the organisation and individual name
-        	if (hasValue(organisationName) && hasValue(individualName)) {
-        		var parentUuid = createUUIDFromString(organisationName.toString());
-        		if (!hasValue(parentAddressList[parentUuid])) {
-	        		var igcAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address/address-instance");
-	                log.info("Organization in individual address detected. Create new address for organization '" + organisationName + "' with uuid=" + parentUuid + ".")
-	                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "address-identifier"), parentUuid);
-	                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "modificator-identifier"), "xxx");
-	                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "responsible-identifier"), "xxx");
-	                XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "0");
-	                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "organisation"), organisationName);
-	                parentAddressList[parentUuid] = 1;
-        		} else {
-        			log.debug("Organization in individual address detected. Use existing address for organization '" + organisationName + "' with uuid=" + parentUuid + ".")        		
-        		}
-        	}
         	
         	// then create the actual address
         	var uuid = createUUIDFromAddress(isoAddressNode);
@@ -1704,8 +1690,10 @@ function mapAddresses(source, target) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "modificator-identifier"), "xxx");
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "responsible-identifier"), "xxx");
             if (hasValue(individualName)) {
-            	XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "2");
-            } else {
+              	// always use free address type for ISO import if address has an individual name, see https://dev.informationgrid.eu/redmine/issues/494
+                XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "3");
+            } else  {
+            	// otherwise import as institution
             	XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "0");
             }
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "organisation"), organisationName);
@@ -1722,9 +1710,6 @@ function mapAddresses(source, target) {
             mapCommunicationData(isoAddressNode, igcAddressNode);
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "function"), XPATH.getString(isoAddressNode, "gmd:positionName/gco:CharacterString"));
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "hours-of-service"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:hoursOfService/gco:CharacterString"));
-            if (hasValue(parentUuid)) {
-            	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "parent-address/address-identifier"), parentUuid);
-            }
 
             // add related addresses
             var igcRelatedAddressNode = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/related-address");
