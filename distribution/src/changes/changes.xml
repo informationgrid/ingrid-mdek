@@ -28,15 +28,6 @@
   </properties>
   <body>
       
-    <release version="4.0.0.1-SNAPSHOT" date="2016-xx-xx" description="Release 4.0.0.1">
-      <action type="fix" dev="wemove" issue="REDMINE-465">
-        Fixed wrong path to save data when using cygwin.
-      </action>
-      <action type="fix" dev="wemove" issue="REDMINE-475">
-        Make database connection pooling more robust with upgrade of c3p0 library.
-      </action>
-    </release>
-    
     <release version="4.0.1-SNAPSHOT" date="2016-xx-xx" description="Release InGrid 4.0.1">
       <action type="add" dev="wemove" issue="REDMINE-200">
         Map field explanation of conformity.
@@ -46,6 +37,15 @@
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-439">
         Fix wrong date in IDF if date is before introduction of daylight saving time.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-494">
+        Fix problem with deriving address structure from one ISO address record (organization and individualName). Instead use free address type for ISO addresses with individual name set.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-465">
+        Fixed wrong path to save data when using cygwin.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-475">
+        Make database connection pooling more robust with upgrade of c3p0 library.
       </action>
     </release>
 
