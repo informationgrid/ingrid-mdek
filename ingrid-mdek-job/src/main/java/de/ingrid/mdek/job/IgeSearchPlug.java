@@ -207,6 +207,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < insertDocs.getLength(); i++) {
                 Node item = insertDocs.item( i );
+                // TODO insert validation
                 String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 IngridDocument document = prepareImportAnalyzeDocument( builder, item );
                 //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
@@ -238,6 +239,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
+                } else {
+                    throw new Exception( "Missing constraint for property 'uuid' in update request for update of record '"
+                            + utils.getString( item, ".//gmd:fileIdentifier/gco:CharacterString" ) + "'." );
                 }
             }
             
