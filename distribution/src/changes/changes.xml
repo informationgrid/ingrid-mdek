@@ -29,6 +29,9 @@
   <body>
     
     <release version="3.6.2.4-SNAPSHOT" date="????-??-??" description="???">
+      <action type="fix" dev="wemove" issue="REDMINE-502">
+        Fix Import of open data categories and env topics.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-475">
         Make database connection pooling more robust with upgrade of c3p0 library.
       </action>
