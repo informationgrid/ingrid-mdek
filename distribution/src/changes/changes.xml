@@ -28,7 +28,7 @@
   </properties>
   <body>
     
-    <release version="3.6.2.4-SNAPSHOT" date="????-??-??" description="???">
+    <release version="3.6.2.4" date="2016-12-06" description="Bugfix Release InGrid 3.6.2.4">
       <action type="fix" dev="wemove" issue="REDMINE-502">
         Fix Import of open data categories and env topics.
       </action>
