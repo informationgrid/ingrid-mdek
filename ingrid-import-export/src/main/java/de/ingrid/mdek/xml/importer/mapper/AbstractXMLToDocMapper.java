@@ -99,7 +99,19 @@ abstract public class AbstractXMLToDocMapper {
 
 		putDocList(MdekKeys.SUBJECT_TERMS, termList, target);
 		putDocList(MdekKeys.SUBJECT_TERMS_INSPIRE, termInspireList, target);
-		target.put(MdekKeys.ENV_TOPICS, envTopicsList);
-		target.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, openDataList);
+        // NOTICE:
+        // Env Topic category is only written as <subject-terms> when ISO Import.
+        // With IGE export it is written as <env-topic>.
+        // So we only add here if NOT empty to avoid deletion of already mapped <env-topic> !
+        if (!envTopicsList.isEmpty()) {
+            target.put(MdekKeys.ENV_TOPICS, envTopicsList);            
+        }
+		// NOTICE:
+		// OpenData category is only written as <subject-terms> when ISO Import.
+		// With IGE export it is written as <open-data-categories>.
+		// So we only add here if NOT empty to avoid deletion of already mapped <open-data-categories> !
+		if (!openDataList.isEmpty()) {
+	        target.put(MdekKeys.OPEN_DATA_CATEGORY_LIST, openDataList);
+		}
 	}
 }
