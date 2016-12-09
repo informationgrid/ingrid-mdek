@@ -28,6 +28,11 @@
   </properties>
   <body>
     
+    <release version="3.6.2.5" date="2016-12-09" description="Bugfix Release InGrid 3.6.2.5">
+      <action type="fix" dev="wemove" issue="REDMINE-494">
+        Import ISO addresses containing an individual name always as free address. Creation of address hierarchy from organization and individual name does not work.
+      </action>
+    </release>
     <release version="3.6.2.4" date="2016-12-06" description="Bugfix Release InGrid 3.6.2.4">
       <action type="fix" dev="wemove" issue="REDMINE-502">
         Fix Import of open data categories and env topics.
