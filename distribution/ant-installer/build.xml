@@ -151,12 +151,13 @@
         <delete>
             <fileset dir="${installDir}/lib" includes="**/*"/>
         </delete>
-        
+
+        <runtarget target="proceedAfterUnzipInstaller"/>
+
         <move toDir="${installDir}">
             <fileset dir="./${iPlugName}"/>
         </move>
 
-        <runtarget target="proceedAfterUnzipInstaller"/>
     </target>
 
     <target name="proceedAfterUnzipInstaller">
