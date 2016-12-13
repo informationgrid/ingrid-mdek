@@ -28,6 +28,11 @@
   </properties>
   <body>
     
+    <release version="3.6.2.6" date="2016-13-09" description="Bugfix Release InGrid 3.6.2.6">
+      <action type="fix" dev="wemove" issue="REDMINE-506">
+        Fix update process of iPlug. The installer tried to access a file after moving it to the destination.
+      </action>
+    </release>
     <release version="3.6.2.5" date="2016-12-09" description="Bugfix Release InGrid 3.6.2.5">
       <action type="fix" dev="wemove" issue="REDMINE-494">
         Import ISO addresses containing an individual name always as free address. Creation of address hierarchy from organization and individual name does not work.
