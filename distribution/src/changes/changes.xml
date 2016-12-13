@@ -35,6 +35,9 @@
       <action type="add" dev="wemove" issue="REDMINE-377">
         Added description of preview image.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-506">
+        Fix update process of iPlug. The installer tried to access a file after moving it to the destination.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-494">
         Fix problem with deriving address structure from one ISO address record (organization and individualName). Instead use free address type for ISO addresses with individual name set.
       </action>
