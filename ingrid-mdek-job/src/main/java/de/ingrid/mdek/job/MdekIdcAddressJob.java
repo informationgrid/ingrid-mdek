@@ -722,6 +722,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		if (aPartDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
 			a.getAddressMetadata().setExpiryState((Integer) aPartDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
+        if (aPartDocIn.get(MdekKeys.LASTEXPIRY_TIME) != null) {
+            a.getAddressMetadata().setLastexpiryTime((String) aPartDocIn.get(MdekKeys.LASTEXPIRY_TIME));
+        }
 		daoT02Address.makePersistent(a);
 
 		// not null indicates update executed

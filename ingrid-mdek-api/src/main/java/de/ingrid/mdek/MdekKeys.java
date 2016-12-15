@@ -1061,6 +1061,8 @@ public class MdekKeys {
     /** Value: Integer */
     public final static String EXPIRY_STATE = "expiry-state";
     /** Value: String */
+    public final static String LASTEXPIRY_TIME = "lastexpiry-time";
+    /** Value: String */
     public final static String MARK_DELETED = "mark-deleted";
     /** Value: IngridDocument (Address Map) */
     public final static String MOD_USER = "mod-user";
