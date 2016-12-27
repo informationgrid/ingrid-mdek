@@ -38,6 +38,9 @@
       <action type="update" dev="wemove" issue="REDMINE-107">
         Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.   
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-459">
+        Add new fields "Vorschaugrafik" / "Dateibeschreibung" to profile to appear in "additional fields" in frontend.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-506">
         Fix update process of iPlug. The installer tried to access a file after moving it to the destination.
       </action>
