@@ -28,6 +28,12 @@
   </properties>
   <body>
     
+    <release version="4.0.0.2" date="2016-12-28" description="Bugfix Release InGrid 4.0.0.2">
+      <action type="fix" dev="wemove" issue="REDMINE-506">
+        Fix update process of iPlug. The installer tried to access a file after moving it to the destination.
+      </action>
+    </release>
+
     <release version="4.0.0" date="2016-08-25" description="Release InGrid 4.0.0">
       <action type="add" dev="wemove" issue="REDMINE-380">
         Add new field/column to address "Hours of Service".
