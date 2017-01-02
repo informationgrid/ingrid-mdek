@@ -35,6 +35,9 @@
       <action type="add" dev="wemove" issue="REDMINE-377">
         Added description of preview image.
       </action>
+      <action type="add" dev="wemove" issue="REDMINE-445">
+        Added option to reset the admin password with start script.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-107">
         Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.   
       </action>
