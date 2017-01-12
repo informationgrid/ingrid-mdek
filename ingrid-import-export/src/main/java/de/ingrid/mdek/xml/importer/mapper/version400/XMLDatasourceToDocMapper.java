@@ -139,6 +139,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_DOCUMENT_PUBLISHED_IN = "published-in/text()";
 	private static final String X_MAP_HIERARCHY_LEVEL = "hierarchy-level/@iso-code";
 	private static final String X_MAP_RESOLUTION = "resolution/text()";
+	private static final String X_MAP_GRID_POS_ACCURACY = "grid-pos-accuracy/text()";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_LIST = "key-catalogue";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE = "key-cat/text()";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_KEY = "key-cat/@id";
@@ -635,6 +636,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapStringList(map, X_MAP_FEATURE_TYPE_LIST, target, new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.FEATURE_TYPE_LIST});
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DATASOURCE_UUID},
 				XPathUtils.getString(map, X_MAP_DATASOURCE_IDENTIFICATOR), target);
+		putDouble( new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GRID_POS_ACCURACY}, XPathUtils.getDouble(map, X_MAP_GRID_POS_ACCURACY), target );
 	}
 
 	private static void mapKeyCatalogue(Node domainNode, IngridDocument target, String keyOfTechnicalDomain) {
