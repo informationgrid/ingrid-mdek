@@ -785,6 +785,8 @@ public class MdekKeys {
     public final static String VECTOR_TOPOLOGY_LEVEL = "vector-topology-level";
     /** Value: Double  */
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
+    /** Value: Double  */
+    public final static String GRID_POS_ACCURACY = "grid-pos-accuracy";
     /** Value: Integer  */
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
     /** Value: String  */

@@ -1090,6 +1090,7 @@ public class BeanToDocMapper implements IMapper {
 		domainDoc.put(MdekKeys.HIERARCHY_LEVEL, objGeo.getHierarchyLevel());
 		domainDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, objGeo.getVectorTopologyLevel());
 		domainDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, objGeo.getPosAccuracyVertical());
+		domainDoc.put(MdekKeys.GRID_POS_ACCURACY, objGeo.getGridPosAccuracy());
 		domainDoc.put(MdekKeys.KEYC_INCL_W_DATASET, objGeo.getKeycInclWDataset());
 		domainDoc.put(MdekKeys.DATASOURCE_UUID, objGeo.getDatasourceUuid());
 
