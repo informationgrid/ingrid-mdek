@@ -29,6 +29,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -64,6 +66,7 @@ import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -89,8 +92,12 @@ public class MdekObjectService {
 	private BeanToDocMapper beanToDocMapper;
 	private BeanToDocMapperSecurity beanToDocMapperSecurity;
 	private DocToBeanMapper docToBeanMapper;
+	
+	private IndexManager indexManager = null;
 
-	/** Get The Singleton */
+    private DscDocumentProducer docProducer;
+
+    /** Get The Singleton */
 	public static synchronized MdekObjectService getInstance(DaoFactory daoFactory,
 			IPermissionService permissionService) {
 		if (myInstance == null) {
@@ -98,6 +105,17 @@ public class MdekObjectService {
 	      }
 		return myInstance;
 	}
+	
+	/** Get The Singleton with IndexManager initialized */
+    public static synchronized MdekObjectService getInstance(DaoFactory daoFactory,
+            IPermissionService permissionService, IndexManager indexManager) {
+        if (myInstance == null) {
+            myInstance = new MdekObjectService(daoFactory, permissionService);
+        }
+        // make sure the IndexManager is initialized!
+        myInstance.indexManager = indexManager;
+        return myInstance;
+    }
 
 	private MdekObjectService(DaoFactory daoFactory, IPermissionService permissionService) {
 		daoObjectNode = daoFactory.getObjectNodeDao();
@@ -657,6 +675,20 @@ public class MdekObjectService {
 						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_OBJECT, parentUuid);				
 			}
 		}
+		
+		// commit transaction to make new/updated data available for next step
+		daoObjectNode.commitTransaction();
+		
+		// and begin transaction again for next query
+		daoObjectNode.beginTransaction();
+		
+		// update index
+        ElasticDocument doc = docProducer.getById( oPubId.toString(), "id" );
+        if (doc != null && !doc.isEmpty()) {
+            indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
+            indexManager.update( docProducer.getIndexInfo(), doc, true );
+            indexManager.flush();
+        }
 
 		return uuid;
 	}
@@ -807,8 +839,10 @@ public class MdekObjectService {
             throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND, "Missing ORID_UUID: " + origId));
         }
         
+        String objectUuid = oNode.getObjUuid();
+        
         // first check User Permissions
-        permissionHandler.checkPermissionsForDeleteObject(oNode.getObjUuid(), userId);
+        permissionHandler.checkPermissionsForDeleteObject(objectUuid, userId);
 
         checkObjectTreeReferencesForDelete(oNode, true);
 
@@ -817,7 +851,8 @@ public class MdekObjectService {
 
         IngridDocument result = new IngridDocument();
         result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-        result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);          
+        result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
+        result.put(MdekKeys.UUID, objectUuid);
 
         return result;
 	}
@@ -1404,4 +1439,9 @@ public class MdekObjectService {
 		
 		return errInfo;
 	}
+	
+
+    public void setDocProducer(DscDocumentProducer docProducer) {
+        this.docProducer = docProducer;
+    }
 }

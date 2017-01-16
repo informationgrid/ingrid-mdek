@@ -31,6 +31,7 @@
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="expiryState" type="integer" column="expiry_state"/>
+      <property name="lastexpiryTime" type="string" column="lastexpiry_time"/>
       <property name="lastexportTime" type="string" column="lastexport_time"/>
       <property name="markDeleted" type="string" column="mark_deleted"/>
       <property name="assignerUuid" type="string" column="assigner_uuid"/>

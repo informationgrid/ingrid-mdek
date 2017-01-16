@@ -37,8 +37,13 @@
  * @param source A org.w3c.dom.Document instance, that defines the input
  * @param target A org.w3c.dom.Document instance, that defines the output, based on the IGC import format template.
  * @param protocol A Protocol instance to add UI protocol messages.
+ * @param codeListService An instance of MdekCatalogService for accessing the codelist repository.
+ * @param javaVersion A String with the java version.
+ * @param SQL An instance of de.ingrid.iplug.dsc.utils.SQLUtils
+ * @param XPATH Utils for XPath
+ * @param TRANSF An instance of de.ingrid.iplug.dsc.utils.TransformationUtils
+ * @param DOM An instance of de.ingrid.iplug.dsc.utils.DOMUtils
  * @param log A Log instance
- * @param XPathUtils Utils for XPath
  *
  *
  * Example to set debug message for protocol:
@@ -205,6 +210,10 @@ var mappingDescription = {"mappings":[
 		        	{	
 	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/method-of-production"
+	        		},
+	        		{	
+	        		    "srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString",
+	        		    "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/data-basis-text"
 	        		},
 	        		{	
 	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement/gco:CharacterString",
@@ -581,7 +590,6 @@ var mappingDescription = {"mappings":[
   		},
   		{	
   			"srcXpath":"//gmd:MD_Metadata/gmd:language/gmd:LanguageCode/@codeListValue",
-  			"defaultValue":"de",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/metadata-language",
   			"targetAttribute":"id",
   			"transform":{
@@ -1133,12 +1141,12 @@ log.debug("validate source");
 validateSource(source);
 
 
-var uuid = XPathUtils.getString(source, "//gmd:fileIdentifier/gco:CharacterString");
+var uuid = XPATH.getString(source, "//gmd:fileIdentifier/gco:CharacterString");
 if (hasValue(uuid)) {
 	protocol(INFO, "fileIdentifier: " + uuid);
 }
 
-var title = XPathUtils.getString(source, "//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString");
+var title = XPATH.getString(source, "//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString");
 if (hasValue(title)) {
 	protocol(INFO, "title: " + title);
 }
@@ -1178,12 +1186,12 @@ function mapToTarget(mapping, source, target) {
 			} else if (m.subMappings) {
 				if (m.srcXpath) {
 					// iterate over all xpath results
-					var sourceNodeList = XPathUtils.getNodeList(source, m.srcXpath);
+					var sourceNodeList = XPATH.getNodeList(source, m.srcXpath);
 					if (sourceNodeList) {
 						log.debug("found sub mapping sources: " + m.srcXpath + "; count: " + sourceNodeList.getLength())
 						for (var j=0; j<sourceNodeList.getLength(); j++ ) {
 							log.debug("handle sub mapping: " + sourceNodeList.item(j))
-							var node = XPathUtils.createElementFromXPath(target, m.targetNode);
+							var node = XPATH.createElementFromXPath(target, m.targetNode);
 							if (m.newNodeName) {
 								node = node.appendChild(node.getOwnerDocument().createElement(m.newNodeName));
 							}
@@ -1197,7 +1205,7 @@ function mapToTarget(mapping, source, target) {
 				if (m.srcXpath) {
 					log.debug("Working on " + m.targetNode + " with xpath:'" + m.srcXpath + "'")
 					// iterate over all xpath results
-					var sourceNodeList = XPathUtils.getNodeList(source, m.srcXpath);
+					var sourceNodeList = XPATH.getNodeList(source, m.srcXpath);
 					var nodeText = "";
 					if (sourceNodeList && sourceNodeList.getLength() > 0) {
 						for (var j=0; j<sourceNodeList.getLength(); j++ ) {
@@ -1230,7 +1238,7 @@ function mapToTarget(mapping, source, target) {
 								value = m.defaultValue;
 							}
 							if (hasValue(value)) {
-								var node = XPathUtils.createElementFromXPath(target, m.targetNode);
+								var node = XPATH.createElementFromXPath(target, m.targetNode);
 								log.debug("Found node with content: '" + node.getTextContent() + "'")
 								if (j==0) { 
 									// append content to target nodes content?
@@ -1278,7 +1286,7 @@ function mapToTarget(mapping, source, target) {
 								value = m.defaultValue;
 							}
 							if (hasValue(value)) {
-								var node = XPathUtils.createElementFromXPath(target, m.targetNode);
+								var node = XPATH.createElementFromXPath(target, m.targetNode);
 								log.debug("Found node with content: '" + node.getTextContent() + "'")
 								if (j==0) { 
 									// append content to target nodes content?
@@ -1331,7 +1339,7 @@ function mapToTarget(mapping, source, target) {
 					} else {
 						value = m.defaultValue;
 					}
-					var node = XPathUtils.createElementFromXPath(target, m.targetNode);
+					var node = XPATH.createElementFromXPath(target, m.targetNode);
 					// check for transformation
 					if (hasValue(m.transform)) {
 						var args = new Array(value);
@@ -1378,13 +1386,13 @@ function getObjectClassFromHierarchyLevel(val) {
 
 function validateSource(source) {
 	// pre check source if required
-	var metadataNodes = XPathUtils.getNodeList(source, "//gmd:MD_Metadata");
+	var metadataNodes = XPATH.getNodeList(source, "//gmd:MD_Metadata");
 	if (!hasValue(metadataNodes) || metadataNodes.getLength() == 0) {
 		log.error("No valid ISO metadata record.");
 		protocol(ERROR, "No valid ISO metadata record.");
 		throw "No valid ISO metadata record.";
 	}
-	var hierarchyLevel = XPathUtils.getString(source, "//gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue");
+	var hierarchyLevel = XPATH.getString(source, "//gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue");
 	log.debug("Found hierarchyLevel: " + hierarchyLevel);
 	if (hierarchyLevel == "application") {
 		log.error("HierarchyLevel 'application' is not supported.");
@@ -1395,11 +1403,11 @@ function validateSource(source) {
 }
 
 function mapReferenceSystemInfo(source, target) {
-	var rsIdentifiers = XPathUtils.getNodeList(source, "//gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier");
+	var rsIdentifiers = XPATH.getNodeList(source, "//gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier");
 	if (hasValue(rsIdentifiers)) {
 		for (i=0; i<rsIdentifiers.getLength(); i++ ) {
-			var code = XPathUtils.getString(rsIdentifiers.item(i), "gmd:code/gco:CharacterString");
-			var codeSpace = XPathUtils.getString(rsIdentifiers.item(i), "gmd:codeSpace/gco:CharacterString");
+			var code = XPATH.getString(rsIdentifiers.item(i), "gmd:code/gco:CharacterString");
+			var codeSpace = XPATH.getString(rsIdentifiers.item(i), "gmd:codeSpace/gco:CharacterString");
 			var coordinateSystem;
 			if (hasValue(codeSpace) && hasValue(code)) {
 				coordinateSystem = codeSpace+":"+code; 
@@ -1407,7 +1415,7 @@ function mapReferenceSystemInfo(source, target) {
 				coordinateSystem = code;
 			}
 			log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/spatial-domain/coordinate-system" + "' = '" + coordinateSystem + "' to target document.");
-			var node = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/spatial-domain/coordinate-system");
+			var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/spatial-domain/coordinate-system");
 			XMLUtils.createOrReplaceTextNode(node, code);
             
             // get syslist id
@@ -1440,16 +1448,16 @@ function mapReferenceSystemInfo(source, target) {
 }
 
 function mapVerticalExtentVdatum(source, target) {
-    var verticalDatums = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml:VerticalCRS/gml:verticalDatum/gml:VerticalDatum");
+    var verticalDatums = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml:VerticalCRS/gml:verticalDatum/gml:VerticalDatum");
     if (hasValue(verticalDatums)) {
         for (i=0; i<verticalDatums.getLength(); i++ ) {
-            var vDatumName = XPathUtils.getString(verticalDatums.item(i), "gml:name");
+            var vDatumName = XPATH.getString(verticalDatums.item(i), "gml:name");
             if (!hasValue(vDatumName)) {
-            	vDatumName = XPathUtils.getString(verticalDatums.item(i), "gml:identifier");
+            	vDatumName = XPATH.getString(verticalDatums.item(i), "gml:identifier");
             }
             if (hasValue(vDatumName)) {
 	            log.debug("adding '/igc/data-sources/data-source/data-source-instance/spatial-domain/vertical-extent/vertical-extent-vdatum' = '" + vDatumName + "' to target document.");
-	            var node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/spatial-domain/vertical-extent/vertical-extent-vdatum");
+	            var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/spatial-domain/vertical-extent/vertical-extent-vdatum");
 	            XMLUtils.createOrReplaceTextNode(node, vDatumName);
 	            var datumId = transformToIgcDomainId(vDatumName, 101, "", "Could not map VerticalDatum: ");
 	            if (hasValue(datumId)) {
@@ -1465,76 +1473,76 @@ function mapVerticalExtentVdatum(source, target) {
 
 
 function mapCommunicationData(source, target) {
-	var email = XPathUtils.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
+	var email = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
 	if (hasValue(email)) {
 		var communication = target.appendChild(target.getOwnerDocument().createElement("communication"));
-		var node = XPathUtils.createElementFromXPath(communication, "communication-medium");
+		var node = XPATH.createElementFromXPath(communication, "communication-medium");
 		XMLUtils.createOrReplaceTextNode(node, "Email");
 		XMLUtils.createOrReplaceAttribute(node, "id", "3");
-		node = XPathUtils.createElementFromXPath(communication, "communication-value");
+		node = XPATH.createElementFromXPath(communication, "communication-value");
 		XMLUtils.createOrReplaceTextNode(node, email.trim());
 	}
-	var phone = XPathUtils.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:phone/gmd:CI_Telephone/gmd:voice/gco:CharacterString");
+	var phone = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:phone/gmd:CI_Telephone/gmd:voice/gco:CharacterString");
 	if (hasValue(phone)) {
 		var communication = target.appendChild(target.getOwnerDocument().createElement("communication"));
-		var node = XPathUtils.createElementFromXPath(communication, "communication-medium");
+		var node = XPATH.createElementFromXPath(communication, "communication-medium");
 		XMLUtils.createOrReplaceTextNode(node, "Telefon");
 		XMLUtils.createOrReplaceAttribute(node, "id", "1");
-		node = XPathUtils.createElementFromXPath(communication, "communication-value");
+		node = XPATH.createElementFromXPath(communication, "communication-value");
 		XMLUtils.createOrReplaceTextNode(node, phone.trim());
 	}
-	var fax = XPathUtils.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:phone/gmd:CI_Telephone/gmd:facsimile/gco:CharacterString");
+	var fax = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:phone/gmd:CI_Telephone/gmd:facsimile/gco:CharacterString");
 	if (hasValue(fax)) {
 		var communication = target.appendChild(target.getOwnerDocument().createElement("communication"));
-		var node = XPathUtils.createElementFromXPath(communication, "communication-medium");
+		var node = XPATH.createElementFromXPath(communication, "communication-medium");
 		XMLUtils.createOrReplaceTextNode(node, "Fax");
 		XMLUtils.createOrReplaceAttribute(node, "id", "2");
-		node = XPathUtils.createElementFromXPath(communication, "communication-value");
+		node = XPATH.createElementFromXPath(communication, "communication-value");
 		XMLUtils.createOrReplaceTextNode(node, fax.trim());
 	}
-	var url = XPathUtils.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL");
+	var url = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL");
 	if (hasValue(url)) {
 		var communication = target.appendChild(target.getOwnerDocument().createElement("communication"));
-		var node = XPathUtils.createElementFromXPath(communication, "communication-medium");
+		var node = XPATH.createElementFromXPath(communication, "communication-medium");
 		XMLUtils.createOrReplaceTextNode(node, "URL");
 		XMLUtils.createOrReplaceAttribute(node, "id", "4");
-		node = XPathUtils.createElementFromXPath(communication, "communication-value");
+		node = XPATH.createElementFromXPath(communication, "communication-value");
 		XMLUtils.createOrReplaceTextNode(node, url.trim());
 	}
 }
 
 
 function mapTimeConstraints(source, target) {
-	var timePeriods = XPathUtils.getNodeList(source, "//gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod");
+	var timePeriods = XPATH.getNodeList(source, "//gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod");
 	log.debug("Found " + timePeriods.getLength() + " TimePeriod records.");
 	if (hasValue(timePeriods) && timePeriods.getLength() > 0) {
-		var beginPosition = XPathUtils.getString(timePeriods.item(0), "gml:beginPosition");
-		var endPosition = XPathUtils.getString(timePeriods.item(0), "gml:endPosition");
+		var beginPosition = XPATH.getString(timePeriods.item(0), "gml:beginPosition");
+		var endPosition = XPATH.getString(timePeriods.item(0), "gml:endPosition");
 		if (hasValue(beginPosition) && hasValue(endPosition)) {
 			if (beginPosition.equals(endPosition)) {
-				var node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
+				var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(beginPosition));
-				node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
+				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(endPosition));
-				node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
+				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
 				XMLUtils.createOrReplaceTextNode(node, "am");
 			} else {
-				var node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
+				var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(beginPosition));
-				node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
+				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(endPosition));
-				node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
+				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
 				XMLUtils.createOrReplaceTextNode(node, "von");
 			}
 		} else if (hasValue(beginPosition)) {
-				var node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
+				var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(beginPosition));
-				node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
+				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
 				XMLUtils.createOrReplaceTextNode(node, "seit");
 		} else if (hasValue(endPosition)) {
-				node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
+				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(endPosition));
-				node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
+				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
 				XMLUtils.createOrReplaceTextNode(node, "bis");
 		}
 	}
@@ -1542,11 +1550,11 @@ function mapTimeConstraints(source, target) {
 
 function mapRSIdentifier(source, target)  {
 	log.debug("Map RS_Identifier.");
-	var rsIdentifiers = XPathUtils.getNodeList(source, "//gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier");
+	var rsIdentifiers = XPATH.getNodeList(source, "//gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:RS_Identifier");
 	if (hasValue(rsIdentifiers) && rsIdentifiers.getLength() > 0) {
 		log.debug("Found " + rsIdentifiers.getLength() + " RS_Identifier records.");
-		var codeSpace = XPathUtils.getString(rsIdentifiers.item(0), "gmd:codeSpace/gco:CharacterString");
-		var code = XPathUtils.getString(rsIdentifiers.item(0), "gmd:code/gco:CharacterString");
+		var codeSpace = XPATH.getString(rsIdentifiers.item(0), "gmd:codeSpace/gco:CharacterString");
+		var code = XPATH.getString(rsIdentifiers.item(0), "gmd:code/gco:CharacterString");
 		if (hasValue(code)) {
 			log.debug("Found RS_Identifier: " + code);
 			var dataSourceID = "";
@@ -1555,7 +1563,7 @@ function mapRSIdentifier(source, target)  {
 			} else {
 				dataSourceID = code;
 			}
-			var node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/datasource-identificator");
+			var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/datasource-identificator");
 			XMLUtils.createOrReplaceTextNode(node, dataSourceID);
 		}
 	}
@@ -1563,34 +1571,34 @@ function mapRSIdentifier(source, target)  {
 
 function mapMDIdentifier(source, target)  {
     log.debug("Map MD_Identifier.");
-    var mdIdentifiers = XPathUtils.getNodeList(source, "//gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier");
+    var mdIdentifiers = XPATH.getNodeList(source, "//gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier");
     if (hasValue(mdIdentifiers) && mdIdentifiers.getLength() > 0) {
         log.debug("Found " + mdIdentifiers.getLength() + " MD_Identifier records.");
-        var code = XPathUtils.getString(mdIdentifiers.item(0), "gmd:code/gco:CharacterString");
+        var code = XPATH.getString(mdIdentifiers.item(0), "gmd:code/gco:CharacterString");
         if (hasValue(code)) {
             log.debug("Found MD_Identifier: " + code);
-            var node = XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/datasource-identificator");
+            var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/datasource-identificator");
             XMLUtils.createOrReplaceTextNode(node, code);
         }
     }
 }
 
 function mapUseConstraints(source, target) {
-    var useConstraints = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useConstraints/gmd:MD_RestrictionCode");
+    var useConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useConstraints/gmd:MD_RestrictionCode");
     if (hasValue(useConstraints)) {
         for (i=0; i<useConstraints.getLength(); i++ ) {
-            var isoValue = XPathUtils.getString(useConstraints.item(i), "./@codeListValue");
+            var isoValue = XPATH.getString(useConstraints.item(i), "./@codeListValue");
             if (isoValue != "otherRestrictions") {
                 addUseConstraint(isoValue, target);
             }
         }
     }
 
-    useConstraints = XPathUtils.getSiblingsFromXPath(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useConstraints", "gmd:otherConstraints", false);
+    useConstraints = XPATH.getSiblingsFromXPath(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useConstraints", "gmd:otherConstraints", false);
     
     if (hasValue(useConstraints)) {
         for (i=0; i<useConstraints.size(); i++ ) {
-            var useConstraint = XPathUtils.getString(useConstraints.get(i), "./gco:CharacterString");
+            var useConstraint = XPATH.getString(useConstraints.get(i), "./gco:CharacterString");
             addUseConstraint(useConstraint, target);
         }
     }
@@ -1606,8 +1614,8 @@ function addUseConstraint(useConstraint, target) {
         }
 
         log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint/license" + "' = '" + useConstraint + "' to target document.");
-        var node = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint");
-        node = XPathUtils.createElementFromXPath(node, "license");
+        var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint");
+        node = XPATH.createElementFromXPath(node, "license");
         XMLUtils.createOrReplaceTextNode(node, useConstraint);
         var useConstraintId = transformToIgcDomainId(useConstraint, 524, "", "Could not map use-constraint, use as free entry: ");
         if (hasValue(useConstraintId)) {
@@ -1617,21 +1625,21 @@ function addUseConstraint(useConstraint, target) {
 }
 
 function mapAccessConstraints(source, target) {
-    var accConstraints = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:accessConstraints/gmd:MD_RestrictionCode");
+    var accConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:accessConstraints/gmd:MD_RestrictionCode");
     if (hasValue(accConstraints)) {
         for (i=0; i<accConstraints.getLength(); i++ ) {
-            var isoValue = XPathUtils.getString(accConstraints.item(i), "./@codeListValue");
+            var isoValue = XPATH.getString(accConstraints.item(i), "./@codeListValue");
             if (isoValue != "otherRestrictions") {
                 addAccessConstraint(isoValue, target);
             }
         }
     }
 
-    accConstraints = XPathUtils.getSiblingsFromXPath(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:accessConstraints", "gmd:otherConstraints", false);
+    accConstraints = XPATH.getSiblingsFromXPath(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:accessConstraints", "gmd:otherConstraints", false);
     
     if (hasValue(accConstraints)) {
         for (i=0; i<accConstraints.size(); i++ ) {
-            var accConstraint = XPathUtils.getString(accConstraints.get(i), "./gco:CharacterString");
+            var accConstraint = XPATH.getString(accConstraints.get(i), "./gco:CharacterString");
             var idcCode = codeListService.getSysListEntryKey(1350, accConstraint, "", false);
             log.debug("result from legal constraint: " + idcCode);
             if (hasValue(idcCode)) {
@@ -1646,8 +1654,8 @@ function mapAccessConstraints(source, target) {
 function addAccessConstraint(accConstraint, target) {
     if (hasValue(accConstraint)) {
         log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/access-constraint/restriction" + "' = '" + accConstraint + "' to target document.");
-        var node = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/access-constraint");
-        node = XPathUtils.createElementFromXPath(node, "restriction");
+        var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/access-constraint");
+        node = XPATH.createElementFromXPath(node, "restriction");
         XMLUtils.createOrReplaceTextNode(node, accConstraint);
         var accConstraintId = transformToIgcDomainId(accConstraint, 6010, "", "Could not map access-constraint, use as free entry: ");
         if (hasValue(accConstraintId)) {
@@ -1659,8 +1667,8 @@ function addAccessConstraint(accConstraint, target) {
 function addLegalConstraint(accConstraint, target) {
     if (hasValue(accConstraint)) {
         log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/access-constraint/legislation" + "' = '" + accConstraint + "' to target document.");
-        var node = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/legislation");
-        //node = XPathUtils.createElementFromXPath(node, "restriction");
+        var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/legislation");
+        //node = XPATH.createElementFromXPath(node, "restriction");
         XMLUtils.createOrReplaceTextNode(node, accConstraint);
         var accConstraintId = transformToIgcDomainId(accConstraint, 1350, "", "Could not map access-constraint, use as free entry: ");
         if (hasValue(accConstraintId)) {
@@ -1671,73 +1679,53 @@ function addLegalConstraint(accConstraint, target) {
 
 function mapAddresses(source, target) {
 
-    var isoAddressNodes = XPathUtils.getNodeList(source, "//*/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+    var isoAddressNodes = XPATH.getNodeList(source, "//*/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
     if (hasValue(isoAddressNodes)) {
-        var igcAdressNodes = XPathUtils.createElementFromXPath(target, "/igc/addresses");
-    	var parentAddressList = [];
+        var igcAdressNodes = XPATH.createElementFromXPath(target, "/igc/addresses");
         for (i=0; i<isoAddressNodes.getLength(); i++ ) {
         	var isoAddressNode = isoAddressNodes.item(i);
-        	var organisationName = XPathUtils.getString(isoAddressNode, "gmd:organisationName/gco:CharacterString");
-        	var individualName = XPathUtils.getString(isoAddressNode, "gmd:individualName/gco:CharacterString");
-        	var parentUuid;
-        	
-        	// first create parent address identified by the organisation and individual name
-        	if (hasValue(organisationName) && hasValue(individualName)) {
-        		var parentUuid = createUUIDFromString(organisationName.toString());
-        		if (!hasValue(parentAddressList[parentUuid])) {
-	        		var igcAddressNode = XPathUtils.createElementFromXPathAsSibling(igcAdressNodes, "address/address-instance");
-	                log.info("Organization in individual address detected. Create new address for organization '" + organisationName + "' with uuid=" + parentUuid + ".")
-	                XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "address-identifier"), parentUuid);
-	                XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "modificator-identifier"), "xxx");
-	                XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "responsible-identifier"), "xxx");
-	                XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "0");
-	                XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "organisation"), organisationName);
-	                parentAddressList[parentUuid] = 1;
-        		} else {
-        			log.debug("Organization in individual address detected. Use existing address for organization '" + organisationName + "' with uuid=" + parentUuid + ".")        		
-        		}
-        	}
+        	var organisationName = XPATH.getString(isoAddressNode, "gmd:organisationName/gco:CharacterString");
+        	var individualName = XPATH.getString(isoAddressNode, "gmd:individualName/gco:CharacterString");
         	
         	// then create the actual address
         	var uuid = createUUIDFromAddress(isoAddressNode);
-    		var igcAddressNode = XPathUtils.createElementFromXPathAsSibling(igcAdressNodes, "address/address-instance");
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "address-identifier"), uuid);
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "modificator-identifier"), "xxx");
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "responsible-identifier"), "xxx");
+    		var igcAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address/address-instance");
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "address-identifier"), uuid);
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "modificator-identifier"), "xxx");
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "responsible-identifier"), "xxx");
             if (hasValue(individualName)) {
-            	XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "2");
+              	// always use free address type for ISO import if address has an individual name, see https://dev.informationgrid.eu/redmine/issues/494
+                XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "3");
             } else {
-            	XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "0");
+            	// otherwise import as institution
+            	XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "0");
             }
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "organisation"), organisationName);
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "name"), individualName);
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "publication-condition"), "1");
-            var countryCode = UtilsCountryCodelist.getCodeFromShortcut3(XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "organisation"), organisationName);
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "name"), individualName);
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "publication-condition"), "1");
+            var countryCode = UtilsCountryCodelist.getCodeFromShortcut3(XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
             if (hasValue(countryCode)) {
-                XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "country"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
-                XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcAddressNode, "country"), "id", countryCode);
+                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "country"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
+                XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "country"), "id", countryCode);
             }
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "postal-code"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "street"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:deliveryPoint/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "city"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "postal-code"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "street"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:deliveryPoint/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "city"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
             mapCommunicationData(isoAddressNode, igcAddressNode);
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "function"), XPathUtils.getString(isoAddressNode, "gmd:positionName/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "hours-of-service"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:hoursOfService/gco:CharacterString"));
-            if (hasValue(parentUuid)) {
-            	XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "parent-address/address-identifier"), parentUuid);
-            }
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "function"), XPATH.getString(isoAddressNode, "gmd:positionName/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "hours-of-service"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:hoursOfService/gco:CharacterString"));
 
             // add related addresses
-            var igcRelatedAddressNode = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/related-address");
-            var addressRoleId = transformISOToIgcDomainId(XPathUtils.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "Could not transform ISO address role code to IGC id: ");
+            var igcRelatedAddressNode = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/related-address");
+            var addressRoleId = transformISOToIgcDomainId(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "Could not transform ISO address role code to IGC id: ");
             if (!hasValue(addressRoleId)) {
             	addressRoleId = "-1";
             }
-            XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "entry-id", addressRoleId);
-            XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "list-id", "505");
-            var addressRoleValue = transformISOToIgcDomainValue(XPathUtils.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "de", "Could not transform ISO address role code to IGC codelist value: ");
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);            
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);            
+            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "entry-id", addressRoleId);
+            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "list-id", "505");
+            var addressRoleValue = transformISOToIgcDomainValue(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "de", "Could not transform ISO address role code to IGC codelist value: ");
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);            
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);            
             
         }
     }
@@ -1745,10 +1733,10 @@ function mapAddresses(source, target) {
 }
 
 function mapUncontrolledTerms(source, target) {
-    var terms = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='OGDD-Kategorien') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') ))]/gmd:keyword/gco:CharacterString");
+    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='OGDD-Kategorien') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') ))]/gmd:keyword/gco:CharacterString");
     if (hasValue(terms)) {
         for (i=0; i<terms.getLength(); i++ ) {
-            var term = XPathUtils.getString(terms.item(i), ".");
+            var term = XPATH.getString(terms.item(i), ".");
             if (hasValue(term)) {
         		// make sure that service classification codes are not included in uncontrolled keywords 
             	// transform to IGC domain id
@@ -1761,13 +1749,13 @@ function mapUncontrolledTerms(source, target) {
 	        		// check "inspireidentifiziert" and add flag !
 	                if (term.equals("inspireidentifiziert")) {
 	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-inspire-relevant' = 'Y' to target document.");
-	                    XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-inspire-relevant"), "Y");
+	                    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-inspire-relevant"), "Y");
 	                } else if (term.equals("opendata")) {
                         log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-open-data' = 'Y' to target document.");
-                        XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-open-data"), "Y");
+                        XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-open-data"), "Y");
 	                } else {
 	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term' = '" + term + "' to target document.");
-	                    XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term"), term);
+	                    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term"), term);
 	                }
                 }
             }
@@ -1776,17 +1764,17 @@ function mapUncontrolledTerms(source, target) {
 }
 
 function mapDistributionLinkages(source, target) {
-    var linkages = XPathUtils.getNodeList(source, "//gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource[gmd:linkage/gmd:URL!='']");
+    var linkages = XPATH.getNodeList(source, "//gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource[gmd:linkage/gmd:URL!='']");
     if (hasValue(linkages)) {
         for (i=0; i<linkages.getLength(); i++ ) {
             var linkage = {};
-            linkage.name = XPathUtils.getString(linkages.item(i), "./gmd:name/gco:CharacterString");
-            linkage.url = XPathUtils.getString(linkages.item(i), "./gmd:linkage/gmd:URL");
+            linkage.name = XPATH.getString(linkages.item(i), "./gmd:name/gco:CharacterString");
+            linkage.url = XPATH.getString(linkages.item(i), "./gmd:linkage/gmd:URL");
             linkage.urlType = "1";
-            var isCoupled = XPathUtils.getString(linkages.item(i), "./gmd:applicationProfile/gco:CharacterString") === "coupled";
+            var isCoupled = XPATH.getString(linkages.item(i), "./gmd:applicationProfile/gco:CharacterString") === "coupled";
             linkage.referenceId = isCoupled ? "3600" : "-1";
             //referenceName = "";
-            linkage.description = XPathUtils.getString(linkages.item(i), "./gmd:description/gco:CharacterString");
+            linkage.description = XPATH.getString(linkages.item(i), "./gmd:description/gco:CharacterString");
             addAvailableLinkage(linkage, target);
         }
     }
@@ -1795,30 +1783,30 @@ function mapDistributionLinkages(source, target) {
 function addAvailableLinkage(linkage, target) {
     if (hasValue(linkage) && hasValue(linkage.url) && hasValue(linkage.urlType)) {
         log.debug("adding '/igc/data-sources/data-source/data-source-instance/available-linkage' -> 'linkage-url' = '" + linkage.url + "' to target document.");
-        var linkageNode = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/available-linkage");
+        var linkageNode = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/available-linkage");
         if (!hasValue(linkage.name)) {
             linkage.name = linkage.url;
         }
-        XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(linkageNode, "linkage-name"), linkage.name);
-        XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(linkageNode, "linkage-url"), linkage.url);
-        XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(linkageNode, "linkage-url-type"), linkage.urlType);
+        XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-name"), linkage.name);
+        XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-url"), linkage.url);
+        XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-url-type"), linkage.urlType);
         if (hasValue(linkage.referenceId)) {
-            XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(linkageNode, "linkage-reference"), "id", linkage.referenceId);
+            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-reference"), "id", linkage.referenceId);
             if (hasValue(linkage.referenceName)) {
-                XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(linkageNode, "linkage-reference"), linkage.referenceName);
+                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-reference"), linkage.referenceName);
             }
         }
         if (hasValue(linkage.description)) {
-            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(linkageNode, "linkage-description"), linkage.description);
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-description"), linkage.description);
         }
     }
 }
 
 function mapServiceClassifications(source, target) {
-    var terms = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString");
+    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString");
     if (hasValue(terms)) {
         for (i=0; i<terms.getLength(); i++ ) {
-            var term = XPathUtils.getString(terms.item(i), ".");
+            var term = XPATH.getString(terms.item(i), ".");
             if (hasValue(term)) {
         		// transform to IGC domain id
         		var igcCode = null;
@@ -1832,7 +1820,7 @@ function mapServiceClassifications(source, target) {
         			protocol(WARN, "Error tranforming ISO code '" + term + "' with code list 5200 to IGC id. Does the codeList exist?")
         		}
         		if (hasValue(igcCode)) {
-            		var node = XPathUtils.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/service/service-classification");
+            		var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/service/service-classification");
             		XMLUtils.createOrReplaceAttribute(node, "id", igcCode);
         		}
             }
@@ -2054,9 +2042,9 @@ function transformDateIso8601ToIndex(isoFormat) {
 
 
 function getTypeOfAddress(source, target) {
-	var organisationName = XPathUtils.getString(source, "gmd:organisationName/gco:CharacterString");
-	var individualName = XPathUtils.getString(source, "gmd:individualName/gco:CharacterString");
-	var node = XPathUtils.createElementFromXPath(target, "type-of-address");
+	var organisationName = XPATH.getString(source, "gmd:organisationName/gco:CharacterString");
+	var individualName = XPATH.getString(source, "gmd:individualName/gco:CharacterString");
+	var node = XPATH.createElementFromXPath(target, "type-of-address");
 	if (hasValue(individualName)) {
 		XMLUtils.createOrReplaceAttribute(node, "id", "2");
 	} else if (hasValue(organisationName)) {
@@ -2111,10 +2099,10 @@ function call_f(f,args)
 
 function createUUIDFromAddress(source) {
 	log.debug("create UUID from address node: " + source);
-	var isoUuid = XPathUtils.getString(source, "./@uuid");
-	var organisationName = XPathUtils.getString(source, "gmd:organisationName/gco:CharacterString");
-	var individualName = XPathUtils.getString(source, "gmd:individualName/gco:CharacterString");
-	var email = XPathUtils.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
+	var isoUuid = XPATH.getString(source, "./@uuid");
+	var organisationName = XPATH.getString(source, "gmd:organisationName/gco:CharacterString");
+	var individualName = XPATH.getString(source, "gmd:individualName/gco:CharacterString");
+	var email = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
 	
 	var idString = "";
 	if (hasValue(organisationName)) {

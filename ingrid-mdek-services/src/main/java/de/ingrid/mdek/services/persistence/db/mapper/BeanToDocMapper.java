@@ -710,6 +710,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.ENTITY_METADATA_ID, ref.getId());
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
+        refDoc.put(MdekKeys.LASTEXPIRY_TIME, ref.getLastexpiryTime());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
 		refDoc.put(MdekKeys.ASSIGNER_UUID, ref.getAssignerUuid());
 		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());
@@ -2161,6 +2162,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.ENTITY_METADATA_ID, ref.getId());
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
+        refDoc.put(MdekKeys.LASTEXPIRY_TIME, ref.getLastexpiryTime());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
 		refDoc.put(MdekKeys.ASSIGNER_UUID, ref.getAssignerUuid());
 		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());

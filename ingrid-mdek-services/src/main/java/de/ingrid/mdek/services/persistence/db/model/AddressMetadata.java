@@ -32,6 +32,7 @@ public class AddressMetadata implements IEntity {
 	private Long id;
 	private int version;
 	private Integer expiryState;
+	private String lastexpiryTime;
 	private String lastexportTime;
 	private String markDeleted;
 	private String assignerUuid;
@@ -65,6 +66,14 @@ public class AddressMetadata implements IEntity {
 
 	public void setExpiryState(Integer expiryState) {
 		this.expiryState = expiryState;
+	}
+
+	public String getLastexpiryTime() {
+		return lastexpiryTime;
+	}
+
+	public void setLastexpiryTime(String lastexpiryTime) {
+		this.lastexpiryTime = lastexpiryTime;
 	}
 
 	public String getLastexportTime() {

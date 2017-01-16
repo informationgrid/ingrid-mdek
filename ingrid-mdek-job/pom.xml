@@ -63,7 +63,7 @@
             <groupId>de.ingrid.mdek</groupId>
             <artifactId>ingrid-mdek-services</artifactId>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <exclusions>
@@ -72,7 +72,7 @@
                     <artifactId>ehcache</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-udk-importer</artifactId>
@@ -87,24 +87,19 @@
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-iplug-dsc</artifactId>
-            <version>3.6.2</version>
+            <version>${ingrid-iplug-dsc.version}</version>
         </dependency>
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-base-webapp</artifactId>
-            <version>3.6.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>de.ingrid</groupId>
-            <artifactId>ingrid-base-webapp</artifactId>
-            <version>3.6.2.1</version>
+            <version>${ingrid-base-webapp.version}</version>
             <classifier>res</classifier>
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-utils</artifactId>
-            <version>3.6.2</version>
+            <version>${ingrid-utils.version}</version>
         </dependency>
         <!-- add directly to exclude a conflicting lib -->
         <dependency>

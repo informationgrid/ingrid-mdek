@@ -32,7 +32,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -48,14 +47,17 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
+import de.ingrid.iplug.dsc.utils.SQLUtils;
+import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
@@ -125,6 +127,11 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 			
 			// get DOM-tree from template-file
 			Document docTarget = getDomFromSourceData(template.getInputStream(), false);
+            // create utils for script
+            SQLUtils sqlUtils = new SQLUtils(dbConnection);
+            // get initialized XPathUtils (see above)
+            TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
+            DOMUtils domUtils = new DOMUtils(docTarget, xpathUtils);
 			
 			preProcessMapping(docTarget);
 			
@@ -133,6 +140,12 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
             parameters.put("protocolHandler", protocolHandler );
 		    parameters.put("codeListService", catalogService);
 		    parameters.put("javaVersion", System.getProperty( "java.version" ));
+		    parameters.put("SQL", sqlUtils);
+		    parameters.put("XPATH", xpathUtils);
+		    parameters.put("TRANSF", trafoUtils);
+		    parameters.put("DOM", domUtils);
+		    parameters.put("log", log);
+
 		    // the template represents only one object!
 		    // Better if docTarget is only header and footer where
 		    // new objects made from template will be put into?
@@ -183,6 +196,7 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
             if (log.isDebugEnabled()) {
                 log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
             }
+            engine.put("igcProfile", igcProfile);
 
             for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
                 String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
@@ -280,19 +294,6 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 		}
 	}
 	
-	private void setDocumentDates(Document docTarget) {
-		String timestamp = MdekUtils.dateToTimestamp(new Date());
-		List<NodeList> datesNodesList = new ArrayList<NodeList>();
-		datesNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATE_OF_LAST_MODIFICATION));
-		datesNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATE_OF_CREATION));
-		datesNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATASET_REFERENCE_DATE));
-		
-		for (NodeList nodeList : datesNodesList) {
-			setValueInNodeList(nodeList, timestamp);
-		}
-		
-	}
-
 	private void doMap(Map<String, Object> parameters) throws Exception {
         try {
 	        ScriptEngine engine = this.getScriptEngine();
@@ -300,8 +301,6 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 	        // pass all parameters
 	        for(String param : parameters.keySet())
 	        	engine.put(param, parameters.get(param));
-	        engine.put("log", log);
-	        engine.put("XPathUtils", new XPathUtils(new IDFNamespaceContext()));
 
 	
 			// execute the mapping

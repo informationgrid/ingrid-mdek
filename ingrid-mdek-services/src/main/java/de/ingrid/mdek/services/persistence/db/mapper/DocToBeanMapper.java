@@ -1107,6 +1107,9 @@ public class DocToBeanMapper implements IMapper {
 		if (aDocIn.containsKey(MdekKeys.EXPIRY_STATE)) {
 			ref.setExpiryState((Integer) aDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
+        if (aDocIn.containsKey(MdekKeys.LASTEXPIRY_TIME)) {
+            ref.setLastexpiryTime(aDocIn.getString(MdekKeys.LASTEXPIRY_TIME));          
+        }
 		if (aDocIn.containsKey(MdekKeys.MARK_DELETED)) {
 			ref.setMarkDeleted(aDocIn.getString(MdekKeys.MARK_DELETED));
 		}
@@ -2891,6 +2894,9 @@ public class DocToBeanMapper implements IMapper {
 		if (oDocIn.containsKey(MdekKeys.EXPIRY_STATE)) {
 			ref.setExpiryState((Integer) oDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
+        if (oDocIn.containsKey(MdekKeys.LASTEXPIRY_TIME)) {
+            ref.setLastexpiryTime(oDocIn.getString(MdekKeys.LASTEXPIRY_TIME));          
+        }
 		if (oDocIn.containsKey(MdekKeys.MARK_DELETED)) {
 			ref.setMarkDeleted(oDocIn.getString(MdekKeys.MARK_DELETED));
 		}

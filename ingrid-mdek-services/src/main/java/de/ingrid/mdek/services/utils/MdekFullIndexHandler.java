@@ -367,6 +367,7 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, oGeo.getSpecialBase());
 			extendFullData(data, oGeo.getDataBase());
 			extendFullData(data, oGeo.getMethod());
+			extendFullData(data, oGeo.getDatasourceUuid());
 			Set<T011ObjGeoSymc> oGeoSymcs = oGeo.getT011ObjGeoSymcs();
 			for (T011ObjGeoSymc oGeoSymc : oGeoSymcs) {
 				extendFullData(data, MdekUtils.timestampToDisplayDate(oGeoSymc.getSymbolDate()));

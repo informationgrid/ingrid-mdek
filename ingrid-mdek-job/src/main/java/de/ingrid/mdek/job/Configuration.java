@@ -164,6 +164,12 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         updateDatabaseDescriptor();
     }
     
+    @Override
+    public void addPlugdescriptionValues( PlugdescriptionCommandObject pdObject ) {
+        super.addPlugdescriptionValues( pdObject );
+        pdObject.put( "iPlugClass", "de.ingrid.mdek.job.IgeSearchPlug" );
+    }
+    
     private Resource getPropertyResource(String fileName) {
         ClassPathResource override = new ClassPathResource( fileName );
         try {
