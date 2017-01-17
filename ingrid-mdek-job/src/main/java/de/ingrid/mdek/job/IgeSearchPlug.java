@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -70,6 +71,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private static Log log = LogFactory.getLog( IgeSearchPlug.class );
     
     private static final String DATA_PARAMETER = "data";
+    
+    private static Pattern PATTERN_IDENTIFIER = Pattern.compile("^(.*:)?identifier", Pattern.CASE_INSENSITIVE);
 
     @Autowired
     @Qualifier("dscRecordCreator")
@@ -253,7 +256,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
 
-                if ("uuid".equals( propName ) && propValue != null) {
+                // the property "uuid" is still supported for compatibility reasons, see https://dev.informationgrid.eu/redmine/issues/524
+                if ("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches() && propValue != null) {
                     IngridDocument params = new IngridDocument();
                     params.put( MdekKeys.USER_ID, adminUserUUID );
                     params.put( MdekKeys.UUID, propValue );
