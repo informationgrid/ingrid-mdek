@@ -257,7 +257,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
 
                 // the property "uuid" is still supported for compatibility reasons, see https://dev.informationgrid.eu/redmine/issues/524
-                if ("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches() && propValue != null) {
+                if (("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches()) && propValue != null) {
                     IngridDocument params = new IngridDocument();
                     params.put( MdekKeys.USER_ID, adminUserUUID );
                     params.put( MdekKeys.UUID, propValue );
