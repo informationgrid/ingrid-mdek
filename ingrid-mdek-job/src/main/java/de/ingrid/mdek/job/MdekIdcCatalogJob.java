@@ -739,6 +739,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
                     mappedDataCompressed = compress(mappedData).toByteArray();
                 }
     	    } catch( Exception ex ) {
+    	        log.error( "There was an error during mapping." + ex.getMessage() );
     	        result.put( "error", "There was an error during mapping." + ex.getMessage() );
     	    }
     	    

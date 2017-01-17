@@ -3,17 +3,17 @@
     <controls>
       <checkboxControl>
         <scriptedCswMappingImport><![CDATA[// ------------------------
-  var keywords = XPathUtils.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString");
+  var keywords = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString");
     
   for (var i=0; i<keywords.getLength(); i++ ) {
     var keyword = keywords.item(i).getTextContent();
     if ("#opendata_hh#".equals(keyword)) {
       var targetEl = target.getDocumentElement();
       log.debug("map keyword #opendata_hh# to additional field");
-      var additionalValues = XPathUtils.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
+      var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
       var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));
-      XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(additionalValue, "field-key"), "publicationHmbTG"); 
-      XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(additionalValue, "field-data"), true); 
+      XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "publicationHmbTG"); 
+      XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), true); 
     }
   }
         ]]></scriptedCswMappingImport>
