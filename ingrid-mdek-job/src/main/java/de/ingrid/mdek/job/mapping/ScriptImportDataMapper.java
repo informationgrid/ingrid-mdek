@@ -102,7 +102,7 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
         
         xpathUtils = new XPathUtils(cnc);
     }
-	
+    
     @Override
     public void configure(PlugDescription plugDescription) {
         internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
@@ -151,7 +151,7 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 		    // new objects made from template will be put into?
 		    //parameters.put("template", template);
 			doMap(parameters);
-
+			
 			mapAdditionalFields(docTarget);
 
 			String targetString = XMLUtils.toString(docTarget);
@@ -196,12 +196,11 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
             if (log.isDebugEnabled()) {
                 log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
             }
+            engine.put("igcProfile", igcProfile);
 
             for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
-                Node igcProfileNode = igcProfileCswMappingImports.item( i ).getOwnerDocument().getDocumentElement();
                 String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
                 
-                engine.put("igcProfile", igcProfile);
                 // ScriptEngine.execute(this.mappingScripts, parameters, compile);
                 engine.eval( new StringReader(igcProfileCswMapping) );
             }
@@ -209,7 +208,7 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
         
     }
 
-	/**
+    /**
 	 * After the mapping the document will be checked for importan information
 	 * that have to be available for saving it.
 	 * @param docTarget, the mapped document

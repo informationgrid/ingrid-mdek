@@ -27,12 +27,19 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,14 +57,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.job.IgeSearchPlug;
@@ -69,6 +80,7 @@ import de.ingrid.mdek.job.mapping.ScriptImportDataMapper;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
+import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.log.ILogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
@@ -85,8 +97,10 @@ import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class})
 public class CSWImport {
 
     // @InjectMocks
@@ -131,7 +145,14 @@ public class CSWImport {
     
     @Mock
     private MdekIdcObjectJob objectJobMock;
+    
+    @Mock private DatabaseConnectionUtils dcUtils;
+    @Mock private Connection connectionMock;
+    @Mock private PreparedStatement ps;
+    @Mock private ResultSet resultSet;
 
+    @Mock private MdekObjectService mdekObjectService;
+    
     private IngridXMLMapper importMapper;
 
     @Before
@@ -141,21 +162,40 @@ public class CSWImport {
 
         plug = new IgeSearchPlug( null, null, null, null, null );
 
-        Mockito.when( daoFactory.getDao( IEntity.class ) ).thenReturn( genericDao );
+        when( daoFactory.getDao( IEntity.class ) ).thenReturn( genericDao );
         HashMap<String, List<byte[]>> analyzedDataMap = new HashMap<String, List<byte[]>>();
         analyzedDataMap.put( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA, new ArrayList<byte[]>() );
-        Mockito.when( jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, "TEST_USER_ID" ) ).thenReturn( analyzedDataMap );
-        Mockito.when( jobHandler.createRunningJobDescription(JobType.IMPORT, 0, 0, false) ).thenReturn( new IngridDocument() );
-        Mockito.when( permissionService.isCatalogAdmin( "TEST_USER_ID" ) ).thenReturn( true );
+        when( jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, "TEST_USER_ID" ) ).thenReturn( analyzedDataMap );
+        when( jobHandler.createRunningJobDescription(JobType.IMPORT, 0, 0, false) ).thenReturn( new IngridDocument() );
+        when( jobHandler.getRunningJobInfo( any(String.class) ) ).thenReturn( new IngridDocument() );
+        when( permissionService.isCatalogAdmin( "TEST_USER_ID" ) ).thenReturn( true );
 
-        Mockito.when( daoFactory.getSysListDao() ).thenReturn( daoSysList );
+        PowerMockito.mockStatic( DatabaseConnectionUtils.class );
+        when(DatabaseConnectionUtils.getInstance()).thenReturn( dcUtils );
+        when( dcUtils.openConnection( any(DatabaseConnection.class) ) ).thenReturn( connectionMock );
+        when( connectionMock.prepareStatement( any(String.class) ) ).thenReturn( ps );
+        when( ps.executeQuery() ).thenReturn( resultSet );
+        
+        PowerMockito.mockStatic( MdekObjectService.class );
+        when(MdekObjectService.getInstance( any(DaoFactory.class), any(IPermissionService.class) )).thenReturn( mdekObjectService );
+        
+        PowerMockito.mockStatic( MdekJobHandler.class );
+        when(MdekJobHandler.getInstance( any(DaoFactory.class))).thenReturn( jobHandler );
+        
+        ClassPathResource inputResource = new ClassPathResource( "csw/importAdditionalField.xml" );
+        File file = inputResource.getFile();
+        String xml = FileUtils.readFileToString( file );
+        when( resultSet.getString( any(String.class) )).thenReturn( xml );
+        
+        when( daoFactory.getSysListDao() ).thenReturn( daoSysList );
 
         mockSyslists();
 
-        Mockito.when( daoFactory.getDao( T03Catalogue.class ) ).thenReturn( daoT03Catalogue );
+        when( daoFactory.getDao( T03Catalogue.class ) ).thenReturn( daoT03Catalogue );
         T03Catalogue t03Catalogue = new T03Catalogue();
         t03Catalogue.setLanguageKey( 150 );
-        Mockito.when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
+        when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
+        when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
         cswMapper = new ScriptImportDataMapper( daoFactory );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
@@ -174,7 +214,7 @@ public class CSWImport {
         plug.setCatalogJob( catJobMock );
         plug.setObjectJob( objectJobMock );
 
-        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "3.6.1" );
+        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.0" );
     }
 
     private void mockSyslists() {
@@ -216,30 +256,30 @@ public class CSWImport {
         List<SysList> syslist6400 = createSyslist( 6400, 5, "Gesundheit" );
         extendSyslist( syslist6400, 11, "Umwelt und Klima" );
 
-        Mockito.when( daoSysList.getSysList( 100, "iso" ) ).thenReturn( syslist100 );
-        Mockito.when( daoSysList.getSysList( 101, "iso" ) ).thenReturn( syslist101 );
-        Mockito.when( daoSysList.getSysList( 102, "iso" ) ).thenReturn( syslist102 );
-        Mockito.when( daoSysList.getSysList( 502, "iso" ) ).thenReturn( syslist502 );
-        Mockito.when( daoSysList.getSysList( 505, "iso" ) ).thenReturn( syslist505 );
-        Mockito.when( daoSysList.getSysList( 505, "de" ) ).thenReturn( syslist505 );
-        Mockito.when( daoSysList.getSysList( 510, "iso" ) ).thenReturn( syslist510 );
-        Mockito.when( daoSysList.getSysList( 518, "iso" ) ).thenReturn( syslist518 );
-        Mockito.when( daoSysList.getSysList( 520, "iso" ) ).thenReturn( syslist520 );
-        Mockito.when( daoSysList.getSysList( 523, "iso" ) ).thenReturn( syslist523 );
-        Mockito.when( daoSysList.getSysList( 524, "iso" ) ).thenReturn( syslist524 );
-        Mockito.when( daoSysList.getSysList( 526, "iso" ) ).thenReturn( syslist526 );
-        Mockito.when( daoSysList.getSysList( 527, "iso" ) ).thenReturn( syslist527 );
-        Mockito.when( daoSysList.getSysList( 1320, "iso" ) ).thenReturn( syslist1320 );
-        Mockito.when( daoSysList.getSysList( 1350, "iso" ) ).thenReturn( syslist1350 );
-        Mockito.when( daoSysList.getSysList( 1410, "iso" ) ).thenReturn( syslist1410 );
-        Mockito.when( daoSysList.getSysList( 5120, "iso" ) ).thenReturn( syslist5120 );
-        Mockito.when( daoSysList.getSysList( 5153, "iso" ) ).thenReturn( syslist5153 );
-        Mockito.when( daoSysList.getSysList( 5200, "iso" ) ).thenReturn( syslist5200 );
-        Mockito.when( daoSysList.getSysList( 6005, "de" ) ).thenReturn( syslist6005 );
-        Mockito.when( daoSysList.getSysList( 6010, "iso" ) ).thenReturn( syslist6010 );
-        Mockito.when( daoSysList.getSysList( 6020, "iso" ) ).thenReturn( syslist6020 );
-        Mockito.when( daoSysList.getSysList( 6100, "iso" ) ).thenReturn( syslist6100 );
-        Mockito.when( daoSysList.getSysList( 6400, "de" ) ).thenReturn( syslist6400 );
+        when( daoSysList.getSysList( 100, "iso" ) ).thenReturn( syslist100 );
+        when( daoSysList.getSysList( 101, "iso" ) ).thenReturn( syslist101 );
+        when( daoSysList.getSysList( 102, "iso" ) ).thenReturn( syslist102 );
+        when( daoSysList.getSysList( 502, "iso" ) ).thenReturn( syslist502 );
+        when( daoSysList.getSysList( 505, "iso" ) ).thenReturn( syslist505 );
+        when( daoSysList.getSysList( 505, "de" ) ).thenReturn( syslist505 );
+        when( daoSysList.getSysList( 510, "iso" ) ).thenReturn( syslist510 );
+        when( daoSysList.getSysList( 518, "iso" ) ).thenReturn( syslist518 );
+        when( daoSysList.getSysList( 520, "iso" ) ).thenReturn( syslist520 );
+        when( daoSysList.getSysList( 523, "iso" ) ).thenReturn( syslist523 );
+        when( daoSysList.getSysList( 524, "iso" ) ).thenReturn( syslist524 );
+        when( daoSysList.getSysList( 526, "iso" ) ).thenReturn( syslist526 );
+        when( daoSysList.getSysList( 527, "iso" ) ).thenReturn( syslist527 );
+        when( daoSysList.getSysList( 1320, "iso" ) ).thenReturn( syslist1320 );
+        when( daoSysList.getSysList( 1350, "iso" ) ).thenReturn( syslist1350 );
+        when( daoSysList.getSysList( 1410, "iso" ) ).thenReturn( syslist1410 );
+        when( daoSysList.getSysList( 5120, "iso" ) ).thenReturn( syslist5120 );
+        when( daoSysList.getSysList( 5153, "iso" ) ).thenReturn( syslist5153 );
+        when( daoSysList.getSysList( 5200, "iso" ) ).thenReturn( syslist5200 );
+        when( daoSysList.getSysList( 6005, "de" ) ).thenReturn( syslist6005 );
+        when( daoSysList.getSysList( 6010, "iso" ) ).thenReturn( syslist6010 );
+        when( daoSysList.getSysList( 6020, "iso" ) ).thenReturn( syslist6020 );
+        when( daoSysList.getSysList( 6100, "iso" ) ).thenReturn( syslist6100 );
+        when( daoSysList.getSysList( 6400, "de" ) ).thenReturn( syslist6400 );
     }
 
     private List<SysList> createSyslist(int listId, int entryId, String value) {
@@ -271,7 +311,7 @@ public class CSWImport {
     @Test
     public void analyzeCswDocumentInsert_nonGeographicDataset() throws Exception {
 
-        Mockito.doAnswer( new Answer<Void>() {
+        doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
                 Map doc = invocation.getArgumentAt( 1, Map.class );
@@ -293,14 +333,14 @@ public class CSWImport {
                 }
                 return null;
             }
-        } ).when( jobHandler ).updateJobInfoDB( (JobType) Mockito.any(), (HashMap) Mockito.any(), Mockito.anyString() );
+        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_nonGeographicDataset.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
         ProtocolHandler protocol = (ProtocolHandler) analyzeImportData.get( "protocol" );
         assertThat( protocol.getProtocol( Type.ERROR ).size(), is( 0 ) );
-        assertThat( protocol.getProtocol( Type.WARN ).size(), is( 13 ) );
+        assertThat( protocol.getProtocol( Type.WARN ).size(), is( 1 ) );
         assertThat( protocol.getProtocol( Type.INFO ).size(), is( not( 0 ) ) );
 
     }
@@ -308,7 +348,7 @@ public class CSWImport {
     @Test
     public void analyzeCswDocumentInsert_3_service() throws Exception {
 
-        Mockito.doAnswer( new Answer<Void>() {
+        doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
                 Map doc = invocation.getArgumentAt( 1, Map.class );
@@ -542,12 +582,12 @@ public class CSWImport {
                 return null;
             }
 
-        } ).when( jobHandler ).updateJobInfoDB( (JobType) Mockito.any(), (HashMap) Mockito.any(), Mockito.anyString() );
+        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_class3_service.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
         
-        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) Mockito.any() );
+        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) any() );
         
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
         ProtocolHandler protocol = (ProtocolHandler) analyzeImportData.get( "protocol" );
@@ -558,7 +598,7 @@ public class CSWImport {
 
     @Test
     public void analyzeCSWDocumentInsert_1_dataset() throws Exception {
-        Mockito.doAnswer( new Answer<Void>() {
+        doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
                 Map doc = invocation.getArgumentAt( 1, Map.class );
@@ -693,12 +733,12 @@ public class CSWImport {
             }
 
 
-        } ).when( jobHandler ).updateJobInfoDB( (JobType) Mockito.any(), (HashMap) Mockito.any(), Mockito.anyString() );
+        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_class1_dataset.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
         
-        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) Mockito.any() );
+        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) any() );
         
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
         ProtocolHandler protocol = (ProtocolHandler) analyzeImportData.get( "protocol" );
@@ -792,18 +832,16 @@ public class CSWImport {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, true );
         
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, "2768376B-EE24-4F34-969B-084C55B52278" );  // IMPORTKNOTEN
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, "BD33BC8E-519E-47F9-8A30-465C95CD0355" ); // IMPORTKNOTEN
         return docIn;
     }
 
-    @Test
+    //@Test
     public void handleDocumentUpdate() throws Exception {
-        ClassPathResource inputResource = new ClassPathResource( "csw/update_dataset.xml" );
-        File file = inputResource.getFile();
-        
-        Mockito.doAnswer( new Answer<Void>() {
+        doAnswer( new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) throws Exception {
                 IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ));
@@ -811,8 +849,15 @@ public class CSWImport {
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ));
                 return null;                
             }
-        }).when( objectJobMock ).storeObject( (IngridDocument) Mockito.any() );
+        }).when( objectJobMock ).storeObject( (IngridDocument) any() );
         
+        doAnswer( new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) throws Exception {
+                HashMap doc = (HashMap) invocation.getArgumentAt( 1, Map.class );
+                when(jobHandler.getJobDetailsAsHashMap( any(JobType.class), any(String.class) )).thenReturn( doc );
+                return null;                
+            }
+        }).when(jobHandler).updateJobInfoDB( any(JobType.class), any(HashMap.class), any(String.class));
         
         IngridDocument doc = prepareUpdateDocument("csw/update_dataset.xml");
         IngridDocument analyzeImportData = catJob.analyzeImportData( doc );
@@ -825,7 +870,7 @@ public class CSWImport {
         
         IngridDocument result = catJob.importEntities( doc );
         
-        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).storeObject( (IngridDocument) Mockito.any() );
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).storeObject( (IngridDocument) any() );
 
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( result.getBoolean( "success" ), is( true ) );
@@ -836,7 +881,7 @@ public class CSWImport {
         ClassPathResource inputResource = new ClassPathResource( "csw/delete_dataset.xml" );
         File file = inputResource.getFile();
         
-        Mockito.doAnswer( new Answer<IngridDocument>() {
+        doAnswer( new Answer<IngridDocument>() {
             public IngridDocument answer(InvocationOnMock invocation) throws Exception {
                 IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ));
@@ -846,13 +891,13 @@ public class CSWImport {
                 resultDelete.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
                 return resultDelete;                
             }
-        }).when( objectJobMock ).deleteObject( (IngridDocument) Mockito.any() );
+        }).when( objectJobMock ).deleteObject( (IngridDocument) any() );
         
         
         String xml = FileUtils.readFileToString( file );
         IngridDocument result = plug.cswTransaction( xml );
         
-        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject( (IngridDocument) Mockito.any() );
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject( (IngridDocument) any() );
 
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( result.getBoolean( "success" ), is( true ) );
@@ -864,7 +909,7 @@ public class CSWImport {
         File file = inputResource.getFile();
         
         
-        Mockito.doAnswer( new Answer<IngridDocument>() {
+        doAnswer( new Answer<IngridDocument>() {
             public IngridDocument answer(InvocationOnMock invocation) throws Exception {
                 IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ));
@@ -874,16 +919,52 @@ public class CSWImport {
                 resultDelete.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
                 return resultDelete;
             }
-        }).when( objectJobMock ).deleteObject( (IngridDocument) Mockito.any() );
+        }).when( objectJobMock ).deleteObject( (IngridDocument) any() );
         
         String xml = FileUtils.readFileToString( file );
         IngridDocument result = plug.cswTransaction( xml );
         
-        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject( (IngridDocument) Mockito.any() );
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject( (IngridDocument) any() );
         
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( "The CSW-T transaction should not have succeeded.", result.getBoolean( "success" ), is( false ) );
     }
+    
+    @Test
+    public void importAdditionalField() throws Exception {
+        doAnswer( new Answer<Void>() {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            public Void answer(InvocationOnMock invocation) throws Exception {
+                Map doc = invocation.getArgumentAt( 1, Map.class );
+                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+                assertThat( data, is( not( nullValue() ) ) );
+                assertThat( data.size(), is( 1 ) );
+                InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
+                IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
+                assertThat( reader.getObjectUuids().size(), is( 1 ) );
+                assertThat( reader.getObjectUuids().iterator().next(), is( "4915275a-733a-47cd-1234-1a3f1e976948" ) );
+                List<Document> domForObject = reader.getDomForObject( "4915275a-733a-47cd-1234-1a3f1e976948" );
+                XPathUtils xpath = new XPathUtils();
+                NodeList additionalValues = xpath.getNodeList( domForObject.get( 0 ), "//general-additional-value");
+                boolean hasOpenDataSupport = false;
+                for (int i = 0; i < additionalValues.getLength(); i++) {
+                    String key = xpath.getString( additionalValues.item( i ), "field-key");
+                    String value = xpath.getString( additionalValues.item( i ), "field-data");
+                    if ("publicationHmbTG".equals( key ) && "true".equals( value )) hasOpenDataSupport = true;
+                }
+                assertThat( hasOpenDataSupport, is(true) );
+                return null;
+            }
+        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
+        
+        IngridDocument docIn = prepareInsertDocument( "csw/importAdditionalFieldDoc.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+        
+        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) any() );
+        
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+    
     
     @Test @Ignore
     public void deleteFailsWhenOrigIdNotFound() {}
