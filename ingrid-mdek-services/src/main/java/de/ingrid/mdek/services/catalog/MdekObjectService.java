@@ -831,7 +831,7 @@ public class MdekObjectService {
 		return result;
 	}
 	
-	public IngridDocument deleteObjectByOridId(String origId, String userId) {
+	public IngridDocument deleteObjectByOridId(String origId, boolean forceDeleteReferences, String userId) {
 	    
 	    // NOTICE: this one also contains Parent Association !
         ObjectNode oNode = loadByOrigId( origId, IdcEntityVersion.WORKING_VERSION);
@@ -840,20 +840,9 @@ public class MdekObjectService {
         }
         
         String objectUuid = oNode.getObjUuid();
-        
-        // first check User Permissions
-        permissionHandler.checkPermissionsForDeleteObject(objectUuid, userId);
 
-        checkObjectTreeReferencesForDelete(oNode, true);
-
-        // delete complete Node ! rest is deleted per cascade (subnodes, permissions)
-        daoObjectNode.makeTransient(oNode);
-
-        IngridDocument result = new IngridDocument();
-        result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-        result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
+        IngridDocument result = deleteObjectFull(objectUuid, forceDeleteReferences, userId);
         result.put(MdekKeys.UUID, objectUuid);
-
         return result;
 	}
 

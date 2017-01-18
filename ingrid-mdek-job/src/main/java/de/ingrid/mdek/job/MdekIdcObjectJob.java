@@ -820,7 +820,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			IngridDocument result = null;
 			if (byOrigId == true) {
-			    result = objectService.deleteObjectByOridId( uuid, userId );
+			    result = objectService.deleteObjectByOridId( uuid, forceDeleteReferences, userId );
 			} else {
 			    result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
 			}

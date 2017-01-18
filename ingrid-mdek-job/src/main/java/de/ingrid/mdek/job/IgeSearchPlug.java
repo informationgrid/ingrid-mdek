@@ -261,12 +261,18 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     IngridDocument params = new IngridDocument();
                     params.put( MdekKeys.USER_ID, adminUserUUID );
                     params.put( MdekKeys.UUID, propValue );
-                    params.put( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, false );
-                    params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, true );
+                    params.put( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, true );
 
                     try {
+                        // try to delete by ORIG UUID
+                        params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, true );
                         resultDelete = objectJob.deleteObject( params );
                     } catch (MdekException ex) {
+                        if (log.isDebugEnabled()) {
+                            log.debug( "Could not delete object by ORIG_UUID '" + propValue + "'. Try to delete the object by UUID.", ex );
+                        } else {
+                            log.info( "Could not delete object by ORIG_UUID '" + propValue + "'. Try to delete the object by UUID.");
+                        }
                         // try to delete by UUID
                         params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, false );
                         resultDelete = objectJob.deleteObject( params );
