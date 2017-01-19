@@ -22,9 +22,11 @@
  */
 package de.ingrid.mdek.services.utils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -37,6 +39,7 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -213,6 +216,37 @@ public class MdekJobHandler {
 
 		runningJobsMap.put(userId, jobInfo);
 	}
+    /** Update Info about changed entities of Import job IN MEMORY.
+     * NOTICE: NO checks whether jobs are already running !
+     * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled !
+     * @param userUuid the user
+     * @param whichType Object or Address
+     * @param whichState was saved in which state
+     * @param inDoc address/object data
+     */
+    public void updateRunningJobChangedEntities(String userId, IdcEntityType whichType, WorkState whichState,
+            IngridDocument inDoc) {
+        // throws exception if canceled !
+        checkRunningJobCanceledByUser(userId);
+
+        IngridDocument jobInfo = getRunningJobInfo(userId);
+
+        List<HashMap> processedEntities = (List<HashMap>) jobInfo.get(MdekKeys.CHANGED_ENTITIES);
+        if (processedEntities == null) {
+            processedEntities = new ArrayList<HashMap>();
+            jobInfo.put( MdekKeys.CHANGED_ENTITIES, processedEntities );
+        }
+
+        HashMap entityMap = new HashMap();
+        entityMap.put(MdekKeys.JOBINFO_ENTITY_TYPE, whichType.getDbValue());
+        entityMap.put(MdekKeys.WORK_STATE, whichState.getDbValue());
+        entityMap.put(MdekKeys.UUID, inDoc.get(MdekKeys.UUID));
+        entityMap.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, inDoc.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));       
+
+        processedEntities.add( entityMap );
+
+        runningJobsMap.put(userId, jobInfo);
+    }
 	/** Add new protocol message to current job information.<br>
 	 * NOTICE: NO checks whether jobs are already running !
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
@@ -367,7 +401,7 @@ public class MdekJobHandler {
 	/**
 	 * Maps Info from passed RunningJobInfo to map to be stored as job details.
 	 * @param runningJobInfo info from running job
-	 * @param includeMessages also map messages ? (or only basic data)
+	 * @param includeMessages also map messages and entity details ? (or only basic data)
 	 * @return map containing job details information
 	 */
 	public HashMap getJobInfoDetailsFromRunningJobInfo(HashMap runningJobInfo,
@@ -395,8 +429,10 @@ public class MdekJobHandler {
         }
         
         if (includeMessages) {
-            jobDetails.put(MdekKeys.JOBINFO_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_MESSAGES));        	
-            jobDetails.put(MdekKeys.JOBINFO_FRONTEND_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_FRONTEND_MESSAGES));        	
+            jobDetails.put(MdekKeys.JOBINFO_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_MESSAGES));
+            jobDetails.put(MdekKeys.JOBINFO_FRONTEND_MESSAGES, runningJobInfo.get(MdekKeys.RUNNINGJOB_FRONTEND_MESSAGES));
+            
+            jobDetails.put(MdekKeys.CHANGED_ENTITIES, runningJobInfo.get(MdekKeys.CHANGED_ENTITIES));
         }
 		
 		return jobDetails;

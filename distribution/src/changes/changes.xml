@@ -47,6 +47,9 @@
       <action type="update" dev="wemove" issue="REDMINE-107">
         Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.   
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-527">
+        Return info of imported objects/adresses for indexing immediately after import. 
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-459">
         Add new fields "Vorschaugrafik" / "Dateibeschreibung" to profile to appear in "additional fields" in frontend.
       </action>

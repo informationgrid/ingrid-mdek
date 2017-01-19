@@ -76,7 +76,7 @@ public class MdekExampleSupertool {
 
 	public MdekExampleSupertool(String callingUserUuid)
 	{
-		this.plugId = "ige-iplug-test";
+		this.plugId = "/ingrid-group:ige-test";
 		myUserUuid = callingUserUuid;
 
 		mdekClientCaller = MdekClientCaller.getInstance();

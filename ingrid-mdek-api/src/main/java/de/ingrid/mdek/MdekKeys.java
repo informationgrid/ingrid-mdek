@@ -534,6 +534,9 @@ public class MdekKeys {
     /** Additional info: various messages separated by \n for display in frontend after import<br>
      *  Value: String */
     public final static String RUNNINGJOB_FRONTEND_MESSAGES = "runningjob-frontend-messages";
+    /** Additional info: List of all changed entities with info: type, uuid, state, origId<br>
+     * Value: List< HashMap > */
+    public final static String CHANGED_ENTITIES = "changed-entities";
     /** This String[] contains the keys for extracting BASIC info of the running job (job description)<br>
      *  Value: String[] */
 	public final static String[] RUNNINGJOB_BASIC_KEYS = new String[] {
