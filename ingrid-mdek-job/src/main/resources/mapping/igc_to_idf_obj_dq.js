@@ -121,6 +121,7 @@ for (i=0; i<objRows.size(); i++) {
         }
         
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_GriddedDataPositionalAccuracy> ----------
+        // Ticket: #378
         if (hasValue(objGeoRow.get("grid_pos_accuracy"))) {
             if (!dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
@@ -129,7 +130,8 @@ for (i=0; i<objRows.size(); i++) {
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Root mean square error of planimetry");
             // mean value of positional uncertainties (1D, 2D and 3D)
             dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("47");
-            dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("Root mean square error of planimetry");
+            // the field "measure desription" is not necessary according to ticket #378
+            // dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("Root mean square error of planimetry");
             var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
             .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
