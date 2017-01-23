@@ -119,6 +119,28 @@ for (i=0; i<objRows.size(); i++) {
             unitDefinition.addElement("gml:catalogSymbol").addText("m");
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("pos_accuracy_vertical"));
         }
+        
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_GriddedDataPositionalAccuracy> ----------
+        // Ticket: #378
+        if (hasValue(objGeoRow.get("grid_pos_accuracy"))) {
+            if (!dqDataQuality) {
+                dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
+            }
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_GriddedDataPositionalAccuracy");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Root mean square error of planimetry");
+            // mean value of positional uncertainties (1D, 2D and 3D)
+            dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("47");
+            // the field "measure desription" is not necessary according to ticket #378
+            // dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("Root mean square error of planimetry");
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+            .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+            unitDefinition.addElement("gml:name").addText("meter");
+            unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy");
+            unitDefinition.addElement("gml:catalogSymbol").addText("m");
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("grid_pos_accuracy"));
+        }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
         if (hasValue(objGeoRow.get("rec_exact"))) {

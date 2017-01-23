@@ -41,6 +41,9 @@
       <action type="add" dev="wemove" issue="REDMINE-456">
         Import supports now additional fields mapping.
       </action>
+      <action type="add" dev="wemove" issue="REDMINE-378">
+        Persist new field "gridPosAccuracy" and handle import.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-515">
         Map "Veröffentlichung" to same index field in objects/addresses (""publish_id") so query constraint in iPlug is possible.    
       </action>

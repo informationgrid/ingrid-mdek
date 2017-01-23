@@ -40,6 +40,7 @@ public class T011ObjGeo implements IEntity {
 	private Integer hierarchyLevel;
 	private Integer vectorTopologyLevel;
 	private Double posAccuracyVertical;
+	private Double gridPosAccuracy;
 	private Integer keycInclWDataset;
 	private String datasourceUuid;
 
@@ -195,5 +196,13 @@ public class T011ObjGeo implements IEntity {
 	public void setT011ObjGeoVectors(Set t011ObjGeoVectors) {
 		this.t011ObjGeoVectors = t011ObjGeoVectors;
 	}
+
+    public Double getGridPosAccuracy() {
+        return gridPosAccuracy;
+    }
+
+    public void setGridPosAccuracy(Double gridPosAccuracy) {
+        this.gridPosAccuracy = gridPosAccuracy;
+    }
 
 }

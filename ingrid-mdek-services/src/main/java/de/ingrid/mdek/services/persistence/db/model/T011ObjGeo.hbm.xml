@@ -39,6 +39,7 @@
       <property name="hierarchyLevel" type="integer" column="hierarchy_level"/>
       <property name="vectorTopologyLevel" type="integer" column="vector_topology_level"/>
       <property name="posAccuracyVertical" type="double" column="pos_accuracy_vertical"/>
+      <property name="gridPosAccuracy" type="double" column="grid_pos_accuracy"/>
       <property name="keycInclWDataset" type="integer" column="keyc_incl_w_dataset"/>
       <property name="datasourceUuid" type="string" column="datasource_uuid"/>
 
