@@ -53,6 +53,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-527">
         Return info of imported objects/adresses for indexing immediately after import. 
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-529">
+        Fix import of top nodes via IGE frontend. 
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-526">
         Fix problem with deleting objects via CSW-T that have no ORIG_UUID set and are linked by other objects. 
       </action>

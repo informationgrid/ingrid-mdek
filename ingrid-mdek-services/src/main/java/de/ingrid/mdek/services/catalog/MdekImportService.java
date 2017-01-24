@@ -232,7 +232,8 @@ public class MdekImportService implements IImporterCallback {
 		boolean errorOnExistingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID) : false;
 		boolean errorOnException = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION) : false;
 		boolean errorOnMissingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID) : false;
-		
+        boolean ignoreParentImportNodes = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE) : false;
+        
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
 			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
@@ -283,7 +284,7 @@ public class MdekImportService implements IImporterCallback {
 			}
 
 			// determine the parent (may differ from current parent)
-			retMap = determineParentNodeInCatalog(whichType, inDoc, existingNode, importNode, userUuid);
+			retMap = determineParentNodeInCatalog(whichType, inDoc, existingNode, importNode, ignoreParentImportNodes, userUuid);
 			IEntity parentNode = (IEntity) retMap.get(TMP_FOUND_NODE);
 			if ((Boolean) retMap.get(TMP_STORE_WORKING_VERSION)) {
 				storeWorkingVersion = true;
@@ -541,6 +542,12 @@ public class MdekImportService implements IImporterCallback {
 		
 	}
 	
+	/** Special handling of object parent when CSW-T !
+	 * Then the parent is set via IMPORT_NODE and special flag in runningJobInfo determines special behavior concerning import node !
+	 * @param defaultObjectParentUuid parent uuid read from csw-t, set as import node if not null !
+	 * @param userUuid
+	 * @throws MdekException
+	 */
 	public void handleObjectParent(String defaultObjectParentUuid, String userUuid) throws MdekException {
         // if no parent uuid was set, then the object will be inserted as top node
 	    if (defaultObjectParentUuid == null) {
@@ -1102,6 +1109,7 @@ public class MdekImportService implements IImporterCallback {
 	 * @param existingNode the according node in catalog of the import entity. Null IF NEW ENTITY !
 	 * 		This one is determined separately and passed here, so we don't have to load twice !
 	 * @param importNode the import node for entities of given type
+     * @param ignoreParentImportNodes special behavior for CSW-T then import node is individual parent set via CSW !
 	 * @param userUuid calling user
 	 * @return Map containing the detected "new" parent node. NOTICE: can be NULL if existing entity
 	 * 		is top node !. This one is also set in inDoc. Further returns whether working copy
@@ -1110,6 +1118,7 @@ public class MdekImportService implements IImporterCallback {
 	private HashMap determineParentNodeInCatalog(IdcEntityType whichType,
 			IngridDocument inDoc, IEntity existingNode, 
 			IEntity importNode,
+			boolean ignoreParentImportNodes,
 			String userUuid) {
 		// default "new" parent is import node
 		IEntity newParentNode = importNode;
@@ -1200,10 +1209,13 @@ public class MdekImportService implements IImporterCallback {
 //				storeWorkingVersion = true;
 			}
 		}
-		
-		// use import node if no other parent node could be determined
-		if (newParentNode == null && importNode != null) {
-		    newParentNode = importNode;
+
+		// SPECIAL HANDLING FOR CSW-T IMPORT !
+		// Parent set via IMPORT NODE !
+		if (ignoreParentImportNodes) {
+	        if (newParentNode == null && importNode != null) {
+	            newParentNode = importNode;
+	        }		    
 		}
 
 		String newParentUuid = null;
