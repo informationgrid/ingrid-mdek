@@ -138,8 +138,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_DOCUMENT_VOLUME = "volume/text()";
 	private static final String X_DOCUMENT_PUBLISHED_IN = "published-in/text()";
 	private static final String X_MAP_HIERARCHY_LEVEL = "hierarchy-level/@iso-code";
-	private static final String X_MAP_DATA = "data/text()";
 	private static final String X_MAP_RESOLUTION = "resolution/text()";
+	private static final String X_MAP_GRID_POS_ACCURACY = "grid-pos-accuracy/text()";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_LIST = "key-catalogue";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE = "key-cat/text()";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_KEY = "key-cat/@id";
@@ -147,6 +147,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_EDITION = "edition/text()";
 	private static final String X_MAP_DEGREE_OF_RECORD = "degree-of-record/text()";
 	private static final String X_MAP_METHOD_OF_PRODUCTION = "method-of-production/text()";
+	private static final String X_MAP_DATA_BASIS_TEXT = "data-basis-text/text()";
 	private static final String X_MAP_TECHNICAL_BASE = "technical-base/text()";
 	private static final String X_MAP_SYMBOL_CATALOGUE_LIST = "symbol-catalogue";
 	private static final String X_MAP_SYMBOL_CATALOGUE = "symbol-cat/text()";
@@ -610,8 +611,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getInt(map, X_MAP_HIERARCHY_LEVEL), target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DESCRIPTION_OF_TECH_DOMAIN},
 				XPathUtils.getString(map, X_TECHNICAL_DOMAIN_DESCRIPTION_OF_TECH_DOMAIN), target);
-		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DATA},
-				XPathUtils.getString(map, X_MAP_DATA), target);
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.RESOLUTION},
 				XPathUtils.getDouble(map, X_MAP_RESOLUTION), target);
 		mapPublicationScales(map, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_MAP));
@@ -620,6 +619,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getDouble(map, X_MAP_DEGREE_OF_RECORD), target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.METHOD_OF_PRODUCTION},
 				XPathUtils.getString(map, X_MAP_METHOD_OF_PRODUCTION), target);
+		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DATA},
+		        XPathUtils.getString(map, X_MAP_DATA_BASIS_TEXT), target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.TECHNICAL_BASE},
 				XPathUtils.getString(map, X_MAP_TECHNICAL_BASE), target);
 		mapSymbolCatalogue(map, target);
@@ -635,6 +636,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapStringList(map, X_MAP_FEATURE_TYPE_LIST, target, new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.FEATURE_TYPE_LIST});
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DATASOURCE_UUID},
 				XPathUtils.getString(map, X_MAP_DATASOURCE_IDENTIFICATOR), target);
+		putDouble( new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GRID_POS_ACCURACY}, XPathUtils.getDouble(map, X_MAP_GRID_POS_ACCURACY), target );
 	}
 
 	private static void mapKeyCatalogue(Node domainNode, IngridDocument target, String keyOfTechnicalDomain) {

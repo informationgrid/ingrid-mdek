@@ -432,6 +432,17 @@ public class MdekImportService implements IImporterCallback {
 //        HashMap details = MdekImportService.setUpImportJobInfoDetailsDB(whichType, numImported, totalNum);
 //		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
 	}
+    /** Update Info about changed entities of Import job IN MEMORY.
+     * @param whichType Object or Address
+     * @param whichState was saved in which state
+     * @param inDoc address/object data
+     * @param userUuid the user
+     */
+    private void updateImportJobInfoChangedEntities(IdcEntityType whichType, WorkState whichState, IngridDocument inDoc,
+            String userUuid) {
+        // only update in memory job state, will be persisted at end !
+        jobHandler.updateRunningJobChangedEntities(userUuid, whichType, whichState, inDoc);
+    }
 	/** Add new Message to info of Import job IN MEMORY. */
 	public void updateImportJobInfoMessages(String newMessage, String userUuid) {
 		// first update in memory job state
@@ -1525,6 +1536,7 @@ public class MdekImportService implements IImporterCallback {
 				addressService.assignAddressToQA(inDoc, userUuid, true);
 			}
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+            updateImportJobInfoChangedEntities(whichType, WorkState.QS_UEBERWIESEN, inDoc, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "ASSIGNED TO QA", userUuid);
 
 		} catch (Exception ex) {
@@ -1588,6 +1600,7 @@ public class MdekImportService implements IImporterCallback {
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+			updateImportJobInfoChangedEntities(whichType, WorkState.VEROEFFENTLICHT, inDoc, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "PUBLISHED", userUuid);
 
 		} catch (Exception ex) {
@@ -1625,6 +1638,7 @@ public class MdekImportService implements IImporterCallback {
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+            updateImportJobInfoChangedEntities(whichType, WorkState.IN_BEARBEITUNG, inDoc, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "stored as WORKING version", userUuid);
 			if (wasPublish) {
 				updateImportJobInfoFrontendMessages(

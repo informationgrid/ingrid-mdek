@@ -139,6 +139,44 @@ stopNoExitIplug()
     fi
 }
 
+prepareJavaStatement()
+{
+    # some Java parameters
+    if [ "$INGRID_JAVA_HOME" != "" ]; then
+      #echo "run java in $INGRID_JAVA_HOME"
+      JAVA_HOME=$INGRID_JAVA_HOME
+    fi
+
+    if [ "$JAVA_HOME" = "" ]; then
+      echo "Error: JAVA_HOME is not set."
+      exit 1
+    fi
+
+    JAVA=$JAVA_HOME/bin/java
+
+    # CLASSPATH initially contains $INGRID_CONF_DIR, or defaults to $INGRID_HOME/conf
+    CLASSPATH=${CLASSPATH}:${INGRID_CONF_DIR:=$INGRID_HOME/conf}
+    CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
+    CLASSPATH=${CLASSPATH}:${INGRID_HOME}
+    
+    # so that filenames w/ spaces are handled correctly in loops below
+    IFS=
+    # add libs to CLASSPATH
+    for f in $INGRID_HOME/lib/*.jar; do
+      CLASSPATH=${CLASSPATH}:$f;
+    done
+    # restore ordinary behaviour
+    unset IFS
+    
+    # cygwin path translation
+    if expr `uname` : 'CYGWIN*' > /dev/null; then
+      CLASSPATH=`cygpath -p -w "$CLASSPATH"`
+      INGRID_HOME=`cygpath -p -w "$INGRID_HOME"`
+    fi
+
+    export CLASSPATH="$CLASSPATH"
+    INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -XX:MaxPermSize=128M"
+}
 
 startIplug()
 {
@@ -152,40 +190,8 @@ startIplug()
       fi
   fi
   
-  # some Java parameters
-  if [ "$INGRID_JAVA_HOME" != "" ]; then
-    #echo "run java in $INGRID_JAVA_HOME"
-    JAVA_HOME=$INGRID_JAVA_HOME
-  fi
-  
-  if [ "$JAVA_HOME" = "" ]; then
-    echo "Error: JAVA_HOME is not set."
-    exit 1
-  fi
-  
-  JAVA=$JAVA_HOME/bin/java
+  prepareJavaStatement
 
-  # CLASSPATH initially contains $INGRID_CONF_DIR, or defaults to $INGRID_HOME/conf
-  CLASSPATH=${CLASSPATH}:${INGRID_CONF_DIR:=$INGRID_HOME/conf}
-  CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
-  CLASSPATH=${CLASSPATH}:${INGRID_HOME}
-  
-  # so that filenames w/ spaces are handled correctly in loops below
-  IFS=
-  # add libs to CLASSPATH
-  for f in $INGRID_HOME/lib/*.jar; do
-    CLASSPATH=${CLASSPATH}:$f;
-  done
-  # restore ordinary behaviour
-  unset IFS
-  
-  # cygwin path translation
-  if expr `uname` : 'CYGWIN*' > /dev/null; then
-    CLASSPATH=`cygpath -p -w "$CLASSPATH"`
-  fi
-
-  export CLASSPATH="$CLASSPATH"
-  INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -XX:MaxPermSize=128M"
   CLASS=de.ingrid.mdek.MdekServer
 
   # run it
@@ -232,8 +238,14 @@ case "$1" in
       echo "process is not running. Exit."
     fi
     ;;
+  resetPassword)
+    prepareJavaStatement
+    CLASS=de.ingrid.admin.command.AdminManager
+    exec "$JAVA" $INGRID_OPTS $CLASS reset_password $2
+    echo "Please restart the iPlug to read updated configuration."
+    ;;
   *)
-    echo "Usage: $0 {start|stop|restart|status}"
+    echo "Usage: $0 {start|stop|restart|status|resetPassword <newPassword>}"
     exit 1
     ;;
 esac

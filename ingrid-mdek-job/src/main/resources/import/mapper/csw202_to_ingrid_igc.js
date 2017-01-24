@@ -207,9 +207,17 @@ var mappingDescription = {"mappings":[
                         "srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessOmission/gmd:result/gmd:DQ_QuantitativeResult/gmd:value/gco:Record",
                         "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/degree-of-record"
                     },
+                    {
+                        "srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_GriddedDataPositionalAccuracy/gmd:result/gmd:DQ_QuantitativeResult/gmd:value/gco:Record",
+                        "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-pos-accuracy"
+                    },
 		        	{	
 	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/method-of-production"
+	        		},
+	        		{	
+	        		    "srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString",
+	        		    "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/data-basis-text"
 	        		},
 	        		{	
 	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement/gco:CharacterString",

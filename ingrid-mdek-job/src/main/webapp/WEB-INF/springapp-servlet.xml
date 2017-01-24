@@ -224,8 +224,8 @@
     </util:map>
     
     <context:component-scan base-package="de.ingrid">
-        <!-- <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
-        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/> -->
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/>
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.SpringConfiguration*" />
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.DscSearchPlug" />
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.object.*" />

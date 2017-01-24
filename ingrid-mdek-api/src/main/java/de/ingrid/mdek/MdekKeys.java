@@ -534,6 +534,9 @@ public class MdekKeys {
     /** Additional info: various messages separated by \n for display in frontend after import<br>
      *  Value: String */
     public final static String RUNNINGJOB_FRONTEND_MESSAGES = "runningjob-frontend-messages";
+    /** Additional info: List of all changed entities with info: type, uuid, state, origId<br>
+     * Value: List< HashMap > */
+    public final static String CHANGED_ENTITIES = "changed-entities";
     /** This String[] contains the keys for extracting BASIC info of the running job (job description)<br>
      *  Value: String[] */
 	public final static String[] RUNNINGJOB_BASIC_KEYS = new String[] {
@@ -785,6 +788,8 @@ public class MdekKeys {
     public final static String VECTOR_TOPOLOGY_LEVEL = "vector-topology-level";
     /** Value: Double  */
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
+    /** Value: Double  */
+    public final static String GRID_POS_ACCURACY = "grid-pos-accuracy";
     /** Value: Integer  */
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
     /** Value: String  */
@@ -1060,6 +1065,8 @@ public class MdekKeys {
     public final static String LASTEXPORT_TIME = "lastexport-time";
     /** Value: Integer */
     public final static String EXPIRY_STATE = "expiry-state";
+    /** Value: String */
+    public final static String LASTEXPIRY_TIME = "lastexpiry-time";
     /** Value: String */
     public final static String MARK_DELETED = "mark-deleted";
     /** Value: IngridDocument (Address Map) */

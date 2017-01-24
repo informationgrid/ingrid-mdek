@@ -424,6 +424,8 @@ function addT01Object(row) {
     IDX.add("t01_object.time_alle", row.get("time_alle"));
 
     IDX.add("t01_object.publish_id", row.get("publish_id"));
+    // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
+    IDX.add("publish_id", row.get("publish_id"));
     IDX.add("t01_object.dataset_alternate_name", row.get("dataset_alternate_name"));
     IDX.add("t01_object.dataset_character_set", row.get("dataset_character_set"));
     IDX.add("t01_object.dataset_usage", row.get("dataset_usage"));
