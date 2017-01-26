@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -44,11 +45,19 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import de.ingrid.admin.elasticsearch.IndexImpl;
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
+import de.ingrid.mdek.services.persistence.db.model.AddressNode;
+import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
+import de.ingrid.mdek.services.persistence.db.model.T01Object;
+import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridCall;
@@ -82,6 +91,20 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     @Qualifier("dscRecordCreatorAddress")
     private DscRecordCreator dscRecordProducerAddress = null;
 
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private DscDocumentProducer dscDocumentProducerObject = null;
+
+    @Autowired
+    @Qualifier("dscDocumentProducerAddress")
+    private DscDocumentProducer dscDocumentProducerAddress = null;
+    
+    @Autowired
+    IndexManager indexManager = null;
+    
+    @Autowired
+    DaoFactory daoFactory;
+    
     @Autowired
     private MdekIdcCatalogJob catalogJob = null;
 
@@ -205,7 +228,10 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             adminUserUUID = catalogJob.getCatalogAdminUserUuid();
 
             catalogJob.beginTransaction();
-
+            
+            List<Map<String, String>> dirtyDocuments = new ArrayList<Map<String, String>>();
+            
+            
             /**
              * INSERT DOCS
              */
@@ -224,6 +250,17 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex == null) {
                     insertedObjects++;
+                    List<HashMap> processedEntities = (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES);                    
+                    for (Map m : processedEntities) {
+                        if (m.containsKey( MdekKeys.ID )) {
+                            dirtyDocuments.add( new HashMap<String, String>() {{ 
+                                put("ID", (String) m.get( MdekKeys.ID ));
+                                put("TYPE", ((String)m.get( MdekKeys.JOBINFO_ENTITY_TYPE)) );
+                                }} 
+                            );
+                        }
+                    }
+                    
                 } else {
                     errors.add( ex );
                 }
@@ -245,6 +282,16 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
+                    List<HashMap> processedEntities = (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES);                    
+                    for (Map m : processedEntities) {
+                        if (m.containsKey( MdekKeys.ID )) {
+                            dirtyDocuments.add( new HashMap<String, String>() {{ 
+                                put("ID", (String) m.get( MdekKeys.ID ));
+                                put("TYPE", ((String)m.get( MdekKeys.JOBINFO_ENTITY_TYPE)) );
+                                }} 
+                            );
+                        }
+                    }
                 } else {
                     throw new Exception( "Missing constraint for property 'uuid' in update request for update of record '"
                             + utils.getString( item, ".//gmd:fileIdentifier/gco:CharacterString" ) + "'." );
@@ -282,6 +329,11 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     }
                     if (resultDelete.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
                         deletedObjects++;
+                        dirtyDocuments.add( new HashMap<String, String>() {{ 
+                            put("UUID", propValue);
+                            put("TYPE", "DELETE" );
+                            }} 
+                        );
                     } else {
                         throw new Exception( "Object could not be deleted: " + propValue );
                     }
@@ -291,6 +343,32 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             }
 
             catalogJob.commitTransaction();
+            
+            // Update index after commit to database since the DscDocumentProducer works on the database
+            // and does not use hibernate session. Therefore we have to wait after the DB transaction commit.
+            for (Map<String, String> dirtyDoc : dirtyDocuments) {
+                if (dirtyDoc.get( "TYPE" ).equals( "DELETE" ) ) {
+                    indexManager.delete( dscDocumentProducerObject.getIndexInfo(), dirtyDoc.get( "UUID" ), true );
+                } else {
+                    DscDocumentProducer docProducer = null;
+                    Long id = null;
+                    if (dirtyDoc.get( "TYPE" ).equals( IdcEntityType.OBJECT.getDbValue() )) {
+                        docProducer = dscDocumentProducerObject;
+                    } else {
+                        docProducer = dscDocumentProducerAddress;
+                    }
+                    // update index
+                    docProducer.hasNext(); // make sure the iterator has been reset
+                    ElasticDocument elDoc = docProducer.getById( dirtyDoc.get( "ID" ).toString(), "id" );
+                    if (elDoc != null && !elDoc.isEmpty()) {
+                        indexManager.addBasicFields( elDoc, docProducer.getIndexInfo() );
+                        indexManager.update( docProducer.getIndexInfo(), elDoc, true );
+                        indexManager.flush();
+                    }
+                }
+            }
+            indexManager.flush();
+            
 
             IngridDocument result = new IngridDocument();
             result.putInt( "inserts", insertedObjects );

@@ -241,6 +241,7 @@ public class MdekJobHandler {
         entityMap.put(MdekKeys.JOBINFO_ENTITY_TYPE, whichType.getDbValue());
         entityMap.put(MdekKeys.WORK_STATE, whichState.getDbValue());
         entityMap.put(MdekKeys.UUID, inDoc.get(MdekKeys.UUID));
+        entityMap.put(MdekKeys.ID, inDoc.get(MdekKeys.ID));
         entityMap.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, inDoc.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));       
 
         processedEntities.add( entityMap );
