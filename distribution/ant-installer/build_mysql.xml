@@ -84,10 +84,15 @@
         </echo>
 
         <basename property="dbName" file="${_dbUrl}"/>
+        <propertyregex property="mysqlUrlName"
+              input="${_dbUrl}"
+              regexp="(.*)/.*"
+              select="\1"
+              casesensitive="false" />
 
         <sql    driver    ="${mySqlDriverClass}"
                 classpath ="${mySqlDbDriver}"
-                url       ="jdbc:mysql://localhost/mysql"
+                url       ="${mysqlUrlName}"
                 userid    ="${_adminUser}"
                 password  ="${_adminPassword}"
                 >
