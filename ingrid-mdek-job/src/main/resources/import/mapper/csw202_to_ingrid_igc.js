@@ -831,7 +831,7 @@ var mappingDescription = {"mappings":[
   			"subMappings":{
   				"mappings": [
 	  				{
-			  			"srcXpath":"gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString",
+			  			"srcXpath":"gmd:EX_GeographicDescription/gmd:geographicIdentifier//gmd:code/gco:CharacterString",
 	  					"defaultValue":"Raumbezug des Datensatzes",
 			  			"targetNode":"uncontrolled-location/location-name"
 			  		},
