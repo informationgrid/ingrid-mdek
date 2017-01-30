@@ -193,7 +193,7 @@ var mappingDescription = {"mappings":[
 		      			  			"targetNode":"scale"
 		      			  		},
 		      	  				{
-		      			  			"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='meter']",
+		      			  			"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='meter' or @uom='m']",
 		      			  			"targetNode":"resolution-ground"
 		      			  		},
 		      	  				{
