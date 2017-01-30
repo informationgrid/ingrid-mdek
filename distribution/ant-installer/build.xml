@@ -163,11 +163,17 @@
         <!-- unzip udk-importer-installer to base-directory used for set up/update of IGC database -->
         <unzip src="./${iPlugName}/lib/${importerName}.jar" dest=".">
             <patternset>
-                <include name="**/ingrid-igc-schema_102.sql"/>
+                <include name="**/ingrid-igc-schema_102*.sql"/>
             </patternset>
         </unzip>
         <property name="igcInitialSchema.sql" location="./ingrid-igc-schema_102.sql"/>
-        
+
+    	<!-- also copy sql files to installation ! may be used for set up of oracle catalog ... -->
+        <mkdir dir="${installDir}/conf/sql"/>
+        <copy toDir="${installDir}/conf/sql">
+            <fileset dir="." includes="**/ingrid-igc-schema_102*.sql"/>
+        </copy>
+
     </target>
 
     <!-- =============================================
