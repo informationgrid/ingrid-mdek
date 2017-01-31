@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>3.6.2</version>
+    <version>4.0.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
@@ -11,14 +11,15 @@
   <packaging>pom</packaging>
   <version>4.0.1-SNAPSHOT</version>
   <name>ingrid-iplug-ige</name>
+  <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.</description>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.0.1-SNAPSHOT</ingrid-udk-importer.version>
-    <ingrid-utils.version>4.1.0-SNAPSHOT</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>4.0.1-SNAPSHOT</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>4.0.1-SNAPSHOT</ingrid-base-webapp.version>
+    <ingrid-udk-importer.version>4.0.1</ingrid-udk-importer.version>
+    <ingrid-utils.version>4.0.1</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>4.0.1</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>4.0.1</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 

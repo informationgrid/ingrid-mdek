@@ -224,6 +224,9 @@ public class MdekKeys {
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID = "requestinfo_importErrorWhenUuidExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID = "requestinfo_importErrorWhenUuidNotExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION = "requestinfo_importErrorWhenException";
+    /** Special handling of object parent when CSW-T !
+     * Then the parent is set via IMPORT_NODE and this flag in runningJobInfo determines special behavior concerning import node !
+     */
     public final static String REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE = "requestinfo_importIgnoreParentImportNode";
 
 

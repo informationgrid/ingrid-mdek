@@ -796,7 +796,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean errorOnExisitingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
 		boolean errorOnMissingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, false );
 		boolean errorOnException = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, false );
-		boolean ignoreParentNodes = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, false );
+		boolean ignoreParentImportNodes = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, false );
 		boolean removeRunningJob = true;
 		try {
 		    if (!transactionInProgress) {
@@ -807,6 +807,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, errorOnExisitingUuid );
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, errorOnMissingUuid );
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, errorOnException );
+            jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, ignoreParentImportNodes );
             // first add basic running jobs info !
 			addRunningJob(userId, jobDescr );
 
@@ -838,7 +839,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 
 			// check top import nodes ! Adds messages to job info !
-			if (ignoreParentNodes) {
+			if (ignoreParentImportNodes) {
+			    // special handling for CSW-T import !
 			    importService.handleObjectParent( defaultObjectParentUuid, userId);
 			} else {
     			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid, userId);
