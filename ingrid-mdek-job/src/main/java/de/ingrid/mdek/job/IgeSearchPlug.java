@@ -282,7 +282,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
-                    List<HashMap> processedEntities = (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES);                    
+                    List<HashMap> processedEntities = (List<HashMap>) resultUpdate.get(MdekKeys.CHANGED_ENTITIES);                    
                     for (Map m : processedEntities) {
                         if (m.containsKey( MdekKeys.ID )) {
                             dirtyDocuments.add( new HashMap<String, String>() {{ 
