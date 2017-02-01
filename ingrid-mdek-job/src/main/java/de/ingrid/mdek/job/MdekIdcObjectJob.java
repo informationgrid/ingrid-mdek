@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -96,10 +96,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
     private IndexManager indexManager;
     
-    @Autowired
-    @Qualifier("dscDocumentProducer")
     private DscDocumentProducer docProducer;
-    
+
     @Autowired
     @Qualifier("dscRecordCreator")
     private DscRecordCreator dscRecordProducer;
@@ -118,7 +116,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
-		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
+		objectService = MdekObjectService.getInstance(daoFactory, permissionService, indexManager);
 //		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
@@ -709,6 +707,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		if (oPartDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
 			o.getObjectMetadata().setExpiryState((Integer) oPartDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
+        if (oPartDocIn.get(MdekKeys.LASTEXPIRY_TIME) != null) {
+            o.getObjectMetadata().setLastexpiryTime((String) oPartDocIn.get(MdekKeys.LASTEXPIRY_TIME));
+        }
 		if (oPartDocIn.get(MdekKeys.TITLE) != null) {
 			o.setObjName((String) oPartDocIn.get(MdekKeys.TITLE));
 		}
@@ -749,13 +750,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					}
 				}
 			}
-			
-		    ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
-		    if (doc != null && !doc.isEmpty()) {
-		        indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-		        indexManager.update( docProducer.getIndexInfo(), doc, true );
-		        indexManager.flush();
-		    }
 			
 			return result;
 
@@ -826,7 +820,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			IngridDocument result = null;
 			if (byOrigId == true) {
-			    result = objectService.deleteObjectByOridId( uuid, userId );
+			    result = objectService.deleteObjectByOridId( uuid, forceDeleteReferences, userId );
 			} else {
 			    result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
 			}
@@ -835,16 +829,27 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			
 			// only remove from index if object was really removed and not just marked
 			if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+			    if (byOrigId) {
+			        String uuidFromOrigId = result.getString( MdekKeys.UUID );
+			        if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using origId: " + uuidFromOrigId );
+                    indexManager.delete( docProducer.getIndexInfo(), uuidFromOrigId, true );
+			    } else {
+			        if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using uuId: " + uuid );
+			        indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+			    }
 			    indexManager.flush();
 			}
 
 			return result;
 
 		} catch (RuntimeException e) {
+		    log.error( "Error deleting object", e );
 			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
+		} catch (Exception e) {
+		    log.error( "Exception when deleting object", e );
+            throw new RuntimeException( e.getMessage() );
 		} finally {
 			if (removeRunningJob) {
 				removeRunningJob(userId);				
@@ -1230,4 +1235,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		return targetObj;
 	}
 
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private void setDocProducer(DscDocumentProducer docProducer) {
+        this.docProducer = docProducer;
+        this.objectService.setDocProducer(docProducer);
+    }
 }

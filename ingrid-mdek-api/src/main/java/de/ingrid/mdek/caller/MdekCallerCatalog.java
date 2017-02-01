@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -227,7 +227,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
         return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 	
-	public IngridDocument importEntities(String plugId, List<byte[]> importData,
+	public IngridDocument importEntities(String plugId,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,
@@ -235,7 +235,6 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 			String frontendProtocol,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DATA, importData);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, targetObjectUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, targetAddressUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, publishImmediately);

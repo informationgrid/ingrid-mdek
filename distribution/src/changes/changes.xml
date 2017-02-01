@@ -27,7 +27,61 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    
+      
+    <release version="4.0.1" date="2016-02-01" description="Release 4.0.1">
+      <action type="add" dev="wemove" issue="REDMINE-200">
+        Map field explanation of conformity.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-377">
+        Added description of preview image.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-445">
+        Added option to reset the admin password with start script.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-456">
+        Import supports now additional fields mapping.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-378">
+        Persist new field "gridPosAccuracy" and handle import.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-515">
+        Map "Veröffentlichung" to same index field in objects/addresses (""publish_id") so query constraint in iPlug is possible.    
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-331">
+        Adapted sort order of CRS during ISO export.   
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-107">
+        Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.   
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-527">
+        Return info of imported objects/adresses for indexing immediately after import. 
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-529">
+        Fix import of top nodes via IGE frontend. 
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-526">
+        Fix problem with deleting objects via CSW-T that have no ORIG_UUID set and are linked by other objects. 
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-459">
+        Add new fields "Vorschaugrafik" / "Dateibeschreibung" to profile to appear in "additional fields" in frontend.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-506">
+        Fix update process of iPlug. The installer tried to access a file after moving it to the destination.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-494">
+        Fix problem with deriving address structure from one ISO address record (organization and individualName). Instead use free address type for ISO addresses with individual name set.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-465">
+        Fixed wrong path to save data when using cygwin.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-434">
+        Set correct iPlug class in plugdescription, which is needed to show correct version in ibus.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-204">
+        Fixed import of data basis field in ISO document.
+      </action>
+    </release>
+
     <release version="4.0.0" date="2016-08-25" description="Release InGrid 4.0.0">
       <action type="add" dev="wemove" issue="REDMINE-380">
         Add new field/column to address "Hours of Service".
@@ -36,7 +90,25 @@
          Always write categories even if checkbox for open data is deselected (for LGV Hamburg).
       </action>
     </release>
-    
+
+    <release version="3.6.2.4" date="2016-12-06" description="Bugfix Release InGrid 3.6.2.4">
+      <action type="fix" dev="wemove" issue="REDMINE-502">
+        Fix Import of open data categories and env topics.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-475">
+        Make database connection pooling more robust with upgrade of c3p0 library.
+      </action>
+    </release>
+
+    <release version="3.6.2.3" date="2016-10-17" description="Bugfix Release InGrid 3.6.2.3">
+      <action type="fix" dev="wemove" issue="REDMINE-460">
+        Fixed insert/delete from index after CSW-T operation.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-439">
+        Fix wrong date in IDF if date is before introduction of daylight saving time.
+      </action>
+    </release>
+
     <release version="3.6.2.1" date="2016-07-07" description="Release InGrid 3.6.2.1">
       <action type="fix" dev="wemove" issue="REDMINE-330">
         Fix index mapping: Use ISO codes for field 't011_obj_serv.type' instead of IGE display value.

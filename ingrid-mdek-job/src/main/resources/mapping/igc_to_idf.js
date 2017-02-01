@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -216,7 +216,7 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     // ---------- <gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier> ----------
-    var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=?", [objId]);
+    var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=? ORDER BY spatial_system.line ASC", [objId]);
     for (j=0; j<spatialSystemRows.size(); j++) {
         var spatialSystemRow = spatialSystemRows.get(j);
         var referenceSystem = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(100, spatialSystemRow.get("referencesystem_key"));
@@ -550,10 +550,14 @@ for (i=0; i<objRows.size(); i++) {
     }
     
     // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
-    row = SQL.first("SELECT url_link FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
+    row = SQL.first("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
     if (hasValue(row)) {
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
         graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
+        var description = row.get("descr");
+        if (hasValue(description)) {
+            graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(description);
+        }
     }
     
     // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------

@@ -35,9 +35,6 @@
     <!-- =============================================
          = PROPERTIES                                =
          ============================================= -->
-    <!-- !!! From pom: the IGC Version the catalog should be updated to (used by udk-importer/updater) !!!!!!!!!! -->
-    <!--<property name="NEW_IGC_DB_VERSION" value="${project.version}"/>-->
-    <property name="NEW_IGC_DB_VERSION" value="4.0.0"/>
 
     <property name="iPlugName"          value="${project.build.finalName}"/>
     <property name="importerName"       value="ingrid-udk-importer-${ingrid-udk-importer.version}"/>
@@ -152,11 +149,11 @@
             <fileset dir="${installDir}/lib" includes="**/*"/>
         </delete>
         
+        <runtarget target="proceedAfterUnzipInstaller"/>
+
         <move toDir="${installDir}">
             <fileset dir="./${iPlugName}"/>
         </move>
-
-        <runtarget target="proceedAfterUnzipInstaller"/>
     </target>
 
     <target name="proceedAfterUnzipInstaller">
@@ -166,11 +163,17 @@
         <!-- unzip udk-importer-installer to base-directory used for set up/update of IGC database -->
         <unzip src="./${iPlugName}/lib/${importerName}.jar" dest=".">
             <patternset>
-                <include name="**/ingrid-igc-schema_102.sql"/>
+                <include name="**/ingrid-igc-schema_102*.sql"/>
             </patternset>
         </unzip>
         <property name="igcInitialSchema.sql" location="./ingrid-igc-schema_102.sql"/>
-        
+
+    	<!-- also copy sql files to installation ! may be used for set up of oracle catalog ... -->
+        <mkdir dir="${installDir}/conf/sql"/>
+        <copy toDir="${installDir}/conf/sql">
+            <fileset dir="." includes="**/ingrid-igc-schema_102*.sql"/>
+        </copy>
+
     </target>
 
     <!-- =============================================
@@ -245,7 +248,7 @@
     </target>
 
     <target name="updateIGCDb">
-        <echo>Erstellung/Aktualisierung IGC Katalog auf Version ${NEW_IGC_DB_VERSION}.
+        <echo>Erstellung/Aktualisierung IGC Katalog.
         </echo> 
 
         <if>

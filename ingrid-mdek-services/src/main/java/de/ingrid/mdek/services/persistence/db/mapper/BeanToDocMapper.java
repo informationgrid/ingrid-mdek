@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -710,6 +710,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.ENTITY_METADATA_ID, ref.getId());
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
+        refDoc.put(MdekKeys.LASTEXPIRY_TIME, ref.getLastexpiryTime());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
 		refDoc.put(MdekKeys.ASSIGNER_UUID, ref.getAssignerUuid());
 		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());
@@ -1089,6 +1090,7 @@ public class BeanToDocMapper implements IMapper {
 		domainDoc.put(MdekKeys.HIERARCHY_LEVEL, objGeo.getHierarchyLevel());
 		domainDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, objGeo.getVectorTopologyLevel());
 		domainDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, objGeo.getPosAccuracyVertical());
+		domainDoc.put(MdekKeys.GRID_POS_ACCURACY, objGeo.getGridPosAccuracy());
 		domainDoc.put(MdekKeys.KEYC_INCL_W_DATASET, objGeo.getKeycInclWDataset());
 		domainDoc.put(MdekKeys.DATASOURCE_UUID, objGeo.getDatasourceUuid());
 
@@ -2161,6 +2163,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.ENTITY_METADATA_ID, ref.getId());
 		refDoc.put(MdekKeys.LASTEXPORT_TIME, ref.getLastexportTime());
 		refDoc.put(MdekKeys.EXPIRY_STATE, ref.getExpiryState());
+        refDoc.put(MdekKeys.LASTEXPIRY_TIME, ref.getLastexpiryTime());
 		refDoc.put(MdekKeys.MARK_DELETED, ref.getMarkDeleted());
 		refDoc.put(MdekKeys.ASSIGNER_UUID, ref.getAssignerUuid());
 		refDoc.put(MdekKeys.ASSIGN_TIME, ref.getAssignTime());

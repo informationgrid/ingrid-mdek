@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -96,8 +96,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private XsltUtils xsltUtils;
 
-	@Autowired
-	@Qualifier("dscDocumentProducerAddress")
 	private DscDocumentProducer docProducer;
     
     @Autowired
@@ -113,7 +111,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
             IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
-		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService, indexManager);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
@@ -724,6 +722,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		if (aPartDocIn.get(MdekKeys.EXPIRY_STATE) != null) {
 			a.getAddressMetadata().setExpiryState((Integer) aPartDocIn.get(MdekKeys.EXPIRY_STATE));
 		}
+        if (aPartDocIn.get(MdekKeys.LASTEXPIRY_TIME) != null) {
+            a.getAddressMetadata().setLastexpiryTime((String) aPartDocIn.get(MdekKeys.LASTEXPIRY_TIME));
+        }
 		daoT02Address.makePersistent(a);
 
 		// not null indicates update executed
@@ -801,13 +802,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 					}
 				}
 			}
-			
-            ElasticDocument doc = docProducer.getById( result.get( "id" ).toString(), "id" );
-            if (doc != null && !doc.isEmpty()) {
-                indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-                indexManager.update( docProducer.getIndexInfo(), doc, true );
-                indexManager.flush();
-            }
 			
 			return result;
 
@@ -1471,4 +1465,11 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 		}
 	}
+	
+	@Autowired
+    @Qualifier("dscDocumentProducerAddress")
+    private void setDocProducer(DscDocumentProducer docProducer) {
+        this.docProducer = docProducer;
+        this.addressService.setDocProducer(docProducer);
+    }
 }

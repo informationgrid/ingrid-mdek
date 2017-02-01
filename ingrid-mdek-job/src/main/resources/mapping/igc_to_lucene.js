@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -424,6 +424,8 @@ function addT01Object(row) {
     IDX.add("t01_object.time_alle", row.get("time_alle"));
 
     IDX.add("t01_object.publish_id", row.get("publish_id"));
+    // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
+    IDX.add("publish_id", row.get("publish_id"));
     IDX.add("t01_object.dataset_alternate_name", row.get("dataset_alternate_name"));
     IDX.add("t01_object.dataset_character_set", row.get("dataset_character_set"));
     IDX.add("t01_object.dataset_usage", row.get("dataset_usage"));
