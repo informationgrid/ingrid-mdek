@@ -216,7 +216,7 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     // ---------- <gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier> ----------
-    var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=?", [objId]);
+    var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=? ORDER BY spatial_system.line ASC", [objId]);
     for (j=0; j<spatialSystemRows.size(); j++) {
         var spatialSystemRow = spatialSystemRows.get(j);
         var referenceSystem = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(100, spatialSystemRow.get("referencesystem_key"));
