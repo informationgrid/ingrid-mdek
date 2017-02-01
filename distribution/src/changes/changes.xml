@@ -47,6 +47,9 @@
       <action type="update" dev="wemove" issue="REDMINE-515">
         Map "Veröffentlichung" to same index field in objects/addresses (""publish_id") so query constraint in iPlug is possible.    
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-331">
+        Adapted sort order of CRS during ISO export.   
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-107">
         Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.   
       </action>
