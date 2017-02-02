@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>4.0.1</version>
+  <version>4.0.1.1</version>
   <name>ingrid-iplug-ige</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.</description>
 
@@ -17,8 +17,8 @@
 
   <properties>
     <ingrid-udk-importer.version>4.0.1</ingrid-udk-importer.version>
-    <ingrid-utils.version>4.0.1</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>4.0.1</ingrid-iplug-dsc.version>
+    <ingrid-utils.version>4.0.1.1</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>4.0.1.1</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>4.0.1</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
