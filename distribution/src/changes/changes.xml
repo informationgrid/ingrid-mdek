@@ -31,6 +31,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-535">
         Fixed CSW-T error when referenced address is a system user.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-536">
+        Fixed import of exported IGC documents (check for existance and update functionality).
+      </action>
     </release>
 
     <release version="4.0.1.1" date="2016-02-02" description="Release 4.0.1.1">
