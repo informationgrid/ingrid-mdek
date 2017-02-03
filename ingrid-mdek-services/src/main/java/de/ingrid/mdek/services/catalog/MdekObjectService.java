@@ -915,7 +915,8 @@ public class MdekObjectService {
 		// first check whether published
 		IngridDocument errInfo = new IngridDocument();
 		for (AddressNode aNode : aNodes) {
-			if (!addressService.hasPublishedVersion(aNode)) {
+		    // if address is not a system user and not published address
+			if (!( "IGE_USER".equals( aNode.getFkAddrUuid() ) || addressService.hasPublishedVersion(aNode))) {
 				addressService.setupErrorInfoAddr(errInfo, aNode.getAddrUuid());
 			}
 		}
@@ -928,6 +929,9 @@ public class MdekObjectService {
 		PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeObjDB);
 		List<IngridDocument> errAddrList = new ArrayList<IngridDocument>();
 		for (AddressNode aNode : aNodes) {
+		    // if address is a system user then we skip the check, since system users can have state working version
+		    if ("IGE_USER".equals( aNode.getFkAddrUuid() )) continue;
+		    
 			// get referenced address and its publish type
 			T02Address a = aNode.getT02AddressPublished();
 			PublishType pubTypeAddr = EnumUtil.mapDatabaseToEnumConst(PublishType.class, a.getPublishId());
