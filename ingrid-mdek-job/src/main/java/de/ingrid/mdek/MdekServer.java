@@ -71,6 +71,7 @@ public class MdekServer {
     public MdekServer(IJobRepositoryFacade jobRepositoryFacade) throws IOException {
         _jobRepositoryFacade = jobRepositoryFacade;
         IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
+        _intervall = conf.reconnectInterval;
         _communicationProperties = new File("conf/communication-ige.xml");
         // check response, throws Exception if wrong version !
         checkResponse(response);
@@ -106,14 +107,14 @@ public class MdekServer {
                             waitForConnection(_intervall);
                         }
             
-                        synchronized (MdekServer.class) {
+                        /*synchronized (MdekServer.class) {
                             try {
                                 MdekServer.class.wait(10000);
                             } catch (InterruptedException e) {
                                 closeConnections();
                                 throw new IOException(e.getMessage());
                             }
-                        }
+                        }*/
                     }
                 }
             } catch (IOException ex) {
@@ -185,13 +186,6 @@ public class MdekServer {
         new JettyStarter( conf );
         
         _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
-        
-        if (map.containsKey("--reconnectIntervall")) {
-            String intervall = (String) map.get("--reconnectIntervall");
-            _intervall = Integer.parseInt(intervall);
-        }
-        
-        
         
         // shutdown the server normally
         Runtime.getRuntime().addShutdownHook(new Thread() {
