@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.0.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-services</artifactId>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
-      <version>3.2.5.ga</version>
+      <version>3.2.7.ga</version>
       <!-- Because of asm version conflicts with cglib spring, we can't use the normal cglib dependency of hibernate
                 Rather we use the cglib-nodep lib, which has its own implementation of asm. -->
       <exclusions>

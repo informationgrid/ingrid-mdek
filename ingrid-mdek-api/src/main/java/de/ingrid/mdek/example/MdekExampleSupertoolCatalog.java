@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -479,7 +479,10 @@ public class MdekExampleSupertoolCatalog {
 		return result;
 	}
 
-	public IngridDocument importEntities(List<byte[]> importData,
+	/** Calls analyzeImportData + importEntities for every passed file (importDataList)
+	 * and returns result of import of last file.
+	 */
+	public IngridDocument importEntities(List<byte[]> importDataList,
 			String objectImportNodeUuid, String addressImportNodeUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport, boolean copyNodeIfPresent,
@@ -488,33 +491,61 @@ public class MdekExampleSupertoolCatalog {
 		long endTime;
 		long neededTime;
 		IngridDocument response;
-		IngridDocument result;
+		IngridDocument result = null;
 
-		System.out.println("\n###### INVOKE importEntities ######");
-		System.out.println("- object import node: " + objectImportNodeUuid);
-		System.out.println("- address import node: " + addressImportNodeUuid);
-		System.out.println("- publish immediately: " + publishImmediately);
-		System.out.println("- doSeparateImport: " + doSeparateImport);
-		System.out.println("- copyNodeIfPresent: " + copyNodeIfPresent);
-		System.out.println("- multiple import files ?: " + (importData.size() > 1));
-		System.out.println("- frontendMappingProtocol included ?: " + (frontendMappingProtocol != null && !frontendMappingProtocol.isEmpty()));
-		startTime = System.currentTimeMillis();
-		response = mdekCallerCatalog.importEntities(plugId, importData,
-				objectImportNodeUuid, addressImportNodeUuid,
-				publishImmediately, doSeparateImport, copyNodeIfPresent,
-				frontendMappingProtocol,
-				myUserUuid);
-		endTime = System.currentTimeMillis();
-		neededTime = endTime - startTime;
-		System.out.println("EXECUTION TIME: " + neededTime + " ms");
-		result = mdekCallerCatalog.getResultFromResponse(response);
-		if (result != null) {
-			System.out.println("SUCCESS: ");
-			supertoolGeneric.debugJobInfoDoc(result);
-		} else {
-			supertoolGeneric.handleError(response);
-		}
+        startTime = System.currentTimeMillis();
+
+        System.out.println("\n###### START IMPORT: Loop of analyzeImportData + importEntities for every file ! ######");
+        System.out.println("- multiple import files ?: " + (importDataList.size() > 1));
+
+        boolean startNewAnalysis = true;
+
+        for (int i = 0; i < importDataList.size(); i++) {
+            if (i > 0) {
+                // multiple files, we keep existing Analysis/Import Info !
+                startNewAnalysis = false;                
+            }
+
+            System.out.println("\n###### INVOKE analyzeImportData ######");
+            System.out.println("- object import node: " + objectImportNodeUuid);
+            System.out.println("- address import node: " + addressImportNodeUuid);
+            System.out.println("- publish immediately: " + publishImmediately);
+            System.out.println("- doSeparateImport: " + doSeparateImport);
+            System.out.println("- copyNodeIfPresent: " + copyNodeIfPresent);
+            System.out.println("- frontendMappingProtocol included ?: " + (frontendMappingProtocol != null && !frontendMappingProtocol.isEmpty()));
+            System.out.println("- startNewAnalysis: " + startNewAnalysis);
+            response = mdekCallerCatalog.analyzeImportData(plugId, importDataList.get(i),
+                    objectImportNodeUuid, addressImportNodeUuid,
+                    publishImmediately, doSeparateImport, copyNodeIfPresent,
+                    frontendMappingProtocol, startNewAnalysis,
+                    myUserUuid);
+            
+            System.out.println("\n###### INVOKE importEntities ######");
+            System.out.println("- object import node: " + objectImportNodeUuid);
+            System.out.println("- address import node: " + addressImportNodeUuid);
+            System.out.println("- publish immediately: " + publishImmediately);
+            System.out.println("- doSeparateImport: " + doSeparateImport);
+            System.out.println("- copyNodeIfPresent: " + copyNodeIfPresent);
+            System.out.println("- frontendMappingProtocol included ?: " + (frontendMappingProtocol != null && !frontendMappingProtocol.isEmpty()));
+            startTime = System.currentTimeMillis();
+            response = mdekCallerCatalog.importEntities(plugId,
+                    objectImportNodeUuid, addressImportNodeUuid,
+                    publishImmediately, doSeparateImport, copyNodeIfPresent,
+                    frontendMappingProtocol,
+                    myUserUuid);
+            result = mdekCallerCatalog.getResultFromResponse(response);
+            if (result != null) {
+                System.out.println("SUCCESS: ");
+                supertoolGeneric.debugJobInfoDoc(result);
+            } else {
+                supertoolGeneric.handleError(response);
+            }
+        }
 		
+        endTime = System.currentTimeMillis();
+        neededTime = endTime - startTime;
+        System.out.println("EXECUTION TIME: " + neededTime + " ms");
+
 		return result;
 	}
 

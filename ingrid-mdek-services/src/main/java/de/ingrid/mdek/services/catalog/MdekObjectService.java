@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -831,7 +831,7 @@ public class MdekObjectService {
 		return result;
 	}
 	
-	public IngridDocument deleteObjectByOridId(String origId, String userId) {
+	public IngridDocument deleteObjectByOridId(String origId, boolean forceDeleteReferences, String userId) {
 	    
 	    // NOTICE: this one also contains Parent Association !
         ObjectNode oNode = loadByOrigId( origId, IdcEntityVersion.WORKING_VERSION);
@@ -840,20 +840,9 @@ public class MdekObjectService {
         }
         
         String objectUuid = oNode.getObjUuid();
-        
-        // first check User Permissions
-        permissionHandler.checkPermissionsForDeleteObject(objectUuid, userId);
 
-        checkObjectTreeReferencesForDelete(oNode, true);
-
-        // delete complete Node ! rest is deleted per cascade (subnodes, permissions)
-        daoObjectNode.makeTransient(oNode);
-
-        IngridDocument result = new IngridDocument();
-        result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-        result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
+        IngridDocument result = deleteObjectFull(objectUuid, forceDeleteReferences, userId);
         result.put(MdekKeys.UUID, objectUuid);
-
         return result;
 	}
 
@@ -926,7 +915,8 @@ public class MdekObjectService {
 		// first check whether published
 		IngridDocument errInfo = new IngridDocument();
 		for (AddressNode aNode : aNodes) {
-			if (!addressService.hasPublishedVersion(aNode)) {
+		    // if address is not a system user and not published address
+			if (!( "IGE_USER".equals( aNode.getFkAddrUuid() ) || addressService.hasPublishedVersion(aNode))) {
 				addressService.setupErrorInfoAddr(errInfo, aNode.getAddrUuid());
 			}
 		}
@@ -939,6 +929,9 @@ public class MdekObjectService {
 		PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeObjDB);
 		List<IngridDocument> errAddrList = new ArrayList<IngridDocument>();
 		for (AddressNode aNode : aNodes) {
+		    // if address is a system user then we skip the check, since system users can have state working version
+		    if ("IGE_USER".equals( aNode.getFkAddrUuid() )) continue;
+		    
 			// get referenced address and its publish type
 			T02Address a = aNode.getT02AddressPublished();
 			PublishType pubTypeAddr = EnumUtil.mapDatabaseToEnumConst(PublishType.class, a.getPublishId());

@@ -27,8 +27,22 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-      
-    <release version="4.0.1-SNAPSHOT" date="2016-xx-xx" description="Release InGrid 4.0.1">
+    <release version="4.0.1.2-SNAPSHOT" date="2016-02-xx" description="Release 4.0.1.2">
+      <action type="fix" dev="wemove" issue="REDMINE-535">
+        Fixed CSW-T error when referenced address is a system user.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-536">
+        Fixed import of exported IGC documents (check for existance and update functionality).
+      </action>
+    </release>
+
+    <release version="4.0.1.1" date="2016-02-02" description="Release 4.0.1.1">
+      <action type="fix" dev="wemove" issue="REDMINE-534">
+        Fixed wrong conversion of date to ISO format.
+      </action>
+    </release>
+    
+    <release version="4.0.1" date="2016-02-01" description="Release 4.0.1">
       <action type="add" dev="wemove" issue="REDMINE-200">
         Map field explanation of conformity.
       </action>
@@ -38,8 +52,29 @@
       <action type="add" dev="wemove" issue="REDMINE-445">
         Added option to reset the admin password with start script.
       </action>
+      <action type="add" dev="wemove" issue="REDMINE-456">
+        Import supports now additional fields mapping.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-378">
+        Persist new field "gridPosAccuracy" and handle import.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-515">
+        Map "Veröffentlichung" to same index field in objects/addresses (""publish_id") so query constraint in iPlug is possible.    
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-331">
+        Adapted sort order of CRS during ISO export.   
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-107">
         Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.   
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-527">
+        Return info of imported objects/adresses for indexing immediately after import. 
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-529">
+        Fix import of top nodes via IGE frontend. 
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-526">
+        Fix problem with deleting objects via CSW-T that have no ORIG_UUID set and are linked by other objects. 
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-459">
         Add new fields "Vorschaugrafik" / "Dateibeschreibung" to profile to appear in "additional fields" in frontend.

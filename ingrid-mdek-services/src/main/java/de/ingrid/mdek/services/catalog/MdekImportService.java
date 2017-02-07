@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -232,16 +232,18 @@ public class MdekImportService implements IImporterCallback {
 		boolean errorOnExistingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID) : false;
 		boolean errorOnException = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION) : false;
 		boolean errorOnMissingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID) : false;
-		
+        boolean ignoreParentImportNodes = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE) : false;
+        
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
 			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
             if (errorOnExistingUuid || errorOnMissingUuid) {
 			    ObjectNode objImportNode = objectService.loadByOrigId( inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), IdcEntityVersion.WORKING_VERSION);
+			    if (objImportNode == null) objImportNode = objectService.loadByUuid( inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), IdcEntityVersion.WORKING_VERSION);
 			    if (errorOnExistingUuid && objImportNode != null) {
-			        throw createImportException("Object already exists with Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
+			        throw createImportException("Object already exists with UUID or Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
 			    } else if (errorOnMissingUuid && objImportNode == null) {
-			        throw createImportException("Object does not exist with Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
+			        throw createImportException("Object does not exist with UUID or Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
 			    }
 			}
 		} else if (whichType == IdcEntityType.ADDRESS) {
@@ -283,7 +285,7 @@ public class MdekImportService implements IImporterCallback {
 			}
 
 			// determine the parent (may differ from current parent)
-			retMap = determineParentNodeInCatalog(whichType, inDoc, existingNode, importNode, userUuid);
+			retMap = determineParentNodeInCatalog(whichType, inDoc, existingNode, importNode, ignoreParentImportNodes, userUuid);
 			IEntity parentNode = (IEntity) retMap.get(TMP_FOUND_NODE);
 			if ((Boolean) retMap.get(TMP_STORE_WORKING_VERSION)) {
 				storeWorkingVersion = true;
@@ -432,6 +434,17 @@ public class MdekImportService implements IImporterCallback {
 //        HashMap details = MdekImportService.setUpImportJobInfoDetailsDB(whichType, numImported, totalNum);
 //		jobHandler.updateJobInfoDB(JobType.IMPORT, details, userUuid);
 	}
+    /** Update Info about changed entities of Import job IN MEMORY.
+     * @param whichType Object or Address
+     * @param whichState was saved in which state
+     * @param inDoc address/object data
+     * @param userUuid the user
+     */
+    private void updateImportJobInfoChangedEntities(IdcEntityType whichType, WorkState whichState, IngridDocument inDoc,
+            String userUuid) {
+        // only update in memory job state, will be persisted at end !
+        jobHandler.updateRunningJobChangedEntities(userUuid, whichType, whichState, inDoc);
+    }
 	/** Add new Message to info of Import job IN MEMORY. */
 	public void updateImportJobInfoMessages(String newMessage, String userUuid) {
 		// first update in memory job state
@@ -530,6 +543,12 @@ public class MdekImportService implements IImporterCallback {
 		
 	}
 	
+	/** Special handling of object parent when CSW-T !
+	 * Then the parent is set via IMPORT_NODE and special flag in runningJobInfo determines special behavior concerning import node !
+	 * @param defaultObjectParentUuid parent uuid read from csw-t, set as import node if not null !
+	 * @param userUuid
+	 * @throws MdekException
+	 */
 	public void handleObjectParent(String defaultObjectParentUuid, String userUuid) throws MdekException {
         // if no parent uuid was set, then the object will be inserted as top node
 	    if (defaultObjectParentUuid == null) {
@@ -1002,6 +1021,10 @@ public class MdekImportService implements IImporterCallback {
 			if (whichType == IdcEntityType.OBJECT) {
 				existingNode = objectService.loadByOrigId(inOrigId, IdcEntityVersion.WORKING_VERSION);
 				
+				// also check UUID if no object with orig uuid exists
+				// i.e. if we import an exported IGE document, which didn't have an orig id
+				if (existingNode == null) existingNode = objectService.loadByUuid(inOrigId, IdcEntityVersion.WORKING_VERSION);
+				
 				// OBJECTS: if found keep existing UUID AND existing PARENT !
 				if (existingNode != null) {
 					// loaded via ORIG_ID: WE KEEP UUID IN CATALOG AND ALSO KEEP PARENT IN CATALOG !
@@ -1091,6 +1114,7 @@ public class MdekImportService implements IImporterCallback {
 	 * @param existingNode the according node in catalog of the import entity. Null IF NEW ENTITY !
 	 * 		This one is determined separately and passed here, so we don't have to load twice !
 	 * @param importNode the import node for entities of given type
+     * @param ignoreParentImportNodes special behavior for CSW-T then import node is individual parent set via CSW !
 	 * @param userUuid calling user
 	 * @return Map containing the detected "new" parent node. NOTICE: can be NULL if existing entity
 	 * 		is top node !. This one is also set in inDoc. Further returns whether working copy
@@ -1099,6 +1123,7 @@ public class MdekImportService implements IImporterCallback {
 	private HashMap determineParentNodeInCatalog(IdcEntityType whichType,
 			IngridDocument inDoc, IEntity existingNode, 
 			IEntity importNode,
+			boolean ignoreParentImportNodes,
 			String userUuid) {
 		// default "new" parent is import node
 		IEntity newParentNode = importNode;
@@ -1189,10 +1214,13 @@ public class MdekImportService implements IImporterCallback {
 //				storeWorkingVersion = true;
 			}
 		}
-		
-		// use import node if no other parent node could be determined
-		if (newParentNode == null && importNode != null) {
-		    newParentNode = importNode;
+
+		// SPECIAL HANDLING FOR CSW-T IMPORT !
+		// Parent set via IMPORT NODE !
+		if (ignoreParentImportNodes) {
+	        if (newParentNode == null && importNode != null) {
+	            newParentNode = importNode;
+	        }		    
 		}
 
 		String newParentUuid = null;
@@ -1525,6 +1553,7 @@ public class MdekImportService implements IImporterCallback {
 				addressService.assignAddressToQA(inDoc, userUuid, true);
 			}
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+            updateImportJobInfoChangedEntities(whichType, WorkState.QS_UEBERWIESEN, inDoc, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "ASSIGNED TO QA", userUuid);
 
 		} catch (Exception ex) {
@@ -1588,6 +1617,7 @@ public class MdekImportService implements IImporterCallback {
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+			updateImportJobInfoChangedEntities(whichType, WorkState.VEROEFFENTLICHT, inDoc, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "PUBLISHED", userUuid);
 
 		} catch (Exception ex) {
@@ -1625,6 +1655,7 @@ public class MdekImportService implements IImporterCallback {
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
+            updateImportJobInfoChangedEntities(whichType, WorkState.IN_BEARBEITUNG, inDoc, userUuid);
 			updateImportJobInfoMessages(tag + newEntityMsg + "stored as WORKING version", userUuid);
 			if (wasPublish) {
 				updateImportJobInfoFrontendMessages(

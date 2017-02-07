@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -224,6 +224,9 @@ public class MdekKeys {
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID = "requestinfo_importErrorWhenUuidExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID = "requestinfo_importErrorWhenUuidNotExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION = "requestinfo_importErrorWhenException";
+    /** Special handling of object parent when CSW-T !
+     * Then the parent is set via IMPORT_NODE and this flag in runningJobInfo determines special behavior concerning import node !
+     */
     public final static String REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE = "requestinfo_importIgnoreParentImportNode";
 
 
@@ -534,6 +537,9 @@ public class MdekKeys {
     /** Additional info: various messages separated by \n for display in frontend after import<br>
      *  Value: String */
     public final static String RUNNINGJOB_FRONTEND_MESSAGES = "runningjob-frontend-messages";
+    /** Additional info: List of all changed entities with info: type, uuid, state, origId<br>
+     * Value: List< HashMap > */
+    public final static String CHANGED_ENTITIES = "changed-entities";
     /** This String[] contains the keys for extracting BASIC info of the running job (job description)<br>
      *  Value: String[] */
 	public final static String[] RUNNINGJOB_BASIC_KEYS = new String[] {
@@ -785,6 +791,8 @@ public class MdekKeys {
     public final static String VECTOR_TOPOLOGY_LEVEL = "vector-topology-level";
     /** Value: Double  */
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
+    /** Value: Double  */
+    public final static String GRID_POS_ACCURACY = "grid-pos-accuracy";
     /** Value: Integer  */
     public final static String KEYC_INCL_W_DATASET = "keyc-incl-w-dataset";
     /** Value: String  */

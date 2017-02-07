@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -820,7 +820,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			IngridDocument result = null;
 			if (byOrigId == true) {
-			    result = objectService.deleteObjectByOridId( uuid, userId );
+			    result = objectService.deleteObjectByOridId( uuid, forceDeleteReferences, userId );
 			} else {
 			    result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
 			}

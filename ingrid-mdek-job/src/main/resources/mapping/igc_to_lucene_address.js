@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -117,6 +117,8 @@ function addT02Address(row) {
     IDX.add("t02_address.mod_uuid", row.get("mod_uuid"));
     IDX.add("t02_address.responsible_uuid", row.get("responsible_uuid"));
     IDX.add("t02_address.publish_id", row.get("publish_id"));
+    // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
+    IDX.add("publish_id", row.get("publish_id"));
 }
 function addT021Communication(row) {
     IDX.add("t021_communication.line", row.get("line"));
