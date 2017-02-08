@@ -1,0 +1,156 @@
+<!--
+  **************************************************-
+  ingrid-iplug-ige
+  ==================================================
+  Copyright (C) 2014 wemove digital solutions GmbH
+  ==================================================
+  Licensed under the EUPL, Version 1.1 or – as soon they will be
+  approved by the European Commission - subsequent versions of the
+  EUPL (the "Licence");
+  
+  You may not use this work except in compliance with the Licence.
+  You may obtain a copy of the Licence at:
+  
+  http://ec.europa.eu/idabc/eupl5
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the Licence is distributed on an "AS IS" basis,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the Licence for the specific language governing permissions and
+  limitations under the Licence.
+  **************************************************#
+  -->
+<project name="PostgreSQL Configuration">
+    <description>
+        PostgreSQL Configuration Build Script
+    </description>
+
+    <!-- =============================================
+         = PROPERTIES                                =
+         ============================================= -->
+    <!-- All properties set in calling script -->
+
+    <!-- =============================================
+         = IGC DATABASE                           =
+         ============================================= -->
+
+    <target name="CheckDbs" depends="checkIGCDbPostgres" if="${usePostgres}">
+        <echo>DBs checked for existence and version
+        </echo>
+        <echo>IGC DB not exists       : ${igc.db.not.exists}</echo>
+        <echo>IGC DB version not found: ${igc.db.version.not.supported}</echo>
+        <echo>IGC Version             : ${found.igc.version}</echo>
+    </target>
+
+    <target name="checkIGCDbPostgres" depends="tryCreateIGCDbPostgres">
+        <sql    driver   ="${postgresDriverClass}"
+                classpath ="${postgresDbDriver}"
+                url       ="${_dbUrl}"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                encoding  ="UTF-8"
+                onerror   ="continue" 
+                errorproperty="igc.db.not.exists"
+                failOnConnectionError="true"
+                >
+            <![CDATA[
+            SELECT * FROM object_node;
+            ]]>
+        </sql>
+
+        <sql driver   ="${postgresDriverClass}"
+                classpath ="${postgresDbDriver}"
+                url       ="${_dbUrl}"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                encoding  ="UTF-8"
+                print     ="yes"
+                output    ="version.properties"
+                expandProperties="true" showheaders="false" showtrailers="false"
+                onerror   ="continue" 
+                errorproperty="igc.db.version.not.supported"
+                failOnConnectionError="false"
+                >
+            <![CDATA[
+            SELECT 'found.igc.version=', value_string FROM sys_generic_key WHERE key_name="IDC_VERSION";
+            ]]>
+        </sql>
+        
+        <property file="version.properties" />
+    </target>
+
+    <target name="tryCreateIGCDbPostgres" if="${installProcedure}" description="Create IGC PostgreSQL database.">
+        <echo>PostgreSQL-IGC-Datenbank erstellen (${_dbUrl})
+        </echo>
+
+    	<!-- No "IF NOT EXISTS" with Postgres, so we do select to check whether database exists and set property if error ! -->
+        <sql    driver   ="${postgresDriverClass}"
+                classpath ="${postgresDbDriver}"
+                url       ="${_dbUrl}"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                encoding  ="UTF-8"
+                onerror   ="continue" 
+                errorproperty="igc.db.not.exists.create"
+                failOnConnectionError="false"
+                >
+            <![CDATA[
+            SELECT * FROM object_node;
+            ]]>
+        </sql>
+
+        <echo>igc.db.not.exists.create: ${igc.db.not.exists.create}
+        </echo>
+
+    	<!-- Error property set, so database not exists !? We create database. -->
+        <if>
+            <equals arg1="${igc.db.not.exists.create}" arg2="true" />
+            <then>
+                <basename property="dbName" file="${_dbUrl}"/>
+                <propertyregex property="postgresUrlName"
+                      input="${_dbUrl}"
+                      regexp="(.*)/.*"
+                      select="\1"
+                      casesensitive="false" />
+
+                <echo>postgresUrlName: ${postgresUrlName}
+                </echo>
+                <echo>SQL: CREATE DATABASE ${dbName} WITH OWNER = ${dbUser} ENCODING='UTF8' CONNECTION LIMIT=-1
+                </echo>
+
+                <sql    driver    ="${postgresDriverClass}"
+                        classpath ="${postgresDbDriver}"
+                        url       ="${postgresUrlName}"
+                        userid    ="${_adminUser}"
+                        password  ="${_adminPassword}"
+                		autocommit="true"
+                        >
+                    <transaction>
+                        <!-- Create new one if not already exists-->
+                    	CREATE DATABASE ${dbName} WITH OWNER = ${dbUser} ENCODING='UTF8' CONNECTION LIMIT=-1;
+                    </transaction>
+                </sql>
+            </then>
+        </if>
+
+    </target>
+
+    <target name="importInitialSchema" if="${installProcedure}" description="Import the initial IGC schema.">
+        <echo>IGC Katalog initiales Schema importieren
+        </echo>
+
+        <!-- Import data to database -->
+        <sql    driver    ="${postgresDriverClass}"
+                classpath ="${postgresDbDriver}"
+                url       ="${_dbUrl}"
+                userid    ="${_adminUser}"
+                password  ="${_adminPassword}"
+                encoding  ="UTF-8"
+                >
+
+            <!-- use default-character-set=utf8 -->
+            <transaction src="${igcInitialSchema.sql}"/>
+        </sql>
+    </target>
+    
+</project>
