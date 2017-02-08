@@ -656,6 +656,7 @@ public class ObjectNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			"o.responsibleUuid = '"+ userUuid +"' " +
+			"and o.objClass != '1000' " + // ignore folders 
 			"and oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
 
 		// query string for counting -> without fetch (fetching not possible)
@@ -727,6 +728,7 @@ public class ObjectNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			"o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' " +
+			"and o.objClass != '1000' " + // ignore folders 
 			"and (o.modUuid = '" + userUuid + "' or o.responsibleUuid = '" + userUuid + "') ";
 
 		// query string for counting -> without fetch (fetching not possible)
@@ -957,7 +959,8 @@ public class ObjectNodeDaoHibernate
 		// user specific and published !
 		String qCriteria = " where " +
 //			"oNode.objIdPublished is not null and " +
-			"o.modUuid = '" + userUuid + "' ";
+			"o.modUuid = '" + userUuid + "' " +
+		    "and o.objClass != '1000' "; // ignore folders 
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(oNode) " +
@@ -1005,7 +1008,7 @@ public class ObjectNodeDaoHibernate
 		// prepare queries
 
 		// selection criteria
-		String qCriteria = " where ";
+		String qCriteria = " where o.objClass != '1000' and "; // ignore folders "
 		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
 			// user specific
 			qCriteria = qCriteria +
