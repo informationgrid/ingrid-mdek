@@ -100,21 +100,24 @@ public class MdekServer {
                 while (!_shutdown) {
                     if (_communication instanceof TcpCommunication) {
                         TcpCommunication tcpCom = (TcpCommunication) _communication;
+                        // if no connection to ibus then try to connect again
                         if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
                             closeConnections();
                             _communication = initCommunication(_communicationProperties);
                             ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
                             waitForConnection(_intervall);
-                        }
-            
-                        /*synchronized (MdekServer.class) {
-                            try {
-                                MdekServer.class.wait(10000);
-                            } catch (InterruptedException e) {
-                                closeConnections();
-                                throw new IOException(e.getMessage());
+                            
+                        } else {
+                            // if connected, then wait for 10s before checking the connection again
+                            synchronized (MdekServer.class) {
+                                try {
+                                    MdekServer.class.wait(10000);
+                                } catch (InterruptedException e) {
+                                    closeConnections();
+                                    throw new IOException(e.getMessage());
+                                }
                             }
-                        }*/
+                        }
                     }
                 }
             } catch (IOException ex) {
