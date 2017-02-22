@@ -50,8 +50,8 @@
             <list>
                 <ref bean="recordMapper"/>
                 <ref bean="recordProfileMapper"/>
-                <ref bean="idfProducerIndexMapper"/>
                 <ref bean="recordMapperBawDmqsPostProcessing"/>
+                <ref bean="idfProducerIndexMapper"/>
             </list>
         </property>
         <property name="indexInfo" ref="indexInfo"></property>

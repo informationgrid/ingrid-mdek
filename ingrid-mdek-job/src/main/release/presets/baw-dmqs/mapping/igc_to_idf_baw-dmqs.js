@@ -37,6 +37,7 @@ if (log.isDebugEnabled()) {
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
+
 // ---------- Initialize ----------
 // add Namespaces to Utility for convenient handling of NS !
 DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
@@ -1200,6 +1201,43 @@ for (i=0; i<objRows.size(); i++) {
     // add only the abstract (without extra information) to a special idf-field (INGRID-2200)
     var abstr = objRow.get("obj_descr");
     mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(abstr);
+    
+    // add BAW specific Information
+    var idxDoc = sourceRecord.get("idxDoc");
+
+    /*
+     *     <idf:additionalDataSection id="additionalFields" isLegacy="false">
+    <idf:title lang="de">Zusatzfelder</idf:title>
+    <idf:title lang="en">Additional Fields</idf:title>
+    <idf:additionalDataField id="additionalField111797">
+      <idf:title lang="de">Personenbezogene Daten</idf:title>
+      <idf:data>Nein</idf:data>
+    </idf:additionalDataField>
+    </idf:additionalDataSection>
+     * 
+     */
+    
+    var additionalDataSection = mdMetadata.addElement("idf:additionalDataSection").addAttribute("id", "bawDmqsAdditionalFields");
+    additionalDataSection.addElement("idf:title").addAttribute("lang", "de").addText("BAW DMQS Zusatzfelder");
+    // bwstr-bwastr_name (Bundeswasserstraszen Name)
+    var field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-bwastr_name");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Bwstr Name");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-bwastr_name"));
+    // bwstr-strecken_name (Streckenname des Abschnitts)
+    field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-strecken_name");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Bwstr Streckenname");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-strecken_name"));
+    // bwstr-center-lon (Longitude des Zentrums des Abschnitts)
+    field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-center-lon");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Longitude des Zentrums des Abschnitts");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-center-lon"));
+    // bwstr-center-lat (Latitude des Zentrums des Abschnitts)
+    field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-center-lat");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Latitude des Zentrums des Abschnitts");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-center-lat"));
+
+
+    
 }
 
 

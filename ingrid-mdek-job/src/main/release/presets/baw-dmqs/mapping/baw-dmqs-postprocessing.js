@@ -46,14 +46,16 @@ var bwstrIdAndKm = doc.get('location');
 log.debug("Found bwstrIdAndKm: " + bwstrIdAndKm);
 
 if (BWST_LOC_TOOL.isBwstrIdAndKm(bwstrIdAndKm)) {
-	var center = BWST_LOC_TOOL.getCenterFromBwstrIdAndKm(bwstrIdAndKm);
+	var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
+	var parsedResponse = BWST_LOC_TOOL.parse(BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]));
+	var center = BWST_LOC_TOOL.getCenter(parsedResponse);
 	if (center && center.length==2) {
 		IDX.addNumeric("bwstr-center-lon", center[0]);
 		IDX.addNumeric("bwstr-center-lat", center[1]);
 	}
+	var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
+	if (locNames && locNames.length==2) {
+		IDX.add("bwstr-bwastr_name", locNames[0]);
+		IDX.add("bwstr-strecken_name", locNames[1]);
+	}
 }
-
-
-
-
-
