@@ -29,14 +29,12 @@
             <name>Maven Repo InGrid</name>
             <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
         </repository>
-<!--
-temporary down !!!???
+<!-- was temporary down causing problems !!! added again -->
         <repository>
           <id>geotoolkit</id>
           <name>Geotoolkit repository</name>
           <url>http://maven.geotoolkit.org/</url>
         </repository>
--->
     </repositories>
     <dependencyManagement>
         <dependencies>

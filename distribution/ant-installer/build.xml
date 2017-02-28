@@ -188,7 +188,6 @@
                 <include name="**/ingrid-igc-schema_102*.sql"/>
             </patternset>
         </unzip>
-        <property name="igcInitialSchema.sql" location="./ingrid-igc-schema_102.sql"/>
 
     	<!-- also copy sql files to installation ! may be used for set up of oracle catalog ... -->
         <mkdir dir="${installDir}/conf/sql"/>

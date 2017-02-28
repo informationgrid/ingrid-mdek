@@ -83,44 +83,48 @@
         <echo>PostgreSQL-IGC-Datenbank erstellen (${_dbUrl})
         </echo>
 
-    	<!-- No "IF NOT EXISTS" with Postgres, so we do select to check whether database exists and set property if error ! -->
+    	<!-- No "IF NOT EXISTS" sql syntax with Postgres, so we do select to check whether database exists ! -->
+    	<!-- Do file output, cause errorproperty not set if connection fails ! -->
+    	<!-- see http://stackoverflow.com/questions/3352799/ant-task-to-check-if-a-database-connection-exists -->
         <sql    driver   ="${postgresDriverClass}"
                 classpath ="${postgresDbDriver}"
                 url       ="${_dbUrl}"
                 userid    ="${_adminUser}"
                 password  ="${_adminPassword}"
                 encoding  ="UTF-8"
-                onerror   ="continue" 
-                errorproperty="igc.db.not.exists.create"
-                failOnConnectionError="false"
+                onerror   ="continue"
+            	failOnConnectionError="false"
+        		print = "true"
+        		output = "db.present"        		
                 >
             <![CDATA[
             SELECT * FROM object_node;
             ]]>
         </sql>
 
-        <echo>igc.db.not.exists.create: ${igc.db.not.exists.create}
-        </echo>
-
-    	<!-- Error property set, so database not exists !? We create database. -->
+    	<!-- Create database if connection file not created.  -->
         <if>
-            <equals arg1="${igc.db.not.exists.create}" arg2="true" />
+        	<available file="db.present"/>
             <then>
+                <echo>Database ${_dbUrl} already exists, we use existing one.
+                </echo>
+            </then>
+            <else>
                 <basename property="dbName" file="${_dbUrl}"/>
                 <propertyregex property="postgresUrlName"
                       input="${_dbUrl}"
                       regexp="(.*)/.*"
                       select="\1"
                       casesensitive="false" />
-
+<!--
                 <echo>postgresUrlName: ${postgresUrlName}
                 </echo>
                 <echo>SQL: CREATE DATABASE ${dbName} WITH OWNER = ${dbUser} ENCODING='UTF8' CONNECTION LIMIT=-1
                 </echo>
-
+-->
                 <sql    driver    ="${postgresDriverClass}"
                         classpath ="${postgresDbDriver}"
-                        url       ="${postgresUrlName}"
+                        url       ="${postgresUrlName}/template1"
                         userid    ="${_adminUser}"
                         password  ="${_adminPassword}"
                 		autocommit="true"
@@ -130,13 +134,16 @@
                     	CREATE DATABASE ${dbName} WITH OWNER = ${dbUser} ENCODING='UTF8' CONNECTION LIMIT=-1;
                     </transaction>
                 </sql>
-            </then>
+            </else>
         </if>
 
     </target>
 
-    <target name="importInitialSchema" if="${installProcedure}" description="Import the initial IGC schema.">
-        <echo>IGC Katalog initiales Schema importieren
+    <target name="importInitialSchema" depends="importInitialSchemaPostgres" if="${usePostgres}">
+    </target>
+
+    <target name="importInitialSchemaPostgres" if="${installProcedure}" description="Import the initial IGC schema.">
+        <echo>IGC Katalog initiales Schema importieren (PostgreSQL)
         </echo>
 
         <!-- Import data to database -->
@@ -149,7 +156,7 @@
                 >
 
             <!-- use default-character-set=utf8 -->
-            <transaction src="${igcInitialSchema.sql}"/>
+            <transaction src="./ingrid-igc-schema_102_postgres.sql"/>
         </sql>
     </target>
     
