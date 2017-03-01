@@ -70,7 +70,7 @@ async.eachSeries(files, function(file, callback) {
     var options = {
       method: 'post',
       body: postData, // Javascript object
-      url: "http://localhost:8083/csw-t?SERVICE=CSW&REQUEST=Transaction&catalog=/ingrid-group:ige-test",
+      url: "http://192.168.0.164:9905/csw-t?SERVICE=CSW&REQUEST=Transaction&catalog=/ingrid-group:iplug-ige", // http://192.168.0.237:8090/csw-t?SERVICE=CSW&REQUEST=Transaction&catalog=/ingrid-group:ige-iplug-HH
       headers: {
         'Content-Type': 'application/xml'
       },
