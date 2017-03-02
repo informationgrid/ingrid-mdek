@@ -397,8 +397,8 @@ for (i=0; i<objRows.size(); i++) {
             var uvpNo = TRANSF.getIGCSyslistEntryName(9000, categoryId, "de");
             var uvpCat = TRANSF.getISOCodeListEntryData(9000, uvpNo);
             
-            IDX.add("uvp-number", uvpNo);
-            IDX.add("baseCategory", uvpCat);
+            IDX.add("uvp_number", uvpNo);
+            IDX.add("uvp_category", uvpCat);
         }
     }
     
