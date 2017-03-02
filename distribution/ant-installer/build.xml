@@ -28,6 +28,7 @@
     <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
 
     <import file="build_mysql.xml" as="mysql" />
+    <import file="build_postgres.xml" as="postgres" />
 
     <!-- run the ant timestamp task -->
     <tstamp/>
@@ -43,6 +44,10 @@
     <property name="mySqlDriverClass"       value="com.mysql.jdbc.Driver"/>
     <property name="mySqlDriver.jar"        value="mysql-connector-java-5.1.34.jar"/>
     <property name="mySqlHibernateDialect"  value="org.hibernate.dialect.MySQLInnoDBDialect"/>
+
+    <property name="postgresDriverClass"       value="org.postgresql.Driver"/>
+    <property name="postgresDriver.jar"        value="postgresql-9.4.1212.jar"/>
+    <property name="postgresHibernateDialect"  value="org.hibernate.dialect.PostgreSQLDialect"/>
 
     <property name="oracleDriverClass"      value="oracle.jdbc.OracleDriver"/>
     <property name="oracleHibernateDialect" value="org.hibernate.dialect.Oracle10gDialect"/>
@@ -86,6 +91,12 @@
             <then>
                 <runtarget target="setMySqlProperty"/>
             </then>
+        <elseif>
+            <equals arg1="${hibernate.driverClass}" arg2="${postgresDriverClass}" />
+            <then>
+                <runtarget target="setPostgresProperty"/>
+            </then>
+        </elseif>
         <else>
             <runtarget target="setOracleProperty"/>
         </else>
@@ -114,12 +125,20 @@
     
     <target name="setMySqlProperty">
         <property name="useMysql"  value="true" />
+        <property name="usePostgres"  value="false" />
+        <property name="useOracle" value="false" />
+    </target>
+
+    <target name="setPostgresProperty">
+        <property name="usePostgres"  value="true" />
+        <property name="useMysql"  value="false" />
         <property name="useOracle" value="false" />
     </target>
 
     <target name="setOracleProperty">
         <property name="useOracle" value="true" />
         <property name="useMysql"  value="false" />
+        <property name="usePostgres"  value="false" />
     </target>
 
     <target name="UnzipInstaller">
@@ -130,6 +149,7 @@
         </unzip>
 
         <copy file="./${iPlugName}/lib/${mySqlDriver.jar}" todir="."/>
+        <copy file="./${iPlugName}/lib/${postgresDriver.jar}" todir="."/>
 
         <runtarget target="proceedAfterUnzipInstaller"/>
     </target>
@@ -144,6 +164,7 @@
         </unzip>
 
         <copy file="./${iPlugName}/lib/${mySqlDriver.jar}" todir="."/>
+        <copy file="./${iPlugName}/lib/${postgresDriver.jar}" todir="."/>
         
         <delete>
             <fileset dir="${installDir}/lib" includes="**/*"/>
@@ -157,8 +178,9 @@
     </target>
 
     <target name="proceedAfterUnzipInstaller">
-        <!-- Our database driver executable -->
+        <!-- Our database driver executables -->
         <property name="mySqlDbDriver" location="./${mySqlDriver.jar}"/>
+        <property name="postgresDbDriver" location="./${postgresDriver.jar}"/>
 
         <!-- unzip udk-importer-installer to base-directory used for set up/update of IGC database -->
         <unzip src="./${iPlugName}/lib/${importerName}.jar" dest=".">
@@ -166,7 +188,6 @@
                 <include name="**/ingrid-igc-schema_102*.sql"/>
             </patternset>
         </unzip>
-        <property name="igcInitialSchema.sql" location="./ingrid-igc-schema_102.sql"/>
 
     	<!-- also copy sql files to installation ! may be used for set up of oracle catalog ... -->
         <mkdir dir="${installDir}/conf/sql"/>
@@ -189,11 +210,25 @@
                 <property name="myDbDriverClass" value="${oracleDriverClass}"/>
                 <property name="myDbDialect"     value="${oracleHibernateDialect}"/>
             </then>
-            <else>
+        <elseif>
+            <equals arg1="${usePostgres}" arg2="true" />
+            <then>
+                <runtarget target="postgres.CheckDbs" />
+                <property name="myDbDriverClass" value="${postgresDriverClass}"/>
+                <property name="myDbDialect"     value="${postgresHibernateDialect}"/>
+            </then>
+        </elseif>
+        <elseif>
+            <equals arg1="${useMysql}" arg2="true" />
+            <then>
                 <runtarget target="mysql.CheckDbs" />
                 <property name="myDbDriverClass" value="${mySqlDriverClass}"/>
                 <property name="myDbDialect"     value="${mySqlHibernateDialect}"/>
-            </else>
+            </then>
+        </elseif>
+        <else>
+            <echo>Probleme bei der Ermittlung der Datenbank.</echo>
+        </else>
         </if>
 
         <if>
@@ -254,7 +289,18 @@
         <if>
             <equals arg1="${igc.db.not.exists}" arg2="true" />
             <then>
-                <runtarget target="mysql.importInitialSchema"/> 
+                <if>
+                    <equals arg1="${usePostgres}" arg2="true" />
+                    <then>
+                        <runtarget target="postgres.importInitialSchema"/> 
+                    </then>
+                <elseif>
+                    <equals arg1="${useMysql}" arg2="true" />
+                    <then>
+                        <runtarget target="mysql.importInitialSchema"/> 
+                    </then>
+                </elseif>
+                </if>
             </then>
         </if>
 

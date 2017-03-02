@@ -39,7 +39,9 @@
             type        ="input"
             name        ="intro"
             displayText ="Willkommen zur iPlug-IGE Installation">
-        <comment explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs. Bei einer Neuinstallation wird die Erzeugung eines neuen IGC Katalogs nur auf MySQL komplett unterstützt. Auf Oracle muß ein initialer Katalog mit Schema bereits vorhanden sein, der Installer übernimmt nur die Aktualisierung auf die neueste Version."/>
+        <comment explanatoryText="Dieser Assistent hilft Ihnen bei der Installation sowie Konfiguration des iPlugs."/>
+        <comment explanatoryText="Bei einer Neuinstallation wird die Erzeugung eines neuen IGC Katalogs nur auf MySQL/PostgreSQL komplett unterstützt."/>
+        <comment explanatoryText="Auf Oracle muß ein initialer Katalog mit Schema bereits vorhanden sein, der Installer übernimmt nur die Aktualisierung auf die neueste Version. Das initiale Schema wird mit installiert (conf/sql)."/>
         <comment displayText="Hinweis: " bold="true"/>
         <comment explanatoryText="Wenn dies ein Update ist, dann können die Einstellungen der vorherigen Installation verwendet werden. Dazu muss sich die Datei 'ant.install.properties' im gleichen Verzeichnis wie der Installer befinden. Es empfiehlt sich daher, die Updates immer vom gleichen Verzeichnis auszuführen."/>
         <target-select
@@ -76,13 +78,15 @@
             displayText ="Auswahl der Datenbank">
         <comment explanatoryText="Bitte wählen Sie hier die Datenbank des IGC Katalogs aus." />
         <comment displayText="Hinweis: " bold="true"/>
-        <comment explanatoryText="Die Erzeugung eines neuen IGC Katalogs wird nur auf MySQL komplett unterstützt. Auf Oracle muß der IGC Katalog mit Schema bereits vorhanden sein." />
+        <comment explanatoryText="Die Erzeugung eines neuen IGC Katalogs wird nur auf MySQL/PostgreSQL komplett unterstützt." />
+        <comment explanatoryText="Auf Oracle muß der IGC Katalog mit Schema bereits vorhanden sein. Das initiale Schema wird mit installiert (conf/sql)." />
         <target-select
             property     ="dbChoice"
             displayText  ="Datenbank"
             defaultValue ="true">
             <option text ="MySQL"  value="setMySqlProperty"/>
             <option text ="Oracle" value="setOracleProperty"/>
+            <option text ="PostgreSQL" value="setPostgresProperty"/>
         </target-select>
     </page>
 
@@ -92,7 +96,7 @@
             name        ="mysqlOptions"
             displayText ="Einstellungen für die MySQL-Datenbank (IGC Katalog)">
         <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
-        <comment explanatoryText="Ist der hier angegebene IGC Katalog schon vorhanden, so wird dieser auf die neue Version aktualisiert und sollte vorher per BACKUP gesichert werden !"/>
+        <comment explanatoryText="Ist der hier angegebene IGC Katalog schon vorhanden, so wird dieser beim Start des iPlugs auf die neue Version aktualisiert und sollte vorher per BACKUP gesichert werden !"/>
         <comment explanatoryText="Die Einstellungen hier können auch in der Datei conf/default-datasource.properties manuell vorgenommen werden." />
         <text property="dbUser" displayText="MySQL Benutzername:" defaultValue="root"/>
         <text property="dbPassword" displayText="MySQL Benutzer-Passwort:" defaultValue=""/>
@@ -109,15 +113,35 @@
             name        ="oracleOptions"
             displayText ="Einstellungen für die Oracle-Datenbank (IGC Katalog)">
         <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
-        <comment explanatoryText="Der hier angegebene IGC Katalog muß vorhanden sein und wird auf die neue Version aktualisiert. Zur Sicherheit sollte ein BACKUP gezogen werden !"/>
+        <comment explanatoryText="Der hier angegebene IGC Katalog muß manuell angelegt werden, wenn noch nicht vorhanden. Das einzuspielende initiale Schema wird mit installiert (conf/sql)."/>
+        <comment explanatoryText="Ist der hier angegebene IGC Katalog schon vorhanden, so wird dieser beim Start des iPlugs auf die neue Version aktualisiert und sollte vorher per BACKUP gesichert werden !"/>
         <comment explanatoryText="Die Einstellungen hier können auch in der Datei conf/default-datasource.properties manuell vorgenommen werden." />
+
         <text property="dbUser" displayText="Oracle Benutzername:" defaultValue="IGC_USER"/>
         <text property="dbPassword" displayText="Oracle Benutzer-Passwort:" defaultValue="IGC_PASSWORD"/>
-        <text property="dbUrl" displayText="Oracle Datenbank-URL (IGC):" defaultValue="jdbc:oracle:thin:IGC_USER/IGC_PASSWORD@localhost:1521:XE"/>
-
+        <text property="dbUrl" displayText="Oracle Datenbank-URL (IGC):" defaultValue="jdbc:oracle:thin:@localhost:1521:XE"/>
+<!--
         <comment explanatoryText="Für das Aktualisieren des Katalogs wird ein Administrator benötigt! Bitte geben Sie diesen hier an."/>
-        <text property="adminUser"         displayText="MySQL Administrator:"           defaultValue="root"/>
-        <text property="adminPassword"     displayText="MySQL Administrator-Passwort:"  defaultValue=""/>
+        <text property="adminUser"         displayText="Oracle Administrator:"           defaultValue="root"/>
+        <text property="adminPassword"     displayText="Oracle Administrator-Passwort:"  defaultValue=""/>
+-->
+    </page>
+
+    <page
+            ifProperty  ="(${updateOrNew}==setInstallProperty) AND (${dbChoice}==setPostgresProperty)"
+            type        ="input"
+            name        ="postgresOptions"
+            displayText ="Einstellungen für die PosgreSQL-Datenbank (IGC Katalog)">
+        <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
+        <comment explanatoryText="Ist der hier angegebene IGC Katalog schon vorhanden, so wird dieser beim Start des iPlugs auf die neue Version aktualisiert und sollte vorher per BACKUP gesichert werden !"/>
+        <comment explanatoryText="Die Einstellungen hier können auch in der Datei conf/default-datasource.properties manuell vorgenommen werden." />
+        <text property="dbUser" displayText="PostgreSQL Benutzername:" defaultValue="postgres"/>
+        <text property="dbPassword" displayText="PostgreSQL Benutzer-Passwort:" defaultValue=""/>
+        <text property="dbUrl" displayText="PostgreSQL Datenbank-URL (IGC):" defaultValue="jdbc:postgresql://localhost:5432/igc_???"/>
+
+        <comment explanatoryText="Für das Erstellen eines neuen Katalogs wird ein Administrator benötigt! Bitte geben Sie diesen hier an."/>
+        <text property="adminUser"         displayText="PostgreSQL Administrator:"           defaultValue="postgres"/>
+        <text property="adminPassword"     displayText="PostgreSQL Administrator-Passwort:"  defaultValue=""/>
     </page>
 
     <page
@@ -125,7 +149,7 @@
             type        ="input"
             name        ="igcOptions"
             displayText ="Einstellungen für IGC">
-        <comment explanatoryText="Diese Einstellungen werden bei der Erzeugung eines neuen Katalogs (MySql) oder Aktualisierung eines initialen, leeren Katalogs (nur Schema) herangezogen (z.B. Oracle). Die Email des Katalog Administrators ist Pflicht."/>
+        <comment explanatoryText="Diese Einstellungen werden bei der Erzeugung eines neuen Katalogs (MySQL/PostgreSQL) oder Aktualisierung eines initialen, leeren Katalogs (nur Schema) herangezogen (z.B. Oracle). Die Email des Katalog Administrators ist Pflicht."/>
         <text property="igcName" displayText="Name des Katalogs:" defaultValue="Katalog Name"/>
         <select
             property     ="igcLanguage"
@@ -162,8 +186,8 @@
             displayText ="Benötigte Installationsoptionen"
             target      ="StartInstallation">
         <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
-        <comment explanatoryText="Ein bestehender IGC Katalog wird mit der Installation des iPlugs unmittelbar auf die neue Version aktualisiert ! Zur Sicherheit sollte vorher ein BACKUP des Katalogs gezogen werden !"/>
-        <comment explanatoryText="Die Ausgabe der Aktualisierung sollte in der 'Detailanzeige' hier verfolgt werden. Ein ausführliches LOG findet sich nach Ausfuehrung im angegebenen Installationsverzeichnis (importer_TIMESTAMP*.log)."/>
+        <comment explanatoryText="Ein bestehender IGC Katalog wird nach Start des iPlugs auf die neue Version aktualisiert ! Zur Sicherheit sollte vorher ein BACKUP des Katalogs gezogen werden !"/>
+        <comment explanatoryText="Ein ausführliches LOG der Aktualisierung findet sich nach iPlug Start im angegebenen Installationsverzeichnis (importer_TIMESTAMP*.log)."/>
         <directory
                 property        ="installDir"
                 defaultValue    ="/opt/ingrid/${project.artifactId}-${project.version}"
@@ -180,8 +204,8 @@
             target      ="patchFiles"
             postDisplayTarget = "antinstaller-determineVersion">
         <comment bold="true" displayText="ACHTUNG: IGC Katalog sichern !"/>
-        <comment explanatoryText="Der IGC Katalog wird aus der bestehenden Installation ermittelt und auf die neue Version aktualisiert ! Zur Sicherheit sollte vorher ein BACKUP des Katalogs gezogen werden !"/>
-        <comment explanatoryText="Die Ausgabe der Aktualisierung sollte in der 'Detailanzeige' hier verfolgt werden. Ein ausführliches LOG findet sich nach Ausfuehrung im angegebenen Installationsverzeichnis (importer_TIMESTAMP*.log)."/>
+        <comment explanatoryText="Der IGC Katalog wird nach Start des iPlugs auf die neue Version aktualisiert ! Zur Sicherheit sollte vorher ein BACKUP des Katalogs gezogen werden !"/>
+        <comment explanatoryText="Ein ausführliches LOG der Aktualisierung findet sich nach iPlug Start im angegebenen Installationsverzeichnis (importer_TIMESTAMP*.log)."/>
         <directory
             property            ="installDir"
             defaultValue        ="/opt/ingrid/${project.artifactId}-${project.version}"

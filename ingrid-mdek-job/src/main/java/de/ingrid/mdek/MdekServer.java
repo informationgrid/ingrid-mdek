@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -71,6 +71,7 @@ public class MdekServer {
     public MdekServer(IJobRepositoryFacade jobRepositoryFacade) throws IOException {
         _jobRepositoryFacade = jobRepositoryFacade;
         IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
+        _intervall = conf.reconnectInterval;
         _communicationProperties = new File("conf/communication-ige.xml");
         // check response, throws Exception if wrong version !
         checkResponse(response);
@@ -99,19 +100,22 @@ public class MdekServer {
                 while (!_shutdown) {
                     if (_communication instanceof TcpCommunication) {
                         TcpCommunication tcpCom = (TcpCommunication) _communication;
+                        // if no connection to ibus then try to connect again
                         if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
                             closeConnections();
                             _communication = initCommunication(_communicationProperties);
                             ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
                             waitForConnection(_intervall);
-                        }
-            
-                        synchronized (MdekServer.class) {
-                            try {
-                                MdekServer.class.wait(10000);
-                            } catch (InterruptedException e) {
-                                closeConnections();
-                                throw new IOException(e.getMessage());
+                            
+                        } else {
+                            // if connected, then wait for 10s before checking the connection again
+                            synchronized (MdekServer.class) {
+                                try {
+                                    MdekServer.class.wait(10000);
+                                } catch (InterruptedException e) {
+                                    closeConnections();
+                                    throw new IOException(e.getMessage());
+                                }
                             }
                         }
                     }
@@ -185,13 +189,6 @@ public class MdekServer {
         new JettyStarter( conf );
         
         _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
-        
-        if (map.containsKey("--reconnectIntervall")) {
-            String intervall = (String) map.get("--reconnectIntervall");
-            _intervall = Integer.parseInt(intervall);
-        }
-        
-        
         
         // shutdown the server normally
         Runtime.getRuntime().addShutdownHook(new Thread() {

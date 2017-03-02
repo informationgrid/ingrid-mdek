@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -915,7 +915,8 @@ public class MdekObjectService {
 		// first check whether published
 		IngridDocument errInfo = new IngridDocument();
 		for (AddressNode aNode : aNodes) {
-			if (!addressService.hasPublishedVersion(aNode)) {
+		    // if address is not a system user and not published address
+			if (!( "IGE_USER".equals( aNode.getFkAddrUuid() ) || addressService.hasPublishedVersion(aNode))) {
 				addressService.setupErrorInfoAddr(errInfo, aNode.getAddrUuid());
 			}
 		}
@@ -928,6 +929,9 @@ public class MdekObjectService {
 		PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeObjDB);
 		List<IngridDocument> errAddrList = new ArrayList<IngridDocument>();
 		for (AddressNode aNode : aNodes) {
+		    // if address is a system user then we skip the check, since system users can have state working version
+		    if ("IGE_USER".equals( aNode.getFkAddrUuid() )) continue;
+		    
 			// get referenced address and its publish type
 			T02Address a = aNode.getT02AddressPublished();
 			PublishType pubTypeAddr = EnumUtil.mapDatabaseToEnumConst(PublishType.class, a.getPublishId());

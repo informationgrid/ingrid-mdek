@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -239,10 +239,11 @@ public class MdekImportService implements IImporterCallback {
 			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
             if (errorOnExistingUuid || errorOnMissingUuid) {
 			    ObjectNode objImportNode = objectService.loadByOrigId( inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), IdcEntityVersion.WORKING_VERSION);
+			    if (objImportNode == null) objImportNode = objectService.loadByUuid( inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), IdcEntityVersion.WORKING_VERSION);
 			    if (errorOnExistingUuid && objImportNode != null) {
-			        throw createImportException("Object already exists with Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
+			        throw createImportException("Object already exists with UUID or Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
 			    } else if (errorOnMissingUuid && objImportNode == null) {
-			        throw createImportException("Object does not exist with Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
+			        throw createImportException("Object does not exist with UUID or Orig-UUID: " + inDoc.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ));
 			    }
 			}
 		} else if (whichType == IdcEntityType.ADDRESS) {
@@ -1019,6 +1020,10 @@ public class MdekImportService implements IImporterCallback {
 		if (existingNode == null &&	inOrigId != null) {
 			if (whichType == IdcEntityType.OBJECT) {
 				existingNode = objectService.loadByOrigId(inOrigId, IdcEntityVersion.WORKING_VERSION);
+				
+				// also check UUID if no object with orig uuid exists
+				// i.e. if we import an exported IGE document, which didn't have an orig id
+				if (existingNode == null) existingNode = objectService.loadByUuid(inOrigId, IdcEntityVersion.WORKING_VERSION);
 				
 				// OBJECTS: if found keep existing UUID AND existing PARENT !
 				if (existingNode != null) {
