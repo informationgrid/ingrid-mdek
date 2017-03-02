@@ -16,7 +16,7 @@
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.0.1</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>4.0.2-SNAPSHOT</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>4.1.0-SNAPSHOT-UVP</ingrid-codelist-service.version>
     <ingrid-utils.version>4.0.1.1</ingrid-utils.version>
     <ingrid-iplug-dsc.version>4.0.2-SNAPSHOT</ingrid-iplug-dsc.version>
@@ -104,12 +104,6 @@
   </dependencyManagement>
 
   <dependencies>
-
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.34</version>
-    </dependency>
 
     <dependency>
       <groupId>de.ingrid</groupId>
