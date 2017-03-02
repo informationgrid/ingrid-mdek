@@ -73,6 +73,10 @@
       <outputDirectory>${project.build.finalName}/conf/sql/migration2postgres</outputDirectory>
     </fileSet>
     <fileSet>
+      <directory>../distribution/src/profiles</directory>
+      <outputDirectory>${project.build.finalName}/profiles</outputDirectory>
+    </fileSet>
+    <fileSet>
       <directory>../ingrid-mdek-job/src/main/release/scripts</directory>
       <outputDirectory>${project.build.finalName}/</outputDirectory>
     </fileSet>
