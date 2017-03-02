@@ -38,7 +38,6 @@
             <list>
                 <ref bean="recordMapper"/>
                 <ref bean="recordProfileMapper"/>
-                <ref bean="recordMapperUvpPostProcessing"/>
                 <ref bean="idfProducerIndexMapper"/>
             </list>
         </property>
@@ -51,16 +50,6 @@
             <list>
                 <value>classpath:mapping/global.js</value>
                 <value>classpath:mapping/igc_to_lucene_uvp.js</value>
-            </list>
-        </property> 
-        <property name="compile" value="false" />
-    </bean>
-
-    <bean id="recordMapperUvpPostProcessing" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScripts">
-            <list>
-                <value>classpath:mapping/global.js</value>
-                <value>classpath:mapping/uvp-postprocessing.js</value>
             </list>
         </property> 
         <property name="compile" value="false" />
