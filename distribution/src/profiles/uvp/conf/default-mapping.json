@@ -2,6 +2,27 @@
     "_default_" : { 
         "_source" : { "enabled" : true }, 
         "properties": {
+            "location": {
+                "type": "string"
+            },
+            "lon_min": {
+                "type": "double"
+            },
+            "lon_max": {
+                "type": "double"
+            },
+            "lat_min": {
+                "type": "double"
+            },
+            "lat_max": {
+                "type": "double"
+            },
+            "lon_center": {
+                "type": "double"
+            },
+            "lat_center": {
+                "type": "double"
+            },
             "uvp_category": {
                 "type": "string",
                 "index" : "not_analyzed"
