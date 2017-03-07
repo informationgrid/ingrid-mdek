@@ -109,6 +109,36 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     
+    var objAdrValueRow = SQL.first("SELECT * FROM t012_obj_adr WHERE obj_id=?", [objId]);
+    if (hasValue(objAdrValueRow) && hasValue(objAdrValueRow.get("adr_uuid"))) {
+        var adrValueRow = SQL.first("SELECT * FROM t02_address WHERE adr_uuid=?", [objAdrValueRow.get("adr_uuid")]);
+        var institution = adrValueRow.get("institution");
+        var address_value = adrValueRow.get("address_value");
+        var title_value = adrValueRow.get("title_value");
+        var firstname = adrValueRow.get("firstname");
+        var lastname = adrValueRow.get("lastname");
+        var uvp_address = "";
+        if(institution){
+            uvp_address = institution;
+        }else{
+            if(address_value){
+                uvp_address = uvp_address + address_value + "";
+            }
+            if(title_value){
+                uvp_address = uvp_address + title_value + "";
+            }
+            if(firstname){
+                uvp_address = uvp_address + firstname + "";
+            }
+            if(lastname){
+                uvp_address = uvp_address + lastname + "";
+            }
+        }
+        if(uvp_address){
+            IDX.add("uvp_address", uvp_address);
+        }
+    }
+    
     // add spatial Bounding Box
     var uvpSpatialValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvp_spatialValue']);
     if (hasValue(uvpSpatialValueRow) && hasValue(uvpSpatialValueRow.get("data"))) {
