@@ -20,7 +20,7 @@
     <ingrid-codelist-service.version>4.1.0-SNAPSHOT-UVP</ingrid-codelist-service.version>
     <ingrid-utils.version>4.0.1.1</ingrid-utils.version>
     <ingrid-iplug-dsc.version>4.0.2-SNAPSHOT</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>4.0.1</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>4.0.2-SNAPSHOT</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
