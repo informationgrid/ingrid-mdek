@@ -109,33 +109,23 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     
-    var objAdrValueRow = SQL.first("SELECT * FROM t012_obj_adr WHERE obj_id=?", [objId]);
+    var objAdrValueRow = SQL.first("SELECT * FROM t012_obj_adr WHERE obj_id=? ORDER BY line", [objId]);
     if (hasValue(objAdrValueRow) && hasValue(objAdrValueRow.get("adr_uuid"))) {
         var adrValueRow = SQL.first("SELECT * FROM t02_address WHERE adr_uuid=?", [objAdrValueRow.get("adr_uuid")]);
-        var institution = adrValueRow.get("institution");
-        var address_value = adrValueRow.get("address_value");
-        var title_value = adrValueRow.get("title_value");
-        var firstname = adrValueRow.get("firstname");
-        var lastname = adrValueRow.get("lastname");
-        var uvp_address = "";
-        if(institution){
-            uvp_address = institution;
-        }else{
-            if(address_value){
-                uvp_address = uvp_address + address_value + "";
-            }
-            if(title_value){
-                uvp_address = uvp_address + title_value + "";
-            }
-            if(firstname){
-                uvp_address = uvp_address + firstname + "";
-            }
-            if(lastname){
-                uvp_address = uvp_address + lastname + "";
+        var addrId = adrValueRow.get("id");
+        var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+        if(hasValue(parentAdressRow)){
+            addAddressRow(parentAdressRow);
+        }
+        while (hasValue(parentAdressRow)) {
+            addrId = parentAdressRow.get("id");
+            parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+            if(hasValue(parentAdressRow)){
+                addAddressRow(parentAdressRow);
             }
         }
-        if(uvp_address){
-            IDX.add("uvp_address", uvp_address);
+        if(hasValue(adrValueRow)){
+            addAddressRow(adrValueRow);
         }
     }
     
@@ -176,8 +166,39 @@ for (i=0; i<objRows.size(); i++) {
         IDX.add("lon_center", lonCenter);
         IDX.add("lat_center", latCenter);
     }
+}
+
+function addAddressRow(adrValueRow){
+    var institution = adrValueRow.get("institution");
+    var address_value = adrValueRow.get("address_value");
+    var title_value = adrValueRow.get("title_value");
+    var firstname = adrValueRow.get("firstname");
+    var lastname = adrValueRow.get("lastname");
+    var uvp_address = "";
+    if(institution){
+        uvp_address = institution;
+    }else{
+        if(hasValue(address_value)){
+            log.debug("address_value: " + address_value);
+            uvp_address += " " + address_value ;
+        }
+        if(hasValue(title_value)){
+            log.debug("title_value: " + title_value);
+            uvp_address += " " + title_value;
+        }
+        if(hasValue(firstname)){
+            log.debug("firstname: " + firstname);
+            uvp_address += " "+ firstname;
+        }
+        if(hasValue(lastname)){
+            log.debug("lastname: " + lastname);
+            uvp_address += " " + lastname;
+        }
+    }
     
-    
+    if(hasValue(uvp_address)){
+        IDX.add("uvp_address", uvp_address);
+    }
 }
 
 function addT01Object(row) {
