@@ -183,6 +183,13 @@ function addAddressRow(adrValueRow){
     var firstname = adrValueRow.get("firstname");
     var lastname = adrValueRow.get("lastname");
     var uvp_address = "";
+    
+    // Add institution
+    if(hasValue(institution)){
+        IDX.add("uvp_address", institution);
+    }
+
+    // Add person
     if(hasValue(address_value)){
         uvp_address += " " + address_value ;
     }
@@ -194,12 +201,6 @@ function addAddressRow(adrValueRow){
     }
     if(hasValue(lastname)){
         uvp_address += " " + lastname;
-    }
-    
-    if(hasValue(institution)){
-        if(uvp_address == ""){
-            uvp_address = institution;
-        }
     }
     
     if(hasValue(uvp_address)){
