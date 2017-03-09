@@ -114,16 +114,24 @@ for (i=0; i<objRows.size(); i++) {
         var adrValueRow = SQL.first("SELECT * FROM t02_address WHERE adr_uuid=?", [objAdrValueRow.get("adr_uuid")]);
         var addrId = adrValueRow.get("id");
         var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+
+        var parentAddress = []
+        
         if(hasValue(parentAdressRow)){
-            addAddressRow(parentAdressRow);
+            parentAddress.push(parentAdressRow);
         }
         while (hasValue(parentAdressRow)) {
             addrId = parentAdressRow.get("id");
             parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
             if(hasValue(parentAdressRow)){
-                addAddressRow(parentAdressRow);
+                parentAddress.push(parentAdressRow);
             }
         }
+        
+        for (var index = parentAddress.length - 1; index >= 0; --index) {
+            addAddressRow(parentAddress[index]);
+        }
+        
         if(hasValue(adrValueRow)){
             addAddressRow(adrValueRow);
         }
@@ -175,29 +183,27 @@ function addAddressRow(adrValueRow){
     var firstname = adrValueRow.get("firstname");
     var lastname = adrValueRow.get("lastname");
     var uvp_address = "";
-    if(institution){
-        uvp_address = institution;
-    }else{
-        if(hasValue(address_value)){
-            log.debug("address_value: " + address_value);
-            uvp_address += " " + address_value ;
-        }
-        if(hasValue(title_value)){
-            log.debug("title_value: " + title_value);
-            uvp_address += " " + title_value;
-        }
-        if(hasValue(firstname)){
-            log.debug("firstname: " + firstname);
-            uvp_address += " "+ firstname;
-        }
-        if(hasValue(lastname)){
-            log.debug("lastname: " + lastname);
-            uvp_address += " " + lastname;
+    if(hasValue(address_value)){
+        uvp_address += " " + address_value ;
+    }
+    if(hasValue(title_value)){
+        uvp_address += " " + title_value;
+    }
+    if(hasValue(firstname)){
+        uvp_address += " "+ firstname;
+    }
+    if(hasValue(lastname)){
+        uvp_address += " " + lastname;
+    }
+    
+    if(hasValue(institution)){
+        if(uvp_address == ""){
+            uvp_address = institution;
         }
     }
     
     if(hasValue(uvp_address)){
-        IDX.add("uvp_address", uvp_address);
+        IDX.add("uvp_address", uvp_address.trim());
     }
 }
 
