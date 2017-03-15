@@ -126,8 +126,22 @@ for (i=0; i<objRows.size(); i++) {
             var uvpgCategories = body.addElement("uvpgs");
             var uvpgCategoryRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [id, 'categoryId']);
             for (var i=0; i< uvpgCategoryRows.size(); i++) {
-                var data = uvpgCategoryRows.get(i).get("data");
-                uvpgCategories.addElement("uvpg").addAttribute("id", data).addText(TRANSF.getIGCSyslistEntryName(9000, data, "de"));
+                var categoryId = uvpgCategoryRows.get(i).get("data");
+                var uvpNo = TRANSF.getIGCSyslistEntryName(9000, categoryId, "de");
+                var uvpCat = TRANSF.getISOCodeListEntryData(9000, uvpNo);
+                var uvpgElem = uvpgCategories.addElement("uvpg");
+                if(hasValue(uvpNo)){
+                    uvpgElem.addText("cat", uvpNo);
+                }
+                if(hasValue(uvpCat)){
+                    var uvpCatJson = JSON.parse(uvpCat);
+                    if(hasValue(uvpCatJson.cat)){
+                        uvpgElem.addAttribute("category", uvpCatJson.cat);
+                    }
+                    if(hasValue(uvpCatJson.type)){
+                        uvpgElem.addAttribute("type", uvpCatJson.type);
+                    }
+                }
             }
         }
     }

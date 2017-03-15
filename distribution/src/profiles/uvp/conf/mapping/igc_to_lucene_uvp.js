@@ -103,9 +103,16 @@ for (i=0; i<objRows.size(); i++) {
             var categoryId = uvpgCategoryRows.get(i).get("data");
             var uvpNo = TRANSF.getIGCSyslistEntryName(9000, categoryId, "de");
             var uvpCat = TRANSF.getISOCodeListEntryData(9000, uvpNo);
-            
             IDX.add("uvp_number", uvpNo);
-            IDX.add("uvp_category", uvpCat);
+            if(hasValue(uvpCat)){
+                var uvpCatJson = JSON.parse(uvpCat);
+                if(hasValue(uvpCatJson.cat)){
+                    IDX.add("uvp_category", uvpCatJson.cat);
+                }
+                if(hasValue(uvpCatJson.type)){
+                    IDX.add("uvp_category_type", uvpCatJson.type);
+                }
+            }
         }
     }
     
