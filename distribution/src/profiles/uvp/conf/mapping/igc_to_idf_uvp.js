@@ -131,7 +131,7 @@ for (i=0; i<objRows.size(); i++) {
                 var uvpCat = TRANSF.getISOCodeListEntryData(9000, uvpNo);
                 var uvpgElem = uvpgCategories.addElement("uvpg");
                 if(hasValue(uvpNo)){
-                    uvpgElem.addText("cat", uvpNo);
+                    uvpgElem.addText(uvpNo);
                 }
                 if(hasValue(uvpCat)){
                     var uvpCatJson = JSON.parse(uvpCat);
