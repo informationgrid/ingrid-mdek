@@ -488,10 +488,14 @@ public class MdekUtils {
 		/** Return the HQL to add into where clause if the AddressNode should NOT query IGE USERS and FOLDERS!
 		 * Pass alias of AddressNode used in query.<br>
 		 * NOTICE: contains space at front and end ! */
-		public static String getHQLExcludeIGEUsersViaNode(String aliasAddressNode) {
+		public static String getHQLExcludeIGEUsersViaNode(String aliasAddressNode, String aliasAddress) {
 			String columnToCheck = aliasAddressNode + ".fkAddrUuid";
-			return "a.adrType != '1000' and (" + columnToCheck + " IS NULL OR " +
+			String result =  "(" + columnToCheck + " IS NULL OR " +
 				columnToCheck + " != '" + AddressType.getIGEUserParentUuid() + "') ";
+			if (aliasAddress != null) {
+			    result = aliasAddress + ".adrType != '1000' and " + result;
+			}
+			return result;
 		}
 		/** Return the HQL to add into where clause if the T02Address should NOT query IGE USERS !
 		 * Pass alias of T02Address used in query.<br>
