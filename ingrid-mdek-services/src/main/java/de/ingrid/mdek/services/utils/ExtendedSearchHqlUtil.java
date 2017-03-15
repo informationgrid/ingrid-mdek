@@ -288,7 +288,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		
 		StringBuilder fromString = new StringBuilder("from AddressNode aNode inner join aNode.t02AddressWork addr");
 		// exclude hidden user addresses !
-		StringBuilder whereString = new StringBuilder(AddressType.getHQLExcludeIGEUsersViaNode("aNode"));
+		StringBuilder whereString = new StringBuilder(AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr"));
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
 		Integer relation = (Integer)searchParams.get(MdekKeys.RELATION);
