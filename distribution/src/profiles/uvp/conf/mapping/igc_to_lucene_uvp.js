@@ -125,7 +125,8 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(phaseRow)){
                 for (var j=0; j < phaseRow.size(); j++) {
                     var phaseId = phaseRow.get(j).get("id");
-                    IDX.add("uvp_steps", "phaseId");
+                    var phaseFieldKey = phaseRow.get(j).get("field_key");
+                    IDX.add("uvp_steps", phaseFieldKey);
                 }
             }
         }
