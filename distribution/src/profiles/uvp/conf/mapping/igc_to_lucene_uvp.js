@@ -116,6 +116,22 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     
+    // Add uvp procedure step
+    var phasesRow = SQL.all("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'UVPPhases']);
+    for (var i=0; i < phasesRow.size(); i++) {
+        var value = phasesRow.get(i).get("id");
+        if (hasValue(value)) {
+            var phaseRow = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort", [value]);
+            if (hasValue(phaseRow)){
+                for (var j=0; j < phaseRow.size(); j++) {
+                    var phaseId = phaseRow.get(j).get("id");
+                    IDX.add("uvp_steps", "phaseId");
+                }
+            }
+        }
+    }
+
+    // Add UVP addresses
     var objAdrValueRow = SQL.first("SELECT * FROM t012_obj_adr WHERE obj_id=? ORDER BY line", [objId]);
     if (hasValue(objAdrValueRow) && hasValue(objAdrValueRow.get("adr_uuid"))) {
         var adrValueRow = SQL.first("SELECT * FROM t02_address WHERE adr_uuid=?", [objAdrValueRow.get("adr_uuid")]);
