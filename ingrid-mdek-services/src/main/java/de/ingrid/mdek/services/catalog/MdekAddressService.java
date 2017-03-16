@@ -1332,10 +1332,12 @@ public class MdekAddressService {
 			do {
 			    parentNode = loadByUuid(parentUuidTmp, IdcEntityVersion.PUBLISHED_VERSION);
 			    parentUuidTmp = parentNode.getFkAddrUuid();
-			} while (isFolder( parentNode ));
+			} while (isFolder( parentNode ) && parentUuidTmp != null);
             
-            parentType = EnumUtil.mapDatabaseToEnumConst( AddressType.class,
-                    parentNode.getT02AddressPublished().getAdrType() );
+			if (parentUuidTmp != null) {
+                parentType = EnumUtil.mapDatabaseToEnumConst( AddressType.class,
+                        parentNode.getT02AddressPublished().getAdrType() );
+			}
 		}
 
 		// check address type conflicts !
