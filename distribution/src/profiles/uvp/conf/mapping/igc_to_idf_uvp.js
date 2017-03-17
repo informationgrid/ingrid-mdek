@@ -596,6 +596,8 @@ function getAdditionalFieldDataTable(id, fields, table){
                 var value = tableData;
                 if(fields[s].type == "bytes"){
                     value = formatBytes(value);
+                } else  if(fields[s].type == "link"){
+                    value = "http://uvp-dev.informationgrid.eu/documents/"+value);
                 }
                 doc.addElement(tableFieldKey).addText(value);
             }
