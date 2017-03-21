@@ -1,6 +1,6 @@
-{ 
-    "_default_" : { 
-        "_source" : { "enabled" : true }, 
+{
+    "_default_" : {
+        "_source" : { "enabled" : true },
         "properties": {
             "location": {
                 "type": "string"
@@ -156,15 +156,15 @@
                 "null_value" : 0.0
             },
             "title": {
-                "analyzer": "german",
+                "analyzer": "decomp",
                 "type": "string"
             },
             "summary": {
-                "analyzer": "german",
+                "analyzer": "decomp",
                 "type": "string"
             },
             "content": {
-                "analyzer": "german",
+                "analyzer": "decomp",
                 "type": "string"
             },
             "x1": {
@@ -184,5 +184,5 @@
                 "index": "no"
             }
         }
-    } 
+    }
 }
