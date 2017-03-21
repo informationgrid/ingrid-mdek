@@ -141,6 +141,9 @@ function addAddressParent(level, row) {
     IDX.add("t02_address".concat(level + 1).concat(".adr_id"), row.get("adr_uuid"));
     IDX.add("t02_address".concat(level + 1).concat(".typ"), row.get("adr_type"));
     IDX.add("title".concat(level + 1), row.get("institution"));
+    if(row.get("adr_type") != "1000"){
+        IDX.add("t02_address.parents.title", row.get("institution"));
+    }
 }
 function addSearchtermAdr(row) {
     IDX.add("searchterm_adr.line", row.get("line"));
