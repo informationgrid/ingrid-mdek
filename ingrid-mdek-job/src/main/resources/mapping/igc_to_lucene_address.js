@@ -54,7 +54,7 @@ for (i=0; i<addrRows.size(); i++) {
     }
     // ---------- address_node CHILDREN ----------
     // only children published and NOT hidden !
-    var rows = SQL.all("SELECT address_node.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
+    var rows = SQL.all("SELECT t02_address.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
     for (j=0; j<rows.size(); j++) {
         addAddressNodeChildren(rows.get(j));
     }
@@ -129,7 +129,8 @@ function addT021Communication(row) {
     IDX.add("t021_communication.descr", row.get("descr"));
 }
 function addAddressNodeChildren(row) {
-    IDX.add("children.address_node.addr_uuid", row.get("addr_uuid"));
+    IDX.add("children.address_node.addr_uuid", row.get("adr_uuid"));
+    IDX.add("children.address_node.addr_type", row.get("adr_type"));
 }
 function addAddressParent(level, row) {
     if (level == 1) {
