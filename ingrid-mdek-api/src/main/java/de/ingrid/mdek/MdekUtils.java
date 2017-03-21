@@ -462,7 +462,8 @@ public class MdekUtils {
 		INSTITUTION(0, "Institution"),
 		EINHEIT(1, "Einheit"),
 		PERSON(2, "Person"),
-		FREI(3, "Freie Adresse");
+		FREI(3, "Freie Adresse"),
+	    FOLDER(1000, "Ordner");
 
 		AddressType(Integer dbValue, String description) {
 			this.dbValue = dbValue;
