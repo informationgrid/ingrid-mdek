@@ -87,3 +87,19 @@ Nacharbeiten für MySQL:
 - zur Generierung der Indexe das SQL Skript
     mysql2postgres_fix_indexes_4.0.1.sql
   auf der Postgres Datenbank ausführen, dies ist der Indexzustand zum Zeitpunkt der IGC Version 4.0.1
+
+
+Postgres Datenbankeinstellungen im IGE iPlug
+--------------------------------------------
+Die Einstellung der Datenbank erfolgt in der Datei:
+
+- conf/config.override.properties
+
+	iplug.database.driver=org.postgresql.Driver
+	iplug.database.username=postgres
+	iplug.database.password=...
+	iplug.database.schema=
+	iplug.database.url=jdbc\:postgresql\://localhost\:5432/igc_test
+	iplug.database.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+Daraus werden beim Start des iPlugs die Einstellungen in die Datei conf/default-datasource.properties übernommen.
