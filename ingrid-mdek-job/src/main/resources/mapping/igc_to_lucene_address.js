@@ -40,15 +40,17 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 IDX.addDocumentBoost(0.1);
 
 // ---------- t02_address ----------
-var addrId = sourceRecord.get("id");
+// convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+var addrId = +sourceRecord.get("id");
+
 // only index addresses where hide_address is not set !
-var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
+var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrId]);
 for (i=0; i<addrRows.size(); i++) {
     addT02Address(addrRows.get(i));
     var addrUuid = addrRows.get(i).get("adr_uuid");
 
     // ---------- t021_communication ----------
-    var rows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrId]);
+    var rows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [+addrId]);
     for (j=0; j<rows.size(); j++) {
         addT021Communication(rows.get(j));
     }
@@ -70,19 +72,19 @@ for (i=0; i<addrRows.size(); i++) {
 	    level++;
     }
     // ---------- searchterm_adr ----------
-    var rows = SQL.all("SELECT * FROM searchterm_adr WHERE adr_id=?", [addrId]);
+    var rows = SQL.all("SELECT * FROM searchterm_adr WHERE adr_id=?", [+addrId]);
     for (j=0; j<rows.size(); j++) {
         addSearchtermAdr(rows.get(j));
         var searchtermId = rows.get(j).get("searchterm_id");
 
         // ---------- searchterm_value ----------
-        var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [searchtermId]);
+        var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [+searchtermId]);
         for (k=0; k<subRows.size(); k++) {
             addSearchtermValue(subRows.get(k));
             var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
             if (hasValue(searchtermSnsId)) {
                 // ---------- searchterm_sns ----------
-                var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [searchtermSnsId]);
+                var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [+searchtermSnsId]);
                 for (l=0; l<subSubRows.size(); l++) {
                     addSearchtermSns(subSubRows.get(l));
                 }
