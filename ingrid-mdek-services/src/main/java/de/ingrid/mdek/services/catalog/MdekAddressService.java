@@ -1331,8 +1331,13 @@ public class MdekAddressService {
 			// get first non folder parent node
 			do {
 			    parentNode = loadByUuid(parentUuidTmp, IdcEntityVersion.PUBLISHED_VERSION);
-			    parentUuidTmp = parentNode.getFkAddrUuid();
-			} while (isFolder( parentNode ) && parentUuidTmp != null);
+			    if (!isFolder(parentNode)) {
+			        parentUuidTmp = parentNode.getAddrUuid();
+			        break;
+			    } else {
+			        parentUuidTmp = parentNode.getFkAddrUuid();
+			    }
+			} while (parentUuidTmp != null);
             
 			if (parentUuidTmp != null) {
                 parentType = EnumUtil.mapDatabaseToEnumConst( AddressType.class,
