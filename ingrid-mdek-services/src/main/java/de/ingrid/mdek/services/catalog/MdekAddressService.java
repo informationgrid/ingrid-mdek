@@ -1066,6 +1066,21 @@ public class MdekAddressService {
 			}
 		}
 	}
+	
+    public boolean isFolder(AddressNode aNode) {
+        T02Address aWork = aNode.getT02AddressWork();
+        if (aWork != null) {
+            return aWork.getAdrType() == 1000;
+        } else {
+            T02Address aPub = aNode.getT02AddressPublished();
+            if (aPub != null) {
+                return aPub.getAdrType() == 1000;
+            } else {
+                throw new MdekException( "Address has no working and no published version!" );
+            }
+
+        }
+    }
 
 	/**
 	 * Checks whether node has unpublished parents. Throws MdekException if so.
@@ -1102,7 +1117,7 @@ public class MdekAddressService {
 			}
 			
 			// check
-			if (!hasPublishedVersion(pathNode)) {
+			if (!hasPublishedVersion(pathNode) && !isFolder(pathNode)) {
 				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 		}
@@ -1170,19 +1185,23 @@ public class MdekAddressService {
 		if (parentUuid == null) {
 			return;
 		}
-		T02Address parentPub =
-			loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION).getT02AddressPublished();
-		if (parentPub == null) {
-			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
-		}
 		
-		// get publish type of parent
-		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentPub.getPublishId());
+		AddressNode parentAddress = loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
 
-		// check whether publish type of parent is smaller
-		if (!pubTypeParent.includes(pubTypeChild)) {
-			throw new MdekException(new MdekError(MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION));					
-		}
+		if (!isFolder( parentAddress )) {
+            T02Address parentPub = parentAddress.getT02AddressPublished(); 
+            if (parentPub == null) {
+                throw new MdekException( new MdekError( MdekErrorType.PARENT_NOT_PUBLISHED ) );
+            }
+
+            // get publish type of parent
+            PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst( PublishType.class, parentPub.getPublishId() );
+
+            // check whether publish type of parent is smaller
+            if (!pubTypeParent.includes( pubTypeChild )) {
+                throw new MdekException( new MdekError( MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION ) );
+            }
+        }
 	}
 
 	/** Checks whether a tree fits to a new publication condition.
@@ -1307,10 +1326,23 @@ public class MdekAddressService {
 		// basic parent checks
 		AddressType parentType = null;
 		if (parentUuid != null) {
-			AddressNode parentNode = loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
-			parentType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
-					parentNode.getT02AddressPublished().getAdrType());
-
+			AddressNode parentNode = null;
+			String parentUuidTmp = parentUuid;
+			// get first non folder parent node
+			do {
+			    parentNode = loadByUuid(parentUuidTmp, IdcEntityVersion.PUBLISHED_VERSION);
+			    if (!isFolder(parentNode)) {
+			        parentUuidTmp = parentNode.getAddrUuid();
+			        break;
+			    } else {
+			        parentUuidTmp = parentNode.getFkAddrUuid();
+			    }
+			} while (parentUuidTmp != null);
+            
+			if (parentUuidTmp != null) {
+                parentType = EnumUtil.mapDatabaseToEnumConst( AddressType.class,
+                        parentNode.getT02AddressPublished().getAdrType() );
+			}
 		}
 
 		// check address type conflicts !

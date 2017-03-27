@@ -187,7 +187,7 @@ public class ConsistencyCheckerDaoHibernate
 				"from AddressNode adrNode " +
 				"where " +
 				// exclude hidden user addresses !
-				AddressType.getHQLExcludeIGEUsersViaNode("adrNode") +
+				AddressType.getHQLExcludeIGEUsersViaNode("adrNode", null) +
 				" AND adrNode.fkAddrUuid not in ( select adrNode.addrUuid from adrNode )";
 		
 		List<AddressNode> resultList = getSession().createQuery(hqlQuery).list();

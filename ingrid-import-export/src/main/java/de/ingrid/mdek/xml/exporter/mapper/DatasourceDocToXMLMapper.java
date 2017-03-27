@@ -151,6 +151,11 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 				for (List<IngridDocument> row : rows) {
 					rowNum++;
 					for (IngridDocument col : row) {
+					    if (col.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
+                            List<IngridDocument> listDyn = new ArrayList<IngridDocument>();
+					        listDyn.add( col );
+					        createAdditionalValues(parent, listDyn, rowNum);
+					    }
 						parent.addChild(createGeneralAdditionalValue(col, rowNum, tableKey));
 					}
 				}
