@@ -51,7 +51,7 @@
       <dependency>
         <groupId>de.ingrid</groupId>
         <artifactId>ingrid-codelist-service</artifactId>
-        <version>${project.version}</version>
+        <version>${ingrid-codelist-service.version}</version>
       </dependency>
       <dependency>
         <groupId>de.ingrid.mdek</groupId>
