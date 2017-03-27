@@ -1,6 +1,6 @@
-{ 
-    "_default_" : { 
-        "_source" : { "enabled" : true }, 
+{
+    "_default_" : {
+        "_source" : { "enabled" : true },
         "properties": {
             "t01_object.mod_time": {
                 "type": "string"
@@ -127,15 +127,18 @@
                 "null_value" : 0.0
             },
             "title": {
-                "analyzer": "decomp",
+                "index_analyzer": "decomp",
+                "search_analyzer": "no_decomp",
                 "type": "string"
             },
             "summary": {
-                "analyzer": "decomp",
+                "index_analyzer": "decomp",
+                "search_analyzer": "no_decomp",
                 "type": "string"
             },
             "content": {
-                "analyzer": "decomp",
+                "index_analyzer": "decomp",
+                "search_analyzer": "no_decomp",
                 "type": "string"
             },
             "x1": {
@@ -155,5 +158,5 @@
                 "index": "no"
             }
         }
-    } 
+    }
 }
