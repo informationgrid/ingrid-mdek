@@ -72,7 +72,7 @@
                 failOnConnectionError="false"
                 >
             <![CDATA[
-            SELECT 'found.igc.version=', value_string FROM sys_generic_key WHERE key_name="IDC_VERSION";
+            SELECT 'found.igc.version=', value_string FROM sys_generic_key WHERE key_name='IDC_VERSION';
             ]]>
         </sql>
         
