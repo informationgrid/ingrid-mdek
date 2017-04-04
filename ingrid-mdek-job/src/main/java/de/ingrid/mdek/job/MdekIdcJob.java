@@ -25,7 +25,7 @@ package de.ingrid.mdek.job;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.job.tools.MdekErrorHandler;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;

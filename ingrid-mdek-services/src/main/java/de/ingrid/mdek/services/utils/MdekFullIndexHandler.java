@@ -24,7 +24,8 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekUtils;
@@ -89,7 +90,7 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
  */
 public class MdekFullIndexHandler implements IFullIndexAccess {
 
-	private static final Logger LOG = Logger.getLogger(MdekFullIndexHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekFullIndexHandler.class);
 	
 	protected MdekCatalogService catalogService;
 

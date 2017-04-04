@@ -28,7 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -116,7 +117,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class DocToBeanMapper implements IMapper {
 
-	private static final Logger LOG = Logger.getLogger(DocToBeanMapper.class);
+	private static final Logger LOG = LogManager.getLogger(DocToBeanMapper.class);
 
 	private static DocToBeanMapper myInstance;
 

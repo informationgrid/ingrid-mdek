@@ -27,7 +27,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
@@ -74,7 +75,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekObjectService {
 
-	private static final Logger LOG = Logger.getLogger(MdekObjectService.class);
+	private static final Logger LOG = LogManager.getLogger(MdekObjectService.class);
 
 	private static MdekObjectService myInstance;
 

@@ -30,16 +30,17 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -57,7 +58,7 @@ public class HQLDaoHibernate
 	extends TransactionService
 	implements IHQLDao {
 
-	private static final Logger LOG = Logger.getLogger(HQLDaoHibernate.class);
+	private static final Logger LOG = LogManager.getLogger(HQLDaoHibernate.class);
 
 	/** Value: IdcEntityType */
 	private static String KEY_ENTITY_TYPE = "_ENTITY_TYPE";

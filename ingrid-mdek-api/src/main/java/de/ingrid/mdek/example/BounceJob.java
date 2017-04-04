@@ -22,8 +22,9 @@
  */
 package de.ingrid.mdek.example;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import java.util.logging.Level;
+
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.job.IJob;
 import de.ingrid.mdek.services.log.ILogService;
@@ -97,7 +98,7 @@ public class BounceJob implements IJob {
         try {
             Thread.sleep(sec * 1000);
         } catch (InterruptedException e) {
-            if (_logger.isEnabledFor(Level.WARN)) {
+            if (_logger.isWarnEnabled()) {
             	_logger.warn("Wait is interrupted.");
             }
         }		

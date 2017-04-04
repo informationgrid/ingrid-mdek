@@ -25,7 +25,8 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -68,7 +69,7 @@ public class ObjectNodeDaoHibernate
 	extends GenericHibernateDao<ObjectNode>
 	implements  IObjectNodeDao, IFullIndexAccess {
 
-	private static final Logger LOG = Logger.getLogger(ObjectNodeDaoHibernate.class);
+	private static final Logger LOG = LogManager.getLogger(ObjectNodeDaoHibernate.class);
 
     public ObjectNodeDaoHibernate(SessionFactory factory) {
         super(factory, ObjectNode.class);

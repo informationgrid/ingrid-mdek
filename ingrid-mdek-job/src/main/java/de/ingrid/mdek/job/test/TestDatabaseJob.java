@@ -25,7 +25,7 @@ package de.ingrid.mdek.job.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 
 import de.ingrid.mdek.job.IJob;

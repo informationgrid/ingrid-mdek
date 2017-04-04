@@ -22,7 +22,8 @@
  */
 package de.ingrid.mdek.job.tools;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.StaleStateException;
 
 import de.ingrid.mdek.MdekError;
@@ -35,7 +36,7 @@ import de.ingrid.mdek.job.MdekException;
  */
 public class MdekErrorHandler {
 
-	private static final Logger LOG = Logger.getLogger(MdekErrorHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekErrorHandler.class);
 
 	private static MdekErrorHandler myInstance;
 
