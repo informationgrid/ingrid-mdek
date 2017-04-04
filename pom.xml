@@ -95,6 +95,12 @@
         <artifactId>xstream</artifactId>
         <version>1.4.8</version>
       </dependency>
+      <!-- An updated version is needed for log4j2! -->
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.7.1</version>
+      </dependency>
       <dependency>
         <groupId>de.ingrid</groupId>
         <artifactId>ingrid-utils</artifactId>
