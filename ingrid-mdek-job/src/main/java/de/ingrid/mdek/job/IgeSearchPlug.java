@@ -235,7 +235,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
                 
-                if ("uuid".equals( propName ) && propValue != null) {
+                if (("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches()) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
@@ -243,8 +243,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
                 } else {
-                    throw new Exception( "Missing constraint for property 'uuid' in update request for update of record '"
-                            + utils.getString( item, ".//gmd:fileIdentifier/gco:CharacterString" ) + "'." );
+                    log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
             
@@ -283,7 +283,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                         throw new Exception("Object could not be deleted: " + propValue);
                     }
                 } else {
-                    log.warn( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
             

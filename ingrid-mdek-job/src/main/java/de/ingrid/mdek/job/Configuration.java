@@ -39,6 +39,7 @@ import org.springframework.core.io.Resource;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformers;
+import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
 import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
 import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
 
@@ -92,6 +93,11 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @PropertyValue("communications.ige.clientName")
     @DefaultValue("ige-iplug-test")
     public String igeClientName;
+    
+    // @CommandLineValue(longOpt = "reconnectIntervall", shortOpt = "ri")
+    @PropertyValue("communications.ige.reconnectInterval")
+    @DefaultValue("30")
+    public Integer reconnectInterval;
     
     @Override
     public void initialize() {

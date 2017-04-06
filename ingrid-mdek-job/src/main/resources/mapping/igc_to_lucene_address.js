@@ -40,21 +40,23 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 IDX.addDocumentBoost(0.1);
 
 // ---------- t02_address ----------
-var addrId = sourceRecord.get("id");
+// convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+var addrId = +sourceRecord.get("id");
+
 // only index addresses where hide_address is not set !
-var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
+var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrId]);
 for (i=0; i<addrRows.size(); i++) {
     addT02Address(addrRows.get(i));
     var addrUuid = addrRows.get(i).get("adr_uuid");
 
     // ---------- t021_communication ----------
-    var rows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrId]);
+    var rows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [+addrId]);
     for (j=0; j<rows.size(); j++) {
         addT021Communication(rows.get(j));
     }
     // ---------- address_node CHILDREN ----------
     // only children published and NOT hidden !
-    var rows = SQL.all("SELECT address_node.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
+    var rows = SQL.all("SELECT t02_address.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
     for (j=0; j<rows.size(); j++) {
         addAddressNodeChildren(rows.get(j));
     }
@@ -64,25 +66,26 @@ for (i=0; i<addrRows.size(); i++) {
     var level = 1;
     while (hasValue(parentUuid)) {
         // NOTICE: Parents HAVE TO BE published if child is published ! We do NOT check hidden address cause only persons are hidden and persons cannot be parents
-	    var parentRow = SQL.first("SELECT * FROM address_node, t02_address WHERE address_node.addr_uuid=? AND address_node.addr_id_published=t02_address.id", [parentUuid]);
+        //         It's also valid if parent is a folder!
+	    var parentRow = SQL.first("SELECT * FROM address_node, t02_address WHERE address_node.addr_uuid=? AND (address_node.addr_id_published=t02_address.id OR (address_node.addr_id=t02_address.id AND t02_address.adr_type=1000))", [parentUuid]);
 	    addAddressParent(level, parentRow);
 	    parentUuid = parentRow.get("fk_addr_uuid");
 	    level++;
     }
     // ---------- searchterm_adr ----------
-    var rows = SQL.all("SELECT * FROM searchterm_adr WHERE adr_id=?", [addrId]);
+    var rows = SQL.all("SELECT * FROM searchterm_adr WHERE adr_id=?", [+addrId]);
     for (j=0; j<rows.size(); j++) {
         addSearchtermAdr(rows.get(j));
         var searchtermId = rows.get(j).get("searchterm_id");
 
         // ---------- searchterm_value ----------
-        var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [searchtermId]);
+        var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [+searchtermId]);
         for (k=0; k<subRows.size(); k++) {
             addSearchtermValue(subRows.get(k));
             var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
             if (hasValue(searchtermSnsId)) {
                 // ---------- searchterm_sns ----------
-                var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [searchtermSnsId]);
+                var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [+searchtermSnsId]);
                 for (l=0; l<subSubRows.size(); l++) {
                     addSearchtermSns(subSubRows.get(l));
                 }
@@ -128,7 +131,8 @@ function addT021Communication(row) {
     IDX.add("t021_communication.descr", row.get("descr"));
 }
 function addAddressNodeChildren(row) {
-    IDX.add("children.address_node.addr_uuid", row.get("addr_uuid"));
+    IDX.add("children.address_node.addr_uuid", row.get("adr_uuid"));
+    IDX.add("children.address_node.addr_type", row.get("adr_type"));
 }
 function addAddressParent(level, row) {
     if (level == 1) {
@@ -139,6 +143,9 @@ function addAddressParent(level, row) {
     IDX.add("t02_address".concat(level + 1).concat(".adr_id"), row.get("adr_uuid"));
     IDX.add("t02_address".concat(level + 1).concat(".typ"), row.get("adr_type"));
     IDX.add("title".concat(level + 1), row.get("institution"));
+    if(row.get("adr_type") != "1000"){
+        IDX.add("t02_address.parents.title", row.get("institution"));
+    }
 }
 function addSearchtermAdr(row) {
     IDX.add("searchterm_adr.line", row.get("line"));

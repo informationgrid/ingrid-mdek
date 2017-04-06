@@ -915,7 +915,8 @@ public class MdekObjectService {
 		// first check whether published
 		IngridDocument errInfo = new IngridDocument();
 		for (AddressNode aNode : aNodes) {
-			if (!addressService.hasPublishedVersion(aNode)) {
+		    // if address is not a system user and not published address
+			if (!( "IGE_USER".equals( aNode.getFkAddrUuid() ) || addressService.hasPublishedVersion(aNode))) {
 				addressService.setupErrorInfoAddr(errInfo, aNode.getAddrUuid());
 			}
 		}
@@ -928,6 +929,9 @@ public class MdekObjectService {
 		PublishType pubTypeObj = EnumUtil.mapDatabaseToEnumConst(PublishType.class, pubTypeObjDB);
 		List<IngridDocument> errAddrList = new ArrayList<IngridDocument>();
 		for (AddressNode aNode : aNodes) {
+		    // if address is a system user then we skip the check, since system users can have state working version
+		    if ("IGE_USER".equals( aNode.getFkAddrUuid() )) continue;
+		    
 			// get referenced address and its publish type
 			T02Address a = aNode.getT02AddressPublished();
 			PublishType pubTypeAddr = EnumUtil.mapDatabaseToEnumConst(PublishType.class, a.getPublishId());
@@ -1026,6 +1030,21 @@ public class MdekObjectService {
 		}
 
 		return (hasWorkingCopy(oNode) || hasPublishedVersion(oNode));
+	}
+	
+	public boolean isFolder(ObjectNode oNode) {
+	    T01Object oWork = oNode.getT01ObjectWork();
+		if (oWork != null) {
+			return oWork.getObjClass() == 1000;
+		} else {
+		    T01Object oPub = oNode.getT01ObjectPublished();
+		    if (oPub != null) {
+		        return oPub.getObjClass() == 1000;
+		    } else {
+		        throw new MdekException( "Object has no working and no published version!" );
+		    }
+		    
+		}
 	}
 
 	/** Checks whether given Object has a published version.
@@ -1161,7 +1180,7 @@ public class MdekObjectService {
 			}
 			
 			// check
-			if (!hasPublishedVersion(pathNode)) {
+			if (!hasPublishedVersion(pathNode) && !isFolder( pathNode )) {
 				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 		}
@@ -1194,18 +1213,21 @@ public class MdekObjectService {
 		if (parentUuid == null) {
 			return;
 		}
-		T01Object parentObjPub =
-			loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION).getT01ObjectPublished();
-		if (parentObjPub == null) {
-			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
-		}
+		ObjectNode parentObj = loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
 		
-		// get publish type of parent
-		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentObjPub.getPublishId());
-
-		// check whether publish type of parent is smaller
-		if (!pubTypeParent.includes(pubTypeChild)) {
-			throw new MdekException(new MdekError(MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION));					
+		if (!isFolder( parentObj )) {
+    		T01Object parentObjPub = parentObj.getT01ObjectPublished(); 
+    		if (parentObjPub == null) {
+    			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
+    		}
+    		
+    		// get publish type of parent
+    		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentObjPub.getPublishId());
+    
+    		// check whether publish type of parent is smaller
+    		if (!pubTypeParent.includes(pubTypeChild)) {
+    			throw new MdekException(new MdekError(MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION));					
+    		}
 		}
 	}
 

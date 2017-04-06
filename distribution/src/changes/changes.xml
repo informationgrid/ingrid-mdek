@@ -27,6 +27,24 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="4.0.2" date="2017-04-06" description="Release 4.0.2">
+      <action type="add" dev="wemove" issue="REDMINE-438">
+        Added support for PostgreSQL. Full support in installer (create empty catalog) or migration via tool (see docs in conf/sql).
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-365">
+        Added support for folders.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-524">
+        Fix: Delete/Update constraints does not recognize CSW ISO Core queriable "identifier".
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-535">
+        Fixed CSW-T error when referenced address is a system user.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-536">
+        Fixed import of exported IGC documents (check for existance and update functionality).
+      </action>
+    </release>
+
     <release version="4.0.1.1" date="2016-02-02" description="Release 4.0.1.1">
       <action type="fix" dev="wemove" issue="REDMINE-534">
         Fixed wrong conversion of date to ISO format.

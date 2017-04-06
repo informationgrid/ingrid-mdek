@@ -1089,7 +1089,7 @@ class MdekExampleQSThread extends Thread {
 			"inner join aResp.t021Communications comm " +
 		"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND aMeta.expiryState = " + ExpiryState.INITIAL.getDbValue() +
 			" and a.responsibleUuid = aRespNode.addrUuid " +
 			" and comm.commtypeKey = " + MdekUtils.COMM_TYPE_EMAIL;

@@ -9,17 +9,18 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>4.0.1.1</version>
+  <version>4.0.2</version>
   <name>ingrid-iplug-ige</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.</description>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.0.1</ingrid-udk-importer.version>
-    <ingrid-utils.version>4.0.1.1</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>4.0.1.1</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>4.0.1</ingrid-base-webapp.version>
+    <ingrid-udk-importer.version>4.0.2</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>4.0.1</ingrid-codelist-service.version>
+    <ingrid-utils.version>4.0.2</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>4.0.2</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>4.0.2</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
@@ -47,6 +48,11 @@
   </modules>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-codelist-service</artifactId>
+        <version>${ingrid-codelist-service.version}</version>
+      </dependency>
       <dependency>
         <groupId>de.ingrid.mdek</groupId>
         <artifactId>ingrid-mdek-api</artifactId>
@@ -98,12 +104,6 @@
   </dependencyManagement>
 
   <dependencies>
-
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.34</version>
-    </dependency>
 
     <dependency>
       <groupId>de.ingrid</groupId>
