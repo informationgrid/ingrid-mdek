@@ -156,15 +156,18 @@
                 "null_value" : 0.0
             },
             "title": {
-                "analyzer": "german",
+                "index_analyzer": "decomp",
+                "search_analyzer": "no_decomp",
                 "type": "string"
             },
             "summary": {
-                "analyzer": "german",
+                "index_analyzer": "decomp",
+                "search_analyzer": "no_decomp",
                 "type": "string"
             },
             "content": {
-              "analyzer": "german",
+                "index_analyzer": "decomp",
+                "search_analyzer": "no_decomp",
                 "type": "string"
             },
             "x1": {
