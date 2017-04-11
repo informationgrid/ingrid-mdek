@@ -11,7 +11,7 @@
             </Policies>
             <DefaultRolloverStrategy max="9" />
         </RollingFile>
-        <RollingFile name="ImportFile" fileName="logs/importer.log" filePattern="logs/log.log.%i">
+        <RollingFile name="ImportFile" fileName="logs/importer.log" filePattern="logs/importer.log.%i">
             <PatternLayout pattern="%5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%L) - %m%n" />
             <Policies>
                 <SizeBasedTriggeringPolicy size="10 MB" />
