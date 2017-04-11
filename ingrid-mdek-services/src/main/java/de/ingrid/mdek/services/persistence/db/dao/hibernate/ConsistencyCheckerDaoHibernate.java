@@ -25,7 +25,8 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
@@ -90,7 +91,7 @@ public class ConsistencyCheckerDaoHibernate
 	extends TransactionService
 	implements IConsistencyCheckerDao {
 
-	private static final Logger LOG 	= Logger.getLogger(ConsistencyCheckerDaoHibernate.class);
+	private static final Logger LOG 	= LogManager.getLogger(ConsistencyCheckerDaoHibernate.class);
 
 	private List<QueryParameter> tableList 	= new ArrayList<QueryParameter>();
 	

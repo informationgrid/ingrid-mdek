@@ -22,7 +22,8 @@
  */
 package de.ingrid.mdek.services.utils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -40,7 +41,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
  */
 public class MdekTreePathHandler {
 
-	private static final Logger LOG = Logger.getLogger(MdekTreePathHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekTreePathHandler.class);
 
 	static private String NODE_SEPARATOR = "|";  
 

@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -70,7 +71,7 @@ public class AddressNodeDaoHibernate
 	extends GenericHibernateDao<AddressNode>
 	implements  IAddressNodeDao, IFullIndexAccess {
 
-	private static final Logger LOG = Logger.getLogger(AddressNodeDaoHibernate.class);
+	private static final Logger LOG = LogManager.getLogger(AddressNodeDaoHibernate.class);
 
     public AddressNodeDaoHibernate(SessionFactory factory) {
         super(factory, AddressNode.class);

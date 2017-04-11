@@ -25,7 +25,8 @@ package de.ingrid.mdek.services.catalog.dbconsistency;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -37,7 +38,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
  */
 public class ObjectHierarchyChecker implements ConsistencyChecker {
 
-	private static final Logger LOG = Logger.getLogger(ObjectHierarchyChecker.class);
+	private static final Logger LOG = LogManager.getLogger(ObjectHierarchyChecker.class);
 
 	private IConsistencyCheckerDao hqlConsistencyChecker;
 	private List<ErrorReport> reportList = new ArrayList<ErrorReport>();

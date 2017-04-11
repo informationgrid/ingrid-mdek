@@ -131,6 +131,12 @@
       <artifactId>ingrid-iplug-dsc</artifactId>
       <version>${ingrid-iplug-dsc.version}</version>
       <type>jar</type>
+      <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <build>

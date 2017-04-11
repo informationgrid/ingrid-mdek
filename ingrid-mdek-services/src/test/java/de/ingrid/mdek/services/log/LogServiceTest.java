@@ -26,7 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 
 import de.ingrid.mdek.job.IJob;

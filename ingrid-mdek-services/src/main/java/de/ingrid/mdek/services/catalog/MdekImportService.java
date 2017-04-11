@@ -32,7 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -69,7 +70,7 @@ import de.ingrid.utils.IngridDocument;
  * Callbacks for importer.
  */
 public class MdekImportService implements IImporterCallback {
-	private static final Logger LOG = Logger.getLogger(MdekImportService.class);
+	private static final Logger LOG = LogManager.getLogger(MdekImportService.class);
 
 	private static MdekImportService myInstance;
 
