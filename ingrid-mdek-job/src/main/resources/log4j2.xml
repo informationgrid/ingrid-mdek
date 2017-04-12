@@ -18,6 +18,14 @@
             </Policies>
             <DefaultRolloverStrategy max="9" />
         </RollingFile>
+        <RollingFile name="AuditFile" fileName="logs/audit.log" filePattern="logs/audit.%d{yyyyMM}_%i.log">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] %m%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax" />
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Logger name="de.ingrid" level="info" additivity="false">
@@ -25,6 +33,9 @@
         </Logger>
         <Logger name="de.ingrid.importer" level="info" additivity="false">
             <AppenderRef ref="ImportFile" />
+        </Logger>
+        <Logger name="de.ingrid.mdek.services.log.AuditService" level="info" additivity="false">
+            <AppenderRef ref="AuditFile" />
         </Logger>
         <Logger name="org.springframework" level="info" additivity="false">
             <AppenderRef ref="LogFile" />

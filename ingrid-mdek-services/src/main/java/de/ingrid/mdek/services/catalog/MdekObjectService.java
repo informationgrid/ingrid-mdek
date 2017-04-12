@@ -24,10 +24,13 @@ package de.ingrid.mdek.services.catalog;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
+import org.json.simple.JSONObject;
 import org.apache.logging.log4j.Logger;
 
 import de.ingrid.admin.elasticsearch.IndexManager;
@@ -44,6 +47,7 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.services.log.AuditService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -103,7 +107,7 @@ public class MdekObjectService {
 			IPermissionService permissionService) {
 		if (myInstance == null) {
 	        myInstance = new MdekObjectService(daoFactory, permissionService);
-	      }
+	    }
 		return myInstance;
 	}
 	
@@ -690,6 +694,14 @@ public class MdekObjectService {
             indexManager.update( docProducer.getIndexInfo(), doc, true );
             indexManager.flush();
         }
+        
+        if (AuditService.instance != null && doc != null) {
+            String message = "PUBLISHED document successfully with UUID: " + uuid;
+            Map<String, String> map = new HashMap<String, String>();
+            map.put( "idf", (String) doc.get( "idf" ) );
+            String payload = JSONObject.toJSONString( map );
+            AuditService.instance.log( message, payload );
+        }
 
 		return uuid;
 	}
@@ -967,7 +979,12 @@ public class MdekObjectService {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);	
+		
+		if (AuditService.instance != null) {
+		    String message = "DELETED document: " + uuid;
+		    AuditService.instance.log( message );
+		}
 
 		return result;
 	}
