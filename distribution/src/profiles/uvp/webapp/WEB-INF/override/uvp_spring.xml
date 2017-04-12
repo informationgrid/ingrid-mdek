@@ -66,5 +66,7 @@
         <property name="compile" value="false" />
     </bean>
     
+    <!-- enable audit service for logging operations publish and delete -->
+    <bean id="auditService" class="de.ingrid.mdek.services.log.AuditService" />
 
 </beans>
