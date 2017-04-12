@@ -36,7 +36,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -49,7 +50,7 @@ import de.ingrid.mdek.xml.util.file.FileIndexer;
 import de.ingrid.mdek.xml.util.file.TemporaryFile;
 
 public class IngridXMLStreamReader {
-	private final static Logger log = Logger.getLogger(IngridXMLStreamReader.class);
+	private final static Logger log = LogManager.getLogger(IngridXMLStreamReader.class);
 	
 	private final FileFragmentLoader fileFragmentLoader;
 	private final Map<String, List<FileIndex>> objectIndexMap;

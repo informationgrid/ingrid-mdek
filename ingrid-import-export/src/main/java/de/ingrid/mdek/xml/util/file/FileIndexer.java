@@ -34,14 +34,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.xml.importer.IImporterCallback;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 
 public class FileIndexer {
-	private final static Logger log = Logger.getLogger(FileIndexer.class);
+	private final static Logger log = LogManager.getLogger(FileIndexer.class);
 
 	private final static String XML_ENCODING = "ISO-8859-1";
 	

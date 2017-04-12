@@ -27,7 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -55,7 +56,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekPermissionHandler {
 
-	private static final Logger LOG = Logger.getLogger(MdekPermissionHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekPermissionHandler.class);
 	
 	private IPermissionService permService;
 

@@ -26,7 +26,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ import de.ingrid.mdek.job.IJob;
 @Service
 public class RegistrationService implements IRegistrationService {
 
-    private static final Logger LOG = Logger.getLogger( RegistrationService.class );
+    private static final Logger LOG = LogManager.getLogger( RegistrationService.class );
 
     private Map<String, IJob> _beanFactoryCache = new HashMap<String, IJob>();
 

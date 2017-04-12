@@ -67,7 +67,7 @@ for (i=0; i<addrRows.size(); i++) {
     while (hasValue(parentUuid)) {
         // NOTICE: Parents HAVE TO BE published if child is published ! We do NOT check hidden address cause only persons are hidden and persons cannot be parents
         //         It's also valid if parent is a folder!
-	    var parentRow = SQL.first("SELECT * FROM address_node, t02_address WHERE address_node.addr_uuid=? AND (address_node.addr_id_published=t02_address.id || (address_node.addr_id=t02_address.id && t02_address.adr_type=1000))", [parentUuid]);
+	    var parentRow = SQL.first("SELECT * FROM address_node, t02_address WHERE address_node.addr_uuid=? AND (address_node.addr_id_published=t02_address.id OR (address_node.addr_id=t02_address.id AND t02_address.adr_type=1000))", [parentUuid]);
 	    addAddressParent(level, parentRow);
 	    parentUuid = parentRow.get("fk_addr_uuid");
 	    level++;

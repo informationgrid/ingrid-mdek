@@ -27,7 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -53,7 +54,7 @@ public class SearchtermValueDaoHibernate
 	extends GenericHibernateDao<SearchtermValue>
 	implements  ISearchtermValueDao {
 
-	private static final Logger LOG = Logger.getLogger(SearchtermValueDaoHibernate.class);
+	private static final Logger LOG = LogManager.getLogger(SearchtermValueDaoHibernate.class);
 
     public SearchtermValueDaoHibernate(SessionFactory factory) {
         super(factory, SearchtermValue.class);

@@ -24,7 +24,8 @@ package de.ingrid.mdek.caller;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekKeys;
@@ -39,7 +40,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public abstract class MdekCaller implements IMdekCaller {
 
-	private final static Logger log = Logger.getLogger(MdekCaller.class);
+	private final static Logger log = LogManager.getLogger(MdekCaller.class);
 
 	protected IMdekClientCaller mdekClientCaller;
 

@@ -31,7 +31,8 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -54,7 +55,7 @@ import net.sf.ehcache.CacheManager;
  */
 public class MdekIgcProfileHandler {
 
-	private static final Logger LOG = Logger.getLogger(MdekIgcProfileHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekIgcProfileHandler.class);
 
 	private static MdekIgcProfileHandler myInstance;
 
