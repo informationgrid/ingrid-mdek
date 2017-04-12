@@ -695,7 +695,7 @@ public class MdekObjectService {
             indexManager.flush();
         }
         
-        if (AuditService.instance != null) {
+        if (AuditService.instance != null && doc != null) {
             String message = "PUBLISHED document successfully with UUID: " + uuid;
             Map<String, String> map = new HashMap<String, String>();
             map.put( "idf", (String) doc.get( "idf" ) );
