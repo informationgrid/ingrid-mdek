@@ -1399,7 +1399,7 @@ public class MdekAddressService {
 				// TOP ADDRESS
 
 				// only institutions at top
-				if (childType != AddressType.INSTITUTION) {
+				if (childType != AddressType.INSTITUTION && childType != AddressType.FOLDER) {
 					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
 				}
 			} else {
