@@ -1357,7 +1357,7 @@ public class MdekObjectService {
 			
 			// from object published ? then check compatibility !
 			boolean isFromPublished = (fromNode.getT01ObjectPublished() != null);
-			if (isFromPublished) {
+			if (isFromPublished && !isFolder( toNode )) {
 				// new parent has to be published ! -> not possible to move published nodes under unpublished parent
 				T01Object toObjPub = toNode.getT01ObjectPublished();
 				if (toObjPub == null) {

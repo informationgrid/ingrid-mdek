@@ -1475,7 +1475,7 @@ public class MdekAddressService {
 
 			// from address published ? then check compatibility !
 			boolean isFromPublished = (fromNode.getT02AddressPublished() != null);
-			if (isFromPublished) {
+			if (isFromPublished && !isFolder( toNode )) {
 				// new parent has to be published ! -> not possible to move published nodes under unpublished parent
 				T02Address toAddrPub = toNode.getT02AddressPublished();
 				if (toAddrPub == null) {
