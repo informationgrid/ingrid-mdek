@@ -27,6 +27,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="4.0.2.1-SNAPSHOT" date="2017-xx-xx" description="Release 4.0.2.1">
+      <action type="fix" dev="wemove" issue="REDMINE-635">
+        Fixed insertion of published documents under folders.
+      </action>
+    </release>
+    
     <release version="4.0.2" date="2017-04-06" description="Release 4.0.2">
       <action type="add" dev="wemove" issue="REDMINE-438">
         Added support for PostgreSQL. Full support in installer (create empty catalog) or migration via tool (see docs in conf/sql).
