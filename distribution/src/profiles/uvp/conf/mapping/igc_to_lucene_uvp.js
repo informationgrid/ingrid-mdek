@@ -198,6 +198,16 @@ for (i=0; i<objRows.size(); i++) {
         IDX.add("lon_center", lonCenter);
         IDX.add("lat_center", latCenter);
     }
+    
+    // add UVP specific mapping
+    // UVP checkbox examination
+    var uvpNeedsExamination = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpNeedsExamination']);
+    if (hasValue(uvpNeedsExamination) && hasValue(uvpNeedsExamination.get("data"))) {
+        var value = uvpNeedsExamination.get("data");
+        if (value === "true") {
+            IDX.add("needs_examination", true);
+        }
+    }
 }
 
 function addAddressRow(adrValueRow){
