@@ -80,7 +80,7 @@ public class MdekErrorHandler {
 		if (excIn instanceof MdekException) {
 			// log with info, we already have an identified error !
 			LOG.info("Identified MdekException: " + excIn);
-			
+			excIn.printStackTrace();
 		} else  {
 			LOG.error("EXCEPTION: " + excIn);
 
