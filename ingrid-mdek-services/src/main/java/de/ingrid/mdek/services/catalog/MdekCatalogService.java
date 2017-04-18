@@ -838,7 +838,10 @@ public class MdekCatalogService {
 
 		for (String uuid : uuids) {
 			AddressNode aNode = daoAddressNode.getAddressForIndex(uuid);
-			fullIndexHandler.updateAddressIndex(aNode);
+			// skip folders which are excluded from address search
+			if (aNode != null) {
+			    fullIndexHandler.updateAddressIndex(aNode);
+			}
 			updateJobInfo(JobType.REBUILD_SYSLISTS, "Address Index", ++numProcessed, totalNum, userUuid);
 		}
 	}
