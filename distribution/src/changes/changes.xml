@@ -28,6 +28,9 @@
   </properties>
   <body>
     <release version="4.0.3-SNAPSHOT" date="2017-xx-xx" description="Release 4.0.3">
+      <action type="fix" dev="wemove" issue="REDMINE-647">
+        Fixed ISO import of incomplete addresses, now persisted as working version. 
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-635">
         Fixed insertion of published documents under folders.
       </action>
