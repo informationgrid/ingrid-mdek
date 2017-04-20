@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -152,6 +152,11 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 				for (List<IngridDocument> row : rows) {
 					rowNum++;
 					for (IngridDocument col : row) {
+					    if (col.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
+                            List<IngridDocument> listDyn = new ArrayList<IngridDocument>();
+					        listDyn.add( col );
+					        createAdditionalValues(parent, listDyn, rowNum);
+					    }
 						parent.addChild(createGeneralAdditionalValue(col, rowNum, tableKey));
 					}
 				}

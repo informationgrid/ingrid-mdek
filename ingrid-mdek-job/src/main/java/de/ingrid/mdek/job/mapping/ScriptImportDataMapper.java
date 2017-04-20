@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -26,8 +26,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -43,22 +47,32 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.utils.DOMUtils;
+import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
+import de.ingrid.iplug.dsc.utils.SQLUtils;
+import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.xml.Versioning;
 import de.ingrid.mdek.xml.XMLKeys;
+import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
+import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
 
-public class ScriptImportDataMapper implements ImportDataMapper {
+public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 	
 	final protected static Log log = LogFactory.getLog(ScriptImportDataMapper.class);
 	
@@ -72,9 +86,26 @@ public class ScriptImportDataMapper implements ImportDataMapper {
 
     private MdekCatalogService catalogService;
 
+    private Connection dbConnection;
+
+    private XPathUtils xpathUtils;
+
+    private DatabaseConnection internalDatabaseConnection;
+
     @Autowired
 	public ScriptImportDataMapper(DaoFactory daoFactory) {
         catalogService = MdekCatalogService.getInstance(daoFactory);
+        
+        ConfigurableNamespaceContext cnc = new ConfigurableNamespaceContext();
+        cnc.addNamespaceContext(new IDFNamespaceContext());
+        cnc.addNamespaceContext(new IgcProfileNamespaceContext());
+        
+        xpathUtils = new XPathUtils(cnc);
+    }
+    
+    @Override
+    public void configure(PlugDescription plugDescription) {
+        internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
     }
 	
 	public InputStream convert(InputStream data, ProtocolHandler protocolHandler)
@@ -83,6 +114,8 @@ public class ScriptImportDataMapper implements ImportDataMapper {
 		InputStream targetStream = null;
 		
 		try {
+		    // open database connection
+		    dbConnection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
 			// get DOM-tree from XML-file
 			Document doc = getDomFromSourceData(data, true);
 			// close the input file after it was read
@@ -94,6 +127,11 @@ public class ScriptImportDataMapper implements ImportDataMapper {
 			
 			// get DOM-tree from template-file
 			Document docTarget = getDomFromSourceData(template.getInputStream(), false);
+            // create utils for script
+            SQLUtils sqlUtils = new SQLUtils(dbConnection);
+            // get initialized XPathUtils (see above)
+            TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
+            DOMUtils domUtils = new DOMUtils(docTarget, xpathUtils);
 			
 			preProcessMapping(docTarget);
 			
@@ -102,11 +140,19 @@ public class ScriptImportDataMapper implements ImportDataMapper {
             parameters.put("protocolHandler", protocolHandler );
 		    parameters.put("codeListService", catalogService);
 		    parameters.put("javaVersion", System.getProperty( "java.version" ));
+		    parameters.put("SQL", sqlUtils);
+		    parameters.put("XPATH", xpathUtils);
+		    parameters.put("TRANSF", trafoUtils);
+		    parameters.put("DOM", domUtils);
+		    parameters.put("log", log);
+
 		    // the template represents only one object!
 		    // Better if docTarget is only header and footer where
 		    // new objects made from template will be put into?
 		    //parameters.put("template", template);
 			doMap(parameters);
+			
+			mapAdditionalFields(docTarget);
 
 			String targetString = XMLUtils.toString(docTarget);
 			if (log.isDebugEnabled()) {
@@ -119,12 +165,50 @@ public class ScriptImportDataMapper implements ImportDataMapper {
 //			String msg = "Problems converting file '" + protocolHandler.getCurrentFilename() + "': " + e;
 //			protocolHandler.addMessage(msg + "\n");
 			throw new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, msg));
-		}
+		} finally {
+            try {
+                dbConnection.close();
+            } catch (SQLException e) {
+                log.error( "Error closing database connection", e );
+            }
+        }
 		
 		return targetStream;
 	}
 	
-	/**
+	private void mapAdditionalFields(Document docTarget) throws Exception {
+        PreparedStatement ps = this.dbConnection.prepareStatement( "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" );
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        String igcProfileStr = rs.getString("igc_profile");
+        if (log.isDebugEnabled()) {
+            log.debug("igc profile found: " + igcProfileStr);
+        }
+        ps.close();
+        
+        if (igcProfileStr != null) {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            DocumentBuilder db;
+            db = dbf.newDocumentBuilder();
+            Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
+            NodeList igcProfileCswMappingImports = xpathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMappingImport");
+            if (log.isDebugEnabled()) {
+                log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
+            }
+            engine.put("igcProfile", igcProfile);
+
+            for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
+                String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
+                
+                // ScriptEngine.execute(this.mappingScripts, parameters, compile);
+                engine.eval( new StringReader(igcProfileCswMapping) );
+            }
+        }
+        
+    }
+
+    /**
 	 * After the mapping the document will be checked for importan information
 	 * that have to be available for saving it.
 	 * @param docTarget, the mapped document
@@ -210,19 +294,6 @@ public class ScriptImportDataMapper implements ImportDataMapper {
 		}
 	}
 	
-	private void setDocumentDates(Document docTarget) {
-		String timestamp = MdekUtils.dateToTimestamp(new Date());
-		List<NodeList> datesNodesList = new ArrayList<NodeList>();
-		datesNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATE_OF_LAST_MODIFICATION));
-		datesNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATE_OF_CREATION));
-		datesNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATASET_REFERENCE_DATE));
-		
-		for (NodeList nodeList : datesNodesList) {
-			setValueInNodeList(nodeList, timestamp);
-		}
-		
-	}
-
 	private void doMap(Map<String, Object> parameters) throws Exception {
         try {
 	        ScriptEngine engine = this.getScriptEngine();
@@ -230,8 +301,6 @@ public class ScriptImportDataMapper implements ImportDataMapper {
 	        // pass all parameters
 	        for(String param : parameters.keySet())
 	        	engine.put(param, parameters.get(param));
-	        engine.put("log", log);
-	        engine.put("XPathUtils", new XPathUtils(new IDFNamespaceContext()));
 
 	
 			// execute the mapping

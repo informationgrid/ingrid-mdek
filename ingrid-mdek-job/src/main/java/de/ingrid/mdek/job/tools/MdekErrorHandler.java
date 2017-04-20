@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,7 +22,8 @@
  */
 package de.ingrid.mdek.job.tools;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.StaleStateException;
 
 import de.ingrid.mdek.MdekError;
@@ -35,7 +36,7 @@ import de.ingrid.mdek.job.MdekException;
  */
 public class MdekErrorHandler {
 
-	private static final Logger LOG = Logger.getLogger(MdekErrorHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekErrorHandler.class);
 
 	private static MdekErrorHandler myInstance;
 
@@ -79,7 +80,7 @@ public class MdekErrorHandler {
 		if (excIn instanceof MdekException) {
 			// log with info, we already have an identified error !
 			LOG.info("Identified MdekException: " + excIn);
-			
+			excIn.printStackTrace();
 		} else  {
 			LOG.error("EXCEPTION: " + excIn);
 

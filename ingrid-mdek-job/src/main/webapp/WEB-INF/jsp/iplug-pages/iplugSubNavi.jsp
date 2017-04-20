@@ -2,7 +2,7 @@
   **************************************************-
   InGrid-iPlug DSC
   ==================================================
-  Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2017 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -23,4 +23,4 @@
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 
 <menutaglib:MenuTag text="Weitere Einstellungen" url="../base/extras.html" ></menutaglib:MenuTag>
-<menutaglib:MenuTag text="Datenbank Einstellungen" url="../iplug-pages/dbParams.html" ></menutaglib:MenuTag>
+<menutaglib:MenuTag text="Datenbankeinstellungen" url="../iplug-pages/dbParams.html" ></menutaglib:MenuTag>

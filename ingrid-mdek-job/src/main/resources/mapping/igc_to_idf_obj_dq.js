@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -66,8 +66,10 @@ if (log.isDebugEnabled()) {
 
         
 // ========== t01_object ==========
-var objId = sourceRecord.get("id");
-var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
+// convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+var objId = +sourceRecord.get("id");
+
+var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
 for (i=0; i<objRows.size(); i++) {
     var objRow = objRows.get(i);
     var objClass = objRow.get("obj_class");
@@ -79,7 +81,7 @@ for (i=0; i<objRows.size(); i++) {
 
 // GEO-INFORMATION/KARTE(1)
     if (objClass.equals("1")) {
-        var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
+        var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_CompletenessOmission> ----------
         if (hasValue(objGeoRow.get("rec_grade"))) {
@@ -119,6 +121,28 @@ for (i=0; i<objRows.size(); i++) {
             unitDefinition.addElement("gml:catalogSymbol").addText("m");
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("pos_accuracy_vertical"));
         }
+        
+        // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_GriddedDataPositionalAccuracy> ----------
+        // Ticket: #378
+        if (hasValue(objGeoRow.get("grid_pos_accuracy"))) {
+            if (!dqDataQuality) {
+                dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
+            }
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_GriddedDataPositionalAccuracy");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText("Root mean square error of planimetry");
+            // mean value of positional uncertainties (1D, 2D and 3D)
+            dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("47");
+            // the field "measure desription" is not necessary according to ticket #378
+            // dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText("Root mean square error of planimetry");
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
+            .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
+            unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
+            unitDefinition.addElement("gml:name").addText("meter");
+            unitDefinition.addElement("gml:quantityType").addText("absolute external positional accuracy");
+            unitDefinition.addElement("gml:catalogSymbol").addText("m");
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(objGeoRow.get("grid_pos_accuracy"));
+        }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy> ----------
         if (hasValue(objGeoRow.get("rec_exact"))) {
@@ -141,7 +165,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
+        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [+objId]);
         for (i=0; i<rows.size(); i++) {
             var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
             // only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
@@ -193,7 +217,7 @@ for (i=0; i<objRows.size(); i++) {
         // "object_conformity" ONLY CLASS 3, but we do not distinguish, class 6 should have no rows here !
 
         // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult> ----------
-        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [objId]);
+        rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [+objId]);
         for (i=0; i<rows.size(); i++) {
             var dqConformanceResult = getDqConformanceResultElement(rows.get(i));
             // only write report if evaluated, see https://dev.wemove.com/jira/browse/INGRID23-165
@@ -207,7 +231,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // class 3 and class 6
-        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
+        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
         if (hasValue(objServRow.get("history"))) {
@@ -230,7 +254,7 @@ for (i=0; i<objRows.size(); i++) {
 // DATENSAMMLUNG/DATENBANK(5)
     } else if (objClass.equals("5")) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        var rs = SQL.first("SELECT base FROM t011_obj_data WHERE obj_id=?", [objId]);
+        var rs = SQL.first("SELECT base FROM t011_obj_data WHERE obj_id=?", [+objId]);
         if (hasValue(rs)) {
             value = rs.get("base");
             if (hasValue(value)) {
@@ -243,7 +267,7 @@ for (i=0; i<objRows.size(); i++) {
 // DOKUMENT/BERICHT/LITERATUR(2)
     } else if (objClass.equals("2")) {
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        var rs = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [objId]);
+        var rs = SQL.first("SELECT base FROM t011_obj_literature WHERE obj_id=?", [+objId]);
         if (hasValue(rs)) {
             value = rs.get("base");
             if (hasValue(value)) {
@@ -302,7 +326,7 @@ function getDqConformanceResultElement(conformityRow) {
         .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
         .addAttribute("codeListValue", "publication")
         .addText("publication");
-    dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("");
+    dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("see the referenced specification");
     
     // REDMINE-86: If conformity "not evaluated" then set "unknown" attribute according to GDI-DE !
     if (conformityRow.get("degree_key").equals("3")) {
@@ -319,7 +343,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
     var objId = objRow.get("id");
     var objClass = objRow.get("obj_class");
 
-    var rows = SQL.all("SELECT * FROM object_data_quality WHERE obj_id=?", [objId]);
+    var rows = SQL.all("SELECT * FROM object_data_quality WHERE obj_id=?", [+objId]);
     for (i=0; i<rows.size(); i++) {
         var igcRow = rows.get(i);
         var igcDqElementId = igcRow.get("dq_element_id");

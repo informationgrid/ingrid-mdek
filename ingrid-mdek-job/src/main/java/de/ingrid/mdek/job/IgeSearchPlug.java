@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -70,6 +71,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private static Log log = LogFactory.getLog( IgeSearchPlug.class );
     
     private static final String DATA_PARAMETER = "data";
+    
+    private static Pattern PATTERN_IDENTIFIER = Pattern.compile("^(.*:)?identifier", Pattern.CASE_INSENSITIVE);
 
     @Autowired
     @Qualifier("dscRecordCreator")
@@ -207,6 +210,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
              */
             for (int i = 0; i < insertDocs.getLength(); i++) {
                 Node item = insertDocs.item( i );
+                // TODO insert validation
                 String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 IngridDocument document = prepareImportAnalyzeDocument( builder, item );
                 //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
@@ -231,13 +235,16 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
                 
-                if ("uuid".equals( propName ) && propValue != null) {
+                if (("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches()) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
                     catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
+                } else {
+                    log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
             
@@ -249,16 +256,23 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
 
-                if ("uuid".equals( propName ) && propValue != null) {
+                // the property "uuid" is still supported for compatibility reasons, see https://dev.informationgrid.eu/redmine/issues/524
+                if (("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches()) && propValue != null) {
                     IngridDocument params = new IngridDocument();
                     params.put( MdekKeys.USER_ID, adminUserUUID );
                     params.put( MdekKeys.UUID, propValue );
-                    params.put( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, false );
-                    params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, true );
+                    params.put( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, true );
 
                     try {
+                        // try to delete by ORIG UUID
+                        params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, true );
                         resultDelete = objectJob.deleteObject( params );
                     } catch (MdekException ex) {
+                        if (log.isDebugEnabled()) {
+                            log.debug( "Could not delete object by ORIG_UUID '" + propValue + "'. Try to delete the object by UUID.", ex );
+                        } else {
+                            log.info( "Could not delete object by ORIG_UUID '" + propValue + "'. Try to delete the object by UUID.");
+                        }
                         // try to delete by UUID
                         params.put( MdekKeys.REQUESTINFO_USE_ORIG_ID, false );
                         resultDelete = objectJob.deleteObject( params );
@@ -269,7 +283,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                         throw new Exception("Object could not be deleted: " + propValue);
                     }
                 } else {
-                    log.warn( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
             

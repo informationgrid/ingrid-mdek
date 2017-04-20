@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -34,7 +34,8 @@ import java.util.zip.GZIPInputStream;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -45,7 +46,7 @@ import de.ingrid.utils.IngridDocument;
 
 public class XMLImporter implements IImporter {
 
-	private final static Logger log = Logger.getLogger(XMLImporter.class);
+	private final static Logger log = LogManager.getLogger(XMLImporter.class);
 	private final IImporterCallback importerCallback;
 	private IngridXMLMapper mapper;
 	private IngridXMLStreamReader streamReader;	

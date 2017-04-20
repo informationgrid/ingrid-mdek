@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -204,10 +204,10 @@ public interface IMdekCallerCatalog extends IMdekCaller {
             String userId);
 
 	/**
-	 * Import the given MULTIPLE NUMBER OF FILES (import/export format) and update existing 
-	 * or create new entities. FURTHER ADD PROTOCOL OF MAPPING to backend job info !
+	 * Import data from analyzeImportData process before.
+	 * Call analyzeImportData + importEntities in loop for multiple files !
+	 * Updates existing or creates new entities. FURTHER ADDS PROTOCOL OF MAPPING to backend job info !
 	 * @param plugId which mdek server (iplug)
-	 * @param importData entities to import in import/export format IN MULTIPLE FILES !
 	 * @param targetObjectUuid object node where new objects are created underneath
 	 * 		("object import node").
 	 * @param targetAddressUuid address node (institution !) where new addresses are 
@@ -229,7 +229,7 @@ public interface IMdekCallerCatalog extends IMdekCaller {
 	 * @throws MdekException MdekErrorType.IMPORT_OBJECTS_ALREADY_EXIST: objects to import
 	 * 		already do exist and copy is NOT allowed, MdekError contains objects info 
 	 */
-	IngridDocument importEntities(String plugId, List<byte[]> importData,
+	IngridDocument importEntities(String plugId,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -30,7 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.utils.IngridDocument;
 
@@ -43,7 +44,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcEntityComparer {
 
-	private static final Logger log = Logger.getLogger(MdekIdcEntityComparer.class);
+	private static final Logger log = LogManager.getLogger(MdekIdcEntityComparer.class);
 
 	public static boolean compareObjectMaps(IngridDocument doc1, IngridDocument doc2, String[] ignoredKeysArray) {
 		List<String> ignoredKeys;

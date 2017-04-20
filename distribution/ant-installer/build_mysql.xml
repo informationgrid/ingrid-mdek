@@ -84,10 +84,15 @@
         </echo>
 
         <basename property="dbName" file="${_dbUrl}"/>
+        <propertyregex property="mysqlUrlName"
+              input="${_dbUrl}"
+              regexp="(.*)/.*"
+              select="\1"
+              casesensitive="false" />
 
         <sql    driver    ="${mySqlDriverClass}"
                 classpath ="${mySqlDbDriver}"
-                url       ="jdbc:mysql://localhost/mysql"
+                url       ="${mysqlUrlName}"
                 userid    ="${_adminUser}"
                 password  ="${_adminPassword}"
                 >
@@ -102,8 +107,11 @@
         </sql>
     </target>
 
-    <target name="importInitialSchema" if="${installProcedure}" description="Import the initial IGC schema.">
-        <echo>IGC Katalog initiales Schema importieren
+    <target name="importInitialSchema" depends="importInitialSchemaMySQL" if="${useMysql}">
+    </target>
+
+    <target name="importInitialSchemaMySQL" if="${installProcedure}" description="Import the initial IGC schema.">
+        <echo>IGC Katalog initiales Schema importieren (MySQL)
         </echo>
 
         <!-- Import data to database -->
@@ -116,7 +124,7 @@
                 >
 
             <!-- use default-character-set=utf8 -->
-            <transaction src="${igcInitialSchema.sql}"/>
+            <transaction src="./ingrid-igc-schema_102.sql"/>
         </sql>
     </target>
     

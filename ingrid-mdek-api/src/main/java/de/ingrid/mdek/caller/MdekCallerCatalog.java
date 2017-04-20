@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,7 +24,8 @@ package de.ingrid.mdek.caller;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
@@ -44,7 +45,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog {
 
-	private final static Logger log = Logger.getLogger(MdekCallerCatalog.class);
+	private final static Logger log = LogManager.getLogger(MdekCallerCatalog.class);
 
 	private static MdekCallerCatalog myInstance;
 
@@ -227,7 +228,7 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
         return callJob(plugId, MDEK_IDC_CATALOG_JOB_ID, jobMethods);
 	}
 	
-	public IngridDocument importEntities(String plugId, List<byte[]> importData,
+	public IngridDocument importEntities(String plugId,
 			String targetObjectUuid, String targetAddressUuid,
 			boolean publishImmediately,
 			boolean doSeparateImport,
@@ -235,7 +236,6 @@ public class MdekCallerCatalog extends MdekCaller implements IMdekCallerCatalog 
 			String frontendProtocol,
 			String userId) {
 		IngridDocument jobParams = new IngridDocument();
-		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_DATA, importData);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, targetObjectUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, targetAddressUuid);
 		jobParams.put(MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, publishImmediately);

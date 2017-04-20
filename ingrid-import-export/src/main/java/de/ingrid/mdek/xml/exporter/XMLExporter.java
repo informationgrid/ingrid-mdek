@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -33,7 +33,8 @@ import java.util.zip.GZIPOutputStream;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -44,7 +45,7 @@ public class XMLExporter implements IExporter {
 
 	private static final String XML_ENCODING = "UTF-8";
 
-	private final static Logger log = Logger.getLogger(XMLExporter.class);	
+	private final static Logger log = LogManager.getLogger(XMLExporter.class);	
 
 	private final IExporterCallback exporterCallback;
 	private final XMLOutputFactory outputFactory;

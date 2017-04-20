@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -26,8 +26,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -41,7 +42,7 @@ import de.ingrid.utils.IngridDocument;
 @Service
 public class HQLExecuter extends TransactionService implements IHQLExecuter {
 
-	private static final Logger LOG = Logger.getLogger(HQLExecuter.class);
+	private static final Logger LOG = LogManager.getLogger(HQLExecuter.class);
 
 	@Autowired
 	public HQLExecuter(SessionFactory sessionFactory) {
@@ -72,7 +73,7 @@ public class HQLExecuter extends TransactionService implements IHQLExecuter {
 				}
 				list.add(new Pair(hqlString, (Serializable) result));
 			} catch (HibernateException e) {
-				if (LOG.isEnabledFor(Level.ERROR)) {
+				if (LOG.isErrorEnabled()) {
 					LOG.error("error by execution of hqlQuery [" + hqlString
 							+ "]", e);
 				}

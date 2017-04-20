@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -34,16 +34,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HddPersistenceService<T extends Serializable> implements
 		IHddPersistence<T> {
 
 	private static final String SUFFIX = ".ser";
 
-	private static final Logger LOG = Logger
-			.getLogger(HddPersistenceService.class);
+	private static final Logger LOG = LogManager.getLogger(HddPersistenceService.class);
 
 	private final File _persistenceFolder;
 
@@ -79,15 +78,15 @@ public class HddPersistenceService<T extends Serializable> implements
 				stream.close();
 			}
 		} catch (FileNotFoundException e) {
-			if (LOG.isEnabledFor(Level.ERROR)) {
+			if (LOG.isErrorEnabled()) {
 				LOG.error("can load object, because file does not exists", e);
 			}
 		} catch (IOException e) {
-			if (LOG.isEnabledFor(Level.ERROR)) {
+			if (LOG.isErrorEnabled()) {
 				LOG.error("can load object", e);
 			}
 		} catch (ClassNotFoundException e) {
-			if (LOG.isEnabledFor(Level.ERROR)) {
+			if (LOG.isErrorEnabled()) {
 				LOG.error("can load object (class not found)", e);
 			}
 		} finally {
@@ -95,7 +94,7 @@ public class HddPersistenceService<T extends Serializable> implements
 				try {
 					stream.close();
 				} catch (IOException e) {
-					if (LOG.isEnabledFor(Level.WARN)) {
+					if (LOG.isWarnEnabled()) {
 						LOG.error("can close stream for loading objects", e);
 					}
 				}
@@ -113,21 +112,21 @@ public class HddPersistenceService<T extends Serializable> implements
 			stream = new ObjectInputStream(new FileInputStream(file));
 			t = (T) stream.readObject();
 		} catch (FileNotFoundException e) {
-			if (LOG.isEnabledFor(Level.ERROR)) {
+			if (LOG.isErrorEnabled()) {
 				LOG.error("can load object (file not found)", e);
 			}
 			if (shouldExists) {
 				throw new IOException(e.getMessage());
 			}
 		} catch (IOException e) {
-			if (LOG.isEnabledFor(Level.ERROR)) {
+			if (LOG.isErrorEnabled()) {
 				LOG.error("can load object", e);
 			}
 			if (shouldExists) {
 				throw new IOException(e.getMessage());
 			}
 		} catch (ClassNotFoundException e) {
-			if (LOG.isEnabledFor(Level.ERROR)) {
+			if (LOG.isErrorEnabled()) {
 				LOG.error("can load object (class not found)", e);
 			}
 			if (shouldExists) {
@@ -138,7 +137,7 @@ public class HddPersistenceService<T extends Serializable> implements
 				try {
 					stream.close();
 				} catch (IOException e) {
-					if (LOG.isEnabledFor(Level.WARN)) {
+					if (LOG.isWarnEnabled()) {
 						LOG.error("can close stream for loading object", e);
 					}
 				}
@@ -152,10 +151,8 @@ public class HddPersistenceService<T extends Serializable> implements
 		ObjectOutputStream stream = null;
 		try {
 			File file = new File(_persistenceFolder, id + SUFFIX);
-			if (LOG.isEnabledFor(Level.INFO)) {
-				LOG
-						.warn("save object to file [" + file.getAbsolutePath()
-								+ "]");
+			if (LOG.isInfoEnabled()) {
+				LOG.warn("save object to file [" + file.getAbsolutePath()+ "]");
 			}
 
 			if (!file.exists()) {
@@ -164,20 +161,19 @@ public class HddPersistenceService<T extends Serializable> implements
 				stream.writeObject(object);
 				stream.close();
 			} else {
-				if (LOG.isEnabledFor(Level.WARN)) {
-					LOG
-							.warn("can not persist object, because file already exists");
+				if (LOG.isWarnEnabled()) {
+					LOG.warn("can not persist object, because file already exists");
 				}
 				throw new IOException(
 						"can not persist object, because file already exists");
 			}
 		} catch (FileNotFoundException e) {
-			if (LOG.isEnabledFor(Level.WARN)) {
+			if (LOG.isWarnEnabled()) {
 				LOG.warn("can not persist object", e);
 			}
 			throw new IOException(e.getMessage());
 		} catch (IOException e) {
-			if (LOG.isEnabledFor(Level.WARN)) {
+			if (LOG.isWarnEnabled()) {
 				LOG.warn("can not persist object", e);
 			}
 			throw new IOException(e.getMessage());
@@ -186,7 +182,7 @@ public class HddPersistenceService<T extends Serializable> implements
 				try {
 					stream.close();
 				} catch (IOException e) {
-					if (LOG.isEnabledFor(Level.WARN)) {
+					if (LOG.isWarnEnabled()) {
 						LOG.warn("can not close stream for persist object", e);
 					}
 				}
@@ -198,18 +194,18 @@ public class HddPersistenceService<T extends Serializable> implements
 	public void makeTransient(String id) throws IOException {
 		File file = new File(_persistenceFolder, id + SUFFIX);
 		if (file.exists()) {
-			if (LOG.isEnabledFor(Level.INFO)) {
+			if (LOG.isInfoEnabled()) {
 				LOG.warn("Delete file [" + file.getAbsolutePath() + "]");
 			}
 			boolean success = file.delete();
 			if (!success) {
-				if (LOG.isEnabledFor(Level.WARN)) {
+				if (LOG.isWarnEnabled()) {
 					LOG.warn("can not delete file [" + file.getAbsolutePath()
 							+ "]");
 				}
 			}
 		} else {
-			if (LOG.isEnabledFor(Level.WARN)) {
+			if (LOG.isWarnEnabled()) {
 				LOG.warn("can not delete object [" + id
 						+ "] because can not find the file.");
 			}
@@ -226,7 +222,7 @@ public class HddPersistenceService<T extends Serializable> implements
 			}
 			boolean success = file.delete();
 			if (!success) {
-				if (LOG.isEnabledFor(Level.WARN)) {
+				if (LOG.isWarnEnabled()) {
 					LOG.warn("can not delete file [" + file.getAbsolutePath()
 							+ "]");
 				}

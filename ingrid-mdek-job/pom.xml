@@ -3,7 +3,7 @@
     <parent>
         <groupId>de.ingrid.mdek</groupId>
         <artifactId>ingrid-mdek</artifactId>
-        <version>4.0.1-SNAPSHOT</version>
+        <version>4.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ingrid-mdek-job</artifactId>
@@ -19,6 +19,7 @@
         <!-- Define the version that we want to use here, so we have a single line to change when upgrating. -->
         <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
         <geotk.version>4.0-M0</geotk.version>
+        <powermock.version>1.6.6</powermock.version>
     </properties>
 
     <repositories>
@@ -28,6 +29,7 @@
             <name>Maven Repo InGrid</name>
             <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
         </repository>
+<!-- was temporary down causing problems !!! added again -->
         <repository>
           <id>geotoolkit</id>
           <name>Geotoolkit repository</name>
@@ -52,7 +54,7 @@
             <groupId>de.ingrid.mdek</groupId>
             <artifactId>ingrid-mdek-services</artifactId>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <exclusions>
@@ -61,11 +63,17 @@
                     <artifactId>ehcache</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-udk-importer</artifactId>
             <version>${ingrid-udk-importer.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
@@ -76,24 +84,41 @@
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-iplug-dsc</artifactId>
-            <version>3.6.2</version>
+            <version>${ingrid-iplug-dsc.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-base-webapp</artifactId>
-            <version>3.6.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>de.ingrid</groupId>
-            <artifactId>ingrid-base-webapp</artifactId>
-            <version>3.6.2.1</version>
+            <version>${ingrid-base-webapp.version}</version>
             <classifier>res</classifier>
             <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-utils</artifactId>
-            <version>3.6.2</version>
+            <version>${ingrid-utils.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- add directly to exclude a conflicting lib -->
         <dependency>
@@ -118,7 +143,19 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.0.44-beta</version>
+            <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

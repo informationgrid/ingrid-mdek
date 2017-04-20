@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -40,6 +40,7 @@ public class T011ObjGeo implements IEntity {
 	private Integer hierarchyLevel;
 	private Integer vectorTopologyLevel;
 	private Double posAccuracyVertical;
+	private Double gridPosAccuracy;
 	private Integer keycInclWDataset;
 	private String datasourceUuid;
 
@@ -195,5 +196,13 @@ public class T011ObjGeo implements IEntity {
 	public void setT011ObjGeoVectors(Set t011ObjGeoVectors) {
 		this.t011ObjGeoVectors = t011ObjGeoVectors;
 	}
+
+    public Double getGridPosAccuracy() {
+        return gridPosAccuracy;
+    }
+
+    public void setGridPosAccuracy(Double gridPosAccuracy) {
+        this.gridPosAccuracy = gridPosAccuracy;
+    }
 
 }

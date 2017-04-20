@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -23,14 +23,17 @@
 package de.ingrid.mdek.services.log;
 
 import java.io.File;
-import java.util.Enumeration;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.DailyRollingFileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,41 +45,29 @@ public class LogService implements ILogService {
 		_logDirectory = new File("logs");
 	}
 
-	public Logger getLogger(Class clazz) {
-		Logger logger = Logger.getLogger(clazz);
-		logger.setAdditivity(false);
-		DailyRollingFileAppender debugAppender = new DailyRollingFileAppender();
-		debugAppender.setName(clazz.getName());
-		debugAppender.setDatePattern("'.'yyyyMMdd");
-		debugAppender.setFile(_logDirectory.getAbsolutePath() + File.separator
-				+ clazz.getName() + ".log");
-		debugAppender.setAppend(true);
-
-		debugAppender.setLayout(new PatternLayout(
-				"%5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%M:%L) - %m%n"));
-		debugAppender.setThreshold(Level.DEBUG);
-		debugAppender.activateOptions();
-		setAppender(debugAppender, clazz.getName());
+	public Logger getLogger(@SuppressWarnings("rawtypes") Class clazz) {
+	    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+	    Configuration config = ctx.getConfiguration();
 		
-		return logger;
-	}
+	    RollingFileAppender appender = RollingFileAppender.newBuilder()
+	        .withName( clazz.getName() )
+	        .setConfiguration( config )
+	        .withFilePattern( _logDirectory.getAbsolutePath() + File.separator + clazz.getName() + ".%d{yyyyMMdd}.log" )
+	        .withCreateOnDemand( true )
+	        .withAppend( false )
+	        .withLayout( PatternLayout.createDefaultLayout() )
+	        .withFileName( _logDirectory.getAbsolutePath() + File.separator + clazz.getName() + ".log" )
+	        .withPolicy( TimeBasedTriggeringPolicy.createPolicy( "1", "false" ) )
+	        .build();
+	    
+	    config.addAppender( appender );
+	    appender.start();
+	    
+	    Level level = Level.ERROR;
+        LoggerConfig loggerConfig = LoggerConfig.createLogger( false, level , clazz.getName(), null, new AppenderRef[0], null, config, null );
+	    loggerConfig.addAppender( appender, level, null );
+        config.addLogger( clazz.getName(), loggerConfig );
 
-	public void setAppender(Appender appender, String name) {
-		Enumeration currentLoggers = LogManager.getCurrentLoggers();
-		while (currentLoggers.hasMoreElements()) {
-			Logger logger = (Logger) currentLoggers.nextElement();
-			if (isLogServiceLogger(logger, name)) {
-				logger.removeAppender(appender.getName());
-				logger.addAppender(appender);
-			}
-		}
-	}
-
-	private boolean isLogServiceLogger(Logger logger, String otherName) {
-		String name = logger.getName();
-		if (name.startsWith(otherName)) {
-			return true;
-		}
-		return false;
-	}
+	    return LogManager.getLogger( clazz.getName() );
+	}	        
 }

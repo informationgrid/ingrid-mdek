@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,9 +24,9 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -47,7 +47,7 @@ public class SysListDaoHibernate
 	extends GenericHibernateDao<SysList>
 	implements  ISysListDao {
 
-	private static final Logger LOG = Logger.getLogger(SysListDaoHibernate.class);
+	private static final Logger LOG = LogManager.getLogger(SysListDaoHibernate.class);
 
     public SysListDaoHibernate(SessionFactory factory) {
         super(factory, SysList.class);

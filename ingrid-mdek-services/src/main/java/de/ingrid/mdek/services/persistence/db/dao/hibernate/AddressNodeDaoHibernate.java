@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -70,7 +71,7 @@ public class AddressNodeDaoHibernate
 	extends GenericHibernateDao<AddressNode>
 	implements  IAddressNodeDao, IFullIndexAccess {
 
-	private static final Logger LOG = Logger.getLogger(AddressNodeDaoHibernate.class);
+	private static final Logger LOG = LogManager.getLogger(AddressNodeDaoHibernate.class);
 
     public AddressNodeDaoHibernate(SessionFactory factory) {
         super(factory, AddressNode.class);
@@ -613,7 +614,7 @@ public class AddressNodeDaoHibernate
 			"inner join aNode.t02AddressWork addr " +
 			"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr");
 
 		if (institution != null) {
 			qString += "and addr.institution LIKE '%" + institution + "%' ";
@@ -690,7 +691,7 @@ public class AddressNodeDaoHibernate
 			"inner join termVal.searchtermSns termSns " +
 			"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 			" AND termSns.snsId = '" + termSnsId + "'";
 		
 		return qString;
@@ -799,7 +800,7 @@ public class AddressNodeDaoHibernate
 			"inner join aNode.fullIndexAddrs fidx " +
 			"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 			" AND fidx.idxName = '" + IDX_NAME_FULLTEXT + "' " +
 			"and fidx.idxValue like '%" + searchTerm + "%'";
 		
@@ -841,7 +842,7 @@ public class AddressNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND a.responsibleUuid = '"+ userUuid +"' " +
 			"and aMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
 
@@ -918,7 +919,7 @@ public class AddressNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND a.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' " +
 			"and (a.modUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
 
@@ -992,16 +993,16 @@ public class AddressNodeDaoHibernate
 		String qCriteriaUser = "and (aMeta.assignerUuid = '" + userUuid + "' or a.responsibleUuid = '" + userUuid + "') ";
 		String qCriteria = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND (a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
 				"a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') " + qCriteriaUser;
 		String qCriteriaAssigned = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND a.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
 		String qCriteriaReassigned = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND a.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "' " + qCriteriaUser;
 
 		// query string for counting -> without fetch (fetching not possible)
@@ -1087,7 +1088,7 @@ public class AddressNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a");
 		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
 			// user specific
 			qCriteria = qCriteria +
@@ -1298,7 +1299,7 @@ public class AddressNodeDaoHibernate
 		// selection criteria
 		String qStringCriteria = " where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a");
 
 		if (whichWorkState != null || selectionType != null ||
 				addrUuidsWriteSingle != null || addrUuidsWriteTree != null) {
@@ -1431,7 +1432,7 @@ public class AddressNodeDaoHibernate
 				"inner join aNode.t02AddressWork addr " +
 			"where " +
 				// exclude hidden user addresses !
-				AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+				AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr");
 
 		// which classes to evaluate
 		Object[] addrClasses;
@@ -1498,7 +1499,7 @@ public class AddressNodeDaoHibernate
 				"inner join searchtAddr.searchtermValue searchtVal " +
 				"where " +
 				// exclude hidden user addresses !
-				AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+				AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr");
 
 		if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE) {
 			qStringFromWhere += " AND searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
@@ -1566,7 +1567,7 @@ public class AddressNodeDaoHibernate
 			"from AddressNode aNode " +
 			"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", null);
 		
 		List<String> uuids = session.createQuery(q)
 				.list();
@@ -1592,7 +1593,7 @@ public class AddressNodeDaoHibernate
 			"left join fetch a.t021Communications " +
 			"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND aNode.addrUuid = ?";
 		
 		// fetch all at once (one select with outer joins)

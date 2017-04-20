@@ -3,19 +3,25 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>3.6.2</version>
+    <version>4.0.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>4.0.1-SNAPSHOT</version>
+  <version>4.0.3-SNAPSHOT</version>
   <name>ingrid-iplug-ige</name>
+  <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.</description>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.0.1-SNAPSHOT</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>4.0.2</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>4.0.1</ingrid-codelist-service.version>
+    <ingrid-utils.version>4.0.2</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>4.0.2</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>4.0.3-SNAPSHOT</ingrid-base-webapp.version>
+    <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
   <scm>
@@ -43,6 +49,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-codelist-service</artifactId>
+        <version>${ingrid-codelist-service.version}</version>
+      </dependency>
+      <dependency>
         <groupId>de.ingrid.mdek</groupId>
         <artifactId>ingrid-mdek-api</artifactId>
         <version>${project.version}</version>
@@ -62,26 +73,38 @@
         <artifactId>ingrid-import-export</artifactId>
         <version>${project.version}</version>
       </dependency>
-<!-- Use new spring because of Java 8 compatibility -->
+      <!-- Use new spring because of Java 8 compatibility -->
+      <!-- always use spring from base-webapp -->
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>4.1.6.RELEASE</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>4.1.6.RELEASE</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
-        <version>4.1.6.RELEASE</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>
         <version>1.4.8</version>
+      </dependency>
+      <!-- An updated version is needed for log4j2! -->
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.7.1</version>
+      </dependency>
+      <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-utils</artifactId>
+        <version>${ingrid-utils.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -89,21 +112,29 @@
   <dependencies>
 
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.34</version>
+      <groupId>de.ingrid</groupId>
+      <artifactId>ingrid-communication</artifactId>
+      <version>3.6.2</version>
+      <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>de.ingrid</groupId>
-      <artifactId>ingrid-utils</artifactId>
-      <version>3.6.2</version>
+      <artifactId>ingrid-base-webapp</artifactId>
+      <version>${ingrid-base-webapp.version}</version>
+      <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
-    <dependency>
-      <groupId>de.ingrid</groupId>
-      <artifactId>ingrid-communication</artifactId>
-      <version>3.6.2</version>
-    </dependency>
+    
     <dependency>
       <!-- Needed for assembly of installer to setup/update IGC database -->
       <groupId>de.ingrid</groupId>
@@ -113,12 +144,35 @@
       <version>${ingrid-udk-importer.version}</version>
       <classifier>installer</classifier>
       <scope>provided</scope>
+      <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- backward compatible -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-1.2-api</artifactId>
+      <version>2.8.1</version>
+    </dependency>
+    <!-- end -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.8.1</version>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-        <version>1.2.14</version>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.8.1</version>
     </dependency>
+    <!-- <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-to-slf4j</artifactId>
+      <version>2.8.1</version>
+    </dependency> -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -130,6 +184,16 @@
     <finalName>${project.artifactId}-${project.version}</finalName>
 
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.0</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>

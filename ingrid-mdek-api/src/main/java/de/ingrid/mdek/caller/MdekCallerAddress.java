@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,7 +24,8 @@ package de.ingrid.mdek.caller;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityOrderBy;
@@ -44,7 +45,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekCallerAddress extends MdekCaller implements IMdekCallerAddress {
 
-	private final static Logger log = Logger.getLogger(MdekCallerAddress.class);
+    private final static Logger log = LogManager.getLogger(MdekCallerAddress.class);
 
 	private static MdekCallerAddress myInstance;
 

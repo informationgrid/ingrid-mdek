@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -32,6 +32,7 @@ public class ObjectMetadata implements IEntity {
 	private Long id;
 	private int version;
 	private Integer expiryState;
+	private String lastexpiryTime;
 	private String lastexportTime;
 	private String markDeleted;
 	private String assignerUuid;
@@ -65,6 +66,14 @@ public class ObjectMetadata implements IEntity {
 
 	public void setExpiryState(Integer expiryState) {
 		this.expiryState = expiryState;
+	}
+
+	public String getLastexpiryTime() {
+		return lastexpiryTime;
+	}
+
+	public void setLastexpiryTime(String lastexpiryTime) {
+		this.lastexpiryTime = lastexpiryTime;
 	}
 
 	public String getLastexportTime() {

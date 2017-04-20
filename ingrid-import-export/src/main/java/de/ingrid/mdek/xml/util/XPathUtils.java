@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -28,13 +28,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XPathUtils {
 
-	private final static Logger log = Logger.getLogger(XPathUtils.class);	
+	private final static Logger log = LogManager.getLogger(XPathUtils.class);	
 
 	private static XPath xpath = null;
 

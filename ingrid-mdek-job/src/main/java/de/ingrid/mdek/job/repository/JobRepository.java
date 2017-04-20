@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -29,8 +29,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ import de.ingrid.utils.IngridDocument;
 @Service
 public class JobRepository implements IJobRepository {
 
-	private static final Logger LOG = Logger.getLogger(JobRepository.class);
+	private static final Logger LOG = LogManager.getLogger(JobRepository.class);
 
 	private final IRegistrationService _registrationService;
 
@@ -70,7 +71,7 @@ public class JobRepository implements IJobRepository {
 			ret.putAll(job.getResults());
 			ret.putBoolean(JOB_REGISTER_SUCCESS, true);
 		} catch (Throwable e) {
-			if (LOG.isEnabledFor(Level.WARN)) {
+			if (LOG.isWarnEnabled()) {
 				LOG.warn("job regsitering failed [" + jobId + "]", e);
 			}
 			ret.putBoolean(JOB_REGISTER_SUCCESS, false);
@@ -101,7 +102,7 @@ public class JobRepository implements IJobRepository {
 			List<Pair> methods = (List<Pair>) document.get(JOB_METHODS);
 			IJob registeredJob = _registrationService.getRegisteredJob(jobId);
 			if (registeredJob == null) {
-				if (LOG.isEnabledFor(Level.WARN)) {
+				if (LOG.isWarnEnabled()) {
 					LOG.warn("job not found [" + jobId + "]");
 				}
 				ret.put(JOB_INVOKE_ERROR_MESSAGE, "job not found [" + jobId
@@ -137,7 +138,7 @@ public class JobRepository implements IJobRepository {
 
 			// or an "unhandled" exception
 			} else {
-				if (LOG.isEnabledFor(Level.WARN)) {
+				if (LOG.isWarnEnabled()) {
 					LOG.warn("method invoke failed for jobid [" + jobId + "]", e);
 				}
 				

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -38,7 +38,8 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -101,7 +102,7 @@ import de.ingrid.utils.IngridDocument;
 @Service
 public class MdekIdcCatalogJob extends MdekIdcJob {
 
-	private static final Logger LOG = Logger.getLogger(MdekIdcCatalogJob.class);
+	private static final Logger LOG = LogManager.getLogger(MdekIdcCatalogJob.class);
 
 	private MdekCatalogService catalogService;
 	private MdekExportService exportService;
@@ -739,6 +740,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
                     mappedDataCompressed = compress(mappedData).toByteArray();
                 }
     	    } catch( Exception ex ) {
+    	        log.error( "There was an error during mapping." + ex.getMessage() );
     	        result.put( "error", "There was an error during mapping." + ex.getMessage() );
     	    }
     	    
@@ -795,7 +797,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean errorOnExisitingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
 		boolean errorOnMissingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, false );
 		boolean errorOnException = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, false );
-		boolean ignoreParentNodes = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, false );
+		boolean ignoreParentImportNodes = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, false );
 		boolean removeRunningJob = true;
 		try {
 		    if (!transactionInProgress) {
@@ -806,6 +808,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, errorOnExisitingUuid );
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, errorOnMissingUuid );
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, errorOnException );
+            jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, ignoreParentImportNodes );
             // first add basic running jobs info !
 			addRunningJob(userId, jobDescr );
 
@@ -837,7 +840,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 
 			// check top import nodes ! Adds messages to job info !
-			if (ignoreParentNodes) {
+			if (ignoreParentImportNodes) {
+			    // special handling for CSW-T import !
 			    importService.handleObjectParent( defaultObjectParentUuid, userId);
 			} else {
     			importService.checkDefaultParents(defaultObjectParentUuid, defaultAddrParentUuid, userId);

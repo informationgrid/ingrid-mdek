@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -180,14 +180,14 @@ class MdekExampleQueryThread extends Thread {
 			"inner join termVal.searchtermSns termSns " +
 			"where\n\n" +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 			" AND termSns.snsId = '" + termSnsId + "' " +
 			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 
 		String hqlQueryAddr2 = "from AddressNode aNode " +
 				"where " +
 				// exclude hidden user addresses !
-				AddressType.getHQLExcludeIGEUsersViaNode("aNode");
+				AddressType.getHQLExcludeIGEUsersViaNode("aNode", null);
 
 		String hqlQueryObj1 = "select oNode, obj.objName, termVal.term\n\n\n" +
 			"from ObjectNode oNode\n" +
@@ -312,7 +312,7 @@ class MdekExampleQueryThread extends Thread {
 			"inner join aNode.t02AddressWork addr " +
 			"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 			" AND aNode.fkAddrUuid IS NULL";
 		supertool.queryHQLToMap(hqlQuery, null);
 		
@@ -375,7 +375,7 @@ class MdekExampleQueryThread extends Thread {
 		"inner join modUserNode.t02AddressWork modUserAddr " +
 "where " +
 	// exclude hidden user addresses !
-	AddressType.getHQLExcludeIGEUsersViaNode("addrNode") +
+	AddressType.getHQLExcludeIGEUsersViaNode("addrNode", "adr") +
 	" AND aMeta.expiryState <= " + de.ingrid.mdek.MdekUtils.ExpiryState.INITIAL.getDbValue() +
 	" and adr.responsibleUuid = responsibleUserNode.addrUuid " +
 	" and comm.commtypeKey = " + de.ingrid.mdek.MdekUtils.COMM_TYPE_EMAIL +
@@ -559,7 +559,7 @@ class MdekExampleQueryThread extends Thread {
 				"inner join addr.t021Communications comm " +
 				"where " +
 				// exclude hidden user addresses !
-				AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+				AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 				" AND addr.lastname = 'Dahlmann' " +
 				" AND addr.firstname = 'Irene' " +
 				" AND comm.commtypeKey = 3 " +
@@ -602,7 +602,7 @@ class MdekExampleQueryThread extends Thread {
 			"inner join aNode.t02AddressWork addr " +
 			"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 			"order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
 		supertool.queryHQLToCsv(hqlQueryAddr3);
 

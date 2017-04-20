@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -35,7 +35,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class encapsulating utility methods.
@@ -44,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public class MdekUtils {
 
-	private static final Logger LOG = Logger.getLogger(MdekUtils.class);
+	private static final Logger LOG = LogManager.getLogger(MdekUtils.class);
 
 	/** Entry IDs in syslist OBJ_SERV_TYPE (5100) */
 	public final static Integer OBJ_SERV_TYPE_CSW = 1;
@@ -463,7 +464,8 @@ public class MdekUtils {
 		INSTITUTION(0, "Institution"),
 		EINHEIT(1, "Einheit"),
 		PERSON(2, "Person"),
-		FREI(3, "Freie Adresse");
+		FREI(3, "Freie Adresse"),
+	    FOLDER(1000, "Ordner");
 
 		AddressType(Integer dbValue, String description) {
 			this.dbValue = dbValue;
@@ -486,13 +488,17 @@ public class MdekUtils {
 		public static String getIGEUserParentUuid() {
 			return "IGE_USER";
 		}
-		/** Return the HQL to add into where clause if the AddressNode should NOT query IGE USERS !
+		/** Return the HQL to add into where clause if the AddressNode should NOT query IGE USERS and FOLDERS!
 		 * Pass alias of AddressNode used in query.<br>
 		 * NOTICE: contains space at front and end ! */
-		public static String getHQLExcludeIGEUsersViaNode(String aliasAddressNode) {
+		public static String getHQLExcludeIGEUsersViaNode(String aliasAddressNode, String aliasAddress) {
 			String columnToCheck = aliasAddressNode + ".fkAddrUuid";
-			return " (" + columnToCheck + " IS NULL OR " +
+			String result =  "(" + columnToCheck + " IS NULL OR " +
 				columnToCheck + " != '" + AddressType.getIGEUserParentUuid() + "') ";
+			if (aliasAddress != null) {
+			    result = aliasAddress + ".adrType != '1000' and " + result;
+			}
+			return result;
 		}
 		/** Return the HQL to add into where clause if the T02Address should NOT query IGE USERS !
 		 * Pass alias of T02Address used in query.<br>
