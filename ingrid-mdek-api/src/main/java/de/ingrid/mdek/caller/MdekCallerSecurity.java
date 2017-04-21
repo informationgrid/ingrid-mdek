@@ -24,8 +24,7 @@ package de.ingrid.mdek.caller;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekKeysSecurity;
@@ -39,7 +38,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekCallerSecurity extends MdekCaller implements IMdekCallerSecurity {
 
-	private final static Logger log = LogManager.getLogger(MdekCallerSecurity.class);
+	private final static Logger log = Logger.getLogger(MdekCallerSecurity.class);
 
 	private static MdekCallerSecurity myInstance;
 

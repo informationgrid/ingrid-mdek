@@ -35,8 +35,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * Class encapsulating utility methods.
@@ -45,7 +44,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class MdekUtils {
 
-	private static final Logger LOG = LogManager.getLogger(MdekUtils.class);
+	private static final Logger LOG = Logger.getLogger(MdekUtils.class);
 
 	/** Entry IDs in syslist OBJ_SERV_TYPE (5100) */
 	public final static Integer OBJ_SERV_TYPE_CSW = 1;

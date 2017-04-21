@@ -28,9 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
+
 
 public class HashMapProtocolHandler implements ProtocolHandler, Serializable {
 
@@ -39,7 +38,7 @@ public class HashMapProtocolHandler implements ProtocolHandler, Serializable {
      */
     private static final long serialVersionUID = 7024006659307001499L;
 
-    private final static Logger log = LogManager.getLogger( HashMapProtocolHandler.class );
+    private final static Logger log = Logger.getLogger( HashMapProtocolHandler.class );
 
     private Map<Type, List<String>> messageList;
     private String currentFilename;
