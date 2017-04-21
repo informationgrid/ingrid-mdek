@@ -16,7 +16,7 @@
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.0.2</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>4.0.3-SNAPSHOT</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>4.0.1</ingrid-codelist-service.version>
     <ingrid-utils.version>4.0.2</ingrid-utils.version>
     <ingrid-iplug-dsc.version>4.0.2</ingrid-iplug-dsc.version>

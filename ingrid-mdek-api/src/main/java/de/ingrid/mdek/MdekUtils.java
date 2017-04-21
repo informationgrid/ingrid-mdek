@@ -148,6 +148,7 @@ public class MdekUtils {
 		/** type='I'(INSPIRE) -> INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue:entryId:term"),
 		COUNTRY(6200, "T03Catalogue, T02Address:countryKey:countryValue"),
+		ADMINISTRATIVE_AREA(6250, "T02Address, T02Address:administrativeAreaKey:administrativeAreaValue"),
 		OBJ_FORMAT_INSPIRE(6300, "ObjectFormatInspire:formatKey:formatValue"),
 		/** dqElementId=109 */
 		DQ_109_CompletenessComission(7109, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),

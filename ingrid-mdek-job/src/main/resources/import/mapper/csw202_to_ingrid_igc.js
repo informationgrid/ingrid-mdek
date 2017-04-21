@@ -1712,9 +1712,19 @@ function mapAddresses(source, target) {
                 XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "country"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
                 XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "country"), "id", countryCode);
             }
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "postal-code"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "street"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:deliveryPoint/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "city"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
+            
+            var administrativeAreaValue = XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:administrativeArea/gco:CharacterString");
+            var administrativeAreaKey = codeListService.getSysListEntryKey(6250, administrativeAreaValue, "de");
+            XMLUtils.createOrReplaceTextNode(XPathUtils.createElementFromXPath(igcAddressNode, "administrativeArea"), administrativeAreaValue);
+            if (hasValue(administrativeAreaKey)) {
+                XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcAddressNode, "administrative-area"), "id", administrativeAreaKey);
+            } else {
+                XMLUtils.createOrReplaceAttribute(XPathUtils.createElementFromXPath(igcAddressNode, "administrative-area"), "id", "-1");
+            }
+            
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "postal-code"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "street"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:deliveryPoint/gco:CharacterString"));
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "city"), XPathUtils.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
             mapCommunicationData(isoAddressNode, igcAddressNode);
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "function"), XPATH.getString(isoAddressNode, "gmd:positionName/gco:CharacterString"));
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "hours-of-service"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:hoursOfService/gco:CharacterString"));
@@ -1757,6 +1767,9 @@ function mapUncontrolledTerms(source, target) {
 	                } else if (term.equals("opendata")) {
                         log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-open-data' = 'Y' to target document.");
                         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-open-data"), "Y");
+	                } else if (term.equals("AdVMIS")) {
+	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-adv-compatible' = 'Y' to target document.");
+	                    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-adv-compatible"), "Y");
 	                } else {
 	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term' = '" + term + "' to target document.");
 	                    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term"), term);

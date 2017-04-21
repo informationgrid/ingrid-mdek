@@ -482,6 +482,8 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
 			oIn.setIsInspireRelevant(oDocIn.getString(MdekKeys.IS_INSPIRE_RELEVANT));
+			oIn.setIsInspireConform(oDocIn.getString(MdekKeys.IS_INSPIRE_CONFORM));
+			oIn.setIsAdvCompatible(oDocIn.getString(MdekKeys.IS_ADV_COMPATIBLE));
 			oIn.setIsOpenData(oDocIn.getString(MdekKeys.IS_OPEN_DATA));
 
 			oIn.setModUuid(extractModUserUuid(oDocIn));
@@ -575,6 +577,8 @@ public class DocToBeanMapper implements IMapper {
 				howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			aIn.setStreet(aDocIn.getString(MdekKeys.STREET));
+			aIn.setAdministrativeAreaKey((Integer)aDocIn.get(MdekKeys.ADMINISTRATIVE_AREA_CODE));
+			aIn.setAdministrativeAreaValue(aDocIn.getString(MdekKeys.ADMINISTRATIVE_AREA_NAME));
 			aIn.setCountryKey((Integer)aDocIn.get(MdekKeys.COUNTRY_CODE));
 			aIn.setCountryValue(aDocIn.getString(MdekKeys.COUNTRY_NAME));
 			aIn.setPostcode(aDocIn.getString(MdekKeys.POSTAL_CODE));

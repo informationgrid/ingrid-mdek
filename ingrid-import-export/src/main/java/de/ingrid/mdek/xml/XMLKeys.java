@@ -192,6 +192,7 @@ public class XMLKeys {
 	public static final String ENV_TOPIC = "env-topic";
 	public static final String IS_CATALOG = "is-catalog";
 	public static final String IS_INSPIRE_RELEVANT = "is-inspire-relevant";
+	public static final String IS_ADV_COMPATIBLE = "is-adv-compatible";
 	public static final String IS_OPEN_DATA = "is-open-data";
 	public static final String OPEN_DATA_CATEGORIES = "open-data-categories";
 	public static final String OPEN_DATA_CATEGORY = "open-data-category";
@@ -250,6 +251,7 @@ public class XMLKeys {
 	// TODO: keep/separate XML elements of older versions for possible import of older files ???
 //	public static final String POSTAL_CODE_OF_COUNTRY = "postal-code-of-country";
 	public static final String COUNTRY = "country";
+	public static final String ADMINISTRATIVE_AREA = "administrative-area";
 	public static final String GIVEN_NAME = "given-name";
 	public static final String TITLE_OR_FUNCTION = "title-or-function";
 	public static final String NAME_FORM = "name-form";

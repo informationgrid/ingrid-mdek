@@ -314,6 +314,8 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.ORDERING_INSTRUCTIONS, o.getOrderingInstructions());
 			objectDoc.put(MdekKeys.IS_CATALOG_DATA, o.getIsCatalogData());
 			objectDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, o.getIsInspireRelevant());
+			objectDoc.put(MdekKeys.IS_INSPIRE_CONFORM, o.getIsInspireConform());
+			objectDoc.put(MdekKeys.IS_ADV_COMPATIBLE, o.getIsAdvCompatible());
 			objectDoc.put(MdekKeys.IS_OPEN_DATA, o.getIsOpenData());
 
 			// map associations		
@@ -441,6 +443,8 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			addressDoc.put(MdekKeys.STREET, a.getStreet());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_CODE, a.getAdministrativeAreaKey());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_NAME, a.getAdministrativeAreaValue());
 			addressDoc.put(MdekKeys.COUNTRY_CODE, a.getCountryKey());
 			addressDoc.put(MdekKeys.COUNTRY_NAME, a.getCountryValue());
 			addressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());

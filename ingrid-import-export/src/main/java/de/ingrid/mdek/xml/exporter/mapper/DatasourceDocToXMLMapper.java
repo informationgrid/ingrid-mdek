@@ -82,12 +82,13 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		general.addChild(createTopicCategories());
 		general.addChild(createEnvInformation());
 		general.addChild(createIsInspireRelevant());
+		general.addChild(createIsAdvCompatible());
 		general.addChild(createIsOpenData());
 		general.addChild(createOpenDataCategorys());
 		return general;
 	}
 
-	private XMLElement createObjectIdentifier() {
+    private XMLElement createObjectIdentifier() {
 		return new XMLElement(OBJECT_IDENTIFIER, getStringForKey(MdekKeys.UUID));
 	}
 
@@ -237,6 +238,10 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createIsInspireRelevant() {
 		return new XMLElement(IS_INSPIRE_RELEVANT, getStringForKey(MdekKeys.IS_INSPIRE_RELEVANT));
 	}
+	
+    private XMLElement createIsAdvCompatible() {
+        return new XMLElement(IS_ADV_COMPATIBLE, getStringForKey(MdekKeys.IS_ADV_COMPATIBLE));
+    }
 	
 	private XMLElement createIsOpenData() {
 		return new XMLElement(IS_OPEN_DATA, getStringForKey(MdekKeys.IS_OPEN_DATA));
