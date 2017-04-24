@@ -37,6 +37,9 @@
       <action type="fix" dev="wemove" issue="REDMINE-635">
         Fixed insertion of published documents under folders.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-659">
+        Fixed clearing of additional fields after they have been published.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-204">
         Add new lines for multiple lineage fields during import.
       </action>
