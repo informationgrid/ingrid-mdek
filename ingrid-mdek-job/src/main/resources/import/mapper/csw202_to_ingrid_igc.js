@@ -1714,12 +1714,14 @@ function mapAddresses(source, target) {
             }
             
             var administrativeAreaValue = XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:administrativeArea/gco:CharacterString");
+            if (administrativeAreaValue) {
             var administrativeAreaKey = codeListService.getSysListEntryKey(6250, administrativeAreaValue, "de");
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "administrativeArea"), administrativeAreaValue);
             if (hasValue(administrativeAreaKey)) {
                 XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "administrative-area"), "id", administrativeAreaKey);
             } else {
                 XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "administrative-area"), "id", "-1");
+            }
             }
             
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "postal-code"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
