@@ -2464,12 +2464,8 @@ public class DocToBeanMapper implements IMapper {
 		if (oFrom != null) {
 			bean.setObjId(oFrom.getId());			
 		}
-		if (doc.get(MdekKeys.ADDITIONAL_FIELD_DATA) != null) {
-			bean.setData(doc.getString(MdekKeys.ADDITIONAL_FIELD_DATA));			
-		}
-		if (doc.get(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID) != null) {
-			bean.setListItemId(doc.getString(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID));			
-		}
+		bean.setData(doc.getString(MdekKeys.ADDITIONAL_FIELD_DATA));			
+		bean.setListItemId(doc.getString(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID));			
 		bean.setParentFieldId(parentBeanId);			
 		bean.setSort(line);
 
