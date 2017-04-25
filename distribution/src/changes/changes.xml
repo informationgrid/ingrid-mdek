@@ -28,20 +28,23 @@
   </properties>
   <body>
     <release version="4.0.3-SNAPSHOT" date="2017-xx-xx" description="Release 4.0.3">
-      <action type="fix" dev="wemove" issue="REDMINE-647">
-        Fixed ISO import of incomplete addresses, now persisted as working version. 
+      <action type="add" dev="wemove" issue="REDMINE-379">
+        Add language info to IDF if AdV compatible.
       </action>
       <action type="add" dev="wemove" issue="REDMINE-369,-375,-367">
         Support new fields adv_compatible, administrative_area and inspire_conform.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-204">
+        Add new lines for multiple lineage fields during import.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-647">
+        Fixed ISO import of incomplete addresses, now persisted as working version. 
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-635">
         Fixed insertion of published documents under folders.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-659">
         Fixed clearing of additional fields after they have been published.
-      </action>
-      <action type="update" dev="wemove" issue="REDMINE-204">
-        Add new lines for multiple lineage fields during import.
       </action>
     </release>
     
