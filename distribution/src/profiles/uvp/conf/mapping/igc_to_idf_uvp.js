@@ -192,12 +192,6 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod")
                                     }
                                     datePeriod.addElement("from").addText(datePeriodFrom);
-                                    if(datePeriodTo){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
                                 }
                             }else if(fieldKey == "publicDateTo"){
                                 if (hasValue(data)){
@@ -206,12 +200,12 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod")
                                     }
                                     datePeriod.addElement("to").addText(datePeriodTo);
-                                    if(datePeriodFrom){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
+                                }
+                                if(datePeriodFrom){
+                                    phase.addElement(datePeriod);
+                                    datePeriod = null;
+                                    datePeriodFrom = null;
+                                    datePeriodTo = null;
                                 }
                             }else if(fieldKey == "technicalDocs"){
                                 var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
@@ -242,12 +236,6 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod");
                                     }
                                     datePeriod.addElement("from").addText(datePeriodFrom);
-                                    if(datePeriodTo){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
                                 }
                             }else if(fieldKey == "considerDateTo"){
                                 if (hasValue(data)){
@@ -256,12 +244,12 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod");
                                     }
                                     datePeriod.addElement("to").addText(datePeriodTo);
-                                    if(datePeriodFrom){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
+                                }
+                                if(datePeriodFrom){
+                                    phase.addElement(datePeriod);
+                                    datePeriod = null;
+                                    datePeriodFrom = null;
+                                    datePeriodTo = null;
                                 }
                             }else if(fieldKey == "considerationDocs"){
                                 var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
