@@ -958,6 +958,13 @@ for (i=0; i<objRows.size(); i++) {
                    mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                    var inclWithDataset = objGeoRow.get("keyc_incl_w_dataset");
+
+                   // if dataset is adv compatible then add the language info (REDMINE-379)
+                   value = objRow.get("is_adv_compatible");
+                   if (hasValue(value) && value.equals('Y')) {
+                       mdFeatureCatalogueDescription.addElement("gmd:language/gco:CharacterString").addText("deutsch");
+                   }
+                   
                    mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean")
                        .addText(hasValue(inclWithDataset) && inclWithDataset.equals("1"));
     
@@ -1012,6 +1019,13 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(featureType)) {
                 if (!mdFeatureCatalogueDescription) {
                     mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+                    
+                    // if dataset is adv compatible then add the language info (REDMINE-379)
+                    value = objRow.get("is_adv_compatible");
+                    if (hasValue(value) && value.equals('Y')) {
+                        mdFeatureCatalogueDescription.addElement("gmd:language/gco:CharacterString").addText("deutsch");
+                    }
+                    
                     // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                     mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
                 }
