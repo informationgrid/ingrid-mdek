@@ -34,6 +34,9 @@
       <action type="add" dev="wemove" issue="REDMINE-369,-375,-367">
         Support new fields adv_compatible, administrative_area and inspire_conform.
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-384">
+        Remove GDI-DE prefix from useLimitation and useConstraints during import.
+      </action>
       <action type="update" dev="wemove" issue="REDMINE-204">
         Add new lines for multiple lineage fields during import.
       </action>

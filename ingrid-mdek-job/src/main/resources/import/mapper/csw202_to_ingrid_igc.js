@@ -628,7 +628,10 @@ var mappingDescription = {"mappings":[
                     {
                         "srcXpath":".",
                         "defaultValue":"No conditions apply",
-                        "targetNode":"terms-of-use"
+                        "targetNode":"terms-of-use",
+			  			"transform":{
+							"funct":removeConstraintPraefix
+						}
                     },
 	  				{
 			  			"targetNode":"terms-of-use",
@@ -1611,7 +1614,7 @@ function mapUseConstraints(source, target) {
 
 function addUseConstraint(useConstraint, target) {
     if (hasValue(useConstraint)) {
-    	useConstraint = useConstraint.trim();
+    	useConstraint = removeConstraintPraefix(useConstraint);
 
     	// Do not add JSON
         if (useConstraint.startsWith( "{" ) && useConstraint.endsWith( "}" )) {
@@ -1856,6 +1859,20 @@ function transformNumberStrToIGCNumber(val) {
 	return UtilsString.transformNumberStrToIGCNumber(val);		
 }
 
+function removeConstraintPraefix(val) {
+	if (hasValue(val)) {
+//    	log.warn("MM IN constraint : " + val);
+
+    	val = val.trim();
+
+    	// remove GDI-DE prefix
+    	val = val.replace("Nutzungseinschränkungen: ", "");
+    	val = val.replace("Nutzungsbedingungen: ", "");
+
+//    	log.warn("MM OUT constraint : " + val);
+	}
+	return val;
+}
 
 function transformToStaticValue(val, staticValue) {
     return staticValue;
