@@ -99,6 +99,12 @@
          <key column="obj_id"/>
          <one-to-many class="ObjectConformity" not-found="ignore"/>
       </set>
+      <set name="objectAdvProductGroup" order-by="line" table="adv_product_group"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="ObjectAdvProductGroup" not-found="ignore"/>
+      </set>
       <set name="objectDataQualitys" order-by="line" table="object_data_quality"
            inverse="true"
            cascade="all-delete-orphan">

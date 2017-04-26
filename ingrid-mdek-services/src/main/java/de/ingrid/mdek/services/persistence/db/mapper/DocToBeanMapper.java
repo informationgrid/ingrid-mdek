@@ -53,6 +53,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
@@ -527,6 +528,7 @@ public class DocToBeanMapper implements IMapper {
 			// comments
 			updateObjectComments(oDocIn, oIn);
 			updateObjectConformitys(oDocIn, oIn);
+			updateObjectAdvProductGroup(oDocIn, oIn);
 			updateObjectAccesses(oDocIn, oIn);
 			updateObjectUses(oDocIn, oIn);
             updateObjectUseConstraints(oDocIn, oIn);
@@ -2569,6 +2571,19 @@ public class DocToBeanMapper implements IMapper {
 
 		return ref;
 	}
+	private ObjectAdvProductGroup mapObjectAdvProductGroup(T01Object oFrom,
+	        IngridDocument refDoc,
+	        ObjectAdvProductGroup ref, 
+	        int line)
+	{
+	    ref.setObjId(oFrom.getId());
+	    ref.setProductKey((Integer)refDoc.get(MdekKeys.ADV_PRODUCT_KEY));
+	    ref.setProductValue(refDoc.getString(MdekKeys.ADV_PRODUCT_VALUE));
+	    ref.setLine(line);
+	    keyValueService.processKeyValue(ref);
+	    
+	    return ref;
+	}
 	private List<IngridDocument> createObjectConformityList(int specificationKey, int degreeKey) {
 		List<IngridDocument> cDocList = new ArrayList<IngridDocument>();
 		IngridDocument cDoc = new IngridDocument();
@@ -2617,6 +2632,46 @@ public class DocToBeanMapper implements IMapper {
 			refs.add(ref);
 			line++;
 		}
+	}
+	private void updateObjectAdvProductGroup(IngridDocument oDocIn, T01Object oIn) {
+	    List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.ADV_PRODUCT_LIST);
+	    // NOTICE: objects conformities are only editable in special object types (classes) and have default
+	    // values in other types. We guarantee default values, when necessary ! object-classes can be switched
+	    // so conformity might be wrong, remaining from former class !
+//	    ObjectType oType = EnumUtil.mapDatabaseToEnumConst(ObjectType.class, oIn.getObjClass());
+//	    if (oType == ObjectType.GEO_INFORMATION || 
+//	            oType == ObjectType.GEO_DIENST ||
+//	            oType == ObjectType.INFOSYSTEM_DIENST) {
+//	        // set default if not set, else keep set values. DISPLAYED in frontend.
+//	        if (refDocs == null) {
+//	            refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);
+//	        }			
+//	    } else {
+//	        // check whether correct default is set ! if not, set it. NOT displayed in frontend !
+//	        if (refDocs == null ||
+//	                refDocs.size() != 1 ||
+//	                !MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_SPECIFICATION_KEY)) ||
+//	                !MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_DEGREE_KEY))) {
+//	            refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);				
+//	        }
+//	    }
+	    
+	    Set<ObjectAdvProductGroup> refs = oIn.getObjectAdvProductGroup();
+	    ArrayList<ObjectAdvProductGroup> refs_unprocessed = new ArrayList<ObjectAdvProductGroup>(refs);
+	    // remove all !
+	    for (ObjectAdvProductGroup ref : refs_unprocessed) {
+	        refs.remove(ref);
+	        // delete-orphan doesn't work !!!?????
+	        dao.makeTransient(ref);			
+	    }		
+	    // and add all new ones !
+	    int line = 1;
+	    for (IngridDocument refDoc : refDocs) {
+	        // add all as new ones
+	        ObjectAdvProductGroup ref = mapObjectAdvProductGroup(oIn, refDoc, new ObjectAdvProductGroup(), line);
+	        refs.add(ref);
+	        line++;
+	    }
 	}
 
 	private ObjectAccess mapObjectAccess(T01Object oFrom,

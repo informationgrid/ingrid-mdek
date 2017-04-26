@@ -47,6 +47,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
@@ -350,6 +351,7 @@ public class BeanToDocMapper implements IMapper {
 			// additional fields
 			mapAdditionalFieldDatas(o.getAdditionalFieldDatas(), objectDoc);
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
+			mapObjectAdvProductGroup(o.getObjectAdvProductGroup(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 			mapObjectUses(o.getObjectUses(), objectDoc);
             mapObjectUseConstraints(o.getObjectUseConstraints(), objectDoc);
@@ -1955,6 +1957,22 @@ public class BeanToDocMapper implements IMapper {
 		
 		return objectDoc;
 	}
+	
+	public IngridDocument mapObjectAdvProductGroup(Set<ObjectAdvProductGroup> refs, IngridDocument objectDoc) {
+	    if (refs == null) {
+	        return objectDoc;
+	    }
+	    
+	    ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+	    for (ObjectAdvProductGroup ref : refs) {
+	        IngridDocument refDoc = new IngridDocument();
+	        mapObjectAdvProductGroup(ref, refDoc);
+	        refList.add(refDoc);
+	    }
+	    objectDoc.put(MdekKeys.ADV_PRODUCT_LIST, refList);
+	    
+	    return objectDoc;
+	}
 
 	private IngridDocument mapObjectConformity(ObjectConformity ref, IngridDocument refDoc) {
 		if (ref == null) {
@@ -1967,6 +1985,17 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
 
 		return refDoc;
+	}
+	
+	private IngridDocument mapObjectAdvProductGroup(ObjectAdvProductGroup ref, IngridDocument refDoc) {
+	    if (ref == null) {
+	        return refDoc;
+	    }
+	    
+	    refDoc.put(MdekKeys.ADV_PRODUCT_KEY, ref.getProductKey());
+	    refDoc.put(MdekKeys.ADV_PRODUCT_VALUE, ref.getProductValue());
+	    
+	    return refDoc;
 	}
 
 	private IngridDocument mapObjectAccesses(Set<ObjectAccess> refs, IngridDocument objectDoc) {

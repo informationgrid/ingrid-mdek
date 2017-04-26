@@ -36,6 +36,7 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
@@ -190,6 +191,8 @@ public class MdekKeyValueHandler {
 			processKeyValueT011ObjServOpPlatform((T011ObjServOpPlatform) bean);
 		} else if (ObjectOpenDataCategory.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectOpenDataCategory((ObjectOpenDataCategory) bean);
+		} else if (ObjectAdvProductGroup.class.isAssignableFrom(clazz)) {
+		    processKeyValueObjectAdvProductGroup((ObjectAdvProductGroup) bean);
         } else if (ObjectUseConstraint.class.isAssignableFrom(clazz)) {
             processKeyValueObjectUseConstraint((ObjectUseConstraint) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
@@ -774,6 +777,27 @@ public class MdekKeyValueHandler {
 		}
 		
 		return bean;
+	}
+	
+	private IEntity processKeyValueObjectAdvProductGroup(ObjectAdvProductGroup bean) {
+	    Integer entryKey = bean.getProductKey();
+	    if (entryKey != null && entryKey > -1) {
+	        Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+	                MdekSysList.OBJ_ADV_PRODUCT_GROUP.getDbValue(),
+	                catalogService.getCatalogLanguage());
+	        
+	        if (keyNameMap.get(entryKey) != null) {
+	            // entry found in syslist, set name !
+	            bean.setProductValue(keyNameMap.get(entryKey));
+	        } else {
+	            // entry NOT found in syslist ! transform to free entry cause may be changed in IGE outside codelist repo !
+	            // see INGRID33-29
+	            logTransformToFreeEntry(MdekSysList.OBJ_ADV_PRODUCT_GROUP, entryKey, bean.getProductValue());
+	            bean.setProductKey(-1);
+	        }
+	    }
+	    
+	    return bean;
 	}
 
     private IEntity processKeyValueObjectUseConstraint(ObjectUseConstraint bean) {
