@@ -795,6 +795,11 @@ public class MdekKeyValueHandler {
 	            logTransformToFreeEntry(MdekSysList.OBJ_ADV_PRODUCT_GROUP, entryKey, bean.getProductValue());
 	            bean.setProductKey(-1);
 	        }
+	    } else if (entryKey == null) {
+	        Integer productKey = catalogService.getSysListEntryKey( MdekSysList.OBJ_ADV_PRODUCT_GROUP.getDbValue(), bean.getProductValue(), catalogService.getCatalogLanguage() );
+	        if (productKey != null) {
+	            bean.setProductKey( productKey );
+	        }
 	    }
 	    
 	    return bean;

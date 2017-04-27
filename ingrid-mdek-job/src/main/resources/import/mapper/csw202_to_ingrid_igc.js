@@ -123,10 +123,10 @@ var mappingDescription = {"mappings":[
 				"params":[510, "Could not tranform gmd:MD_CharacterSetCode: "]
 			}
   		},
-  		{	
-  			"srcXpath":"//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:alternateTitle/gco:CharacterString",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/dataset-alternate-name",
-  			"concatEntriesWith":", "
+  		{
+  		    "execute":{
+  		        "funct":transformAlternateNameAndProductGroup
+  		    }
   		},
         {   
             "srcXpath":"//gmd:identificationInfo/*/gmd:characterSet/gmd:MD_CharacterSetCode/@codeListValue",
@@ -2076,7 +2076,51 @@ function transformDateIso8601ToIndex(isoFormat) {
 	return UtilsCSWDate.mapDateFromIso8601ToIndex(isoFormat);
 }
 
-
+function transformAlternateNameAndProductGroup(source, target) {
+    var altTitles = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:alternateTitle/gco:CharacterString");
+    if (hasValue(altTitles)) {
+        var productGroups = [];
+        var nonProductGroups = [];
+        var alternateNames = [];
+        
+        for (var i=0; i<altTitles.getLength(); i++ ) {
+            var term = XPATH.getString(altTitles.item(i), ".");
+            
+            var splitted = term.split(';');
+            if (splitted.length > 0) {
+                var alternateName = splitted[splitted.length-1];
+                alternateNames.push(alternateName);
+                
+                // check all entries if they match to a product group and move them to this field
+                for (var j=0; j<splitted.length-1; j++) {
+                    var entry = splitted[j].trim();
+                    var codelistItem = codeListService.getSysListEntryKey(8010, entry, "de");
+                    // TODO: what about english entries
+                    if (codelistItem) {
+                        // add to product group
+                        productGroups.push(entry);
+                    } else {
+                        // let it stay in alternate title
+                        nonProductGroups.push(entry);
+                    }
+                }
+            }
+        }
+        if (productGroups.length > 0) {
+            var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/adv-product-group");
+            for (var k=0; k<productGroups.length; k++) {
+                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPathAsSibling(node, "item"), productGroups[k]);
+            }
+        }
+        
+        var finalAlternateName = alternateNames.join(", ");
+        if (nonProductGroups.length > 0) {
+            finalAlternateName = nonProductGroups.join(";") + ", " + finalAlternateName;
+        }
+        var pathAlternateName = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/dataset-alternate-name");
+        XMLUtils.createOrReplaceTextNode(pathAlternateName, finalAlternateName);
+    }
+}
 
 function getTypeOfAddress(source, target) {
 	var organisationName = XPATH.getString(source, "gmd:organisationName/gco:CharacterString");
