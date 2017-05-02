@@ -766,6 +766,12 @@ public class MdekKeys {
     // ADV COMPATIBLE
     /** Value: String */
     public final static String IS_ADV_COMPATIBLE = "is-adv-compatible";
+    /** Value: List< IngridDocument > */
+    public final static String ADV_PRODUCT_LIST = "adv-product-list";
+    /** Value: Integer */
+    public final static String ADV_PRODUCT_KEY = "adv-product-key";
+    /** Value: String */
+    public final static String ADV_PRODUCT_VALUE = "adv-product-value";
     
     // OPEN DATA
     /** Value: String */

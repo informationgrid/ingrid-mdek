@@ -193,6 +193,8 @@ public class XMLKeys {
 	public static final String IS_CATALOG = "is-catalog";
 	public static final String IS_INSPIRE_RELEVANT = "is-inspire-relevant";
 	public static final String IS_ADV_COMPATIBLE = "is-adv-compatible";
+	public static final String ADV_PRODUCT_GROUP = "adv-product-group";
+	public static final String ADV_PRODUCT_GROUP_ITEM = "item";
 	public static final String IS_OPEN_DATA = "is-open-data";
 	public static final String OPEN_DATA_CATEGORIES = "open-data-categories";
 	public static final String OPEN_DATA_CATEGORY = "open-data-category";

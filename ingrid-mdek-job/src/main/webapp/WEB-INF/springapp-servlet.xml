@@ -112,6 +112,7 @@
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectAdvProductGroup.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataQuality.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectFormatInspire.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>

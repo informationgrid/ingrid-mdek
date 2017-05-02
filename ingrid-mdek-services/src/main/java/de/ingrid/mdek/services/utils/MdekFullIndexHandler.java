@@ -45,6 +45,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
@@ -514,6 +515,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 					objConform.getSpecificationKey(), objConform.getSpecificationValue());				
 			extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY_DEGREE,
 					objConform.getDegreeKey(), objConform.getDegreeValue());				
+		}
+		// AdvProductGroup
+		Set<ObjectAdvProductGroup> objAdvProductGroup = o.getObjectAdvProductGroup();
+		for (ObjectAdvProductGroup productGroup : objAdvProductGroup) {
+		    extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY_DEGREE,
+		            productGroup.getProductKey(), productGroup.getProductValue());				
 		}
 		// ObjectAccess
 		Set<ObjectAccess> objAccesses = o.getObjectAccesss();

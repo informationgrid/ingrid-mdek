@@ -80,6 +80,7 @@ public class T01Object implements IEntity {
 	private Set objectAccesss = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
+	private Set objectAdvProductGroup = new HashSet();
 	private Set objectDataQualitys = new HashSet();
 	private Set objectFormatInspires = new HashSet();
 	private Set objectOpenDataCategorys = new HashSet();
@@ -743,6 +744,14 @@ public class T01Object implements IEntity {
 
     public void setIsInspireConform(String isInspireConform) {
         this.isInspireConform = isInspireConform;
+    }
+
+    public Set getObjectAdvProductGroup() {
+        return objectAdvProductGroup;
+    }
+
+    public void setObjectAdvProductGroup(Set objectAdvProductGroup) {
+        this.objectAdvProductGroup = objectAdvProductGroup;
     }
 
 }
