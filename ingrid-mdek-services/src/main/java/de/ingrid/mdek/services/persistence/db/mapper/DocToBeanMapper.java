@@ -2665,12 +2665,14 @@ public class DocToBeanMapper implements IMapper {
 	        dao.makeTransient(ref);			
 	    }		
 	    // and add all new ones !
-	    int line = 1;
-	    for (IngridDocument refDoc : refDocs) {
-	        // add all as new ones
-	        ObjectAdvProductGroup ref = mapObjectAdvProductGroup(oIn, refDoc, new ObjectAdvProductGroup(), line);
-	        refs.add(ref);
-	        line++;
+	    if (refDocs != null) {
+    	    int line = 1;
+    	    for (IngridDocument refDoc : refDocs) {
+    	        // add all as new ones
+    	        ObjectAdvProductGroup ref = mapObjectAdvProductGroup(oIn, refDoc, new ObjectAdvProductGroup(), line);
+    	        refs.add(ref);
+    	        line++;
+    	    }
 	    }
 	}
 
