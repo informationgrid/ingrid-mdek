@@ -248,18 +248,16 @@ for (i=0; i<objRows.size(); i++) {
     ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:alternateTitle> ----------
     // collect all entries from the AdV Product Group and append the defined short title (#388)
-    var productGroup = [];
     var productGroupRows = SQL.all("SELECT * FROM adv_product_group WHERE obj_id=? ORDER BY adv_product_group.line ASC", [+objId]);
     for (var j=0; j<productGroupRows.size(); j++) {
         var productGroupRow = productGroupRows.get(j);
-        productGroup.push( productGroupRow.get("product_value") );
+        var productValue = productGroupRow.get("product_value");
+        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(productValue);
     }
     
     if (hasValue(objRow.get("dataset_alternate_name"))) {
-        productGroup.push( objRow.get("dataset_alternate_name") );
-        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(productGroup.join(';'));
-    } else if (productGroup.length > 0){
-        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(productGroup.join(';'));
+        var alternateName = objRow.get("dataset_alternate_name");
+        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(alternateName);
     }
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
     var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
