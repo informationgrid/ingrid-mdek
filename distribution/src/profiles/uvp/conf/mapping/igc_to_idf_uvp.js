@@ -590,7 +590,7 @@ function getAdditionalFieldDataTable(id, fields, table){
                 } else if (fields[s].id == "expires") {
                 	if (value.length > 0) {
                 		// check if date lies in past
-                		Date d = parseDate(value);
+                		var d = parseDate(value);
                 		var now = new Date();
                 		now.setHours(0,0,0,0);
                 		if (d < now) {
