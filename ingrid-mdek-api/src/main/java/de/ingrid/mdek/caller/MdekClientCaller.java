@@ -312,7 +312,7 @@ public class MdekClientCaller implements IMdekClientCaller {
 	}
 
 	private void debugDocument(String title, IngridDocument doc) {
-		if (!log.isInfoEnabled()) {
+		if (!log.isDebugEnabled()) {
 			return;
 		}
 
