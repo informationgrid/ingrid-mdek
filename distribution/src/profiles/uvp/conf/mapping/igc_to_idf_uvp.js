@@ -567,6 +567,7 @@ function getAdditionalFieldDataTable(id, fields, table){
     var docs = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort", [id]);
     var sort = "";
     var doc;
+    var expired = false;
     for (var r=0; r < docs.size(); r++) {
         var tableData = docs.get(r).get("data");
         var tableFieldKey = docs.get(r).get("field_key");
@@ -586,15 +587,36 @@ function getAdditionalFieldDataTable(id, fields, table){
                     value = formatBytes(value);
                 } else  if(fields[s].type == "link"){
                     value = "/documents/"+value;
+                } else if (fields[s].id == "expires") {
+                	if (value.length > 0) {
+                		// check if date lies in past
+                		Date d = parseDate(value);
+                		var now = new Date();
+                		now.setHours(0,0,0,0);
+                		if (d < now) {
+                		  expired = true;
+                		  break;
+                		}                		
+                	} 
                 }
+                
                 doc.addElement(tableFieldKey).addText(value);
             }
         }
 
-        if(r >= rows.size() -1){
+        if (expired) {
+        	break;
+        } else if (doc != null && r >= docs.size() -1){
             table.addElement(doc);
         }
     }
+}
+
+//parse a date in dd.mm.yyyy format
+function parseDate(input) {
+  var parts = input.split('.');
+  // new Date(year, month [, day [, hours[, minutes[, seconds[, ms]]]]])
+  return new Date(parts[2], parts[1]-1, parts[0]); // Note: months are 0-based
 }
 
 function formatBytes (value) {
