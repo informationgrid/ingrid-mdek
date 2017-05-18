@@ -625,7 +625,12 @@ function getAdditionalFieldDataTable(id, fields, table){
                 if(fields[s].type == "bytes"){
                     value = formatBytes(value);
                 } else  if(fields[s].type == "link"){
-                    value = "/documents/"+value;
+                    // detect relative links from document uploads
+                    // excluds (http|https|ftp)://
+                    pos = value.indexof("://");
+                    if (pos <= 3 || pos >= 10) {
+                        value = "/documents/"+value;
+                    }
                 } else if (fields[s].id == "expires") {
                     if (value.length > 0) {
                         // check if date lies in past
