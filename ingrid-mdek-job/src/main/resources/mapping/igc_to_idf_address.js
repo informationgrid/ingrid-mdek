@@ -207,8 +207,13 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 
 	// do NOT USE DISTINCT -> crashes on ORACLE !
     var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', 1]);
+    var tmpRows = new Array();
     for (var j=0; j<rows.size(); j++) {
-        idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
+        var uuid = rows.get(j).get("obj_uuid");
+        if(tmpRows.indexOf(uuid) == -1){
+            tmpRows.push(uuid);
+            idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
+        }
     }
 
     return idfResponsibleParty;
