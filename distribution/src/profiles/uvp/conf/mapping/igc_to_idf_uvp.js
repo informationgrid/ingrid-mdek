@@ -627,7 +627,7 @@ function getAdditionalFieldDataTable(id, fields, table){
                 } else  if(fields[s].type == "link"){
                     // detect relative links from document uploads
                     // excluds (http|https|ftp)://
-                    pos = value.indexof("://");
+                    pos = value.indexOf("://");
                     if (pos <= 3 || pos >= 10) {
                         value = "/documents/"+value;
                     }
