@@ -46,7 +46,8 @@ DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
@@ -107,7 +108,7 @@ for (i=0; i<objRows.size(); i++) {
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
-            .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+            .addAttribute("codeList", globalCodeListLanguageAttrURL)
             .addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
@@ -762,7 +763,7 @@ for (i=0; i<objRows.size(); i++) {
         value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
         if (hasValue(value)) {
             identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+                .addAttribute("codeList", globalCodeListLanguageAttrURL)
                 .addAttribute("codeListValue", value);
         }
 
@@ -816,7 +817,7 @@ for (i=0; i<objRows.size(); i++) {
         value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
         if (hasValue(value)) {
             identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+                .addAttribute("codeList", globalCodeListLanguageAttrURL)
                 .addAttribute("codeListValue", value);
         }
 
@@ -1141,7 +1142,7 @@ for (i=0; i<objRows.size(); i++) {
                              .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
                              .getParent(2)
                              .addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                                 .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+                                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
                                  .addAttribute("codeListValue", "publication")
                              .getParent(6)
                              .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")

@@ -27,6 +27,7 @@
 	xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco"
 	xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:srv="http://www.isotc211.org/2005/srv"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
 	exclude-result-prefixes="idf xsi">
 	<xsl:output method="xml" />
 	<xsl:strip-space elements="*" />
