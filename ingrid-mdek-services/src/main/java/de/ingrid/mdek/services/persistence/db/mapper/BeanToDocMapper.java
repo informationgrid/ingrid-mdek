@@ -408,6 +408,8 @@ public class BeanToDocMapper implements IMapper {
 			addressDoc.put(MdekKeys.CITY, a.getCity());
 			addressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
 			addressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_CODE, a.getAdministrativeAreaKey());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_NAME, a.getAdministrativeAreaValue());
 
 			// map associations
 			mapT021Communications(a.getT021Communications(), addressDoc);
@@ -510,6 +512,8 @@ public class BeanToDocMapper implements IMapper {
 		mergeTargetDoc.put(MdekKeys.CITY, mergeSource.getCity());
 		mergeTargetDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, mergeSource.getPostboxPc());
 		mergeTargetDoc.put(MdekKeys.POST_BOX, mergeSource.getPostbox());
+		mergeTargetDoc.put(MdekKeys.ADMINISTRATIVE_AREA_CODE, mergeSource.getAdministrativeAreaKey());
+		mergeTargetDoc.put(MdekKeys.ADMINISTRATIVE_AREA_NAME, mergeSource.getAdministrativeAreaValue());
 
 		return mergeTargetDoc;
 	}
