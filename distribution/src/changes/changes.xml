@@ -37,11 +37,14 @@
       <action type="add" dev="wemove" issue="REDMINE-388">
         Added table adv_product_group and import/export functionality.
       </action>
-      <action type="update" dev="wemove" issue="REDMINE-384">
-        Remove GDI-DE prefix from useLimitation and useConstraints during import.
-      </action>
       <action type="update" dev="wemove" issue="REDMINE-204">
         Add new lines for multiple lineage fields during import.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-704">
+        Import useLimitation and useConstraints according to GDI-DE conventions.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-384">
+        Remove GDI-DE prefix from useLimitation and useConstraints during ISO import.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-647">
         Fixed ISO import of incomplete addresses, now persisted as working version. 

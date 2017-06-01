@@ -1,0 +1,1129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml" xmlns:srv="http://www.isotc211.org/2005/srv" xsi:schemaLocation="http://www.isotc211.org/2005/gmd http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd">
+	<gmd:fileIdentifier>
+		<gco:CharacterString>142d56bb-108b-4e6a-96a6-8239b80af77e</gco:CharacterString>
+	</gmd:fileIdentifier>
+	<gmd:language>
+		<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="ger">ger</gmd:LanguageCode>
+	</gmd:language>
+	<gmd:characterSet>
+		<gmd:MD_CharacterSetCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8" codeSpace="Domain Code">utf8</gmd:MD_CharacterSetCode>
+	</gmd:characterSet>
+	<gmd:hierarchyLevel>
+		<gmd:MD_ScopeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset" codeSpace="Domain Code">dataset</gmd:MD_ScopeCode>
+	</gmd:hierarchyLevel>
+	<gmd:contact>
+		<gmd:CI_ResponsibleParty>
+			<gmd:organisationName>
+				<gco:CharacterString>Dienstleistungszentrum des Bundes für Geoinformation und Geodäsie</gco:CharacterString>
+			</gmd:organisationName>
+			<gmd:contactInfo>
+				<gmd:CI_Contact>
+					<gmd:phone>
+						<gmd:CI_Telephone>
+							<gmd:voice>
+								<gco:CharacterString>+49 (0) 341-5634-333</gco:CharacterString>
+							</gmd:voice>
+							<gmd:facsimile>
+								<gco:CharacterString>+49 (0) 341-5634-415</gco:CharacterString>
+							</gmd:facsimile>
+						</gmd:CI_Telephone>
+					</gmd:phone>
+					<gmd:address>
+						<gmd:CI_Address>
+							<gmd:deliveryPoint>
+								<gco:CharacterString>Karl-Rothe-Str. 10-14</gco:CharacterString>
+							</gmd:deliveryPoint>
+							<gmd:city>
+								<gco:CharacterString>Leipzig</gco:CharacterString>
+							</gmd:city>
+							<gmd:postalCode>
+								<gco:CharacterString>D-04105</gco:CharacterString>
+							</gmd:postalCode>
+							<gmd:country>
+								<gco:CharacterString>Deutschland</gco:CharacterString>
+							</gmd:country>
+							<gmd:electronicMailAddress>
+								<gco:CharacterString>dlz@bkg.bund.de</gco:CharacterString>
+							</gmd:electronicMailAddress>
+						</gmd:CI_Address>
+					</gmd:address>
+					<gmd:onlineResource>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>www.geodatenzentrum.de</gmd:URL>
+							</gmd:linkage>
+						</gmd:CI_OnlineResource>
+					</gmd:onlineResource>
+				</gmd:CI_Contact>
+			</gmd:contactInfo>
+			<gmd:role>
+				<gmd:CI_RoleCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact" codeSpace="Domain Code">pointOfContact</gmd:CI_RoleCode>
+			</gmd:role>
+		</gmd:CI_ResponsibleParty>
+	</gmd:contact>
+	<gmd:dateStamp>
+		<gco:Date>2017-05-15</gco:Date>
+	</gmd:dateStamp>
+	<gmd:metadataStandardName>
+		<gco:CharacterString>ISO19115</gco:CharacterString>
+	</gmd:metadataStandardName>
+	<gmd:metadataStandardVersion>
+		<gco:CharacterString>2003/Cor.1:2006</gco:CharacterString>
+	</gmd:metadataStandardVersion>
+	<gmd:locale>
+		<gmd:PT_Locale id="eng_utf8">
+			<gmd:languageCode>
+				<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="eng">eng</gmd:LanguageCode>
+			</gmd:languageCode>
+			<gmd:characterEncoding>
+				<gmd:MD_CharacterSetCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8"/>
+			</gmd:characterEncoding>
+		</gmd:PT_Locale>
+	</gmd:locale>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/4258</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/4326</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/31466</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/31467</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/31468</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/31469</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/25832</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/25833</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/32632</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:referenceSystemInfo>
+		<gmd:MD_ReferenceSystem>
+			<gmd:referenceSystemIdentifier>
+				<gmd:RS_Identifier>
+					<gmd:code>
+						<gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/32633</gco:CharacterString>
+					</gmd:code>
+					<gmd:codeSpace>
+						<gco:CharacterString>EPSG</gco:CharacterString>
+					</gmd:codeSpace>
+				</gmd:RS_Identifier>
+			</gmd:referenceSystemIdentifier>
+		</gmd:MD_ReferenceSystem>
+	</gmd:referenceSystemInfo>
+	<gmd:identificationInfo>
+		<gmd:MD_DataIdentification>
+			<gmd:citation>
+				<gmd:CI_Citation>
+					<gmd:title xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Geographische Namen INSPIRE</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">Geographical Names INSPIRE</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:title>
+					<gmd:date>
+						<gmd:CI_Date>
+							<gmd:date>
+								<gco:Date>2015-11-15</gco:Date>
+							</gmd:date>
+							<gmd:dateType>
+								<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="creation" codeSpace="Domain Code">creation</gmd:CI_DateTypeCode>
+							</gmd:dateType>
+						</gmd:CI_Date>
+					</gmd:date>
+					<gmd:identifier>
+						<gmd:MD_Identifier>
+							<gmd:code>
+								<gco:CharacterString>https://registry.gdi-de.org/id/de.bund.bkg.csw/DEBKG00M00000187</gco:CharacterString>
+							</gmd:code>
+						</gmd:MD_Identifier>
+					</gmd:identifier>
+					<gmd:presentationForm>
+						<gmd:CI_PresentationFormCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_PresentationFormCode" codeListValue="mapDigital" codeSpace="Domain Code">mapDigital</gmd:CI_PresentationFormCode>
+					</gmd:presentationForm>
+				</gmd:CI_Citation>
+			</gmd:citation>
+			<gmd:abstract xsi:type="gmd:PT_FreeText_PropertyType">
+				<gco:CharacterString>Der Datensatz Geographische Namen INSPIRE ist nach INSPIRE IR entwickelt und wird in standardisierten Web Feature Services (WFS) und Web Map Services (WMS) des BKG eingesetzt. Er beinhaltet Namen der Objektbereiche: Siedlung, Verkehr, Vegetation, Gewässer, Relief, Gebiete, mit Attributen wie Lage (Geometriedaten aus dem Digitalen Landschafsmodell im Maßstab 1:250.000), Status des geographischen Namens und Sprache des geographischen Namens. Der Datensatz orientiert sich am Maßstab 1:250.000 und umfasst ca. 130.000 Einträge.</gco:CharacterString>
+				<gmd:PT_FreeText>
+					<gmd:textGroup>
+						<gmd:LocalisedCharacterString locale="#eng-utf8">The INSPIRE-conform dataset geographical names Germany is the base for an INSPIRE-conform Web Feature Service (WFS) and Web Map Services (WMS). The dataset contains approx. 130.000 entries including all relevant feature types from the digital landscape model scale 1:250.000 (DLM250): settlements, transportation, Vegetations, Hydrography, areas and regions with attributes regarding position (geometry data from DLM250), status and language of the geographical name.</gmd:LocalisedCharacterString>
+					</gmd:textGroup>
+				</gmd:PT_FreeText>
+			</gmd:abstract>
+			<gmd:status>
+				<gmd:MD_ProgressCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_ProgressCode" codeListValue="onGoing" codeSpace="Domain Code">onGoing</gmd:MD_ProgressCode>
+			</gmd:status>
+			<gmd:pointOfContact>
+				<gmd:CI_ResponsibleParty>
+					<gmd:organisationName>
+						<gco:CharacterString>Dienstleistungszentrum des Bundes für Geoinformation und Geodäsie</gco:CharacterString>
+					</gmd:organisationName>
+					<gmd:contactInfo>
+						<gmd:CI_Contact>
+							<gmd:phone>
+								<gmd:CI_Telephone>
+									<gmd:voice>
+										<gco:CharacterString>+49 (0) 341-5634-333</gco:CharacterString>
+									</gmd:voice>
+									<gmd:facsimile>
+										<gco:CharacterString>+49 (0) 341-5634-415</gco:CharacterString>
+									</gmd:facsimile>
+								</gmd:CI_Telephone>
+							</gmd:phone>
+							<gmd:address>
+								<gmd:CI_Address>
+									<gmd:deliveryPoint>
+										<gco:CharacterString>Karl-Rothe-Str. 10-14</gco:CharacterString>
+									</gmd:deliveryPoint>
+									<gmd:city>
+										<gco:CharacterString>Leipzig</gco:CharacterString>
+									</gmd:city>
+									<gmd:postalCode>
+										<gco:CharacterString>D-04105</gco:CharacterString>
+									</gmd:postalCode>
+									<gmd:country>
+										<gco:CharacterString>Deutschland</gco:CharacterString>
+									</gmd:country>
+									<gmd:electronicMailAddress>
+										<gco:CharacterString>dlz@bkg.bund.de</gco:CharacterString>
+									</gmd:electronicMailAddress>
+								</gmd:CI_Address>
+							</gmd:address>
+						</gmd:CI_Contact>
+					</gmd:contactInfo>
+					<gmd:role>
+						<gmd:CI_RoleCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact" codeSpace="Domain Code">pointOfContact</gmd:CI_RoleCode>
+					</gmd:role>
+				</gmd:CI_ResponsibleParty>
+			</gmd:pointOfContact>
+			<gmd:pointOfContact>
+				<gmd:CI_ResponsibleParty>
+					<gmd:organisationName>
+						<gco:CharacterString>Dienstleistungszentrum des Bundes für Geoinformation und Geodäsie</gco:CharacterString>
+					</gmd:organisationName>
+					<gmd:contactInfo>
+						<gmd:CI_Contact>
+							<gmd:phone>
+								<gmd:CI_Telephone>
+									<gmd:voice>
+										<gco:CharacterString>+49 (0) 341-5634-333</gco:CharacterString>
+									</gmd:voice>
+									<gmd:facsimile>
+										<gco:CharacterString>+49 (0) 341-5634-415</gco:CharacterString>
+									</gmd:facsimile>
+								</gmd:CI_Telephone>
+							</gmd:phone>
+							<gmd:address>
+								<gmd:CI_Address>
+									<gmd:deliveryPoint>
+										<gco:CharacterString>Karl-Rothe-Str. 10-14</gco:CharacterString>
+									</gmd:deliveryPoint>
+									<gmd:city>
+										<gco:CharacterString>Leipzig</gco:CharacterString>
+									</gmd:city>
+									<gmd:postalCode>
+										<gco:CharacterString>D-04105</gco:CharacterString>
+									</gmd:postalCode>
+									<gmd:country>
+										<gco:CharacterString>Deutschland</gco:CharacterString>
+									</gmd:country>
+									<gmd:electronicMailAddress>
+										<gco:CharacterString>dlz@bkg.bund.de</gco:CharacterString>
+									</gmd:electronicMailAddress>
+								</gmd:CI_Address>
+							</gmd:address>
+							<gmd:onlineResource>
+								<gmd:CI_OnlineResource>
+									<gmd:linkage>
+										<gmd:URL>www.geodatenzentrum.de</gmd:URL>
+									</gmd:linkage>
+								</gmd:CI_OnlineResource>
+							</gmd:onlineResource>
+						</gmd:CI_Contact>
+					</gmd:contactInfo>
+					<gmd:role>
+						<gmd:CI_RoleCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="distributor" codeSpace="Domain Code">distributor</gmd:CI_RoleCode>
+					</gmd:role>
+				</gmd:CI_ResponsibleParty>
+			</gmd:pointOfContact>
+			<gmd:pointOfContact>
+				<gmd:CI_ResponsibleParty>
+					<gmd:organisationName>
+						<gco:CharacterString>Bundesamt für Kartographie und Geodäsie</gco:CharacterString>
+					</gmd:organisationName>
+					<gmd:contactInfo>
+						<gmd:CI_Contact>
+							<gmd:phone>
+								<gmd:CI_Telephone>
+									<gmd:voice>
+										<gco:CharacterString>+49 (0) 69-6333-1</gco:CharacterString>
+									</gmd:voice>
+									<gmd:facsimile>
+										<gco:CharacterString>+49 (0) 69-6333-235</gco:CharacterString>
+									</gmd:facsimile>
+								</gmd:CI_Telephone>
+							</gmd:phone>
+							<gmd:address>
+								<gmd:CI_Address>
+									<gmd:deliveryPoint>
+										<gco:CharacterString>Richard-Strauss-Allee 11</gco:CharacterString>
+									</gmd:deliveryPoint>
+									<gmd:city>
+										<gco:CharacterString>Frankfurt am Main</gco:CharacterString>
+									</gmd:city>
+									<gmd:administrativeArea>
+										<gco:CharacterString>Bundesrepublik Deutschland</gco:CharacterString>
+									</gmd:administrativeArea>
+									<gmd:postalCode>
+										<gco:CharacterString>D-60598</gco:CharacterString>
+									</gmd:postalCode>
+									<gmd:country>
+										<gco:CharacterString>Deutschland</gco:CharacterString>
+									</gmd:country>
+									<gmd:electronicMailAddress>
+										<gco:CharacterString>mailbox@bkg.bund.de</gco:CharacterString>
+									</gmd:electronicMailAddress>
+								</gmd:CI_Address>
+							</gmd:address>
+							<gmd:onlineResource>
+								<gmd:CI_OnlineResource>
+									<gmd:linkage>
+										<gmd:URL>www.bkg.bund.de</gmd:URL>
+									</gmd:linkage>
+								</gmd:CI_OnlineResource>
+							</gmd:onlineResource>
+						</gmd:CI_Contact>
+					</gmd:contactInfo>
+					<gmd:role>
+						<gmd:CI_RoleCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="owner" codeSpace="Domain Code">owner</gmd:CI_RoleCode>
+					</gmd:role>
+				</gmd:CI_ResponsibleParty>
+			</gmd:pointOfContact>
+			<gmd:resourceMaintenance>
+				<gmd:MD_MaintenanceInformation>
+					<gmd:maintenanceAndUpdateFrequency>
+						<gmd:MD_MaintenanceFrequencyCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_MaintenanceFrequencyCode" codeListValue="annually" codeSpace="Domain Code">annually</gmd:MD_MaintenanceFrequencyCode>
+					</gmd:maintenanceAndUpdateFrequency>
+				</gmd:MD_MaintenanceInformation>
+			</gmd:resourceMaintenance>
+			<gmd:graphicOverview>
+				<gmd:MD_BrowseGraphic>
+					<gmd:fileName>
+						<gco:CharacterString>http://mis.bkg.bund.de/preview/DEBKG00M00000187.jpg</gco:CharacterString>
+					</gmd:fileName>
+					<gmd:fileDescription>
+						<gco:CharacterString>Graphikbeispiel</gco:CharacterString>
+					</gmd:fileDescription>
+					<gmd:fileType>
+						<gco:CharacterString>image/jpeg</gco:CharacterString>
+					</gmd:fileType>
+				</gmd:MD_BrowseGraphic>
+			</gmd:graphicOverview>
+			<gmd:descriptiveKeywords>
+				<gmd:MD_Keywords>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Geografische Bezeichnungen</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">Geographical names</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:type>
+						<gmd:MD_KeywordTypeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_KeywordTypeCode" codeListValue="theme"/>
+					</gmd:type>
+					<gmd:thesaurusName>
+						<gmd:CI_Citation>
+							<gmd:title>
+								<gco:CharacterString>GEMET - INSPIRE themes, version 1.0</gco:CharacterString>
+							</gmd:title>
+							<gmd:date>
+								<gmd:CI_Date>
+									<gmd:date>
+										<gco:Date>2008-06-01</gco:Date>
+									</gmd:date>
+									<gmd:dateType>
+										<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
+									</gmd:dateType>
+								</gmd:CI_Date>
+							</gmd:date>
+						</gmd:CI_Citation>
+					</gmd:thesaurusName>
+				</gmd:MD_Keywords>
+			</gmd:descriptiveKeywords>
+			<gmd:descriptiveKeywords>
+				<gmd:MD_Keywords>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Namen</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">names</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Ortsnamen</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">settlement names</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Fluss</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">watercourse</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Berg</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">mountain</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Gewässer</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">hydography</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Verwaltungeinheiten</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">administrative units</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Krankenhaus</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">hospital</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+					<gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>bedeutende Gebäude</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">important buildings</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:keyword>
+				</gmd:MD_Keywords>
+			</gmd:descriptiveKeywords>
+			<gmd:descriptiveKeywords>
+				<gmd:MD_Keywords>
+					<gmd:keyword>
+						<gco:CharacterString>inspireidentifiziert</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:keyword>
+						<gco:CharacterString>opendata</gco:CharacterString>
+					</gmd:keyword>
+				</gmd:MD_Keywords>
+			</gmd:descriptiveKeywords>
+			<gmd:resourceConstraints>
+				<gmd:MD_LegalConstraints>
+					<gmd:useLimitation>
+						<gco:CharacterString>Nutzungseinschränkungen: Nur im Maßstab 1:100000 einsetzbar.</gco:CharacterString>
+					</gmd:useLimitation>
+				</gmd:MD_LegalConstraints>
+			</gmd:resourceConstraints>
+			<gmd:resourceConstraints>
+				<gmd:MD_LegalConstraints>
+					<gmd:useLimitation>
+						<gco:CharacterString>Nutzungsbedingungen: Diese Daten können geldleistungsfrei gemäß der Verordnung zur Festlegung der Nutzungsbestimmungen für die Bereitstellung von Geodaten des Bundes (GeoNutzV) vom 19. März 2013 (Bundesgesetzblatt Jahrgang 2013 Teil I Nr. 14) genutzt werden, siehe http://www.geodatenzentrum.de/docpdf/geonutzv.pdf. Der Quellenvermerk ist zu beachten.</gco:CharacterString>
+					</gmd:useLimitation>
+				</gmd:MD_LegalConstraints>
+			</gmd:resourceConstraints>
+			<gmd:resourceConstraints>
+				<gmd:MD_LegalConstraints>
+					<gmd:useConstraints>
+						<gmd:MD_RestrictionCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode" codeListValue="license" codeSpace="Domain Code">license</gmd:MD_RestrictionCode>
+					</gmd:useConstraints>
+					<gmd:useConstraints>
+						<gmd:MD_RestrictionCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions" codeSpace="Domain Code"/>
+					</gmd:useConstraints>
+					<gmd:otherConstraints>
+						<gco:CharacterString>Nutzungsbedingungen: Diese Daten können geldleistungsfrei gemäß der Verordnung zur Festlegung der Nutzungsbestimmungen für die Bereitstellung von Geodaten des Bundes (GeoNutzV) vom 19. März 2013 (Bundesgesetzblatt Jahrgang 2013 Teil I Nr. 14) genutzt werden, siehe http://www.geodatenzentrum.de/docpdf/geonutzv.pdf. Der Quellenvermerk ist zu beachten.</gco:CharacterString>
+					</gmd:otherConstraints>
+					<gmd:otherConstraints>
+						<gco:CharacterString>{ "id": "geonutzv-de-2013-03-19", "name": "Nutzungsbestimmungen für die Bereitstellung von Geodaten des Bundes", "url": "http://www.geodatenzentrum.de/docpdf/geonutzv.pdf", "quelle": "Quelle: © GeoBasis-DE / BKG 2017" }</gco:CharacterString>
+					</gmd:otherConstraints>
+				</gmd:MD_LegalConstraints>
+			</gmd:resourceConstraints>
+			<gmd:resourceConstraints>
+				<gmd:MD_LegalConstraints>
+					<gmd:accessConstraints>
+						<gmd:MD_RestrictionCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions" codeSpace="Domain Code"/>
+					</gmd:accessConstraints>
+					<gmd:otherConstraints>
+						<gco:CharacterString>Es gelten keine Zugriffsbeschränkungen</gco:CharacterString>
+					</gmd:otherConstraints>
+				</gmd:MD_LegalConstraints>
+			</gmd:resourceConstraints>
+			<gmd:resourceConstraints>
+				<gmd:MD_SecurityConstraints>
+					<gmd:classification>
+						<gmd:MD_ClassificationCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_ClassificationCode" codeListValue="unclassified" codeSpace="Domain Code">unclassified</gmd:MD_ClassificationCode>
+					</gmd:classification>
+				</gmd:MD_SecurityConstraints>
+			</gmd:resourceConstraints>
+			<gmd:spatialRepresentationType>
+				<gmd:MD_SpatialRepresentationTypeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_SpatialRepresentationTypeCode" codeListValue="vector" codeSpace="Domain Code"/>
+			</gmd:spatialRepresentationType>
+			<gmd:spatialResolution>
+				<gmd:MD_Resolution>
+					<gmd:equivalentScale>
+						<gmd:MD_RepresentativeFraction>
+							<gmd:denominator>
+								<gco:Integer>300000</gco:Integer>
+							</gmd:denominator>
+						</gmd:MD_RepresentativeFraction>
+					</gmd:equivalentScale>
+				</gmd:MD_Resolution>
+			</gmd:spatialResolution>
+			<gmd:spatialResolution>
+				<gmd:MD_Resolution>
+					<gmd:equivalentScale>
+						<gmd:MD_RepresentativeFraction>
+							<gmd:denominator>
+								<gco:Integer>150000</gco:Integer>
+							</gmd:denominator>
+						</gmd:MD_RepresentativeFraction>
+					</gmd:equivalentScale>
+				</gmd:MD_Resolution>
+			</gmd:spatialResolution>
+			<gmd:language>
+				<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="ger">Deutsch</gmd:LanguageCode>
+			</gmd:language>
+			<gmd:language>
+				<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="wen">Sorbisch</gmd:LanguageCode>
+			</gmd:language>
+			<gmd:language>
+				<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="hsb">Obersorbisch</gmd:LanguageCode>
+			</gmd:language>
+			<gmd:language>
+				<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="dsb">Niedersorbisch</gmd:LanguageCode>
+			</gmd:language>
+			<gmd:language>
+				<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="fry">Friesisch</gmd:LanguageCode>
+			</gmd:language>
+			<gmd:language>
+				<gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="dan">Dänisch</gmd:LanguageCode>
+			</gmd:language>
+			<gmd:characterSet>
+				<gmd:MD_CharacterSetCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8"/>
+			</gmd:characterSet>
+			<gmd:topicCategory>
+				<gmd:MD_TopicCategoryCode>location</gmd:MD_TopicCategoryCode>
+			</gmd:topicCategory>
+			<gmd:extent>
+				<gmd:EX_Extent>
+					<gmd:description>
+						<gco:CharacterString>Deutschland als umschließendes Rechteck</gco:CharacterString>
+					</gmd:description>
+					<gmd:geographicElement>
+						<gmd:EX_GeographicBoundingBox>
+							<gmd:extentTypeCode>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:extentTypeCode>
+							<gmd:westBoundLongitude>
+								<gco:Decimal>6.0</gco:Decimal>
+							</gmd:westBoundLongitude>
+							<gmd:eastBoundLongitude>
+								<gco:Decimal>15.0</gco:Decimal>
+							</gmd:eastBoundLongitude>
+							<gmd:southBoundLatitude>
+								<gco:Decimal>47.0</gco:Decimal>
+							</gmd:southBoundLatitude>
+							<gmd:northBoundLatitude>
+								<gco:Decimal>55.0</gco:Decimal>
+							</gmd:northBoundLatitude>
+						</gmd:EX_GeographicBoundingBox>
+					</gmd:geographicElement>
+					<gmd:geographicElement>
+						<gmd:EX_GeographicDescription>
+							<gmd:extentTypeCode>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:extentTypeCode>
+							<gmd:geographicIdentifier>
+								<gmd:RS_Identifier>
+									<gmd:code>
+										<gco:CharacterString>DEU</gco:CharacterString>
+									</gmd:code>
+									<gmd:codeSpace>
+										<gco:CharacterString>nicht ausgewählt</gco:CharacterString>
+									</gmd:codeSpace>
+								</gmd:RS_Identifier>
+							</gmd:geographicIdentifier>
+						</gmd:EX_GeographicDescription>
+					</gmd:geographicElement>
+				</gmd:EX_Extent>
+			</gmd:extent>
+		</gmd:MD_DataIdentification>
+	</gmd:identificationInfo>
+	<gmd:contentInfo>
+		<gmd:MD_FeatureCatalogueDescription>
+			<gmd:complianceCode>
+				<gco:Boolean>false</gco:Boolean>
+			</gmd:complianceCode>
+			<gmd:language>
+				<gco:CharacterString>deu/ger</gco:CharacterString>
+			</gmd:language>
+			<gmd:includedWithDataset>
+				<gco:Boolean>false</gco:Boolean>
+			</gmd:includedWithDataset>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Industrie- und Gewerbefläche</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Siedlungsfläche</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Bergbaubetrieb</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Deponie</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Kraftwerk</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Freizeitanlage</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Stadion</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Gebäude</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Turm</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Stollenmundloch, Keller-, Höhleneingang, Schachtöffnung</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Denkmal, Denkstein, Standbild</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Sprungschanze (Anlauf)</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Straße</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Weg</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Schienenbahn</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Seilbahn, Schwebebahn</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Flughafen</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Flugplatz, Landeplatz</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Schiffahrtslinie, Fährverkehr</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Bahnhofsanlage</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Raststätte</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Verkehrsknoten</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Grenzübergang</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Tunnel</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Brücke, Überführung, Unterführung</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Heide</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Moor, Moos</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Sumpf, Ried</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Wald, Forst</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Nasser Boden</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Vegetationslose Fläche</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Kanal (Schifffahrt)</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Quelle</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Wasserlauf</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Meer</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Binnensee, Stausee, Teich</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Watt</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Sandbank</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Wasserfall</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Talsperre, Wehr</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Schleuse</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Besonderer Geländepunkt</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Damm, Wall, Deich</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Verwaltungseinheit</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Landschaft</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Insel</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Nationalpark</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Naturpark</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Biosphärenreservat</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureTypes>
+				<gco:LocalName codeSpace="_">Truppenübungsplatz, Standortübungsplatz</gco:LocalName>
+			</gmd:featureTypes>
+			<gmd:featureCatalogueCitation>
+				<gmd:CI_Citation>
+					<gmd:title>
+						<gco:CharacterString>Feature Catalogue 'INSPIRE application schemas'</gco:CharacterString>
+					</gmd:title>
+					<gmd:date>
+						<gmd:CI_Date>
+							<gmd:date>
+								<gco:Date>2010-04-01</gco:Date>
+							</gmd:date>
+							<gmd:dateType>
+								<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication" codeSpace="Domain Code">publication</gmd:CI_DateTypeCode>
+							</gmd:dateType>
+						</gmd:CI_Date>
+					</gmd:date>
+					<gmd:presentationForm>
+						<gmd:CI_PresentationFormCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_PresentationFormCode" codeListValue="documentDigital" codeSpace="Domain Code"/>
+					</gmd:presentationForm>
+				</gmd:CI_Citation>
+			</gmd:featureCatalogueCitation>
+		</gmd:MD_FeatureCatalogueDescription>
+	</gmd:contentInfo>
+	<gmd:distributionInfo>
+		<gmd:MD_Distribution>
+			<gmd:distributionFormat>
+				<gmd:MD_Format>
+					<gmd:name>
+						<gco:CharacterString>Geographical Names GML Application Schema</gco:CharacterString>
+					</gmd:name>
+					<gmd:version>
+						<gco:CharacterString>4.0</gco:CharacterString>
+					</gmd:version>
+					<gmd:specification>
+						<gco:CharacterString>D2.8.I.3 Data Specification on Geographical Names – Technical Guidelines</gco:CharacterString>
+					</gmd:specification>
+				</gmd:MD_Format>
+			</gmd:distributionFormat>
+			<gmd:distributor>
+				<gmd:MD_Distributor>
+					<gmd:distributorContact>
+						<gmd:CI_ResponsibleParty>
+							<gmd:organisationName>
+								<gco:CharacterString>Dienstleistungszentrum des Bundes für Geoinformation und Geodäsie</gco:CharacterString>
+							</gmd:organisationName>
+							<gmd:contactInfo>
+								<gmd:CI_Contact>
+									<gmd:phone>
+										<gmd:CI_Telephone>
+											<gmd:voice>
+												<gco:CharacterString>+49 (0) 341-5634-333</gco:CharacterString>
+											</gmd:voice>
+											<gmd:facsimile>
+												<gco:CharacterString>+49 (0) 341-5634-415</gco:CharacterString>
+											</gmd:facsimile>
+										</gmd:CI_Telephone>
+									</gmd:phone>
+									<gmd:address>
+										<gmd:CI_Address>
+											<gmd:deliveryPoint>
+												<gco:CharacterString>Karl-Rothe-Str. 10-14</gco:CharacterString>
+											</gmd:deliveryPoint>
+											<gmd:city>
+												<gco:CharacterString>Leipzig</gco:CharacterString>
+											</gmd:city>
+											<gmd:postalCode>
+												<gco:CharacterString>04105</gco:CharacterString>
+											</gmd:postalCode>
+											<gmd:country>
+												<gco:CharacterString>Deutschland</gco:CharacterString>
+											</gmd:country>
+											<gmd:electronicMailAddress>
+												<gco:CharacterString>dlz@bkg.bund.de</gco:CharacterString>
+											</gmd:electronicMailAddress>
+										</gmd:CI_Address>
+									</gmd:address>
+									<gmd:onlineResource>
+										<gmd:CI_OnlineResource>
+											<gmd:linkage>
+												<gmd:URL>www.geodatenzentrum.de</gmd:URL>
+											</gmd:linkage>
+										</gmd:CI_OnlineResource>
+									</gmd:onlineResource>
+								</gmd:CI_Contact>
+							</gmd:contactInfo>
+							<gmd:role>
+								<gmd:CI_RoleCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="distributor" codeSpace="Domain Code">distributor</gmd:CI_RoleCode>
+							</gmd:role>
+						</gmd:CI_ResponsibleParty>
+					</gmd:distributorContact>
+					<gmd:distributionOrderProcess>
+						<gmd:MD_StandardOrderProcess>
+							<gmd:orderingInstructions>
+								<gco:CharacterString>Die Daten dieses Geodatensatzes werden nur über Dienste bereitgestellt.</gco:CharacterString>
+							</gmd:orderingInstructions>
+						</gmd:MD_StandardOrderProcess>
+					</gmd:distributionOrderProcess>
+				</gmd:MD_Distributor>
+			</gmd:distributor>
+			<gmd:transferOptions>
+				<gmd:MD_DigitalTransferOptions>
+					<gmd:onLine>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>http://sg.geodatenzentrum.de/wfs_geonames?request=GetCapabilities&amp;service=WFS</gmd:URL>
+							</gmd:linkage>
+							<gmd:name>
+								<gco:CharacterString>Dienst "WFS Geographische Namen INSPIRE" (GetCapabilities)</gco:CharacterString>
+							</gmd:name>
+							<gmd:function>
+								<gmd:CI_OnLineFunctionCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_OnLineFunctionCode" codeListValue="information"/>
+							</gmd:function>
+						</gmd:CI_OnlineResource>
+					</gmd:onLine>
+					<gmd:onLine>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>http://www.geodatenzentrum.de/geodaten/gdz?l=dokumentation_dienste</gmd:URL>
+							</gmd:linkage>
+							<gmd:name>
+								<gco:CharacterString>Dokumentation Dienste</gco:CharacterString>
+							</gmd:name>
+							<gmd:description>
+								<gco:CharacterString>Zugang zur Auflistung der Dienste des Dienstleistungszentrums</gco:CharacterString>
+							</gmd:description>
+							<gmd:function>
+								<gmd:CI_OnLineFunctionCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_OnLineFunctionCode" codeListValue="information"/>
+							</gmd:function>
+						</gmd:CI_OnlineResource>
+					</gmd:onLine>
+				</gmd:MD_DigitalTransferOptions>
+			</gmd:transferOptions>
+		</gmd:MD_Distribution>
+	</gmd:distributionInfo>
+	<gmd:dataQualityInfo>
+		<gmd:DQ_DataQuality>
+			<gmd:scope>
+				<gmd:DQ_Scope>
+					<gmd:level>
+						<gmd:MD_ScopeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset" codeSpace="Domain Code"/>
+					</gmd:level>
+				</gmd:DQ_Scope>
+			</gmd:scope>
+			<gmd:report>
+				<gmd:DQ_DomainConsistency>
+					<gmd:result>
+						<gmd:DQ_ConformanceResult>
+							<gmd:specification>
+								<gmd:CI_Citation>
+									<gmd:title xsi:type="gmd:PT_FreeText_PropertyType">
+										<gco:CharacterString>VERORDNUNG (EG) Nr. 1089/2010 DER KOMMISSION vom 23. November 2010 zur Durchführung der Richtlinie 2007/2/EG des Europäischen Parlaments und des Rates hinsichtlich der Interoperabilität von Geodatensätzen und -diensten</gco:CharacterString>
+										<gmd:PT_FreeText>
+											<gmd:textGroup>
+												<gmd:LocalisedCharacterString locale="#eng-utf8">COMMISSION REGULATION (EU) No 1088/2010 of 23 November 2010 amending Regulation (EC) No 976/2009 as regards download services and transformation services</gmd:LocalisedCharacterString>
+											</gmd:textGroup>
+										</gmd:PT_FreeText>
+									</gmd:title>
+									<gmd:date>
+										<gmd:CI_Date>
+											<gmd:date>
+												<gco:Date>2010-12-08</gco:Date>
+											</gmd:date>
+											<gmd:dateType>
+												<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication" codeSpace="Domain Code"/>
+											</gmd:dateType>
+										</gmd:CI_Date>
+									</gmd:date>
+									<gmd:citedResponsibleParty>
+										<gmd:CI_ResponsibleParty>
+											<gmd:organisationName>
+												<gco:CharacterString>INSPIRE - Infrastructure for Spatial Information in Europe</gco:CharacterString>
+											</gmd:organisationName>
+											<gmd:role>
+												<gmd:CI_RoleCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact" codeSpace="Domain Code"/>
+											</gmd:role>
+										</gmd:CI_ResponsibleParty>
+									</gmd:citedResponsibleParty>
+								</gmd:CI_Citation>
+							</gmd:specification>
+							<gmd:explanation xsi:type="gmd:PT_FreeText_PropertyType">
+								<gco:CharacterString>Siehe bei zugeordneter Spezifikation</gco:CharacterString>
+							</gmd:explanation>
+							<gmd:pass>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:pass>
+						</gmd:DQ_ConformanceResult>
+					</gmd:result>
+					<gmd:result>
+						<gmd:DQ_ConformanceResult>
+							<gmd:specification>
+								<gmd:CI_Citation>
+									<gmd:title xsi:type="gmd:PT_FreeText_PropertyType">
+										<gco:CharacterString>INSPIRE Data Specification on Geographical Names- Guidelines</gco:CharacterString>
+										<gmd:PT_FreeText>
+											<gmd:textGroup>
+												<gmd:LocalisedCharacterString locale="#eng-utf8">INSPIRE Data Specification on Geographical Names- Guidelines</gmd:LocalisedCharacterString>
+											</gmd:textGroup>
+										</gmd:PT_FreeText>
+									</gmd:title>
+									<gmd:date>
+										<gmd:CI_Date>
+											<gmd:date>
+												<gco:Date>2014-04-17</gco:Date>
+											</gmd:date>
+											<gmd:dateType>
+												<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
+											</gmd:dateType>
+										</gmd:CI_Date>
+									</gmd:date>
+								</gmd:CI_Citation>
+							</gmd:specification>
+							<gmd:explanation xsi:type="gmd:PT_FreeText_PropertyType">
+								<gco:CharacterString>Siehe bei zugeordneter Spezifikation</gco:CharacterString>
+								<gmd:PT_FreeText>
+									<gmd:textGroup>
+										<gmd:LocalisedCharacterString locale="#eng-utf8">See the referenced specification</gmd:LocalisedCharacterString>
+									</gmd:textGroup>
+								</gmd:PT_FreeText>
+							</gmd:explanation>
+							<gmd:pass>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:pass>
+						</gmd:DQ_ConformanceResult>
+					</gmd:result>
+				</gmd:DQ_DomainConsistency>
+			</gmd:report>
+			<gmd:lineage>
+				<gmd:LI_Lineage>
+					<gmd:statement xsi:type="gmd:PT_FreeText_PropertyType">
+						<gco:CharacterString>Geographisches Namenbuch Bundesrepublik Deutschland, IfAG 1981, Ergänzung 1991 bis 1996 Auswahl der Namen: Übersichtskarten 1:500.000, 1:250.000, 1:25.000</gco:CharacterString>
+						<gmd:PT_FreeText>
+							<gmd:textGroup>
+								<gmd:LocalisedCharacterString locale="#eng-utf8">See the referenced specification</gmd:LocalisedCharacterString>
+							</gmd:textGroup>
+						</gmd:PT_FreeText>
+					</gmd:statement>
+					<gmd:processStep>
+						<gmd:LI_ProcessStep>
+							<gmd:description xsi:type="gmd:PT_FreeText_PropertyType">
+								<gco:CharacterString>Manuelle Erfassung und Digitalisierung</gco:CharacterString>
+								<gmd:PT_FreeText>
+									<gmd:textGroup>
+										<gmd:LocalisedCharacterString locale="#eng-utf8">Transformation from national name database into INSPIRE</gmd:LocalisedCharacterString>
+									</gmd:textGroup>
+								</gmd:PT_FreeText>
+							</gmd:description>
+							<gmd:source>
+								<gmd:LI_Source>
+									<gmd:description xsi:type="gmd:PT_FreeText_PropertyType">
+										<gco:CharacterString>Änderungsdienste, Statistische Berichte und Gemeindeverzeichnisse herausgegeben von den Statistischen Ämter des Bundes und der Länder</gco:CharacterString>
+										<gmd:PT_FreeText>
+											<gmd:textGroup>
+												<gmd:LocalisedCharacterString locale="#eng-utf8">Änderungsdienste, Statistische Berichte und Gemeindeverzeichnisse herausgegeben von den Statistischen Ämter des Bundes und der Länder</gmd:LocalisedCharacterString>
+											</gmd:textGroup>
+										</gmd:PT_FreeText>
+									</gmd:description>
+								</gmd:LI_Source>
+							</gmd:source>
+						</gmd:LI_ProcessStep>
+					</gmd:processStep>
+					<gmd:source>
+						<gmd:LI_Source>
+							<gmd:description xsi:type="gmd:PT_FreeText_PropertyType">
+								<gco:CharacterString>Auswahl: Übersichtskarten des IfAG/BKG Maßstäbe 1:500.000 (ÜK500), 1:250.000 (JOG), Topographische Karte 1:1.000.000, Landschaften - Namen und Abgrenzungen - des Ständigen Ausschusses für geographische Namen (StAGN), Gewässernamen: amtliche Verzeichnisse der gewässerkundlichen Gebietskennziffern der Länder</gco:CharacterString>
+								<gmd:PT_FreeText>
+									<gmd:textGroup>
+										<gmd:LocalisedCharacterString locale="#eng-utf8">Änderungsdienste, Statistische Berichte und Gemeindeverzeichnisse herausgegeben von den Statistischen Ämter des Bundes und der Länder</gmd:LocalisedCharacterString>
+									</gmd:textGroup>
+								</gmd:PT_FreeText>
+							</gmd:description>
+						</gmd:LI_Source>
+					</gmd:source>
+					<gmd:source>
+						<gmd:LI_Source>
+							<gmd:description>
+								<gco:CharacterString>Gemeinde- und Gemeindeteilverzeichnisse der statistischen Ämter der Länder und des Bundes, Topographische Karten und Ortsverzeichnisse der LVA, Auswahl Übersichtskarten des IfAG/BKG Maßstäbe 1:500 000, 1:250 000, Geometriedaten des Digitalen landschaftsmodells im Maßstab 1 : 250.000</gco:CharacterString>
+							</gmd:description>
+						</gmd:LI_Source>
+					</gmd:source>
+				</gmd:LI_Lineage>
+			</gmd:lineage>
+		</gmd:DQ_DataQuality>
+	</gmd:dataQualityInfo>
+</gmd:MD_Metadata>

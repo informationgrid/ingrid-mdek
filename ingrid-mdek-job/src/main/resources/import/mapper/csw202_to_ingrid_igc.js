@@ -619,26 +619,9 @@ var mappingDescription = {"mappings":[
                 "funct":mapAccessConstraints
             }
         },
-        {
-            "srcXpath":"//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useLimitation/gco:CharacterString",
-            "targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
-            "newNodeName":"use-limitation",
-            "subMappings":{
-                "mappings": [
-                    {
-                        "srcXpath":".",
-                        "defaultValue":"No conditions apply",
-                        "targetNode":"terms-of-use",
-			  			"transform":{
-							"funct":removeConstraintPraefix
-						}
-                    },
-	  				{
-			  			"targetNode":"terms-of-use",
-			  			"targetAttribute":"id",
-				  		"defaultValue":"-1",
-			  		}
-                ]
+        {   
+            "execute":{
+                "funct":mapUseLimitation
             }
   		},
         {   
@@ -1591,27 +1574,72 @@ function mapMDIdentifier(source, target)  {
     }
 }
 
-function mapUseConstraints(source, target) {
-    var useConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useConstraints/gmd:MD_RestrictionCode");
-    if (hasValue(useConstraints)) {
-        for (i=0; i<useConstraints.getLength(); i++ ) {
-            var isoValue = XPATH.getString(useConstraints.item(i), "./@codeListValue");
-            if (isoValue != "otherRestrictions") {
-                addUseConstraint(isoValue, target);
+function mapUseLimitation(source, target) {
+    var useLimitations = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useLimitation");
+    if (hasValue(useLimitations)) {
+        for (i=0; i<useLimitations.getLength(); i++ ) {
+            var useLimitation = XPATH.getString(useLimitations.item(i), "./gco:CharacterString");
+            // filter "Nutzungsbedingungen:" ! These are the useConstraints ! see #384
+            if (hasValue(useLimitation) && !useLimitation.startsWith("Nutzungsbedingungen:")) {
+            	addUseLimitation(useLimitation, target);
             }
         }
     }
-
-    useConstraints = XPATH.getSiblingsFromXPath(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:useConstraints", "gmd:otherConstraints", false);
-    
-    if (hasValue(useConstraints)) {
-        for (i=0; i<useConstraints.size(); i++ ) {
-            var useConstraint = XPATH.getString(useConstraints.get(i), "./gco:CharacterString");
-            addUseConstraint(useConstraint, target);
-        }
+}
+function addUseLimitation(useLimitation, target) {
+    if (hasValue(useLimitation)) {
+    	useLimitation = removeConstraintPraefix(useLimitation);
+        log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/use-limitation/terms-of-use" + "' = '" + useLimitation + "' to target document.");
+        var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-limitation");
+        node = XPATH.createElementFromXPath(node, "terms-of-use");
+        XMLUtils.createOrReplaceTextNode(node, useLimitation);
+        XMLUtils.createOrReplaceAttribute(node, "id", "-1");                 
     }
 }
 
+
+function mapUseConstraints(source, target) {
+	// check stuff under every MD_LegalConstraints
+    var legalConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/gmd:MD_LegalConstraints");
+    if (hasValue(legalConstraints)) {
+        for (i=0; i<legalConstraints.getLength(); i++ ) {
+        	
+        	// check whether we have useConstraints if not continue !
+            if (XPATH.getNodeList(legalConstraints.item(i), "./gmd:useConstraints").getLength() == 0)
+            	continue;
+
+        	// evaluate MD_RestrictionCode@codeListValue
+
+        	var hasOtherRestrictions = hasValue(XPATH.getNode(legalConstraints.item(i), "./gmd:useConstraints/gmd:MD_RestrictionCode[@codeListValue='otherRestrictions']"));       	
+            var restrictionCodes = XPATH.getNodeList(legalConstraints.item(i), "./gmd:useConstraints/gmd:MD_RestrictionCode");
+            if (hasValue(restrictionCodes)) {
+                for (j=0; j<restrictionCodes.getLength(); j++ ) {
+                	var isoValue = XPATH.getString(restrictionCodes.item(j), "./@codeListValue");
+
+                	// only add "license" if no "otherRestrictions"
+                    if (isoValue == "license" && hasOtherRestrictions) {
+                    	continue;
+                    }
+                    if (isoValue == "otherRestrictions") {
+                    	continue;
+                    }
+
+                    addUseConstraint(isoValue, target);
+                }
+            }
+            
+            // evaluate otherConstraints
+
+            var otherConstraints = XPATH.getNodeList(legalConstraints.item(i), "./gmd:otherConstraints");
+            if (hasValue(otherConstraints)) {
+                for (j=0; j<otherConstraints.getLength(); j++ ) {
+                    var otherConstraint = XPATH.getString(otherConstraints.item(j), "./gco:CharacterString");
+                    addUseConstraint(otherConstraint, target);
+                }
+            }
+        }
+    }
+}
 function addUseConstraint(useConstraint, target) {
     if (hasValue(useConstraint)) {
     	useConstraint = removeConstraintPraefix(useConstraint);
