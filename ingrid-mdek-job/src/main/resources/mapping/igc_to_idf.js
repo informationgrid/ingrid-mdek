@@ -1705,8 +1705,8 @@ function getMdKeywords(rows) {
             keywTitle = "UMTHES Thesaurus";
             keywDate = "2009-01-15";
         } else if (type.equals("1") || type.equals("G")) {
-            keywTitle = "GEMET - Concepts, version 2.1";
-            keywDate = "2008-06-13";
+            keywTitle = "GEMET - Concepts, version 3.1";
+            keywDate = "2012-07-20";
         } else if (type.equals("I")) {
             keywTitle = "GEMET - INSPIRE themes, version 1.0";
             keywDate = "2008-06-01";
