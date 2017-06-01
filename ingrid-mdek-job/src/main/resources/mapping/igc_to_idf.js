@@ -1462,6 +1462,16 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
             ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
         }
+        var administrativeAreaKey = addressRow.get("administrative_area_key");
+        if (hasValue(administrativeAreaKey)) {
+            if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+            if (administrativeAreaKey == -1) {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+            } else {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, administrativeAreaKey));
+            }
+        }
+        
     }
 
     for (var j=0; j<emailAddresses.length; j++) {
