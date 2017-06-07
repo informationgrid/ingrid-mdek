@@ -1462,6 +1462,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
             ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
         }
+        // fix problem with not mapping administrativeAreay element in object iso see https://dev.informationgrid.eu/redmine/issues/375
         var administrativeAreaKey = addressRow.get("administrative_area_key");
         if (hasValue(administrativeAreaKey)) {
             if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
