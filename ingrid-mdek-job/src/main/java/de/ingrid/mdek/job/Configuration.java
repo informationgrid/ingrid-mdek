@@ -84,7 +84,11 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @PropertyValue("igc.country")
     @DefaultValue("de")
     public String igcCountry;
-    
+
+    @PropertyValue("igc.enableIBusCommunication")
+    @DefaultValue("true")
+    public boolean igcEnableIBusCommunication;
+
     @TypeTransformers(StringToCommunications.class)
     @PropertyValue("communications.ige")
     public List<CommunicationCommandObject> igeCommunication;
@@ -167,6 +171,8 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         super.setPropertiesFromPlugdescription( props, pd );
         
         updateDatabaseDescriptor();
+        
+        props.setProperty( "igc.enableIBusCommunication", this.igcEnableIBusCommunication + "" );
     }
     
     @Override

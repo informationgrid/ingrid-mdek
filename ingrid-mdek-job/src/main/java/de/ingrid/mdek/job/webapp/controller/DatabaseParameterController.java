@@ -92,7 +92,7 @@ public class DatabaseParameterController extends AbstractController {
         config.databasePassword = commandObject.getPassword();
         config.databaseSchema = commandObject.getSchema();
         
-        return AdminViews.SAVE;
+        return redirect( MdekUris.EDITOR );
     }
 
     private void mapParamsToPD(DatabaseConnection commandObject, PlugdescriptionCommandObject pdCommandObject) {
