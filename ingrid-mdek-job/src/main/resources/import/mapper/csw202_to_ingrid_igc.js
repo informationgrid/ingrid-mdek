@@ -1599,27 +1599,26 @@ function addUseLimitation(useLimitation, target) {
 
 
 function mapUseConstraints(source, target) {
-	// check stuff under every MD_LegalConstraints
-    var legalConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/gmd:MD_LegalConstraints");
+	// check stuff under every MD_LegalConstraints having useConstraints !
+    var legalConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/gmd:MD_LegalConstraints[descendant::gmd:useConstraints]");
     if (hasValue(legalConstraints)) {
         for (i=0; i<legalConstraints.getLength(); i++ ) {
-        	
-        	// check whether we have useConstraints if not continue !
-            if (XPATH.getNodeList(legalConstraints.item(i), "./gmd:useConstraints").getLength() == 0)
-            	continue;
 
-        	// evaluate MD_RestrictionCode@codeListValue
+        	// evaluate useConstraints -> MD_RestrictionCode@codeListValue
 
-        	var hasOtherRestrictions = hasValue(XPATH.getNode(legalConstraints.item(i), "./gmd:useConstraints/gmd:MD_RestrictionCode[@codeListValue='otherRestrictions']"));       	
-            var restrictionCodes = XPATH.getNodeList(legalConstraints.item(i), "./gmd:useConstraints/gmd:MD_RestrictionCode");
-            if (hasValue(restrictionCodes)) {
-                for (j=0; j<restrictionCodes.getLength(); j++ ) {
-                	var isoValue = XPATH.getString(restrictionCodes.item(j), "./@codeListValue");
+        	var hasOtherRestrictions = hasValue(XPATH.getNode(legalConstraints.item(i), "./gmd:useConstraints/gmd:MD_RestrictionCode[@codeListValue='otherRestrictions']"));
+        	var codeListValues = XPATH.getStringArray(legalConstraints.item(i), "./gmd:useConstraints/gmd:MD_RestrictionCode/@codeListValue");
+            if (hasValue(codeListValues)) {
+                for (j=0; j<codeListValues.length; j++ ) {
+                	var isoValue = codeListValues[j];
 
-                	// only add "license" if no "otherRestrictions"
+                	// only add useConstraints "license" if no "otherRestrictions" !
+                	// GDI-DE conformity always writes "license" AND "otherRestrictions", so if this combination is found, we only map "otherConstraints" (see below) !
+                	// see #13, #704
                     if (isoValue == "license" && hasOtherRestrictions) {
                     	continue;
                     }
+
                     if (isoValue == "otherRestrictions") {
                     	continue;
                     }
@@ -1627,7 +1626,7 @@ function mapUseConstraints(source, target) {
                     addUseConstraint(isoValue, target);
                 }
             }
-            
+
             // evaluate otherConstraints
 
             var otherConstraints = XPATH.getNodeList(legalConstraints.item(i), "./gmd:otherConstraints");
@@ -1644,7 +1643,7 @@ function addUseConstraint(useConstraint, target) {
     if (hasValue(useConstraint)) {
     	useConstraint = removeConstraintPraefix(useConstraint);
 
-    	// Do not add JSON
+    	// Do not add JSON, this is handled via Syslist 6500 (data field)
         if (useConstraint.startsWith( "{" ) && useConstraint.endsWith( "}" )) {
         	return;
         }
@@ -1653,7 +1652,7 @@ function addUseConstraint(useConstraint, target) {
         var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint");
         node = XPATH.createElementFromXPath(node, "license");
         XMLUtils.createOrReplaceTextNode(node, useConstraint);
-        var useConstraintId = transformToIgcDomainId(useConstraint, 524, "", "Could not map use-constraint, use as free entry: ");
+        var useConstraintId = transformToIgcDomainId(useConstraint, 6500, "", "Could not map use-constraint, use as free entry: ");
         if (hasValue(useConstraintId)) {
             XMLUtils.createOrReplaceAttribute(node, "id", useConstraintId);                 
         }
