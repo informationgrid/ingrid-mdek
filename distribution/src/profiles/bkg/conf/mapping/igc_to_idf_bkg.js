@@ -55,89 +55,207 @@ for (i=0; i<objRows.size(); i++) {
     var value = null;
     var elem = null;
     
+    handleBKGAccessConstraints();
+    handleBKGUseConstraints();
+    
+}
+
+function handleBKGAccessConstraints() {
     // get the container for the select and free text field
-    var bkgAccessConstraintContainerRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'bkg_accessConstraints']);
-    if (hasValue(bkgAccessConstraintContainerRow)) {
-        var nodeOrder = ["gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance", 
-            "gmd:pointOfContact", "gmd:status", "gmd:credit", "gmd:purpose", "gmd:abstract"];
-        var containerId = bkgAccessConstraintContainerRow.get("id");
-        
-        var identificationInfo;
-        if (objClass.equals("3")) {
-            identificationInfo = DOM.getElement(body, "gmd:identificationInfo/srv:SV_ServiceIdentification");
-        } else {
-            identificationInfo = DOM.getElement(body, "gmd:identificationInfo/gmd:MD_DataIdentification");
-        }
+    var bkgAccessConstraintId = getAdditionalFieldFromObject(objId, null, 'bkg_accessConstraints', 'id');
+    if (bkgAccessConstraintId) {
         
         // get value from select box
-        var bkgAccessConstraintRow = SQL.first("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [containerId, 'bkg_accessConstraints_select']);
-        if (hasValue(bkgAccessConstraintRow)) {
-            var value = bkgAccessConstraintRow.get("list_item_id");
-            var valueFree;
+        var bkgAccessConstraintSelectListItem = getAdditionalFieldFromObject(null, bkgAccessConstraintId, 'bkg_accessConstraints_select', 'list_item_id');
+        if (bkgAccessConstraintSelectListItem) {
             
             if (log.isDebugEnabled()) {
-                log.debug("BKG access constraint field contains value: " + value);
-            }
-            
-            // get first element before "resourceConstraints", so that we can insert in front of all other entries
-            var beforeResourceElement;
-            for (var i=0; i<nodeOrder.length; i++) {
-                beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i]);
-                if (beforeResourceElement) break;
+                log.debug("BKG access constraint field contains value: " + bkgAccessConstraintSelectListItem);
             }
             
             // get value from free text field
-            var bkgAccessConstraintFreeRow = SQL.first("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [containerId, 'bkg_accessConstraints_freeText']);
-            if (hasValue(bkgAccessConstraintFreeRow)) {
-                valueFree = bkgAccessConstraintFreeRow.get("data");
+            var bkgAccessConstraintFreeText = getAdditionalFieldFromObject(null, bkgAccessConstraintId, 'bkg_accessConstraints_freeText', 'data');
+            if (bkgAccessConstraintFreeText) {
                 if (log.isDebugEnabled()) {
-                    log.debug("BKG access constraint free text field contains value: " + valueFree);
+                    log.debug("BKG access constraint free text field contains value: " + bkgAccessConstraintFreeText);
                 }
             }
             
             // add select value and free text to ISO depending on selection 
-            var legalConstraint = beforeResourceElement.addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            addAccessConstraints(legalConstraint, value, valueFree);
+            var legalConstraint = getFirstNodeInIdentificationBefore().addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+            addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
         }
     }
 }
 
-function addAccessConstraints(legalConstraint, codelistEntryId, freeText) {
+function handleBKGUseConstraints() {
+    // get the container for the select and free text field
+    var bkgUseConstraintId = getAdditionalFieldFromObject(objId, null, 'bkg_useConstraints', 'id');
+    if (bkgUseConstraintId) {
+        
+        // get value from select box
+        var bkgUseConstraintSelectListItem = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_select', 'list_item_id');
+            
+        if (log.isDebugEnabled()) {
+            log.debug("BKG use constraint field contains value: " + bkgUseConstraintSelectListItem);
+        }
+        
+        // get value from free text field
+        var bkgUseConstraintFreeText = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_freeText', 'data');
+        if (bkgUseConstraintFreeText) {
+            if (log.isDebugEnabled()) {
+                log.debug("BKG use constraint free text field contains value: " + bkgUseConstraintFreeText);
+            }
+        }
+        
+        // add select value and free text to ISO depending on selection 
+        var legalConstraint = getFirstNodeInIdentificationBefore().addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+        addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText);
+    }
+}
+
+/**
+ * Get a value from an additional value with a given fieldId that belongs to an object or a parent.
+ * objId or parentId must be null.
+ * @param objId
+ * @param parentId
+ * @param fieldId
+ * @param property
+ * @returns
+ */
+function getAdditionalFieldFromObject(objId, parentId, fieldId, property) {
+    var field = null;
+    if (objId) {
+        field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
+    } else {
+        field = SQL.first("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [parentId, fieldId]);
+    }
+    if (hasValue(field)) {
+        return field.get(property);
+    } else {
+        return null;
+    }
+}
+
+
+function getIdentificationInfo() {
+    var identificationInfo = null;
+    if (objClass.equals("3")) {
+        identificationInfo = DOM.getElement(body, "gmd:identificationInfo/srv:SV_ServiceIdentification");
+    } else {
+        identificationInfo = DOM.getElement(body, "gmd:identificationInfo/gmd:MD_DataIdentification");
+    }
+    return identificationInfo;
+}
+
+function getFirstNodeInIdentificationBefore() {
+    var nodeOrder = ["gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance", 
+        "gmd:pointOfContact", "gmd:status", "gmd:credit", "gmd:purpose", "gmd:abstract"];
+    var identificationInfo = getIdentificationInfo();
+    
+    // get first element before "resourceConstraints", so that we can insert in front of all other entries
+    var beforeResourceElement;
+    for (var i=0; i<nodeOrder.length; i++) {
+        beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i]);
+        if (beforeResourceElement) break;
+    }
+    
+    return beforeResourceElement;
+}
+
+function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
     if (codelistEntryId === null || codelistEntryId === undefined| codelistEntryId === "") {
-        addConstraintElements([], null, valueFree);
+        addAccessConstraintElements(legalConstraint, [], [valueFree]);
         return;
     }
     
     switch (codelistEntryId) {
     case "1":
-        addConstraintElements([], TRANSF.getIGCSyslistEntryName(10002, value), valueFree);
+        addAccessConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10002, codelistEntryId), valueFree]);
         break;
     case "2":
     case "3":
     case "4":
-        addConstraintElements(["copyright"], TRANSF.getIGCSyslistEntryName(10002, value), valueFree);
+        addAccessConstraintElements(legalConstraint, ["copyright"], [TRANSF.getIGCSyslistEntryName(10002, codelistEntryId), valueFree]);
         break;
     case "5":
-        addConstraintElements(["copyright"], null, valueFree);
+        addAccessConstraintElements(legalConstraint, ["copyright"], [valueFree]);
         break;
     case "6":
-        addConstraintElements(["license"], null, valueFree);
+        addAccessConstraintElements(legalConstraint, ["license"], [valueFree]);
         break;
     case "7":
-        addConstraintElements(["copyright","license"], null, valueFree);
+        addAccessConstraintElements(legalConstraint, ["copyright","license"], [valueFree]);
         break;
     case "8":
-        addConstraintElements(["intellectualPropertyRights"], null, valueFree);
+        addAccessConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
         break;
     case "9":
-        addConstraintElements(["restricted"], null, valueFree);
+        addAccessConstraintElements(legalConstraint, ["restricted"], [valueFree]);
         break;
     default:
         log.warn("Codelist entry not supported for list 10001: " + codelistEntryId);
     }
 }
 
-function addConstraintElements(restrictionCodeValues, valueCodelist, valueFree) {
+function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
+    log.debug("BKG: Use Constraint codelist: " + codelistEntryId);
+    if (codelistEntryId === null || codelistEntryId === undefined| codelistEntryId === "") {
+        addUseConstraintElements(legalConstraint, [], [valueFree]);
+        return;
+    }
+    
+    switch (codelistEntryId) {
+    case "1":
+    case "2":
+    case "3":
+    case "4":
+    case "5":
+    case "6":
+    case "7":
+    case "8":
+    case "9":
+        
+        // if opendata and other codelist was used, then add JSON as other constraint
+        if (isOpenData()) {
+            var codelistEntryName = TRANSF.getIGCSyslistEntryName(10005, codelistEntryId);
+            var json = TRANSF.getISOCodeListEntryData(10005, codelistEntryName);
+            
+            addUseConstraintElements(legalConstraint, ["license"], [codelistEntryName, json, valueFree]);
+            
+        } else {
+            addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10006, codelistEntryId), valueFree]);
+            
+        }
+        break;
+    case "10":
+        addUseConstraintElements(legalConstraint, ["copyright"], [valueFree]);
+        break;
+    case "11":
+        addUseConstraintElements(legalConstraint, ["license"], [valueFree]);
+        break;
+    case "12":
+        addUseConstraintElements(legalConstraint, ["copyright", "license"], [valueFree]);
+        break;
+    case "13":
+        addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
+        break;
+    case "14":
+        addUseConstraintElements(legalConstraint, ["restricted"], null, [valueFree]);
+        break;
+    default:
+        log.warn("Codelist entry not supported for list 10003: " + codelistEntryId);
+    }
+}
+
+/**
+ * 
+ * @param legalConstraint
+ * @param restrictionCodeValues
+ * @param {string[]} otherConstraints
+ * @returns
+ */
+function addAccessConstraintElements(legalConstraint, restrictionCodeValues, otherConstraints) {
     for (var i=0; i<restrictionCodeValues.length; i++) {
         legalConstraint.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
             .addAttribute("codeListValue", restrictionCodeValues[i])
@@ -150,15 +268,54 @@ function addConstraintElements(restrictionCodeValues, valueCodelist, valueFree) 
         .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
         .addText("otherRestrictions");
     
-    if (valueCodelist) {
-        legalConstraint
-            .addElement("gmd:otherConstraints/gco:CharacterString")
-            .addText(valueCodelist);
+    if (otherConstraints) {
+        for (var j=0; j<otherConstraints.length; j++) {
+            if (otherConstraints[j]) {
+                legalConstraint
+                .addElement("gmd:otherConstraints/gco:CharacterString")
+                .addText(otherConstraints[j]);
+            }
+        }
+    }
+}
+
+/**
+ * 
+ * @param legalConstraint
+ * @param restrictionCodeValues
+ * @param {string[]} otherConstraints
+ * @returns
+ */
+function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherConstraints) {
+    for (var i=0; i<restrictionCodeValues.length; i++) {
+        legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
+            .addAttribute("codeListValue", restrictionCodeValues[i])
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+            .addText(restrictionCodeValues[i]);
     }
     
-    if (valueFree) {
-        legalConstraint
-            .addElement("gmd:otherConstraints/gco:CharacterString")
-            .addText(valueFree);
+    legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
+        .addAttribute("codeListValue", "otherRestrictions")
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+        .addText("otherRestrictions");
+    
+    if (otherConstraints) {
+        for (var j=0; j<otherConstraints.length; j++) {
+            if (otherConstraints[j]) {
+                legalConstraint
+                    .addElement("gmd:otherConstraints/gco:CharacterString")
+                    .addText(otherConstraints[j]);
+            }
+        }
     }
+}
+
+function isOpenData() {
+    var value = objRow.get("is_open_data");
+    return hasValue(value) && value.equals('Y');
+}
+
+function isInspireRelevant() {
+    var value = objRow.get("is_inspire_relevant");
+    return hasValue(value) && value.equals('Y');
 }
