@@ -78,7 +78,7 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 	private ScriptEngine engine = null;
 
 	// Injected by Spring
-	private Resource mapperScript;
+	private Resource[] mapperScript;
 	
 	// Injected by Spring
 	private Resource template;
@@ -303,8 +303,10 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 
 	
 			// execute the mapping
-	    	log.debug("Mapping with script: " + mapperScript);
-	        engine.eval(new InputStreamReader(mapperScript.getInputStream()));
+	        for (Resource resource : mapperScript) {
+	            log.debug("Mapping with script: " + resource);
+	            engine.eval(new InputStreamReader(resource.getInputStream()));
+            }
 	        
 		} catch (ScriptException e) {
 			log.error("Error while evaluating the script!", e);
@@ -347,8 +349,8 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 		return engine;
 	}
 	
-	public void setMapperScript(Resource script) {
-		this.mapperScript = script;
+	public void setMapperScript(Resource[] scripts) {
+		this.mapperScript = scripts;
 	}
 	
 	public void setTemplate(Resource tpl) {
