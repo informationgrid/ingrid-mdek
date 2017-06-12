@@ -2108,18 +2108,15 @@ function transformAlternateNameAndProductGroup(source, target) {
     if (hasValue(altTitles)) {
         var productGroups = [];
         var nonProductGroups = [];
-        var alternateNames = [];
         
         for (var i=0; i<altTitles.getLength(); i++ ) {
             var term = XPATH.getString(altTitles.item(i), ".");
             
             var splitted = term.split(';');
             if (splitted.length > 0) {
-                var alternateName = splitted[splitted.length-1];
-                alternateNames.push(alternateName);
                 
                 // check all entries if they match to a product group and move them to this field
-                for (var j=0; j<splitted.length-1; j++) {
+                for (var j=0; j<splitted.length; j++) {
                     var entry = splitted[j].trim();
                     var codelistItem = codeListService.getSysListEntryKey(8010, entry, "de");
                     // TODO: what about english entries
@@ -2140,9 +2137,9 @@ function transformAlternateNameAndProductGroup(source, target) {
             }
         }
         
-        var finalAlternateName = alternateNames.join(", ");
+        var finalAlternateName = "";
         if (nonProductGroups.length > 0) {
-            finalAlternateName = nonProductGroups.join(";") + ", " + finalAlternateName;
+            finalAlternateName = nonProductGroups.join(";");
         }
         var pathAlternateName = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/dataset-alternate-name");
         XMLUtils.createOrReplaceTextNode(pathAlternateName, finalAlternateName);
