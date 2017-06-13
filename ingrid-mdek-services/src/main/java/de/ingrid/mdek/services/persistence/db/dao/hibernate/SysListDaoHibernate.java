@@ -24,9 +24,9 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -47,7 +47,7 @@ public class SysListDaoHibernate
 	extends GenericHibernateDao<SysList>
 	implements  ISysListDao {
 
-	private static final Logger LOG = Logger.getLogger(SysListDaoHibernate.class);
+	private static final Logger LOG = LogManager.getLogger(SysListDaoHibernate.class);
 
     public SysListDaoHibernate(SessionFactory factory) {
         super(factory, SysList.class);

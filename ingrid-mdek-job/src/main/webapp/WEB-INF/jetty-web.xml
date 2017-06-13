@@ -29,6 +29,10 @@
     <New class="org.mortbay.resource.ResourceCollection">
       <Arg>
         <Array type="java.lang.String">
+          <!-- UVP -->
+          <!-- <Item>../distribution/src/profiles/uvp/webapp</Item> -->
+          <!-- BKG -->
+          <!-- <Item>../distribution/src/profiles/bkg/webapp</Item> -->
           <Item>src/main/webapp</Item>
           <Item>target/base-webapp</Item>
           <!--<Item><SystemProperty name="jetty.home" default="."/>/webapps/foo</Item>-->

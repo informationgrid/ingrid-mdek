@@ -27,6 +27,54 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="4.0.3" date="2017-06-13" description="Release 4.0.3">
+      <action type="add" dev="wemove" issue="REDMINE-393,-556">
+        BKG: Added special version for input of access- and useConstraints to BKG profile.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-372,-559,-652">
+        UVP: Added UVP functionality (audit service, new checkbox needsExamination, input of date, ...)
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-18,-363">
+        Mapping of GEMET keywords to IDF, update thesaurusName and add additional english localization if configured.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-410">
+        Add setting on admin GUI to disable IGE iBus communication. Just use iPlug for indexing catalog.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-379">
+        Add language info to IDF if AdV compatible.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-369,-375,-367">
+        Support new fields adv_compatible, administrative_area and inspire_conform.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-388,-725">
+        Added table adv_product_group and import/export functionality.
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-201">
+        Adapt schema location, codelists to current INSPIRE specs when writing IDF. 
+      </action>
+      <action type="update" dev="wemove" issue="REDMINE-204">
+        Add new lines for multiple lineage fields during import.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-383">
+        Fix ISO import of geographicElement.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-704">
+        Import useLimitation and useConstraints according to GDI-DE conventions.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-384">
+        Remove GDI-DE prefix from useLimitation and useConstraints during ISO import.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-647">
+        Fixed ISO import of incomplete addresses, now persisted as working version. 
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-635">
+        Fixed insertion of published documents under folders.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-659">
+        Fixed clearing of additional fields after they have been published.
+      </action>
+    </release>
+    
     <release version="4.0.2" date="2017-04-06" description="Release 4.0.2">
       <action type="add" dev="wemove" issue="REDMINE-438">
         Added support for PostgreSQL. Full support in installer (create empty catalog) or migration via tool (see docs in conf/sql).

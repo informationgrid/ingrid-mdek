@@ -43,7 +43,7 @@ DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
 
 // ---------- <idf:idfMdMetadata> ----------
 var mdMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata");

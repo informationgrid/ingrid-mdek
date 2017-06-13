@@ -144,6 +144,15 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
         ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
     }
+    var administrativeAreaKey = addressRow.get("administrative_area_key");
+    if (hasValue(administrativeAreaKey)) {
+        if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+        if (administrativeAreaKey == -1) {
+            ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+        } else {
+            ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
+        }
+    }
     for (var j=0; j<emailAddresses.length; j++) {
         if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
         ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
@@ -198,8 +207,13 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 
 	// do NOT USE DISTINCT -> crashes on ORACLE !
     var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', 1]);
+    var tmpRows = new Array();
     for (var j=0; j<rows.size(); j++) {
-        idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
+        var uuid = rows.get(j).get("obj_uuid");
+        if(tmpRows.indexOf(uuid) == -1){
+            tmpRows.push(uuid);
+            idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
+        }
     }
 
     return idfResponsibleParty;

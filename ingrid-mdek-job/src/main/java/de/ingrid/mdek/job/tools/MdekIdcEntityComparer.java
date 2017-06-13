@@ -30,7 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.utils.IngridDocument;
 
@@ -43,7 +44,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekIdcEntityComparer {
 
-	private static final Logger log = Logger.getLogger(MdekIdcEntityComparer.class);
+	private static final Logger log = LogManager.getLogger(MdekIdcEntityComparer.class);
 
 	public static boolean compareObjectMaps(IngridDocument doc1, IngridDocument doc2, String[] ignoredKeysArray) {
 		List<String> ignoredKeys;

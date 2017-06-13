@@ -27,7 +27,8 @@ import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -36,7 +37,7 @@ import de.ingrid.utils.idf.IdfTool;
 
 public class MdekRecordUtils {
     
-    static Logger log = Logger.getLogger( MdekRecordUtils.class );
+    static Logger log = LogManager.getLogger( MdekRecordUtils.class );
     
     public static final String XSL_IDF_TO_ISO_FULL = "idf_1_0_0_to_iso_metadata.xsl";
 

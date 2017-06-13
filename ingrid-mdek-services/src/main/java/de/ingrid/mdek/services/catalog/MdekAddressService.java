@@ -26,9 +26,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
 
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
@@ -46,6 +49,7 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.services.log.AuditService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -80,7 +84,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekAddressService {
 
-	private static final Logger LOG = Logger.getLogger(MdekAddressService.class);
+	private static final Logger LOG = LogManager.getLogger(MdekAddressService.class);
 
 	private static MdekAddressService myInstance;
 
@@ -562,48 +566,89 @@ public class MdekAddressService {
 		}
 		
 		// get/create published version
+		// NOTICE: Persist only after all checks have been executed to avoid inconsistent published version !
 		T02Address aPub = aNode.getT02AddressPublished();
+		boolean hasPublishedVersion = true;
 		if (aPub == null) {
+		    hasPublishedVersion = false;
+
 			// set some missing data which may not be passed from client.
 			aDocIn.put(MdekKeys.DATE_OF_CREATION, currentTime);
 			
 			// create new address with BASIC data
 			aPub = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
-			// save it to generate id needed for mapping of associations
-			daoT02Address.makePersistent(aPub);
 		}
-		Long aPubId = aPub.getId();
 
-		// if working copy then take over data and delete it ! 
+		// if working copy then take over data !
+		// NOTICE: Working instance equals published instance if not "In Bearbeitung" 
 		T02Address aWork = aNode.getT02AddressWork();
-		if (aWork != null && !aPubId.equals(aWork.getId())) {
-			// save orig uuid from working version ! may be was set (e.g. in import !)
-			// NOTICE: may be overwritten by mapper below if set in doc
-			aPub.setOrgAdrId(aWork.getOrgAdrId());
+		boolean hasDifferentWorkingVersion = false;
+		if (aWork != null) {
+		    // if different from published version, take over data
+		    if (!aWork.getId().equals(aPub.getId())) {
+		        hasDifferentWorkingVersion = true;
 
-			// NOTICE: NO TAKEOVER OF ENTITY METADATA -> published version keeps old state !
-			// after publish we don't remember assigner, reassigner etc.
-			// further mark deleted and expiry state is reset when published and lastexporttime is kept
-			// (was set in published metadata when exporting, only published ones can be exported !)
+		        // save orig uuid from working version ! may be was set (e.g. in import !)
+	            // NOTICE: may be overwritten by mapper below if set in doc
+	            aPub.setOrgAdrId(aWork.getOrgAdrId());
 
-			// delete working version
-			daoT02Address.makeTransient(aWork);
-		}
+	            // NOTICE: NO TAKEOVER OF ENTITY METADATA -> published version keeps old state !
+	            // after publish we don't remember assigner, reassigner etc.
+	            // further mark deleted and expiry state is reset when published and lastexporttime is kept
+	            // (was set in published metadata when exporting, only published ones can be exported !)
+		    }
+        }
 
 		// TRANSFER FULL DATA (if set) -> NOT PASSED FROM CLIENT, BUT E.G. PASSED WHEN IMPORTING !!!
+		// DO NOT PERSIST WE STILL HAVE TO DO CHECKS ! 
 		docToBeanMapper.mapT02Address(aDocIn, aPub, MappingQuantity.COPY_ENTITY);
-		daoT02Address.makePersistent(aPub);
 
-		// and update AddressNode, also beans, so we can access them afterwards (index)
-		aNode.setAddrId(aPubId);
-		aNode.setT02AddressWork(aPub);
-		aNode.setAddrIdPublished(aPubId);
+		// and update AddressNode with bean to publish, so we can check full data
 		aNode.setT02AddressPublished(aPub);
-		daoAddressNode.makePersistent(aNode);
 
-		// PERFORM CHECKS ON FINAL DATA BEFORE COMMITTING !!!
+		// PERFORM CHECKS ON FINAL DATA BEFORE PERSISTING !!!
+		// This may throw exception leading to working version !
 		checkAddressNodeContentForPublish(aNode);			
+
 		// checks ok !
+		// FINALLY PERSIST PUBLISHED VERSION AND DELETE FORMER WORKING VERSION !
+
+        // if no published version before, we have to go the long way:
+		// - first create ID with persisting basic data
+        // - then mapping associations using ID ! Otherwise Exception:
+		// ConstraintViolationException: could not insert: [de.ingrid.mdek.services.persistence.db.model.T021Communication]
+		// "NULL-Wert in Spalte »adr_id« verletzt Not-Null-Constraint" ()
+        if (!hasPublishedVersion) {
+            // create basic version and save it to generate id needed for mapping of associations 
+            aPub = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
+            daoT02Address.makePersistent(aPub);
+           
+            // if working copy then take over data ! 
+            if (hasDifferentWorkingVersion) {
+                // save orig uuid from working version ! may be was set (e.g. in import !)
+                // NOTICE: may be overwritten by mapper below if set in doc
+                aPub.setOrgAdrId(aWork.getOrgAdrId());
+            }
+
+            // then map full data
+            docToBeanMapper.mapT02Address(aDocIn, aPub, MappingQuantity.COPY_ENTITY);
+        }
+
+        // persist final published address instance
+        daoT02Address.makePersistent(aPub);
+
+        // and persist final AddressNode
+        Long aPubId = aPub.getId();
+        aNode.setAddrId(aPubId);
+        aNode.setT02AddressWork(aPub);
+        aNode.setAddrIdPublished(aPubId);
+        aNode.setT02AddressPublished(aPub);
+        daoAddressNode.makePersistent(aNode);
+
+        // delete old working instance ("in Bearbeitung") if there is one
+        if (hasDifferentWorkingVersion) {
+            daoT02Address.makeTransient(aWork);            
+        }
 
 		// UPDATE FULL INDEX !!!
 		fullIndexHandler.updateAddressIndex(aNode);
@@ -633,6 +678,14 @@ public class MdekAddressService {
             indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
             indexManager.update( docProducer.getIndexInfo(), doc, true );
             indexManager.flush();
+        }
+        
+        if (AuditService.instance != null && doc != null) {
+            String message = "PUBLISHED address successfully with UUID: " + uuid;
+            Map<String, String> map = new HashMap<String, String>();
+            map.put( "idf", (String) doc.get( "idf" ) );
+            String payload = JSONObject.toJSONString( map );
+            AuditService.instance.log( message, payload );
         }
 
 		return uuid;
@@ -838,6 +891,11 @@ public class MdekAddressService {
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
 
+		if (AuditService.instance != null) {
+            String message = "DELETED address: " + aNode.getAddrUuid();
+            AuditService.instance.log( message );
+        }
+		
 		return result;
 	}
 
@@ -1399,7 +1457,7 @@ public class MdekAddressService {
 				// TOP ADDRESS
 
 				// only institutions at top
-				if (childType != AddressType.INSTITUTION) {
+				if (childType != AddressType.INSTITUTION && childType != AddressType.FOLDER) {
 					throw new MdekException(new MdekError(MdekErrorType.ADDRESS_TYPE_CONFLICT));					
 				}
 			} else {
@@ -1458,7 +1516,7 @@ public class MdekAddressService {
 
 			// from address published ? then check compatibility !
 			boolean isFromPublished = (fromNode.getT02AddressPublished() != null);
-			if (isFromPublished) {
+			if (isFromPublished && !isFolder( toNode )) {
 				// new parent has to be published ! -> not possible to move published nodes under unpublished parent
 				T02Address toAddrPub = toNode.getT02AddressPublished();
 				if (toAddrPub == null) {

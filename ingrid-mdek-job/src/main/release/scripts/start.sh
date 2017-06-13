@@ -59,84 +59,84 @@ stopIplug()
 {
   echo "Try stopping ingrid component ($INGRID_HOME)..."
   if [ -f $PID ]; then
-		procid=`cat $PID`
-		idcount=`ps -p $procid | wc -l`
-		if [ $idcount -eq 2 ]; then
-			echo stopping $command, wait 3 sec to exit.
-			kill `cat $PID`
-			sleep 3
-			idcount=`ps -p $procid | wc -l`
-			if [ $idcount -eq 1 ]; then
-				echo "process ($procid) has been terminated."
-				unlink $PID
-				exit 0
-			else
-				COUNTER=1
-				SECS=0
-				while [  $COUNTER -lt 10 ]; 
-				do
-					COUNTER=$(($COUNTER + 1))
-					echo "process is still running. wait 1 more sec."
-					sleep 1
-					idcount=`ps -p $procid | wc -l`
-					if [ $idcount -eq 1 ]; then
-						SECS=$(($COUNTER + $SECS))
-					    echo "process ($procid) has been terminated after $SECS sec."
-					    unlink $PID
-					    exit 0
-					fi					
-				done
-				echo "process is still running. force kill -9."
-				kill -9 `cat $PID`
-				exit 0
-			fi 
-		else
-			echo "process is not running. Exit."
-			unlink $PID 
-		fi
-	else
-		echo "process is not running. Exit."
-	fi
+    procid=`cat $PID`
+    idcount=`ps -p $procid | wc -l`
+    if [ $idcount -eq 2 ]; then
+      echo stopping $command, wait 3 sec to exit.
+      kill `cat $PID`
+      sleep 3
+      idcount=`ps -p $procid | wc -l`
+      if [ $idcount -eq 1 ]; then
+        echo "process ($procid) has been terminated."
+        unlink $PID
+        exit 0
+      else
+        COUNTER=1
+        SECS=0
+        while [  $COUNTER -lt 10 ]; 
+        do
+          COUNTER=$(($COUNTER + 1))
+          echo "process is still running. wait 1 more sec."
+          sleep 1
+          idcount=`ps -p $procid | wc -l`
+          if [ $idcount -eq 1 ]; then
+            SECS=$(($COUNTER + $SECS))
+              echo "process ($procid) has been terminated after $SECS sec."
+              unlink $PID
+              exit 0
+          fi                    
+        done
+        echo "process is still running. force kill -9."
+        kill -9 `cat $PID`
+        exit 0
+      fi 
+    else
+      echo "process is not running. Exit."
+      unlink $PID 
+    fi
+  else
+    echo "process is not running. Exit."
+  fi
 }
 
 stopNoExitIplug()
 {
   echo "Try stopping ingrid component ($INGRID_HOME)..."
   if [ -f $PID ]; then
-		procid=`cat $PID`
-		idcount=`ps -p $procid | wc -l`
-		if [ $idcount -eq 2 ]; then
-			echo stopping $command, wait 3 sec to exit.
-			kill `cat $PID`
-			sleep 3
-			idcount=`ps -p $procid | wc -l`
-			if [ $idcount -eq 1 ]; then
-				echo "process ($procid) has been terminated."
-				unlink $PID
-			else
-				COUNTER=1
-				SECS=0
-				while [  $COUNTER -lt 10 ]; 
-				do
-					COUNTER=$(($COUNTER + 1))
-					echo "process is still running. wait 1 more sec."
-					sleep 1
-					idcount=`ps -p $procid | wc -l`
-					if [ $idcount -eq 1 ]; then
-						SECS=$(($COUNTER + $SECS))
-					    echo "process ($procid) has been terminated after $SECS sec."
-					    unlink $PID
-					fi					
-				done
-				echo "process is still running. force kill -9."
-				kill -9 `cat $PID`
-			fi
-		else
-			echo "process is not running. Exit."			
-		fi
+    procid=`cat $PID`
+    idcount=`ps -p $procid | wc -l`
+    if [ $idcount -eq 2 ]; then
+      echo stopping $command, wait 3 sec to exit.
+      kill `cat $PID`
+      sleep 3
+      idcount=`ps -p $procid | wc -l`
+      if [ $idcount -eq 1 ]; then
+        echo "process ($procid) has been terminated."
+        unlink $PID
+      else
+        COUNTER=1
+        SECS=0
+        while [  $COUNTER -lt 10 ]; 
+        do
+          COUNTER=$(($COUNTER + 1))
+          echo "process is still running. wait 1 more sec."
+          sleep 1
+          idcount=`ps -p $procid | wc -l`
+          if [ $idcount -eq 1 ]; then
+            SECS=$(($COUNTER + $SECS))
+              echo "process ($procid) has been terminated after $SECS sec."
+              unlink $PID
+          fi                    
+        done
+        echo "process is still running. force kill -9."
+        kill -9 `cat $PID`
+      fi
     else
-      echo "process is not running. Exit."
+      echo "process is not running. Exit."          
     fi
+  else
+    echo "process is not running. Exit."
+  fi
 }
 
 prepareJavaStatement()
@@ -195,7 +195,11 @@ startIplug()
   CLASS=de.ingrid.mdek.MdekServer
 
   # run it
-  exec nohup "$JAVA" $INGRID_OPTS $CLASS --descriptor conf/communication-ige.xml > logs/console.log &
+  if [ "$RUN_DIRECTLY" ]; then
+    exec "$JAVA" $INGRID_OPTS $CLASS --descriptor conf/communication-ige.xml
+  else
+    exec nohup "$JAVA" $INGRID_OPTS $CLASS --descriptor conf/communication-ige.xml > logs/console.log &
+  fi
   
   echo "ingrid component ($INGRID_HOME) started."
   echo $! > $PID
@@ -249,8 +253,3 @@ case "$1" in
     exit 1
     ;;
 esac
-
-
-
-
-

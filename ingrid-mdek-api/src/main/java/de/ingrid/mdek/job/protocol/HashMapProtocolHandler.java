@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 
 public class HashMapProtocolHandler implements ProtocolHandler, Serializable {
 
@@ -107,10 +107,10 @@ public class HashMapProtocolHandler implements ProtocolHandler, Serializable {
     }
 
     public boolean isErrorEnabled() {
-        return log.isEnabledFor( Level.ERROR );
+        return log.isErrorEnabled();
     }
 
     public boolean isWarningEnabled() {
-        return log.isEnabledFor( Level.WARN );
+        return log.isWarnEnabled();
     }
 }

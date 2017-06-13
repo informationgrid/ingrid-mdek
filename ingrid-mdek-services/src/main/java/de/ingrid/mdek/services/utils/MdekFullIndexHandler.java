@@ -24,7 +24,8 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekUtils;
@@ -44,6 +45,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
 import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
@@ -89,7 +91,7 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
  */
 public class MdekFullIndexHandler implements IFullIndexAccess {
 
-	private static final Logger LOG = Logger.getLogger(MdekFullIndexHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekFullIndexHandler.class);
 	
 	protected MdekCatalogService catalogService;
 
@@ -243,6 +245,9 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		extendFullData(data, a.getPostboxPc());
 		extendFullData(data, a.getCity());
 		extendFullData(data, a.getJob());
+		extendFullDataWithSysList(data, MdekSysList.COUNTRY, a.getCountryKey(), a.getCountryValue());
+		extendFullDataWithSysList(data, MdekSysList.ADMINISTRATIVE_AREA, a.getAdministrativeAreaKey(), a.getAdministrativeAreaValue());
+		extendFullData(data, a.getHoursOfService());
 
 		return data.toString();
 	}
@@ -511,6 +516,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY_DEGREE,
 					objConform.getDegreeKey(), objConform.getDegreeValue());				
 		}
+		// AdvProductGroup
+		Set<ObjectAdvProductGroup> objAdvProductGroup = o.getObjectAdvProductGroup();
+		for (ObjectAdvProductGroup productGroup : objAdvProductGroup) {
+		    extendFullDataWithSysList(data, MdekSysList.OBJ_CONFORMITY_DEGREE,
+		            productGroup.getProductKey(), productGroup.getProductValue());				
+		}
 		// ObjectAccess
 		Set<ObjectAccess> objAccesses = o.getObjectAccesss();
 		for (ObjectAccess objAccess : objAccesses) {
@@ -575,6 +586,9 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		}
 		if (MdekUtils.YES.equals(o.getIsOpenData())) {
 			extendFullData(data, IDX_VALUE_IS_OPEN_DATA);
+		}
+		if (MdekUtils.YES.equals(o.getIsAdvCompatible())) {
+		    extendFullData(data, IDX_VALUE_IS_ADV_COMPATIBLE);
 		}
 
 		return data.toString();

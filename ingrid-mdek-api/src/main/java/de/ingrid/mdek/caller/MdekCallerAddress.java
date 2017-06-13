@@ -44,7 +44,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekCallerAddress extends MdekCaller implements IMdekCallerAddress {
 
-	private final static Logger log = Logger.getLogger(MdekCallerAddress.class);
+    private final static Logger log = Logger.getLogger(MdekCallerAddress.class);
 
 	private static MdekCallerAddress myInstance;
 

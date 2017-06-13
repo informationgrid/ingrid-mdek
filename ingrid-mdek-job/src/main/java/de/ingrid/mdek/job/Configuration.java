@@ -39,7 +39,6 @@ import org.springframework.core.io.Resource;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformers;
-import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
 import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
 import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
 
@@ -85,7 +84,11 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @PropertyValue("igc.country")
     @DefaultValue("de")
     public String igcCountry;
-    
+
+    @PropertyValue("igc.enableIBusCommunication")
+    @DefaultValue("true")
+    public boolean igcEnableIBusCommunication;
+
     @TypeTransformers(StringToCommunications.class)
     @PropertyValue("communications.ige")
     public List<CommunicationCommandObject> igeCommunication;
@@ -168,6 +171,8 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         super.setPropertiesFromPlugdescription( props, pd );
         
         updateDatabaseDescriptor();
+        
+        props.setProperty( "igc.enableIBusCommunication", this.igcEnableIBusCommunication + "" );
     }
     
     @Override

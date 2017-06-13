@@ -741,6 +741,8 @@ public class MdekKeys {
     public final static String IS_CATALOG_DATA = "is-catalog-data";
     /** Value: String  */
     public final static String IS_INSPIRE_RELEVANT = "is-inspire-relevant";
+    /** Value: String  */
+    public final static String IS_INSPIRE_CONFORM = "is-inspire-conform";
 
     // DATA REFERENCE
     /** Value: List< IngridDocument > */
@@ -761,8 +763,18 @@ public class MdekKeys {
      * Value: Integer  */
     public final static String EXPORT_CRITERION_VALUE = "export-criterion-value";
     
+    // ADV COMPATIBLE
+    /** Value: String */
+    public final static String IS_ADV_COMPATIBLE = "is-adv-compatible";
+    /** Value: List< IngridDocument > */
+    public final static String ADV_PRODUCT_LIST = "adv-product-list";
+    /** Value: Integer */
+    public final static String ADV_PRODUCT_KEY = "adv-product-key";
+    /** Value: String */
+    public final static String ADV_PRODUCT_VALUE = "adv-product-value";
+    
     // OPEN DATA
-    /** Value: String  */
+    /** Value: String */
     public final static String IS_OPEN_DATA = "is-open-data";
     /** Value: List< IngridDocument > */
     public final static String OPEN_DATA_CATEGORY_LIST = "open-data-category_list";
@@ -1153,6 +1165,10 @@ public class MdekKeys {
     public final static String TITLE_OR_FUNCTION_KEY = "title-or-function-key";
     /** Value: String */
     public final static String STREET = "street";
+    /** Value: Integer */
+    public final static String ADMINISTRATIVE_AREA_CODE = "administrative-area-code";
+    /** Value: String */
+    public final static String ADMINISTRATIVE_AREA_NAME = "administrative-area-name";
     /** Value: Integer */
     public final static String COUNTRY_CODE = "country-code";
     /** Value: String */

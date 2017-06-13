@@ -29,10 +29,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.apache.log4j.Logger;
 
 import de.ingrid.mdek.MdekClient;
@@ -42,6 +38,9 @@ import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 
 /**
@@ -313,7 +312,7 @@ public class MdekClientCaller implements IMdekClientCaller {
 	}
 
 	private void debugDocument(String title, IngridDocument doc) {
-		if (!log.isInfoEnabled()) {
+		if (!log.isDebugEnabled()) {
 			return;
 		}
 

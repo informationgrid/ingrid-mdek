@@ -28,7 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -52,6 +53,7 @@ import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
@@ -116,7 +118,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class DocToBeanMapper implements IMapper {
 
-	private static final Logger LOG = Logger.getLogger(DocToBeanMapper.class);
+	private static final Logger LOG = LogManager.getLogger(DocToBeanMapper.class);
 
 	private static DocToBeanMapper myInstance;
 
@@ -481,6 +483,8 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setOrderingInstructions((String) oDocIn.get(MdekKeys.ORDERING_INSTRUCTIONS));
 			oIn.setIsCatalogData(oDocIn.getString(MdekKeys.IS_CATALOG_DATA));
 			oIn.setIsInspireRelevant(oDocIn.getString(MdekKeys.IS_INSPIRE_RELEVANT));
+			oIn.setIsInspireConform(oDocIn.getString(MdekKeys.IS_INSPIRE_CONFORM));
+			oIn.setIsAdvCompatible(oDocIn.getString(MdekKeys.IS_ADV_COMPATIBLE));
 			oIn.setIsOpenData(oDocIn.getString(MdekKeys.IS_OPEN_DATA));
 
 			oIn.setModUuid(extractModUserUuid(oDocIn));
@@ -524,6 +528,7 @@ public class DocToBeanMapper implements IMapper {
 			// comments
 			updateObjectComments(oDocIn, oIn);
 			updateObjectConformitys(oDocIn, oIn);
+			updateObjectAdvProductGroup(oDocIn, oIn);
 			updateObjectAccesses(oDocIn, oIn);
 			updateObjectUses(oDocIn, oIn);
             updateObjectUseConstraints(oDocIn, oIn);
@@ -574,6 +579,8 @@ public class DocToBeanMapper implements IMapper {
 				howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			aIn.setStreet(aDocIn.getString(MdekKeys.STREET));
+			aIn.setAdministrativeAreaKey((Integer)aDocIn.get(MdekKeys.ADMINISTRATIVE_AREA_CODE));
+			aIn.setAdministrativeAreaValue(aDocIn.getString(MdekKeys.ADMINISTRATIVE_AREA_NAME));
 			aIn.setCountryKey((Integer)aDocIn.get(MdekKeys.COUNTRY_CODE));
 			aIn.setCountryValue(aDocIn.getString(MdekKeys.COUNTRY_NAME));
 			aIn.setPostcode(aDocIn.getString(MdekKeys.POSTAL_CODE));
@@ -2459,12 +2466,8 @@ public class DocToBeanMapper implements IMapper {
 		if (oFrom != null) {
 			bean.setObjId(oFrom.getId());			
 		}
-		if (doc.get(MdekKeys.ADDITIONAL_FIELD_DATA) != null) {
-			bean.setData(doc.getString(MdekKeys.ADDITIONAL_FIELD_DATA));			
-		}
-		if (doc.get(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID) != null) {
-			bean.setListItemId(doc.getString(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID));			
-		}
+		bean.setData(doc.getString(MdekKeys.ADDITIONAL_FIELD_DATA));			
+		bean.setListItemId(doc.getString(MdekKeys.ADDITIONAL_FIELD_LIST_ITEM_ID));			
 		bean.setParentFieldId(parentBeanId);			
 		bean.setSort(line);
 
@@ -2568,6 +2571,19 @@ public class DocToBeanMapper implements IMapper {
 
 		return ref;
 	}
+	private ObjectAdvProductGroup mapObjectAdvProductGroup(T01Object oFrom,
+	        IngridDocument refDoc,
+	        ObjectAdvProductGroup ref, 
+	        int line)
+	{
+	    ref.setObjId(oFrom.getId());
+	    ref.setProductKey((Integer)refDoc.get(MdekKeys.ADV_PRODUCT_KEY));
+	    ref.setProductValue(refDoc.getString(MdekKeys.ADV_PRODUCT_VALUE));
+	    ref.setLine(line);
+	    keyValueService.processKeyValue(ref);
+	    
+	    return ref;
+	}
 	private List<IngridDocument> createObjectConformityList(int specificationKey, int degreeKey) {
 		List<IngridDocument> cDocList = new ArrayList<IngridDocument>();
 		IngridDocument cDoc = new IngridDocument();
@@ -2616,6 +2632,48 @@ public class DocToBeanMapper implements IMapper {
 			refs.add(ref);
 			line++;
 		}
+	}
+	private void updateObjectAdvProductGroup(IngridDocument oDocIn, T01Object oIn) {
+	    List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.ADV_PRODUCT_LIST);
+	    // NOTICE: objects conformities are only editable in special object types (classes) and have default
+	    // values in other types. We guarantee default values, when necessary ! object-classes can be switched
+	    // so conformity might be wrong, remaining from former class !
+//	    ObjectType oType = EnumUtil.mapDatabaseToEnumConst(ObjectType.class, oIn.getObjClass());
+//	    if (oType == ObjectType.GEO_INFORMATION || 
+//	            oType == ObjectType.GEO_DIENST ||
+//	            oType == ObjectType.INFOSYSTEM_DIENST) {
+//	        // set default if not set, else keep set values. DISPLAYED in frontend.
+//	        if (refDocs == null) {
+//	            refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);
+//	        }			
+//	    } else {
+//	        // check whether correct default is set ! if not, set it. NOT displayed in frontend !
+//	        if (refDocs == null ||
+//	                refDocs.size() != 1 ||
+//	                !MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_SPECIFICATION_KEY)) ||
+//	                !MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_DEGREE_KEY))) {
+//	            refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);				
+//	        }
+//	    }
+	    
+	    Set<ObjectAdvProductGroup> refs = oIn.getObjectAdvProductGroup();
+	    ArrayList<ObjectAdvProductGroup> refs_unprocessed = new ArrayList<ObjectAdvProductGroup>(refs);
+	    // remove all !
+	    for (ObjectAdvProductGroup ref : refs_unprocessed) {
+	        refs.remove(ref);
+	        // delete-orphan doesn't work !!!?????
+	        dao.makeTransient(ref);			
+	    }		
+	    // and add all new ones !
+	    if (refDocs != null) {
+    	    int line = 1;
+    	    for (IngridDocument refDoc : refDocs) {
+    	        // add all as new ones
+    	        ObjectAdvProductGroup ref = mapObjectAdvProductGroup(oIn, refDoc, new ObjectAdvProductGroup(), line);
+    	        refs.add(ref);
+    	        line++;
+    	    }
+	    }
 	}
 
 	private ObjectAccess mapObjectAccess(T01Object oFrom,

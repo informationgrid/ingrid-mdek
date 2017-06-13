@@ -46,6 +46,8 @@ public class T02Address implements IEntity {
 	private String postbox;
 	private String postboxPc;
 	private String city;
+	private Integer administrativeAreaKey;
+	private String administrativeAreaValue;
 	private Integer countryKey;
 	private String countryValue;
 	private String job;
@@ -348,5 +350,21 @@ public class T02Address implements IEntity {
 	public void setAddressNodeMod(AddressNode addressNodeMod) {
 		this.addressNodeMod = addressNodeMod;
 	}
+
+    public Integer getAdministrativeAreaKey() {
+        return administrativeAreaKey;
+    }
+
+    public void setAdministrativeAreaKey(Integer administrativeAreaKey) {
+        this.administrativeAreaKey = administrativeAreaKey;
+    }
+
+    public String getAdministrativeAreaValue() {
+        return administrativeAreaValue;
+    }
+
+    public void setAdministrativeAreaValue(String administrativeAreaValue) {
+        this.administrativeAreaValue = administrativeAreaValue;
+    }
 
 }

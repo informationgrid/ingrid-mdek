@@ -21,7 +21,7 @@
  * **************************************************#
  */
 if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
+    load("nashorn:mozilla_compat.js");
 }
 
 importPackage(Packages.org.apache.lucene.document);
@@ -34,7 +34,7 @@ var BOOST_NO_COUPLED_RESOURCE  = 0.9;
 var BOOST_HAS_COUPLED_RESOURCE = 1.0;
 
 if (log.isDebugEnabled()) {
-	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
+    log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
 }
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
@@ -55,12 +55,12 @@ for (i=0; i<objRows.size(); i++) {
     for (var i in colNames) {
         var colName = colNames[i];
         IDX.add(colName, objRow.get(colName));
-	}
+    }
 */
     // Example adding additional HTML to result
 //    IDX.add("additional_html_1", "<h1>MEIN ZUSATZ</h1>", false);
 
-	addT01Object(objRows.get(i));
+    addT01Object(objRows.get(i));
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
     var objClass = objRows.get(i).get("obj_class");
@@ -95,14 +95,54 @@ for (i=0; i<objRows.size(); i++) {
     
     
     // add UVP specific mapping
+    // UVP Codelist
+    var behavioursValueRow = SQL.first("SELECT * FROM sys_generic_key WHERE key_name='BEHAVIOURS'");
+    var codelist = '';
+    if (hasValue(behavioursValueRow)){
+        var behaviours = behavioursValueRow.get("value_string");
+        if(hasValue(behaviours)){
+            var behavioursJson = JSON.parse(behaviours);
+            for(i in behavioursJson){
+                var behaviour = behavioursJson[i];
+                if(hasValue(behaviour)){
+                    var behaviourId = behaviour.id;
+                    if(hasValue(behaviourId)){
+                        if(behaviourId.equals("uvpPhaseField")){
+                            var behaviourParams = behaviour.params;
+                            if(hasValue(behaviourParams)){
+                                for(j in behaviourParams){
+                                    var behaviourParam = behaviourParams[j];
+                                    if(hasValue(behaviourParam)){
+                                        var behaviourParamId = behaviourParam.id;
+                                        if(behaviourParamId.equals("categoryCodelist")){
+                                            var behaviourParamValue = behaviourParam.value;
+                                            if(hasValue(behaviourParamValue)){
+                                                codelist = behaviourParamValue;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    if(!hasValue(codelist)){
+        codelist = 9000;
+    }
+    
     // UVP Categories
     var uvpgCategoriesValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpgCategory']);
     if (hasValue(uvpgCategoriesValueRow) && hasValue(uvpgCategoriesValueRow.get("id"))) {
         var uvpgCategoryRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [uvpgCategoriesValueRow.get("id"), 'categoryId']);
         for (var i=0; i< uvpgCategoryRows.size(); i++) {
             var categoryId = uvpgCategoryRows.get(i).get("data");
-            var uvpNo = TRANSF.getIGCSyslistEntryName(9000, categoryId, "de");
-            var uvpCat = TRANSF.getISOCodeListEntryData(9000, uvpNo);
+            var uvpNo = TRANSF.getIGCSyslistEntryName(codelist, categoryId, "de");
+            var uvpCat = TRANSF.getISOCodeListEntryData(codelist, uvpNo);
             IDX.add("uvp_number", uvpNo);
             if(hasValue(uvpCat)){
                 var uvpCatJson = JSON.parse(uvpCat);
@@ -164,21 +204,21 @@ for (i=0; i<objRows.size(); i++) {
     // add spatial Bounding Box
     var uvpSpatialValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvp_spatialValue']);
     if (hasValue(uvpSpatialValueRow) && hasValue(uvpSpatialValueRow.get("data"))) {
-    	// format <name>: <lon_min, lat_min, lon_max, lat_max>
-    	// <name> is optional
-    	// Deutschland, Berlin, Berlin: 13.252258300781248, 52.43424610262303, 13.52691650390625, 52.60137941045533
-    	var spatialValue = uvpSpatialValueRow.get("data");
-    	
-    	var spatialLocation = spatialValue.lastIndexOf(": ") === -1 ? false : spatialValue.substr(0, spatialValue.lastIndexOf(": "));
-    	if (spatialLocation) {
-    		IDX.add("location", spatialLocation);
-    	}
-    	
-    	spatialValue = spatialValue.lastIndexOf(": ") === -1 ? spatialValue : spatialValue.substr(spatialValue.lastIndexOf(": ") + 2);
+        // format <name>: <lon_min, lat_min, lon_max, lat_max>
+        // <name> is optional
+        // Deutschland, Berlin, Berlin: 13.252258300781248, 52.43424610262303, 13.52691650390625, 52.60137941045533
+        var spatialValue = uvpSpatialValueRow.get("data");
+        
+        var spatialLocation = spatialValue.lastIndexOf(": ") === -1 ? false : spatialValue.substr(0, spatialValue.lastIndexOf(": "));
+        if (spatialLocation) {
+            IDX.add("location", spatialLocation);
+        }
+        
+        spatialValue = spatialValue.lastIndexOf(": ") === -1 ? spatialValue : spatialValue.substr(spatialValue.lastIndexOf(": ") + 2);
         var spatialArray = spatialValue.split(',');
         // convert to numbers
         for (var i=0; i<4; i++) {
-        	spatialArray[i] = Number(spatialArray[i]);
+            spatialArray[i] = Number(spatialArray[i]);
         }
         
         // [x1, x2, y1, y2] = [lon_min, lon_max, lat_min, lat_max]
@@ -197,6 +237,16 @@ for (i=0; i<objRows.size(); i++) {
         var lonCenter = spatialArray[0] + (spatialArray[2] - spatialArray[0])/2;
         IDX.add("lon_center", lonCenter);
         IDX.add("lat_center", latCenter);
+    }
+    
+    // add UVP specific mapping
+    // UVP checkbox examination
+    var uvpNeedsExamination = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpNeedsExamination']);
+    if (hasValue(uvpNeedsExamination) && hasValue(uvpNeedsExamination.get("data"))) {
+        var value = uvpNeedsExamination.get("data");
+        if (value === "true") {
+            IDX.add("needs_examination", true);
+        }
     }
 }
 
@@ -288,7 +338,7 @@ function addT012ObjAdr(row) {
 // Adds address to index. If address is hidden then parent address is added.
 // Also adds address children not hidden (queried from portal ???).
 function addAddress(addrUuid) {
-	// ---------- address_node ----------
+    // ---------- address_node ----------
     var addrNodeRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
     for (k=0; k<addrNodeRows.size(); k++) {
         var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
@@ -314,15 +364,15 @@ function addAddress(addrUuid) {
             }
 
         } else {
-			if (log.isDebugEnabled()) {
-			    log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
-			}
+            if (log.isDebugEnabled()) {
+                log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
+            }
             // address hidden, add parent !
             if (hasValue(parentAddrUuid)) {
                 addAddress(parentAddrUuid);
             }
         }
-    }	
+    }   
 }
 
 function addT02Address(row) {
@@ -358,7 +408,7 @@ function addT021Communication(row) {
     IDX.add("t021_communication.descr", row.get("descr"));
 }
 function addAddressNodeChildren(row) {
-	// QUERIED FROM PORTAL !?
+    // QUERIED FROM PORTAL !?
     IDX.add("t022_adr_adr.adr_from_id", row.get("fk_addr_uuid"));
     IDX.add("t022_adr_adr.adr_to_id", row.get("addr_uuid"));
 }

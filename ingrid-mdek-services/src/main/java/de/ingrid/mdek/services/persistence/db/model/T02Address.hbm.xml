@@ -45,6 +45,8 @@
       <property name="postbox" type="string" column="postbox"/>
       <property name="postboxPc" type="string" column="postbox_pc"/>
       <property name="city" type="string" column="city"/>
+      <property name="administrativeAreaKey" type="integer" column="administrative_area_key"/>
+      <property name="administrativeAreaValue" type="string" column="administrative_area_value"/>
       <property name="countryKey" type="integer" column="country_key"/>
       <property name="countryValue" type="string" column="country_value"/>
       <property name="job" type="string" column="job"/>

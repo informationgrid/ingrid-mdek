@@ -46,7 +46,8 @@ DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
@@ -107,7 +108,7 @@ for (i=0; i<objRows.size(); i++) {
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
-            .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+            .addAttribute("codeList", globalCodeListLanguageAttrURL)
             .addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
@@ -247,8 +248,17 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:title> ----------
     ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:alternateTitle> ----------
+    // collect all entries from the AdV Product Group and append the defined short title (#388)
+    var productGroupRows = SQL.all("SELECT * FROM adv_product_group WHERE obj_id=? ORDER BY adv_product_group.line ASC", [+objId]);
+    for (var j=0; j<productGroupRows.size(); j++) {
+        var productGroupRow = productGroupRows.get(j);
+        var productValue = productGroupRow.get("product_value");
+        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(productValue);
+    }
+    
     if (hasValue(objRow.get("dataset_alternate_name"))) {
-        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(objRow.get("dataset_alternate_name"));
+        var alternateName = objRow.get("dataset_alternate_name");
+        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(alternateName);
     }
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
     var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
@@ -591,7 +601,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // GEMET Thesaurus
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type, searchterm_value.alternate_term FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
@@ -638,6 +648,14 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(value) && value.equals('Y')) {
         mdKeywords = DOM.createElement("gmd:MD_Keywords");
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("opendata");
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+    
+    // IS_ADV_COMPATIBLE leads to specific keyword, default behavior unless changes (REDMINE-369)
+    value = objRow.get("is_adv_compatible");
+    if (hasValue(value) && value.equals('Y')) {
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("AdVMIS");
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
     
@@ -745,7 +763,7 @@ for (i=0; i<objRows.size(); i++) {
         value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
         if (hasValue(value)) {
             identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+                .addAttribute("codeList", globalCodeListLanguageAttrURL)
                 .addAttribute("codeListValue", value);
         }
 
@@ -799,7 +817,7 @@ for (i=0; i<objRows.size(); i++) {
         value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
         if (hasValue(value)) {
             identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+                .addAttribute("codeList", globalCodeListLanguageAttrURL)
                 .addAttribute("codeListValue", value);
         }
 
@@ -950,6 +968,13 @@ for (i=0; i<objRows.size(); i++) {
                    mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                    var inclWithDataset = objGeoRow.get("keyc_incl_w_dataset");
+
+                   // if dataset is adv compatible then add the language info (REDMINE-379)
+                   value = objRow.get("is_adv_compatible");
+                   if (hasValue(value) && value.equals('Y')) {
+                       mdFeatureCatalogueDescription.addElement("gmd:language/gco:CharacterString").addText("deutsch");
+                   }
+                   
                    mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean")
                        .addText(hasValue(inclWithDataset) && inclWithDataset.equals("1"));
     
@@ -1004,6 +1029,13 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(featureType)) {
                 if (!mdFeatureCatalogueDescription) {
                     mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
+                    
+                    // if dataset is adv compatible then add the language info (REDMINE-379)
+                    value = objRow.get("is_adv_compatible");
+                    if (hasValue(value) && value.equals('Y')) {
+                        mdFeatureCatalogueDescription.addElement("gmd:language/gco:CharacterString").addText("deutsch");
+                    }
+                    
                     // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                     mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
                 }
@@ -1110,7 +1142,7 @@ for (i=0; i<objRows.size(); i++) {
                              .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
                              .getParent(2)
                              .addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                                 .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
+                                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
                                  .addAttribute("codeListValue", "publication")
                              .getParent(6)
                              .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
@@ -1430,6 +1462,17 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
             ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
         }
+        // fix problem with not mapping administrativeAreay element in object iso see https://dev.informationgrid.eu/redmine/issues/375
+        var administrativeAreaKey = addressRow.get("administrative_area_key");
+        if (hasValue(administrativeAreaKey)) {
+            if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+            if (administrativeAreaKey == -1) {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+            } else {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, administrativeAreaKey));
+            }
+        }
+        
     }
 
     for (var j=0; j<emailAddresses.length; j++) {
@@ -1630,13 +1673,20 @@ function getMdKeywords(rows) {
     for (i=0; i<rows.size(); i++) {
         var row = rows.get(i);
         var keywordValue = null;
+        var keywordAlternateValue = null;
 
         // "searchterm_value" table
         if (hasValue(row.get("term"))) {
             keywordValue = row.get("term");
+            var type = row.get("type");
+
+            // GEMET has additional localization in alternate term !
+            // see https://dev.informationgrid.eu/redmine/issues/363
+            if (type.equals("G")) {
+                keywordAlternateValue = row.get("alternate_term");
+            }
 
             // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
-            var type = row.get("type");
             if (type.equals("I")) {
                 keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
             }
@@ -1651,7 +1701,21 @@ function getMdKeywords(rows) {
         }
 
         if (hasValue(keywordValue)) {
-            mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(keywordValue);
+        	var mdKeyword = mdKeywords.addElement("gmd:keyword");
+            mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
+
+            // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
+            if (hasValue(keywordAlternateValue)) {
+            	// first add locale element if not present
+            	var localeId = "eng_utf8";
+            	addLocaleElement(localeId, "eng", "utf8");
+
+            	// then localized keyword
+            	mdKeyword.addAttribute("xsi:type", "gmd:PT_FreeText_PropertyType");
+                mdKeyword.addElement("gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString")
+                	.addAttribute("locale", "#" + localeId)
+                	.addText(keywordAlternateValue);
+            }
             keywordsAdded = true;
         }
     }
@@ -1673,8 +1737,8 @@ function getMdKeywords(rows) {
             keywTitle = "UMTHES Thesaurus";
             keywDate = "2009-01-15";
         } else if (type.equals("1") || type.equals("G")) {
-            keywTitle = "GEMET - Concepts, version 2.1";
-            keywDate = "2008-06-13";
+            keywTitle = "GEMET - Concepts, version 3.1";
+            keywDate = "2012-07-20";
         } else if (type.equals("I")) {
             keywTitle = "GEMET - INSPIRE themes, version 1.0";
             keywDate = "2008-06-01";
@@ -1705,6 +1769,36 @@ function getMdKeywords(rows) {
         .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode");
 
     return mdKeywords;
+}
+
+function addLocaleElement(id, languageCode, charEncoding) {
+	var gmdLocaleNode = DOM.getElement(mdMetadata, "gmd:locale/gmd:PT_Locale[@id=\"" + id + "\"]");
+	if (hasValue(gmdLocaleNode)) {
+		return gmdLocaleNode;
+	}
+
+	// not found, fetch node where locale has to be added as sibling
+	var siblingNode = DOM.getElement(mdMetadata, "gmd:metadataStandardVersion");
+	if (!hasValue(siblingNode)) {
+		// STRANGE, NODE HAS TO EXIST !!!
+		log.error("Problems adding <gmd:locale> (" + id + "), could not find pre sibling <gmd:metadataStandardVersion> ! We skip locale !");
+		return null;
+	}
+
+	// create locale
+	gmdLocaleNode = siblingNode.addElementAsSibling("gmd:locale");
+
+	var ptLocaleNode = gmdLocaleNode.addElement("gmd:PT_Locale")
+		.addAttribute("id", id);
+	ptLocaleNode.addElement("gmd:languageCode/gmd:LanguageCode")
+    	.addAttribute("codeList", "http://www.loc.gov/standards/iso639-2/")
+    	.addAttribute("codeListValue", languageCode)
+    	.addText(languageCode);
+	ptLocaleNode.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
+	.addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode")
+	.addAttribute("codeListValue", charEncoding);
+
+    return gmdLocaleNode;
 }
 
 function getServiceType(objClass, objServRow) {

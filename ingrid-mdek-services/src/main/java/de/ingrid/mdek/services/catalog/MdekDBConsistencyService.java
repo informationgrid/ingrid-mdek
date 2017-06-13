@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
@@ -51,7 +52,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekDBConsistencyService {
 
-	private static final Logger LOG = Logger.getLogger(MdekDBConsistencyService.class);
+	private static final Logger LOG = LogManager.getLogger(MdekDBConsistencyService.class);
 
 	private static MdekDBConsistencyService myInstance;
 	

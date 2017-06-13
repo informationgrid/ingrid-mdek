@@ -34,7 +34,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -94,7 +95,7 @@ import net.sf.ehcache.Element;
  */
 public class MdekCatalogService {
 
-	private static final Logger LOG = Logger.getLogger(MdekCatalogService.class);
+	private static final Logger LOG = LogManager.getLogger(MdekCatalogService.class);
 
 	private static MdekCatalogService myInstance;
 
@@ -837,7 +838,10 @@ public class MdekCatalogService {
 
 		for (String uuid : uuids) {
 			AddressNode aNode = daoAddressNode.getAddressForIndex(uuid);
-			fullIndexHandler.updateAddressIndex(aNode);
+			// skip folders which are excluded from address search
+			if (aNode != null) {
+			    fullIndexHandler.updateAddressIndex(aNode);
+			}
 			updateJobInfo(JobType.REBUILD_SYSLISTS, "Address Index", ++numProcessed, totalNum, userUuid);
 		}
 	}

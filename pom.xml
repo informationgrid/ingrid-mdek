@@ -3,24 +3,24 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>4.0.2</version>
+  <version>4.0.3</version>
   <name>ingrid-iplug-ige</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.</description>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.0.2</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>4.0.3</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>4.0.1</ingrid-codelist-service.version>
     <ingrid-utils.version>4.0.2</ingrid-utils.version>
     <ingrid-iplug-dsc.version>4.0.2</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>4.0.2</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>4.0.3</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
@@ -95,6 +95,12 @@
         <artifactId>xstream</artifactId>
         <version>1.4.8</version>
       </dependency>
+      <!-- An updated version is needed for log4j2! -->
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.7.1</version>
+      </dependency>
       <dependency>
         <groupId>de.ingrid</groupId>
         <artifactId>ingrid-utils</artifactId>
@@ -109,12 +115,24 @@
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
       <version>3.6.2</version>
+      <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-base-webapp</artifactId>
       <version>${ingrid-base-webapp.version}</version>
+      <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
     
     <dependency>
@@ -126,12 +144,35 @@
       <version>${ingrid-udk-importer.version}</version>
       <classifier>installer</classifier>
       <scope>provided</scope>
+      <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- backward compatible -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-1.2-api</artifactId>
+      <version>2.8.1</version>
+    </dependency>
+    <!-- end -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.8.1</version>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-        <version>1.2.14</version>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.8.1</version>
     </dependency>
+    <!-- <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-to-slf4j</artifactId>
+      <version>2.8.1</version>
+    </dependency> -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

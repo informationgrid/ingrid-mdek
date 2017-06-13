@@ -119,6 +119,45 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 // ---------- <uvpgs> ----------
+    // UVP Codelist
+    var behavioursValueRow = SQL.first("SELECT * FROM sys_generic_key WHERE key_name='BEHAVIOURS'");
+    var codelist = '';
+    if (hasValue(behavioursValueRow)){
+        var behaviours = behavioursValueRow.get("value_string");
+        if(hasValue(behaviours)){
+            var behavioursJson = JSON.parse(behaviours);
+            for(i in behavioursJson){
+                var behaviour = behavioursJson[i];
+                if(hasValue(behaviour)){
+                    var behaviourId = behaviour.id;
+                    if(hasValue(behaviourId)){
+                        if(behaviourId.equals("uvpPhaseField")){
+                            var behaviourParams = behaviour.params;
+                            if(hasValue(behaviourParams)){
+                                for(j in behaviourParams){
+                                    var behaviourParam = behaviourParams[j];
+                                    if(hasValue(behaviourParam)){
+                                        var behaviourParamId = behaviourParam.id;
+                                        if(behaviourParamId.equals("categoryCodelist")){
+                                            var behaviourParamValue = behaviourParam.value;
+                                            if(hasValue(behaviourParamValue)){
+                                                codelist = behaviourParamValue;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    if(!hasValue(codelist)){
+        codelist = 9000;
+    }
     var uvpgCategoriesValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpgCategory']);
     if (hasValue(uvpgCategoriesValueRow)) {
         var id = uvpgCategoriesValueRow.get("id");
@@ -127,8 +166,8 @@ for (i=0; i<objRows.size(); i++) {
             var uvpgCategoryRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [id, 'categoryId']);
             for (var i=0; i< uvpgCategoryRows.size(); i++) {
                 var categoryId = uvpgCategoryRows.get(i).get("data");
-                var uvpNo = TRANSF.getIGCSyslistEntryName(9000, categoryId, "de");
-                var uvpCat = TRANSF.getISOCodeListEntryData(9000, uvpNo);
+                var uvpNo = TRANSF.getIGCSyslistEntryName(codelist, categoryId, "de");
+                var uvpCat = TRANSF.getISOCodeListEntryData(codelist, uvpNo);
                 var uvpgElem = uvpgCategories.addElement("uvpg");
                 if(hasValue(uvpNo)){
                     uvpgElem.addText(uvpNo);
@@ -192,12 +231,6 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod")
                                     }
                                     datePeriod.addElement("from").addText(datePeriodFrom);
-                                    if(datePeriodTo){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
                                 }
                             }else if(fieldKey == "publicDateTo"){
                                 if (hasValue(data)){
@@ -206,12 +239,12 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod")
                                     }
                                     datePeriod.addElement("to").addText(datePeriodTo);
-                                    if(datePeriodFrom){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
+                                }
+                                if(datePeriodFrom){
+                                    phase.addElement(datePeriod);
+                                    datePeriod = null;
+                                    datePeriodFrom = null;
+                                    datePeriodTo = null;
                                 }
                             }else if(fieldKey == "technicalDocs"){
                                 var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
@@ -242,12 +275,6 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod");
                                     }
                                     datePeriod.addElement("from").addText(datePeriodFrom);
-                                    if(datePeriodTo){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
                                 }
                             }else if(fieldKey == "considerDateTo"){
                                 if (hasValue(data)){
@@ -256,12 +283,12 @@ for (i=0; i<objRows.size(); i++) {
                                         datePeriod = DOM.createElement("datePeriod");
                                     }
                                     datePeriod.addElement("to").addText(datePeriodTo);
-                                    if(datePeriodFrom){
-                                        phase.addElement(datePeriod);
-                                        datePeriod = null;
-                                        datePeriodFrom = null;
-                                        datePeriodTo = null;
-                                    }
+                                }
+                                if(datePeriodFrom){
+                                    phase.addElement(datePeriod);
+                                    datePeriod = null;
+                                    datePeriodFrom = null;
+                                    datePeriodTo = null;
                                 }
                             }else if(fieldKey == "considerationDocs"){
                                 var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
@@ -579,6 +606,7 @@ function getAdditionalFieldDataTable(id, fields, table){
     var docs = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort", [id]);
     var sort = "";
     var doc;
+    var expired = false;
     for (var r=0; r < docs.size(); r++) {
         var tableData = docs.get(r).get("data");
         var tableFieldKey = docs.get(r).get("field_key");
@@ -597,16 +625,42 @@ function getAdditionalFieldDataTable(id, fields, table){
                 if(fields[s].type == "bytes"){
                     value = formatBytes(value);
                 } else  if(fields[s].type == "link"){
-                    value = "http://uvp-dev.informationgrid.eu/documents/"+value;
+                    // detect relative links from document uploads
+                    // excluds (http|https|ftp)://
+                    pos = value.indexOf("://");
+                    if (pos <= 3 || pos >= 10) {
+                        value = "/documents/"+value;
+                    }
+                } else if (fields[s].id == "expires") {
+                    if (value.length > 0) {
+                        // check if date lies in past
+                        var d = parseDate(value);
+                        var now = new Date();
+                        now.setHours(0,0,0,0);
+                        if (d < now) {
+                          expired = true;
+                          break;
+                        }                       
+                    } 
                 }
+                
                 doc.addElement(tableFieldKey).addText(value);
             }
         }
 
-        if(r >= rows.size() -1){
+        if (expired) {
+            break;
+        } else if (doc != null && r >= docs.size() -1){
             table.addElement(doc);
         }
     }
+}
+
+//parse a date in dd.mm.yyyy format
+function parseDate(input) {
+  var parts = input.split('.');
+  // new Date(year, month [, day [, hours[, minutes[, seconds[, ms]]]]])
+  return new Date(parts[2], parts[1]-1, parts[0]); // Note: months are 0-based
 }
 
 function formatBytes (value) {
