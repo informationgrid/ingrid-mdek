@@ -601,7 +601,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // GEMET Thesaurus
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type, searchterm_value.alternate_term FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
@@ -1673,13 +1673,20 @@ function getMdKeywords(rows) {
     for (i=0; i<rows.size(); i++) {
         var row = rows.get(i);
         var keywordValue = null;
+        var keywordAlternateValue = null;
 
         // "searchterm_value" table
         if (hasValue(row.get("term"))) {
             keywordValue = row.get("term");
+            var type = row.get("type");
+
+            // GEMET has additional localization in alternate term !
+            // see https://dev.informationgrid.eu/redmine/issues/363
+            if (type.equals("G")) {
+                keywordAlternateValue = row.get("alternate_term");
+            }
 
             // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
-            var type = row.get("type");
             if (type.equals("I")) {
                 keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
             }
@@ -1694,7 +1701,21 @@ function getMdKeywords(rows) {
         }
 
         if (hasValue(keywordValue)) {
-            mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(keywordValue);
+        	var mdKeyword = mdKeywords.addElement("gmd:keyword");
+            mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
+
+            // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
+            if (hasValue(keywordAlternateValue)) {
+            	// first add locale element if not present
+            	var localeId = "eng_utf8";
+            	addLocaleElement(localeId, "eng", "utf8");
+
+            	// then localized keyword
+            	mdKeyword.addAttribute("xsi:type", "gmd:PT_FreeText_PropertyType");
+                mdKeyword.addElement("gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString")
+                	.addAttribute("locale", "#" + localeId)
+                	.addText(keywordAlternateValue);
+            }
             keywordsAdded = true;
         }
     }
@@ -1748,6 +1769,36 @@ function getMdKeywords(rows) {
         .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode");
 
     return mdKeywords;
+}
+
+function addLocaleElement(id, languageCode, charEncoding) {
+	var gmdLocaleNode = DOM.getElement(mdMetadata, "gmd:locale/gmd:PT_Locale[@id=\"" + id + "\"]");
+	if (hasValue(gmdLocaleNode)) {
+		return gmdLocaleNode;
+	}
+
+	// not found, fetch node where locale has to be added as sibling
+	var siblingNode = DOM.getElement(mdMetadata, "gmd:metadataStandardVersion");
+	if (!hasValue(siblingNode)) {
+		// STRANGE, NODE HAS TO EXIST !!!
+		log.error("Problems adding <gmd:locale> (" + id + "), could not find pre sibling <gmd:metadataStandardVersion> ! We skip locale !");
+		return null;
+	}
+
+	// create locale
+	gmdLocaleNode = siblingNode.addElementAsSibling("gmd:locale");
+
+	var ptLocaleNode = gmdLocaleNode.addElement("gmd:PT_Locale")
+		.addAttribute("id", id);
+	ptLocaleNode.addElement("gmd:languageCode/gmd:LanguageCode")
+    	.addAttribute("codeList", "http://www.loc.gov/standards/iso639-2/")
+    	.addAttribute("codeListValue", languageCode)
+    	.addText(languageCode);
+	ptLocaleNode.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
+	.addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode")
+	.addAttribute("codeListValue", charEncoding);
+
+    return gmdLocaleNode;
 }
 
 function getServiceType(objClass, objServRow) {

@@ -28,6 +28,9 @@
   </properties>
   <body>
     <release version="4.0.3-SNAPSHOT" date="2017-xx-xx" description="Release 4.0.3">
+      <action type="add" dev="wemove" issue="REDMINE-363">
+        Additional english localization of GEMET keywords in IDF.
+      </action>
       <action type="add" dev="wemove" issue="REDMINE-410">
         Add setting on admin GUI to disable IGE iBus communication. Just use iPlug for indexing catalog.
       </action>
