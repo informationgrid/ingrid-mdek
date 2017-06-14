@@ -6,9 +6,7 @@ ADD ingrid-iplug-ige*-installer.jar /
 
 RUN unzip ingrid-iplug-ige*-installer.jar -d /tmp \
     && mkdir -p /opt/ingrid/ingrid-iplug-ige \
-    && cp -R /tmp/ingrid-iplug-ige-4.0.3-SNAPSHOT/* /opt/ingrid/ingrid-iplug-ige/ \
-    #&& chgrp -R ingrid /opt/ingrid \
-    #&& chown -R ingrid /opt/ingrid \
+    && cp -R /tmp/ingrid-iplug-ige-*/* /opt/ingrid/ingrid-iplug-ige/ \
     && rm -Rf /tmp/* \
     && rm ingrid-*.jar
 
