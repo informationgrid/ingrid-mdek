@@ -38,6 +38,7 @@ import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
@@ -107,6 +108,7 @@ public class MdekKeyValueHandler {
 		T011ObjServOpPlatform.class,
 		ObjectOpenDataCategory.class,
 		ObjectUseConstraint.class,
+		ObjectDataLanguage.class,
 	};
 
 	/** Get The Singleton */
@@ -195,6 +197,8 @@ public class MdekKeyValueHandler {
 		    processKeyValueObjectAdvProductGroup((ObjectAdvProductGroup) bean);
         } else if (ObjectUseConstraint.class.isAssignableFrom(clazz)) {
             processKeyValueObjectUseConstraint((ObjectUseConstraint) bean);
+        } else if (ObjectDataLanguage.class.isAssignableFrom(clazz)) {
+            processKeyValueObjectDataLanguage((ObjectDataLanguage) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -599,15 +603,7 @@ public class MdekKeyValueHandler {
 	}
 
 	private IEntity processKeyValueT01Object(T01Object bean) {
-		Integer entryKey = bean.getDataLanguageKey();
-		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.LANGUAGE.getDbValue(),
-				catalogService.getCatalogLanguage());
-			bean.setDataLanguageValue(keyNameMap.get(entryKey));
-		}
-		
-		entryKey = bean.getMetadataLanguageKey();
+		Integer entryKey = bean.getMetadataLanguageKey();
 		if (entryKey != null && entryKey > -1) {
 			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
 				MdekSysList.LANGUAGE.getDbValue(),
@@ -820,6 +816,18 @@ public class MdekKeyValueHandler {
                 logTransformToFreeEntry(MdekSysList.OBJ_USE_LICENCE, entryKey, bean.getLicenseValue());
                 bean.setLicenseKey(-1);
             }
+        }
+        
+        return bean;
+    }
+
+    private IEntity processKeyValueObjectDataLanguage(ObjectDataLanguage bean) {
+        Integer entryKey = bean.getDataLanguageKey();
+        if (entryKey != null && entryKey > -1) {
+            Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+                MdekSysList.LANGUAGE.getDbValue(),
+                catalogService.getCatalogLanguage());
+            bean.setDataLanguageValue(keyNameMap.get(entryKey));
         }
         
         return bean;

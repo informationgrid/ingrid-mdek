@@ -27,6 +27,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="4.0.4-SNAPSHOT" date="????-??-??" description="??">
+      <action type="add" dev="wemove" issue="REDMINE-199">
+      	Add multiple data languages (migrate to new table, import/export, idf, ...)
+      </action>
+    </release>
+
     <release version="4.0.3" date="2017-06-13" description="Release 4.0.3">
       <action type="add" dev="wemove" issue="REDMINE-393,-556">
         BKG: Added special version for input of access- and useConstraints to BKG profile.

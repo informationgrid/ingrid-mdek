@@ -56,6 +56,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
@@ -473,8 +474,6 @@ public class DocToBeanMapper implements IMapper {
 			
 			oIn.setMetadataLanguageKey((Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE));
 			oIn.setMetadataLanguageValue(oDocIn.getString(MdekKeys.METADATA_LANGUAGE_NAME));
-			oIn.setDataLanguageKey((Integer) oDocIn.get(MdekKeys.DATA_LANGUAGE_CODE));
-			oIn.setDataLanguageValue(oDocIn.getString(MdekKeys.DATA_LANGUAGE_NAME));
 			oIn.setPublishId((Integer) oDocIn.get(MdekKeys.PUBLICATION_CONDITION));
 			oIn.setInfoNote((String) oDocIn.get(MdekKeys.DATASET_INTENTIONS));
 			oIn.setDatasetUsage((String) oDocIn.get(MdekKeys.DATASET_USAGE));
@@ -537,6 +536,7 @@ public class DocToBeanMapper implements IMapper {
 			updateObjectFormatInspires(oDocIn, oIn);
 			updateSpatialSystems(oDocIn, oIn);
 			updateObjectMetadata(oDocIn, oIn);
+            updateObjectDataLanguages(oDocIn, oIn);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -2972,4 +2972,41 @@ public class DocToBeanMapper implements IMapper {
 			ref.setReassignTime(oDocIn.getString(MdekKeys.REASSIGN_TIME));
 		}
 	}
+
+    private ObjectDataLanguage mapObjectDataLanguage(T01Object oFrom,
+            IngridDocument refDoc,
+            ObjectDataLanguage ref, 
+            int line,
+            IngridDocument objDoc) // also pass object doc, needed for clarification in syslist mapping !
+    {
+        ref.setObjId(oFrom.getId());
+        ref.setDataLanguageKey((Integer)refDoc.get(MdekKeys.DATA_LANGUAGE_CODE));
+        ref.setDataLanguageValue(refDoc.getString(MdekKeys.DATA_LANGUAGE_NAME));
+        ref.setLine(line);
+        keyValueService.processKeyValue(ref);
+
+        return ref;
+    }
+    private void updateObjectDataLanguages(IngridDocument oDocIn, T01Object oIn) {
+        List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.DATA_LANGUAGE_LIST);
+        if (refDocs == null) {
+            refDocs = new ArrayList<IngridDocument>(0);
+        }
+        Set<ObjectDataLanguage> refs = oIn.getObjectDataLanguages();
+        ArrayList<ObjectDataLanguage> refs_unprocessed = new ArrayList<ObjectDataLanguage>(refs);
+        // remove all !
+        for (ObjectDataLanguage ref : refs_unprocessed) {
+            refs.remove(ref);
+            // delete-orphan doesn't work !!!?????
+            dao.makeTransient(ref);         
+        }       
+        // and add all new ones !
+        int line = 1;
+        for (IngridDocument refDoc : refDocs) {
+            // add all as new ones
+            ObjectDataLanguage ref = mapObjectDataLanguage(oIn, refDoc, new ObjectDataLanguage(), line, oDocIn);
+            refs.add(ref);
+            line++;
+        }
+    }
 }

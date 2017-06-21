@@ -98,8 +98,7 @@
 			
 			<xs:element name="metadata-language-code" type="xs:integer"/>
 			<xs:element name="metadata-language-name" type="xs:string"/>
-			<xs:element name="data-language-code" type="xs:integer"/>
-			<xs:element name="data-language-name" type="xs:string"/>
+			<xs:element name="data-language-list" type="DATA_LANGUAGE_LIST"/>
 			<xs:element name="publication-condition" type="xs:integer"/>
 			<xs:element name="dataset-intentions" type="xs:string"/>
 			<xs:element name="dataset-usage" type="xs:string"/>
@@ -1391,6 +1390,17 @@
 		<xs:sequence>
 			<xs:element name="referencesystem-id" type="xs:integer"/>
 			<xs:element name="coordinate-system" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DATA_LANGUAGE_LIST">
+		<xs:sequence minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="DATA_LANGUAGE_MAP" type="DATA_LANGUAGE_MAP"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DATA_LANGUAGE_MAP">
+		<xs:sequence>
+			<xs:element name="data-language-code" type="xs:integer"/>
+			<xs:element name="data-language-name" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="OBJ_PARENT_INFO_MAP">

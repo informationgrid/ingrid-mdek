@@ -48,6 +48,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
@@ -564,6 +565,12 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullDataWithSysList(data, MdekSysList.OBJ_GEO_REFERENCESYSTEM,
 					spatialSystem.getReferencesystemKey(), spatialSystem.getReferencesystemValue());
 		}
+        // ObjectDataLanguages
+        Set<ObjectDataLanguage> myCollection = o.getObjectDataLanguages();
+        for (ObjectDataLanguage myCollectionItem : myCollection) {
+            extendFullDataWithSysList(data, MdekSysList.LANGUAGE,
+                    myCollectionItem.getDataLanguageKey(), myCollectionItem.getDataLanguageValue());                
+        }
 		// AdditionalFieldData
 		extendFullData(data, o.getAdditionalFieldDatas());
 
