@@ -127,8 +127,14 @@ public class MdekExampleCatalog {
 			}
 		}
 
-		// shutdown mdek
-		MdekCaller.shutdown();
+        // shutdown mdek
+        for (int i=0; i<numThreads; i++) {
+            if (threads[i].isAlive()) {
+                System.out.println( "WARNING: Thread " + i + " STILL ALIVE !!!");                
+            }
+        }
+        MdekCaller.shutdown();
+        System.exit( 0 );
 /*
 		System.out.println("END OF EXAMPLE (end of main())");
 
