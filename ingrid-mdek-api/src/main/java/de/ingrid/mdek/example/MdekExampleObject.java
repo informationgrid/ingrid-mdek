@@ -120,7 +120,13 @@ public class MdekExampleObject {
 		}
 
 		// shutdown mdek
+        for (int i=0; i<numThreads; i++) {
+            if (threads[i].isAlive()) {
+                System.out.println( "WARNING: Thread " + i + " STILL ALIVE !!!");                
+            }
+        }
 		MdekCaller.shutdown();
+		System.exit( 0 );
 	}
 }
 

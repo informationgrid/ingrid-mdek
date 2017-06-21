@@ -32,9 +32,15 @@ import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
 import net.weta.components.communication.tcp.StartCommunication;
 import net.weta.components.communication.tcp.TcpCommunication;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 
 public class MdekClient {
+
+    private static final Logger LOG = LogManager.getLogger(MdekClient.class);
 
     private static MdekClient _client = null;
 
@@ -72,6 +78,16 @@ public class MdekClient {
     private IJobRepositoryFacade createRepositoryFacade(final String proxyServiceUrl) {
         IJobRepositoryFacade repository = (IJobRepositoryFacade) ProxyService.createProxy(_communication,
                 IJobRepositoryFacade.class, proxyServiceUrl);
+
+        try {
+            // We get a proxy from backend (JobRepositoryFacade from mdek-job if ok, something else if not)
+            // toString() causes exception if proxy NOT OK, caused by wrong backend URL ! 
+            repository.toString();
+        } catch (Throwable t) {
+            LOG.error("PROBLEMS CONNECTING TO: " + proxyServiceUrl);
+            throw t;
+        }
+
         return repository;
     }
 
