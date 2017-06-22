@@ -661,7 +661,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createAdditionalInformation() {
 		XMLElement additionalInformation = new XMLElement(ADDITIONAL_INFORMATION);
-		additionalInformation.addChild(createDataLanguage());
+		additionalInformation.addChildren(createDataLanguages());
 		additionalInformation.addChild(createMetaDataLanguage());
 		additionalInformation.addChildren(createExportTos());
 		additionalInformation.addChildren(createLegislations());
@@ -681,11 +681,19 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return additionalInformation;
 	}
 
-	private XMLElement createDataLanguage() {
-		XMLElement dataLanguage = new XMLElement(DATA_LANGUAGE, getStringForKey(MdekKeys.DATA_LANGUAGE_NAME));
-		dataLanguage.addAttribute(ID, getIntegerForKey(MdekKeys.DATA_LANGUAGE_CODE));
-		return dataLanguage;
-	}
+    private List<XMLElement> createDataLanguages() {
+        List<XMLElement> dataLanguages = new ArrayList<XMLElement>();
+        List<IngridDocument> dataLanguageDocs = getIngridDocumentListForKey(MdekKeys.DATA_LANGUAGE_LIST);
+        for (IngridDocument dataLanguageDoc : dataLanguageDocs) {
+            dataLanguages.add(createDataLanguage(dataLanguageDoc));
+        }
+        return dataLanguages;
+    }
+    private XMLElement createDataLanguage(IngridDocument dataLanguageDoc) {
+        XMLElement dataLanguage = new XMLElement(DATA_LANGUAGE, getStringForKey(MdekKeys.DATA_LANGUAGE_NAME, dataLanguageDoc));
+        dataLanguage.addAttribute(ID, getIntegerForKey(MdekKeys.DATA_LANGUAGE_CODE, dataLanguageDoc));
+        return dataLanguage;
+    }
 
 	private XMLElement createMetaDataLanguage() {
 		XMLElement metaDataLanguage = new XMLElement(METADATA_LANGUAGE, getStringForKey(MdekKeys.METADATA_LANGUAGE_NAME));
