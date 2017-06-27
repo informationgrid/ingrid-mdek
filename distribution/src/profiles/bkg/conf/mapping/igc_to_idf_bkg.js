@@ -156,7 +156,8 @@ function getFirstNodeInIdentificationBefore() {
     // get first element before "resourceConstraints", so that we can insert in front of all other entries
     var beforeResourceElement;
     for (var i=0; i<nodeOrder.length; i++) {
-        beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i]);
+        // try to get last(!) element 
+        beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i] + "[last()]");
         if (beforeResourceElement) break;
     }
     
