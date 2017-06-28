@@ -225,6 +225,70 @@ class MdekExampleExportImportObjectThread extends Thread {
 // test single stuff
 // -----------------------------------
 /*
+        // Test EXPORT / IMPORT new Exchange Format 4.0.3 ++
+        // --------------------------
+		// Geodatensatz: Mehrfachangabe von "Sprache der Ressource" s. https://dev.informationgrid.eu/redmine/issues/199
+        objUuid = "2C997C68-2247-11D3-AF51-0060084A4596";
+
+        supertool.setFullOutput(true);
+
+        System.out.println("\n----- object details -----");
+        IngridDocument oDoc = supertool.fetchObject(objUuid, FetchQuantity.EXPORT_ENTITY);
+
+        System.out.println("\n----- change and publish existing object (only published are exported) ! -----");
+
+        // add another "Sprache der Ressource" DATA_LANGUAGE
+        List<IngridDocument> docList = (List) oDoc.get(MdekKeys.DATA_LANGUAGE_LIST);
+        docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+        oDoc.put(MdekKeys.DATA_LANGUAGE_LIST, docList);
+        IngridDocument testDoc = new IngridDocument();
+        docList.add(testDoc);
+        // check DATA_LANGUAGE_CODE -> DATA_LANGUAGE_NAME is stored via syslist 99999999
+        testDoc.put(MdekKeys.DATA_LANGUAGE_CODE, 137);
+        testDoc.put(MdekKeys.DATA_LANGUAGE_NAME, "TEST Syslist DATA_LANGUAGE_NAME with KEY 137 !");
+
+        oDoc = supertool.publishObject(oDoc, true, false);
+        
+        System.out.println("\n----- export object -----");
+        supertool.exportObjectBranch(objUuid, true, false);
+        result = supertool.getExportInfo(true);
+        byte[] exportZipped = (byte[]) result.get(MdekKeys.EXPORT_RESULT);
+
+        System.out.println("\n----- create new Import Top Node for Objects (NEVER PUBLISHED) -----");
+        objImpNodeDoc = supertool.newObjectDoc(null);
+        objImpNodeDoc.put(MdekKeys.TITLE, "IMPORT OBJECTS");
+        objImpNodeDoc.put(MdekKeys.CLASS, MdekUtils.ObjectType.DATENSAMMLUNG.getDbValue());
+        objImpNodeDoc = supertool.storeObject(objImpNodeDoc, true);
+        objImpNodeUuid = (String) objImpNodeDoc.get(MdekKeys.UUID);
+
+        System.out.println("\n----- create new Import Top Node for Addresses (NEVER PUBLISHED) -----");
+        addrImpNodeDoc = supertool.newAddressDoc(null, AddressType.INSTITUTION);
+        addrImpNodeDoc.put(MdekKeys.ORGANISATION, "IMPORT ADDRESSES");
+        addrImpNodeDoc = supertool.storeAddress(addrImpNodeDoc, true);
+        addrImpNodeUuid = (String) addrImpNodeDoc.get(MdekKeys.UUID);
+
+        System.out.println("\n----- import object OVERWRITE ! -----");
+        supertool.importEntities(exportZipped, objImpNodeUuid, addrImpNodeUuid, false, false, true);
+        supertool.getJobInfo(JobType.IMPORT);
+        supertool.fetchObject(objUuid, FetchQuantity.EDITOR_ENTITY, IdcEntityVersion.WORKING_VERSION);
+
+        System.out.println("\n----- discard changes -> remove former change -----");
+        // DATA_LANGUAGE_LIST wieder wie vorher !
+        docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATA_LANGUAGE_LIST);
+        docList.remove(docList.size()-1);
+
+        result = supertool.publishObject(oDoc, true, false);
+
+        System.out.println("----- DELETE Import Top Nodes -----");
+        supertool.deleteObject(objImpNodeUuid, true);
+        supertool.deleteAddress(addrImpNodeUuid, true);
+
+        if (alwaysTrue) {
+            isRunning = false;
+            return;
+        }
+*/
+/*
         // Test EXPORT / IMPORT new Exchange Format 3.6.1
         // --------------------------
 		// "Version des Dienstes" wird zu Syslist s. dev.informationgrid.eu/redmine/issues/47
