@@ -229,7 +229,8 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
         // if opendata and other codelist was used, then add JSON as other constraint
         if (isOpenData()) {
             var codelistEntryName = TRANSF.getIGCSyslistEntryName(10006, codelistEntryId);
-            var json = TRANSF.getISOCodeListEntryData(10006, codelistEntryName);
+            var codelistDataEntryName = TRANSF.getIGCSyslistEntryName(10005, codelistEntryId);
+            var json = TRANSF.getISOCodeListEntryData(10005, codelistDataEntryName);
             
             addUseConstraintElements(legalConstraint, ["license"], [codelistEntryName, json, valueFree]);
             
