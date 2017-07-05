@@ -82,7 +82,7 @@ function handleBKGAccessConstraints() {
             }
             
             // add select value and free text to ISO depending on selection 
-            var legalConstraint = getFirstNodeInIdentificationBefore().addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+            var legalConstraint = getFirstNodeInIdentificationBefore("gmd:accessConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
         }
     }
@@ -109,7 +109,7 @@ function handleBKGUseConstraints() {
         }
         
         // add select value and free text to ISO depending on selection 
-        var legalConstraint = getFirstNodeInIdentificationBefore().addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+        var legalConstraint = getFirstNodeInIdentificationBefore("gmd:useConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
         addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText);
     }
 }
@@ -148,8 +148,8 @@ function getIdentificationInfo() {
     return identificationInfo;
 }
 
-function getFirstNodeInIdentificationBefore() {
-    var nodeOrder = ["gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance", 
+function getFirstNodeInIdentificationBefore(subNode) {
+    var nodeOrder = ["gmd:resourceConstraints", "gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance", 
         "gmd:pointOfContact", "gmd:status", "gmd:credit", "gmd:purpose", "gmd:abstract"];
     var identificationInfo = getIdentificationInfo();
     
@@ -158,7 +158,16 @@ function getFirstNodeInIdentificationBefore() {
     for (var i=0; i<nodeOrder.length; i++) {
         // try to get last(!) element 
         beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i] + "[last()]");
-        if (beforeResourceElement) break;
+        if (beforeResourceElement) {
+            if (i === 0 && subNode) {
+                var subNodeElement = DOM.getElement(identificationInfo, nodeOrder[i] + "//" + subNode);
+                if (subNodeElement) {
+                    log.info("FOUND SUBNODE");
+                    beforeResourceElement = subNodeElement.getParent(2);
+                }
+            }
+            break;
+        }
     }
     
     return beforeResourceElement;
