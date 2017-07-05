@@ -942,8 +942,8 @@
   </xs:element>
   <!--
     Fachlicher Name: Sprache des Datensatzes
-    Tabelle.Feld   : T01_object.data_language_key
-    Tabelle.Feld   : T01_object.data_language_value
+    Tabelle.Feld   : object_data_language.data_language_key
+    Tabelle.Feld   : object_data_language.data_language_value
   -->
   <xs:element name="data-language" type="id-string"/>
   <!--
