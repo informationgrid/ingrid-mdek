@@ -1430,8 +1430,20 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
 
     var ciAddress;
-
     if (!mapOnlyEmails) {
+        
+        var addAdministrativeArea = function(ciAddress) {
+            var administrativeAreaKey = addressRow.get("administrative_area_key");
+            if (hasValue(administrativeAreaKey)) {
+                
+                if (administrativeAreaKey == -1) {
+                    ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+                } else {
+                    ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
+                }
+            }
+        };
+        
         if (phones.length > 0 || faxes.length > 0) {
             var ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
             for (var j=0; j<phones.length; j++) {
@@ -1456,23 +1468,16 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             }
             ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText(addressRow.get("street"));
             ciAddress.addElement("gmd:city").addElement("gco:CharacterString").addText(addressRow.get("city"));
+            addAdministrativeArea(ciAddress);
             ciAddress.addElement("gmd:postalCode").addElement("gco:CharacterString").addText(addressRow.get("postcode"));
+        } else {
+            ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+            addAdministrativeArea(ciAddress);
         }
         if (hasValue(addressRow.get("country_key"))) {
             if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
             ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
         }
-        // fix problem with not mapping administrativeAreay element in object iso see https://dev.informationgrid.eu/redmine/issues/375
-        var administrativeAreaKey = addressRow.get("administrative_area_key");
-        if (hasValue(administrativeAreaKey)) {
-            if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
-            if (administrativeAreaKey == -1) {
-                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
-            } else {
-                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, administrativeAreaKey));
-            }
-        }
-        
     }
 
     for (var j=0; j<emailAddresses.length; j++) {
