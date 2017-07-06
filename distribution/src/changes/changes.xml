@@ -27,9 +27,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.0.4-SNAPSHOT" date="????-??-??" description="??">
+    <release version="4.1" date="2017-xx-xx" description="Release 4.1">
       <action type="add" dev="wemove" issue="REDMINE-199">
       	Add multiple data languages (migrate to new table, import/export, idf, ...)
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-751">
+        Fixed mapping of administrative area to correct position in ISO.
       </action>
     </release>
 

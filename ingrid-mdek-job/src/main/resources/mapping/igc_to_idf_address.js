@@ -124,6 +124,19 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         }
     }
     var ciAddress;
+    
+    var addAdministrativeArea = function(ciAddress) {
+        var administrativeAreaKey = addressRow.get("administrative_area_key");
+        if (hasValue(administrativeAreaKey)) {
+            
+            if (administrativeAreaKey == -1) {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+            } else {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
+            }
+        }
+    };
+    
     if (hasValue(addressRow.get("postbox")) || hasValue(addressRow.get("postbox_pc")) ||
             hasValue(addressRow.get("city")) || hasValue(addressRow.get("street"))) {
     	if (!ciAddress) ciAddress = ciContact.addElement("gmd:address").addElement("gmd:CI_Address");
@@ -138,21 +151,18 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 		}
 		ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText(addressRow.get("street"));
 		ciAddress.addElement("gmd:city").addElement("gco:CharacterString").addText(addressRow.get("city"));
+		addAdministrativeArea(ciAddress);
 		ciAddress.addElement("gmd:postalCode").addElement("gco:CharacterString").addText(addressRow.get("postcode"));
+	} else {
+	    ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+	    addAdministrativeArea(ciAddress);
 	}
+    
     if (hasValue(addressRow.get("country_key"))) {
         if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
         ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
     }
-    var administrativeAreaKey = addressRow.get("administrative_area_key");
-    if (hasValue(administrativeAreaKey)) {
-        if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
-        if (administrativeAreaKey == -1) {
-            ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
-        } else {
-            ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
-        }
-    }
+    
     for (var j=0; j<emailAddresses.length; j++) {
         if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
         ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
