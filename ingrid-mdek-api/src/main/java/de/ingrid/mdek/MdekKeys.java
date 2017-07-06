@@ -725,10 +725,14 @@ public class MdekKeys {
     public final static String METADATA_LANGUAGE_CODE = "metadata-language-code";
     /** Value: String */
     public final static String METADATA_LANGUAGE_NAME = "metadata-language-name";
+
+    /** Value: List< IngridDocument > */
+    public final static String DATA_LANGUAGE_LIST = "data-language-list";
     /** Value: Integer */
     public final static String DATA_LANGUAGE_CODE = "data-language-code";
     /** Value: String */
     public final static String DATA_LANGUAGE_NAME = "data-language-name";
+
     /** Value: Integer */
     public final static String PUBLICATION_CONDITION = "publication-condition";
     /** Value: String */

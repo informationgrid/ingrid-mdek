@@ -760,12 +760,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/gmd:language> ----------
-        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
-        if (hasValue(value)) {
-            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListLanguageAttrURL)
-                .addAttribute("codeListValue", value);
-        }
+        addDataLanguages(identificationInfo, objId);
 
         // ---------- <gmd:identificationInfo/gmd:environmentDescription> ----------
         if (hasValue(objServRow.get("environment"))) {
@@ -814,12 +809,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/gmd:language> ----------
-        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
-        if (hasValue(value)) {
-            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListLanguageAttrURL)
-                .addAttribute("codeListValue", value);
-        }
+        addDataLanguages(identificationInfo, objId);
 
         // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
         value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
@@ -2464,6 +2454,18 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 identificationInfo.addElement("srv:containsOperations").addAttribute("gco:nilReason", "missing");
             }
         }
+}
+
+function addDataLanguages(nodeToAddTo, objId) {
+    var rows = SQL.all("SELECT data_language_key FROM object_data_language WHERE obj_id=?", [+objId]);
+    for (i=0; i<rows.size(); i++) {
+    	var value = TRANSF.getLanguageISO639_2FromIGCCode(rows.get(i).get("data_language_key"));
+    	if (hasValue(value)) {
+    		nodeToAddTo.addElement("gmd:language/gmd:LanguageCode")
+    	        .addAttribute("codeList", globalCodeListLanguageAttrURL)
+    	        .addAttribute("codeListValue", value);
+    	}
+    }
 }
 
 /*

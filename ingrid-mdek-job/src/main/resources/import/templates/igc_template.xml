@@ -55,9 +55,6 @@
     				</map>
     			</technical-domain>
     			<additional-information>
-    				<!-- default language will be set -->
-    				<data-language id="x" />
-    				<metadata-language id="x" />
     			</additional-information>
     			<spatial-domain>
     			</spatial-domain>

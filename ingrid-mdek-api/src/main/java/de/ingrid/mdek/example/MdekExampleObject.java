@@ -1292,8 +1292,6 @@ class MdekExampleObjectThread extends Thread {
 		// manipulate former loaded object !
 
 		oDocIn.put(MdekKeys.TITLE, "BEARBEITET: " + oDocIn.get(MdekKeys.TITLE));
-		Integer origDataLanguageCode = (Integer) oDocIn.get(MdekKeys.DATA_LANGUAGE_CODE);
-		oDocIn.put(MdekKeys.DATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		Integer origMetadataLanguageCode = (Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE);
 		oDocIn.put(MdekKeys.METADATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		oDocIn.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
@@ -1726,6 +1724,15 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.SPATIAL_SYSTEM_LIST, docList);
 
+        // add entry to OBJECT DATA LANGUAGE
+        docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_LANGUAGE_LIST);
+        docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+        testDoc = new IngridDocument();
+        // check DATA_LANGUAGE_CODE -> DATA_LANGUAGE_NAME is stored via syslist 99999999
+        testDoc.put(MdekKeys.DATA_LANGUAGE_CODE, 103); // Dänisch
+        docList.add(testDoc);
+        oDocIn.put(MdekKeys.DATA_LANGUAGE_LIST, docList);
+
 		// add entry to OBJECT ADDITIONAL_FIELDS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
 		if (docList == null) {
@@ -1843,7 +1850,6 @@ class MdekExampleObjectThread extends Thread {
 
 			System.out.println("MANIPULATE OBJECT: back to origin");
 
-			oRefetchedDoc.put(MdekKeys.DATA_LANGUAGE_CODE, origDataLanguageCode);
 			oRefetchedDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, origMetadataLanguageCode);
 			oRefetchedDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, "N");
 			oRefetchedDoc.put(MdekKeys.IS_OPEN_DATA, "N");
@@ -2027,6 +2033,13 @@ class MdekExampleObjectThread extends Thread {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.SPATIAL_SYSTEM_LIST, docList);
 			}
+
+            // OBJECT DATA LANGUAGE wieder wie vorher !
+            docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_LANGUAGE_LIST);
+            if (docList != null && docList.size() > 0) {
+                docList.remove(docList.size()-1);
+                oRefetchedDoc.put(MdekKeys.DATA_LANGUAGE_LIST, docList);
+            }
 
 			// OBJECT ADDITIONAL_FIELDS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADDITIONAL_FIELDS);

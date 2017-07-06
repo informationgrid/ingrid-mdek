@@ -577,37 +577,54 @@ var mappingDescription = {"mappings":[
   		// /igc/data-sources/data-source/data-source-instance/additional-information
   		//
   		// ****************************************************
-  		{	
+  		{
   			"srcXpath":"//gmd:identificationInfo//gmd:language/gmd:LanguageCode/@codeListValue",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/data-language",
-  			"targetAttribute":"id",
-  			"transform":{
-				"funct":transformISOToIGCLanguageCode
+  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
+  			"newNodeName":"data-language",
+  			"subMappings":{
+  				"mappings": [
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+			  			"targetAttribute":"id",
+					  	"transform":{
+							"funct":transformISOToIGCLanguageCode
+						}
+			  		},
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+				  		"transform":{
+							"funct":transformISOToLanguage,
+							"params":['de']
+						}
+			  		}
+			  	]
 			}
   		},
-  		{	
-  			"srcXpath":"//gmd:identificationInfo//gmd:language/gmd:LanguageCode/@codeListValue",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/data-language",
-  			"transform":{
-				"funct":transformISOToLanguage,
-				"params":['de']
-			}
-  		},
-  		{	
+  		{
   			"srcXpath":"//gmd:MD_Metadata/gmd:language/gmd:LanguageCode/@codeListValue",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/metadata-language",
-  			"targetAttribute":"id",
-  			"transform":{
-				"funct":transformISOToIGCLanguageCode
-			}
-  		},
-  		{	
-  			"srcXpath":"//gmd:MD_Metadata/gmd:language/gmd:LanguageCode/@codeListValue",
-  			"defaultValue":"de",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/metadata-language",
-  			"transform":{
-				"funct":transformISOToLanguage,
-				"params":['de']
+  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
+  			"newNodeName":"metadata-language",
+  			"subMappings":{
+  				"mappings": [
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+			  			"targetAttribute":"id",
+					  	"transform":{
+							"funct":transformISOToIGCLanguageCode
+						}
+			  		},
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+				  		"transform":{
+							"funct":transformISOToLanguage,
+							"params":['de']
+						}
+			  		}
+			  	]
 			}
   		},
   		{	
