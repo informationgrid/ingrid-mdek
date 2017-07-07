@@ -81,9 +81,11 @@ function handleBKGAccessConstraints() {
                 }
             }
             
-            // add select value and free text to ISO depending on selection 
-            var legalConstraint = getFirstNodeInIdentificationBefore("gmd:accessConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
+            // add select value and free text to ISO depending on selection
+            if ((bkgAccessConstraintSelectListItem && bkgAccessConstraintSelectListItem !== "") || bkgAccessConstraintFreeText !== "") {
+                var legalConstraint = getFirstNodeInIdentificationBefore("gmd:accessConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+                addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
+            }
         }
     }
 }
@@ -108,9 +110,12 @@ function handleBKGUseConstraints() {
             }
         }
         
-        // add select value and free text to ISO depending on selection 
-        var legalConstraint = getFirstNodeInIdentificationBefore("gmd:useConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-        addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText);
+        // add select value and free text to ISO depending on selection
+        // if there is any value
+        if ((bkgUseConstraintSelectListItem && bkgUseConstraintSelectListItem !== "") || bkgUseConstraintFreeText !== "") {
+            var legalConstraint = getFirstNodeInIdentificationBefore("gmd:useConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+            addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText);
+        }
     }
 }
 
@@ -162,7 +167,6 @@ function getFirstNodeInIdentificationBefore(subNode) {
             if (i === 0 && subNode) {
                 var subNodeElement = DOM.getElement(identificationInfo, nodeOrder[i] + "//" + subNode);
                 if (subNodeElement) {
-                    log.info("FOUND SUBNODE");
                     beforeResourceElement = subNodeElement.getParent(2);
                 }
             }
@@ -210,7 +214,7 @@ function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
 
 function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
     log.debug("BKG: Use Constraint codelist: " + codelistEntryId);
-    if (codelistEntryId === null || codelistEntryId === undefined| codelistEntryId === "") {
+    if (codelistEntryId === null || codelistEntryId === undefined | codelistEntryId === "") {
         addUseConstraintElements(legalConstraint, [], [valueFree]);
         return;
     }
@@ -235,7 +239,7 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
             addUseConstraintElements(legalConstraint, ["license"], [codelistEntryName, json, valueFree]);
             
         } else {
-            addUseConstraintElements(legalConstraint, ["license"], ["Nutzungsbedingungen: " + TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree]);
+            addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree]);
             
         }
         break;
