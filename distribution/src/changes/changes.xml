@@ -31,6 +31,9 @@
       <action type="add" dev="wemove" issue="REDMINE-199">
       	Add multiple data languages (migrate to new table, import/export, idf, ...)
       </action>
+      <action type="update" dev="wemove" issue="REDMINE-563">
+        Syslist 6010 (accessConstraints) moved to codelist-repo, not editable anymore.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-751">
         Fixed mapping of administrative area to correct position in ISO.
       </action>
