@@ -127,19 +127,13 @@
                 "null_value" : 0.0
             },
             "title": {
-                "index_analyzer": "decomp",
-                "search_analyzer": "no_decomp",
-                "type": "string"
+                "type": "text"
             },
             "summary": {
-                "index_analyzer": "decomp",
-                "search_analyzer": "no_decomp",
-                "type": "string"
+                "type": "text"
             },
             "content": {
-                "index_analyzer": "decomp",
-                "search_analyzer": "no_decomp",
-                "type": "string"
+                "type": "text"
             },
             "x1": {
                 "type": "double"
