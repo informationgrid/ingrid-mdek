@@ -667,7 +667,9 @@ public class MdekObjectService {
 		oDocIn.put( MdekKeys.ID, oPub.getId() );
 		oDocIn.put( MdekKeys.UUID, oPub.getObjUuid() );
 		oDocIn.put( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, oPub.getOrgObjId() );
-        jobHandler.updateRunningJobChangedEntities(userId, IdcEntityType.OBJECT, WorkState.VEROEFFENTLICHT, oDocIn);
+        jobHandler.updateRunningJobChangedEntities(userId,
+                IdcEntityType.OBJECT, WorkState.VEROEFFENTLICHT, oDocIn,
+                "PUBLISHED document successfully");
 
 		return uuid;
 	}

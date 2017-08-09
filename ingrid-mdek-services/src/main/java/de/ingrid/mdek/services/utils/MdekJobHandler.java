@@ -238,9 +238,11 @@ public class MdekJobHandler {
      * @param whichType Object or Address
      * @param whichState was saved in which state
      * @param inDoc address/object data
+     * @param auditMessage message to log via audit service
      */
     public void updateRunningJobChangedEntities(String userId, IdcEntityType whichType, WorkState whichState,
-            IngridDocument inDoc) {
+            IngridDocument inDoc,
+            String auditMessage) {
         // throws exception if canceled !
         checkRunningJobCanceledByUser(userId);
 
@@ -253,6 +255,7 @@ public class MdekJobHandler {
         }
 
         HashMap entityMap = new HashMap();
+        entityMap.put(MdekKeys.JOBINFO_MESSAGES, auditMessage);
         entityMap.put(MdekKeys.JOBINFO_ENTITY_TYPE, whichType.getDbValue());
         entityMap.put(MdekKeys.WORK_STATE, whichState.getDbValue());
         entityMap.put(MdekKeys.UUID, inDoc.get(MdekKeys.UUID));

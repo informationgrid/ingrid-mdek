@@ -109,7 +109,7 @@ public abstract class MdekIdcJob extends MdekJob {
 	/** Update ES search index and log via audit service if set.
 	 * @param changedEntities List of maps containing basic data of changed entities
 	 */
-	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities, String auditMsg) {
+	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
             // update search index
             ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
@@ -120,7 +120,8 @@ public abstract class MdekIdcJob extends MdekJob {
             }
             
             if (AuditService.instance != null && doc != null) {
-                String message = auditMsg + " with UUID: " + entity.get( MdekKeys.UUID );
+                String auditMsg = (String) entity.get( MdekKeys.JOBINFO_MESSAGES );
+                String message = "" + auditMsg + " with UUID: " + entity.get( MdekKeys.UUID );
                 Map<String, String> map = new HashMap<String, String>();
                 map.put( "idf", (String) doc.get( "idf" ) );
                 String payload = JSONObject.toJSONString( map );

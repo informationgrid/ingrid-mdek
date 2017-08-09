@@ -654,7 +654,9 @@ public class MdekAddressService {
         aDocIn.put( MdekKeys.ID, aPub.getId() );
         aDocIn.put( MdekKeys.UUID, aPub.getAdrUuid() );
         aDocIn.put( MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, aPub.getOrgAdrId() );
-        jobHandler.updateRunningJobChangedEntities(userId, IdcEntityType.ADDRESS, WorkState.VEROEFFENTLICHT, aDocIn);
+        jobHandler.updateRunningJobChangedEntities(userId,
+                IdcEntityType.ADDRESS, WorkState.VEROEFFENTLICHT, aDocIn,
+                "PUBLISHED address successfully");
 
 		return uuid;
 	}

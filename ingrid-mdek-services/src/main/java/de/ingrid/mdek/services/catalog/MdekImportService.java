@@ -444,7 +444,7 @@ public class MdekImportService implements IImporterCallback {
     private void updateImportJobInfoChangedEntities(IdcEntityType whichType, WorkState whichState, IngridDocument inDoc,
             String userUuid) {
         // only update in memory job state, will be persisted at end !
-        jobHandler.updateRunningJobChangedEntities(userUuid, whichType, whichState, inDoc);
+        jobHandler.updateRunningJobChangedEntities(userUuid, whichType, whichState, inDoc, "");
     }
 	/** Add new Message to info of Import job IN MEMORY. */
 	public void updateImportJobInfoMessages(String newMessage, String userUuid) {

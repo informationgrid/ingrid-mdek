@@ -734,7 +734,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			daoObjectNode.commitTransaction();
 
             // Update search index with data of all published objects and also log if set
-            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId), "PUBLISHED document successfully");
+            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
 
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);

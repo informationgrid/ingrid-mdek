@@ -755,7 +755,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	        daoAddressNode.commitTransaction();
 	        
             // Update search index with data of all published addresses and also log if set
-	        updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userUuid), "PUBLISHED address successfully");
+	        updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userUuid));
 
 			return resultDoc;		
 		
@@ -790,7 +790,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			daoAddressNode.commitTransaction();
 			
             // Update search index with data of all published addresses and also log if set
-            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId), "PUBLISHED address successfully");
+            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
 
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
