@@ -23,16 +23,25 @@
 package de.ingrid.mdek.job;
 
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.tools.MdekErrorHandler;
+import de.ingrid.mdek.services.log.AuditService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -46,6 +55,9 @@ public abstract class MdekIdcJob extends MdekJob {
 
 	protected BeanToDocMapper beanToDocMapper;
 	protected DocToBeanMapper docToBeanMapper;
+
+    protected DscDocumentProducer docProducer;
+    protected IndexManager indexManager;
 
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
@@ -92,6 +104,29 @@ public abstract class MdekIdcJob extends MdekJob {
 		}
 
 		return errorHandler.handleException(excIn);
+	}
+
+	/** Update ES search index and log via audit service if set.
+	 * @param changedEntities List of maps containing basic data of changed entities
+	 */
+	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities, String auditMsg) {
+        for (Map entity : changedEntities) {
+            // update search index
+            ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
+            if (doc != null && !doc.isEmpty()) {
+                indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
+                indexManager.update( docProducer.getIndexInfo(), doc, true );
+                indexManager.flush();
+            }
+            
+            if (AuditService.instance != null && doc != null) {
+                String message = auditMsg + " with UUID: " + entity.get( MdekKeys.UUID );
+                Map<String, String> map = new HashMap<String, String>();
+                map.put( "idf", (String) doc.get( "idf" ) );
+                String payload = JSONObject.toJSONString( map );
+                AuditService.instance.log( message, payload );
+            }               
+        }
 	}
 
 /*

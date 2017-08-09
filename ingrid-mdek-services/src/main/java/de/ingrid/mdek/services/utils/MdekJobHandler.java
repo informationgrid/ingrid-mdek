@@ -198,6 +198,20 @@ public class MdekJobHandler {
 		return runningJob;
 	}
 
+    /** Get Info of changed entities of running job. 
+     * @param userId user who started job
+     * @return List of Maps, every map describes one entity. Empty List if nothing processed.
+     */
+    public List<HashMap> getRunningJobChangedEntities(String userId) {
+        IngridDocument jobInfo = getRunningJobInfo(userId);
+        List<HashMap> processedEntities = (List<HashMap>) jobInfo.get(MdekKeys.CHANGED_ENTITIES);
+        if (processedEntities == null) {
+            processedEntities = new ArrayList<HashMap>();
+        }
+        
+        return processedEntities;
+    }
+
 	/** Add keys in passed map to current job information.<br> 
 	 * NOTICE: NO checks whether jobs are already running !
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
@@ -217,7 +231,7 @@ public class MdekJobHandler {
 
 		runningJobsMap.put(userId, jobInfo);
 	}
-    /** Update Info about changed entities of Import job IN MEMORY.
+    /** Update Info about changed entities of running job IN MEMORY.
      * NOTICE: NO checks whether jobs are already running !
      * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled !
      * @param userUuid the user
@@ -243,6 +257,7 @@ public class MdekJobHandler {
         entityMap.put(MdekKeys.WORK_STATE, whichState.getDbValue());
         entityMap.put(MdekKeys.UUID, inDoc.get(MdekKeys.UUID));
         entityMap.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, inDoc.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));       
+        entityMap.put(MdekKeys.ID, inDoc.get(MdekKeys.ID));       
 
         processedEntities.add( entityMap );
 

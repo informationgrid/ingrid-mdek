@@ -96,13 +96,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private XsltUtils xsltUtils;
 
-	private DscDocumentProducer docProducer;
-    
     @Autowired
     @Qualifier("dscRecordCreatorAddress")
     private DscRecordCreator dscRecordProducer;
-
-    private IndexManager indexManager;
 
 	@Autowired
 	public MdekIdcAddressJob(ILogService logService,
@@ -111,7 +107,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
             IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
-		addressService = MdekAddressService.getInstance(daoFactory, permissionService, indexManager);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
@@ -755,7 +751,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// additional info
 			resultDoc.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numMergedAddresses);
 
-			daoAddressNode.commitTransaction();
+	        // commit transaction to make new/updated data available for next step
+	        daoAddressNode.commitTransaction();
+	        
+            // Update search index with data of all published addresses and also log if set
+	        updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userUuid), "PUBLISHED address successfully");
+
 			return resultDoc;		
 		
 		} catch (RuntimeException e) {
@@ -787,6 +788,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
+			
+            // Update search index with data of all published addresses and also log if set
+            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId), "PUBLISHED address successfully");
 
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
@@ -1470,6 +1474,5 @@ public class MdekIdcAddressJob extends MdekIdcJob {
     @Qualifier("dscDocumentProducerAddress")
     private void setDocProducer(DscDocumentProducer docProducer) {
         this.docProducer = docProducer;
-        this.addressService.setDocProducer(docProducer);
     }
 }
