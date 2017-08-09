@@ -94,10 +94,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private IT01ObjectDao daoT01Object;
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
-    private IndexManager indexManager;
     
-    private DscDocumentProducer docProducer;
-
     @Autowired
     @Qualifier("dscRecordCreator")
     private DscRecordCreator dscRecordProducer;
@@ -116,7 +113,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
-		objectService = MdekObjectService.getInstance(daoFactory, permissionService, indexManager);
+		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
 //		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
@@ -736,6 +733,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !?
 			daoObjectNode.commitTransaction();
 
+            // Update search index with data of all published objects and also log if set
+            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId), "PUBLISHED document successfully");
+
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
 
@@ -1239,6 +1239,5 @@ public class MdekIdcObjectJob extends MdekIdcJob {
     @Qualifier("dscDocumentProducer")
     private void setDocProducer(DscDocumentProducer docProducer) {
         this.docProducer = docProducer;
-        this.objectService.setDocProducer(docProducer);
     }
 }

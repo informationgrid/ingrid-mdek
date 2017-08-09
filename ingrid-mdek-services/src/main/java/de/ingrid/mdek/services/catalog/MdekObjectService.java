@@ -24,17 +24,12 @@ package de.ingrid.mdek.services.catalog;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
-import org.json.simple.JSONObject;
 import org.apache.logging.log4j.Logger;
 
-import de.ingrid.admin.elasticsearch.IndexManager;
-import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -67,11 +62,11 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
+import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -93,15 +88,12 @@ public class MdekObjectService {
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
+    private MdekJobHandler jobHandler;
 
 	private BeanToDocMapper beanToDocMapper;
 	private BeanToDocMapperSecurity beanToDocMapperSecurity;
 	private DocToBeanMapper docToBeanMapper;
 	
-	private IndexManager indexManager = null;
-
-    private DscDocumentProducer docProducer;
-
     /** Get The Singleton */
 	public static synchronized MdekObjectService getInstance(DaoFactory daoFactory,
 			IPermissionService permissionService) {
@@ -111,17 +103,6 @@ public class MdekObjectService {
 		return myInstance;
 	}
 	
-	/** Get The Singleton with IndexManager initialized */
-    public static synchronized MdekObjectService getInstance(DaoFactory daoFactory,
-            IPermissionService permissionService, IndexManager indexManager) {
-        if (myInstance == null) {
-            myInstance = new MdekObjectService(daoFactory, permissionService);
-        }
-        // make sure the IndexManager is initialized!
-        myInstance.indexManager = indexManager;
-        return myInstance;
-    }
-
 	private MdekObjectService(DaoFactory daoFactory, IPermissionService permissionService) {
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
@@ -133,6 +114,7 @@ public class MdekObjectService {
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
+        jobHandler = MdekJobHandler.getInstance(daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
@@ -680,28 +662,12 @@ public class MdekObjectService {
 						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_OBJECT, parentUuid);				
 			}
 		}
-		
-		// commit transaction to make new/updated data available for next step
-		daoObjectNode.commitTransaction();
-		
-		// and begin transaction again for next query
-		daoObjectNode.beginTransaction();
-		
-		// update index
-        ElasticDocument doc = docProducer.getById( oPubId.toString(), "id" );
-        if (doc != null && !doc.isEmpty()) {
-            indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-            indexManager.update( docProducer.getIndexInfo(), doc, true );
-            indexManager.flush();
-        }
-        
-        if (AuditService.instance != null && doc != null) {
-            String message = "PUBLISHED document successfully with UUID: " + uuid;
-            Map<String, String> map = new HashMap<String, String>();
-            map.put( "idf", (String) doc.get( "idf" ) );
-            String payload = JSONObject.toJSONString( map );
-            AuditService.instance.log( message, payload );
-        }
+
+        // then set IDs in doc and update changed entities in JobInfo
+		oDocIn.put( MdekKeys.ID, oPub.getId() );
+		oDocIn.put( MdekKeys.UUID, oPub.getObjUuid() );
+		oDocIn.put( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, oPub.getOrgObjId() );
+        jobHandler.updateRunningJobChangedEntities(userId, IdcEntityType.OBJECT, WorkState.VEROEFFENTLICHT, oDocIn);
 
 		return uuid;
 	}
@@ -1468,9 +1434,4 @@ public class MdekObjectService {
 		
 		return errInfo;
 	}
-	
-
-    public void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
-    }
 }
