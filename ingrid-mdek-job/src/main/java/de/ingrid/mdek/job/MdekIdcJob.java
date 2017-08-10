@@ -34,6 +34,7 @@ import org.json.simple.JSONObject;
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekErrorHandler;
 import de.ingrid.mdek.services.log.AuditService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
@@ -106,11 +107,16 @@ public abstract class MdekIdcJob extends MdekJob {
 		return errorHandler.handleException(excIn);
 	}
 
-	/** Update ES search index and log via audit service if set.
-	 * @param changedEntities List of maps containing basic data of changed entities
+	/** Update ES search index with data from PUBLISHED entities and log via audit service if set.
+	 * @param changedEntities List of maps containing data about changed entities.
+	 * NOTICE: May also contain unpublished entities, this is checked, only published ones are processed ! 
 	 */
 	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
+            // only update PUBLISHED entities !
+            if (!WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) ))
+                continue;
+
             // update search index
             ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
             if (doc != null && !doc.isEmpty()) {
@@ -118,7 +124,8 @@ public abstract class MdekIdcJob extends MdekJob {
                 indexManager.update( docProducer.getIndexInfo(), doc, true );
                 indexManager.flush();
             }
-            
+
+            // and log if audit service set
             if (AuditService.instance != null && doc != null) {
                 String auditMsg = (String) entity.get( MdekKeys.JOBINFO_MESSAGES );
                 String message = "" + auditMsg + " with UUID: " + entity.get( MdekKeys.UUID );
