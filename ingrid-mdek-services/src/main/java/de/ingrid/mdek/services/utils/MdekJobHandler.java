@@ -254,6 +254,11 @@ public class MdekJobHandler {
             jobInfo.put( MdekKeys.CHANGED_ENTITIES, processedEntities );
         }
 
+        // TODO: Only add changed entity if not already contained in equal state !? (TYPE/STATE/ID)
+        // We ignore this so entity may be contained multiple times ...
+        // e.g. in import Process entity can be added twice if published version is additionally
+        // written as second working version if something went wrong (or when importing under import node !) 
+
         HashMap entityMap = new HashMap();
         entityMap.put(MdekKeys.JOBINFO_MESSAGES, auditMessage);
         entityMap.put(MdekKeys.JOBINFO_ENTITY_TYPE, whichType.getDbValue());

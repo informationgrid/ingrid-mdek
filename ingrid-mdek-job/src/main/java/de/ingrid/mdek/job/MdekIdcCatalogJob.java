@@ -881,6 +881,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			if (!transactionInProgress) {
 	            genericDao.commitTransaction();
+	            
+	            // Update search index with data of PUBLISHED entities and also log if set
+	            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
 			}
 
 			IngridDocument result = new IngridDocument();

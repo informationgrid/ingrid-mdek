@@ -1613,19 +1613,18 @@ public class MdekImportService implements IImporterCallback {
 		}
 
 		// ok, we publish !
+		// NOTICE: publish in service already writes changed entity to job info, so we do not do this here !
 		try {
-            String auditMsg = "?";
 			if (whichType == IdcEntityType.OBJECT) {
 				// we DON'T force publication condition ! if error, we store working version !
 				objectService.publishObject(inDoc, false, userUuid, true);
-                auditMsg = "PUBLISHED document successfully";
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.publishAddress(inDoc, false, userUuid, true);
-                auditMsg = "PUBLISHED address successfully";
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
-			updateImportJobInfoChangedEntities(whichType, WorkState.VEROEFFENTLICHT, inDoc, userUuid, auditMsg);
+	        // NOTICE: publish in service already writes changed entity to job info, so we do not do this here !
+//			updateImportJobInfoChangedEntities(whichType, WorkState.VEROEFFENTLICHT, inDoc, userUuid, auditMsg);
 			updateImportJobInfoMessages(tag + newEntityMsg + "PUBLISHED", userUuid);
 
 		} catch (Exception ex) {
