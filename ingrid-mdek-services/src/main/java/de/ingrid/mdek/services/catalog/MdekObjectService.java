@@ -42,7 +42,6 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.services.log.AuditService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -812,7 +811,7 @@ public class MdekObjectService {
 		return result;
 	}
 	
-	public IngridDocument deleteObjectByOridId(String origId, boolean forceDeleteReferences, String userId) {
+	public IngridDocument deleteObjectByOrigId(String origId, boolean forceDeleteReferences, String userId) {
 	    
 	    // NOTICE: this one also contains Parent Association !
         ObjectNode oNode = loadByOrigId( origId, IdcEntityVersion.WORKING_VERSION);
@@ -948,11 +947,16 @@ public class MdekObjectService {
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);	
-		
-		if (AuditService.instance != null) {
-		    String message = "DELETED document: " + uuid;
-		    AuditService.instance.log( message );
-		}
+
+        // then set IDs in doc and update changed entities in JobInfo
+        // result.put( MdekKeys.ID, oPub.getId() );
+        // result.put( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, oPub.getOrgObjId() );
+        result.put( MdekKeys.UUID, uuid );
+        jobHandler.updateRunningJobChangedEntities(userUuid,
+                IdcEntityType.OBJECT, WorkState.DELETED, result,
+                "DELETED document");
+        // and we also update changed entities in result
+        result.put(MdekKeys.CHANGED_ENTITIES, jobHandler.getRunningJobChangedEntities(userUuid));
 
 		return result;
 	}

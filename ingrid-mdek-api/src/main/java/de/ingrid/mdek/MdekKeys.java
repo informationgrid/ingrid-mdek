@@ -220,7 +220,6 @@ public class MdekKeys {
      * If value is true, then throw away all previously analyzed data from job info.
      *  Value: Boolean */
     public final static String REQUESTINFO_IMPORT_START_NEW_ANALYSIS = "requestinfo_importStartNewAnalysis";
-    public final static String REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID = "requestinfo_importErrorWhenUuidExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID = "requestinfo_importErrorWhenUuidNotExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION = "requestinfo_importErrorWhenException";
@@ -228,6 +227,9 @@ public class MdekKeys {
      * Then the parent is set via IMPORT_NODE and this flag in runningJobInfo determines special behavior concerning import node !
      */
     public final static String REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE = "requestinfo_importIgnoreParentImportNode";
+    /** Indicate handled transaction outside of jobs, so job does NOT begin/commit transaction
+    *  Value: Boolean */
+    public final static String REQUESTINFO_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
 
 
     // URL

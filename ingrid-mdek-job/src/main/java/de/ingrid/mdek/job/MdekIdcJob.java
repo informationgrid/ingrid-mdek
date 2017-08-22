@@ -113,29 +113,53 @@ public abstract class MdekIdcJob extends MdekJob {
 	 */
 	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
-            // only update PUBLISHED entities !
-            if (!WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) ))
-                continue;
+            
+            // PUBLISHED entities !
+            if (WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
+                // update search index
+                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
+                if (doc != null && !doc.isEmpty()) {
+                    indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
+                    indexManager.update( docProducer.getIndexInfo(), doc, true );
+                    indexManager.flush();
+                }
 
-            // update search index
-            ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
-            if (doc != null && !doc.isEmpty()) {
-                indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-                indexManager.update( docProducer.getIndexInfo(), doc, true );
-                indexManager.flush();
+                // and log if audit service set
+                if (AuditService.instance != null && doc != null) {
+                    String auditMsg = (String) entity.get( MdekKeys.JOBINFO_MESSAGES );
+                    String message = "" + auditMsg + " with UUID: " + entity.get( MdekKeys.UUID );
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put( "idf", (String) doc.get( "idf" ) );
+                    String payload = JSONObject.toJSONString( map );
+                    AuditService.instance.log( message, payload );
+                }
             }
 
-            // and log if audit service set
-            if (AuditService.instance != null && doc != null) {
-                String auditMsg = (String) entity.get( MdekKeys.JOBINFO_MESSAGES );
-                String message = "" + auditMsg + " with UUID: " + entity.get( MdekKeys.UUID );
-                Map<String, String> map = new HashMap<String, String>();
-                map.put( "idf", (String) doc.get( "idf" ) );
-                String payload = JSONObject.toJSONString( map );
-                AuditService.instance.log( message, payload );
-            }               
+            // DELETED entities !
+            if (WorkState.DELETED.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
+                String uuid = (String) entity.get( MdekKeys.UUID );
+                if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using uuId: " + uuid );
+                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+                indexManager.flush();
+
+                if (AuditService.instance != null) {
+                    String auditMsg = (String) entity.get( MdekKeys.JOBINFO_MESSAGES );
+                    String message = "" + auditMsg + " with UUID: " + uuid;
+                    AuditService.instance.log( message );
+                }
+            }
         }
 	}
+
+    /** Returns value of key in given doc or defaultValue if key not set ! */
+    protected Object getOrDefault(IngridDocument doc, String key, Object defaultValue) {
+        if (doc.containsKey( key )) {
+            return doc.get( key );
+        } else {
+            return defaultValue;
+        }
+    }
+
 
 /*
 	public IngridDocument testMdekEntity(IngridDocument params) {

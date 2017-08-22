@@ -117,7 +117,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoT02Address = daoFactory.getT02AddressDao();
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
-		this.indexManager = indexManager;
+        this.indexManager = indexManager;
         
         xsltUtils = new XsltUtils();
 	}
@@ -1044,19 +1044,21 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
+            boolean transactionInProgress = (boolean) getOrDefault( params, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 
-			daoAddressNode.beginTransaction();
+            if (!transactionInProgress) {
+                daoAddressNode.beginTransaction();
+            }
 			
 			IngridDocument result = addressService.deleteAddressFull(uuid, forceDeleteReferences, userId);
 
-			daoAddressNode.commitTransaction();
-			
-			// only remove from index if object was really removed and not just marked
-            if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
-                indexManager.flush();
+            if (!transactionInProgress) {
+                daoAddressNode.commitTransaction();
+                
+                // Update search index
+                updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
             }
-
+			
 			return result;
 
 		} catch (RuntimeException e) {

@@ -720,7 +720,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
 	    //Boolean importAfterAnalyze = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_DATA_AFTER_ANALYZE);
 	    Boolean startNewAnalysis = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS);
-        boolean transactionInProgress = (boolean) getOrDefault(docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+        boolean transactionInProgress = (boolean) getOrDefault(docIn, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 	    ProtocolHandler protocolHandler = new HashMapProtocolHandler();
 	    byte[] mappedDataCompressed = importData;
 
@@ -793,7 +793,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	 */
 	public IngridDocument importEntities(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
-		boolean transactionInProgress = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+		boolean transactionInProgress = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 		boolean errorOnExisitingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
 		boolean errorOnMissingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, false );
 		boolean errorOnException = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, false );
@@ -1724,14 +1724,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         String addrUuid = permissionHandler.getCatalogAdminUser().getAddrUuid();
         genericDao.commitTransaction();
         return addrUuid;
-    }
-    
-    private Object getOrDefault(IngridDocument doc, String key, Object defaultValue) {
-        if (doc.containsKey( key )) {
-            return doc.get( key );
-        } else {
-            return defaultValue;
-        }
     }
     
     public void beginTransaction() {
