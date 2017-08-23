@@ -818,6 +818,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n----- extend initial object (with address, object references, spatial refs, free term ...) and store -----");
 		// extend initial object with own data !
+        newObjDoc.put(MdekKeys.CLASS, 0);
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
 		newObjDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
@@ -923,6 +924,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("----- Also add referenced address to be publishable ! -----");
 		IngridDocument newTopObjDoc = new IngridDocument();
 		newTopObjDoc = supertool.getInitialObject(newTopObjDoc);
+		newTopObjDoc.put(MdekKeys.CLASS, 0);
 		newTopObjDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT");
 		newTopObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		supertool.addPointOfContactAddress(newTopObjDoc, addrUuidPublished);
@@ -1054,6 +1056,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("----- Also add referenced address to be publishable ! -----");
 		IngridDocument newTopDoc = new IngridDocument();
 		newTopDoc = supertool.getInitialObject(newTopDoc);
+        newTopDoc.put(MdekKeys.CLASS, 0);
 		newTopDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT DIREKT PUBLISH");
 		newTopDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
 		supertool.addPointOfContactAddress(newTopDoc, addrUuidPublished);
@@ -1086,6 +1089,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("----- first get initial top object as template for sub object to publish -----");
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc = supertool.getInitialObject(newPubDoc);
+		newPubDoc.put(MdekKeys.CLASS, 0);
 		newPubDoc.put(MdekKeys.TITLE, "TEST NEUES SUB OBJEKT DIREKT PUBLISH");
 		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		System.out.println("\n----- Also add published point of contact to be publishable ! -----");

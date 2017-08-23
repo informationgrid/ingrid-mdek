@@ -34,6 +34,12 @@
       <action type="update" dev="wemove" issue="REDMINE-563">
         Syslist 6010 (accessConstraints) moved to codelist-repo, not editable anymore.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-611">
+        Fix transaction handling and Import/CSW-T.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-491">
+        Fix inheritance of address to sub addresses.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-751">
         Fixed mapping of administrative area to correct position in ISO.
       </action>
