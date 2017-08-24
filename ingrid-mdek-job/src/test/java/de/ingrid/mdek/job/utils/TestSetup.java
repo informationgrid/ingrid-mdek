@@ -47,6 +47,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.w3c.dom.Document;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.MdekKeys;
@@ -125,6 +126,9 @@ public class TestSetup {
     @Mock
     private MdekObjectService mdekObjectService;
 
+    @Mock
+    IndexManager indexManager;
+
     ScriptImportDataMapper cswMapper;
     
     private IgeSearchPlug plug;
@@ -173,7 +177,7 @@ public class TestSetup {
         cswMapper = new ScriptImportDataMapper( daoFactory );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
-        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService );
+        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, indexManager );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
         

@@ -68,6 +68,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.MdekKeys;
@@ -154,7 +155,10 @@ public class CSWImport {
     @Mock private ResultSet resultSet;
 
     @Mock private MdekObjectService mdekObjectService;
-    
+
+    @Mock
+    IndexManager indexManager;
+
     private IngridXMLMapper importMapper;
 
     @Before
@@ -202,7 +206,7 @@ public class CSWImport {
         cswMapper = new ScriptImportDataMapper( daoFactory );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
-        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService );
+        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, indexManager );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
         ClassPathResource[] resources = new ClassPathResource[1];
