@@ -41,8 +41,10 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -1737,5 +1739,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     public void rollbackTransaction() {
         genericDao.rollbackTransaction();
     }  
-  
+
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private void setDocProducer(DscDocumentProducer docProducer) {
+        this.docProducer = docProducer;
+    }
 }
