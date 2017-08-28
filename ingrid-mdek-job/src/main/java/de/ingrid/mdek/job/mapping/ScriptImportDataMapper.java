@@ -200,7 +200,6 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
             for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
                 String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
                 
-                engine.put("igcProfile", igcProfile);
                 // ScriptEngine.execute(this.mappingScripts, parameters, compile);
                 engine.eval( new StringReader(igcProfileCswMapping) );
             }
