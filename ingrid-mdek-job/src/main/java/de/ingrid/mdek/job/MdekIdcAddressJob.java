@@ -96,13 +96,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private XsltUtils xsltUtils;
 
-	private DscDocumentProducer docProducer;
-    
     @Autowired
     @Qualifier("dscRecordCreatorAddress")
     private DscRecordCreator dscRecordProducer;
-
-    private IndexManager indexManager;
 
 	@Autowired
 	public MdekIdcAddressJob(ILogService logService,
@@ -111,7 +107,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
             IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
-		addressService = MdekAddressService.getInstance(daoFactory, permissionService, indexManager);
+		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
@@ -121,7 +117,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoT02Address = daoFactory.getT02AddressDao();
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
-		this.indexManager = indexManager;
+        this.indexManager = indexManager;
         
         xsltUtils = new XsltUtils();
 	}
@@ -755,7 +751,12 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			// additional info
 			resultDoc.put(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES, numMergedAddresses);
 
-			daoAddressNode.commitTransaction();
+	        // commit transaction to make new/updated data available for next step
+	        daoAddressNode.commitTransaction();
+	        
+            // Update search index with data of all published addresses and also log if set
+	        updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userUuid));
+
 			return resultDoc;		
 		
 		} catch (RuntimeException e) {
@@ -787,6 +788,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
 			daoAddressNode.commitTransaction();
+			
+            // Update search index with data of all published addresses and also log if set
+            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
 
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
@@ -1040,19 +1044,21 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
+            boolean transactionInProgress = (boolean) getOrDefault( params, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 
-			daoAddressNode.beginTransaction();
+            if (!transactionInProgress) {
+                daoAddressNode.beginTransaction();
+            }
 			
 			IngridDocument result = addressService.deleteAddressFull(uuid, forceDeleteReferences, userId);
 
-			daoAddressNode.commitTransaction();
-			
-			// only remove from index if object was really removed and not just marked
-            if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
-                indexManager.flush();
+            if (!transactionInProgress) {
+                daoAddressNode.commitTransaction();
+                
+                // Update search index
+                updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
             }
-
+			
 			return result;
 
 		} catch (RuntimeException e) {
@@ -1465,11 +1471,4 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 		}
 	}
-	
-	@Autowired
-    @Qualifier("dscDocumentProducerAddress")
-    private void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
-        this.addressService.setDocProducer(docProducer);
-    }
 }

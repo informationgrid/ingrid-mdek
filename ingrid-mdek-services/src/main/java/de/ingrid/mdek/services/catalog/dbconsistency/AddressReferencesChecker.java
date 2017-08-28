@@ -25,7 +25,8 @@ package de.ingrid.mdek.services.catalog.dbconsistency;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
@@ -37,7 +38,7 @@ import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
  */
 public class AddressReferencesChecker implements ConsistencyChecker {
 
-	private static final Logger LOG = Logger.getLogger(AddressReferencesChecker.class);
+	private static final Logger LOG = LogManager.getLogger(AddressReferencesChecker.class);
 
 	private IConsistencyCheckerDao hqlConsistencyChecker;
 	private List<ErrorReport> reportList = new ArrayList<ErrorReport>();

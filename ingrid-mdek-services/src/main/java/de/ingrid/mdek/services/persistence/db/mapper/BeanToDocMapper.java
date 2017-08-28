@@ -27,7 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -46,8 +47,10 @@ import de.ingrid.mdek.services.persistence.db.model.AddressComment;
 import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
+import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
@@ -109,7 +112,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class BeanToDocMapper implements IMapper {
 
-	private static final Logger LOG = Logger.getLogger(BeanToDocMapper.class);
+	private static final Logger LOG = LogManager.getLogger(BeanToDocMapper.class);
 
 	private static BeanToDocMapper myInstance;
 
@@ -304,8 +307,6 @@ public class BeanToDocMapper implements IMapper {
 
 			objectDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, o.getMetadataLanguageKey());
 			objectDoc.put(MdekKeys.METADATA_LANGUAGE_NAME, o.getMetadataLanguageValue());
-			objectDoc.put(MdekKeys.DATA_LANGUAGE_CODE, o.getDataLanguageKey());
-			objectDoc.put(MdekKeys.DATA_LANGUAGE_NAME, o.getDataLanguageValue());
 			objectDoc.put(MdekKeys.DATASET_INTENTIONS, o.getInfoNote());
 			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
 			objectDoc.put(MdekKeys.DATASET_CHARACTER_SET, o.getDatasetCharacterSet());
@@ -313,6 +314,8 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.ORDERING_INSTRUCTIONS, o.getOrderingInstructions());
 			objectDoc.put(MdekKeys.IS_CATALOG_DATA, o.getIsCatalogData());
 			objectDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, o.getIsInspireRelevant());
+			objectDoc.put(MdekKeys.IS_INSPIRE_CONFORM, o.getIsInspireConform());
+			objectDoc.put(MdekKeys.IS_ADV_COMPATIBLE, o.getIsAdvCompatible());
 			objectDoc.put(MdekKeys.IS_OPEN_DATA, o.getIsOpenData());
 
 			// map associations		
@@ -347,6 +350,7 @@ public class BeanToDocMapper implements IMapper {
 			// additional fields
 			mapAdditionalFieldDatas(o.getAdditionalFieldDatas(), objectDoc);
 			mapObjectConformitys(o.getObjectConformitys(), objectDoc);
+			mapObjectAdvProductGroup(o.getObjectAdvProductGroup(), objectDoc);
 			mapObjectAccesses(o.getObjectAccesss(), objectDoc);
 			mapObjectUses(o.getObjectUses(), objectDoc);
             mapObjectUseConstraints(o.getObjectUseConstraints(), objectDoc);
@@ -354,6 +358,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
 			mapObjectFormatInspires(o.getObjectFormatInspires(), objectDoc);
 			mapSpatialSystems(o.getSpatialSystems(), objectDoc);
+            mapObjectDataLanguages(o.getObjectDataLanguages(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -403,6 +408,8 @@ public class BeanToDocMapper implements IMapper {
 			addressDoc.put(MdekKeys.CITY, a.getCity());
 			addressDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, a.getPostboxPc());
 			addressDoc.put(MdekKeys.POST_BOX, a.getPostbox());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_CODE, a.getAdministrativeAreaKey());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_NAME, a.getAdministrativeAreaValue());
 
 			// map associations
 			mapT021Communications(a.getT021Communications(), addressDoc);
@@ -440,6 +447,8 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			addressDoc.put(MdekKeys.STREET, a.getStreet());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_CODE, a.getAdministrativeAreaKey());
+			addressDoc.put(MdekKeys.ADMINISTRATIVE_AREA_NAME, a.getAdministrativeAreaValue());
 			addressDoc.put(MdekKeys.COUNTRY_CODE, a.getCountryKey());
 			addressDoc.put(MdekKeys.COUNTRY_NAME, a.getCountryValue());
 			addressDoc.put(MdekKeys.POSTAL_CODE, a.getPostcode());
@@ -503,6 +512,8 @@ public class BeanToDocMapper implements IMapper {
 		mergeTargetDoc.put(MdekKeys.CITY, mergeSource.getCity());
 		mergeTargetDoc.put(MdekKeys.POST_BOX_POSTAL_CODE, mergeSource.getPostboxPc());
 		mergeTargetDoc.put(MdekKeys.POST_BOX, mergeSource.getPostbox());
+		mergeTargetDoc.put(MdekKeys.ADMINISTRATIVE_AREA_CODE, mergeSource.getAdministrativeAreaKey());
+		mergeTargetDoc.put(MdekKeys.ADMINISTRATIVE_AREA_NAME, mergeSource.getAdministrativeAreaValue());
 
 		return mergeTargetDoc;
 	}
@@ -1950,6 +1961,22 @@ public class BeanToDocMapper implements IMapper {
 		
 		return objectDoc;
 	}
+	
+	public IngridDocument mapObjectAdvProductGroup(Set<ObjectAdvProductGroup> refs, IngridDocument objectDoc) {
+	    if (refs == null) {
+	        return objectDoc;
+	    }
+	    
+	    ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+	    for (ObjectAdvProductGroup ref : refs) {
+	        IngridDocument refDoc = new IngridDocument();
+	        mapObjectAdvProductGroup(ref, refDoc);
+	        refList.add(refDoc);
+	    }
+	    objectDoc.put(MdekKeys.ADV_PRODUCT_LIST, refList);
+	    
+	    return objectDoc;
+	}
 
 	private IngridDocument mapObjectConformity(ObjectConformity ref, IngridDocument refDoc) {
 		if (ref == null) {
@@ -1962,6 +1989,17 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
 
 		return refDoc;
+	}
+	
+	private IngridDocument mapObjectAdvProductGroup(ObjectAdvProductGroup ref, IngridDocument refDoc) {
+	    if (ref == null) {
+	        return refDoc;
+	    }
+	    
+	    refDoc.put(MdekKeys.ADV_PRODUCT_KEY, ref.getProductKey());
+	    refDoc.put(MdekKeys.ADV_PRODUCT_VALUE, ref.getProductValue());
+	    
+	    return refDoc;
 	}
 
 	private IngridDocument mapObjectAccesses(Set<ObjectAccess> refs, IngridDocument objectDoc) {
@@ -2152,6 +2190,33 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
+
+    private IngridDocument mapObjectDataLanguages(Set<ObjectDataLanguage> refs, IngridDocument objectDoc) {
+        if (refs == null) {
+            return objectDoc;
+        }
+
+        ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+        for (ObjectDataLanguage ref : refs) {
+            IngridDocument refDoc = new IngridDocument();
+            mapObjectDataLanguage(ref, refDoc);
+            refList.add(refDoc);
+        }
+        objectDoc.put(MdekKeys.DATA_LANGUAGE_LIST, refList);
+        
+        return objectDoc;
+    }
+
+    private IngridDocument mapObjectDataLanguage(ObjectDataLanguage ref, IngridDocument refDoc) {
+        if (ref == null) {
+            return refDoc;
+        }
+
+        refDoc.put(MdekKeys.DATA_LANGUAGE_CODE, ref.getDataLanguageKey());
+        refDoc.put(MdekKeys.DATA_LANGUAGE_NAME, ref.getDataLanguageValue());
+
+        return refDoc;
+    }
 
 
 	public IngridDocument mapObjectMetadata(ObjectMetadata ref, IngridDocument refDoc,

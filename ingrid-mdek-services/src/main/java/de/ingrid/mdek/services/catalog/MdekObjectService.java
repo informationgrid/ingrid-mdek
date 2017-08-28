@@ -27,10 +27,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import de.ingrid.admin.elasticsearch.IndexManager;
-import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -62,11 +61,11 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
+import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -74,7 +73,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekObjectService {
 
-	private static final Logger LOG = Logger.getLogger(MdekObjectService.class);
+	private static final Logger LOG = LogManager.getLogger(MdekObjectService.class);
 
 	private static MdekObjectService myInstance;
 
@@ -88,35 +87,21 @@ public class MdekObjectService {
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
+    private MdekJobHandler jobHandler;
 
 	private BeanToDocMapper beanToDocMapper;
 	private BeanToDocMapperSecurity beanToDocMapperSecurity;
 	private DocToBeanMapper docToBeanMapper;
 	
-	private IndexManager indexManager = null;
-
-    private DscDocumentProducer docProducer;
-
     /** Get The Singleton */
 	public static synchronized MdekObjectService getInstance(DaoFactory daoFactory,
 			IPermissionService permissionService) {
 		if (myInstance == null) {
 	        myInstance = new MdekObjectService(daoFactory, permissionService);
-	      }
+	    }
 		return myInstance;
 	}
 	
-	/** Get The Singleton with IndexManager initialized */
-    public static synchronized MdekObjectService getInstance(DaoFactory daoFactory,
-            IPermissionService permissionService, IndexManager indexManager) {
-        if (myInstance == null) {
-            myInstance = new MdekObjectService(daoFactory, permissionService);
-        }
-        // make sure the IndexManager is initialized!
-        myInstance.indexManager = indexManager;
-        return myInstance;
-    }
-
 	private MdekObjectService(DaoFactory daoFactory, IPermissionService permissionService) {
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
@@ -128,6 +113,7 @@ public class MdekObjectService {
 		fullIndexHandler = MdekFullIndexHandler.getInstance(daoFactory);
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 		workflowHandler = MdekWorkflowHandler.getInstance(permissionService, daoFactory);
+        jobHandler = MdekJobHandler.getInstance(daoFactory);
 
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
@@ -675,20 +661,14 @@ public class MdekObjectService {
 						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_OBJECT, parentUuid);				
 			}
 		}
-		
-		// commit transaction to make new/updated data available for next step
-		daoObjectNode.commitTransaction();
-		
-		// and begin transaction again for next query
-		daoObjectNode.beginTransaction();
-		
-		// update index
-        ElasticDocument doc = docProducer.getById( oPubId.toString(), "id" );
-        if (doc != null && !doc.isEmpty()) {
-            indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-            indexManager.update( docProducer.getIndexInfo(), doc, true );
-            indexManager.flush();
-        }
+
+        // then set IDs in doc and update changed entities in JobInfo
+		oDocIn.put( MdekKeys.ID, oPub.getId() );
+		oDocIn.put( MdekKeys.UUID, oPub.getObjUuid() );
+		oDocIn.put( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, oPub.getOrgObjId() );
+        jobHandler.updateRunningJobChangedEntities(userId,
+                IdcEntityType.OBJECT, WorkState.VEROEFFENTLICHT, oDocIn,
+                "PUBLISHED document successfully");
 
 		return uuid;
 	}
@@ -831,7 +811,7 @@ public class MdekObjectService {
 		return result;
 	}
 	
-	public IngridDocument deleteObjectByOridId(String origId, boolean forceDeleteReferences, String userId) {
+	public IngridDocument deleteObjectByOrigId(String origId, boolean forceDeleteReferences, String userId) {
 	    
 	    // NOTICE: this one also contains Parent Association !
         ObjectNode oNode = loadByOrigId( origId, IdcEntityVersion.WORKING_VERSION);
@@ -966,7 +946,17 @@ public class MdekObjectService {
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);			
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);	
+
+        // then set IDs in doc and update changed entities in JobInfo
+        // result.put( MdekKeys.ID, oPub.getId() );
+        // result.put( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, oPub.getOrgObjId() );
+        result.put( MdekKeys.UUID, uuid );
+        jobHandler.updateRunningJobChangedEntities(userUuid,
+                IdcEntityType.OBJECT, WorkState.DELETED, result,
+                "DELETED document");
+        // and we also update changed entities in result
+        result.put(MdekKeys.CHANGED_ENTITIES, jobHandler.getRunningJobChangedEntities(userUuid));
 
 		return result;
 	}
@@ -1030,6 +1020,21 @@ public class MdekObjectService {
 		}
 
 		return (hasWorkingCopy(oNode) || hasPublishedVersion(oNode));
+	}
+	
+	public boolean isFolder(ObjectNode oNode) {
+	    T01Object oWork = oNode.getT01ObjectWork();
+		if (oWork != null) {
+			return oWork.getObjClass() == 1000;
+		} else {
+		    T01Object oPub = oNode.getT01ObjectPublished();
+		    if (oPub != null) {
+		        return oPub.getObjClass() == 1000;
+		    } else {
+		        throw new MdekException( "Object has no working and no published version!" );
+		    }
+		    
+		}
 	}
 
 	/** Checks whether given Object has a published version.
@@ -1165,7 +1170,7 @@ public class MdekObjectService {
 			}
 			
 			// check
-			if (!hasPublishedVersion(pathNode)) {
+			if (!hasPublishedVersion(pathNode) && !isFolder( pathNode )) {
 				throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
 			}
 		}
@@ -1198,18 +1203,21 @@ public class MdekObjectService {
 		if (parentUuid == null) {
 			return;
 		}
-		T01Object parentObjPub =
-			loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION).getT01ObjectPublished();
-		if (parentObjPub == null) {
-			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
-		}
+		ObjectNode parentObj = loadByUuid(parentUuid, IdcEntityVersion.PUBLISHED_VERSION);
 		
-		// get publish type of parent
-		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentObjPub.getPublishId());
-
-		// check whether publish type of parent is smaller
-		if (!pubTypeParent.includes(pubTypeChild)) {
-			throw new MdekException(new MdekError(MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION));					
+		if (!isFolder( parentObj )) {
+    		T01Object parentObjPub = parentObj.getT01ObjectPublished(); 
+    		if (parentObjPub == null) {
+    			throw new MdekException(new MdekError(MdekErrorType.PARENT_NOT_PUBLISHED));
+    		}
+    		
+    		// get publish type of parent
+    		PublishType pubTypeParent = EnumUtil.mapDatabaseToEnumConst(PublishType.class, parentObjPub.getPublishId());
+    
+    		// check whether publish type of parent is smaller
+    		if (!pubTypeParent.includes(pubTypeChild)) {
+    			throw new MdekException(new MdekError(MdekErrorType.PARENT_HAS_SMALLER_PUBLICATION_CONDITION));					
+    		}
 		}
 	}
 
@@ -1321,7 +1329,7 @@ public class MdekObjectService {
 			
 			// from object published ? then check compatibility !
 			boolean isFromPublished = (fromNode.getT01ObjectPublished() != null);
-			if (isFromPublished) {
+			if (isFromPublished && !isFolder( toNode )) {
 				// new parent has to be published ! -> not possible to move published nodes under unpublished parent
 				T01Object toObjPub = toNode.getT01ObjectPublished();
 				if (toObjPub == null) {
@@ -1432,9 +1440,4 @@ public class MdekObjectService {
 		
 		return errInfo;
 	}
-	
-
-    public void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
-    }
 }

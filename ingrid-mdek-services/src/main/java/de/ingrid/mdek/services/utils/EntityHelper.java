@@ -24,7 +24,8 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -40,7 +41,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class EntityHelper {
 
-	private static final Logger LOG = Logger.getLogger(EntityHelper.class);
+	private static final Logger LOG = LogManager.getLogger(EntityHelper.class);
 
 	private static EntityHelper myInstance;
 

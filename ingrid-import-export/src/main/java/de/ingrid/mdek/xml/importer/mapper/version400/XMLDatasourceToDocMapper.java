@@ -348,7 +348,14 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				rowList.add(new ArrayList<IngridDocument>());
 			}
 			List<IngridDocument> colList = rowList.get(line-1);
-			colList.add(additionalValueDoc);
+			IngridDocument dynRef = fieldKeyToDocMap.get(additionalValueDoc.get( MdekKeys.ADDITIONAL_FIELD_KEY ));
+			if (dynRef == null) {
+			    colList.add(additionalValueDoc);
+			} else {
+			    colList.add( dynRef );
+			    // remove dynRef from topList
+			    additionalValuesTopList.remove( dynRef );
+			}
 		} else {
 			additionalValuesTopList.add(additionalValueDoc);
 		}

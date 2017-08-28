@@ -123,8 +123,14 @@ public class MdekExampleQS {
 			}
 		}
 
-		// shutdown mdek
-		MdekCaller.shutdown();
+        // shutdown mdek
+        for (int i=0; i<numThreads; i++) {
+            if (threads[i].isAlive()) {
+                System.out.println( "WARNING: Thread " + i + " STILL ALIVE !!!");                
+            }
+        }
+        MdekCaller.shutdown();
+        System.exit( 0 );
 /*
 		System.out.println("END OF EXAMPLE (end of main())");
 
@@ -1089,7 +1095,7 @@ class MdekExampleQSThread extends Thread {
 			"inner join aResp.t021Communications comm " +
 		"where " +
 			// exclude hidden user addresses !
-			AddressType.getHQLExcludeIGEUsersViaNode("aNode") +
+			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND aMeta.expiryState = " + ExpiryState.INITIAL.getDbValue() +
 			" and a.responsibleUuid = aRespNode.addrUuid " +
 			" and comm.commtypeKey = " + MdekUtils.COMM_TYPE_EMAIL;

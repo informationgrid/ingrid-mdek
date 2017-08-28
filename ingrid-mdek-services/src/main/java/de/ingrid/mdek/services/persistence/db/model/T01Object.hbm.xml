@@ -50,8 +50,6 @@
       <property name="datasetAlternateName" type="string" column="dataset_alternate_name"/>
       <property name="datasetCharacterSet" type="integer" column="dataset_character_set"/>
       <property name="datasetUsage" type="string" column="dataset_usage"/>
-      <property name="dataLanguageKey" type="integer" column="data_language_key"/>
-      <property name="dataLanguageValue" type="string" column="data_language_value"/>
       <property name="metadataCharacterSet" type="integer" column="metadata_character_set"/>
       <property name="metadataStandardName" type="string" column="metadata_standard_name"/>
       <property name="metadataStandardVersion" type="string" column="metadata_standard_version"/>
@@ -67,6 +65,8 @@
       <property name="orderingInstructions" type="string" column="ordering_instructions"/>
       <property name="isCatalogData" type="string" column="is_catalog_data"/>
       <property name="isInspireRelevant" type="string" column="is_inspire_relevant"/>
+      <property name="isInspireConform" type="string" column="is_inspire_conform"/>
+      <property name="isAdvCompatible" type="string" column="is_adv_compatible"/>
       <property name="isOpenData" type="string" column="is_open_data"/>
       <property name="workState" type="string" column="work_state"/>
       <property name="createTime" type="string" column="create_time"/>
@@ -96,6 +96,18 @@
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="ObjectConformity" not-found="ignore"/>
+      </set>
+      <set name="objectAdvProductGroup" order-by="line" table="adv_product_group"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="ObjectAdvProductGroup" not-found="ignore"/>
+      </set>
+      <set name="objectDataLanguages" order-by="line" table="object_data_language"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="ObjectDataLanguage" not-found="ignore"/>
       </set>
       <set name="objectDataQualitys" order-by="line" table="object_data_quality"
            inverse="true"

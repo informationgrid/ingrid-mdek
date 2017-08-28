@@ -120,7 +120,13 @@ public class MdekExampleObject {
 		}
 
 		// shutdown mdek
+        for (int i=0; i<numThreads; i++) {
+            if (threads[i].isAlive()) {
+                System.out.println( "WARNING: Thread " + i + " STILL ALIVE !!!");                
+            }
+        }
 		MdekCaller.shutdown();
+		System.exit( 0 );
 	}
 }
 
@@ -812,6 +818,7 @@ class MdekExampleObjectThread extends Thread {
 
 		System.out.println("\n----- extend initial object (with address, object references, spatial refs, free term ...) and store -----");
 		// extend initial object with own data !
+        newObjDoc.put(MdekKeys.CLASS, 0);
 		newObjDoc.put(MdekKeys.TITLE, "TEST NEUES OBJEKT");
 		newObjDoc.put(MdekKeys.ADR_REFERENCES_TO, oMap.get(MdekKeys.ADR_REFERENCES_TO));
 		newObjDoc.put(MdekKeys.OBJ_REFERENCES_TO, oMap.get(MdekKeys.OBJ_REFERENCES_TO));
@@ -917,6 +924,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("----- Also add referenced address to be publishable ! -----");
 		IngridDocument newTopObjDoc = new IngridDocument();
 		newTopObjDoc = supertool.getInitialObject(newTopObjDoc);
+		newTopObjDoc.put(MdekKeys.CLASS, 0);
 		newTopObjDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT");
 		newTopObjDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		supertool.addPointOfContactAddress(newTopObjDoc, addrUuidPublished);
@@ -1048,6 +1056,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("----- Also add referenced address to be publishable ! -----");
 		IngridDocument newTopDoc = new IngridDocument();
 		newTopDoc = supertool.getInitialObject(newTopDoc);
+        newTopDoc.put(MdekKeys.CLASS, 0);
 		newTopDoc.put(MdekKeys.TITLE, "TEST NEUES TOP OBJEKT DIREKT PUBLISH");
 		newTopDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.AMTSINTERN.getDbValue());
 		supertool.addPointOfContactAddress(newTopDoc, addrUuidPublished);
@@ -1080,6 +1089,7 @@ class MdekExampleObjectThread extends Thread {
 		System.out.println("----- first get initial top object as template for sub object to publish -----");
 		IngridDocument newPubDoc = new IngridDocument();
 		newPubDoc = supertool.getInitialObject(newPubDoc);
+		newPubDoc.put(MdekKeys.CLASS, 0);
 		newPubDoc.put(MdekKeys.TITLE, "TEST NEUES SUB OBJEKT DIREKT PUBLISH");
 		newPubDoc.put(MdekKeys.PUBLICATION_CONDITION, MdekUtils.PublishType.INTRANET.getDbValue());
 		System.out.println("\n----- Also add published point of contact to be publishable ! -----");
@@ -1286,8 +1296,6 @@ class MdekExampleObjectThread extends Thread {
 		// manipulate former loaded object !
 
 		oDocIn.put(MdekKeys.TITLE, "BEARBEITET: " + oDocIn.get(MdekKeys.TITLE));
-		Integer origDataLanguageCode = (Integer) oDocIn.get(MdekKeys.DATA_LANGUAGE_CODE);
-		oDocIn.put(MdekKeys.DATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		Integer origMetadataLanguageCode = (Integer) oDocIn.get(MdekKeys.METADATA_LANGUAGE_CODE);
 		oDocIn.put(MdekKeys.METADATA_LANGUAGE_CODE, UtilsLanguageCodelist.getCodeFromShortcut("en"));
 		oDocIn.put(MdekKeys.IS_INSPIRE_RELEVANT, "Y");
@@ -1720,6 +1728,15 @@ class MdekExampleObjectThread extends Thread {
 		docList.add(testDoc);
 		oDocIn.put(MdekKeys.SPATIAL_SYSTEM_LIST, docList);
 
+        // add entry to OBJECT DATA LANGUAGE
+        docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_LANGUAGE_LIST);
+        docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
+        testDoc = new IngridDocument();
+        // check DATA_LANGUAGE_CODE -> DATA_LANGUAGE_NAME is stored via syslist 99999999
+        testDoc.put(MdekKeys.DATA_LANGUAGE_CODE, 103); // Dänisch
+        docList.add(testDoc);
+        oDocIn.put(MdekKeys.DATA_LANGUAGE_LIST, docList);
+
 		// add entry to OBJECT ADDITIONAL_FIELDS
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.ADDITIONAL_FIELDS);
 		if (docList == null) {
@@ -1837,7 +1854,6 @@ class MdekExampleObjectThread extends Thread {
 
 			System.out.println("MANIPULATE OBJECT: back to origin");
 
-			oRefetchedDoc.put(MdekKeys.DATA_LANGUAGE_CODE, origDataLanguageCode);
 			oRefetchedDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, origMetadataLanguageCode);
 			oRefetchedDoc.put(MdekKeys.IS_INSPIRE_RELEVANT, "N");
 			oRefetchedDoc.put(MdekKeys.IS_OPEN_DATA, "N");
@@ -2021,6 +2037,13 @@ class MdekExampleObjectThread extends Thread {
 				docList.remove(docList.size()-1);
 				oRefetchedDoc.put(MdekKeys.SPATIAL_SYSTEM_LIST, docList);
 			}
+
+            // OBJECT DATA LANGUAGE wieder wie vorher !
+            docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.DATA_LANGUAGE_LIST);
+            if (docList != null && docList.size() > 0) {
+                docList.remove(docList.size()-1);
+                oRefetchedDoc.put(MdekKeys.DATA_LANGUAGE_LIST, docList);
+            }
 
 			// OBJECT ADDITIONAL_FIELDS wieder wie vorher !
 			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.ADDITIONAL_FIELDS);

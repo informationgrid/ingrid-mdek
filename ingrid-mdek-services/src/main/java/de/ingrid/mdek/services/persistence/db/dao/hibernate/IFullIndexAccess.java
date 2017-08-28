@@ -38,4 +38,5 @@ public interface IFullIndexAccess {
 	static String IDX_VALUE_IS_INSPIRE_RELEVANT = "inspirerelevant" + IDX_SEPARATOR + "inspire relevant";
 	static String IDX_VALUE_IS_OPEN_DATA = "opendata" + IDX_SEPARATOR + "open data";
 	static String IDX_VALUE_HAS_ATOM_DOWNLOAD = "atom download";
+	static String IDX_VALUE_IS_ADV_COMPATIBLE = "adv compatible";
 }

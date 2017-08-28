@@ -51,8 +51,6 @@ public class T01Object implements IEntity {
 	private String datasetAlternateName;
 	private Integer datasetCharacterSet;
 	private String datasetUsage;
-	private Integer dataLanguageKey;
-	private String dataLanguageValue;
 	private Integer metadataCharacterSet;
 	private String metadataStandardName;
 	private String metadataStandardVersion;
@@ -66,6 +64,8 @@ public class T01Object implements IEntity {
 	private String orderingInstructions;
 	private String isCatalogData;
 	private String isInspireRelevant;
+	private String isInspireConform;
+	private String isAdvCompatible;
 	private String isOpenData;
 	private String workState;
 	private String createTime;
@@ -78,6 +78,8 @@ public class T01Object implements IEntity {
 	private Set objectAccesss = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
+	private Set objectAdvProductGroup = new HashSet();
+    private Set objectDataLanguages = new HashSet();
 	private Set objectDataQualitys = new HashSet();
 	private Set objectFormatInspires = new HashSet();
 	private Set objectOpenDataCategorys = new HashSet();
@@ -286,22 +288,6 @@ public class T01Object implements IEntity {
 		this.datasetUsage = datasetUsage;
 	}
 
-	public Integer getDataLanguageKey() {
-		return dataLanguageKey;
-	}
-
-	public void setDataLanguageKey(Integer dataLanguageKey) {
-		this.dataLanguageKey = dataLanguageKey;
-	}
-
-	public String getDataLanguageValue() {
-		return dataLanguageValue;
-	}
-
-	public void setDataLanguageValue(String dataLanguageValue) {
-		this.dataLanguageValue = dataLanguageValue;
-	}
-
 	public Integer getMetadataCharacterSet() {
 		return metadataCharacterSet;
 	}
@@ -493,6 +479,14 @@ public class T01Object implements IEntity {
 
 	public void setObjectConformitys(Set objectConformitys) {
 		this.objectConformitys = objectConformitys;
+	}
+
+	public Set getObjectDataLanguages() {
+		return objectDataLanguages;
+	}
+
+	public void setObjectDataLanguages(Set objectDataLanguages) {
+		this.objectDataLanguages = objectDataLanguages;
 	}
 
 	public Set getObjectDataQualitys() {
@@ -726,5 +720,29 @@ public class T01Object implements IEntity {
 	public void setObjectMetadata(ObjectMetadata objectMetadata) {
 		this.objectMetadata = objectMetadata;
 	}
+
+    public String getIsAdvCompatible() {
+        return isAdvCompatible;
+    }
+
+    public void setIsAdvCompatible(String isAdvCompatible) {
+        this.isAdvCompatible = isAdvCompatible;
+    }
+
+    public String getIsInspireConform() {
+        return isInspireConform;
+    }
+
+    public void setIsInspireConform(String isInspireConform) {
+        this.isInspireConform = isInspireConform;
+    }
+
+    public Set getObjectAdvProductGroup() {
+        return objectAdvProductGroup;
+    }
+
+    public void setObjectAdvProductGroup(Set objectAdvProductGroup) {
+        this.objectAdvProductGroup = objectAdvProductGroup;
+    }
 
 }

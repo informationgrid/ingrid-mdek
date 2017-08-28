@@ -112,6 +112,8 @@
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectAdvProductGroup.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataLanguage.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataQuality.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectFormatInspire.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
@@ -230,6 +232,7 @@
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.DscSearchPlug" />
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.object.*" />
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.controller.DatabaseParameterController" />
+        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.controller.EditorController" />
     </context:component-scan>
     
     <mvc:annotation-driven/>

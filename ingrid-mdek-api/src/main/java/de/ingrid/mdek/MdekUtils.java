@@ -147,6 +147,7 @@ public class MdekUtils {
 		/** type='I'(INSPIRE) -> INSPIRE Themen zur Verschlagwortung */
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue:entryId:term"),
 		COUNTRY(6200, "T03Catalogue, T02Address:countryKey:countryValue"),
+		ADMINISTRATIVE_AREA(6250, "T02Address, T02Address:administrativeAreaKey:administrativeAreaValue"),
 		OBJ_FORMAT_INSPIRE(6300, "ObjectFormatInspire:formatKey:formatValue"),
 		/** dqElementId=109 */
 		DQ_109_CompletenessComission(7109, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
@@ -166,6 +167,7 @@ public class MdekUtils {
 		DQ_126_NonQuantitativeAttributeAccuracy(7126, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=127 */
 		DQ_127_QuantitativeAttributeAccuracy(7127, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		OBJ_ADV_PRODUCT_GROUP(8010, "ObjectAdvProductGroup:productKey:productValue"),
 		LANGUAGE(99999999, "T03Catalogue, T01Object:languageKey:languageValue");
 
 		MdekSysList(Integer dbValue, String description) {
@@ -328,7 +330,9 @@ public class MdekUtils {
 		VEROEFFENTLICHT("V", "ver\u00f6ffentlicht"),
 		IN_BEARBEITUNG("B", "in Bearbeitung"),
 		QS_UEBERWIESEN("Q", "an Qualit\u00e4tssicherung zugewiesen"),
-		QS_RUECKUEBERWIESEN("R", "von Qualit\u00e4tssicherung r\u00fcck\u00fcberwiesen");
+		QS_RUECKUEBERWIESEN("R", "von Qualit\u00e4tssicherung r\u00fcck\u00fcberwiesen"),
+		// this state is not set in database, but we use it when describing changed object in job info !
+        DELETED("D", "gel\u00f6scht");
 
 		WorkState(String dbValue, String description) {
 			this.dbValue = dbValue;
@@ -462,7 +466,8 @@ public class MdekUtils {
 		INSTITUTION(0, "Institution"),
 		EINHEIT(1, "Einheit"),
 		PERSON(2, "Person"),
-		FREI(3, "Freie Adresse");
+		FREI(3, "Freie Adresse"),
+	    FOLDER(1000, "Ordner");
 
 		AddressType(Integer dbValue, String description) {
 			this.dbValue = dbValue;
@@ -485,13 +490,17 @@ public class MdekUtils {
 		public static String getIGEUserParentUuid() {
 			return "IGE_USER";
 		}
-		/** Return the HQL to add into where clause if the AddressNode should NOT query IGE USERS !
+		/** Return the HQL to add into where clause if the AddressNode should NOT query IGE USERS and FOLDERS!
 		 * Pass alias of AddressNode used in query.<br>
 		 * NOTICE: contains space at front and end ! */
-		public static String getHQLExcludeIGEUsersViaNode(String aliasAddressNode) {
+		public static String getHQLExcludeIGEUsersViaNode(String aliasAddressNode, String aliasAddress) {
 			String columnToCheck = aliasAddressNode + ".fkAddrUuid";
-			return " (" + columnToCheck + " IS NULL OR " +
+			String result =  "(" + columnToCheck + " IS NULL OR " +
 				columnToCheck + " != '" + AddressType.getIGEUserParentUuid() + "') ";
+			if (aliasAddress != null) {
+			    result = aliasAddress + ".adrType != '1000' and " + result;
+			}
+			return result;
 		}
 		/** Return the HQL to add into where clause if the T02Address should NOT query IGE USERS !
 		 * Pass alias of T02Address used in query.<br>

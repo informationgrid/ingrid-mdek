@@ -82,12 +82,14 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		general.addChild(createTopicCategories());
 		general.addChild(createEnvInformation());
 		general.addChild(createIsInspireRelevant());
+		general.addChild(createIsAdvCompatible());
+		general.addChild(createAdvProductGroup());
 		general.addChild(createIsOpenData());
 		general.addChild(createOpenDataCategorys());
 		return general;
 	}
 
-	private XMLElement createObjectIdentifier() {
+    private XMLElement createObjectIdentifier() {
 		return new XMLElement(OBJECT_IDENTIFIER, getStringForKey(MdekKeys.UUID));
 	}
 
@@ -151,6 +153,11 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 				for (List<IngridDocument> row : rows) {
 					rowNum++;
 					for (IngridDocument col : row) {
+					    if (col.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
+                            List<IngridDocument> listDyn = new ArrayList<IngridDocument>();
+					        listDyn.add( col );
+					        createAdditionalValues(parent, listDyn, rowNum);
+					    }
 						parent.addChild(createGeneralAdditionalValue(col, rowNum, tableKey));
 					}
 				}
@@ -232,6 +239,25 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createIsInspireRelevant() {
 		return new XMLElement(IS_INSPIRE_RELEVANT, getStringForKey(MdekKeys.IS_INSPIRE_RELEVANT));
 	}
+	
+    private XMLElement createIsAdvCompatible() {
+        return new XMLElement(IS_ADV_COMPATIBLE, getStringForKey(MdekKeys.IS_ADV_COMPATIBLE));
+    }
+    
+    private XMLElement createAdvProductGroup() {
+        List<IngridDocument> productList = getIngridDocumentListForKey( MdekKeys.ADV_PRODUCT_LIST );
+        List<XMLElement> products = new ArrayList<XMLElement>();
+        if (productList != null && productList.size() > 0) {
+            for (IngridDocument product : productList) {
+                XMLElement xmlElement = new XMLElement( ADV_PRODUCT_GROUP_ITEM );
+                xmlElement.setText( product.getString( MdekKeys.ADV_PRODUCT_VALUE ) );
+                products.add( xmlElement );
+            }
+        }
+        XMLElement parent = new XMLElement(ADV_PRODUCT_GROUP);
+        parent.addChildren( products );
+        return parent;
+    }
 	
 	private XMLElement createIsOpenData() {
 		return new XMLElement(IS_OPEN_DATA, getStringForKey(MdekKeys.IS_OPEN_DATA));
@@ -635,7 +661,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createAdditionalInformation() {
 		XMLElement additionalInformation = new XMLElement(ADDITIONAL_INFORMATION);
-		additionalInformation.addChild(createDataLanguage());
+		additionalInformation.addChildren(createDataLanguages());
 		additionalInformation.addChild(createMetaDataLanguage());
 		additionalInformation.addChildren(createExportTos());
 		additionalInformation.addChildren(createLegislations());
@@ -655,11 +681,19 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return additionalInformation;
 	}
 
-	private XMLElement createDataLanguage() {
-		XMLElement dataLanguage = new XMLElement(DATA_LANGUAGE, getStringForKey(MdekKeys.DATA_LANGUAGE_NAME));
-		dataLanguage.addAttribute(ID, getIntegerForKey(MdekKeys.DATA_LANGUAGE_CODE));
-		return dataLanguage;
-	}
+    private List<XMLElement> createDataLanguages() {
+        List<XMLElement> dataLanguages = new ArrayList<XMLElement>();
+        List<IngridDocument> dataLanguageDocs = getIngridDocumentListForKey(MdekKeys.DATA_LANGUAGE_LIST);
+        for (IngridDocument dataLanguageDoc : dataLanguageDocs) {
+            dataLanguages.add(createDataLanguage(dataLanguageDoc));
+        }
+        return dataLanguages;
+    }
+    private XMLElement createDataLanguage(IngridDocument dataLanguageDoc) {
+        XMLElement dataLanguage = new XMLElement(DATA_LANGUAGE, getStringForKey(MdekKeys.DATA_LANGUAGE_NAME, dataLanguageDoc));
+        dataLanguage.addAttribute(ID, getIntegerForKey(MdekKeys.DATA_LANGUAGE_CODE, dataLanguageDoc));
+        return dataLanguage;
+    }
 
 	private XMLElement createMetaDataLanguage() {
 		XMLElement metaDataLanguage = new XMLElement(METADATA_LANGUAGE, getStringForKey(MdekKeys.METADATA_LANGUAGE_NAME));

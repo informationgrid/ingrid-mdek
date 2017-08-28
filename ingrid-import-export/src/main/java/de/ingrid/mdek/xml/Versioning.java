@@ -26,10 +26,11 @@ package de.ingrid.mdek.xml;
  * Helper class encapsulating versioning stuff of Export/Import Format.<br/>
  */
 public class Versioning extends de.ingrid.mdek.Versioning {
-	/** Current Version of XML Exchange Format */
-	public static final String CURRENT_IMPORT_EXPORT_VERSION = "4.0.0";
+	/** Current Version of XML Exchange Format.
+	 *  Only change, if InGrid XML structure really changes, so current importer cannot read former version or former importer cannot read this version ! */
+	public static final String CURRENT_IMPORT_EXPORT_VERSION = "4.0.3";
 
 	/** Current Mapper for importing current format ! */
 	public static final Class CURRENT_IMPORT_MAPPER_CLASS =
-		de.ingrid.mdek.xml.importer.mapper.version400.IngridXMLMapperImpl.class;
+		de.ingrid.mdek.xml.importer.mapper.version404.IngridXMLMapperImpl.class;
 }

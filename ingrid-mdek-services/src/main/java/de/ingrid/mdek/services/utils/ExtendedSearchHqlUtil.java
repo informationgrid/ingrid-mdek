@@ -29,7 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.AddressType;
@@ -45,7 +46,7 @@ import de.ingrid.utils.queryparser.QueryStringParser;
  */
 public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 
-	private static final Logger LOG = Logger.getLogger(ExtendedSearchHqlUtil.class);
+	private static final Logger LOG = LogManager.getLogger(ExtendedSearchHqlUtil.class);
 	
 	public static String createObjectExtendedSearchQuery(IngridDocument searchParams) {
 		
@@ -288,7 +289,7 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
 		
 		StringBuilder fromString = new StringBuilder("from AddressNode aNode inner join aNode.t02AddressWork addr");
 		// exclude hidden user addresses !
-		StringBuilder whereString = new StringBuilder(AddressType.getHQLExcludeIGEUsersViaNode("aNode"));
+		StringBuilder whereString = new StringBuilder(AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr"));
 		
 		String queryTerm = searchParams.getString(MdekKeys.QUERY_TERM);
 		Integer relation = (Integer)searchParams.get(MdekKeys.RELATION);

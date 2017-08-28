@@ -24,13 +24,14 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
+import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
-import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.MdekException;
@@ -50,7 +51,7 @@ import de.ingrid.utils.IngridDocument;
  */
 public class MdekWorkflowHandler {
 
-	private static final Logger LOG = Logger.getLogger(MdekWorkflowHandler.class);
+	private static final Logger LOG = LogManager.getLogger(MdekWorkflowHandler.class);
 	
 	private IPermissionService permService;
 	private MdekCatalogService catalogService;

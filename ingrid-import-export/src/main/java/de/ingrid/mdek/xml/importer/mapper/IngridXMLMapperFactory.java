@@ -22,7 +22,8 @@
  */
 package de.ingrid.mdek.xml.importer.mapper;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.xml.Versioning;
@@ -31,7 +32,7 @@ import de.ingrid.mdek.xml.Versioning;
 
 public class IngridXMLMapperFactory {
 
-	private final static Logger log = Logger.getLogger(IngridXMLMapperFactory.class);
+	private final static Logger log = LogManager.getLogger(IngridXMLMapperFactory.class);
 
 	private IngridXMLMapperFactory() {}
 

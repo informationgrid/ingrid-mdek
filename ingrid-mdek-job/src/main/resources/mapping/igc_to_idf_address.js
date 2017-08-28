@@ -52,9 +52,11 @@ DOM.addAttribute(idfHtml, "idf-version", "3.0.0");
 var idfBody = DOM.convertToIdfElement(XPATH.getNode(idfDoc, "/idf:html/idf:body"));
 
 // ========== t02_address ==========
-var addrId = sourceRecord.get("id");
+// convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+var addrId = +sourceRecord.get("id");
+
 // only addresses where hide_address is not set !
-var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
+var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrId]);
 if (hasValue(addrRow)) {
     var idfResponsibleParty = getIdfResponsibleParty(addrRow);
 	// add needed "ISO" namespaces to top ISO node 
@@ -102,7 +104,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         idfResponsibleParty.addElement("gmd:positionName").addElement("gco:CharacterString").addText(addressRow.get("job"));
     }
     var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
-    var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [addressRow.get("id")]);
+    var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [+addressRow.get("id")]);
     var ciTelephone;
     var emailAddresses = new Array();
     var urls = new Array();
@@ -122,6 +124,19 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         }
     }
     var ciAddress;
+    
+    var addAdministrativeArea = function(ciAddress) {
+        var administrativeAreaKey = addressRow.get("administrative_area_key");
+        if (hasValue(administrativeAreaKey)) {
+            
+            if (administrativeAreaKey == -1) {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+            } else {
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
+            }
+        }
+    };
+    
     if (hasValue(addressRow.get("postbox")) || hasValue(addressRow.get("postbox_pc")) ||
             hasValue(addressRow.get("city")) || hasValue(addressRow.get("street"))) {
     	if (!ciAddress) ciAddress = ciContact.addElement("gmd:address").addElement("gmd:CI_Address");
@@ -136,12 +151,18 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 		}
 		ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText(addressRow.get("street"));
 		ciAddress.addElement("gmd:city").addElement("gco:CharacterString").addText(addressRow.get("city"));
+		addAdministrativeArea(ciAddress);
 		ciAddress.addElement("gmd:postalCode").addElement("gco:CharacterString").addText(addressRow.get("postcode"));
+	} else {
+	    ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+	    addAdministrativeArea(ciAddress);
 	}
+    
     if (hasValue(addressRow.get("country_key"))) {
         if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
         ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
     }
+    
     for (var j=0; j<emailAddresses.length; j++) {
         if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
         ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
@@ -195,9 +216,14 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     }
 
 	// do NOT USE DISTINCT -> crashes on ORACLE !
-    var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', '1']);
+    var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', 1]);
+    var tmpRows = new Array();
     for (var j=0; j<rows.size(); j++) {
-        idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
+        var uuid = rows.get(j).get("obj_uuid");
+        if(tmpRows.indexOf(uuid) == -1){
+            tmpRows.push(uuid);
+            idfResponsibleParty.addElement(getIdfObjectReference(rows.get(j), "idf:objectReference"));
+        }
     }
 
     return idfResponsibleParty;
@@ -215,7 +241,7 @@ function getFirstVisibleAddress(addrUuid) {
         var addrIdPublished = addrNodeRows.get(k).get("addr_id_published");
 
         // ---------- t02_address ----------
-        resultAddrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrIdPublished]);
+        resultAddrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrIdPublished]);
         if (!hasValue(resultAddrRow)) {
 if (log.isDebugEnabled()) {
     log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
@@ -275,7 +301,7 @@ function getIndividualNameFromAddressRow(addressRow) {
     }
     
     if (hasValue(title) && !hasValue(addressing)) {
-        individualName = IngridQueryHelper.hasValue(individualName) ? individualName += ", " + title : title;
+        individualName = hasValue(individualName) ? individualName += ", " + title : title;
     } else if (!hasValue(title) && hasValue(addressing)) {
         individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
     } else if (hasValue(title) && hasValue(addressing)) {
@@ -318,14 +344,14 @@ function getAddressRowPathArray(addressRow) {
     }
     results.push(addressRow);
     var addrId = addressRow.get("id");
-    var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+    var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
     while (hasValue(parentAdressRow)) {
         if (log.isDebugEnabled()) {
             log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
         }
         results.push(parentAdressRow);
         addrId = parentAdressRow.get("id");
-        parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+        parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
     }
     return results;
 }

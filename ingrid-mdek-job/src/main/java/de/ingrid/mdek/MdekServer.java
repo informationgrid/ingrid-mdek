@@ -80,7 +80,9 @@ public class MdekServer {
     @PostConstruct
     public Thread runBackend() throws IOException {
         Thread thread = new CommunicationThread();
-        thread.start();
+        if(conf.igcEnableIBusCommunication){
+            thread.start();
+        }
         return thread;
     }
     

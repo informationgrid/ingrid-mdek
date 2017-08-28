@@ -229,12 +229,12 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
             catalogJob.beginTransaction();
             
-            List<Map<String, String>> dirtyDocuments = new ArrayList<Map<String, String>>();
-            
-            
             /**
              * INSERT DOCS
              */
+            // remember inserted entities for updating ES index and audit log (AFTER commit !)
+            List<HashMap> insertedEntities = new ArrayList<HashMap>();
+
             for (int i = 0; i < insertDocs.getLength(); i++) {
                 Node item = insertDocs.item( i );
                 // TODO insert validation
@@ -264,43 +264,45 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 } else {
                     errors.add( ex );
                 }
+                if (resultInsert.get(MdekKeys.CHANGED_ENTITIES) != null) {
+                    insertedEntities.addAll( (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES));                    
+                }
             }
 
             /**
              * UPDATE DOCS
              */
+            // remember updated entities for updating ES index and audit log (AFTER commit !)
+            List<HashMap> updatedEntities = new ArrayList<HashMap>();
+
             for (int i = 0; i < updateDocs.getLength(); i++) {
                 Node item = updateDocs.item( i );
                 String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
-
-                if ("uuid".equals( propName ) && propValue != null) {
+                
+                if (("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches()) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
                     catalogJob.analyzeImportData( document );
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
-                    List<HashMap> processedEntities = (List<HashMap>) resultUpdate.get(MdekKeys.CHANGED_ENTITIES);                    
-                    for (Map m : processedEntities) {
-                        if (m.containsKey( MdekKeys.ID )) {
-                            dirtyDocuments.add( new HashMap<String, String>() {{ 
-                                put("ID", (String) m.get( MdekKeys.ID ));
-                                put("TYPE", ((String)m.get( MdekKeys.JOBINFO_ENTITY_TYPE)) );
-                                }} 
-                            );
-                        }
+                    if (resultUpdate.get(MdekKeys.CHANGED_ENTITIES) != null) {
+                        updatedEntities.addAll( (List<HashMap>) resultUpdate.get(MdekKeys.CHANGED_ENTITIES));                    
                     }
                 } else {
-                    throw new Exception( "Missing constraint for property 'uuid' in update request for update of record '"
-                            + utils.getString( item, ".//gmd:fileIdentifier/gco:CharacterString" ) + "'." );
+                    log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
 
             /**
              * DELETE DOCS
              */
+            // remember updated entities for updating ES index and audit log (AFTER commit !)
+            List<HashMap> deletedEntities = new ArrayList<HashMap>();
+
             for (int i = 0; i < deleteDocs.getLength(); i++) {
                 Node item = deleteDocs.item( i );
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
@@ -312,6 +314,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     params.put( MdekKeys.USER_ID, adminUserUUID );
                     params.put( MdekKeys.UUID, propValue );
                     params.put( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES, true );
+                    params.putBoolean( MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, true );
 
                     try {
                         // try to delete by ORIG UUID
@@ -329,20 +332,26 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     }
                     if (resultDelete.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
                         deletedObjects++;
-                        dirtyDocuments.add( new HashMap<String, String>() {{ 
-                            put("UUID", propValue);
-                            put("TYPE", "DELETE" );
-                            }} 
-                        );
+                        if (resultDelete.get(MdekKeys.CHANGED_ENTITIES) != null) {
+                            deletedEntities.addAll( (List<HashMap>) resultDelete.get(MdekKeys.CHANGED_ENTITIES));                    
+                        }
                     } else {
                         throw new Exception( "Object could not be deleted: " + propValue );
                     }
                 } else {
-                    log.warn( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
+                    throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
 
             catalogJob.commitTransaction();
+
+            // Update search index with data of all published entities and also log audit if set
+            // Has to be executed after commit so data in database is up to date !
+            catalogJob.updateSearchIndexAndAudit(insertedEntities);
+            catalogJob.updateSearchIndexAndAudit(updatedEntities);
+            // also remove from index when deleted
+            catalogJob.updateSearchIndexAndAudit(deletedEntities);
             
             // Update index after commit to database since the DscDocumentProducer works on the database
             // and does not use hibernate session. Therefore we have to wait after the DB transaction commit.
@@ -416,7 +425,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, MdekIdcCatalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
-        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
@@ -433,7 +442,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
-        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, true );

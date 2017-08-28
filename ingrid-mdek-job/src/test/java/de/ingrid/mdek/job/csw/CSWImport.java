@@ -59,6 +59,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
@@ -67,6 +68,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.MdekKeys;
@@ -99,6 +101,7 @@ import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
 
+@PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class})
 public class CSWImport {
@@ -152,7 +155,10 @@ public class CSWImport {
     @Mock private ResultSet resultSet;
 
     @Mock private MdekObjectService mdekObjectService;
-    
+
+    @Mock
+    IndexManager indexManager;
+
     private IngridXMLMapper importMapper;
 
     @Before
@@ -200,10 +206,12 @@ public class CSWImport {
         cswMapper = new ScriptImportDataMapper( daoFactory );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
-        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService );
+        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, indexManager );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
-        cswMapper.setMapperScript( new ClassPathResource( "import/mapper/csw202_to_ingrid_igc.js" ) );
+        ClassPathResource[] resources = new ClassPathResource[1];
+        resources[0] = new ClassPathResource( "import/mapper/csw202_to_ingrid_igc.js" ); 
+        cswMapper.setMapperScript( resources );
         cswMapper.setTemplate( new ClassPathResource( "import/templates/igc_template_csw202.xml" ) );
         mapper.put( "csw202", cswMapper );
         dataMapperFactory.setMapperClasses( mapper );
@@ -214,7 +222,7 @@ public class CSWImport {
         plug.setCatalogJob( catJobMock );
         plug.setObjectJob( objectJobMock );
 
-        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.0" );
+        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.3" );
     }
 
     private void mockSyslists() {
@@ -535,9 +543,7 @@ public class CSWImport {
                     assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_LIST ).get( 0 )).getString( MdekKeys.USE_TERMS_OF_USE_VALUE ), is( "Es gelten keine Bedingungen" ) );
 
                     // check usage constraints:
-                    // TODO: why is size 2 with first one "license"? assertThat( docOut.getArrayList( MdekKeys.USE_CONSTRAINTS).size(), is(
-                    // 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).get( 1 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "eingeschränkte Geolizenz" ) );
+                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).get( 0 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "eingeschränkte Geolizenz" ) );
 
                     // check usage condition: Es gelten keine Bedingungen
                     assertThat( docOut.getArrayList( MdekKeys.ACCESS_LIST ).size(), is( 1 ) );
