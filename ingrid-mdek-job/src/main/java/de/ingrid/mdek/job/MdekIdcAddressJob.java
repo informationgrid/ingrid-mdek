@@ -1471,10 +1471,4 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			}
 		}
 	}
-	
-	@Autowired
-    @Qualifier("dscDocumentProducerAddress")
-    private void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
-    }
 }

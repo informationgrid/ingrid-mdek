@@ -30,10 +30,13 @@ import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekErrorHandler;
 import de.ingrid.mdek.services.log.AuditService;
@@ -57,7 +60,8 @@ public abstract class MdekIdcJob extends MdekJob {
 	protected BeanToDocMapper beanToDocMapper;
 	protected DocToBeanMapper docToBeanMapper;
 
-    protected DscDocumentProducer docProducer;
+    protected DscDocumentProducer docProducerObject;
+    protected DscDocumentProducer docProducerAddress;
     protected IndexManager indexManager;
 
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
@@ -113,7 +117,13 @@ public abstract class MdekIdcJob extends MdekJob {
 	 */
 	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
-            
+
+            // use document producer according to entity type
+            DscDocumentProducer docProducer = docProducerObject;
+            if (IdcEntityType.ADDRESS.getDbValue().equals( entity.get( MdekKeys.JOBINFO_ENTITY_TYPE ) )) {
+                docProducer = docProducerAddress;
+            }
+
             // PUBLISHED entities !
             if (WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
                 // update search index
@@ -158,6 +168,18 @@ public abstract class MdekIdcJob extends MdekJob {
         } else {
             return defaultValue;
         }
+    }
+
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private void setDocProducerObject(DscDocumentProducer docProducer) {
+        this.docProducerObject = docProducer;
+    }
+
+    @Autowired
+    @Qualifier("dscDocumentProducerAddress")
+    private void setDocProducerAddress(DscDocumentProducer docProducer) {
+        this.docProducerAddress = docProducer;
     }
 
 

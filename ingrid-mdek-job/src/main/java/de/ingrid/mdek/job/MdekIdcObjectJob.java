@@ -1229,10 +1229,4 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		return targetObj;
 	}
-
-    @Autowired
-    @Qualifier("dscDocumentProducer")
-    private void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
-    }
 }

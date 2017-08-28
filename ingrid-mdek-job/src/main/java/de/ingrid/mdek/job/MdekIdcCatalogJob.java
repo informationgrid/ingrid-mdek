@@ -1741,11 +1741,5 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     
     public void rollbackTransaction() {
         genericDao.rollbackTransaction();
-    }  
-
-    @Autowired
-    @Qualifier("dscDocumentProducer")
-    private void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
     }
 }
