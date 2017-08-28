@@ -45,19 +45,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import de.ingrid.admin.elasticsearch.IndexImpl;
-import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
-import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.model.AddressNode;
-import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridCall;
@@ -92,20 +84,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private DscRecordCreator dscRecordProducerAddress = null;
 
     @Autowired
-    @Qualifier("dscDocumentProducer")
-    private DscDocumentProducer dscDocumentProducerObject = null;
-
-    @Autowired
-    @Qualifier("dscDocumentProducerAddress")
-    private DscDocumentProducer dscDocumentProducerAddress = null;
-    
-    @Autowired
-    IndexManager indexManager = null;
-    
-    @Autowired
-    DaoFactory daoFactory;
-    
-    @Autowired
     private MdekIdcCatalogJob catalogJob = null;
 
     @Autowired
@@ -118,8 +96,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private String adminUserUUID;
 
     @Autowired
-    public IgeSearchPlug(final IndexImpl indexSearcher, IPlugdescriptionFieldFilter[] fieldFilters, IMetadataInjector[] injector, IPreProcessor[] preProcessors,
-            IPostProcessor[] postProcessors) throws IOException {
+    public IgeSearchPlug(final IndexImpl indexSearcher, IPlugdescriptionFieldFilter[] fieldFilters, IMetadataInjector[] injector, IPreProcessor[] preProcessors, IPostProcessor[] postProcessors)
+            throws IOException {
         super( 60000, new PlugDescriptionFieldFilters( fieldFilters ), injector, preProcessors, postProcessors );
         _indexSearcher = indexSearcher;
     }
@@ -127,8 +105,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     /*
      * (non-Javadoc)
      * 
-     * @see de.ingrid.utils.ISearcher#search(de.ingrid.utils.query.IngridQuery,
-     * int, int)
+     * @see de.ingrid.utils.ISearcher#search(de.ingrid.utils.query.IngridQuery, int, int)
      */
     @Override
     public final IngridHits search(final IngridQuery query, final int start, final int length) throws Exception {
@@ -240,9 +217,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 // TODO insert validation
                 String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 IngridDocument document = prepareImportAnalyzeDocument( builder, item );
-                // document.putBoolean(
-                // MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true :
-                // false );
+                // document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
                 catalogJob.analyzeImportData( document );
                 IngridDocument importDoc = prepareImportDocument();
                 importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
@@ -250,17 +225,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex == null) {
                     insertedObjects++;
-                    List<HashMap> processedEntities = (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES);                    
-                    for (Map m : processedEntities) {
-                        if (m.containsKey( MdekKeys.ID )) {
-                            dirtyDocuments.add( new HashMap<String, String>() {{ 
-                                put("ID", (String) m.get( MdekKeys.ID ));
-                                put("TYPE", ((String)m.get( MdekKeys.JOBINFO_ENTITY_TYPE)) );
-                                }} 
-                            );
-                        }
-                    }
-                    
                 } else {
                     errors.add( ex );
                 }
@@ -353,32 +317,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             // also remove from index when deleted
             catalogJob.updateSearchIndexAndAudit(deletedEntities);
             
-            // Update index after commit to database since the DscDocumentProducer works on the database
-            // and does not use hibernate session. Therefore we have to wait after the DB transaction commit.
-            for (Map<String, String> dirtyDoc : dirtyDocuments) {
-                if (dirtyDoc.get( "TYPE" ).equals( "DELETE" ) ) {
-                    indexManager.delete( dscDocumentProducerObject.getIndexInfo(), dirtyDoc.get( "UUID" ), true );
-                } else {
-                    DscDocumentProducer docProducer = null;
-                    Long id = null;
-                    if (dirtyDoc.get( "TYPE" ).equals( IdcEntityType.OBJECT.getDbValue() )) {
-                        docProducer = dscDocumentProducerObject;
-                    } else {
-                        docProducer = dscDocumentProducerAddress;
-                    }
-                    // update index
-                    docProducer.hasNext(); // make sure the iterator has been reset
-                    ElasticDocument elDoc = docProducer.getById( dirtyDoc.get( "ID" ).toString(), "id" );
-                    if (elDoc != null && !elDoc.isEmpty()) {
-                        indexManager.addBasicFields( elDoc, docProducer.getIndexInfo() );
-                        indexManager.update( docProducer.getIndexInfo(), elDoc, true );
-                        indexManager.flush();
-                    }
-                }
-            }
-            indexManager.flush();
             
-
             IngridDocument result = new IngridDocument();
             result.putInt( "inserts", insertedObjects );
             result.putInt( "updates", updatedObjects );

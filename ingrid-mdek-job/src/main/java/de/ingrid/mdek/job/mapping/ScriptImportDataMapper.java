@@ -198,7 +198,6 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
             engine.put("igcProfile", igcProfile);
 
             for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
-                Node igcProfileNode = igcProfileCswMappingImports.item( i ).getOwnerDocument().getDocumentElement();
                 String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
                 
                 engine.put("igcProfile", igcProfile);

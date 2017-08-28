@@ -63,6 +63,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.MdekKeys;
@@ -90,7 +91,6 @@ import de.ingrid.mdek.xml.importer.IngridXMLStreamReader;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.udk.UtilsLanguageCodelist;
 import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
 
@@ -147,7 +147,10 @@ public class CSWImportBawDmsq {
     @Mock private ResultSet resultSet;
 
     @Mock private MdekObjectService mdekObjectService;
-    
+
+    @Mock
+    IndexManager indexManager;
+
     private IngridXMLMapper importMapper;
 
     @Before
@@ -195,10 +198,12 @@ public class CSWImportBawDmsq {
         cswMapper = new ScriptImportDataMapper( daoFactory );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
-        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService );
+        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, indexManager );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
-        cswMapper.setMapperScript( new ClassPathResource( "import/mapper/csw202_to_ingrid_igc.js" ) );
+        ClassPathResource[] resources = new ClassPathResource[1];
+        resources[0] = new ClassPathResource( "import/mapper/csw202_to_ingrid_igc.js" ); 
+        cswMapper.setMapperScript( resources );
         cswMapper.setTemplate( new ClassPathResource( "import/templates/igc_template_csw202.xml" ) );
         mapper.put( "csw202", cswMapper );
         dataMapperFactory.setMapperClasses( mapper );
