@@ -1038,13 +1038,13 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public IngridDocument deleteAddress(IngridDocument params) {
 		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
+        boolean transactionInProgress = (boolean) getOrDefault( params, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 		try {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.DELETE, 0, 1, false));
 
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
-            boolean transactionInProgress = (boolean) getOrDefault( params, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 
             if (!transactionInProgress) {
                 daoAddressNode.beginTransaction();
@@ -1062,7 +1062,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			RuntimeException handledExc = handleException(e);
+			RuntimeException handledExc = handleException(e, transactionInProgress);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} finally {

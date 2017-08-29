@@ -896,7 +896,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			RuntimeException handledExc = handleException(e);
+			RuntimeException handledExc = handleException(e, transactionInProgress);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
 			// LOG relevant EXCEPTION IN DATABASE Job Info !

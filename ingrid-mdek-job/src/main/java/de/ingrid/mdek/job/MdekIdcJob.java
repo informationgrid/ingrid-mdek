@@ -96,9 +96,31 @@ public abstract class MdekIdcJob extends MdekJob {
 		}
 	}
 
-	/** Checks passed Exception (catched from Job method) and rollbacks current transaction if necessary (e.g.
-	 * NO rollback if due to USER_HAS_RUNNING_JOBS -> job is still running and needs active transaction !!!).
-	 * Further may "transform" exception to MdekException. */
+    /** Checks passed Exception (catched from Job method) and handles current transaction accordingly.
+     * A rollback is executed if NOT keepTransaction set and if NOT exception is USER_HAS_RUNNING_JOBS
+     * (indicating a job is still running and needs active transaction !!!).
+     * Further may "transform" exception to MdekException.
+     * @param excIn an exception from a job method
+     * @param keepTransaction set to true if you do NOT want to rollback stuff
+     * @return exception of type MdekException if problem can be recognized or the given exception if not recognized.
+     */
+    protected RuntimeException handleException(RuntimeException excIn, boolean keepTransaction) {
+        if (!keepTransaction) {
+            // normal behaviour if we can manipulate transaction (e.g. rollback)
+            return handleException( excIn );
+        }
+
+        // no manipulation of transaction, we just map exception
+        return errorHandler.handleException(excIn);
+    }
+
+    /** Checks passed Exception (catched from Job method) and handles current transaction accordingly.
+     * A rollback is executed if NOT exception is USER_HAS_RUNNING_JOBS
+     * (indicating a job is still running and needs active transaction !!!).
+     * Further may "transform" exception to MdekException.
+     * @param excIn an exception from a job method
+     * @return exception of type MdekException if problem can be recognized or the given exception if not recognized.
+     */
 	protected RuntimeException handleException(RuntimeException excIn) {
 		
 		// handle transaction rollback
