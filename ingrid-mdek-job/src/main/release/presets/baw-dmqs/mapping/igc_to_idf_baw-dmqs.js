@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -37,6 +37,7 @@ if (log.isDebugEnabled()) {
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
+
 // ---------- Initialize ----------
 // add Namespaces to Utility for convenient handling of NS !
 DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
@@ -46,8 +47,7 @@ DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
-var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
+var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml";
 
 // ---------- <idf:html> ----------
 var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
@@ -73,10 +73,8 @@ mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schema
 var catRow = SQL.first("SELECT * FROM t03_catalogue");
 
 // ========== t01_object ==========
-// convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
-var objId = +sourceRecord.get("id");
-
-var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
+var objId = sourceRecord.get("id");
+var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
     var objRow = objRows.get(i);
     var objUuid = objRow.get("obj_uuid");
@@ -108,7 +106,7 @@ for (i=0; i<objRows.size(); i++) {
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
-            .addAttribute("codeList", globalCodeListLanguageAttrURL)
+            .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
             .addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
@@ -142,37 +140,36 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:contact> ----------
     
     // contact for metadata 
-    // select only adresses associated with syslist 505 entry 12 ("pointOfContactMd") 
+    // select only addresses associated with syslist 505 entry 12 ("pointOfContactMd")
+    // use this address to be able to keep contact address from import/csw-t data
+    // otherwise the responsible user will be used 
     var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, '12', '505']);
     if (hasValue(addressRow)) {
         // address may be hidden ! then get first visible parent in hierarchy !
         addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
+    } else if (hasValue(objRow.get("responsible_uuid"))) {
+        // contact for metadata is now responsible user, see INGRID32-46
+        // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
+        addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
     }
     if (hasValue(addressRow)) {
-    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+        // map only email address (pass true as third parameter), see INGRID32-36
+        // NO, ISO needs more data, see INGRID32-146
+        // do not export all values ... only organisation name and email(s) (INGRID-2256)
+    	// for BAW DMQS export full address
+    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", false));
     } else {
     	log.error('No responsible party for metadata found!');
     }
 
-    
-    // contact for metadata is now responsible user, see INGRID32-46
-    if (hasValue(objRow.get("responsible_uuid"))) {
-        // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
-        var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
-        if (addressRow) {
-            // map only email address (pass true as third parameter), see INGRID32-36
-            // NO, ISO needs more data, see INGRID32-146
-            // do not export all values ... only organisation name and email(s) (INGRID-2256)
-            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
-        }
-    }
     // ---------- <gmd:dateStamp> ----------
     if (hasValue(objRow.get("mod_time"))) {
         var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
         // do only return the date section, ignore the time part of the date
         // see CSW 2.0.2 AP ISO 1.0 (p.41)
+        // for BAW DMQS use full date
         if (isoDate) {
-            mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
+            mdMetadata.addElement("gmd:dateStamp").addElement(getDateOrDateTime(isoDate));
         }
     }
     
@@ -199,7 +196,7 @@ for (i=0; i<objRows.size(); i++) {
     mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation> ----------
-    var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
+    var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [objId]);
     var objGeoId;
     if (hasValue(objGeoRow)) {
         objGeoId = objGeoRow.get("id");
@@ -213,7 +210,7 @@ for (i=0; i<objRows.size(); i++) {
         }
         
         // ---------- <gmd:MD_GeometricObjects> ----------
-        var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [+objGeoId]);
+        var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [objGeoId]);
         for (var j=0; j<objGeoVectorRows.size(); j++) {
             var objGeoVectorRow = objGeoVectorRows.get(j);
             var geoObjType = objGeoVectorRow.get("geometric_object_type");
@@ -234,7 +231,7 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     // ---------- <gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier> ----------
-    var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=? ORDER BY spatial_system.line ASC", [+objId]);
+    var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=?", [objId]);
     for (j=0; j<spatialSystemRows.size(); j++) {
         var spatialSystemRow = spatialSystemRows.get(j);
         var referenceSystem = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(100, spatialSystemRow.get("referencesystem_key"));
@@ -263,20 +260,11 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:title> ----------
     ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:alternateTitle> ----------
-    // collect all entries from the AdV Product Group and append the defined short title (#388)
-    var productGroupRows = SQL.all("SELECT * FROM adv_product_group WHERE obj_id=? ORDER BY adv_product_group.line ASC", [+objId]);
-    for (var j=0; j<productGroupRows.size(); j++) {
-        var productGroupRow = productGroupRows.get(j);
-        var productValue = productGroupRow.get("product_value");
-        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(productValue);
-    }
-    
     if (hasValue(objRow.get("dataset_alternate_name"))) {
-        var alternateName = objRow.get("dataset_alternate_name");
-        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(alternateName);
+        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(objRow.get("dataset_alternate_name"));
     }
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
-    var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
+    var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [objId]);
     for (j=0; j<referenceDateRows.size(); j++) {
         var referenceDateRow = referenceDateRows.get(j); 
         var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
@@ -301,7 +289,7 @@ for (i=0; i<objRows.size(); i++) {
     // gmd:editionDate MUST BE BEFORE gmd:identifier (next one below !)
     // start mapping literature properties
     if (objClass.equals("2")) {
-        var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [+objId]);
+        var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
         if (hasValue(literatureRow)) {
             // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:editionDate> ----------          
             if (hasValue(literatureRow.get("publish_year"))) {
@@ -318,7 +306,7 @@ for (i=0; i<objRows.size(); i++) {
     
     // continue mapping literature properties
     if (objClass.equals("2")) {
-        var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [+objId]);
+        var literatureRow = SQL.first("SELECT * from t011_obj_literature WHERE obj_id=?", [objId]);
         if (hasValue(literatureRow)) {
             // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=originator> ----------
             if (hasValue(literatureRow.get("author"))) {
@@ -338,7 +326,7 @@ for (i=0; i<objRows.size(); i++) {
                     .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "resourceProvider");
             }
-            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 3360]);
+            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3360']);
             for (var i=0; i< addressRows.size(); i++) {
                 // address may be hidden ! then get first visible parent in hierarchy !
                 var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
@@ -393,7 +381,7 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
     } else if (objClass.equals("4")) {
-        var projectRow = SQL.first("SELECT * from t011_obj_project WHERE obj_id=?", [+objId]);
+        var projectRow = SQL.first("SELECT * from t011_obj_project WHERE obj_id=?", [objId]);
         if (hasValue(projectRow)) {
             // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=projectManager> ----------
             if (hasValue(projectRow.get("leader"))) {
@@ -403,7 +391,7 @@ for (i=0; i<objRows.size(); i++) {
                     .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "projectManager");
             }
-            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 3400]);
+            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3400']);
             for (var i=0; i< addressRows.size(); i++) {
                 // address may be hidden ! then get first visible parent in hierarchy !
                 var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
@@ -419,7 +407,7 @@ for (i=0; i<objRows.size(); i++) {
                     .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "projectParticipant");
             }
-            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 3410]);
+            var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? ORDER BY line", ['V', objId, '3410']);
             for (var i=0; i< addressRows.size(); i++) {
                 // address may be hidden ! then get first visible parent in hierarchy !
                 var addressRow = getFirstVisibleAddress(addressRows.get(i).get("adr_uuid"));
@@ -440,7 +428,7 @@ for (i=0; i<objRows.size(); i++) {
         // supplied by INSPIRE. Add mapping in abstract
         var abstractPostfixIntro = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden k\u00F6nnen, zum Teil gem\u00E4\u00DF INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
         var abstractPostfix; 
-        objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
+        objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
         if (hasValue(objServRow.get("environment"))) {
             if (!abstractPostfix) {
                 abstractPostfix = abstractPostfixIntro;
@@ -456,7 +444,7 @@ for (i=0; i<objRows.size(); i++) {
             abstractPostfix = abstractPostfix + "(supplementalInformation/gco:CharacterString= " + objServRow.get("description") + ")\n\n";
         }
         
-        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServRow.get("id")]);
+        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServRow.get("id")]);
         for (var j=0; j<objServScaleRows.size(); j++) {
             var objServScaleRow = objServScaleRows.get(j);
             if (hasValue(objServScaleRow.get("scale"))) {
@@ -515,7 +503,7 @@ for (i=0; i<objRows.size(); i++) {
     // map contacts for data !
     // contact for metadata already mapped above (responsible user).
     // select all entries from syslist 505 and free entries, all entries of syslist 2010 already mapped above (3360, 3400, 3410) 
-    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) ORDER BY line", ['V', +objId, 505]);
+    var addressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) ORDER BY line", ['V', objId, '505']);
     for (var i=0; i< addressRows.size(); i++) {
         var role = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(505, addressRows.get(i).get("type"));
         if (!hasValue(role)) {
@@ -577,7 +565,7 @@ for (i=0; i<objRows.size(); i++) {
     }
     
     // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
-    row = SQL.first("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
+    row = SQL.first("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [objId]);
     if (hasValue(row)) {
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
         graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
@@ -589,7 +577,7 @@ for (i=0; i<objRows.size(); i++) {
     
     // ---------- <gmd:identificationInfo/gmd:resourceFormat> ----------
     if (objClass.equals("2")) {
-        row = SQL.first("SELECT type_key, type_value from t011_obj_literature WHERE obj_id=?", [+objId]);
+        row = SQL.first("SELECT type_key, type_value from t011_obj_literature WHERE obj_id=?", [objId]);
         if (hasValue(row)) {
             value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(3385, row.get("type_key"));
             if (!hasValue(value)) {
@@ -609,42 +597,42 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:descriptiveKeywords> ----------
     
     // INSPIRE themes
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.entry_id, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "I"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.entry_id, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "I"]);
     var mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // GEMET Thesaurus
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type, searchterm_value.alternate_term FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [objId, "G"]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // UMTHES Thesaurus
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [+objId, "2", "T"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [objId, "2", "T"]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // FREE keywords
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [+objId, "1", "F"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [objId, "1", "F"]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // SERVICE classifications
-    rows = SQL.all("SELECT t011_obj_serv_type.serv_type_key, t011_obj_serv_type.serv_type_value FROM t011_obj_serv, t011_obj_serv_type WHERE t011_obj_serv.id=t011_obj_serv_type.obj_serv_id AND t011_obj_serv.obj_id=?", [+objId]);
+    rows = SQL.all("SELECT t011_obj_serv_type.serv_type_key, t011_obj_serv_type.serv_type_value FROM t011_obj_serv, t011_obj_serv_type WHERE t011_obj_serv.id=t011_obj_serv_type.obj_serv_id AND t011_obj_serv.obj_id=?", [objId]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // ENVIRONMENTAL classification (topic)
-    rows = SQL.all("SELECT topic_key FROM t0114_env_topic WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT topic_key FROM t0114_env_topic WHERE obj_id=?", [objId]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
@@ -666,20 +654,12 @@ for (i=0; i<objRows.size(); i++) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
     
-    // IS_ADV_COMPATIBLE leads to specific keyword, default behavior unless changes (REDMINE-369)
-    value = objRow.get("is_adv_compatible");
-    if (hasValue(value) && value.equals('Y')) {
-        mdKeywords = DOM.createElement("gmd:MD_Keywords");
-        mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("AdVMIS");
-        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
-    }
-    
     
     // if open data is checked then also add categories to thesaurus
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want
     //            these mapped to IDF even if open data is not checked (REDMINE-395)
     mdKeywords = DOM.createElement("gmd:MD_Keywords");
-    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [+objId])
+    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [objId])
     for (i=0; i<rows.size(); i++) {
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("category_value"));
     }
@@ -719,7 +699,7 @@ for (i=0; i<objRows.size(); i++) {
     
 // GEODATENDIENST(3)
     if (objClass.equals("3")) {
-        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
+        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
         var objServId = objServRow.get("id");
 
         // ---------- <gmd:identificationInfo/srv:serviceType> ----------
@@ -734,7 +714,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/srv:serviceTypeVersion> ----------
-        rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
+        rows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [objServId]);
         for (i=0; i<rows.size(); i++) {
             identificationInfo.addElement("srv:serviceTypeVersion/gco:CharacterString").addText(rows.get(i).get("version_value"));
         }
@@ -742,10 +722,10 @@ for (i=0; i<objRows.size(); i++) {
 
 // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else if (objClass.equals("6")) {
-        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
+        var objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [objId]);
         var objServId = objServRow.get("id");
 
-        var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServId]);
+        var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
         if (svScaleRows.size() > 0) {
             // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
             for (i=0; i<svScaleRows.size(); i++) {
@@ -775,7 +755,12 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/gmd:language> ----------
-        addDataLanguages(identificationInfo, objId);
+        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
+        if (hasValue(value)) {
+            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+                .addAttribute("codeListValue", value);
+        }
 
         // ---------- <gmd:identificationInfo/gmd:environmentDescription> ----------
         if (hasValue(objServRow.get("environment"))) {
@@ -787,7 +772,7 @@ for (i=0; i<objRows.size(); i++) {
     } else {
         if (objGeoId) {
             // ---------- <gmd:identificationInfo/gmd:spatialRepresentationType> ----------
-            rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [+objGeoId]);
+            rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [objGeoId]);
             for (i=0; i<rows.size(); i++) {
                 value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(526, rows.get(i).get("type"));
                 if (hasValue(value)) {
@@ -798,7 +783,7 @@ for (i=0; i<objRows.size(); i++) {
             }
     
             // ---------- <gmd:identificationInfo/gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale> ----------
-            rows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=? ORDER BY line", [+objGeoId]);
+            rows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=? ORDER BY line", [objGeoId]);
             for (i=0; i<rows.size(); i++) {
                 if (hasValue(rows.get(i).get("scale"))) {
                     identificationInfo.addElement("gmd:spatialResolution/gmd:MD_Resolution/gmd:equivalentScale/gmd:MD_RepresentativeFraction/gmd:denominator/gco:Integer")
@@ -824,7 +809,12 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/gmd:language> ----------
-        addDataLanguages(identificationInfo, objId);
+        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
+        if (hasValue(value)) {
+            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
+                .addAttribute("codeListValue", value);
+        }
 
         // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
         value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
@@ -835,7 +825,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/gmd:topicCategory/gmd:MD_TopicCategoryCode> ----------
-        rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [+objId]);
+        rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
             value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(527, rows.get(i).get("topic_category"));
             if (hasValue(value)) {
@@ -854,8 +844,8 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <gmd:identificationInfo/srv:coupledResource/srv:SV_CoupledResource/srv:identifier/gco:CharacterString> ----------
         // Map all operations ! So we also query operations of service, see INGRID-2291
         // We query operations as OUTER JOIN, so service is not lost, if NO operations exist ! 
-        var rows = SQL.all("SELECT t01_object.*, t011_obj_serv_operation.name_value FROM object_reference, t01_object, t011_obj_serv LEFT OUTER JOIN t011_obj_serv_operation ON (t011_obj_serv.id = t011_obj_serv_operation.obj_serv_id) WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND t011_obj_serv.obj_id=obj_from_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter + " ORDER BY object_reference.line, t011_obj_serv_operation.line", [+objId, 3600, "V"]);
-        var urlRows = SQL.all("SELECT * FROM t01_object, t017_url_ref WHERE t017_url_ref.obj_id=t01_object.id AND t01_object.id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter, [+objId, 3600, "V"]);
+        var rows = SQL.all("SELECT t01_object.*, t011_obj_serv_operation.name_value FROM object_reference, t01_object, t011_obj_serv LEFT OUTER JOIN t011_obj_serv_operation ON (t011_obj_serv.id = t011_obj_serv_operation.obj_serv_id) WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND t011_obj_serv.obj_id=obj_from_id AND obj_from_id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter + " ORDER BY object_reference.line, t011_obj_serv_operation.line", [objId, '3600', "V"]);
+        var urlRows = SQL.all("SELECT * FROM t01_object, t017_url_ref WHERE t017_url_ref.obj_id=t01_object.id AND t01_object.id=? AND special_ref=? AND t01_object.work_state=? " + publicationConditionFilter, [objId, '3600', "V"]);
         var resourceIdentifiers = [];
         for (i=0; i<rows.size(); i++) {
             var refObjId        = rows.get(i).get("id");
@@ -908,7 +898,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/srv:couplingType/srv:SV_CouplingType> ----------
-        row = SQL.first("SELECT coupling_type FROM t011_obj_serv WHERE obj_id=?", [+objId]);
+        row = SQL.first("SELECT coupling_type FROM t011_obj_serv WHERE obj_id=?", [objId]);
         var typeValue = "loose";
         if (hasValue(row) && hasValue(row.get("coupling_type"))) {
             typeValue = row.get("coupling_type");
@@ -941,11 +931,11 @@ for (i=0; i<objRows.size(); i++) {
         value = null;
         var rs;
         if (objClass.equals("5")) {
-            rs = SQL.first("SELECT description FROM t011_obj_data WHERE obj_id=?", [+objId]);
+            rs = SQL.first("SELECT description FROM t011_obj_data WHERE obj_id=?", [objId]);
         } else if (objClass.equals("2")) {
-            rs = SQL.first("SELECT description FROM t011_obj_literature WHERE obj_id=?", [+objId]);
+            rs = SQL.first("SELECT description FROM t011_obj_literature WHERE obj_id=?", [objId]);
         } else if (objClass.equals("4")) {
-            rs = SQL.first("SELECT description FROM t011_obj_project WHERE obj_id=?", [+objId]);
+            rs = SQL.first("SELECT description FROM t011_obj_project WHERE obj_id=?", [objId]);
 
         // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
         } else if (objClass.equals("6")) {
@@ -967,24 +957,17 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- <idf:idfMdMetadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         if (objGeoId) {
             var mdFeatureCatalogueDescription;
-            var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [+objId]);
+            var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [objId]);
             for (i=0; i<objKeycRows.size(); i++) {
                 if (!mdFeatureCatalogueDescription) {
                    mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
                    // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                    var inclWithDataset = objGeoRow.get("keyc_incl_w_dataset");
-
-                   // if dataset is adv compatible then add the language info (REDMINE-379)
-                   value = objRow.get("is_adv_compatible");
-                   if (hasValue(value) && value.equals('Y')) {
-                       mdFeatureCatalogueDescription.addElement("gmd:language/gco:CharacterString").addText("deutsch");
-                   }
-                   
                    mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean")
                        .addText(hasValue(inclWithDataset) && inclWithDataset.equals("1"));
     
                     // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureTypes> ----------
-                    var objGeoSupplinfoRows = SQL.all("SELECT feature_type FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [+objGeoId]);
+                    var objGeoSupplinfoRows = SQL.all("SELECT feature_type FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [objGeoId]);
                     for (j=0; j<objGeoSupplinfoRows.size(); j++) {
                         if (hasValue(objGeoSupplinfoRows.get(j).get("feature_type"))) {
                             mdFeatureCatalogueDescription.addElement("gmd:featureTypes/gco:LocalName").addText(objGeoSupplinfoRows.get(j).get("feature_type"));
@@ -1017,7 +1000,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
-        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [+objId, 3535, "V"]);
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3535', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
@@ -1026,21 +1009,14 @@ for (i=0; i<objRows.size(); i++) {
     } else if (objClass.equals("5")) {
         // ---------- <idf:idfMdMetadata/gmd:contentInfo/gmd:MD_FeatureCatalogueDescription> ----------
         var mdFeatureCatalogueDescription;
-        var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [+objId]);
-        var objDataParaRows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [+objId]);
+        var objKeycRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [objId]);
+        var objDataParaRows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [objId]);
 
         for (i=0; i<objDataParaRows.size(); i++) {
             var featureType = objDataParaRows.get(i).get("parameter");
             if (hasValue(featureType)) {
                 if (!mdFeatureCatalogueDescription) {
                     mdFeatureCatalogueDescription = mdMetadata.addElement("gmd:contentInfo/gmd:MD_FeatureCatalogueDescription");
-                    
-                    // if dataset is adv compatible then add the language info (REDMINE-379)
-                    value = objRow.get("is_adv_compatible");
-                    if (hasValue(value) && value.equals('Y')) {
-                        mdFeatureCatalogueDescription.addElement("gmd:language/gco:CharacterString").addText("deutsch");
-                    }
-                    
                     // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:includedWithDataset> ----------
                     mdFeatureCatalogueDescription.addElement("gmd:includedWithDataset/gco:Boolean").addText("false");
                 }
@@ -1093,7 +1069,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <idf:idfMdMetadata/gmd:contentInfo#uuidref> ----------
-        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [+objId, 3109, "V"]);
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3109', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:contentInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
@@ -1105,7 +1081,7 @@ for (i=0; i<objRows.size(); i++) {
     if (objClass.equals("1")) {
 
         // ---------- <idf:idfMdMetadata/gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation> ----------
-        rows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [+objGeoId]);
+        rows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [objGeoId]);
         for (i=0; i<rows.size(); i++) {
             var portrayalCICitation = mdMetadata.addElement("gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation");
             portrayalCICitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("symbol_cat_value"));
@@ -1130,13 +1106,13 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
         // ---------- <idf:idfMdMetadata/gmd:portrayalCatalogueInfo#uuidref> ----------
-        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [+objId, 3555, "V"]);
+        rows = SQL.all("SELECT object_reference.obj_to_uuid FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=t01_object.obj_uuid AND obj_from_id=? AND special_ref=? AND t01_object.work_state=?", [objId, '3555', "V"]);
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
         
         // ---------- <idf:idfMdMetadata/gmd:applicationSchemaInfo> ----------
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
+        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
             var formatKey = rows.get(i).get("format_key");
             // if "Protected Sites - Simple GML Application Schema" or "Protected Sites - Full GML Application Schema"
@@ -1147,7 +1123,7 @@ for (i=0; i<objRows.size(); i++) {
                              .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
                              .getParent(2)
                              .addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+                                 .addAttribute("codeList", "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_DateTypeCode")
                                  .addAttribute("codeListValue", "publication")
                              .getParent(6)
                              .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
@@ -1171,7 +1147,7 @@ for (i=0; i<objRows.size(); i++) {
 
     // ---------- <idf:idfMdMetadata/idf:crossReference> ----------
     // OUTGOING references
-    rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?" + publicationConditionFilter, [+objId, 'V']);
+    rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?" + publicationConditionFilter, [objId, 'V']);
     for (i=0; i<rows.size(); i++) {
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "OUT"));
     }
@@ -1194,7 +1170,7 @@ for (i=0; i<objRows.size(); i++) {
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=? AND object_reference.obj_from_id=t01_object.id AND t01_object.work_state=?" + publicationConditionFilter, [objUuid, 'V']);
     for (i=0; i<rows.size(); i++) {
         // extract service information if present ! (GetCap from WMS ! serv.type_key=2=WMS, servOp.name_key=1=GetCap) !
-        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+rows.get(i).get("id")]);
+        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [rows.get(i).get("id")]);
         if (log.isDebugEnabled()) {
             log.debug("Service object id: " + rows.get(i).get("id"));
             log.debug("Extracted Service Info: " + srvRow);
@@ -1214,7 +1190,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <idf:idfMdMetadata/idf:exportCriteria> ----------
-    rows = SQL.all("SELECT * FROM t014_info_impart WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT * FROM t014_info_impart WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         value = rows.get(i).get("impart_value");
         if (hasValue(value)) {
@@ -1225,6 +1201,43 @@ for (i=0; i<objRows.size(); i++) {
     // add only the abstract (without extra information) to a special idf-field (INGRID-2200)
     var abstr = objRow.get("obj_descr");
     mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(abstr);
+    
+    // add BAW specific Information
+    var idxDoc = sourceRecord.get("idxDoc");
+
+    /*
+     *     <idf:additionalDataSection id="additionalFields" isLegacy="false">
+    <idf:title lang="de">Zusatzfelder</idf:title>
+    <idf:title lang="en">Additional Fields</idf:title>
+    <idf:additionalDataField id="additionalField111797">
+      <idf:title lang="de">Personenbezogene Daten</idf:title>
+      <idf:data>Nein</idf:data>
+    </idf:additionalDataField>
+    </idf:additionalDataSection>
+     * 
+     */
+    
+    var additionalDataSection = mdMetadata.addElement("idf:additionalDataSection").addAttribute("id", "bawDmqsAdditionalFields");
+    additionalDataSection.addElement("idf:title").addAttribute("lang", "de").addText("BAW DMQS Zusatzfelder");
+    // bwstr-bwastr_name (Bundeswasserstraszen Name)
+    var field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-bwastr_name");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Bwstr Name");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-bwastr_name"));
+    // bwstr-strecken_name (Streckenname des Abschnitts)
+    field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-strecken_name");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Bwstr Streckenname");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-strecken_name"));
+    // bwstr-center-lon (Longitude des Zentrums des Abschnitts)
+    field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-center-lon");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Longitude des Zentrums des Abschnitts");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-center-lon"));
+    // bwstr-center-lat (Latitude des Zentrums des Abschnitts)
+    field = additionalDataSection.addElement("idf:additionalDataField").addAttribute("id", "bwstr-center-lat");
+    field.addElement("idf:title").addAttribute("lang", "de").addText("Latitude des Zentrums des Abschnitts");
+    field.addElement("idf:data").addText(idxDoc.get("bwstr-center-lat"));
+
+
+    
 }
 
 
@@ -1268,7 +1281,7 @@ function getCitationIdentifier(objRow, otherObjId) {
         usedObjId = otherObjId;
     }
     
-    var objGeoRow = SQL.first("SELECT datasource_uuid FROM t011_obj_geo WHERE obj_id=?", [+usedObjId]);
+    var objGeoRow = SQL.first("SELECT datasource_uuid FROM t011_obj_geo WHERE obj_id=?", [usedObjId]);
     
     log.debug("ID Resource:");
     log.debug(objGeoRow);   
@@ -1338,7 +1351,7 @@ function getFirstVisibleAddress(addrUuid, useWorkingVersion) {
         var addrId = addrNodeRows.get(k).get(addrIdToFetch);
 
         // ---------- t02_address ----------
-        resultAddrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrId]);
+        resultAddrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrId]);
         if (!hasValue(resultAddrRow)) {
             if (log.isDebugEnabled()) {
                 log.debug("Hidden address !!! uuid=" + addrUuid + " -> instead map parent address uuid=" + parentAddrUuid);
@@ -1376,7 +1389,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     }
 
     // first extract communication values
-    var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [+addressRow.get("id")]);
+    var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [addressRow.get("id")]);
     var phones = new Array();
     var faxes = new Array;
     var emailAddresses = new Array();
@@ -1435,20 +1448,8 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
 
     var ciAddress;
+
     if (!mapOnlyEmails) {
-        
-        var addAdministrativeArea = function(ciAddress) {
-            var administrativeAreaKey = addressRow.get("administrative_area_key");
-            if (hasValue(administrativeAreaKey)) {
-                
-                if (administrativeAreaKey == -1) {
-                    ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
-                } else {
-                    ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
-                }
-            }
-        };
-        
         if (phones.length > 0 || faxes.length > 0) {
             var ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
             for (var j=0; j<phones.length; j++) {
@@ -1473,11 +1474,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             }
             ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText(addressRow.get("street"));
             ciAddress.addElement("gmd:city").addElement("gco:CharacterString").addText(addressRow.get("city"));
-            addAdministrativeArea(ciAddress);
             ciAddress.addElement("gmd:postalCode").addElement("gco:CharacterString").addText(addressRow.get("postcode"));
-        } else {
-            ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
-            addAdministrativeArea(ciAddress);
         }
         if (hasValue(addressRow.get("country_key"))) {
             if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
@@ -1636,14 +1633,14 @@ function getAddressRowPathArray(addressRow) {
     }
     results.push(addressRow);
     var addrId = addressRow.get("id");
-    var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
+    var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
     while (hasValue(parentAdressRow)) {
         if (log.isDebugEnabled()) {
             log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
         }
         results.push(parentAdressRow);
         addrId = parentAdressRow.get("id");
-        parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
+        parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
     }
     return results;
 }
@@ -1683,20 +1680,13 @@ function getMdKeywords(rows) {
     for (i=0; i<rows.size(); i++) {
         var row = rows.get(i);
         var keywordValue = null;
-        var keywordAlternateValue = null;
 
         // "searchterm_value" table
         if (hasValue(row.get("term"))) {
             keywordValue = row.get("term");
-            var type = row.get("type");
-
-            // GEMET has additional localization in alternate term !
-            // see https://dev.informationgrid.eu/redmine/issues/363
-            if (type.equals("G")) {
-                keywordAlternateValue = row.get("alternate_term");
-            }
 
             // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
+            var type = row.get("type");
             if (type.equals("I")) {
                 keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
             }
@@ -1711,21 +1701,7 @@ function getMdKeywords(rows) {
         }
 
         if (hasValue(keywordValue)) {
-        	var mdKeyword = mdKeywords.addElement("gmd:keyword");
-            mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
-
-            // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
-            if (hasValue(keywordAlternateValue)) {
-            	// first add locale element if not present
-            	var localeId = "eng_utf8";
-            	addLocaleElement(localeId, "eng", "utf8");
-
-            	// then localized keyword
-            	mdKeyword.addAttribute("xsi:type", "gmd:PT_FreeText_PropertyType");
-                mdKeyword.addElement("gmd:PT_FreeText/gmd:textGroup/gmd:LocalisedCharacterString")
-                	.addAttribute("locale", "#" + localeId)
-                	.addText(keywordAlternateValue);
-            }
+            mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(keywordValue);
             keywordsAdded = true;
         }
     }
@@ -1747,8 +1723,8 @@ function getMdKeywords(rows) {
             keywTitle = "UMTHES Thesaurus";
             keywDate = "2009-01-15";
         } else if (type.equals("1") || type.equals("G")) {
-            keywTitle = "GEMET - Concepts, version 3.1";
-            keywDate = "2012-07-20";
+            keywTitle = "GEMET - Concepts, version 2.1";
+            keywDate = "2008-06-13";
         } else if (type.equals("I")) {
             keywTitle = "GEMET - INSPIRE themes, version 1.0";
             keywDate = "2008-06-01";
@@ -1781,36 +1757,6 @@ function getMdKeywords(rows) {
     return mdKeywords;
 }
 
-function addLocaleElement(id, languageCode, charEncoding) {
-	var gmdLocaleNode = DOM.getElement(mdMetadata, "gmd:locale/gmd:PT_Locale[@id=\"" + id + "\"]");
-	if (hasValue(gmdLocaleNode)) {
-		return gmdLocaleNode;
-	}
-
-	// not found, fetch node where locale has to be added as sibling
-	var siblingNode = DOM.getElement(mdMetadata, "gmd:metadataStandardVersion");
-	if (!hasValue(siblingNode)) {
-		// STRANGE, NODE HAS TO EXIST !!!
-		log.error("Problems adding <gmd:locale> (" + id + "), could not find pre sibling <gmd:metadataStandardVersion> ! We skip locale !");
-		return null;
-	}
-
-	// create locale
-	gmdLocaleNode = siblingNode.addElementAsSibling("gmd:locale");
-
-	var ptLocaleNode = gmdLocaleNode.addElement("gmd:PT_Locale")
-		.addAttribute("id", id);
-	ptLocaleNode.addElement("gmd:languageCode/gmd:LanguageCode")
-    	.addAttribute("codeList", "http://www.loc.gov/standards/iso639-2/")
-    	.addAttribute("codeListValue", languageCode)
-    	.addText(languageCode);
-	ptLocaleNode.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
-	.addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode")
-	.addAttribute("codeListValue", charEncoding);
-
-    return gmdLocaleNode;
-}
-
 function getServiceType(objClass, objServRow) {
     var retValue = objServRow.get("type_value");
 
@@ -1834,7 +1780,7 @@ function addResourceConstraints(identificationInfo, objRow) {
     var isOpenData = objRow.get("is_open_data");
     isOpenData = hasValue(isOpenData) && isOpenData.equals('Y');
 
-    rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [objId]);
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
 
@@ -1847,7 +1793,7 @@ function addResourceConstraints(identificationInfo, objRow) {
     }
 
     // mapping of object_use_constraint see https://dev.informationgrid.eu/redmine/issues/13
-    rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [objId]);
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
 
@@ -1881,7 +1827,7 @@ function addResourceConstraints(identificationInfo, objRow) {
         }
     }
 
-    rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [objId]);
     if (rows.size() > 0) {
         // iterate all access constraint and build separate lists to be mapped to different ISO elements !
         var accessConstraints = [];
@@ -1930,7 +1876,7 @@ function addResourceConstraints(identificationInfo, objRow) {
         }
     }
 
-    rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [objId]);
     for (var i=0; i<rows.size(); i++) {
         var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/idf:idfLegalBasisConstraints");
         mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
@@ -1959,7 +1905,7 @@ function addExtent(identificationInfo, objRow) {
     }
 
     // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
-    rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [+objId]);
+    rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         row = rows.get(i);
         if (!exExtent) {
@@ -2095,7 +2041,7 @@ function addDistributionInfo(mdMetadata, objId) {
     nilMdFormatElement.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
 
     if (objClass.equals("1")) {
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
+        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [objId]);
         for (i=0; i<rows.size(); i++) {
             if (!mdDistribution) {
                 mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
@@ -2130,7 +2076,7 @@ function addDistributionInfo(mdMetadata, objId) {
 // ALLE KLASSEN
 
     // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
-    rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (!mdDistribution) {
             mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
@@ -2182,7 +2128,7 @@ function addDistributionInfo(mdMetadata, objId) {
     // ---------- <gmd:MD_Distributor/gmd:distributorContact/gmd:CI_ResponsibleParty> ----------
     if (distributorContact) {
         // select only adresses associated with syslist 505 entry 5 ("Vertrieb") 
-        var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 5, 505]);
+        var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, '5', '505']);
         if (hasValue(addressRow)) {
             // address may be hidden ! then get first visible parent in hierarchy !
             addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
@@ -2198,7 +2144,7 @@ function addDistributionInfo(mdMetadata, objId) {
     }
 
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
-    rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
+    rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=? AND special_ref!=9000", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (hasValue(rows.get(i).get("url_link"))) {
             if (!mdDistribution) {
@@ -2233,7 +2179,7 @@ function addDistributionInfo(mdMetadata, objId) {
 // Map Service URLs to distributionInfo/CI_OnlineResource, see INGRID-2257
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
     if (objClass.equals("6")) {
-        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [+objServId]);
+        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [objServId]);
         for (i=0; i<rows.size(); i++) {
             row = rows.get(i);
             if (!mdDistribution) {
@@ -2286,18 +2232,18 @@ function addDistributionInfo(mdMetadata, objId) {
         // write distributionInfo
         
         // all from links
-        //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [+objId, 5066]);
+        //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [objId, "5066"]);
         // the links should all come from service objects (class=3)
         if (objClass.equals("1"))
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, "3600", "3"]);
         else
             // Service Object
             // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3"]);
             // formerly only services of type_key 2 (Darstellungsdienste)
-               //rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND type_key=2 AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+               //rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND type_key=2 AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3"]);
             // ???
-               //rows = SQL.all("SELECT serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_from_id=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3210, 3]);
+               //rows = SQL.all("SELECT serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_from_id=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objId, "3210", "3"]);
 
         for (i=0; i<rows.size(); i++) {
             if (hasValue(rows.get(i).get("connect_point"))) {
@@ -2333,7 +2279,7 @@ function addDistributionInfo(mdMetadata, objId) {
     }
 
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions> ----------
-    rows = SQL.all("SELECT * FROM T0112_media_option WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT * FROM T0112_media_option WHERE obj_id=?", [objId]);
     for (i=0; i<rows.size(); i++) {
         if (!mdDistribution) {
             mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
@@ -2387,7 +2333,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
             }
 
             // "normal" operations
-            svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [+objServId]);
+            svOpRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [objServId]);
             for (i=0; i<svOpRows.size(); i++) {
                 var svOpRow = svOpRows.get(i);
                 // add srv:containsOperations WITH EVERY OPERATION (strange schema !)
@@ -2399,7 +2345,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText(opName);
 
         // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
-                var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [+svOpRow.get("id")]);
+                var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
                 for (j=0; j<platfRows.size(); j++) {
                     svOperationMetadata.addElement("srv:DCP/srv:DCPList")
                         .addAttribute("codeList", globalCodeListAttrURL + "#CSW_DCPCodeType")
@@ -2421,7 +2367,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 }
 
         // ---------- <srv:SV_OperationMetadata/srv:parameters/srv:SV_Parameter> ----------
-                var paramRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [+svOpRow.get("id")]);
+                var paramRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
                 for (j=0; j<paramRows.size(); j++) {
                     var paramRow = paramRows.get(j);
                     var srvParameter = svOperationMetadata.addElement("srv:parameters/srv:SV_Parameter");
@@ -2452,7 +2398,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 }
 
         // ---------- <srv:SV_OperationMetadata/srv:connectPoint> ----------
-                var connRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+svOpRow.get("id")]);
+                var connRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [svOpRow.get("id")]);
                 for (j=0; j<connRows.size(); j++) {
                     var connUrl = connRows.get(j).get("connect_point");
                     if (hasValue(connUrl)) {
@@ -2469,18 +2415,6 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 identificationInfo.addElement("srv:containsOperations").addAttribute("gco:nilReason", "missing");
             }
         }
-}
-
-function addDataLanguages(nodeToAddTo, objId) {
-    var rows = SQL.all("SELECT data_language_key FROM object_data_language WHERE obj_id=?", [+objId]);
-    for (i=0; i<rows.size(); i++) {
-    	var value = TRANSF.getLanguageISO639_2FromIGCCode(rows.get(i).get("data_language_key"));
-    	if (hasValue(value)) {
-    		nodeToAddTo.addElement("gmd:language/gmd:LanguageCode")
-    	        .addAttribute("codeList", globalCodeListLanguageAttrURL)
-    	        .addAttribute("codeListValue", value);
-    	}
-    }
 }
 
 /*
@@ -2512,7 +2446,7 @@ function prepareGetCapabilitiesUrl(connUrl, opName) {
 // add data identification info for all information that cannot be mapped into a SV_ServiceIdentification element
 // deprecated, see REDMINE-83
 function addServiceAdditionalIdentification(mdMetadata, objServRow, objServId) {
-        var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServId]);
+        var svScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [objServId]);
         if (svScaleRows.size() > 0 ||
             hasValue(objServRow.get("environment")) ||
             hasValue(objServRow.get("description"))

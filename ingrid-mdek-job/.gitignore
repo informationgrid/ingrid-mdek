@@ -4,3 +4,4 @@
 /.classpath
 data/elasticsearch
 conf/
+/elastic-search-data/
