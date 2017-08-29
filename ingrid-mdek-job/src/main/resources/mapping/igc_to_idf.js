@@ -263,7 +263,10 @@ for (i=0; i<objRows.size(); i++) {
                 gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
                 gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
                 //gridSpatialRepr.addElement("gmd:centerPoint")
-                gridSpatialRepr.addElement("gmd:pointInPixel/gmd:MD_PixelOrientationCode").addText(rectPointInPixel);
+                if (rectPointInPixel) {
+                    var pixelOrientCodeList = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(2100, rectPointInPixel);
+                    gridSpatialRepr.addElement("gmd:pointInPixel/gmd:MD_PixelOrientationCode").addText(pixelOrientCodeList);
+                }
                 //gridSpatialRepr.addElement("gmd:transformationDimensionDescription")
                 //gridSpatialRepr.addElement("gmd:transformationDimensionMapping")
                 
