@@ -1620,15 +1620,15 @@ public class MdekImportService implements IImporterCallback {
 				objectService.publishObject(inDoc, false, userUuid, true);
 				// store DB ID for later use
 				ObjectNode objNode = objectService.loadByUuid( (String) inDoc.get(MdekKeys.UUID), IdcEntityVersion.PUBLISHED_VERSION);
-				if (objNode != null && objNode.getT01ObjectPublished() != null) {
-	                inDoc.put( MdekKeys.ID, objNode.getT01ObjectPublished().getId().toString() );
+				if (objNode != null && objNode.getObjIdPublished() != null) {
+	                inDoc.put( MdekKeys.ID, objNode.getObjIdPublished().toString() );
 				}
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.publishAddress(inDoc, false, userUuid, true);
                 // store DB ID for later use
                 AddressNode adrNode = addressService.loadByUuid( (String) inDoc.get(MdekKeys.UUID), IdcEntityVersion.PUBLISHED_VERSION);
-                if (adrNode != null && adrNode.getT02AddressPublished() != null) {
-                    inDoc.put( MdekKeys.ID, adrNode.getT02AddressPublished().getId().toString() );
+                if (adrNode != null && adrNode.getAddrIdPublished() != null) {
+                    inDoc.put( MdekKeys.ID, adrNode.getAddrIdPublished().toString() );
                 }
 				
 			}
