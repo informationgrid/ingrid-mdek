@@ -1618,19 +1618,10 @@ public class MdekImportService implements IImporterCallback {
 			if (whichType == IdcEntityType.OBJECT) {
 				// we DON'T force publication condition ! if error, we store working version !
 				objectService.publishObject(inDoc, false, userUuid, true);
-				// store DB ID for later use
-				ObjectNode objNode = objectService.loadByUuid( (String) inDoc.get(MdekKeys.UUID), IdcEntityVersion.PUBLISHED_VERSION);
-				if (objNode != null && objNode.getObjIdPublished() != null) {
-	                inDoc.put( MdekKeys.ID, objNode.getObjIdPublished().toString() );
-				}
+				// NOTICE: ID of published object was added to inDoc for later use
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.publishAddress(inDoc, false, userUuid, true);
-                // store DB ID for later use
-                AddressNode adrNode = addressService.loadByUuid( (String) inDoc.get(MdekKeys.UUID), IdcEntityVersion.PUBLISHED_VERSION);
-                if (adrNode != null && adrNode.getAddrIdPublished() != null) {
-                    inDoc.put( MdekKeys.ID, adrNode.getAddrIdPublished().toString() );
-                }
-				
+                // NOTICE: ID of published address was added to inDoc for later use
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
