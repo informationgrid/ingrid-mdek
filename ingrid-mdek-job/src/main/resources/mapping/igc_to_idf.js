@@ -144,7 +144,7 @@ for (i=0; i<objRows.size(); i++) {
     // special contact for metadata from IMPORT
     // select only adresses associated with syslist 505 entry 12 ("pointOfContactMd")
     // this is the contact from ISO Import which should not be lost (CSW-T), if set, we do NOT map "responsible user" (see below)
-    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, '12', '505']);
+    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 12, 505]);
     if (hasValue(addressRow)) {
         // address may be hidden ! then get first visible parent in hierarchy !
         addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
@@ -152,7 +152,7 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(addressRow)) {
     	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
     } else {
-    	log.error('No responsible party for metadata found!');
+    	log.debug('No responsible party for metadata found!');
     }
     
     // contact for metadata is now responsible user, see INGRID32-46
