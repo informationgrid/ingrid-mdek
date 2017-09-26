@@ -19,7 +19,7 @@
     <ingrid-udk-importer.version>4.0.4-SNAPSHOT</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>4.0.4-SNAPSHOT</ingrid-codelist-service.version>
     <ingrid-utils.version>4.0.3-SNAPSHOT</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>4.0.2</ingrid-iplug-dsc.version>
+    <ingrid-iplug-dsc.version>4.0.4-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>4.0.3</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
